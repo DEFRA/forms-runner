@@ -1,0 +1,71 @@
+@import "node_modules/govuk-frontend/govuk/all";
+@import "node_modules/accessible-autocomplete/src/autocomplete";
+@import "hmpo";
+@import "modal-dialog";
+
+.flash-card {
+  .govuk-button {
+    background: #fff;
+    color: #1d70b8;
+    padding-right: 3.6em;
+    padding-left: 3.6em;
+    font-weight: 700;
+    box-shadow: 0 2px 0 #0c2d4a;
+    height: 38px;
+  }
+}
+
+.nojs-hidden {
+  display: none;
+}
+
+.js-enabled .nojs-hidden {
+  display: block;
+}
+
+.check-your-answers {
+  td {
+    position: relative;
+    vertical-align: top;
+
+    &.required {
+      color: $govuk-error-colour;
+    }
+  }
+
+  .change-answer {
+    text-align: right;
+    padding-right: 0;
+  }
+}
+
+.icon--check {
+  position: relative;
+  &:before {
+    content: "";
+    position: absolute;
+    top: 11px;
+    left: 0;
+    width: 18px;
+    height: 7px;
+    -webkit-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+    border: solid;
+    border-width: 0 0 $govuk-border-width $govuk-border-width;
+    border-color: map-get($govuk-colours, "black");
+    border-top-color: transparent;
+    background: transparent;
+  }
+}
+
+#global-cookie-message {
+  width: 100%;
+  background-color: #d5e8f3;
+  padding-top: 10px;
+  padding-bottom: 10px;
+
+  .js-enabled & {
+    display: none;
+  }
+}

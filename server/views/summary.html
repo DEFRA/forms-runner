@@ -1,0 +1,63 @@
+{% from "partials/summary-detail.html" import summaryDetail %}
+{% from "components/checkboxes/macro.njk" import govukCheckboxes %}
+
+
+{% extends 'layout.html' %}
+
+{% block content %}
+  <div class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-xl">{{ pageTitle }}</h1>
+
+        {% for detail in details %}
+          {{ summaryDetail(detail) }}
+        {% endfor %}
+
+        {% if fees and fees.details|length %}
+          <h2 class="govuk-heading-m">Fees</h2>
+          <ul class="govuk-list govuk-list--bullet">
+            {% for fee in fees.details %}
+              <li>{{ fee.description }}: £{{fee.amount / 100}}</li>
+            {% endfor %}
+          </ul>
+          <p class="govuk-body">Total cost: £{{fees.total / 100 }}</p>
+        {% endif %}
+
+        {% if not result.error  %}
+            <form method="post" action="{{currentPath}}" enctype="multipart/form-data" autocomplete="off" novalidate>
+              <input type="hidden" name="crumb" value="{{crumb}}"/>
+
+                {%if declaration %}
+                <h2 class="govuk-heading-m" id="declaration">Declaration</h2>
+                  {{ declaration | safe  }}
+                  <div class="govuk-form-group {{ 'govuk-form-group--error' if declarationError }}">
+                    {% if declarationError %}
+                        <span id="nationality-error" class="govuk-error-message">
+                            <span class="govuk-visually-hidden">Error:</span> {{declarationError}}
+                        </span>
+                    {% endif %}
+                    <div class="govuk-checkboxes">
+                     <div class="govuk-checkboxes__item">
+                       <input class="govuk-checkboxes__input" id="declaration-1" name="declaration" type="checkbox" value="true">
+                       <label class="govuk-label govuk-checkboxes__label" for="declaration-1">
+                         Confirm
+                       </label>
+                     </div>
+                    </div>
+                  </div>
+                {% endif %}
+
+                <button data-prevent-double-click="true" class="govuk-button" data-module="govuk-button">
+                    {% if fees and fees.details|length %}
+                        Submit and pay
+                    {% else %}
+                        Submit
+                    {% endif %}
+                </button>
+            </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

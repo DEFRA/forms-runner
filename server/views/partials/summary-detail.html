@@ -1,0 +1,30 @@
+{% macro summaryDetail(data) %}
+  <h2 class="govuk-heading-m">{{data.title}}</h2>
+  <dl class="govuk-summary-list">
+    {% for item in data.items %}
+      {% if not hide %}
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">
+            {{item.label}}
+          </dt>
+          <dd class="govuk-summary-list__value">
+            {% if item.value %}
+              {% if item.type == 'FileUploadField' %}
+                Uploaded
+              {% else %}
+                {{item.value}}
+              {% endif %}
+            {% else %}
+              Not supplied
+            {% endif %}
+          </dd>
+          <dd class="govuk-summary-list__actions">
+            <a class="govuk-link" href="{{item.url}}">
+              Change<span class="govuk-visually-hidden"> {{item.label}}</span>
+            </a>
+          </dd>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </dl>
+{% endmacro %}
