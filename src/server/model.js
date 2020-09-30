@@ -1,10 +1,13 @@
-import { clone, ConditionsModel, Schema } from '@xgovformbuilder/model'
+import { Schema, clone, ConditionsModel } from '@xgovformbuilder/model'
 import path from 'path'
 import { Parser } from 'expr-eval'
 import moment from 'moment'
-import Page from './pages'
-import joi from 'joi'
+import Page from './plugins/builder/pages'
+const joi = require('joi')
 
+/**
+ * TODO - convert references to this to using the shared Data class from the model library?
+ */
 export default class Model {
   constructor (def, options) {
     const result = Schema.validate(def, { abortEarly: false })
@@ -42,7 +45,8 @@ export default class Model {
     this.values = result.value
 
     if (options.defaultPageController) {
-      this.DefaultPageController = options.defaultPageController
+      const defaultPageControllerPath = path.resolve(options.relativeTo, options.defaultPageController)
+      this.DefaultPageController = require(defaultPageControllerPath)
     }
 
     this.basePath = options.basePath
