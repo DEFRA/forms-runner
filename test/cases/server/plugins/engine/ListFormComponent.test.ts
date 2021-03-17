@@ -1,6 +1,7 @@
 import * as Code from "@hapi/code";
 import * as Lab from "@hapi/lab";
-import { CheckboxesField } from "server/plugins/engine/components/CheckboxesField";
+import { ListFormComponent } from "src/server/plugins/engine/components/ListFormComponent";
+
 const lab = Lab.script();
 exports.lab = lab;
 const { expect } = Code;
@@ -41,12 +42,12 @@ const lists = [
   },
 ];
 
-suite("CheckboxesField", () => {
+suite("ListFormComponent", () => {
   describe("Generated schema", () => {
     const componentDefinition = {
       subType: "field",
-      type: "CheckboxesField",
-      name: "myCheckbox",
+      type: "SelectField",
+      name: "mySelectField",
       title: "Tada",
       options: {},
       list: "numberOfApplicants",
@@ -56,26 +57,23 @@ suite("CheckboxesField", () => {
       getList: (_name) => lists[0],
       makePage: () => sinon.stub(),
     };
-    const component = new CheckboxesField(componentDefinition, formModel);
+    const component = new ListFormComponent(componentDefinition, formModel);
 
     it("is required by default", () => {
       expect(component.formSchema.describe().flags.presence).to.equal(
         "required"
       );
     });
+
     it("allows the items defined in the List object with the correct type", () => {
-      expect(component.formSchema.describe().items).to.contain({
+      expect(component.formSchema.describe()).to.contain({
         type: "number",
         allow: [1, 2, 3, 4],
       });
     });
-    it("allows single answers", () => {
-      expect(component.formSchema.describe().flags).to.contain({
-        single: true,
-      });
-    });
+
     it("is not required when explicitly configured", () => {
-      const component = new CheckboxesField(
+      const component = new ListFormComponent(
         {
           ...componentDefinition,
           options: { required: false },
@@ -86,8 +84,14 @@ suite("CheckboxesField", () => {
         "required"
       );
     });
+
     it("validates correctly", () => {
-      expect(component.formSchema.validate({}).error).to.exist();
+      const badPayload = { notMyName: 5 };
+      expect(component.formSchema.validate(badPayload).error).to.exist();
+    });
+
+    it("is labelled correctly", () => {
+      expect(component.formSchema.describe().flags.label).to.equal("Tada");
     });
   });
 });
