@@ -1,6 +1,6 @@
 {
-  "name": "cdp-node-frontend-template",
-  "version": "0.15.0",
+  "name": "forms-runner",
+  "version": "0.0.0",
   "description": "CDP Frontend Template",
   "main": "src/index.js",
   "engines": {

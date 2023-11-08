@@ -25,7 +25,7 @@ const config = convict({
   serviceName: {
     doc: 'Applications Service Name',
     format: String,
-    default: 'CDP Node.js Frontend Template'
+    default: 'forms-runner'
   },
   root: {
     doc: 'Project root',
@@ -35,7 +35,7 @@ const config = convict({
   appPathPrefix: {
     doc: 'Application url path prefix this is needed only until we have host based routing',
     format: String,
-    default: '/cdp-node-frontend-template',
+    default: '/forms-runner',
     env: 'APP_PATH_PREFIX'
   },
   isProduction: {
