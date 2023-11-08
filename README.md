@@ -32,6 +32,8 @@ $ nvm use
 
 ## Local development
 
+for local developers
+
 ### Setup
 
 Install application dependencies:
