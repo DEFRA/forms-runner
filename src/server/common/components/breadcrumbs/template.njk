@@ -1,0 +1,15 @@
+<div class="app-breadcrumbs" data-testid="app-breadcrumbs">
+  <ol class="app-breadcrumbs__list">
+    {% for item in params.items %}
+      {% if item.href %}
+        <li class="app-breadcrumbs__list-item" data-testid="app-breadcrumbs-list-item">
+          <a class="app-breadcrumbs__link" href="{{ item.href }}"
+             data-testid="app-breadcrumbs-link">{{ item.text }}</a>
+        </li>
+      {% else %}
+        <li class="app-breadcrumbs__list-item app-breadcrumbs__list-item--current" aria-current="page"
+            data-testid="app-breadcrumbs-list-item">{{ item.text }}</li>
+      {% endif %}
+    {% endfor %}
+  </ol>
+</div>

@@ -1,0 +1,20 @@
+{
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es2022": true,
+    "node": true,
+    "jest": true
+  },
+  "extends": ["standard", "prettier"],
+  "overrides": [],
+  "parserOptions": {
+    "ecmaVersion": "latest"
+  },
+  "plugins": ["prettier"],
+  "rules": {
+    "prettier/prettier": "error",
+    "no-console": "error"
+  },
+  "ignorePatterns": [".server", ".public", "src/__fixtures__", "coverage"]
+}

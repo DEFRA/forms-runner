@@ -1,0 +1,40 @@
+name: Templating
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  templating:
+    if: github.run_number == 1 && github.repository != 'DEFRA/cdp-node-frontend-template'
+    name: CDP-templating-workflow
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Split string and set environment variable
+        run: echo "REPOSITORY_NAME=$(echo '${{ github.repository }}' | awk -F'/' '{print $NF}')" >> $GITHUB_ENV
+      - name: Find and replace
+        run: |
+          find . -name .git -prune -o -name .github -prune -o -type f -exec sed -i 's/cdp-node-frontend-template/${{ env.REPOSITORY_NAME }}/g' {} \;
+          find . -name .git -prune -o -name .github -prune -o -type f -exec sed -i 's/CDP Node.js Frontend Template/${{ env.REPOSITORY_NAME }}/g' {} \;
+          contents="$(jq '.version = "0.0.0"' package.json)"
+          echo -E "${contents}" > package.json
+          contents="$(jq '.version = "0.0.0"' package-lock.json)"
+          echo -E "${contents}" > package-lock.json
+          contents="$(jq '.packages[""].version = "0.0.0"' package-lock.json)"
+          echo -E "${contents}" > package-lock.json
+          rm .github/workflows/template.yml
+      - name: Commit and push changes
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'github-actions@github.com'
+          git add -A
+          git commit -m "Applying template changes"
+          git push origin main

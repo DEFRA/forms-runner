@@ -1,0 +1,10 @@
+$govuk-assets-path: "~govuk-frontend/govuk/assets/";
+$govuk-global-styles: true;
+
+@import "~govuk-frontend/govuk/all";
+
+@import "variables/all";
+@import "helpers/all";
+@import "core/all";
+@import "components/all";
+@import "partials/all";
