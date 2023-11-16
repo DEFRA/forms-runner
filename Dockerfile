@@ -15,17 +15,18 @@ ENV PORT ${PORT}
 EXPOSE ${PORT} ${PORT_DEBUG}
 
 COPY --chown=node:node package*.json ./
-RUN npm install
+RUN yarn add file:./../model
+RUN yarn
 COPY --chown=node:node . .
-RUN npm run build
+RUN yarn run build
 
-CMD [ "npm", "run", "docker:dev" ]
+CMD [ "yarn", "run", "dev" ]
 
 FROM development as productionBuild
 
 ENV NODE_ENV production
 
-RUN npm run build
+RUN yarn run build
 
 FROM defradigital/node:${PARENT_VERSION} AS production
 
@@ -38,10 +39,10 @@ COPY --from=productionBuild /home/node/package*.json ./
 COPY --from=productionBuild /home/node/.server ./.server/
 COPY --from=productionBuild /home/node/.public/ ./.public/
 
-RUN npm ci --omit=dev
+RUN yarn install --frozen-lockfile
 
 ARG PORT
 ENV PORT ${PORT}
 EXPOSE ${PORT}
 
-CMD [ "node", "./.server" ]
+CMD [ "yarn", "start" ]

@@ -1,31 +1,28 @@
 {
   "presets": [
+    "@babel/typescript",
     [
       "@babel/preset-env",
       {
         "targets": {
-          "node": "18"
+          "node": "16"
         }
       }
     ]
   ],
+  "exclude": ["node_modules/**"],
   "plugins": [
+    "@babel/plugin-transform-runtime",
     [
-      "module-resolver",
+      "module-name-mapper",
       {
-        "root": [
-          "./"
-        ],
-        "alias": {
-          "~": "."
+        "moduleNameMapper": {
+          "^src/(.*)": "<pkgDir>/src/$1",
+          "^server/(.*)": "<pkgDir>/src/server/$1"
         }
       }
     ]
-  ],
-  "env": {
-    "development": {
-      "sourceMaps": "inline",
-      "retainLines": true
-    }
-  }
+  ]
 }
+
+

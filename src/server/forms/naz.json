@@ -1,0 +1,128 @@
+{
+  "metadata": {},
+  "startPage": "/first-page",
+  "pages": [
+    {
+      "title": "First page",
+      "path": "/first-page",
+      "components": [
+        {
+          "name": "qlcaxY",
+          "options": {},
+          "type": "Details",
+          "title": "Explanation",
+          "content": "hello I am testing what this looks like"
+        },
+        {
+          "name": "PnNIgN",
+          "options": {},
+          "type": "YesNoField",
+          "title": "Do you like this form?"
+        }
+      ],
+      "next": [
+        {
+          "path": "/second-page",
+          "condition": "fehpBT"
+        },
+        {
+          "path": "/dummy-page-three",
+          "condition": "xkckNT"
+        }
+      ]
+    },
+    {
+      "path": "/second-page",
+      "title": "Second page",
+      "components": [
+        {
+          "name": "zVIYtN",
+          "options": {},
+          "type": "EmailAddressField",
+          "title": "What is your email address?"
+        }
+      ],
+      "next": [
+        {
+          "path": "/summary"
+        }
+      ]
+    },
+    {
+      "title": "Summary",
+      "path": "/summary",
+      "controller": "./pages/summary.js",
+      "components": []
+    },
+    {
+      "path": "/dummy-page-three",
+      "title": "dummy-page-three",
+      "components": [
+        {
+          "name": "eHdTDO",
+          "options": {},
+          "type": "TimeField",
+          "title": "What time?"
+        }
+      ],
+      "next": [
+        {
+          "path": "/summary"
+        }
+      ]
+    }
+  ],
+  "lists": [],
+  "sections": [],
+  "conditions": [
+    {
+      "displayName": "if answer is true",
+      "name": "fehpBT",
+      "value": {
+        "name": "if answer is true",
+        "conditions": [
+          {
+            "field": {
+              "name": "PnNIgN",
+              "type": "YesNoField",
+              "display": "Do you like this form?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "true",
+              "display": "true"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "if answer is no",
+      "name": "xkckNT",
+      "value": {
+        "name": "if answer is no",
+        "conditions": [
+          {
+            "field": {
+              "name": "PnNIgN",
+              "type": "YesNoField",
+              "display": "Do you like this form?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "false",
+              "display": "false"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "fees": [],
+  "outputs": [],
+  "version": 2,
+  "skipSummary": false,
+  "feeOptions": {}
+}
