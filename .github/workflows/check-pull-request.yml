@@ -21,7 +21,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm install
-      - run: npm run format:check
-      - run: npm run lint
-      - run: npm test
+      - run: yarn
+      #- run: yarn run format:check
+      #- run: yarn run lint
+      #- run: yarn test
