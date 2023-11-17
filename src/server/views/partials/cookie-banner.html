@@ -1,0 +1,49 @@
+{% set cookieBannerHtml %}
+  <p>We use some essential cookies to make this service work.</p>
+
+  {% if gtmId1 or gtmId2 %}
+    <p>We’d also like to use analytics cookies so we can understand how you use the service and make improvements.</p>
+  {% endif %}
+{% endset %}
+
+{% set cookieBannerHeader %}
+  Cookies on {{ name if name else serviceName }}
+{% endset %}
+
+{% set acceptButtonText = "Accept analytics cookies" if gtmId1 or gtmId2 else "Accept additional cookies"  %}
+
+{% set rejectButtonText = "Reject analytics cookies" if gtmId1 or gtmId2 else "Reject additional cookies"  %}
+
+<div id="global-cookie-message">
+  <form id="global-cookie-message-form" method="post" action="/help/cookies">
+    <input type="hidden" name="crumb" value="{{crumb}}"/>
+
+    {{ govukCookieBanner({
+      ariaLabel: cookieBannerHeader,
+      messages: [
+        {
+          headingText: cookieBannerHeader,
+          html: cookieBannerHtml,
+          actions: [
+            {
+              text: acceptButtonText,
+              type: "submit",
+              name: "cookies",
+              value: "accept"
+            },
+            {
+              text: rejectButtonText,
+              type: "submit",
+              name: "cookies",
+              value: "reject"
+            },
+            {
+              text: "View cookies",
+              href: "/help/cookies"
+            }
+          ]
+        }
+      ]
+    }) }}
+  </form>
+</div>
