@@ -44,6 +44,7 @@ COPY --from=productionBuild /home/node/node_modules ./node_modules
 COPY --from=productionBuild /home/node/dist ./dist
 COPY --from=productionBuild /home/node/bin ./bin
 COPY --from=productionBuild /home/node/config ./config
+COPY --from=productionBuild /home/node/public ./public
 
 ARG PORT
 ENV PORT ${PORT}
