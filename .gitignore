@@ -9,3 +9,13 @@ npm-debug.log
 coverage
 .cache
 dist/
+
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+.yarn/build-state.yml
+.yarn/install-state.gz
+docs/**/typedoc

@@ -14,11 +14,15 @@ ARG PORT_DEBUG
 ENV PORT ${PORT}
 EXPOSE ${PORT} ${PORT_DEBUG}
 
-COPY --chown=node:node package*.json ./
-RUN yarn add file:./../model
+COPY --chown=node:node src config public install_model.sh ./
+# TODO remove model installation from git
+
+RUN npm install --global yarn
+
+COPY --chown=node:node . ./
+
+RUN bash install_model.sh
 RUN yarn
-COPY --chown=node:node . .
-RUN yarn run build
 
 CMD [ "yarn", "run", "dev" ]
 
@@ -36,10 +40,10 @@ ARG PARENT_VERSION
 LABEL uk.gov.defra.ffc.parent-image=defradigital/node:${PARENT_VERSION}
 
 COPY --from=productionBuild /home/node/package*.json ./
-COPY --from=productionBuild /home/node/.server ./.server/
-COPY --from=productionBuild /home/node/.public/ ./.public/
-
-RUN yarn install --frozen-lockfile
+COPY --from=productionBuild /home/node/node_modules ./node_modules
+COPY --from=productionBuild /home/node/dist ./dist
+COPY --from=productionBuild /home/node/bin ./bin
+COPY --from=productionBuild /home/node/config ./config
 
 ARG PORT
 ENV PORT ${PORT}
