@@ -26,7 +26,7 @@ function catchAll(request, h) {
   const errorMessage = statusCodeMessage(statusCode)
 
   return h
-    .view('error/index', {
+    .view('error', {
       pageTitle: errorMessage,
       heading: statusCode,
       message: errorMessage
