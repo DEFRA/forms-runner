@@ -1531,6 +1531,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@elastic/ecs-helpers@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@elastic/ecs-helpers@npm:1.1.0"
+  dependencies:
+    fast-json-stringify: ^2.4.1
+  checksum: 8f64e86fe3cfe67540fd8c2a62e0b7db1f4e8cab8c4a63e2f49ce295c3d3b629d0f3363b0107fe530650898a89b5b1d86190717447a481932856651911e6ef61
+  languageName: node
+  linkType: hard
+
+"@elastic/ecs-pino-format@npm:1.4.0":
+  version: 1.4.0
+  resolution: "@elastic/ecs-pino-format@npm:1.4.0"
+  dependencies:
+    "@elastic/ecs-helpers": ^1.1.0
+  checksum: 0ec5172b84048dabc275ae24d4c9b39a26616d816508cd5eab83fdeac0266e0be86fb15da1b32353dfafced17513c9659dc95bad2c1ce98f4da905c8f9d7e3c2
+  languageName: node
+  linkType: hard
+
 "@eslint-community/eslint-utils@npm:^4.2.0":
   version: 4.4.0
   resolution: "@eslint-community/eslint-utils@npm:4.4.0"
@@ -3067,14 +3085,14 @@ __metadata:
 
 "@xgovformbuilder/model@file:/tmp/xgov-model/model/::locator=%40xgovformbuilder%2Frunner%40workspace%3A.":
   version: 3.0.0
-  resolution: "@xgovformbuilder/model@file:/tmp/xgov-model/model/#/tmp/xgov-model/model/::hash=2f6cff&locator=%40xgovformbuilder%2Frunner%40workspace%3A."
+  resolution: "@xgovformbuilder/model@file:/tmp/xgov-model/model/#/tmp/xgov-model/model/::hash=1630bd&locator=%40xgovformbuilder%2Frunner%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.21.0
     boom: 7.3.0
     btoa: ^1.2.1
     govuk-frontend: ^4.0.1
     joi: 17.2.1
-  checksum: 46d7dee09d6122fc171c1f30c1b86f6617fed0eea7c97e2a62b421d1b1b661334bfab74b27909bef03e9a68d501d6dafa28af18c1d73655f6aa2f1aa755bae46
+  checksum: 392d118835a1d0973b2be4f2cd5275036c836645327f2c5a66180aff0f2fabeb0bf904a1e24451f1e28b4e02014a44e334372ab908becf4361215ae036035b24
   languageName: node
   linkType: hard
 
@@ -3097,6 +3115,7 @@ __metadata:
     "@babel/preset-typescript": ^7.21.4
     "@babel/register": ^7.21.0
     "@babel/runtime": ^7.21.0
+    "@elastic/ecs-pino-format": 1.4.0
     "@hapi/bell": ^12.3.0
     "@hapi/boom": ^9.1.4
     "@hapi/catbox": 11.1.0
@@ -3149,7 +3168,7 @@ __metadata:
     expr-eval: ^2.0.2
     flat: 5.0.2
     form-data: ^4.0.0
-    global: 4.4.0
+    global: ^4.4.0
     govuk-frontend: ^4.3.1
     hapi-pino: 8.0.0
     hapi-pulse: 3.0.0
@@ -3166,6 +3185,7 @@ __metadata:
     notifications-node-client: ^5.2.0
     nunjucks: ^3.2.3
     pdfmake: 0.1.65
+    prettier: ^3.1.0
     resolve: ^1.19.0
     sass: ^1.49.9
     schmervice: ^1.6.0
@@ -3277,7 +3297,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ajv@npm:^6.10.0, ajv@npm:^6.12.3, ajv@npm:^6.12.4, ajv@npm:~6.12.6":
+"ajv@npm:^6.10.0, ajv@npm:^6.11.0, ajv@npm:^6.12.3, ajv@npm:^6.12.4, ajv@npm:~6.12.6":
   version: 6.12.6
   resolution: "ajv@npm:6.12.6"
   dependencies:
@@ -4414,6 +4434,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"deepmerge@npm:^4.2.2":
+  version: 4.3.1
+  resolution: "deepmerge@npm:4.3.1"
+  checksum: 2024c6a980a1b7128084170c4cf56b0fd58a63f2da1660dcfe977415f27b17dbe5888668b59d0b063753f3220719d5e400b7f113609489c90160bb9a5518d052
+  languageName: node
+  linkType: hard
+
 "default-browser-id@npm:^3.0.0":
   version: 3.0.0
   resolution: "default-browser-id@npm:3.0.0"
@@ -5281,6 +5308,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fast-json-stringify@npm:^2.4.1":
+  version: 2.7.13
+  resolution: "fast-json-stringify@npm:2.7.13"
+  dependencies:
+    ajv: ^6.11.0
+    deepmerge: ^4.2.2
+    rfdc: ^1.2.0
+    string-similarity: ^4.0.1
+  checksum: f78ab25047c790de5b521c369e0b18c595055d48a106add36e9f86fe45be40226f168ff4708a226e187d0b46f1d6b32129842041728944bd9a03ca5efbbe4ccb
+  languageName: node
+  linkType: hard
+
 "fast-levenshtein@npm:^2.0.6":
   version: 2.0.6
   resolution: "fast-levenshtein@npm:2.0.6"
@@ -5686,7 +5725,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"global@npm:4.4.0":
+"global@npm:^4.4.0":
   version: 4.4.0
   resolution: "global@npm:4.4.0"
   dependencies:
@@ -8062,6 +8101,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"prettier@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "prettier@npm:3.1.0"
+  bin:
+    prettier: bin/prettier.cjs
+  checksum: 44b556bd56f74d7410974fbb2418bb4e53a894d3e7b42f6f87779f69f27a6c272fa7fc27cec0118cd11730ef3246478052e002cbd87e9a253f9cd04a56aa7d9b
+  languageName: node
+  linkType: hard
+
 "proc-log@npm:^3.0.0":
   version: 3.0.0
   resolution: "proc-log@npm:3.0.0"
@@ -8482,7 +8530,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rfdc@npm:^1.3.0":
+"rfdc@npm:^1.2.0, rfdc@npm:^1.3.0":
   version: 1.3.0
   resolution: "rfdc@npm:1.3.0"
   checksum: fb2ba8512e43519983b4c61bd3fa77c0f410eff6bae68b08614437bc3f35f91362215f7b4a73cbda6f67330b5746ce07db5dd9850ad3edc91271ad6deea0df32
@@ -8991,6 +9039,13 @@ __metadata:
   dependencies:
     internal-slot: ^1.0.4
   checksum: d04173690b2efa40e24ab70e5e51a3ff31d56d699550cfad084104ab3381390daccb36652b25755e420245f3b0737de66c1879eaa2a8d4fc0a78f9bf892fcb42
+  languageName: node
+  linkType: hard
+
+"string-similarity@npm:^4.0.1":
+  version: 4.0.4
+  resolution: "string-similarity@npm:4.0.4"
+  checksum: 797b41b24e1eb6b3b0ab896950b58c295a19a82933479c75f7b5279ffb63e0b456a8c8d10329c02f607ca1a50370e961e83d552aa468ff3b0fa15809abc9eff7
   languageName: node
   linkType: hard
 

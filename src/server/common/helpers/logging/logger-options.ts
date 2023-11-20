@@ -11,7 +11,7 @@ const loggerOptions = {
   // TODO revert level: "config.get('logLevel')",
   level: 'info',
   // TODO revert ...(config.get('isDevelopment') ? { transport: { target: 'pino-pretty' } } : ecsFormat())
-  ...ecsFormat()
+  ...(ecsFormat())
 }
 
 export { loggerOptions }
