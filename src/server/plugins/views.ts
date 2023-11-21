@@ -62,7 +62,7 @@ export default {
     context: (request: HapiRequest) => ({
       appVersion: pkg.version,
       // TODO replace asset path from config
-      assetPath: `${process.env.ENV_VARIABLE}/assets"`,
+      assetPath: `${process.env.APP_PATH_PREFIX}/assets"`,
       cookiesPolicy: request?.state?.cookies_policy,
       serviceName: capitalize(config.serviceName),
       feedbackLink: config.feedbackLink,
