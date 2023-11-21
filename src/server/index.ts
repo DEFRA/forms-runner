@@ -162,7 +162,7 @@ async function createServer(routeConfig: RouteConfig) {
   await server.register(pluginLocale);
   await server.register(pluginViews, testConfig);
   await server.register(
-    configureEnginePlugin(formFileName, formFilePath, options)
+    configureEnginePlugin(formFileName, formFilePath, options), testConfig
   );
   await server.register(pluginApplicationStatus);
   await server.register(pluginRouter, testConfig);
