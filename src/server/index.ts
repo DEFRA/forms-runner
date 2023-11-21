@@ -45,7 +45,7 @@ const serverOptions = (): ServerOptions => {
     debug: { request: [`${config.isDev}`] },
     port: config.port,
     router: {
-      stripTrailingSlash: true,
+      stripTrailingSlash: true
     },
     routes: {
       validate: {
@@ -85,6 +85,11 @@ const serverOptions = (): ServerOptions => {
 async function createServer(routeConfig: RouteConfig) {
   const server = hapi.server(serverOptions());
   const { formFileName, formFilePath, options } = routeConfig;
+
+  // TODO move this out
+  const testConfig = {
+    routes: { prefix: "/forms-runner" }
+  };
 
   if (config.rateLimit) {
     await server.register(configureRateLimitPlugin(routeConfig));
@@ -155,12 +160,12 @@ async function createServer(routeConfig: RouteConfig) {
   });
 
   await server.register(pluginLocale);
-  await server.register(pluginViews);
+  await server.register(pluginViews, testConfig);
   await server.register(
     configureEnginePlugin(formFileName, formFilePath, options)
   );
   await server.register(pluginApplicationStatus);
-  await server.register(pluginRouter);
+  await server.register(pluginRouter, testConfig);
   await server.register(pluginErrorPages);
   await server.register(blipp);
 
