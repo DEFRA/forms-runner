@@ -20,6 +20,7 @@ function catchAll(request, h) {
     return h.continue
   }
 
+  console.log(response?.stack)
   request.logger.error(response?.stack)
 
   const statusCode = response.output.statusCode

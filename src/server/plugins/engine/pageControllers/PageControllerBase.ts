@@ -403,7 +403,7 @@ export class PageControllerBase {
         // @ts-ignore
         return startPage!.startsWith("http")
           ? redirectTo(request, h, startPage!)
-          : redirectTo(request, h, `/${this.model.basePath}${startPage!}`);
+          : redirectTo(request, h, `${this.model.basePath}${startPage!}`);
       }
 
       formData.lang = lang;
@@ -422,7 +422,7 @@ export class PageControllerBase {
       const viewModel = this.getViewModel(formData, num);
       viewModel.startPage = startPage!.startsWith("http")
         ? redirectTo(request, h, startPage!)
-        : redirectTo(request, h, `/${this.model.basePath}${startPage!}`);
+        : redirectTo(request, h, `${this.model.basePath}${startPage!}`);
 
       this.setPhaseTag(viewModel);
       this.setFeedbackDetails(viewModel, request);
@@ -724,7 +724,7 @@ export class PageControllerBase {
   }
 
   get defaultNextPath() {
-    return `${this.model.basePath || ""}/summary`;
+    return `/${this.model.basePath || ""}/summary`;
   }
 
   get validationOptions() {

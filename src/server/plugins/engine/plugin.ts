@@ -37,7 +37,7 @@ function getStartPageRedirect(
   if (startPage.startsWith("http")) {
     startPageRedirect = redirectTo(request, h, startPage);
   } else {
-    startPageRedirect = redirectTo(request, h, `/${id}/${startPage}`);
+    startPageRedirect = redirectTo(request, h, `/${model.basePath}/${startPage}`);
   }
 
   return startPageRedirect;
@@ -61,7 +61,7 @@ export const plugin = {
     configs.forEach((config) => {
       forms[config.id] = new FormModel(config.configuration, {
         ...modelOptions,
-        basePath: config.id,
+        basePath: `forms-runner/${config.id}`
       });
     });
 
@@ -97,7 +97,7 @@ export const plugin = {
             : configuration;
         forms[id] = new FormModel(parsedConfiguration, {
           ...modelOptions,
-          basePath: id,
+          basePath: `forms-runner/${id}`
         });
         return h.response({}).code(204);
       },
@@ -185,6 +185,7 @@ export const plugin = {
       method: "get",
       path: "/{id}",
       handler: (request: HapiRequest, h: HapiResponseToolkit) => {
+        console.log("hit - id");
         const { id } = request.params;
         const model = forms[id];
         if (model) {
@@ -198,11 +199,13 @@ export const plugin = {
       method: "get",
       path: "/{id}/{path*}",
       handler: (request: HapiRequest, h: HapiResponseToolkit) => {
+        console.log("hit - id/path");
         const { path, id } = request.params;
         const model = forms[id];
         const page = model?.pages.find(
           (page) => normalisePath(page.path) === normalisePath(path)
         );
+        console.log("page found", page);
         if (page) {
           // NOTE: Start pages should live on gov.uk, but this allows prototypes to include signposting about having to log in.
           if (

@@ -42,7 +42,7 @@ const serverOptions = (): ServerOptions => {
   const hasCertificate = config.sslKey && config.sslCert;
 
   const serverOptions: ServerOptions = {
-    debug: { request: [`${config.isDev}`] },
+    debug: { request: ['error'] },
     port: config.port,
     router: {
       stripTrailingSlash: true
