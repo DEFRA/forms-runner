@@ -173,9 +173,6 @@ async function createServer(routeConfig: RouteConfig) {
     encoding: "base64json",
   });
 
-  server.logger.info("Config loaded");
-  server.logger.info(config);
-
   return server;
 }
 
