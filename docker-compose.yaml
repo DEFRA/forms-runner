@@ -1,0 +1,16 @@
+version: "2.4"
+services:
+  forms-runner:
+    build: .
+    ports:
+      - 3000:3000
+    init: true
+  proxy:
+    image: nginx:latest
+    ports:
+      - 8080:8080
+    init: true
+    volumes:
+      - ./cdp-reverse-proxy-devtool/:/etc/nginx/conf.d/
+    depends_on:
+      - forms-runner
