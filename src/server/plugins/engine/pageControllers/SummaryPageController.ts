@@ -180,7 +180,7 @@ export class SummaryPageController extends PageController {
         !summaryViewModel.fees ||
         (summaryViewModel.fees.details ?? []).length === 0
       ) {
-        return redirectTo(request, h, `/${request.params.id}/status`);
+        return redirectTo(request, h, `/${model.basePath}/status`);
       }
 
       const payReturnUrl =
@@ -193,7 +193,7 @@ export class SummaryPageController extends PageController {
       // user must pay for service
       const description = payService.descriptionFromFees(summaryViewModel.fees);
       const url = new URL(
-        `${payReturnUrl}/${request.params.id}/status`
+        `${payReturnUrl}/status`
       ).toString();
       const res = await payService.payRequest(
         summaryViewModel.fees,
@@ -208,7 +208,7 @@ export class SummaryPageController extends PageController {
           reference: res.reference,
           self: res._links.self.href,
           returnUrl: new URL(
-            `${payReturnUrl}/${request.params.id}/status`
+            `${payReturnUrl}/${model.basePath}/status`
           ).toString(),
           meta: {
             amount: summaryViewModel.fees.total,

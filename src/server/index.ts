@@ -164,7 +164,7 @@ async function createServer(routeConfig: RouteConfig) {
   await server.register(
     configureEnginePlugin(formFileName, formFilePath, options), testConfig
   );
-  await server.register(pluginApplicationStatus);
+  await server.register(pluginApplicationStatus, testConfig);
   await server.register(pluginRouter, testConfig);
   await server.register(pluginErrorPages);
   await server.register(blipp);
