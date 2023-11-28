@@ -1,3 +1,6 @@
+> [!WARNING]
+> This is proof of concept code for a project in Alpha. It may not be functional, use with caution.
+
 # forms-runner
 
 Core delivery platform Node.js Frontend Template.
@@ -9,7 +12,7 @@ Core delivery platform Node.js Frontend Template.
   - [Development](#development)
   - [Local JSON API](#local-json-api)
   - [Production](#production)
-  - [Npm scripts](#npm-scripts)
+  - [Yarn scripts](#yarn-scripts)
 - [Docker](#docker)
   - [Development Image](#development-image)
   - [Production Image](#production-image)
@@ -20,7 +23,7 @@ Core delivery platform Node.js Frontend Template.
 
 ### Node.js
 
-Please install [Node.js](http://nodejs.org/) `>= v18` and [npm](https://nodejs.org/) `>= v9`. You will find it
+Please install [Node.js](http://nodejs.org/) `>= v18` and [yarn](https://classic.yarnpkg.com/) `= v1`. You will find it
 easier to use the Node Version Manager [nvm](https://github.com/creationix/nvm)
 
 To use the correct version of Node.js for this application, via nvm:
@@ -39,7 +42,7 @@ for local developers
 Install application dependencies:
 
 ```bash
-$ npm install
+$ yarn
 ```
 
 ### Development
@@ -47,15 +50,7 @@ $ npm install
 To run the application in `development` mode run:
 
 ```bash
-$ npm run dev
-```
-
-### Local JSON API
-
-Whilst the APIs are being developed this app uses a local JSON mock API. To start this locally run:
-
-```bash
-$ npm run mockApi
+$ yarn run dev
 ```
 
 ### Production
@@ -63,16 +58,16 @@ $ npm run mockApi
 To mimic the application running in `production` mode locally run:
 
 ```bash
-$ npm start
+$ yarn run start
 ```
 
-### Npm scripts
+### Yarn scripts
 
-All available Npm scripts can be seen in [package.json](./package.json)
+All available Yarn scripts can be seen in [package.json](./package.json)
 To view them in your command line run:
 
 ```bash
-$ npm run
+$ yarn run
 ```
 
 ## Docker
