@@ -1,0 +1,1033 @@
+{
+  "metadata": {},
+  "startPage": "/enter-the-applicants-details",
+  "pages": [
+    {
+      "title": "Enter the applicant's details",
+      "path": "/enter-the-applicants-details",
+      "components": [
+        {
+          "name": "tcuUlQ",
+          "options": {},
+          "type": "TextField",
+          "title": "Your name or company name",
+          "schema": {}
+        },
+        {
+          "name": "vXawMb",
+          "options": {},
+          "type": "UkAddressField",
+          "title": "Full postal address",
+          "schema": {}
+        },
+        {
+          "name": "mWtMje",
+          "options": {},
+          "type": "TelephoneNumberField",
+          "title": "Telephone No.",
+          "schema": {}
+        },
+        {
+          "name": "YIGAmK",
+          "options": {},
+          "type": "EmailAddressField",
+          "title": "Email address",
+          "schema": {}
+        },
+        {
+          "name": "feHxbT",
+          "options": {},
+          "type": "TextField",
+          "title": "PHSI Registration No.",
+          "schema": {}
+        },
+        {
+          "name": "BDoPHy",
+          "options": {},
+          "type": "TextField",
+          "title": "Applicant’s reference",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/authorisation-details"
+        }
+      ]
+    },
+    {
+      "path": "/authorisation-details",
+      "title": "Authorisation details",
+      "components": [
+        {
+          "name": "suBzaj",
+          "options": {},
+          "type": "TextField",
+          "hint": "Name in full, of person who will be responsible for inspecting plants, issuing plant passports and keeping records.",
+          "title": "The responsible person's name",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/genera-require-a-growing-season-inspection"
+        }
+      ]
+    },
+    {
+      "path": "/genera-require-a-growing-season-inspection",
+      "title": "Genera require a growing season inspection",
+      "components": [
+        {
+          "name": "zHWXoI",
+          "options": {},
+          "type": "Para",
+          "content": "<p><b>These genera require a growing season inspection, to be carried out by APHA, at all stages of growth down to the final retailer.</b></p>\n<p>For further details of the relevant hosts or pests and diseases consult the QPD Index which is available from your local plant heath inspector.</p>",
+          "schema": {}
+        },
+        {
+          "name": "UvDQUE",
+          "options": {},
+          "type": "CheckboxesField",
+          "title": "Host plants of Fireblight, intended for planting and pollen for pollination excluding fruit and seeds.",
+          "list": "tnWWpt",
+          "schema": {}
+        },
+        {
+          "name": "kGdmhB",
+          "options": {},
+          "type": "YesNoField",
+          "title": "Do you intend to passport these plants to a pest free area? ",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/do-you-wish-to-apply-for-fireblight-pest-free-area"
+        }
+      ],
+      "section": "TNmEvR"
+    },
+    {
+      "path": "/do-you-wish-to-apply-for-fireblight-pest-free-area",
+      "title": "Do you wish to apply for Fireblight pest-free area?",
+      "components": [
+        {
+          "name": "tctPlq",
+          "options": {},
+          "type": "YesNoField",
+          "title": "Do you wish to apply for Fireblight pest-free area?",
+          "schema": {},
+          "values": {
+            "type": "listRef"
+          }
+        }
+      ],
+      "next": [
+        {
+          "path": "/tell-us-the-location-of-your-production-site"
+        }
+      ],
+      "section": "TNmEvR"
+    },
+    {
+      "path": "/tell-us-the-location-of-your-production-site",
+      "title": "Tell us the location of your production site",
+      "components": [
+        {
+          "name": "TEeWmT",
+          "options": {},
+          "type": "UkAddressField",
+          "title": "Location of production site",
+          "schema": {}
+        },
+        {
+          "name": "yhNqyk",
+          "options": {},
+          "type": "YesNoField",
+          "title": "Do you wish to be excluded from the public register of Fireblight Pest-free area nurseries?",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/plants-grown-within-a-fireblight-pest-free-area"
+        }
+      ],
+      "section": "TNmEvR"
+    },
+    {
+      "path": "/select-the-following-plants-for-planting",
+      "title": "Select the following plants for planting",
+      "components": [
+        {
+          "name": "WRUkLo",
+          "options": {},
+          "type": "Para",
+          "content": "<p>These genera are regulated when being sold to persons professionally engaged in plant production.</p>",
+          "schema": {}
+        },
+        {
+          "name": "yvDypN",
+          "options": {
+            "hideTitle": true
+          },
+          "type": "CheckboxesField",
+          "list": "fNsBtZ",
+          "title": "The following plants for planting:",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/are-you-growing-any-of-the-above-ornamental-bulbs"
+        }
+      ],
+      "section": "zOLYXW"
+    },
+    {
+      "path": "/plants-grown-within-a-fireblight-pest-free-area",
+      "title": "Plants grown within a Fireblight Pest-free area",
+      "components": [
+        {
+          "name": "TQpLfk",
+          "options": {
+            "hideTitle": true
+          },
+          "type": "CheckboxesField",
+          "title": "Select plants",
+          "list": "FGsUrY",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/select-the-following-plants-for-planting"
+        }
+      ],
+      "section": "TNmEvR"
+    },
+    {
+      "path": "/are-you-growing-any-of-the-above-ornamental-bulbs",
+      "title": "Are you growing any of the above ornamental bulbs?",
+      "components": [
+        {
+          "name": "cPSyXF",
+          "options": {
+            "hideTitle": true
+          },
+          "type": "List",
+          "list": "jyYLOV",
+          "title": "Ornamental bulbs",
+          "schema": {}
+        },
+        {
+          "name": "ybDdSz",
+          "options": {
+            "hideTitle": false
+          },
+          "type": "YesNoField",
+          "title": "Are you growing any of the ornamental bulbs listed above?",
+          "values": {
+            "type": "listRef"
+          },
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/the-following-seeds-require-passport"
+        }
+      ],
+      "section": "zOLYXW"
+    },
+    {
+      "path": "/the-following-seeds-require-passport",
+      "title": "The following seeds require passport",
+      "components": [
+        {
+          "name": "lDoWWb",
+          "options": {
+            "hideTitle": false
+          },
+          "type": "CheckboxesField",
+          "title": "Tick if grown",
+          "list": "wPdiNj",
+          "schema": {}
+        },
+        {
+          "name": "tkitid",
+          "options": {
+            "required": true
+          },
+          "type": "YesNoField",
+          "title": "If you grow plants, other than those listed above, please tick here.",
+          "hint": "You will be audited but you will not require a Growing season inspection",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/do-you-grow-plants-in-soil"
+        }
+      ],
+      "section": "zOLYXW"
+    },
+    {
+      "path": "/do-you-grow-plants-in-soil",
+      "title": "Do you grow plants in soil?",
+      "components": [
+        {
+          "name": "dOLRQu",
+          "options": {
+            "hideTitle": true
+          },
+          "type": "YesNoField",
+          "title": "Do you grow plants in soil? ",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/plants-grown-in-soil"
+        },
+        {
+          "path": "/field-plans-are-required-for-all-field-grown-crops",
+          "condition": "mCZniF"
+        }
+      ]
+    },
+    {
+      "path": "/plants-grown-in-soil",
+      "title": "Plants Grown in Soil",
+      "components": [
+        {
+          "name": "iLVPSs",
+          "options": {},
+          "type": "YesNoField",
+          "title": "Are the plants or bulbs going to be planted on the same place of production as that on which they raised?",
+          "schema": {}
+        },
+        {
+          "name": "ZMyCGx",
+          "options": {},
+          "type": "YesNoField",
+          "title": "Are the plants for planting going to be subject to a PCN disinfestations process before being moved, such that there is no risk of PCN being spread?",
+          "schema": {}
+        },
+        {
+          "name": "TRefnl",
+          "options": {},
+          "type": "YesNoField",
+          "title": "Are the harvested bulbs or plants for planting going to be washed or brushed practically free of soil such that there is no risk of PCN being spread?",
+          "schema": {}
+        },
+        {
+          "name": "AxBjbc",
+          "options": {},
+          "type": "YesNoField",
+          "title": "Does the field on which the plants or bulbs are to be grown have a history of Potato cyst nematode (PCN) freedom during the last 12 years based on the results of testing?",
+          "schema": {}
+        },
+        {
+          "name": "qJsGJW",
+          "options": {},
+          "type": "YesNoField",
+          "title": "Does the field on which the plants are to be grown have a known cropping history in which no Potatoes, Peppers, Aubergines or Tomatoes have been grown in the field in the last 12 years?",
+          "schema": {}
+        },
+        {
+          "name": "cPmbpd",
+          "options": {},
+          "type": "YesNoField",
+          "title": "Do you grow plants other than those listed below (eg Turf)?",
+          "schema": {}
+        },
+        {
+          "name": "wDzmkj",
+          "options": {
+            "hideTitle": true
+          },
+          "type": "List",
+          "title": "Plants grown in soil",
+          "list": "QBovQl",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/phsi-will-need-to-take-a-soil-sample-before-your-application-can-proceed",
+          "condition": "JeNMDp"
+        },
+        {
+          "path": "/is-there-any-history-of-potato-wart-disease-synchitrium-endobioticum-on-site"
+        }
+      ]
+    },
+    {
+      "path": "/phsi-will-need-to-take-a-soil-sample-before-your-application-can-proceed",
+      "title": "PHSI will need to take a soil sample before your application can proceed",
+      "components": [
+        {
+          "name": "YxWpnI",
+          "options": {},
+          "type": "Para",
+          "content": "If you did not answer ‘yes’ to any one of the 6 questions above – PHSI will need to take a soil sample before your application can proceed.",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/is-there-any-history-of-potato-wart-disease-synchitrium-endobioticum-on-site"
+        }
+      ]
+    },
+    {
+      "path": "/summary",
+      "title": "Summary",
+      "components": [
+        {
+          "name": "ETuaua",
+          "options": {},
+          "type": "Details",
+          "content": "<p>I declare that the information that I have given on this form is correct.</p>\n\n<p>I understand that authorisation to issue plant passports will impose certain obligations in England and Wales under The Plant Health (Amendment etc.) (EU Exit) Regulations 2020 on protective measures against pests of plants and that certain official inspections will be made in order to confirm those obligations are met.</p>\n\n<p>Official inspections will be charged for according to schedules of fees published on gov.uk and any invoices for payment in connection with this application should be sent to me and I understand that I will be liable to pay the sums due.</p>",
+          "title": "Conditions",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/declaration"
+        }
+      ],
+      "controller": "./pages/summary.js"
+    },
+    {
+      "path": "/declaration",
+      "title": "Declaration",
+      "components": [
+        {
+          "name": "JNouDN",
+          "options": {},
+          "type": "Para",
+          "content": "<p>I declare that the information that I have given on this form is correct.</p>\n\n<p>I understand that authorisation to issue plant passports will impose certain obligations in England and Wales under The Plant Health (Amendment etc.) (EU Exit) Regulations 2020 on protective measures against pests of plants and that certain official inspections will be made in order to confirm those obligations are met.</p>\n\n<p>Official inspections will be charged for according to schedules of fees published on gov.uk and any invoices for payment in connection with this application should be sent to me and I understand that I will be liable to pay the sums due.</p>",
+          "schema": {}
+        },
+        {
+          "name": "mSBCAD",
+          "options": {},
+          "type": "TextField",
+          "title": "Full name",
+          "schema": {}
+        },
+        {
+          "name": "eLoYbI",
+          "options": {},
+          "type": "TextField",
+          "title": "Company Position",
+          "schema": {}
+        }
+      ],
+      "next": []
+    },
+    {
+      "path": "/is-there-any-history-of-potato-wart-disease-synchitrium-endobioticum-on-site",
+      "title": "Is there any history of Potato Wart Disease (Synchitrium endobioticum) on site?",
+      "components": [
+        {
+          "name": "JrcbHs",
+          "options": {},
+          "type": "YesNoField",
+          "title": "Is there any history of Potato Wart Disease (Synchitrium endobioticum) on site?",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/field-plans-are-required-for-all-field-grown-crops"
+        }
+      ]
+    },
+    {
+      "path": "/field-plans-are-required-for-all-field-grown-crops",
+      "title": "Field Plans are required for all field grown crops.",
+      "components": [
+        {
+          "name": "uKsJSa",
+          "options": {},
+          "type": "Para",
+          "content": "<p>Please show the growing area, marking where the different genera and varieties of plants will be grown. Separate plans are needed for each site including the full site name and address.<p>",
+          "schema": {}
+        },
+        {
+          "name": "zhRHvX",
+          "options": {
+            "required": false
+          },
+          "type": "FileUploadField",
+          "title": "Attach your Field Plan",
+          "schema": {},
+          "hint": "Note from Alex: this doesn't appear to work currently. I have made it optional for testing."
+        }
+      ],
+      "next": [
+        {
+          "path": "/summary"
+        }
+      ]
+    }
+  ],
+  "lists": [
+    {
+      "title": "Host plants of Fireblight",
+      "name": "tnWWpt",
+      "type": "string",
+      "items": [
+        {
+          "text": "Amelanchier",
+          "value": "Amelanchier"
+        },
+        {
+          "text": "Chaenomeles",
+          "value": "Chaenomeles"
+        },
+        {
+          "text": "Cotoneaster",
+          "value": "Cotoneaster"
+        },
+        {
+          "text": "Crataegeus",
+          "value": "Crataegeus"
+        },
+        {
+          "text": "Cydonia",
+          "value": "Cydonia"
+        },
+        {
+          "text": "Eriobotrya",
+          "value": "Eriobotrya"
+        },
+        {
+          "text": "Malus",
+          "value": "Malus"
+        },
+        {
+          "text": "Mespilus",
+          "value": "Mespilus"
+        },
+        {
+          "text": "Photinia davidiana",
+          "value": "Photinia davidiana"
+        },
+        {
+          "text": "Pyracantha",
+          "value": "Pyracantha"
+        },
+        {
+          "text": "Pyrus",
+          "value": "Pyrus"
+        },
+        {
+          "text": "Sorbus",
+          "value": "Sorbus"
+        }
+      ]
+    },
+    {
+      "title": "Regulated genera for planting",
+      "name": "fNsBtZ",
+      "type": "string",
+      "items": [
+        {
+          "text": "Allium cepa (onion)",
+          "value": "Allium cepa (onion)"
+        },
+        {
+          "text": "Allium fistulosum (Bunching Onion)",
+          "value": "Allium fistulosum (Bunching Onion)"
+        },
+        {
+          "text": "Allium porrum (Leek)",
+          "value": "Allium porrum (Leek)"
+        },
+        {
+          "text": "Allium sativum (Garlic)",
+          "value": "Allium sativum (Garlic)"
+        },
+        {
+          "text": "Argyranthemum",
+          "value": "Argyranthemum"
+        },
+        {
+          "text": "Asparagus officinalis",
+          "value": "Asparagus officinalis"
+        },
+        {
+          "text": "Beaucarnea (Pony Tail Palm)",
+          "value": "Beaucarnea (Pony Tail Palm)"
+        },
+        {
+          "text": "Bougainvillea",
+          "value": "Bougainvillea"
+        },
+        {
+          "text": "Crassula (Stonecrop)",
+          "value": "Crassula (Stonecrop)"
+        },
+        {
+          "text": "Crinum (Swamp Lily)",
+          "value": "Crinum (Swamp Lily)"
+        },
+        {
+          "text": "Cynara cardunculus (Globe Artichoke)",
+          "value": "Cynara cardunculus (Globe Artichoke)"
+        },
+        {
+          "text": "Dracaena (Dragon Tree)",
+          "value": "Dracaena (Dragon Tree)"
+        },
+        {
+          "text": "Lactuca sativa (Lettuce)",
+          "value": "Lactuca sativa (Lettuce)"
+        },
+        {
+          "text": "Pachira",
+          "value": "Pachira"
+        },
+        {
+          "text": "Sansevieria (Snake Plant)",
+          "value": "Sansevieria (Snake Plant)"
+        },
+        {
+          "text": "Vitis",
+          "value": "Vitis"
+        },
+        {
+          "text": "Yucca",
+          "value": "Yucca"
+        }
+      ]
+    },
+    {
+      "title": "Plants in a fireblight pest-free area",
+      "name": "FGsUrY",
+      "type": "string",
+      "items": [
+        {
+          "text": "Begonia x hiemalis",
+          "value": "Begonia x hiemalis"
+        },
+        {
+          "text": "Camellia",
+          "value": "Camellia"
+        },
+        {
+          "text": "Capsicum",
+          "value": "Capsicum"
+        },
+        {
+          "text": "Chrysanthemum",
+          "value": "Chrysanthemum"
+        },
+        {
+          "text": "Gerbera",
+          "value": "Gerbera"
+        },
+        {
+          "text": "Impatiens (New Guinea hybrids)",
+          "value": "Impatiens (New Guinea hybrids)"
+        },
+        {
+          "value": "Musa",
+          "text": "Musa"
+        },
+        {
+          "value": "Nicotiana",
+          "text": "Nicotiana"
+        },
+        {
+          "text": "Chamaecyparis formosensis",
+          "value": "Chamaecyparis formosensis"
+        },
+        {
+          "text": "Chamaecyparis lawsoniana",
+          "value": "Chamaecyparis lawsoniana"
+        },
+        {
+          "text": "Chamaecyparis nootkanensis",
+          "value": "Chamaecyparis nootkanensis"
+        },
+        {
+          "text": "Chamaecyparis obtusa",
+          "value": "Chamaecyparis obtusa"
+        },
+        {
+          "text": "Chamaecyparis pisifera",
+          "value": "Chamaecyparis pisifera"
+        },
+        {
+          "text": "Cupressus sempervirens",
+          "value": "Cupressus sempervirens"
+        },
+        {
+          "value": "Juniperus communis",
+          "text": "Juniperus communis"
+        },
+        {
+          "value": "Libocedrus chilensis",
+          "text": "Libocedrus chilensis"
+        },
+        {
+          "value": "Taxus brevifolia",
+          "text": "Taxus brevifolia"
+        },
+        {
+          "value": "Thuja occidentalis",
+          "text": "Thuja occidentalis"
+        },
+        {
+          "text": "Pelargonium",
+          "value": "Pelargonium"
+        },
+        {
+          "text": "Rhododendron",
+          "value": "Rhododendron"
+        },
+        {
+          "text": "Pinus",
+          "value": "Pinus"
+        },
+        {
+          "text": "Prunus",
+          "value": "Prunus"
+        },
+        {
+          "text": "Quercus (UK PFA)",
+          "value": "Quercus (UK PFA)"
+        },
+        {
+          "text": "Solanum lycopersicon",
+          "value": "Solanum lycopersicon"
+        },
+        {
+          "text": "Solanum melongena",
+          "value": "Solanum melongena"
+        },
+        {
+          "value": "Viburnum",
+          "text": "Viburnum"
+        }
+      ]
+    },
+    {
+      "title": "Ornamental bulbs",
+      "name": "jyYLOV",
+      "type": "string",
+      "items": [
+        {
+          "text": "Allium",
+          "value": "Allium"
+        },
+        {
+          "text": "Cemassia",
+          "value": "Cemassia"
+        },
+        {
+          "value": "Chionodoxa",
+          "text": "Chionodoxa"
+        },
+        {
+          "value": "Crocus flavus",
+          "text": "Crocus flavus"
+        },
+        {
+          "value": "Galanthus",
+          "text": "Galanthus"
+        },
+        {
+          "value": "Hyacinthus",
+          "text": "Hyacinthus"
+        },
+        {
+          "value": "Hymenocallis",
+          "text": "Hymenocallis"
+        },
+        {
+          "text": "Muscari",
+          "value": "Muscari"
+        },
+        {
+          "value": "Narcissus",
+          "text": "Narcissus"
+        },
+        {
+          "value": "Ornithogalum",
+          "text": "Ornithogalum"
+        },
+        {
+          "value": "Puschkinia",
+          "text": "Puschkinia"
+        },
+        {
+          "value": "Sternbergia",
+          "text": "Sternbergia"
+        },
+        {
+          "text": "Scilla",
+          "value": "Scilla"
+        },
+        {
+          "value": "Tulipa",
+          "text": "Tulipa"
+        }
+      ]
+    },
+    {
+      "title": "Seeds require passport",
+      "name": "wPdiNj",
+      "type": "string",
+      "items": [
+        {
+          "text": "Allium cepa (Onion)",
+          "value": "Allium cepa (Onion)"
+        },
+        {
+          "text": "Allium porrum (Leek)",
+          "value": "Allium porrum (Leek)"
+        },
+        {
+          "text": "Brassica napus (Rapeseed)",
+          "value": "Brassica napus (Rapeseed)"
+        },
+        {
+          "text": "Brassica rapa (Field Mustard)",
+          "value": "Brassica rapa (Field Mustard)"
+        },
+        {
+          "text": "Capsicum annum (Pepper)",
+          "value": "Capsicum annum (Pepper)"
+        },
+        {
+          "text": "Castanea (Sweet Chestnut)",
+          "value": "Castanea (Sweet Chestnut)"
+        },
+        {
+          "text": "Glycine max (Soya Bean)",
+          "value": "Glycine max (Soya Bean)"
+        },
+        {
+          "text": "Helianthus annuus (Sunflower)",
+          "value": "Helianthus annuus (Sunflower)"
+        },
+        {
+          "text": "Linum usitatissimum (Linseed)",
+          "value": "Linum usitatissimum (Linseed)"
+        },
+        {
+          "text": "Mediago sativa (Luceme/Alfalfa)",
+          "value": "Mediago sativa (Luceme/Alfalfa)"
+        },
+        {
+          "text": "Phaseolus coccineus (Runner Bean)",
+          "value": "Phaseolus coccineus (Runner Bean)"
+        },
+        {
+          "text": "Phaseolus vulgaris (French Bean)",
+          "value": "Phaseolus vulgaris (French Bean)"
+        },
+        {
+          "text": "Pisum sativum (Pea)",
+          "value": "Pisum sativum (Pea)"
+        },
+        {
+          "text": "Sinapis alba (White Mustard)",
+          "value": "Sinapis alba (White Mustard)"
+        },
+        {
+          "text": "Solanum lycopersicum (Tomato)",
+          "value": "Solanum lycopersicum (Tomato)"
+        },
+        {
+          "text": "Solanum tuberosum (True seed of potato)",
+          "value": "Solanum tuberosum (True seed of potato)"
+        },
+        {
+          "text": "Vicia faba (Field Bean)",
+          "value": "Vicia faba (Field Bean)"
+        }
+      ]
+    },
+    {
+      "title": "plants-in-soil",
+      "name": "QBovQl",
+      "type": "string",
+      "items": [
+        {
+          "text": "Asparagus officinalis",
+          "value": "Asparagus officinalis"
+        },
+        {
+          "text": "Allium ascolonicum",
+          "value": "Allium ascolonicum"
+        },
+        {
+          "text": "Allium cepa",
+          "value": "Allium cepa"
+        },
+        {
+          "text": "Allium porrum",
+          "value": "Allium porrum"
+        },
+        {
+          "text": "Beta vulgaris",
+          "value": "Beta vulgaris"
+        },
+        {
+          "text": "Brassica spp",
+          "value": "Brassica spp"
+        },
+        {
+          "text": "Capsicum",
+          "value": "Capsicum"
+        },
+        {
+          "text": "Dahlia",
+          "value": "Dahlia"
+        },
+        {
+          "text": "Fragaria",
+          "value": "Fragaria"
+        },
+        {
+          "text": "Gladiolus",
+          "value": "Gladiolus"
+        },
+        {
+          "text": "Hyacinthus",
+          "value": "Hyacinthus"
+        },
+        {
+          "text": "Iris",
+          "value": "Iris"
+        },
+        {
+          "text": "Lilium",
+          "value": "Lilium"
+        },
+        {
+          "text": "Solanum lycopersicum",
+          "value": "Solanum lycopersicum"
+        },
+        {
+          "text": "Narcissus",
+          "value": "Narcissus"
+        },
+        {
+          "text": "Solanum melongena",
+          "value": "Solanum melongena"
+        },
+        {
+          "text": "Tulipa",
+          "value": "Tulipa"
+        }
+      ]
+    }
+  ],
+  "sections": [
+    {
+      "name": "TNmEvR",
+      "title": "Genera require a growing season inspection, to be carried out by APHA, at all stages of growth down to the final retailer"
+    },
+    {
+      "name": "zOLYXW",
+      "title": "Regulated genera sold to persons professionally engaged in plant production"
+    }
+  ],
+  "conditions": [
+    {
+      "displayName": "PHSI will need to take a soil sample before your application can proceed",
+      "name": "JeNMDp",
+      "value": {
+        "name": "PHSI will need to take a soil sample before your application can proceed",
+        "conditions": [
+          {
+            "field": {
+              "name": "iLVPSs",
+              "type": "YesNoField",
+              "display": "Are the plants or bulbs going to be planted on the same place of production as that on which they raised?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "false",
+              "display": "false"
+            }
+          },
+          {
+            "coordinator": "or",
+            "field": {
+              "name": "ZMyCGx",
+              "type": "YesNoField",
+              "display": "Are the plants for planting going to be subject to a PCN disinfestations process before being moved, such that there is no risk of PCN being spread?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "false",
+              "display": "false"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Plants grown in soil",
+      "name": "mCZniF",
+      "value": {
+        "name": "Plants grown in soil",
+        "conditions": [
+          {
+            "field": {
+              "name": "dOLRQu",
+              "type": "YesNoField",
+              "display": "Do you grow plants in soil? "
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "false",
+              "display": "false"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "is-pfa",
+      "name": "XGQZBO",
+      "value": {
+        "name": "is-pfa",
+        "conditions": [
+          {
+            "field": {
+              "name": "TNmEvR.tctPlq",
+              "type": "YesNoField",
+              "display": "Do you wish to apply for Fireblight pest-free area?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "true",
+              "display": "true"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "fees": [],
+  "outputs": [],
+  "version": 2,
+  "skipSummary": false,
+  "feeOptions": {}
+}
