@@ -125,7 +125,12 @@
       ],
       "next": [
         {
-          "path": "/tell-us-the-location-of-your-production-site"
+          "path": "/tell-us-the-location-of-your-production-site",
+          "condition": "katUKT"
+        },
+        {
+          "path": "/select-the-following-plants-for-planting",
+          "condition": "ZIADcc"
         }
       ],
       "section": "TNmEvR"
@@ -1003,10 +1008,32 @@
       }
     },
     {
-      "displayName": "is-pfa",
-      "name": "XGQZBO",
+      "displayName": "Is a PFA application?",
+      "name": "katUKT",
       "value": {
-        "name": "is-pfa",
+        "name": "Apply for Fireblight PFA?",
+        "conditions": [
+          {
+            "field": {
+              "name": "TNmEvR.tctPlq",
+              "type": "YesNoField",
+              "display": "Do you intend to passport these plants to a pest free area? "
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "true",
+              "display": "true"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Is not a PFA application?",
+      "name": "ZIADcc",
+      "value": {
+        "name": "Is not a PFA application?",
         "conditions": [
           {
             "field": {
@@ -1017,8 +1044,8 @@
             "operator": "is",
             "value": {
               "type": "Value",
-              "value": "true",
-              "display": "true"
+              "value": "false",
+              "display": "false"
             }
           }
         ]
