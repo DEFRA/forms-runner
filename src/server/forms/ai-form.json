@@ -1,0 +1,177 @@
+{
+  "metadata": {},
+  "startPage": "/page-one",
+  "pages": [
+    {
+      "title": "Page One",
+      "path": "/page-one",
+      "components": [
+        {
+          "name": "tcuUlQ",
+          "options": {},
+          "type": "TextField",
+          "title": "What is the name of the applicant?",
+          "schema": {}
+        },
+        {
+          "name": "vXawMb",
+          "options": {},
+          "type": "UkAddressField",
+          "title": "What is the address of the applicant?",
+          "schema": {}
+        },
+        {
+          "name": "mWtMje",
+          "options": {},
+          "type": "TelephoneNumberField",
+          "title": "What is the telephone number of the applicant?",
+          "schema": {}
+        },
+        {
+          "name": "YIGAmK",
+          "options": {},
+          "type": "EmailAddressField",
+          "title": "What is the email address of the applicant?",
+          "schema": {}
+        },
+        {
+          "name": "ApBEPz",
+          "options": {},
+          "type": "YesNoField",
+          "title": "Does the applicant have a Fireblight Pest-free area status?",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/page-two",
+          "condition": "mCZniF"
+        },
+        {
+          "path": "/summary"
+        }
+      ]
+    },
+    {
+      "path": "/page-two",
+      "title": "Page two",
+      "components": [
+        {
+          "name": "UvDQUE",
+          "options": {},
+          "type": "CheckboxesField",
+          "title": "Which plant species will be covered by the plant passport?",
+          "list": "tnWWpt",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/page-three"
+        }
+      ]
+    },
+    {
+      "path": "/page-three",
+      "title": "Page three",
+      "components": [
+        {
+          "name": "XJzvZK",
+          "options": {},
+          "type": "TextField",
+          "title": "What is the name of the person responsible for issuing plant passports?",
+          "schema": {}
+        },
+        {
+          "name": "JzvZKX",
+          "options": {},
+          "type": "TextField",
+          "title": "What is the email address of the person responsible for issuing plant passports?",
+          "schema": {}
+        },
+        {
+          "name": "ZKXJzv",
+          "options": {},
+          "type": "TextField",
+          "title": "What is the telephone number of the person responsible for issuing plant passports?",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/summary"
+        }
+      ]
+    },
+    {
+      "path": "/summary",
+      "title": "Summary",
+      "components": [],
+      "next": [],
+      "controller": "./pages/summary.js"
+    }
+  ],
+  "lists": [
+    {
+      "title": "Host plants of Fireblight",
+      "name": "tnWWpt",
+      "type": "string",
+      "items": [
+        {
+          "text": "Apple",
+          "value": "Apple"
+        },
+        {
+          "text": "Pear",
+          "value": "Pear"
+        },
+        {
+          "text": "Quince",
+          "value": "Quince"
+        },
+        {
+          "text": "Hawthorn",
+          "value": "Hawthorn"
+        },
+        {
+          "text": "Serviceberry",
+          "value": "Serviceberry"
+        },
+        {
+          "text": "Mountain ash",
+          "value": "Mountain ash"
+        }
+      ]
+    }
+  ],
+  "conditions": [
+    {
+      "displayName": "Fireblight Pest-free area status",
+      "name": "mCZniF",
+      "value": {
+        "name": "Fireblight Pest-free area status",
+        "conditions": [
+          {
+            "field": {
+              "name": "ApBEPz",
+              "type": "YesNoField",
+              "display": "Does the applicant have a Fireblight Pest-free area status?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "false",
+              "display": "No"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "sections": [],
+  "fees": [],
+  "outputs": [],
+  "version": 2,
+  "skipSummary": false,
+  "feeOptions": {}
+}
