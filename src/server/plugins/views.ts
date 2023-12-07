@@ -63,6 +63,7 @@ export default {
       appVersion: pkg.version,
       // TODO replace asset path from config
       assetPath: "/forms-runner/assets",
+      contextRoot: "/forms-runner",
       cookiesPolicy: request?.state?.cookies_policy,
       serviceName: capitalize(config.serviceName),
       feedbackLink: config.feedbackLink,
@@ -76,8 +77,8 @@ export default {
       BROWSER_REFRESH_URL: config.browserRefreshUrl,
       sessionTimeout: config.sessionTimeout,
       skipTimeoutWarning: false,
-      serviceStartPage: config.serviceStartPage || "#",
-      privacyPolicyUrl: config.privacyPolicyUrl || "/help/privacy",
+      serviceStartPage: config.serviceStartPage || "/forms-runner",
+      privacyPolicyUrl: config.privacyPolicyUrl || "/forms-runner/help/privacy",
       phaseTag: config.phaseTag,
       navigation: request?.auth.isAuthenticated
         ? [{ text: "Sign out", href: "/logout" }]
