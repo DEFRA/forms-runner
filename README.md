@@ -1,6 +1,8 @@
-# digital-form-builder
+# forms-runner
 
-This repository is forked from [DEFRA's digital form builder](https://github.com/DEFRA/digital-form-builder).
+Citizen-facing forms using a config driven Node application.
+
+This repository is forked from [the old Defra digital form builder](https://github.com/DEFRA/digital-form-builder).
 These projects has been adapted to run several configurations on a single instance.
 
 > DEFRA's digital form builder is a metadata-driven framework that builds on our robust,
@@ -9,41 +11,100 @@ These projects has been adapted to run several configurations on a single instan
 
 The designer is no longer a plugin and is responsible for running itself on default port 3000.
 
-## Getting started
+- [Requirements](#requirements)
+  - [Node.js](#nodejs)
+- [Local development](#local-development)
+  - [Setup](#setup)
+  - [Development](#development)
+  - [Local JSON API](#local-json-api)
+  - [Production](#production)
+  - [Yarn scripts](#yarn-scripts)
+- [Docker](#docker)
+  - [Development Image](#development-image)
+  - [Production Image](#production-image)
+- [Licence](#licence)
+  - [About the licence](#about-the-licence)
 
-### Prerequisites
+## Requirements
 
-- Install Node.js v12.x.x
-- For development, secrets have been stored and shared using [Keybase](https://keybase.io).
-  - Once you have access Install [mkcert](https://github.com/FiloSottile/mkcert) which allows us to use locally-trusted certificates ([GOV.UK Pay](https://www.payments.service.gov.uk) will only allow redirects to `https://`)
-  - Set `$CAROOT` to `KEYBASE_TEAM_DIR/rootCA.pem`
-  - run `mkcert -install`
+### Node.js
 
-If you do not have access to the team's Keybase you can create your own certificates following the mkcert documentation.
+Please install [Node.js](http://nodejs.org/) `>= v18` and [yarn](https://classic.yarnpkg.com/) `= v1`. You will find it
+easier to use the Node Version Manager [nvm](https://github.com/creationix/nvm)
 
-### Clone and build
+To use the correct version of Node.js for this application, via nvm:
 
-Clone this repo
+```bash
+$ cd forms-runner
+$ nvm use
+```
 
-`$ git clone https://github.com/CautionYourBlast/digital-form-builder`
+## Local development
 
-`$ cd digital-form-builder/`
+for local developers
 
-Install dependencies
+### Setup
 
-`$ yarn`
+Install application dependencies:
 
-You are now ready to start.
+```bash
+$ yarn
+```
 
-`$ yarn run dev`
+### Development
 
-Open your browser at
+To run the application in `development` mode run:
 
-`https://localhost:3009`
+```bash
+$ yarn run dev
+```
 
-Working on a Windows Machine? npm by default will use the cmd.exe shell to invoke any scripts. This will cause your install and run to fail. npm must be configured to use the bash shell to invoke scripts. Update your npm configuration to set the shell.
+### Production
 
-`$ yarn config set script-shell "C:\\Program Files\\git\\bin\\bash.exe"`
+To mimic the application running in `production` mode locally run:
+
+```bash
+$ yarn run start
+```
+
+### Yarn scripts
+
+All available Yarn scripts can be seen in [package.json](./package.json)
+To view them in your command line run:
+
+```bash
+$ yarn run
+```
+
+## Docker
+
+### Development image
+
+Build:
+
+```bash
+$ docker build --target development --no-cache --tag forms-runner:development .
+```
+
+Run:
+
+```bash
+$ docker run -p 3000:3000 forms-runner:development
+```
+
+### Production image
+
+Build:
+
+```bash
+docker build --no-cache --tag forms-runner .
+```
+
+Run:
+
+```bash
+$ docker run -p 3000:3000 forms-runner
+```
 
 # Environment variables
 
@@ -123,18 +184,20 @@ Additional steps are required for the different output types.
   - The webhook must accept a POST request
   - It should also return with a JSON with the key 'reference' in the body
 
-## License
+## Licence
 
 THIS INFORMATION IS LICENSED UNDER THE CONDITIONS OF THE OPEN GOVERNMENT LICENCE found at:
 
-http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3
+<http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3>
 
 The following attribution statement MUST be cited in your products and applications when using this information.
 
 > Contains public sector information licensed under the Open Government license v3
 
-### About the license
+### About the licence
 
-The Open Government Licence (OGL) was developed by the Controller of Her Majesty's Stationery Office (HMSO) to enable information providers in the public sector to license the use and re-use of their information under a common open licence.
+The Open Government Licence (OGL) was developed by the Controller of Her Majesty's Stationery Office (HMSO) to enable
+information providers in the public sector to license the use and re-use of their information under a common open
+licence.
 
 It is designed to encourage use and re-use of information freely and flexibly, with only a few conditions.
