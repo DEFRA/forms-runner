@@ -1,11 +1,11 @@
 import Joi from "joi";
 import { redirectTo } from "./engine";
-import { healthCheckRoute, publicRoutes } from "../routes";
+import { healthCheckRoute, publicRoutes, homeRoute } from "../routes";
 import { HapiRequest, HapiResponseToolkit } from "../types";
 import config from "../config";
-import getRequestInfo from "server/utils/getRequestInfo";
+import getRequestInfo from "../utils/getRequestInfo";
 
-const routes = [...publicRoutes, healthCheckRoute];
+const routes = [...publicRoutes, healthCheckRoute, homeRoute];
 
 enum CookieValue {
   Accept = "accept",
