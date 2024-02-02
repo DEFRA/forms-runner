@@ -417,7 +417,7 @@ export class PageControllerBase {
       const state = await cacheService.getState(request);
       const progress = state.progress || [];
       const { num } = request.query;
-      const currentPath = `/${this.model.basePath}${this.path}${request.url.search}`;
+      const currentPath = `${this.model.basePath}${this.path}${request.url.search}`;
       const startPage = this.model.def.startPage;
       const formData = this.getFormDataFromState(state, num - 1);
 

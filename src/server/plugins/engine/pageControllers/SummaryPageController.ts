@@ -179,7 +179,7 @@ export class SummaryPageController extends PageController {
        * If a user does not need to pay, redirect them to /status
        */
       if ((summaryViewModel.fees?.details ?? [])?.length === 0) {
-        return redirectTo(request, h, `/${request.params.id}/status`);
+        return redirectTo(request, h, `/${model.basePath}/status`);
       }
 
       const payReturnUrl =
@@ -192,7 +192,7 @@ export class SummaryPageController extends PageController {
       // user must pay for service
       const description = payService.descriptionFromFees(summaryViewModel.fees);
       const url = new URL(
-        `${payReturnUrl}/${request.params.id}/status`
+        `${payReturnUrl}/${model.basePath}/status`
       ).toString();
       const res = await payService.payRequest(
         summaryViewModel.fees,
@@ -232,7 +232,7 @@ export class SummaryPageController extends PageController {
         payState.pay.meta.attempts = 0;
         await cacheService.mergeState(request, payState);
         return h
-          .redirect(`/${request.params.id}/status/payment-skip-warning`)
+          .redirect(`/${model.basePath}/status/payment-skip-warning`)
           .takeover();
       }
 
