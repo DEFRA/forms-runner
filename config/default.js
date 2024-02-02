@@ -18,8 +18,9 @@ module.exports = {
   /**
    * Server
    */
-  port: 3009,
-  env: "development",
+  port: process.env.PORT || 3009,
+  env: process.env.NODE_ENV || "development",
+  appPathPrefix: process.env.APP_PATH_PREFIX || "/forms-runner",
   previewMode: false,
   enforceCsrf: true,
   sandbox: false,
@@ -126,7 +127,7 @@ module.exports = {
   /**
    * Logging
    */
-  logLevel: "info", // Accepts "trace" | "debug" | "info" | "warn" |"error"
+  logLevel: process.env.LOG_LEVEL || "info", // Accepts "trace" | "debug" | "info" | "warn" |"error"
   logPrettyPrint: true,
   logRedactPaths: ["req.headers['x-forwarded-for']"], // You should check your privacy policy before disabling this. Check https://getpino.io/#/docs/redaction on how to configure redaction paths
 

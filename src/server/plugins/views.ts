@@ -63,7 +63,7 @@ export default {
     isCached: !config.isDev,
     context: (request: HapiRequest) => ({
       appVersion: pkg.version,
-      assetPath: "/assets",
+      assetPath: `${config.get("appPathPrefix")}/assets"`,
       cookiesPolicy: request?.state?.cookies_policy,
       serviceName: capitalize(config.serviceName),
       feedbackLink: config.feedbackLink,
