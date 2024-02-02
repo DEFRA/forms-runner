@@ -1,24 +1,7 @@
-import config from "../config";
 import pino from "hapi-pino";
+import {loggerOptions} from '../common/helpers/logging/logger-options'
+
 export default {
   plugin: pino,
-  options: {
-    prettyPrint:
-      config.logPrettyPrint === "true" || config.logPrettyPrint === true,
-    level: config.logLevel,
-    formatters: {
-      level: (label) => {
-        return { level: label };
-      },
-    },
-    debug: config.isDev,
-    logRequestStart: config.isDev,
-    logRequestComplete: config.isDev,
-    ignoreFunc: (_options, request) =>
-      request.path.startsWith("/assets") || request.url.contains("assets"),
-    redact: {
-      paths: config.logRedactPaths,
-      censor: "REDACTED",
-    },
-  },
+  options: loggerOptions
 };

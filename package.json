@@ -1,5 +1,5 @@
 {
-  "name": "@xgovformbuilder/runner",
+  "name": "forms-runner",
   "version": "3.0.0",
   "description": "Digital forms runner",
   "main": "src/index.js",
@@ -30,7 +30,7 @@
     "url": "https://github.com/XGovFormBuilder/digital-form-builder/tree/main/builder"
   },
   "engines": {
-    "node": ">=18"
+    "node": "20.3.0"
   },
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
