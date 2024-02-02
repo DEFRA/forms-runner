@@ -64,6 +64,7 @@ export default {
     context: (request: HapiRequest) => ({
       appVersion: pkg.version,
       assetPath: `${config.get("appPathPrefix")}/assets"`,
+      appPathPrefix: config.get("appPathPrefix"),
       cookiesPolicy: request?.state?.cookies_policy,
       serviceName: capitalize(config.serviceName),
       feedbackLink: config.feedbackLink,
