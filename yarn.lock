@@ -2826,9 +2826,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@xgovformbuilder/model@file:../../../../../tmp/xgov-model/model::locator=forms-runner%40workspace%3A.":
+"@xgovformbuilder/model@file:/tmp/xgov-model/model/::locator=forms-runner%40workspace%3A.":
   version: 3.0.0
-  resolution: "@xgovformbuilder/model@file:../../../../../tmp/xgov-model/model#../../../../../tmp/xgov-model/model::hash=384692&locator=forms-runner%40workspace%3A."
+  resolution: "@xgovformbuilder/model@file:/tmp/xgov-model/model/#/tmp/xgov-model/model/::hash=384692&locator=forms-runner%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.23.3
     boom: 7.3.0
@@ -2839,12 +2839,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@xgovformbuilder/queue-model@file:../../../../../tmp/xgov-model/queue-model::locator=forms-runner%40workspace%3A.":
+"@xgovformbuilder/queue-model@file:/tmp/xgov-model/queue-model/::locator=forms-runner%40workspace%3A.":
   version: 1.0.0
-  resolution: "@xgovformbuilder/queue-model@file:../../../../../tmp/xgov-model/queue-model#../../../../../tmp/xgov-model/queue-model::hash=ca5329&locator=forms-runner%40workspace%3A."
+  resolution: "@xgovformbuilder/queue-model@file:/tmp/xgov-model/queue-model/#/tmp/xgov-model/queue-model/::hash=eaf1f2&locator=forms-runner%40workspace%3A."
   dependencies:
     "@prisma/client": 5.0.0
-  checksum: fa59c9c770f18c010ce5f24f84fbeec3c378d2d32de6bd3d2e862eb6940920afe479d40e9ac66136e7851e13e91810d1bc8ff4fe63660ecdae94a2935e9d052d
+  checksum: b4c0a77b8c413a6910047b1e4b88e8c296705003056dfa825782a74aba55567d6dc64a4f3262a6de09ae7bbb9bb7aee9082a6f583298cba1e08ba179699c8743
   languageName: node
   linkType: hard
 
@@ -5003,8 +5003,8 @@ __metadata:
     "@types/url-parse": ^1.4.8
     "@types/wreck": ^14.0.0
     "@xgovformbuilder/lab-babel": 2.1.2
-    "@xgovformbuilder/model": "file:../../../../../tmp/xgov-model/model"
-    "@xgovformbuilder/queue-model": "file:../../../../../tmp/xgov-model/queue-model"
+    "@xgovformbuilder/model": /tmp/xgov-model/model/
+    "@xgovformbuilder/queue-model": /tmp/xgov-model/queue-model/
     accept-language-parser: 1.5.0
     accessible-autocomplete: ^2.0.2
     acorn: ^8.7.0
