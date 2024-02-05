@@ -150,7 +150,9 @@ export const catboxProvider = () => {
    * More information at {@link https://hapi.dev/module/catbox/api}
    */
   const provider = {
-    constructor: redisHost ? CatboxRedis.Engine : CatboxMemory.Engine,
+    // TODO re-enable
+    // constructor: redisHost ? CatboxRedis.Engine : CatboxMemory.Engine,
+    constructor: CatboxMemory.Engine,
     options: {},
   };
 
