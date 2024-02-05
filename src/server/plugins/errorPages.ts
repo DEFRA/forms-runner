@@ -27,6 +27,7 @@ export default {
               statusCode: statusCode,
               data: response.data,
               message: response.message,
+              stack: response.stack
             });
 
             // The return the `500` view
