@@ -1,5 +1,9 @@
 #¬/bin/sh
 
-test -d /tmp/xgov-model || git clone https://github.com/XGovFormBuilder/digital-form-builder.git /tmp/xgov-model && cd /tmp/xgov-model/model && yarn && yarn build && cd -
+test -d /tmp/xgov-model || git clone https://github.com/XGovFormBuilder/digital-form-builder.git /tmp/xgov-model
+
+cd /tmp/xgov-model/model && yarn && yarn build && cd -
+cd /tmp/xgov-model/queue-model && yarn && yarn build && cd -
+
 yarn add /tmp/xgov-model/model/
 yarn add /tmp/xgov-model/queue-model/
