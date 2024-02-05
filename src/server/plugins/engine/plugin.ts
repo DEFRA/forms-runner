@@ -61,7 +61,7 @@ export const plugin = {
     configs.forEach((config) => {
       forms[config.id] = new FormModel(config.configuration, {
         ...modelOptions,
-        basePath: `${config.get("appPathPrefix")}/${config.id}`,
+        basePath: `${config.appPathPrefix}/${config.id}`,
       });
     });
 
@@ -97,7 +97,7 @@ export const plugin = {
             : configuration;
         forms[id] = new FormModel(parsedConfiguration, {
           ...modelOptions,
-          basePath: `${config.get("appPathPrefix")}/${id}`,
+          basePath: `${config.appPathPrefix}/${id}`,
         });
         return h.response({}).code(204);
       },
