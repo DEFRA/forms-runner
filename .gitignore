@@ -6,3 +6,4 @@ unit-test.html
 .env
 /dist/
 /public/build/
+node_modules/
