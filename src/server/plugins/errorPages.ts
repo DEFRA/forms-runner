@@ -30,6 +30,8 @@ export default {
               stack: response.stack
             });
 
+            request.logger.error(response?.stack)
+
             // The return the `500` view
             return h.view("500").code(statusCode);
           }
