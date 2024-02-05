@@ -37,7 +37,7 @@ function getStartPageRedirect(
   if (startPage.startsWith("http")) {
     startPageRedirect = redirectTo(request, h, startPage);
   } else {
-    startPageRedirect = redirectTo(request, h, `/${id}/${startPage}`);
+    startPageRedirect = redirectTo(request, h, `/${model.basePath}/${startPage}`);
   }
 
   return startPageRedirect;
@@ -50,6 +50,8 @@ type PluginOptions = {
   previewMode: boolean;
 };
 
+const formBasePath = config.appPathPrefix.replace(/^\//, "") // replace first / so it doesn't turn into //forms-runner and get interpreted as a hostname
+
 export const plugin = {
   name: "@xgovformbuilder/runner/engine",
   dependencies: "@hapi/vision",
@@ -58,10 +60,11 @@ export const plugin = {
     const { modelOptions, configs, previewMode } = options;
     server.app.forms = {};
     const forms = server.app.forms;
+
     configs.forEach((config) => {
       forms[config.id] = new FormModel(config.configuration, {
         ...modelOptions,
-        basePath: `${config.appPathPrefix}/${config.id}`,
+        basePath: `${formBasePath}/${config.id}`,
       });
     });
 
@@ -97,7 +100,7 @@ export const plugin = {
             : configuration;
         forms[id] = new FormModel(parsedConfiguration, {
           ...modelOptions,
-          basePath: `${config.appPathPrefix}/${id}`,
+          basePath: `${formBasePath}/${id}`,
         });
         return h.response({}).code(204);
       },
