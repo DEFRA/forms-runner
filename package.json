@@ -30,11 +30,12 @@
     "url": "https://github.com/XGovFormBuilder/digital-form-builder/tree/main/builder"
   },
   "engines": {
-    "node": "20.3.0"
+    "node": ">=18"
   },
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
     "@babel/runtime": "^7.23.3",
+    "@elastic/ecs-pino-format": "1.4.0",
     "@hapi/bell": "^13.0.1",
     "@hapi/boom": "^10.0.1",
     "@hapi/catbox": "^12.1.1",
@@ -104,8 +105,8 @@
     "@types/url-parse": "^1.4.8",
     "@types/wreck": "^14.0.0",
     "@xgovformbuilder/lab-babel": "2.1.2",
-    "@xgovformbuilder/model": "workspace:model",
-    "@xgovformbuilder/queue-model": "workspace:queue-model",
+    "@xgovformbuilder/model": "file:../../../../../tmp/xgov-model/model",
+    "@xgovformbuilder/queue-model": "file:../../../../../tmp/xgov-model/queue-model",
     "acorn": "^8.7.0",
     "babel-eslint": "^10.1.0",
     "babel-plugin-module-name-mapper": "^1.2.0",

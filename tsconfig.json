@@ -1,24 +1,39 @@
 {
-  "extends": "../tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "outDir": "dist",
-    "allowSyntheticDefaultImports": true,
-    "noImplicitAny": false,
-    "esModuleInterop": true,
-    "paths": {
-      "src/*": ["src/*"],
-      "server/*": ["src/server/*"]
-    },
+    /* Basic Options */
+    "target": "ES2015",
+    "module": "commonjs",
+    "allowJs": true,
+    "checkJs": false,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "jsx": "react",
     "resolveJsonModule": true,
-    "lib": [
-      "dom",
-      "ES2020.String",
-      "ES2020.Promise",
-      "ES2019.Object",
-      "ES2019.Array"
-    ],
-    "skipLibCheck": true
+
+
+    /* Strict Type-Checking Options */
+    "strict": true,
+    "noImplicitAny": false, // once all ts this should be true
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+
+    /* Additional Checks */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+
+    /* Module Resolution Options */
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Libs */
+    "lib": ["es2019"]
   },
-  "include": ["src", "package.json"]
+  "exclude": ["webpack.config.js", "node_modules", "babel*", "test", "node_modules/"],
 }

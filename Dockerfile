@@ -14,14 +14,13 @@ ARG PORT_DEBUG
 ENV PORT ${PORT}
 EXPOSE ${PORT} ${PORT_DEBUG}
 
-COPY --chown=node:node src config public install_model.sh ./
-# TODO remove model installation from git
-
 RUN npm install --global yarn
 
-COPY --chown=node:node . ./
-
+COPY --chown=node:node package.json install_model.sh ./
 RUN bash install_model.sh
+RUN yarn
+
+COPY --chown=node:node . ./
 RUN yarn
 
 CMD [ "yarn", "run", "dev" ]
