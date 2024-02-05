@@ -9,7 +9,7 @@ import config from "../config";
 import { HapiRequest } from "../types";
 import additionalContexts from "../templates/additionalContexts.json";
 
-const basedir = path.join(process.cwd(), "..");
+const basedir = path.join(process.cwd());
 
 export default {
   plugin: vision,

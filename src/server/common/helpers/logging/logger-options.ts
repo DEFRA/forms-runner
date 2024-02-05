@@ -1,6 +1,6 @@
 import ecsFormat from '@elastic/ecs-pino-format'
 
-import { config } from './config'
+import config from '../../../config'
 
 const loggerOptions = {
   enabled: true, // TODO re-enable !config.get('isTest'),
@@ -9,7 +9,7 @@ const loggerOptions = {
     remove: true
   },
   level: config.get('logLevel'),
-  ...(config.get('isDevelopment') ? { transport: { target: 'pino-pretty' } } : ecsFormat())
+  ...(config.isDev ? { transport: { target: 'pino-pretty' } } : ecsFormat())
 }
 
 export { loggerOptions }
