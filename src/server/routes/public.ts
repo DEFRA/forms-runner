@@ -1,7 +1,7 @@
 import path from "path";
 
 const runnerFolder = path.join(__dirname, "..", "..", "..");
-const rootNodeModules = path.join(runnerFolder, "..", "node_modules");
+const rootNodeModules = path.join(runnerFolder, "node_modules");
 
 export default [
   {
