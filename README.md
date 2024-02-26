@@ -29,7 +29,7 @@ The designer is no longer a plugin and is responsible for running itself on defa
 
 ### Node.js
 
-Please install [Node.js](http://nodejs.org/) `>= v18` and [yarn](https://classic.yarnpkg.com/) `= v1`. You will find it
+Please install [Node.js](http://nodejs.org/) `>= v20` and [yarn](https://classic.yarnpkg.com/) `= v1`. You will find it
 easier to use the Node Version Manager [nvm](https://github.com/creationix/nvm)
 
 To use the correct version of Node.js for this application, via nvm:
