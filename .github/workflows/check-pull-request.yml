@@ -21,7 +21,7 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-      - run: yarn
-      #- run: yarn run format:check
-      #- run: yarn run lint
-      #- run: yarn test
+      - run: npm ci
+      #- run: npm run format:check
+      #- run: npm run lint
+      #- run: npm run test

@@ -14,22 +14,20 @@ ARG PORT_DEBUG
 ENV PORT ${PORT}
 EXPOSE ${PORT} ${PORT_DEBUG}
 
-RUN npm install --global yarn
-
 COPY --chown=node:node package.json install_model.sh ./
 RUN bash install_model.sh
-RUN yarn
+RUN npm ci
 
 COPY --chown=node:node . ./
-RUN yarn
+RUN npm ci
 
-CMD [ "yarn", "run", "dev" ]
+CMD [ "npm", "run", "dev" ]
 
 FROM development as productionBuild
 
 ENV NODE_ENV production
 
-RUN yarn run build
+RUN npm run build
 
 FROM defradigital/node:${PARENT_VERSION} AS production
 
@@ -56,4 +54,4 @@ ARG PORT
 ENV PORT ${PORT}
 EXPOSE ${PORT}
 
-CMD [ "yarn", "start" ]
+CMD [ "npm", "run", "start" ]

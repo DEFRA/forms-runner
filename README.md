@@ -18,7 +18,7 @@ The designer is no longer a plugin and is responsible for running itself on defa
   - [Development](#development)
   - [Local JSON API](#local-json-api)
   - [Production](#production)
-  - [Yarn scripts](#yarn-scripts)
+  - [npm scripts](#npm-scripts)
 - [Docker](#docker)
   - [Development Image](#development-image)
   - [Production Image](#production-image)
@@ -29,7 +29,7 @@ The designer is no longer a plugin and is responsible for running itself on defa
 
 ### Node.js
 
-Please install [Node.js](http://nodejs.org/) `>= v20` and [yarn](https://classic.yarnpkg.com/) `= v1`. You will find it
+Please install [Node.js](http://nodejs.org/) `>= v20`. You will find it
 easier to use the Node Version Manager [nvm](https://github.com/creationix/nvm)
 
 To use the correct version of Node.js for this application, via nvm:
@@ -48,7 +48,7 @@ for local developers
 Install application dependencies:
 
 ```bash
-$ yarn
+$ npm ci
 ```
 
 ### Development
@@ -56,7 +56,7 @@ $ yarn
 To run the application in `development` mode run:
 
 ```bash
-$ yarn run dev
+$ npm run dev
 ```
 
 ### Production
@@ -64,16 +64,16 @@ $ yarn run dev
 To mimic the application running in `production` mode locally run:
 
 ```bash
-$ yarn run start
+$ npm run start
 ```
 
-### Yarn scripts
+### npm scripts
 
-All available Yarn scripts can be seen in [package.json](./package.json)
+All available npm scripts can be seen in [package.json](./package.json)
 To view them in your command line run:
 
 ```bash
-$ yarn run
+$ npm run
 ```
 
 ## Docker
