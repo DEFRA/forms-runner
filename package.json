@@ -11,7 +11,7 @@
     "start": "node dist/index.js",
     "start:local": "NODE_ENV=development nodemon dist/index.js",
     "dev": "concurrently 'npm run watch' 'npm run start:local'",
-    "build": "node bin/run/fix-hoek-package.js && npm run build:css && npm run babel-build && npm run check-forms",
+    "build": "npm run build:css && npm run babel-build && npm run check-forms",
     "build:css": "sass src/client/sass:public/build/stylesheets -s compressed -I . --no-source-map",
     "babel-build": "babel --extensions '.ts' src -d dist --copy-files -s inline",
     "lint": "eslint .",
