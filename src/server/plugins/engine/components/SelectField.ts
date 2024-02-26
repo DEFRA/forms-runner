@@ -1,6 +1,6 @@
 import { ListFormComponent } from "./ListFormComponent";
 import { FormData, FormSubmissionErrors } from "server/plugins/engine/types";
-import { SelectFieldComponent } from "@xgovformbuilder/model";
+import { SelectFieldComponent } from "@defra/forms-model";
 import { DataType } from "./types";
 
 export class SelectField extends ListFormComponent {

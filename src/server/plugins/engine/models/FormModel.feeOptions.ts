@@ -1,4 +1,4 @@
-import { FormDefinition } from "@xgovformbuilder/model";
+import { FormDefinition } from "@defra/forms-model";
 
 export const DEFAULT_FEE_OPTIONS: FormDefinition["feeOptions"] = {
   /**

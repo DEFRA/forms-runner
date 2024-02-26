@@ -1,7 +1,7 @@
 import path from "path";
 import { configure } from "nunjucks";
 import { getValidStateFromQueryParameters, redirectTo } from "./helpers";
-import { FormConfiguration } from "@xgovformbuilder/model";
+import { FormConfiguration } from "@defra/forms-model";
 import { HapiRequest, HapiResponseToolkit, HapiServer } from "server/types";
 
 import { FormModel } from "./models";
@@ -17,7 +17,6 @@ configure([
   path.resolve(__dirname, "/views/partials"),
   "node_modules/govuk-frontend/govuk/",
   "node_modules/govuk-frontend/govuk/components/",
-  "node_modules/@xgovformbuilder/designer/views",
   "node_modules/hmpo-components/components",
 ]);
 
@@ -53,7 +52,7 @@ type PluginOptions = {
 const formBasePath = config.appPathPrefix.replace(/^\//, "") // replace first / so it doesn't turn into //forms-runner and get interpreted as a hostname
 
 export const plugin = {
-  name: "@xgovformbuilder/runner/engine",
+  name: "@defra/forms-runner/engine",
   dependencies: "@hapi/vision",
   multiple: true,
   register: (server: HapiServer, options: PluginOptions) => {

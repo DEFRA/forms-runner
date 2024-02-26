@@ -11,7 +11,7 @@ import {
 } from "../types";
 import { ViewModel } from "./types";
 import { FormModel } from "../models";
-import { ComponentDef } from "@xgovformbuilder/model";
+import { ComponentDef } from "@defra/forms-model";
 
 export class FormComponent extends ComponentBase {
   isFormComponent: boolean = true;

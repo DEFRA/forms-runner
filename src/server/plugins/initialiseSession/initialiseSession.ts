@@ -9,7 +9,7 @@ import { InitialiseSessionOptions, InitialiseSession } from "./types";
 import path from "path";
 import { WebhookSchema } from "server/schemas/types";
 import Jwt from "@hapi/jwt";
-import { SpecialPages } from "@xgovformbuilder/model";
+import { SpecialPages } from "@defra/forms-model";
 import Boom from "boom";
 
 type ConfirmationPage = SpecialPages["confirmationPage"];

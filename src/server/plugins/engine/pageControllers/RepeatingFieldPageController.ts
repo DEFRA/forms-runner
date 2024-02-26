@@ -2,7 +2,7 @@ import { HapiRequest, HapiResponseToolkit } from "server/types";
 import { PageController } from "./PageController";
 import { FormModel } from "server/plugins/engine/models";
 import { RepeatingSummaryPageController } from "./RepeatingSummaryPageController";
-import { ComponentDef, RepeatingFieldPage } from "@xgovformbuilder/model";
+import { ComponentDef, RepeatingFieldPage } from "@defra/forms-model";
 import { FormComponent } from "../components";
 
 import joi from "joi";

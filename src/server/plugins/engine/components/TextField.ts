@@ -1,4 +1,4 @@
-import { TextFieldComponent } from "@xgovformbuilder/model";
+import { TextFieldComponent } from "@defra/forms-model";
 
 import { FormComponent } from "./FormComponent";
 import { FormData, FormSubmissionErrors } from "../types";

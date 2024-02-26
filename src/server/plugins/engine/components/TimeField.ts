@@ -1,4 +1,4 @@
-import { InputFieldsComponentsDef } from "@xgovformbuilder/model";
+import { InputFieldsComponentsDef } from "@defra/forms-model";
 
 import * as helpers from "./helpers";
 import { FormComponent } from "./FormComponent";

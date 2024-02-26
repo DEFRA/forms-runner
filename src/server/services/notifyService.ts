@@ -1,6 +1,6 @@
 import { NotifyClient } from "notifications-node-client/client/notification";
 import { HapiServer } from "server/types";
-import { isMultipleApiKey, MultipleApiKeys } from "@xgovformbuilder/model";
+import { isMultipleApiKey, MultipleApiKeys } from "@defra/forms-model";
 import config from "server/config";
 
 type Personalisation = {

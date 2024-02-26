@@ -1,7 +1,7 @@
 {
-  "name": "forms-runner",
+  "name": "@defra/forms-runner",
   "version": "3.0.0",
-  "description": "Digital forms runner",
+  "description": "Defra forms runner",
   "main": "src/index.js",
   "private": true,
   "scripts": {

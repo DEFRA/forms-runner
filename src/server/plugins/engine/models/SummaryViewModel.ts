@@ -13,7 +13,7 @@ import {
   NotifyModel,
   WebhookModel,
 } from "server/plugins/engine/models/submission";
-import { FormDefinition, isMultipleApiKey } from "@xgovformbuilder/model";
+import { FormDefinition, isMultipleApiKey } from "@defra/forms-model";
 import { HapiRequest } from "src/server/types";
 import { InitialiseSessionOptions } from "server/plugins/initialiseSession/types";
 

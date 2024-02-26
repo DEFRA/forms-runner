@@ -1,6 +1,6 @@
 import { PageController } from "server/plugins/engine/pageControllers/PageController";
 import { FormModel } from "server/plugins/engine/models";
-import { Page } from "@xgovformbuilder/model";
+import { Page } from "@defra/forms-model";
 import { FormComponent } from "server/plugins/engine/components";
 import { HapiRequest, HapiResponseToolkit } from "server/types";
 import joi from "joi";

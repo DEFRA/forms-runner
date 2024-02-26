@@ -6,7 +6,7 @@ import {
   WebhookService,
 } from "server/services";
 import { SendNotificationArgs } from "server/services/notifyService";
-import { Output, WebhookOutputConfiguration } from "@xgovformbuilder/model";
+import { Output, WebhookOutputConfiguration } from "@defra/forms-model";
 import type { NotifyModel } from "../plugins/engine/models/submission";
 import { ComponentCollection } from "server/plugins/engine/components/ComponentCollection";
 import { FormSubmissionState } from "server/plugins/engine/types";

@@ -1,6 +1,6 @@
 import * as Code from "@hapi/code";
 import * as Lab from "@hapi/lab";
-import { WebsiteFieldComponent } from "@xgovformbuilder/model";
+import { WebsiteFieldComponent } from "@defra/forms-model";
 import { WebsiteField } from "src/server/plugins/engine/components";
 import { FormModel } from "src/server/plugins/engine/models";
 

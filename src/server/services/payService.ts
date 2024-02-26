@@ -1,7 +1,7 @@
 import config from "../config";
 import { get, postJson } from "./httpService";
 import { nanoid } from "nanoid";
-import { Fee } from "@xgovformbuilder/model";
+import { Fee } from "@defra/forms-model";
 import { FeesModel } from "server/plugins/engine/models/submission";
 import { HapiServer } from "server/types";
 import { format } from "date-fns";

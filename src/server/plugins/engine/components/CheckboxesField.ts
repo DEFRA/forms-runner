@@ -1,5 +1,5 @@
 import { FormData, FormSubmissionErrors, FormSubmissionState } from "../types";
-import { ListComponentsDef } from "@xgovformbuilder/model";
+import { ListComponentsDef } from "@defra/forms-model";
 import { FormModel } from "../models";
 import joi from "joi";
 import { SelectionControlField } from "server/plugins/engine/components/SelectionControlField";

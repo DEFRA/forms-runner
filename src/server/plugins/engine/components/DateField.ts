@@ -1,6 +1,6 @@
 import { add, sub, format, parseISO } from "date-fns";
 import { addClassOptionIfNone } from "./helpers";
-import { DateFieldComponent } from "@xgovformbuilder/model";
+import { DateFieldComponent } from "@defra/forms-model";
 
 import { FormComponent } from "./FormComponent";
 import { FormData, FormSubmissionErrors, FormSubmissionState } from "../types";

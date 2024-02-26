@@ -3,7 +3,7 @@ import {
   ComponentDef,
   ContentComponentsDef,
   InputFieldsComponentsDef,
-} from "@xgovformbuilder/model";
+} from "@defra/forms-model";
 
 import { FormModel } from "../models";
 import { FormData, FormSubmissionErrors } from "../types";

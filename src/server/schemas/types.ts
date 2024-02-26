@@ -1,4 +1,4 @@
-import { ComponentType, ConfirmationPage } from "@xgovformbuilder/model";
+import { ComponentType, ConfirmationPage } from "@defra/forms-model";
 import { FeeDetails } from "server/services/payService";
 
 export type Field = {

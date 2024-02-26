@@ -9,7 +9,7 @@ import {
   Page,
   ConditionRawData,
   List,
-} from "@xgovformbuilder/model";
+} from "@defra/forms-model";
 
 import { FormSubmissionState } from "../types";
 import { PageControllerBase, getPageController } from "../pageControllers";

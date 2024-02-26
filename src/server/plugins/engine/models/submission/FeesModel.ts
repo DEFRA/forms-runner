@@ -1,7 +1,7 @@
 import { FormModel } from "server/plugins/engine/models";
 import { FormSubmissionState } from "server/plugins/engine/types";
 import { reach } from "hoek";
-import { Fee } from "@xgovformbuilder/model";
+import { Fee } from "@defra/forms-model";
 import { FeeDetails } from "server/services/payService";
 
 export type FeesModel = {

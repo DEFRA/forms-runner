@@ -1,4 +1,4 @@
-import { WebsiteFieldComponent } from "@xgovformbuilder/model";
+import { WebsiteFieldComponent } from "@defra/forms-model";
 import Joi, { StringSchema } from "joi";
 import { FormModel } from "../models";
 import { TextField } from "./TextField";

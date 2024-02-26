@@ -1,5 +1,5 @@
 import joi, { Schema as JoiSchema } from "joi";
-import { ComponentDef } from "@xgovformbuilder/model";
+import { ComponentDef } from "@defra/forms-model";
 
 import * as Components from "./index";
 import { FormModel } from "../models";

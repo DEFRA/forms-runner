@@ -1,5 +1,5 @@
 /**
- * IMPORTANT: Exported Components must follow the naming convention implemented in {@link @xgovformbuilder/model#ComponentType}
+ * IMPORTANT: Exported Components must follow the naming convention implemented in {@link @defra/forms-model#ComponentType}
  * In the Form JSON, components have a type property which is the name of the components, e.g. DateField.
  * Components are loaded in the ComponentsCollection constructor.
  */

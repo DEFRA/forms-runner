@@ -1,7 +1,7 @@
 import { FormData, FormSubmissionErrors, FormSubmissionState } from "../types";
 import { FormComponent } from "./FormComponent";
 import joi, { Schema } from "joi";
-import { NumberFieldComponent } from "@xgovformbuilder/model";
+import { NumberFieldComponent } from "@defra/forms-model";
 
 export class NumberField extends FormComponent {
   schemaOptions: NumberFieldComponent["schema"];

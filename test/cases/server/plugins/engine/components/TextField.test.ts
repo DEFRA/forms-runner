@@ -2,7 +2,7 @@ import * as Code from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import sinon from "sinon";
 import { TextField } from "server/plugins/engine/components/TextField";
-import { componentSchema } from "@xgovformbuilder/model";
+import { componentSchema } from "@defra/forms-model";
 import { messages } from "src/server/plugins/engine/pageControllers/validationOptions";
 
 const lab = Lab.script();

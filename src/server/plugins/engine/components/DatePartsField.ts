@@ -1,5 +1,5 @@
 import { add, sub, parseISO, format } from "date-fns";
-import { InputFieldsComponentsDef } from "@xgovformbuilder/model";
+import { InputFieldsComponentsDef } from "@defra/forms-model";
 
 import { FormComponent } from "./FormComponent";
 import { ComponentCollection } from "./ComponentCollection";

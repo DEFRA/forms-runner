@@ -1,4 +1,4 @@
-import { ListComponentsDef } from "@xgovformbuilder/model";
+import { ListComponentsDef } from "@defra/forms-model";
 
 import { SelectField } from "./SelectField";
 import { FormModel } from "../models";

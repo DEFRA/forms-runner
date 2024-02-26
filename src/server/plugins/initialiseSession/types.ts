@@ -1,4 +1,4 @@
-import { ContentComponentsDef } from "@xgovformbuilder/model";
+import { ContentComponentsDef } from "@defra/forms-model";
 
 export type InitialiseSession = {
   safelist: string[];

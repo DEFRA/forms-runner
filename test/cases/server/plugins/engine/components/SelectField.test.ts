@@ -2,7 +2,7 @@ import * as Code from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import sinon from "sinon";
 import { FormModel } from "../../../../../../src/server/plugins/engine/models";
-import { ListComponentsDef } from "@xgovformbuilder/model";
+import { ListComponentsDef } from "@defra/forms-model";
 import { FormSubmissionErrors } from "../../../../../../src/server/plugins/engine/types";
 import { SelectField } from "../../../../../../src/server/plugins/engine/components";
 

@@ -1,7 +1,7 @@
 import { FormModel } from "server/plugins/engine/models";
 import { FormSubmissionState } from "server/plugins/engine/types";
 import { reach } from "hoek";
-import { NotifyOutputConfiguration, List } from "@xgovformbuilder/model";
+import { NotifyOutputConfiguration, List } from "@defra/forms-model";
 
 export type NotifyModel = Omit<
   NotifyOutputConfiguration,

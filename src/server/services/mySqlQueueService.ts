@@ -1,5 +1,5 @@
 import { HapiServer } from "server/types";
-import { PrismaClient } from "@xgovformbuilder/queue-model";
+import { PrismaClient } from "@defra/forms-queue-model";
 import { prisma } from "../prismaClient";
 import config from "../config";
 import { QueueService } from "server/services/QueueService";

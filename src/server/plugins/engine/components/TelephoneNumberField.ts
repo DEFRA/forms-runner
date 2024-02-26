@@ -1,4 +1,4 @@
-import { TelephoneNumberFieldComponent } from "@xgovformbuilder/model";
+import { TelephoneNumberFieldComponent } from "@defra/forms-model";
 
 import { FormComponent } from "./FormComponent";
 import { FormModel } from "../models";

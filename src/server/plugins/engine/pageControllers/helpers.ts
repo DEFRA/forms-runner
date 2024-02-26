@@ -8,7 +8,7 @@ import { StartPageController } from "./StartPageController";
 import { SummaryPageController } from "./SummaryPageController";
 import { PageControllerBase } from "./PageControllerBase";
 import { RepeatingFieldPageController } from "./RepeatingFieldPageController";
-import { Page } from "@xgovformbuilder/model";
+import { Page } from "@defra/forms-model";
 import { UploadPageController } from "server/plugins/engine/pageControllers/UploadPageController";
 
 const PageControllers = {

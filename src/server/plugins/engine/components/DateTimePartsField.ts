@@ -1,6 +1,6 @@
 import { format, parse, parseISO } from "date-fns";
 import { Schema } from "joi";
-import { InputFieldsComponentsDef } from "@xgovformbuilder/model";
+import { InputFieldsComponentsDef } from "@defra/forms-model";
 
 import * as helpers from "./helpers";
 import { optionalText } from "./constants";

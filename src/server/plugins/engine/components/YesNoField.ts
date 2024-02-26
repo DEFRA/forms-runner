@@ -4,7 +4,7 @@ import * as helpers from "./helpers";
 import { FormData, FormSubmissionErrors, FormSubmissionState } from "../types";
 import { addClassOptionIfNone } from "./helpers";
 import { ListFormComponent } from "./ListFormComponent";
-import { List } from "@xgovformbuilder/model";
+import { List } from "@defra/forms-model";
 
 /**
  * @desc

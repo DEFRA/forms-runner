@@ -6,7 +6,7 @@ import {
   WebhookSchema,
 } from "server/schemas/types";
 import { Question } from "server/plugins/engine/models/types";
-import { componentSchema } from "@xgovformbuilder/model";
+import { componentSchema } from "@defra/forms-model";
 
 const fieldSchema: joi.ObjectSchema<Field> = joi.object({
   key: joi.string().required(),

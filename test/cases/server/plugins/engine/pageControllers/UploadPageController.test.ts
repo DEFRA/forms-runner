@@ -4,7 +4,7 @@ import { UploadPageController } from "../../../../../../src/server/plugins/engin
 import { FormModel } from "../../../../../../src/server/plugins/engine/models";
 import * as sinon from "sinon";
 import * as PlaybackUploadPageController from "../../../../../../src/server/plugins/engine/pageControllers/PlaybackUploadPageController";
-import { Page } from "@xgovformbuilder/model";
+import { Page } from "@defra/forms-model";
 import { FormComponent } from "../../../../../../src/server/plugins/engine/components";
 
 const lab = Lab.script();
