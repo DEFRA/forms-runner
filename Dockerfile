@@ -16,7 +16,7 @@ EXPOSE ${PORT} ${PORT_DEBUG}
 
 WORKDIR /home/node/app
 
-COPY --chown=node:node package.json install_model.sh ./
+COPY --chown=node:node packag*.json install_model.sh ./
 
 RUN npm ci --ignore-scripts
 RUN npm run postinstall

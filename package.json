@@ -96,8 +96,6 @@
     "@babel/preset-env": "^7.23.3",
     "@babel/preset-typescript": "^7.23.3",
     "@babel/register": "^7.22.15",
-    "@defra/forms-model": "file:/tmp/defra-forms-designer/model",
-    "@defra/forms-queue-model": "file:/tmp/defra-forms-designer/queue-model",
     "@hapi/code": "8.0.1",
     "@hapi/lab": "24.0.0",
     "@oclif/core": "^1.19.0",
