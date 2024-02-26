@@ -1,9 +1,10 @@
 #¬/bin/sh
 
-test -d /tmp/xgov-model || git clone https://github.com/XGovFormBuilder/digital-form-builder.git /tmp/xgov-model
+test -d /tmp/defra-forms-designer || git clone https://github.com/defra/forms-designer.git /tmp/defra-forms-designer
 
-cd /tmp/xgov-model/model && yarn && yarn build && cd -
-cd /tmp/xgov-model/queue-model && yarn && yarn build && cd -
+cd /tmp/defra-forms-designer && npm ci --workspace model --workspace queue-model && npm run build --workspace model --workspace queue-model && cd -
 
-yarn add /tmp/xgov-model/model/
-yarn add /tmp/xgov-model/queue-model/
+cd /tmp/defra-forms-designer/model/ && npm link && cd -
+cd /tmp/defra-forms-designer/queue-model/ && npm link && cd -
+
+npm link @defra/forms-model @defra/forms-queue-model

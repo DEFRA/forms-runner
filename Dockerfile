@@ -14,16 +14,20 @@ ARG PORT_DEBUG
 ENV PORT ${PORT}
 EXPOSE ${PORT} ${PORT_DEBUG}
 
-COPY --chown=node:node package.json install_model.sh ./
-RUN bash install_model.sh
-RUN npm ci
+WORKDIR /home/node/app
 
-COPY --chown=node:node . ./
-RUN npm ci
+COPY --chown=node:node package.json install_model.sh ./
+
+RUN npm ci --ignore-scripts
+RUN npm run postinstall
+
+COPY --chown=node:node ./ ./
 
 CMD [ "npm", "run", "dev" ]
 
 FROM development as productionBuild
+
+WORKDIR /home/node/app
 
 ENV NODE_ENV production
 
@@ -43,12 +47,15 @@ USER node
 ARG PARENT_VERSION
 LABEL uk.gov.defra.ffc.parent-image=defradigital/node:${PARENT_VERSION}
 
-COPY --from=productionBuild /home/node/package*.json ./
-COPY --from=productionBuild /home/node/node_modules ./node_modules
-COPY --from=productionBuild /home/node/dist ./dist
-COPY --from=productionBuild /home/node/bin ./bin
-COPY --from=productionBuild /home/node/config ./config
-COPY --from=productionBuild /home/node/public ./public
+COPY --from=productionBuild /home/node/app/package*.json ./
+COPY --from=productionBuild /home/node/app/node_modules ./node_modules
+COPY --from=productionBuild /tmp/defra-forms-designer/node_modules ./node_modules
+COPY --from=productionBuild /tmp/defra-forms-designer/model ./node_modules/@defra/forms-model
+COPY --from=productionBuild /tmp/defra-forms-designer/queue-model ./node_modules/@defra/forms-queue-model
+COPY --from=productionBuild /home/node/app/dist ./dist
+COPY --from=productionBuild /home/node/app/bin ./bin
+COPY --from=productionBuild /home/node/app/config ./config
+COPY --from=productionBuild /home/node/app/public ./public
 
 ARG PORT
 ENV PORT ${PORT}
