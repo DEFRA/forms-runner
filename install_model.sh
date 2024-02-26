@@ -1,6 +1,6 @@
 #¬/bin/sh
 
-test -d /tmp/defra-forms-designer || git clone https://github.com/defra/forms-designer.git /tmp/defra-forms-designer
+test -d /tmp/defra-forms-designer && git -C /tmp/defra-forms-designer pull --ff-only || git clone https://github.com/defra/forms-designer.git /tmp/defra-forms-designer
 
 cd /tmp/defra-forms-designer && npm ci --workspace model --workspace queue-model && npm run build --workspace model --workspace queue-model && cd -
 
