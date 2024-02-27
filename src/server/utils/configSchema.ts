@@ -1,5 +1,5 @@
 import Joi, { CustomHelpers } from "joi";
-import { isUrlSecure } from "server/utils/url";
+import { isUrlSecure } from "../utils/url";
 
 export function secureUrl(value: string, helper: CustomHelpers) {
   if (isUrlSecure(value)) {

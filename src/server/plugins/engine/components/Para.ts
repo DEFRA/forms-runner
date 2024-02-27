@@ -1,5 +1,5 @@
 import { ComponentBase } from "./ComponentBase";
-import { FormData, FormSubmissionErrors } from "../types";
+import type { FormData, FormSubmissionErrors } from "../types";
 
 export class Para extends ComponentBase {
   getViewModel(formData: FormData, errors: FormSubmissionErrors) {

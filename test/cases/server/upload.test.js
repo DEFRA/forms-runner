@@ -5,10 +5,10 @@ import cheerio from "cheerio";
 import FormData from "form-data";
 import { expect } from "@hapi/code";
 import { stub, restore } from "sinon";
-import config from "src/server/config";
+import config from "../../../src/server/config";
 
-import createServer from "src/server/index";
-import { UploadService } from "src/server/services/upload";
+import createServer from "../../../src/server";
+import { UploadService } from "../../../src/server/services/upload";
 
 const { before, test, suite, after } = (exports.lab = Lab.script());
 

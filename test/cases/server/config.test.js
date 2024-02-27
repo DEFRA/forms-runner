@@ -1,6 +1,6 @@
 import Lab from "@hapi/lab";
 import { expect } from "@hapi/code";
-import { configSchema } from "server/utils/configSchema";
+import { configSchema } from "../../../src/server/utils/configSchema";
 const { test, suite } = (exports.lab = Lab.script());
 
 suite(`Server config validation`, () => {

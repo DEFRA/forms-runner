@@ -6,7 +6,7 @@ import {
   redirectUrl,
   nonRelativeRedirectUrl,
   getValidStateFromQueryParameters,
-} from "src/server/plugins/engine/helpers";
+} from "../../../../../src/server/plugins/engine/helpers";
 import sinon from "sinon";
 import Joi from "joi";
 const lab = Lab.script();

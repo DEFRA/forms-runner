@@ -2,9 +2,9 @@ import config from "../config";
 import { get, postJson } from "./httpService";
 import { nanoid } from "nanoid";
 import { Fee } from "@defra/forms-model";
-import { FeesModel } from "server/plugins/engine/models/submission";
-import { HapiServer } from "server/types";
+import { FeesModel } from "../plugins/engine/models/submission";
 import { format } from "date-fns";
+import type { HapiServer } from "../types";
 
 export type FeeDetails = Fee & {
   multiplyBy?: number; // the value retrieved from multiplier field above (see summary page retrieveFees method)

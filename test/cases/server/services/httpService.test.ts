@@ -3,7 +3,7 @@ import * as Lab from "@hapi/lab";
 import sinon from "sinon";
 import wreck from "@hapi/wreck";
 
-import { post } from "server/services/httpService";
+import { post } from "../../../../src/server/services/httpService";
 
 const { expect } = Code;
 const lab = Lab.script();

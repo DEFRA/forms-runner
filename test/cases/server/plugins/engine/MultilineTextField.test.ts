@@ -1,6 +1,6 @@
 import * as Code from "@hapi/code";
 import * as Lab from "@hapi/lab";
-import { MultilineTextField } from "src/server/plugins/engine/components";
+import { MultilineTextField } from "../../../../../src/server/plugins/engine/components";
 import { validationOptions } from "../../../../../src/server/plugins/engine/pageControllers/validationOptions";
 
 const lab = Lab.script();

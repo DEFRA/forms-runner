@@ -1,7 +1,7 @@
-import { FormData, FormSubmissionErrors } from "../types";
 import { ComponentBase } from "./ComponentBase";
 import config from "../../../config";
 import nunjucks from "nunjucks";
+import type { FormData, FormSubmissionErrors } from "../types";
 
 export class Html extends ComponentBase {
   getViewModel(formData: FormData, errors: FormSubmissionErrors) {

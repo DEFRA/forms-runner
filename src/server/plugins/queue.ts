@@ -1,4 +1,4 @@
-import config from "server/config";
+import config from "../config";
 import { spawnSync } from "child_process";
 const DEFAULT_OPTIONS = {
   enableQueueService: config.enableQueueService,

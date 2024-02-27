@@ -3,9 +3,9 @@ import { InputFieldsComponentsDef } from "@defra/forms-model";
 
 import * as helpers from "./helpers";
 import { FormComponent } from "./FormComponent";
-import { FormData, FormSubmissionErrors, FormSubmissionState } from "../types";
 import { FormModel } from "../models";
 import { addClassOptionIfNone } from "./helpers";
+import type { FormData, FormSubmissionErrors, FormSubmissionState } from "../types";
 
 export class DateTimeField extends FormComponent {
   constructor(def: InputFieldsComponentsDef, model: FormModel) {

@@ -1,9 +1,9 @@
 import sinon from "sinon";
-import config from "src/server/config";
+import config from "../../../../src/server/config";
 import {
   generateSessionTokenForForm,
   verifyToken,
-} from "src/server/plugins/initialiseSession/helpers";
+} from "../../../../src/server/plugins/initialiseSession/helpers";
 import Jwt from "@hapi/jwt";
 import Lab from "@hapi/lab";
 

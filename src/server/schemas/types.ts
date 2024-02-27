@@ -1,5 +1,5 @@
 import { ComponentType, ConfirmationPage } from "@defra/forms-model";
-import { FeeDetails } from "server/services/payService";
+import { FeeDetails } from "../services/payService";
 
 export type Field = {
   key: string;

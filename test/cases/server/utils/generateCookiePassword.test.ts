@@ -1,6 +1,6 @@
 import * as Code from "@hapi/code";
 import * as Lab from "@hapi/lab";
-import generateCookiePassword from "server/utils/generateCookiePassword";
+import generateCookiePassword from "../../../../src/server/utils/generateCookiePassword";
 
 const { expect } = Code;
 const lab = Lab.script();

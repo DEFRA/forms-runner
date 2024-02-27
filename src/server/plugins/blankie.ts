@@ -1,7 +1,7 @@
 import Blankie from "blankie";
 import { ServerRegisterPluginObject } from "@hapi/hapi";
 
-import { isUrlSecure } from "src/server/utils/url";
+import { isUrlSecure } from "../utils/url";
 
 type Config = {
   gtmId1?: string;

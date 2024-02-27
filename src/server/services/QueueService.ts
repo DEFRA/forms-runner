@@ -1,4 +1,4 @@
-import { HapiServer } from "server/types";
+import type { HapiServer } from "../types";
 
 type QueueResponse = [number | string, string | undefined];
 

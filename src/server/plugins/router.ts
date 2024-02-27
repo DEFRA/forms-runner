@@ -1,9 +1,9 @@
 import Joi from "joi";
 import { redirectTo } from "./engine";
 import { healthCheckRoute, publicRoutes, homeRoute } from "../routes";
-import { HapiRequest, HapiResponseToolkit } from "../types";
 import config from "../config";
 import getRequestInfo from "../utils/getRequestInfo";
+import type { HapiRequest, HapiResponseToolkit } from "../types";
 
 const routes = [...publicRoutes, healthCheckRoute, homeRoute];
 

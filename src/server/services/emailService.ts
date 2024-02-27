@@ -2,8 +2,8 @@ import AWS from "aws-sdk";
 import MailComposer from "nodemailer/lib/mail-composer";
 import config from "../config";
 
-import { HapiServer } from "../types";
-import { UploadService } from "./uploadService";
+import { UploadService } from "./upload/uploadService";
+import type { HapiServer } from "../types";
 
 export class EmailService {
   /**

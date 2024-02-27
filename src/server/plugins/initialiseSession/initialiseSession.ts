@@ -5,12 +5,12 @@ import {
   verifyToken,
   webhookToSessionData,
 } from "./helpers";
-import { InitialiseSessionOptions, InitialiseSession } from "./types";
 import path from "path";
-import { WebhookSchema } from "server/schemas/types";
 import Jwt from "@hapi/jwt";
 import { SpecialPages } from "@defra/forms-model";
 import Boom from "boom";
+import type { WebhookSchema } from "../../schemas/types";
+import type { InitialiseSessionOptions, InitialiseSession } from "./types";
 
 type ConfirmationPage = SpecialPages["confirmationPage"];
 

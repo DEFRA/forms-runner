@@ -4,9 +4,9 @@ import * as Lab from "@hapi/lab";
 import {
   controllerNameFromPath,
   getPageController,
-} from "server/plugins/engine/pageControllers/helpers";
+} from "../../../../../../src/server/plugins/engine/pageControllers/helpers";
 
-import * as PageControllers from "server/plugins/engine/pageControllers";
+import * as PageControllers from "../../../../../../src/server/plugins/engine/pageControllers";
 
 const lab = Lab.script();
 exports.lab = lab;

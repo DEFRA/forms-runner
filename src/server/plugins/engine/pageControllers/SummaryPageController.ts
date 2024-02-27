@@ -1,13 +1,13 @@
 import { SummaryViewModel } from "../models";
 import { PageController } from "./PageController";
 import { feedbackReturnInfoKey, redirectTo, redirectUrl } from "../helpers";
-import { HapiRequest, HapiResponseToolkit } from "server/types";
 import {
   decodeFeedbackContextInfo,
   FeedbackContextInfo,
   RelativeUrl,
 } from "../feedback";
-import config from "server/config";
+import config from "../../../config";
+import type { HapiRequest, HapiResponseToolkit } from "../../../types";
 
 export class SummaryPageController extends PageController {
   /**

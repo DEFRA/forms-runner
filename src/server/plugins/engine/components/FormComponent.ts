@@ -9,9 +9,9 @@ import {
   FormData,
   FormPayload,
 } from "../types";
-import { ViewModel } from "./types";
 import { FormModel } from "../models";
 import { ComponentDef } from "@defra/forms-model";
+import type { ViewModel } from "./types";
 
 export class FormComponent extends ComponentBase {
   isFormComponent: boolean = true;

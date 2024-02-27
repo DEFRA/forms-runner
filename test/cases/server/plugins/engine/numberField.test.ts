@@ -1,7 +1,7 @@
 import * as Code from "@hapi/code";
 import * as Lab from "@hapi/lab";
-import { NumberField } from "src/server/plugins/engine/components/NumberField";
-import { messages } from "src/server/plugins/engine/pageControllers/validationOptions";
+import { NumberField } from "../../../../../src/server/plugins/engine/components/NumberField";
+import { messages } from "../../../../../src/server/plugins/engine/pageControllers/validationOptions";
 const lab = Lab.script();
 exports.lab = lab;
 const { expect } = Code;

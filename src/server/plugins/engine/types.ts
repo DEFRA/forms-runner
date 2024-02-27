@@ -1,4 +1,4 @@
-import { InitialiseSessionOptions } from "server/plugins/initialiseSession/types";
+import type { InitialiseSessionOptions } from "../../plugins/initialiseSession/types";
 
 /**
  * FormSubmissionState is an object containing the following props:

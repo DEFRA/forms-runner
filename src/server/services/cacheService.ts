@@ -5,13 +5,13 @@ import Jwt from "@hapi/jwt";
 import Redis from "ioredis";
 
 import config from "../config";
-import { HapiRequest, HapiServer } from "../types";
-import { FormSubmissionState } from "../plugins/engine/types";
 import {
   DecodedSessionToken,
   InitialiseSessionOptions,
-} from "server/plugins/initialiseSession/types";
-import { WebhookSchema } from "../schemas/types";
+} from "../plugins/initialiseSession/types";
+import type { FormSubmissionState } from "../plugins/engine/types";
+import type { WebhookSchema } from "../schemas/types";
+import type { HapiRequest, HapiServer } from "../types";
 
 const {
   redisHost,

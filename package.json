@@ -2,7 +2,7 @@
   "name": "@defra/forms-runner",
   "version": "3.0.0",
   "description": "Defra forms runner",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "private": true,
   "scripts": {
     "postinstall": "bash install_model.sh",

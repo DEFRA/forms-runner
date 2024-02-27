@@ -3,7 +3,7 @@ import * as Lab from "@hapi/lab";
 import formJson from "../../../../../../src/server/forms/get-condition-evaluation-context.json";
 
 import { FormModel } from "../../../../../../src/server/plugins/engine/models";
-import { PageController } from "server/plugins/engine/pageControllers";
+import { PageController } from "../../../../../../src/server/plugins/engine/pageControllers";
 
 const lab = Lab.script();
 exports.lab = lab;

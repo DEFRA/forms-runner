@@ -1,9 +1,9 @@
-import { PageController } from "server/plugins/engine/pageControllers/PageController";
+import { PageController } from "../../../plugins/engine/pageControllers/PageController";
 import {
   HapiRequest,
   HapiResponseToolkit,
   HapiLifecycleMethod,
-} from "server/types";
+} from "../../../types";
 import { RepeatingFieldPageController } from "./RepeatingFieldPageController";
 export class RepeatingSummaryPageController extends PageController {
   private getRoute!: HapiLifecycleMethod;

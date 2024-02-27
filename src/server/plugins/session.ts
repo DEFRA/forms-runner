@@ -1,5 +1,5 @@
 import config from "../config";
-import generateCookiePassword from "server/utils/generateCookiePassword";
+import generateCookiePassword from "../utils/generateCookiePassword";
 
 export default {
   plugin: require("@hapi/yar"),

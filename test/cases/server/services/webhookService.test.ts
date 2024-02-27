@@ -2,8 +2,8 @@ import * as Code from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import sinon from "sinon";
 
-import { WebhookService } from "server/services/webhookService";
-import * as httpService from "server/services/httpService";
+import { WebhookService } from "../../../../src/server/services/webhookService";
+import * as httpService from "../../../../src/server/services/httpService";
 
 const { expect } = Code;
 const lab = Lab.script();

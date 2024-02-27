@@ -10,7 +10,7 @@ import {
 } from "../types";
 import { FormModel } from "../models";
 import { Schema } from "joi";
-import { DataType } from "./types";
+import type { DataType } from "./types";
 
 export class MonthYearField extends FormComponent {
   children: ComponentCollection;

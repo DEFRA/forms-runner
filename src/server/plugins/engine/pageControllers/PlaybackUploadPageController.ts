@@ -1,10 +1,10 @@
-import { PageController } from "server/plugins/engine/pageControllers/PageController";
-import { FormModel } from "server/plugins/engine/models";
+import { PageController } from "../../../plugins/engine/pageControllers/PageController";
+import { FormModel } from "../../../plugins/engine/models";
 import { Page } from "@defra/forms-model";
-import { FormComponent } from "server/plugins/engine/components";
-import { HapiRequest, HapiResponseToolkit } from "server/types";
+import { FormComponent } from "../../../plugins/engine/components";
+import type { HapiRequest, HapiResponseToolkit } from "../../../types";
 import joi from "joi";
-import { FormSubmissionErrors } from "../types";
+import type { FormSubmissionErrors } from "../types";
 export class PlaybackUploadPageController extends PageController {
   inputComponent: FormComponent;
   retryUploadViewModel = {

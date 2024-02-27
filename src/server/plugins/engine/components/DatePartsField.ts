@@ -12,7 +12,7 @@ import {
   FormSubmissionState,
 } from "../types";
 import { FormModel } from "../models";
-import { DataType } from "server/plugins/engine/components/types";
+import type { DataType } from "../../../plugins/engine/components/types";
 
 export class DatePartsField extends FormComponent {
   children: ComponentCollection;

@@ -1,19 +1,19 @@
-import { HapiRequest, HapiResponseToolkit, HapiServer } from "../types";
 import {
   CacheService,
   NotifyService,
   PayService,
   WebhookService,
-} from "server/services";
-import { SendNotificationArgs } from "server/services/notifyService";
+} from "../services";
+import { SendNotificationArgs } from "../services/notifyService";
 import { Output, WebhookOutputConfiguration } from "@defra/forms-model";
-import type { NotifyModel } from "../plugins/engine/models/submission";
-import { ComponentCollection } from "server/plugins/engine/components/ComponentCollection";
-import { FormSubmissionState } from "server/plugins/engine/types";
-import { FormModel } from "server/plugins/engine/models";
+import { ComponentCollection } from "../plugins/engine/components/ComponentCollection";
+import { FormModel } from "../plugins/engine/models";
 import Boom from "boom";
-import config from "server/config";
+import config from "../config";
 import nunjucks from "nunjucks";
+import type { NotifyModel } from "../plugins/engine/models/submission";
+import type { FormSubmissionState } from "../plugins/engine/types";
+import type { HapiRequest, HapiResponseToolkit, HapiServer } from "../types";
 
 type WebhookModel = WebhookOutputConfiguration & {
   formData: object;

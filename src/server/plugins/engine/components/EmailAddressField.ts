@@ -1,13 +1,13 @@
 import { InputFieldsComponentsDef } from "@defra/forms-model";
 
 import { FormModel } from "../models";
-import { FormData, FormSubmissionErrors } from "../types";
 import { FormComponent } from "./FormComponent";
 import {
   getStateSchemaKeys,
   getFormSchemaKeys,
   addClassOptionIfNone,
 } from "./helpers";
+import type { FormData, FormSubmissionErrors } from "../types";
 
 export class EmailAddressField extends FormComponent {
   constructor(def: InputFieldsComponentsDef, model: FormModel) {

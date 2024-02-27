@@ -2,14 +2,14 @@ import path from "path";
 import { configure } from "nunjucks";
 import { getValidStateFromQueryParameters, redirectTo } from "./helpers";
 import { FormConfiguration } from "@defra/forms-model";
-import { HapiRequest, HapiResponseToolkit, HapiServer } from "server/types";
 
 import { FormModel } from "./models";
 import Boom from "boom";
 import { PluginSpecificConfiguration } from "@hapi/hapi";
-import { FormPayload } from "./types";
-import { shouldLogin } from "server/plugins/auth";
+import { shouldLogin } from "../../plugins/auth";
 import config from "../../config";
+import type { HapiRequest, HapiResponseToolkit, HapiServer } from "../../types";
+import type { FormPayload } from "./types";
 
 configure([
   // Configure Nunjucks to allow rendering of content that is revealed conditionally.

@@ -1,5 +1,5 @@
 import { post, put } from "./httpService";
-import { HapiServer } from "../types";
+import type { HapiServer } from "../types";
 
 const DEFAULT_OPTIONS = {
   headers: {

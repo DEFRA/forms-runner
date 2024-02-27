@@ -2,7 +2,7 @@ import * as Code from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import sinon from "sinon";
 
-import { StatusService } from "server/services";
+import { StatusService } from "../../../../src/server/services";
 
 const { expect } = Code;
 const lab = Lab.script();

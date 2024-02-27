@@ -2,9 +2,9 @@ import * as Code from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import * as path from "path";
 
-import { StatusService } from "server/services";
-import { FormModel } from "src/server/plugins/engine/models";
-import createServer from "src/server";
+import { StatusService } from "../../../../src/server/services";
+import { FormModel } from "../../../../src/server/plugins/engine/models";
+import createServer from "../../../../src/server";
 import cheerio from "cheerio";
 const form = require("./../status.test.json");
 

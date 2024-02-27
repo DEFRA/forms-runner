@@ -3,8 +3,8 @@ import { TelephoneNumberFieldComponent } from "@defra/forms-model";
 import { FormComponent } from "./FormComponent";
 import { FormModel } from "../models";
 import { addClassOptionIfNone } from "./helpers";
-import { FormData, FormSubmissionErrors } from "../types";
 import joi, { Schema } from "joi";
+import type { FormData, FormSubmissionErrors } from "../types";
 
 const PATTERN = /^[0-9\\\s+()-]*$/;
 const DEFAULT_MESSAGE = "Enter a telephone number in the correct format";

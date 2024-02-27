@@ -6,8 +6,8 @@ import {
 } from "@defra/forms-model";
 
 import { FormModel } from "../models";
-import { FormData, FormSubmissionErrors } from "../types";
-import { DataType, ViewModel } from "./types";
+import type { FormData, FormSubmissionErrors } from "../types";
+import type { DataType, ViewModel } from "./types";
 
 export class ComponentBase {
   type: ComponentDef["type"];

@@ -1,7 +1,7 @@
-import { QueueService } from "server/services/QueueService";
+import { QueueService } from "../services/QueueService";
 type QueueResponse = [number | string, string | undefined];
 import PgBoss from "pg-boss";
-import config from "server/config";
+import config from "../config";
 
 type QueueReferenceApiResponse = {
   reference: string;

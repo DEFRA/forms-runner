@@ -1,4 +1,4 @@
-import { HapiRequest, HapiResponseToolkit } from "server/types";
+import type { HapiRequest, HapiResponseToolkit } from "../../types";
 
 export async function handleUserWithConfirmationViewModel(
   request: HapiRequest,

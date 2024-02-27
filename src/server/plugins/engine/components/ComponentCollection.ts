@@ -9,10 +9,10 @@ import {
   FormSubmissionErrors,
   FormSubmissionState,
 } from "../types";
-import { ComponentCollectionViewModel } from "./types";
 import { ComponentBase } from "./ComponentBase";
 import { FormComponent } from "./FormComponent";
 import { merge } from "@hapi/hoek";
+import type { ComponentCollectionViewModel } from "./types";
 
 export class ComponentCollection {
   items: (ComponentBase | ComponentCollection | FormComponent)[];

@@ -1,8 +1,8 @@
 import { redirectTo } from "./../engine";
-import { HapiRequest, HapiResponseToolkit } from "../../types";
 import { retryPay } from "./retryPay";
 import { handleUserWithConfirmationViewModel } from "./handleUserWithConfirmationViewModel";
 import { checkUserCompletedSummary } from "./checkUserCompletedSummary";
+import type { HapiRequest, HapiResponseToolkit } from "../../types";
 
 import Joi from "joi";
 import {

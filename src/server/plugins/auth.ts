@@ -1,10 +1,10 @@
 import AuthCookie from "@hapi/cookie";
 import Bell from "@hapi/bell";
 
-import config from "server/config";
-import { HapiRequest, HapiResponseToolkit } from "server/types";
-import { redirectTo } from "server/plugins/engine";
-import generateCookiePassword from "server/utils/generateCookiePassword";
+import config from "../config";
+import { redirectTo } from "../plugins/engine";
+import generateCookiePassword from "../utils/generateCookiePassword";
+import type { HapiRequest, HapiResponseToolkit } from "../types";
 
 export const shouldLogin = (request: HapiRequest) =>
   config.authEnabled && !request.auth.isAuthenticated;

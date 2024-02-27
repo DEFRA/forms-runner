@@ -5,7 +5,7 @@ exports.lab = lab;
 const { expect } = Code;
 const { suite, it } = lab;
 import sinon from "sinon";
-import { FlashCard } from "src/server/plugins/engine/components";
+import { FlashCard } from "../../../../../src/server/plugins/engine/components";
 
 const lists = [
   {

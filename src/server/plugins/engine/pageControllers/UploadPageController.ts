@@ -1,8 +1,8 @@
-import { PageController } from "server/plugins/engine/pageControllers/PageController";
-import { FormModel } from "server/plugins/engine/models";
-import { HapiRequest, HapiResponseToolkit } from "server/types";
-import { PlaybackUploadPageController } from "server/plugins/engine/pageControllers/PlaybackUploadPageController";
-import { FormComponent } from "server/plugins/engine/components";
+import { PageController } from "../../../plugins/engine/pageControllers/PageController";
+import { FormModel } from "../../../plugins/engine/models";
+import { PlaybackUploadPageController } from "../../../plugins/engine/pageControllers/PlaybackUploadPageController";
+import { FormComponent } from "../../../plugins/engine/components";
+import type { HapiRequest, HapiResponseToolkit } from "../../../types";
 
 function isUploadField(component: FormComponent) {
   return component.type === "FileUploadField";

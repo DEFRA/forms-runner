@@ -1,8 +1,8 @@
-import { FormModel } from "server/plugins/engine/models";
-import { FormSubmissionState } from "server/plugins/engine/types";
+import { FormModel } from "../../../../plugins/engine/models";
 import { reach } from "hoek";
 import { Fee } from "@defra/forms-model";
-import { FeeDetails } from "server/services/payService";
+import { FeeDetails } from "../../../../services/payService";
+import type { FormSubmissionState } from "../../../../plugins/engine/types";
 
 export type FeesModel = {
   details: FeeDetails[];

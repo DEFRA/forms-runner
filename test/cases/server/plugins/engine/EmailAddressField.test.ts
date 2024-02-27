@@ -1,6 +1,6 @@
 import * as Code from "@hapi/code";
 import * as Lab from "@hapi/lab";
-import { EmailAddressField } from "src/server/plugins/engine/components";
+import { EmailAddressField } from "../../../../../src/server/plugins/engine/components";
 
 const lab = Lab.script();
 exports.lab = lab;

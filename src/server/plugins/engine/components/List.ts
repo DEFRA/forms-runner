@@ -1,6 +1,6 @@
 import { ComponentBase } from "./ComponentBase";
-import { FormData, FormSubmissionErrors } from "../types";
 import { Item } from "@defra/forms-model";
+import type { FormData, FormSubmissionErrors } from "../types";
 
 export class List extends ComponentBase {
   list: List;

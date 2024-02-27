@@ -1,8 +1,8 @@
 import * as Code from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import sinon from "sinon";
-import { ListFormComponent } from "server/plugins/engine/components/ListFormComponent";
-import { FormSubmissionState } from "server/plugins/engine";
+import { ListFormComponent } from "../../../../../../src/server/plugins/engine/components/ListFormComponent";
+import { FormSubmissionState } from "../../../../../../src/server/plugins/engine";
 const lab = Lab.script();
 exports.lab = lab;
 const { expect } = Code;

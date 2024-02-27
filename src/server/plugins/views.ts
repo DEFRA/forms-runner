@@ -6,8 +6,8 @@ import { capitalize } from "lodash";
 
 import pkg from "../../../package.json";
 import config from "../config";
-import { HapiRequest } from "../types";
 import additionalContexts from "../templates/additionalContexts.json";
+import type { HapiRequest } from "../types";
 
 const basedir = path.join(process.cwd());
 

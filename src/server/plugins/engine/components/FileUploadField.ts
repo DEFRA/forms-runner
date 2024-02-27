@@ -1,8 +1,7 @@
-import { FormData, FormSubmissionErrors } from "../types";
 import { FormComponent } from "./FormComponent";
 import * as helpers from "./helpers";
-
-import { DataType, ViewModel } from "./types";
+import type { FormData, FormSubmissionErrors } from "../types";
+import type { DataType, ViewModel } from "./types";
 
 export class FileUploadField extends FormComponent {
   dataType = "file" as DataType;

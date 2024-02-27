@@ -1,4 +1,4 @@
-import { initialiseSession } from "server/plugins/initialiseSession/initialiseSession";
+import { initialiseSession } from "../../plugins/initialiseSession/initialiseSession";
 
 export function configureInitialiseSessionPlugin(options: {
   safelist: string[];

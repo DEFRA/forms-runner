@@ -1,4 +1,4 @@
-import { HapiRequest, HapiResponseToolkit } from "../types";
+import type { HapiRequest, HapiResponseToolkit } from "../types";
 
 /*
  * Add an `onPreResponse` listener to return error pages

@@ -1,7 +1,7 @@
 import { NotifyClient } from "notifications-node-client/client/notification";
-import { HapiServer } from "server/types";
 import { isMultipleApiKey, MultipleApiKeys } from "@defra/forms-model";
-import config from "server/config";
+import config from "../config";
+import type { HapiServer } from "../types";
 
 type Personalisation = {
   [propName: string]: any;

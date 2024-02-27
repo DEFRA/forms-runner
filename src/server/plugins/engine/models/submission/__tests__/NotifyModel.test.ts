@@ -6,8 +6,8 @@ const lab = Lab.script();
 exports.lab = lab;
 const { suite, test } = lab;
 import json from "./NotifyModel.test.json";
-import { FormModel } from "server/plugins/engine/models";
-import { FormSubmissionState } from "server/plugins/engine/types";
+import { FormModel } from "../../../../../plugins/engine/models";
+import type { FormSubmissionState } from "../../../../../plugins/engine/types";
 
 const testFormSubmission = (state: FormSubmissionState) => {
   const notifyOutputConfiguration = {

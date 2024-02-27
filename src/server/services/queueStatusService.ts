@@ -1,8 +1,8 @@
-import { StatusService } from "server/services/statusService";
-import { HapiRequest, HapiServer } from "server/types";
+import { StatusService } from "../services/statusService";
 import Boom from "boom";
-import { MySqlQueueService } from "server/services/mySqlQueueService";
-import { PgBossQueueService } from "server/services/pgBossQueueService";
+import { MySqlQueueService } from "../services/mySqlQueueService";
+import { PgBossQueueService } from "../services/pgBossQueueService";
+import type { HapiRequest, HapiServer } from "../types";
 
 export class QueueStatusService extends StatusService {
   queueService: MySqlQueueService | PgBossQueueService;

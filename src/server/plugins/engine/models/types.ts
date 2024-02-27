@@ -1,8 +1,9 @@
-import type { Fees } from "server/services/payService";
 import { FeedbackContextInfo } from "./../feedback";
 import { ConditionRawData } from "@defra/forms-model";
 import { Page, Section } from "@defra/forms-model";
 import { Component } from "./../components";
+import type { Fees } from "../../../services/payService";
+
 export type Fields = {
   key: string;
   title: string;

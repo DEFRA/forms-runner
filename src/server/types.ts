@@ -18,7 +18,7 @@ import {
   UploadService,
   WebhookService,
 } from "./services";
-import { QueueStatusService } from "server/services/queueStatusService";
+import { QueueStatusService } from "./services/queueStatusService";
 import { QueueService } from "./services/QueueService";
 
 type Services = (

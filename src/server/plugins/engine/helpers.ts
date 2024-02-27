@@ -1,7 +1,7 @@
 import { RelativeUrl } from "./feedback";
-import { HapiRequest, HapiResponseToolkit } from "server/types";
 import { reach } from "@hapi/hoek";
 import _ from "lodash";
+import type { HapiRequest, HapiResponseToolkit } from "../../types";
 
 export const feedbackReturnInfoKey = "f_t";
 

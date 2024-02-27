@@ -6,7 +6,7 @@ const lab = Lab.script();
 exports.lab = lab;
 const { suite, test } = lab;
 import json from "./FeesModel.test.json";
-import { FormModel } from "server/plugins/engine/models";
+import { FormModel } from "../../../../../plugins/engine/models";
 
 suite("FeesModel", () => {
   test("returns correct FeesModel", () => {

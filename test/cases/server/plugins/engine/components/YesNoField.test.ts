@@ -1,6 +1,6 @@
 import * as Code from "@hapi/code";
 import * as Lab from "@hapi/lab";
-import { YesNoField } from "server/plugins/engine/components/YesNoField";
+import { YesNoField } from "../../../../../../src/server/plugins/engine/components/YesNoField";
 const lab = Lab.script();
 exports.lab = lab;
 const { expect } = Code;

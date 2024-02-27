@@ -1,5 +1,5 @@
-import { FormModel } from "server/plugins/engine/models";
-import config from "server/config";
+import { FormModel } from "../../../../plugins/engine/models";
+import config from "../../../../config";
 const { notifyTemplateId, notifyAPIKey } = config;
 
 /**

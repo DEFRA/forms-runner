@@ -1,8 +1,8 @@
 import * as Code from "@hapi/code";
 import * as Lab from "@hapi/lab";
 
-import { PageControllerBase } from "server/plugins/engine/pageControllers";
-import { FormModel } from "src/server/plugins/engine/models/FormModel";
+import { PageControllerBase } from "../../../../../../src/server/plugins/engine/pageControllers";
+import { FormModel } from "../../../../../../src/server/plugins/engine/models/FormModel";
 
 const lab = Lab.script();
 exports.lab = lab;

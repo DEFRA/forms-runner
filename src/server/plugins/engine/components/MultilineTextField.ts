@@ -1,9 +1,9 @@
 import { FormComponent } from "./FormComponent";
-import { FormData, FormSubmissionErrors } from "../types";
 import Joi, { Schema, StringSchema } from "joi";
 import { MultilineTextFieldComponent } from "@defra/forms-model";
-import { FormModel } from "server/plugins/engine/models";
-import { MultilineTextFieldViewModel } from "server/plugins/engine/components/types";
+import { FormModel } from "../../../plugins/engine/models";
+import type { MultilineTextFieldViewModel } from "../../../plugins/engine/components/types";
+import type { FormData, FormSubmissionErrors } from "../types";
 
 function inputIsOverWordCount(input, maxWords) {
   /**

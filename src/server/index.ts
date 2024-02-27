@@ -11,7 +11,7 @@ import { configureEnginePlugin } from "./plugins/engine";
 import { configureRateLimitPlugin } from "./plugins/rateLimit";
 import { configureBlankiePlugin } from "./plugins/blankie";
 import { configureCrumbPlugin } from "./plugins/crumb";
-import { configureInitialiseSessionPlugin } from "server/plugins/initialiseSession/configurePlugin";
+import { configureInitialiseSessionPlugin } from "./plugins/initialiseSession/configurePlugin";
 
 import pluginLocale from "./plugins/locale";
 import pluginSession from "./plugins/session";
@@ -34,12 +34,12 @@ import {
   MockUploadService,
   WebhookService,
 } from "./services";
-import { HapiRequest, HapiResponseToolkit, RouteConfig } from "./types";
 import getRequestInfo from "./utils/getRequestInfo";
-import { pluginQueue } from "server/plugins/queue";
-import { QueueStatusService } from "server/services/queueStatusService";
-import { MySqlQueueService } from "server/services/mySqlQueueService";
-import { PgBossQueueService } from "server/services/pgBossQueueService";
+import { pluginQueue } from "./plugins/queue";
+import { QueueStatusService } from "./services/queueStatusService";
+import { MySqlQueueService } from "./services/mySqlQueueService";
+import { PgBossQueueService } from "./services/pgBossQueueService";
+import type { HapiRequest, HapiResponseToolkit, RouteConfig } from "./types";
 
 const serverOptions = (): ServerOptions => {
   const hasCertificate = config.sslKey && config.sslCert;

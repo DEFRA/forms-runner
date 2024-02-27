@@ -4,7 +4,7 @@ import * as helpers from "./helpers";
 import { FormComponent } from "./FormComponent";
 import { FormModel } from "../models";
 import { addClassOptionIfNone } from "./helpers";
-import { FormData, FormSubmissionErrors } from "../types";
+import type { FormData, FormSubmissionErrors } from "../types";
 
 export class TimeField extends FormComponent {
   constructor(def: InputFieldsComponentsDef, model: FormModel) {

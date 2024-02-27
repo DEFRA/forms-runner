@@ -1,6 +1,6 @@
 import { merge, reach } from "@hapi/hoek";
 import * as querystring from "querystring";
-import { validationOptions } from "server/plugins/engine/pageControllers/validationOptions";
+import { validationOptions } from "../../../plugins/engine/pageControllers/validationOptions";
 
 import { feedbackReturnInfoKey, proceed, redirectTo } from "../helpers";
 import { ComponentCollection } from "../components/ComponentCollection";
@@ -13,7 +13,7 @@ import {
   HapiRequest,
   HapiResponseObject,
   HapiResponseToolkit,
-} from "server/types";
+} from "../../../types";
 import { FormModel } from "../models";
 import {
   FormData,
@@ -21,10 +21,10 @@ import {
   FormSubmissionErrors,
   FormSubmissionState,
 } from "../types";
-import { ComponentCollectionViewModel } from "../components/types";
 import { format, parseISO } from "date-fns";
-import config from "server/config";
+import config from "../../../config";
 import nunjucks from "nunjucks";
+import type { ComponentCollectionViewModel } from "../components/types";
 
 const FORM_SCHEMA = Symbol("FORM_SCHEMA");
 const STATE_SCHEMA = Symbol("STATE_SCHEMA");

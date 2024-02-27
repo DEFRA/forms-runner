@@ -1,6 +1,6 @@
 import { PageControllerBase } from "./PageControllerBase";
-import { HapiRequest, HapiResponseToolkit } from "server/types";
 import { FormModel } from "../models";
+import type { HapiRequest, HapiResponseToolkit } from "../../../types";
 
 export class PageController extends PageControllerBase {
   constructor(model: FormModel, pageDef: any) {

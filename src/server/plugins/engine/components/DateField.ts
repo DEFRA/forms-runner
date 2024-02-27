@@ -3,10 +3,10 @@ import { addClassOptionIfNone } from "./helpers";
 import { DateFieldComponent } from "@defra/forms-model";
 
 import { FormComponent } from "./FormComponent";
-import { FormData, FormSubmissionErrors, FormSubmissionState } from "../types";
 import { FormModel } from "../models";
-import { DataType } from "server/plugins/engine/components/types";
 import joi from "joi";
+import type { DataType } from "../../../plugins/engine/components/types";
+import type { FormData, FormSubmissionErrors, FormSubmissionState } from "../types";
 
 export class DateField extends FormComponent {
   dataType = "date" as DataType;

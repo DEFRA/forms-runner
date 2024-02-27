@@ -3,7 +3,7 @@ import { ListComponentsDef } from "@defra/forms-model";
 import { SelectField } from "./SelectField";
 import { FormModel } from "../models";
 import { addClassOptionIfNone } from "./helpers";
-import { FormSubmissionState } from "server/plugins/engine/types";
+import type { FormSubmissionState } from "../../../plugins/engine/types";
 
 export class AutocompleteField extends SelectField {
   constructor(def: ListComponentsDef, model: FormModel) {

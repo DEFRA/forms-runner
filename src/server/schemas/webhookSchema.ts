@@ -4,9 +4,9 @@ import {
   InitialiseSessionQuestion,
   InitialiseSessionSchema,
   WebhookSchema,
-} from "server/schemas/types";
-import { Question } from "server/plugins/engine/models/types";
+} from "../schemas/types";
 import { componentSchema } from "@defra/forms-model";
+import type { Question } from "../plugins/engine/models/types";
 
 const fieldSchema: joi.ObjectSchema<Field> = joi.object({
   key: joi.string().required(),

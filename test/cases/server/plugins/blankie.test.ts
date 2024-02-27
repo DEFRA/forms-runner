@@ -1,7 +1,7 @@
 import * as Code from "@hapi/code";
 import * as Lab from "@hapi/lab";
 
-import { configureBlankiePlugin } from "src/server/plugins/blankie";
+import { configureBlankiePlugin } from "../../../../src/server/plugins/blankie";
 
 const { expect } = Code;
 const lab = Lab.script();

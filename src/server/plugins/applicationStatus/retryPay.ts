@@ -1,5 +1,5 @@
-import { HapiRequest, HapiResponseToolkit } from "server/types";
-import { FormModel } from "server/plugins/engine/models";
+import { FormModel } from "../../plugins/engine/models";
+import type { HapiRequest, HapiResponseToolkit } from "../../types";
 
 export async function retryPay(request: HapiRequest, h: HapiResponseToolkit) {
   const { statusService } = request.services([]);

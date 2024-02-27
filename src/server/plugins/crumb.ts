@@ -1,6 +1,6 @@
 import crumb from "@hapi/crumb";
 import { ServerRegisterPluginObject } from "@hapi/hapi";
-import { RouteConfig } from "../types";
+import type { RouteConfig } from "../types";
 
 export const configureCrumbPlugin = (
   config,

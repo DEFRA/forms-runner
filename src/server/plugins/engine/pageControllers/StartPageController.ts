@@ -1,5 +1,5 @@
-import { FormData, FormSubmissionErrors } from "../types";
 import { PageController } from "./PageController";
+import type { FormData, FormSubmissionErrors } from "../types";
 
 export class StartPageController extends PageController {
   /**

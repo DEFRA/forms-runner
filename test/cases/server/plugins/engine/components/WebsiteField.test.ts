@@ -1,8 +1,8 @@
 import * as Code from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import { WebsiteFieldComponent } from "@defra/forms-model";
-import { WebsiteField } from "src/server/plugins/engine/components";
-import { FormModel } from "src/server/plugins/engine/models";
+import { WebsiteField } from "../../../../../../src/server/plugins/engine/components";
+import { FormModel } from "../../../../../../src/server/plugins/engine/models";
 
 const lab = Lab.script();
 exports.lab = lab;

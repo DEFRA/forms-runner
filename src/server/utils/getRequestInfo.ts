@@ -1,4 +1,4 @@
-import { HapiRequest } from "../types";
+import type { HapiRequest } from "../types";
 
 interface GetRequestInfo {
   host: string;

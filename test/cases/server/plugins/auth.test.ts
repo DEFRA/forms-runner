@@ -1,8 +1,8 @@
 import * as Code from "@hapi/code";
 import * as Lab from "@hapi/lab";
-import config from "src/server/config";
+import config from "../../../../src/server/config";
 
-import createServer from "src/server";
+import createServer from "../../../../src/server";
 
 const { expect } = Code;
 const lab = Lab.script();
