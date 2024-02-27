@@ -1,4 +1,4 @@
-const { expect } = require("code");
+const { expect } = require("@hapi/code");
 
 class HtmlHelper {
   constructor($) {
