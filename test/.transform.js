@@ -22,7 +22,7 @@ internals.transform = function (content, filename) {
         "@babel/preset-env",
         {
           targets: {
-            node: "16",
+            node: "20",
           },
         },
       ],
@@ -31,19 +31,7 @@ internals.transform = function (content, filename) {
     sourceMap: "inline",
     sourceFileName: filename,
     auxiliaryCommentBefore: "$lab:coverage:off$",
-    auxiliaryCommentAfter: "$lab:coverage:on$",
-    plugins: [
-      "@babel/plugin-transform-runtime",
-      [
-        "module-name-mapper",
-        {
-          moduleNameMapper: {
-            "^src/(.*)": "<pkgDir>/src/$1",
-            "^server/(.*)": "<pkgDir>/src/server/$1",
-          },
-        },
-      ],
-    ],
+    auxiliaryCommentAfter: "$lab:coverage:on$"
   });
 
   return transformed.code;

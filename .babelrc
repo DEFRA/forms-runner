@@ -10,19 +10,5 @@
       }
     ]
   ],
-  "exclude": ["node_modules/**"],
-  "plugins": [
-    "@babel/plugin-transform-runtime",
-    [
-      "module-name-mapper",
-      {
-        "moduleNameMapper": {
-          "^src/(.*)": "<pkgDir>/src/$1",
-          "^server/(.*)": "<pkgDir>/src/server/$1"
-        }
-      }
-    ]
-  ]
+  "exclude": ["node_modules/**"]
 }
-
-
