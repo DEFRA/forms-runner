@@ -129,10 +129,6 @@
     "sinon": "^13.0.1",
     "typescript": "4.9.5"
   },
-  "installConfig": {
-    "hoistingLimits": "dependencies",
-    "selfReferences": false
-  },
   "pkg": {
     "assets": [
       "../node_modules/.prisma/client/*.node"
