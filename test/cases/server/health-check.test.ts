@@ -22,7 +22,7 @@ suite(`/health-check Route`, () => {
   test("/health-check route response is correct", async () => {
     const options = {
       method: "GET",
-      url: "/health-check",
+      url: "/forms-runner/health-check",
     };
 
     const { result } = await server.inject(options);

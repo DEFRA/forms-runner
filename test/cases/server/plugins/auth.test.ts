@@ -73,7 +73,7 @@ suite("Server Auth", () => {
       // Create an initial session
       const prepResponse = await server.inject({
         method: "GET",
-        url: "/",
+        url: "/forms-runner",
       });
       const initialSession = prepResponse.headers["set-cookie"].find((cookie) =>
         cookie.startsWith("session=")
@@ -82,7 +82,7 @@ suite("Server Auth", () => {
       // We can first check the created session works as expected:
       const checkPrepResponse = await server.inject({
         method: "GET",
-        url: "/",
+        url: "/forms-runner",
         headers: {
           Cookie: initialSession.replace("Secure; HttpOnly; ", ""),
         },
@@ -121,7 +121,7 @@ suite("Server Auth", () => {
     test("shows a 'sign out' link in the header if logged in", async () => {
       const options = {
         method: "GET",
-        url: "/test/start",
+        url: "/forms-runner/test/start",
         auth: {
           strategy: "session",
           credentials: {
@@ -143,7 +143,7 @@ suite("Server Auth", () => {
     test("does not show a 'sign out' link in the header if logged out", async () => {
       const options = {
         method: "GET",
-        url: "/test/start",
+        url: "/forms-runner/test/start",
       };
 
       const res = await server.inject(options);
@@ -155,33 +155,33 @@ suite("Server Auth", () => {
     test("redirects to login page if accessing a question page", async () => {
       const options = {
         method: "GET",
-        url: "/test/uk-passport",
+        url: "/forms-runner/test/uk-passport",
       };
 
       const res = await server.inject(options);
 
       expect(res.statusCode).to.equal(302);
       expect(res.headers.location).to.equal(
-        "/login?returnUrl=/test/uk-passport"
+        "/login?returnUrl=/forms-runner/test/uk-passport"
       );
     });
 
     test("redirects to login page if accessing a summary page", async () => {
       const options = {
         method: "GET",
-        url: "/test/summary",
+        url: "/forms-runner/test/summary",
       };
 
       const res = await server.inject(options);
 
       expect(res.statusCode).to.equal(302);
-      expect(res.headers.location).to.equal("/login?returnUrl=/test/summary");
+      expect(res.headers.location).to.equal("/login?returnUrl=/forms-runner/test/summary");
     });
 
     test("does not redirect to login if accessing the start page", async () => {
       const options = {
         method: "GET",
-        url: "/test/start",
+        url: "/forms-runner/test/start",
       };
 
       const res = await server.inject(options);

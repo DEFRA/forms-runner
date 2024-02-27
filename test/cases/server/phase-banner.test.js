@@ -23,7 +23,7 @@ suite(`Phase banner`, () => {
 
     const options = {
       method: "GET",
-      url: `/phase-default/first-page`,
+      url: `/forms-runner/phase-default/first-page`,
     };
 
     const response = await server.inject(options);
@@ -45,7 +45,7 @@ suite(`Phase banner`, () => {
 
     const options = {
       method: "GET",
-      url: `/phase-alpha/first-page`,
+      url: `/forms-runner/phase-alpha/first-page`,
     };
 
     const response = await server.inject(options);
@@ -67,7 +67,7 @@ suite(`Phase banner`, () => {
 
     const options = {
       method: "GET",
-      url: `/phase-none/first-page`,
+      url: `/forms-runner/phase-none/first-page`,
     };
 
     const response = await server.inject(options);

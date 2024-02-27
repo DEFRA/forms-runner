@@ -22,7 +22,7 @@ suite("Server Router", () => {
   test("cookies page is served", async () => {
     const options = {
       method: "GET",
-      url: `/help/cookies`,
+      url: `/forms-runner/help/cookies`,
     };
 
     const res = await server.inject(options);
@@ -30,7 +30,7 @@ suite("Server Router", () => {
     expect(res.statusCode).to.equal(200);
     expect(
       res.result.indexOf(
-        `<h1 class="govuk-heading-l">Cookies on Digital form builder - runner</h1>`
+        `<h1 class="govuk-heading-l">Cookies on Defra forms</h1>`
       ) > -1
     ).to.equal(true);
   });
@@ -41,7 +41,7 @@ suite("Server Router", () => {
       payload: {
         cookies: "accept",
       },
-      url: "/help/cookies",
+      url: "/forms-runner/help/cookies",
     };
 
     const res = await server.inject(options);
@@ -52,7 +52,7 @@ suite("Server Router", () => {
   test("accessibility statement page is served", async () => {
     const options = {
       method: "GET",
-      url: `/help/accessibility-statement`,
+      url: `/forms-runner/help/accessibility-statement`,
     };
 
     const res = await server.inject(options);
@@ -68,7 +68,7 @@ suite("Server Router", () => {
   test("terms and conditions page is served", async () => {
     const options = {
       method: "GET",
-      url: `/help/terms-and-conditions`,
+      url: `/forms-runner/help/terms-and-conditions`,
     };
 
     const res = await server.inject(options);

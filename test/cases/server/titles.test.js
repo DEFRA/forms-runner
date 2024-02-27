@@ -24,7 +24,7 @@ describe("Title and section title", () => {
   it("does not render the section title if it is the same as the title", async () => {
     const options = {
       method: "GET",
-      url: `/titles/applicant-one?visit=1`,
+      url: `/forms-runner/titles/applicant-one?visit=1`,
     };
 
     const response = await server.inject(options);
@@ -36,7 +36,7 @@ describe("Title and section title", () => {
   it("does render the section title if it is not the same as the title", async () => {
     const options = {
       method: "GET",
-      url: `/titles/applicant-one-address?visit=1`,
+      url: `/forms-runner/titles/applicant-one-address?visit=1`,
     };
 
     const response = await server.inject(options);
@@ -48,7 +48,7 @@ describe("Title and section title", () => {
   it("renders the section title as H2, outside of the H1", async () => {
     const options = {
       method: "GET",
-      url: `/titles/applicant-one-address?visit=1`,
+      url: `/forms-runner/titles/applicant-one-address?visit=1`,
     };
 
     const response = await server.inject(options);
@@ -61,7 +61,7 @@ describe("Title and section title", () => {
   it("Does not render the section title if hideTitle is set to true", async () => {
     const options = {
       method: "GET",
-      url: `/titles/applicant-two?visit=1`,
+      url: `/forms-runner/titles/applicant-two?visit=1`,
     };
 
     const response = await server.inject(options);

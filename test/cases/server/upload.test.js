@@ -36,14 +36,14 @@ suite("uploads", () => {
     // form.append('file2', Buffer.from([]))
     const options = {
       method: "POST",
-      url: "/upload/upload-file",
+      url: "/forms-runner/upload/upload-file",
       headers: form.getHeaders(),
       payload: form.getBuffer(),
     };
     const response = await server.inject(options);
     expect(response.statusCode).to.equal(302);
     expect(response.headers).to.include("location");
-    expect(response.headers.location).to.equal("/upload/summary");
+    expect(response.headers.location).to.equal("/forms-runner/upload/summary");
   });
 
   test("request with file upload field containing virus returns with error message", async () => {
@@ -72,7 +72,7 @@ suite("uploads", () => {
     form.append("file1", fs.readFileSync(path.join(__dirname, "dummy.pdf")));
     const options = {
       method: "POST",
-      url: "/upload/upload-file",
+      url: "/forms-runner/upload/upload-file",
       headers: form.getHeaders(),
       payload: form.getBuffer(),
     };
@@ -96,7 +96,7 @@ suite("uploads", () => {
     form.append("file1", data);
     const options = {
       method: "POST",
-      url: "/upload/upload-file",
+      url: "/forms-runner/upload/upload-file",
       headers: form.getHeaders(),
       payload: null,
     };
@@ -128,7 +128,7 @@ suite("uploads", () => {
     form.append("file1", fs.readFileSync(path.join(__dirname, "dummy.pdf")));
     const options = {
       method: "POST",
-      url: "/upload/upload-file",
+      url: "/forms-runner/upload/upload-file",
       headers: form.getHeaders(),
       payload: form.getBuffer(),
     };

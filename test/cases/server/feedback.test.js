@@ -23,7 +23,7 @@ suite(`Feedback`, () => {
   test("get request returns configured form page", async () => {
     const options = {
       method: "GET",
-      url: `/feedback/uk-passport`,
+      url: `/forms-runner/feedback/uk-passport`,
     };
 
     const response = await server.inject(options);
