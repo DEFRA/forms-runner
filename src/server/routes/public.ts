@@ -13,6 +13,7 @@ export default [
           path: [
             path.join(runnerFolder, "public", "static"),
             path.join(runnerFolder, "public", "build"),
+            path.join(rootNodeModules, "accessible-autocomplete", "dist"),
             path.join(rootNodeModules, "govuk-frontend", "govuk"),
             path.join(rootNodeModules, "govuk-frontend", "govuk", "assets"),
             path.join(
