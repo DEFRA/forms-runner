@@ -1,48 +1,34 @@
-const Lab = require("@hapi/lab");
-const Code = require("@hapi/code");
+const { transformSync } = require('@babel/core')
 
-const Babel = require("@babel/core");
-
-const lab = Lab.script();
-exports.lab = lab;
-const { expect } = Code;
-const { suite, test } = lab;
-
-let internals = {};
-internals.transform = function (content, filename) {
-  const regexp = new RegExp("node_modules");
-  if (regexp.test(filename)) {
-    return content;
+/**
+ * Apply Babel transforms to tests and TypeScript imports
+ *
+ * @param {string} content - File content
+ * @param {string} filename - File name
+ * @returns {import('@babel/core').BabelFileResult["code"]}
+ */
+function transform(content, filename) {
+  if (filename.match(/node_modules/)) {
+    return content
   }
 
-  let transformed = Babel.transform(content, {
-    presets: [
-      "@babel/typescript",
-      [
-        "@babel/preset-env",
-        {
-          targets: {
-            node: "20",
-          },
-        },
-      ],
-    ],
+  // Apply Babel transforms
+  const transformed = transformSync(content, {
     filename: filename,
-    sourceMap: "inline",
     sourceFileName: filename,
-    auxiliaryCommentBefore: "$lab:coverage:off$",
-    auxiliaryCommentAfter: "$lab:coverage:on$"
-  });
+    sourceMap: 'inline',
+    auxiliaryCommentBefore: '$lab:coverage:off$',
+    auxiliaryCommentAfter: '$lab:coverage:on$'
+  })
 
-  return transformed.code;
-};
-internals.extensions = [".js", ".jsx", ".ts", ".tsx", "es", "es6"];
-internals.methods = [];
-for (let i = 0, il = internals.extensions.length; i < il; ++i) {
-  internals.methods.push({
-    ext: internals.extensions[i],
-    transform: internals.transform,
-  });
+  return transformed?.code ?? content
 }
 
-module.exports = internals.methods;
+/**
+ * Transformers for supported extensions
+ *
+ * @type {import('@hapi/lab').script.Transformer[]}
+ */
+module.exports = ['.cjs', '.js', '.mjs', '.ts'].map((ext) => {
+  return { ext, transform }
+})
