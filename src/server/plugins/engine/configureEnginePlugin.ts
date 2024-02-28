@@ -1,3 +1,4 @@
+import fs from "fs";
 import path from "path";
 import { plugin } from "./plugin";
 
@@ -39,9 +40,11 @@ export const configureEnginePlugin: ConfigureEnginePlugin = (
   let configs: FormConfiguration[];
 
   if (formFileName && formFilePath) {
+    const formConfigPath = path.join(formFilePath, formFileName)
+
     configs = [
       {
-        configuration: require(path.join(formFilePath, formFileName)),
+        configuration: JSON.parse(fs.readFileSync(formConfigPath, 'utf8')),
         id: idFromFilename(formFileName),
       },
     ];

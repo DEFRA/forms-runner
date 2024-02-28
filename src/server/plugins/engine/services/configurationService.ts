@@ -20,7 +20,7 @@ export const loadPreConfiguredForms = (): FormConfiguration[] => {
 
   return configFiles.map((configFile) => {
     const dataFilePath = path.join(FORMS_FOLDER, configFile);
-    const configuration = require(dataFilePath);
+    const configuration = JSON.parse(fs.readFileSync(dataFilePath, 'utf8'));
     const id = idFromFilename(configFile);
     return { configuration, id };
   });

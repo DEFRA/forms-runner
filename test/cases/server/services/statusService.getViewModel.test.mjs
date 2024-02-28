@@ -1,12 +1,12 @@
+import * as path from "path";
 import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";
-import * as path from "path";
+import cheerio from "cheerio";
 
 import { StatusService } from "../../../../src/server/services/index.js";
 import { FormModel } from "../../../../src/server/plugins/engine/models/index.js";
 import createServer from "../../../../src/server/index.js";
-import cheerio from "cheerio";
-const form = require("../status.test.json");
+import form from "../status.test.json" with { type: "json" };
 
 export const lab = Lab.script();
 const { suite, describe, test, before, after } = lab;

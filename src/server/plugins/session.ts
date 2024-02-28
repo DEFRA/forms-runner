@@ -1,8 +1,9 @@
+import yar from "@hapi/yar";
 import config from "../config";
 import generateCookiePassword from "../utils/generateCookiePassword";
 
 export default {
-  plugin: require("@hapi/yar"),
+  plugin: yar,
   options: {
     cache: {
       expiresIn: config.sessionTimeout,
