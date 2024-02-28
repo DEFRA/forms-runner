@@ -1,15 +1,16 @@
+import { expect } from "@hapi/code";
+import * as Lab from "@hapi/lab";
+import Jwt from "@hapi/jwt";
 import sinon from "sinon";
 import config from "../../../../src/server/config.js";
 import {
   generateSessionTokenForForm,
   verifyToken,
 } from "../../../../src/server/plugins/initialiseSession/helpers.js";
-import Jwt from "@hapi/jwt";
-import Lab from "@hapi/lab";
 
-import { expect } from "@hapi/code";
+export const lab = Lab.script();
+const { describe, test, beforeEach } = lab;
 
-const { describe, test, beforeEach } = (exports.lab = Lab.script());
 describe("verifyToken", function () {
   beforeEach(() => {
     sinon.restore();

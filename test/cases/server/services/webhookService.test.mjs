@@ -1,14 +1,12 @@
-import * as Code from "@hapi/code";
+import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import sinon from "sinon";
 
 import { WebhookService } from "../../../../src/server/services/webhookService.js";
 import * as httpService from "../../../../src/server/services/httpService.js";
 
-const { expect } = Code;
-const lab = Lab.script();
-exports.lab = lab;
-const { afterEach, suite, test } = lab;
+export const lab = Lab.script();
+const { suite, test, afterEach } = lab;
 
 suite("Server WebhookService Service", () => {
   afterEach(() => {

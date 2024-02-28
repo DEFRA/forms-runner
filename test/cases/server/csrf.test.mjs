@@ -1,11 +1,12 @@
-import Lab from "@hapi/lab";
 import { expect } from "@hapi/code";
+import * as Lab from "@hapi/lab";
 import cheerio from "cheerio";
 import FormData from "form-data";
 import cookie from "cookie";
 import createServer from "../../../src/server/index.js";
 
-const { suite, before, test, after } = (exports.lab = Lab.script());
+export const lab = Lab.script();
+const { suite, test, before, after } = lab;
 
 suite("CSRF", () => {
   let server;

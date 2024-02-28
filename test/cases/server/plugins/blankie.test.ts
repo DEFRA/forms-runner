@@ -1,11 +1,9 @@
-import * as Code from "@hapi/code";
+import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";
 
 import { configureBlankiePlugin } from "../../../../src/server/plugins/blankie";
 
-const { expect } = Code;
-const lab = Lab.script();
-exports.lab = lab;
+export const lab = Lab.script();
 const { suite, test } = lab;
 
 suite("Server Blankie Plugin", () => {

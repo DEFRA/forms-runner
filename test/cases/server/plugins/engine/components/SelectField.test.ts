@@ -1,4 +1,4 @@
-import * as Code from "@hapi/code";
+import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import sinon from "sinon";
 import { FormModel } from "../../../../../../src/server/plugins/engine/models";
@@ -6,10 +6,7 @@ import { ListComponentsDef } from "@defra/forms-model";
 import { FormSubmissionErrors } from "../../../../../../src/server/plugins/engine/types";
 import { SelectField } from "../../../../../../src/server/plugins/engine/components";
 
-const lab = Lab.script();
-exports.lab = lab;
-
-const { expect } = Code;
+export const lab = Lab.script();
 const { suite, describe, it } = lab;
 
 const lists = [

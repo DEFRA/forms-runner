@@ -1,13 +1,11 @@
-import * as Code from "@hapi/code";
+import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import { WebsiteFieldComponent } from "@defra/forms-model";
 import { WebsiteField } from "../../../../../../src/server/plugins/engine/components";
 import { FormModel } from "../../../../../../src/server/plugins/engine/models";
 
-const lab = Lab.script();
-exports.lab = lab;
-const { expect } = Code;
-const { beforeEach, suite, test } = lab;
+export const lab = Lab.script();
+const { suite, test, beforeEach } = lab;
 
 suite("Website field", () => {
   let model: FormModel;

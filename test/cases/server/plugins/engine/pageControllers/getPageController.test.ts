@@ -1,4 +1,4 @@
-import * as Code from "@hapi/code";
+import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";
 
 import {
@@ -8,10 +8,8 @@ import {
 
 import * as PageControllers from "../../../../../../src/server/plugins/engine/pageControllers";
 
-const lab = Lab.script();
-exports.lab = lab;
-const { expect } = Code;
-const { describe, suite, test } = lab;
+export const lab = Lab.script();
+const { suite, describe, test } = lab;
 
 suite("Engine Page Controllers getPageController", () => {
   describe("controllerNameFromPath", () => {

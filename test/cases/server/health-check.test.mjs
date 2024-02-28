@@ -1,9 +1,10 @@
-import Lab from "@hapi/lab";
 import { expect } from "@hapi/code";
+import * as Lab from "@hapi/lab";
 import createServer from "../../../src/server/index.js";
 import config from "../../../src/server/config.js";
 
-const { before, test, suite, after } = (exports.lab = Lab.script());
+export const lab = Lab.script();
+const { suite, test, before, after } = lab;
 
 suite(`/health-check Route`, () => {
   let server;

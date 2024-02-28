@@ -1,11 +1,9 @@
-import * as Code from "@hapi/code";
+import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import createServer from "../../../../src/server";
 
-const { expect } = Code;
-const lab = Lab.script();
-exports.lab = lab;
-const { after, before, suite, test } = lab;
+export const lab = Lab.script();
+const { suite, test, before, after } = lab;
 
 suite("Server Router", () => {
   let server;

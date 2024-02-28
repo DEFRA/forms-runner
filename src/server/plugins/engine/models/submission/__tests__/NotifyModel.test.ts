@@ -1,13 +1,12 @@
 import { NotifyModel } from "../NotifyModel";
-import * as Code from "@hapi/code";
+import { expect} from "@hapi/code";
 import * as Lab from "@hapi/lab";
-const { expect } = Code;
-const lab = Lab.script();
-exports.lab = lab;
-const { suite, test } = lab;
 import json from "./NotifyModel.test.json";
 import { FormModel } from "../../../../../plugins/engine/models";
 import type { FormSubmissionState } from "../../../../../plugins/engine/types";
+
+export const lab = Lab.script();
+const { suite, test } = lab;
 
 const testFormSubmission = (state: FormSubmissionState) => {
   const notifyOutputConfiguration = {

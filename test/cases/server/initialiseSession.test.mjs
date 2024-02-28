@@ -1,17 +1,11 @@
-import Lab from "@hapi/lab";
 import { expect } from "@hapi/code";
+import * as Lab from "@hapi/lab";
 import createServer from "../../../src/server/index.js";
 import sinon from "sinon";
 import config from "../../../src/server/config.js";
-const {
-  before,
-  after,
-  describe,
-  suite,
-  it,
-  test,
-  beforeEach,
-} = (exports.lab = Lab.script());
+
+export const lab = Lab.script();
+const { suite, describe, test, before, beforeEach, after } = lab;
 
 let server;
 
@@ -118,7 +112,7 @@ suite("InitialiseSession", () => {
       expect(payload).to.not.be.undefined();
     });
 
-    it("responds with token if form doesnt exist", async () => {
+    test("responds with token if form doesnt exist", async () => {
       const serverRequestOptions = {
         method: "POST",
         url: `/session/four-o-four`,

@@ -1,13 +1,11 @@
-import * as Code from "@hapi/code";
+import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import sinon from "sinon";
 
 import { StatusService } from "../../../../src/server/services.js";
 
-const { expect } = Code;
-const lab = Lab.script();
-exports.lab = lab;
-const { afterEach, suite, test } = lab;
+export const lab = Lab.script();
+const { suite, test, afterEach } = lab;
 
 const cacheService = { getState: () => ({}), mergeState: () => {} },
   webhookService = { postRequest: () => ({}) },

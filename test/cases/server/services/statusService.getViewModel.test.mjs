@@ -1,4 +1,4 @@
-import * as Code from "@hapi/code";
+import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import * as path from "path";
 
@@ -8,10 +8,8 @@ import createServer from "../../../../src/server/index.js";
 import cheerio from "cheerio";
 const form = require("../status.test.json");
 
-const { expect } = Code;
-const lab = Lab.script();
-exports.lab = lab;
-const { suite, test, describe, before, after } = lab;
+export const lab = Lab.script();
+const { suite, describe, test, before, after } = lab;
 
 const cacheService = { getState: () => ({}), mergeState: () => {} },
   webhookService = { postRequest: () => ({}) },

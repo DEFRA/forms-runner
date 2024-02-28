@@ -1,12 +1,10 @@
-import * as Code from "@hapi/code";
+import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";
 
 import { PageControllerBase } from "../../../../../../src/server/plugins/engine/pageControllers";
 import { FormModel } from "../../../../../../src/server/plugins/engine/models/FormModel";
 
-const lab = Lab.script();
-exports.lab = lab;
-const { expect } = Code;
+export const lab = Lab.script();
 const { suite, test } = lab;
 
 suite("PageControllerBase", () => {

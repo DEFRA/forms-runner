@@ -1,7 +1,9 @@
-import Lab from "@hapi/lab";
 import { expect } from "@hapi/code";
+import * as Lab from "@hapi/lab";
 import { configSchema } from "../../../src/server/utils/configSchema.js";
-const { test, suite } = (exports.lab = Lab.script());
+
+export const lab = Lab.script();
+const { suite, test } = lab;
 
 suite(`Server config validation`, () => {
   test("it throws when MATOMO_URL is insecure", () => {

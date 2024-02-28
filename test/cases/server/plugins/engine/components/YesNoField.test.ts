@@ -1,11 +1,10 @@
-import * as Code from "@hapi/code";
+import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";
-import { YesNoField } from "../../../../../../src/server/plugins/engine/components/YesNoField";
-const lab = Lab.script();
-exports.lab = lab;
-const { expect } = Code;
-const { suite, describe, it } = lab;
 import sinon from "sinon";
+import { YesNoField } from "../../../../../../src/server/plugins/engine/components/YesNoField";
+
+export const lab = Lab.script();
+const { suite, describe, it } = lab;
 
 suite("YesNoField", () => {
   describe("Generated schema", () => {

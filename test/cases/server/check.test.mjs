@@ -1,13 +1,11 @@
-import Code from "@hapi/code";
-import Lab from "@hapi/lab";
+import { expect } from "@hapi/code";
+import * as Lab from "@hapi/lab";
 import sinon from "sinon";
 import fs from "fs";
 import jsonHelper from "../../../bin/run/check/getJsonFiles.js";
 import outOfDateHelper from "../../../bin/run/check/getOutOfDateForms.js";
 
-const lab = Lab.script();
-exports.lab = lab;
-const { expect } = Code;
+export const lab = Lab.script();
 const { describe, test, afterEach } = lab;
 
 describe("check out of date forms", () => {

@@ -1,12 +1,11 @@
-import * as Code from "@hapi/code";
+import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import { MonthYearField } from "../../../../../src/server/plugins/engine/components";
 import { messages } from "../../../../../src/server/plugins/engine/pageControllers/validationOptions";
 import joi from "joi";
-const lab = Lab.script();
-exports.lab = lab;
+
+export const lab = Lab.script();
 const { suite, test } = lab;
-const { expect } = Code;
 
 /**
  * This replicates {@link PageControllerBase.validate}

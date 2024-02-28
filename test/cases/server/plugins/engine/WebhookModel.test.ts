@@ -1,4 +1,4 @@
-import * as Code from "@hapi/code";
+import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import sinon from "sinon";
 import { WebhookModel } from "../../../../../src/server/plugins/engine/models/submission/WebhookModel";
@@ -7,10 +7,9 @@ import {
   FormModel,
   SummaryViewModel,
 } from "../../../../../src/server/plugins/engine/models";
-const { expect } = Code;
-const lab = Lab.script();
-exports.lab = lab;
-const { afterEach, suite, test } = lab;
+
+export const lab = Lab.script();
+const { suite, test, afterEach } = lab;
 
 const testDetails = [
   {

@@ -1,4 +1,4 @@
-import * as Code from "@hapi/code";
+import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import { UploadPageController } from "../../../../../../src/server/plugins/engine/pageControllers/UploadPageController";
 import { FormModel } from "../../../../../../src/server/plugins/engine/models";
@@ -7,9 +7,7 @@ import * as PlaybackUploadPageController from "../../../../../../src/server/plug
 import { Page } from "@defra/forms-model";
 import { FormComponent } from "../../../../../../src/server/plugins/engine/components";
 
-const lab = Lab.script();
-exports.lab = lab;
-const { expect } = Code;
+export const lab = Lab.script();
 const { suite, test } = lab;
 
 const def = {

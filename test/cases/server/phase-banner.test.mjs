@@ -1,9 +1,10 @@
-import Lab from "@hapi/lab";
 import { expect } from "@hapi/code";
+import * as Lab from "@hapi/lab";
 import cheerio from "cheerio";
 import createServer from "../../../src/server/index.js";
 
-const { test, suite, afterEach } = (exports.lab = Lab.script());
+export const lab = Lab.script();
+const { suite, test, afterEach } = lab;
 
 suite(`Phase banner`, () => {
   let server;

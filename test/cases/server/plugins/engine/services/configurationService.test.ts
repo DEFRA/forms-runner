@@ -1,10 +1,8 @@
-import * as Code from "@hapi/code";
+import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import { loadPreConfiguredForms } from "../../../../../../src/server/plugins/engine/services/configurationService";
 
-const lab = Lab.script();
-exports.lab = lab;
-const { expect } = Code;
+export const lab = Lab.script();
 const { suite, test } = lab;
 
 suite("Engine Plugin ConfigurationService", () => {

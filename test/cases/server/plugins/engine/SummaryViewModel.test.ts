@@ -1,4 +1,4 @@
-import * as Code from "@hapi/code";
+import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import sinon from "sinon";
 import {
@@ -7,10 +7,9 @@ import {
 } from "../../../../../src/server/plugins/engine/models";
 import config from "../../../../../src/server/config";
 import form from "./SummaryViewModel.json";
-const { expect } = Code;
-const lab = Lab.script();
-exports.lab = lab;
-const { afterEach, suite, test } = lab;
+
+export const lab = Lab.script();
+const { suite, test, afterEach } = lab;
 
 suite("SummaryViewModel", () => {
   afterEach(() => {

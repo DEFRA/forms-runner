@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import Lab from "@hapi/lab";
+import * as Lab from "@hapi/lab";
 import cheerio from "cheerio";
 import FormData from "form-data";
 import { expect } from "@hapi/code";
@@ -10,7 +10,8 @@ import config from "../../../src/server/config.js";
 import createServer from "../../../src/server/index.js";
 import { UploadService } from "../../../src/server/services/upload.js";
 
-const { before, test, suite, after } = (exports.lab = Lab.script());
+export const lab = Lab.script();
+const { suite, test, before, after } = lab;
 
 suite("uploads", () => {
   let server;

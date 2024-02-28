@@ -1,4 +1,4 @@
-import * as Code from "@hapi/code";
+import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import {
   proceed,
@@ -9,10 +9,9 @@ import {
 } from "../../../../../src/server/plugins/engine/helpers";
 import sinon from "sinon";
 import Joi from "joi";
-const lab = Lab.script();
-exports.lab = lab;
-const { expect } = Code;
-const { beforeEach, describe, suite, test } = lab;
+
+export const lab = Lab.script();
+const { suite, describe, test, beforeEach } = lab;
 
 suite("Helpers", () => {
   describe("proceed", () => {

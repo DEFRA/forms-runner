@@ -1,10 +1,9 @@
-import * as Code from "@hapi/code";
+import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import { DateField } from "../../../../../src/server/plugins/engine/components/DateField";
 import { messages } from "../../../../../src/server/plugins/engine/pageControllers/validationOptions";
-const lab = Lab.script();
-exports.lab = lab;
-const { expect } = Code;
+
+export const lab = Lab.script();
 const { suite, test } = lab;
 
 const baseDef = {

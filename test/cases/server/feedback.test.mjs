@@ -1,9 +1,10 @@
-import Lab from "@hapi/lab";
 import { expect } from "@hapi/code";
+import * as Lab from "@hapi/lab";
 import cheerio from "cheerio";
 import createServer from "../../../src/server/index.js";
 
-const { before, test, suite, after } = (exports.lab = Lab.script());
+export const lab = Lab.script();
+const { suite, test, before, after } = lab;
 
 suite(`Feedback`, () => {
   let server;

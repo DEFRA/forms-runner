@@ -1,12 +1,11 @@
-import * as Code from "@hapi/code";
+import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";
-const lab = Lab.script();
-exports.lab = lab;
-const { expect } = Code;
-const { suite, describe, it } = lab;
 import sinon from "sinon";
 import { AutocompleteField } from "../../../../../../src/server/plugins/engine/components";
 import { FormSubmissionError } from "../../../../../../src/server/plugins/engine/types";
+
+export const lab = Lab.script();
+const { suite, describe, it } = lab;
 
 const lists = [
   {

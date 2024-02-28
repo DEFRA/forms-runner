@@ -1,13 +1,12 @@
-import * as Code from "@hapi/code";
+import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import sinon from "sinon";
 import { FormModel } from "../../../../../src/server/plugins/engine/models";
 import form from "./NotifyViewModel.json";
 import { SummaryViewModel } from "../../../../../src/server/plugins/engine/models";
-const { expect } = Code;
-const lab = Lab.script();
-exports.lab = lab;
-const { afterEach, suite, test } = lab;
+
+export const lab = Lab.script();
+const { suite, test, afterEach } = lab;
 
 const baseState = {
   progress: ["/test/first-page"],

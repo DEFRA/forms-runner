@@ -1,5 +1,5 @@
-import Lab from "@hapi/lab";
 import { expect } from "@hapi/code";
+import * as Lab from "@hapi/lab";
 import cheerio from "cheerio";
 import FormData from "form-data";
 import { stub, restore } from "sinon";
@@ -7,7 +7,8 @@ import { stub, restore } from "sinon";
 import createServer from "../../../src/server/index.js";
 import { CacheService } from "../../../src/server/services/cacheService.js";
 
-const { before, afterEach, test, suite, after } = (exports.lab = Lab.script());
+export const lab = Lab.script();
+const { suite, test, before, after, afterEach } = lab;
 
 const state = {
   progress: [
