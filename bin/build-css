@@ -1,5 +1,0 @@
-#!/bin/bash
-
-node-sass --output-style=compressed \
-  --output=public/build/stylesheets \
-  src/client/sass
