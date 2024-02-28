@@ -24,7 +24,7 @@
     "a11y": "node test/audit/components && node lighthouse",
     "symlink-env": "./bin/symlink-config",
     "type-check": "tsc --noEmit",
-    "generate-docs": "typedoc src --tsconfig tsconfig.json --out ../docs/runner/typedoc --exclude '**/*+(index|.test|.jest).ts'"
+    "generate-docs": "typedoc src --tsconfig tsconfig.json --out ./docs/typedoc --exclude '**/*+(index|.test|.jest).ts'"
   },
   "repository": {
     "type": "git",
@@ -103,6 +103,7 @@
     "prisma": "^5.1.1",
     "sass": "^1.49.9",
     "sinon": "^13.0.1",
+    "typedoc": "^0.25.9",
     "typescript": "^4.9.5"
   },
   "optionalDependencies": {

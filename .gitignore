@@ -12,6 +12,7 @@ report.html
 report.json
 unit-test.html
 /dist/
+/docs/
 src/server/public/build
 /public/build/
 
