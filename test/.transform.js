@@ -8,7 +8,10 @@ const { transformSync } = require('@babel/core')
  * @returns {import('@babel/core').BabelFileResult["code"]}
  */
 function transform(content, filename) {
-  if (filename.match(/node_modules/)) {
+  const isTest = filename.match(/\.test\.m?[jt]s/)
+  const isDependency = filename.match(/node_modules/)
+
+  if (isDependency) {
     return content
   }
 
@@ -17,8 +20,10 @@ function transform(content, filename) {
     filename: filename,
     sourceFileName: filename,
     sourceMap: 'inline',
-    auxiliaryCommentBefore: '$lab:coverage:off$',
-    auxiliaryCommentAfter: '$lab:coverage:on$'
+
+    // Skip coverage for test files
+    auxiliaryCommentBefore: !isTest ? '$lab:coverage:off$' : undefined,
+    auxiliaryCommentAfter: !isTest ? '$lab:coverage:on$' : undefined
   })
 
   return transformed?.code ?? content
