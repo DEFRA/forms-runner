@@ -2,11 +2,11 @@ import * as Code from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import * as path from "path";
 
-import { StatusService } from "../../../../src/server/services";
-import { FormModel } from "../../../../src/server/plugins/engine/models";
-import createServer from "../../../../src/server";
+import { StatusService } from "../../../../src/server/services/index.js";
+import { FormModel } from "../../../../src/server/plugins/engine/models/index.js";
+import createServer from "../../../../src/server/index.js";
 import cheerio from "cheerio";
-const form = require("./../status.test.json");
+const form = require("../status.test.json");
 
 const { expect } = Code;
 const lab = Lab.script();

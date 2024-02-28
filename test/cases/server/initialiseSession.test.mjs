@@ -1,8 +1,8 @@
 import Lab from "@hapi/lab";
 import { expect } from "@hapi/code";
-import createServer from "../../../src/server";
+import createServer from "../../../src/server/index.js";
 import sinon from "sinon";
-import config from "../../../src/server/config";
+import config from "../../../src/server/config.js";
 const {
   before,
   after,

@@ -1,8 +1,8 @@
-const nanoid = require("nanoid");
+import nanoid from "nanoid";
 import * as Code from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import * as sinon from "sinon";
-import { PayService } from "../../../../src/server/services/payService";
+import { PayService } from "../../../../src/server/services/payService.js";
 import { format } from "date-fns";
 const { expect } = Code;
 const lab = Lab.script();

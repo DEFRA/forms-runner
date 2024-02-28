@@ -1,7 +1,7 @@
 import Lab from "@hapi/lab";
 import { expect } from "@hapi/code";
 import cheerio from "cheerio";
-import createServer from "../../../src/server";
+import createServer from "../../../src/server/index.js";
 
 const { before, after, describe, it } = (exports.lab = Lab.script());
 

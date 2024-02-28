@@ -4,8 +4,8 @@ import cheerio from "cheerio";
 import FormData from "form-data";
 import { stub, restore } from "sinon";
 
-import createServer from "../../../src/server";
-import { CacheService } from "../../../src/server/services/cacheService";
+import createServer from "../../../src/server/index.js";
+import { CacheService } from "../../../src/server/services/cacheService.js";
 
 const { before, afterEach, test, suite, after } = (exports.lab = Lab.script());
 

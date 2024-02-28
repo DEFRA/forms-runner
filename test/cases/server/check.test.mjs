@@ -1,13 +1,14 @@
-const Code = require("@hapi/code");
-const Lab = require("@hapi/lab");
-const sinon = require("sinon");
+import Code from "@hapi/code";
+import Lab from "@hapi/lab";
+import sinon from "sinon";
+import fs from "fs";
+import jsonHelper from "../../../bin/run/check/getJsonFiles.js";
+import outOfDateHelper from "../../../bin/run/check/getOutOfDateForms.js";
+
 const lab = Lab.script();
 exports.lab = lab;
 const { expect } = Code;
 const { describe, test, afterEach } = lab;
-const fs = require("fs");
-const jsonHelper = require("../../../bin/run/check/getJsonFiles");
-const outOfDateHelper = require("../../../bin/run/check/getOutOfDateForms");
 
 describe("check out of date forms", () => {
   test("getJsonFiles returns files with .json extension only", async () => {
