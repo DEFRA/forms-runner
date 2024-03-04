@@ -11,6 +11,8 @@ import config from "../../config";
 import type { HapiRequest, HapiResponseToolkit, HapiServer } from "../../types";
 import type { FormPayload } from "./types";
 
+import { initiateLoad } from "./services/S3Persistence";
+
 configure([
   // Configure Nunjucks to allow rendering of content that is revealed conditionally.
   path.resolve(__dirname, "/views"),
@@ -106,6 +108,26 @@ export const plugin = {
       options: {
         description: `${enabledString} Allows a form to be persisted (published) on the runner server. Requires previewMode to be set to true. See runner/README.md for details on environment variables`,
       },
+    });
+
+    server.route({
+      method: "get",
+      path: "/reload",
+      handler: async (request: HapiRequest, h: HapiResponseToolkit) => {
+        const { loaded, failed } = await initiateLoad();
+
+        loaded.forEach(form => {
+          forms[form.id] = new FormModel(form.configuration, {
+            ...modelOptions,
+            basePath: `${formBasePath}/${form.id}`,
+          });;
+        });
+
+        return h.response({
+          "successful": loaded.map(item => item.id),
+          "failed": failed
+        }).code(200);
+      }
     });
 
     server.route({
