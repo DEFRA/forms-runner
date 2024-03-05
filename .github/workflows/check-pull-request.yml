@@ -11,6 +11,10 @@ on:
       - synchronize
       - ready_for_review
 
+  push:
+    branches:
+      - main
+
 jobs:
   pr-validator:
     name: Run Pull Request Checks
