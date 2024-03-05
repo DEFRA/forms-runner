@@ -2,7 +2,6 @@ import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import sinon from "sinon";
 import { TextField } from "../../../../../../src/server/plugins/engine/components/TextField";
-import { componentSchema } from "@defra/forms-model";
 import { messages } from "../../../../../../src/server/plugins/engine/pageControllers/validationOptions";
 
 export const lab = Lab.script();

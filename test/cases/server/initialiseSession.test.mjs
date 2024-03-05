@@ -123,7 +123,7 @@ suite("InitialiseSession", () => {
       expect(statusCode).to.equal(404);
     });
     test("responds with a 403 if the callbackUrl has not been safelisted", async () => {
-      let serverRequestOptions = {
+      const serverRequestOptions = {
         method: "POST",
         url: `/session/test`,
         payload: {
@@ -138,7 +138,7 @@ suite("InitialiseSession", () => {
 
   describe("GET /session/{token}", () => {
     test("redirects the user to the correct form", async () => {
-      let serverRequestOptions = {
+      const serverRequestOptions = {
         method: "POST",
         url: `/session/test`,
         payload: { ...baseRequest, options: { ...options, redirectPath: "" } },

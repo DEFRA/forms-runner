@@ -1,7 +1,7 @@
 import { QueueService } from "../services/QueueService";
-type QueueResponse = [number | string, string | undefined];
 import PgBoss from "pg-boss";
 import config from "../config";
+type QueueResponse = [number | string, string | undefined];
 
 type QueueReferenceApiResponse = {
   reference: string;
@@ -78,7 +78,7 @@ export class PgBossQueueService extends QueueService {
       options.retryLimit = 1;
     }
 
-    let referenceNumber = "UNKNOWN";
+    const referenceNumber = "UNKNOWN";
 
     const jobId = await this.queue.send(
       this.queueName,
@@ -133,7 +133,7 @@ export class PgBossQueueService extends QueueService {
           }
           timeElapsed += parseInt(config.queueServicePollingInterval);
         } catch (err) {
-          reject();
+          reject(err);
         }
       }, config.queueServicePollingInterval);
     });

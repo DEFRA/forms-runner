@@ -28,7 +28,7 @@ suite("NotifyModel", () => {
       TZOHRn: "test@test.com",
     };
     const model = testFormSubmission(state);
-    expect(model.personalisation["wVUZJW"]).to.equal(`* Item 1\n* Item 2\n`);
+    expect(model.personalisation.wVUZJW).to.equal(`* Item 1\n* Item 2\n`);
   });
   test("returns correct personalisation when a list is passed in and the second condition is satisfied", () => {
     const state: FormSubmissionState = {
@@ -39,7 +39,7 @@ suite("NotifyModel", () => {
 
     const model = testFormSubmission(state);
 
-    expect(model.personalisation["wVUZJW"]).to.equal(`* Item 1\n`);
+    expect(model.personalisation.wVUZJW).to.equal(`* Item 1\n`);
   });
   test("returns an empty string when a list is passed in and no conditions are satisfied", () => {
     const state: FormSubmissionState = {
@@ -50,6 +50,6 @@ suite("NotifyModel", () => {
 
     const model = testFormSubmission(state);
 
-    expect(model.personalisation["wVUZJW"]).to.equal("");
+    expect(model.personalisation.wVUZJW).to.equal("");
   });
 });

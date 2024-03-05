@@ -16,7 +16,7 @@ import type { ComponentCollectionViewModel } from "./types";
 
 export class ComponentCollection {
   items: (ComponentBase | ComponentCollection | FormComponent)[];
-  formItems: FormComponent /* | ConditionalFormComponent*/[];
+  formItems: FormComponent /* | ConditionalFormComponent */[];
   prePopulatedItems: Record<string, JoiSchema>;
   formSchema: JoiSchema;
   stateSchema: JoiSchema;

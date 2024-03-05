@@ -1,3 +1,4 @@
+import path from "path";
 import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import cheerio from "cheerio";
@@ -18,7 +19,7 @@ suite(`Phase banner`, () => {
     // TODO: default to no phase banner? TBD
     server = await createServer({
       formFileName: `phase-default.json`,
-      formFilePath: __dirname + "/forms",
+      formFilePath: path.join(__dirname, "/forms"),
     });
     await server.start();
 
@@ -40,7 +41,7 @@ suite(`Phase banner`, () => {
   test("shows the alpha tag if selected", async () => {
     server = await createServer({
       formFileName: `phase-alpha.json`,
-      formFilePath: __dirname + "/forms",
+      formFilePath: path.join(__dirname, "/forms"),
     });
     await server.start();
 
@@ -62,7 +63,7 @@ suite(`Phase banner`, () => {
   test("does not show the phase banner if None", async () => {
     server = await createServer({
       formFileName: `phase-none.json`,
-      formFilePath: __dirname + "/forms",
+      formFilePath: path.join(__dirname, "/forms"),
     });
     await server.start();
 

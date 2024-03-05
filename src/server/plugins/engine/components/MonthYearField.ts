@@ -81,7 +81,7 @@ export class MonthYearField extends FormComponent {
     return `${monthString} ${year}`;
   }
 
-  // @ts-ignore - eslint does not report this as an error, only tsc
+  // @ts-expect-error - Property 'getViewModel' in type 'MonthYearField' is not assignable to the same property in base type 'FormComponent'
   getViewModel(formData: FormData, errors: FormSubmissionErrors) {
     const viewModel = super.getViewModel(formData, errors);
 

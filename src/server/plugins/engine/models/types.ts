@@ -1,6 +1,5 @@
 import { FeedbackContextInfo } from "./../feedback";
-import { ConditionRawData } from "@defra/forms-model";
-import { Page, Section } from "@defra/forms-model";
+import { ConditionRawData , Page, Section } from "@defra/forms-model";
 import { Component } from "./../components";
 import type { Fees } from "../../../services/payService";
 

@@ -55,7 +55,7 @@ module.exports = {
   /**
    * Service
    */
-  serviceUrl: "http://localhost:3009", //This is used for redirects back to the runner.
+  serviceUrl: "http://localhost:3009", // This is used for redirects back to the runner.
   serviceName: "Defra Forms",
   serviceStartPage: "",
   privacyPolicyUrl: "",

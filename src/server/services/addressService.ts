@@ -11,6 +11,7 @@ export class AddressService {
   constructor(server) {
     this.logger = server.logger;
   }
+
   async findByPostcode(key, postcode) {
     const findByPostcodeUrl = `https://api.ordnancesurvey.co.uk/places/v1/addresses/postcode?lr=EN&fq=logical_status_code:1&dataset=DPA&postcode=${postcode}&key=${key}`;
 
@@ -31,7 +32,7 @@ export class AddressService {
           uprn: item.UPRN,
           postcode: item.POSTCODE,
           address: item.ADDRESS,
-          item: item,
+          item,
         };
       });
     } catch (error) {

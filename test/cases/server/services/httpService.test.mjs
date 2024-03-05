@@ -6,8 +6,7 @@ import wreck from "@hapi/wreck";
 import { post } from "../../../../src/server/services/httpService.js";
 
 export const lab = Lab.script();
-const { suite, test, beforeEach, afterEach } = lab;
-const sandbox = sinon.createSandbox();
+const { suite, test, afterEach } = lab;
 
 suite("Http Service", () => {
   afterEach(() => {

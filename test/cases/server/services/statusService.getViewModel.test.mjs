@@ -11,10 +11,10 @@ import form from "../status.test.json" with { type: "json" };
 export const lab = Lab.script();
 const { suite, describe, test, before, after } = lab;
 
-const cacheService = { getState: () => ({}), mergeState: () => {} },
-  webhookService = { postRequest: () => ({}) },
-  notifyService = { sendNotification: () => ({}) },
-  payService = {
+const cacheService = { getState: () => ({}), mergeState: () => {} };
+  const webhookService = { postRequest: () => ({}) };
+  const notifyService = { sendNotification: () => ({}) };
+  const payService = {
     payStatus: () => {},
   };
 
@@ -114,8 +114,8 @@ suite("StatusService getViewModel renders custom text correctly", () => {
 
   test("with confirmationPage undefined", async () => {
     const formDef = { ...form, specialPages: {} };
-    let formModel = new FormModel(formDef, {});
-    let vmWithoutConfirmationPage = statusService.getViewModel({}, formModel);
+    const formModel = new FormModel(formDef, {});
+    const vmWithoutConfirmationPage = statusService.getViewModel({}, formModel);
     response = await server.render("confirmation", vmWithoutConfirmationPage);
 
     $ = cheerio.load(response);
@@ -126,7 +126,7 @@ suite("StatusService getViewModel renders custom text correctly", () => {
   });
   test("with confirmationPage as empty object", async () => {
     const formDef = { ...form, specialPages: { confirmationPage: {} } };
-    let formModel = new FormModel(formDef, {});
+    const formModel = new FormModel(formDef, {});
 
     const vmWithoutCustomText = statusService.getViewModel({}, formModel);
     response = await server.render("confirmation", vmWithoutCustomText);
@@ -139,7 +139,7 @@ suite("StatusService getViewModel renders custom text correctly", () => {
   });
 
   test("with customText toggled", async () => {
-    let formModel = new FormModel(form, {});
+    const formModel = new FormModel(form, {});
 
     formModel.def.specialPages.confirmationPage.customText = {
       nextSteps: false,
@@ -163,7 +163,7 @@ suite("StatusService getViewModel renders custom text correctly", () => {
     test("with callback override", async () => {});
   });
   test("with customText defined", async () => {
-    let formModel = new FormModel(form, {});
+    const formModel = new FormModel(form, {});
 
     formModel.def.specialPages.confirmationPage.customText = {
       title: "Soup",
@@ -195,7 +195,7 @@ suite("StatusService getViewModel renders custom text correctly", () => {
     expect($("body").text()).to.contain("Tragedy");
   });
   test("with callback defined", async () => {
-    let formModel = new FormModel(form, {});
+    const formModel = new FormModel(form, {});
 
     formModel.def.specialPages.confirmationPage.customText = {
       title: "Soup",

@@ -50,7 +50,7 @@ export class PlaybackUploadPageController extends PageController {
    * @returns the view model for the radio button component
    * */
   getRetryUploadViewModel(errors?: FormSubmissionErrors) {
-    let viewModel = { ...this.retryUploadViewModel };
+    const viewModel = { ...this.retryUploadViewModel };
     errors?.errorList?.forEach((err) => {
       if (err.name === viewModel.name) {
         viewModel.errorMessage = {
@@ -67,9 +67,9 @@ export class PlaybackUploadPageController extends PageController {
 
       const state = await cacheService.getState(request);
       const { progress = [] } = state;
-      let sectionTitle = this.section?.title;
+      const sectionTitle = this.section?.title;
       return h.view("upload-playback", {
-        sectionTitle: sectionTitle,
+        sectionTitle,
         showTitle: true,
         pageTitle: "Check your image",
         backLink: progress[progress.length - 1] ?? this.backLinkFallback,
@@ -88,9 +88,9 @@ export class PlaybackUploadPageController extends PageController {
       const result = this.formSchema.validate(payload, this.validationOptions);
       if (result.error) {
         const errors = this.getErrors(result);
-        let sectionTitle = this.section?.title;
+        const sectionTitle = this.section?.title;
         return h.view("upload-playback", {
-          sectionTitle: sectionTitle,
+          sectionTitle,
           showTitle: true,
           pageTitle: "Check your image",
           uploadErrors: errors,

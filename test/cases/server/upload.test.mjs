@@ -8,7 +8,7 @@ import { stub, restore } from "sinon";
 import config from "../../../src/server/config.js";
 
 import createServer from "../../../src/server/index.js";
-import { UploadService } from "../../../src/server/services/upload.js";
+import { UploadService } from "../../../src/server/services/upload/index.js";
 
 export const lab = Lab.script();
 const { suite, test, before, after } = lab;

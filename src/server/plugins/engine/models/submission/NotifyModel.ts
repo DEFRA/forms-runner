@@ -14,6 +14,12 @@ export type NotifyModel = Omit<
   };
 };
 
+const checkItemIsValid = (
+  model: FormModel,
+  state: FormSubmissionState,
+  conditionName
+) => model.conditions[conditionName]?.fn?.(state) ?? true;
+
 const parseListAsNotifyTemplate = (
   list: List,
   model: FormModel,
@@ -24,12 +30,6 @@ const parseListAsNotifyTemplate = (
     .map((item) => `* ${item.value}\n`)
     .join("")}`;
 };
-
-const checkItemIsValid = (
-  model: FormModel,
-  state: FormSubmissionState,
-  conditionName
-) => model.conditions[conditionName]?.fn?.(state) ?? true;
 
 /**
  * returns an object used for sending GOV.UK notify requests Used by {@link SummaryViewModel} {@link NotifyService}
@@ -49,7 +49,6 @@ export function NotifyModel(
     templateId,
   } = outputConfiguration;
 
-  // @ts-ignore - eslint does not report this as an error, only tsc
   const personalisation: NotifyModel["personalisation"] = personalisationConfiguration.reduce(
     (acc, curr) => {
       let value, listValue, condition;
@@ -58,7 +57,7 @@ export function NotifyModel(
         curr,
         ...(personalisationFieldCustomisation?.[curr] ?? []),
       ];
-      //iterate through each field to find the value to use
+      // iterate through each field to find the value to use
       possibleFields.forEach((field) => {
         value ??= reach(state, field);
         listValue ??= model.lists.find((list) => list.name === field);
@@ -101,10 +100,10 @@ export function NotifyModel(
     })?.emailReplyToId ?? defaultReplyToId;
 
   return {
-    templateId: templateId,
+    templateId,
     personalisation,
     emailAddress: reach(state, emailField) as string,
-    apiKey: apiKey,
+    apiKey,
     addReferencesToPersonalisation,
     ...(emailReplyToId && { emailReplyToId }),
   };

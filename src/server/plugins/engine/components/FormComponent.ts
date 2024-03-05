@@ -9,16 +9,11 @@ import {
   FormData,
   FormPayload,
 } from "../types";
-import { FormModel } from "../models";
-import { ComponentDef } from "@defra/forms-model";
 import type { ViewModel } from "./types";
 
 export class FormComponent extends ComponentBase {
   isFormComponent: boolean = true;
   __lang: string = "en";
-  constructor(def: ComponentDef, model: FormModel) {
-    super(def, model);
-  }
 
   get lang() {
     return this.__lang;
@@ -95,7 +90,7 @@ export class FormComponent extends ComponentBase {
         classes: "govuk-label--s",
       },
       id: name,
-      name: name,
+      name,
       value: formData[name],
     };
 

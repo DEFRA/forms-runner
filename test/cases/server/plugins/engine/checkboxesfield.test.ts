@@ -52,7 +52,7 @@ suite("CheckboxesField", () => {
       schema: {},
     };
     const formModel = {
-      getList: (_name) => lists[0],
+      getList: () => lists[0],
       makePage: () => sinon.stub(),
     };
     const component = new CheckboxesField(componentDefinition, formModel);

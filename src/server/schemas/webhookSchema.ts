@@ -67,6 +67,7 @@ const optionsSchema: joi.ObjectSchema<
     .string()
     .optional()
     .allow("")
+    // eslint-disable-next-line no-template-curly-in-string
     .note("appended to URL of formId after GET /session/${token}"),
   message: joi
     .string()
@@ -83,7 +84,7 @@ const optionsSchema: joi.ObjectSchema<
   components: joi.array().items(componentSchema),
 });
 
-//TODO:- make this work with initialiseSession POST endpoint, so the endpoint can be auto-documented
+// TODO:- make this work with initialiseSession POST endpoint, so the endpoint can be auto-documented
 export const initialiseSessionSchema: joi.ObjectSchema<InitialiseSessionSchema> = joi.object(
   {
     name: joi.string().optional().allow(""),

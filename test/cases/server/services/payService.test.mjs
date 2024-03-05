@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-named-as-default
 import nanoid from "nanoid";
 import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";

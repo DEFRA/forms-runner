@@ -24,7 +24,6 @@ export class SummaryPageController extends PageController {
       const { cacheService } = request.services([]);
       const model = this.model;
 
-      // @ts-ignore - ignoring so docs can be generated. Remove when properly typed
       if (this.model.def.skipSummary) {
         return this.makePostRouteHandler()(request, h);
       }
@@ -117,7 +116,6 @@ export class SummaryPageController extends PageController {
           summaryViewModel.result.error
         );
         /** defaults to the first page */
-        // @ts-ignore - tsc reports an error here, ignoring so docs can be generated (does not cause eslint errors otherwise). Remove when properly typed
         let startPageRedirect = redirectTo(
           request,
           h,
@@ -125,12 +123,9 @@ export class SummaryPageController extends PageController {
         );
         const startPage = model.def.startPage;
 
-        // @ts-ignore - tsc reports an error here, ignoring so docs can be generated (does not cause eslint errors otherwise). Remove when properly typed
-        if (startPage.startsWith("http")) {
-          // @ts-ignore - tsc reports an error here, ignoring so docs can be generated (does not cause eslint errors otherwise). Remove when properly typed
+        if (startPage?.startsWith("http")) {
           startPageRedirect = redirectTo(request, h, startPage);
         } else if (model.def.pages.find((page) => page.path === startPage)) {
-          // @ts-ignore - tsc reports an error here, ignoring so docs can be generated (does not cause eslint errors otherwise). Remove when properly typed
           startPageRedirect = redirectTo(
             request,
             h,
@@ -265,7 +260,7 @@ export class SummaryPageController extends PageController {
 
   feedbackUrlFromRequest(request: HapiRequest) {
     if (this.model.def.feedback?.url) {
-      let feedbackLink = new RelativeUrl(this.model.def.feedback.url);
+      const feedbackLink = new RelativeUrl(this.model.def.feedback.url);
       const returnInfo = new FeedbackContextInfo(
         this.model.name,
         "Summary",

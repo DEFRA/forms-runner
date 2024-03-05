@@ -28,7 +28,7 @@ suite("Helpers", () => {
       const returnUrl = "/my-return-url";
       const request = {
         query: {
-          returnUrl: returnUrl,
+          returnUrl,
         },
       };
       const nextUrl = "badgers/monkeys";

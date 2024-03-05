@@ -2,7 +2,7 @@ import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import sinon from "sinon";
 import { ListFormComponent } from "../../../../../../src/server/plugins/engine/components/ListFormComponent";
-import { FormSubmissionState } from "../../../../../../src/server/plugins/engine";
+import type { FormSubmissionState } from "../../../../../../src/server/plugins/engine/types";
 
 export const lab = Lab.script();
 const { suite, describe, it, beforeEach } = lab;
@@ -29,7 +29,7 @@ const componentDefinition = {
   schema: {},
 };
 
-let formModel = {
+const formModel = {
   getList: () => lists[0],
   makePage: () => sinon.stub(),
 };

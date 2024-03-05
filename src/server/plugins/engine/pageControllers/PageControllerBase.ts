@@ -44,6 +44,7 @@ export class PageControllerBase {
       phase?: string;
     };
   };
+
   name: string;
   model: FormModel;
   pageDef: any; // TODO
@@ -61,9 +62,9 @@ export class PageControllerBase {
   constructor(model: FormModel, pageDef: { [prop: string]: any } = {}) {
     const { def } = model;
 
-    // @ts-ignore
+    // @ts-expect-error - 'FormDefinition' is not assignable to type
     this.def = def;
-    // @ts-ignore
+    // @ts-expect-error - Type 'string | undefined' is not assignable to type 'string'
     this.name = def.name;
     this.model = model;
     this.pageDef = pageDef;
@@ -197,7 +198,7 @@ export class PageControllerBase {
           page,
         };
       })
-      .filter((v: {} | null) => !!v);
+      .filter((v: object | null) => !!v);
   }
 
   /**
@@ -329,7 +330,7 @@ export class PageControllerBase {
           return {
             path: err.path.join("."),
             href: `#${name}`,
-            name: name,
+            name,
             text: err.message.replace(isoRegex, (text) => {
               return format(parseISO(text), "d MMMM yyyy");
             }),
@@ -377,20 +378,20 @@ export class PageControllerBase {
    * Returns an async function. This is called in plugin.ts when there is a GET request at `/{id}/{path*}`
    */
   getConditionEvaluationContext(model: FormModel, state: FormSubmissionState) {
-    //Note: This function does not support repeatFields right now
+    // Note: This function does not support repeatFields right now
 
     let relevantState: FormSubmissionState = {};
-    //Start at our startPage
+    // Start at our startPage
     let nextPage = model.startPage;
 
-    //While the current page isn't null
+    // While the current page isn't null
     while (nextPage != null) {
-      //Either get the current state or the current state of the section if this page belongs to a section
+      // Either get the current state or the current state of the section if this page belongs to a section
       const currentState =
         (nextPage.section ? state[nextPage.section.name] : state) ?? {};
       let newValue = {};
 
-      //Iterate all components on this page and pull out the saved values from the state
+      // Iterate all components on this page and pull out the saved values from the state
       for (const component of nextPage.components.items) {
         newValue[component.name] = currentState[component.name];
       }
@@ -399,12 +400,12 @@ export class PageControllerBase {
         newValue = { [nextPage.section.name]: newValue };
       }
 
-      //Combine our stored values with the existing relevantState that we've been building up
+      // Combine our stored values with the existing relevantState that we've been building up
       relevantState = merge(relevantState, newValue);
 
-      //By passing our current relevantState to getNextPage, we will check if we can navigate to this next page (including doing any condition checks if applicable)
+      // By passing our current relevantState to getNextPage, we will check if we can navigate to this next page (including doing any condition checks if applicable)
       nextPage = nextPage.getNextPage(relevantState);
-      //If a nextPage is returned, we must have taken that route through the form so continue our iteration with the new page
+      // If a nextPage is returned, we must have taken that route through the form so continue our iteration with the new page
     }
 
     return relevantState;
@@ -430,7 +431,6 @@ export class PageControllerBase {
         !isInitialisedSession;
 
       if (shouldRedirectToStartPage) {
-        // @ts-ignore
         return startPage!.startsWith("http")
           ? redirectTo(request, h, startPage!)
           : redirectTo(request, h, `/${this.model.basePath}${startPage!}`);
@@ -459,10 +459,10 @@ export class PageControllerBase {
       /**
        * Content components can be hidden based on a condition. If the condition evaluates to true, it is safe to be kept, otherwise discard it
        */
-      //Calculate our relevantState, which will filter out previously input answers that are no longer relevant to this user journey
-      let relevantState = this.getConditionEvaluationContext(this.model, state);
+      // Calculate our relevantState, which will filter out previously input answers that are no longer relevant to this user journey
+      const relevantState = this.getConditionEvaluationContext(this.model, state);
 
-      //Filter our components based on their conditions using our calculated state
+      // Filter our components based on their conditions using our calculated state
       viewModel.components = viewModel.components.filter((component) => {
         if (
           (component.model.content || component.type === "Details") &&
@@ -603,7 +603,7 @@ export class PageControllerBase {
      * If there are any errors, render the page with the parsed errors
      */
     if (formResult.errors) {
-      //TODO:- refactor to match POST REDIRECT GET pattern.
+      // TODO:- refactor to match POST REDIRECT GET pattern.
 
       return this.renderWithErrors(
         request,
@@ -661,8 +661,8 @@ export class PageControllerBase {
       }
       const { cacheService } = request.services([]);
       const savedState = await cacheService.getState(request);
-      //This is required to ensure we don't navigate to an incorrect page based on stale state values
-      let relevantState = this.getConditionEvaluationContext(
+      // This is required to ensure we don't navigate to an incorrect page based on stale state values
+      const relevantState = this.getConditionEvaluationContext(
         this.model,
         savedState
       );
@@ -695,7 +695,7 @@ export class PageControllerBase {
 
   feedbackUrlFromRequest(request: HapiRequest): string | void {
     if (this.def.feedback?.url) {
-      let feedbackLink = new RelativeUrl(this.def.feedback.url);
+      const feedbackLink = new RelativeUrl(this.def.feedback.url);
       const returnInfo = new FeedbackContextInfo(
         this.model.name,
         this.pageDef.title,
@@ -799,7 +799,7 @@ export class PageControllerBase {
     this[STATE_SCHEMA] = value;
   }
 
-  private objLength(object: {}) {
+  private objLength(object: object) {
     return Object.keys(object).length;
   }
 

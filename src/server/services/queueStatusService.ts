@@ -14,7 +14,7 @@ export class QueueStatusService extends StatusService {
 
   async outputRequests(request: HapiRequest) {
     const state = await this.cacheService.getState(request);
-    let formData = this.webhookArgsFromState(state);
+    const formData = this.webhookArgsFromState(state);
 
     const { outputs, callback } = state;
 

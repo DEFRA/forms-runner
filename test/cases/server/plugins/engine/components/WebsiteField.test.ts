@@ -26,7 +26,7 @@ suite("Website field", () => {
 
     const { formSchema } = new WebsiteField(def, model);
 
-    expect(formSchema.describe().flags!["presence"]).to.equal("required");
+    expect(formSchema.describe().flags!.presence).to.equal("required");
   });
 
   test("should validate URI", () => {

@@ -12,7 +12,7 @@ import type { FormData, FormSubmissionErrors } from "../types";
 export class EmailAddressField extends FormComponent {
   constructor(def: InputFieldsComponentsDef, model: FormModel) {
     super(def, model);
-    this.schema["email"] = true;
+    this.schema.email = true;
     addClassOptionIfNone(this.options, "govuk-input--width-20");
   }
 

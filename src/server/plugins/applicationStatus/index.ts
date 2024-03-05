@@ -52,7 +52,7 @@ const index = {
             } = await statusService.outputRequests(request);
 
             if (state.callback?.skipSummary?.redirectUrl) {
-              const { redirectUrl } = state.callback?.skipSummary;
+              const { redirectUrl } = state.callback.skipSummary;
               request.logger.info(
                 ["applicationStatus"],
                 `Callback skipSummary detected, redirecting ${request.yar.id} to ${redirectUrl} and clearing state`

@@ -1,10 +1,9 @@
-import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";
 
 import createServer from "../../../src/server/index.js";
 
 export const lab = Lab.script();
-const { suite, test, before, after } = lab;
+const { suite, before, after } = lab;
 
 suite("Rate limit", () => {
   let server;

@@ -48,7 +48,7 @@ export class FormModel {
   DefaultPageController: any = PageController;
   /** the id of the form used for the first url parameter eg localhost:3009/test */
   basePath: string;
-  conditions: Record<string, ExecutableCondition> | {};
+  conditions: Record<string, ExecutableCondition> | object;
   fieldsForContext: ComponentCollection;
   fieldsForPrePopulation: Record<string, any>;
   pages: any;
@@ -113,8 +113,6 @@ export class FormModel {
     });
     this.fieldsForContext = new ComponentCollection(exposedComponentDefs, this);
     this.fieldsForPrePopulation = {};
-
-    // @ts-ignore
     this.pages = def.pages.map((pageDef) => this.makePage(pageDef));
     this.startPage = this.pages.find((page) => page.path === def.startPage);
     this.specialPages = def.specialPages;
@@ -136,7 +134,6 @@ export class FormModel {
     // Build the entire model schema
     // from the individual pages/sections
     let schema = joi.object().required();
-    // @ts-ignore
     [undefined, ...this.sections].forEach((section) => {
       const sectionPages = relevantPages.filter(
         (page) => page.section === section
@@ -161,7 +158,6 @@ export class FormModel {
           }
 
           schema = schema.append({
-            // @ts-ignore
             [section.name]: sectionSchema,
           });
         } else {

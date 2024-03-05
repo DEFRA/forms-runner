@@ -6,7 +6,7 @@ import { add, startOfToday, sub } from "date-fns";
  * The xxField classes should be responsible for generating their own schemas.
  */
 export function buildSchema(type, keys) {
-  let schema = type?.isJoi ? type : joi[type?.type ?? type]();
+  const schema = type?.isJoi ? type : joi[type?.type ?? type]();
 
   Object.keys(keys).forEach((key) => {
     let val = keys[key];

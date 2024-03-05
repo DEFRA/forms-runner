@@ -5,7 +5,7 @@ const DEFAULT_OPTIONS = {
 };
 export const pluginQueue = {
   name: "queue",
-  register: async function (server, options) {
+  register: async function (server) {
     if (DEFAULT_OPTIONS.enableQueueService) {
       const schemaLocation = require.resolve(
         "@defra/forms-queue-model/schema.prisma"

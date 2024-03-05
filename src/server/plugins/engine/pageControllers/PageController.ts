@@ -1,11 +1,7 @@
 import { PageControllerBase } from "./PageControllerBase";
-import { FormModel } from "../models";
 import type { HapiRequest, HapiResponseToolkit } from "../../../types";
 
 export class PageController extends PageControllerBase {
-  constructor(model: FormModel, pageDef: any) {
-    super(model, pageDef);
-  }
   /**
    * {@link https://hapi.dev/api/?v=20.1.2#route-options}
    */
@@ -22,6 +18,7 @@ export class PageController extends PageControllerBase {
       },
     };
   }
+
   /**
    * {@link https://hapi.dev/api/?v=20.1.2#route-options}
    */

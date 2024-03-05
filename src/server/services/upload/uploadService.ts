@@ -41,7 +41,7 @@ export class UploadService {
   }
 
   fileStreamsFromPayload(payload: Payload) {
-    return Object.entries(payload).filter(([_key, value]: [string, any]) => {
+    return Object.entries(payload).filter(([, value]: [string, any]) => {
       if (value) {
         if (Array.isArray(value)) {
           return value.every((nv) => !!nv._data && nv._data.length > 1);
@@ -106,7 +106,6 @@ export class UploadService {
   async handleUploadRequest(
     request: HapiRequest,
     h: HapiResponseToolkit,
-    page: any
   ) {
     const { cacheService } = request.services([]);
     const state = await cacheService.getState(request);

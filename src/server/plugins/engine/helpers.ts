@@ -21,7 +21,7 @@ export function proceed(
   }
 }
 
-type Params = { num?: number; returnUrl: string } | {};
+type Params = { num?: number; returnUrl: string } | object;
 
 export function nonRelativeRedirectUrl(
   request: HapiRequest,

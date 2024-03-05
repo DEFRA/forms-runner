@@ -12,7 +12,7 @@ export class Html extends ComponentBase {
     }
     const viewModel = {
       ...super.getViewModel(formData, errors),
-      content: content,
+      content,
     };
 
     if ("condition" in options && options.condition) {

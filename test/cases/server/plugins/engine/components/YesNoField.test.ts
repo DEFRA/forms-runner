@@ -37,40 +37,6 @@ suite("YesNoField", () => {
     };
 
     describe("getViewModel", () => {
-      const viewModel = {
-        attributes: {},
-        label: {
-          text: "Do you speak English?",
-          classes: "govuk-label--s",
-        },
-        id: "speakEnglish",
-        name: "speakEnglish",
-        value: "true",
-        hint: {
-          html:
-            "You can only be added to the Find a Lawyer Abroad service if you have excellent English language skills. ",
-        },
-        classes: "govuk-radios--inline",
-        items: [
-          {
-            text: "Yes",
-            value: true,
-            checked: true,
-          },
-          {
-            text: "No",
-            value: false,
-            checked: false,
-          },
-        ],
-        fieldset: {
-          legend: {
-            text: "Do you speak English?",
-            classes: "govuk-label--s",
-          },
-        },
-      };
-
       it("viewModel item Yes is checked when evaluating boolean true", () => {
         const component = new YesNoField(componentDefinition, formModel);
         const formData = {

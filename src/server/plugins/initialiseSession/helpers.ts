@@ -1,7 +1,7 @@
 import { merge } from "@hapi/hoek";
 import { customAlphabet } from "nanoid";
 import config from "../../config";
-import Jwt from "@hapi/jwt";
+import { token } from "@hapi/jwt";
 import joi from "joi";
 import type { FormSubmissionState } from "../../plugins/engine/types";
 import type { Field, WebhookSchema } from "../../schemas/types";
@@ -36,7 +36,7 @@ export function webhookToSessionData(
 }
 
 export function generateSessionTokenForForm(callback, formId) {
-  return Jwt.token.generate(
+  return token.generate(
     {
       cb: callback,
       user: customAlphabet(
@@ -57,7 +57,7 @@ export function generateSessionTokenForForm(callback, formId) {
 
 export function verifyToken(decodedToken) {
   try {
-    Jwt.token.verify(decodedToken, {
+    token.verify(decodedToken, {
       key: config.initialisedSessionKey,
       algorithm: config.initialisedSessionAlgorithm,
     });

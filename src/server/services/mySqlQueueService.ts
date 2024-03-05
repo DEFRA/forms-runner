@@ -76,11 +76,12 @@ export class MySqlQueueService extends QueueService {
             ["QueueService", "pollForRef", `Row ref: ${rowId}`],
             err
           );
-          reject();
+          reject(err);
         }
       }, config.queueServicePollingInterval);
     });
   }
+
   async getReturnRef(rowId: number) {
     const row = await this.prisma.submission.findUnique({
       select: {

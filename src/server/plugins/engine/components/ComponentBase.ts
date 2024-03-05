@@ -6,7 +6,6 @@ import {
 } from "@defra/forms-model";
 
 import { FormModel } from "../models";
-import type { FormData, FormSubmissionErrors } from "../types";
 import type { DataType, ViewModel } from "./types";
 
 export class ComponentBase {
@@ -42,7 +41,7 @@ export class ComponentBase {
   /**
    * parses FormData and returns an object provided to a govuk-frontend template to render
    */
-  getViewModel(_formData: FormData, _errors?: FormSubmissionErrors): ViewModel {
+  getViewModel(): ViewModel {
     return {
       attributes: {},
     };

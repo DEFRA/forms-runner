@@ -57,14 +57,12 @@ suite("SelectField", () => {
       name: "countryOfBirth",
       title: "Where were you born?",
       options: {},
-      // @ts-ignore
       list: "Countries",
       schema: {},
     };
 
-    // @ts-ignore
     const formModel: FormModel = {
-      getList: (_name) => lists[0],
+      getList: () => lists[0],
       makePage: () => sinon.stub(),
     };
 

@@ -52,7 +52,6 @@ test("Prefix and suffix are passed to view model", () => {
     options: { prefix: "@£%", suffix: "&^%%" },
   };
   const numberFieldPrefixSuffix = new NumberField(def);
-  const { schema } = numberFieldPrefixSuffix;
 
   expect(numberFieldPrefixSuffix.getViewModel({})).to.contain({
     prefix: { text: "@£%" },

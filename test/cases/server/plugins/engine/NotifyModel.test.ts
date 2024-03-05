@@ -1,9 +1,8 @@
 import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import sinon from "sinon";
-import { FormModel } from "../../../../../src/server/plugins/engine/models";
+import { FormModel , SummaryViewModel } from "../../../../../src/server/plugins/engine/models";
 import form from "./NotifyViewModel.json";
-import { SummaryViewModel } from "../../../../../src/server/plugins/engine/models";
 
 export const lab = Lab.script();
 const { suite, test, afterEach } = lab;

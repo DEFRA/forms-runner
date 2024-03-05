@@ -36,9 +36,11 @@ export default {
           token: config.authClientTokenUrl,
           scope: ["read write"],
           profile: async (credentials, _params, get) => {
+            // eslint-disable-next-line camelcase
             const { email, first_name, last_name, user_id } = await get(
               config.authClientProfileUrl
             );
+            // eslint-disable-next-line camelcase
             credentials.profile = { email, first_name, last_name, user_id };
           },
         },

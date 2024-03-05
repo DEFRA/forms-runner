@@ -4,8 +4,6 @@ import { UploadPageController } from "../../../../../../src/server/plugins/engin
 import { FormModel } from "../../../../../../src/server/plugins/engine/models";
 import * as sinon from "sinon";
 import * as PlaybackUploadPageController from "../../../../../../src/server/plugins/engine/pageControllers/PlaybackUploadPageController";
-import { Page } from "@defra/forms-model";
-import { FormComponent } from "../../../../../../src/server/plugins/engine/components";
 
 export const lab = Lab.script();
 const { suite, test } = lab;
@@ -46,24 +44,18 @@ const model = new FormModel(
 
 suite("UploadPageController", () => {
   lab.before(() => {
-    class mockPlaybackPageController {
-      constructor(
-        _model: FormModel,
-        _pageDef: Page,
-        _inputComponent: FormComponent
-      ) {}
+    class MockPlaybackPageController {
       makePostRouteHandler() {
         return sinon.stub().returns(true);
       }
+
       makeGetRouteHandler() {
         return sinon.stub().returns(true);
       }
     }
     sinon
       .stub(PlaybackUploadPageController, "PlaybackUploadPageController")
-      .callsFake((model, pageDef, inputComponent) => {
-        return new mockPlaybackPageController(model, pageDef, inputComponent);
-      });
+      .callsFake(() => new MockPlaybackPageController());
   });
 
   test("Redirects post handler to the playback page post handler when view=playback", async () => {

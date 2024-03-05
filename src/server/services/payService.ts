@@ -122,7 +122,7 @@ export class PayService {
   async retryPayRequest(feeState: FeeState) {
     const { reference, meta, returnUrl } = feeState;
     const { payApiKey, amount, description } = meta;
-    let newReference = `${reference.slice(0, -11)}-${nanoid(10)}`;
+    const newReference = `${reference.slice(0, -11)}-${nanoid(10)}`;
 
     const { payload } = await postJson(`${config.payApiUrl}/payments`, {
       ...this.options(payApiKey),

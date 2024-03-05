@@ -13,7 +13,7 @@ import config from "../config";
 import nunjucks from "nunjucks";
 import type { NotifyModel } from "../plugins/engine/models/submission";
 import type { FormSubmissionState } from "../plugins/engine/types";
-import type { HapiRequest, HapiResponseToolkit, HapiServer } from "../types";
+import type { HapiRequest, HapiServer } from "../types";
 
 type WebhookModel = WebhookOutputConfiguration & {
   formData: object;
@@ -63,6 +63,7 @@ export class StatusService {
     this.notifyService = notifyService;
     this.payService = payService;
   }
+
   async shouldShowPayErrorPage(request: HapiRequest): Promise<boolean> {
     const { pay } = await this.cacheService.getState(request);
     if (!pay) {
@@ -124,7 +125,7 @@ export class StatusService {
 
   async outputRequests(request: HapiRequest) {
     const state = await this.cacheService.getState(request);
-    let formData = this.webhookArgsFromState(state);
+    const formData = this.webhookArgsFromState(state);
 
     const { outputs, callback } = state;
 
@@ -237,7 +238,7 @@ export class StatusService {
     this.logger.trace(["StatusService", "outputArgs"], JSON.stringify(outputs));
     return outputs.reduce<OutputArgs>(
       (previousValue: OutputArgs, currentValue: OutputModel) => {
-        let { notify, webhook } = previousValue;
+        const { notify, webhook } = previousValue;
         if (isNotifyModel(currentValue.outputData)) {
           const args = this.emailOutputsFromState(
             currentValue.outputData,
@@ -284,7 +285,7 @@ export class StatusService {
     const referenceToDisplay =
       newReference === "UNKNOWN" ? reference : newReference ?? reference;
 
-    let model = {
+    const model = {
       reference: referenceToDisplay,
       ...(pay && { paymentSkipped: pay.paymentSkipped }),
     };

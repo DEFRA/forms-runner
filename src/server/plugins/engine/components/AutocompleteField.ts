@@ -10,6 +10,7 @@ export class AutocompleteField extends SelectField {
     super(def, model);
     addClassOptionIfNone(this.options, "govuk-input--width-20");
   }
+
   getDisplayStringFromState(state: FormSubmissionState): string {
     const { name, items } = this;
     const value = state[name];

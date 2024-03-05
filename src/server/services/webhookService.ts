@@ -31,7 +31,7 @@ export class WebhookService {
       ["WebhookService", "postRequest body"],
       JSON.stringify(data)
     );
-    let request = method === "POST" ? post : put;
+    const request = method === "POST" ? post : put;
     try {
       const { payload } = await request(url, {
         ...DEFAULT_OPTIONS,

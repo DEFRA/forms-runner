@@ -138,7 +138,7 @@ export class DateTimePartsField extends FormComponent {
     return value ? format(parseISO(value), "d MMMM yyyy h:mm") : "";
   }
 
-  // @ts-ignore - eslint does not report this as an error, only tsc
+  // @ts-expect-error - Property 'getViewModel' in type 'DateTimePartsField' is not assignable to the same property in base type 'FormComponent'
   getViewModel(formData: FormData, errors: FormSubmissionErrors) {
     const viewModel = super.getViewModel(formData, errors);
 

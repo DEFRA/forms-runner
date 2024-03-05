@@ -3,10 +3,10 @@ import { expect} from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import json from "./FeesModel.test.json";
 
+import { FormModel } from "../../../../../plugins/engine/models";
+
 export const lab = Lab.script();
 const { suite, test } = lab;
-
-import { FormModel } from "../../../../../plugins/engine/models";
 
 suite("FeesModel", () => {
   test("returns correct FeesModel", () => {

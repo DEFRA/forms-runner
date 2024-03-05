@@ -15,7 +15,7 @@ import { FormDefinition, isMultipleApiKey } from "@defra/forms-model";
 import type { HapiRequest } from "../../../types";
 import type { InitialiseSessionOptions } from "../../initialiseSession/types";
 import type { FormSubmissionState } from "../types";
-import type { FEEDBACK_CONTEXT_ITEMS, WebhookData } from "./types";
+import { FEEDBACK_CONTEXT_ITEMS, type WebhookData } from "./types";
 
 /**
  * TODO - extract submission behaviour dependencies from the viewmodel
@@ -69,9 +69,8 @@ export class SummaryViewModel {
     const { relevantPages, endPage } = this.getRelevantPages(model, state);
     const details = this.summaryDetails(request, model, state, relevantPages);
     const { def } = model;
-    // @ts-ignore
     this.declaration = def.declaration;
-    // @ts-ignore
+    // @ts-expect-error - Type 'boolean | undefined' is not assignable to type 'boolean'
     this.skipSummary = def.skipSummary;
     this._payApiKey = def.feeOptions?.payApiKey ?? def.payApiKey;
     this.endPage = endPage;
@@ -162,7 +161,7 @@ export class SummaryViewModel {
 
       return {
         path: err.path.join("."),
-        name: name,
+        name,
         message: err.message,
       };
     });
@@ -379,7 +378,7 @@ export class SummaryViewModel {
 }
 
 function gatherRepeatPages(state) {
-  if (!!Object.values(state).find((section) => Array.isArray(section))) {
+  if (Object.values(state).find((section) => Array.isArray(section))) {
     return state;
   }
   const clonedState = clone(state);
@@ -389,7 +388,7 @@ function gatherRepeatPages(state) {
     }
     if (Array.isArray(section)) {
       clonedState[key] = section.map((pages) =>
-        Object.values(pages).reduce((acc: {}, p: any) => ({ ...acc, ...p }), {})
+        Object.values(pages).reduce((acc: object, p: any) => ({ ...acc, ...p }), {})
       );
     }
   });
@@ -410,11 +409,11 @@ function Item(
 ) {
   const isRepeatable = !!page.repeatField;
 
-  //TODO:- deprecate in favour of section based and/or repeatingFieldPageController
+  // TODO:- deprecate in favour of section based and/or repeatingFieldPageController
   if (isRepeatable && Array.isArray(sectionState)) {
     return sectionState.map((state, i) => {
       const collated = Object.values(state).reduce(
-        (acc: {}, p: any) => ({ ...acc, ...p }),
+        (acc: object, p: any) => ({ ...acc, ...p }),
         {}
       );
       return Item(request, component, collated, page, model, {

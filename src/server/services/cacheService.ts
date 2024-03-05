@@ -1,7 +1,7 @@
-import hoek from "hoek";
-import CatboxRedis from "@hapi/catbox-redis";
-import CatboxMemory from "@hapi/catbox-memory";
-import Jwt from "@hapi/jwt";
+import { merge } from "hoek";
+import { Engine as RedisEngine } from "@hapi/catbox-redis";
+import { Engine as MemoryEngine } from "@hapi/catbox-memory";
+import { token } from "@hapi/jwt";
 import Redis from "ioredis";
 
 import config from "../config";
@@ -55,8 +55,8 @@ export class CacheService {
     const key = this.Key(request);
     const state = await this.getState(request);
     let ttl = sessionTimeout;
-    hoek.merge(state, value, nullOverride, arrayMerge);
-    if (!!state.pay) {
+    merge(state, value, nullOverride, arrayMerge);
+    if (state.pay) {
       this.logger.info(
         ["cacheService", request.yar.id],
         `Pay state detected setting session TTL to ${paymentSessionTimeout}.`
@@ -91,7 +91,7 @@ export class CacheService {
   }
 
   async activateSession(jwt, request) {
-    const { decoded } = Jwt.token.decode(jwt);
+    const { decoded } = token.decode(jwt);
     const { payload }: { payload: DecodedSessionToken } = decoded;
 
     const userSessionKey = {
@@ -150,14 +150,14 @@ export const catboxProvider = () => {
    * More information at {@link https://hapi.dev/module/catbox/api}
    */
   const provider = {
-    constructor: redisHost ? CatboxRedis.Engine : CatboxMemory.Engine,
+    constructor: redisHost ? RedisEngine : MemoryEngine,
     options: {},
   };
 
   if (redisHost) {
     const redisOptions: {
       password?: string;
-      tls?: {};
+      tls?: object
     } = {};
 
     if (redisPassword) {

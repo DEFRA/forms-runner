@@ -26,6 +26,7 @@ export class YesNoField extends ListFormComponent {
       },
     ],
   };
+
   itemsSchema = joi.boolean();
   get items() {
     return this.list?.items ?? [];

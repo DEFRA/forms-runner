@@ -2,15 +2,15 @@ import { expect } from "@hapi/code";
 import * as Lab from "@hapi/lab";
 import sinon from "sinon";
 
-import { StatusService } from "../../../../src/server/services.js";
+import { StatusService } from "../../../../src/server/services/index.js";
 
 export const lab = Lab.script();
 const { suite, test, afterEach } = lab;
 
-const cacheService = { getState: () => ({}), mergeState: () => {} },
-  webhookService = { postRequest: () => ({}) },
-  notifyService = { sendNotification: () => ({}) },
-  payService = {
+const cacheService = { getState: () => ({}), mergeState: () => {} };
+  const webhookService = { postRequest: () => ({}) };
+  const notifyService = { sendNotification: () => ({}) };
+  const payService = {
     payStatus: () => {},
   };
 

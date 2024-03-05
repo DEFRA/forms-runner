@@ -1,8 +1,7 @@
 import joi, { Schema } from "joi";
-import { ListComponentsDef } from "@defra/forms-model";
+import { ListComponentsDef , List, Item } from "@defra/forms-model";
 import { FormComponent } from "./FormComponent";
 import { FormModel } from "./../models";
-import { List, Item } from "@defra/forms-model";
 import type { FormSubmissionState, FormSubmissionErrors, FormData } from "../types";
 import type { DataType, ListItem } from "./types";
 
@@ -17,13 +16,14 @@ export class ListFormComponent extends FormComponent {
   get items(): Item[] {
     return this.list?.items ?? [];
   }
+
   get values(): (string | number | boolean)[] {
     return this.items?.map((item) => item.value) ?? [];
   }
 
   constructor(def: ListComponentsDef, model: FormModel) {
     super(def, model);
-    // @ts-ignore
+    // @ts-expect-error - Type 'List | []' is not assignable to type 'List'
     this.list = model.getList(def.list);
     this.listType = this.list.type ?? "string";
     this.options = def.options;

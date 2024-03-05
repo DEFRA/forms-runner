@@ -37,7 +37,7 @@ export class SelectionControlField extends ListFormComponent {
       return itemModel;
 
       // FIXME:- add this back when GDS fix accessibility issues involving conditional reveal fields
-      //return super.addConditionalComponents(item, itemModel, formData, errors);
+      // return super.addConditionalComponents(item, itemModel, formData, errors);
     });
     return viewModel;
   }

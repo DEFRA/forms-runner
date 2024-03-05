@@ -14,7 +14,7 @@ export default {
       lastCommit: config.lastCommit,
       lastTag: config.lastTag,
       time: date.toUTCString(),
-      uptime: uptime,
+      uptime,
     };
   },
 };

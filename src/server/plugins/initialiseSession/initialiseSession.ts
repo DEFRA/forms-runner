@@ -6,7 +6,7 @@ import {
   webhookToSessionData,
 } from "./helpers";
 import path from "path";
-import Jwt from "@hapi/jwt";
+import { token } from "@hapi/jwt";
 import { SpecialPages } from "@defra/forms-model";
 import Boom from "boom";
 import type { WebhookSchema } from "../../schemas/types";
@@ -32,18 +32,18 @@ export const initialiseSession: Plugin<InitialiseSession> = {
       path: "/session/{token}",
       handler: async function (request, h) {
         const { cacheService } = request.services([]);
-        const { token } = request.params;
-        const tokenArtifacts = Jwt.token.decode(token);
+        const { params } = request;
+        const tokenArtifacts = token.decode(params.token);
         const { isValid, error } = verifyToken(tokenArtifacts);
 
         if (!isValid) {
-          request.logger.error([`GET /session/${token}`, "invalid JWT"], error);
+          request.logger.error([`GET /session/${params.token}`, "invalid JWT"], error);
           throw Boom.badRequest();
         }
 
         const { payload } = tokenArtifacts.decoded;
         const { redirectPath } = await cacheService.activateSession(
-          token,
+          params.token,
           request
         );
         const redirect = path

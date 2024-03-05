@@ -1,4 +1,4 @@
-import { add, sub, parseISO, format } from "date-fns";
+import { parseISO, format } from "date-fns";
 import { InputFieldsComponentsDef } from "@defra/forms-model";
 
 import { FormComponent } from "./FormComponent";
@@ -23,7 +23,7 @@ export class DatePartsField extends FormComponent {
 
     const { name, options } = this;
     const isRequired =
-      "required" in options && options.required === false ? false : true;
+      !("required" in options && options.required === false);
     const optionalText = "optionalText" in options && options.optionalText;
     this.children = new ComponentCollection(
       [
@@ -34,7 +34,7 @@ export class DatePartsField extends FormComponent {
           schema: { min: 1, max: 31 },
           options: {
             required: isRequired,
-            optionalText: optionalText,
+            optionalText,
             classes: "govuk-input--width-2",
           },
           hint: "",
@@ -46,7 +46,7 @@ export class DatePartsField extends FormComponent {
           schema: { min: 1, max: 12 },
           options: {
             required: isRequired,
-            optionalText: optionalText,
+            optionalText,
             classes: "govuk-input--width-2",
           },
           hint: "",
@@ -58,7 +58,7 @@ export class DatePartsField extends FormComponent {
           schema: { min: 1000, max: 3000 },
           options: {
             required: isRequired,
-            optionalText: optionalText,
+            optionalText,
             classes: "govuk-input--width-4",
           },
           hint: "",
@@ -116,7 +116,7 @@ export class DatePartsField extends FormComponent {
     return value ? format(parseISO(value), "d MMMM yyyy") : "";
   }
 
-  // @ts-ignore - eslint does not report this as an error, only tsc
+  // @ts-expect-error - Property 'getViewModel' in type 'DatePartsField' is not assignable to the same property in base type 'FormComponent'
   getViewModel(formData: FormData, errors: FormSubmissionErrors) {
     const viewModel = super.getViewModel(formData, errors);
 

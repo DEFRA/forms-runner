@@ -13,7 +13,7 @@ export class DateField extends FormComponent {
   constructor(def: DateFieldComponent, model: FormModel) {
     super(def, model);
     addClassOptionIfNone(this.options, "govuk-input--width-10");
-    let { options = {} } = def;
+    const { options = {} } = def;
 
     let schema = joi.date();
 

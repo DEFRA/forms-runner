@@ -11,9 +11,7 @@ const ciStdout = [];
 const failedAudits = () => {
   ciStdout.push(
     Object.keys(report.audits).filter((audit) => {
-      if (audit.score === 0) {
-        return audit;
-      }
+      return !!audit.score === 0
     })
   );
 };

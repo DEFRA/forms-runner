@@ -136,7 +136,7 @@ export class RepeatingFieldPageController extends PageController {
     const { query } = request;
     const { removeAtIndex, view } = query;
     const { cacheService } = request.services([]);
-    let state = await cacheService.getState(request);
+    const state = await cacheService.getState(request);
     const key = this.inputComponent.name;
     const answers = state[key];
     answers?.splice(removeAtIndex, 1);

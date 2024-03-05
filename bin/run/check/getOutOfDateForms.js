@@ -5,7 +5,7 @@ const path = require("path");
 
 async function getOutOfDateForms() {
   const files = await helper.getJsonFiles();
-  let needsMigration = [];
+  const needsMigration = [];
 
   for (const file of files) {
     const form = await fs.readFile(path.join(FORM_PATH, file));

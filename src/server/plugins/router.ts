@@ -42,7 +42,7 @@ export default {
           path: "/help/cookies",
           handler: async (request: HapiRequest, h: HapiResponseToolkit) => {
             const cookiesPolicy = request.state.cookies_policy;
-            let analytics =
+            const analytics =
               cookiesPolicy?.analytics === "on" ? "accept" : "reject";
             return h.view("help/cookies", {
               analytics,

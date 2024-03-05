@@ -1,4 +1,4 @@
-const generateCookiePassword = (): String =>
+const generateCookiePassword = (): string =>
   Array(32)
     .fill(0)
     .map(() => Math.random().toString(36).charAt(2))
