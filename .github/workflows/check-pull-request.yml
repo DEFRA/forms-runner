@@ -2,10 +2,14 @@ name: Check Pull Request
 
 on:
   pull_request:
-
-  push:
     branches:
       - main
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
+      - ready_for_review
 
   workflow_dispatch:
 
