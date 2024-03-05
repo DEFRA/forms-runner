@@ -90,5 +90,5 @@ jobs:
             /tmp/defra-forms-designer
             node_modules
 
-      - name: Run lint task
+      - name: Run task
         run: ${{ matrix.task.run }}
