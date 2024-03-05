@@ -14,16 +14,81 @@ on:
   workflow_dispatch:
 
 jobs:
-  pr-validator:
-    name: Run Pull Request Checks
-    runs-on: ubuntu-latest
+  install:
+    name: Install
+    runs-on: ${{ matrix.runner }}
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        runner:
+          - ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        id: npm-install-cache
+
         with:
+          enableCrossOsArchive: true
+          key: npm-install-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          path: |
+            /tmp/defra-forms-designer
+            node_modules
+
+      - name: Setup Node.js
+        if: steps.npm-install-cache.outputs.cache-hit != 'true'
+        uses: actions/setup-node@v4
+        with:
+          cache: 'npm'
           node-version-file: .nvmrc
-          cache: npm
-      - run: npm ci
-      - run: npm run format:check
-      - run: npm run lint
-      - run: npm run test
+
+      - name: Install dependencies
+        if: steps.npm-install-cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+  tasks:
+    name: ${{ matrix.task.description }} (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    needs: [install]
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        runner:
+          - ubuntu-latest
+
+        task:
+          - description: Prettier
+            run: npm run format:check
+
+          - description: ESLint
+            run: npm run lint:js
+
+          - description: TypeScript compiler
+            run: npm run lint:types
+
+          - description: Unit tests
+            run: npm run test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Restore dependencies
+        uses: actions/cache/restore@v4
+
+        with:
+          enableCrossOsArchive: true
+          key: npm-install-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          path: |
+            /tmp/defra-forms-designer
+            node_modules
+
+      - name: Run lint task
+        run: ${{ matrix.task.run }}
