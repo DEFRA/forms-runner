@@ -1,10 +1,14 @@
-import joi, { Schema } from "joi";
+import joi, { Schema } from 'joi'
 
-import * as helpers from "./helpers";
-import { addClassOptionIfNone } from "./helpers";
-import { ListFormComponent } from "./ListFormComponent";
-import { List } from "@defra/forms-model";
-import type { FormData, FormSubmissionErrors, FormSubmissionState } from "../types";
+import * as helpers from './helpers'
+import { addClassOptionIfNone } from './helpers'
+import { ListFormComponent } from './ListFormComponent'
+import { List } from '@defra/forms-model'
+import type {
+  FormData,
+  FormSubmissionErrors,
+  FormSubmissionState
+} from '../types'
 
 /**
  * @desc
@@ -12,71 +16,71 @@ import type { FormData, FormSubmissionErrors, FormSubmissionState } from "../typ
  */
 export class YesNoField extends ListFormComponent {
   list: List = {
-    name: "__yesNo",
-    title: "Yes/No",
-    type: "boolean",
+    name: '__yesNo',
+    title: 'Yes/No',
+    type: 'boolean',
     items: [
       {
-        text: "Yes",
-        value: true,
+        text: 'Yes',
+        value: true
       },
       {
-        text: "No",
-        value: false,
-      },
-    ],
-  };
+        text: 'No',
+        value: false
+      }
+    ]
+  }
 
-  itemsSchema = joi.boolean();
+  itemsSchema = joi.boolean()
   get items() {
-    return this.list?.items ?? [];
+    return this.list?.items ?? []
   }
 
   get values() {
-    return [true, false];
+    return [true, false]
   }
 
   constructor(def, model) {
-    super(def, model);
+    super(def, model)
 
-    const { options } = this;
+    const { options } = this
 
     this.formSchema = helpers
-      .buildFormSchema("boolean", this, options?.required !== false)
-      .valid(true, false);
+      .buildFormSchema('boolean', this, options?.required !== false)
+      .valid(true, false)
     this.stateSchema = helpers
       .buildStateSchema(this.list.type, this)
-      .valid(true, false);
+      .valid(true, false)
 
-    addClassOptionIfNone(this.options, "govuk-radios--inline");
+    addClassOptionIfNone(this.options, 'govuk-radios--inline')
   }
 
   getFormSchemaKeys() {
-    return { [this.name]: this.formSchema as Schema };
+    return { [this.name]: this.formSchema as Schema }
   }
 
   getStateSchemaKeys() {
-    return { [this.name]: this.stateSchema as Schema };
+    return { [this.name]: this.stateSchema as Schema }
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
-    const value = state[this.name];
-    const item = this.items.find((item) => item.value === value);
-    return item?.text ?? "";
+    const value = state[this.name]
+    const item = this.items.find((item) => item.value === value)
+    return item?.text ?? ''
   }
 
   getViewModel(formData: FormData, errors: FormSubmissionErrors) {
-    const viewModel = super.getViewModel(formData, errors);
+    const viewModel = super.getViewModel(formData, errors)
 
     viewModel.fieldset = {
-      legend: viewModel.label,
-    };
+      legend: viewModel.label
+    }
     viewModel.items = this.items.map(({ text, value }) => ({
       text,
       value,
-      checked: `${value}` === `${formData[this.name]}`,
-    }));
+      checked: `${value}` === `${formData[this.name]}`
+    }))
 
-    return viewModel;
+    return viewModel
   }
 }

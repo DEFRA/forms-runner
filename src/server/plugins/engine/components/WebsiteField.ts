@@ -1,56 +1,56 @@
-import { WebsiteFieldComponent } from "@defra/forms-model";
-import Joi, { StringSchema } from "joi";
-import { FormModel } from "../models";
-import { TextField } from "./TextField";
-import { addClassOptionIfNone } from "./helpers";
+import { WebsiteFieldComponent } from '@defra/forms-model'
+import Joi, { StringSchema } from 'joi'
+import { FormModel } from '../models'
+import { TextField } from './TextField'
+import { addClassOptionIfNone } from './helpers'
 
 export class WebsiteField extends TextField {
-  private defaultMessage = "Enter website address in the correct format";
+  private defaultMessage = 'Enter website address in the correct format'
 
-  formSchema: StringSchema;
-  options: WebsiteFieldComponent["options"];
-  schema: WebsiteFieldComponent["schema"];
+  formSchema: StringSchema
+  options: WebsiteFieldComponent['options']
+  schema: WebsiteFieldComponent['schema']
 
   constructor(def: WebsiteFieldComponent, model: FormModel) {
-    super(def, model);
+    super(def, model)
 
-    this.options = def.options;
-    this.schema = def.schema;
-    this.formSchema = Joi.string();
+    this.options = def.options
+    this.schema = def.schema
+    this.formSchema = Joi.string()
 
-    const isRequired = def.options.required ?? true;
+    const isRequired = def.options.required ?? true
 
     if (isRequired) {
-      this.formSchema = this.formSchema.required();
+      this.formSchema = this.formSchema.required()
     } else {
-      this.formSchema = this.formSchema.allow("").allow(null);
+      this.formSchema = this.formSchema.allow('').allow(null)
     }
 
     this.formSchema = this.formSchema
       .label(def.title.toLowerCase())
       .uri()
-      .message(def.options?.customValidationMessage ?? this.defaultMessage);
+      .message(def.options?.customValidationMessage ?? this.defaultMessage)
 
     if (def.schema.max) {
-      this.formSchema = this.formSchema.max(def.schema.max);
+      this.formSchema = this.formSchema.max(def.schema.max)
     }
 
     if (def.schema.min) {
-      this.formSchema = this.formSchema.min(def.schema.min);
+      this.formSchema = this.formSchema.min(def.schema.min)
     }
 
-    addClassOptionIfNone(this.options, "govuk-input--width-10");
+    addClassOptionIfNone(this.options, 'govuk-input--width-10')
   }
 
   getFormSchemaKeys() {
     return {
-      [this.name]: this.formSchema,
-    };
+      [this.name]: this.formSchema
+    }
   }
 
   getStateSchemaKeys() {
     return {
-      [this.name]: this.formSchema,
-    };
+      [this.name]: this.formSchema
+    }
   }
 }

@@ -1,216 +1,216 @@
-import { expect } from "@hapi/code";
-import * as Lab from "@hapi/lab";
-import sinon from "sinon";
+import { expect } from '@hapi/code'
+import * as Lab from '@hapi/lab'
+import sinon from 'sinon'
 
-import { StatusService } from "../../../../src/server/services/index.js";
+import { StatusService } from '../../../../src/server/services/index.js'
 
-export const lab = Lab.script();
-const { suite, test, afterEach } = lab;
+export const lab = Lab.script()
+const { suite, test, afterEach } = lab
 
-const cacheService = { getState: () => ({}), mergeState: () => {} };
-  const webhookService = { postRequest: () => ({}) };
-  const notifyService = { sendNotification: () => ({}) };
-  const payService = {
-    payStatus: () => {},
-  };
+const cacheService = { getState: () => ({}), mergeState: () => {} }
+const webhookService = { postRequest: () => ({}) }
+const notifyService = { sendNotification: () => ({}) }
+const payService = {
+  payStatus: () => {}
+}
 
 const yar = {
-  id: "session_id",
-};
+  id: 'session_id'
+}
 
 const app = {
   forms: {
     test: {
       feeOptions: {
         allowSubmissionWithoutPayment: true,
-        maxAttempts: 3,
-      },
-    },
-  },
-};
+        maxAttempts: 3
+      }
+    }
+  }
+}
 
 const server = {
   services: () => ({
     cacheService,
     webhookService,
     payService,
-    notifyService,
+    notifyService
   }),
   logger: {
     info: () => {},
-    trace: () => {},
+    trace: () => {}
   },
-  app,
-};
+  app
+}
 
-suite("StatusService shouldShowPayErrorPage", () => {
+suite('StatusService shouldShowPayErrorPage', () => {
   afterEach(() => {
-    sinon.restore();
-  });
-  test("returns false when no pay information is saved in the session", async () => {
-    const statusService = new StatusService(server);
-    expect(await statusService.shouldShowPayErrorPage({ yar })).to.equal(false);
-  });
+    sinon.restore()
+  })
+  test('returns false when no pay information is saved in the session', async () => {
+    const statusService = new StatusService(server)
+    expect(await statusService.shouldShowPayErrorPage({ yar })).to.equal(false)
+  })
 
-  test("returns false when the continue query parameter is true", async () => {
-    sinon.stub(cacheService, "getState").returns({ state: { pay: {} } });
-    const statusService = new StatusService(server);
+  test('returns false when the continue query parameter is true', async () => {
+    sinon.stub(cacheService, 'getState').returns({ state: { pay: {} } })
+    const statusService = new StatusService(server)
     expect(
       await statusService.shouldShowPayErrorPage({
         yar,
-        query: { continue: "true" },
+        query: { continue: 'true' },
         params: {
-          id: "test",
-        },
+          id: 'test'
+        }
       })
-    ).to.equal(false);
-  });
+    ).to.equal(false)
+  })
 
-  test("returns false when 3 pay attempts have been made", async () => {
+  test('returns false when 3 pay attempts have been made', async () => {
     sinon
-      .stub(cacheService, "getState")
-      .returns({ state: { pay: { meta: 3 } } });
-    const statusService = new StatusService(server);
+      .stub(cacheService, 'getState')
+      .returns({ state: { pay: { meta: 3 } } })
+    const statusService = new StatusService(server)
 
     expect(
       await statusService.shouldShowPayErrorPage({
         yar,
         app,
-        params: { id: "test" },
+        params: { id: 'test' }
       })
-    ).to.equal(false);
-  });
+    ).to.equal(false)
+  })
 
-  test("returns true when <3 pay attempts have been made", async () => {
+  test('returns true when <3 pay attempts have been made', async () => {
     sinon
-      .stub(cacheService, "getState")
-      .returns({ pay: { meta: { attempts: 1 } } });
+      .stub(cacheService, 'getState')
+      .returns({ pay: { meta: { attempts: 1 } } })
 
-    sinon.stub(payService, "payStatus").returns({
+    sinon.stub(payService, 'payStatus').returns({
       state: {
-        status: "failed",
-      },
-    });
+        status: 'failed'
+      }
+    })
 
-    const statusService = new StatusService(server);
+    const statusService = new StatusService(server)
     expect(
       await statusService.shouldShowPayErrorPage({
         yar,
         app,
-        params: { id: "test" },
-        server,
+        params: { id: 'test' },
+        server
       })
-    ).to.equal(true);
-  });
+    ).to.equal(true)
+  })
 
-  test("returns true when >3 pay attempts have been made and form does not allow submissions without payment", async () => {
+  test('returns true when >3 pay attempts have been made and form does not allow submissions without payment', async () => {
     sinon
-      .stub(cacheService, "getState")
-      .returns({ pay: { meta: { attempts: 5 } } });
+      .stub(cacheService, 'getState')
+      .returns({ pay: { meta: { attempts: 5 } } })
 
-    sinon.stub(payService, "payStatus").returns({
+    sinon.stub(payService, 'payStatus').returns({
       state: {
-        status: "failed",
-      },
-    });
+        status: 'failed'
+      }
+    })
 
-    sinon.stub(app, "forms").value({
+    sinon.stub(app, 'forms').value({
       test: {
         feeOptions: {
           allowSubmissionWithoutPayment: false,
-          maxAttempts: 3,
-        },
-      },
-    });
+          maxAttempts: 3
+        }
+      }
+    })
 
-    const statusService = new StatusService(server);
+    const statusService = new StatusService(server)
     expect(
       await statusService.shouldShowPayErrorPage({
         yar,
         app,
-        params: { id: "test" },
-        server,
+        params: { id: 'test' },
+        server
       })
-    ).to.equal(true);
-  });
+    ).to.equal(true)
+  })
 
-  test("returns true when <3 and the continue query is true", async () => {
+  test('returns true when <3 and the continue query is true', async () => {
     sinon
-      .stub(cacheService, "getState")
-      .returns({ pay: { meta: { attempts: 1 } } });
+      .stub(cacheService, 'getState')
+      .returns({ pay: { meta: { attempts: 1 } } })
 
-    sinon.stub(payService, "payStatus").returns({
+    sinon.stub(payService, 'payStatus').returns({
       state: {
-        status: "failed",
-      },
-    });
+        status: 'failed'
+      }
+    })
 
-    const statusService = new StatusService(server);
+    const statusService = new StatusService(server)
     expect(
       await statusService.shouldShowPayErrorPage({
         yar,
         app,
         params: {
-          id: "test",
+          id: 'test'
         },
-        query: { continue: "true" },
-        server,
+        query: { continue: 'true' },
+        server
       })
-    ).to.equal(false);
-  });
-});
-suite("StatusService outputRequests", () => {
+    ).to.equal(false)
+  })
+})
+suite('StatusService outputRequests', () => {
   afterEach(() => {
-    sinon.restore();
-  });
+    sinon.restore()
+  })
   const notifyOutput = {
     outputData: {
-      type: "notify",
+      type: 'notify',
 
-      apiKey: "a",
-      templateId: "b",
-      emailAddress: "c",
+      apiKey: 'a',
+      templateId: 'b',
+      emailAddress: 'c',
       personalisation: {},
-      addReferencesToPersonalisation: false,
-    },
-  };
+      addReferencesToPersonalisation: false
+    }
+  }
   const firstWebhook = {
-    type: "webhook",
-    outputData: { url: "abc" },
-  };
+    type: 'webhook',
+    outputData: { url: 'abc' }
+  }
   const webhookOutput = {
-    type: "webhook",
-    outputData: { url: "" },
-  };
-  const outputs = [firstWebhook, webhookOutput, webhookOutput, notifyOutput];
+    type: 'webhook',
+    outputData: { url: '' }
+  }
+  const outputs = [firstWebhook, webhookOutput, webhookOutput, notifyOutput]
   const state = {
     webhookData: { metadata: {} },
     outputs,
-    pay: { meta: { attempts: 1 } },
-  };
+    pay: { meta: { attempts: 1 } }
+  }
 
-  test("makes and returns correct output requests", async () => {
-    sinon.stub(cacheService, "getState").returns(state);
-    const stub = sinon.stub(webhookService, "postRequest");
+  test('makes and returns correct output requests', async () => {
+    sinon.stub(cacheService, 'getState').returns(state)
+    const stub = sinon.stub(webhookService, 'postRequest')
     stub
       .onCall(0)
-      .resolves("abcd-ef-g")
+      .resolves('abcd-ef-g')
       .onCall(1)
       .rejects()
       .onCall(2)
-      .resolves("3");
+      .resolves('3')
 
-    const statusService = new StatusService(server);
-    const res = await statusService.outputRequests({ yar });
+    const statusService = new StatusService(server)
+    const res = await statusService.outputRequests({ yar })
 
-    const results = await res.results;
-    expect(res.reference).to.equal("abcd-ef-g");
-    expect(results.length).to.equal(outputs.length - 1);
+    const results = await res.results
+    expect(res.reference).to.equal('abcd-ef-g')
+    expect(results.length).to.equal(outputs.length - 1)
     expect(results.map((result) => result.status)).to.equal([
-      "fulfilled",
-      "rejected",
-      "fulfilled",
-    ]);
-    expect(results[2].value).to.equal("3");
-  });
-});
+      'fulfilled',
+      'rejected',
+      'fulfilled'
+    ])
+    expect(results[2].value).to.equal('3')
+  })
+})

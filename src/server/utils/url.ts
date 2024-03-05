@@ -1,13 +1,13 @@
 export function isUrlSecure(matomoUrl: string) {
   try {
-    const { protocol } = new URL(matomoUrl);
+    const { protocol } = new URL(matomoUrl)
 
-    if (protocol === "https:") {
-      return true;
+    if (protocol === 'https:') {
+      return true
     }
 
-    return false;
+    return false
   } catch (error) {
-    return false;
+    return false
   }
 }

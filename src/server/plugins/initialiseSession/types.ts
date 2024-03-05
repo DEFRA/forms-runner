@@ -1,39 +1,39 @@
-import { ContentComponentsDef } from "@defra/forms-model";
+import { ContentComponentsDef } from '@defra/forms-model'
 
 export type InitialiseSession = {
-  safelist: string[];
-};
+  safelist: string[]
+}
 
 export type InitialiseSessionOptions = {
-  callbackUrl: string;
-  redirectPath?: string;
-  message?: string;
-  htmlMessage?: string;
-  title?: string;
+  callbackUrl: string
+  redirectPath?: string
+  message?: string
+  htmlMessage?: string
+  title?: string
   skipSummary?: {
-    redirectUrl: string;
-  };
+    redirectUrl: string
+  }
   customText: {
-    title: string;
-    paymentSkipped?: false | string;
-    nextSteps?: false | string;
-  };
-  components: ContentComponentsDef[];
-};
+    title: string
+    paymentSkipped?: false | string
+    nextSteps?: false | string
+  }
+  components: ContentComponentsDef[]
+}
 
 export type DecodedSessionToken = {
   /**
    * Callback url to PUT data to
    */
-  cb: string;
+  cb: string
 
   /**
    * 16 character randomised string
    */
-  user: string;
+  user: string
 
   /**
    * alias for formId
    */
-  group: string;
-};
+  group: string
+}

@@ -145,8 +145,7 @@
       }
     }
   ],
-  "fees": [
-  ],
+  "fees": [],
   "outputs": [
     {
       "name": "webhook",

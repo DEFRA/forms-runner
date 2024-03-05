@@ -1,5 +1,5 @@
-import { PageController } from "./PageController";
-import type { HapiRequest, HapiResponseToolkit } from "../../../types";
+import { PageController } from './PageController'
+import type { HapiRequest, HapiResponseToolkit } from '../../../types'
 
 export class HomePageController extends PageController {
   get getRouteOptions() {
@@ -7,11 +7,11 @@ export class HomePageController extends PageController {
       ext: {
         onPostHandler: {
           method: (_request: HapiRequest, h: HapiResponseToolkit) => {
-            return h.continue;
-          },
-        },
-      },
-    };
+            return h.continue
+          }
+        }
+      }
+    }
   }
 
   get postRouteOptions() {
@@ -19,10 +19,10 @@ export class HomePageController extends PageController {
       ext: {
         onPostHandler: {
           method: (_request: HapiRequest, h: HapiResponseToolkit) => {
-            return h.continue;
-          },
-        },
-      },
-    };
+            return h.continue
+          }
+        }
+      }
+    }
   }
 }

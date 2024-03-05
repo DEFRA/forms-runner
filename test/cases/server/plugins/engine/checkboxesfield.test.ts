@@ -1,92 +1,92 @@
-import { expect } from "@hapi/code";
-import * as Lab from "@hapi/lab";
-import sinon from "sinon";
-import { CheckboxesField } from "../../../../../src/server/plugins/engine/components/CheckboxesField";
+import { expect } from '@hapi/code'
+import * as Lab from '@hapi/lab'
+import sinon from 'sinon'
+import { CheckboxesField } from '../../../../../src/server/plugins/engine/components/CheckboxesField'
 
-export const lab = Lab.script();
-const { suite, describe, it } = lab;
+export const lab = Lab.script()
+const { suite, describe, it } = lab
 
 const lists = [
   {
-    name: "numberOfApplicants",
-    title: "Number of people",
-    type: "number",
+    name: 'numberOfApplicants',
+    title: 'Number of people',
+    type: 'number',
     items: [
       {
-        text: "1",
+        text: '1',
         value: 1,
-        description: "",
-        condition: "",
+        description: '',
+        condition: ''
       },
       {
-        text: "2",
+        text: '2',
         value: 2,
-        description: "",
-        condition: "",
+        description: '',
+        condition: ''
       },
       {
-        text: "3",
+        text: '3',
         value: 3,
-        description: "",
-        condition: "",
+        description: '',
+        condition: ''
       },
       {
-        text: "4",
+        text: '4',
         value: 4,
-        description: "",
-        condition: "",
-      },
-    ],
-  },
-];
+        description: '',
+        condition: ''
+      }
+    ]
+  }
+]
 
-suite("CheckboxesField", () => {
-  describe("Generated schema", () => {
+suite('CheckboxesField', () => {
+  describe('Generated schema', () => {
     const componentDefinition = {
-      subType: "field",
-      type: "CheckboxesField",
-      name: "myCheckbox",
-      title: "Tada",
+      subType: 'field',
+      type: 'CheckboxesField',
+      name: 'myCheckbox',
+      title: 'Tada',
       options: {},
-      list: "numberOfApplicants",
-      schema: {},
-    };
+      list: 'numberOfApplicants',
+      schema: {}
+    }
     const formModel = {
       getList: () => lists[0],
-      makePage: () => sinon.stub(),
-    };
-    const component = new CheckboxesField(componentDefinition, formModel);
+      makePage: () => sinon.stub()
+    }
+    const component = new CheckboxesField(componentDefinition, formModel)
 
-    it("is required by default", () => {
+    it('is required by default', () => {
       expect(component.formSchema.describe().flags.presence).to.equal(
-        "required"
-      );
-    });
-    it("allows the items defined in the List object with the correct type", () => {
+        'required'
+      )
+    })
+    it('allows the items defined in the List object with the correct type', () => {
       expect(component.formSchema.describe().items).to.contain({
-        type: "number",
-        allow: [1, 2, 3, 4],
-      });
-    });
-    it("allows single answers", () => {
+        type: 'number',
+        allow: [1, 2, 3, 4]
+      })
+    })
+    it('allows single answers', () => {
       expect(component.formSchema.describe().flags).to.contain({
-        single: true,
-      });
-    });
-    it("is not required when explicitly configured", () => {
+        single: true
+      })
+    })
+    it('is not required when explicitly configured', () => {
       const component = new CheckboxesField(
         {
           ...componentDefinition,
-          options: { required: false },
+          options: { required: false }
         },
         formModel
-      );
+      )
       expect(component.formSchema.describe().flags.presence).to.not.equal(
-        "required"
-      );
-    });
-    it("validates correctly", () => {
-      expect(component.formSchema.validate({}).error).to.exist();
-    });
-  });
-});
+        'required'
+      )
+    })
+    it('validates correctly', () => {
+      expect(component.formSchema.validate({}).error).to.exist()
+    })
+  })
+})

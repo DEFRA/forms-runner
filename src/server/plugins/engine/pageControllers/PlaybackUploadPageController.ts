@@ -1,47 +1,47 @@
-import { PageController } from "../../../plugins/engine/pageControllers/PageController";
-import { FormModel } from "../../../plugins/engine/models";
-import { Page } from "@defra/forms-model";
-import { FormComponent } from "../../../plugins/engine/components";
-import type { HapiRequest, HapiResponseToolkit } from "../../../types";
-import joi from "joi";
-import type { FormSubmissionErrors } from "../types";
+import { PageController } from '../../../plugins/engine/pageControllers/PageController'
+import { FormModel } from '../../../plugins/engine/models'
+import { Page } from '@defra/forms-model'
+import { FormComponent } from '../../../plugins/engine/components'
+import type { HapiRequest, HapiResponseToolkit } from '../../../types'
+import joi from 'joi'
+import type { FormSubmissionErrors } from '../types'
 export class PlaybackUploadPageController extends PageController {
-  inputComponent: FormComponent;
+  inputComponent: FormComponent
   retryUploadViewModel = {
-    name: "retryUpload",
-    type: "RadiosField",
+    name: 'retryUpload',
+    type: 'RadiosField',
     options: {},
     schema: {},
     fieldset: {
       legend: {
-        text: "Would you like to upload a new image?",
+        text: 'Would you like to upload a new image?',
         isPageHeading: false,
-        classes: "govuk-fieldset__legend--s",
-      },
+        classes: 'govuk-fieldset__legend--s'
+      }
     },
     items: [
       {
         value: true,
-        text: "Yes - I would like to upload a new image",
+        text: 'Yes - I would like to upload a new image'
       },
       {
         value: false,
-        text: "No - I'm happy with the image",
-      },
-    ],
-  };
+        text: "No - I'm happy with the image"
+      }
+    ]
+  }
 
   constructor(model: FormModel, pageDef: Page, inputComponent: FormComponent) {
-    super(model, pageDef);
-    this.inputComponent = inputComponent;
+    super(model, pageDef)
+    this.inputComponent = inputComponent
     this.formSchema = joi.object({
       crumb: joi.string(),
       retryUpload: joi
         .string()
         .required()
-        .allow("true", "false")
-        .label("if you would like to upload a new image"),
-    });
+        .allow('true', 'false')
+        .label('if you would like to upload a new image')
+    })
   }
 
   /**
@@ -50,60 +50,60 @@ export class PlaybackUploadPageController extends PageController {
    * @returns the view model for the radio button component
    * */
   getRetryUploadViewModel(errors?: FormSubmissionErrors) {
-    const viewModel = { ...this.retryUploadViewModel };
+    const viewModel = { ...this.retryUploadViewModel }
     errors?.errorList?.forEach((err) => {
       if (err.name === viewModel.name) {
         viewModel.errorMessage = {
-          text: err.text,
-        };
+          text: err.text
+        }
       }
-    });
-    return viewModel;
+    })
+    return viewModel
   }
 
   makeGetRouteHandler() {
     return async (request: HapiRequest, h: HapiResponseToolkit) => {
-      const { cacheService } = request.services([]);
+      const { cacheService } = request.services([])
 
-      const state = await cacheService.getState(request);
-      const { progress = [] } = state;
-      const sectionTitle = this.section?.title;
-      return h.view("upload-playback", {
+      const state = await cacheService.getState(request)
+      const { progress = [] } = state
+      const sectionTitle = this.section?.title
+      return h.view('upload-playback', {
         sectionTitle,
         showTitle: true,
-        pageTitle: "Check your image",
+        pageTitle: 'Check your image',
         backLink: progress[progress.length - 1] ?? this.backLinkFallback,
-        radios: this.getRetryUploadViewModel(),
-      });
-    };
+        radios: this.getRetryUploadViewModel()
+      })
+    }
   }
 
   makePostRouteHandler() {
     return async (request: HapiRequest, h: HapiResponseToolkit) => {
-      const { cacheService } = request.services([]);
+      const { cacheService } = request.services([])
 
-      const state = await cacheService.getState(request);
-      const { progress = [] } = state;
-      const { payload } = request;
-      const result = this.formSchema.validate(payload, this.validationOptions);
+      const state = await cacheService.getState(request)
+      const { progress = [] } = state
+      const { payload } = request
+      const result = this.formSchema.validate(payload, this.validationOptions)
       if (result.error) {
-        const errors = this.getErrors(result);
-        const sectionTitle = this.section?.title;
-        return h.view("upload-playback", {
+        const errors = this.getErrors(result)
+        const sectionTitle = this.section?.title
+        return h.view('upload-playback', {
           sectionTitle,
           showTitle: true,
-          pageTitle: "Check your image",
+          pageTitle: 'Check your image',
           uploadErrors: errors,
           backLink: progress[progress.length - 2] ?? this.backLinkFallback,
-          radios: this.getRetryUploadViewModel(errors),
-        });
+          radios: this.getRetryUploadViewModel(errors)
+        })
       }
 
-      if (payload.retryUpload === "true") {
-        return h.redirect(`/${this.model.basePath}${this.path}`);
+      if (payload.retryUpload === 'true') {
+        return h.redirect(`/${this.model.basePath}${this.path}`)
       }
 
-      return h.redirect(this.getNext(request.payload));
-    };
+      return h.redirect(this.getNext(request.payload))
+    }
   }
 }

@@ -1,6 +1,6 @@
-import { FormDefinition } from "@defra/forms-model";
+import { FormDefinition } from '@defra/forms-model'
 
-export const DEFAULT_FEE_OPTIONS: FormDefinition["feeOptions"] = {
+export const DEFAULT_FEE_OPTIONS: FormDefinition['feeOptions'] = {
   /**
    * If a payment is required, but the user fails, allow the user to skip payment
    * and submit the form. this is the default behaviour.
@@ -27,5 +27,5 @@ export const DEFAULT_FEE_OPTIONS: FormDefinition["feeOptions"] = {
    * that provides additional messaging, you can warn the user that this may delay their application for example.
    * allowSubmissionWithoutPayment must be true for this to be shown.
    */
-  showPaymentSkippedWarningPage: false,
-};
+  showPaymentSkippedWarningPage: false
+}

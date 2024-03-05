@@ -1,120 +1,120 @@
-import joi, { Schema as JoiSchema } from "joi";
-import { ComponentDef } from "@defra/forms-model";
+import joi, { Schema as JoiSchema } from 'joi'
+import { ComponentDef } from '@defra/forms-model'
 
-import * as Components from "./index";
-import { FormModel } from "../models";
+import * as Components from './index'
+import { FormModel } from '../models'
 import {
   FormData,
   FormPayload,
   FormSubmissionErrors,
-  FormSubmissionState,
-} from "../types";
-import { ComponentBase } from "./ComponentBase";
-import { FormComponent } from "./FormComponent";
-import { merge } from "@hapi/hoek";
-import type { ComponentCollectionViewModel } from "./types";
+  FormSubmissionState
+} from '../types'
+import { ComponentBase } from './ComponentBase'
+import { FormComponent } from './FormComponent'
+import { merge } from '@hapi/hoek'
+import type { ComponentCollectionViewModel } from './types'
 
 export class ComponentCollection {
-  items: (ComponentBase | ComponentCollection | FormComponent)[];
-  formItems: FormComponent /* | ConditionalFormComponent */[];
-  prePopulatedItems: Record<string, JoiSchema>;
-  formSchema: JoiSchema;
-  stateSchema: JoiSchema;
+  items: (ComponentBase | ComponentCollection | FormComponent)[]
+  formItems: FormComponent /* | ConditionalFormComponent */[]
+  prePopulatedItems: Record<string, JoiSchema>
+  formSchema: JoiSchema
+  stateSchema: JoiSchema
 
   constructor(componentDefs: ComponentDef[] = [], model: FormModel) {
     const components = componentDefs.map((def) => {
-      const Comp: any = Components[def.type];
+      const Comp: any = Components[def.type]
 
-      if (typeof Comp !== "function") {
-        throw new Error(`Component type ${def.type} doesn't exist`);
+      if (typeof Comp !== 'function') {
+        throw new Error(`Component type ${def.type} doesn't exist`)
       }
 
-      return new Comp(def, model);
-    });
+      return new Comp(def, model)
+    })
 
     const formComponents = components.filter(
       (component) => component.isFormComponent
-    );
+    )
 
-    this.items = components;
-    this.formItems = formComponents;
+    this.items = components
+    this.formItems = formComponents
     this.formSchema = joi
       .object()
       .keys(this.getFormSchemaKeys())
       .required()
-      .keys({ crumb: joi.string().optional().allow("") });
+      .keys({ crumb: joi.string().optional().allow('') })
 
-    this.stateSchema = joi.object().keys(this.getStateSchemaKeys()).required();
-    this.prePopulatedItems = this.getPrePopulatedItems();
+    this.stateSchema = joi.object().keys(this.getStateSchemaKeys()).required()
+    this.prePopulatedItems = this.getPrePopulatedItems()
   }
 
   getFormSchemaKeys() {
-    const keys = {};
+    const keys = {}
 
     this.formItems.forEach((item) => {
-      Object.assign(keys, item.getFormSchemaKeys());
-    });
+      Object.assign(keys, item.getFormSchemaKeys())
+    })
 
-    return keys;
+    return keys
   }
 
   getStateSchemaKeys() {
-    const keys = {};
+    const keys = {}
 
     this.formItems.forEach((item) => {
-      Object.assign(keys, item.getStateSchemaKeys());
-    });
+      Object.assign(keys, item.getStateSchemaKeys())
+    })
 
-    return keys;
+    return keys
   }
 
   getPrePopulatedItems() {
     return this.formItems
       .filter((item) => item.options?.allowPrePopulation)
       .map((item) => item.getStateSchemaKeys())
-      .reduce((acc, curr) => merge(acc, curr), {});
+      .reduce((acc, curr) => merge(acc, curr), {})
   }
 
   getFormDataFromState(state: FormSubmissionState): any {
-    const formData = {};
+    const formData = {}
 
     this.formItems.forEach((item) => {
-      Object.assign(formData, item.getFormDataFromState(state));
-    });
+      Object.assign(formData, item.getFormDataFromState(state))
+    })
 
-    return formData;
+    return formData
   }
 
   getStateFromValidForm(payload: FormPayload): { [key: string]: any } {
-    const state = {};
+    const state = {}
 
     this.formItems.forEach((item) => {
-      Object.assign(state, item.getStateFromValidForm(payload));
-    });
+      Object.assign(state, item.getStateFromValidForm(payload))
+    })
 
-    return state;
+    return state
   }
 
   getViewModel(
     formData: FormData | FormSubmissionState,
     errors?: FormSubmissionErrors,
-    conditions?: FormModel["conditions"]
+    conditions?: FormModel['conditions']
   ): ComponentCollectionViewModel {
     const result =
       this.items?.map((item: any) => {
         return {
           type: item.type,
           isFormComponent: item.isFormComponent,
-          model: item.getViewModel(formData, errors),
-        };
-      }) ?? [];
+          model: item.getViewModel(formData, errors)
+        }
+      }) ?? []
 
     if (conditions) {
       return result.filter(
         (item) => conditions[item.model?.condition]?.fn(formData) ?? true
-      );
+      )
     }
 
-    return result;
+    return result
   }
 }

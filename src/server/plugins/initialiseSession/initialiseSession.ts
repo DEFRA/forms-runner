@@ -1,126 +1,127 @@
-import { Plugin, Request } from "@hapi/hapi";
+import { Plugin, Request } from '@hapi/hapi'
 import {
   callbackValidation,
   generateSessionTokenForForm,
   verifyToken,
-  webhookToSessionData,
-} from "./helpers";
-import path from "path";
-import { token } from "@hapi/jwt";
-import { SpecialPages } from "@defra/forms-model";
-import Boom from "boom";
-import type { WebhookSchema } from "../../schemas/types";
-import type { InitialiseSessionOptions, InitialiseSession } from "./types";
+  webhookToSessionData
+} from './helpers'
+import path from 'path'
+import { token } from '@hapi/jwt'
+import { SpecialPages } from '@defra/forms-model'
+import Boom from 'boom'
+import type { WebhookSchema } from '../../schemas/types'
+import type { InitialiseSessionOptions, InitialiseSession } from './types'
 
-type ConfirmationPage = SpecialPages["confirmationPage"];
+type ConfirmationPage = SpecialPages['confirmationPage']
 
 type InitialiseSessionRequest = {
   params: {
-    formId: string;
-  };
+    formId: string
+  }
   payload: {
-    options: InitialiseSessionOptions & ConfirmationPage;
-  } & WebhookSchema;
-} & Request;
+    options: InitialiseSessionOptions & ConfirmationPage
+  } & WebhookSchema
+} & Request
 
 export const initialiseSession: Plugin<InitialiseSession> = {
-  name: "initialiseSession",
+  name: 'initialiseSession',
   register: async function (server, options) {
-    const { safelist } = options;
+    const { safelist } = options
     server.route({
-      method: "GET",
-      path: "/session/{token}",
+      method: 'GET',
+      path: '/session/{token}',
       handler: async function (request, h) {
-        const { cacheService } = request.services([]);
-        const { params } = request;
-        const tokenArtifacts = token.decode(params.token);
-        const { isValid, error } = verifyToken(tokenArtifacts);
+        const { cacheService } = request.services([])
+        const { params } = request
+        const tokenArtifacts = token.decode(params.token)
+        const { isValid, error } = verifyToken(tokenArtifacts)
 
         if (!isValid) {
-          request.logger.error([`GET /session/${params.token}`, "invalid JWT"], error);
-          throw Boom.badRequest();
+          request.logger.error(
+            [`GET /session/${params.token}`, 'invalid JWT'],
+            error
+          )
+          throw Boom.badRequest()
         }
 
-        const { payload } = tokenArtifacts.decoded;
+        const { payload } = tokenArtifacts.decoded
         const { redirectPath } = await cacheService.activateSession(
           params.token,
           request
-        );
-        const redirect = path
-          .join("/", payload.group, redirectPath)
-          .normalize();
+        )
+        const redirect = path.join('/', payload.group, redirectPath).normalize()
 
-        return h.redirect(redirect);
+        return h.redirect(redirect)
       },
       options: {
-        description: `Activates a session initialised from POST /session/{formId}. Redirects a user to the {formId} stored within the token.`,
-      },
-    });
+        description: `Activates a session initialised from POST /session/{formId}. Redirects a user to the {formId} stored within the token.`
+      }
+    })
 
     server.route({
-      method: "POST",
-      path: "/session/{formId}",
+      method: 'POST',
+      path: '/session/{formId}',
       options: {
         description: `Accepts JSON object conforming to type InitialiseSessionSchema. Creates a session and returns JSON containing a JWT Token {"token": "example.jwt.token"}. You must configure the callback safelist in runner/config/{environment}.json. ${safelist}`,
         plugins: {
-          crumb: false,
-        },
+          crumb: false
+        }
       },
       handler: async function (request, h) {
-        const { payload, params } = request as InitialiseSessionRequest;
-        const { cacheService } = request.services([]);
-        const { formId } = params;
-        const { options, metadata = {}, ...webhookData } = payload;
-        const { callbackUrl } = options;
+        const { payload, params } = request as InitialiseSessionRequest
+        const { cacheService } = request.services([])
+        const { formId } = params
+        const { options, metadata = {}, ...webhookData } = payload
+        const { callbackUrl } = options
 
-        const isExistingForm = server.app.forms?.[formId] ?? false;
+        const isExistingForm = server.app.forms?.[formId] ?? false
         const { error: callbackSafeListError } = callbackValidation(
           safelist
         ).validate(callbackUrl, {
-          abortEarly: false,
-        });
+          abortEarly: false
+        })
 
         if (!isExistingForm) {
           request.logger.warn(
-            [`/session/${formId}`, "POST"],
+            [`/session/${formId}`, 'POST'],
             `${formId} does not exist`
-          );
+          )
           return h
             .response({ message: `${formId} does not exist on this instance` })
-            .code(404);
+            .code(404)
         }
 
         if (callbackSafeListError) {
           request.logger.warn(
-            [`/session/${formId}`, "POST"],
-            `${callbackUrl} was was not allowed. only ${safelist?.join(", ")}`
-          );
+            [`/session/${formId}`, 'POST'],
+            `${callbackUrl} was was not allowed. only ${safelist?.join(', ')}`
+          )
           return h
             .response({
-              message: `the callback URL provided ${callbackUrl} is not allowed.`,
+              message: `the callback URL provided ${callbackUrl} is not allowed.`
             })
-            .code(403);
+            .code(403)
         }
 
         if (options.htmlMessage && options.message) {
           return h
             .response({
               message:
-                "Both htmlMessage and message were provided. Only one is allowed.",
+                'Both htmlMessage and message were provided. Only one is allowed.'
             })
-            .code(400);
+            .code(400)
         }
 
-        const token = generateSessionTokenForForm(callbackUrl, formId);
+        const token = generateSessionTokenForForm(callbackUrl, formId)
 
         await cacheService.createSession(token, {
           callback: options,
           metadata,
-          ...webhookToSessionData(webhookData),
-        });
+          ...webhookToSessionData(webhookData)
+        })
 
-        return h.response({ token }).code(201);
-      },
-    });
-  },
-};
+        return h.response({ token }).code(201)
+      }
+    })
+  }
+}

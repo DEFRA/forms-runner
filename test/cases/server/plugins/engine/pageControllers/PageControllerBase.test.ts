@@ -1,81 +1,81 @@
-import { expect } from "@hapi/code";
-import * as Lab from "@hapi/lab";
+import { expect } from '@hapi/code'
+import * as Lab from '@hapi/lab'
 
-import { PageControllerBase } from "../../../../../../src/server/plugins/engine/pageControllers";
-import { FormModel } from "../../../../../../src/server/plugins/engine/models/FormModel";
+import { PageControllerBase } from '../../../../../../src/server/plugins/engine/pageControllers'
+import { FormModel } from '../../../../../../src/server/plugins/engine/models/FormModel'
 
-export const lab = Lab.script();
-const { suite, test } = lab;
+export const lab = Lab.script()
+const { suite, test } = lab
 
-suite("PageControllerBase", () => {
-  test("getErrors correctly parses ISO string to readable string", () => {
+suite('PageControllerBase', () => {
+  test('getErrors correctly parses ISO string to readable string', () => {
     const def = {
-      title: "When will you get married?",
-      path: "/first-page",
-      name: "",
+      title: 'When will you get married?',
+      path: '/first-page',
+      name: '',
       components: [
         {
-          name: "approximate",
+          name: 'approximate',
           options: {
             required: true,
-            maxDaysInFuture: 30,
+            maxDaysInFuture: 30
           },
-          type: "DateField",
-          title: "Approximate date of marriage",
-          schema: {},
-        },
+          type: 'DateField',
+          title: 'Approximate date of marriage',
+          schema: {}
+        }
       ],
       next: [
         {
-          path: "/second-page",
-        },
-      ],
-    };
+          path: '/second-page'
+        }
+      ]
+    }
     const page = new PageControllerBase(
       new FormModel(
         {
           pages: [],
-          startPage: "/start",
+          startPage: '/start',
           sections: [],
           lists: [],
-          conditions: [],
+          conditions: []
         },
         {}
       ),
       def
-    );
+    )
     const error = {
       error: {
         details: [
           {
             message:
               '"Approximate date of marriage" must be on or before 2021-12-25T00:00:00.000Z',
-            path: ["approximate"],
+            path: ['approximate']
           },
           {
-            message: "something invalid",
-            path: ["somethingElse"],
-          },
-        ],
-      },
-    };
+            message: 'something invalid',
+            path: ['somethingElse']
+          }
+        ]
+      }
+    }
 
     expect(page.getErrors(error)).to.equal({
-      titleText: "Fix the following errors",
+      titleText: 'Fix the following errors',
       errorList: [
         {
-          path: "approximate",
-          href: "#approximate",
-          name: "approximate",
-          text: `"Approximate date of marriage" must be on or before 25 December 2021`,
+          path: 'approximate',
+          href: '#approximate',
+          name: 'approximate',
+          text: `"Approximate date of marriage" must be on or before 25 December 2021`
         },
         {
-          path: "somethingElse",
-          href: "#somethingElse",
-          name: "somethingElse",
-          text: "something invalid",
-        },
-      ],
-    });
-  });
-});
+          path: 'somethingElse',
+          href: '#somethingElse',
+          name: 'somethingElse',
+          text: 'something invalid'
+        }
+      ]
+    })
+  })
+})

@@ -1,33 +1,33 @@
-import { QueueService } from "../services/QueueService";
-import PgBoss from "pg-boss";
-import config from "../config";
-type QueueResponse = [number | string, string | undefined];
+import { QueueService } from '../services/QueueService'
+import PgBoss from 'pg-boss'
+import config from '../config'
+type QueueResponse = [number | string, string | undefined]
 
 type QueueReferenceApiResponse = {
-  reference: string;
-};
+  reference: string
+}
 
 type JobOutput = {
-  [key: string]: any;
-} & QueueReferenceApiResponse;
+  [key: string]: any
+} & QueueReferenceApiResponse
 
 export class PgBossQueueService extends QueueService {
-  queue: PgBoss;
-  queueName: string = "submission";
-  queueReferenceApiUrl: string;
+  queue: PgBoss
+  queueName: string = 'submission'
+  queueReferenceApiUrl: string
   constructor(server) {
-    super(server);
-    this.logger.info("Using PGBossQueueService");
-    this.queueReferenceApiUrl = config.queueReferenceApiUrl;
-    const boss = new PgBoss(config.queueDatabaseUrl);
-    this.queue = boss;
-    boss.on("error", this.logger.error);
+    super(server)
+    this.logger.info('Using PGBossQueueService')
+    this.queueReferenceApiUrl = config.queueReferenceApiUrl
+    const boss = new PgBoss(config.queueDatabaseUrl)
+    this.queue = boss
+    boss.on('error', this.logger.error)
     boss.start().catch((e) => {
       this.logger.error(
         `Connecting to ${config.queueDatabaseUrl} failed, exiting`
-      );
-      throw e;
-    });
+      )
+      throw e
+    })
   }
 
   /**
@@ -36,33 +36,33 @@ export class PgBossQueueService extends QueueService {
    * This request will happen once, and timeout in 2s.
    */
   async getReturnRef(jobId: string): Promise<string> {
-    let job;
+    let job
 
     try {
-      job = await this.queue.getJobById(jobId);
+      job = await this.queue.getJobById(jobId)
     } catch (e) {
-      return "UNKNOWN";
+      return 'UNKNOWN'
     }
 
     this.logger.info(
-      ["PgBossQueueService", "getReturnRef"],
+      ['PgBossQueueService', 'getReturnRef'],
       `found job ${job.id} with state ${job.state}`
-    );
+    )
 
-    let reference;
+    let reference
 
-    if (job.state === "completed") {
-      const jobOutput = job.output as JobOutput;
-      reference = jobOutput?.reference;
+    if (job.state === 'completed') {
+      const jobOutput = job.output as JobOutput
+      reference = jobOutput?.reference
     }
 
     if (!reference) {
       this.logger.info(
-        ["PgBossQueueService", "getReturnRef"],
+        ['PgBossQueueService', 'getReturnRef'],
         `${jobId} was ${job.state} but the job output did not contain reference. Returning UNKNOWN`
-      );
+      )
     }
-    return reference ?? "UNKNOWN";
+    return reference ?? 'UNKNOWN'
   }
 
   async sendToQueue(
@@ -70,72 +70,72 @@ export class PgBossQueueService extends QueueService {
     url: string,
     allowRetry = true
   ): Promise<QueueResponse> {
-    const logMetadata = ["QueueService", "sendToQueue"];
+    const logMetadata = ['QueueService', 'sendToQueue']
     const options: PgBoss.SendOptions = {
-      retryBackoff: true,
-    };
+      retryBackoff: true
+    }
     if (!allowRetry) {
-      options.retryLimit = 1;
+      options.retryLimit = 1
     }
 
-    const referenceNumber = "UNKNOWN";
+    const referenceNumber = 'UNKNOWN'
 
     const jobId = await this.queue.send(
       this.queueName,
       {
         data,
-        webhook_url: url,
+        webhook_url: url
       },
       options
-    );
+    )
 
     if (!jobId) {
-      throw Error("Job could not be created");
+      throw Error('Job could not be created')
     }
 
-    this.logger.info(logMetadata, `success job created with id: ${jobId}`);
+    this.logger.info(logMetadata, `success job created with id: ${jobId}`)
     try {
-      const newRowRef = await this.pollForRef(jobId);
+      const newRowRef = await this.pollForRef(jobId)
       this.logger.info(
         logMetadata,
         `jobId: ${jobId} has reference number ${newRowRef}`
-      );
-      return [jobId, newRowRef ?? referenceNumber];
+      )
+      return [jobId, newRowRef ?? referenceNumber]
     } catch (e) {
       this.logger.error(
-        ["QueueService", "sendToQueue", `jobId: ${jobId}`],
+        ['QueueService', 'sendToQueue', `jobId: ${jobId}`],
         `Polling for return reference failed. ${e}`
-      );
+      )
       // TODO:- investigate if this should return UNKNOWN?
-      return [jobId, undefined];
+      return [jobId, undefined]
     }
   }
 
   async pollForRef(jobId: string): Promise<string | void> {
-    let timeElapsed = 0;
+    let timeElapsed = 0
 
     return new Promise(async (resolve, reject) => {
-      const reference = await this.getReturnRef(jobId);
-      if (reference && reference !== "UNKNOWN") {
-        resolve(reference);
+      const reference = await this.getReturnRef(jobId)
+      if (reference && reference !== 'UNKNOWN') {
+        resolve(reference)
       }
 
       const pollInterval = setInterval(async () => {
         try {
-          const reference = await this.getReturnRef(jobId);
-          if (reference && reference !== "UNKNOWN") {
-            clearInterval(pollInterval);
-            resolve(reference);
+          const reference = await this.getReturnRef(jobId)
+          if (reference && reference !== 'UNKNOWN') {
+            clearInterval(pollInterval)
+            resolve(reference)
           }
           if (timeElapsed >= 2000) {
-            clearInterval(pollInterval);
-            resolve();
+            clearInterval(pollInterval)
+            resolve()
           }
-          timeElapsed += parseInt(config.queueServicePollingInterval);
+          timeElapsed += parseInt(config.queueServicePollingInterval)
         } catch (err) {
-          reject(err);
+          reject(err)
         }
-      }, config.queueServicePollingInterval);
-    });
+      }, config.queueServicePollingInterval)
+    })
   }
 }

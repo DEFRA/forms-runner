@@ -1,5 +1,5 @@
-import { PageController } from "./PageController";
-import type { FormData, FormSubmissionErrors } from "../types";
+import { PageController } from './PageController'
+import type { FormData, FormSubmissionErrors } from '../types'
 
 export class StartPageController extends PageController {
   /**
@@ -12,7 +12,7 @@ export class StartPageController extends PageController {
     return {
       ...super.getViewModel(formData, errors),
       isStartPage: true,
-      skipTimeoutWarning: true,
-    };
+      skipTimeoutWarning: true
+    }
   }
 }

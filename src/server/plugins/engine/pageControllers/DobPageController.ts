@@ -1,6 +1,6 @@
-import joi from "joi";
-import { PageController } from "./PageController";
-import type { FormPayload } from "../types";
+import joi from 'joi'
+import { PageController } from './PageController'
+import type { FormPayload } from '../types'
 
 /**
  * DobPageController adds to the state a users ageGroup
@@ -10,19 +10,19 @@ import type { FormPayload } from "../types";
 export class DobPageController extends PageController {
   // TODO: improve type, see Page once types mature
   constructor(model: any = {}, pageDef: any = {}) {
-    super(model, pageDef);
+    super(model, pageDef)
 
     this.stateSchema = this.stateSchema.append({
-      ageGroup: joi.string().required().valid("junior", "full", "senior"),
-    });
+      ageGroup: joi.string().required().valid('junior', 'full', 'senior')
+    })
   }
 
   getStateFromValidForm(formData: FormPayload) {
-    const state = super.getStateFromValidForm(formData);
-    const age = Math.floor((Date.now() - state.dob) / 31557600000);
+    const state = super.getStateFromValidForm(formData)
+    const age = Math.floor((Date.now() - state.dob) / 31557600000)
 
-    state.ageGroup = age < 13 ? "junior" : age > 65 ? "senior" : "full";
+    state.ageGroup = age < 13 ? 'junior' : age > 65 ? 'senior' : 'full'
 
-    return state;
+    return state
   }
 }

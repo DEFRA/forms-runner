@@ -1,38 +1,38 @@
-import { merge } from "@hapi/hoek";
-import { customAlphabet } from "nanoid";
-import config from "../../config";
-import { token } from "@hapi/jwt";
-import joi from "joi";
-import type { FormSubmissionState } from "../../plugins/engine/types";
-import type { Field, WebhookSchema } from "../../schemas/types";
+import { merge } from '@hapi/hoek'
+import { customAlphabet } from 'nanoid'
+import config from '../../config'
+import { token } from '@hapi/jwt'
+import joi from 'joi'
+import type { FormSubmissionState } from '../../plugins/engine/types'
+import type { Field, WebhookSchema } from '../../schemas/types'
 
 export function fieldToValue(field: Field) {
-  const { key, answer } = field;
-  return { [key]: answer };
+  const { key, answer } = field
+  return { [key]: answer }
 }
 
 export function webhookToSessionData(
   webhookData: WebhookSchema
 ): FormSubmissionState {
-  const { questions } = webhookData;
+  const { questions } = webhookData
   return questions.reduce((session, currentQuestion) => {
-    const { fields, category } = currentQuestion;
+    const { fields, category } = currentQuestion
 
     const values = fields
       .map(fieldToValue)
-      .reduce((prev, curr) => merge(prev, curr), {});
+      .reduce((prev, curr) => merge(prev, curr), {})
 
     if (!category) {
-      return { ...session, ...values };
+      return { ...session, ...values }
     }
 
-    const existingCategoryInSession = session[category] ?? {};
+    const existingCategoryInSession = session[category] ?? {}
 
     return {
       ...session,
-      [category]: { ...existingCategoryInSession, ...values },
-    };
-  }, {});
+      [category]: { ...existingCategoryInSession, ...values }
+    }
+  }, {})
 }
 
 export function generateSessionTokenForForm(callback, formId) {
@@ -40,46 +40,46 @@ export function generateSessionTokenForForm(callback, formId) {
     {
       cb: callback,
       user: customAlphabet(
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123467890",
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123467890',
         16
       ),
-      group: formId,
+      group: formId
     },
     {
       key: config.initialisedSessionKey,
-      algorithm: config.initialisedSessionAlgorithm,
+      algorithm: config.initialisedSessionAlgorithm
     },
     {
-      ttlSec: config.initialisedSessionTimeout / 1000,
+      ttlSec: config.initialisedSessionTimeout / 1000
     }
-  );
+  )
 }
 
 export function verifyToken(decodedToken) {
   try {
     token.verify(decodedToken, {
       key: config.initialisedSessionKey,
-      algorithm: config.initialisedSessionAlgorithm,
-    });
-    return { isValid: true };
+      algorithm: config.initialisedSessionAlgorithm
+    })
+    return { isValid: true }
   } catch (err) {
     return {
       isValid: false,
-      error: `${err}`,
-    };
+      error: `${err}`
+    }
   }
 }
 
 export const callbackValidation = (safelist = config.safelist) =>
   joi.string().custom((value, helpers) => {
-    const hostname = new URL(value).hostname;
+    const hostname = new URL(value).hostname
     if (!hostname) {
-      return helpers.error("string.empty");
+      return helpers.error('string.empty')
     }
 
     if (safelist.includes(hostname)) {
-      return value;
+      return value
     }
 
-    return helpers.error("string.hostname");
-  });
+    return helpers.error('string.hostname')
+  })

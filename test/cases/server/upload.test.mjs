@@ -1,143 +1,143 @@
-import fs from "fs";
-import path from "path";
-import * as Lab from "@hapi/lab";
-import cheerio from "cheerio";
-import FormData from "form-data";
-import { expect } from "@hapi/code";
-import { stub, restore } from "sinon";
-import config from "../../../src/server/config.js";
+import fs from 'fs'
+import path from 'path'
+import * as Lab from '@hapi/lab'
+import cheerio from 'cheerio'
+import FormData from 'form-data'
+import { expect } from '@hapi/code'
+import { stub, restore } from 'sinon'
+import config from '../../../src/server/config.js'
 
-import createServer from "../../../src/server/index.js";
-import { UploadService } from "../../../src/server/services/upload/index.js";
+import createServer from '../../../src/server/index.js'
+import { UploadService } from '../../../src/server/services/upload/index.js'
 
-export const lab = Lab.script();
-const { suite, test, before, after } = lab;
+export const lab = Lab.script()
+const { suite, test, before, after } = lab
 
-suite("uploads", () => {
-  let server;
+suite('uploads', () => {
+  let server
 
   // Create server before each test
   before(async () => {
-    config.documentUploadApiUrl = "http://localhost:9000";
+    config.documentUploadApiUrl = 'http://localhost:9000'
     server = await createServer({
-      formFileName: "upload.json",
-      formFilePath: __dirname,
-    });
-    await server.start();
-  });
+      formFileName: 'upload.json',
+      formFilePath: __dirname
+    })
+    await server.start()
+  })
 
   after(async () => {
-    await server.stop();
-  });
+    await server.stop()
+  })
 
-  test("request with file upload field populated is successful and redirects to next page", async () => {
-    const form = new FormData();
-    form.append("fullName", 1);
-    form.append("file1", Buffer.from("an image.."));
+  test('request with file upload field populated is successful and redirects to next page', async () => {
+    const form = new FormData()
+    form.append('fullName', 1)
+    form.append('file1', Buffer.from('an image..'))
     // form.append('file2', Buffer.from([]))
     const options = {
-      method: "POST",
-      url: "/forms-runner/upload/upload-file",
+      method: 'POST',
+      url: '/forms-runner/upload/upload-file',
       headers: form.getHeaders(),
-      payload: form.getBuffer(),
-    };
-    const response = await server.inject(options);
-    expect(response.statusCode).to.equal(302);
-    expect(response.headers).to.include("location");
-    expect(response.headers.location).to.equal("/forms-runner/upload/summary");
-  });
+      payload: form.getBuffer()
+    }
+    const response = await server.inject(options)
+    expect(response.statusCode).to.equal(302)
+    expect(response.headers).to.include('location')
+    expect(response.headers.location).to.equal('/forms-runner/upload/summary')
+  })
 
-  test("request with file upload field containing virus returns with error message", async () => {
-    restore();
+  test('request with file upload field containing virus returns with error message', async () => {
+    restore()
 
-    stub(UploadService.prototype, "fileStreamsFromPayload").callsFake(() => {
+    stub(UploadService.prototype, 'fileStreamsFromPayload').callsFake(() => {
       return [
         [
-          "file1",
+          'file1',
           {
-            hapi: { filename: "file.jpg" },
-            _data: fs.readFileSync(path.join(__dirname, "dummy.pdf")),
-          },
-        ],
-      ];
-    });
+            hapi: { filename: 'file.jpg' },
+            _data: fs.readFileSync(path.join(__dirname, 'dummy.pdf'))
+          }
+        ]
+      ]
+    })
 
-    stub(UploadService.prototype, "uploadDocuments").callsFake(async () => {
+    stub(UploadService.prototype, 'uploadDocuments').callsFake(async () => {
       return {
-        error: 'The selected file for "%s" contained a virus',
-      };
-    });
+        error: 'The selected file for "%s" contained a virus'
+      }
+    })
 
-    const form = new FormData();
-    form.append("fullName", 1);
-    form.append("file1", fs.readFileSync(path.join(__dirname, "dummy.pdf")));
+    const form = new FormData()
+    form.append('fullName', 1)
+    form.append('file1', fs.readFileSync(path.join(__dirname, 'dummy.pdf')))
     const options = {
-      method: "POST",
-      url: "/forms-runner/upload/upload-file",
+      method: 'POST',
+      url: '/forms-runner/upload/upload-file',
       headers: form.getHeaders(),
-      payload: form.getBuffer(),
-    };
-    const response = await server.inject(options);
+      payload: form.getBuffer()
+    }
+    const response = await server.inject(options)
 
-    const $ = cheerio.load(response.payload);
+    const $ = cheerio.load(response.payload)
     expect($("[href='#file1']").text().trim()).to.equal(
       'The selected file for "Passport photo" contained a virus'
-    );
-  });
+    )
+  })
 
-  test("request with files larger than 2MB return an error", async () => {
-    restore();
+  test('request with files larger than 2MB return an error', async () => {
+    restore()
 
-    fs.writeFileSync("tmp.pdf", Buffer.alloc(6 * 1024 * 1024, "a"));
+    fs.writeFileSync('tmp.pdf', Buffer.alloc(6 * 1024 * 1024, 'a'))
 
-    const data = fs.readFileSync("tmp.pdf");
+    const data = fs.readFileSync('tmp.pdf')
 
-    const form = new FormData();
-    form.append("fullName", 1);
-    form.append("file1", data);
+    const form = new FormData()
+    form.append('fullName', 1)
+    form.append('file1', data)
     const options = {
-      method: "POST",
-      url: "/forms-runner/upload/upload-file",
+      method: 'POST',
+      url: '/forms-runner/upload/upload-file',
       headers: form.getHeaders(),
-      payload: null,
-    };
-    const response = await server.inject(options);
+      payload: null
+    }
+    const response = await server.inject(options)
 
-    const $ = cheerio.load(response.payload);
+    const $ = cheerio.load(response.payload)
 
     expect($("[href='#file1']").text().trim()).to.contain(
-      "The selected file must be smaller than"
-    );
-  });
+      'The selected file must be smaller than'
+    )
+  })
 
-  test("request with file upload field containing invalid file type returns with error message", async () => {
-    restore();
-    stub(UploadService.prototype, "fileStreamsFromPayload").callsFake(() => {
+  test('request with file upload field containing invalid file type returns with error message', async () => {
+    restore()
+    stub(UploadService.prototype, 'fileStreamsFromPayload').callsFake(() => {
       return [
         [
-          "file1",
+          'file1',
           {
-            hapi: { filename: "file.test" },
-            _data: fs.readFileSync(path.join(__dirname, "dummy.pdf")),
-          },
-        ],
-      ];
-    });
+            hapi: { filename: 'file.test' },
+            _data: fs.readFileSync(path.join(__dirname, 'dummy.pdf'))
+          }
+        ]
+      ]
+    })
 
-    const form = new FormData();
-    form.append("fullName", 1);
-    form.append("file1", fs.readFileSync(path.join(__dirname, "dummy.pdf")));
+    const form = new FormData()
+    form.append('fullName', 1)
+    form.append('file1', fs.readFileSync(path.join(__dirname, 'dummy.pdf')))
     const options = {
-      method: "POST",
-      url: "/forms-runner/upload/upload-file",
+      method: 'POST',
+      url: '/forms-runner/upload/upload-file',
       headers: form.getHeaders(),
-      payload: form.getBuffer(),
-    };
-    const response = await server.inject(options);
+      payload: form.getBuffer()
+    }
+    const response = await server.inject(options)
 
-    const $ = cheerio.load(response.payload);
+    const $ = cheerio.load(response.payload)
     expect($("[href='#file1']").text().trim()).to.contain(
       'The selected file for "Passport photo" must be a jpg, jpeg, png or pdf'
-    );
-  });
-});
+    )
+  })
+})

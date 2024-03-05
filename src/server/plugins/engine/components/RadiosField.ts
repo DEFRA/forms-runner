@@ -1,4 +1,4 @@
-import { SelectionControlField } from "./SelectionControlField";
+import { SelectionControlField } from './SelectionControlField'
 
 /**
  * @description sorry about the empty class...

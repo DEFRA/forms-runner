@@ -1,19 +1,19 @@
-import { format } from "date-fns";
-import config from "../../../../config";
-import nunjucks from "nunjucks";
-import type { DetailItem } from "../types";
+import { format } from 'date-fns'
+import config from '../../../../config'
+import nunjucks from 'nunjucks'
+import type { DetailItem } from '../types'
 
 function answerFromDetailItem(item) {
   switch (item.dataType) {
-    case "list":
-      return item.rawValue;
-    case "date":
-      return format(new Date(item.rawValue), "yyyy-MM-dd");
-    case "monthYear":
-      const [month, year] = Object.values(item.rawValue);
-      return format(new Date(`${year}-${month}-1`), "yyyy-MM");
+    case 'list':
+      return item.rawValue
+    case 'date':
+      return format(new Date(item.rawValue), 'yyyy-MM-dd')
+    case 'monthYear':
+      const [month, year] = Object.values(item.rawValue)
+      return format(new Date(`${year}-${month}-1`), 'yyyy-MM')
     default:
-      return item.value;
+      return item.value
   }
 }
 
@@ -22,8 +22,8 @@ function detailItemToField(item: DetailItem) {
     key: item.name,
     title: item.title,
     type: item.dataType,
-    answer: answerFromDetailItem(item),
-  };
+    answer: answerFromDetailItem(item)
+  }
 }
 
 export function WebhookModel(
@@ -34,37 +34,37 @@ export function WebhookModel(
   contextState
 ) {
   const questions = relevantPages?.map((page) => {
-    const isRepeatable = !!page.repeatField;
+    const isRepeatable = !!page.repeatField
 
     const itemsForPage = details.flatMap((detail) =>
       detail.items.filter((item) => item.path === page.path)
-    );
+    )
 
     const detailItems = isRepeatable
       ? [itemsForPage].map((item) => ({ ...item, isRepeatable }))
-      : itemsForPage;
+      : itemsForPage
 
-    let index = 0;
+    let index = 0
     const fields = detailItems.flatMap((item, i) => {
-      item.isRepeatable ? (index = i) : 0;
-      const fields = [detailItemToField(item)];
+      item.isRepeatable ? (index = i) : 0
+      const fields = [detailItemToField(item)]
 
       /**
        * This is currently deprecated whilst GDS fix a known issue with accessibility and conditionally revealed fields
        */
-      const nestedItems = item?.items?.childrenCollection.formItems;
+      const nestedItems = item?.items?.childrenCollection.formItems
       nestedItems &&
-        fields.push(nestedItems.map((item) => detailItemToField(item)));
+        fields.push(nestedItems.map((item) => detailItemToField(item)))
 
-      return fields;
-    });
+      return fields
+    })
 
-    let pageTitle = page.title;
+    let pageTitle = page.title
 
     if (pageTitle) {
       pageTitle = nunjucks.renderString(page.title.en ?? page.title, {
-        ...contextState,
-      });
+        ...contextState
+      })
     }
 
     return {
@@ -72,19 +72,19 @@ export function WebhookModel(
       question:
         pageTitle ?? page.components.formItems.map((item) => item.title),
       fields,
-      index,
-    };
-  });
+      index
+    }
+  })
 
   // default name if no name is provided
-  let englishName = `${config.serviceName} ${model.basePath}`;
+  let englishName = `${config.serviceName} ${model.basePath}`
   if (model.name) {
-    englishName = model.name.en ?? model.name;
+    englishName = model.name.en ?? model.name
   }
   return {
     metadata: model.def.metadata,
     name: englishName,
     questions,
-    ...(!!fees && { fees }),
-  };
+    ...(!!fees && { fees })
+  }
 }

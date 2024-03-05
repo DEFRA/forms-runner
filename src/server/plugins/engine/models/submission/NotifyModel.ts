@@ -1,24 +1,24 @@
-import { FormModel } from "../../../../plugins/engine/models";
-import { reach } from "hoek";
-import { NotifyOutputConfiguration, List } from "@defra/forms-model";
-import type { FormSubmissionState } from "../../../../plugins/engine/types";
+import { FormModel } from '../../../../plugins/engine/models'
+import { reach } from 'hoek'
+import { NotifyOutputConfiguration, List } from '@defra/forms-model'
+import type { FormSubmissionState } from '../../../../plugins/engine/types'
 
 export type NotifyModel = Omit<
   NotifyOutputConfiguration,
-  "emailField" | "replyToConfiguration" | "personalisation"
+  'emailField' | 'replyToConfiguration' | 'personalisation'
 > & {
-  emailAddress: string;
-  emailReplyToId?: string;
+  emailAddress: string
+  emailReplyToId?: string
   personalisation: {
-    [key: string]: string | boolean;
-  };
-};
+    [key: string]: string | boolean
+  }
+}
 
 const checkItemIsValid = (
   model: FormModel,
   state: FormSubmissionState,
   conditionName
-) => model.conditions[conditionName]?.fn?.(state) ?? true;
+) => model.conditions[conditionName]?.fn?.(state) ?? true
 
 const parseListAsNotifyTemplate = (
   list: List,
@@ -28,8 +28,8 @@ const parseListAsNotifyTemplate = (
   return `${list.items
     .filter((item) => checkItemIsValid(model, state, item.condition))
     .map((item) => `* ${item.value}\n`)
-    .join("")}`;
-};
+    .join('')}`
+}
 
 /**
  * returns an object used for sending GOV.UK notify requests Used by {@link SummaryViewModel} {@link NotifyService}
@@ -46,58 +46,56 @@ export function NotifyModel(
     personalisation: personalisationConfiguration,
     personalisationFieldCustomisation = {},
     emailReplyToIdConfiguration,
-    templateId,
-  } = outputConfiguration;
+    templateId
+  } = outputConfiguration
 
-  const personalisation: NotifyModel["personalisation"] = personalisationConfiguration.reduce(
-    (acc, curr) => {
-      let value, listValue, condition;
+  const personalisation: NotifyModel['personalisation'] =
+    personalisationConfiguration.reduce((acc, curr) => {
+      let value, listValue, condition
 
       const possibleFields = [
         curr,
-        ...(personalisationFieldCustomisation?.[curr] ?? []),
-      ];
+        ...(personalisationFieldCustomisation?.[curr] ?? [])
+      ]
       // iterate through each field to find the value to use
       possibleFields.forEach((field) => {
-        value ??= reach(state, field);
-        listValue ??= model.lists.find((list) => list.name === field);
-        condition ??= model.conditions[curr];
-      });
+        value ??= reach(state, field)
+        listValue ??= model.lists.find((list) => list.name === field)
+        condition ??= model.conditions[curr]
+      })
 
-      let personalisationValue;
+      let personalisationValue
 
       if (condition) {
-        personalisationValue ??= condition.fn?.(state);
+        personalisationValue ??= condition.fn?.(state)
       }
       if (listValue) {
         personalisationValue ??= parseListAsNotifyTemplate(
           listValue,
           model,
           state
-        );
+        )
       }
-      personalisationValue ??= value;
+      personalisationValue ??= value
 
       return {
         ...acc,
-        [curr]: personalisationValue,
-      };
-    },
-    {}
-  );
+        [curr]: personalisationValue
+      }
+    }, {})
 
   const defaultReplyToId = emailReplyToIdConfiguration?.find(
     ({ condition }) => !condition
-  )?.emailReplyToId;
+  )?.emailReplyToId
 
   const conditionalReplyTos = emailReplyToIdConfiguration?.filter(
     ({ condition }) => !!condition
-  );
+  )
 
   const emailReplyToId =
     conditionalReplyTos?.find(({ condition }) => {
-      return model.conditions[condition!]?.fn?.(state);
-    })?.emailReplyToId ?? defaultReplyToId;
+      return model.conditions[condition!]?.fn?.(state)
+    })?.emailReplyToId ?? defaultReplyToId
 
   return {
     templateId,
@@ -105,6 +103,6 @@ export function NotifyModel(
     emailAddress: reach(state, emailField) as string,
     apiKey,
     addReferencesToPersonalisation,
-    ...(emailReplyToId && { emailReplyToId }),
-  };
+    ...(emailReplyToId && { emailReplyToId })
+  }
 }

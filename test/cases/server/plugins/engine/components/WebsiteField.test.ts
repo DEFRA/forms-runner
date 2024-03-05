@@ -1,153 +1,153 @@
-import { expect } from "@hapi/code";
-import * as Lab from "@hapi/lab";
-import { WebsiteFieldComponent } from "@defra/forms-model";
-import { WebsiteField } from "../../../../../../src/server/plugins/engine/components";
-import { FormModel } from "../../../../../../src/server/plugins/engine/models";
+import { expect } from '@hapi/code'
+import * as Lab from '@hapi/lab'
+import { WebsiteFieldComponent } from '@defra/forms-model'
+import { WebsiteField } from '../../../../../../src/server/plugins/engine/components'
+import { FormModel } from '../../../../../../src/server/plugins/engine/models'
 
-export const lab = Lab.script();
-const { suite, test, beforeEach } = lab;
+export const lab = Lab.script()
+const { suite, test, beforeEach } = lab
 
-suite("Website field", () => {
-  let model: FormModel;
+suite('Website field', () => {
+  let model: FormModel
 
   beforeEach(() => {
-    model = {} as FormModel;
-  });
+    model = {} as FormModel
+  })
 
-  test("should be required by default", () => {
+  test('should be required by default', () => {
     const def: WebsiteFieldComponent = {
-      name: "myComponent",
-      title: "My component",
-      type: "WebsiteField",
-      hint: "a hint",
+      name: 'myComponent',
+      title: 'My component',
+      type: 'WebsiteField',
+      hint: 'a hint',
       options: {},
-      schema: {},
-    };
+      schema: {}
+    }
 
-    const { formSchema } = new WebsiteField(def, model);
+    const { formSchema } = new WebsiteField(def, model)
 
-    expect(formSchema.describe().flags!.presence).to.equal("required");
-  });
+    expect(formSchema.describe().flags!.presence).to.equal('required')
+  })
 
-  test("should validate URI", () => {
+  test('should validate URI', () => {
     const def: WebsiteFieldComponent = {
-      name: "myComponent",
-      title: "My component",
-      type: "WebsiteField",
-      hint: "a hint",
+      name: 'myComponent',
+      title: 'My component',
+      type: 'WebsiteField',
+      hint: 'a hint',
       options: {},
-      schema: {},
-    };
+      schema: {}
+    }
 
-    const { formSchema } = new WebsiteField(def, model);
+    const { formSchema } = new WebsiteField(def, model)
 
-    expect(formSchema.validate("https://www.gov.uk").error).to.be.undefined();
+    expect(formSchema.validate('https://www.gov.uk').error).to.be.undefined()
     expect(
-      formSchema.validate("http://www.gov.uk/test?id=ABC").error
-    ).to.be.undefined();
-    expect(formSchema.validate("1").error!.message).to.contain(
+      formSchema.validate('http://www.gov.uk/test?id=ABC').error
+    ).to.be.undefined()
+    expect(formSchema.validate('1').error!.message).to.contain(
       `Enter website address in the correct format`
-    );
-  });
+    )
+  })
 
-  test("should display custom error message", () => {
+  test('should display custom error message', () => {
     const def: WebsiteFieldComponent = {
-      name: "myComponent",
-      title: "My component",
-      type: "WebsiteField",
-      hint: "a hint",
+      name: 'myComponent',
+      title: 'My component',
+      type: 'WebsiteField',
+      hint: 'a hint',
       options: {
-        customValidationMessage: "Invalid address entered",
+        customValidationMessage: 'Invalid address entered'
       },
-      schema: {},
-    };
+      schema: {}
+    }
 
-    const { formSchema } = new WebsiteField(def, model);
+    const { formSchema } = new WebsiteField(def, model)
 
-    expect(formSchema.validate("www.gov.uk").error?.message).to.contain(
-      "Invalid address entered"
-    );
-  });
+    expect(formSchema.validate('www.gov.uk').error?.message).to.contain(
+      'Invalid address entered'
+    )
+  })
 
-  test("should validate max length", () => {
+  test('should validate max length', () => {
     const def: WebsiteFieldComponent = {
-      name: "myComponent",
-      title: "My component",
-      type: "WebsiteField",
-      hint: "a hint",
+      name: 'myComponent',
+      title: 'My component',
+      type: 'WebsiteField',
+      hint: 'a hint',
       options: {},
       schema: {
-        max: 17,
-      },
-    };
+        max: 17
+      }
+    }
 
-    const { formSchema } = new WebsiteField(def, model);
+    const { formSchema } = new WebsiteField(def, model)
 
-    expect(formSchema.validate("http://www.gov.uk").error).to.be.undefined();
+    expect(formSchema.validate('http://www.gov.uk').error).to.be.undefined()
 
-    expect(formSchema.validate("https://www.gov.uk").error?.message).to.contain(
+    expect(formSchema.validate('https://www.gov.uk').error?.message).to.contain(
       `"my component" length must be less than or equal to 17 characters long`
-    );
-  });
+    )
+  })
 
-  test("should validate min length", () => {
+  test('should validate min length', () => {
     const def: WebsiteFieldComponent = {
-      name: "myComponent",
-      title: "My component",
-      type: "WebsiteField",
-      hint: "a hint",
+      name: 'myComponent',
+      title: 'My component',
+      type: 'WebsiteField',
+      hint: 'a hint',
       options: {},
       schema: {
-        min: 18,
-      },
-    };
+        min: 18
+      }
+    }
 
-    const { formSchema } = new WebsiteField(def, model);
+    const { formSchema } = new WebsiteField(def, model)
 
-    expect(formSchema.validate("https://www.gov.uk").error).to.be.undefined();
+    expect(formSchema.validate('https://www.gov.uk').error).to.be.undefined()
 
-    expect(formSchema.validate("http://www.gov.uk").error?.message).to.contain(
+    expect(formSchema.validate('http://www.gov.uk').error?.message).to.contain(
       `"my component" length must be at least 18 characters long`
-    );
-  });
+    )
+  })
 
-  test("should be required by default", () => {
+  test('should be required by default', () => {
     const def: WebsiteFieldComponent = {
-      name: "myComponent",
-      title: "My component",
-      type: "WebsiteField",
-      hint: "a hint",
+      name: 'myComponent',
+      title: 'My component',
+      type: 'WebsiteField',
+      hint: 'a hint',
       options: {},
-      schema: {},
-    };
+      schema: {}
+    }
 
-    const { formSchema } = new WebsiteField(def, model);
+    const { formSchema } = new WebsiteField(def, model)
 
-    expect(formSchema.validate("").error?.message).to.contain(
+    expect(formSchema.validate('').error?.message).to.contain(
       `"my component" is not allowed to be empty`
-    );
+    )
 
     expect(formSchema.validate(null).error?.message).to.contain(
       `"my component" must be a string`
-    );
-  });
+    )
+  })
 
-  test("should allow empty strings and null values when not required", () => {
+  test('should allow empty strings and null values when not required', () => {
     const def: WebsiteFieldComponent = {
-      name: "myComponent",
-      title: "My component",
-      type: "WebsiteField",
-      hint: "a hint",
+      name: 'myComponent',
+      title: 'My component',
+      type: 'WebsiteField',
+      hint: 'a hint',
       options: {
-        required: false,
+        required: false
       },
-      schema: {},
-    };
+      schema: {}
+    }
 
-    const { formSchema } = new WebsiteField(def, model);
+    const { formSchema } = new WebsiteField(def, model)
 
-    expect(formSchema.validate("").error).to.be.undefined();
+    expect(formSchema.validate('').error).to.be.undefined()
 
-    expect(formSchema.validate(null).error).to.be.undefined();
-  });
-});
+    expect(formSchema.validate(null).error).to.be.undefined()
+  })
+})

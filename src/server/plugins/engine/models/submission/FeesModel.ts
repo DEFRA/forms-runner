@@ -1,33 +1,33 @@
-import { FormModel } from "../../../../plugins/engine/models";
-import { reach } from "hoek";
-import { Fee } from "@defra/forms-model";
-import { FeeDetails } from "../../../../services/payService";
-import type { FormSubmissionState } from "../../../../plugins/engine/types";
+import { FormModel } from '../../../../plugins/engine/models'
+import { reach } from 'hoek'
+import { Fee } from '@defra/forms-model'
+import { FeeDetails } from '../../../../services/payService'
+import type { FormSubmissionState } from '../../../../plugins/engine/types'
 
 export type FeesModel = {
-  details: FeeDetails[];
-  total: number;
-  prefixes: string[];
-  referenceFormat?: string;
-};
+  details: FeeDetails[]
+  total: number
+  prefixes: string[]
+  referenceFormat?: string
+}
 
 function feesAsFeeDetails(
   fees: Fee[],
   state: FormSubmissionState
 ): FeeDetails[] {
   return fees.map((fee) => {
-    const { multiplier } = fee;
-    let multiplyBy;
+    const { multiplier } = fee
+    let multiplyBy
 
     if (multiplier) {
-      multiplyBy = Number(reach(state, multiplier));
+      multiplyBy = Number(reach(state, multiplier))
     }
 
     return {
       ...fee,
-      ...(multiplyBy && { multiplyBy }),
-    };
-  });
+      ...(multiplyBy && { multiplyBy })
+    }
+  })
 }
 
 /**
@@ -39,23 +39,23 @@ export function FeesModel(
 ): FeesModel | undefined {
   const applicableFees: Fee[] =
     model.def.fees?.filter((fee) => {
-      return !fee.condition || model.conditions[fee.condition].fn(state);
-    }) ?? [];
+      return !fee.condition || model.conditions[fee.condition].fn(state)
+    }) ?? []
 
   if (applicableFees.length < 1) {
-    return undefined;
+    return undefined
   }
 
-  const details = feesAsFeeDetails(applicableFees, state);
+  const details = feesAsFeeDetails(applicableFees, state)
 
   return details.reduce(
     (previous: FeesModel, fee: FeeDetails) => {
-      const { amount, multiplyBy = 1, prefix = "" } = fee;
+      const { amount, multiplyBy = 1, prefix = '' } = fee
       return {
         ...previous,
         total: previous.total + amount * multiplyBy,
-        prefixes: [...previous.prefixes, prefix].filter((p) => p),
-      };
+        prefixes: [...previous.prefixes, prefix].filter((p) => p)
+      }
     },
     {
       details,
@@ -64,7 +64,7 @@ export function FeesModel(
       referenceFormat:
         model.feeOptions?.paymentReferenceFormat ??
         model.def.paymentReferenceFormat ??
-        "",
+        ''
     }
-  );
+  )
 }

@@ -1,43 +1,43 @@
-import fs from "fs";
-import path from "path";
-import { plugin } from "./plugin";
+import fs from 'fs'
+import path from 'path'
+import { plugin } from './plugin'
 
 import {
   loadPreConfiguredForms,
-  FormConfiguration,
-} from "./services/configurationService";
-import { idFromFilename } from "./helpers";
-import config from "../../config";
+  FormConfiguration
+} from './services/configurationService'
+import { idFromFilename } from './helpers'
+import config from '../../config'
 
 type ConfigureEnginePlugin = (
   formFileName?: string,
   formFilePath?: string
 ) => {
-  plugin: any;
+  plugin: any
   options: {
     modelOptions: {
-      relativeTo: string;
-      previewMode: any;
-    };
+      relativeTo: string
+      previewMode: any
+    }
     configs: {
-      configuration: any;
-      id: string;
-    }[];
-    previewMode: boolean;
-  };
-};
+      configuration: any
+      id: string
+    }[]
+    previewMode: boolean
+  }
+}
 
-const relativeTo = __dirname;
+const relativeTo = __dirname
 
 type EngineOptions = {
-  previewMode?: boolean;
-};
+  previewMode?: boolean
+}
 export const configureEnginePlugin: ConfigureEnginePlugin = (
   formFileName,
   formFilePath,
   options?: EngineOptions
 ) => {
-  let configs: FormConfiguration[];
+  let configs: FormConfiguration[]
 
   if (formFileName && formFilePath) {
     const formConfigPath = path.join(formFilePath, formFileName)
@@ -45,20 +45,20 @@ export const configureEnginePlugin: ConfigureEnginePlugin = (
     configs = [
       {
         configuration: JSON.parse(fs.readFileSync(formConfigPath, 'utf8')),
-        id: idFromFilename(formFileName),
-      },
-    ];
+        id: idFromFilename(formFileName)
+      }
+    ]
   } else {
-    configs = loadPreConfiguredForms();
+    configs = loadPreConfiguredForms()
   }
 
   const modelOptions = {
     relativeTo,
-    previewMode: options?.previewMode ?? config.previewMode,
-  };
+    previewMode: options?.previewMode ?? config.previewMode
+  }
 
   return {
     plugin,
-    options: { modelOptions, configs, previewMode: config.previewMode },
-  };
-};
+    options: { modelOptions, configs, previewMode: config.previewMode }
+  }
+}

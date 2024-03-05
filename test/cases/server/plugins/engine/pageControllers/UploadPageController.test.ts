@@ -1,81 +1,81 @@
-import { expect } from "@hapi/code";
-import * as Lab from "@hapi/lab";
-import { UploadPageController } from "../../../../../../src/server/plugins/engine/pageControllers/UploadPageController";
-import { FormModel } from "../../../../../../src/server/plugins/engine/models";
-import * as sinon from "sinon";
-import * as PlaybackUploadPageController from "../../../../../../src/server/plugins/engine/pageControllers/PlaybackUploadPageController";
+import { expect } from '@hapi/code'
+import * as Lab from '@hapi/lab'
+import { UploadPageController } from '../../../../../../src/server/plugins/engine/pageControllers/UploadPageController'
+import { FormModel } from '../../../../../../src/server/plugins/engine/models'
+import * as sinon from 'sinon'
+import * as PlaybackUploadPageController from '../../../../../../src/server/plugins/engine/pageControllers/PlaybackUploadPageController'
 
-export const lab = Lab.script();
-const { suite, test } = lab;
+export const lab = Lab.script()
+const { suite, test } = lab
 
 const def = {
-  title: "Your birth certificate",
-  path: "/your-birth-certificate",
-  name: "",
+  title: 'Your birth certificate',
+  path: '/your-birth-certificate',
+  name: '',
   components: [
     {
-      name: "imageUpload",
+      name: 'imageUpload',
       options: {
-        required: true,
+        required: true
       },
-      type: "FileUploadField",
-      title: "Birth certificate",
-      schema: {},
-    },
+      type: 'FileUploadField',
+      title: 'Birth certificate',
+      schema: {}
+    }
   ],
   next: [
     {
-      path: "/second-page",
-    },
+      path: '/second-page'
+    }
   ],
-  controller: "UploadPageController",
-};
+  controller: 'UploadPageController'
+}
 
 const model = new FormModel(
   {
     pages: [],
-    startPage: "/start",
+    startPage: '/start',
     sections: [],
     lists: [],
-    conditions: [],
+    conditions: []
   },
   {}
-);
+)
 
-suite("UploadPageController", () => {
+suite('UploadPageController', () => {
   lab.before(() => {
     class MockPlaybackPageController {
       makePostRouteHandler() {
-        return sinon.stub().returns(true);
+        return sinon.stub().returns(true)
       }
 
       makeGetRouteHandler() {
-        return sinon.stub().returns(true);
+        return sinon.stub().returns(true)
       }
     }
     sinon
-      .stub(PlaybackUploadPageController, "PlaybackUploadPageController")
-      .callsFake(() => new MockPlaybackPageController());
-  });
+      .stub(PlaybackUploadPageController, 'PlaybackUploadPageController')
+      .callsFake(() => new MockPlaybackPageController())
+  })
 
-  test("Redirects post handler to the playback page post handler when view=playback", async () => {
-    const pageController = new UploadPageController(model, def);
+  test('Redirects post handler to the playback page post handler when view=playback', async () => {
+    const pageController = new UploadPageController(model, def)
     const request = {
       query: {
-        view: "playback",
-      },
-    };
-    const result = await pageController.makePostRouteHandler()(request, {});
-    expect(result).to.be.true();
-  });
-  test("Redirects get handler to the playback page get handler when view=playback", async () => {
-    const pageController = new UploadPageController(model, def);
+        view: 'playback'
+      }
+    }
+    const result = await pageController.makePostRouteHandler()(request, {})
+    expect(result).to.be.true()
+  })
+  test('Redirects get handler to the playback page get handler when view=playback', async () => {
+    const pageController = new UploadPageController(model, def)
     const request = {
       query: {
-        view: "playback",
-      },
-    };
-    const result = await pageController.makeGetRouteHandler()(request, {});
-    expect(result).to.be.true();
-  });
-});
+        view: 'playback'
+      }
+    }
+    const result = await pageController.makeGetRouteHandler()(request, {})
+    expect(result).to.be.true()
+  })
+})

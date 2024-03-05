@@ -1,7 +1,7 @@
 export default {
-  method: "GET",
-  path: "/",
+  method: 'GET',
+  path: '/',
   handler: (_request, h) => {
-    return h.view('home');
+    return h.view('home')
   }
-};
+}

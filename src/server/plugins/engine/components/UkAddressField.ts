@@ -1,80 +1,79 @@
-import joi from "joi";
+import joi from 'joi'
 
-import { InputFieldsComponentsDef } from "@defra/forms-model";
+import { InputFieldsComponentsDef } from '@defra/forms-model'
 
-import * as helpers from "./helpers";
-import { FormComponent } from "./FormComponent";
-import { ComponentCollection } from "./ComponentCollection";
+import * as helpers from './helpers'
+import { FormComponent } from './FormComponent'
+import { ComponentCollection } from './ComponentCollection'
 import {
   FormData,
   FormPayload,
   FormSubmissionErrors,
-  FormSubmissionState,
-} from "../types";
-import { FormModel } from "../models";
+  FormSubmissionState
+} from '../types'
+import { FormModel } from '../models'
 
 export class UkAddressField extends FormComponent {
-  formChildren: ComponentCollection;
-  stateChildren: ComponentCollection;
+  formChildren: ComponentCollection
+  stateChildren: ComponentCollection
 
   constructor(def: InputFieldsComponentsDef, model: FormModel) {
-    super(def, model);
-    const { name, options } = this;
-    const stateSchema = helpers.buildStateSchema("date", this);
-    const isRequired =
-      !("required" in options && options.required === false);
+    super(def, model)
+    const { name, options } = this
+    const stateSchema = helpers.buildStateSchema('date', this)
+    const isRequired = !('required' in options && options.required === false)
 
     const childrenList: any = [
       {
-        type: "TextField",
-        name: "addressLine1",
-        title: "Address line 1",
+        type: 'TextField',
+        name: 'addressLine1',
+        title: 'Address line 1',
         schema: { max: 100 },
-        options: { required: isRequired },
+        options: { required: isRequired }
       },
       {
-        type: "TextField",
-        name: "addressLine2",
-        title: "Address line 2",
-        schema: { max: 100, allow: "" },
-        options: { required: false },
+        type: 'TextField',
+        name: 'addressLine2',
+        title: 'Address line 2',
+        schema: { max: 100, allow: '' },
+        options: { required: false }
       },
       {
-        type: "TextField",
-        name: "town",
-        title: "Town or city",
+        type: 'TextField',
+        name: 'town',
+        title: 'Town or city',
         schema: { max: 100 },
-        options: { required: isRequired },
+        options: { required: isRequired }
       },
       {
-        type: "TextField",
-        name: "postcode",
-        title: "Postcode",
+        type: 'TextField',
+        name: 'postcode',
+        title: 'Postcode',
         schema: { max: 10 },
-        options: { required: isRequired },
-      },
-    ];
+        options: { required: isRequired }
+      }
+    ]
 
-    const stateChildren = new ComponentCollection(childrenList, model);
+    const stateChildren = new ComponentCollection(childrenList, model)
 
     // Modify the name to add a prefix and reuse
     // the children to create the formComponents
-    childrenList.forEach((child) => (child.name = `${name}__${child.name}`));
+    childrenList.forEach((child) => (child.name = `${name}__${child.name}`))
 
-    const formChildren = new ComponentCollection(childrenList, model);
+    const formChildren = new ComponentCollection(childrenList, model)
 
-    this.formChildren = formChildren;
-    this.stateChildren = stateChildren;
-    this.stateSchema = stateSchema;
+    this.formChildren = formChildren
+    this.stateChildren = stateChildren
+    this.stateSchema = stateSchema
   }
 
   getFormSchemaKeys() {
-    return this.formChildren.getFormSchemaKeys();
+    return this.formChildren.getFormSchemaKeys()
   }
 
   getStateSchemaKeys() {
-    const { name } = this;
-    const options: any = this.options;
+    const { name } = this
+    const options: any = this.options
 
     return {
       [name]:
@@ -86,66 +85,66 @@ export class UkAddressField extends FormComponent {
           : joi
               .object()
               .keys(this.stateChildren.getStateSchemaKeys())
-              .required(),
-    };
+              .required()
+    }
   }
 
   getFormDataFromState(state: FormSubmissionState) {
-    const name = this.name;
-    const value = state[name];
+    const name = this.name
+    const value = state[name]
 
     return {
       [`${name}__addressLine1`]: value && value.addressLine1,
       [`${name}__addressLine2`]: value && value.addressLine2,
       [`${name}__town`]: value && value.town,
-      [`${name}__postcode`]: value && value.postcode,
-    };
+      [`${name}__postcode`]: value && value.postcode
+    }
   }
 
   getStateValueFromValidForm(payload: FormPayload) {
-    const name = this.name;
+    const name = this.name
     return payload[`${name}__addressLine1`]
       ? {
           addressLine1: payload[`${name}__addressLine1`],
           addressLine2: payload[`${name}__addressLine2`],
           town: payload[`${name}__town`],
-          postcode: payload[`${name}__postcode`],
+          postcode: payload[`${name}__postcode`]
         }
-      : null;
+      : null
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
-    const name = this.name;
-    const value = state[name];
+    const name = this.name
+    const value = state[name]
 
     return value
       ? [value.addressLine1, value.addressLine2, value.town, value.postcode]
           .filter((p) => {
-            return !!p;
+            return !!p
           })
-          .join(", ")
-      : "";
+          .join(', ')
+      : ''
   }
 
   getViewModel(formData: FormData, errors: FormSubmissionErrors) {
-    const options: any = this.options;
+    const options: any = this.options
     const viewModel = {
       ...super.getViewModel(formData, errors),
-      children: this.formChildren.getViewModel(formData, errors),
-    };
-
-    viewModel.fieldset = {
-      legend: viewModel.label,
-    };
-
-    const { disableLookup } = options;
-
-    if (disableLookup !== undefined) {
-      viewModel.disableLookup = disableLookup;
-    } else {
-      viewModel.disableLookup = true;
+      children: this.formChildren.getViewModel(formData, errors)
     }
 
-    return viewModel;
+    viewModel.fieldset = {
+      legend: viewModel.label
+    }
+
+    const { disableLookup } = options
+
+    if (disableLookup !== undefined) {
+      viewModel.disableLookup = disableLookup
+    } else {
+      viewModel.disableLookup = true
+    }
+
+    return viewModel
   }
 }

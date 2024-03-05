@@ -1,78 +1,78 @@
-import { TextFieldComponent } from "@defra/forms-model";
+import { TextFieldComponent } from '@defra/forms-model'
 
-import { FormComponent } from "./FormComponent";
-import { FormModel } from "../models";
-import { addClassOptionIfNone } from "./helpers";
-import joi, { Schema } from "joi";
-import type { FormData, FormSubmissionErrors } from "../types";
+import { FormComponent } from './FormComponent'
+import { FormModel } from '../models'
+import { addClassOptionIfNone } from './helpers'
+import joi, { Schema } from 'joi'
+import type { FormData, FormSubmissionErrors } from '../types'
 
 export class TextField extends FormComponent {
-  formSchema;
-  stateSchema;
+  formSchema
+  stateSchema
 
   constructor(def: TextFieldComponent, model: FormModel) {
-    super(def, model);
+    super(def, model)
 
-    const { options, schema = {} } = def;
-    this.options = options;
-    this.schema = schema;
+    const { options, schema = {} } = def
+    this.options = options
+    this.schema = schema
 
-    addClassOptionIfNone(this.options, "govuk-input--width-20");
+    addClassOptionIfNone(this.options, 'govuk-input--width-20')
 
-    let componentSchema = joi.string().required();
+    let componentSchema = joi.string().required()
     if (options.required === false) {
-      componentSchema = componentSchema.optional().allow("").allow(null);
+      componentSchema = componentSchema.optional().allow('').allow(null)
     }
 
     componentSchema = componentSchema.label(
       (def.title.en ?? def.title ?? def.name).toLowerCase()
-    );
+    )
 
     if (schema.max) {
-      componentSchema = componentSchema.max(schema.max);
+      componentSchema = componentSchema.max(schema.max)
     }
 
     if (schema.min) {
-      componentSchema = componentSchema.min(schema.min);
+      componentSchema = componentSchema.min(schema.min)
     }
 
     if (schema.regex) {
-      const pattern = new RegExp(schema.regex);
-      componentSchema = componentSchema.pattern(pattern);
+      const pattern = new RegExp(schema.regex)
+      componentSchema = componentSchema.pattern(pattern)
     }
 
     if (options.customValidationMessage) {
       componentSchema = componentSchema.messages({
-        any: options.customValidationMessage,
-      });
+        any: options.customValidationMessage
+      })
     }
 
-    this.formSchema = componentSchema;
+    this.formSchema = componentSchema
   }
 
   getFormSchemaKeys() {
-    return { [this.name]: this.formSchema as Schema };
+    return { [this.name]: this.formSchema as Schema }
   }
 
   getStateSchemaKeys() {
-    return { [this.name]: this.formSchema as Schema };
+    return { [this.name]: this.formSchema as Schema }
   }
 
   getViewModel(formData: FormData, errors: FormSubmissionErrors) {
-    const options: any = this.options;
-    const schema: any = this.schema;
-    const viewModel = super.getViewModel(formData, errors);
+    const options: any = this.options
+    const schema: any = this.schema
+    const viewModel = super.getViewModel(formData, errors)
 
     if (schema.max) {
       viewModel.attributes = {
-        maxlength: schema.max,
-      };
+        maxlength: schema.max
+      }
     }
 
     if (options.autocomplete) {
-      viewModel.autocomplete = options.autocomplete;
+      viewModel.autocomplete = options.autocomplete
     }
 
-    return viewModel;
+    return viewModel
   }
 }

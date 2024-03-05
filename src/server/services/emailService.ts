@@ -1,20 +1,20 @@
-import AWS from "aws-sdk";
-import MailComposer from "nodemailer/lib/mail-composer";
-import config from "../config";
+import AWS from 'aws-sdk'
+import MailComposer from 'nodemailer/lib/mail-composer'
+import config from '../config'
 
-import { UploadService } from "./upload/uploadService";
-import type { HapiServer } from "../types";
+import { UploadService } from './upload/uploadService'
+import type { HapiServer } from '../types'
 
 export class EmailService {
   /**
    * This service is responsible for sending emails. It is currently only designed to work with AWS SES, which is not available in EU West 2. You must also have a verified domain for SES.
    * @experimental
    */
-  uploadService: UploadService;
+  uploadService: UploadService
 
   constructor(server: HapiServer) {
-    const { uploadService } = server.services([]);
-    this.uploadService = uploadService;
+    const { uploadService } = server.services([])
+    this.uploadService = uploadService
   }
 
   /**
@@ -31,30 +31,30 @@ export class EmailService {
     options: { message?: string; attachments?: any } = {}
   ) {
     const mailOptions: {
-      from: any;
-      to: string;
-      subject: string;
-      text: string;
-      attachments?: any;
+      from: any
+      to: string
+      subject: string
+      text: string
+      attachments?: any
     } = {
       from: config.fromEmailAddress,
       to: emailAddress,
       subject,
-      text: options.message || "",
-    };
+      text: options.message || ''
+    }
 
     if (options.attachments) {
       mailOptions.attachments = await this.uploadService.downloadDocuments(
         options.attachments
-      );
+      )
     }
 
-    const mailComposer = new MailComposer(mailOptions);
-    const message = await mailComposer.compile().build();
+    const mailComposer = new MailComposer(mailOptions)
+    const message = await mailComposer.compile().build()
 
     // SES is not available in eu-west-2
-    return new AWS.SES({ apiVersion: "2010-12-01", region: "eu-west-1" })
+    return new AWS.SES({ apiVersion: '2010-12-01', region: 'eu-west-1' })
       .sendRawEmail({ RawMessage: { Data: message } })
-      .promise();
+      .promise()
   }
 }

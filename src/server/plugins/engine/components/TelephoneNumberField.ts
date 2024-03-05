@@ -1,57 +1,57 @@
-import { TelephoneNumberFieldComponent } from "@defra/forms-model";
+import { TelephoneNumberFieldComponent } from '@defra/forms-model'
 
-import { FormComponent } from "./FormComponent";
-import { FormModel } from "../models";
-import { addClassOptionIfNone } from "./helpers";
-import joi, { Schema } from "joi";
-import type { FormData, FormSubmissionErrors } from "../types";
+import { FormComponent } from './FormComponent'
+import { FormModel } from '../models'
+import { addClassOptionIfNone } from './helpers'
+import joi, { Schema } from 'joi'
+import type { FormData, FormSubmissionErrors } from '../types'
 
-const PATTERN = /^[0-9\\\s+()-]*$/;
-const DEFAULT_MESSAGE = "Enter a telephone number in the correct format";
+const PATTERN = /^[0-9\\\s+()-]*$/
+const DEFAULT_MESSAGE = 'Enter a telephone number in the correct format'
 export class TelephoneNumberField extends FormComponent {
   constructor(def: TelephoneNumberFieldComponent, model: FormModel) {
-    super(def, model);
+    super(def, model)
 
-    const { options = {}, schema = {} } = def;
-    const pattern = schema.regex ? new RegExp(schema.regex) : PATTERN;
-    let componentSchema = joi.string();
+    const { options = {}, schema = {} } = def
+    const pattern = schema.regex ? new RegExp(schema.regex) : PATTERN
+    let componentSchema = joi.string()
 
     if (options.required === false) {
-      componentSchema = componentSchema.allow("").allow(null);
+      componentSchema = componentSchema.allow('').allow(null)
     }
     componentSchema = componentSchema
       .pattern(pattern)
       .message(def.options?.customValidationMessage ?? DEFAULT_MESSAGE)
-      .label(def.title.toLowerCase());
+      .label(def.title.toLowerCase())
 
     if (schema.max) {
-      componentSchema = componentSchema.max(schema.max);
+      componentSchema = componentSchema.max(schema.max)
     }
 
     if (schema.min) {
-      componentSchema = componentSchema.min(schema.min);
+      componentSchema = componentSchema.min(schema.min)
     }
 
-    this.schema = componentSchema;
+    this.schema = componentSchema
 
-    addClassOptionIfNone(this.options, "govuk-input--width-10");
+    addClassOptionIfNone(this.options, 'govuk-input--width-10')
   }
 
   getFormSchemaKeys() {
-    return { [this.name]: this.schema as Schema };
+    return { [this.name]: this.schema as Schema }
   }
 
   getStateSchemaKeys() {
-    return { [this.name]: this.schema as Schema };
+    return { [this.name]: this.schema as Schema }
   }
 
   getViewModel(formData: FormData, errors: FormSubmissionErrors) {
     const viewModel = {
       ...super.getViewModel(formData, errors),
-      type: "tel",
-      autocomplete: "tel",
-    };
+      type: 'tel',
+      autocomplete: 'tel'
+    }
 
-    return viewModel;
+    return viewModel
   }
 }

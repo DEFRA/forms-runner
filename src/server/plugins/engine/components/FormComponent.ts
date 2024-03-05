@@ -1,133 +1,133 @@
-import joi, { Schema } from "joi";
+import joi, { Schema } from 'joi'
 
-import { ComponentBase } from "./ComponentBase";
-import { optionalText } from "./constants";
+import { ComponentBase } from './ComponentBase'
+import { optionalText } from './constants'
 
 import {
   FormSubmissionState,
   FormSubmissionErrors,
   FormData,
-  FormPayload,
-} from "../types";
-import type { ViewModel } from "./types";
+  FormPayload
+} from '../types'
+import type { ViewModel } from './types'
 
 export class FormComponent extends ComponentBase {
-  isFormComponent: boolean = true;
-  __lang: string = "en";
+  isFormComponent: boolean = true
+  __lang: string = 'en'
 
   get lang() {
-    return this.__lang;
+    return this.__lang
   }
 
   set lang(lang) {
     if (lang) {
-      this.__lang = lang;
+      this.__lang = lang
     }
   }
 
   getFormDataFromState(state: FormSubmissionState) {
-    const name = this.name;
+    const name = this.name
 
     if (name in state) {
       return {
-        [name]: this.getFormValueFromState(state),
-      };
+        [name]: this.getFormValueFromState(state)
+      }
     }
 
-    return undefined;
+    return undefined
   }
 
   getFormValueFromState(state: FormSubmissionState) {
-    const name = this.name;
+    const name = this.name
 
     if (name in state) {
-      return state[name] === null ? "" : state[name].toString();
+      return state[name] === null ? '' : state[name].toString()
     }
   }
 
   getStateFromValidForm(payload: FormPayload) {
-    const name = this.name;
+    const name = this.name
 
     return {
-      [name]: this.getStateValueFromValidForm(payload),
-    };
+      [name]: this.getStateValueFromValidForm(payload)
+    }
   }
 
   getStateValueFromValidForm(payload: FormPayload): any {
-    const name = this.name;
+    const name = this.name
 
-    return name in payload && payload[name] !== "" ? payload[name] : null;
+    return name in payload && payload[name] !== '' ? payload[name] : null
   }
 
   localisedString(description) {
-    let string;
+    let string
     if (!description) {
-      string = "";
-    } else if (typeof description === "string") {
-      string = description;
+      string = ''
+    } else if (typeof description === 'string') {
+      string = description
     } else {
-      string = description?.[this.lang] ?? description.en;
+      string = description?.[this.lang] ?? description.en
     }
-    return string;
+    return string
   }
 
   getViewModel(formData: FormData, errors: FormSubmissionErrors) {
-    const options: any = this.options;
-    const isOptional = options.required === false;
+    const options: any = this.options
+    const isOptional = options.required === false
     const optionalPostfix =
-      isOptional && options.optionalText !== false ? optionalText : "";
-    this.lang = formData.lang;
+      isOptional && options.optionalText !== false ? optionalText : ''
+    this.lang = formData.lang
     const label = options.hideTitle
-      ? ""
-      : `${this.localisedString(this.title)}${optionalPostfix}`;
+      ? ''
+      : `${this.localisedString(this.title)}${optionalPostfix}`
 
-    const name = this.name;
+    const name = this.name
 
     const viewModel: ViewModel = {
       ...super.getViewModel(formData, errors),
       label: {
         text: label,
-        classes: "govuk-label--s",
+        classes: 'govuk-label--s'
       },
       id: name,
       name,
-      value: formData[name],
-    };
+      value: formData[name]
+    }
 
     if (this.hint) {
       viewModel.hint = {
-        html: this.localisedString(this.hint),
-      };
+        html: this.localisedString(this.hint)
+      }
     }
 
     if (options.classes) {
-      viewModel.classes = options.classes;
+      viewModel.classes = options.classes
     }
 
     if (options.condition) {
-      viewModel.condition = options.condition;
+      viewModel.condition = options.condition
     }
 
     errors?.errorList?.forEach((err) => {
       if (err.name === name) {
         viewModel.errorMessage = {
-          text: err.text,
-        };
+          text: err.text
+        }
       }
-    });
+    })
 
-    return viewModel;
+    return viewModel
   }
 
   getFormSchemaKeys() {
-    return { [this.name]: joi.any() };
+    return { [this.name]: joi.any() }
   }
 
   getStateSchemaKeys(): { [k: string]: Schema } {
-    return { [this.name]: joi.any() };
+    return { [this.name]: joi.any() }
   }
 
   getDisplayStringFromState(state) {
-    return state[this.name];
+    return state[this.name]
   }
 }

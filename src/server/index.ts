@@ -1,27 +1,27 @@
-import fs from "fs";
-import hapi, { ServerOptions } from "@hapi/hapi";
+import fs from 'fs'
+import hapi, { ServerOptions } from '@hapi/hapi'
 
-import Scooter from "@hapi/scooter";
-import inert from "@hapi/inert";
-import Schmervice from "schmervice";
-import blipp from "blipp";
-import config from "./config";
+import Scooter from '@hapi/scooter'
+import inert from '@hapi/inert'
+import Schmervice from 'schmervice'
+import blipp from 'blipp'
+import config from './config'
 
-import { configureEnginePlugin } from "./plugins/engine";
-import { configureRateLimitPlugin } from "./plugins/rateLimit";
-import { configureBlankiePlugin } from "./plugins/blankie";
-import { configureCrumbPlugin } from "./plugins/crumb";
-import { configureInitialiseSessionPlugin } from "./plugins/initialiseSession/configurePlugin";
+import { configureEnginePlugin } from './plugins/engine'
+import { configureRateLimitPlugin } from './plugins/rateLimit'
+import { configureBlankiePlugin } from './plugins/blankie'
+import { configureCrumbPlugin } from './plugins/crumb'
+import { configureInitialiseSessionPlugin } from './plugins/initialiseSession/configurePlugin'
 
-import pluginLocale from "./plugins/locale";
-import pluginSession from "./plugins/session";
-import pluginAuth from "./plugins/auth";
-import pluginViews from "./plugins/views";
-import pluginApplicationStatus from "./plugins/applicationStatus";
-import pluginRouter from "./plugins/router";
-import pluginErrorPages from "./plugins/errorPages";
-import pluginLogging from "./plugins/logging";
-import pluginPulse from "./plugins/pulse";
+import pluginLocale from './plugins/locale'
+import pluginSession from './plugins/session'
+import pluginAuth from './plugins/auth'
+import pluginViews from './plugins/views'
+import pluginApplicationStatus from './plugins/applicationStatus'
+import pluginRouter from './plugins/router'
+import pluginErrorPages from './plugins/errorPages'
+import pluginLogging from './plugins/logging'
+import pluginPulse from './plugins/pulse'
 import {
   AddressService,
   CacheService,
@@ -32,167 +32,168 @@ import {
   StatusService,
   UploadService,
   MockUploadService,
-  WebhookService,
-} from "./services";
-import getRequestInfo from "./utils/getRequestInfo";
-import { pluginQueue } from "./plugins/queue";
-import { QueueStatusService } from "./services/queueStatusService";
-import { MySqlQueueService } from "./services/mySqlQueueService";
-import { PgBossQueueService } from "./services/pgBossQueueService";
-import type { HapiRequest, HapiResponseToolkit, RouteConfig } from "./types";
+  WebhookService
+} from './services'
+import getRequestInfo from './utils/getRequestInfo'
+import { pluginQueue } from './plugins/queue'
+import { QueueStatusService } from './services/queueStatusService'
+import { MySqlQueueService } from './services/mySqlQueueService'
+import { PgBossQueueService } from './services/pgBossQueueService'
+import type { HapiRequest, HapiResponseToolkit, RouteConfig } from './types'
 
 const serverOptions = (): ServerOptions => {
-  const hasCertificate = config.sslKey && config.sslCert;
+  const hasCertificate = config.sslKey && config.sslCert
 
   const serverOptions: ServerOptions = {
     debug: { request: [`${config.isDev}`] },
     port: config.port,
     router: {
-      stripTrailingSlash: true,
+      stripTrailingSlash: true
     },
     routes: {
       validate: {
         options: {
-          abortEarly: false,
-        },
+          abortEarly: false
+        }
       },
       security: {
         hsts: {
           maxAge: 31536000,
           includeSubDomains: true,
-          preload: false,
+          preload: false
         },
         xss: true,
         noSniff: true,
-        xframe: true,
-      },
+        xframe: true
+      }
     },
-    cache: [{ provider: catboxProvider() }],
-  };
+    cache: [{ provider: catboxProvider() }]
+  }
 
   const httpsOptions = hasCertificate
     ? {
         tls: {
           key: fs.readFileSync(config.sslKey),
-          cert: fs.readFileSync(config.sslCert),
-        },
+          cert: fs.readFileSync(config.sslCert)
+        }
       }
-    : {};
+    : {}
 
   return {
     ...serverOptions,
-    ...httpsOptions,
-  };
-};
+    ...httpsOptions
+  }
+}
 
 const registrationOptions = {
-    routes: { prefix: config.appPathPrefix }
+  routes: { prefix: config.appPathPrefix }
 }
 
 async function createServer(routeConfig: RouteConfig) {
-  const server = hapi.server(serverOptions());
-  const { formFileName, formFilePath, options } = routeConfig;
+  const server = hapi.server(serverOptions())
+  const { formFileName, formFilePath, options } = routeConfig
 
   if (config.rateLimit) {
-    await server.register(configureRateLimitPlugin(routeConfig));
+    await server.register(configureRateLimitPlugin(routeConfig))
   }
-  await server.register(pluginLogging);
-  await server.register(pluginSession);
-  await server.register(pluginPulse);
-  await server.register(inert);
-  await server.register(Scooter);
+  await server.register(pluginLogging)
+  await server.register(pluginSession)
+  await server.register(pluginPulse)
+  await server.register(inert)
+  await server.register(Scooter)
   await server.register(
     configureInitialiseSessionPlugin({
-      safelist: config.safelist,
+      safelist: config.safelist
     })
-  );
-  await server.register(configureBlankiePlugin(config));
-  await server.register(configureCrumbPlugin(config, routeConfig));
-  await server.register(Schmervice);
-  await server.register(pluginAuth);
+  )
+  await server.register(configureBlankiePlugin(config))
+  await server.register(configureCrumbPlugin(config, routeConfig))
+  await server.register(Schmervice)
+  await server.register(pluginAuth)
 
   server.registerService([
     CacheService,
     NotifyService,
     PayService,
     WebhookService,
-    AddressService,
-  ]);
+    AddressService
+  ])
   if (!config.documentUploadApiUrl) {
     server.registerService([
-      Schmervice.withName("uploadService", MockUploadService),
-    ]);
+      Schmervice.withName('uploadService', MockUploadService)
+    ])
   } else {
-    server.registerService([UploadService]);
+    server.registerService([UploadService])
   }
 
-  server.registerService([EmailService]);
+  server.registerService([EmailService])
 
   if (config.enableQueueService) {
-    const queueType = config.queueType;
+    const queueType = config.queueType
     const queueService =
-      queueType === "PGBOSS" ? PgBossQueueService : MySqlQueueService;
+      queueType === 'PGBOSS' ? PgBossQueueService : MySqlQueueService
     server.registerService([
-      Schmervice.withName("queueService", queueService),
-      Schmervice.withName("statusService", QueueStatusService),
-    ]);
+      Schmervice.withName('queueService', queueService),
+      Schmervice.withName('statusService', QueueStatusService)
+    ])
   } else {
-    server.registerService(StatusService);
+    server.registerService(StatusService)
   }
 
   server.ext(
-    "onPreResponse",
+    'onPreResponse',
     (request: HapiRequest, h: HapiResponseToolkit) => {
-      const { response } = request;
+      const { response } = request
 
-      if ("isBoom" in response && response.isBoom) {
-        return h.continue;
+      if ('isBoom' in response && response.isBoom) {
+        return h.continue
       }
 
-      if ("header" in response && response.header) {
-        response.header("X-Robots-Tag", "noindex, nofollow");
+      if ('header' in response && response.header) {
+        response.header('X-Robots-Tag', 'noindex, nofollow')
 
-        const WEBFONT_EXTENSIONS = /\.(?:eot|ttf|woff|svg|woff2)$/i;
+        const WEBFONT_EXTENSIONS = /\.(?:eot|ttf|woff|svg|woff2)$/i
         if (!WEBFONT_EXTENSIONS.test(request.url.toString())) {
           response.header(
-            "cache-control",
-            "private, no-cache, no-store, must-revalidate, max-age=0"
-          );
-          response.header("pragma", "no-cache");
-          response.header("expires", "0");
+            'cache-control',
+            'private, no-cache, no-store, must-revalidate, max-age=0'
+          )
+          response.header('pragma', 'no-cache')
+          response.header('expires', '0')
         } else {
-          response.header("cache-control", "public, max-age=604800, immutable");
+          response.header('cache-control', 'public, max-age=604800, immutable')
         }
       }
-      return h.continue;
+      return h.continue
     }
-  );
+  )
 
-  server.ext("onRequest", (request: HapiRequest, h: HapiResponseToolkit) => {
-    const { pathname } = getRequestInfo(request);
+  server.ext('onRequest', (request: HapiRequest, h: HapiResponseToolkit) => {
+    const { pathname } = getRequestInfo(request)
 
-    request.app.location = pathname;
+    request.app.location = pathname
 
-    return h.continue;
-  });
+    return h.continue
+  })
 
-  await server.register(pluginLocale);
-  await server.register(pluginViews, registrationOptions);
+  await server.register(pluginLocale)
+  await server.register(pluginViews, registrationOptions)
   await server.register(
-    configureEnginePlugin(formFileName, formFilePath, options), registrationOptions
-  );
-  await server.register(pluginApplicationStatus, registrationOptions);
-  await server.register(pluginRouter, registrationOptions);
-  await server.register(pluginErrorPages);
-  await server.register(blipp);
+    configureEnginePlugin(formFileName, formFilePath, options),
+    registrationOptions
+  )
+  await server.register(pluginApplicationStatus, registrationOptions)
+  await server.register(pluginRouter, registrationOptions)
+  await server.register(pluginErrorPages)
+  await server.register(blipp)
 
-  server.state("cookies_policy", {
-    encoding: "base64json",
-  });
+  server.state('cookies_policy', {
+    encoding: 'base64json'
+  })
 
-  await server.register(pluginQueue);
+  await server.register(pluginQueue)
 
-  return server;
+  return server
 }
 
-export default createServer;
+export default createServer

@@ -1,12 +1,12 @@
-import type { HapiServer } from "../types";
+import type { HapiServer } from '../types'
 
-type QueueResponse = [number | string, string | undefined];
+type QueueResponse = [number | string, string | undefined]
 
 export abstract class QueueService {
-  logger: HapiServer["logger"];
+  logger: HapiServer['logger']
 
   constructor(server: HapiServer) {
-    this.logger = server.logger;
+    this.logger = server.logger
   }
 
   /**
@@ -20,7 +20,7 @@ export abstract class QueueService {
     data: object,
     url: string,
     allowRetry?: boolean
-  ): Promise<QueueResponse>;
+  ): Promise<QueueResponse>
 
-  abstract getReturnRef(rowId: number | string): Promise<string | null>;
+  abstract getReturnRef(rowId: number | string): Promise<string | null>
 }

@@ -1,34 +1,34 @@
-import { PageController } from "../../../plugins/engine/pageControllers/PageController";
+import { PageController } from '../../../plugins/engine/pageControllers/PageController'
 import {
   HapiRequest,
   HapiResponseToolkit,
-  HapiLifecycleMethod,
-} from "../../../types";
-import { RepeatingFieldPageController } from "./RepeatingFieldPageController";
+  HapiLifecycleMethod
+} from '../../../types'
+import { RepeatingFieldPageController } from './RepeatingFieldPageController'
 export class RepeatingSummaryPageController extends PageController {
-  private getRoute!: HapiLifecycleMethod;
-  private postRoute!: HapiLifecycleMethod;
-  nextIndex!: RepeatingFieldPageController["nextIndex"];
-  getPartialState!: RepeatingFieldPageController["getPartialState"];
-  options!: RepeatingFieldPageController["options"];
-  removeAtIndex!: RepeatingFieldPageController["removeAtIndex"];
-  hideRowTitles!: RepeatingFieldPageController["hideRowTitles"];
+  private getRoute!: HapiLifecycleMethod
+  private postRoute!: HapiLifecycleMethod
+  nextIndex!: RepeatingFieldPageController['nextIndex']
+  getPartialState!: RepeatingFieldPageController['getPartialState']
+  options!: RepeatingFieldPageController['options']
+  removeAtIndex!: RepeatingFieldPageController['removeAtIndex']
+  hideRowTitles!: RepeatingFieldPageController['hideRowTitles']
 
-  inputComponent;
+  inputComponent
 
   constructor(model, pageDef, inputComponent) {
-    super(model, pageDef);
-    this.inputComponent = inputComponent;
+    super(model, pageDef)
+    this.inputComponent = inputComponent
   }
 
   get getRouteHandler() {
-    this.getRoute ??= this.makeGetRouteHandler();
-    return this.getRoute;
+    this.getRoute ??= this.makeGetRouteHandler()
+    return this.getRoute
   }
 
   get postRouteHandler() {
-    this.postRoute ??= this.makePostRouteHandler();
-    return this.postRoute;
+    this.postRoute ??= this.makePostRouteHandler()
+    return this.postRoute
   }
 
   /**
@@ -40,95 +40,95 @@ export class RepeatingSummaryPageController extends PageController {
    */
   makeGetRouteHandler() {
     return async (request: HapiRequest, h: HapiResponseToolkit) => {
-      const { cacheService } = request.services([]);
+      const { cacheService } = request.services([])
 
-      const { removeAtIndex } = request.query;
+      const { removeAtIndex } = request.query
       if (removeAtIndex ?? false) {
-        return this.removeAtIndex(request, h);
+        return this.removeAtIndex(request, h)
       }
 
-      const state = await cacheService.getState(request);
-      const { progress = [] } = state;
-      progress?.push(`/${this.model.basePath}${this.path}?view=summary`);
-      await cacheService.mergeState(request, { progress });
+      const state = await cacheService.getState(request)
+      const { progress = [] } = state
+      progress?.push(`/${this.model.basePath}${this.path}?view=summary`)
+      await cacheService.mergeState(request, { progress })
 
-      const viewModel = this.getViewModel(state);
+      const viewModel = this.getViewModel(state)
 
-      return h.view("repeating-summary", viewModel);
-    };
+      return h.view('repeating-summary', viewModel)
+    }
   }
 
   entryToViewModelRow = ([key, value], iteration) => {
     const componentDef = this.pageDef.components.filter(
       (component) => component.name === key
-    );
+    )
 
-    const { title } = componentDef;
-    const titleWithIteration = `${title} ${iteration + 1}`;
+    const { title } = componentDef
+    const titleWithIteration = `${title} ${iteration + 1}`
     return {
       key: {
-        text: titleWithIteration,
+        text: titleWithIteration
       },
       value: {
-        text: value,
+        text: value
       },
       actions: {
         items: [
           {
             href: `?view=${iteration}`,
-            text: "change",
-            visuallyHiddenText: titleWithIteration,
-          },
-        ],
-      },
-    };
-  };
+            text: 'change',
+            visuallyHiddenText: titleWithIteration
+          }
+        ]
+      }
+    }
+  }
 
   getViewModel(formData) {
-    const baseViewModel = super.getViewModel(formData);
-    const answers = this.getPartialState(formData);
-    const rows = this.getRowsFromAnswers(answers, "summary");
+    const baseViewModel = super.getViewModel(formData)
+    const answers = this.getPartialState(formData)
+    const rows = this.getRowsFromAnswers(answers, 'summary')
 
     return {
       ...baseViewModel,
       customText: this.options.customText,
-      details: { rows },
-    };
+      details: { rows }
+    }
   }
 
   getRowsFromAnswers(answers, view = false) {
-    const { title = "" } = this.inputComponent;
+    const { title = '' } = this.inputComponent
     const listValueToText = this.inputComponent.list?.items?.reduce(
       (prev, curr) => ({ ...prev, [curr.value]: curr.text }),
       {}
-    );
+    )
 
     return answers?.map((value, i) => {
-      const titleWithIteration = `${title} ${i + 1}`;
+      const titleWithIteration = `${title} ${i + 1}`
       return {
         key: {
           text: titleWithIteration,
           classes: `${
-            this.hideRowTitles ? "govuk-summary-list__row--hidden-titles" : ""
-          }`,
+            this.hideRowTitles ? 'govuk-summary-list__row--hidden-titles' : ''
+          }`
         },
         value: {
           text: listValueToText?.[value] ?? value,
           classes: `${
-            this.hideRowTitles ? "govuk-summary-list__key--hidden-titles" : ""
-          }`,
+            this.hideRowTitles ? 'govuk-summary-list__key--hidden-titles' : ''
+          }`
         },
         actions: {
           items: [
             {
               href: `?removeAtIndex=${i}${view ? `&view=${view}` : ``}`,
-              text: "Remove",
-              visuallyHiddenText: titleWithIteration,
-            },
-          ],
-        },
-      };
-    });
+              text: 'Remove',
+              visuallyHiddenText: titleWithIteration
+            }
+          ]
+        }
+      }
+    })
   }
 
   /**
@@ -137,17 +137,17 @@ export class RepeatingSummaryPageController extends PageController {
    */
   makePostRouteHandler() {
     return async (request: HapiRequest, h: HapiResponseToolkit) => {
-      const { cacheService } = request.services([]);
-      const state = await cacheService.getState(request);
+      const { cacheService } = request.services([])
+      const state = await cacheService.getState(request)
 
-      if (request.payload?.next === "increment") {
-        const nextIndex = this.nextIndex(state);
+      if (request.payload?.next === 'increment') {
+        const nextIndex = this.nextIndex(state)
         return h.redirect(
           `/${this.model.basePath}${this.path}?view=${nextIndex}`
-        );
+        )
       }
 
-      return h.redirect(this.getNext(request.payload));
-    };
+      return h.redirect(this.getNext(request.payload))
+    }
   }
 }

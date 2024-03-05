@@ -1,17 +1,17 @@
-import { merge } from "hoek";
-import { Engine as RedisEngine } from "@hapi/catbox-redis";
-import { Engine as MemoryEngine } from "@hapi/catbox-memory";
-import { token } from "@hapi/jwt";
-import Redis from "ioredis";
+import { merge } from 'hoek'
+import { Engine as RedisEngine } from '@hapi/catbox-redis'
+import { Engine as MemoryEngine } from '@hapi/catbox-memory'
+import { token } from '@hapi/jwt'
+import Redis from 'ioredis'
 
-import config from "../config";
+import config from '../config'
 import {
   DecodedSessionToken,
-  InitialiseSessionOptions,
-} from "../plugins/initialiseSession/types";
-import type { FormSubmissionState } from "../plugins/engine/types";
-import type { WebhookSchema } from "../schemas/types";
-import type { HapiRequest, HapiServer } from "../types";
+  InitialiseSessionOptions
+} from '../plugins/initialiseSession/types'
+import type { FormSubmissionState } from '../plugins/engine/types'
+import type { WebhookSchema } from '../schemas/types'
+import type { HapiRequest, HapiServer } from '../types'
 
 const {
   redisHost,
@@ -21,29 +21,29 @@ const {
   isSandbox,
   sessionTimeout,
   confirmationSessionTimeout,
-  paymentSessionTimeout,
-} = config;
-const partition = "cache";
+  paymentSessionTimeout
+} = config
+const partition = 'cache'
 
 enum ADDITIONAL_IDENTIFIER {
-  Confirmation = ":confirmation",
+  Confirmation = ':confirmation'
 }
 
 export class CacheService {
   /**
    * This service is responsible for getting, storing or deleting a user's session data in the cache. This service has been registered by {@link createServer}
    */
-  cache: any;
-  logger: HapiServer["logger"];
+  cache: any
+  logger: HapiServer['logger']
 
   constructor(server: HapiServer) {
-    this.cache = server.cache({ segment: "cache" });
-    this.logger = server.logger;
+    this.cache = server.cache({ segment: 'cache' })
+    this.logger = server.logger
   }
 
   async getState(request: HapiRequest): Promise<FormSubmissionState> {
-    const cached = await this.cache.get(this.Key(request));
-    return cached || {};
+    const cached = await this.cache.get(this.Key(request))
+    return cached || {}
   }
 
   async mergeState(
@@ -52,70 +52,70 @@ export class CacheService {
     nullOverride = true,
     arrayMerge = false
   ) {
-    const key = this.Key(request);
-    const state = await this.getState(request);
-    let ttl = sessionTimeout;
-    merge(state, value, nullOverride, arrayMerge);
+    const key = this.Key(request)
+    const state = await this.getState(request)
+    let ttl = sessionTimeout
+    merge(state, value, nullOverride, arrayMerge)
     if (state.pay) {
       this.logger.info(
-        ["cacheService", request.yar.id],
+        ['cacheService', request.yar.id],
         `Pay state detected setting session TTL to ${paymentSessionTimeout}.`
-      );
-      ttl = paymentSessionTimeout;
+      )
+      ttl = paymentSessionTimeout
     }
-    await this.cache.set(key, state, ttl);
-    return this.cache.get(key);
+    await this.cache.set(key, state, ttl)
+    return this.cache.get(key)
   }
 
   async getConfirmationState(request: HapiRequest) {
-    const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation);
-    return await this.cache.get(key);
+    const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation)
+    return await this.cache.get(key)
   }
 
   async setConfirmationState(request: HapiRequest, viewModel) {
-    const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation);
-    return this.cache.set(key, viewModel, confirmationSessionTimeout);
+    const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation)
+    return this.cache.set(key, viewModel, confirmationSessionTimeout)
   }
 
   async createSession(
     jwt: string,
     data: {
-      callback: InitialiseSessionOptions;
+      callback: InitialiseSessionOptions
     } & Partial<WebhookSchema>
   ) {
     return this.cache.set(
       this.JWTKey(jwt),
       data,
       config.initialisedSessionTimeout
-    );
+    )
   }
 
   async activateSession(jwt, request) {
-    const { decoded } = token.decode(jwt);
-    const { payload }: { payload: DecodedSessionToken } = decoded;
+    const { decoded } = token.decode(jwt)
+    const { payload }: { payload: DecodedSessionToken } = decoded
 
     const userSessionKey = {
       segment: partition,
-      id: `${request.yar.id}:${payload.group}`,
-    };
+      id: `${request.yar.id}:${payload.group}`
+    }
 
-    const initialisedSession = await this.cache.get(this.JWTKey(jwt));
+    const initialisedSession = await this.cache.get(this.JWTKey(jwt))
 
-    const currentSession = await this.cache.get(userSessionKey);
+    const currentSession = await this.cache.get(userSessionKey)
     const mergedSession = {
       ...currentSession,
-      ...initialisedSession,
-    };
-    this.cache.set(userSessionKey, mergedSession, sessionTimeout);
-    await this.cache.drop(this.JWTKey(jwt));
+      ...initialisedSession
+    }
+    this.cache.set(userSessionKey, mergedSession, sessionTimeout)
+    await this.cache.drop(this.JWTKey(jwt))
     return {
-      redirectPath: initialisedSession?.callback?.redirectPath ?? "",
-    };
+      redirectPath: initialisedSession?.callback?.redirectPath ?? ''
+    }
   }
 
   async clearState(request: HapiRequest) {
     if (request.yar?.id) {
-      this.cache.drop(this.Key(request));
+      this.cache.drop(this.Key(request))
     }
   }
 
@@ -128,19 +128,19 @@ export class CacheService {
    */
   Key(request: HapiRequest, additionalIdentifier?: ADDITIONAL_IDENTIFIER) {
     if (!request?.yar?.id) {
-      throw Error("No session ID found");
+      throw Error('No session ID found')
     }
     return {
       segment: partition,
-      id: `${request.yar.id}:${request.params.id}${additionalIdentifier ?? ""}`,
-    };
+      id: `${request.yar.id}:${request.params.id}${additionalIdentifier ?? ''}`
+    }
   }
 
   JWTKey(jwt) {
     return {
       segment: partition,
-      id: jwt,
-    };
+      id: jwt
+    }
   }
 }
 
@@ -151,21 +151,21 @@ export const catboxProvider = () => {
    */
   const provider = {
     constructor: redisHost ? RedisEngine : MemoryEngine,
-    options: {},
-  };
+    options: {}
+  }
 
   if (redisHost) {
     const redisOptions: {
-      password?: string;
+      password?: string
       tls?: object
-    } = {};
+    } = {}
 
     if (redisPassword) {
-      redisOptions.password = redisPassword;
+      redisOptions.password = redisPassword
     }
 
     if (redisTls) {
-      redisOptions.tls = {};
+      redisOptions.tls = {}
     }
 
     const client = isSandbox
@@ -174,18 +174,18 @@ export const catboxProvider = () => {
           [
             {
               host: redisHost,
-              port: redisPort,
-            },
+              port: redisPort
+            }
           ],
           {
             dnsLookup: (address, callback) => callback(null, address, 4),
-            redisOptions,
+            redisOptions
           }
-        );
-    provider.options = { client, partition };
+        )
+    provider.options = { client, partition }
   } else {
-    provider.options = { partition };
+    provider.options = { partition }
   }
 
-  return provider;
-};
+  return provider
+}

@@ -1,56 +1,56 @@
-import Joi from "joi";
-import { redirectTo } from "./engine";
-import { healthCheckRoute, publicRoutes, homeRoute } from "../routes";
-import config from "../config";
-import getRequestInfo from "../utils/getRequestInfo";
-import type { HapiRequest, HapiResponseToolkit } from "../types";
+import Joi from 'joi'
+import { redirectTo } from './engine'
+import { healthCheckRoute, publicRoutes, homeRoute } from '../routes'
+import config from '../config'
+import getRequestInfo from '../utils/getRequestInfo'
+import type { HapiRequest, HapiResponseToolkit } from '../types'
 
-const routes = [...publicRoutes, healthCheckRoute, homeRoute];
+const routes = [...publicRoutes, healthCheckRoute, homeRoute]
 
 enum CookieValue {
-  Accept = "accept",
-  Reject = "reject",
+  Accept = 'accept',
+  Reject = 'reject'
 }
 
 // TODO: Replace with `type Cookies = `${CookieValue}`;` when Prettier is updated to a version later than 2.2
-type Cookies = "accept" | "reject";
+type Cookies = 'accept' | 'reject'
 
 interface CookiePayload {
-  cookies: Cookies;
-  crumb: string;
-  referrer: string;
+  cookies: Cookies
+  crumb: string
+  referrer: string
 }
 
 export default {
   plugin: {
-    name: "router",
+    name: 'router',
     register: (server) => {
-      server.route(routes);
+      server.route(routes)
       server.route([
         {
-          method: "get",
-          path: "/help/privacy",
+          method: 'get',
+          path: '/help/privacy',
           handler: async (_request: HapiRequest, h: HapiResponseToolkit) => {
             if (config.privacyPolicyUrl) {
-              return h.redirect(config.privacyPolicyUrl);
+              return h.redirect(config.privacyPolicyUrl)
             }
-            return h.view("help/privacy");
-          },
+            return h.view('help/privacy')
+          }
         },
         {
-          method: "get",
-          path: "/help/cookies",
+          method: 'get',
+          path: '/help/cookies',
           handler: async (request: HapiRequest, h: HapiResponseToolkit) => {
-            const cookiesPolicy = request.state.cookies_policy;
+            const cookiesPolicy = request.state.cookies_policy
             const analytics =
-              cookiesPolicy?.analytics === "on" ? "accept" : "reject";
-            return h.view("help/cookies", {
-              analytics,
-            });
-          },
+              cookiesPolicy?.analytics === 'on' ? 'accept' : 'reject'
+            return h.view('help/cookies', {
+              analytics
+            })
+          }
         },
         {
-          method: "post",
+          method: 'post',
           options: {
             payload: {
               parse: true,
@@ -59,101 +59,101 @@ export default {
                 request: HapiRequest,
                 h: HapiResponseToolkit
               ) => {
-                request.server.plugins.crumb.generate?.(request, h);
-                return h.continue;
-              },
+                request.server.plugins.crumb.generate?.(request, h)
+                return h.continue
+              }
             },
             validate: {
               payload: Joi.object({
                 cookies: Joi.string()
                   .valid(CookieValue.Accept, CookieValue.Reject)
                   .required(),
-                crumb: Joi.string(),
-              }).required(),
-            },
+                crumb: Joi.string()
+              }).required()
+            }
           },
-          path: "/help/cookies",
+          path: '/help/cookies',
           handler: async (request: HapiRequest, h: HapiResponseToolkit) => {
-            const { cookies } = request.payload as CookiePayload;
-            const accept = cookies === "accept";
+            const { cookies } = request.payload as CookiePayload
+            const accept = cookies === 'accept'
 
-            const { referrer } = getRequestInfo(request);
-            let redirectPath = "/help/cookies";
+            const { referrer } = getRequestInfo(request)
+            let redirectPath = '/help/cookies'
 
             if (referrer) {
-              redirectPath = new URL(referrer).pathname;
+              redirectPath = new URL(referrer).pathname
             }
 
             return h.redirect(redirectPath).state(
-              "cookies_policy",
+              'cookies_policy',
               {
                 isHttpOnly: false, // Set this to false so that Google tag manager can read cookie preferences
                 isSet: true,
                 essential: true,
-                analytics: accept ? "on" : "off",
-                usage: accept,
+                analytics: accept ? 'on' : 'off',
+                usage: accept
               },
               {
                 isHttpOnly: false,
-                path: "/",
+                path: '/'
               }
-            );
-          },
-        },
-      ]);
+            )
+          }
+        }
+      ])
 
       server.route({
-        method: "get",
-        path: "/help/terms-and-conditions",
+        method: 'get',
+        path: '/help/terms-and-conditions',
         handler: async (_request: HapiRequest, h: HapiResponseToolkit) => {
-          return h.view("help/terms-and-conditions");
-        },
-      });
+          return h.view('help/terms-and-conditions')
+        }
+      })
 
       server.route({
-        method: "get",
-        path: "/help/accessibility-statement",
+        method: 'get',
+        path: '/help/accessibility-statement',
         handler: async (_request: HapiRequest, h: HapiResponseToolkit) => {
-          return h.view("help/accessibility-statement");
-        },
-      });
+          return h.view('help/accessibility-statement')
+        }
+      })
 
       server.route({
-        method: "get",
-        path: "/clear-session",
+        method: 'get',
+        path: '/clear-session',
         handler: async (request: HapiRequest, h: HapiResponseToolkit) => {
           if (request.yar) {
-            request.yar.reset();
+            request.yar.reset()
           }
-          const { redirect } = request.query;
-          return redirectTo(request, h, (redirect as string) || "/");
-        },
-      });
+          const { redirect } = request.query
+          return redirectTo(request, h, (redirect as string) || '/')
+        }
+      })
 
       server.route({
-        method: "get",
-        path: "/timeout",
+        method: 'get',
+        path: '/timeout',
         handler: async (request: HapiRequest, h: HapiResponseToolkit) => {
           if (request.yar) {
-            request.yar.reset();
+            request.yar.reset()
           }
 
-          let startPage = "/";
+          let startPage = '/'
 
-          const { referer } = request.headers;
+          const { referer } = request.headers
 
           if (referer) {
-            const match = referer.match(/https?:\/\/[^/]+\/([^/]+).*/);
+            const match = referer.match(/https?:\/\/[^/]+\/([^/]+).*/)
             if (match && match.length > 1) {
-              startPage = `/${match[1]}`;
+              startPage = `/${match[1]}`
             }
           }
 
-          return h.view("timeout", {
-            startPage,
-          });
-        },
-      });
-    },
-  },
-};
+          return h.view('timeout', {
+            startPage
+          })
+        }
+      })
+    }
+  }
+}

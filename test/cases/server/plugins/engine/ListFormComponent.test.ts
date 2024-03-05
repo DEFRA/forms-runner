@@ -1,95 +1,95 @@
-import { expect } from "@hapi/code";
-import * as Lab from "@hapi/lab";
-import sinon from "sinon";
-import { ListFormComponent } from "../../../../../src/server/plugins/engine/components/ListFormComponent";
+import { expect } from '@hapi/code'
+import * as Lab from '@hapi/lab'
+import sinon from 'sinon'
+import { ListFormComponent } from '../../../../../src/server/plugins/engine/components/ListFormComponent'
 
-export const lab = Lab.script();
-const { suite, describe, it } = lab;
+export const lab = Lab.script()
+const { suite, describe, it } = lab
 
 const lists = [
   {
-    name: "numberOfApplicants",
-    title: "Number of people",
-    type: "number",
+    name: 'numberOfApplicants',
+    title: 'Number of people',
+    type: 'number',
     items: [
       {
-        text: "1",
+        text: '1',
         value: 1,
-        description: "",
-        condition: "",
+        description: '',
+        condition: ''
       },
       {
-        text: "2",
+        text: '2',
         value: 2,
-        description: "",
-        condition: "",
+        description: '',
+        condition: ''
       },
       {
-        text: "3",
+        text: '3',
         value: 3,
-        description: "",
-        condition: "",
+        description: '',
+        condition: ''
       },
       {
-        text: "4",
+        text: '4',
         value: 4,
-        description: "",
-        condition: "",
-      },
-    ],
-  },
-];
+        description: '',
+        condition: ''
+      }
+    ]
+  }
+]
 
-suite("ListFormComponent", () => {
-  describe("Generated schema", () => {
+suite('ListFormComponent', () => {
+  describe('Generated schema', () => {
     const componentDefinition = {
-      subType: "field",
-      type: "SelectField",
-      name: "mySelectField",
-      title: "Tada",
+      subType: 'field',
+      type: 'SelectField',
+      name: 'mySelectField',
+      title: 'Tada',
       options: {},
-      list: "numberOfApplicants",
-      schema: {},
-    };
+      list: 'numberOfApplicants',
+      schema: {}
+    }
     const formModel = {
       getList: () => lists[0],
-      makePage: () => sinon.stub(),
-    };
-    const component = new ListFormComponent(componentDefinition, formModel);
+      makePage: () => sinon.stub()
+    }
+    const component = new ListFormComponent(componentDefinition, formModel)
 
-    it("is required by default", () => {
+    it('is required by default', () => {
       expect(component.formSchema.describe().flags.presence).to.equal(
-        "required"
-      );
-    });
+        'required'
+      )
+    })
 
-    it("allows the items defined in the List object with the correct type", () => {
+    it('allows the items defined in the List object with the correct type', () => {
       expect(component.formSchema.describe()).to.contain({
-        type: "number",
-        allow: [1, 2, 3, 4],
-      });
-    });
+        type: 'number',
+        allow: [1, 2, 3, 4]
+      })
+    })
 
-    it("is not required when explicitly configured", () => {
+    it('is not required when explicitly configured', () => {
       const component = new ListFormComponent(
         {
           ...componentDefinition,
-          options: { required: false },
+          options: { required: false }
         },
         formModel
-      );
+      )
       expect(component.formSchema.describe().flags.presence).to.not.equal(
-        "required"
-      );
-    });
+        'required'
+      )
+    })
 
-    it("validates correctly", () => {
-      const badPayload = { notMyName: 5 };
-      expect(component.formSchema.validate(badPayload).error).to.exist();
-    });
+    it('validates correctly', () => {
+      const badPayload = { notMyName: 5 }
+      expect(component.formSchema.validate(badPayload).error).to.exist()
+    })
 
-    it("is labelled correctly", () => {
-      expect(component.formSchema.describe().flags.label).to.equal("tada");
-    });
-  });
-});
+    it('is labelled correctly', () => {
+      expect(component.formSchema.describe().flags.label).to.equal('tada')
+    })
+  })
+})

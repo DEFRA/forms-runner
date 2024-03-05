@@ -1,19 +1,19 @@
-import { PrismaClient } from "@defra/forms-queue-model";
-import { prisma } from "../prismaClient";
-import config from "../config";
-import { QueueService } from "../services/QueueService";
-import type { HapiServer } from "../types";
+import { PrismaClient } from '@defra/forms-queue-model'
+import { prisma } from '../prismaClient'
+import config from '../config'
+import { QueueService } from '../services/QueueService'
+import type { HapiServer } from '../types'
 
-type QueueResponse = [number, string | undefined];
+type QueueResponse = [number, string | undefined]
 export class MySqlQueueService extends QueueService {
-  prisma: PrismaClient;
-  logger: HapiServer["logger"];
-  interval: number;
+  prisma: PrismaClient
+  logger: HapiServer['logger']
+  interval: number
 
   constructor(server: HapiServer) {
-    super(server);
-    this.prisma = prisma;
-    this.interval = parseInt(config.queueServicePollingInterval);
+    super(server)
+    this.prisma = prisma
+    this.interval = parseInt(config.queueServicePollingInterval)
   }
 
   /**
@@ -34,66 +34,66 @@ export class MySqlQueueService extends QueueService {
       webhook_url: url,
       complete: false,
       retry_counter: 0,
-      allow_retry: allowRetry,
-    };
+      allow_retry: allowRetry
+    }
     const row = await this.prisma.submission.create({
-      data: rowData,
-    });
-    this.logger.info(["queueService", "sendToQueue", "success"], row);
+      data: rowData
+    })
+    this.logger.info(['queueService', 'sendToQueue', 'success'], row)
     try {
-      const newRowRef = (await this.pollForRef(row.id)) ?? "UNKNOWN";
+      const newRowRef = (await this.pollForRef(row.id)) ?? 'UNKNOWN'
       this.logger.info(
-        ["queueService", "sendToQueue", `Row ref: ${row.id}`],
+        ['queueService', 'sendToQueue', `Row ref: ${row.id}`],
         `Return ref: ${newRowRef}`
-      );
-      return [row.id, newRowRef];
+      )
+      return [row.id, newRowRef]
     } catch (err) {
       this.logger.error(
-        ["QueueService", "sendToQueue", `Row ref: ${row.id}`],
-        "Polling for return reference failed."
-      );
-      return [row.id, undefined];
+        ['QueueService', 'sendToQueue', `Row ref: ${row.id}`],
+        'Polling for return reference failed.'
+      )
+      return [row.id, undefined]
     }
   }
 
   async pollForRef(rowId: number): Promise<string | void> {
-    let timeElapsed = 0;
+    let timeElapsed = 0
     return new Promise((resolve, reject) => {
       const pollInterval = setInterval(async () => {
         try {
-          const newRef = await this.getReturnRef(rowId);
+          const newRef = await this.getReturnRef(rowId)
           if (newRef) {
-            resolve(newRef);
-            clearInterval(pollInterval);
+            resolve(newRef)
+            clearInterval(pollInterval)
           }
           if (timeElapsed >= 2000) {
-            resolve();
-            clearInterval(pollInterval);
+            resolve()
+            clearInterval(pollInterval)
           }
-          timeElapsed += parseInt(config.queueServicePollingInterval);
+          timeElapsed += parseInt(config.queueServicePollingInterval)
         } catch (err) {
           this.logger.error(
-            ["QueueService", "pollForRef", `Row ref: ${rowId}`],
+            ['QueueService', 'pollForRef', `Row ref: ${rowId}`],
             err
-          );
-          reject(err);
+          )
+          reject(err)
         }
-      }, config.queueServicePollingInterval);
-    });
+      }, config.queueServicePollingInterval)
+    })
   }
 
   async getReturnRef(rowId: number) {
     const row = await this.prisma.submission.findUnique({
       select: {
-        return_reference: true,
+        return_reference: true
       },
       where: {
-        id: rowId,
-      },
-    });
+        id: rowId
+      }
+    })
     if (!row) {
-      throw new Error("Submission row not found");
+      throw new Error('Submission row not found')
     }
-    return row.return_reference;
+    return row.return_reference
   }
 }

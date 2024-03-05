@@ -1,85 +1,84 @@
-import AuthCookie from "@hapi/cookie";
-import Bell from "@hapi/bell";
+import AuthCookie from '@hapi/cookie'
+import Bell from '@hapi/bell'
 
-import config from "../config";
-import { redirectTo } from "../plugins/engine";
-import generateCookiePassword from "../utils/generateCookiePassword";
-import type { HapiRequest, HapiResponseToolkit } from "../types";
+import config from '../config'
+import { redirectTo } from '../plugins/engine'
+import generateCookiePassword from '../utils/generateCookiePassword'
+import type { HapiRequest, HapiResponseToolkit } from '../types'
 
 export const shouldLogin = (request: HapiRequest) =>
-  config.authEnabled && !request.auth.isAuthenticated;
+  config.authEnabled && !request.auth.isAuthenticated
 
 export default {
   plugin: {
-    name: "auth",
+    name: 'auth',
     register: async (server) => {
       if (!config.authEnabled) {
-        return;
+        return
       }
 
-      await server.register(AuthCookie);
-      await server.register(Bell);
+      await server.register(AuthCookie)
+      await server.register(Bell)
 
-      server.auth.strategy("session", "cookie", {
+      server.auth.strategy('session', 'cookie', {
         cookie: {
-          name: "auth",
+          name: 'auth',
           password: config.sessionCookiePassword || generateCookiePassword(),
-          isSecure: true,
-        },
-      });
+          isSecure: true
+        }
+      })
 
-      server.auth.strategy("oauth", "bell", {
+      server.auth.strategy('oauth', 'bell', {
         provider: {
-          name: "oauth",
-          protocol: "oauth2",
+          name: 'oauth',
+          protocol: 'oauth2',
           auth: config.authClientAuthUrl,
           token: config.authClientTokenUrl,
-          scope: ["read write"],
+          scope: ['read write'],
           profile: async (credentials, _params, get) => {
             // eslint-disable-next-line camelcase
             const { email, first_name, last_name, user_id } = await get(
               config.authClientProfileUrl
-            );
+            )
             // eslint-disable-next-line camelcase
-            credentials.profile = { email, first_name, last_name, user_id };
-          },
+            credentials.profile = { email, first_name, last_name, user_id }
+          }
         },
         password: config.sessionCookiePassword || generateCookiePassword(),
         clientId: config.authClientId,
         clientSecret: config.authClientSecret,
-        forceHttps: config.serviceUrl.startsWith("https"),
-      });
+        forceHttps: config.serviceUrl.startsWith('https')
+      })
 
-      server.auth.default({ strategy: "session", mode: "try" });
+      server.auth.default({ strategy: 'session', mode: 'try' })
 
       server.route({
-        method: ["GET", "POST"],
-        path: "/login",
+        method: ['GET', 'POST'],
+        path: '/login',
         config: {
-          auth: "oauth",
+          auth: 'oauth',
           handler: (request: HapiRequest, h: HapiResponseToolkit) => {
             if (request.auth.isAuthenticated) {
-              request.cookieAuth.set(request.auth.credentials.profile);
-              const returnUrl =
-                request.auth.credentials.query?.returnUrl || "/";
-              return redirectTo(request, h, returnUrl);
+              request.cookieAuth.set(request.auth.credentials.profile)
+              const returnUrl = request.auth.credentials.query?.returnUrl || '/'
+              return redirectTo(request, h, returnUrl)
             }
 
-            return h.response(JSON.stringify(request));
-          },
-        },
-      });
+            return h.response(JSON.stringify(request))
+          }
+        }
+      })
 
       server.route({
-        method: "get",
-        path: "/logout",
+        method: 'get',
+        path: '/logout',
         handler: async (request: HapiRequest, h: HapiResponseToolkit) => {
-          request.cookieAuth.clear();
-          request.yar.reset();
+          request.cookieAuth.clear()
+          request.yar.reset()
 
-          return redirectTo(request, h, "/");
-        },
-      });
-    },
-  },
-};
+          return redirectTo(request, h, '/')
+        }
+      })
+    }
+  }
+}

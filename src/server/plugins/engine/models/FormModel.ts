@@ -1,6 +1,6 @@
-import joi from "joi";
-import { add } from "date-fns";
-import { Parser } from "expr-eval";
+import joi from 'joi'
+import { add } from 'date-fns'
+import { Parser } from 'expr-eval'
 import {
   Schema,
   clone,
@@ -8,26 +8,26 @@ import {
   FormDefinition,
   Page,
   ConditionRawData,
-  List,
-} from "@defra/forms-model";
+  List
+} from '@defra/forms-model'
 
-import { PageControllerBase, getPageController } from "../pageControllers";
-import { PageController } from "../pageControllers/PageController";
-import { DEFAULT_FEE_OPTIONS } from "../../../plugins/engine/models/FormModel.feeOptions";
-import { ComponentCollection } from "../../../plugins/engine/components";
-import type { ExecutableCondition } from "../../../plugins/engine/models/types";
-import type { FormSubmissionState } from "../types";
+import { PageControllerBase, getPageController } from '../pageControllers'
+import { PageController } from '../pageControllers/PageController'
+import { DEFAULT_FEE_OPTIONS } from '../../../plugins/engine/models/FormModel.feeOptions'
+import { ComponentCollection } from '../../../plugins/engine/components'
+import type { ExecutableCondition } from '../../../plugins/engine/models/types'
+import type { FormSubmissionState } from '../types'
 
 class EvaluationContext {
   constructor(conditions, value) {
-    Object.assign(this, value);
+    Object.assign(this, value)
 
     for (const key in conditions) {
       Object.defineProperty(this, key, {
         get() {
-          return conditions[key].fn(value);
-        },
-      });
+          return conditions[key].fn(value)
+        }
+      })
     }
   }
 }
@@ -38,92 +38,92 @@ export class FormModel {
    */
 
   /** the entire form JSON as an object */
-  def: FormDefinition;
+  def: FormDefinition
 
-  lists: FormDefinition["lists"];
-  sections: FormDefinition["sections"] = [];
-  options: any;
-  name: any;
-  values: any;
-  DefaultPageController: any = PageController;
+  lists: FormDefinition['lists']
+  sections: FormDefinition['sections'] = []
+  options: any
+  name: any
+  values: any
+  DefaultPageController: any = PageController
   /** the id of the form used for the first url parameter eg localhost:3009/test */
-  basePath: string;
-  conditions: Record<string, ExecutableCondition> | object;
-  fieldsForContext: ComponentCollection;
-  fieldsForPrePopulation: Record<string, any>;
-  pages: any;
-  startPage: any;
+  basePath: string
+  conditions: Record<string, ExecutableCondition> | object
+  fieldsForContext: ComponentCollection
+  fieldsForPrePopulation: Record<string, any>
+  pages: any
+  startPage: any
 
-  feeOptions: FormDefinition["feeOptions"];
-  specialPages: FormDefinition["specialPages"];
+  feeOptions: FormDefinition['feeOptions']
+  specialPages: FormDefinition['specialPages']
 
   constructor(def, options) {
-    const result = Schema.validate(def, { abortEarly: false });
+    const result = Schema.validate(def, { abortEarly: false })
 
     if (result.error) {
-      throw result.error;
+      throw result.error
     }
 
     // Make a clone of the shallow copy returned
     // by joi so as not to change the source data.
-    def = clone(result.value);
+    def = clone(result.value)
 
     // Add default lists
     def.lists.push({
-      name: "__yesNo",
-      title: "Yes/No",
-      type: "boolean",
+      name: '__yesNo',
+      title: 'Yes/No',
+      type: 'boolean',
       items: [
         {
-          text: "Yes",
-          value: true,
+          text: 'Yes',
+          value: true
         },
         {
-          text: "No",
-          value: false,
-        },
-      ],
-    });
+          text: 'No',
+          value: false
+        }
+      ]
+    })
 
-    this.def = def;
-    this.lists = def.lists;
-    this.sections = def.sections;
-    this.options = options;
-    this.name = def.name;
-    this.values = result.value;
+    this.def = def
+    this.lists = def.lists
+    this.sections = def.sections
+    this.options = options
+    this.name = def.name
+    this.values = result.value
 
     if (options.defaultPageController) {
       this.DefaultPageController = getPageController(
         options.defaultPageController
-      );
+      )
     }
 
-    this.basePath = options.basePath;
+    this.basePath = options.basePath
 
-    this.conditions = {};
+    this.conditions = {}
     def.conditions.forEach((conditionDef) => {
-      const condition = this.makeCondition(conditionDef);
-      this.conditions[condition.name] = condition;
-    });
+      const condition = this.makeCondition(conditionDef)
+      this.conditions[condition.name] = condition
+    })
 
     const exposedComponentDefs = def.pages.flatMap((page) => {
       return page.components.filter(
         (component) => component.options?.exposeToContext
-      );
-    });
-    this.fieldsForContext = new ComponentCollection(exposedComponentDefs, this);
-    this.fieldsForPrePopulation = {};
-    this.pages = def.pages.map((pageDef) => this.makePage(pageDef));
-    this.startPage = this.pages.find((page) => page.path === def.startPage);
-    this.specialPages = def.specialPages;
-    this.feeOptions = { ...DEFAULT_FEE_OPTIONS, ...def.feeOptions };
+      )
+    })
+    this.fieldsForContext = new ComponentCollection(exposedComponentDefs, this)
+    this.fieldsForPrePopulation = {}
+    this.pages = def.pages.map((pageDef) => this.makePage(pageDef))
+    this.startPage = this.pages.find((page) => page.path === def.startPage)
+    this.specialPages = def.specialPages
+    this.feeOptions = { ...DEFAULT_FEE_OPTIONS, ...def.feeOptions }
   }
 
   /**
    * build the entire model schema from individual pages/sections
    */
   makeSchema(state: FormSubmissionState) {
-    return this.makeFilteredSchema(state, this.pages);
+    return this.makeFilteredSchema(state, this.pages)
   }
 
   /**
@@ -133,42 +133,42 @@ export class FormModel {
   makeFilteredSchema(_state: FormSubmissionState, relevantPages) {
     // Build the entire model schema
     // from the individual pages/sections
-    let schema = joi.object().required();
-    [undefined, ...this.sections].forEach((section) => {
+    let schema = joi.object().required()
+    ;[undefined, ...this.sections].forEach((section) => {
       const sectionPages = relevantPages.filter(
         (page) => page.section === section
-      );
+      )
 
       if (sectionPages.length > 0) {
         if (section) {
           const isRepeatable = sectionPages.find(
             (page) => page.pageDef.repeatField
-          );
+          )
 
-          let sectionSchema:
-            | joi.ObjectSchema<any>
-            | joi.ArraySchema = joi.object().required();
+          let sectionSchema: joi.ObjectSchema<any> | joi.ArraySchema = joi
+            .object()
+            .required()
 
           sectionPages.forEach((sectionPage) => {
-            sectionSchema = sectionSchema.concat(sectionPage.stateSchema);
-          });
+            sectionSchema = sectionSchema.concat(sectionPage.stateSchema)
+          })
 
           if (isRepeatable) {
-            sectionSchema = joi.array().items(sectionSchema);
+            sectionSchema = joi.array().items(sectionSchema)
           }
 
           schema = schema.append({
-            [section.name]: sectionSchema,
-          });
+            [section.name]: sectionSchema
+          })
         } else {
           sectionPages.forEach((sectionPage) => {
-            schema = schema.concat(sectionPage.stateSchema);
-          });
+            schema = schema.concat(sectionPage.stateSchema)
+          })
         }
       }
-    });
+    })
 
-    return schema;
+    return schema
   }
 
   /**
@@ -176,21 +176,21 @@ export class FormModel {
    */
   makePage(pageDef: Page) {
     if (pageDef.controller) {
-      const PageController = getPageController(pageDef.controller);
+      const PageController = getPageController(pageDef.controller)
 
       if (!PageController) {
-        throw new Error(`PageController for ${pageDef.controller} not found`);
+        throw new Error(`PageController for ${pageDef.controller} not found`)
       }
 
-      return new PageController(this, pageDef);
+      return new PageController(this, pageDef)
     }
 
     if (this.DefaultPageController) {
-      const DefaultPageController = this.DefaultPageController;
-      return new DefaultPageController(this, pageDef);
+      const DefaultPageController = this.DefaultPageController
+      return new DefaultPageController(this, pageDef)
     }
 
-    return new PageControllerBase(this, pageDef);
+    return new PageControllerBase(this, pageDef)
   }
 
   /**
@@ -200,73 +200,73 @@ export class FormModel {
   makeCondition(condition: ConditionRawData) {
     const parser = new Parser({
       operators: {
-        logical: true,
-      },
-    });
+        logical: true
+      }
+    })
 
     parser.functions.dateForComparison = function (timePeriod, timeUnit) {
-      return add(new Date(), { [timeUnit]: timePeriod }).toISOString();
-    };
+      return add(new Date(), { [timeUnit]: timePeriod }).toISOString()
+    }
 
     /**
      * TODO:- this is most definitely broken.
      */
     parser.functions.timeForComparison = function (timePeriod, timeUnit) {
-      const offsetTime = add(Number(timePeriod), timeUnit);
-      return `${offsetTime.getHours()}:${offsetTime.getMinutes()}`;
-    };
+      const offsetTime = add(Number(timePeriod), timeUnit)
+      return `${offsetTime.getHours()}:${offsetTime.getMinutes()}`
+    }
 
-    const { name, value } = condition;
-    const expr = this.toConditionExpression(value, parser);
+    const { name, value } = condition
+    const expr = this.toConditionExpression(value, parser)
 
     const fn = (value) => {
-      const ctx = new EvaluationContext(this.conditions, value);
+      const ctx = new EvaluationContext(this.conditions, value)
       try {
-        return expr.evaluate(ctx);
+        return expr.evaluate(ctx)
       } catch (err) {
-        return false;
+        return false
       }
-    };
+    }
 
     return {
       name,
       value,
       expr,
-      fn,
-    };
+      fn
+    }
   }
 
   toConditionExpression(value, parser) {
-    if (typeof value === "string") {
-      return parser.parse(value);
+    if (typeof value === 'string') {
+      return parser.parse(value)
     }
 
-    const conditions = ConditionsModel.from(value);
-    return parser.parse(conditions.toExpression());
+    const conditions = ConditionsModel.from(value)
+    return parser.parse(conditions.toExpression())
   }
 
   get conditionOptions() {
-    return { allowUnknown: true, presence: "required" };
+    return { allowUnknown: true, presence: 'required' }
   }
 
   getList(name: string): List | [] {
-    return this.lists.find((list) => list.name === name) ?? [];
+    return this.lists.find((list) => list.name === name) ?? []
   }
 
   getContextState(state: FormSubmissionState) {
     const contextState = Object.keys(state).reduce((acc, curr) => {
-      if (typeof state[curr] === "object") {
+      if (typeof state[curr] === 'object') {
         return {
           ...acc,
-          ...state[curr],
-        };
+          ...state[curr]
+        }
       }
       return {
         ...acc,
-        [curr]: state[curr],
-      };
-    }, {});
+        [curr]: state[curr]
+      }
+    }, {})
 
-    return this.fieldsForContext.getFormDataFromState(contextState);
+    return this.fieldsForContext.getFormDataFromState(contextState)
   }
 }

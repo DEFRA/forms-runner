@@ -1,6 +1,6 @@
-import crumb from "@hapi/crumb";
-import { ServerRegisterPluginObject } from "@hapi/hapi";
-import type { RouteConfig } from "../types";
+import crumb from '@hapi/crumb'
+import { ServerRegisterPluginObject } from '@hapi/hapi'
+import type { RouteConfig } from '../types'
 
 export const configureCrumbPlugin = (
   config,
@@ -12,28 +12,28 @@ export const configureCrumbPlugin = (
       logUnauthorized: true,
       enforce: routeConfig?.enforceCsrf ?? config?.enforceCsrf,
       cookieOptions: {
-        path: "/",
+        path: '/',
         isSecure: !config.isDev,
         isHttpOnly: true,
-        isSameSite: "Strict",
+        isSameSite: 'Strict'
       },
       skip: (request: any) => {
-        const skippedRoutes = ["/session"];
+        const skippedRoutes = ['/session']
         const isSkippedMethod =
-          request.method === "post" && request.payload == null;
+          request.method === 'post' && request.payload == null
 
         const isSkippedRoute =
           skippedRoutes.find((route) => `${request.path}`.startsWith(route)) ??
-          false;
+          false
         if (isSkippedRoute) {
           request.logger.info(
-            ["Crumb", "CSRF", "Skipping route"],
+            ['Crumb', 'CSRF', 'Skipping route'],
             `${request.url}`
-          );
+          )
         }
 
-        return isSkippedMethod || !!isSkippedRoute;
-      },
-    },
-  };
-};
+        return isSkippedMethod || !!isSkippedRoute
+      }
+    }
+  }
+}

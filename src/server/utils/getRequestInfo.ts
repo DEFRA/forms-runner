@@ -1,13 +1,13 @@
-import type { HapiRequest } from "../types";
+import type { HapiRequest } from '../types'
 
 interface GetRequestInfo {
-  host: string;
-  href: string;
-  id: string;
-  method: string;
-  pathname: string;
-  protocol: string;
-  referrer: string;
+  host: string
+  href: string
+  id: string
+  method: string
+  pathname: string
+  protocol: string
+  referrer: string
 }
 
 /**
@@ -17,15 +17,15 @@ interface GetRequestInfo {
  * @returns Request information
  */
 const getRequestInfo = (request: HapiRequest): GetRequestInfo => {
-  const { headers, info, method, url } = request;
-  const { host, id, referrer } = info;
-  const { href, pathname } = url;
-  const { protocol } = request.server.info;
+  const { headers, info, method, url } = request
+  const { host, id, referrer } = info
+  const { href, pathname } = url
+  const { protocol } = request.server.info
   const proto = (
-    headers["x-forwarded-proto"] ||
-    headers["X-Forwarded-Proto"] ||
+    headers['x-forwarded-proto'] ||
+    headers['X-Forwarded-Proto'] ||
     protocol
-  ).split(",")[0];
+  ).split(',')[0]
 
   return {
     host,
@@ -34,8 +34,8 @@ const getRequestInfo = (request: HapiRequest): GetRequestInfo => {
     method,
     pathname,
     protocol: proto.trim(),
-    referrer,
-  };
-};
+    referrer
+  }
+}
 
-export default getRequestInfo;
+export default getRequestInfo

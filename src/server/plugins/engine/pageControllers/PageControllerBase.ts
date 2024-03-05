@@ -1,110 +1,110 @@
-import { merge, reach } from "@hapi/hoek";
-import * as querystring from "querystring";
-import { validationOptions } from "../../../plugins/engine/pageControllers/validationOptions";
+import { merge, reach } from '@hapi/hoek'
+import * as querystring from 'querystring'
+import { validationOptions } from '../../../plugins/engine/pageControllers/validationOptions'
 
-import { feedbackReturnInfoKey, proceed, redirectTo } from "../helpers";
-import { ComponentCollection } from "../components/ComponentCollection";
+import { feedbackReturnInfoKey, proceed, redirectTo } from '../helpers'
+import { ComponentCollection } from '../components/ComponentCollection'
 import {
   decodeFeedbackContextInfo,
   FeedbackContextInfo,
-  RelativeUrl,
-} from "../feedback";
+  RelativeUrl
+} from '../feedback'
 import {
   HapiRequest,
   HapiResponseObject,
-  HapiResponseToolkit,
-} from "../../../types";
-import { FormModel } from "../models";
+  HapiResponseToolkit
+} from '../../../types'
+import { FormModel } from '../models'
 import {
   FormData,
   FormPayload,
   FormSubmissionErrors,
-  FormSubmissionState,
-} from "../types";
-import { format, parseISO } from "date-fns";
-import config from "../../../config";
-import nunjucks from "nunjucks";
-import type { ComponentCollectionViewModel } from "../components/types";
+  FormSubmissionState
+} from '../types'
+import { format, parseISO } from 'date-fns'
+import config from '../../../config'
+import nunjucks from 'nunjucks'
+import type { ComponentCollectionViewModel } from '../components/types'
 
-const FORM_SCHEMA = Symbol("FORM_SCHEMA");
-const STATE_SCHEMA = Symbol("STATE_SCHEMA");
+const FORM_SCHEMA = Symbol('FORM_SCHEMA')
+const STATE_SCHEMA = Symbol('STATE_SCHEMA')
 
 export class PageControllerBase {
   /**
    * The base class for all page controllers. Page controllers are responsible for generating the get and post route handlers when a user navigates to `/{id}/{path*}`.
    */
   def: {
-    name: string;
+    name: string
     feedback?: {
-      url?: string;
-      feedbackForm?: boolean;
-      emailAddress?: string;
-    };
+      url?: string
+      feedbackForm?: boolean
+      emailAddress?: string
+    }
     phaseBanner?: {
-      phase?: string;
-    };
-  };
+      phase?: string
+    }
+  }
 
-  name: string;
-  model: FormModel;
-  pageDef: any; // TODO
-  path: string;
-  title: string;
-  condition: any; // TODO
-  repeatField: any; // TODO
-  section: any; // TODO
-  components: ComponentCollection;
-  hasFormComponents: boolean;
-  hasConditionalFormComponents: boolean;
-  backLinkFallback?: string;
+  name: string
+  model: FormModel
+  pageDef: any // TODO
+  path: string
+  title: string
+  condition: any // TODO
+  repeatField: any // TODO
+  section: any // TODO
+  components: ComponentCollection
+  hasFormComponents: boolean
+  hasConditionalFormComponents: boolean
+  backLinkFallback?: string
 
   // TODO: pageDef type
   constructor(model: FormModel, pageDef: { [prop: string]: any } = {}) {
-    const { def } = model;
+    const { def } = model
 
     // @ts-expect-error - 'FormDefinition' is not assignable to type
-    this.def = def;
+    this.def = def
     // @ts-expect-error - Type 'string | undefined' is not assignable to type 'string'
-    this.name = def.name;
-    this.model = model;
-    this.pageDef = pageDef;
-    this.path = pageDef.path;
-    this.title = pageDef.title;
-    this.condition = pageDef.condition;
-    this.repeatField = pageDef.repeatField;
-    this.backLinkFallback = pageDef.backLinkFallback;
+    this.name = def.name
+    this.model = model
+    this.pageDef = pageDef
+    this.path = pageDef.path
+    this.title = pageDef.title
+    this.condition = pageDef.condition
+    this.repeatField = pageDef.repeatField
+    this.backLinkFallback = pageDef.backLinkFallback
 
     // Resolve section
     this.section = model.sections?.find(
       (section) => section.name === pageDef.section
-    );
+    )
 
     // Components collection
-    const components = new ComponentCollection(pageDef.components, model);
+    const components = new ComponentCollection(pageDef.components, model)
     const conditionalFormComponents = components.formItems.filter(
       (c: any) => c.conditionalComponents
-    );
+    )
 
-    const fieldsForPrePopulation = components.prePopulatedItems;
+    const fieldsForPrePopulation = components.prePopulatedItems
 
     if (this.section) {
       this.model.fieldsForPrePopulation[this.section.name] = {
         ...(this.model.fieldsForPrePopulation[this.section.name] ?? {}),
-        ...fieldsForPrePopulation,
-      };
+        ...fieldsForPrePopulation
+      }
     } else {
       this.model.fieldsForPrePopulation = {
         ...this.model.fieldsForPrePopulation,
-        ...fieldsForPrePopulation,
-      };
+        ...fieldsForPrePopulation
+      }
     }
 
-    this.components = components;
-    this.hasFormComponents = !!components.formItems.length;
-    this.hasConditionalFormComponents = !!conditionalFormComponents.length;
+    this.components = components
+    this.hasFormComponents = !!components.formItems.length
+    this.hasConditionalFormComponents = !!conditionalFormComponents.length
 
-    this[FORM_SCHEMA] = this.components.formSchema;
-    this[STATE_SCHEMA] = this.components.stateSchema;
+    this[FORM_SCHEMA] = this.components.formSchema
+    this[STATE_SCHEMA] = this.components.stateSchema
   }
 
   /**
@@ -116,50 +116,50 @@ export class PageControllerBase {
     iteration?: any, // TODO
     errors?: any // TODO
   ): {
-    page: PageControllerBase;
-    name: string;
-    pageTitle: string;
-    sectionTitle: string;
-    showTitle: boolean;
-    components: ComponentCollectionViewModel;
-    errors: FormSubmissionErrors;
-    isStartPage: boolean;
-    startPage?: HapiResponseObject;
-    backLink?: string;
-    phaseTag?: string | undefined;
+    page: PageControllerBase
+    name: string
+    pageTitle: string
+    sectionTitle: string
+    showTitle: boolean
+    components: ComponentCollectionViewModel
+    errors: FormSubmissionErrors
+    isStartPage: boolean
+    startPage?: HapiResponseObject
+    backLink?: string
+    phaseTag?: string | undefined
   } {
-    let showTitle = true;
-    let pageTitle = this.title;
+    let showTitle = true
+    let pageTitle = this.title
     if (config.allowUserTemplates) {
       pageTitle = nunjucks.renderString(pageTitle, {
-        ...formData,
-      });
+        ...formData
+      })
     }
-    let sectionTitle = !this.section?.hideTitle && this.section?.title;
+    let sectionTitle = !this.section?.hideTitle && this.section?.title
     if (sectionTitle && iteration !== undefined) {
-      sectionTitle = `${sectionTitle} ${iteration}`;
+      sectionTitle = `${sectionTitle} ${iteration}`
     }
-    const components = this.components.getViewModel(formData, errors);
+    const components = this.components.getViewModel(formData, errors)
 
-    const formComponents = components.filter((c) => c.isFormComponent);
-    const hasSingleFormComponent = formComponents.length === 1;
+    const formComponents = components.filter((c) => c.isFormComponent)
+    const hasSingleFormComponent = formComponents.length === 1
     const singleFormComponent = hasSingleFormComponent
       ? formComponents[0]
-      : null;
+      : null
     const singleFormComponentIsFirst =
-      singleFormComponent && singleFormComponent === components[0];
+      singleFormComponent && singleFormComponent === components[0]
 
     if (singleFormComponent && singleFormComponentIsFirst) {
-      const label: any = singleFormComponent.model.label;
+      const label: any = singleFormComponent.model.label
 
       if (pageTitle) {
-        label.text = pageTitle;
+        label.text = pageTitle
       }
 
-      label.isPageHeading = true;
-      label.classes = "govuk-label--l";
-      pageTitle = pageTitle || label.text;
-      showTitle = false;
+      label.isPageHeading = true
+      label.classes = 'govuk-label--l'
+      pageTitle = pageTitle || label.text
+      showTitle = false
     }
 
     return {
@@ -170,35 +170,35 @@ export class PageControllerBase {
       showTitle,
       components,
       errors,
-      isStartPage: false,
-    };
+      isStartPage: false
+    }
   }
 
   /**
    * utility function that checks if this page has any items in the {@link Page.next} object.
    */
   get hasNext() {
-    return Array.isArray(this.pageDef.next) && this.pageDef.next.length > 0;
+    return Array.isArray(this.pageDef.next) && this.pageDef.next.length > 0
   }
 
   get next() {
     return (this.pageDef.next || [])
       .map((next: { path: string }) => {
-        const { path } = next;
+        const { path } = next
         const page = this.model.pages.find((page: PageControllerBase) => {
-          return path === page.path;
-        });
+          return path === page.path
+        })
 
         if (!page) {
-          return null;
+          return null
         }
 
         return {
           ...next,
-          page,
-        };
+          page
+        }
       })
-      .filter((v: object | null) => !!v);
+      .filter((v: object | null) => !!v)
   }
 
   /**
@@ -207,38 +207,38 @@ export class PageControllerBase {
    */
   getNextPage(state: FormSubmissionState, suppressRepetition = false) {
     if (this.repeatField && !suppressRepetition) {
-      const requiredCount = reach(state, this.repeatField);
+      const requiredCount = reach(state, this.repeatField)
       const otherRepeatPagesInSection = this.model.pages.filter(
         (page) => page.section === this.section && page.repeatField
-      );
-      const sectionState = state[this.section.name] || {};
+      )
+      const sectionState = state[this.section.name] || {}
       if (
         Object.keys(sectionState[sectionState.length - 1]).length ===
         otherRepeatPagesInSection.length
       ) {
         // iterated all pages at least once
-        const lastIteration = sectionState[sectionState.length - 1];
+        const lastIteration = sectionState[sectionState.length - 1]
         if (
           otherRepeatPagesInSection.length === this.objLength(lastIteration)
         ) {
           // this iteration is 'complete'
           if (sectionState.length < requiredCount) {
-            return this.findPageByPath(Object.keys(lastIteration)[0]);
+            return this.findPageByPath(Object.keys(lastIteration)[0])
           }
         }
       }
     }
 
-    let defaultLink;
+    let defaultLink
     const nextLink = this.next.find((link) => {
-      const { condition } = link;
+      const { condition } = link
       if (condition) {
-        return this.model.conditions[condition]?.fn?.(state);
+        return this.model.conditions[condition]?.fn?.(state)
       }
-      defaultLink = link;
-      return false;
-    });
-    return nextLink?.page ?? defaultLink?.page;
+      defaultLink = link
+      return false
+    })
+    return nextLink?.page ?? defaultLink?.page
   }
 
   // TODO: type
@@ -246,33 +246,33 @@ export class PageControllerBase {
    * returns the path to the next page
    */
   getNext(state: any) {
-    const nextPage = this.getNextPage(state);
-    const query = { num: 0 };
-    let queryString = "";
+    const nextPage = this.getNextPage(state)
+    const query = { num: 0 }
+    let queryString = ''
     if (nextPage?.repeatField) {
-      const requiredCount = reach(state, nextPage.repeatField);
+      const requiredCount = reach(state, nextPage.repeatField)
       const otherRepeatPagesInSection = this.model.pages.filter(
         (page) => page.section === this.section && page.repeatField
-      );
-      const sectionState = state[nextPage.section.name];
-      const lastInSection = sectionState?.[sectionState.length - 1] ?? {};
+      )
+      const sectionState = state[nextPage.section.name]
+      const lastInSection = sectionState?.[sectionState.length - 1] ?? {}
       const isLastComplete =
-        Object.keys(lastInSection).length === otherRepeatPagesInSection.length;
+        Object.keys(lastInSection).length === otherRepeatPagesInSection.length
       query.num = sectionState
         ? isLastComplete
           ? this.objLength(sectionState) + 1
           : this.objLength(sectionState)
-        : 1;
+        : 1
 
       if (query.num <= requiredCount) {
-        queryString = `?${querystring.encode(query)}`;
+        queryString = `?${querystring.encode(query)}`
       }
     }
 
     if (nextPage) {
-      return `/${this.model.basePath || ""}${nextPage.path}${queryString}`;
+      return `/${this.model.basePath || ''}${nextPage.path}${queryString}`
     }
-    return this.defaultNextPath;
+    return this.defaultNextPath
   }
 
   // TODO: types
@@ -280,16 +280,16 @@ export class PageControllerBase {
    * gets the state for the values that can be entered on just this page
    */
   getFormDataFromState(state: any, atIndex: number): FormData {
-    const pageState = this.section ? state[this.section.name] : state;
+    const pageState = this.section ? state[this.section.name] : state
 
     if (this.repeatField) {
       const repeatedPageState =
-        pageState?.[atIndex ?? (pageState.length - 1 || 0)] ?? {};
-      const values = Object.values(repeatedPageState);
+        pageState?.[atIndex ?? (pageState.length - 1 || 0)] ?? {}
+      const values = Object.values(repeatedPageState)
 
       const newState = values.length
         ? values.reduce((acc: any, page: any) => ({ ...acc, ...page }), {})
-        : {};
+        : {}
 
       return {
         ...this.components.getFormDataFromState(
@@ -297,17 +297,17 @@ export class PageControllerBase {
         ),
         ...this.model.fieldsForContext?.getFormDataFromState(
           newState as FormSubmissionState
-        ),
-      };
+        )
+      }
     }
     return {
       ...this.components.getFormDataFromState(pageState || {}),
-      ...this.model.getContextState(state),
-    };
+      ...this.model.getContextState(state)
+    }
   }
 
   getStateFromValidForm(formData: FormPayload) {
-    return this.components.getStateFromValidForm(formData);
+    return this.components.getStateFromValidForm(formData)
   }
 
   /**
@@ -316,7 +316,8 @@ export class PageControllerBase {
    */
   getErrors(validationResult): FormSubmissionErrors | undefined {
     if (validationResult && validationResult.error) {
-      const isoRegex = /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/;
+      const isoRegex =
+        /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/
 
       return {
         titleText: this.errorSummaryTitle,
@@ -325,21 +326,21 @@ export class PageControllerBase {
             .map((name: string, index: number) =>
               index > 0 ? `__${name}` : name
             )
-            .join("");
+            .join('')
 
           return {
-            path: err.path.join("."),
+            path: err.path.join('.'),
             href: `#${name}`,
             name,
             text: err.message.replace(isoRegex, (text) => {
-              return format(parseISO(text), "d MMMM yyyy");
-            }),
-          };
-        }),
-      };
+              return format(parseISO(text), 'd MMMM yyyy')
+            })
+          }
+        })
+      }
     }
 
-    return undefined;
+    return undefined
   }
 
   /**
@@ -348,30 +349,30 @@ export class PageControllerBase {
    * @param schema - which schema to validate against
    */
   validate(value, schema) {
-    const result = schema.validate(value, this.validationOptions);
-    const errors = result.error ? this.getErrors(result) : null;
+    const result = schema.validate(value, this.validationOptions)
+    const errors = result.error ? this.getErrors(result) : null
 
-    return { value: result.value, errors };
+    return { value: result.value, errors }
   }
 
   validateForm(payload) {
-    return this.validate(payload, this.formSchema);
+    return this.validate(payload, this.formSchema)
   }
 
   validateState(newState) {
-    return this.validate(newState, this.stateSchema);
+    return this.validate(newState, this.stateSchema)
   }
 
   /**
    * returns the language set in a user's browser. Can be used for localisable strings
    */
   langFromRequest(request: HapiRequest) {
-    const lang = request.query.lang || request.yar.get("lang") || "en";
-    if (lang !== request.yar.get("lang")) {
-      request.i18n.setLocale(lang);
-      request.yar.set("lang", lang);
+    const lang = request.query.lang || request.yar.get('lang') || 'en'
+    if (lang !== request.yar.get('lang')) {
+      request.i18n.setLocale(lang)
+      request.yar.set('lang', lang)
     }
-    return request.yar.get("lang");
+    return request.yar.get('lang')
   }
 
   /**
@@ -380,144 +381,147 @@ export class PageControllerBase {
   getConditionEvaluationContext(model: FormModel, state: FormSubmissionState) {
     // Note: This function does not support repeatFields right now
 
-    let relevantState: FormSubmissionState = {};
+    let relevantState: FormSubmissionState = {}
     // Start at our startPage
-    let nextPage = model.startPage;
+    let nextPage = model.startPage
 
     // While the current page isn't null
     while (nextPage != null) {
       // Either get the current state or the current state of the section if this page belongs to a section
       const currentState =
-        (nextPage.section ? state[nextPage.section.name] : state) ?? {};
-      let newValue = {};
+        (nextPage.section ? state[nextPage.section.name] : state) ?? {}
+      let newValue = {}
 
       // Iterate all components on this page and pull out the saved values from the state
       for (const component of nextPage.components.items) {
-        newValue[component.name] = currentState[component.name];
+        newValue[component.name] = currentState[component.name]
       }
 
       if (nextPage.section) {
-        newValue = { [nextPage.section.name]: newValue };
+        newValue = { [nextPage.section.name]: newValue }
       }
 
       // Combine our stored values with the existing relevantState that we've been building up
-      relevantState = merge(relevantState, newValue);
+      relevantState = merge(relevantState, newValue)
 
       // By passing our current relevantState to getNextPage, we will check if we can navigate to this next page (including doing any condition checks if applicable)
-      nextPage = nextPage.getNextPage(relevantState);
+      nextPage = nextPage.getNextPage(relevantState)
       // If a nextPage is returned, we must have taken that route through the form so continue our iteration with the new page
     }
 
-    return relevantState;
+    return relevantState
   }
 
   makeGetRouteHandler() {
     return async (request: HapiRequest, h: HapiResponseToolkit) => {
-      const { cacheService } = request.services([]);
-      const lang = this.langFromRequest(request);
-      const state = await cacheService.getState(request);
-      const progress = state.progress || [];
-      const { num } = request.query;
-      const currentPath = `${this.model.basePath}${this.path}${request.url.search}`;
-      const startPage = this.model.def.startPage;
-      const formData = this.getFormDataFromState(state, num - 1);
+      const { cacheService } = request.services([])
+      const lang = this.langFromRequest(request)
+      const state = await cacheService.getState(request)
+      const progress = state.progress || []
+      const { num } = request.query
+      const currentPath = `${this.model.basePath}${this.path}${request.url.search}`
+      const startPage = this.model.def.startPage
+      const formData = this.getFormDataFromState(state, num - 1)
 
-      const isStartPage = this.path === `${startPage}`;
-      const isInitialisedSession = !!state.callback;
+      const isStartPage = this.path === `${startPage}`
+      const isInitialisedSession = !!state.callback
       const shouldRedirectToStartPage =
         !this.model.options.previewMode &&
         progress.length === 0 &&
         !isStartPage &&
-        !isInitialisedSession;
+        !isInitialisedSession
 
       if (shouldRedirectToStartPage) {
-        return startPage!.startsWith("http")
+        return startPage!.startsWith('http')
           ? redirectTo(request, h, startPage!)
-          : redirectTo(request, h, `/${this.model.basePath}${startPage!}`);
+          : redirectTo(request, h, `/${this.model.basePath}${startPage!}`)
       }
 
-      formData.lang = lang;
+      formData.lang = lang
       /**
        * We store the original filename for the user in a separate object (`originalFileNames`), however they are not used for any of the outputs. The S3 url is stored in the state.
        */
-      const { originalFilenames } = state;
+      const { originalFilenames } = state
       if (originalFilenames) {
         Object.entries(formData).forEach(([key, value]) => {
           if (value && value === (originalFilenames[key] || {}).location) {
-            formData[key] = originalFilenames[key].originalFilename;
+            formData[key] = originalFilenames[key].originalFilename
           }
-        });
+        })
       }
-      const viewModel = this.getViewModel(formData, num);
-      viewModel.startPage = startPage!.startsWith("http")
+      const viewModel = this.getViewModel(formData, num)
+      viewModel.startPage = startPage!.startsWith('http')
         ? redirectTo(request, h, startPage!)
-        : redirectTo(request, h, `/${this.model.basePath}${startPage!}`);
+        : redirectTo(request, h, `/${this.model.basePath}${startPage!}`)
 
-      this.setPhaseTag(viewModel);
-      this.setFeedbackDetails(viewModel, request);
+      this.setPhaseTag(viewModel)
+      this.setFeedbackDetails(viewModel, request)
 
       /**
        * Content components can be hidden based on a condition. If the condition evaluates to true, it is safe to be kept, otherwise discard it
        */
       // Calculate our relevantState, which will filter out previously input answers that are no longer relevant to this user journey
-      const relevantState = this.getConditionEvaluationContext(this.model, state);
+      const relevantState = this.getConditionEvaluationContext(
+        this.model,
+        state
+      )
 
       // Filter our components based on their conditions using our calculated state
       viewModel.components = viewModel.components.filter((component) => {
         if (
-          (component.model.content || component.type === "Details") &&
+          (component.model.content || component.type === 'Details') &&
           component.model.condition
         ) {
-          const condition = this.model.conditions[component.model.condition];
-          return condition.fn(relevantState);
+          const condition = this.model.conditions[component.model.condition]
+          return condition.fn(relevantState)
         }
-        return true;
-      });
+        return true
+      })
       /**
        * For conditional reveal components (which we no longer support until GDS resolves the related accessibility issues {@link https://github.com/alphagov/govuk-frontend/issues/1991}
        */
       viewModel.components = viewModel.components.map((component) => {
-        const evaluatedComponent = component;
-        const content = evaluatedComponent.model.content;
+        const evaluatedComponent = component
+        const content = evaluatedComponent.model.content
         if (content instanceof Array) {
           evaluatedComponent.model.content = content.filter((item) =>
             item.condition
               ? this.model.conditions[item.condition].fn(relevantState)
               : true
-          );
+          )
         }
         // apply condition to items for radios, checkboxes etc
-        const items = evaluatedComponent.model.items;
+        const items = evaluatedComponent.model.items
 
         if (items instanceof Array) {
           evaluatedComponent.model.items = items.filter((item) =>
             item.condition
               ? this.model.conditions[item.condition].fn(relevantState)
               : true
-          );
+          )
         }
 
-        return evaluatedComponent;
-      });
+        return evaluatedComponent
+      })
 
       /**
        * used for when a user clicks the "back" link. Progress is stored in the state. This is a safer alternative to running javascript that pops the history `onclick`.
        */
-      const lastVisited = progress[progress.length - 1];
+      const lastVisited = progress[progress.length - 1]
       if (!lastVisited || !lastVisited.startsWith(currentPath)) {
         if (progress[progress.length - 2] === currentPath) {
-          progress.pop();
+          progress.pop()
         } else {
-          progress.push(currentPath);
+          progress.push(currentPath)
         }
       }
 
-      await cacheService.mergeState(request, { progress });
+      await cacheService.mergeState(request, { progress })
 
       viewModel.backLink =
-        progress[progress.length - 2] ?? this.backLinkFallback;
-      return h.view(this.viewName, viewModel);
-    };
+        progress[progress.length - 2] ?? this.backLinkFallback
+      return h.view(this.viewName, viewModel)
+    }
   }
 
   /**
@@ -527,27 +531,27 @@ export class PageControllerBase {
     request: HapiRequest,
     h: HapiResponseToolkit,
     mergeOptions: {
-      nullOverride?: boolean;
-      arrayMerge?: boolean;
+      nullOverride?: boolean
+      arrayMerge?: boolean
       /**
        * if you wish to modify the value just before it is added to the user's session (i.e. after validation and error parsing), use the modifyUpdate method.
        * pass in a function, that takes in the update value. Make sure that this returns the modified value.
        */
-      modifyUpdate?: <T>(value: T) => any;
+      modifyUpdate?: <T>(value: T) => any
     } = {}
   ) {
-    const { cacheService } = request.services([]);
-    const hasFilesizeError = request.payload === null;
-    const preHandlerErrors = request.pre.errors;
-    const payload = (request.payload || {}) as FormData;
-    const formResult: any = this.validateForm(payload);
-    const state = await cacheService.getState(request);
-    const originalFilenames = (state || {}).originalFilenames || {};
+    const { cacheService } = request.services([])
+    const hasFilesizeError = request.payload === null
+    const preHandlerErrors = request.pre.errors
+    const payload = (request.payload || {}) as FormData
+    const formResult: any = this.validateForm(payload)
+    const state = await cacheService.getState(request)
+    const originalFilenames = (state || {}).originalFilenames || {}
     const fileFields = this.getViewModel(formResult)
-      .components.filter((component) => component.type === "FileUploadField")
-      .map((component) => component.model);
-    const progress = state.progress || [];
-    const { num } = request.query;
+      .components.filter((component) => component.type === 'FileUploadField')
+      .map((component) => component.model)
+    const progress = state.progress || []
+    const { num } = request.query
 
     // TODO:- Refactor this into a validation method
     if (hasFilesizeError) {
@@ -556,48 +560,48 @@ export class PageControllerBase {
           path: field.name,
           href: `#${field.name}`,
           name: field.name,
-          text: "The selected file must be smaller than 5MB",
-        };
-      });
+          text: 'The selected file must be smaller than 5MB'
+        }
+      })
 
       formResult.errors = Object.is(formResult.errors, null)
-        ? { titleText: "Fix the following errors" }
-        : formResult.errors;
-      formResult.errors.errorList = reformattedErrors;
+        ? { titleText: 'Fix the following errors' }
+        : formResult.errors
+      formResult.errors.errorList = reformattedErrors
     }
 
     /**
      * other file related errors.. assuming file fields will be on their own page. This will replace all other errors from the page if not..
      */
     if (preHandlerErrors) {
-      const reformattedErrors: any[] = [];
+      const reformattedErrors: any[] = []
       preHandlerErrors.forEach((error) => {
-        const reformatted = error;
-        const fieldMeta = fileFields.find((field) => field.id === error.name);
+        const reformatted = error
+        const fieldMeta = fileFields.find((field) => field.id === error.name)
 
-        if (typeof reformatted.text === "string") {
+        if (typeof reformatted.text === 'string') {
           /**
            * if it's not a string it's probably going to be a stack trace.. don't want to show that to the user. A problem for another day.
            */
           reformatted.text = reformatted.text.replace(
             /%s/,
-            fieldMeta?.label?.text.trim() ?? "the file"
-          );
-          reformattedErrors.push(reformatted);
+            fieldMeta?.label?.text.trim() ?? 'the file'
+          )
+          reformattedErrors.push(reformatted)
         }
-      });
+      })
 
       formResult.errors = Object.is(formResult.errors, null)
-        ? { titleText: "Fix the following errors" }
-        : formResult.errors;
-      formResult.errors.errorList = reformattedErrors;
+        ? { titleText: 'Fix the following errors' }
+        : formResult.errors
+      formResult.errors.errorList = reformattedErrors
     }
 
     Object.entries(payload).forEach(([key, value]) => {
       if (value && value === (originalFilenames[key] || {}).location) {
-        payload[key] = originalFilenames[key].originalFilename;
+        payload[key] = originalFilenames[key].originalFilename
       }
-    });
+    })
 
     /**
      * If there are any errors, render the page with the parsed errors
@@ -612,11 +616,11 @@ export class PageControllerBase {
         num,
         progress,
         formResult.errors
-      );
+      )
     }
 
-    const newState = this.getStateFromValidForm(formResult.value);
-    const stateResult = this.validateState(newState);
+    const newState = this.getStateFromValidForm(formResult.value)
+    const stateResult = this.validateState(newState)
     if (stateResult.errors) {
       return this.renderWithErrors(
         request,
@@ -625,29 +629,29 @@ export class PageControllerBase {
         num,
         progress,
         stateResult.errors
-      );
+      )
     }
 
-    let update = this.getPartialMergeState(stateResult.value);
+    let update = this.getPartialMergeState(stateResult.value)
     if (this.repeatField) {
-      const updateValue = { [this.path]: update[this.section.name] };
-      const sectionState = state[this.section.name];
+      const updateValue = { [this.path]: update[this.section.name] }
+      const sectionState = state[this.section.name]
       if (!sectionState) {
-        update = { [this.section.name]: [updateValue] };
+        update = { [this.section.name]: [updateValue] }
       } else if (!sectionState[num - 1]) {
-        sectionState.push(updateValue);
-        update = { [this.section.name]: sectionState };
+        sectionState.push(updateValue)
+        update = { [this.section.name]: sectionState }
       } else {
-        sectionState[num - 1] = merge(sectionState[num - 1] ?? {}, updateValue);
-        update = { [this.section.name]: sectionState };
+        sectionState[num - 1] = merge(sectionState[num - 1] ?? {}, updateValue)
+        update = { [this.section.name]: sectionState }
       }
     }
 
-    const { nullOverride, arrayMerge, modifyUpdate } = mergeOptions;
+    const { nullOverride, arrayMerge, modifyUpdate } = mergeOptions
     if (modifyUpdate) {
-      update = modifyUpdate(update);
+      update = modifyUpdate(update)
     }
-    await cacheService.mergeState(request, update, nullOverride, arrayMerge);
+    await cacheService.mergeState(request, update, nullOverride, arrayMerge)
   }
 
   /**
@@ -655,33 +659,33 @@ export class PageControllerBase {
    */
   makePostRouteHandler() {
     return async (request: HapiRequest, h: HapiResponseToolkit) => {
-      const response = await this.handlePostRequest(request, h);
+      const response = await this.handlePostRequest(request, h)
       if (response?.source?.context?.errors) {
-        return response;
+        return response
       }
-      const { cacheService } = request.services([]);
-      const savedState = await cacheService.getState(request);
+      const { cacheService } = request.services([])
+      const savedState = await cacheService.getState(request)
       // This is required to ensure we don't navigate to an incorrect page based on stale state values
       const relevantState = this.getConditionEvaluationContext(
         this.model,
         savedState
-      );
+      )
 
-      return this.proceed(request, h, relevantState);
-    };
+      return this.proceed(request, h, relevantState)
+    }
   }
 
   setFeedbackDetails(viewModel, request) {
-    const feedbackContextInfo = this.getFeedbackContextInfo(request);
+    const feedbackContextInfo = this.getFeedbackContextInfo(request)
     if (feedbackContextInfo) {
-      viewModel.name = feedbackContextInfo.formTitle;
+      viewModel.name = feedbackContextInfo.formTitle
     }
     // setting the feedbackLink to undefined here for feedback forms prevents the feedback link from being shown
     if (this.def.feedback?.url) {
-      viewModel.feedbackLink = this.feedbackUrlFromRequest(request);
+      viewModel.feedbackLink = this.feedbackUrlFromRequest(request)
     }
     if (this.def.feedback?.emailAddress) {
-      viewModel.feedbackLink = `mailto:${this.def.feedback.emailAddress}`;
+      viewModel.feedbackLink = `mailto:${this.def.feedback.emailAddress}`
     }
   }
 
@@ -689,135 +693,135 @@ export class PageControllerBase {
     if (this.def.feedback?.feedbackForm) {
       return decodeFeedbackContextInfo(
         request.url.searchParams.get(feedbackReturnInfoKey)
-      );
+      )
     }
   }
 
   feedbackUrlFromRequest(request: HapiRequest): string | void {
     if (this.def.feedback?.url) {
-      const feedbackLink = new RelativeUrl(this.def.feedback.url);
+      const feedbackLink = new RelativeUrl(this.def.feedback.url)
       const returnInfo = new FeedbackContextInfo(
         this.model.name,
         this.pageDef.title,
         `${request.url.pathname}${request.url.search}`
-      );
-      feedbackLink.setParam(feedbackReturnInfoKey, returnInfo.toString());
-      return feedbackLink.toString();
+      )
+      feedbackLink.setParam(feedbackReturnInfoKey, returnInfo.toString())
+      return feedbackLink.toString()
     }
   }
 
   makeGetRoute() {
     return {
-      method: "get",
+      method: 'get',
       path: this.path,
       options: this.getRouteOptions,
-      handler: this.makeGetRouteHandler(),
-    };
+      handler: this.makeGetRouteHandler()
+    }
   }
 
   makePostRoute() {
     return {
-      method: "post",
+      method: 'post',
       path: this.path,
       options: this.postRouteOptions,
-      handler: this.makePostRouteHandler(),
-    };
+      handler: this.makePostRouteHandler()
+    }
   }
 
   findPageByPath(path: string) {
-    return this.model.pages.find((page) => page.path === path);
+    return this.model.pages.find((page) => page.path === path)
   }
 
   /**
    * TODO:- proceed is interfering with subclasses
    */
   proceed(request: HapiRequest, h: HapiResponseToolkit, state) {
-    return proceed(request, h, this.getNext(state));
+    return proceed(request, h, this.getNext(state))
   }
 
   getPartialMergeState(value) {
-    return this.section ? { [this.section.name]: value } : value;
+    return this.section ? { [this.section.name]: value } : value
   }
 
   localisedString(description, lang: string) {
-    let string;
-    if (typeof description === "string") {
-      string = description;
+    let string
+    if (typeof description === 'string') {
+      string = description
     } else {
-      string = description[lang] ? description[lang] : description.en;
+      string = description[lang] ? description[lang] : description.en
     }
-    return string;
+    return string
   }
 
   get viewName() {
-    return "index";
+    return 'index'
   }
 
   get defaultNextPath() {
-    return `${this.model.basePath || ""}/summary`;
+    return `${this.model.basePath || ''}/summary`
   }
 
   get validationOptions() {
-    return validationOptions;
+    return validationOptions
   }
 
   get conditionOptions() {
-    return this.model.conditionOptions;
+    return this.model.conditionOptions
   }
 
   get errorSummaryTitle() {
-    return "Fix the following errors";
+    return 'Fix the following errors'
   }
 
   /**
    * {@link https://hapi.dev/api/?v=20.1.2#route-options}
    */
   get getRouteOptions() {
-    return {};
+    return {}
   }
 
   /**
    * {@link https://hapi.dev/api/?v=20.1.2#route-options}
    */
   get postRouteOptions() {
-    return {};
+    return {}
   }
 
   get formSchema() {
-    return this[FORM_SCHEMA];
+    return this[FORM_SCHEMA]
   }
 
   set formSchema(value) {
-    this[FORM_SCHEMA] = value;
+    this[FORM_SCHEMA] = value
   }
 
   get stateSchema() {
-    return this[STATE_SCHEMA];
+    return this[STATE_SCHEMA]
   }
 
   set stateSchema(value) {
-    this[STATE_SCHEMA] = value;
+    this[STATE_SCHEMA] = value
   }
 
   private objLength(object: object) {
-    return Object.keys(object).length;
+    return Object.keys(object).length
   }
 
   private setPhaseTag(viewModel) {
     // Set phase tag if it exists in form definition (even if empty for 'None'),
     // otherwise the template context will simply return server config
     if (this.def.phaseBanner) {
-      viewModel.phaseTag = this.def.phaseBanner.phase;
+      viewModel.phaseTag = this.def.phaseBanner.phase
     }
   }
 
   private renderWithErrors(request, h, payload, num, progress, errors) {
-    const viewModel = this.getViewModel(payload, num, errors);
+    const viewModel = this.getViewModel(payload, num, errors)
 
-    viewModel.backLink = progress[progress.length - 2] ?? this.backLinkFallback;
-    this.setPhaseTag(viewModel);
-    this.setFeedbackDetails(viewModel, request);
+    viewModel.backLink = progress[progress.length - 2] ?? this.backLinkFallback
+    this.setPhaseTag(viewModel)
+    this.setFeedbackDetails(viewModel, request)
 
-    return h.view(this.viewName, viewModel);
+    return h.view(this.viewName, viewModel)
   }
 }
