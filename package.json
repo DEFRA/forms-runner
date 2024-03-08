@@ -27,7 +27,8 @@
     "unit-test-cov": "NODE_ENV=test lab -T test/.transform.js -v test -t 83 -S -v -r console -o stdout -r lcov -o test-coverage/lab/lcov.info -r html -o test-coverage/lab/unit-test.html -r junit -o test-results/junit/unit-test.xml -I version -l",
     "a11y": "node test/audit/components && node lighthouse",
     "symlink-env": "./bin/symlink-config",
-    "generate-docs": "typedoc src --tsconfig tsconfig.json --out ./docs/typedoc --exclude \"**/*+(index|.test|.jest).ts\""
+    "generate-docs": "typedoc src --tsconfig tsconfig.json --out ./docs/typedoc --exclude \"**/*+(index|.test|.jest).ts\"",
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
@@ -111,6 +112,8 @@
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-promise": "^6.1.1",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
     "nodemon": "^3.0.2",
     "prettier": "^3.2.5",
     "prisma": "^5.1.1",
