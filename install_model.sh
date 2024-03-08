@@ -1,10 +1,19 @@
-#¬/bin/sh
+#!/bin/sh
 
-test -d /tmp/defra-forms-designer && git -C /tmp/defra-forms-designer pull --ff-only || git clone https://github.com/defra/forms-designer.git /tmp/defra-forms-designer
+RUNNER_DIR=$(pwd)
+DESIGNER_DIR=/tmp/defra-forms-designer
 
-cd /tmp/defra-forms-designer && npm ci --workspace model --workspace queue-model && npm run build --workspace model --workspace queue-model && cd -
+git -C "$DESIGNER_DIR" pull origin main --ff-only || git clone https://github.com/defra/forms-designer.git "$DESIGNER_DIR"
 
-cd /tmp/defra-forms-designer/model/ && npm link && cd -
-cd /tmp/defra-forms-designer/queue-model/ && npm link && cd -
+cd "$DESIGNER_DIR"
+npm install
+npm run build
 
+cd "$DESIGNER_DIR/model"
+npm link
+
+cd "$DESIGNER_DIR/queue-model"
+npm link
+
+cd "$RUNNER_DIR"
 npm link @defra/forms-model @defra/forms-queue-model
