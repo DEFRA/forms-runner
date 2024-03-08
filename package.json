@@ -28,7 +28,7 @@
     "a11y": "node test/audit/components && node lighthouse",
     "symlink-env": "./bin/symlink-config",
     "generate-docs": "typedoc src --tsconfig tsconfig.json --out ./docs/typedoc --exclude \"**/*+(index|.test|.jest).ts\"",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "repository": {
     "type": "git",
