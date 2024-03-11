@@ -3,7 +3,11 @@
 RUNNER_DIR=$(pwd)
 DESIGNER_DIR=/tmp/defra-forms-designer
 
-git -C "$DESIGNER_DIR" pull origin main --ff-only || git clone https://github.com/defra/forms-designer.git "$DESIGNER_DIR"
+if [ ! -d "$DESIGNER_DIR" ]; then
+  git -C "$(dirname $DESIGNER_DIR)" clone https://github.com/defra/forms-designer.git "$(basename $DESIGNER_DIR)"
+else
+  git -C "$DESIGNER_DIR" pull origin main --ff-only
+fi
 
 cd "$DESIGNER_DIR"
 npm install
