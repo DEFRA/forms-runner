@@ -1,0 +1,75 @@
+name: Post PR to Slack
+on:
+  pull_request:
+    types:
+      - opened
+      - ready_for_review
+      - reopened
+      - closed
+env:
+  SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
+jobs:
+  notify-on-open-pr:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false && (github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'ready_for_review')
+    steps:
+      - name: Post to slack
+        id: slack
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          channel-id: ${{ vars.SLACK_CHANNEL_ID }}
+          payload: |
+            {
+                "blocks": [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": ":large_yellow_circle: *${{ github.event.repository.name }}:* Pull request opened by ${{ github.event.pull_request.user.login }}\n<${{ github.event.pull_request.html_url }}>"
+                        }
+                    }
+                ]
+            }
+  notify-on-merged-pr:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false && github.event.action == 'closed' && github.event.pull_request.merged == true
+    steps:
+      - name: Post to slack
+        id: slack
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          channel-id: ${{ vars.SLACK_CHANNEL_ID }}
+          payload: |
+            {
+                "blocks": [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": ":white_check_mark: *${{ github.event.repository.name }}:* Pull request merged\n<${{ github.event.pull_request.html_url }}>"
+                        }
+                    }
+                ]
+            }
+  notify-on-closed-pr:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false && github.event.action == 'closed' && github.event.pull_request.merged == false
+    steps:
+      - name: Post to slack
+        id: slack
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          channel-id: ${{ vars.SLACK_CHANNEL_ID }}
+          payload: |
+            {
+                "blocks": [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": ":wastebasket: *${{ github.event.repository.name }}:* Pull request closed\n<${{ github.event.pull_request.html_url }}>"
+                        }
+                    }
+                ]
+            }
