@@ -44,8 +44,6 @@ jobs:
         with:
           cache: 'npm'
           node-version-file: .nvmrc
-          registry-url: https://npm.pkg.github.com
-          scope: '@defra'
 
       - name: Install dependencies
         if: steps.npm-install-cache.outputs.cache-hit != 'true'
