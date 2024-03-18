@@ -8,7 +8,7 @@ import {
 import path from 'path'
 import { token } from '@hapi/jwt'
 import { SpecialPages } from '@defra/forms-model'
-import Boom from 'boom'
+import Boom from '@hapi/boom'
 import type { WebhookSchema } from '../../schemas/types'
 import type { InitialiseSessionOptions, InitialiseSession } from './types'
 
