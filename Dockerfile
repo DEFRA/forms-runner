@@ -16,10 +16,9 @@ EXPOSE ${PORT} ${PORT_DEBUG}
 
 WORKDIR /home/node/app
 
-COPY --chown=node:node packag*.json install_model.sh ./
+COPY --chown=node:node packag*.json ./
 
-RUN npm ci --ignore-scripts
-RUN npm run postinstall
+RUN npm ci
 
 COPY --chown=node:node ./ ./
 
@@ -50,14 +49,12 @@ LABEL uk.gov.defra.ffc.parent-image=defradigital/node:${PARENT_VERSION}
 WORKDIR /home/node/app
 
 COPY --from=productionBuild /home/node/app/package*.json ./
-COPY --from=productionBuild /home/node/app/node_modules ./node_modules
-COPY --from=productionBuild /tmp/defra-forms-designer/node_modules ./node_modules
-COPY --from=productionBuild /tmp/defra-forms-designer/model ./node_modules/@defra/forms-model
-COPY --from=productionBuild /tmp/defra-forms-designer/queue-model ./node_modules/@defra/forms-queue-model
 COPY --from=productionBuild /home/node/app/dist ./dist
 COPY --from=productionBuild /home/node/app/bin ./bin
 COPY --from=productionBuild /home/node/app/config ./config
 COPY --from=productionBuild /home/node/app/public ./public
+
+RUN npm ci --omit=dev
 
 ARG PORT
 ENV PORT ${PORT}

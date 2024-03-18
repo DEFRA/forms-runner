@@ -5,7 +5,6 @@
   "main": "dist/index.js",
   "private": true,
   "scripts": {
-    "postinstall": "bash install_model.sh",
     "check-forms": "node bin/run/check",
     "watch": "babel --watch --extensions \".ts\" --ignore \"**/*.test.*\" src -d dist --copy-files -s inline",
     "start": "node dist/index.js",
@@ -40,6 +39,7 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
+    "@defra/forms-model": "^3.0.1",
     "@elastic/ecs-pino-format": "^1.4.0",
     "@hapi/bell": "^13.0.1",
     "@hapi/boom": "^10.0.1",
