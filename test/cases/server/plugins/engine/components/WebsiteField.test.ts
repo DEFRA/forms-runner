@@ -1,13 +1,8 @@
-import { expect } from '@hapi/code'
-import * as Lab from '@hapi/lab'
 import { WebsiteFieldComponent } from '@defra/forms-model'
 import { WebsiteField } from '../../../../../../src/server/plugins/engine/components'
 import { FormModel } from '../../../../../../src/server/plugins/engine/models'
 
-export const lab = Lab.script()
-const { suite, test, beforeEach } = lab
-
-suite('Website field', () => {
+describe('Website field', () => {
   let model: FormModel
 
   beforeEach(() => {
@@ -26,7 +21,7 @@ suite('Website field', () => {
 
     const { formSchema } = new WebsiteField(def, model)
 
-    expect(formSchema.describe().flags!.presence).to.equal('required')
+    expect(formSchema.describe().flags!.presence).toBe('required')
   })
 
   test('should validate URI', () => {
@@ -41,11 +36,11 @@ suite('Website field', () => {
 
     const { formSchema } = new WebsiteField(def, model)
 
-    expect(formSchema.validate('https://www.gov.uk').error).to.be.undefined()
+    expect(formSchema.validate('https://www.gov.uk').error).toBeUndefined()
     expect(
       formSchema.validate('http://www.gov.uk/test?id=ABC').error
-    ).to.be.undefined()
-    expect(formSchema.validate('1').error!.message).to.contain(
+    ).toBeUndefined()
+    expect(formSchema.validate('1').error!.message).toContain(
       `Enter website address in the correct format`
     )
   })
@@ -64,7 +59,7 @@ suite('Website field', () => {
 
     const { formSchema } = new WebsiteField(def, model)
 
-    expect(formSchema.validate('www.gov.uk').error?.message).to.contain(
+    expect(formSchema.validate('www.gov.uk').error?.message).toContain(
       'Invalid address entered'
     )
   })
@@ -83,9 +78,9 @@ suite('Website field', () => {
 
     const { formSchema } = new WebsiteField(def, model)
 
-    expect(formSchema.validate('http://www.gov.uk').error).to.be.undefined()
+    expect(formSchema.validate('http://www.gov.uk').error).toBeUndefined()
 
-    expect(formSchema.validate('https://www.gov.uk').error?.message).to.contain(
+    expect(formSchema.validate('https://www.gov.uk').error?.message).toContain(
       `"my component" length must be less than or equal to 17 characters long`
     )
   })
@@ -104,9 +99,9 @@ suite('Website field', () => {
 
     const { formSchema } = new WebsiteField(def, model)
 
-    expect(formSchema.validate('https://www.gov.uk').error).to.be.undefined()
+    expect(formSchema.validate('https://www.gov.uk').error).toBeUndefined()
 
-    expect(formSchema.validate('http://www.gov.uk').error?.message).to.contain(
+    expect(formSchema.validate('http://www.gov.uk').error?.message).toContain(
       `"my component" length must be at least 18 characters long`
     )
   })
@@ -123,11 +118,11 @@ suite('Website field', () => {
 
     const { formSchema } = new WebsiteField(def, model)
 
-    expect(formSchema.validate('').error?.message).to.contain(
+    expect(formSchema.validate('').error?.message).toContain(
       `"my component" is not allowed to be empty`
     )
 
-    expect(formSchema.validate(null).error?.message).to.contain(
+    expect(formSchema.validate(null).error?.message).toContain(
       `"my component" must be a string`
     )
   })
@@ -146,8 +141,8 @@ suite('Website field', () => {
 
     const { formSchema } = new WebsiteField(def, model)
 
-    expect(formSchema.validate('').error).to.be.undefined()
+    expect(formSchema.validate('').error).toBeUndefined()
 
-    expect(formSchema.validate(null).error).to.be.undefined()
+    expect(formSchema.validate(null).error).toBeUndefined()
   })
 })

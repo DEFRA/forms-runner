@@ -1,11 +1,6 @@
-import { expect } from '@hapi/code'
-import * as Lab from '@hapi/lab'
 import { TelephoneNumberField } from '../../../../../src/server/plugins/engine/components'
 
-export const lab = Lab.script()
-const { suite, test } = lab
-
-suite('Telephone number field', () => {
+describe('Telephone number field', () => {
   test('Should supply custom validation message if defined', () => {
     const def = {
       name: 'myComponent',
@@ -19,13 +14,13 @@ suite('Telephone number field', () => {
     const telephoneNumberField = new TelephoneNumberField(def, {})
     const { schema } = telephoneNumberField
 
-    expect(schema.validate('not a phone').error.message).to.equal(
+    expect(schema.validate('not a phone').error.message).toBe(
       'This is a custom error'
     )
-    expect(schema.validate('').error).to.be.undefined()
-    expect(schema.validate('+111-111-11').error).to.be.undefined()
-    expect(schema.validate('+111 111 11').error).to.be.undefined()
-    expect(schema.validate('+11111111').error).to.be.undefined()
+    expect(schema.validate('').error).toBeUndefined()
+    expect(schema.validate('+111-111-11').error).toBeUndefined()
+    expect(schema.validate('+111 111 11').error).toBeUndefined()
+    expect(schema.validate('+11111111').error).toBeUndefined()
   })
 
   test('Should validate when schema options are supplied', () => {
@@ -43,15 +38,15 @@ suite('Telephone number field', () => {
     const telephoneNumberField = new TelephoneNumberField(def, {})
     const { schema } = telephoneNumberField
 
-    expect(schema.validate('1234').error).to.be.undefined()
-    expect(schema.validate('12345').error).to.be.undefined()
-    expect(schema.validate('1').error.message).to.contain(
+    expect(schema.validate('1234').error).toBeUndefined()
+    expect(schema.validate('12345').error).toBeUndefined()
+    expect(schema.validate('1').error.message).toContain(
       'must be at least 3 characters long'
     )
-    expect(schema.validate('12-3').error.message).to.contain(
+    expect(schema.validate('12-3').error.message).toContain(
       'Enter a telephone number in the correct format'
     )
-    expect(schema.validate('1  1').error.message).to.contain(
+    expect(schema.validate('1  1').error.message).toContain(
       'Enter a telephone number in the correct format'
     )
   })
@@ -67,7 +62,7 @@ suite('Telephone number field', () => {
     const telephoneNumberField = new TelephoneNumberField(def, {})
     const { schema } = telephoneNumberField
 
-    expect(schema.validate('not a phone').error.message).to.equal(
+    expect(schema.validate('not a phone').error.message).toBe(
       'Enter a telephone number in the correct format'
     )
   })
@@ -80,8 +75,10 @@ suite('Telephone number field', () => {
       schema: {}
     }
     const telephoneNumberField = new TelephoneNumberField(def, {})
-    expect(telephoneNumberField.getViewModel({})).to.contain({
-      autocomplete: 'tel'
-    })
+    expect(telephoneNumberField.getViewModel({})).toEqual(
+      expect.objectContaining({
+        autocomplete: 'tel'
+      })
+    )
   })
 })

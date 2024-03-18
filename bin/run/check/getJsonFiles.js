@@ -1,6 +1,7 @@
+const path = require('node:path')
+const fs = require('node:fs/promises')
+
 const { FORM_PATH } = require('./util')
-const path = require('path')
-const fs = require('fs').promises
 
 async function getJsonFiles() {
   return (await fs.readdir(FORM_PATH)).filter(

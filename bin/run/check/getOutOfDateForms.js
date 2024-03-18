@@ -1,7 +1,8 @@
+const path = require('node:path')
+const fs = require('node:fs/promises')
+
 const helper = require('./getJsonFiles')
 const { FORM_PATH, CURRENT_SCHEMA_VERSION } = require('./util')
-const fs = require('fs').promises
-const path = require('path')
 
 async function getOutOfDateForms() {
   const files = await helper.getJsonFiles()

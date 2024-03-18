@@ -1,13 +1,8 @@
 import path from 'path'
-import { expect } from '@hapi/code'
-import * as Lab from '@hapi/lab'
 import cheerio from 'cheerio'
 import createServer from '../../../src/server/index.js'
 
-export const lab = Lab.script()
-const { suite, test, afterEach } = lab
-
-suite(`Phase banner`, () => {
+describe(`Phase banner`, () => {
   let server
 
   afterEach(async () => {
@@ -29,13 +24,11 @@ suite(`Phase banner`, () => {
     }
 
     const response = await server.inject(options)
-    expect(response.statusCode).to.equal(200)
+    expect(response.statusCode).toBe(200)
 
     const $ = cheerio.load(response.payload)
 
-    expect($('.govuk-phase-banner__content__tag').text().trim()).to.equal(
-      'beta'
-    )
+    expect($('.govuk-phase-banner__content__tag').text().trim()).toBe('beta')
   })
 
   test('shows the alpha tag if selected', async () => {
@@ -51,13 +44,11 @@ suite(`Phase banner`, () => {
     }
 
     const response = await server.inject(options)
-    expect(response.statusCode).to.equal(200)
+    expect(response.statusCode).toBe(200)
 
     const $ = cheerio.load(response.payload)
 
-    expect($('.govuk-phase-banner__content__tag').text().trim()).to.equal(
-      'alpha'
-    )
+    expect($('.govuk-phase-banner__content__tag').text().trim()).toBe('alpha')
   })
 
   test('does not show the phase banner if None', async () => {
@@ -73,10 +64,10 @@ suite(`Phase banner`, () => {
     }
 
     const response = await server.inject(options)
-    expect(response.statusCode).to.equal(200)
+    expect(response.statusCode).toBe(200)
 
     const $ = cheerio.load(response.payload)
 
-    expect($('.govuk-phase-banner').html()).to.equal(null)
+    expect($('.govuk-phase-banner').html()).toBeNull()
   })
 })
