@@ -1,5 +1,5 @@
 import { StatusService } from '../services/statusService'
-import Boom from 'boom'
+import Boom from '@hapi/boom'
 import { MySqlQueueService } from '../services/mySqlQueueService'
 import { PgBossQueueService } from '../services/pgBossQueueService'
 import type { HapiRequest, HapiServer } from '../types'

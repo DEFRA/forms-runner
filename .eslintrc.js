@@ -39,6 +39,7 @@ module.exports = {
           '@typescript-eslint/parser': ['.cjs', '.js', '.mjs', '.ts']
         },
         'import/resolver': {
+          node: true,
           typescript: {
             alwaysTryTypes: true
           }
