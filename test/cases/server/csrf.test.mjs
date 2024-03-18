@@ -1,14 +1,9 @@
-import { expect } from '@hapi/code'
-import * as Lab from '@hapi/lab'
 import cheerio from 'cheerio'
 import FormData from 'form-data'
 import cookie from 'cookie'
 import createServer from '../../../src/server/index.js'
 
-export const lab = Lab.script()
-const { suite, test, before, after } = lab
-
-suite('CSRF', () => {
+describe('CSRF', () => {
   let server
   let csrfToken = ''
   const form = new FormData()
@@ -23,7 +18,7 @@ suite('CSRF', () => {
   }
 
   // Create server before each test
-  before(async () => {
+  beforeAll(async () => {
     server = await createServer({
       formFileName: 'basic-v0.json',
       formFilePath: __dirname,
@@ -32,7 +27,7 @@ suite('CSRF', () => {
     await server.start()
   })
 
-  after(async () => {
+  afterAll(async () => {
     await server.stop()
   })
 
@@ -43,42 +38,34 @@ suite('CSRF', () => {
     }
 
     const response = await server.inject(options)
-    expect(response.statusCode).to.equal(200)
+    expect(response.statusCode).toBe(200)
     const setCookieHeader = cookie.parse(
       response.headers['set-cookie'].find((header) => header.includes('crumb'))
     )
-    expect(setCookieHeader).to.exist()
+    expect(setCookieHeader).toBeTruthy()
     csrfToken = setCookieHeader.crumb
-    expect(csrfToken).to.not.be.empty()
+    expect(csrfToken).toBeTruthy()
     const $ = cheerio.load(response.payload)
-    expect($('[name=crumb]').val()).to.equal(csrfToken)
+    expect($('[name=crumb]').val()).toEqual(csrfToken)
   })
 
-  test(
-    'post request without CSRF token returns 403 forbidden',
-    { timeout: 10000 },
-    async () => {
-      const response = await server.inject(options())
-      expect(response.statusCode).to.equal(403)
-    }
-  )
+  test('post request without CSRF token returns 403 forbidden', async () => {
+    const response = await server.inject(options())
+    expect(response.statusCode).toBe(403)
+  }, 10000)
 
-  test(
-    'post request with CSRF token returns 302 redirect',
-    { timeout: 10000 },
-    async () => {
-      form.append('crumb', csrfToken)
-      const csrfOptions = options()
-      csrfOptions.headers = {
-        ...options.headers,
-        ...{
-          cookie: `crumb=${csrfToken}`,
-          'x-CSRF-token': csrfToken,
-          ...form.getHeaders()
-        }
+  test('post request with CSRF token returns 302 redirect', async () => {
+    form.append('crumb', csrfToken)
+    const csrfOptions = options()
+    csrfOptions.headers = {
+      ...options.headers,
+      ...{
+        cookie: `crumb=${csrfToken}`,
+        'x-CSRF-token': csrfToken,
+        ...form.getHeaders()
       }
-      const response = await server.inject(csrfOptions)
-      expect(response.statusCode).to.equal(302)
     }
-  )
+    const response = await server.inject(csrfOptions)
+    expect(response.statusCode).toBe(302)
+  }, 10000)
 })

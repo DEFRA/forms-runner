@@ -1,14 +1,9 @@
 import { FeesModel } from './../FeesModel'
-import { expect } from '@hapi/code'
-import * as Lab from '@hapi/lab'
 import json from './FeesModel.test.json'
 
 import { FormModel } from '../../../../../plugins/engine/models'
 
-export const lab = Lab.script()
-const { suite, test } = lab
-
-suite('FeesModel', () => {
+describe('FeesModel', () => {
   test('returns correct FeesModel', () => {
     const c = {
       caz: '2'
@@ -16,7 +11,7 @@ suite('FeesModel', () => {
 
     const form = new FormModel(json, {})
     const model = FeesModel(form, c)
-    expect(model).to.equal({
+    expect(model).toEqual({
       details: [
         { description: 'Bristol tax', amount: 5000, condition: 'dFQTyf' },
         { description: 'car tax', amount: 5000 }
@@ -38,7 +33,7 @@ suite('FeesModel', () => {
     }
     const form = new FormModel(newJson, {})
     const model = FeesModel(form, c)
-    expect(model).to.equal({
+    expect(model).toEqual({
       details: [
         { description: 'Bristol tax', amount: 5000, condition: 'dFQTyf' },
         { description: 'car tax', amount: 5000 }

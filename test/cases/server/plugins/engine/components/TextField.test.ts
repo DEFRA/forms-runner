@@ -1,13 +1,7 @@
-import { expect } from '@hapi/code'
-import * as Lab from '@hapi/lab'
-import sinon from 'sinon'
 import { TextField } from '../../../../../../src/server/plugins/engine/components/TextField'
 import { messages } from '../../../../../../src/server/plugins/engine/pageControllers/validationOptions'
 
-export const lab = Lab.script()
-const { suite, describe, it } = lab
-
-suite('TextField', () => {
+describe('TextField', () => {
   describe('Generated schema', () => {
     const componentDefinition = {
       subType: 'field',
@@ -20,51 +14,49 @@ suite('TextField', () => {
     }
 
     const formModel = {
-      makePage: () => sinon.stub()
+      makePage: () => jest.fn()
     }
 
     const component = new TextField(componentDefinition, formModel)
 
     it('is required by default', () => {
-      expect(component.formSchema.describe().flags.presence).to.equal(
-        'required'
-      )
+      expect(component.formSchema.describe().flags.presence).toBe('required')
     })
 
     it('is not required when explicitly configured', () => {
       const component = TextComponent({ options: { required: false } })
 
-      expect(component.formSchema.describe().flags.presence).to.not.equal(
+      expect(component.formSchema.describe().flags.presence).not.toBe(
         'required'
       )
     })
 
     it('validates correctly', () => {
-      expect(component.formSchema.validate({}).error).to.exist()
+      expect(component.formSchema.validate({}).error).toBeTruthy()
     })
 
     it('should match pattern for regex', () => {
       let component = TextComponent({ schema: { regex: '[abc]*' } })
 
-      expect(component.formSchema.validate('ab', { messages })).to.be.equal({
+      expect(component.formSchema.validate('ab', { messages })).toEqual({
         value: 'ab'
       })
 
       component = TextComponent({ schema: { regex: null } })
 
-      expect(component.formSchema.validate('*', { messages })).to.be.equal({
+      expect(component.formSchema.validate('*', { messages })).toEqual({
         value: '*'
       })
 
       component = TextComponent({ schema: { regex: undefined } })
 
-      expect(component.formSchema.validate('/', { messages })).to.be.equal({
+      expect(component.formSchema.validate('/', { messages })).toEqual({
         value: '/'
       })
 
       component = TextComponent({ schema: { regex: '' } })
 
-      expect(component.formSchema.validate('', { messages })).to.not.be.equal({
+      expect(component.formSchema.validate('', { messages })).not.toEqual({
         value: ''
       })
 
@@ -76,21 +68,21 @@ suite('TextField', () => {
         }
       })
 
-      expect(
-        component.formSchema.validate('AJ98 7AX', { messages })
-      ).to.be.equal({ value: 'AJ98 7AX' })
+      expect(component.formSchema.validate('AJ98 7AX', { messages })).toEqual({
+        value: 'AJ98 7AX'
+      })
 
       const invalidRegexResult = component.formSchema.validate('###six')
-      expect(invalidRegexResult.error.details[0].type).to.be.equal(
+      expect(invalidRegexResult.error.details[0].type).toBe(
         'string.pattern.base'
       )
 
       const tooFewCharsResult = component.formSchema.validate('AJ98')
-      expect(tooFewCharsResult.error.details[0].type).to.be.equal('string.min')
+      expect(tooFewCharsResult.error.details[0].type).toBe('string.min')
 
       const tooManyCharsResult =
         component.formSchema.validate('AJ98 7AXAJ98 7AX')
-      expect(tooManyCharsResult.error.details[0].type).to.be.equal('string.max')
+      expect(tooManyCharsResult.error.details[0].type).toBe('string.max')
     })
 
     function TextComponent(properties) {

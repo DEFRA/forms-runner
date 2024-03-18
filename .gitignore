@@ -8,9 +8,6 @@ node_modules
 npm-debug.log
 coverage
 .cache
-report.html
-report.json
-unit-test.html
 /dist/
 /docs/
 src/server/public/build

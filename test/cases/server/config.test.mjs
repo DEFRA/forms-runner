@@ -1,11 +1,6 @@
-import { expect } from '@hapi/code'
-import * as Lab from '@hapi/lab'
 import { configSchema } from '../../../src/server/utils/configSchema.js'
 
-export const lab = Lab.script()
-const { suite, test } = lab
-
-suite(`Server config validation`, () => {
+describe(`Server config validation`, () => {
   test('it throws when MATOMO_URL is insecure', () => {
     const configWithInsecureUrl = {
       matomoUrl: 'http://insecure.url'
@@ -13,7 +8,7 @@ suite(`Server config validation`, () => {
 
     const { error } = configSchema.validate(configWithInsecureUrl)
 
-    expect(error.message).to.contain(
+    expect(error.message).toContain(
       'Provided matomoUrl is insecure, please use https'
     )
   })
@@ -25,7 +20,7 @@ suite(`Server config validation`, () => {
 
     const { error } = configSchema.validate(configWithInsecureUrl)
 
-    expect(error.message).to.contain(
+    expect(error.message).toContain(
       'Provided payApiUrl is insecure, please use https'
     )
   })
@@ -39,7 +34,7 @@ suite(`Server config validation`, () => {
 
     const { error } = configSchema.validate(configWithInsecureUrl)
 
-    expect(error.message).to.contain(
+    expect(error.message).toContain(
       'Provided payReturnUrl is insecure, please use https'
     )
   })
@@ -53,7 +48,7 @@ suite(`Server config validation`, () => {
 
     const result = configSchema.validate(configWithInsecureUrl)
 
-    expect(Object.keys(result)).to.not.contain('error')
+    expect(Object.keys(result)).not.toContain('error')
   })
 
   test('it succeeds when PAY_RETURN_URL is insecure and the api environment is test', () => {
@@ -65,7 +60,7 @@ suite(`Server config validation`, () => {
 
     const result = configSchema.validate(configWithInsecureUrl)
 
-    expect(Object.keys(result)).to.not.contain('error')
+    expect(Object.keys(result)).not.toContain('error')
   })
 
   test('it throws when oAuth config is incomplete', () => {
@@ -76,7 +71,7 @@ suite(`Server config validation`, () => {
       abortEarly: false
     })
 
-    expect(error.message).to.contain(
+    expect(error.message).toContain(
       '"authClientId" is required. "authClientSecret" is required. "authClientAuthUrl" is required. "authClientTokenUrl" is required. "authClientProfileUrl" is required'
     )
   })

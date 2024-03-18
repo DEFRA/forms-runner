@@ -63,6 +63,8 @@ export function verifyToken(decodedToken) {
     })
     return { isValid: true }
   } catch (err) {
+    console.log(err)
+
     return {
       isValid: false,
       error: `${err}`

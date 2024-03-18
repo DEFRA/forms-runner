@@ -1,11 +1,5 @@
-import { expect } from '@hapi/code'
-import * as Lab from '@hapi/lab'
 import createServer from '../../../src/server/index.js'
-import sinon from 'sinon'
 import config from '../../../src/server/config.js'
-
-export const lab = Lab.script()
-const { suite, describe, test, before, beforeEach, after } = lab
 
 let server
 
@@ -90,16 +84,16 @@ const baseRequest = {
   metadata: { woo: 'ah' }
 }
 
-suite('InitialiseSession', () => {
-  before(async () => {
+describe('InitialiseSession', () => {
+  beforeAll(async () => {
     server = await createServer({})
     await server.start()
   })
 
-  after(async () => {
+  afterAll(async () => {
     await server.stop()
-    sinon.restore()
   })
+
   describe('POST /session/{id}', () => {
     test(' responds with token if file exists', async () => {
       const serverRequestOptions = {
@@ -109,7 +103,7 @@ suite('InitialiseSession', () => {
       }
 
       const { payload } = await server.inject(serverRequestOptions)
-      expect(payload).to.not.be.undefined()
+      expect(payload).toBeTruthy()
     })
 
     test('responds with token if form doesnt exist', async () => {
@@ -120,7 +114,7 @@ suite('InitialiseSession', () => {
       }
 
       const { statusCode } = await server.inject(serverRequestOptions)
-      expect(statusCode).to.equal(404)
+      expect(statusCode).toBe(404)
     })
     test('responds with a 403 if the callbackUrl has not been safelisted', async () => {
       const serverRequestOptions = {
@@ -132,7 +126,7 @@ suite('InitialiseSession', () => {
         }
       }
       const { statusCode } = await server.inject(serverRequestOptions)
-      expect(statusCode).to.equal(403)
+      expect(statusCode).toBe(403)
     })
   })
 
@@ -154,8 +148,8 @@ suite('InitialiseSession', () => {
         url: `/session/${token}`
       })
 
-      expect(getResponse.statusCode).to.equal(302)
-      expect(getResponse.headers.location).to.equal('/test')
+      expect(getResponse.statusCode).toBe(302)
+      expect(getResponse.headers.location).toBe('/test')
 
       serverRequestOptions.payload.options.redirectPath = 'summary'
       postResponse = await server.inject(serverRequestOptions)
@@ -164,8 +158,8 @@ suite('InitialiseSession', () => {
       getResponse = await server.inject({
         url: `/session/${token}`
       })
-      expect(getResponse.statusCode).to.equal(302)
-      expect(getResponse.headers.location).to.equal('/test/summary')
+      expect(getResponse.statusCode).toBe(302)
+      expect(getResponse.headers.location).toBe('/test/summary')
     })
   })
 
@@ -182,6 +176,7 @@ suite('InitialiseSession', () => {
         }
       }
     })
+
     test('When token is valid', async () => {
       const response = await server.inject(serverRequestOptions)
       const payload = JSON.parse(response.payload)
@@ -191,7 +186,7 @@ suite('InitialiseSession', () => {
         url: `/session/${token}`
       })
 
-      expect(getResponse.statusCode).to.equal(302)
+      expect(getResponse.statusCode).toBe(302)
     })
 
     test('When token is invalid', async () => {
@@ -199,14 +194,14 @@ suite('InitialiseSession', () => {
       const payload = JSON.parse(response.payload)
       const token = payload.token
 
-      sinon.stub(config, 'initialisedSessionKey').value('incorrect key')
+      jest.replaceProperty(config, 'initialisedSessionKey', 'incorrect key')
 
       const getResponse = await server.inject({
         method: 'GET',
         url: `/session/${token}`
       })
 
-      expect(getResponse.statusCode).to.equal(400)
+      expect(getResponse.statusCode).toBe(400)
     })
   })
 })

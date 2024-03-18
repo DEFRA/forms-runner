@@ -1,12 +1,7 @@
-import { expect } from '@hapi/code'
-import * as Lab from '@hapi/lab'
 import { MultilineTextField } from '../../../../../src/server/plugins/engine/components'
 import { validationOptions } from '../../../../../src/server/plugins/engine/pageControllers/validationOptions'
 
-export const lab = Lab.script()
-const { suite, test } = lab
-
-suite('Multiline text field', () => {
+describe('Multiline text field', () => {
   test('Should supply custom validation message if defined', () => {
     const def = {
       name: 'myComponent',
@@ -22,9 +17,9 @@ suite('Multiline text field', () => {
     }
     const multilineTextField = new MultilineTextField(def, {})
     const { formSchema } = multilineTextField
-    expect(formSchema.validate('a').error).to.be.undefined()
+    expect(formSchema.validate('a').error).toBeUndefined()
 
-    expect(formSchema.validate('too many').error.message).to.equal(
+    expect(formSchema.validate('too many').error.message).toBe(
       'This is a custom error'
     )
   })
@@ -43,20 +38,18 @@ suite('Multiline text field', () => {
     const multilineTextField = new MultilineTextField(def, {})
     const { formSchema } = multilineTextField
 
-    expect(
-      formSchema.validate('yolk', validationOptions).error
-    ).to.be.undefined()
+    expect(formSchema.validate('yolk', validationOptions).error).toBeUndefined()
 
-    expect(
-      formSchema.validate('egg', validationOptions).error.message
-    ).to.equal('my component must be 4 characters or more')
+    expect(formSchema.validate('egg', validationOptions).error.message).toBe(
+      'my component must be 4 characters or more'
+    )
     expect(
       formSchema.validate('scrambled', validationOptions).error.message
-    ).to.equal('my component must be 5 characters or less')
+    ).toBe('my component must be 5 characters or less')
 
     expect(
       formSchema.validate('scrambled', validationOptions).error.message
-    ).to.equal('my component must be 5 characters or less')
+    ).toBe('my component must be 5 characters or less')
   })
 
   test('Should apply default schema if no options are passed', () => {
@@ -70,10 +63,10 @@ suite('Multiline text field', () => {
     const multilineTextField = new MultilineTextField(def, {})
     const { formSchema } = multilineTextField
 
-    expect(formSchema.validate('', validationOptions).error.message).to.equal(
+    expect(formSchema.validate('', validationOptions).error.message).toBe(
       'Enter my component'
     )
-    expect(formSchema.validate('benedict').error).to.be.undefined()
+    expect(formSchema.validate('benedict').error).toBeUndefined()
   })
 
   test('should return correct view model when maxwords or schema.length configured', () => {
@@ -92,10 +85,12 @@ suite('Multiline text field', () => {
       multilineTextFieldMaxWordsDef,
       {}
     )
-    expect(multilineTextFieldMaxWords.getViewModel({})).to.contain({
-      isCharacterOrWordCount: true,
-      maxwords: 100
-    })
+    expect(multilineTextFieldMaxWords.getViewModel({})).toEqual(
+      expect.objectContaining({
+        isCharacterOrWordCount: true,
+        maxwords: 100
+      })
+    )
 
     const multilineTextFieldMaxCharsDef = {
       name: 'myComponent',
@@ -111,10 +106,12 @@ suite('Multiline text field', () => {
       multilineTextFieldMaxCharsDef,
       {}
     )
-    expect(multilineTextFieldMaxChars.getViewModel({})).to.contain({
-      isCharacterOrWordCount: true,
-      maxlength: 5
-    })
+    expect(multilineTextFieldMaxChars.getViewModel({})).toEqual(
+      expect.objectContaining({
+        isCharacterOrWordCount: true,
+        maxlength: 5
+      })
+    )
   })
 
   test('should return correct view model when not configured with maxwords or schema.length', () => {
@@ -126,8 +123,10 @@ suite('Multiline text field', () => {
       schema: {}
     }
     const multilineTextFieldMaxWords = new MultilineTextField(def, {})
-    expect(multilineTextFieldMaxWords.getViewModel({})).to.contain({
-      isCharacterOrWordCount: false
-    })
+    expect(multilineTextFieldMaxWords.getViewModel({})).toEqual(
+      expect.objectContaining({
+        isCharacterOrWordCount: false
+      })
+    )
   })
 })

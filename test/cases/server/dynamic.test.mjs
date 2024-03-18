@@ -1,14 +1,8 @@
-import { expect } from '@hapi/code'
-import * as Lab from '@hapi/lab'
 import cheerio from 'cheerio'
 import FormData from 'form-data'
-import { stub, restore } from 'sinon'
 
 import createServer from '../../../src/server/index.js'
 import { CacheService } from '../../../src/server/services/cacheService.js'
-
-export const lab = Lab.script()
-const { suite, test, before, after, afterEach } = lab
 
 const state = {
   progress: [
@@ -84,11 +78,11 @@ const FORMS = {
 const SESSION_ID = 'TEST_ID'
 const VISIT_ID = 'AvsfDdnkdns'
 
-suite('Dynamic pages', { skip: true }, () => {
+describe.skip('Dynamic pages', () => {
   let server
 
   // Create server before each test
-  before(async () => {
+  beforeAll(async () => {
     server = await createServer({
       formFileName: 'dynamic.json',
       formFilePath: __dirname
@@ -96,21 +90,20 @@ suite('Dynamic pages', { skip: true }, () => {
     await server.start()
   })
 
-  after(async () => {
+  afterAll(async () => {
     server.stop()
   })
 
   afterEach(async () => {
-    restore()
     const { cacheService } = server.services()
     await cacheService.clearState({
       yar: { id: SESSION_ID },
       query: { visit: VISIT_ID }
     })
-    stub(CacheService.prototype, 'Key').callsFake(() => ({
+    jest.spyOn(CacheService.prototype, 'Key').mockReturnValue({
       segment: 'segment',
       id: `${SESSION_ID}:${VISIT_ID}`
-    }))
+    })
   })
 
   test('Start of repeatable section appends num parameter', async () => {
@@ -119,7 +112,7 @@ suite('Dynamic pages', { skip: true }, () => {
         numberOfApplicants: 2
       })
     )
-    expect(response.headers.location).to.equal(
+    expect(response.headers.location).toBe(
       `/dynamic/applicant-repeatable?num=1&visit=${VISIT_ID}`
     )
   })
@@ -140,7 +133,7 @@ suite('Dynamic pages', { skip: true }, () => {
     reassignNextPath()
 
     response = await server.inject(postOptions(nextPath, FORMS.contact))
-    expect(response.headers.location).to.equal(
+    expect(response.headers.location).toBe(
       `/dynamic/applicant-repeatable?num=2&visit=${VISIT_ID}`
     )
     reassignNextPath()
@@ -149,24 +142,20 @@ suite('Dynamic pages', { skip: true }, () => {
     reassignNextPath()
 
     response = await server.inject(postOptions(nextPath, FORMS.contact))
-    expect(response.headers.location).to.equal(
-      `/dynamic/summary?visit=${VISIT_ID}`
-    )
+    expect(response.headers.location).toBe(`/dynamic/summary?visit=${VISIT_ID}`)
 
     reassignNextPath()
   })
 
   test('Change url redirects to question page with correct answers', async () => {
-    stub(CacheService.prototype, 'getState').callsFake(() => {
-      return state
-    })
+    jest.spyOn(CacheService.prototype, 'getState').mockReturnValue(state)
 
     const response = await server.inject({
       method: 'GET',
       url: `/dynamic/summary?visit=${VISIT_ID}`
     })
-    expect(response.statusCode).to.equal(200)
-    expect(response.headers['content-type']).to.include('text/html')
+    expect(response.statusCode).toBe(200)
+    expect(response.headers['content-type']).toContain('text/html')
 
     let $ = cheerio.load(response.payload)
 
@@ -177,7 +166,7 @@ suite('Dynamic pages', { skip: true }, () => {
       url: changeEmailLink
     })
     $ = cheerio.load(changeEmailPage.payload)
-    expect($('#emailAddress')[0].attribs.value).to.equal(
+    expect($('#emailAddress')[0].attribs.value).toEqual(
       state.applicant[0]['/contact-details'].emailAddress
     )
   })
@@ -192,12 +181,12 @@ suite('Dynamic pages', { skip: true }, () => {
       method: 'GET',
       url: `/dynamic/summary?visit=${VISIT_ID}`
     })
-    expect(response.statusCode).to.equal(200)
-    expect(response.headers['content-type']).to.include('text/html')
+    expect(response.statusCode).toBe(200)
+    expect(response.headers['content-type']).toContain('text/html')
 
     let $ = cheerio.load(response.payload)
     const applicantHeadings = $('h2:contains("Applicant")')
-    expect(applicantHeadings).to.be.length(2)
+    expect(applicantHeadings).toHaveLength(2)
 
     await server.inject(
       postOptions('/dynamic/how-many-people', { numberOfApplicants: 1 })
@@ -210,6 +199,6 @@ suite('Dynamic pages', { skip: true }, () => {
 
     $ = cheerio.load(responseAfterNumberChange.payload)
 
-    expect($('h2:contains("Applicant")')).to.be.length(1)
+    expect($('h2:contains("Applicant")')).toHaveLength(1)
   })
 })

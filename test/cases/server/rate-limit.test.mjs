@@ -1,19 +1,21 @@
-import * as Lab from '@hapi/lab'
-
 import createServer from '../../../src/server/index.js'
 
-export const lab = Lab.script()
-const { suite, before, after } = lab
-
-suite('Rate limit', () => {
+describe('Rate limit', () => {
   let server
 
+  const options = {
+    userLimit: 1,
+    userCache: {
+      expiresIn: 5000
+    }
+  }
+
   // Create server before each test
-  before(async () => {
+  beforeAll(async () => {
     server = await createServer({
       formFileName: 'basic-v1.json',
       formFilePath: __dirname,
-      rateOptions: { userLimit: 1, userCache: { expiresIn: 5000 } }
+      rateOptions: options
     })
     server.route({
       method: 'GET',
@@ -27,9 +29,22 @@ suite('Rate limit', () => {
         }
       }
     })
-    await server.start()
   })
-  after(async () => {
+
+  afterAll(async () => {
     await server.stop()
+  })
+
+  test.only('plugin is registered during server start', async () => {
+    await expect(server.start()).resolves.not.toThrow()
+
+    expect(server.registrations).toEqual(
+      expect.objectContaining({
+        'hapi-rate-limit': expect.objectContaining({
+          name: 'hapi-rate-limit',
+          options
+        })
+      })
+    )
   })
 })

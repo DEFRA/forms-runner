@@ -1,24 +1,19 @@
-// eslint-disable-next-line import/no-named-as-default
-import nanoid from 'nanoid'
-import { expect } from '@hapi/code'
-import * as Lab from '@hapi/lab'
-import * as sinon from 'sinon'
+import { nanoid } from 'nanoid'
 import { PayService } from '../../../../src/server/services/payService.js'
 import { format } from 'date-fns'
 
-export const lab = Lab.script()
-const { suite, describe, test, before, after } = lab
+jest.mock('nanoid')
 
-const server = {
-  logger: {
-    info: sinon.spy(),
-    debug: sinon.spy(),
-    warn: sinon.spy(),
-    error: sinon.spy()
+describe('Server PayService Service', () => {
+  const server = {
+    logger: {
+      info: jest.fn(),
+      debug: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn()
+    }
   }
-}
 
-suite('Server PayService Service', () => {
   test('Currency formatted correctly in description', async () => {
     const service = new PayService(server)
     const result = service.descriptionFromFees({
@@ -30,7 +25,7 @@ suite('Server PayService Service', () => {
         }
       ]
     })
-    expect(result).to.equal('A: £3.50')
+    expect(result).toBe('A: £3.50')
   })
 
   test('Currency formatted correctly in description with multipliers', async () => {
@@ -47,7 +42,7 @@ suite('Server PayService Service', () => {
         }
       ]
     })
-    expect(result).to.equal('3 x A: £10.50')
+    expect(result).toBe('3 x A: £10.50')
   })
 
   test('Currency formatted correctly in description with multiple fees', async () => {
@@ -68,17 +63,11 @@ suite('Server PayService Service', () => {
         }
       ]
     })
-    expect(result).to.equal('3 x A: £10.50, B: £150.00')
+    expect(result).toBe('3 x A: £10.50, B: £150.00')
   })
 
   describe('reference is generated correctly', () => {
-    before(() => {
-      const stub = sinon.stub(nanoid, 'nanoid')
-      stub.callsFake(() => 'b33pb00p')
-    })
-    after(() => {
-      sinon.restore()
-    })
+    jest.mocked(nanoid).mockReturnValue('b33pb00p')
 
     const today = format(new Date(), 'ddMMyyyy')
     const service = new PayService(server)
@@ -86,59 +75,59 @@ suite('Server PayService Service', () => {
     test('{{PREFIX}} replacement is correct', () => {
       expect(
         service.referenceFromFees(['fee', 'fii', 'fo'], '{{PREFIX}}')
-      ).to.equal('fee-fii-fo-b33pb00p')
-      expect(service.referenceFromFees(['fee'], 'FCDO-{{PREFIX}}')).to.equal(
+      ).toBe('fee-fii-fo-b33pb00p')
+      expect(service.referenceFromFees(['fee'], 'FCDO-{{PREFIX}}')).toBe(
         'FCDO-fee-b33pb00p'
       )
-      expect(service.referenceFromFees([], 'FCDO-{{PREFIX}}')).to.equal(
+      expect(service.referenceFromFees([], 'FCDO-{{PREFIX}}')).toBe(
         'FCDO--b33pb00p'
       )
     })
 
     test('{{DATE*}} replacement is correct', () => {
-      expect(service.referenceFromFees([], 'FRIED-{{DATE}}')).to.equal(
+      expect(service.referenceFromFees([], 'FRIED-{{DATE}}')).toBe(
         `FRIED-${today}-b33pb00p`
       )
-      expect(service.referenceFromFees([], '{{DATE}}')).to.equal(
+      expect(service.referenceFromFees([], '{{DATE}}')).toBe(
         `${today}-b33pb00p`
       )
-      expect(service.referenceFromFees([], '{{DATE:}}')).to.equal(
+      expect(service.referenceFromFees([], '{{DATE:}}')).toBe(
         `${today}-b33pb00p`
       )
 
-      expect(
-        service.referenceFromFees(['fee', 'fii', 'fo'], '{{DATE}}')
-      ).to.equal(`${today}-b33pb00p`)
+      expect(service.referenceFromFees(['fee', 'fii', 'fo'], '{{DATE}}')).toBe(
+        `${today}-b33pb00p`
+      )
 
       const yyyymmdd = format(new Date(), 'yyyymmdd')
-      expect(service.referenceFromFees([], '{{DATE:yyyymmdd}}')).to.equal(
+      expect(service.referenceFromFees([], '{{DATE:yyyymmdd}}')).toBe(
         `${yyyymmdd}-b33pb00p`
       )
 
       const split = format(new Date(), 'dd-mm-yyyy')
-      expect(service.referenceFromFees([], '{{DATE:dd-mm-yyyy}}')).to.equal(
+      expect(service.referenceFromFees([], '{{DATE:dd-mm-yyyy}}')).toBe(
         `${split}-b33pb00p`
       )
     })
 
     test('combination replacement is correct', () => {
-      expect(service.referenceFromFees([], '{{DATE}}-{{PREFIX}}')).to.equal(
+      expect(service.referenceFromFees([], '{{DATE}}-{{PREFIX}}')).toBe(
         `${today}--b33pb00p`
       )
       expect(
         service.referenceFromFees(['scrambled'], '{{PREFIX}}-{{DATE}}')
-      ).to.equal(`scrambled-${today}-b33pb00p`)
+      ).toBe(`scrambled-${today}-b33pb00p`)
 
       expect(
         service.referenceFromFees(
           ['scrambled', 'fried'],
           'EGGS:{{PREFIX}}-{{DATE}}'
         )
-      ).to.equal(`EGGS:scrambled-fried-${today}-b33pb00p`)
+      ).toBe(`EGGS:scrambled-fried-${today}-b33pb00p`)
     })
 
     test('no tags format is correct', () => {
-      expect(service.referenceFromFees([], 'FCDO')).to.equal('FCDO-b33pb00p')
+      expect(service.referenceFromFees([], 'FCDO')).toBe('FCDO-b33pb00p')
     })
   })
 })

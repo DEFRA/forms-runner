@@ -1,23 +1,17 @@
 import fs from 'fs'
 import path from 'path'
-import * as Lab from '@hapi/lab'
 import cheerio from 'cheerio'
 import FormData from 'form-data'
-import { expect } from '@hapi/code'
-import { stub, restore } from 'sinon'
 import config from '../../../src/server/config.js'
 
 import createServer from '../../../src/server/index.js'
 import { UploadService } from '../../../src/server/services/upload/index.js'
 
-export const lab = Lab.script()
-const { suite, test, before, after } = lab
-
-suite('uploads', () => {
+describe('uploads', () => {
   let server
 
   // Create server before each test
-  before(async () => {
+  beforeAll(async () => {
     config.documentUploadApiUrl = 'http://localhost:9000'
     server = await createServer({
       formFileName: 'upload.json',
@@ -26,7 +20,7 @@ suite('uploads', () => {
     await server.start()
   })
 
-  after(async () => {
+  afterAll(async () => {
     await server.stop()
   })
 
@@ -42,16 +36,16 @@ suite('uploads', () => {
       payload: form.getBuffer()
     }
     const response = await server.inject(options)
-    expect(response.statusCode).to.equal(302)
-    expect(response.headers).to.include('location')
-    expect(response.headers.location).to.equal('/forms-runner/upload/summary')
+    expect(response.statusCode).toBe(302)
+    expect(response.headers).toMatchObject({
+      location: '/forms-runner/upload/summary'
+    })
   })
 
   test('request with file upload field containing virus returns with error message', async () => {
-    restore()
-
-    stub(UploadService.prototype, 'fileStreamsFromPayload').callsFake(() => {
-      return [
+    jest
+      .spyOn(UploadService.prototype, 'fileStreamsFromPayload')
+      .mockReturnValue([
         [
           'file1',
           {
@@ -59,13 +53,10 @@ suite('uploads', () => {
             _data: fs.readFileSync(path.join(__dirname, 'dummy.pdf'))
           }
         ]
-      ]
-    })
+      ])
 
-    stub(UploadService.prototype, 'uploadDocuments').callsFake(async () => {
-      return {
-        error: 'The selected file for "%s" contained a virus'
-      }
+    jest.spyOn(UploadService.prototype, 'uploadDocuments').mockReturnValue({
+      error: 'The selected file for "%s" contained a virus'
     })
 
     const form = new FormData()
@@ -80,14 +71,12 @@ suite('uploads', () => {
     const response = await server.inject(options)
 
     const $ = cheerio.load(response.payload)
-    expect($("[href='#file1']").text().trim()).to.equal(
+    expect($("[href='#file1']").text().trim()).toBe(
       'The selected file for "Passport photo" contained a virus'
     )
   })
 
   test('request with files larger than 2MB return an error', async () => {
-    restore()
-
     fs.writeFileSync('tmp.pdf', Buffer.alloc(6 * 1024 * 1024, 'a'))
 
     const data = fs.readFileSync('tmp.pdf')
@@ -105,15 +94,15 @@ suite('uploads', () => {
 
     const $ = cheerio.load(response.payload)
 
-    expect($("[href='#file1']").text().trim()).to.contain(
+    expect($("[href='#file1']").text().trim()).toContain(
       'The selected file must be smaller than'
     )
   })
 
   test('request with file upload field containing invalid file type returns with error message', async () => {
-    restore()
-    stub(UploadService.prototype, 'fileStreamsFromPayload').callsFake(() => {
-      return [
+    jest
+      .spyOn(UploadService.prototype, 'fileStreamsFromPayload')
+      .mockReturnValue([
         [
           'file1',
           {
@@ -121,8 +110,7 @@ suite('uploads', () => {
             _data: fs.readFileSync(path.join(__dirname, 'dummy.pdf'))
           }
         ]
-      ]
-    })
+      ])
 
     const form = new FormData()
     form.append('fullName', 1)
@@ -136,7 +124,7 @@ suite('uploads', () => {
     const response = await server.inject(options)
 
     const $ = cheerio.load(response.payload)
-    expect($("[href='#file1']").text().trim()).to.contain(
+    expect($("[href='#file1']").text().trim()).toContain(
       'The selected file for "Passport photo" must be a jpg, jpeg, png or pdf'
     )
   })

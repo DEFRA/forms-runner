@@ -1,55 +1,49 @@
-import { expect } from '@hapi/code'
-import * as Lab from '@hapi/lab'
-import sinon from 'sinon'
 import { FormModel } from '../../../../../../src/server/plugins/engine/models'
 import { ListComponentsDef } from '@defra/forms-model'
 import { FormSubmissionErrors } from '../../../../../../src/server/plugins/engine/types'
 import { SelectField } from '../../../../../../src/server/plugins/engine/components'
 
-export const lab = Lab.script()
-const { suite, describe, it } = lab
+describe('SelectField', () => {
+  const lists = [
+    {
+      name: 'Countries',
+      title: 'Countries',
+      type: 'string',
+      items: [
+        {
+          text: 'United Kingdom',
+          value: 'United Kingdom',
+          description: '',
+          condition: ''
+        },
+        {
+          text: 'Thailand',
+          value: 'Thailand',
+          description: '',
+          condition: ''
+        },
+        {
+          text: 'Spain',
+          value: 'Spain',
+          description: '',
+          condition: ''
+        },
+        {
+          text: 'France',
+          value: 'France',
+          description: '',
+          condition: ''
+        },
+        {
+          text: 'Thailand',
+          value: 'Thailand',
+          description: '',
+          condition: ''
+        }
+      ]
+    }
+  ]
 
-const lists = [
-  {
-    name: 'Countries',
-    title: 'Countries',
-    type: 'string',
-    items: [
-      {
-        text: 'United Kingdom',
-        value: 'United Kingdom',
-        description: '',
-        condition: ''
-      },
-      {
-        text: 'Thailand',
-        value: 'Thailand',
-        description: '',
-        condition: ''
-      },
-      {
-        text: 'Spain',
-        value: 'Spain',
-        description: '',
-        condition: ''
-      },
-      {
-        text: 'France',
-        value: 'France',
-        description: '',
-        condition: ''
-      },
-      {
-        text: 'Thailand',
-        value: 'Thailand',
-        description: '',
-        condition: ''
-      }
-    ]
-  }
-]
-
-suite('SelectField', () => {
   describe('Generated schema', () => {
     const componentDefinition: ListComponentsDef = {
       subType: 'field',
@@ -63,19 +57,17 @@ suite('SelectField', () => {
 
     const formModel: FormModel = {
       getList: () => lists[0],
-      makePage: () => sinon.stub()
+      makePage: () => jest.fn()
     }
 
     const component = new SelectField(componentDefinition, formModel)
 
     it('is required by default', () => {
-      expect(component.formSchema.describe().flags.presence).to.equal(
-        'required'
-      )
+      expect(component.formSchema.describe().flags.presence).toBe('required')
     })
 
     it('validates correctly', () => {
-      expect(component.formSchema.validate({}).error).to.exist()
+      expect(component.formSchema.validate({}).error).toBeTruthy()
     })
 
     it('includes the first empty item in items list', () => {
@@ -83,8 +75,8 @@ suite('SelectField', () => {
         { lang: 'en' },
         {} as FormSubmissionErrors
       )
-      expect(items).to.exist()
-      expect(items![0]).to.equal({ value: '' })
+      expect(items).toBeTruthy()
+      expect(items![0]).toEqual({ value: '' })
     })
   })
 })

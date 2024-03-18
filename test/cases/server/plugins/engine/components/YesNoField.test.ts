@@ -1,12 +1,6 @@
-import { expect } from '@hapi/code'
-import * as Lab from '@hapi/lab'
-import sinon from 'sinon'
 import { YesNoField } from '../../../../../../src/server/plugins/engine/components/YesNoField'
 
-export const lab = Lab.script()
-const { suite, describe, it } = lab
-
-suite('YesNoField', () => {
+describe('YesNoField', () => {
   describe('Generated schema', () => {
     const componentDefinition = {
       subType: 'field',
@@ -18,7 +12,7 @@ suite('YesNoField', () => {
     }
 
     const formModel = {
-      makePage: () => sinon.stub(),
+      makePage: () => jest.fn(),
       getList: () => ({
         name: '__yesNo',
         title: 'Yes/No',
@@ -47,7 +41,7 @@ suite('YesNoField', () => {
         const viewModel = component.getViewModel(formData)
         const yesItem = viewModel.items.filter((item) => item.text === 'Yes')[0]
 
-        expect(yesItem).to.equal({
+        expect(yesItem).toEqual({
           text: 'Yes',
           value: true,
           checked: true
@@ -64,7 +58,7 @@ suite('YesNoField', () => {
         const viewModel = component.getViewModel(formData)
         const yesItem = viewModel.items.filter((item) => item.text === 'Yes')[0]
 
-        expect(yesItem).to.equal({
+        expect(yesItem).toEqual({
           text: 'Yes',
           value: true,
           checked: true
@@ -81,7 +75,7 @@ suite('YesNoField', () => {
         const viewModel = component.getViewModel(formData)
         const noItem = viewModel.items.filter((item) => item.text === 'No')[0]
 
-        expect(noItem).to.equal({
+        expect(noItem).toEqual({
           text: 'No',
           value: false,
           checked: true
@@ -98,7 +92,7 @@ suite('YesNoField', () => {
         const viewModel = component.getViewModel(formData)
         const noItem = viewModel.items.filter((item) => item.text === 'No')[0]
 
-        expect(noItem).to.equal({
+        expect(noItem).toEqual({
           text: 'No',
           value: false,
           checked: true

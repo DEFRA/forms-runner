@@ -1,61 +1,54 @@
-import { expect } from '@hapi/code'
-import * as Lab from '@hapi/lab'
 import { UploadPageController } from '../../../../../../src/server/plugins/engine/pageControllers/UploadPageController'
 import { FormModel } from '../../../../../../src/server/plugins/engine/models'
-import * as sinon from 'sinon'
-import * as PlaybackUploadPageController from '../../../../../../src/server/plugins/engine/pageControllers/PlaybackUploadPageController'
+import { PlaybackUploadPageController } from '../../../../../../src/server/plugins/engine/pageControllers/PlaybackUploadPageController'
 
-export const lab = Lab.script()
-const { suite, test } = lab
-
-const def = {
-  title: 'Your birth certificate',
-  path: '/your-birth-certificate',
-  name: '',
-  components: [
-    {
-      name: 'imageUpload',
-      options: {
-        required: true
-      },
-      type: 'FileUploadField',
-      title: 'Birth certificate',
-      schema: {}
-    }
-  ],
-  next: [
-    {
-      path: '/second-page'
-    }
-  ],
-  controller: 'UploadPageController'
-}
-
-const model = new FormModel(
-  {
-    pages: [],
-    startPage: '/start',
-    sections: [],
-    lists: [],
-    conditions: []
-  },
-  {}
+jest.mock(
+  '../../../../../../src/server/plugins/engine/pageControllers/PlaybackUploadPageController'
 )
 
-suite('UploadPageController', () => {
-  lab.before(() => {
-    class MockPlaybackPageController {
-      makePostRouteHandler() {
-        return sinon.stub().returns(true)
+describe('UploadPageController', () => {
+  const def = {
+    title: 'Your birth certificate',
+    path: '/your-birth-certificate',
+    name: '',
+    components: [
+      {
+        name: 'imageUpload',
+        options: {
+          required: true
+        },
+        type: 'FileUploadField',
+        title: 'Birth certificate',
+        schema: {}
       }
+    ],
+    next: [
+      {
+        path: '/second-page'
+      }
+    ],
+    controller: 'UploadPageController'
+  }
 
-      makeGetRouteHandler() {
-        return sinon.stub().returns(true)
-      }
-    }
-    sinon
-      .stub(PlaybackUploadPageController, 'PlaybackUploadPageController')
-      .callsFake(() => new MockPlaybackPageController())
+  const model = new FormModel(
+    {
+      pages: [],
+      startPage: '/start',
+      sections: [],
+      lists: [],
+      conditions: []
+    },
+    {}
+  )
+
+  beforeAll(() => {
+    jest
+      .spyOn(PlaybackUploadPageController.prototype, 'makePostRouteHandler')
+      .mockReturnValue(async () => true)
+
+    jest
+      .spyOn(PlaybackUploadPageController.prototype, 'makeGetRouteHandler')
+      .mockReturnValue(async () => true)
   })
 
   test('Redirects post handler to the playback page post handler when view=playback', async () => {
@@ -66,7 +59,7 @@ suite('UploadPageController', () => {
       }
     }
     const result = await pageController.makePostRouteHandler()(request, {})
-    expect(result).to.be.true()
+    expect(result).toBe(true)
   })
   test('Redirects get handler to the playback page get handler when view=playback', async () => {
     const pageController = new UploadPageController(model, def)
@@ -76,6 +69,6 @@ suite('UploadPageController', () => {
       }
     }
     const result = await pageController.makeGetRouteHandler()(request, {})
-    expect(result).to.be.true()
+    expect(result).toBe(true)
   })
 })

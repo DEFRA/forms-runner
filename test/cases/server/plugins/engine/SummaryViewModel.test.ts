@@ -1,6 +1,3 @@
-import { expect } from '@hapi/code'
-import * as Lab from '@hapi/lab'
-import sinon from 'sinon'
 import {
   FormModel,
   SummaryViewModel
@@ -8,16 +5,9 @@ import {
 import config from '../../../../../src/server/config'
 import form from './SummaryViewModel.json'
 
-export const lab = Lab.script()
-const { suite, test, afterEach } = lab
-
-suite('SummaryViewModel', () => {
-  afterEach(() => {
-    sinon.restore()
-  })
-
+describe('SummaryViewModel', () => {
   test('returns the correct apiKey', async () => {
-    sinon.stub(config, 'apiEnv').value('test')
+    jest.replaceProperty(config, 'apiEnv', 'test')
 
     const formModel = new FormModel(form, {})
     const viewModel = new SummaryViewModel(
@@ -36,8 +26,8 @@ suite('SummaryViewModel', () => {
         }
       }
     )
-    expect(viewModel.payApiKey).to.equal('test_api_key')
-    sinon.stub(config, 'apiEnv').value('production')
-    expect(viewModel.payApiKey).to.equal('production_api_key')
+    expect(viewModel.payApiKey).toBe('test_api_key')
+    jest.replaceProperty(config, 'apiEnv', 'production')
+    expect(viewModel.payApiKey).toBe('production_api_key')
   })
 })

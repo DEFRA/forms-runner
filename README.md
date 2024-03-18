@@ -155,10 +155,6 @@ See [https://github.com/node-config/node-config#readme](https://github.com/node-
 
 Tests are found inside `test/cases`. For test scripts, name them `${NAME}.test.js`.
 
-# Test coverage threshold
-
-Unit test coverage threshold, code coverage below which build will fail is set by using lab's switch -t COVERAGE_LEVEL, currently threshold is configured to 83%, see unit-test-cov script in [package.json](package.json).
-
 # Deployment
 
 Currently CI is done with github actions. Pushes to main
