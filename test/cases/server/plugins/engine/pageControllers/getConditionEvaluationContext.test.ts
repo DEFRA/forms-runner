@@ -1,13 +1,8 @@
-import { expect } from '@hapi/code'
-import * as Lab from '@hapi/lab'
 import formJson from '../../../../../../src/server/forms/get-condition-evaluation-context.json'
 import { FormModel } from '../../../../../../src/server/plugins/engine/models'
 import { PageController } from '../../../../../../src/server/plugins/engine/pageControllers'
 
-export const lab = Lab.script()
-const { suite, it } = lab
-
-suite('Condition Evaluation Context', () => {
+describe('Condition Evaluation Context', () => {
   it('it correctly includes/filters state values', () => {
     const formModel = new FormModel(formJson, {})
 
@@ -56,7 +51,7 @@ suite('Condition Evaluation Context', () => {
     )
 
     // Our relevantState should know our applicants firstName is Martin
-    expect(relevantState.applicantOneDetails.firstName).to.equal('Martin')
+    expect(relevantState.applicantOneDetails.firstName).toBe('Martin')
 
     // Now mark that we don't have a UK Passport
     completeState.checkBeforeYouStart.ukPassport = false
@@ -65,7 +60,7 @@ suite('Condition Evaluation Context', () => {
     relevantState = page.getConditionEvaluationContext(formModel, completeState)
 
     // Our relevantState should no longer know anything about our applicant
-    expect(relevantState.checkBeforeYouStart.ukPassport).to.equal(false)
-    expect(relevantState.applicantOneDetails).to.not.exist()
+    expect(relevantState.checkBeforeYouStart.ukPassport).toBe(false)
+    expect(relevantState.applicantOneDetails).toBeUndefined()
   })
 })

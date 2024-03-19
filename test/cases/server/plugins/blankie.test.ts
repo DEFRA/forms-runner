@@ -1,17 +1,11 @@
-import { expect } from '@hapi/code'
-import * as Lab from '@hapi/lab'
-
 import { configureBlankiePlugin } from '../../../../src/server/plugins/blankie'
 
-export const lab = Lab.script()
-const { suite, test } = lab
-
-suite('Server Blankie Plugin', () => {
+describe('Server Blankie Plugin', () => {
   test('configuration options without matomo is correct', () => {
     const config = {}
     const { options } = configureBlankiePlugin(config)
 
-    expect(options).to.equal({
+    expect(options).toEqual({
       defaultSrc: ['self'],
       fontSrc: ['self', 'data:'],
       frameSrc: ['self', 'data:'],
@@ -30,7 +24,7 @@ suite('Server Blankie Plugin', () => {
 
     const { options } = configureBlankiePlugin(config)
 
-    expect(options).to.equal({
+    expect(options).toEqual({
       defaultSrc: ['self'],
       fontSrc: ['self', 'data:'],
       frameSrc: ['self', 'data:'],
@@ -49,7 +43,7 @@ suite('Server Blankie Plugin', () => {
 
     const { options } = configureBlankiePlugin(config)
 
-    expect(options).to.equal({
+    expect(options).toEqual({
       defaultSrc: ['self'],
       fontSrc: ['self', 'data:', 'fonts.gstatic.com'],
       frameSrc: ['self', 'data:', 'www.googletagmanager.com'],
@@ -97,7 +91,7 @@ suite('Server Blankie Plugin', () => {
 
     const { options } = configureBlankiePlugin(config)
 
-    expect(options).to.equal({
+    expect(options).toEqual({
       defaultSrc: ['self'],
       fontSrc: ['self', 'data:', 'fonts.gstatic.com'],
       frameSrc: ['self', 'data:', 'www.googletagmanager.com'],
@@ -143,8 +137,7 @@ suite('Server Blankie Plugin', () => {
       matomoUrl: 'http://gov.uk'
     }
 
-    expect(() => configureBlankiePlugin(config)).to.throw(
-      Error,
+    expect(() => configureBlankiePlugin(config)).toThrow(
       'Provided matomoUrl is insecure, please use https'
     )
   })

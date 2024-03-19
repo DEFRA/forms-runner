@@ -1,216 +1,209 @@
-import { expect } from '@hapi/code'
-import * as Lab from '@hapi/lab'
-import sinon from 'sinon'
-
 import { StatusService } from '../../../../src/server/services/index.js'
 
-export const lab = Lab.script()
-const { suite, test, afterEach } = lab
-
-const cacheService = { getState: () => ({}), mergeState: () => {} }
-const webhookService = { postRequest: () => ({}) }
-const notifyService = { sendNotification: () => ({}) }
-const payService = {
-  payStatus: () => {}
-}
-
-const yar = {
-  id: 'session_id'
-}
-
-const app = {
-  forms: {
-    test: {
-      feeOptions: {
-        allowSubmissionWithoutPayment: true,
-        maxAttempts: 3
-      }
-    }
+describe('Status Service', () => {
+  const cacheService = { getState: () => ({}), mergeState: () => {} }
+  const webhookService = { postRequest: () => ({}) }
+  const notifyService = { sendNotification: () => ({}) }
+  const payService = {
+    payStatus: () => {}
   }
-}
 
-const server = {
-  services: () => ({
-    cacheService,
-    webhookService,
-    payService,
-    notifyService
-  }),
-  logger: {
-    info: () => {},
-    trace: () => {}
-  },
-  app
-}
+  const yar = {
+    id: 'session_id'
+  }
 
-suite('StatusService shouldShowPayErrorPage', () => {
-  afterEach(() => {
-    sinon.restore()
-  })
-  test('returns false when no pay information is saved in the session', async () => {
-    const statusService = new StatusService(server)
-    expect(await statusService.shouldShowPayErrorPage({ yar })).to.equal(false)
-  })
-
-  test('returns false when the continue query parameter is true', async () => {
-    sinon.stub(cacheService, 'getState').returns({ state: { pay: {} } })
-    const statusService = new StatusService(server)
-    expect(
-      await statusService.shouldShowPayErrorPage({
-        yar,
-        query: { continue: 'true' },
-        params: {
-          id: 'test'
-        }
-      })
-    ).to.equal(false)
-  })
-
-  test('returns false when 3 pay attempts have been made', async () => {
-    sinon
-      .stub(cacheService, 'getState')
-      .returns({ state: { pay: { meta: 3 } } })
-    const statusService = new StatusService(server)
-
-    expect(
-      await statusService.shouldShowPayErrorPage({
-        yar,
-        app,
-        params: { id: 'test' }
-      })
-    ).to.equal(false)
-  })
-
-  test('returns true when <3 pay attempts have been made', async () => {
-    sinon
-      .stub(cacheService, 'getState')
-      .returns({ pay: { meta: { attempts: 1 } } })
-
-    sinon.stub(payService, 'payStatus').returns({
-      state: {
-        status: 'failed'
-      }
-    })
-
-    const statusService = new StatusService(server)
-    expect(
-      await statusService.shouldShowPayErrorPage({
-        yar,
-        app,
-        params: { id: 'test' },
-        server
-      })
-    ).to.equal(true)
-  })
-
-  test('returns true when >3 pay attempts have been made and form does not allow submissions without payment', async () => {
-    sinon
-      .stub(cacheService, 'getState')
-      .returns({ pay: { meta: { attempts: 5 } } })
-
-    sinon.stub(payService, 'payStatus').returns({
-      state: {
-        status: 'failed'
-      }
-    })
-
-    sinon.stub(app, 'forms').value({
+  const app = {
+    forms: {
       test: {
         feeOptions: {
-          allowSubmissionWithoutPayment: false,
+          allowSubmissionWithoutPayment: true,
           maxAttempts: 3
         }
       }
-    })
-
-    const statusService = new StatusService(server)
-    expect(
-      await statusService.shouldShowPayErrorPage({
-        yar,
-        app,
-        params: { id: 'test' },
-        server
-      })
-    ).to.equal(true)
-  })
-
-  test('returns true when <3 and the continue query is true', async () => {
-    sinon
-      .stub(cacheService, 'getState')
-      .returns({ pay: { meta: { attempts: 1 } } })
-
-    sinon.stub(payService, 'payStatus').returns({
-      state: {
-        status: 'failed'
-      }
-    })
-
-    const statusService = new StatusService(server)
-    expect(
-      await statusService.shouldShowPayErrorPage({
-        yar,
-        app,
-        params: {
-          id: 'test'
-        },
-        query: { continue: 'true' },
-        server
-      })
-    ).to.equal(false)
-  })
-})
-suite('StatusService outputRequests', () => {
-  afterEach(() => {
-    sinon.restore()
-  })
-  const notifyOutput = {
-    outputData: {
-      type: 'notify',
-
-      apiKey: 'a',
-      templateId: 'b',
-      emailAddress: 'c',
-      personalisation: {},
-      addReferencesToPersonalisation: false
     }
   }
-  const firstWebhook = {
-    type: 'webhook',
-    outputData: { url: 'abc' }
-  }
-  const webhookOutput = {
-    type: 'webhook',
-    outputData: { url: '' }
-  }
-  const outputs = [firstWebhook, webhookOutput, webhookOutput, notifyOutput]
-  const state = {
-    webhookData: { metadata: {} },
-    outputs,
-    pay: { meta: { attempts: 1 } }
+
+  const server = {
+    services: () => ({
+      cacheService,
+      webhookService,
+      payService,
+      notifyService
+    }),
+    logger: {
+      info: () => {},
+      trace: () => {}
+    },
+    app
   }
 
-  test('makes and returns correct output requests', async () => {
-    sinon.stub(cacheService, 'getState').returns(state)
-    const stub = sinon.stub(webhookService, 'postRequest')
-    stub
-      .onCall(0)
-      .resolves('abcd-ef-g')
-      .onCall(1)
-      .rejects()
-      .onCall(2)
-      .resolves('3')
+  describe('shouldShowPayErrorPage', () => {
+    test('returns false when no pay information is saved in the session', async () => {
+      const statusService = new StatusService(server)
+      expect(await statusService.shouldShowPayErrorPage({ yar })).toBe(false)
+    })
 
-    const statusService = new StatusService(server)
-    const res = await statusService.outputRequests({ yar })
+    test('returns false when the continue query parameter is true', async () => {
+      jest
+        .spyOn(cacheService, 'getState')
+        .mockReturnValue({ state: { pay: {} } })
 
-    const results = await res.results
-    expect(res.reference).to.equal('abcd-ef-g')
-    expect(results.length).to.equal(outputs.length - 1)
-    expect(results.map((result) => result.status)).to.equal([
-      'fulfilled',
-      'rejected',
-      'fulfilled'
-    ])
-    expect(results[2].value).to.equal('3')
+      const statusService = new StatusService(server)
+
+      expect(
+        await statusService.shouldShowPayErrorPage({
+          yar,
+          query: { continue: 'true' },
+          params: {
+            id: 'test'
+          }
+        })
+      ).toBe(false)
+    })
+
+    test('returns false when 3 pay attempts have been made', async () => {
+      jest
+        .spyOn(cacheService, 'getState')
+        .mockReturnValue({ state: { pay: { meta: 3 } } })
+
+      const statusService = new StatusService(server)
+
+      expect(
+        await statusService.shouldShowPayErrorPage({
+          yar,
+          app,
+          params: { id: 'test' }
+        })
+      ).toBe(false)
+    })
+
+    test('returns true when <3 pay attempts have been made', async () => {
+      jest
+        .spyOn(cacheService, 'getState')
+        .mockReturnValue({ pay: { meta: { attempts: 1 } } })
+
+      jest.spyOn(payService, 'payStatus').mockReturnValue({
+        state: {
+          status: 'failed'
+        }
+      })
+
+      const statusService = new StatusService(server)
+      expect(
+        await statusService.shouldShowPayErrorPage({
+          yar,
+          app,
+          params: { id: 'test' },
+          server
+        })
+      ).toBe(true)
+    })
+
+    test('returns true when >3 pay attempts have been made and form does not allow submissions without payment', async () => {
+      jest
+        .spyOn(cacheService, 'getState')
+        .mockReturnValue({ pay: { meta: { attempts: 5 } } })
+
+      jest.spyOn(payService, 'payStatus').mockReturnValue({
+        state: {
+          status: 'failed'
+        }
+      })
+
+      jest.replaceProperty(app, 'forms', {
+        test: {
+          feeOptions: {
+            allowSubmissionWithoutPayment: false,
+            maxAttempts: 3
+          }
+        }
+      })
+
+      const statusService = new StatusService(server)
+      expect(
+        await statusService.shouldShowPayErrorPage({
+          yar,
+          app,
+          params: { id: 'test' },
+          server
+        })
+      ).toBe(true)
+    })
+
+    test('returns true when <3 and the continue query is true', async () => {
+      jest
+        .spyOn(cacheService, 'getState')
+        .mockReturnValue({ pay: { meta: { attempts: 1 } } })
+
+      jest.spyOn(payService, 'payStatus').mockReturnValue({
+        state: {
+          status: 'failed'
+        }
+      })
+
+      const statusService = new StatusService(server)
+      expect(
+        await statusService.shouldShowPayErrorPage({
+          yar,
+          app,
+          params: {
+            id: 'test'
+          },
+          query: { continue: 'true' },
+          server
+        })
+      ).toBe(false)
+    })
+  })
+
+  describe('outputRequests', () => {
+    const notifyOutput = {
+      outputData: {
+        type: 'notify',
+
+        apiKey: 'a',
+        templateId: 'b',
+        emailAddress: 'c',
+        personalisation: {},
+        addReferencesToPersonalisation: false
+      }
+    }
+    const firstWebhook = {
+      type: 'webhook',
+      outputData: { url: 'abc' }
+    }
+    const webhookOutput = {
+      type: 'webhook',
+      outputData: { url: '' }
+    }
+    const outputs = [firstWebhook, webhookOutput, webhookOutput, notifyOutput]
+    const state = {
+      webhookData: { metadata: {} },
+      outputs,
+      pay: { meta: { attempts: 1 } }
+    }
+
+    test('makes and returns correct output requests', async () => {
+      jest.spyOn(cacheService, 'getState').mockReturnValue(state)
+
+      jest
+        .spyOn(webhookService, 'postRequest')
+        .mockResolvedValueOnce('abcd-ef-g')
+        .mockRejectedValueOnce()
+        .mockResolvedValueOnce('3')
+
+      const statusService = new StatusService(server)
+      const res = await statusService.outputRequests({ yar })
+
+      const results = await res.results
+      expect(res.reference).toBe('abcd-ef-g')
+      expect(results).toHaveLength(outputs.length - 1)
+      expect(results.map((result) => result.status)).toEqual([
+        'fulfilled',
+        'rejected',
+        'fulfilled'
+      ])
+      expect(results[2].value).toBe('3')
+    })
   })
 })

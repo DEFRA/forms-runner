@@ -1,40 +1,35 @@
-import { expect } from '@hapi/code'
-import * as Lab from '@hapi/lab'
 import { DateField } from '../../../../../src/server/plugins/engine/components/DateField'
 import { messages } from '../../../../../src/server/plugins/engine/pageControllers/validationOptions'
 
-export const lab = Lab.script()
-const { suite, test } = lab
+describe('Date field', () => {
+  const baseDef = {
+    name: 'myComponent',
+    title: 'My component',
+    options: { required: true },
+    schema: {},
+    type: 'DateField'
+  }
 
-const baseDef = {
-  name: 'myComponent',
-  title: 'My component',
-  options: { required: true },
-  schema: {},
-  type: 'DateField'
-}
-
-suite('Date field', () => {
   test('Error is displayed for invalid date', () => {
     const dateField = new DateField(baseDef)
     const { schema } = dateField
 
-    expect(schema.validate('', { messages }).error.message).to.contain(
+    expect(schema.validate('', { messages }).error.message).toContain(
       'must be a real date'
     )
-    expect(
-      schema.validate('not-a-date', { messages }).error.message
-    ).to.contain('must be a real date')
+    expect(schema.validate('not-a-date', { messages }).error.message).toContain(
+      'must be a real date'
+    )
 
-    expect(
-      schema.validate('30-30-3000', { messages }).error.message
-    ).to.contain('must be a real date')
+    expect(schema.validate('30-30-3000', { messages }).error.message).toContain(
+      'must be a real date'
+    )
 
-    expect(
-      schema.validate('4000-40-40', { messages }).error.message
-    ).to.contain('must be a real date')
+    expect(schema.validate('4000-40-40', { messages }).error.message).toContain(
+      'must be a real date'
+    )
 
-    expect(schema.validate('2021-12-25', { messages }).error).to.be.undefined()
+    expect(schema.validate('2021-12-25', { messages }).error).toBeUndefined()
   })
 
   test('Error is displayed correctly when maxDaysInFuture configured', () => {
@@ -49,11 +44,11 @@ suite('Date field', () => {
 
     expect(
       schema.validate(date.toISOString(), { messages }).error.message
-    ).to.contain('must be the same as or before')
+    ).toContain('must be the same as or before')
 
     expect(
       schema.validate(new Date().toISOString(), { messages }).error
-    ).to.be.undefined()
+    ).toBeUndefined()
   })
 
   test('Error is displayed correctly when maxDaysInPast configured', () => {
@@ -68,10 +63,10 @@ suite('Date field', () => {
 
     expect(
       schema.validate(date.toISOString(), { messages }).error.message
-    ).to.contain('must be the same as or after')
+    ).toContain('must be the same as or after')
 
     expect(
       schema.validate(new Date().toISOString(), { messages }).error
-    ).to.be.undefined()
+    ).toBeUndefined()
   })
 })

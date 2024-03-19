@@ -1,22 +1,17 @@
-import { expect } from '@hapi/code'
-import * as Lab from '@hapi/lab'
 import createServer from '../../../src/server/index.js'
 import config from '../../../src/server/config.js'
 
-export const lab = Lab.script()
-const { suite, test, before, after } = lab
-
-suite(`/health-check Route`, () => {
+describe(`/health-check Route`, () => {
   let server
 
-  before(async () => {
+  beforeAll(async () => {
     config.lastCommit = 'Last Commit'
     config.lastTag = 'Last Tag'
     server = await createServer({})
     await server.start()
   })
 
-  after(async () => {
+  afterAll(async () => {
     await server.stop()
   })
 
@@ -28,9 +23,9 @@ suite(`/health-check Route`, () => {
 
     const { result } = await server.inject(options)
 
-    expect(result.status).to.equal('OK')
-    expect(result.lastCommit).to.equal('Last Commit')
-    expect(result.lastTag).to.equal('Last Tag')
-    expect(result.time).to.be.a.string()
+    expect(result.status).toBe('OK')
+    expect(result.lastCommit).toBe('Last Commit')
+    expect(result.lastTag).toBe('Last Tag')
+    expect(typeof result.time).toBe('string')
   })
 })

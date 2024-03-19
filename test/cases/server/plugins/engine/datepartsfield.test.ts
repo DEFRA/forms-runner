@@ -1,11 +1,6 @@
-import { expect } from '@hapi/code'
-import * as Lab from '@hapi/lab'
 import { DatePartsField } from '../../../../../src/server/plugins/engine/components/DatePartsField'
 
-export const lab = Lab.script()
-const { suite, test } = lab
-
-suite('Date parts field', () => {
+describe('Date parts field', () => {
   test('Should construct appropriate children when required', () => {
     const def = {
       name: 'myComponent',
@@ -16,13 +11,13 @@ suite('Date parts field', () => {
     const underTest = new DatePartsField(def, {})
     const returned = underTest.getViewModel({ lang: 'en' })
 
-    expect(returned.fieldset).to.equal({
+    expect(returned.fieldset).toEqual({
       legend: {
         classes: 'govuk-label--s',
         text: def.title
       }
     })
-    expect(returned.items).to.equal([
+    expect(returned.items).toEqual([
       dateComponent('Day', 2),
       dateComponent('Month', 2),
       dateComponent('Year', 4)
@@ -39,13 +34,13 @@ suite('Date parts field', () => {
     const underTest = new DatePartsField(def, {})
     const returned = underTest.getViewModel({ lang: 'en' })
 
-    expect(returned.fieldset).to.equal({
+    expect(returned.fieldset).toEqual({
       legend: {
         classes: 'govuk-label--s',
         text: `${def.title} (optional)`
       }
     })
-    expect(returned.items).to.equal([
+    expect(returned.items).toEqual([
       dateComponent('Day', 2),
       dateComponent('Month', 2),
       dateComponent('Year', 4)
@@ -72,8 +67,8 @@ suite('Date parts field', () => {
     }
     const underTest = new DatePartsField(def)
     const returned = underTest.getViewModel({}, errors)
-    expect(returned.errorMessage.text).to.equal('"Day" must be a number')
-    expect(underTest.getViewModel({}).errorMessage).to.be.undefined()
+    expect(returned.errorMessage.text).toBe('"Day" must be a number')
+    expect(underTest.getViewModel({}).errorMessage).toBeUndefined()
   })
 })
 

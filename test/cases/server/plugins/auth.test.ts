@@ -1,16 +1,11 @@
-import { expect } from '@hapi/code'
-import * as Lab from '@hapi/lab'
 import config from '../../../../src/server/config'
 import createServer from '../../../../src/server'
 
-export const lab = Lab.script()
-const { suite, test, before, after } = lab
-
-suite('Server Auth', () => {
+describe('Server Auth', () => {
   let server
 
-  suite('when enabled', () => {
-    before(async () => {
+  describe('when enabled', () => {
+    beforeAll(async () => {
       config.authEnabled = true
       config.authClientAuthUrl = 'https://example.org/oauth/authorize'
       config.authClientTokenUrl = 'https://example.org/oauth/token'
@@ -21,7 +16,7 @@ suite('Server Auth', () => {
       await server.start()
     })
 
-    after(async () => {
+    afterAll(async () => {
       await server.stop()
       config.authEnabled = false
     })
@@ -34,9 +29,9 @@ suite('Server Auth', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).to.equal(302)
-      expect(res.headers.location).to.startWith(
-        'https://example.org/oauth/authorize'
+      expect(res.statusCode).toBe(302)
+      expect(res.headers.location).toMatch(
+        /^https:\/\/example\.org\/oauth\/authorize/
       )
     })
 
@@ -62,8 +57,8 @@ suite('Server Auth', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).to.equal(302)
-      expect(res.headers.location).to.equal('/foo-bar')
+      expect(res.statusCode).toBe(302)
+      expect(res.headers.location).toBe('/foo-bar')
     })
 
     test('sign out clears the auth cookie and session and redirects to start page', async () => {
@@ -88,7 +83,7 @@ suite('Server Auth', () => {
         checkPrepResponse.headers['set-cookie'].find((cookie) =>
           cookie.startsWith('session=')
         )
-      ).to.be.undefined()
+      ).toBeUndefined()
 
       // Provide created session to prevent `inject` automatically creating a new one
       const res = await server.inject({
@@ -104,15 +99,15 @@ suite('Server Auth', () => {
         cookie.startsWith('session=')
       )
 
-      expect(newSession).to.not.be.undefined()
-      expect(newSession).to.not.equal(initialSession)
+      expect(newSession).toBeTruthy()
+      expect(newSession).not.toEqual(initialSession)
       expect(
         res.headers['set-cookie'].filter((cookie) =>
           cookie.startsWith('auth=;')
         )[0]
-      ).to.contain('Max-Age=0;')
-      expect(res.statusCode).to.equal(302)
-      expect(res.headers.location).to.equal('/')
+      ).toContain('Max-Age=0;')
+      expect(res.statusCode).toBe(302)
+      expect(res.headers.location).toBe('/')
     })
 
     test("shows a 'sign out' link in the header if logged in", async () => {
@@ -133,8 +128,8 @@ suite('Server Auth', () => {
 
       const res = await server.inject(options)
 
-      expect(res.payload).to.contain('href="/logout"')
-      expect(res.payload).to.contain('Sign out')
+      expect(res.payload).toContain('href="/logout"')
+      expect(res.payload).toContain('Sign out')
     })
 
     test("does not show a 'sign out' link in the header if logged out", async () => {
@@ -145,8 +140,8 @@ suite('Server Auth', () => {
 
       const res = await server.inject(options)
 
-      expect(res.payload).not.to.contain('href="/logout"')
-      expect(res.payload).not.to.contain('Sign out')
+      expect(res.payload).not.toContain('href="/logout"')
+      expect(res.payload).not.toContain('Sign out')
     })
 
     test('redirects to login page if accessing a question page', async () => {
@@ -157,8 +152,8 @@ suite('Server Auth', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).to.equal(302)
-      expect(res.headers.location).to.equal(
+      expect(res.statusCode).toBe(302)
+      expect(res.headers.location).toBe(
         '/login?returnUrl=/forms-runner/test/uk-passport'
       )
     })
@@ -171,8 +166,8 @@ suite('Server Auth', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).to.equal(302)
-      expect(res.headers.location).to.equal(
+      expect(res.statusCode).toBe(302)
+      expect(res.headers.location).toBe(
         '/login?returnUrl=/forms-runner/test/summary'
       )
     })
@@ -185,7 +180,7 @@ suite('Server Auth', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).to.equal(200)
+      expect(res.statusCode).toBe(200)
     })
   })
 })

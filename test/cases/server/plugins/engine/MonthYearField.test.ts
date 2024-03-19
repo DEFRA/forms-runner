@@ -1,11 +1,6 @@
-import { expect } from '@hapi/code'
-import * as Lab from '@hapi/lab'
 import { MonthYearField } from '../../../../../src/server/plugins/engine/components'
 import { messages } from '../../../../../src/server/plugins/engine/pageControllers/validationOptions'
 import joi from 'joi'
-
-export const lab = Lab.script()
-const { suite, test } = lab
 
 /**
  * This replicates {@link PageControllerBase.validate}
@@ -14,7 +9,7 @@ const validate = (schema, value) => {
   return schema.validate(value, { messages })
 }
 
-suite('Month Year Field', () => {
+describe('Month Year Field', () => {
   test('Should validate month and year correctly', () => {
     const def = {
       name: 'myComponent',
@@ -39,20 +34,20 @@ suite('Month Year Field', () => {
         myComponent__year: 2000,
         myComponent__month: 0
       }).error.message
-    ).to.contain('must be between 1 and 12')
+    ).toContain('must be between 1 and 12')
 
     expect(
       validate(schema, {
         myComponent__year: 1,
         myComponent__month: 12
       }).error.message
-    ).to.contain('must be 1000 or higher')
+    ).toContain('must be 1000 or higher')
 
     expect(
       validate(schema, {
         myComponent__year: 2000,
         myComponent__month: 12
       }).error
-    ).to.be.undefined()
+    ).toBeUndefined()
   })
 })

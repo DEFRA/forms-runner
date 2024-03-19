@@ -1,13 +1,7 @@
-import { expect } from '@hapi/code'
-import * as Lab from '@hapi/lab'
-
 import { PageControllerBase } from '../../../../../../src/server/plugins/engine/pageControllers'
 import { FormModel } from '../../../../../../src/server/plugins/engine/models/FormModel'
 
-export const lab = Lab.script()
-const { suite, test } = lab
-
-suite('PageControllerBase', () => {
+describe('PageControllerBase', () => {
   test('getErrors correctly parses ISO string to readable string', () => {
     const def = {
       title: 'When will you get married?',
@@ -60,7 +54,7 @@ suite('PageControllerBase', () => {
       }
     }
 
-    expect(page.getErrors(error)).to.equal({
+    expect(page.getErrors(error)).toEqual({
       titleText: 'Fix the following errors',
       errorList: [
         {

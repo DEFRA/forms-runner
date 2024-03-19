@@ -50,6 +50,14 @@ module.exports = {
       rules: {
         '@typescript-eslint/no-var-requires': 'off'
       }
+    },
+    {
+      env: {
+        jest: true
+      },
+      extends: ['plugin:jest/style'],
+      files: ['**/*.test.{cjs,js,mjs,ts}'],
+      plugins: ['jest']
     }
   ],
   root: true

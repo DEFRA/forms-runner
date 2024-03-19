@@ -1,11 +1,6 @@
-import { expect } from '@hapi/code'
-import * as Lab from '@hapi/lab'
 import { EmailAddressField } from '../../../../../src/server/plugins/engine/components'
 
-export const lab = Lab.script()
-const { suite, test } = lab
-
-suite('Email address field', () => {
+describe('Email address field', () => {
   test("Should add 'email' to the autocomplete attribute", () => {
     const def = {
       name: 'myComponent',
@@ -15,8 +10,10 @@ suite('Email address field', () => {
       schema: {}
     }
     const emailAddressField = new EmailAddressField(def, {})
-    expect(emailAddressField.getViewModel({})).to.contain({
-      autocomplete: 'email'
-    })
+    expect(emailAddressField.getViewModel({})).toEqual(
+      expect.objectContaining({
+        autocomplete: 'email'
+      })
+    )
   })
 })
