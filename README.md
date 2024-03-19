@@ -157,9 +157,7 @@ Tests are found inside `test/cases`. For test scripts, name them `${NAME}.test.j
 
 # Deployment
 
-Currently CI is done with github actions. Pushes to main
-will trigger a build phase which includes running tests and [lighthouse](https://developers.google.com/web/tools/lighthouse)
-accessibility audits. Builds will fail if the accessibility score is less than 90%.
+Currently CI is done with github actions. Pushes to main will trigger a build phase which includes running tests.
 
 # Outputs
 

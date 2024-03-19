@@ -1,5 +1,5 @@
+import { URLSearchParams } from 'url'
 import { merge, reach } from '@hapi/hoek'
-import * as querystring from 'querystring'
 import { validationOptions } from '../../../plugins/engine/pageControllers/validationOptions'
 
 import { feedbackReturnInfoKey, proceed, redirectTo } from '../helpers'
@@ -247,7 +247,6 @@ export class PageControllerBase {
    */
   getNext(state: any) {
     const nextPage = this.getNextPage(state)
-    const query = { num: 0 }
     let queryString = ''
     if (nextPage?.repeatField) {
       const requiredCount = reach(state, nextPage.repeatField)
@@ -258,14 +257,14 @@ export class PageControllerBase {
       const lastInSection = sectionState?.[sectionState.length - 1] ?? {}
       const isLastComplete =
         Object.keys(lastInSection).length === otherRepeatPagesInSection.length
-      query.num = sectionState
+      const num = sectionState
         ? isLastComplete
           ? this.objLength(sectionState) + 1
           : this.objLength(sectionState)
         : 1
 
-      if (query.num <= requiredCount) {
-        queryString = `?${querystring.encode(query)}`
+      if (num <= requiredCount) {
+        queryString = `?${new URLSearchParams({ num: `${num}` })}`
       }
     }
 

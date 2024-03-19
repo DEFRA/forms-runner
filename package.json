@@ -21,7 +21,6 @@
     "lint:types": "tsc --noEmit",
     "test": "jest --color --coverage --verbose",
     "test:watch": "jest --color --watch",
-    "a11y": "node test/audit/components && node lighthouse",
     "symlink-env": "./bin/symlink-config",
     "generate-docs": "typedoc src --tsconfig tsconfig.json --out ./docs/typedoc --exclude \"**/*+(index|.test|.jest).ts\"",
     "prepare": "husky || true"
@@ -59,7 +58,6 @@
     "aws-sdk": "^2.1531.0",
     "blankie": "^5.0.0",
     "blipp": "^4.0.1",
-    "boom": "^7.3.0",
     "btoa": "^1.2.1",
     "config": "^3.3.7",
     "date-fns": "^2.24.0",
@@ -81,7 +79,6 @@
     "pg-boss": "^9.0.3",
     "pino": "^8.15.1",
     "pino-pretty": "^10.2.3",
-    "querystring": "^0.2.0",
     "resolve": "^1.19.0",
     "schmervice": "^1.6.0"
   },

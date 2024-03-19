@@ -5,8 +5,7 @@
  * @description
  * Configurable plugin for determine request language in hapi.js applications.
  */
-/* eslint-disable */
-import boom from '@hapi/boom'
+import * as Boom from '@hapi/boom'
 import fs from 'fs'
 import path from 'path'
 import lodash from 'lodash'
@@ -43,7 +42,7 @@ import pkg from '../../../package.json'
  * @type {PluginOptions}
  * @private
  */
-var defaultOptions = {
+const defaultOptions = {
   locales: [],
   configFile: '',
   configKey: '',
@@ -68,7 +67,7 @@ var defaultOptions = {
   onEvent: 'onPreAuth'
 }
 
-var orderParameters = {
+const orderParameters = {
   // Process in options.order array and JS method which will be called for that process.
   params: 'parseParam',
   query: 'parseQuery',
@@ -76,7 +75,7 @@ var orderParameters = {
   cookie: 'parseCookie'
 }
 
-var optionsSchema = Joi.object({
+const optionsSchema = Joi.object({
   locales: Joi.array().items(Joi.string()).default(defaultOptions.locales),
   default: Joi.string().allow(null).default(defaultOptions.default),
   configFile: Joi.string().allow(null).default(defaultOptions.configFile),
@@ -130,7 +129,6 @@ function Internal(options) {
     )
   }
 
-  // @ts-ignore
   this.options = Joi.attempt(options, optionsSchema)
 }
 
@@ -143,11 +141,11 @@ function Internal(options) {
 Internal.prototype.parseParam = function parseParam(request) {
   'use strict'
   if (!request.params.hasOwnProperty(this.options.param)) return
-  var name = this.options.param
+  const name = this.options.param
 
-  var locales = lodash.get(request.params, name)
+  const locales = lodash.get(request.params, name)
 
-  var match = this.bestMatch(locales)
+  const match = this.bestMatch(locales)
 
   if (!match && this.options.throw404) {
     throw new Error(
@@ -166,9 +164,9 @@ Internal.prototype.parseParam = function parseParam(request) {
  */
 Internal.prototype.parseQuery = function parseQuery(request) {
   'use strict'
-  var name = this.options.query
+  const name = this.options.query
 
-  var locales = lodash.get(request.query, name)
+  const locales = lodash.get(request.query, name)
 
   return this.bestMatch(locales)
 }
@@ -181,11 +179,11 @@ Internal.prototype.parseQuery = function parseQuery(request) {
  */
 Internal.prototype.parseCookie = function parseCookie(request) {
   'use strict'
-  var name = this.options.cookie
+  const name = this.options.cookie
 
-  var key = this.options.cookieKey
+  const key = this.options.cookieKey
 
-  var locales = lodash.get(request.state[name], key)
+  const locales = lodash.get(request.state[name], key)
 
   return this.bestMatch(locales)
 }
@@ -197,11 +195,11 @@ Internal.prototype.parseCookie = function parseCookie(request) {
  * @private
  */
 Internal.prototype.parseHeader = function parseHeader(request) {
-  var name = this.options.header
+  const name = this.options.header
 
-  var raw = headerParser.parse(request.headers[name])
+  const raw = headerParser.parse(request.headers[name])
 
-  var locales = raw.map(function (value) {
+  const locales = raw.map(function (value) {
     return value.region ? value.code + '_' + value.region : value.code
   })
 
@@ -233,7 +231,7 @@ Internal.prototype.bestMatch = function bestMatch(requested) {
 function fileExists(path, shouldBeDir) {
   'use strict'
   try {
-    var lstat = fs.lstatSync(path)
+    const lstat = fs.lstatSync(path)
     if (shouldBeDir && lstat.isDirectory()) {
       return true
     }
@@ -320,7 +318,7 @@ Internal.prototype.processRequest = function processRequest(request, h) {
   try {
     var locale = this.determineLocale(request)
   } catch (err) {
-    // throw boom.notFound(err);
+    // throw Boom.notFound(err);
   }
 
   const getter = this.options.getter
@@ -352,7 +350,7 @@ Internal.prototype.processRequest = function processRequest(request, h) {
 const plugin = {
   name: 'locale',
   version: pkg.version,
-  pkg: pkg,
+  pkg,
   once: true,
   multiple: false,
   /**
@@ -361,10 +359,12 @@ const plugin = {
    * @param {PluginOptions}   options     - Plugin configuration options.
    */
   register: async function (server, options) {
+    let internal: typeof Internal
+
     try {
-      var internal = new Internal(options)
+      internal = new Internal(options)
     } catch (err) {
-      throw new boom.Boom(err)
+      throw Boom.internal(err)
     }
 
     /**
