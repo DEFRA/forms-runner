@@ -114,12 +114,12 @@ export class PgBossQueueService extends QueueService {
   async pollForRef(jobId: string): Promise<string | void> {
     let timeElapsed = 0
 
-    return new Promise(async (resolve, reject) => {
-      const reference = await this.getReturnRef(jobId)
-      if (reference && reference !== 'UNKNOWN') {
-        resolve(reference)
-      }
+    const reference = await this.getReturnRef(jobId)
+    if (reference && reference !== 'UNKNOWN') {
+      return reference
+    }
 
+    return new Promise((resolve, reject) => {
       const pollInterval = setInterval(async () => {
         try {
           const reference = await this.getReturnRef(jobId)
