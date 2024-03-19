@@ -19,7 +19,7 @@ export type SendNotificationArgs = {
   emailAddress: string
   personalisation: Personalisation
   reference: string
-  replyToEmailId?: string
+  emailReplyToId?: string
 }
 
 export class NotifyService {
