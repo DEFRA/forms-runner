@@ -46,8 +46,11 @@ export function WebhookModel(
 
     let index = 0
     const fields = detailItems.flatMap((item, i) => {
-      item.isRepeatable ? (index = i) : 0
       const fields = [detailItemToField(item)]
+
+      if (item.isRepeatable) {
+        index = i
+      }
 
       /**
        * This is currently deprecated whilst GDS fix a known issue with accessibility and conditionally revealed fields
