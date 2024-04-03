@@ -9,14 +9,6 @@ module.exports = {
   clearMocks: true,
   silent: true,
   maxWorkers: 1,
-  transform: {
-    '^.+\\.(mjs|ts)$': [
-      'babel-jest',
-      {
-        rootMode: 'upward'
-      }
-    ]
-  },
   testMatch: ['**/*.test.{cjs,js,mjs,ts}'],
   reporters: ['default', ['github-actions', { silent: false }], 'summary'],
   collectCoverageFrom: ['src/**/*.{cjs,js,mjs,ts}'],
@@ -25,5 +17,14 @@ module.exports = {
     '<rootDir>/dist/',
     '<rootDir>/public/'
   ],
-  coverageDirectory: '<rootDir>/coverage'
+  coverageDirectory: '<rootDir>/coverage',
+  transform: {
+    '^.+\\.(mjs|ts)$': [
+      'babel-jest',
+      {
+        rootMode: 'upward'
+      }
+    ]
+  },
+  transformIgnorePatterns: ['<rootDir>/node_modules/(?!@defra/forms-model/)']
 }
