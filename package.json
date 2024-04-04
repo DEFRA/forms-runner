@@ -38,7 +38,7 @@
   "dependencies": {
     "@defra/forms-model": "^3.0.2",
     "@elastic/ecs-pino-format": "^1.4.0",
-    "@hapi/bell": "^13.0.1",
+    "@hapi/bell": "^13.0.2",
     "@hapi/boom": "^10.0.1",
     "@hapi/catbox": "^12.1.1",
     "@hapi/catbox-memory": "^6.0.1",
