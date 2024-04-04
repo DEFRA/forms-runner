@@ -36,7 +36,7 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
-    "@defra/forms-model": "^3.0.2",
+    "@defra/forms-model": "^3.0.14",
     "@elastic/ecs-pino-format": "^1.4.0",
     "@hapi/bell": "^13.0.1",
     "@hapi/boom": "^10.0.1",
