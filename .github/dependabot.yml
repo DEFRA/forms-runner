@@ -1,0 +1,58 @@
+version: 2
+
+updates:
+  # Update npm packages
+  - package-ecosystem: npm
+    directory: /
+    open-pull-requests-limit: 10
+
+    # Group into shared PRs
+    groups:
+      build:
+        patterns:
+          - '@babel/*'
+          - 'babel-*'
+          - 'sass'
+          - 'typescript'
+
+      lint:
+        patterns:
+          - '@typescript-eslint/*'
+          - 'eslint'
+          - 'eslint-*'
+          - 'husky'
+          - 'lint-staged'
+          - 'prettier'
+
+      tools:
+        patterns:
+          - 'cheerio'
+          - 'concurrently'
+          - 'jest'
+          - 'nodemon'
+
+      types:
+        patterns:
+          - '@types/*'
+
+    # Schedule run every Monday, local time
+    schedule:
+      interval: weekly
+      time: '10:30'
+      timezone: 'Europe/London'
+
+    versioning-strategy: increase
+
+    allow:
+      # Include direct package.json updates
+      - dependency-type: direct
+
+  # Update GitHub Actions
+  - package-ecosystem: github-actions
+    directory: /
+
+    # Schedule run every Monday, local time
+    schedule:
+      interval: weekly
+      time: '10:30'
+      timezone: 'Europe/London'
