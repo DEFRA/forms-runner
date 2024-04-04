@@ -123,8 +123,8 @@
     "@types/hapi__yar": "^10.1.1",
     "@types/hoek": "^4.1.4",
     "@types/jest": "^29.5.12",
-    "@types/mysql": "^2.15.21",
-    "@types/node": "^20.11.28",
+    "@types/mysql": "^2.15.26",
+    "@types/node": "^20.12.4",
     "@types/nodemailer": "^6.4.4",
     "@types/url-parse": "^1.4.8",
     "@types/wreck": "^14.0.0"
