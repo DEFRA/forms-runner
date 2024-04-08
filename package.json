@@ -86,13 +86,13 @@
     "schmervice": "^1.6.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.23.9",
-    "@babel/core": "^7.24.0",
-    "@babel/eslint-parser": "^7.23.10",
+    "@babel/cli": "^7.24.1",
+    "@babel/core": "^7.24.4",
+    "@babel/eslint-parser": "^7.24.1",
     "@babel/eslint-plugin": "^7.23.5",
-    "@babel/plugin-syntax-import-attributes": "^7.23.3",
-    "@babel/preset-env": "^7.24.0",
-    "@babel/preset-typescript": "^7.23.3",
+    "@babel/plugin-syntax-import-attributes": "^7.24.1",
+    "@babel/preset-env": "^7.24.4",
+    "@babel/preset-typescript": "^7.24.1",
     "@oclif/core": "^1.19.0",
     "@typescript-eslint/eslint-plugin": "^7.1.1",
     "@typescript-eslint/parser": "^7.1.1",
@@ -114,9 +114,9 @@
     "nodemon": "^3.0.2",
     "prettier": "^3.2.5",
     "prisma": "^5.1.1",
-    "sass": "^1.49.9",
+    "sass": "^1.74.1",
     "typedoc": "^0.25.9",
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.4"
   },
   "optionalDependencies": {
     "@types/hapi": "^18.0.7",
