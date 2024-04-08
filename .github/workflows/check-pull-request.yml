@@ -34,9 +34,7 @@ jobs:
         with:
           enableCrossOsArchive: true
           key: npm-install-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-          path: |
-            /tmp/defra-forms-designer
-            node_modules
+          path: node_modules
 
       - name: Setup Node.js
         if: steps.npm-install-cache.outputs.cache-hit != 'true'
@@ -84,9 +82,7 @@ jobs:
         with:
           enableCrossOsArchive: true
           key: npm-install-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-          path: |
-            /tmp/defra-forms-designer
-            node_modules
+          path: node_modules
 
       - name: Run task
         run: ${{ matrix.task.run }}
