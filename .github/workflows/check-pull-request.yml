@@ -47,6 +47,33 @@ jobs:
         if: steps.npm-install-cache.outputs.cache-hit != 'true'
         run: npm ci
 
+  build:
+    name: Build
+    runs-on: ${{ matrix.runner }}
+    needs: [install]
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        runner:
+          - ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Restore dependencies
+        uses: actions/cache/restore@v4
+
+        with:
+          enableCrossOsArchive: true
+          key: npm-install-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          path: node_modules
+
+      - name: Run build
+        run: npm run build
+
   tasks:
     name: ${{ matrix.task.description }} (${{ matrix.runner }})
     runs-on: ${{ matrix.runner }}
