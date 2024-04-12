@@ -38,7 +38,7 @@
   "dependencies": {
     "@defra/forms-model": "^3.0.2",
     "@elastic/ecs-pino-format": "^1.4.0",
-    "@hapi/bell": "^13.0.1",
+    "@hapi/bell": "^13.0.2",
     "@hapi/boom": "^10.0.1",
     "@hapi/catbox": "^12.1.1",
     "@hapi/catbox-memory": "^6.0.1",
@@ -51,8 +51,9 @@
     "@hapi/jwt": "^3.2.0",
     "@hapi/scooter": "^7.0.0",
     "@hapi/vision": "^7.0.3",
-    "@hapi/wreck": "^18.0.1",
-    "@hapi/yar": "^11.0.1",
+    "@hapi/wreck": "^18.1.0",
+    "@hapi/yar": "^11.0.2",
+    "@hapipal/schmervice": "^3.0.0",
     "accept-language-parser": "^1.5.0",
     "accessible-autocomplete": "^2.0.2",
     "atob": "^2.1.2",
@@ -82,8 +83,7 @@
     "pino": "^8.15.1",
     "pino-pretty": "^10.2.3",
     "querystring": "^0.2.0",
-    "resolve": "^1.19.0",
-    "schmervice": "^1.6.0"
+    "resolve": "^1.19.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.23.9",
