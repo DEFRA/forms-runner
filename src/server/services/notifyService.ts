@@ -1,4 +1,4 @@
-import { NotifyClient } from 'notifications-node-client/client/notification'
+import { NotifyClient } from 'notifications-node-client'
 import { isMultipleApiKey, MultipleApiKeys } from '@defra/forms-model'
 import config from '../config'
 import type { HapiServer } from '../types'
