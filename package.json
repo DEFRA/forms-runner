@@ -63,7 +63,7 @@
     "boom": "^7.3.0",
     "btoa": "^1.2.1",
     "config": "^3.3.11",
-    "date-fns": "^2.30.0",
+    "date-fns": "^3.6.0",
     "expr-eval": "^2.0.2",
     "form-data": "^4.0.0",
     "govuk-frontend": "^4.8.0",
