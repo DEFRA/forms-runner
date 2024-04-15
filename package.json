@@ -93,7 +93,7 @@
     "@babel/plugin-syntax-import-attributes": "^7.24.1",
     "@babel/preset-env": "^7.24.4",
     "@babel/preset-typescript": "^7.24.1",
-    "@oclif/core": "^1.26.2",
+    "@oclif/core": "^3.26.3",
     "@typescript-eslint/eslint-plugin": "^7.6.0",
     "@typescript-eslint/parser": "^7.6.0",
     "babel-plugin-replace-import-extension": "^1.1.4",
