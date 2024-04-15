@@ -3,7 +3,7 @@ import hapi, { ServerOptions } from '@hapi/hapi'
 
 import Scooter from '@hapi/scooter'
 import inert from '@hapi/inert'
-import Schmervice from 'schmervice'
+import Schmervice from '@hapipal/schmervice'
 import blipp from 'blipp'
 import config from './config'
 
@@ -62,7 +62,7 @@ const serverOptions = (): ServerOptions => {
           includeSubDomains: true,
           preload: false
         },
-        xss: true,
+        xss: 'enabled',
         noSniff: true,
         xframe: true
       }
