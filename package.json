@@ -100,7 +100,7 @@
     "cheerio": "^1.0.0-rc.12",
     "concurrently": "^8.2.2",
     "cookie": "^0.6.0",
-    "dotenv": "^8.6.0",
+    "dotenv": "^16.4.5",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-standard": "^17.1.0",
