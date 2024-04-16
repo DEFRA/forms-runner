@@ -10,6 +10,7 @@ function answerFromDetailItem(item) {
     case 'date':
       return format(new Date(item.rawValue), 'yyyy-MM-dd')
     case 'monthYear':
+      // eslint-disable-next-line no-case-declarations
       const [month, year] = Object.values(item.rawValue)
       return format(new Date(`${year}-${month}-1`), 'yyyy-MM')
     default:
