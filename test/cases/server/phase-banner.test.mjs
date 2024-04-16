@@ -16,7 +16,7 @@ describe(`Phase banner`, () => {
       formFileName: `phase-default.json`,
       formFilePath: path.join(__dirname, '/forms')
     })
-    await server.start()
+    await server.initialize()
 
     const options = {
       method: 'GET',
@@ -36,7 +36,7 @@ describe(`Phase banner`, () => {
       formFileName: `phase-alpha.json`,
       formFilePath: path.join(__dirname, '/forms')
     })
-    await server.start()
+    await server.initialize()
 
     const options = {
       method: 'GET',
@@ -56,7 +56,7 @@ describe(`Phase banner`, () => {
       formFileName: `phase-none.json`,
       formFilePath: path.join(__dirname, '/forms')
     })
-    await server.start()
+    await server.initialize()
 
     const options = {
       method: 'GET',

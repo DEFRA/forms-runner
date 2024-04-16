@@ -8,7 +8,7 @@ describe(`/health-check Route`, () => {
     config.lastCommit = 'Last Commit'
     config.lastTag = 'Last Tag'
     server = await createServer({})
-    await server.start()
+    await server.initialize()
   })
 
   afterAll(async () => {

@@ -87,7 +87,7 @@ describe.skip('Dynamic pages', () => {
       formFileName: 'dynamic.json',
       formFilePath: __dirname
     })
-    await server.start()
+    await server.initialize()
   })
 
   afterAll(async () => {

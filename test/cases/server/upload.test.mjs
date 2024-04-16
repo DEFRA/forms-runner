@@ -17,7 +17,7 @@ describe('uploads', () => {
       formFileName: 'upload.json',
       formFilePath: __dirname
     })
-    await server.start()
+    await server.initialize()
   })
 
   afterAll(async () => {

@@ -10,7 +10,7 @@ describe(`Feedback`, () => {
       formFileName: `feedback.json`,
       formFilePath: __dirname
     })
-    await server.start()
+    await server.initialize()
   })
 
   afterAll(async () => {
