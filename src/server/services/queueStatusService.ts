@@ -18,7 +18,7 @@ export class QueueStatusService extends StatusService {
     const { outputs, callback } = state
 
     let newReference: string | undefined
-    let queueReference: number | undefined
+    let queueReference: number | string | undefined
 
     if (callback) {
       this.logger.info(
