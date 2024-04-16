@@ -35,9 +35,7 @@ import {
   WebhookService
 } from './services'
 import getRequestInfo from './utils/getRequestInfo'
-import { pluginQueue } from './plugins/queue'
 import { QueueStatusService } from './services/queueStatusService'
-import { MySqlQueueService } from './services/mySqlQueueService'
 import { PgBossQueueService } from './services/pgBossQueueService'
 import type { HapiRequest, HapiResponseToolkit, RouteConfig } from './types'
 
@@ -129,11 +127,8 @@ async function createServer(routeConfig: RouteConfig) {
   server.registerService([EmailService])
 
   if (config.enableQueueService) {
-    const queueType = config.queueType
-    const queueService =
-      queueType === 'PGBOSS' ? PgBossQueueService : MySqlQueueService
     server.registerService([
-      Schmervice.withName('queueService', queueService),
+      Schmervice.withName('queueService', PgBossQueueService),
       Schmervice.withName('statusService', QueueStatusService)
     ])
   } else {
@@ -190,8 +185,6 @@ async function createServer(routeConfig: RouteConfig) {
   server.state('cookies_policy', {
     encoding: 'base64json'
   })
-
-  await server.register(pluginQueue)
 
   return server
 }
