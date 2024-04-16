@@ -14,6 +14,4 @@ src/server/public/build
 /public/build/
 
 .env
-
 .pnp.*
-docs/**/typedoc

@@ -23,7 +23,6 @@
     "test:watch": "jest --color --watch",
     "a11y": "node test/audit/components && node lighthouse",
     "symlink-env": "./bin/symlink-config",
-    "generate-docs": "typedoc src --tsconfig tsconfig.json --out ./docs/typedoc --exclude \"**/*+(index|.test|.jest).ts\"",
     "prepare": "husky || true"
   },
   "repository": {
@@ -115,7 +114,6 @@
     "prettier": "^3.2.5",
     "prisma": "^5.1.1",
     "sass": "^1.49.9",
-    "typedoc": "^0.25.9",
     "typescript": "^5.3.3"
   },
   "optionalDependencies": {
