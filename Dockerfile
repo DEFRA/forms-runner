@@ -60,4 +60,4 @@ ARG PORT
 ENV PORT ${PORT}
 EXPOSE ${PORT}
 
-CMD [ "npm", "run", "start" ]
+CMD [ "npm", "start", "--ignore-scripts" ]
