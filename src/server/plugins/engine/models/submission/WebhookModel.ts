@@ -10,6 +10,7 @@ function answerFromDetailItem(item) {
     case 'date':
       return format(new Date(item.rawValue), 'yyyy-MM-dd')
     case 'monthYear':
+      // eslint-disable-next-line no-case-declarations
       const [month, year] = Object.values(item.rawValue)
       return format(new Date(`${year}-${month}-1`), 'yyyy-MM')
     default:
@@ -46,8 +47,11 @@ export function WebhookModel(
 
     let index = 0
     const fields = detailItems.flatMap((item, i) => {
-      item.isRepeatable ? (index = i) : 0
       const fields = [detailItemToField(item)]
+
+      if (item.isRepeatable) {
+        index = i
+      }
 
       /**
        * This is currently deprecated whilst GDS fix a known issue with accessibility and conditionally revealed fields

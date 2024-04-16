@@ -19,7 +19,7 @@ export type SendNotificationArgs = {
   emailAddress: string
   personalisation: Personalisation
   reference: string
-  replyToEmailId?: string
+  emailReplyToId?: string
 }
 
 export class NotifyService {
@@ -70,20 +70,19 @@ export class NotifyService {
 
     const notifyClient: any = new NotifyClient(apiKey)
 
-    try {
-      notifyClient
-        .sendEmail(templateId, emailAddress, parsedOptions)
-        .then(() => {
-          this.logger.info(
-            ['NotifyService', 'sendNotification'],
-            'Email sent successfully'
-          )
-        })
-    } catch (error) {
-      this.logger.error(
-        ['NotifyService', 'sendNotification'],
-        `Error processing output: ${error.message}`
+    notifyClient
+      .sendEmail(templateId, emailAddress, parsedOptions)
+      .then(() =>
+        this.logger.info(
+          ['NotifyService', 'sendNotification'],
+          'Email sent successfully'
+        )
       )
-    }
+      .catch((error) =>
+        this.logger.error(
+          ['NotifyService', 'sendNotification'],
+          `Error processing output: ${error.message}`
+        )
+      )
   }
 }

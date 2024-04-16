@@ -52,7 +52,6 @@ export class RepeatingFieldPageController extends PageController {
 
     this.options = pageDef?.options ?? DEFAULT_OPTIONS
     this.options.summaryDisplayMode ??= DEFAULT_OPTIONS.summaryDisplayMode
-    this.options.hideRowTitles ??= DEFAULT_OPTIONS.hideRowTitles
     this.options.customText ??= DEFAULT_OPTIONS.customText
 
     this.isSamePageDisplayMode = this.options.summaryDisplayMode.samePage!
@@ -156,11 +155,10 @@ export class RepeatingFieldPageController extends PageController {
       }
 
       if (request?.payload?.next === 'continue') {
-        const { next, ...rest } = request.payload
         if (this.isSeparateDisplayMode) {
           return h.redirect(`?view=summary`)
         }
-        return h.redirect(this.getNext(rest))
+        return h.redirect(this.getNext(request.payload))
       }
 
       const modifyUpdate = (update) => {
