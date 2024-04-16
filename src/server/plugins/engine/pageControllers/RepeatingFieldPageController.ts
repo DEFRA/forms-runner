@@ -155,11 +155,10 @@ export class RepeatingFieldPageController extends PageController {
       }
 
       if (request?.payload?.next === 'continue') {
-        const { next, ...rest } = request.payload
         if (this.isSeparateDisplayMode) {
           return h.redirect(`?view=summary`)
         }
-        return h.redirect(this.getNext(rest))
+        return h.redirect(this.getNext(request.payload))
       }
 
       const modifyUpdate = (update) => {
