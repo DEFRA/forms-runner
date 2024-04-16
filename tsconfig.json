@@ -7,7 +7,11 @@
     "noEmit": true,
     "resolveJsonModule": true,
     "strict": true,
-    "target": "es2022"
+    "target": "es2022",
+    "baseUrl": "./",
+    "paths": {
+      "~/*": ["./*"]
+    }
   },
   "include": ["**/*.cjs", "**/*.js", "**/*.mjs", "**/*.ts"],
   "exclude": ["node_modules", "coverage", ".server"]
