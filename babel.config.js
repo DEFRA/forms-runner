@@ -1,3 +1,5 @@
+const { NODE_ENV } = process.env
+
 /**
  * Babel config
  *
@@ -17,7 +19,8 @@ module.exports = {
       '@babel/preset-env',
       {
         browserslistEnv: 'node',
-        bugfixes: true
+        bugfixes: true,
+        modules: NODE_ENV === 'test' ? 'auto' : false
       }
     ]
   ],

@@ -18,7 +18,7 @@ module.exports = {
   ],
   coverageDirectory: '<rootDir>/coverage',
   transform: {
-    '^.+\\.(mjs|ts)$': [
+    '^.+\\.(cjs|js|mjs|ts)$': [
       'babel-jest',
       {
         rootMode: 'upward'
