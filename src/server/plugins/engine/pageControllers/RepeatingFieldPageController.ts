@@ -52,7 +52,6 @@ export class RepeatingFieldPageController extends PageController {
 
     this.options = pageDef?.options ?? DEFAULT_OPTIONS
     this.options.summaryDisplayMode ??= DEFAULT_OPTIONS.summaryDisplayMode
-    this.options.hideRowTitles ??= DEFAULT_OPTIONS.hideRowTitles
     this.options.customText ??= DEFAULT_OPTIONS.customText
 
     this.isSamePageDisplayMode = this.options.summaryDisplayMode.samePage!
