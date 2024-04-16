@@ -108,14 +108,7 @@ $ docker run -p 3000:3000 forms-runner
 
 # Environment variables
 
-If there is a .env file present, these will be loaded in first.
-
-To symlink an external .env file, for example inside a [Keybase](https://keybase.io) folder:
-
-`npm run symlink-env /location/of/.env`.
-
-`symlink-config` accepts two variables, ENV_LOC and LINK_TO. If the file location is not passed in, you will be prompted for a location.
-LINK_TO is optional, it defaults to `./${PROJECT_DIR}`.
+If there is a .env file present, these will be loaded in.
 
 ### ⚠️ See [config](./config/default.js) for default values for each environment
 
@@ -154,12 +147,6 @@ See [https://github.com/node-config/node-config#readme](https://github.com/node-
 # Testing
 
 Tests are found inside `test/cases`. For test scripts, name them `${NAME}.test.js`.
-
-# Deployment
-
-Currently CI is done with github actions. Pushes to main
-will trigger a build phase which includes running tests and [lighthouse](https://developers.google.com/web/tools/lighthouse)
-accessibility audits. Builds will fail if the accessibility score is less than 90%.
 
 # Outputs
 
