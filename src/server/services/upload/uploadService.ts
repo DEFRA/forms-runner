@@ -2,9 +2,9 @@ import FormData from 'form-data'
 
 import config from '../../config'
 import { get, post } from '../httpService'
-import type { HapiRequest, HapiResponseToolkit, HapiServer } from '../../types'
+import type { Request, ResponseToolkit, Server } from '@hapi/hapi'
 
-type Payload = HapiRequest['payload']
+type Payload = Request['payload']
 
 const parsedError = (key: string, error?: string) => {
   return {
@@ -27,7 +27,7 @@ export class UploadService {
    * Service responsible for uploading files via the FileUploadField. This service has been registered by {@link #createServer}
    */
 
-  logger: HapiServer['logger']
+  logger: Server['logger']
   constructor(server) {
     this.logger = server.logger
   }
@@ -98,12 +98,12 @@ export class UploadService {
     }
   }
 
-  async failAction(_request: HapiRequest, h: HapiResponseToolkit) {
+  async failAction(_request: Request, h: ResponseToolkit) {
     h.request.pre.filesizeError = true
     return h.continue
   }
 
-  async handleUploadRequest(request: HapiRequest, h: HapiResponseToolkit) {
+  async handleUploadRequest(request: Request, h: ResponseToolkit) {
     const { cacheService } = request.services([])
     const state = await cacheService.getState(request)
     const originalFilenames = state?.originalFilenames ?? {}

@@ -7,7 +7,7 @@ import { capitalize } from 'lodash'
 import pkg from '../../../package.json'
 import config from '../config'
 import additionalContexts from '../templates/additionalContexts.json'
-import type { HapiRequest } from '../types'
+import type { Request } from '@hapi/hapi'
 
 const basedir = path.join(process.cwd())
 
@@ -61,7 +61,7 @@ export default {
       `${path.dirname(resolve.sync('hmpo-components'))}/components`
     ],
     isCached: !config.isDev,
-    context: (request: HapiRequest) => ({
+    context: (request: Request) => ({
       appVersion: pkg.version,
       assetPath: `${config.appPathPrefix}/assets`,
       appPathPrefix: config.appPathPrefix,

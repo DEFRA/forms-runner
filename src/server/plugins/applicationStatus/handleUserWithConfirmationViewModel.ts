@@ -1,8 +1,8 @@
-import type { HapiRequest, HapiResponseToolkit } from '../../types'
+import type { Request, ResponseToolkit } from '@hapi/hapi'
 
 export async function handleUserWithConfirmationViewModel(
-  request: HapiRequest,
-  h: HapiResponseToolkit
+  request: Request,
+  h: ResponseToolkit
 ) {
   const { cacheService } = request.services([])
 

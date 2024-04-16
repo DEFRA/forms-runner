@@ -12,7 +12,7 @@ import {
   WebhookModel
 } from '../models/submission'
 import { FormDefinition, isMultipleApiKey } from '@defra/forms-model'
-import type { HapiRequest } from '../../../types'
+import type { Request } from '@hapi/hapi'
 import type { InitialiseSessionOptions } from '../../initialiseSession/types'
 import type { FormSubmissionState } from '../types'
 import { FEEDBACK_CONTEXT_ITEMS, type WebhookData } from './types'
@@ -63,7 +63,7 @@ export class SummaryViewModel {
     pageTitle: string,
     model: FormModel,
     state: FormSubmissionState,
-    request: HapiRequest
+    request: Request
   ) {
     this.pageTitle = pageTitle
     const { relevantPages, endPage } = this.getRelevantPages(model, state)

@@ -1,5 +1,5 @@
 import { post, put } from './httpService'
-import type { HapiServer } from '../types'
+import type { Server } from '@hapi/hapi'
 
 const DEFAULT_OPTIONS = {
   headers: {
@@ -11,7 +11,7 @@ const DEFAULT_OPTIONS = {
 
 export class WebhookService {
   logger: any
-  constructor(server: HapiServer) {
+  constructor(server: Server) {
     this.logger = server.logger
   }
 

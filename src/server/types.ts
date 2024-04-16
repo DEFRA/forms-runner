@@ -1,11 +1,4 @@
 import yar from '@hapi/yar'
-import {
-  Request,
-  ResponseToolkit,
-  Server,
-  ResponseObject,
-  Lifecycle
-} from '@hapi/hapi'
 import { Logger } from 'pino'
 
 import { RateOptions } from './plugins/rateLimit'
@@ -21,18 +14,6 @@ import {
 import { QueueStatusService } from './services/queueStatusService'
 import { QueueService } from './services/QueueService'
 
-type Services = (services: string[]) => {
-  cacheService: CacheService
-  emailService: EmailService
-  notifyService: NotifyService
-  payService: PayService
-  uploadService: UploadService
-  webhookService: WebhookService
-  statusService: StatusService
-  queueService: QueueService
-  queueStatusService: QueueStatusService
-}
-
 export type RouteConfig = {
   rateOptions?: RateOptions
   formFileName?: string
@@ -44,7 +25,6 @@ declare module '@hapi/hapi' {
   // Here we are decorating Hapi interface types with
   // props from plugins which doesn't export @types
   interface Request {
-    services: Services // plugin schmervice
     i18n: {
       // plugin locale
       setLocale(lang: string): void
@@ -60,13 +40,7 @@ declare module '@hapi/hapi' {
 
   interface Server {
     logger: Logger
-    services: Services // plugin schmervice
-    registerService: (services: any[]) => void // plugin schmervice
     yar: yar.ServerYar
-  }
-
-  interface ResponseToolkit {
-    view: (viewName: string, data?: { [prop: string]: any }) => any // plugin view
   }
 
   interface RequestApplicationState {
@@ -74,8 +48,21 @@ declare module '@hapi/hapi' {
   }
 }
 
-export type HapiRequest = Request
-export type HapiResponseToolkit = ResponseToolkit
-export type HapiLifecycleMethod = Lifecycle.Method
-export type HapiServer = Server
-export type HapiResponseObject = ResponseObject
+declare module '@hapipal/schmervice' {
+  interface RegisteredServices {
+    cacheService: CacheService
+    emailService: EmailService
+    notifyService: NotifyService
+    payService: PayService
+    uploadService: UploadService
+    webhookService: WebhookService
+    statusService: StatusService
+    queueService: QueueService
+    queueStatusService: QueueStatusService
+  }
+
+  interface SchmerviceDecorator {
+    (all?: boolean): RegisteredServices
+    (namespace?: string[]): RegisteredServices
+  }
+}

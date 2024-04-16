@@ -1,5 +1,5 @@
 import { PageControllerBase } from './PageControllerBase'
-import type { HapiRequest, HapiResponseToolkit } from '../../../types'
+import type { Request, ResponseToolkit } from '@hapi/hapi'
 
 export class PageController extends PageControllerBase {
   /**
@@ -11,7 +11,7 @@ export class PageController extends PageControllerBase {
     return {
       ext: {
         onPostHandler: {
-          method: (_request: HapiRequest, h: HapiResponseToolkit) => {
+          method: (_request: Request, h: ResponseToolkit) => {
             return h.continue
           }
         }
@@ -35,13 +35,13 @@ export class PageController extends PageControllerBase {
       },
       ext: {
         onPreHandler: {
-          method: async (request: HapiRequest, h: HapiResponseToolkit) => {
+          method: async (request: Request, h: ResponseToolkit) => {
             const { uploadService } = request.services([])
             return uploadService.handleUploadRequest(request, h, this.pageDef)
           }
         },
         onPostHandler: {
-          method: async (_request: HapiRequest, h: HapiResponseToolkit) => {
+          method: async (_request: Request, h: ResponseToolkit) => {
             return h.continue
           }
         }

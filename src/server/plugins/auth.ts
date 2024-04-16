@@ -4,9 +4,9 @@ import Bell from '@hapi/bell'
 import config from '../config'
 import { redirectTo } from '../plugins/engine'
 import generateCookiePassword from '../utils/generateCookiePassword'
-import type { HapiRequest, HapiResponseToolkit } from '../types'
+import type { Request, ResponseToolkit } from '@hapi/hapi'
 
-export const shouldLogin = (request: HapiRequest) =>
+export const shouldLogin = (request: Request) =>
   config.authEnabled && !request.auth.isAuthenticated
 
 export default {
@@ -57,7 +57,7 @@ export default {
         path: '/login',
         config: {
           auth: 'oauth',
-          handler: (request: HapiRequest, h: HapiResponseToolkit) => {
+          handler: (request: Request, h: ResponseToolkit) => {
             if (request.auth.isAuthenticated) {
               request.cookieAuth.set(request.auth.credentials.profile)
               const returnUrl = request.auth.credentials.query?.returnUrl || '/'
@@ -72,7 +72,7 @@ export default {
       server.route({
         method: 'get',
         path: '/logout',
-        handler: async (request: HapiRequest, h: HapiResponseToolkit) => {
+        handler: async (request: Request, h: ResponseToolkit) => {
           request.cookieAuth.clear()
           request.yar.reset()
 

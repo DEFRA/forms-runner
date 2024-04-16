@@ -3,7 +3,7 @@ import { redirectTo } from './engine'
 import { healthCheckRoute, publicRoutes, homeRoute } from '../routes'
 import config from '../config'
 import getRequestInfo from '../utils/getRequestInfo'
-import type { HapiRequest, HapiResponseToolkit } from '../types'
+import type { Request, ResponseToolkit } from '@hapi/hapi'
 
 const routes = [...publicRoutes, healthCheckRoute, homeRoute]
 
@@ -30,7 +30,7 @@ export default {
         {
           method: 'get',
           path: '/help/privacy',
-          handler: async (_request: HapiRequest, h: HapiResponseToolkit) => {
+          handler: async (_request: Request, h: ResponseToolkit) => {
             if (config.privacyPolicyUrl) {
               return h.redirect(config.privacyPolicyUrl)
             }
@@ -40,7 +40,7 @@ export default {
         {
           method: 'get',
           path: '/help/cookies',
-          handler: async (request: HapiRequest, h: HapiResponseToolkit) => {
+          handler: async (request: Request, h: ResponseToolkit) => {
             const cookiesPolicy = request.state.cookies_policy
             const analytics =
               cookiesPolicy?.analytics === 'on' ? 'accept' : 'reject'
@@ -55,10 +55,7 @@ export default {
             payload: {
               parse: true,
               multipart: true,
-              failAction: async (
-                request: HapiRequest,
-                h: HapiResponseToolkit
-              ) => {
+              failAction: async (request: Request, h: ResponseToolkit) => {
                 request.server.plugins.crumb.generate?.(request, h)
                 return h.continue
               }
@@ -73,7 +70,7 @@ export default {
             }
           },
           path: '/help/cookies',
-          handler: async (request: HapiRequest, h: HapiResponseToolkit) => {
+          handler: async (request: Request, h: ResponseToolkit) => {
             const { cookies } = request.payload as CookiePayload
             const accept = cookies === 'accept'
 
@@ -105,7 +102,7 @@ export default {
       server.route({
         method: 'get',
         path: '/help/terms-and-conditions',
-        handler: async (_request: HapiRequest, h: HapiResponseToolkit) => {
+        handler: async (_request: Request, h: ResponseToolkit) => {
           return h.view('help/terms-and-conditions')
         }
       })
@@ -113,7 +110,7 @@ export default {
       server.route({
         method: 'get',
         path: '/help/accessibility-statement',
-        handler: async (_request: HapiRequest, h: HapiResponseToolkit) => {
+        handler: async (_request: Request, h: ResponseToolkit) => {
           return h.view('help/accessibility-statement')
         }
       })
@@ -121,7 +118,7 @@ export default {
       server.route({
         method: 'get',
         path: '/clear-session',
-        handler: async (request: HapiRequest, h: HapiResponseToolkit) => {
+        handler: async (request: Request, h: ResponseToolkit) => {
           if (request.yar) {
             request.yar.reset()
           }
@@ -133,7 +130,7 @@ export default {
       server.route({
         method: 'get',
         path: '/timeout',
-        handler: async (request: HapiRequest, h: HapiResponseToolkit) => {
+        handler: async (request: Request, h: ResponseToolkit) => {
           if (request.yar) {
             request.yar.reset()
           }

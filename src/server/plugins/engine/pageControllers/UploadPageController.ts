@@ -2,7 +2,7 @@ import { PageController } from '../../../plugins/engine/pageControllers/PageCont
 import { FormModel } from '../../../plugins/engine/models'
 import { PlaybackUploadPageController } from '../../../plugins/engine/pageControllers/PlaybackUploadPageController'
 import { FormComponent } from '../../../plugins/engine/components'
-import type { HapiRequest, HapiResponseToolkit } from '../../../types'
+import type { Request, ResponseToolkit } from '@hapi/hapi'
 
 function isUploadField(component: FormComponent) {
   return component.type === 'FileUploadField'
@@ -28,7 +28,7 @@ export class UploadPageController extends PageController {
   }
 
   makeGetRouteHandler() {
-    return async (request: HapiRequest, h: HapiResponseToolkit) => {
+    return async (request: Request, h: ResponseToolkit) => {
       const { query } = request
       const { view } = query
 
@@ -41,7 +41,7 @@ export class UploadPageController extends PageController {
   }
 
   makePostRouteHandler() {
-    return async (request: HapiRequest, h: HapiResponseToolkit) => {
+    return async (request: Request, h: ResponseToolkit) => {
       const { query } = request
 
       if (query?.view === 'playback') {

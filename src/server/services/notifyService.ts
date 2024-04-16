@@ -1,7 +1,7 @@
 import { NotifyClient } from 'notifications-node-client/client/notification'
 import { isMultipleApiKey, MultipleApiKeys } from '@defra/forms-model'
 import config from '../config'
-import type { HapiServer } from '../types'
+import type { Server } from '@hapi/hapi'
 
 type Personalisation = {
   [propName: string]: any
@@ -26,8 +26,8 @@ export class NotifyService {
   /**
    * This service is responsible for sending emails via {@link https://www.notifications.service.gov.uk }. This service has been registered by {@link createServer}
    */
-  logger: HapiServer['logger']
-  constructor(server: HapiServer) {
+  logger: Server['logger']
+  constructor(server: Server) {
     this.logger = server.logger
   }
 

@@ -11,7 +11,7 @@ import {
 } from '../plugins/initialiseSession/types'
 import type { FormSubmissionState } from '../plugins/engine/types'
 import type { WebhookSchema } from '../schemas/types'
-import type { HapiRequest, HapiServer } from '../types'
+import type { Request, Server } from '@hapi/hapi'
 
 const {
   redisHost,
@@ -34,20 +34,20 @@ export class CacheService {
    * This service is responsible for getting, storing or deleting a user's session data in the cache. This service has been registered by {@link createServer}
    */
   cache: any
-  logger: HapiServer['logger']
+  logger: Server['logger']
 
-  constructor(server: HapiServer) {
+  constructor(server: Server) {
     this.cache = server.cache({ segment: 'cache' })
     this.logger = server.logger
   }
 
-  async getState(request: HapiRequest): Promise<FormSubmissionState> {
+  async getState(request: Request): Promise<FormSubmissionState> {
     const cached = await this.cache.get(this.Key(request))
     return cached || {}
   }
 
   async mergeState(
-    request: HapiRequest,
+    request: Request,
     value: object,
     nullOverride = true,
     arrayMerge = false
@@ -67,12 +67,12 @@ export class CacheService {
     return this.cache.get(key)
   }
 
-  async getConfirmationState(request: HapiRequest) {
+  async getConfirmationState(request: Request) {
     const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation)
     return await this.cache.get(key)
   }
 
-  async setConfirmationState(request: HapiRequest, viewModel) {
+  async setConfirmationState(request: Request, viewModel) {
     const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation)
     return this.cache.set(key, viewModel, confirmationSessionTimeout)
   }
@@ -113,7 +113,7 @@ export class CacheService {
     }
   }
 
-  async clearState(request: HapiRequest) {
+  async clearState(request: Request) {
     if (request.yar?.id) {
       this.cache.drop(this.Key(request))
     }
@@ -126,7 +126,7 @@ export class CacheService {
    * @param request - hapi request object
    * @param additionalIdentifier - appended to the id
    */
-  Key(request: HapiRequest, additionalIdentifier?: ADDITIONAL_IDENTIFIER) {
+  Key(request: Request, additionalIdentifier?: ADDITIONAL_IDENTIFIER) {
     if (!request?.yar?.id) {
       throw Error('No session ID found')
     }

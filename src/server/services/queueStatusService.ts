@@ -1,17 +1,17 @@
 import { StatusService } from '../services/statusService'
 import Boom from '@hapi/boom'
 import { PgBossQueueService } from '../services/pgBossQueueService'
-import type { HapiRequest, HapiServer } from '../types'
+import type { Request, Server } from '@hapi/hapi'
 
 export class QueueStatusService extends StatusService {
   queueService: PgBossQueueService
-  constructor(server: HapiServer) {
+  constructor(server: Server) {
     super(server)
     const { queueService } = server.services([])
     this.queueService = queueService
   }
 
-  async outputRequests(request: HapiRequest) {
+  async outputRequests(request: Request) {
     const state = await this.cacheService.getState(request)
     const formData = this.webhookArgsFromState(state)
 

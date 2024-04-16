@@ -1,12 +1,12 @@
 import { PageController } from './PageController'
-import type { HapiRequest, HapiResponseToolkit } from '../../../types'
+import type { Request, ResponseToolkit } from '@hapi/hapi'
 
 export class HomePageController extends PageController {
   get getRouteOptions() {
     return {
       ext: {
         onPostHandler: {
-          method: (_request: HapiRequest, h: HapiResponseToolkit) => {
+          method: (_request: Request, h: ResponseToolkit) => {
             return h.continue
           }
         }
@@ -18,7 +18,7 @@ export class HomePageController extends PageController {
     return {
       ext: {
         onPostHandler: {
-          method: (_request: HapiRequest, h: HapiResponseToolkit) => {
+          method: (_request: Request, h: ResponseToolkit) => {
             return h.continue
           }
         }

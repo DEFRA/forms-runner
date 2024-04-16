@@ -1,9 +1,9 @@
 import { FormModel } from '../../plugins/engine/models'
-import type { HapiRequest, HapiResponseToolkit } from '../../types'
+import type { Request, ResponseToolkit } from '@hapi/hapi'
 
 export async function paymentSkippedWarning(
-  request: HapiRequest,
-  h: HapiResponseToolkit
+  request: Request,
+  h: ResponseToolkit
 ) {
   const form: FormModel = request.server.app.forms[request.params.id]
   const { allowSubmissionWithoutPayment } = form.feeOptions
@@ -22,8 +22,8 @@ export async function paymentSkippedWarning(
 }
 
 export async function continueToPayAfterPaymentSkippedWarning(
-  request: HapiRequest,
-  h: HapiResponseToolkit
+  request: Request,
+  h: ResponseToolkit
 ) {
   const { cacheService } = request.services([])
   const state = await cacheService.getState(request)

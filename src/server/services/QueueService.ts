@@ -1,11 +1,11 @@
-import type { HapiServer } from '../types'
+import type { Server } from '@hapi/hapi'
 
 type QueueResponse = [number | string, string | undefined]
 
 export abstract class QueueService {
-  logger: HapiServer['logger']
+  logger: Server['logger']
 
-  constructor(server: HapiServer) {
+  constructor(server: Server) {
     this.logger = server.logger
   }
 
