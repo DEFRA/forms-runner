@@ -5,10 +5,14 @@ import { FormConfiguration } from '@defra/forms-model'
 
 import { FormModel } from './models'
 import Boom from '@hapi/boom'
-import { PluginSpecificConfiguration } from '@hapi/hapi'
+import type {
+  PluginSpecificConfiguration,
+  Request,
+  ResponseToolkit,
+  Server
+} from '@hapi/hapi'
 import { shouldLogin } from '../../plugins/auth'
 import config from '../../config'
-import type { HapiRequest, HapiResponseToolkit, HapiServer } from '../../types'
 import type { FormPayload } from './types'
 
 configure([
@@ -25,8 +29,8 @@ function normalisePath(path: string) {
 }
 
 function getStartPageRedirect(
-  request: HapiRequest,
-  h: HapiResponseToolkit,
+  request: Request,
+  h: ResponseToolkit,
   id: string,
   model: FormModel
 ) {
@@ -59,7 +63,7 @@ export const plugin = {
   name: '@defra/forms-runner/engine',
   dependencies: '@hapi/vision',
   multiple: true,
-  register: (server: HapiServer, options: PluginOptions) => {
+  register: (server: Server, options: PluginOptions) => {
     const { modelOptions, configs, previewMode } = options
     server.app.forms = {}
     const forms = server.app.forms
@@ -86,7 +90,7 @@ export const plugin = {
     server.route({
       method: 'post',
       path: '/publish',
-      handler: (request: HapiRequest, h: HapiResponseToolkit) => {
+      handler: (request: Request, h: ResponseToolkit) => {
         if (!previewMode) {
           request.logger.error(
             [`POST /publish`, 'previewModeError'],
@@ -115,7 +119,7 @@ export const plugin = {
     server.route({
       method: 'get',
       path: '/published/{id}',
-      handler: (request: HapiRequest, h: HapiResponseToolkit) => {
+      handler: (request: Request, h: ResponseToolkit) => {
         const { id } = request.params
         if (!previewMode) {
           request.logger.error(
@@ -141,7 +145,7 @@ export const plugin = {
     server.route({
       method: 'get',
       path: '/published',
-      handler: (request: HapiRequest, h: HapiResponseToolkit) => {
+      handler: (request: Request, h: ResponseToolkit) => {
         if (!previewMode) {
           request.logger.error(
             [`GET /published`, 'previewModeError'],
@@ -171,8 +175,8 @@ export const plugin = {
     })
 
     const queryParamPreHandler = async (
-      request: HapiRequest,
-      h: HapiResponseToolkit
+      request: Request,
+      h: ResponseToolkit
     ) => {
       const { query } = request
       const { id } = request.params
@@ -209,7 +213,7 @@ export const plugin = {
           }
         ]
       },
-      handler: (request: HapiRequest, h: HapiResponseToolkit) => {
+      handler: (request: Request, h: ResponseToolkit) => {
         const { id } = request.params
         const model = forms[id]
         if (model) {
@@ -229,7 +233,7 @@ export const plugin = {
           }
         ]
       },
-      handler: (request: HapiRequest, h: HapiResponseToolkit) => {
+      handler: (request: Request, h: ResponseToolkit) => {
         const { path, id } = request.params
         const model = forms[id]
         const page = model?.pages.find(
@@ -255,7 +259,7 @@ export const plugin = {
 
     const { uploadService } = server.services([])
 
-    const handleFiles = (request: HapiRequest, h: HapiResponseToolkit) => {
+    const handleFiles = (request: Request, h: ResponseToolkit) => {
       const { path, id } = request.params
       const model = forms[id]
       const page = model?.pages.find(
@@ -264,10 +268,7 @@ export const plugin = {
       return uploadService.handleUploadRequest(request, h, page.pageDef)
     }
 
-    const postHandler = async (
-      request: HapiRequest,
-      h: HapiResponseToolkit
-    ) => {
+    const postHandler = async (request: Request, h: ResponseToolkit) => {
       const { path, id } = request.params
       const model = forms[id]
 
@@ -298,7 +299,7 @@ export const plugin = {
           parse: true,
           multipart: { output: 'stream' },
           maxBytes: uploadService.fileSizeLimit,
-          failAction: async (request: HapiRequest, h: HapiResponseToolkit) => {
+          failAction: async (request: Request, h: ResponseToolkit) => {
             request.server.plugins.crumb.generate?.(request, h)
             return h.continue
           }

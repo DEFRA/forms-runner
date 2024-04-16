@@ -1,9 +1,9 @@
 import fs from 'fs'
-import hapi, { ServerOptions } from '@hapi/hapi'
+import hapi, { ServerOptions, Request, ResponseToolkit } from '@hapi/hapi'
 
 import Scooter from '@hapi/scooter'
 import inert from '@hapi/inert'
-import Schmervice from 'schmervice'
+import Schmervice from '@hapipal/schmervice'
 import blipp from 'blipp'
 import config from './config'
 
@@ -37,7 +37,7 @@ import {
 import getRequestInfo from './utils/getRequestInfo'
 import { QueueStatusService } from './services/queueStatusService'
 import { PgBossQueueService } from './services/pgBossQueueService'
-import type { HapiRequest, HapiResponseToolkit, RouteConfig } from './types'
+import type { RouteConfig } from './types'
 
 const serverOptions = (): ServerOptions => {
   const hasCertificate = config.sslKey && config.sslCert
@@ -60,7 +60,7 @@ const serverOptions = (): ServerOptions => {
           includeSubDomains: true,
           preload: false
         },
-        xss: true,
+        xss: 'enabled',
         noSniff: true,
         xframe: true
       }
@@ -118,7 +118,7 @@ async function createServer(routeConfig: RouteConfig) {
   ])
   if (!config.documentUploadApiUrl) {
     server.registerService([
-      Schmervice.withName('uploadService', MockUploadService)
+      Schmervice.withName('uploadService', {}, MockUploadService)
     ])
   } else {
     server.registerService([UploadService])
@@ -128,42 +128,39 @@ async function createServer(routeConfig: RouteConfig) {
 
   if (config.enableQueueService) {
     server.registerService([
-      Schmervice.withName('queueService', PgBossQueueService),
-      Schmervice.withName('statusService', QueueStatusService)
+      Schmervice.withName('queueService', {}, PgBossQueueService),
+      Schmervice.withName('statusService', {}, QueueStatusService)
     ])
   } else {
     server.registerService(StatusService)
   }
 
-  server.ext(
-    'onPreResponse',
-    (request: HapiRequest, h: HapiResponseToolkit) => {
-      const { response } = request
+  server.ext('onPreResponse', (request: Request, h: ResponseToolkit) => {
+    const { response } = request
 
-      if ('isBoom' in response && response.isBoom) {
-        return h.continue
-      }
-
-      if ('header' in response && response.header) {
-        response.header('X-Robots-Tag', 'noindex, nofollow')
-
-        const WEBFONT_EXTENSIONS = /\.(?:eot|ttf|woff|svg|woff2)$/i
-        if (!WEBFONT_EXTENSIONS.test(request.url.toString())) {
-          response.header(
-            'cache-control',
-            'private, no-cache, no-store, must-revalidate, max-age=0'
-          )
-          response.header('pragma', 'no-cache')
-          response.header('expires', '0')
-        } else {
-          response.header('cache-control', 'public, max-age=604800, immutable')
-        }
-      }
+    if ('isBoom' in response && response.isBoom) {
       return h.continue
     }
-  )
 
-  server.ext('onRequest', (request: HapiRequest, h: HapiResponseToolkit) => {
+    if ('header' in response && response.header) {
+      response.header('X-Robots-Tag', 'noindex, nofollow')
+
+      const WEBFONT_EXTENSIONS = /\.(?:eot|ttf|woff|svg|woff2)$/i
+      if (!WEBFONT_EXTENSIONS.test(request.url.toString())) {
+        response.header(
+          'cache-control',
+          'private, no-cache, no-store, must-revalidate, max-age=0'
+        )
+        response.header('pragma', 'no-cache')
+        response.header('expires', '0')
+      } else {
+        response.header('cache-control', 'public, max-age=604800, immutable')
+      }
+    }
+    return h.continue
+  })
+
+  server.ext('onRequest', (request: Request, h: ResponseToolkit) => {
     const { pathname } = getRequestInfo(request)
 
     request.app.location = pathname

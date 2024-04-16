@@ -10,7 +10,7 @@ describe('Title and section title', () => {
       formFilePath: __dirname,
       options: { previewMode: true }
     })
-    await server.start()
+    await server.initialize()
   })
 
   afterAll(async () => {

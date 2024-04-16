@@ -24,7 +24,7 @@ describe('CSRF', () => {
       formFilePath: __dirname,
       enforceCsrf: true
     })
-    await server.start()
+    await server.initialize()
   })
 
   afterAll(async () => {

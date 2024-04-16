@@ -3,7 +3,7 @@ import MailComposer from 'nodemailer/lib/mail-composer'
 import config from '../config'
 
 import { UploadService } from './upload/uploadService'
-import type { HapiServer } from '../types'
+import type { Server } from '@hapi/hapi'
 
 export class EmailService {
   /**
@@ -12,7 +12,7 @@ export class EmailService {
    */
   uploadService: UploadService
 
-  constructor(server: HapiServer) {
+  constructor(server: Server) {
     const { uploadService } = server.services([])
     this.uploadService = uploadService
   }

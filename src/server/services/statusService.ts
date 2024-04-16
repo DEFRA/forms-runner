@@ -13,7 +13,7 @@ import config from '../config'
 import nunjucks from 'nunjucks'
 import type { NotifyModel } from '../plugins/engine/models/submission'
 import type { FormSubmissionState } from '../plugins/engine/types'
-import type { HapiRequest, HapiServer } from '../types'
+import type { Request, Server } from '@hapi/hapi'
 
 type WebhookModel = WebhookOutputConfiguration & {
   formData: object
@@ -44,13 +44,13 @@ export class StatusService {
   /**
    * StatusService handles sending data at the end of the form to the configured `Outputs`
    */
-  logger: HapiServer['logger']
+  logger: Server['logger']
   cacheService: CacheService
   webhookService: WebhookService
   notifyService: NotifyService
   payService: PayService
 
-  constructor(server: HapiServer) {
+  constructor(server: Server) {
     this.logger = server.logger
     const { cacheService, webhookService, notifyService, payService } =
       server.services([])
@@ -60,7 +60,7 @@ export class StatusService {
     this.payService = payService
   }
 
-  async shouldShowPayErrorPage(request: HapiRequest): Promise<boolean> {
+  async shouldShowPayErrorPage(request: Request): Promise<boolean> {
     const { pay } = await this.cacheService.getState(request)
     if (!pay) {
       this.logger.info(
@@ -119,7 +119,7 @@ export class StatusService {
     return shouldRetry
   }
 
-  async outputRequests(request: HapiRequest) {
+  async outputRequests(request: Request) {
     const state = await this.cacheService.getState(request)
     const formData = this.webhookArgsFromState(state)
 

@@ -7,7 +7,7 @@ import {
   RelativeUrl
 } from '../feedback'
 import config from '../../../config'
-import type { HapiRequest, HapiResponseToolkit } from '../../../types'
+import type { Request, ResponseToolkit } from '@hapi/hapi'
 
 export class SummaryPageController extends PageController {
   /**
@@ -18,7 +18,7 @@ export class SummaryPageController extends PageController {
    * Returns an async function. This is called in plugin.ts when there is a GET request at `/{id}/{path*}`,
    */
   makeGetRouteHandler() {
-    return async (request: HapiRequest, h: HapiResponseToolkit) => {
+    return async (request: Request, h: ResponseToolkit) => {
       this.langFromRequest(request)
 
       const { cacheService } = request.services([])
@@ -97,7 +97,7 @@ export class SummaryPageController extends PageController {
    * If a form is incomplete, a user will be redirected to the start page.
    */
   makePostRouteHandler() {
-    return async (request: HapiRequest, h: HapiResponseToolkit) => {
+    return async (request: Request, h: ResponseToolkit) => {
       const { payService, cacheService } = request.services([])
       const model = this.model
       const state = await cacheService.getState(request)
@@ -229,7 +229,7 @@ export class SummaryPageController extends PageController {
     }
   }
 
-  setFeedbackDetails(viewModel: SummaryViewModel, request: HapiRequest) {
+  setFeedbackDetails(viewModel: SummaryViewModel, request: Request) {
     const feedbackContextInfo = this.getFeedbackContextInfo(request)
 
     if (feedbackContextInfo) {
@@ -241,7 +241,7 @@ export class SummaryPageController extends PageController {
     viewModel.feedbackLink = this.feedbackUrlFromRequest(request)
   }
 
-  getFeedbackContextInfo(request: HapiRequest) {
+  getFeedbackContextInfo(request: Request) {
     if (this.model.def.feedback?.feedbackForm) {
       if (request.url.searchParams.get(feedbackReturnInfoKey)) {
         return decodeFeedbackContextInfo(
@@ -251,7 +251,7 @@ export class SummaryPageController extends PageController {
     }
   }
 
-  feedbackUrlFromRequest(request: HapiRequest) {
+  feedbackUrlFromRequest(request: Request) {
     if (this.model.def.feedback?.url) {
       const feedbackLink = new RelativeUrl(this.model.def.feedback.url)
       const returnInfo = new FeedbackContextInfo(
@@ -270,7 +270,7 @@ export class SummaryPageController extends PageController {
     return {
       ext: {
         onPreHandler: {
-          method: async (_request: HapiRequest, h: HapiResponseToolkit) => {
+          method: async (_request: Request, h: ResponseToolkit) => {
             return h.continue
           }
         }

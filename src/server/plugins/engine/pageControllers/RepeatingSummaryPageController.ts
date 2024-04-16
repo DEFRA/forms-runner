@@ -1,13 +1,9 @@
 import { PageController } from '../../../plugins/engine/pageControllers/PageController'
-import {
-  HapiRequest,
-  HapiResponseToolkit,
-  HapiLifecycleMethod
-} from '../../../types'
+import { Request, ResponseToolkit, Lifecycle } from '@hapi/hapi'
 import { RepeatingFieldPageController } from './RepeatingFieldPageController'
 export class RepeatingSummaryPageController extends PageController {
-  private getRoute!: HapiLifecycleMethod
-  private postRoute!: HapiLifecycleMethod
+  private getRoute!: Lifecycle.Method
+  private postRoute!: Lifecycle.Method
   nextIndex!: RepeatingFieldPageController['nextIndex']
   getPartialState!: RepeatingFieldPageController['getPartialState']
   options!: RepeatingFieldPageController['options']
@@ -39,7 +35,7 @@ export class RepeatingSummaryPageController extends PageController {
    * Returns an async function. This is called in plugin.ts when there is a GET request at `/{id}/{path*}`,
    */
   makeGetRouteHandler() {
-    return async (request: HapiRequest, h: HapiResponseToolkit) => {
+    return async (request: Request, h: ResponseToolkit) => {
       const { cacheService } = request.services([])
 
       const { removeAtIndex } = request.query
@@ -136,7 +132,7 @@ export class RepeatingSummaryPageController extends PageController {
    * If a form is incomplete, a user will be redirected to the start page.
    */
   makePostRouteHandler() {
-    return async (request: HapiRequest, h: HapiResponseToolkit) => {
+    return async (request: Request, h: ResponseToolkit) => {
       const { cacheService } = request.services([])
       const state = await cacheService.getState(request)
 

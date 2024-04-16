@@ -1,17 +1,13 @@
 import { RelativeUrl } from './feedback'
 import { reach } from '@hapi/hoek'
 import _ from 'lodash'
-import type { HapiRequest, HapiResponseToolkit } from '../../types'
+import type { Request, ResponseToolkit } from '@hapi/hapi'
 
 export const feedbackReturnInfoKey = 'f_t'
 
 const paramsToCopy = [feedbackReturnInfoKey]
 
-export function proceed(
-  request: HapiRequest,
-  h: HapiResponseToolkit,
-  nextUrl: string
-) {
+export function proceed(request: Request, h: ResponseToolkit, nextUrl: string) {
   const returnUrl = request.query.returnUrl
 
   if (typeof returnUrl === 'string' && returnUrl.startsWith('/')) {
@@ -24,7 +20,7 @@ export function proceed(
 type Params = { num?: number; returnUrl: string } | object
 
 export function nonRelativeRedirectUrl(
-  request: HapiRequest,
+  request: Request,
   targetUrl: string,
   params: Params = {}
 ) {
@@ -45,7 +41,7 @@ export function nonRelativeRedirectUrl(
 }
 
 export function redirectUrl(
-  request: HapiRequest,
+  request: Request,
   targetUrl: string,
   params: Params = {}
 ) {
@@ -65,8 +61,8 @@ export function redirectUrl(
 }
 
 export function redirectTo(
-  request: HapiRequest,
-  h: HapiResponseToolkit,
+  request: Request,
+  h: ResponseToolkit,
   targetUrl: string,
   params = {}
 ) {

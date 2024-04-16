@@ -4,7 +4,7 @@ import { nanoid } from 'nanoid'
 import { Fee } from '@defra/forms-model'
 import { FeesModel } from '../plugins/engine/models/submission'
 import { format } from 'date-fns'
-import type { HapiServer } from '../types'
+import type { Server } from '@hapi/hapi'
 
 export type FeeDetails = Fee & {
   multiplyBy?: number // the value retrieved from multiplier field above (see summary page retrieveFees method)
@@ -58,8 +58,8 @@ export class PayService {
    * Service responsible for handling requests to GOV.UK Pay. This service has been registered by {@link createServer}
    */
 
-  logger: HapiServer['logger']
-  constructor(server: HapiServer) {
+  logger: Server['logger']
+  constructor(server: Server) {
     this.logger = server.logger
   }
 

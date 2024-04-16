@@ -9,11 +9,7 @@ import {
   FeedbackContextInfo,
   RelativeUrl
 } from '../feedback'
-import {
-  HapiRequest,
-  HapiResponseObject,
-  HapiResponseToolkit
-} from '../../../types'
+import { Request, ResponseObject, ResponseToolkit } from '@hapi/hapi'
 import { FormModel } from '../models'
 import {
   FormData,
@@ -124,7 +120,7 @@ export class PageControllerBase {
     components: ComponentCollectionViewModel
     errors: FormSubmissionErrors
     isStartPage: boolean
-    startPage?: HapiResponseObject
+    startPage?: ResponseObject
     backLink?: string
     phaseTag?: string | undefined
   } {
@@ -365,7 +361,7 @@ export class PageControllerBase {
   /**
    * returns the language set in a user's browser. Can be used for localisable strings
    */
-  langFromRequest(request: HapiRequest) {
+  langFromRequest(request: Request) {
     const lang = request.query.lang || request.yar.get('lang') || 'en'
     if (lang !== request.yar.get('lang')) {
       request.i18n.setLocale(lang)
@@ -412,7 +408,7 @@ export class PageControllerBase {
   }
 
   makeGetRouteHandler() {
-    return async (request: HapiRequest, h: HapiResponseToolkit) => {
+    return async (request: Request, h: ResponseToolkit) => {
       const { cacheService } = request.services([])
       const lang = this.langFromRequest(request)
       const state = await cacheService.getState(request)
@@ -527,8 +523,8 @@ export class PageControllerBase {
    * deals with parsing errors and saving answers to state
    */
   async handlePostRequest(
-    request: HapiRequest,
-    h: HapiResponseToolkit,
+    request: Request,
+    h: ResponseToolkit,
     mergeOptions: {
       nullOverride?: boolean
       arrayMerge?: boolean
@@ -657,7 +653,7 @@ export class PageControllerBase {
    * Returns an async function. This is called in plugin.ts when there is a POST request at `/{id}/{path*}`
    */
   makePostRouteHandler() {
-    return async (request: HapiRequest, h: HapiResponseToolkit) => {
+    return async (request: Request, h: ResponseToolkit) => {
       const response = await this.handlePostRequest(request, h)
       if (response?.source?.context?.errors) {
         return response
@@ -688,7 +684,7 @@ export class PageControllerBase {
     }
   }
 
-  getFeedbackContextInfo(request: HapiRequest) {
+  getFeedbackContextInfo(request: Request) {
     if (this.def.feedback?.feedbackForm) {
       return decodeFeedbackContextInfo(
         request.url.searchParams.get(feedbackReturnInfoKey)
@@ -696,7 +692,7 @@ export class PageControllerBase {
     }
   }
 
-  feedbackUrlFromRequest(request: HapiRequest): string | void {
+  feedbackUrlFromRequest(request: Request): string | void {
     if (this.def.feedback?.url) {
       const feedbackLink = new RelativeUrl(this.def.feedback.url)
       const returnInfo = new FeedbackContextInfo(
@@ -734,7 +730,7 @@ export class PageControllerBase {
   /**
    * TODO:- proceed is interfering with subclasses
    */
-  proceed(request: HapiRequest, h: HapiResponseToolkit, state) {
+  proceed(request: Request, h: ResponseToolkit, state) {
     return proceed(request, h, this.getNext(state))
   }
 

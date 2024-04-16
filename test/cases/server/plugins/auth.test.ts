@@ -13,7 +13,7 @@ describe('Server Auth', () => {
       config.authClientId = 'oAuthClientID'
       config.authClientSecret = 'oAuthClientSecret'
       server = await createServer({})
-      await server.start()
+      await server.initialize()
     })
 
     afterAll(async () => {

@@ -8,7 +8,6 @@ module.exports = {
   restoreMocks: true,
   clearMocks: true,
   silent: true,
-  maxWorkers: 1,
   testMatch: ['**/*.test.{cjs,js,mjs,ts}'],
   reporters: ['default', ['github-actions', { silent: false }], 'summary'],
   collectCoverageFrom: ['src/**/*.{cjs,js,mjs,ts}'],

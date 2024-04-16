@@ -5,7 +5,7 @@ describe('Server Router', () => {
 
   beforeAll(async () => {
     server = await createServer({})
-    await server.start()
+    await server.initialize()
   })
 
   afterAll(async () => {

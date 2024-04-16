@@ -6,7 +6,7 @@ import { FormComponent } from '../components'
 
 import joi from 'joi'
 import { reach } from 'hoek'
-import type { HapiRequest, HapiResponseToolkit } from '../../../types'
+import type { Request, ResponseToolkit } from '@hapi/hapi'
 
 const contentTypes: Array<ComponentDef['type']> = [
   'Para',
@@ -87,7 +87,7 @@ export class RepeatingFieldPageController extends PageController {
   }
 
   makeGetRouteHandler() {
-    return async (request: HapiRequest, h: HapiResponseToolkit) => {
+    return async (request: Request, h: ResponseToolkit) => {
       const { query } = request
       const { removeAtIndex, view, returnUrl } = query
 
@@ -148,7 +148,7 @@ export class RepeatingFieldPageController extends PageController {
   }
 
   makePostRouteHandler() {
-    return async (request: HapiRequest, h: HapiResponseToolkit) => {
+    return async (request: Request, h: ResponseToolkit) => {
       const { query } = request
 
       if (query.view === 'summary') {

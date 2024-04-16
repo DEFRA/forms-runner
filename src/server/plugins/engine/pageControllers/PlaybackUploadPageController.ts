@@ -2,7 +2,7 @@ import { PageController } from '../../../plugins/engine/pageControllers/PageCont
 import { FormModel } from '../../../plugins/engine/models'
 import { Page } from '@defra/forms-model'
 import { FormComponent } from '../../../plugins/engine/components'
-import type { HapiRequest, HapiResponseToolkit } from '../../../types'
+import type { Request, ResponseToolkit } from '@hapi/hapi'
 import joi from 'joi'
 import type { FormSubmissionErrors } from '../types'
 export class PlaybackUploadPageController extends PageController {
@@ -62,7 +62,7 @@ export class PlaybackUploadPageController extends PageController {
   }
 
   makeGetRouteHandler() {
-    return async (request: HapiRequest, h: HapiResponseToolkit) => {
+    return async (request: Request, h: ResponseToolkit) => {
       const { cacheService } = request.services([])
 
       const state = await cacheService.getState(request)
@@ -79,7 +79,7 @@ export class PlaybackUploadPageController extends PageController {
   }
 
   makePostRouteHandler() {
-    return async (request: HapiRequest, h: HapiResponseToolkit) => {
+    return async (request: Request, h: ResponseToolkit) => {
       const { cacheService } = request.services([])
 
       const state = await cacheService.getState(request)

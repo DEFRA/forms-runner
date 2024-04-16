@@ -1,7 +1,7 @@
 import { FormModel } from '../../plugins/engine/models'
-import type { HapiRequest, HapiResponseToolkit } from '../../types'
+import type { Request, ResponseToolkit } from '@hapi/hapi'
 
-export async function retryPay(request: HapiRequest, h: HapiResponseToolkit) {
+export async function retryPay(request: Request, h: ResponseToolkit) {
   const { statusService } = request.services([])
   const shouldShowPayErrorPage =
     await statusService.shouldShowPayErrorPage(request)

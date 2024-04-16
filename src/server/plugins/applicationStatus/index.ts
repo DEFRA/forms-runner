@@ -2,7 +2,7 @@ import { redirectTo } from './../engine'
 import { retryPay } from './retryPay'
 import { handleUserWithConfirmationViewModel } from './handleUserWithConfirmationViewModel'
 import { checkUserCompletedSummary } from './checkUserCompletedSummary'
-import type { HapiRequest, HapiResponseToolkit } from '../../types'
+import type { Request, ResponseToolkit } from '@hapi/hapi'
 
 import Joi from 'joi'
 import {
@@ -40,7 +40,7 @@ const index = {
             preHandlers.handleUserWithConfirmationViewModel,
             preHandlers.checkUserCompletedSummary
           ],
-          handler: async (request: HapiRequest, h: HapiResponseToolkit) => {
+          handler: async (request: Request, h: ResponseToolkit) => {
             const { statusService, cacheService } = request.services([])
             const { params } = request
             const form = server.app.forms[params.id]
@@ -83,7 +83,7 @@ const index = {
       server.route({
         method: 'post',
         path: '/{id}/status',
-        handler: async (request: HapiRequest, h: HapiResponseToolkit) => {
+        handler: async (request: Request, h: ResponseToolkit) => {
           const { payService, cacheService } = request.services([])
           const { pay } = await cacheService.getState(request)
           const { meta } = pay
