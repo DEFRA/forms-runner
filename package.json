@@ -21,7 +21,6 @@
     "lint:types": "tsc --noEmit",
     "test": "jest --color --coverage --verbose",
     "test:watch": "jest --color --watch",
-    "a11y": "node test/audit/components && node lighthouse",
     "prepare": "husky || true"
   },
   "repository": {

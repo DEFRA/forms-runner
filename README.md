@@ -148,12 +148,6 @@ See [https://github.com/node-config/node-config#readme](https://github.com/node-
 
 Tests are found inside `test/cases`. For test scripts, name them `${NAME}.test.js`.
 
-# Deployment
-
-Currently CI is done with github actions. Pushes to main
-will trigger a build phase which includes running tests and [lighthouse](https://developers.google.com/web/tools/lighthouse)
-accessibility audits. Builds will fail if the accessibility score is less than 90%.
-
 # Outputs
 
 At the end of a form, there are multiple output types. The schemas for the right json format can be found in the engine repo.
