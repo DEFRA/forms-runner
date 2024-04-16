@@ -56,7 +56,6 @@
     "aws-sdk": "^2.1531.0",
     "blankie": "^5.0.0",
     "blipp": "^4.0.1",
-    "boom": "^7.3.0",
     "btoa": "^1.2.1",
     "config": "^3.3.7",
     "date-fns": "^2.24.0",
@@ -78,7 +77,6 @@
     "pg-boss": "^9.0.3",
     "pino": "^8.15.1",
     "pino-pretty": "^10.2.3",
-    "querystring": "^0.2.0",
     "resolve": "^1.19.0",
     "schmervice": "^1.6.0"
   },
@@ -110,7 +108,6 @@
     "lint-staged": "^15.2.2",
     "nodemon": "^3.1.0",
     "prettier": "^3.2.5",
-    "prisma": "^5.1.1",
     "sass": "^1.75.0",
     "typescript": "^5.4.5"
   },
@@ -124,10 +121,5 @@
     "@types/nodemailer": "^6.4.4",
     "@types/url-parse": "^1.4.8",
     "@types/wreck": "^14.0.0"
-  },
-  "pkg": {
-    "assets": [
-      "../node_modules/.prisma/client/*.node"
-    ]
   }
 }

@@ -6,7 +6,7 @@
  * Configurable plugin for determine request language in hapi.js applications.
  */
 /* eslint-disable */
-import boom from '@hapi/boom'
+import Boom from '@hapi/boom'
 import fs from 'fs'
 import path from 'path'
 import lodash from 'lodash'
@@ -320,7 +320,7 @@ Internal.prototype.processRequest = function processRequest(request, h) {
   try {
     var locale = this.determineLocale(request)
   } catch (err) {
-    // throw boom.notFound(err);
+    // throw Boom.notFound(err);
   }
 
   const getter = this.options.getter
@@ -364,7 +364,7 @@ const plugin = {
     try {
       var internal = new Internal(options)
     } catch (err) {
-      throw new boom.Boom(err)
+      throw Boom.internal(err)
     }
 
     /**

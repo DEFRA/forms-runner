@@ -4,7 +4,7 @@ import { getValidStateFromQueryParameters, redirectTo } from './helpers'
 import { FormConfiguration } from '@defra/forms-model'
 
 import { FormModel } from './models'
-import Boom from 'boom'
+import Boom from '@hapi/boom'
 import { PluginSpecificConfiguration } from '@hapi/hapi'
 import { shouldLogin } from '../../plugins/auth'
 import config from '../../config'

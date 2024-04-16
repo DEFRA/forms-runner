@@ -111,11 +111,6 @@ export const configSchema = Joi.object({
     .default('HS512'),
 
   enableQueueService: Joi.boolean().optional(),
-  queueType: Joi.string().when('enableQueueService', {
-    is: true,
-    then: Joi.required().allow('MYSQL', 'PGBOSS').default('MYSQL'),
-    otherwise: Joi.optional().allow('')
-  }),
   queueDatabaseUrl: Joi.string().when('enableQueueService', {
     is: true,
     then: Joi.required(),
