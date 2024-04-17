@@ -1,5 +1,5 @@
-{% from "textarea/macro.njk" import govukTextarea %}
-{% from "character-count/macro.njk" import govukCharacterCount %}
+{% from "govuk/components/textarea/macro.njk" import govukTextarea %}
+{% from "govuk/components/character-count/macro.njk" import govukCharacterCount %}
 
 {% macro MultilineTextField(component) %}
   {% if component.model.isCharacterOrWordCount == true %}
@@ -8,5 +8,3 @@
     {{ govukTextarea(component.model) }}
   {% endif %}
 {% endmacro %}
-
-

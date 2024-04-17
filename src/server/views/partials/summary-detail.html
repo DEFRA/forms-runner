@@ -1,4 +1,4 @@
-{% from "./summary-row.html" import summaryRow %}
+{% from "partials/summary-row.html" import summaryRow %}
 
 {% macro summaryDetail(data) %}
     {%  set isRepeatableSection = (data.items[0] | isArray) %}

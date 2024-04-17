@@ -1,10 +1,21 @@
 import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { cwd } from 'node:process'
+
+import resolvePkg from 'resolve'
 
 import config from '../config.js'
 
-const routesDir = dirname(fileURLToPath(import.meta.url))
-const modulesDir = join(routesDir, '../../../node_modules')
+const [accessibleAutocompletePath, govukFrontendPath, hmpoComponentsPath] = [
+  'accessible-autocomplete',
+  'govuk-frontend',
+  'hmpo-components'
+].map((pkgName) =>
+  dirname(
+    resolvePkg.sync(`${pkgName}/package.json`, {
+      basedir: cwd()
+    })
+  )
+)
 
 export default [
   {
@@ -16,10 +27,10 @@ export default [
           path: [
             join(config.publicDir, 'static'),
             join(config.publicDir, 'build'),
-            join(modulesDir, 'accessible-autocomplete', 'dist'),
-            join(modulesDir, 'govuk-frontend', 'govuk'),
-            join(modulesDir, 'govuk-frontend', 'govuk', 'assets'),
-            join(modulesDir, 'hmpo-components', 'assets')
+            join(govukFrontendPath, 'govuk'),
+            join(govukFrontendPath, 'govuk/assets'),
+            join(hmpoComponentsPath, 'assets'),
+            accessibleAutocompletePath
           ]
         }
       }

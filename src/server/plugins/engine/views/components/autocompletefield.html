@@ -1,6 +1,6 @@
-{% from "error-message/macro.njk" import govukErrorMessage -%}
-{% from "hint/macro.njk" import govukHint %}
-{% from "label/macro.njk" import govukLabel %}
+{% from "govuk/components/error-message/macro.njk" import govukErrorMessage -%}
+{% from "govuk/components/hint/macro.njk" import govukHint %}
+{% from "govuk/components/label/macro.njk" import govukLabel %}
 
 {% macro AutocompleteField(component) %}
 {% set describedBy = component.model.describedBy if component.model.describedBy else "" %}

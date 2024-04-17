@@ -1,4 +1,5 @@
-{% from "file-upload/macro.njk" import govukFileUpload %}
+{% from "govuk/components/file-upload/macro.njk" import govukFileUpload %}
+
 {% macro FileUploadField(component) %}
   {{ govukFileUpload(component.model) }}
   {% if component.model.value %}

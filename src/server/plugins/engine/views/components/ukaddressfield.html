@@ -1,6 +1,6 @@
-{% from "../partials/components.html" import componentList %}
-{% from "fieldset/macro.njk" import govukFieldset %}
-{% from "button/macro.njk" import govukButton %}
+{% from "partials/components.html" import componentList %}
+{% from "govuk/components/fieldset/macro.njk" import govukFieldset %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
 
 {% macro UkAddressField(component) %}
   {% call govukFieldset({
