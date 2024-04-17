@@ -4,7 +4,7 @@
  * @type {import('eslint').ESLint.ConfigData}
  */
 module.exports = {
-  ignorePatterns: ['**/dist/**', '**/public/**', 'node_modules'],
+  ignorePatterns: ['.server', '**/public/**', 'coverage'],
   overrides: [
     {
       extends: [

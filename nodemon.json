@@ -1,5 +1,8 @@
 {
-  "delay": "500",
-  "watch": ["dist"],
-  "legacyWatch": true
+  "watch": ["./src"],
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "ignore": ["**/*.test.*"],
+  "ext": "js,json,ts"
 }

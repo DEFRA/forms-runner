@@ -12,8 +12,8 @@ module.exports = {
   reporters: ['default', ['github-actions', { silent: false }], 'summary'],
   collectCoverageFrom: ['src/**/*.{cjs,js,mjs,ts}'],
   modulePathIgnorePatterns: [
+    '<rootDir>/.server/',
     '<rootDir>/coverage/',
-    '<rootDir>/dist/',
     '<rootDir>/public/'
   ],
   coverageDirectory: '<rootDir>/coverage',
