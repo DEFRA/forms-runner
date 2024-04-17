@@ -1,10 +1,10 @@
 import { merge } from '@hapi/hoek'
 import { customAlphabet } from 'nanoid'
-import config from '../../config'
+import config from '../../config.js'
 import { token } from '@hapi/jwt'
 import joi from 'joi'
-import type { FormSubmissionState } from '../../plugins/engine/types'
-import type { Field, WebhookSchema } from '../../schemas/types'
+import type { FormSubmissionState } from '../../plugins/engine/types.js'
+import type { Field, WebhookSchema } from '../../schemas/types.js'
 
 export function fieldToValue(field: Field) {
   const { key, answer } = field

@@ -1,4 +1,4 @@
-import { configureBlankiePlugin } from '../../../../src/server/plugins/blankie'
+import { configureBlankiePlugin } from '../../../../src/server/plugins/blankie.js'
 
 describe('Server Blankie Plugin', () => {
   test('configuration options without matomo is correct', () => {

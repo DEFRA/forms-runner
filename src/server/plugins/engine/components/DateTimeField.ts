@@ -1,15 +1,15 @@
 import { format, parseISO } from 'date-fns'
 import { InputFieldsComponentsDef } from '@defra/forms-model'
 
-import * as helpers from './helpers'
-import { FormComponent } from './FormComponent'
-import { FormModel } from '../models'
-import { addClassOptionIfNone } from './helpers'
+import * as helpers from './helpers.js'
+import { FormComponent } from './FormComponent.js'
+import { FormModel } from '../models/index.js'
+import { addClassOptionIfNone } from './helpers.js'
 import type {
   FormData,
   FormSubmissionErrors,
   FormSubmissionState
-} from '../types'
+} from '../types.js'
 
 export class DateTimeField extends FormComponent {
   constructor(def: InputFieldsComponentsDef, model: FormModel) {

@@ -11,12 +11,15 @@ import {
   List
 } from '@defra/forms-model'
 
-import { PageControllerBase, getPageController } from '../pageControllers'
-import { PageController } from '../pageControllers/PageController'
-import { DEFAULT_FEE_OPTIONS } from '../../../plugins/engine/models/FormModel.feeOptions'
-import { ComponentCollection } from '../../../plugins/engine/components'
-import type { ExecutableCondition } from '../../../plugins/engine/models/types'
-import type { FormSubmissionState } from '../types'
+import {
+  PageControllerBase,
+  getPageController
+} from '../pageControllers/index.js'
+import { PageController } from '../pageControllers/PageController.js'
+import { DEFAULT_FEE_OPTIONS } from '../../../plugins/engine/models/FormModel.feeOptions.js'
+import { ComponentCollection } from '../../../plugins/engine/components/index.js'
+import type { ExecutableCondition } from '../../../plugins/engine/models/types.js'
+import type { FormSubmissionState } from '../types.js'
 
 class EvaluationContext {
   constructor(conditions, value) {

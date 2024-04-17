@@ -1,11 +1,14 @@
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import cheerio from 'cheerio'
 import FormData from 'form-data'
 import config from '../../../src/server/config.js'
 
 import createServer from '../../../src/server/index.js'
 import { UploadService } from '../../../src/server/services/upload/index.js'
+
+const testDir = dirname(fileURLToPath(import.meta.url))
 
 describe('uploads', () => {
   let server
@@ -15,7 +18,7 @@ describe('uploads', () => {
     config.documentUploadApiUrl = 'http://localhost:9000'
     server = await createServer({
       formFileName: 'upload.json',
-      formFilePath: __dirname
+      formFilePath: testDir
     })
     await server.initialize()
   })
@@ -50,7 +53,7 @@ describe('uploads', () => {
           'file1',
           {
             hapi: { filename: 'file.jpg' },
-            _data: fs.readFileSync(path.join(__dirname, 'dummy.pdf'))
+            _data: fs.readFileSync(join(testDir, 'dummy.pdf'))
           }
         ]
       ])
@@ -61,7 +64,7 @@ describe('uploads', () => {
 
     const form = new FormData()
     form.append('fullName', 1)
-    form.append('file1', fs.readFileSync(path.join(__dirname, 'dummy.pdf')))
+    form.append('file1', fs.readFileSync(join(testDir, 'dummy.pdf')))
     const options = {
       method: 'POST',
       url: '/forms-runner/upload/upload-file',
@@ -107,14 +110,14 @@ describe('uploads', () => {
           'file1',
           {
             hapi: { filename: 'file.test' },
-            _data: fs.readFileSync(path.join(__dirname, 'dummy.pdf'))
+            _data: fs.readFileSync(join(testDir, 'dummy.pdf'))
           }
         ]
       ])
 
     const form = new FormData()
     form.append('fullName', 1)
-    form.append('file1', fs.readFileSync(path.join(__dirname, 'dummy.pdf')))
+    form.append('file1', fs.readFileSync(join(testDir, 'dummy.pdf')))
     const options = {
       method: 'POST',
       url: '/forms-runner/upload/upload-file',

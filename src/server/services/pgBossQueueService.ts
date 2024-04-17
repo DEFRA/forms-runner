@@ -1,6 +1,6 @@
-import { QueueService } from '../services/QueueService'
+import { QueueService } from '../services/QueueService.js'
 import PgBoss from 'pg-boss'
-import config from '../config'
+import config from '../config.js'
 type QueueResponse = [number | string, string | undefined]
 
 type QueueReferenceApiResponse = {

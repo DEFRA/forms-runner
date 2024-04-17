@@ -1,18 +1,18 @@
 import joi, { Schema as JoiSchema } from 'joi'
 import { ComponentDef } from '@defra/forms-model'
 
-import * as Components from './index'
-import { FormModel } from '../models'
+import * as Components from './index.js'
+import { FormModel } from '../models/index.js'
 import {
   FormData,
   FormPayload,
   FormSubmissionErrors,
   FormSubmissionState
-} from '../types'
-import { ComponentBase } from './ComponentBase'
-import { FormComponent } from './FormComponent'
+} from '../types.js'
+import { ComponentBase } from './ComponentBase.js'
+import { FormComponent } from './FormComponent.js'
 import { merge } from '@hapi/hoek'
-import type { ComponentCollectionViewModel } from './types'
+import type { ComponentCollectionViewModel } from './types.js'
 
 export class ComponentCollection {
   items: (ComponentBase | ComponentCollection | FormComponent)[]

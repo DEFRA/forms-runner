@@ -1,18 +1,18 @@
 import { parseISO, format } from 'date-fns'
 import { InputFieldsComponentsDef } from '@defra/forms-model'
 
-import { FormComponent } from './FormComponent'
-import { ComponentCollection } from './ComponentCollection'
-import { optionalText } from './constants'
-import * as helpers from './helpers'
+import { FormComponent } from './FormComponent.js'
+import { ComponentCollection } from './ComponentCollection.js'
+import { optionalText } from './constants.js'
+import * as helpers from './helpers.js'
 import {
   FormData,
   FormPayload,
   FormSubmissionErrors,
   FormSubmissionState
-} from '../types'
-import { FormModel } from '../models'
-import type { DataType } from '../../../plugins/engine/components/types'
+} from '../types.js'
+import { FormModel } from '../models/index.js'
+import type { DataType } from '../../../plugins/engine/components/types.js'
 
 export class DatePartsField extends FormComponent {
   children: ComponentCollection

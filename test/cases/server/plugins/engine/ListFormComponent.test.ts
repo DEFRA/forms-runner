@@ -1,4 +1,4 @@
-import { ListFormComponent } from '../../../../../src/server/plugins/engine/components/ListFormComponent'
+import { ListFormComponent } from '../../../../../src/server/plugins/engine/components/ListFormComponent.js'
 
 describe('ListFormComponent', () => {
   const lists = [

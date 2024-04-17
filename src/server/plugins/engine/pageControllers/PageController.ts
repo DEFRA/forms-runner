@@ -1,4 +1,4 @@
-import { PageControllerBase } from './PageControllerBase'
+import { PageControllerBase } from './PageControllerBase.js'
 import type { Request, ResponseToolkit } from '@hapi/hapi'
 
 export class PageController extends PageControllerBase {

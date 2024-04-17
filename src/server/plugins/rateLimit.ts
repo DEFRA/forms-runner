@@ -1,6 +1,6 @@
 import rateLimit from 'hapi-rate-limit'
 
-import type { RouteConfig } from '../types'
+import type { RouteConfig } from '../types.js'
 
 export type RateOptions = {
   enabled?: boolean

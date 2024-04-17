@@ -1,9 +1,9 @@
 #!/usr/bin/nodejs
-const helper = require('./getOutOfDateForms')
+const helper = require('./getOutOfDateForms.cjs')
 const { CliUx } = require('@oclif/core')
 async function check() {
   CliUx.ux.action.start('Checking versions of forms in runner/src/forms')
-  const files = helper.getOutOfDateForms()
+  const files = await helper.getOutOfDateForms()
   CliUx.ux.action.stop()
 
   if (files.length <= 0) {

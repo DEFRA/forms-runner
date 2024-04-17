@@ -1,8 +1,8 @@
 import Joi from 'joi'
-import { redirectTo } from './engine'
-import { healthCheckRoute, publicRoutes, homeRoute } from '../routes'
-import config from '../config'
-import getRequestInfo from '../utils/getRequestInfo'
+import { redirectTo } from './engine/index.js'
+import { healthCheckRoute, publicRoutes, homeRoute } from '../routes/index.js'
+import config from '../config.js'
+import getRequestInfo from '../utils/getRequestInfo.js'
 import type { Request, ResponseToolkit } from '@hapi/hapi'
 
 const routes = [...publicRoutes, healthCheckRoute, homeRoute]

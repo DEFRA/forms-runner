@@ -47,9 +47,15 @@ module.exports = {
       }
     },
     {
-      files: ['**/*.js'],
+      files: ['**/*.cjs'],
       rules: {
         '@typescript-eslint/no-var-requires': 'off'
+      }
+    },
+    {
+      files: ['**/*.{js,mjs}'],
+      parserOptions: {
+        sourceType: 'module'
       }
     },
     {

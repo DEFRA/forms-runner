@@ -1,4 +1,4 @@
-import { getJson } from '../services/httpService'
+import { getJson } from '../services/httpService.js'
 
 /**
  * Uses the ordnance survey API to find an address by postcode

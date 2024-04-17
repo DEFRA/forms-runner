@@ -1,4 +1,4 @@
-import http from 'http'
+import http from 'node:http'
 import wreck from '@hapi/wreck'
 
 type Method = 'get' | 'post' | 'path' | 'put' | 'delete'

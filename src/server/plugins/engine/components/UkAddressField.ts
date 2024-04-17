@@ -2,16 +2,16 @@ import joi from 'joi'
 
 import { InputFieldsComponentsDef } from '@defra/forms-model'
 
-import * as helpers from './helpers'
-import { FormComponent } from './FormComponent'
-import { ComponentCollection } from './ComponentCollection'
+import * as helpers from './helpers.js'
+import { FormComponent } from './FormComponent.js'
+import { ComponentCollection } from './ComponentCollection.js'
 import {
   FormData,
   FormPayload,
   FormSubmissionErrors,
   FormSubmissionState
-} from '../types'
-import { FormModel } from '../models'
+} from '../types.js'
+import { FormModel } from '../models/index.js'
 
 export class UkAddressField extends FormComponent {
   formChildren: ComponentCollection

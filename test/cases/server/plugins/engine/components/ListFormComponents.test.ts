@@ -1,5 +1,5 @@
-import { ListFormComponent } from '../../../../../../src/server/plugins/engine/components/ListFormComponent'
-import type { FormSubmissionState } from '../../../../../../src/server/plugins/engine/types'
+import { ListFormComponent } from '../../../../../../src/server/plugins/engine/components/ListFormComponent.js'
+import type { FormSubmissionState } from '../../../../../../src/server/plugins/engine/types.js'
 
 describe('ListFormComponent', () => {
   const lists = [

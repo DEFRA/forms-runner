@@ -1,4 +1,4 @@
-import { FlashCard } from '../../../../../src/server/plugins/engine/components'
+import { FlashCard } from '../../../../../src/server/plugins/engine/components/index.js'
 
 describe('Flashcard', () => {
   const lists = [

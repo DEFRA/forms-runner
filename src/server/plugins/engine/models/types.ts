@@ -1,7 +1,7 @@
-import { FeedbackContextInfo } from './../feedback'
+import { FeedbackContextInfo } from './../feedback/index.js'
 import { ConditionRawData, Page, Section } from '@defra/forms-model'
-import { Component } from './../components'
-import type { Fees } from '../../../services/payService'
+import { Component } from './../components/index.js'
+import type { Fees } from '../../../services/payService.js'
 
 export type Fields = {
   key: string

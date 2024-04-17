@@ -1,6 +1,6 @@
-import { ComponentBase } from './ComponentBase'
+import { ComponentBase } from './ComponentBase.js'
 import { Item, List } from '@defra/forms-model'
-import type { FormData, FormSubmissionErrors } from '../types'
+import type { FormData, FormSubmissionErrors } from '../types.js'
 
 export class FlashCard extends ComponentBase {
   list: List

@@ -1,6 +1,6 @@
 import formJson from '../../../../../../src/server/forms/get-condition-evaluation-context.json'
-import { FormModel } from '../../../../../../src/server/plugins/engine/models'
-import { PageController } from '../../../../../../src/server/plugins/engine/pageControllers'
+import { FormModel } from '../../../../../../src/server/plugins/engine/models/index.js'
+import { PageController } from '../../../../../../src/server/plugins/engine/pageControllers/index.js'
 
 describe('Condition Evaluation Context', () => {
   it('it correctly includes/filters state values', () => {

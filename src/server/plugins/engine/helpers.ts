@@ -1,6 +1,6 @@
-import { RelativeUrl } from './feedback'
+import { RelativeUrl } from './feedback/index.js'
 import { reach } from '@hapi/hoek'
-import _ from 'lodash'
+import set from 'lodash/set.js'
 import type { Request, ResponseToolkit } from '@hapi/hapi'
 
 export const feedbackReturnInfoKey = 'f_t'
@@ -93,7 +93,7 @@ export function getValidStateFromQueryParameters(
       if (result.error) {
         return acc
       }
-      _.set(acc, key, value)
+      set(acc, key, value)
       return acc
     },
     {}

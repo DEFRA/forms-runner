@@ -1,4 +1,4 @@
-import createServer from '../../../../src/server'
+import createServer from '../../../../src/server/index.js'
 
 describe('Server Router', () => {
   let server

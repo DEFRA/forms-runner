@@ -1,27 +1,27 @@
-import fs from 'fs'
+import fs from 'node:fs'
 import hapi, { ServerOptions, Request, ResponseToolkit } from '@hapi/hapi'
 
 import Scooter from '@hapi/scooter'
 import inert from '@hapi/inert'
 import Schmervice from '@hapipal/schmervice'
 import blipp from 'blipp'
-import config from './config'
+import config from './config.js'
 
-import { configureEnginePlugin } from './plugins/engine'
-import { configureRateLimitPlugin } from './plugins/rateLimit'
-import { configureBlankiePlugin } from './plugins/blankie'
-import { configureCrumbPlugin } from './plugins/crumb'
-import { configureInitialiseSessionPlugin } from './plugins/initialiseSession/configurePlugin'
+import { configureEnginePlugin } from './plugins/engine/index.js'
+import { configureRateLimitPlugin } from './plugins/rateLimit.js'
+import { configureBlankiePlugin } from './plugins/blankie.js'
+import { configureCrumbPlugin } from './plugins/crumb.js'
+import { configureInitialiseSessionPlugin } from './plugins/initialiseSession/configurePlugin.js'
 
-import pluginLocale from './plugins/locale'
-import pluginSession from './plugins/session'
-import pluginAuth from './plugins/auth'
-import pluginViews from './plugins/views'
-import pluginApplicationStatus from './plugins/applicationStatus'
-import pluginRouter from './plugins/router'
-import pluginErrorPages from './plugins/errorPages'
-import pluginLogging from './plugins/logging'
-import pluginPulse from './plugins/pulse'
+import pluginLocale from './plugins/locale.js'
+import pluginSession from './plugins/session.js'
+import pluginAuth from './plugins/auth.js'
+import pluginViews from './plugins/views.js'
+import pluginApplicationStatus from './plugins/applicationStatus/index.js'
+import pluginRouter from './plugins/router.js'
+import pluginErrorPages from './plugins/errorPages.js'
+import pluginLogging from './plugins/logging.js'
+import pluginPulse from './plugins/pulse.js'
 import {
   AddressService,
   CacheService,
@@ -33,11 +33,11 @@ import {
   UploadService,
   MockUploadService,
   WebhookService
-} from './services'
-import getRequestInfo from './utils/getRequestInfo'
-import { QueueStatusService } from './services/queueStatusService'
-import { PgBossQueueService } from './services/pgBossQueueService'
-import type { RouteConfig } from './types'
+} from './services/index.js'
+import getRequestInfo from './utils/getRequestInfo.js'
+import { QueueStatusService } from './services/queueStatusService.js'
+import { PgBossQueueService } from './services/pgBossQueueService.js'
+import type { RouteConfig } from './types.js'
 
 const serverOptions = (): ServerOptions => {
   const hasCertificate = config.sslKey && config.sslCert

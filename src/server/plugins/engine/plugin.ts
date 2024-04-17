@@ -1,9 +1,10 @@
-import path from 'path'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { configure } from 'nunjucks'
-import { getValidStateFromQueryParameters, redirectTo } from './helpers'
+import { getValidStateFromQueryParameters, redirectTo } from './helpers.js'
 import { FormConfiguration } from '@defra/forms-model'
 
-import { FormModel } from './models'
+import { FormModel } from './models/index.js'
 import Boom from '@hapi/boom'
 import type {
   PluginSpecificConfiguration,
@@ -11,14 +12,16 @@ import type {
   ResponseToolkit,
   Server
 } from '@hapi/hapi'
-import { shouldLogin } from '../../plugins/auth'
-import config from '../../config'
-import type { FormPayload } from './types'
+import { shouldLogin } from '../../plugins/auth.js'
+import config from '../../config.js'
+import type { FormPayload } from './types.js'
+
+const engineDir = dirname(fileURLToPath(import.meta.url))
 
 configure([
   // Configure Nunjucks to allow rendering of content that is revealed conditionally.
-  path.resolve(__dirname, '/views'),
-  path.resolve(__dirname, '/views/partials'),
+  join(engineDir, 'views'),
+  join(engineDir, 'views/partials'),
   'node_modules/govuk-frontend/govuk/',
   'node_modules/govuk-frontend/govuk/components/',
   'node_modules/hmpo-components/components'

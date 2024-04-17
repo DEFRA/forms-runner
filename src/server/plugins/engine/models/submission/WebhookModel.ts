@@ -1,7 +1,7 @@
 import { format } from 'date-fns'
-import config from '../../../../config'
+import config from '../../../../config.js'
 import nunjucks from 'nunjucks'
-import type { DetailItem } from '../types'
+import type { DetailItem } from '../types.js'
 
 function answerFromDetailItem(item) {
   switch (item.dataType) {

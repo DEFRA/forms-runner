@@ -1,13 +1,14 @@
-import fs from 'fs'
-import path from 'path'
-import { plugin } from './plugin'
+import fs from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { plugin } from './plugin.js'
 
 import {
   loadPreConfiguredForms,
   FormConfiguration
-} from './services/configurationService'
-import { idFromFilename } from './helpers'
-import config from '../../config'
+} from './services/configurationService.js'
+import { idFromFilename } from './helpers.js'
+import config from '../../config.js'
 
 type ConfigureEnginePlugin = (
   formFileName?: string,
@@ -27,8 +28,6 @@ type ConfigureEnginePlugin = (
   }
 }
 
-const relativeTo = __dirname
-
 type EngineOptions = {
   previewMode?: boolean
 }
@@ -40,7 +39,7 @@ export const configureEnginePlugin: ConfigureEnginePlugin = (
   let configs: FormConfiguration[]
 
   if (formFileName && formFilePath) {
-    const formConfigPath = path.join(formFilePath, formFileName)
+    const formConfigPath = join(formFilePath, formFileName)
 
     configs = [
       {
@@ -53,7 +52,7 @@ export const configureEnginePlugin: ConfigureEnginePlugin = (
   }
 
   const modelOptions = {
-    relativeTo,
+    relativeTo: dirname(fileURLToPath(import.meta.url)),
     previewMode: options?.previewMode ?? config.previewMode
   }
 

@@ -1,4 +1,8 @@
+import { dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import createServer from '../../../src/server/index.js'
+
+const testDir = dirname(fileURLToPath(import.meta.url))
 
 describe('Rate limit', () => {
   let server
@@ -14,7 +18,7 @@ describe('Rate limit', () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: 'basic-v1.json',
-      formFilePath: __dirname,
+      formFilePath: testDir,
       rateOptions: options
     })
     server.route({

@@ -1,7 +1,11 @@
+import { dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import cheerio from 'cheerio'
 import FormData from 'form-data'
 import cookie from 'cookie'
 import createServer from '../../../src/server/index.js'
+
+const testDir = dirname(fileURLToPath(import.meta.url))
 
 describe('CSRF', () => {
   let server
@@ -21,7 +25,7 @@ describe('CSRF', () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: 'basic-v0.json',
-      formFilePath: __dirname,
+      formFilePath: testDir,
       enforceCsrf: true
     })
     await server.initialize()

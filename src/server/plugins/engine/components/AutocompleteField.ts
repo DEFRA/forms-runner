@@ -1,9 +1,9 @@
 import { ListComponentsDef } from '@defra/forms-model'
 
-import { SelectField } from './SelectField'
-import { FormModel } from '../models'
-import { addClassOptionIfNone } from './helpers'
-import type { FormSubmissionState } from '../../../plugins/engine/types'
+import { SelectField } from './SelectField.js'
+import { FormModel } from '../models/index.js'
+import { addClassOptionIfNone } from './helpers.js'
+import type { FormSubmissionState } from '../../../plugins/engine/types.js'
 
 export class AutocompleteField extends SelectField {
   constructor(def: ListComponentsDef, model: FormModel) {

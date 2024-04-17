@@ -1,5 +1,5 @@
-import config from '../../../../src/server/config'
-import createServer from '../../../../src/server'
+import config from '../../../../src/server/config.js'
+import createServer from '../../../../src/server/index.js'
 
 describe('Server Auth', () => {
   let server

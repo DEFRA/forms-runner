@@ -1,16 +1,16 @@
 import { InputFieldsComponentsDef } from '@defra/forms-model'
-import { optionalText } from './constants'
-import { FormComponent } from './FormComponent'
-import { ComponentCollection } from './ComponentCollection'
+import { optionalText } from './constants.js'
+import { FormComponent } from './FormComponent.js'
+import { ComponentCollection } from './ComponentCollection.js'
 import {
   FormData,
   FormPayload,
   FormSubmissionErrors,
   FormSubmissionState
-} from '../types'
-import { FormModel } from '../models'
+} from '../types.js'
+import { FormModel } from '../models/index.js'
 import { Schema } from 'joi'
-import type { DataType } from './types'
+import type { DataType } from './types.js'
 
 export class MonthYearField extends FormComponent {
   children: ComponentCollection

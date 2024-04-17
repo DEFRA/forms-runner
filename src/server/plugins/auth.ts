@@ -1,9 +1,9 @@
 import AuthCookie from '@hapi/cookie'
 import Bell from '@hapi/bell'
 
-import config from '../config'
-import { redirectTo } from '../plugins/engine'
-import generateCookiePassword from '../utils/generateCookiePassword'
+import config from '../config.js'
+import { redirectTo } from '../plugins/engine/index.js'
+import generateCookiePassword from '../utils/generateCookiePassword.js'
 import type { Request, ResponseToolkit } from '@hapi/hapi'
 
 export const shouldLogin = (request: Request) =>

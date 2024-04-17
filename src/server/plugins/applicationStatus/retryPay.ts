@@ -1,4 +1,4 @@
-import { FormModel } from '../../plugins/engine/models'
+import { FormModel } from '../../plugins/engine/models/index.js'
 import type { Request, ResponseToolkit } from '@hapi/hapi'
 
 export async function retryPay(request: Request, h: ResponseToolkit) {

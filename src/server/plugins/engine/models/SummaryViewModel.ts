@@ -1,21 +1,21 @@
 import { clone, reach } from 'hoek'
-import config from '../../../config'
-import { FormModel } from './FormModel'
-import { feedbackReturnInfoKey, redirectUrl } from '../helpers'
-import { decodeFeedbackContextInfo } from '../feedback'
-import { webhookSchema } from '../../../schemas/webhookSchema'
-import { SummaryPageController } from '../pageControllers'
+import config from '../../../config.js'
+import { FormModel } from './FormModel.js'
+import { feedbackReturnInfoKey, redirectUrl } from '../helpers.js'
+import { decodeFeedbackContextInfo } from '../feedback/index.js'
+import { webhookSchema } from '../../../schemas/webhookSchema.js'
+import { SummaryPageController } from '../pageControllers/index.js'
 import {
   EmailModel,
   FeesModel,
   NotifyModel,
   WebhookModel
-} from '../models/submission'
+} from '../models/submission/index.js'
 import { FormDefinition, isMultipleApiKey } from '@defra/forms-model'
 import type { Request } from '@hapi/hapi'
-import type { InitialiseSessionOptions } from '../../initialiseSession/types'
-import type { FormSubmissionState } from '../types'
-import { FEEDBACK_CONTEXT_ITEMS, type WebhookData } from './types'
+import type { InitialiseSessionOptions } from '../../initialiseSession/types.js'
+import type { FormSubmissionState } from '../types.js'
+import { FEEDBACK_CONTEXT_ITEMS, type WebhookData } from './types.js'
 
 /**
  * TODO - extract submission behaviour dependencies from the viewmodel

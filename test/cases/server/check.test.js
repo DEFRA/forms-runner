@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises'
 
-import jsonHelper from '../../../bin/run/check/getJsonFiles.js'
-import outOfDateHelper from '../../../bin/run/check/getOutOfDateForms.js'
+import jsonHelper from '../../../bin/run/check/getJsonFiles.cjs'
+import outOfDateHelper from '../../../bin/run/check/getOutOfDateForms.cjs'
 
 describe('check out of date forms', () => {
   test('getJsonFiles returns files with .json extension only', async () => {

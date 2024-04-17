@@ -3,16 +3,16 @@ import {
   NotifyService,
   PayService,
   WebhookService
-} from '../services'
-import { SendNotificationArgs } from '../services/notifyService'
+} from '../services/index.js'
+import { SendNotificationArgs } from '../services/notifyService.js'
 import { Output, WebhookOutputConfiguration } from '@defra/forms-model'
-import { ComponentCollection } from '../plugins/engine/components/ComponentCollection'
-import { FormModel } from '../plugins/engine/models'
+import { ComponentCollection } from '../plugins/engine/components/ComponentCollection.js'
+import { FormModel } from '../plugins/engine/models/index.js'
 import Boom from '@hapi/boom'
-import config from '../config'
+import config from '../config.js'
 import nunjucks from 'nunjucks'
-import type { NotifyModel } from '../plugins/engine/models/submission'
-import type { FormSubmissionState } from '../plugins/engine/types'
+import type { NotifyModel } from '../plugins/engine/models/submission/index.js'
+import type { FormSubmissionState } from '../plugins/engine/types.js'
 import type { Request, Server } from '@hapi/hapi'
 
 type WebhookModel = WebhookOutputConfiguration & {

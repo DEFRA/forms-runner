@@ -4,13 +4,13 @@ import {
   generateSessionTokenForForm,
   verifyToken,
   webhookToSessionData
-} from './helpers'
-import path from 'path'
+} from './helpers.js'
+import path from 'node:path'
 import { token } from '@hapi/jwt'
 import { SpecialPages } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import type { WebhookSchema } from '../../schemas/types'
-import type { InitialiseSessionOptions, InitialiseSession } from './types'
+import type { WebhookSchema } from '../../schemas/types.js'
+import type { InitialiseSessionOptions, InitialiseSession } from './types.js'
 
 type ConfirmationPage = SpecialPages['confirmationPage']
 

@@ -5,8 +5,8 @@ import {
   InputFieldsComponentsDef
 } from '@defra/forms-model'
 
-import { FormModel } from '../models'
-import type { DataType, ViewModel } from './types'
+import { FormModel } from '../models/index.js'
+import type { DataType, ViewModel } from './types.js'
 
 export class ComponentBase {
   type: ComponentDef['type']

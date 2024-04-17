@@ -1,5 +1,5 @@
-import { AutocompleteField } from '../../../../../../src/server/plugins/engine/components'
-import type { FormSubmissionErrors } from '../../../../../../src/server/plugins/engine/types'
+import { AutocompleteField } from '../../../../../../src/server/plugins/engine/components/index.js'
+import type { FormSubmissionErrors } from '../../../../../../src/server/plugins/engine/types.js'
 
 describe('AutocompleteField', () => {
   const lists = [

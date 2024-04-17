@@ -2,6 +2,7 @@
   "name": "@defra/forms-runner",
   "version": "3.0.0",
   "description": "Defra forms runner",
+  "type": "module",
   "main": ".server/index.js",
   "private": true,
   "scripts": {

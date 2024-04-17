@@ -1,10 +1,10 @@
 import { TextFieldComponent } from '@defra/forms-model'
 
-import { FormComponent } from './FormComponent'
-import { FormModel } from '../models'
-import { addClassOptionIfNone } from './helpers'
+import { FormComponent } from './FormComponent.js'
+import { FormModel } from '../models/index.js'
+import { addClassOptionIfNone } from './helpers.js'
 import joi, { Schema } from 'joi'
-import type { FormData, FormSubmissionErrors } from '../types'
+import type { FormData, FormSubmissionErrors } from '../types.js'
 
 export class TextField extends FormComponent {
   formSchema
