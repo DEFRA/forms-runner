@@ -11,6 +11,7 @@ module.exports = {
         'standard',
         'eslint:recommended',
         'plugin:import/recommended',
+        'plugin:import/typescript',
         'plugin:promise/recommended',
         'plugin:@typescript-eslint/recommended',
         'prettier'
@@ -41,7 +42,8 @@ module.exports = {
         'import/resolver': {
           node: true,
           typescript: {
-            alwaysTryTypes: true
+            alwaysTryTypes: true,
+            project: ['./tsconfig.json']
           }
         }
       }
