@@ -1,5 +1,9 @@
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import Joi, { CustomHelpers } from 'joi'
 import { isUrlSecure } from '../utils/url.js'
+
+const configPath = fileURLToPath(import.meta.url)
 
 export function secureUrl(value: string, helper: CustomHelpers) {
   if (isUrlSecure(value)) {
@@ -17,6 +21,12 @@ export function secureUrl(value: string, helper: CustomHelpers) {
 export const configSchema = Joi.object({
   port: Joi.number(),
   env: Joi.string().valid('development', 'test', 'production'),
+  appDir: Joi.string()
+    .optional()
+    .default(resolve(dirname(configPath), '../../server')),
+  publicDir: Joi.string()
+    .optional()
+    .default(resolve(dirname(configPath), '../../../public')),
   logLevel: Joi.string()
     .optional()
     .allow('trace', 'debug', 'info', 'warn', 'error'),
@@ -137,5 +147,5 @@ export function buildConfig(config) {
     throw new Error(`The server config is invalid. ${result.error.message}`)
   }
 
-  return config
+  return result.value
 }

@@ -1,6 +1,5 @@
 import fs from 'node:fs'
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { join } from 'node:path'
 import { plugin } from './plugin.js'
 
 import {
@@ -52,7 +51,7 @@ export const configureEnginePlugin: ConfigureEnginePlugin = (
   }
 
   const modelOptions = {
-    relativeTo: dirname(fileURLToPath(import.meta.url)),
+    relativeTo: join(config.appDir, 'plugins/engine'),
     previewMode: options?.previewMode ?? config.previewMode
   }
 

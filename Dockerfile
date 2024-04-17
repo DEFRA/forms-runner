@@ -49,9 +49,9 @@ LABEL uk.gov.defra.ffc.parent-image=defradigital/node:${PARENT_VERSION}
 WORKDIR /home/node/app
 
 COPY --from=productionBuild /home/node/app/package*.json ./
-COPY --from=productionBuild /home/node/app/dist ./dist
 COPY --from=productionBuild /home/node/app/bin ./bin
 COPY --from=productionBuild /home/node/app/config ./config
+COPY --from=productionBuild /home/node/app/.server ./.server
 COPY --from=productionBuild /home/node/app/public ./public
 
 RUN npm ci --omit=dev

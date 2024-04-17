@@ -1,13 +1,10 @@
 import fs from 'node:fs'
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { join } from 'node:path'
 
 import { idFromFilename } from '../helpers.js'
+import config from '../../../config.js'
 
-const FORMS_FOLDER = join(
-  dirname(fileURLToPath(import.meta.url)),
-  '../../../forms'
-)
+const FORMS_FOLDER = join(config.appDir, 'forms')
 
 export type FormConfiguration = {
   configuration: any // TODO
