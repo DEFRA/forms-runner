@@ -10,6 +10,17 @@ import config from '../config.js'
 import additionalContexts from '../templates/additionalContexts.json'
 import type { Request } from '@hapi/hapi'
 
+const [govukFrontendPath, hmpoComponentsPath] = [
+  'govuk-frontend',
+  'hmpo-components'
+].map((pkgName) =>
+  dirname(
+    resolvePkg.sync(`${pkgName}/package.json`, {
+      basedir: cwd()
+    })
+  )
+)
+
 export default {
   plugin: vision,
   options: {
@@ -55,9 +66,9 @@ export default {
        */
       join(config.appDir, 'views'),
       join(config.appDir, 'plugins/engine/views'),
-      `${dirname(resolvePkg.sync('govuk-frontend', { basedir: cwd() }))}`,
-      `${dirname(resolvePkg.sync('govuk-frontend', { basedir: cwd() }))}/components`,
-      `${dirname(resolvePkg.sync('hmpo-components'))}/components`
+      join(govukFrontendPath, 'govuk'),
+      join(govukFrontendPath, 'govuk/components'),
+      join(hmpoComponentsPath, 'components')
     ],
     isCached: !config.isDev,
     context: (request: Request) => ({

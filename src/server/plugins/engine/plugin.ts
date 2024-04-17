@@ -1,5 +1,7 @@
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
+import { cwd } from 'node:process'
 import nunjucks from 'nunjucks'
+import resolvePkg from 'resolve'
 import { getValidStateFromQueryParameters, redirectTo } from './helpers.js'
 import { FormConfiguration } from '@defra/forms-model'
 
@@ -15,13 +17,24 @@ import { shouldLogin } from '../../plugins/auth.js'
 import config from '../../config.js'
 import type { FormPayload } from './types.js'
 
+const [govukFrontendPath, hmpoComponentsPath] = [
+  'govuk-frontend',
+  'hmpo-components'
+].map((pkgName) =>
+  dirname(
+    resolvePkg.sync(`${pkgName}/package.json`, {
+      basedir: cwd()
+    })
+  )
+)
+
 nunjucks.configure([
   // Configure Nunjucks to allow rendering of content that is revealed conditionally.
   join(config.appDir, 'plugins/engine/views'),
   join(config.appDir, 'plugins/engine/views/partials'),
-  'node_modules/govuk-frontend/govuk/',
-  'node_modules/govuk-frontend/govuk/components/',
-  'node_modules/hmpo-components/components'
+  join(govukFrontendPath, 'govuk'),
+  join(govukFrontendPath, 'govuk/components'),
+  join(hmpoComponentsPath, 'components')
 ])
 
 function normalisePath(path: string) {
