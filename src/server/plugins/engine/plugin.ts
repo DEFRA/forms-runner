@@ -32,8 +32,7 @@ nunjucks.configure([
   // Configure Nunjucks to allow rendering of content that is revealed conditionally.
   join(config.appDir, 'plugins/engine/views'),
   join(config.appDir, 'plugins/engine/views/partials'),
-  join(govukFrontendPath, 'govuk'),
-  join(govukFrontendPath, 'govuk/components'),
+  govukFrontendPath,
   join(hmpoComponentsPath, 'components')
 ])
 

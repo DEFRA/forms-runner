@@ -1,5 +1,5 @@
-{% from "button/macro.njk" import govukButton %}
-{% from "summary-list/macro.njk" import govukSummaryList -%}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList -%}
 
 <form method="post" enctype="multipart/form-data" autocomplete="on">
   <input type="hidden" name="crumb" value="{{crumb}}"/>

@@ -1,7 +1,6 @@
-{% from "details/macro.njk" import govukDetails %}
+{% from "govuk/components/details/macro.njk" import govukDetails %}
 
 {% macro Details(component) %}
   {# {{ getContext(component) | dump | safe }} #}
   {{ govukDetails(component.model)}}
 {% endmacro %}
-

@@ -66,8 +66,7 @@ export default {
        */
       join(config.appDir, 'views'),
       join(config.appDir, 'plugins/engine/views'),
-      join(govukFrontendPath, 'govuk'),
-      join(govukFrontendPath, 'govuk/components'),
+      govukFrontendPath,
       join(hmpoComponentsPath, 'components')
     ],
     isCached: !config.isDev,
