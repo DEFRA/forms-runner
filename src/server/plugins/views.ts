@@ -1,6 +1,5 @@
 import { dirname, join } from 'node:path'
 import { cwd } from 'node:process'
-import { fileURLToPath } from 'node:url'
 import resolvePkg from 'resolve'
 import nunjucks from 'nunjucks'
 import vision from '@hapi/vision'
@@ -10,8 +9,6 @@ import pkg from '../../../package.json'
 import config from '../config.js'
 import additionalContexts from '../templates/additionalContexts.json'
 import type { Request } from '@hapi/hapi'
-
-const pluginsDir = dirname(fileURLToPath(import.meta.url))
 
 export default {
   plugin: vision,
@@ -56,8 +53,8 @@ export default {
       /**
        * Array of directories to check for nunjucks templates.
        */
-      `${join(pluginsDir, '../views')}`,
-      `${join(pluginsDir, 'engine/views')}`,
+      join(config.appDir, 'views'),
+      join(config.appDir, 'plugins/engine/views'),
       `${dirname(resolvePkg.sync('govuk-frontend', { basedir: cwd() }))}`,
       `${dirname(resolvePkg.sync('govuk-frontend', { basedir: cwd() }))}/components`,
       `${dirname(resolvePkg.sync('hmpo-components'))}/components`

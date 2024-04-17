@@ -1,6 +1,5 @@
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { configure } from 'nunjucks'
+import { join } from 'node:path'
+import nunjucks from 'nunjucks'
 import { getValidStateFromQueryParameters, redirectTo } from './helpers.js'
 import { FormConfiguration } from '@defra/forms-model'
 
@@ -16,12 +15,10 @@ import { shouldLogin } from '../../plugins/auth.js'
 import config from '../../config.js'
 import type { FormPayload } from './types.js'
 
-const engineDir = dirname(fileURLToPath(import.meta.url))
-
-configure([
+nunjucks.configure([
   // Configure Nunjucks to allow rendering of content that is revealed conditionally.
-  join(engineDir, 'views'),
-  join(engineDir, 'views/partials'),
+  join(config.appDir, 'plugins/engine/views'),
+  join(config.appDir, 'plugins/engine/views/partials'),
   'node_modules/govuk-frontend/govuk/',
   'node_modules/govuk-frontend/govuk/components/',
   'node_modules/hmpo-components/components'
