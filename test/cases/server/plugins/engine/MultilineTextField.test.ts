@@ -1,5 +1,5 @@
-import { MultilineTextField } from '../../../../../src/server/plugins/engine/components'
-import { validationOptions } from '../../../../../src/server/plugins/engine/pageControllers/validationOptions'
+import { MultilineTextField } from '../../../../../src/server/plugins/engine/components/index.js'
+import { validationOptions } from '../../../../../src/server/plugins/engine/pageControllers/validationOptions.js'
 
 describe('Multiline text field', () => {
   test('Should supply custom validation message if defined', () => {

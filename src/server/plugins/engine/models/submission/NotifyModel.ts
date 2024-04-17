@@ -1,7 +1,7 @@
-import { FormModel } from '../../../../plugins/engine/models'
+import { FormModel } from '../../../../plugins/engine/models/index.js'
 import { reach } from 'hoek'
 import { NotifyOutputConfiguration, List } from '@defra/forms-model'
-import type { FormSubmissionState } from '../../../../plugins/engine/types'
+import type { FormSubmissionState } from '../../../../plugins/engine/types.js'
 
 export type NotifyModel = Omit<
   NotifyOutputConfiguration,

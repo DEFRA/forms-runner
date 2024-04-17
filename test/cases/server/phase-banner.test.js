@@ -1,6 +1,9 @@
-import path from 'path'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import cheerio from 'cheerio'
 import createServer from '../../../src/server/index.js'
+
+const testDir = dirname(fileURLToPath(import.meta.url))
 
 describe(`Phase banner`, () => {
   let server
@@ -14,7 +17,7 @@ describe(`Phase banner`, () => {
     // TODO: default to no phase banner? TBD
     server = await createServer({
       formFileName: `phase-default.json`,
-      formFilePath: path.join(__dirname, '/forms')
+      formFilePath: join(testDir, '/forms')
     })
     await server.initialize()
 
@@ -34,7 +37,7 @@ describe(`Phase banner`, () => {
   test('shows the alpha tag if selected', async () => {
     server = await createServer({
       formFileName: `phase-alpha.json`,
-      formFilePath: path.join(__dirname, '/forms')
+      formFilePath: join(testDir, '/forms')
     })
     await server.initialize()
 
@@ -54,7 +57,7 @@ describe(`Phase banner`, () => {
   test('does not show the phase banner if None', async () => {
     server = await createServer({
       formFileName: `phase-none.json`,
-      formFilePath: path.join(__dirname, '/forms')
+      formFilePath: join(testDir, '/forms')
     })
     await server.initialize()
 

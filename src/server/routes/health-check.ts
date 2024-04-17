@@ -1,4 +1,4 @@
-import config from '../config'
+import config from '../config.js'
 
 /**
  * A route which helps k8s determine whether a pod managed to start successfully. If a pod is still not running, k8s will try to restart it.

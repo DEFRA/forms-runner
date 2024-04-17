@@ -2,16 +2,10 @@
 .npm/
 .vscode
 .idea
-.public
 .server
 node_modules
 npm-debug.log
 coverage
+public/build
 .cache
-/dist/
-/docs/
-src/server/public/build
-/public/build/
-
 .env
-.pnp.*

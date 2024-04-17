@@ -1,7 +1,7 @@
 import {
   FormModel,
   SummaryViewModel
-} from '../../../../../src/server/plugins/engine/models'
+} from '../../../../../src/server/plugins/engine/models/index.js'
 import form from './NotifyViewModel.json'
 
 describe('NotifyModel', () => {

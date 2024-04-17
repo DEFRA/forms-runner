@@ -1,7 +1,7 @@
-import { FormModel } from '../../../../../../src/server/plugins/engine/models'
+import { FormModel } from '../../../../../../src/server/plugins/engine/models/index.js'
 import { ListComponentsDef } from '@defra/forms-model'
-import { FormSubmissionErrors } from '../../../../../../src/server/plugins/engine/types'
-import { SelectField } from '../../../../../../src/server/plugins/engine/components'
+import { FormSubmissionErrors } from '../../../../../../src/server/plugins/engine/types.js'
+import { SelectField } from '../../../../../../src/server/plugins/engine/components/index.js'
 
 describe('SelectField', () => {
   const lists = [

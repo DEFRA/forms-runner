@@ -1,7 +1,7 @@
 import FormData from 'form-data'
 
-import config from '../../config'
-import { get, post } from '../httpService'
+import config from '../../config.js'
+import { get, post } from '../httpService.js'
 import type { Request, ResponseToolkit, Server } from '@hapi/hapi'
 
 type Payload = Request['payload']

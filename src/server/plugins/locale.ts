@@ -7,8 +7,8 @@
  */
 /* eslint-disable */
 import Boom from '@hapi/boom'
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 import lodash from 'lodash'
 import headerParser from 'accept-language-parser'
 import Joi from 'joi'

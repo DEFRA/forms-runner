@@ -1,12 +1,12 @@
-import { SummaryViewModel } from '../models'
-import { PageController } from './PageController'
-import { feedbackReturnInfoKey, redirectTo, redirectUrl } from '../helpers'
+import { SummaryViewModel } from '../models/index.js'
+import { PageController } from './PageController.js'
+import { feedbackReturnInfoKey, redirectTo, redirectUrl } from '../helpers.js'
 import {
   decodeFeedbackContextInfo,
   FeedbackContextInfo,
   RelativeUrl
-} from '../feedback'
-import config from '../../../config'
+} from '../feedback/index.js'
+import config from '../../../config.js'
 import type { Request, ResponseToolkit } from '@hapi/hapi'
 
 export class SummaryPageController extends PageController {

@@ -1,6 +1,6 @@
-import { PageController } from '../../../plugins/engine/pageControllers/PageController'
+import { PageController } from '../../../plugins/engine/pageControllers/PageController.js'
 import { Request, ResponseToolkit, Lifecycle } from '@hapi/hapi'
-import { RepeatingFieldPageController } from './RepeatingFieldPageController'
+import { RepeatingFieldPageController } from './RepeatingFieldPageController.js'
 export class RepeatingSummaryPageController extends PageController {
   private getRoute!: Lifecycle.Method
   private postRoute!: Lifecycle.Method

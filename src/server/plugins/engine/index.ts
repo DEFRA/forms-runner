@@ -2,6 +2,6 @@ export {
   RelativeUrl,
   FeedbackContextInfo,
   decodeFeedbackContextInfo
-} from './feedback'
-export { redirectTo, redirectUrl, nonRelativeRedirectUrl } from './helpers'
-export { configureEnginePlugin } from './configureEnginePlugin'
+} from './feedback/index.js'
+export { redirectTo, redirectUrl, nonRelativeRedirectUrl } from './helpers.js'
+export { configureEnginePlugin } from './configureEnginePlugin.js'

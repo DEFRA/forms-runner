@@ -1,16 +1,16 @@
 import { add, sub, format, parseISO } from 'date-fns'
-import { addClassOptionIfNone } from './helpers'
+import { addClassOptionIfNone } from './helpers.js'
 import { DateFieldComponent } from '@defra/forms-model'
 
-import { FormComponent } from './FormComponent'
-import { FormModel } from '../models'
+import { FormComponent } from './FormComponent.js'
+import { FormModel } from '../models/index.js'
 import joi from 'joi'
-import type { DataType } from '../../../plugins/engine/components/types'
+import type { DataType } from '../../../plugins/engine/components/types.js'
 import type {
   FormData,
   FormSubmissionErrors,
   FormSubmissionState
-} from '../types'
+} from '../types.js'
 
 export class DateField extends FormComponent {
   dataType = 'date' as DataType

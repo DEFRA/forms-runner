@@ -1,15 +1,15 @@
 import joi, { Schema } from 'joi'
 
-import { ComponentBase } from './ComponentBase'
-import { optionalText } from './constants'
+import { ComponentBase } from './ComponentBase.js'
+import { optionalText } from './constants.js'
 
 import {
   FormSubmissionState,
   FormSubmissionErrors,
   FormData,
   FormPayload
-} from '../types'
-import type { ViewModel } from './types'
+} from '../types.js'
+import type { ViewModel } from './types.js'
 
 export class FormComponent extends ComponentBase {
   isFormComponent: boolean = true

@@ -1,9 +1,13 @@
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-import { idFromFilename } from '../helpers'
+import { idFromFilename } from '../helpers.js'
 
-const FORMS_FOLDER = path.join(__dirname, '..', '..', '..', 'forms')
+const FORMS_FOLDER = join(
+  dirname(fileURLToPath(import.meta.url)),
+  '../../../forms'
+)
 
 export type FormConfiguration = {
   configuration: any // TODO
@@ -19,7 +23,7 @@ export const loadPreConfiguredForms = (): FormConfiguration[] => {
     .filter((filename: string) => filename.indexOf('.json') >= 0)
 
   return configFiles.map((configFile) => {
-    const dataFilePath = path.join(FORMS_FOLDER, configFile)
+    const dataFilePath = join(FORMS_FOLDER, configFile)
     const configuration = JSON.parse(fs.readFileSync(dataFilePath, 'utf8'))
     const id = idFromFilename(configFile)
     return { configuration, id }

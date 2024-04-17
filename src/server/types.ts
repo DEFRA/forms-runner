@@ -1,7 +1,7 @@
 import yar from '@hapi/yar'
 import { Logger } from 'pino'
 
-import { RateOptions } from './plugins/rateLimit'
+import { RateOptions } from './plugins/rateLimit.js'
 import {
   CacheService,
   EmailService,
@@ -10,9 +10,9 @@ import {
   StatusService,
   UploadService,
   WebhookService
-} from './services'
-import { QueueStatusService } from './services/queueStatusService'
-import { QueueService } from './services/QueueService'
+} from './services/index.js'
+import { QueueStatusService } from './services/queueStatusService.js'
+import { QueueService } from './services/QueueService.js'
 
 export type RouteConfig = {
   rateOptions?: RateOptions

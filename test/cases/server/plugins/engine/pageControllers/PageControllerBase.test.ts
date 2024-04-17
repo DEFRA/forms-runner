@@ -1,5 +1,5 @@
-import { PageControllerBase } from '../../../../../../src/server/plugins/engine/pageControllers'
-import { FormModel } from '../../../../../../src/server/plugins/engine/models/FormModel'
+import { PageControllerBase } from '../../../../../../src/server/plugins/engine/pageControllers/index.js'
+import { FormModel } from '../../../../../../src/server/plugins/engine/models/FormModel.js'
 
 describe('PageControllerBase', () => {
   test('getErrors correctly parses ISO string to readable string', () => {

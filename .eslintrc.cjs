@@ -4,7 +4,7 @@
  * @type {import('eslint').ESLint.ConfigData}
  */
 module.exports = {
-  ignorePatterns: ['**/dist/**', '**/public/**', 'node_modules'],
+  ignorePatterns: ['.server', '**/public/**', 'coverage'],
   overrides: [
     {
       extends: [
@@ -47,9 +47,15 @@ module.exports = {
       }
     },
     {
-      files: ['**/*.js'],
+      files: ['**/*.cjs'],
       rules: {
         '@typescript-eslint/no-var-requires': 'off'
+      }
+    },
+    {
+      files: ['**/*.{js,mjs}'],
+      parserOptions: {
+        sourceType: 'module'
       }
     },
     {

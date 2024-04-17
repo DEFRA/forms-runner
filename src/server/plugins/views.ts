@@ -1,15 +1,17 @@
-import path from 'path'
-import resolve from 'resolve'
+import { dirname, join } from 'node:path'
+import { cwd } from 'node:process'
+import { fileURLToPath } from 'node:url'
+import resolvePkg from 'resolve'
 import nunjucks from 'nunjucks'
 import vision from '@hapi/vision'
-import { capitalize } from 'lodash'
+import capitalize from 'lodash/capitalize.js'
 
 import pkg from '../../../package.json'
-import config from '../config'
+import config from '../config.js'
 import additionalContexts from '../templates/additionalContexts.json'
 import type { Request } from '@hapi/hapi'
 
-const basedir = path.join(process.cwd())
+const pluginsDir = dirname(fileURLToPath(import.meta.url))
 
 export default {
   plugin: vision,
@@ -54,11 +56,11 @@ export default {
       /**
        * Array of directories to check for nunjucks templates.
        */
-      `${path.join(__dirname, '..', 'views')}`,
-      `${path.join(__dirname, 'engine', 'views')}`,
-      `${path.dirname(resolve.sync('govuk-frontend', { basedir }))}`,
-      `${path.dirname(resolve.sync('govuk-frontend', { basedir }))}/components`,
-      `${path.dirname(resolve.sync('hmpo-components'))}/components`
+      `${join(pluginsDir, '../views')}`,
+      `${join(pluginsDir, 'engine/views')}`,
+      `${dirname(resolvePkg.sync('govuk-frontend', { basedir: cwd() }))}`,
+      `${dirname(resolvePkg.sync('govuk-frontend', { basedir: cwd() }))}/components`,
+      `${dirname(resolvePkg.sync('hmpo-components'))}/components`
     ],
     isCached: !config.isDev,
     context: (request: Request) => ({

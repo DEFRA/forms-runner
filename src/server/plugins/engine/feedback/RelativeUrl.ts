@@ -1,4 +1,4 @@
-import { URL } from 'url'
+import { URL } from 'node:url'
 /**
  * Enforces use of relative URL's, prevents someone maliciously causing a user to be directed to a phishing
  * site.

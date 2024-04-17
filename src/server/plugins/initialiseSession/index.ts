@@ -1,1 +1,1 @@
-export { initialiseSession } from './initialiseSession'
+export { initialiseSession } from './initialiseSession.js'

@@ -1,10 +1,13 @@
-import path from 'path'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import cheerio from 'cheerio'
 
 import { StatusService } from '../../../../src/server/services/index.js'
 import { FormModel } from '../../../../src/server/plugins/engine/models/index.js'
 import createServer from '../../../../src/server/index.js'
 import form from '../status.test.json' with { type: 'json' }
+
+const testDir = dirname(fileURLToPath(import.meta.url))
 
 describe('Status Service', () => {
   const cacheService = { getState: () => ({}), mergeState: () => {} }
@@ -104,7 +107,7 @@ describe('Status Service', () => {
     beforeAll(async () => {
       server = await createServer({
         formFileName: 'status.test.json',
-        formFilePath: path.join(__dirname, '..'),
+        formFilePath: resolve(testDir, '..'),
         enforceCsrf: false
       })
       statusService = server.services().statusService

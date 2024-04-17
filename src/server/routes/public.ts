@@ -1,7 +1,9 @@
-import path from 'path'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-const runnerFolder = path.join(__dirname, '..', '..', '..')
-const rootNodeModules = path.join(runnerFolder, 'node_modules')
+const routesDir = dirname(fileURLToPath(import.meta.url))
+const publicDir = join(routesDir, '../../../public')
+const modulesDir = join(routesDir, '../../../node_modules')
 
 export default [
   {
@@ -11,12 +13,12 @@ export default [
       handler: {
         directory: {
           path: [
-            path.join(runnerFolder, 'public', 'static'),
-            path.join(runnerFolder, 'public', 'build'),
-            path.join(rootNodeModules, 'accessible-autocomplete', 'dist'),
-            path.join(rootNodeModules, 'govuk-frontend', 'govuk'),
-            path.join(rootNodeModules, 'govuk-frontend', 'govuk', 'assets'),
-            path.join(runnerFolder, 'node_modules', 'hmpo-components', 'assets')
+            join(publicDir, 'static'),
+            join(publicDir, 'build'),
+            join(modulesDir, 'accessible-autocomplete', 'dist'),
+            join(modulesDir, 'govuk-frontend', 'govuk'),
+            join(modulesDir, 'govuk-frontend', 'govuk', 'assets'),
+            join(modulesDir, 'hmpo-components', 'assets')
           ]
         }
       }

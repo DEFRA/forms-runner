@@ -1,5 +1,5 @@
-import { MonthYearField } from '../../../../../src/server/plugins/engine/components'
-import { messages } from '../../../../../src/server/plugins/engine/pageControllers/validationOptions'
+import { MonthYearField } from '../../../../../src/server/plugins/engine/components/index.js'
+import { messages } from '../../../../../src/server/plugins/engine/pageControllers/validationOptions.js'
 import joi from 'joi'
 
 /**

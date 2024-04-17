@@ -1,5 +1,9 @@
+import { dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import cheerio from 'cheerio'
 import createServer from '../../../src/server/index.js'
+
+const testDir = dirname(fileURLToPath(import.meta.url))
 
 describe('Title and section title', () => {
   let server
@@ -7,7 +11,7 @@ describe('Title and section title', () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: `titles.json`,
-      formFilePath: __dirname,
+      formFilePath: testDir,
       options: { previewMode: true }
     })
     await server.initialize()

@@ -1,4 +1,4 @@
-import { CheckboxesField } from '../../../../../src/server/plugins/engine/components/CheckboxesField'
+import { CheckboxesField } from '../../../../../src/server/plugins/engine/components/CheckboxesField.js'
 
 describe('CheckboxesField', () => {
   const lists = [

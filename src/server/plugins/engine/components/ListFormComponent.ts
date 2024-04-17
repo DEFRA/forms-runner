@@ -1,13 +1,13 @@
 import joi, { Schema } from 'joi'
 import { ListComponentsDef, List, Item } from '@defra/forms-model'
-import { FormComponent } from './FormComponent'
-import { FormModel } from './../models'
+import { FormComponent } from './FormComponent.js'
+import { FormModel } from './../models/index.js'
 import type {
   FormSubmissionState,
   FormSubmissionErrors,
   FormData
-} from '../types'
-import type { DataType, ListItem } from './types'
+} from '../types.js'
+import type { DataType, ListItem } from './types.js'
 
 export class ListFormComponent extends FormComponent {
   list: List

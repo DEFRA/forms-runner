@@ -1,6 +1,6 @@
-import { NotifyClient } from 'notifications-node-client/client/notification'
+import { NotifyClient } from 'notifications-node-client/client/notification.js'
 import { isMultipleApiKey, MultipleApiKeys } from '@defra/forms-model'
-import config from '../config'
+import config from '../config.js'
 import type { Server } from '@hapi/hapi'
 
 type Personalisation = {

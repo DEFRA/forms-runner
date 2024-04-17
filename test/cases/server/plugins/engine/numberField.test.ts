@@ -1,5 +1,5 @@
-import { NumberField } from '../../../../../src/server/plugins/engine/components/NumberField'
-import { messages } from '../../../../../src/server/plugins/engine/pageControllers/validationOptions'
+import { NumberField } from '../../../../../src/server/plugins/engine/components/NumberField.js'
+import { messages } from '../../../../../src/server/plugins/engine/pageControllers/validationOptions.js'
 
 describe('Number field', () => {
   const baseDef = {

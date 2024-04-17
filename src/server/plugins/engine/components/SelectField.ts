@@ -1,10 +1,10 @@
-import { ListFormComponent } from './ListFormComponent'
+import { ListFormComponent } from './ListFormComponent.js'
 import { SelectFieldComponent } from '@defra/forms-model'
 import type {
   FormData,
   FormSubmissionErrors
-} from '../../../plugins/engine/types'
-import type { DataType } from './types'
+} from '../../../plugins/engine/types.js'
+import type { DataType } from './types.js'
 
 export class SelectField extends ListFormComponent {
   dataType = 'list' as DataType

@@ -4,7 +4,7 @@ import {
   redirectUrl,
   nonRelativeRedirectUrl,
   getValidStateFromQueryParameters
-} from '../../../../../src/server/plugins/engine/helpers'
+} from '../../../../../src/server/plugins/engine/helpers.js'
 import Joi from 'joi'
 
 describe('Helpers', () => {

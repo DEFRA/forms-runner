@@ -1,8 +1,8 @@
-import { PageController } from './PageController'
-import { FormModel } from '../../../plugins/engine/models'
-import { RepeatingSummaryPageController } from './RepeatingSummaryPageController'
+import { PageController } from './PageController.js'
+import { FormModel } from '../../../plugins/engine/models/index.js'
+import { RepeatingSummaryPageController } from './RepeatingSummaryPageController.js'
 import { ComponentDef, RepeatingFieldPage } from '@defra/forms-model'
-import { FormComponent } from '../components'
+import { FormComponent } from '../components/index.js'
 
 import joi from 'joi'
 import { reach } from 'hoek'

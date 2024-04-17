@@ -1,4 +1,4 @@
-import { YesNoField } from '../../../../../../src/server/plugins/engine/components/YesNoField'
+import { YesNoField } from '../../../../../../src/server/plugins/engine/components/YesNoField.js'
 
 describe('YesNoField', () => {
   describe('Generated schema', () => {

@@ -1,26 +1,26 @@
-import { URLSearchParams } from 'url'
+import { URLSearchParams } from 'node:url'
 import { merge, reach } from '@hapi/hoek'
-import { validationOptions } from '../../../plugins/engine/pageControllers/validationOptions'
+import { validationOptions } from '../../../plugins/engine/pageControllers/validationOptions.js'
 
-import { feedbackReturnInfoKey, proceed, redirectTo } from '../helpers'
-import { ComponentCollection } from '../components/ComponentCollection'
+import { feedbackReturnInfoKey, proceed, redirectTo } from '../helpers.js'
+import { ComponentCollection } from '../components/ComponentCollection.js'
 import {
   decodeFeedbackContextInfo,
   FeedbackContextInfo,
   RelativeUrl
-} from '../feedback'
+} from '../feedback/index.js'
 import { Request, ResponseObject, ResponseToolkit } from '@hapi/hapi'
-import { FormModel } from '../models'
+import { FormModel } from '../models/index.js'
 import {
   FormData,
   FormPayload,
   FormSubmissionErrors,
   FormSubmissionState
-} from '../types'
+} from '../types.js'
 import { format, parseISO } from 'date-fns'
-import config from '../../../config'
+import config from '../../../config.js'
 import nunjucks from 'nunjucks'
-import type { ComponentCollectionViewModel } from '../components/types'
+import type { ComponentCollectionViewModel } from '../components/types.js'
 
 const FORM_SCHEMA = Symbol('FORM_SCHEMA')
 const STATE_SCHEMA = Symbol('STATE_SCHEMA')

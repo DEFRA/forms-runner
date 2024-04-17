@@ -1,6 +1,6 @@
-import { ComponentBase } from './ComponentBase'
-import type { ViewModel } from './types'
-import type { FormData, FormSubmissionErrors } from '../types'
+import { ComponentBase } from './ComponentBase.js'
+import type { ViewModel } from './types.js'
+import type { FormData, FormSubmissionErrors } from '../types.js'
 
 export class InsetText extends ComponentBase {
   getViewModel(formData: FormData, errors: FormSubmissionErrors): ViewModel {

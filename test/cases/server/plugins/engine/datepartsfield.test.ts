@@ -1,4 +1,4 @@
-import { DatePartsField } from '../../../../../src/server/plugins/engine/components/DatePartsField'
+import { DatePartsField } from '../../../../../src/server/plugins/engine/components/DatePartsField.js'
 
 describe('Date parts field', () => {
   test('Should construct appropriate children when required', () => {

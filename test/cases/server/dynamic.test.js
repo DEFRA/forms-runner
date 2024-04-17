@@ -1,8 +1,12 @@
+import { dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import cheerio from 'cheerio'
 import FormData from 'form-data'
 
 import createServer from '../../../src/server/index.js'
 import { CacheService } from '../../../src/server/services/cacheService.js'
+
+const testDir = dirname(fileURLToPath(import.meta.url))
 
 const state = {
   progress: [
@@ -85,7 +89,7 @@ describe.skip('Dynamic pages', () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: 'dynamic.json',
-      formFilePath: __dirname
+      formFilePath: testDir
     })
     await server.initialize()
   })

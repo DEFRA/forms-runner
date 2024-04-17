@@ -4,13 +4,13 @@ import { Engine as MemoryEngine } from '@hapi/catbox-memory'
 import { token } from '@hapi/jwt'
 import Redis from 'ioredis'
 
-import config from '../config'
+import config from '../config.js'
 import {
   DecodedSessionToken,
   InitialiseSessionOptions
-} from '../plugins/initialiseSession/types'
-import type { FormSubmissionState } from '../plugins/engine/types'
-import type { WebhookSchema } from '../schemas/types'
+} from '../plugins/initialiseSession/types.js'
+import type { FormSubmissionState } from '../plugins/engine/types.js'
+import type { WebhookSchema } from '../schemas/types.js'
 import type { Request, Server } from '@hapi/hapi'
 
 const {

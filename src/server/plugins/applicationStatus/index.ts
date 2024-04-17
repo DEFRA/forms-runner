@@ -1,14 +1,14 @@
-import { redirectTo } from './../engine'
-import { retryPay } from './retryPay'
-import { handleUserWithConfirmationViewModel } from './handleUserWithConfirmationViewModel'
-import { checkUserCompletedSummary } from './checkUserCompletedSummary'
+import { redirectTo } from './../engine/index.js'
+import { retryPay } from './retryPay.js'
+import { handleUserWithConfirmationViewModel } from './handleUserWithConfirmationViewModel.js'
+import { checkUserCompletedSummary } from './checkUserCompletedSummary.js'
 import type { Request, ResponseToolkit } from '@hapi/hapi'
 
 import Joi from 'joi'
 import {
   continueToPayAfterPaymentSkippedWarning,
   paymentSkippedWarning
-} from './paymentSkippedWarning'
+} from './paymentSkippedWarning.js'
 
 const preHandlers = {
   retryPay: {

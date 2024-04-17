@@ -1,8 +1,8 @@
 import {
   FormModel,
   SummaryViewModel
-} from '../../../../../src/server/plugins/engine/models'
-import config from '../../../../../src/server/config'
+} from '../../../../../src/server/plugins/engine/models/index.js'
+import config from '../../../../../src/server/config.js'
 import form from './SummaryViewModel.json'
 
 describe('SummaryViewModel', () => {

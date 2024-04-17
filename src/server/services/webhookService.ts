@@ -1,4 +1,4 @@
-import { post, put } from './httpService'
+import { post, put } from './httpService.js'
 import type { Server } from '@hapi/hapi'
 
 const DEFAULT_OPTIONS = {

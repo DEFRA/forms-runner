@@ -1,4 +1,4 @@
-import createServer from './server'
+import createServer from './server/index.js'
 
 createServer({})
   .then((server) => server.start())

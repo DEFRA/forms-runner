@@ -1,6 +1,6 @@
 import { WebsiteFieldComponent } from '@defra/forms-model'
-import { WebsiteField } from '../../../../../../src/server/plugins/engine/components'
-import { FormModel } from '../../../../../../src/server/plugins/engine/models'
+import { WebsiteField } from '../../../../../../src/server/plugins/engine/components/index.js'
+import { FormModel } from '../../../../../../src/server/plugins/engine/models/index.js'
 
 describe('Website field', () => {
   let model: FormModel

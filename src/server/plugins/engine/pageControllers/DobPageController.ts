@@ -1,6 +1,6 @@
 import joi from 'joi'
-import { PageController } from './PageController'
-import type { FormPayload } from '../types'
+import { PageController } from './PageController.js'
+import type { FormPayload } from '../types.js'
 
 /**
  * DobPageController adds to the state a users ageGroup

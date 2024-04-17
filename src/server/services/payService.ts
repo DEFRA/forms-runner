@@ -1,8 +1,8 @@
-import config from '../config'
-import { get, postJson } from './httpService'
+import config from '../config.js'
+import { get, postJson } from './httpService.js'
 import { nanoid } from 'nanoid'
 import { Fee } from '@defra/forms-model'
-import { FeesModel } from '../plugins/engine/models/submission'
+import { FeesModel } from '../plugins/engine/models/submission/index.js'
 import { format } from 'date-fns'
 import type { Server } from '@hapi/hapi'
 

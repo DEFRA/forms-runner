@@ -1,5 +1,5 @@
-import { TextField } from '../../../../../../src/server/plugins/engine/components/TextField'
-import { messages } from '../../../../../../src/server/plugins/engine/pageControllers/validationOptions'
+import { TextField } from '../../../../../../src/server/plugins/engine/components/TextField.js'
+import { messages } from '../../../../../../src/server/plugins/engine/pageControllers/validationOptions.js'
 
 describe('TextField', () => {
   describe('Generated schema', () => {

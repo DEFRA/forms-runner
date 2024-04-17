@@ -1,14 +1,14 @@
 import joi, { Schema } from 'joi'
 
-import * as helpers from './helpers'
-import { addClassOptionIfNone } from './helpers'
-import { ListFormComponent } from './ListFormComponent'
+import * as helpers from './helpers.js'
+import { addClassOptionIfNone } from './helpers.js'
+import { ListFormComponent } from './ListFormComponent.js'
 import { List } from '@defra/forms-model'
 import type {
   FormData,
   FormSubmissionErrors,
   FormSubmissionState
-} from '../types'
+} from '../types.js'
 
 /**
  * @desc

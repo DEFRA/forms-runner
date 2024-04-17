@@ -1,6 +1,6 @@
-import { ComponentBase } from './ComponentBase'
+import { ComponentBase } from './ComponentBase.js'
 import { Item } from '@defra/forms-model'
-import type { FormData, FormSubmissionErrors } from '../types'
+import type { FormData, FormSubmissionErrors } from '../types.js'
 
 export class List extends ComponentBase {
   list: List
