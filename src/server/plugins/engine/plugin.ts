@@ -31,7 +31,6 @@ const [govukFrontendPath, hmpoComponentsPath] = [
 nunjucks.configure([
   // Configure Nunjucks to allow rendering of content that is revealed conditionally.
   join(config.appDir, 'plugins/engine/views'),
-  join(config.appDir, 'plugins/engine/views/partials'),
   govukFrontendPath,
   join(hmpoComponentsPath, 'components')
 ])

@@ -51,7 +51,7 @@ export const configureEnginePlugin: ConfigureEnginePlugin = (
   }
 
   const modelOptions = {
-    relativeTo: join(config.appDir, 'plugins/engine'),
+    relativeTo: join(config.appDir, 'plugins/engine/views'),
     previewMode: options?.previewMode ?? config.previewMode
   }
 
