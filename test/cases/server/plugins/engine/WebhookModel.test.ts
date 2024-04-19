@@ -1,5 +1,5 @@
 import { WebhookModel } from '../../../../../src/server/plugins/engine/models/submission/WebhookModel.js'
-import form from './SummaryViewModel.json'
+import form from './SummaryViewModel.json' with { type: 'json' }
 import {
   FormModel,
   SummaryViewModel

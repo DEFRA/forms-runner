@@ -5,9 +5,9 @@ import nunjucks from 'nunjucks'
 import vision from '@hapi/vision'
 import capitalize from 'lodash/capitalize.js'
 
-import pkg from '../../../package.json'
+import pkg from '../../../package.json' with { type: 'json' }
 import config from '../config.js'
-import additionalContexts from '../templates/additionalContexts.json'
+import additionalContexts from '../templates/additionalContexts.json' with { type: 'json' }
 import type { Request } from '@hapi/hapi'
 
 const [govukFrontendPath, hmpoComponentsPath] = [

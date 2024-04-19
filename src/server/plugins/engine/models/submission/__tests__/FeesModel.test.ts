@@ -1,5 +1,5 @@
 import { FeesModel } from './../FeesModel.js'
-import json from './FeesModel.test.json'
+import json from './FeesModel.test.json' with { type: 'json' }
 
 import { FormModel } from '../../../../../plugins/engine/models/index.js'
 

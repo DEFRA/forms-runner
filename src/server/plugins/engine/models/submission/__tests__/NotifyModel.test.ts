@@ -1,5 +1,5 @@
 import { NotifyModel } from '../NotifyModel.js'
-import json from './NotifyModel.test.json'
+import json from './NotifyModel.test.json' with { type: 'json' }
 import { FormModel } from '../../../../../plugins/engine/models/index.js'
 import type { FormSubmissionState } from '../../../../../plugins/engine/types.js'
 
