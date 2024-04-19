@@ -1,5 +1,5 @@
 import AWS from 'aws-sdk'
-import MailComposer from 'nodemailer/lib/mail-composer'
+import MailComposer from 'nodemailer/lib/mail-composer/index.js'
 import config from '../config.js'
 
 import { UploadService } from './upload/uploadService.js'

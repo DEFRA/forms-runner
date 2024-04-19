@@ -3,7 +3,7 @@ import {
   SummaryViewModel
 } from '../../../../../src/server/plugins/engine/models/index.js'
 import config from '../../../../../src/server/config.js'
-import form from './SummaryViewModel.json'
+import form from './SummaryViewModel.json' with { type: 'json' }
 
 describe('SummaryViewModel', () => {
   test('returns the correct apiKey', async () => {

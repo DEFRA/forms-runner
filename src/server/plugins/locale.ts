@@ -12,7 +12,7 @@ import path from 'node:path'
 import lodash from 'lodash'
 import headerParser from 'accept-language-parser'
 import Joi from 'joi'
-import pkg from '../../../package.json'
+import pkg from '../../../package.json' with { type: 'json' }
 
 /**
  * @typedef {Object}                    PluginOptions                   - Plugin configuration options.
