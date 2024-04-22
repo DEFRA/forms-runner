@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Post to slack
         id: slack
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v1.26.0
         with:
           channel-id: ${{ vars.SLACK_CHANNEL_ID }}
           payload: |
@@ -37,7 +37,7 @@ jobs:
     steps:
       - name: Post to slack
         id: slack
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v1.26.0
         with:
           channel-id: ${{ vars.SLACK_CHANNEL_ID }}
           payload: |
@@ -58,7 +58,7 @@ jobs:
     steps:
       - name: Post to slack
         id: slack
-        uses: slackapi/slack-github-action@v1.25.0
+        uses: slackapi/slack-github-action@v1.26.0
         with:
           channel-id: ${{ vars.SLACK_CHANNEL_ID }}
           payload: |
