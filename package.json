@@ -57,7 +57,7 @@
     "accept-language-parser": "^1.5.0",
     "accessible-autocomplete": "^2.0.2",
     "atob": "^2.1.2",
-    "aws-sdk": "^2.1531.0",
+    "aws-sdk": "^2.1603.0",
     "blankie": "^5.0.0",
     "blipp": "^4.0.2",
     "btoa": "^1.2.1",
