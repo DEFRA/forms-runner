@@ -50,6 +50,7 @@ jobs:
     steps:
       - name: Post to Slack
         uses: slackapi/slack-github-action@v1.26.0
+        if: github.event.action != 'submitted' || github.event.review.state == 'approved'
 
         env:
           ACTION_ICON: ${{ fromJSON(env.CONFIG)[github.event.action].icon }}
