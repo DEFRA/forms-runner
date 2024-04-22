@@ -1,75 +1,74 @@
 name: Post PR to Slack
+
 on:
   pull_request:
     types:
       - opened
+      - converted_to_draft
       - ready_for_review
       - reopened
       - closed
+
+  pull_request_review:
+    types:
+      - submitted
+
 env:
-  SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+  CONFIG: |
+    {
+      "opened": {
+        "icon": "${{ github.event.pull_request.draft && '📝' || '🆕' }}",
+        "status": "${{ github.event.pull_request.draft && 'opened as draft' || 'opened' }}"
+      },
+      "converted_to_draft": {
+        "icon": "📝",
+        "status": "converted to draft"
+      },
+      "ready_for_review": {
+        "icon": "👀",
+        "status": "ready for review"
+      },
+      "reopened": {
+        "icon": "🔄",
+        "status": "reopened"
+      },
+      "submitted": {
+        "icon": "${{ github.event.review.state == 'approved' && '✅' || '💬' }}",
+        "status": "${{ github.event.review.state == 'approved' && 'code review approved' || 'code review comments' }}"
+      },
+      "closed": {
+        "icon": "${{ github.event.pull_request.merged && '🚀' || '🗑️' }}",
+        "status": "${{ github.event.pull_request.merged && 'merged' || 'closed' }}"
+      }
+    }
 
 jobs:
-  notify-on-open-pr:
+  notify:
+    name: Slack notify
     runs-on: ubuntu-latest
-    if: github.event.pull_request.draft == false && (github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'ready_for_review')
+
     steps:
-      - name: Post to slack
-        id: slack
+      - name: Post to Slack
         uses: slackapi/slack-github-action@v1.26.0
+
+        env:
+          ACTION_ICON: ${{ fromJSON(env.CONFIG)[github.event.action].icon }}
+          ACTION_STATUS: ${{ fromJSON(env.CONFIG)[github.event.action].status }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
         with:
           channel-id: ${{ vars.SLACK_CHANNEL_ID }}
           payload: |
             {
-                "blocks": [
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": ":large_yellow_circle: *${{ github.event.repository.name }}:* Pull request opened by ${{ github.event.pull_request.user.login }}\n<${{ github.event.pull_request.html_url }}>"
-                        }
-                    }
-                ]
-            }
-  notify-on-merged-pr:
-    runs-on: ubuntu-latest
-    if: github.event.pull_request.draft == false && github.event.action == 'closed' && github.event.pull_request.merged == true
-    steps:
-      - name: Post to slack
-        id: slack
-        uses: slackapi/slack-github-action@v1.26.0
-        with:
-          channel-id: ${{ vars.SLACK_CHANNEL_ID }}
-          payload: |
-            {
-                "blocks": [
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": ":white_check_mark: *${{ github.event.repository.name }}:* Pull request merged\n<${{ github.event.pull_request.html_url }}>"
-                        }
-                    }
-                ]
-            }
-  notify-on-closed-pr:
-    runs-on: ubuntu-latest
-    if: github.event.pull_request.draft == false && github.event.action == 'closed' && github.event.pull_request.merged == false
-    steps:
-      - name: Post to slack
-        id: slack
-        uses: slackapi/slack-github-action@v1.26.0
-        with:
-          channel-id: ${{ vars.SLACK_CHANNEL_ID }}
-          payload: |
-            {
-                "blocks": [
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": ":wastebasket: *${{ github.event.repository.name }}:* Pull request closed\n<${{ github.event.pull_request.html_url }}>"
-                        }
-                    }
-                ]
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "${{ github.repository_owner }}/*${{ github.event.repository.name }}*: <${{ github.event.pull_request.html_url }}|*${{ github.event.pull_request.title }}* #${{ github.event.pull_request.number }}> by <${{ github.event.pull_request.user.html_url }}|@${{ github.event.pull_request.user.login }}> ${{ env.ACTION_ICON }} ${{ env.ACTION_STATUS }}"
+                  }
+                }
+              ],
+              "unfurl_links": false,
+              "unfurl_media": false
             }
