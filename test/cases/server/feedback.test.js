@@ -2,6 +2,7 @@ import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import cheerio from 'cheerio'
 import createServer from '../../../src/server/index.js'
+import config from '../../../src/server/config.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
@@ -23,7 +24,7 @@ describe(`Feedback`, () => {
   test('get request returns configured form page', async () => {
     const options = {
       method: 'GET',
-      url: '/feedback/uk-passport'
+      url: `${config.appPathPrefix}/feedback/uk-passport`
     }
 
     const response = await server.inject(options)

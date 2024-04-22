@@ -34,14 +34,14 @@ describe('uploads', () => {
     // form.append('file2', Buffer.from([]))
     const options = {
       method: 'POST',
-      url: '/upload/upload-file',
+      url: `${config.appPathPrefix}/upload/upload-file`,
       headers: form.getHeaders(),
       payload: form.getBuffer()
     }
     const response = await server.inject(options)
     expect(response.statusCode).toBe(302)
     expect(response.headers).toMatchObject({
-      location: '/upload/summary'
+      location: `${config.appPathPrefix}/upload/summary`
     })
   })
 
@@ -67,7 +67,7 @@ describe('uploads', () => {
     form.append('file1', fs.readFileSync(join(testDir, 'dummy.pdf')))
     const options = {
       method: 'POST',
-      url: '/upload/upload-file',
+      url: `${config.appPathPrefix}/upload/upload-file`,
       headers: form.getHeaders(),
       payload: form.getBuffer()
     }
@@ -89,7 +89,7 @@ describe('uploads', () => {
     form.append('file1', data)
     const options = {
       method: 'POST',
-      url: '/upload/upload-file',
+      url: `${config.appPathPrefix}/upload/upload-file`,
       headers: form.getHeaders(),
       payload: null
     }
@@ -120,7 +120,7 @@ describe('uploads', () => {
     form.append('file1', fs.readFileSync(join(testDir, 'dummy.pdf')))
     const options = {
       method: 'POST',
-      url: '/upload/upload-file',
+      url: `${config.appPathPrefix}/upload/upload-file`,
       headers: form.getHeaders(),
       payload: form.getBuffer()
     }

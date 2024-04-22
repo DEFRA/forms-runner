@@ -4,6 +4,7 @@ import cheerio from 'cheerio'
 import FormData from 'form-data'
 import cookie from 'cookie'
 import createServer from '../../../src/server/index.js'
+import config from '../../../src/server/config.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
@@ -15,7 +16,7 @@ describe('CSRF', () => {
   const options = () => {
     return {
       method: 'POST',
-      url: '/basic-v0/start',
+      url: `${config.appPathPrefix}/basic-v0/start`,
       headers: form.getHeaders(),
       payload: form.getBuffer()
     }
@@ -38,7 +39,7 @@ describe('CSRF', () => {
   test('get request returns CSRF header', async () => {
     const options = {
       method: 'GET',
-      url: '/basic-v0/start'
+      url: `${config.appPathPrefix}/basic-v0/start`
     }
 
     const response = await server.inject(options)
