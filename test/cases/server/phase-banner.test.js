@@ -23,7 +23,7 @@ describe(`Phase banner`, () => {
 
     const options = {
       method: 'GET',
-      url: `/forms-runner/phase-default/first-page`
+      url: `/phase-default/first-page`
     }
 
     const response = await server.inject(options)
@@ -43,7 +43,7 @@ describe(`Phase banner`, () => {
 
     const options = {
       method: 'GET',
-      url: `/forms-runner/phase-alpha/first-page`
+      url: '/phase-alpha/first-page'
     }
 
     const response = await server.inject(options)
@@ -63,7 +63,7 @@ describe(`Phase banner`, () => {
 
     const options = {
       method: 'GET',
-      url: `/forms-runner/phase-none/first-page`
+      url: '/phase-none/first-page'
     }
 
     const response = await server.inject(options)

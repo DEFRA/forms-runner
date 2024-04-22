@@ -15,7 +15,7 @@ describe('CSRF', () => {
   const options = () => {
     return {
       method: 'POST',
-      url: '/forms-runner/basic-v0/start',
+      url: '/basic-v0/start',
       headers: form.getHeaders(),
       payload: form.getBuffer()
     }
@@ -38,7 +38,7 @@ describe('CSRF', () => {
   test('get request returns CSRF header', async () => {
     const options = {
       method: 'GET',
-      url: '/forms-runner/basic-v0/start'
+      url: '/basic-v0/start'
     }
 
     const response = await server.inject(options)

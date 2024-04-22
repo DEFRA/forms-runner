@@ -23,7 +23,7 @@ describe(`Feedback`, () => {
   test('get request returns configured form page', async () => {
     const options = {
       method: 'GET',
-      url: `/forms-runner/feedback/uk-passport`
+      url: '/feedback/uk-passport'
     }
 
     const response = await server.inject(options)

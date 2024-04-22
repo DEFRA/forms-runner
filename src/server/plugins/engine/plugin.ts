@@ -80,9 +80,12 @@ export const plugin = {
     const forms = server.app.forms
 
     configs.forEach((config) => {
+      const basePath =
+        formBasePath === '' ? config.id : `${formBasePath}/${config.id}`
+
       forms[config.id] = new FormModel(config.configuration, {
         ...modelOptions,
-        basePath: `${formBasePath}/${config.id}`
+        basePath
       })
     })
 

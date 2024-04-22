@@ -15,7 +15,7 @@ describe('Server Router', () => {
   test('cookies page is served', async () => {
     const options = {
       method: 'GET',
-      url: `/forms-runner/help/cookies`
+      url: '/help/cookies'
     }
 
     const res = await server.inject(options)
@@ -34,7 +34,7 @@ describe('Server Router', () => {
       payload: {
         cookies: 'accept'
       },
-      url: '/forms-runner/help/cookies'
+      url: '/help/cookies'
     }
 
     const res = await server.inject(options)
@@ -45,7 +45,7 @@ describe('Server Router', () => {
   test('accessibility statement page is served', async () => {
     const options = {
       method: 'GET',
-      url: `/forms-runner/help/accessibility-statement`
+      url: '/help/accessibility-statement'
     }
 
     const res = await server.inject(options)
@@ -61,7 +61,7 @@ describe('Server Router', () => {
   test('terms and conditions page is served', async () => {
     const options = {
       method: 'GET',
-      url: `/forms-runner/help/terms-and-conditions`
+      url: '/help/terms-and-conditions'
     }
 
     const res = await server.inject(options)
