@@ -65,7 +65,7 @@ describe('Server Auth', () => {
       // Create an initial session
       const prepResponse = await server.inject({
         method: 'GET',
-        url: `${config.appPathPrefix || '/'}`
+        url: '/'
       })
       const initialSession = prepResponse.headers['set-cookie'].find((cookie) =>
         cookie.startsWith('session=')
@@ -74,7 +74,7 @@ describe('Server Auth', () => {
       // We can first check the created session works as expected:
       const checkPrepResponse = await server.inject({
         method: 'GET',
-        url: `${config.appPathPrefix || '/'}`,
+        url: '/',
         headers: {
           Cookie: initialSession.replace('Secure; HttpOnly; ', '')
         }
@@ -113,7 +113,7 @@ describe('Server Auth', () => {
     test("shows a 'sign out' link in the header if logged in", async () => {
       const options = {
         method: 'GET',
-        url: `${config.appPathPrefix}/test/start`,
+        url: '/test/start',
         auth: {
           strategy: 'session',
           credentials: {
@@ -135,7 +135,7 @@ describe('Server Auth', () => {
     test("does not show a 'sign out' link in the header if logged out", async () => {
       const options = {
         method: 'GET',
-        url: `${config.appPathPrefix}/test/start`
+        url: '/test/start'
       }
 
       const res = await server.inject(options)
@@ -147,35 +147,31 @@ describe('Server Auth', () => {
     test('redirects to login page if accessing a question page', async () => {
       const options = {
         method: 'GET',
-        url: `${config.appPathPrefix}/test/uk-passport`
+        url: '/test/uk-passport'
       }
 
       const res = await server.inject(options)
 
       expect(res.statusCode).toBe(302)
-      expect(res.headers.location).toBe(
-        `/login?returnUrl=${config.appPathPrefix}/test/uk-passport`
-      )
+      expect(res.headers.location).toBe('/login?returnUrl=/test/uk-passport')
     })
 
     test('redirects to login page if accessing a summary page', async () => {
       const options = {
         method: 'GET',
-        url: `${config.appPathPrefix}/test/summary`
+        url: '/test/summary'
       }
 
       const res = await server.inject(options)
 
       expect(res.statusCode).toBe(302)
-      expect(res.headers.location).toBe(
-        `/login?returnUrl=${config.appPathPrefix}/test/summary`
-      )
+      expect(res.headers.location).toBe('/login?returnUrl=/test/summary')
     })
 
     test('does not redirect to login if accessing the start page', async () => {
       const options = {
         method: 'GET',
-        url: `${config.appPathPrefix}/test/start`
+        url: '/test/start'
       }
 
       const res = await server.inject(options)

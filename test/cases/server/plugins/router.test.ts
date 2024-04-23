@@ -1,4 +1,3 @@
-import config from '../../../../src/server/config.js'
 import createServer from '../../../../src/server/index.js'
 
 describe('Server Router', () => {
@@ -16,7 +15,7 @@ describe('Server Router', () => {
   test('cookies page is served', async () => {
     const options = {
       method: 'GET',
-      url: `${config.appPathPrefix}/help/cookies`
+      url: '/help/cookies'
     }
 
     const res = await server.inject(options)
@@ -35,7 +34,7 @@ describe('Server Router', () => {
       payload: {
         cookies: 'accept'
       },
-      url: `${config.appPathPrefix}/help/cookies`
+      url: '/help/cookies'
     }
 
     const res = await server.inject(options)
@@ -46,7 +45,7 @@ describe('Server Router', () => {
   test('accessibility statement page is served', async () => {
     const options = {
       method: 'GET',
-      url: `${config.appPathPrefix}/help/accessibility-statement`
+      url: '/help/accessibility-statement'
     }
 
     const res = await server.inject(options)
@@ -62,7 +61,7 @@ describe('Server Router', () => {
   test('terms and conditions page is served', async () => {
     const options = {
       method: 'GET',
-      url: `${config.appPathPrefix}/help/terms-and-conditions`
+      url: '/help/terms-and-conditions'
     }
 
     const res = await server.inject(options)
