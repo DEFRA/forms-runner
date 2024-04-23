@@ -84,7 +84,9 @@ const serverOptions = (): ServerOptions => {
 }
 
 const registrationOptions = {
-  routes: { prefix: config.appPathPrefix }
+  routes: {
+    prefix: config.appPathPrefix === '' ? undefined : config.appPathPrefix
+  }
 }
 
 async function createServer(routeConfig: RouteConfig) {

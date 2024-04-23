@@ -24,6 +24,12 @@ export const configSchema = Joi.object({
   appDir: Joi.string()
     .optional()
     .default(resolve(dirname(configPath), '../../server')),
+  appPathPrefix: Joi.string()
+    .optional()
+    .uri({ relativeOnly: true })
+    .trim()
+    .empty('/')
+    .default(''),
   publicDir: Joi.string()
     .optional()
     .default(resolve(dirname(configPath), '../../../public')),

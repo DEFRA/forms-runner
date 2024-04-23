@@ -2,6 +2,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import cheerio from 'cheerio'
 import createServer from '../../../src/server/index.js'
+import config from '../../../src/server/config.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
@@ -23,7 +24,7 @@ describe(`Phase banner`, () => {
 
     const options = {
       method: 'GET',
-      url: `/forms-runner/phase-default/first-page`
+      url: `${config.appPathPrefix}/phase-default/first-page`
     }
 
     const response = await server.inject(options)
@@ -43,7 +44,7 @@ describe(`Phase banner`, () => {
 
     const options = {
       method: 'GET',
-      url: `/forms-runner/phase-alpha/first-page`
+      url: `${config.appPathPrefix}/phase-alpha/first-page`
     }
 
     const response = await server.inject(options)
@@ -63,7 +64,7 @@ describe(`Phase banner`, () => {
 
     const options = {
       method: 'GET',
-      url: `/forms-runner/phase-none/first-page`
+      url: `${config.appPathPrefix}/phase-none/first-page`
     }
 
     const response = await server.inject(options)
