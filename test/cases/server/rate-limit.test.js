@@ -40,7 +40,7 @@ describe('Rate limit', () => {
   })
 
   test.only('plugin is registered during server start', async () => {
-    await expect(server.start()).resolves.not.toThrow()
+    await expect(server.initialize()).resolves.not.toThrow()
 
     expect(server.registrations).toEqual(
       expect.objectContaining({
