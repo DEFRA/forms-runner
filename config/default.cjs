@@ -20,7 +20,7 @@ module.exports = {
    */
   port: process.env.PORT || 3009,
   env: process.env.NODE_ENV || 'development',
-  appPathPrefix: process.env.APP_PATH_PREFIX || '',
+  appPathPrefix: process.env.APP_PATH_PREFIX,
   previewMode: false,
   enforceCsrf: true,
   sandbox: false,
