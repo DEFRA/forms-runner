@@ -68,8 +68,6 @@ type PluginOptions = {
   previewMode: boolean
 }
 
-const formBasePath = config.appPathPrefix.replace(/^\//, '') // replace first / so it doesn't turn into //forms-runner and get interpreted as a hostname
-
 export const plugin = {
   name: '@defra/forms-runner/engine',
   dependencies: '@hapi/vision',
@@ -80,12 +78,9 @@ export const plugin = {
     const forms = server.app.forms
 
     configs.forEach((form) => {
-      const basePath =
-        formBasePath === '' ? form.id : `${formBasePath}/${form.id}`
-
       forms[form.id] = new FormModel(form.configuration, {
         ...modelOptions,
-        basePath
+        basePath: form.id
       })
     })
 

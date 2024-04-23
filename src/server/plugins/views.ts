@@ -72,8 +72,7 @@ export default {
     isCached: !config.isDev,
     context: (request: Request) => ({
       appVersion: pkg.version,
-      assetPath: `${config.appPathPrefix}/assets`,
-      appPathPrefix: config.appPathPrefix,
+      assetPath: '/assets',
       cookiesPolicy: request?.state?.cookies_policy,
       serviceName: capitalize(config.serviceName),
       feedbackLink: config.feedbackLink,

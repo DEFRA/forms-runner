@@ -83,12 +83,6 @@ const serverOptions = (): ServerOptions => {
   }
 }
 
-const registrationOptions = {
-  routes: {
-    prefix: config.appPathPrefix === '' ? undefined : config.appPathPrefix
-  }
-}
-
 async function createServer(routeConfig: RouteConfig) {
   const server = hapi.server(serverOptions())
   const { formFileName, formFilePath, options } = routeConfig
@@ -171,13 +165,12 @@ async function createServer(routeConfig: RouteConfig) {
   })
 
   await server.register(pluginLocale)
-  await server.register(pluginViews, registrationOptions)
+  await server.register(pluginViews)
   await server.register(
-    configureEnginePlugin(formFileName, formFilePath, options),
-    registrationOptions
+    configureEnginePlugin(formFileName, formFilePath, options)
   )
-  await server.register(pluginApplicationStatus, registrationOptions)
-  await server.register(pluginRouter, registrationOptions)
+  await server.register(pluginApplicationStatus)
+  await server.register(pluginRouter)
   await server.register(pluginErrorPages)
   await server.register(blipp)
 
