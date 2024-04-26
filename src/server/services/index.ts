@@ -1,7 +1,6 @@
 export { UploadService, MockUploadService } from './upload/index.js'
 export { PayService } from './payService.js'
 export { NotifyService } from './notifyService.js'
-export { EmailService } from './emailService.js'
 export { CacheService, catboxProvider } from './cacheService.js'
 export { WebhookService } from './webhookService.js'
 export { StatusService } from './statusService.js'

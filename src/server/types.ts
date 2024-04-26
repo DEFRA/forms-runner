@@ -4,7 +4,6 @@ import { Logger } from 'pino'
 import { RateOptions } from './plugins/rateLimit.js'
 import {
   CacheService,
-  EmailService,
   NotifyService,
   PayService,
   StatusService,
@@ -51,7 +50,6 @@ declare module '@hapi/hapi' {
 declare module '@hapipal/schmervice' {
   interface RegisteredServices {
     cacheService: CacheService
-    emailService: EmailService
     notifyService: NotifyService
     payService: PayService
     uploadService: UploadService
