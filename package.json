@@ -59,7 +59,6 @@
     "accept-language-parser": "^1.5.0",
     "accessible-autocomplete": "^2.0.2",
     "atob": "^2.1.2",
-    "aws-sdk": "^2.1603.0",
     "blankie": "^5.0.0",
     "blipp": "^4.0.2",
     "btoa": "^1.2.1",
@@ -78,7 +77,6 @@
     "joi": "^17.13.0",
     "lodash": "^4.17.21",
     "nanoid": "^3.3.4",
-    "nodemailer": "^6.9.9",
     "notifications-node-client": "^7.0.4",
     "nunjucks": "^3.2.3",
     "pg-boss": "^9.0.3",
@@ -126,7 +124,6 @@
     "@types/jest": "^29.5.12",
     "@types/mysql": "^2.15.26",
     "@types/node": "^20.12.7",
-    "@types/nodemailer": "^6.4.4",
     "@types/url-parse": "^1.4.8",
     "@types/wreck": "^14.0.0"
   }
