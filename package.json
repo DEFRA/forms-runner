@@ -26,7 +26,7 @@
     "prestart": "npm run build",
     "start": "NODE_ENV=${NODE_ENV:-production} node --enable-source-maps ./.server",
     "setup:husky": "node -e \"try { (await import('husky')).default() } catch (e) { if (e.code !== 'ERR_MODULE_NOT_FOUND') throw e }\" --input-type module",
-    "check-forms": "node bin/run/check"
+    "check-forms": "node bin/run/check/check.cjs"
   },
   "repository": {
     "type": "git",
