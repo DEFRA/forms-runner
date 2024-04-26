@@ -393,15 +393,18 @@ export class PageControllerBase {
       for (const component of nextPage.components.items) {
         let componentState = currentState[component.name]
 
-        // For evaluation context purposes, optional `CheckboxesField`s
-        // with an undefined value (i.e. nothing selected) should default to [].
-        // This way conditions are not evaluated against `undefined` which throws errors (see LN234).
-        // Currently these errors are caught and the evaluation returns default `false`.
-        // (See src/server/plugins/engine/models/FormModel.ts LN227)
-        // For negative conditions this is a problem because E.g.
-        // The condition: 'selectedchecks' does not contain 'someval'
-        // should return true IF 'selectedchecks' is undefined, not throw and return false.
-        // Similarly for optional `RadiosField`, the evaluation context should default to null.
+        /**
+         * For evaluation context purposes, optional {@link CheckboxesField}
+         * with an undefined value (i.e. nothing selected) should default to [].
+         * This way conditions are not evaluated against `undefined` which throws errors.
+         * Currently these errors are caught and the evaluation returns default `false`.
+         * @see {@link PageControllerBase.getNextPage} for `undefined` return value
+         * @see {@link FormModel.makeCondition} for try/catch block with default `false`
+         * For negative conditions this is a problem because E.g.
+         * The condition: 'selectedchecks' does not contain 'someval'
+         * should return true IF 'selectedchecks' is undefined, not throw and return false.
+         * Similarly for optional {@link RadiosField}, the evaluation context should default to null.
+         */
         if (
           componentState === undefined &&
           component instanceof CheckboxesField &&
