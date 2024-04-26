@@ -2,13 +2,13 @@ import joi from 'joi'
 import { add } from 'date-fns'
 import { Parser } from 'expr-eval'
 import {
-  Schema,
   clone,
   ConditionsModel,
-  FormDefinition,
-  Page,
-  ConditionRawData,
-  List
+  formDefinitionSchema,
+  type ConditionRawData,
+  type FormDefinition,
+  type List,
+  type Page
 } from '@defra/forms-model'
 
 import {
@@ -61,7 +61,7 @@ export class FormModel {
   specialPages: FormDefinition['specialPages']
 
   constructor(def, options) {
-    const result = Schema.validate(def, { abortEarly: false })
+    const result = formDefinitionSchema.validate(def, { abortEarly: false })
 
     if (result.error) {
       throw result.error
