@@ -1,23 +1,23 @@
-#!/usr/bin/nodejs
-const helper = require('./getOutOfDateForms.cjs')
-const { CliUx } = require('@oclif/core')
-async function check() {
-  CliUx.ux.action.start('Checking versions of forms in runner/src/forms')
-  const files = await helper.getOutOfDateForms()
-  CliUx.ux.action.stop()
+#!/usr/bin/env node
 
-  if (files.length <= 0) {
-    CliUx.ux.warn(
+const helper = require('./getOutOfDateForms.cjs')
+const { ux } = require('@oclif/core')
+
+async function check() {
+  ux.action.start('Checking versions of forms in src/server/forms')
+  const files = await helper.getOutOfDateForms()
+  ux.action.stop()
+
+  if (files.length) {
+    ux.warn(
       `Your form(s) ${files.join(
         ', '
       )} is/are out of date. Use the designer to upload your files, which runs the migration scripts. Download those JSONs to replace the outdated forms. Migration scripts will not cover conditional reveal fields. You will need to fix those manually.`
     )
     process.exit(1)
   } else {
-    CliUx.ux.info('Your forms are up to date')
+    ux.info('Your forms are up to date')
   }
 }
 
-module.exports = {
-  check
-}
+check()
