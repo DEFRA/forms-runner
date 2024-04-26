@@ -10,6 +10,7 @@
     "build:client": "sass src/client/sass:public/build/stylesheets -s compressed -I . --no-source-map --quiet-deps",
     "build:server": "babel --delete-dir-on-start --extensions \".ts\" --ignore \"**/*.test.ts\" --copy-files --no-copy-ignored --source-maps --out-dir ./.server ./src",
     "dev": "concurrently \"npm run client:watch\" \"npm run server:watch\"",
+    "dev:debug": "concurrently \"npm run client:watch\" \"npm run server:debug\"",
     "format": "prettier --write \"**/*.{cjs,js,json,md,mjs,scss,ts}\"",
     "format:check": "prettier --check \"**/*.{cjs,js,json,md,mjs,scss,ts}\"",
     "postinstall": "npm run setup:husky",
@@ -21,6 +22,7 @@
     "test:watch": "jest --watch",
     "client:watch": "npm run build:client -- --watch",
     "server:watch": "nodemon --exec tsx --enable-source-maps ./src",
+    "server:debug": "nodemon --exec tsx --enable-source-maps --inspect ./src",
     "prestart": "npm run build",
     "start": "NODE_ENV=${NODE_ENV:-production} node --enable-source-maps ./.server",
     "setup:husky": "node -e \"try { (await import('husky')).default() } catch (e) { if (e.code !== 'ERR_MODULE_NOT_FOUND') throw e }\" --input-type module",
@@ -114,7 +116,7 @@
     "nodemon": "^3.1.0",
     "prettier": "^3.2.5",
     "sass": "^1.75.0",
-    "tsx": "^4.7.2",
+    "tsx": "^4.7.3",
     "typescript": "^5.4.5"
   },
   "optionalDependencies": {
