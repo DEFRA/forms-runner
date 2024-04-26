@@ -1,10 +1,14 @@
-const nanoid = require('nanoid')
-const minute = 60 * 1000
+const { resolve } = require('node:path')
+
 const { deferConfig } = require('config/defer')
-const dotEnv = require('dotenv')
-if (process.env.NODE_ENV !== 'test') {
-  dotEnv.config({ path: '.env' })
-}
+const { configDotenv } = require('dotenv')
+const nanoid = require('nanoid')
+
+configDotenv({
+  path: [resolve(__dirname, '../.env')]
+})
+
+const minute = 60 * 1000
 
 module.exports = {
   /**
