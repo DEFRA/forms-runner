@@ -10,6 +10,7 @@ const htmlContentType = 'text/html'
 const key = 'wqJmSf'
 
 describe('TextField based conditions', () => {
+  /** @type {import('@hapi/hapi').Server} */
   let server
 
   // Create server before each test
