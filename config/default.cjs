@@ -1,10 +1,12 @@
+const { resolve } = require('node:path')
+
 const { deferConfig } = require('config/defer')
 const { configDotenv } = require('dotenv')
 const nanoid = require('nanoid')
 
-if (process.env.NODE_ENV !== 'test') {
-  configDotenv({ path: '.env' })
-}
+configDotenv({
+  path: [resolve(__dirname, '../.env')]
+})
 
 const minute = 60 * 1000
 
