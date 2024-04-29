@@ -21,6 +21,8 @@ import { format, parseISO } from 'date-fns'
 import config from '../../../config.js'
 import nunjucks from 'nunjucks'
 import type { ComponentCollectionViewModel } from '../components/types.js'
+import { RadiosField } from '../components/RadiosField.js'
+import { CheckboxesField } from '../components/CheckboxesField.js'
 
 const FORM_SCHEMA = Symbol('FORM_SCHEMA')
 const STATE_SCHEMA = Symbol('STATE_SCHEMA')
@@ -389,7 +391,35 @@ export class PageControllerBase {
 
       // Iterate all components on this page and pull out the saved values from the state
       for (const component of nextPage.components.items) {
-        newValue[component.name] = currentState[component.name]
+        let componentState = currentState[component.name]
+
+        /**
+         * For evaluation context purposes, optional {@link CheckboxesField}
+         * with an undefined value (i.e. nothing selected) should default to [].
+         * This way conditions are not evaluated against `undefined` which throws errors.
+         * Currently these errors are caught and the evaluation returns default `false`.
+         * @see {@link PageControllerBase.getNextPage} for `undefined` return value
+         * @see {@link FormModel.makeCondition} for try/catch block with default `false`
+         * For negative conditions this is a problem because E.g.
+         * The condition: 'selectedchecks' does not contain 'someval'
+         * should return true IF 'selectedchecks' is undefined, not throw and return false.
+         * Similarly for optional {@link RadiosField}, the evaluation context should default to null.
+         */
+        if (
+          componentState === undefined &&
+          component instanceof CheckboxesField &&
+          !component.options.required
+        ) {
+          componentState = []
+        } else if (
+          componentState === undefined &&
+          component instanceof RadiosField &&
+          !component.options.required
+        ) {
+          componentState = null
+        }
+
+        newValue[component.name] = componentState
       }
 
       if (nextPage.section) {
