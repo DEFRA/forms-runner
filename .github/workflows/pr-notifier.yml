@@ -48,28 +48,51 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Post to Slack
-        uses: slackapi/slack-github-action@v1.26.0
+      - name: Build Slack JSON
+        uses: actions/github-script@v7.0.1
+        id: payload
         if: github.event.action != 'submitted' || github.event.review.state == 'approved'
 
         env:
           ACTION_ICON: ${{ fromJSON(env.CONFIG)[github.event.action].icon }}
           ACTION_STATUS: ${{ fromJSON(env.CONFIG)[github.event.action].status }}
+
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const title = ${{ toJson(github.event.pull_request.title) }}
+            const username = ${{ toJson(github.event.pull_request.user.login) }}
+            const profileUrl = ${{ toJson(github.event.pull_request.user.html_url) }}
+
+            const { pull_request } = context.payload
+            const { owner, repo } = context.repo
+
+            // Format as Slack mrkdwn
+            const titleFormatted = `<${pull_request.html_url}|*${title}* #${pull_request.number}>`
+            const profileFormatted = `<${profileUrl}|@${username}>`
+
+            // Payload output is JSON encoded
+            return {
+              blocks: [
+                {
+                  type: 'section',
+                  text: {
+                    type: 'mrkdwn',
+                    text: `${owner}/*${repo}*: ${titleFormatted} by ${profileFormatted} ${{ env.ACTION_ICON }} ${{ env.ACTION_STATUS }}`
+                  }
+                }
+              ],
+              unfurl_links: false,
+              unfurl_media: false
+            }
+
+      - name: Post to Slack
+        uses: slackapi/slack-github-action@v1.26.0
+        if: github.event.action != 'submitted' || github.event.review.state == 'approved'
+
+        env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
         with:
           channel-id: ${{ vars.SLACK_CHANNEL_ID }}
-          payload: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "${{ github.repository_owner }}/*${{ github.event.repository.name }}*: <${{ github.event.pull_request.html_url }}|*${{ github.event.pull_request.title }}* #${{ github.event.pull_request.number }}> by <${{ github.event.pull_request.user.html_url }}|@${{ github.event.pull_request.user.login }}> ${{ env.ACTION_ICON }} ${{ env.ACTION_STATUS }}"
-                  }
-                }
-              ],
-              "unfurl_links": false,
-              "unfurl_media": false
-            }
+          payload: ${{ steps.payload.outputs.result }}
