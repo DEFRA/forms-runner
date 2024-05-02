@@ -1,11 +1,12 @@
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import cheerio from 'cheerio'
+import { load } from 'cheerio'
 import createServer from '../../../src/server/index.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
 describe(`Feedback`, () => {
+  /** @type {import('@hapi/hapi').Server} */
   let server
 
   // Create server before each test
@@ -30,7 +31,7 @@ describe(`Feedback`, () => {
     expect(response.statusCode).toBe(200)
     expect(response.headers['content-type']).toContain('text/html')
 
-    const $ = cheerio.load(response.payload)
+    const $ = load(response.payload)
 
     expect($('.govuk-phase-banner__text .govuk-link').attr('href')).toBe(
       'mailto:test@feedback.cat'

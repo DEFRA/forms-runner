@@ -14,5 +14,5 @@
     }
   },
   "include": ["**/*.cjs", "**/*.js", "**/*.mjs", "**/*.ts"],
-  "exclude": ["node_modules", "coverage", ".server"]
+  "exclude": ["coverage", "node_modules", "public", ".server"]
 }

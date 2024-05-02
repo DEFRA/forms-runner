@@ -1,7 +1,9 @@
+import { type Server } from '@hapi/hapi'
+
 import createServer from '../../../../src/server/index.js'
 
 describe('Server Router', () => {
-  let server
+  let server: Server
 
   beforeAll(async () => {
     server = await createServer({})
@@ -21,11 +23,9 @@ describe('Server Router', () => {
     const res = await server.inject(options)
 
     expect(res.statusCode).toBe(200)
-    expect(
-      res.result.indexOf(
-        `<h1 class="govuk-heading-l">Cookies on Defra forms</h1>`
-      ) > -1
-    ).toBe(true)
+    expect(res.result).toContain(
+      `<h1 class="govuk-heading-l">Cookies on Defra forms</h1>`
+    )
   })
 
   test('cookies preferences are set', async () => {
@@ -51,11 +51,9 @@ describe('Server Router', () => {
     const res = await server.inject(options)
 
     expect(res.statusCode).toBe(200)
-    expect(
-      res.result.indexOf(
-        '<h1 class="govuk-heading-l">Accessibility Statement</h1>'
-      ) > -1
-    ).toBe(true)
+    expect(res.result).toContain(
+      '<h1 class="govuk-heading-l">Accessibility Statement</h1>'
+    )
   })
 
   test('terms and conditions page is served', async () => {
@@ -67,10 +65,8 @@ describe('Server Router', () => {
     const res = await server.inject(options)
 
     expect(res.statusCode).toBe(200)
-    expect(
-      res.result.indexOf(
-        '<h1 class="govuk-heading-l">Terms and conditions</h1>'
-      ) > -1
-    ).toBe(true)
+    expect(res.result).toContain(
+      '<h1 class="govuk-heading-l">Terms and conditions</h1>'
+    )
   })
 })

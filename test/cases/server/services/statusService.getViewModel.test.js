@@ -1,6 +1,6 @@
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import cheerio from 'cheerio'
+import { load } from 'cheerio'
 
 import { StatusService } from '../../../../src/server/services/index.js'
 import { FormModel } from '../../../../src/server/plugins/engine/models/index.js'
@@ -17,6 +17,7 @@ describe('Status Service', () => {
     payStatus: () => {}
   }
 
+  /** @type {import('@hapi/hapi').Server} */
   const server = {
     services: () => ({
       cacheService,
@@ -99,9 +100,16 @@ describe('Status Service', () => {
   })
 
   describe('getViewModel renders custom text correctly', () => {
+    /** @type {import('@hapi/hapi').Server} */
     let server
+
+    /** @type {StatusService} */
     let statusService
+
+    /** @type {string} */
     let response
+
+    /** @type {import('cheerio').CheerioAPI} */
     let $
 
     beforeAll(async () => {
@@ -126,7 +134,7 @@ describe('Status Service', () => {
       )
       response = await server.render('confirmation', vmWithoutConfirmationPage)
 
-      $ = cheerio.load(response)
+      $ = load(response)
       expect($('body').text()).toContain('Application complete')
       expect($('body').text()).toContain(
         'You will receive an email with details with the next steps'
@@ -139,7 +147,7 @@ describe('Status Service', () => {
       const vmWithoutCustomText = statusService.getViewModel({}, formModel)
       response = await server.render('confirmation', vmWithoutCustomText)
 
-      $ = cheerio.load(response)
+      $ = load(response)
       expect($('body').text()).toContain('Application complete')
       expect($('body').text()).toContain(
         'You will receive an email with details with the next steps'
@@ -160,7 +168,7 @@ describe('Status Service', () => {
         paymentSkipped: true
       })
 
-      $ = cheerio.load(response)
+      $ = load(response)
       expect($('body').text()).not.toContain(
         'Someone will be in touch to make a payment.'
       )
@@ -183,7 +191,7 @@ describe('Status Service', () => {
         paymentSkipped: true
       })
 
-      $ = cheerio.load(response)
+      $ = load(response)
       expect($('h1').text()).toContain('Soup')
       expect($('body').text()).toContain('No eggs for you')
       expect($('body').text()).not.toContain(
@@ -195,7 +203,7 @@ describe('Status Service', () => {
         paymentSkipped: false
       })
 
-      $ = cheerio.load(response)
+      $ = load(response)
       expect($('h1').text()).toContain('Soup')
       expect($('body').text()).not.toContain('No eggs for you')
       expect($('body').text()).toContain('Tragedy')
@@ -209,6 +217,7 @@ describe('Status Service', () => {
         paymentSkipped: 'No eggs for you'
       }
 
+      /** @type {FormSubmissionState} */
       const userState = {
         callback: {
           customText: {
@@ -233,7 +242,7 @@ describe('Status Service', () => {
         paymentSkipped: true
       })
 
-      $ = cheerio.load(response)
+      $ = load(response)
       expect($('h1').text()).toContain('Application resubmitted')
       expect($('body').text()).toContain('Thanks!')
       expect($('body').text()).not.toContain('No eggs for you')
@@ -243,3 +252,7 @@ describe('Status Service', () => {
     })
   })
 })
+
+/**
+ * @typedef {import('~/src/server/plugins/engine/types.js').FormSubmissionState} FormSubmissionState
+ */

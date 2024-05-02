@@ -1,11 +1,12 @@
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import cheerio from 'cheerio'
+import { load } from 'cheerio'
 import createServer from '../../../src/server/index.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
 describe(`Phase banner`, () => {
+  /** @type {import('@hapi/hapi').Server} */
   let server
 
   afterEach(async () => {
@@ -29,7 +30,7 @@ describe(`Phase banner`, () => {
     const response = await server.inject(options)
     expect(response.statusCode).toBe(200)
 
-    const $ = cheerio.load(response.payload)
+    const $ = load(response.payload)
 
     expect($('.govuk-phase-banner__content__tag').text().trim()).toBe('beta')
   })
@@ -49,7 +50,7 @@ describe(`Phase banner`, () => {
     const response = await server.inject(options)
     expect(response.statusCode).toBe(200)
 
-    const $ = cheerio.load(response.payload)
+    const $ = load(response.payload)
 
     expect($('.govuk-phase-banner__content__tag').text().trim()).toBe('alpha')
   })
@@ -69,7 +70,7 @@ describe(`Phase banner`, () => {
     const response = await server.inject(options)
     expect(response.statusCode).toBe(200)
 
-    const $ = cheerio.load(response.payload)
+    const $ = load(response.payload)
 
     expect($('.govuk-phase-banner').html()).toBeNull()
   })
