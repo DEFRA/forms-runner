@@ -1,11 +1,12 @@
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import cheerio from 'cheerio'
+import { load } from 'cheerio'
 import createServer from '../../../src/server/index.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
 describe('Title and section title', () => {
+  /** @type {import('@hapi/hapi').Server} */
   let server
 
   beforeAll(async () => {
@@ -28,7 +29,7 @@ describe('Title and section title', () => {
     }
 
     const response = await server.inject(options)
-    const $ = cheerio.load(response.payload)
+    const $ = load(response.payload)
 
     expect($('#section-title').html()).toBeNull()
     expect($('h1').text().trim()).toMatch(/^Applicant 1/)
@@ -40,7 +41,7 @@ describe('Title and section title', () => {
     }
 
     const response = await server.inject(options)
-    const $ = cheerio.load(response.payload)
+    const $ = load(response.payload)
 
     expect($('#section-title').text().trim()).toBe('Applicant 1')
     expect($('h1.govuk-fieldset__heading').text().trim()).toBe('Address')
@@ -52,7 +53,7 @@ describe('Title and section title', () => {
     }
 
     const response = await server.inject(options)
-    const $ = cheerio.load(response.payload)
+    const $ = load(response.payload)
 
     expect($('h1 #section-title').html()).toBeNull()
     expect($('h2#section-title')).toBeTruthy()
@@ -65,7 +66,7 @@ describe('Title and section title', () => {
     }
 
     const response = await server.inject(options)
-    const $ = cheerio.load(response.payload)
+    const $ = load(response.payload)
 
     expect($('h1').text().trim()).toMatch(/^Applicant 2 details/)
     expect($('h2#section-title').html()).toBeNull()

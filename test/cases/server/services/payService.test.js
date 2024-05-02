@@ -5,6 +5,7 @@ import { format } from 'date-fns'
 jest.mock('nanoid')
 
 describe('Server PayService Service', () => {
+  /** @type {import('@hapi/hapi').Server} */
   const server = {
     logger: {
       info: jest.fn(),

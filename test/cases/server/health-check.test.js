@@ -2,6 +2,7 @@ import createServer from '../../../src/server/index.js'
 import config from '../../../src/server/config.js'
 
 describe(`/health-check Route`, () => {
+  /** @type {import('@hapi/hapi').Server} */
   let server
 
   beforeAll(async () => {
@@ -23,9 +24,11 @@ describe(`/health-check Route`, () => {
 
     const { result } = await server.inject(options)
 
-    expect(result.status).toBe('OK')
-    expect(result.lastCommit).toBe('Last Commit')
-    expect(result.lastTag).toBe('Last Tag')
-    expect(typeof result.time).toBe('string')
+    expect(result).toMatchObject({
+      status: 'OK',
+      lastCommit: 'Last Commit',
+      lastTag: 'Last Tag',
+      time: expect.any(String)
+    })
   })
 })

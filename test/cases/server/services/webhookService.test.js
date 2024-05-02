@@ -3,12 +3,10 @@ import * as httpService from '../../../../src/server/services/httpService.js'
 
 describe('Server WebhookService Service', () => {
   test('Webhook returns correct reference when payload is string', async () => {
-    jest.spyOn(httpService, 'post').mockReturnValue(
-      Promise.resolve({
-        res: {},
-        payload: JSON.stringify({ reference: '1234' })
-      })
-    )
+    jest.spyOn(httpService, 'post').mockResolvedValue({
+      res: {},
+      payload: JSON.stringify({ reference: '1234' })
+    })
     const loggerSpy = {
       error: () => jest.fn(),
       info: () => jest.fn(),
@@ -21,12 +19,10 @@ describe('Server WebhookService Service', () => {
   })
 
   test('Webhook returns correct reference when payload is object', async () => {
-    jest.spyOn(httpService, 'post').mockReturnValue(
-      Promise.resolve({
-        res: {},
-        payload: { reference: 'ABCD' }
-      })
-    )
+    jest.spyOn(httpService, 'post').mockResolvedValue({
+      res: {},
+      payload: { reference: 'ABCD' }
+    })
     const loggerSpy = {
       error: () => jest.fn(),
       info: () => jest.fn(),

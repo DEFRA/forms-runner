@@ -1,6 +1,7 @@
 import createServer from '../../../src/server/index.js'
 import config from '../../../src/server/config.js'
 
+/** @type {import('@hapi/hapi').Server} */
 let server
 
 const options = {
@@ -164,6 +165,7 @@ describe('InitialiseSession', () => {
   })
 
   describe('token verification', function () {
+    /** @type {import('@hapi/hapi').ServerInjectOptions} */
     let serverRequestOptions
 
     beforeEach(() => {

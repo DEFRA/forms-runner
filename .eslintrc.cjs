@@ -66,7 +66,12 @@ module.exports = {
       },
       extends: ['plugin:jest/style'],
       files: ['**/*.test.{cjs,js,mjs,ts}'],
-      plugins: ['jest']
+      plugins: ['jest'],
+      rules: {
+        // Turn off warnings for jest.Expect 'any' types
+        '@typescript-eslint/no-unsafe-assignment': 'off',
+        '@typescript-eslint/no-unsafe-argument': 'off'
+      }
     }
   ],
   root: true

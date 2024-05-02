@@ -1,6 +1,6 @@
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import cheerio from 'cheerio'
+import { load } from 'cheerio'
 import FormData from 'form-data'
 import cookie from 'cookie'
 import createServer from '../../../src/server/index.js'
@@ -8,6 +8,7 @@ import createServer from '../../../src/server/index.js'
 const testDir = dirname(fileURLToPath(import.meta.url))
 
 describe('CSRF', () => {
+  /** @type {import('@hapi/hapi').Server} */
   let server
   let csrfToken = ''
   const form = new FormData()
@@ -49,7 +50,7 @@ describe('CSRF', () => {
     expect(setCookieHeader).toBeTruthy()
     csrfToken = setCookieHeader.crumb
     expect(csrfToken).toBeTruthy()
-    const $ = cheerio.load(response.payload)
+    const $ = load(response.payload)
     expect($('[name=crumb]').val()).toEqual(csrfToken)
   })
 

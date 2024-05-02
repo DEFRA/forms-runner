@@ -1,6 +1,6 @@
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import cheerio from 'cheerio'
+import { load } from 'cheerio'
 import FormData from 'form-data'
 
 import createServer from '../../../src/server/index.js'
@@ -8,6 +8,7 @@ import { CacheService } from '../../../src/server/services/cacheService.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
+/** @type {FormSubmissionState} */
 const state = {
   progress: [
     '/test/start',
@@ -50,6 +51,11 @@ const state = {
   ]
 }
 
+/**
+ * @param {string} path
+ * @param {Record<string, string | number>} form
+ * @returns {import('@hapi/hapi').ServerInjectOptions}
+ */
 const postOptions = (path, form) => {
   const formData = new FormData()
 
@@ -83,6 +89,7 @@ const SESSION_ID = 'TEST_ID'
 const VISIT_ID = 'AvsfDdnkdns'
 
 describe.skip('Dynamic pages', () => {
+  /** @type {import('@hapi/hapi').Server} */
   let server
 
   // Create server before each test
@@ -122,7 +129,10 @@ describe.skip('Dynamic pages', () => {
   })
 
   test('Asks questions in section correct number of times', async () => {
+    /** @type {string | undefined} */
     let nextPath = `/dynamic/uk-passport?visit=${VISIT_ID}`
+
+    /** @type {import('@hapi/hapi').ServerInjectResponse} */
     let response
 
     const reassignNextPath = () => {
@@ -161,7 +171,7 @@ describe.skip('Dynamic pages', () => {
     expect(response.statusCode).toBe(200)
     expect(response.headers['content-type']).toContain('text/html')
 
-    let $ = cheerio.load(response.payload)
+    let $ = load(response.payload)
 
     const changeEmailLink = $('span:contains("Your email address")')[0].parent
       .attribs.href
@@ -169,7 +179,7 @@ describe.skip('Dynamic pages', () => {
       method: 'GET',
       url: changeEmailLink
     })
-    $ = cheerio.load(changeEmailPage.payload)
+    $ = load(changeEmailPage.payload)
     expect($('#emailAddress')[0].attribs.value).toEqual(
       state.applicant[0]['/contact-details'].emailAddress
     )
@@ -188,7 +198,7 @@ describe.skip('Dynamic pages', () => {
     expect(response.statusCode).toBe(200)
     expect(response.headers['content-type']).toContain('text/html')
 
-    let $ = cheerio.load(response.payload)
+    let $ = load(response.payload)
     const applicantHeadings = $('h2:contains("Applicant")')
     expect(applicantHeadings).toHaveLength(2)
 
@@ -201,8 +211,12 @@ describe.skip('Dynamic pages', () => {
       url: `/dynamic/summary?visit=${VISIT_ID}`
     })
 
-    $ = cheerio.load(responseAfterNumberChange.payload)
+    $ = load(responseAfterNumberChange.payload)
 
     expect($('h2:contains("Applicant")')).toHaveLength(1)
   })
 })
+
+/**
+ * @typedef {import('~/src/server/plugins/engine/types.js').FormSubmissionState} FormSubmissionState
+ */

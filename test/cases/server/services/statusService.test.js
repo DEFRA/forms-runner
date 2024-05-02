@@ -23,6 +23,7 @@ describe('Status Service', () => {
     }
   }
 
+  /** @type {import('@hapi/hapi').Server} */
   const server = {
     services: () => ({
       cacheService,

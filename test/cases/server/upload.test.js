@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import cheerio from 'cheerio'
+import { load } from 'cheerio'
 import FormData from 'form-data'
 import config from '../../../src/server/config.js'
 
@@ -11,6 +11,7 @@ import { UploadService } from '../../../src/server/services/upload/index.js'
 const testDir = dirname(fileURLToPath(import.meta.url))
 
 describe('uploads', () => {
+  /** @type {import('@hapi/hapi').Server} */
   let server
 
   // Create server before each test
@@ -73,7 +74,7 @@ describe('uploads', () => {
     }
     const response = await server.inject(options)
 
-    const $ = cheerio.load(response.payload)
+    const $ = load(response.payload)
     expect($("[href='#file1']").text().trim()).toBe(
       'The selected file for "Passport photo" contained a virus'
     )
@@ -87,15 +88,16 @@ describe('uploads', () => {
     const form = new FormData()
     form.append('fullName', 1)
     form.append('file1', data)
+
     const options = {
       method: 'POST',
       url: '/upload/upload-file',
       headers: form.getHeaders(),
-      payload: null
+      payload: undefined
     }
     const response = await server.inject(options)
 
-    const $ = cheerio.load(response.payload)
+    const $ = load(response.payload)
 
     expect($("[href='#file1']").text().trim()).toContain(
       'The selected file must be smaller than'
@@ -126,7 +128,7 @@ describe('uploads', () => {
     }
     const response = await server.inject(options)
 
-    const $ = cheerio.load(response.payload)
+    const $ = load(response.payload)
     expect($("[href='#file1']").text().trim()).toContain(
       'The selected file for "Passport photo" must be a jpg, jpeg, png or pdf'
     )

@@ -5,6 +5,7 @@ import createServer from '../../../src/server/index.js'
 const testDir = dirname(fileURLToPath(import.meta.url))
 
 describe('Rate limit', () => {
+  /** @type {import('@hapi/hapi').Server} */
   let server
 
   const options = {
