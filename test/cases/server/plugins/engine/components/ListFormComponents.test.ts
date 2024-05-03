@@ -1,5 +1,5 @@
-import { ListFormComponent } from '../../../../../../src/server/plugins/engine/components/ListFormComponent.js'
-import type { FormSubmissionState } from '../../../../../../src/server/plugins/engine/types.js'
+import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
+import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 
 describe('ListFormComponent', () => {
   const lists = [
@@ -29,7 +29,7 @@ describe('ListFormComponent', () => {
     makePage: () => jest.fn()
   }
 
-  let component
+  let component: ListFormComponent
 
   beforeEach(() => {
     component = new ListFormComponent(componentDefinition, formModel)

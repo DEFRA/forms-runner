@@ -1,5 +1,5 @@
-import { AutocompleteField } from '../../../../../../src/server/plugins/engine/components/index.js'
-import type { FormSubmissionErrors } from '../../../../../../src/server/plugins/engine/types.js'
+import { AutocompleteField } from '~/src/server/plugins/engine/components/index.js'
+import { type FormSubmissionErrors } from '~/src/server/plugins/engine/types.js'
 
 describe('AutocompleteField', () => {
   const lists = [
@@ -74,7 +74,7 @@ describe('AutocompleteField', () => {
         {} as FormSubmissionErrors
       )
       expect(items).toBeTruthy()
-      expect(items![0]).toEqual({ value: '' })
+      expect(items?.[0]).toEqual({ value: '' })
     })
   })
 })

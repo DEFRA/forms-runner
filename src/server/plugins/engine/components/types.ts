@@ -1,11 +1,11 @@
-export type Label = {
+export interface Label {
   text: string
   classes: string
   html?: string
   isPageHeading?: boolean
 }
 
-export type Content = {
+export interface Content {
   title?: string
   text: string
   condition?: any // TODO
@@ -13,7 +13,7 @@ export type Content = {
 
 export type ListItemLabel = Omit<Label, 'text' | 'isPageHeading'>
 
-export type ListItem = {
+export interface ListItem {
   text?: string
   value: string | boolean | number
   hint?: {
@@ -26,7 +26,7 @@ export type ListItem = {
 }
 
 // TODO: Break this down for each component (Same as model/Component).
-export type ViewModel = {
+export interface ViewModel {
   label?: Label
   type?: string
   id?: string

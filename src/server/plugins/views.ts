@@ -1,14 +1,15 @@
 import { dirname, join } from 'node:path'
 import { cwd } from 'node:process'
-import resolvePkg from 'resolve'
-import nunjucks from 'nunjucks'
+
+import { type Request } from '@hapi/hapi'
 import vision from '@hapi/vision'
 import capitalize from 'lodash/capitalize.js'
+import nunjucks from 'nunjucks'
+import resolvePkg from 'resolve'
 
-import pkg from '../../../package.json' with { type: 'json' }
-import config from '../config.js'
-import additionalContexts from '../templates/additionalContexts.json' with { type: 'json' }
-import type { Request } from '@hapi/hapi'
+import pkg from '~/package.json' with { type: 'json' }
+import config from '~/src/server/config.js'
+import additionalContexts from '~/src/server/templates/additionalContexts.json' with { type: 'json' }
 
 const [govukFrontendPath, hmpoComponentsPath] = [
   'govuk-frontend',

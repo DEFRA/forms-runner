@@ -1,5 +1,6 @@
-import { post, put } from './httpService.js'
-import type { Server } from '@hapi/hapi'
+import { type Server } from '@hapi/hapi'
+
+import { post, put } from '~/src/server/services/httpService.js'
 
 const DEFAULT_OPTIONS = {
   headers: {

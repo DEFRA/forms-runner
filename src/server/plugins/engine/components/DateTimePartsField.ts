@@ -1,18 +1,18 @@
+import { type InputFieldsComponentsDef } from '@defra/forms-model'
 import { format, parse, parseISO } from 'date-fns'
 import { Schema } from 'joi'
-import { InputFieldsComponentsDef } from '@defra/forms-model'
 
-import * as helpers from './helpers.js'
-import { optionalText } from './constants.js'
-import { FormComponent } from './FormComponent.js'
-import { ComponentCollection } from './ComponentCollection.js'
+import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
+import * as helpers from '~/src/server/plugins/engine/components/helpers.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
-  FormData,
-  FormPayload,
-  FormSubmissionErrors,
-  FormSubmissionState
-} from '../types.js'
-import { FormModel } from '../models/index.js'
+  type FormData,
+  type FormPayload,
+  type FormSubmissionErrors,
+  type FormSubmissionState
+} from '~/src/server/plugins/engine/types.js'
 
 export class DateTimePartsField extends FormComponent {
   children: ComponentCollection
@@ -86,7 +86,7 @@ export class DateTimePartsField extends FormComponent {
   }
 
   getStateSchemaKeys() {
-    return { [this.name]: this.stateSchema as Schema }
+    return { [this.name]: this.stateSchema! }
   }
 
   getFormDataFromState(state: FormSubmissionState) {
@@ -94,11 +94,11 @@ export class DateTimePartsField extends FormComponent {
     const value =
       typeof state[name] === 'string' ? new Date(state[name]) : state[name]
     return {
-      [`${name}__day`]: value && value.getDate(),
+      [`${name}__day`]: value?.getDate(),
       [`${name}__month`]: value && value.getMonth() + 1,
-      [`${name}__year`]: value && value.getFullYear(),
-      [`${name}__hour`]: value && value.getHours(),
-      [`${name}__minute`]: value && value.getMinutes()
+      [`${name}__year`]: value?.getFullYear(),
+      [`${name}__hour`]: value?.getHours(),
+      [`${name}__minute`]: value?.getMinutes()
     }
   }
 

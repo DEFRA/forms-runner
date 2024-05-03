@@ -1,6 +1,6 @@
 import wreck from '@hapi/wreck'
 
-import { post } from '../../../../src/server/services/httpService.js'
+import { post } from '~/src/server/services/httpService.js'
 
 describe('Http Service', () => {
   test('post request payload format is correct', async () => {

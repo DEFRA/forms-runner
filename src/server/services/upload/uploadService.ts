@@ -1,8 +1,8 @@
+import { type Request, type ResponseToolkit, type Server } from '@hapi/hapi'
 import FormData from 'form-data'
 
-import config from '../../config.js'
-import { get, post } from '../httpService.js'
-import type { Request, ResponseToolkit, Server } from '@hapi/hapi'
+import config from '~/src/server/config.js'
+import { get, post } from '~/src/server/services/httpService.js'
 
 type Payload = Request['payload']
 
@@ -124,8 +124,7 @@ export class UploadService {
       for (const [key, value] of fields) {
         if (value._data) {
           const originalFilename = originalFilenames[key]
-          request.payload[key] =
-            (originalFilename && originalFilename.location) || ''
+          request.payload[key] = originalFilename?.location || ''
         }
       }
 
@@ -223,7 +222,7 @@ export class UploadService {
         request.payload[key] = previousUpload.location || ''
       }
 
-      if (request.pre.errors && request.pre.errors.length) {
+      if (request.pre.errors?.length) {
         delete request.payload[key]
       }
     }

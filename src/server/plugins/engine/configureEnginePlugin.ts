@@ -1,13 +1,13 @@
 import fs from 'node:fs'
 import { join } from 'node:path'
-import { plugin } from './plugin.js'
 
+import config from '~/src/server/config.js'
+import { idFromFilename } from '~/src/server/plugins/engine/helpers.js'
+import { plugin } from '~/src/server/plugins/engine/plugin.js'
 import {
   loadPreConfiguredForms,
-  FormConfiguration
-} from './services/configurationService.js'
-import { idFromFilename } from './helpers.js'
-import config from '../../config.js'
+  type FormConfiguration
+} from '~/src/server/plugins/engine/services/configurationService.js'
 
 type ConfigureEnginePlugin = (
   formFileName?: string,
@@ -27,7 +27,7 @@ type ConfigureEnginePlugin = (
   }
 }
 
-type EngineOptions = {
+interface EngineOptions {
   previewMode?: boolean
 }
 export const configureEnginePlugin: ConfigureEnginePlugin = (

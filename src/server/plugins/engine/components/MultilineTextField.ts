@@ -1,9 +1,13 @@
-import { FormComponent } from './FormComponent.js'
-import Joi, { Schema, StringSchema } from 'joi'
-import { MultilineTextFieldComponent } from '@defra/forms-model'
-import { FormModel } from '../../../plugins/engine/models/index.js'
-import type { MultilineTextFieldViewModel } from '../../../plugins/engine/components/types.js'
-import type { FormData, FormSubmissionErrors } from '../types.js'
+import { type MultilineTextFieldComponent } from '@defra/forms-model'
+import Joi, { type Schema, type StringSchema } from 'joi'
+
+import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { type MultilineTextFieldViewModel } from '~/src/server/plugins/engine/components/types.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import {
+  type FormData,
+  type FormSubmissionErrors
+} from '~/src/server/plugins/engine/types.js'
 
 function inputIsOverWordCount(input, maxWords) {
   /**
@@ -19,7 +23,7 @@ export class MultilineTextField extends FormComponent {
   options: MultilineTextFieldComponent['options']
   schema: MultilineTextFieldComponent['schema']
   customValidationMessage?: string
-  isCharacterOrWordCount: boolean = false
+  isCharacterOrWordCount = false
 
   constructor(def: MultilineTextFieldComponent, model: FormModel) {
     super(def, model)

@@ -1,6 +1,6 @@
-import { UploadPageController } from '../../../../../../src/server/plugins/engine/pageControllers/UploadPageController.js'
-import { FormModel } from '../../../../../../src/server/plugins/engine/models/index.js'
-import { PlaybackUploadPageController } from '../../../../../../src/server/plugins/engine/pageControllers/PlaybackUploadPageController.js'
+import { FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { PlaybackUploadPageController } from '~/src/server/plugins/engine/pageControllers/PlaybackUploadPageController.js'
+import { UploadPageController } from '~/src/server/plugins/engine/pageControllers/UploadPageController.js'
 
 jest.mock(
   '../../../../../../src/server/plugins/engine/pageControllers/PlaybackUploadPageController'

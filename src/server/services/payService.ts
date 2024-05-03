@@ -1,16 +1,17 @@
-import config from '../config.js'
-import { get, postJson } from './httpService.js'
-import { nanoid } from 'nanoid'
-import { Fee } from '@defra/forms-model'
-import { FeesModel } from '../plugins/engine/models/submission/index.js'
+import { type Fee } from '@defra/forms-model'
+import { type Server } from '@hapi/hapi'
 import { format } from 'date-fns'
-import type { Server } from '@hapi/hapi'
+import { nanoid } from 'nanoid'
+
+import config from '~/src/server/config.js'
+import { type FeesModel } from '~/src/server/plugins/engine/models/submission/index.js'
+import { get, postJson } from '~/src/server/services/httpService.js'
 
 export type FeeDetails = Fee & {
   multiplyBy?: number // the value retrieved from multiplier field above (see summary page retrieveFees method)
 }
 
-export type FeeState = {
+export interface FeeState {
   payId: string
   reference: string
   self: string
@@ -34,7 +35,7 @@ export type FeeState = {
   } /** This is the state object from GOV.UK Pay */
 }
 
-export type Fees = {
+export interface Fees {
   details: FeeDetails[]
   total: number
   paymentReference?: string
@@ -106,7 +107,7 @@ export class PayService {
     const dateSearch = reference.match(REFERENCE_TAG.DATE)
     if (dateSearch) {
       const dateTag = dateSearch[0]
-      const dateFormat = `${dateSearch[2].replace(':', '')}` || 'ddMMyyyy'
+      const dateFormat = dateSearch[2].replace(':', '') || 'ddMMyyyy'
       reference = reference.replace(dateTag, format(new Date(), dateFormat))
     }
 

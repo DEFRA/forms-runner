@@ -1,4 +1,4 @@
-import { UploadService } from './uploadService.js'
+import { UploadService } from '~/src/server/services/upload/uploadService.js'
 
 export class MockUploadService extends UploadService {
   async uploadDocuments(locations: any[]) {

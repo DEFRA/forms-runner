@@ -1,5 +1,6 @@
-import { buildConfig } from './utils/configSchema.js'
 import nodeConfig from 'config'
+
+import { buildConfig } from '~/src/server/utils/configSchema.js'
 
 const config = buildConfig(nodeConfig)
 

@@ -1,5 +1,5 @@
-import { WebhookService } from '../../../../src/server/services/webhookService.js'
-import * as httpService from '../../../../src/server/services/httpService.js'
+import * as httpService from '~/src/server/services/httpService.js'
+import { WebhookService } from '~/src/server/services/webhookService.js'
 
 describe('Server WebhookService Service', () => {
   test('Webhook returns correct reference when payload is string', async () => {

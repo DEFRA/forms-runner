@@ -1,18 +1,18 @@
-import joi, { Schema as JoiSchema } from 'joi'
-import { ComponentDef } from '@defra/forms-model'
-
-import * as Components from './index.js'
-import { FormModel } from '../models/index.js'
-import {
-  FormData,
-  FormPayload,
-  FormSubmissionErrors,
-  FormSubmissionState
-} from '../types.js'
-import { ComponentBase } from './ComponentBase.js'
-import { FormComponent } from './FormComponent.js'
+import { type ComponentDef } from '@defra/forms-model'
 import { merge } from '@hapi/hoek'
-import type { ComponentCollectionViewModel } from './types.js'
+import joi, { type Schema as JoiSchema } from 'joi'
+
+import { type ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
+import { type FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import * as Components from '~/src/server/plugins/engine/components/index.js'
+import { type ComponentCollectionViewModel } from '~/src/server/plugins/engine/components/types.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import {
+  type FormData,
+  type FormPayload,
+  type FormSubmissionErrors,
+  type FormSubmissionState
+} from '~/src/server/plugins/engine/types.js'
 
 export class ComponentCollection {
   items: (ComponentBase | ComponentCollection | FormComponent)[]
@@ -85,7 +85,7 @@ export class ComponentCollection {
     return formData
   }
 
-  getStateFromValidForm(payload: FormPayload): { [key: string]: any } {
+  getStateFromValidForm(payload: FormPayload): Record<string, any> {
     const state = {}
 
     this.formItems.forEach((item) => {

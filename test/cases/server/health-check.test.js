@@ -1,5 +1,5 @@
-import createServer from '../../../src/server/index.js'
-import config from '../../../src/server/config.js'
+import config from '~/src/server/config.js'
+import createServer from '~/src/server/index.js'
 
 describe(`/health-check Route`, () => {
   /** @type {import('@hapi/hapi').Server} */

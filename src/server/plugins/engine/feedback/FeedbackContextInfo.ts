@@ -1,5 +1,6 @@
 import btoa from 'btoa'
-import { RelativeUrl } from './RelativeUrl.js'
+
+import { RelativeUrl } from '~/src/server/plugins/engine/feedback/RelativeUrl.js'
 
 export class FeedbackContextInfo {
   formTitle: string

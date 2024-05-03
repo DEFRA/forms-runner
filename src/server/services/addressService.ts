@@ -1,8 +1,7 @@
-import { getJson } from '../services/httpService.js'
+import { getJson } from '~/src/server/services/httpService.js'
 
 /**
  * Uses the ordnance survey API to find an address by postcode
- *
  * @deprecated This has not been used by FCDO or HO, so there is no verification if this works.
  */
 

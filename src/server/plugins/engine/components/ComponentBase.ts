@@ -1,12 +1,15 @@
-import { Schema as JoiSchema } from 'joi'
 import {
-  ComponentDef,
-  ContentComponentsDef,
-  InputFieldsComponentsDef
+  type ComponentDef,
+  type ContentComponentsDef,
+  type InputFieldsComponentsDef
 } from '@defra/forms-model'
+import { type Schema as JoiSchema } from 'joi'
 
-import { FormModel } from '../models/index.js'
-import type { DataType, ViewModel } from './types.js'
+import {
+  type DataType,
+  type ViewModel
+} from '~/src/server/plugins/engine/components/types.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 
 export class ComponentBase {
   type: ComponentDef['type']

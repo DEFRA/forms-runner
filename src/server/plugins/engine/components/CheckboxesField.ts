@@ -1,12 +1,13 @@
-import { ListComponentsDef } from '@defra/forms-model'
-import { FormModel } from '../models/index.js'
+import { type ListComponentsDef } from '@defra/forms-model'
 import joi from 'joi'
-import { SelectionControlField } from '../../../plugins/engine/components/SelectionControlField.js'
-import type {
-  FormData,
-  FormSubmissionErrors,
-  FormSubmissionState
-} from '../types.js'
+
+import { SelectionControlField } from '~/src/server/plugins/engine/components/SelectionControlField.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import {
+  type FormData,
+  type FormSubmissionErrors,
+  type FormSubmissionState
+} from '~/src/server/plugins/engine/types.js'
 
 export class CheckboxesField extends SelectionControlField {
   constructor(def: ListComponentsDef, model: FormModel) {

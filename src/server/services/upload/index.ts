@@ -1,2 +1,2 @@
-export { UploadService } from './uploadService.js'
-export { MockUploadService } from './mockUploadService.js'
+export { UploadService } from '~/src/server/services/upload/uploadService.js'
+export { MockUploadService } from '~/src/server/services/upload/mockUploadService.js'

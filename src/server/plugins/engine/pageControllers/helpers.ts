@@ -1,16 +1,18 @@
 import path from 'node:path'
+
+import { type Page } from '@defra/forms-model'
 import camelCase from 'lodash/camelCase.js'
 import upperFirst from 'lodash/upperFirst.js'
-import { DobPageController } from './DobPageController.js'
-import { HomePageController } from './HomePageController.js'
-import { PageController } from './PageController.js'
-import { StartDatePageController } from './StartDatePageController.js'
-import { StartPageController } from './StartPageController.js'
-import { SummaryPageController } from './SummaryPageController.js'
-import { PageControllerBase } from './PageControllerBase.js'
-import { RepeatingFieldPageController } from './RepeatingFieldPageController.js'
-import { Page } from '@defra/forms-model'
-import { UploadPageController } from '../../../plugins/engine/pageControllers/UploadPageController.js'
+
+import { DobPageController } from '~/src/server/plugins/engine/pageControllers/DobPageController.js'
+import { HomePageController } from '~/src/server/plugins/engine/pageControllers/HomePageController.js'
+import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
+import { PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
+import { RepeatingFieldPageController } from '~/src/server/plugins/engine/pageControllers/RepeatingFieldPageController.js'
+import { StartDatePageController } from '~/src/server/plugins/engine/pageControllers/StartDatePageController.js'
+import { StartPageController } from '~/src/server/plugins/engine/pageControllers/StartPageController.js'
+import { SummaryPageController } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
+import { UploadPageController } from '~/src/server/plugins/engine/pageControllers/UploadPageController.js'
 
 const PageControllers = {
   DobPageController,

@@ -1,19 +1,18 @@
-import joi, { Schema } from 'joi'
+import joi, { type Schema } from 'joi'
 
-import { ComponentBase } from './ComponentBase.js'
-import { optionalText } from './constants.js'
-
+import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
+import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
+import { type ViewModel } from '~/src/server/plugins/engine/components/types.js'
 import {
-  FormSubmissionState,
-  FormSubmissionErrors,
-  FormData,
-  FormPayload
-} from '../types.js'
-import type { ViewModel } from './types.js'
+  type FormSubmissionState,
+  type FormSubmissionErrors,
+  type FormData,
+  type FormPayload
+} from '~/src/server/plugins/engine/types.js'
 
 export class FormComponent extends ComponentBase {
-  isFormComponent: boolean = true
-  __lang: string = 'en'
+  isFormComponent = true
+  __lang = 'en'
 
   get lang() {
     return this.__lang
@@ -123,7 +122,7 @@ export class FormComponent extends ComponentBase {
     return { [this.name]: joi.any() }
   }
 
-  getStateSchemaKeys(): { [k: string]: Schema } {
+  getStateSchemaKeys(): Record<string, Schema> {
     return { [this.name]: joi.any() }
   }
 

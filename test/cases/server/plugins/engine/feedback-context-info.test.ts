@@ -1,7 +1,7 @@
 import {
   FeedbackContextInfo,
   decodeFeedbackContextInfo
-} from '../../../../../src/server/plugins/engine/feedback/index.js'
+} from '~/src/server/plugins/engine/feedback/index.js'
 
 describe('Feedback context info', () => {
   test('Should be able to be serialised and deserialised', () => {

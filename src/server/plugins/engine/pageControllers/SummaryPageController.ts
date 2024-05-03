@@ -1,13 +1,18 @@
-import { SummaryViewModel } from '../models/index.js'
-import { PageController } from './PageController.js'
-import { feedbackReturnInfoKey, redirectTo, redirectUrl } from '../helpers.js'
+import { type Request, type ResponseToolkit } from '@hapi/hapi'
+
+import config from '~/src/server/config.js'
 import {
   decodeFeedbackContextInfo,
   FeedbackContextInfo,
   RelativeUrl
-} from '../feedback/index.js'
-import config from '../../../config.js'
-import type { Request, ResponseToolkit } from '@hapi/hapi'
+} from '~/src/server/plugins/engine/feedback/index.js'
+import {
+  feedbackReturnInfoKey,
+  redirectTo,
+  redirectUrl
+} from '~/src/server/plugins/engine/helpers.js'
+import { SummaryViewModel } from '~/src/server/plugins/engine/models/index.js'
+import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 
 export class SummaryPageController extends PageController {
   /**

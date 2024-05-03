@@ -1,7 +1,7 @@
-import { NotifyModel } from '../NotifyModel.js'
-import json from './NotifyModel.test.json' with { type: 'json' }
-import { FormModel } from '../../../../../plugins/engine/models/index.js'
-import type { FormSubmissionState } from '../../../../../plugins/engine/types.js'
+import { FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { NotifyModel } from '~/src/server/plugins/engine/models/submission/NotifyModel.js'
+import json from '~/src/server/plugins/engine/models/submission/__tests__/NotifyModel.test.json' with { type: 'json' }
+import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 
 const testFormSubmission = (state: FormSubmissionState) => {
   const notifyOutputConfiguration = {

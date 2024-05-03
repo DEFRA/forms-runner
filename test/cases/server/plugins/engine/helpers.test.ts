@@ -1,15 +1,17 @@
+import { type ResponseToolkit } from '@hapi/hapi'
+import Joi from 'joi'
+
 import {
   proceed,
   redirectTo,
   redirectUrl,
   nonRelativeRedirectUrl,
   getValidStateFromQueryParameters
-} from '../../../../../src/server/plugins/engine/helpers.js'
-import Joi from 'joi'
+} from '~/src/server/plugins/engine/helpers.js'
 
 describe('Helpers', () => {
   describe('proceed', () => {
-    let h
+    let h: ResponseToolkit
     const returnValue = ''
     beforeEach(() => {
       h = {
@@ -99,7 +101,7 @@ describe('Helpers', () => {
   })
 
   describe('redirectTo', () => {
-    let h
+    let h: ResponseToolkit
     const returnValue = ''
     beforeEach(() => {
       h = {

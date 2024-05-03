@@ -1,4 +1,4 @@
-import { RelativeUrl } from '../../../../../src/server/plugins/engine/feedback/index.js'
+import { RelativeUrl } from '~/src/server/plugins/engine/feedback/index.js'
 
 describe('relative url', () => {
   describe('constructor', () => {

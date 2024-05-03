@@ -1,4 +1,4 @@
-import { StatusService } from '../../../../src/server/services/index.js'
+import { StatusService } from '~/src/server/services/index.js'
 
 describe('Status Service', () => {
   const cacheService = { getState: () => ({}), mergeState: () => {} }

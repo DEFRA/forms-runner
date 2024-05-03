@@ -1,6 +1,7 @@
-import { WebsiteFieldComponent } from '@defra/forms-model'
-import { WebsiteField } from '../../../../../../src/server/plugins/engine/components/index.js'
-import { FormModel } from '../../../../../../src/server/plugins/engine/models/index.js'
+import { type WebsiteFieldComponent } from '@defra/forms-model'
+
+import { WebsiteField } from '~/src/server/plugins/engine/components/index.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 
 describe('Website field', () => {
   let model: FormModel
@@ -21,7 +22,7 @@ describe('Website field', () => {
 
     const { formSchema } = new WebsiteField(def, model)
 
-    expect(formSchema.describe().flags!.presence).toBe('required')
+    expect(formSchema.describe().flags?.presence).toBe('required')
   })
 
   test('should validate URI', () => {
@@ -40,7 +41,7 @@ describe('Website field', () => {
     expect(
       formSchema.validate('http://www.gov.uk/test?id=ABC').error
     ).toBeUndefined()
-    expect(formSchema.validate('1').error!.message).toContain(
+    expect(formSchema.validate('1').error?.message).toContain(
       `Enter website address in the correct format`
     )
   })

@@ -1,5 +1,6 @@
-import { PageController } from './PageController.js'
-import type { Request, ResponseToolkit } from '@hapi/hapi'
+import { type Request, type ResponseToolkit } from '@hapi/hapi'
+
+import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 
 export class HomePageController extends PageController {
   get getRouteOptions() {

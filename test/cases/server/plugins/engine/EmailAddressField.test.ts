@@ -1,4 +1,4 @@
-import { EmailAddressField } from '../../../../../src/server/plugins/engine/components/index.js'
+import { EmailAddressField } from '~/src/server/plugins/engine/components/index.js'
 
 describe('Email address field', () => {
   test("Should add 'email' to the autocomplete attribute", () => {

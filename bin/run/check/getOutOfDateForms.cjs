@@ -1,5 +1,5 @@
-const path = require('node:path')
 const fs = require('node:fs/promises')
+const path = require('node:path')
 
 const helper = require('./getJsonFiles.cjs')
 const { FORM_PATH, CURRENT_SCHEMA_VERSION } = require('./util.cjs')

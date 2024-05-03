@@ -1,12 +1,13 @@
-import joi from 'joi'
-import {
-  Field,
-  InitialiseSessionQuestion,
-  InitialiseSessionSchema,
-  WebhookSchema
-} from '../schemas/types.js'
 import { componentSchema } from '@defra/forms-model'
-import type { Question } from '../plugins/engine/models/types.js'
+import joi from 'joi'
+
+import { type Question } from '~/src/server/plugins/engine/models/types.js'
+import {
+  type Field,
+  type InitialiseSessionQuestion,
+  type InitialiseSessionSchema,
+  type WebhookSchema
+} from '~/src/server/schemas/types.js'
 
 const fieldSchema: joi.ObjectSchema<Field> = joi.object({
   key: joi.string().required(),

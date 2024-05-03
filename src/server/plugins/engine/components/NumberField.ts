@@ -1,11 +1,12 @@
-import { FormComponent } from './FormComponent.js'
-import joi, { Schema } from 'joi'
-import { NumberFieldComponent } from '@defra/forms-model'
-import type {
-  FormData,
-  FormSubmissionErrors,
-  FormSubmissionState
-} from '../types.js'
+import { type NumberFieldComponent } from '@defra/forms-model'
+import joi, { type Schema } from 'joi'
+
+import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import {
+  type FormData,
+  type FormSubmissionErrors,
+  type FormSubmissionState
+} from '~/src/server/plugins/engine/types.js'
 
 export class NumberField extends FormComponent {
   schemaOptions: NumberFieldComponent['schema']

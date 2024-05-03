@@ -1,4 +1,4 @@
-import { TelephoneNumberField } from '../../../../../src/server/plugins/engine/components/index.js'
+import { TelephoneNumberField } from '~/src/server/plugins/engine/components/index.js'
 
 describe('Telephone number field', () => {
   test('Should supply custom validation message if defined', () => {

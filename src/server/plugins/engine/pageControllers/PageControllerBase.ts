@@ -1,28 +1,37 @@
 import { URLSearchParams } from 'node:url'
-import { merge, reach } from '@hapi/hoek'
-import { validationOptions } from '../../../plugins/engine/pageControllers/validationOptions.js'
 
-import { feedbackReturnInfoKey, proceed, redirectTo } from '../helpers.js'
-import { ComponentCollection } from '../components/ComponentCollection.js'
+import {
+  type Request,
+  type ResponseObject,
+  type ResponseToolkit
+} from '@hapi/hapi'
+import { merge, reach } from '@hapi/hoek'
+import { format, parseISO } from 'date-fns'
+import nunjucks from 'nunjucks'
+
+import config from '~/src/server/config.js'
+import { CheckboxesField } from '~/src/server/plugins/engine/components/CheckboxesField.js'
+import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { RadiosField } from '~/src/server/plugins/engine/components/RadiosField.js'
+import { type ComponentCollectionViewModel } from '~/src/server/plugins/engine/components/types.js'
 import {
   decodeFeedbackContextInfo,
   FeedbackContextInfo,
   RelativeUrl
-} from '../feedback/index.js'
-import { Request, ResponseObject, ResponseToolkit } from '@hapi/hapi'
-import { FormModel } from '../models/index.js'
+} from '~/src/server/plugins/engine/feedback/index.js'
 import {
-  FormData,
-  FormPayload,
-  FormSubmissionErrors,
-  FormSubmissionState
-} from '../types.js'
-import { format, parseISO } from 'date-fns'
-import config from '../../../config.js'
-import nunjucks from 'nunjucks'
-import type { ComponentCollectionViewModel } from '../components/types.js'
-import { RadiosField } from '../components/RadiosField.js'
-import { CheckboxesField } from '../components/CheckboxesField.js'
+  feedbackReturnInfoKey,
+  proceed,
+  redirectTo
+} from '~/src/server/plugins/engine/helpers.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { validationOptions } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import {
+  type FormData,
+  type FormPayload,
+  type FormSubmissionErrors,
+  type FormSubmissionState
+} from '~/src/server/plugins/engine/types.js'
 
 const FORM_SCHEMA = Symbol('FORM_SCHEMA')
 const STATE_SCHEMA = Symbol('STATE_SCHEMA')
@@ -57,7 +66,7 @@ export class PageControllerBase {
   backLinkFallback?: string
 
   // TODO: pageDef type
-  constructor(model: FormModel, pageDef: { [prop: string]: any } = {}) {
+  constructor(model: FormModel, pageDef: Record<string, any> = {}) {
     const { def } = model
 
     // @ts-expect-error - 'FormDefinition' is not assignable to type
@@ -292,7 +301,7 @@ export class PageControllerBase {
         ...this.components.getFormDataFromState(
           newState as FormSubmissionState
         ),
-        ...this.model.fieldsForContext?.getFormDataFromState(
+        ...this.model.fieldsForContext.getFormDataFromState(
           newState as FormSubmissionState
         )
       }
@@ -312,7 +321,7 @@ export class PageControllerBase {
    * @param validationResult - provided by joi.validate
    */
   getErrors(validationResult): FormSubmissionErrors | undefined {
-    if (validationResult && validationResult.error) {
+    if (validationResult?.error) {
       const isoRegex =
         /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/
 

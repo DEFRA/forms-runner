@@ -1,7 +1,6 @@
-#!/usr/bin/env node
+const { ux } = require('@oclif/core')
 
 const helper = require('./getOutOfDateForms.cjs')
-const { ux } = require('@oclif/core')
 
 async function check() {
   ux.action.start('Checking versions of forms in src/server/forms')

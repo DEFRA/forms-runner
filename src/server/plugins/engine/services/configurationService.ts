@@ -1,12 +1,12 @@
 import fs from 'node:fs'
 import { join } from 'node:path'
 
-import { idFromFilename } from '../helpers.js'
-import config from '../../../config.js'
+import config from '~/src/server/config.js'
+import { idFromFilename } from '~/src/server/plugins/engine/helpers.js'
 
 const FORMS_FOLDER = join(config.appDir, 'forms')
 
-export type FormConfiguration = {
+export interface FormConfiguration {
   configuration: any // TODO
   id: string
 }
@@ -17,7 +17,7 @@ export type FormConfiguration = {
 export const loadPreConfiguredForms = (): FormConfiguration[] => {
   const configFiles = fs
     .readdirSync(FORMS_FOLDER)
-    .filter((filename: string) => filename.indexOf('.json') >= 0)
+    .filter((filename: string) => filename.includes('.json'))
 
   return configFiles.map((configFile) => {
     const dataFilePath = join(FORMS_FOLDER, configFile)

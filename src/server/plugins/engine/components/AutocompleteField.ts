@@ -1,9 +1,9 @@
-import { ListComponentsDef } from '@defra/forms-model'
+import { type ListComponentsDef } from '@defra/forms-model'
 
-import { SelectField } from './SelectField.js'
-import { FormModel } from '../models/index.js'
-import { addClassOptionIfNone } from './helpers.js'
-import type { FormSubmissionState } from '../../../plugins/engine/types.js'
+import { SelectField } from '~/src/server/plugins/engine/components/SelectField.js'
+import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 
 export class AutocompleteField extends SelectField {
   constructor(def: ListComponentsDef, model: FormModel) {
@@ -21,6 +21,6 @@ export class AutocompleteField extends SelectField {
         .join(', ')
     }
     const item = items.find((item) => String(item.value) === String(value))
-    return `${item?.text ?? ''}`
+    return item?.text ?? ''
   }
 }
