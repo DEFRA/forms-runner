@@ -1,21 +1,28 @@
+import { type FormDefinition, isMultipleApiKey } from '@defra/forms-model'
+import { type Request } from '@hapi/hapi'
 import { clone, reach } from 'hoek'
-import config from '../../../config.js'
-import { FormModel } from './FormModel.js'
-import { feedbackReturnInfoKey, redirectUrl } from '../helpers.js'
-import { decodeFeedbackContextInfo } from '../feedback/index.js'
-import { webhookSchema } from '../../../schemas/webhookSchema.js'
-import { SummaryPageController } from '../pageControllers/index.js'
+
+import config from '~/src/server/config.js'
+import { decodeFeedbackContextInfo } from '~/src/server/plugins/engine/feedback/index.js'
+import {
+  feedbackReturnInfoKey,
+  redirectUrl
+} from '~/src/server/plugins/engine/helpers.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   EmailModel,
   FeesModel,
   NotifyModel,
   WebhookModel
-} from '../models/submission/index.js'
-import { FormDefinition, isMultipleApiKey } from '@defra/forms-model'
-import type { Request } from '@hapi/hapi'
-import type { InitialiseSessionOptions } from '../../initialiseSession/types.js'
-import type { FormSubmissionState } from '../types.js'
-import { FEEDBACK_CONTEXT_ITEMS, type WebhookData } from './types.js'
+} from '~/src/server/plugins/engine/models/submission/index.js'
+import {
+  FEEDBACK_CONTEXT_ITEMS,
+  type WebhookData
+} from '~/src/server/plugins/engine/models/types.js'
+import { SummaryPageController } from '~/src/server/plugins/engine/pageControllers/index.js'
+import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+import { type InitialiseSessionOptions } from '~/src/server/plugins/initialiseSession/types.js'
+import { webhookSchema } from '~/src/server/schemas/webhookSchema.js'
 
 /**
  * TODO - extract submission behaviour dependencies from the viewmodel
@@ -58,7 +65,7 @@ export class SummaryViewModel {
   _payApiKey: FormDefinition['payApiKey']
   _webhookData: WebhookData | undefined
   callback?: InitialiseSessionOptions
-  showPaymentSkippedWarningPage: boolean = false
+  showPaymentSkippedWarningPage = false
   constructor(
     pageTitle: string,
     model: FormModel,
@@ -232,7 +239,7 @@ export class SummaryViewModel {
             const selectedItem = component.items.filter(
               (i) => i.value === selectedValue
             )[0]
-            if (selectedItem && selectedItem.childrenCollection) {
+            if (selectedItem?.childrenCollection) {
               for (const cc of selectedItem.childrenCollection.formItems) {
                 const cItem = Item(request, cc, sectionState, page, model)
                 items.push(cItem)
@@ -297,7 +304,7 @@ export class SummaryViewModel {
   get webhookDataPaymentReference() {
     const fees = this._webhookData?.fees
 
-    if (fees && fees.paymentReference) {
+    if (fees?.paymentReference) {
       return fees.paymentReference
     }
 

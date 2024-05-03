@@ -1,10 +1,13 @@
-import { TextFieldComponent } from '@defra/forms-model'
+import { type TextFieldComponent } from '@defra/forms-model'
+import joi, { type Schema } from 'joi'
 
-import { FormComponent } from './FormComponent.js'
-import { FormModel } from '../models/index.js'
-import { addClassOptionIfNone } from './helpers.js'
-import joi, { Schema } from 'joi'
-import type { FormData, FormSubmissionErrors } from '../types.js'
+import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import {
+  type FormData,
+  type FormSubmissionErrors
+} from '~/src/server/plugins/engine/types.js'
 
 export class TextField extends FormComponent {
   formSchema

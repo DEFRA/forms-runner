@@ -1,6 +1,3 @@
-import joi from 'joi'
-import { add } from 'date-fns'
-import { Parser } from 'expr-eval'
 import {
   clone,
   ConditionsModel,
@@ -10,16 +7,19 @@ import {
   type List,
   type Page
 } from '@defra/forms-model'
+import { add } from 'date-fns'
+import { Parser } from 'expr-eval'
+import joi from 'joi'
 
+import { ComponentCollection } from '~/src/server/plugins/engine/components/index.js'
+import { DEFAULT_FEE_OPTIONS } from '~/src/server/plugins/engine/models/FormModel.feeOptions.js'
+import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
+import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
   PageControllerBase,
   getPageController
-} from '../pageControllers/index.js'
-import { PageController } from '../pageControllers/PageController.js'
-import { DEFAULT_FEE_OPTIONS } from '../../../plugins/engine/models/FormModel.feeOptions.js'
-import { ComponentCollection } from '../../../plugins/engine/components/index.js'
-import type { ExecutableCondition } from '../../../plugins/engine/models/types.js'
-import type { FormSubmissionState } from '../types.js'
+} from '~/src/server/plugins/engine/pageControllers/index.js'
+import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 
 class EvaluationContext {
   constructor(conditions, value) {
@@ -148,7 +148,7 @@ export class FormModel {
             (page) => page.pageDef.repeatField
           )
 
-          let sectionSchema: joi.ObjectSchema<any> | joi.ArraySchema = joi
+          let sectionSchema: joi.ObjectSchema | joi.ArraySchema = joi
             .object()
             .required()
 

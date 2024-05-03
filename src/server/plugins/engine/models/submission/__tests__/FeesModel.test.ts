@@ -1,7 +1,6 @@
-import { FeesModel } from './../FeesModel.js'
-import json from './FeesModel.test.json' with { type: 'json' }
-
-import { FormModel } from '../../../../../plugins/engine/models/index.js'
+import { FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { FeesModel } from '~/src/server/plugins/engine/models/submission/FeesModel.js'
+import json from '~/src/server/plugins/engine/models/submission/__tests__/FeesModel.test.json' with { type: 'json' }
 
 describe('FeesModel', () => {
   test('returns correct FeesModel', () => {

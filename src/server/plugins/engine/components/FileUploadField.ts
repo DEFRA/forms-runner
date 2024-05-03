@@ -1,7 +1,13 @@
-import { FormComponent } from './FormComponent.js'
-import * as helpers from './helpers.js'
-import type { FormData, FormSubmissionErrors } from '../types.js'
-import type { DataType, ViewModel } from './types.js'
+import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import * as helpers from '~/src/server/plugins/engine/components/helpers.js'
+import {
+  type DataType,
+  type ViewModel
+} from '~/src/server/plugins/engine/components/types.js'
+import {
+  type FormData,
+  type FormSubmissionErrors
+} from '~/src/server/plugins/engine/types.js'
 
 export class FileUploadField extends FormComponent {
   dataType = 'file' as DataType

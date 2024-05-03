@@ -1,8 +1,9 @@
-import { WebsiteFieldComponent } from '@defra/forms-model'
-import Joi, { StringSchema } from 'joi'
-import { FormModel } from '../models/index.js'
-import { TextField } from './TextField.js'
-import { addClassOptionIfNone } from './helpers.js'
+import { type WebsiteFieldComponent } from '@defra/forms-model'
+import Joi, { type StringSchema } from 'joi'
+
+import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
+import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 
 export class WebsiteField extends TextField {
   private defaultMessage = 'Enter website address in the correct format'

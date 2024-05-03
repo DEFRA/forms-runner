@@ -1,7 +1,8 @@
-import { StatusService } from '../services/statusService.js'
 import Boom from '@hapi/boom'
-import { PgBossQueueService } from '../services/pgBossQueueService.js'
-import type { Request, Server } from '@hapi/hapi'
+import { type Request, type Server } from '@hapi/hapi'
+
+import { type PgBossQueueService } from '~/src/server/services/pgBossQueueService.js'
+import { StatusService } from '~/src/server/services/statusService.js'
 
 export class QueueStatusService extends StatusService {
   queueService: PgBossQueueService

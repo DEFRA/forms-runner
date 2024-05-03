@@ -1,15 +1,15 @@
+import { type ServerRegisterPluginObject } from '@hapi/hapi'
 import Blankie from 'blankie'
-import { ServerRegisterPluginObject } from '@hapi/hapi'
 
-import { isUrlSecure } from '../utils/url.js'
+import { isUrlSecure } from '~/src/server/utils/url.js'
 
-type Config = {
+interface Config {
   gtmId1?: string
   gtmId2?: string
   matomoUrl?: string
 }
 
-type Google = {
+interface Google {
   connectSrc: string[]
   fontSrc: string[]
   frameSrc: string[]

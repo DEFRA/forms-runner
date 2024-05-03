@@ -1,16 +1,21 @@
-import { Plugin, Request } from '@hapi/hapi'
+import path from 'node:path'
+
+import { type SpecialPages } from '@defra/forms-model'
+import Boom from '@hapi/boom'
+import { type Plugin, type Request } from '@hapi/hapi'
+import { token } from '@hapi/jwt'
+
 import {
   callbackValidation,
   generateSessionTokenForForm,
   verifyToken,
   webhookToSessionData
-} from './helpers.js'
-import path from 'node:path'
-import { token } from '@hapi/jwt'
-import { SpecialPages } from '@defra/forms-model'
-import Boom from '@hapi/boom'
-import type { WebhookSchema } from '../../schemas/types.js'
-import type { InitialiseSessionOptions, InitialiseSession } from './types.js'
+} from '~/src/server/plugins/initialiseSession/helpers.js'
+import {
+  type InitialiseSessionOptions,
+  type InitialiseSession
+} from '~/src/server/plugins/initialiseSession/types.js'
+import { type WebhookSchema } from '~/src/server/schemas/types.js'
 
 type ConfirmationPage = SpecialPages['confirmationPage']
 

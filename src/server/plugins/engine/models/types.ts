@@ -1,7 +1,12 @@
-import { FeedbackContextInfo } from './../feedback/index.js'
-import { ConditionRawData, Page, Section } from '@defra/forms-model'
-import { Component } from './../components/index.js'
-import type { Fees } from '../../../services/payService.js'
+import {
+  type ConditionRawData,
+  type Page,
+  type Section
+} from '@defra/forms-model'
+
+import { type Component } from '~/src/server/plugins/engine/models/../components/index.js'
+import { type FeedbackContextInfo } from '~/src/server/plugins/engine/models/../feedback/index.js'
+import { type Fees } from '~/src/server/services/payService.js'
 
 export type Fields = {
   key: string
@@ -10,7 +15,7 @@ export type Fields = {
   answer: string | number | boolean
 }[]
 
-export type Question = {
+export interface Question {
   category: string | null
   question: string
   fields: Fields
@@ -19,14 +24,14 @@ export type Question = {
 
 export type Questions = Question[]
 
-export type WebhookData = {
+export interface WebhookData {
   name: string
   metadata: any
   fees?: Fees
   questions: Questions
 }
 
-type FeedbackContextItem = {
+interface FeedbackContextItem {
   key:
     | 'feedbackContextInfo_formTitle'
     | 'feedbackContextInfo_pageTitle'
@@ -61,7 +66,7 @@ export type ExecutableCondition = ConditionRawData & {
  * Used to render a row on a Summary List (check your answers)
  */
 
-export type DetailItem = {
+export interface DetailItem {
   /**
    * Name of the component defined in the JSON {@link FormDefinition}
    */
@@ -98,7 +103,7 @@ export type DetailItem = {
 /**
  * Used to render a row on a Summary List (check your answers)
  */
-export type Detail = {
+export interface Detail {
   name: Section['name'] | undefined
   title: Section['title'] | undefined
   items: DetailItem[]

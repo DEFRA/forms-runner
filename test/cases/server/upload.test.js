@@ -1,12 +1,13 @@
 import fs from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
 import { load } from 'cheerio'
 import FormData from 'form-data'
-import config from '../../../src/server/config.js'
 
-import createServer from '../../../src/server/index.js'
-import { UploadService } from '../../../src/server/services/upload/index.js'
+import config from '~/src/server/config.js'
+import createServer from '~/src/server/index.js'
+import { UploadService } from '~/src/server/services/upload/index.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 

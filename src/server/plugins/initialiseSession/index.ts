@@ -1,1 +1,1 @@
-export { initialiseSession } from './initialiseSession.js'
+export { initialiseSession } from '~/src/server/plugins/initialiseSession.js'

@@ -1,5 +1,5 @@
-import { DateField } from '../../../../../src/server/plugins/engine/components/DateField.js'
-import { messages } from '../../../../../src/server/plugins/engine/pageControllers/validationOptions.js'
+import { DateField } from '~/src/server/plugins/engine/components/DateField.js'
+import { messages } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 
 describe('Date field', () => {
   const baseDef = {

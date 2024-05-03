@@ -13,6 +13,14 @@
       "~/*": ["./*"]
     }
   },
-  "include": ["**/*.cjs", "**/*.js", "**/*.mjs", "**/*.ts"],
+  "include": [
+    "**/*.cjs",
+    "**/*.js",
+    "**/*.mjs",
+    "**/*.ts",
+    ".eslintrc.*",
+    ".prettierrc.*",
+    ".lintstagedrc.*"
+  ],
   "exclude": ["coverage", "node_modules", "public", ".server"]
 }

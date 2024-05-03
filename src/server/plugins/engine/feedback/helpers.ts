@@ -1,5 +1,6 @@
 import atob from 'atob'
-import { FeedbackContextInfo } from './FeedbackContextInfo.js'
+
+import { FeedbackContextInfo } from '~/src/server/plugins/engine/feedback/FeedbackContextInfo.js'
 
 export function decodeFeedbackContextInfo(
   encoded: string | Buffer | undefined | null

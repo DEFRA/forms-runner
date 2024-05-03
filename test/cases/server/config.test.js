@@ -1,4 +1,4 @@
-import { configSchema } from '../../../src/server/utils/configSchema.js'
+import { configSchema } from '~/src/server/utils/configSchema.js'
 
 describe(`Server config validation`, () => {
   test('it throws when MATOMO_URL is insecure', () => {

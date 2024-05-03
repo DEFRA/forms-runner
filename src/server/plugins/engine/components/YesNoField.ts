@@ -1,17 +1,17 @@
-import joi, { Schema } from 'joi'
+import { type List } from '@defra/forms-model'
+import joi, { type Schema } from 'joi'
 
-import * as helpers from './helpers.js'
-import { addClassOptionIfNone } from './helpers.js'
-import { ListFormComponent } from './ListFormComponent.js'
-import { List } from '@defra/forms-model'
-import type {
-  FormData,
-  FormSubmissionErrors,
-  FormSubmissionState
-} from '../types.js'
+import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
+import * as helpers from '~/src/server/plugins/engine/components/helpers.js'
+import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers.js'
+import {
+  type FormData,
+  type FormSubmissionErrors,
+  type FormSubmissionState
+} from '~/src/server/plugins/engine/types.js'
 
 /**
- * @desc
+ * @description
  * YesNoField is a radiosField with predefined values.
  */
 export class YesNoField extends ListFormComponent {
@@ -33,7 +33,7 @@ export class YesNoField extends ListFormComponent {
 
   itemsSchema = joi.boolean()
   get items() {
-    return this.list?.items ?? []
+    return this.list.items ?? []
   }
 
   get values() {
@@ -46,7 +46,7 @@ export class YesNoField extends ListFormComponent {
     const { options } = this
 
     this.formSchema = helpers
-      .buildFormSchema('boolean', this, options?.required !== false)
+      .buildFormSchema('boolean', this, options.required !== false)
       .valid(true, false)
     this.stateSchema = helpers
       .buildStateSchema(this.list.type, this)

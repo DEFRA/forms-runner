@@ -1,10 +1,11 @@
-import { PageController } from '../../../plugins/engine/pageControllers/PageController.js'
-import { FormModel } from '../../../plugins/engine/models/index.js'
-import { Page } from '@defra/forms-model'
-import { FormComponent } from '../../../plugins/engine/components/index.js'
-import type { Request, ResponseToolkit } from '@hapi/hapi'
+import { type Page } from '@defra/forms-model'
+import { type Request, type ResponseToolkit } from '@hapi/hapi'
 import joi from 'joi'
-import type { FormSubmissionErrors } from '../types.js'
+
+import { type FormComponent } from '~/src/server/plugins/engine/components/index.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
+import { type FormSubmissionErrors } from '~/src/server/plugins/engine/types.js'
 export class PlaybackUploadPageController extends PageController {
   inputComponent: FormComponent
   retryUploadViewModel = {
@@ -48,7 +49,7 @@ export class PlaybackUploadPageController extends PageController {
    * Gets the radio button view model for the "Would you like to upload a new image?" question
    * @param error - if the user hasn't chosen an option and tries to continue, add the required field error to the field
    * @returns the view model for the radio button component
-   * */
+   */
   getRetryUploadViewModel(errors?: FormSubmissionErrors) {
     const viewModel = { ...this.retryUploadViewModel }
     errors?.errorList?.forEach((err) => {

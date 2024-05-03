@@ -1,4 +1,4 @@
-import { ValidationOptions } from 'joi'
+import { type ValidationOptions } from 'joi'
 /**
  * see @link https://joi.dev/api/?v=17.4.2#template-syntax for template syntax
  */

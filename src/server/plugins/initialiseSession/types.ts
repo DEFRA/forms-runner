@@ -1,10 +1,10 @@
-import { ContentComponentsDef } from '@defra/forms-model'
+import { type ContentComponentsDef } from '@defra/forms-model'
 
-export type InitialiseSession = {
+export interface InitialiseSession {
   safelist: string[]
 }
 
-export type InitialiseSessionOptions = {
+export interface InitialiseSessionOptions {
   callbackUrl: string
   redirectPath?: string
   message?: string
@@ -21,7 +21,7 @@ export type InitialiseSessionOptions = {
   components: ContentComponentsDef[]
 }
 
-export type DecodedSessionToken = {
+export interface DecodedSessionToken {
   /**
    * Callback url to PUT data to
    */

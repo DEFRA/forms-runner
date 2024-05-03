@@ -1,7 +1,9 @@
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import Joi, { CustomHelpers } from 'joi'
-import { isUrlSecure } from '../utils/url.js'
+
+import Joi, { type CustomHelpers } from 'joi'
+
+import { isUrlSecure } from '~/src/server/utils/url.js'
 
 const configPath = fileURLToPath(import.meta.url)
 

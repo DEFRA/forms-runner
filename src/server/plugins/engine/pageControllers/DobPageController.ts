@@ -1,10 +1,10 @@
 import joi from 'joi'
-import { PageController } from './PageController.js'
-import type { FormPayload } from '../types.js'
+
+import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
+import { type FormPayload } from '~/src/server/plugins/engine/types.js'
 
 /**
  * DobPageController adds to the state a users ageGroup
- *
  * @deprecated FCDO and HO do not use this controller. No guarantee this will work!
  */
 export class DobPageController extends PageController {

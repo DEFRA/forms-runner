@@ -1,27 +1,30 @@
 import fs from 'node:fs'
-import hapi, { ServerOptions, Request, ResponseToolkit } from '@hapi/hapi'
 
-import Scooter from '@hapi/scooter'
+import hapi, {
+  type ServerOptions,
+  type Request,
+  type ResponseToolkit
+} from '@hapi/hapi'
 import inert from '@hapi/inert'
+import Scooter from '@hapi/scooter'
 import Schmervice from '@hapipal/schmervice'
 import blipp from 'blipp'
-import config from './config.js'
 
-import { configureEnginePlugin } from './plugins/engine/index.js'
-import { configureRateLimitPlugin } from './plugins/rateLimit.js'
-import { configureBlankiePlugin } from './plugins/blankie.js'
-import { configureCrumbPlugin } from './plugins/crumb.js'
-import { configureInitialiseSessionPlugin } from './plugins/initialiseSession/configurePlugin.js'
-
-import pluginLocale from './plugins/locale.js'
-import pluginSession from './plugins/session.js'
-import pluginAuth from './plugins/auth.js'
-import pluginViews from './plugins/views.js'
-import pluginApplicationStatus from './plugins/applicationStatus/index.js'
-import pluginRouter from './plugins/router.js'
-import pluginErrorPages from './plugins/errorPages.js'
-import pluginLogging from './plugins/logging.js'
-import pluginPulse from './plugins/pulse.js'
+import config from '~/src/server/config.js'
+import pluginApplicationStatus from '~/src/server/plugins/applicationStatus/index.js'
+import pluginAuth from '~/src/server/plugins/auth.js'
+import { configureBlankiePlugin } from '~/src/server/plugins/blankie.js'
+import { configureCrumbPlugin } from '~/src/server/plugins/crumb.js'
+import { configureEnginePlugin } from '~/src/server/plugins/engine/index.js'
+import pluginErrorPages from '~/src/server/plugins/errorPages.js'
+import { configureInitialiseSessionPlugin } from '~/src/server/plugins/initialiseSession/configurePlugin.js'
+import pluginLocale from '~/src/server/plugins/locale.js'
+import pluginLogging from '~/src/server/plugins/logging.js'
+import pluginPulse from '~/src/server/plugins/pulse.js'
+import { configureRateLimitPlugin } from '~/src/server/plugins/rateLimit.js'
+import pluginRouter from '~/src/server/plugins/router.js'
+import pluginSession from '~/src/server/plugins/session.js'
+import pluginViews from '~/src/server/plugins/views.js'
 import {
   AddressService,
   CacheService,
@@ -32,11 +35,11 @@ import {
   UploadService,
   MockUploadService,
   WebhookService
-} from './services/index.js'
-import getRequestInfo from './utils/getRequestInfo.js'
-import { QueueStatusService } from './services/queueStatusService.js'
-import { PgBossQueueService } from './services/pgBossQueueService.js'
-import type { RouteConfig } from './types.js'
+} from '~/src/server/services/index.js'
+import { PgBossQueueService } from '~/src/server/services/pgBossQueueService.js'
+import { QueueStatusService } from '~/src/server/services/queueStatusService.js'
+import { type RouteConfig } from '~/src/server/types.js'
+import getRequestInfo from '~/src/server/utils/getRequestInfo.js'
 
 const serverOptions = (): ServerOptions => {
   const hasCertificate = config.sslKey && config.sslCert

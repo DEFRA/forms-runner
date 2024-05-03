@@ -1,8 +1,9 @@
-import { PageController } from '../../../plugins/engine/pageControllers/PageController.js'
-import { FormModel } from '../../../plugins/engine/models/index.js'
-import { PlaybackUploadPageController } from '../../../plugins/engine/pageControllers/PlaybackUploadPageController.js'
-import { FormComponent } from '../../../plugins/engine/components/index.js'
-import type { Request, ResponseToolkit } from '@hapi/hapi'
+import { type Request, type ResponseToolkit } from '@hapi/hapi'
+
+import { type FormComponent } from '~/src/server/plugins/engine/components/index.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
+import { PlaybackUploadPageController } from '~/src/server/plugins/engine/pageControllers/PlaybackUploadPageController.js'
 
 function isUploadField(component: FormComponent) {
   return component.type === 'FileUploadField'

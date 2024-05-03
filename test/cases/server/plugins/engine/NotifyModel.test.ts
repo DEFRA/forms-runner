@@ -1,8 +1,8 @@
 import {
   FormModel,
   SummaryViewModel
-} from '../../../../../src/server/plugins/engine/models/index.js'
-import form from './NotifyViewModel.json' with { type: 'json' }
+} from '~/src/server/plugins/engine/models/index.js'
+import form from '~/test/cases/server/plugins/engine/NotifyViewModel.json' with { type: 'json' }
 
 describe('NotifyModel', () => {
   const baseState = {

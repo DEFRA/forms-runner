@@ -1,19 +1,18 @@
-import { QueueService } from '../services/QueueService.js'
 import PgBoss from 'pg-boss'
-import config from '../config.js'
+
+import config from '~/src/server/config.js'
+import { QueueService } from '~/src/server/services/QueueService.js'
 type QueueResponse = [number | string, string | undefined]
 
-type QueueReferenceApiResponse = {
+interface QueueReferenceApiResponse {
   reference: string
 }
 
-type JobOutput = {
-  [key: string]: any
-} & QueueReferenceApiResponse
+type JobOutput = Record<string, any> & QueueReferenceApiResponse
 
 export class PgBossQueueService extends QueueService {
   queue: PgBoss
-  queueName: string = 'submission'
+  queueName = 'submission'
   queueReferenceApiUrl: string
   constructor(server) {
     super(server)

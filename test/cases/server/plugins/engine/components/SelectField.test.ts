@@ -1,7 +1,8 @@
-import { FormModel } from '../../../../../../src/server/plugins/engine/models/index.js'
-import { ListComponentsDef } from '@defra/forms-model'
-import { FormSubmissionErrors } from '../../../../../../src/server/plugins/engine/types.js'
-import { SelectField } from '../../../../../../src/server/plugins/engine/components/index.js'
+import { type ListComponentsDef } from '@defra/forms-model'
+
+import { SelectField } from '~/src/server/plugins/engine/components/index.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { type FormSubmissionErrors } from '~/src/server/plugins/engine/types.js'
 
 describe('SelectField', () => {
   const lists = [
@@ -76,7 +77,7 @@ describe('SelectField', () => {
         {} as FormSubmissionErrors
       )
       expect(items).toBeTruthy()
-      expect(items![0]).toEqual({ value: '' })
+      expect(items?.[0]).toEqual({ value: '' })
     })
   })
 })

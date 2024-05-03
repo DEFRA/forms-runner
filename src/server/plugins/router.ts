@@ -1,9 +1,14 @@
+import { type Request, type ResponseToolkit } from '@hapi/hapi'
 import Joi from 'joi'
-import { redirectTo } from './engine/index.js'
-import { healthCheckRoute, publicRoutes, homeRoute } from '../routes/index.js'
-import config from '../config.js'
-import getRequestInfo from '../utils/getRequestInfo.js'
-import type { Request, ResponseToolkit } from '@hapi/hapi'
+
+import config from '~/src/server/config.js'
+import { redirectTo } from '~/src/server/plugins/engine/index.js'
+import {
+  healthCheckRoute,
+  publicRoutes,
+  homeRoute
+} from '~/src/server/routes/index.js'
+import getRequestInfo from '~/src/server/utils/getRequestInfo.js'
 
 const routes = [...publicRoutes, healthCheckRoute, homeRoute]
 

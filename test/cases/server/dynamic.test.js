@@ -1,10 +1,11 @@
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
 import { load } from 'cheerio'
 import FormData from 'form-data'
 
-import createServer from '../../../src/server/index.js'
-import { CacheService } from '../../../src/server/services/cacheService.js'
+import createServer from '~/src/server/index.js'
+import { CacheService } from '~/src/server/services/cacheService.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 

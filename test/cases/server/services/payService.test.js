@@ -1,6 +1,7 @@
-import { nanoid } from 'nanoid'
-import { PayService } from '../../../../src/server/services/payService.js'
 import { format } from 'date-fns'
+import { nanoid } from 'nanoid'
+
+import { PayService } from '~/src/server/services/payService.js'
 
 jest.mock('nanoid')
 

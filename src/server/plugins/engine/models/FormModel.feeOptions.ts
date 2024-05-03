@@ -1,4 +1,4 @@
-import { FormDefinition } from '@defra/forms-model'
+import { type FormDefinition } from '@defra/forms-model'
 
 export const DEFAULT_FEE_OPTIONS: FormDefinition['feeOptions'] = {
   /**

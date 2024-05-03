@@ -1,6 +1,7 @@
-import { MonthYearField } from '../../../../../src/server/plugins/engine/components/index.js'
-import { messages } from '../../../../../src/server/plugins/engine/pageControllers/validationOptions.js'
 import joi from 'joi'
+
+import { MonthYearField } from '~/src/server/plugins/engine/components/index.js'
+import { messages } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 
 /**
  * This replicates {@link PageControllerBase.validate}

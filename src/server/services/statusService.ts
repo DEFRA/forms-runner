@@ -1,25 +1,29 @@
 import {
-  CacheService,
-  NotifyService,
-  PayService,
-  WebhookService
-} from '../services/index.js'
-import { SendNotificationArgs } from '../services/notifyService.js'
-import { Output, WebhookOutputConfiguration } from '@defra/forms-model'
-import { ComponentCollection } from '../plugins/engine/components/ComponentCollection.js'
-import { FormModel } from '../plugins/engine/models/index.js'
+  type Output,
+  type WebhookOutputConfiguration
+} from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import config from '../config.js'
+import { type Request, type Server } from '@hapi/hapi'
 import nunjucks from 'nunjucks'
-import type { NotifyModel } from '../plugins/engine/models/submission/index.js'
-import type { FormSubmissionState } from '../plugins/engine/types.js'
-import type { Request, Server } from '@hapi/hapi'
+
+import config from '~/src/server/config.js'
+import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { type NotifyModel } from '~/src/server/plugins/engine/models/submission/index.js'
+import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+import {
+  type CacheService,
+  type NotifyService,
+  type PayService,
+  type WebhookService
+} from '~/src/server/services/index.js'
+import { type SendNotificationArgs } from '~/src/server/services/notifyService.js'
 
 type WebhookModel = WebhookOutputConfiguration & {
   formData: object
 }
 
-type OutputArgs = {
+interface OutputArgs {
   notify: SendNotificationArgs[]
   webhook: WebhookModel[]
 }
@@ -307,7 +311,7 @@ export class StatusService {
 
     model.customText = {
       ...customText,
-      ...(callback && callback.customText)
+      ...callback?.customText
     }
 
     const componentDefsToRender = callback?.components ?? components ?? []

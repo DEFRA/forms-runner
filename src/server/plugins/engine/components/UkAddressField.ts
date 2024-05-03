@@ -1,17 +1,16 @@
+import { type InputFieldsComponentsDef } from '@defra/forms-model'
 import joi from 'joi'
 
-import { InputFieldsComponentsDef } from '@defra/forms-model'
-
-import * as helpers from './helpers.js'
-import { FormComponent } from './FormComponent.js'
-import { ComponentCollection } from './ComponentCollection.js'
+import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import * as helpers from '~/src/server/plugins/engine/components/helpers.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
-  FormData,
-  FormPayload,
-  FormSubmissionErrors,
-  FormSubmissionState
-} from '../types.js'
-import { FormModel } from '../models/index.js'
+  type FormData,
+  type FormPayload,
+  type FormSubmissionErrors,
+  type FormSubmissionState
+} from '~/src/server/plugins/engine/types.js'
 
 export class UkAddressField extends FormComponent {
   formChildren: ComponentCollection
@@ -94,10 +93,10 @@ export class UkAddressField extends FormComponent {
     const value = state[name]
 
     return {
-      [`${name}__addressLine1`]: value && value.addressLine1,
-      [`${name}__addressLine2`]: value && value.addressLine2,
-      [`${name}__town`]: value && value.town,
-      [`${name}__postcode`]: value && value.postcode
+      [`${name}__addressLine1`]: value?.addressLine1,
+      [`${name}__addressLine2`]: value?.addressLine2,
+      [`${name}__town`]: value?.town,
+      [`${name}__postcode`]: value?.postcode
     }
   }
 

@@ -1,9 +1,9 @@
 import joi from 'joi'
-import { PageController } from './PageController.js'
+
+import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 
 /**
  * DobPageController adds to the state a users ageGroup
- *
  * @deprecated FCDO and HO do not use this controller. No guarantee this will work!
  */
 export class StartDatePageController extends PageController {

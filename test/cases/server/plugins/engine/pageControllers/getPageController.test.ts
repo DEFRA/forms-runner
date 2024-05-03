@@ -1,9 +1,8 @@
 import {
   controllerNameFromPath,
   getPageController
-} from '../../../../../../src/server/plugins/engine/pageControllers/helpers.js'
-
-import * as PageControllers from '../../../../../../src/server/plugins/engine/pageControllers/index.js'
+} from '~/src/server/plugins/engine/pageControllers/helpers.js'
+import * as PageControllers from '~/src/server/plugins/engine/pageControllers/index.js'
 
 describe('Engine Page Controllers getPageController', () => {
   describe('controllerNameFromPath', () => {

@@ -1,10 +1,11 @@
-import { FormModel } from '../../../../plugins/engine/models/index.js'
+import { type Fee } from '@defra/forms-model'
 import { reach } from 'hoek'
-import { Fee } from '@defra/forms-model'
-import { FeeDetails } from '../../../../services/payService.js'
-import type { FormSubmissionState } from '../../../../plugins/engine/types.js'
 
-export type FeesModel = {
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+import { type FeeDetails } from '~/src/server/services/payService.js'
+
+export interface FeesModel {
   details: FeeDetails[]
   total: number
   prefixes: string[]

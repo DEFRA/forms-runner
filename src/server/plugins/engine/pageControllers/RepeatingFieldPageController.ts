@@ -1,14 +1,14 @@
-import { PageController } from './PageController.js'
-import { FormModel } from '../../../plugins/engine/models/index.js'
-import { RepeatingSummaryPageController } from './RepeatingSummaryPageController.js'
-import { ComponentDef, RepeatingFieldPage } from '@defra/forms-model'
-import { FormComponent } from '../components/index.js'
-
-import joi from 'joi'
-import { reach } from 'hoek'
+import { type ComponentDef, type RepeatingFieldPage } from '@defra/forms-model'
 import type { Request, ResponseToolkit } from '@hapi/hapi'
+import { reach } from 'hoek'
+import joi from 'joi'
 
-const contentTypes: Array<ComponentDef['type']> = [
+import { type FormComponent } from '~/src/server/plugins/engine/components/index.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
+import { RepeatingSummaryPageController } from '~/src/server/plugins/engine/pageControllers/RepeatingSummaryPageController.js'
+
+const contentTypes: ComponentDef['type'][] = [
   'Para',
   'Details',
   'Html',
@@ -124,7 +124,7 @@ export class RepeatingFieldPageController extends PageController {
   }
 
   addRowsToViewContext(response, state) {
-    if (this.options!.summaryDisplayMode!.samePage) {
+    if (this.options.summaryDisplayMode!.samePage) {
       const rows = this.summary.getRowsFromAnswers(this.getPartialState(state))
       response.source.context.details = { rows }
     }
@@ -182,7 +182,7 @@ export class RepeatingFieldPageController extends PageController {
         return response
       }
 
-      if (this.options!.summaryDisplayMode!.samePage) {
+      if (this.options.summaryDisplayMode!.samePage) {
         return h.redirect(`/${this.model.basePath}${this.path}`)
       }
       return h.redirect(`/${this.model.basePath}${this.path}?view=summary`)

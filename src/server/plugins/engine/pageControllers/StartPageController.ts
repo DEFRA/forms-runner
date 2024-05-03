@@ -1,5 +1,8 @@
-import { PageController } from './PageController.js'
-import type { FormData, FormSubmissionErrors } from '../types.js'
+import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
+import {
+  type FormData,
+  type FormSubmissionErrors
+} from '~/src/server/plugins/engine/types.js'
 
 export class StartPageController extends PageController {
   /**

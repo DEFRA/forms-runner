@@ -1,6 +1,7 @@
 import yar from '@hapi/yar'
-import config from '../config.js'
-import generateCookiePassword from '../utils/generateCookiePassword.js'
+
+import config from '~/src/server/config.js'
+import generateCookiePassword from '~/src/server/utils/generateCookiePassword.js'
 
 export default {
   plugin: yar,

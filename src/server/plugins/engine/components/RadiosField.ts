@@ -1,4 +1,4 @@
-import { SelectionControlField } from './SelectionControlField.js'
+import { SelectionControlField } from '~/src/server/plugins/engine/components/SelectionControlField.js'
 
 /**
  * @description sorry about the empty class...

@@ -1,9 +1,9 @@
-import { WebhookModel } from '../../../../../src/server/plugins/engine/models/submission/WebhookModel.js'
-import form from './SummaryViewModel.json' with { type: 'json' }
 import {
   FormModel,
   SummaryViewModel
-} from '../../../../../src/server/plugins/engine/models/index.js'
+} from '~/src/server/plugins/engine/models/index.js'
+import { WebhookModel } from '~/src/server/plugins/engine/models/submission/WebhookModel.js'
+import form from '~/test/cases/server/plugins/engine/SummaryViewModel.json' with { type: 'json' }
 
 describe('WebhookModel', () => {
   const testDetails = [

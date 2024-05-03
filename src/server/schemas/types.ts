@@ -1,25 +1,26 @@
-import { ComponentType, ConfirmationPage } from '@defra/forms-model'
-import { FeeDetails } from '../services/payService.js'
+import { type ComponentType, type ConfirmationPage } from '@defra/forms-model'
 
-export type Field = {
+import { type FeeDetails } from '~/src/server/services/payService.js'
+
+export interface Field {
   key: string
   type: ComponentType
   title: string
   answer: any
 }
 
-export type Question = {
+export interface Question {
   category?: string
   question: string
   fields: Field[]
 }
 
-export type WebhookSchema = {
+export interface WebhookSchema {
   name: string
   preferredLanguage?: string
   fees: FeeDetails
   questions: Question[]
-  metadata?: { [key: string]: unknown }
+  metadata?: Record<string, unknown>
 }
 
 export type InitialiseSessionField = Pick<Field, 'key' | 'answer'>

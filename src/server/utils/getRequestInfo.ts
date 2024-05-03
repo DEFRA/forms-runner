@@ -1,4 +1,4 @@
-import type { Request } from '@hapi/hapi'
+import { type Request } from '@hapi/hapi'
 
 interface GetRequestInfo {
   host: string
@@ -12,7 +12,6 @@ interface GetRequestInfo {
 
 /**
  * Returns key information about a request
- *
  * @param request - HAPI request object
  * @returns Request information
  */

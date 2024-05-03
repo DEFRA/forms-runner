@@ -1,19 +1,19 @@
-import yar from '@hapi/yar'
-import { Logger } from 'pino'
+import { type ServerYar, type Yar } from '@hapi/yar'
+import { type Logger } from 'pino'
 
-import { RateOptions } from './plugins/rateLimit.js'
+import { type RateOptions } from '~/src/server/plugins/rateLimit.js'
+import { type QueueService } from '~/src/server/services/QueueService.js'
 import {
-  CacheService,
-  NotifyService,
-  PayService,
-  StatusService,
-  UploadService,
-  WebhookService
-} from './services/index.js'
-import { QueueStatusService } from './services/queueStatusService.js'
-import { QueueService } from './services/QueueService.js'
+  type CacheService,
+  type NotifyService,
+  type PayService,
+  type StatusService,
+  type UploadService,
+  type WebhookService
+} from '~/src/server/services/index.js'
+import { type QueueStatusService } from '~/src/server/services/queueStatusService.js'
 
-export type RouteConfig = {
+export interface RouteConfig {
   rateOptions?: RateOptions
   formFileName?: string
   formFilePath?: string
@@ -32,14 +32,14 @@ declare module '@hapi/hapi' {
       getLocales(): string[]
     }
     logger: Logger
-    yar: yar.Yar
+    yar: Yar
   }
 
   interface Response {}
 
   interface Server {
     logger: Logger
-    yar: yar.ServerYar
+    yar: ServerYar
   }
 
   interface RequestApplicationState {

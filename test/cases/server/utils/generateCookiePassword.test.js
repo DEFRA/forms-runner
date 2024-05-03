@@ -1,4 +1,4 @@
-import generateCookiePassword from '../../../../src/server/utils/generateCookiePassword.js'
+import generateCookiePassword from '~/src/server/utils/generateCookiePassword.js'
 
 describe('Cookie password generator', () => {
   test('Generates a random password 32 characters long', () => {

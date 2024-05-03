@@ -3,7 +3,7 @@ import { cwd } from 'node:process'
 
 import resolvePkg from 'resolve'
 
-import config from '../config.js'
+import config from '~/src/server/config.js'
 
 const [accessibleAutocompletePath, govukFrontendPath, hmpoComponentsPath] = [
   'accessible-autocomplete',

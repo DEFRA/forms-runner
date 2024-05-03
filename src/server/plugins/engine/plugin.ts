@@ -1,21 +1,25 @@
 import { dirname, join } from 'node:path'
 import { cwd } from 'node:process'
+
+import { FormConfiguration } from '@defra/forms-model'
+import Boom from '@hapi/boom'
+import {
+  type PluginSpecificConfiguration,
+  type Request,
+  type ResponseToolkit,
+  type Server
+} from '@hapi/hapi'
 import nunjucks from 'nunjucks'
 import resolvePkg from 'resolve'
-import { getValidStateFromQueryParameters, redirectTo } from './helpers.js'
-import { FormConfiguration } from '@defra/forms-model'
 
-import { FormModel } from './models/index.js'
-import Boom from '@hapi/boom'
-import type {
-  PluginSpecificConfiguration,
-  Request,
-  ResponseToolkit,
-  Server
-} from '@hapi/hapi'
-import { shouldLogin } from '../../plugins/auth.js'
-import config from '../../config.js'
-import type { FormPayload } from './types.js'
+import config from '~/src/server/config.js'
+import { shouldLogin } from '~/src/server/plugins/auth.js'
+import {
+  getValidStateFromQueryParameters,
+  redirectTo
+} from '~/src/server/plugins/engine/helpers.js'
+import { FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { type FormPayload } from '~/src/server/plugins/engine/types.js'
 
 const [govukFrontendPath, hmpoComponentsPath] = [
   'govuk-frontend',
@@ -61,7 +65,7 @@ function getStartPageRedirect(
   return startPageRedirect
 }
 
-type PluginOptions = {
+interface PluginOptions {
   relativeTo?: string
   modelOptions: any
   configs: any[]
@@ -298,11 +302,11 @@ export const plugin = {
       method: 'post',
       path: '/{id}/{path*}',
       options: {
-        plugins: <PluginSpecificConfiguration>{
+        plugins: {
           'hapi-rate-limit': {
             userPathLimit: 10
           }
-        },
+        } as PluginSpecificConfiguration,
         payload: {
           output: 'stream',
           parse: true,

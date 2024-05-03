@@ -1,7 +1,8 @@
-import { FormModel } from '../../../../plugins/engine/models/index.js'
+import { type NotifyOutputConfiguration, type List } from '@defra/forms-model'
 import { reach } from 'hoek'
-import { NotifyOutputConfiguration, List } from '@defra/forms-model'
-import type { FormSubmissionState } from '../../../../plugins/engine/types.js'
+
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 
 export type NotifyModel = Omit<
   NotifyOutputConfiguration,
@@ -9,9 +10,7 @@ export type NotifyModel = Omit<
 > & {
   emailAddress: string
   emailReplyToId?: string
-  personalisation: {
-    [key: string]: string | boolean
-  }
+  personalisation: Record<string, string | boolean>
 }
 
 const checkItemIsValid = (
@@ -25,10 +24,10 @@ const parseListAsNotifyTemplate = (
   model: FormModel,
   state: FormSubmissionState
 ) => {
-  return `${list.items
+  return list.items
     .filter((item) => checkItemIsValid(model, state, item.condition))
     .map((item) => `* ${item.value}\n`)
-    .join('')}`
+    .join('')
 }
 
 /**

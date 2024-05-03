@@ -1,17 +1,17 @@
-import { merge } from 'hoek'
-import { Engine as RedisEngine } from '@hapi/catbox-redis'
 import { Engine as MemoryEngine } from '@hapi/catbox-memory'
+import { Engine as RedisEngine } from '@hapi/catbox-redis'
+import { type Request, type Server } from '@hapi/hapi'
 import { token } from '@hapi/jwt'
+import { merge } from 'hoek'
 import Redis from 'ioredis'
 
-import config from '../config.js'
+import config from '~/src/server/config.js'
+import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 import {
-  DecodedSessionToken,
-  InitialiseSessionOptions
-} from '../plugins/initialiseSession/types.js'
-import type { FormSubmissionState } from '../plugins/engine/types.js'
-import type { WebhookSchema } from '../schemas/types.js'
-import type { Request, Server } from '@hapi/hapi'
+  type DecodedSessionToken,
+  type InitialiseSessionOptions
+} from '~/src/server/plugins/initialiseSession/types.js'
+import { type WebhookSchema } from '~/src/server/schemas/types.js'
 
 const {
   redisHost,
@@ -122,7 +122,6 @@ export class CacheService {
   /**
    * The key used to store user session data against.
    * If there are multiple forms on the same runner instance, for example `form-a` and `form-a-feedback` this will prevent CacheService from clearing data from `form-a` if a user gave feedback before they finished `form-a`
-   *
    * @param request - hapi request object
    * @param additionalIdentifier - appended to the id
    */

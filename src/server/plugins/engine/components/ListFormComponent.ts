@@ -1,13 +1,21 @@
-import joi, { Schema } from 'joi'
-import { ListComponentsDef, List, Item } from '@defra/forms-model'
-import { FormComponent } from './FormComponent.js'
-import { FormModel } from './../models/index.js'
-import type {
-  FormSubmissionState,
-  FormSubmissionErrors,
-  FormData
-} from '../types.js'
-import type { DataType, ListItem } from './types.js'
+import {
+  type ListComponentsDef,
+  type List,
+  type Item
+} from '@defra/forms-model'
+import joi, { type Schema } from 'joi'
+
+import { type FormModel } from '~/src/server/plugins/engine/components/../models/index.js'
+import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import {
+  type DataType,
+  type ListItem
+} from '~/src/server/plugins/engine/components/types.js'
+import {
+  type FormSubmissionState,
+  type FormSubmissionErrors,
+  type FormData
+} from '~/src/server/plugins/engine/types.js'
 
 export class ListFormComponent extends FormComponent {
   list: List
@@ -62,7 +70,7 @@ export class ListFormComponent extends FormComponent {
     const { name, items } = this
     const value = state[name]
     const item = items.find((item) => String(item.value) === String(value))
-    return `${item?.text ?? ''}`
+    return item?.text ?? ''
   }
 
   getViewModel(formData: FormData, errors: FormSubmissionErrors) {

@@ -1,19 +1,18 @@
+import { isMultipleApiKey, type MultipleApiKeys } from '@defra/forms-model'
+import { type Server } from '@hapi/hapi'
 import { NotifyClient } from 'notifications-node-client/client/notification.js'
-import { isMultipleApiKey, MultipleApiKeys } from '@defra/forms-model'
-import config from '../config.js'
-import type { Server } from '@hapi/hapi'
 
-type Personalisation = {
-  [propName: string]: any
-}
+import config from '~/src/server/config.js'
 
-type SendEmailOptions = {
+type Personalisation = Record<string, any>
+
+interface SendEmailOptions {
   personalisation: Personalisation
   reference: string
   emailReplyToId?: string
 }
 
-export type SendNotificationArgs = {
+export interface SendNotificationArgs {
   apiKey: string | MultipleApiKeys
   templateId: string
   emailAddress: string
@@ -59,7 +58,7 @@ export class NotifyService {
         config.apiEnv === 'production'
           ? apiKey.production ?? apiKey.test
           : apiKey.test ?? apiKey.production
-      ) as string
+      )!
     }
 
     const parsedOptions: SendEmailOptions = {

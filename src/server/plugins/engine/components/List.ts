@@ -1,6 +1,10 @@
-import { ComponentBase } from './ComponentBase.js'
-import { Item } from '@defra/forms-model'
-import type { FormData, FormSubmissionErrors } from '../types.js'
+import { type Item } from '@defra/forms-model'
+
+import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
+import {
+  type FormData,
+  type FormSubmissionErrors
+} from '~/src/server/plugins/engine/types.js'
 
 export class List extends ComponentBase {
   list: List

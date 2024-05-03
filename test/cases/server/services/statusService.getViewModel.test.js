@@ -1,11 +1,12 @@
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
 import { load } from 'cheerio'
 
-import { StatusService } from '../../../../src/server/services/index.js'
-import { FormModel } from '../../../../src/server/plugins/engine/models/index.js'
-import createServer from '../../../../src/server/index.js'
-import form from '../status.test.json' with { type: 'json' }
+import createServer from '~/src/server/index.js'
+import { FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { StatusService } from '~/src/server/services/index.js'
+import form from '~/test/cases/server/status.test.json' with { type: 'json' }
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 

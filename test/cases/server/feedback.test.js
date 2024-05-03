@@ -1,7 +1,9 @@
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
 import { load } from 'cheerio'
-import createServer from '../../../src/server/index.js'
+
+import createServer from '~/src/server/index.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 

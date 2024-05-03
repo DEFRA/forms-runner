@@ -1,4 +1,4 @@
-import type { Request, ResponseToolkit } from '@hapi/hapi'
+import { type Request, type ResponseToolkit } from '@hapi/hapi'
 
 /*
  * Add an `onPreResponse` listener to return error pages

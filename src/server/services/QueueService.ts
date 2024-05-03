@@ -1,4 +1,4 @@
-import type { Server } from '@hapi/hapi'
+import { type Server } from '@hapi/hapi'
 
 type QueueResponse = [number | string, string | undefined]
 

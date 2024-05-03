@@ -1,7 +1,8 @@
-import { RelativeUrl } from './feedback/index.js'
+import { type Request, type ResponseToolkit } from '@hapi/hapi'
 import { reach } from '@hapi/hoek'
 import set from 'lodash/set.js'
-import type { Request, ResponseToolkit } from '@hapi/hapi'
+
+import { RelativeUrl } from '~/src/server/plugins/engine/feedback/index.js'
 
 export const feedbackReturnInfoKey = 'f_t'
 

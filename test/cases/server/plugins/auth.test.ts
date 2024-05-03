@@ -1,7 +1,7 @@
 import { type Server } from '@hapi/hapi'
 
-import config from '../../../../src/server/config.js'
-import createServer from '../../../../src/server/index.js'
+import config from '~/src/server/config.js'
+import createServer from '~/src/server/index.js'
 
 describe('Server Auth', () => {
   let server: Server
