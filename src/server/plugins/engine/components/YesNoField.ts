@@ -1,9 +1,10 @@
-import { type List } from '@defra/forms-model'
+import { type ListComponentsDef, type List } from '@defra/forms-model'
 import joi, { type Schema } from 'joi'
 
 import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
 import * as helpers from '~/src/server/plugins/engine/components/helpers.js'
 import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormData,
   type FormSubmissionErrors,
@@ -40,7 +41,7 @@ export class YesNoField extends ListFormComponent {
     return [true, false]
   }
 
-  constructor(def, model) {
+  constructor(def: ListComponentsDef, model: FormModel) {
     super(def, model)
 
     const { options } = this

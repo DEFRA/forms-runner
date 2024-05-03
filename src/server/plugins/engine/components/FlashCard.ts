@@ -1,6 +1,11 @@
-import { type Item, type List } from '@defra/forms-model'
+import {
+  type ListComponentsDef,
+  type Item,
+  type List
+} from '@defra/forms-model'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormData,
   type FormSubmissionErrors
@@ -12,7 +17,7 @@ export class FlashCard extends ComponentBase {
     return this.list?.items ?? []
   }
 
-  constructor(def, model) {
+  constructor(def: ListComponentsDef, model: FormModel) {
     super(def, model)
     this.list = model.getList(def.list)
   }
