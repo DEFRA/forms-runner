@@ -2,7 +2,6 @@ import { type ListComponentsDef } from '@defra/forms-model'
 
 import { SelectField } from '~/src/server/plugins/engine/components/index.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { type FormSubmissionErrors } from '~/src/server/plugins/engine/types.js'
 
 describe('SelectField', () => {
   const lists = [

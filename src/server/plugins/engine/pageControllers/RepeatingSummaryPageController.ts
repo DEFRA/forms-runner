@@ -47,7 +47,7 @@ export class RepeatingSummaryPageController extends PageController {
 
       const state = await cacheService.getState(request)
       const { progress = [] } = state
-      progress?.push(`/${this.model.basePath}${this.path}?view=summary`)
+      progress.push(`/${this.model.basePath}${this.path}?view=summary`)
       await cacheService.mergeState(request, { progress })
 
       const viewModel = this.getViewModel(state)
@@ -106,15 +106,15 @@ export class RepeatingSummaryPageController extends PageController {
       return {
         key: {
           text: titleWithIteration,
-          classes: `${
-            this.hideRowTitles ? 'govuk-summary-list__row--hidden-titles' : ''
-          }`
+          classes: this.hideRowTitles
+            ? 'govuk-summary-list__row--hidden-titles'
+            : ''
         },
         value: {
           text: listValueToText?.[value] ?? value,
-          classes: `${
-            this.hideRowTitles ? 'govuk-summary-list__key--hidden-titles' : ''
-          }`
+          classes: this.hideRowTitles
+            ? 'govuk-summary-list__key--hidden-titles'
+            : ''
         },
         actions: {
           items: [
@@ -138,7 +138,7 @@ export class RepeatingSummaryPageController extends PageController {
       const { cacheService } = request.services([])
       const state = await cacheService.getState(request)
 
-      if (request.payload?.next === 'increment') {
+      if (request.payload.next === 'increment') {
         const nextIndex = this.nextIndex(state)
         return h.redirect(
           `/${this.model.basePath}${this.path}?view=${nextIndex}`

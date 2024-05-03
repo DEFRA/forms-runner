@@ -24,7 +24,7 @@ export class TelephoneNumberField extends FormComponent {
     }
     componentSchema = componentSchema
       .pattern(pattern)
-      .message(def.options?.customValidationMessage ?? DEFAULT_MESSAGE)
+      .message(def.options.customValidationMessage ?? DEFAULT_MESSAGE)
       .label(def.title.toLowerCase())
 
     if (schema.max) {

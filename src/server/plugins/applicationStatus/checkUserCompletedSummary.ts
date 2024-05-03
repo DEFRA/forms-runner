@@ -8,7 +8,7 @@ export async function checkUserCompletedSummary(
 
   const state = await cacheService.getState(request)
 
-  if (state?.userCompletedSummary !== true) {
+  if (state.userCompletedSummary !== true) {
     request.logger.error(
       [`/${request.params.id}/status`],
       `${request.yar.id} user has incomplete state, redirecting to /summary`

@@ -104,7 +104,7 @@ export class StatusService {
     }
 
     const userSkippedOrLimitReached =
-      query?.continue === 'true' || meta?.attempts >= maxAttempts
+      query.continue === 'true' || meta?.attempts >= maxAttempts
 
     await this.cacheService.mergeState(request, {
       pay: {

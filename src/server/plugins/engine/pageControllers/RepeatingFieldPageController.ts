@@ -1,5 +1,5 @@
 import { type ComponentDef, type RepeatingFieldPage } from '@defra/forms-model'
-import type { Request, ResponseToolkit } from '@hapi/hapi'
+import { type Request, type ResponseToolkit } from '@hapi/hapi'
 import { reach } from 'hoek'
 import joi from 'joi'
 
@@ -43,14 +43,14 @@ export class RepeatingFieldPageController extends PageController {
 
   constructor(model: FormModel, pageDef: RepeatingFieldPage) {
     super(model, pageDef)
-    const inputComponent = this.components?.items?.find(isInputType)
+    const inputComponent = this.components.items.find(isInputType)
     if (!inputComponent) {
       throw Error(
         'RepeatingFieldPageController initialisation failed, no input component (non-content) was found'
       )
     }
 
-    this.options = pageDef?.options ?? DEFAULT_OPTIONS
+    this.options = pageDef.options ?? DEFAULT_OPTIONS
     this.options.summaryDisplayMode ??= DEFAULT_OPTIONS.summaryDisplayMode
     this.options.customText ??= DEFAULT_OPTIONS.customText
 
@@ -154,7 +154,7 @@ export class RepeatingFieldPageController extends PageController {
         return this.summary.postRouteHandler(request, h)
       }
 
-      if (request?.payload?.next === 'continue') {
+      if (request.payload.next === 'continue') {
         if (this.isSeparateDisplayMode) {
           return h.redirect(`?view=summary`)
         }

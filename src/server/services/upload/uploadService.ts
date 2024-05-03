@@ -106,7 +106,7 @@ export class UploadService {
   async handleUploadRequest(request: Request, h: ResponseToolkit) {
     const { cacheService } = request.services([])
     const state = await cacheService.getState(request)
-    const originalFilenames = state?.originalFilenames ?? {}
+    const originalFilenames = state.originalFilenames ?? {}
 
     let files: [string, any][] = []
 

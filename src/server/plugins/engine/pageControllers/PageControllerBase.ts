@@ -82,7 +82,7 @@ export class PageControllerBase {
     this.backLinkFallback = pageDef.backLinkFallback
 
     // Resolve section
-    this.section = model.sections?.find(
+    this.section = model.sections.find(
       (section) => section.name === pageDef.section
     )
 
@@ -240,7 +240,7 @@ export class PageControllerBase {
     const nextLink = this.next.find((link) => {
       const { condition } = link
       if (condition) {
-        return this.model.conditions[condition]?.fn?.(state)
+        return this.model.conditions[condition].fn(state)
       }
       defaultLink = link
       return false

@@ -17,7 +17,7 @@ const checkItemIsValid = (
   model: FormModel,
   state: FormSubmissionState,
   conditionName
-) => model.conditions[conditionName]?.fn?.(state) ?? true
+) => model.conditions[conditionName].fn(state) ?? true
 
 const parseListAsNotifyTemplate = (
   list: List,
@@ -54,7 +54,7 @@ export function NotifyModel(
 
       const possibleFields = [
         curr,
-        ...(personalisationFieldCustomisation?.[curr] ?? [])
+        ...(personalisationFieldCustomisation[curr] ?? [])
       ]
       // iterate through each field to find the value to use
       possibleFields.forEach((field) => {
@@ -93,7 +93,7 @@ export function NotifyModel(
 
   const emailReplyToId =
     conditionalReplyTos?.find(({ condition }) => {
-      return model.conditions[condition!]?.fn?.(state)
+      return model.conditions[condition!].fn(state)
     })?.emailReplyToId ?? defaultReplyToId
 
   return {

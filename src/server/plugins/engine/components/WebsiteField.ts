@@ -30,7 +30,7 @@ export class WebsiteField extends TextField {
     this.formSchema = this.formSchema
       .label(def.title.toLowerCase())
       .uri()
-      .message(def.options?.customValidationMessage ?? this.defaultMessage)
+      .message(def.options.customValidationMessage ?? this.defaultMessage)
 
     if (def.schema.max) {
       this.formSchema = this.formSchema.max(def.schema.max)

@@ -25,14 +25,14 @@ export class NumberField extends FormComponent {
 
     schema = schema.label(def.title.toLowerCase())
 
-    if (def.schema?.min && def.schema?.max) {
+    if (def.schema.min && def.schema.max) {
       schema = schema.$
     }
-    if (def.schema?.min ?? false) {
+    if (def.schema.min ?? false) {
       schema = schema.min(min)
     }
 
-    if (def.schema?.max ?? false) {
+    if (def.schema.max ?? false) {
       schema = schema.max(max)
     }
 

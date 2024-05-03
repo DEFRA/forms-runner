@@ -7,10 +7,7 @@ import joi, { type Schema } from 'joi'
 
 import { type FormModel } from '~/src/server/plugins/engine/components/../models/index.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import {
-  type DataType,
-  type ListItem
-} from '~/src/server/plugins/engine/components/types.js'
+import { type DataType } from '~/src/server/plugins/engine/components/types.js'
 import {
   type FormSubmissionState,
   type FormSubmissionErrors,

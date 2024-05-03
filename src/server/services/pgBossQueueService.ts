@@ -54,7 +54,7 @@ export class PgBossQueueService extends QueueService {
 
     if (job.state === 'completed') {
       const jobOutput = job.output as JobOutput
-      reference = jobOutput?.reference
+      reference = jobOutput.reference
     }
 
     if (!reference) {

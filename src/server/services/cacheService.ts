@@ -114,7 +114,7 @@ export class CacheService {
   }
 
   async clearState(request: Request) {
-    if (request.yar?.id) {
+    if (request.yar.id) {
       this.cache.drop(this.Key(request))
     }
   }
@@ -126,7 +126,7 @@ export class CacheService {
    * @param additionalIdentifier - appended to the id
    */
   Key(request: Request, additionalIdentifier?: ADDITIONAL_IDENTIFIER) {
-    if (!request?.yar?.id) {
+    if (!request.yar.id) {
       throw Error('No session ID found')
     }
     return {

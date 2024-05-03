@@ -84,7 +84,7 @@ export class SummaryViewModel {
     this.endPage = endPage
     this.feedbackLink =
       def.feedback?.url ??
-      ((def.feedback?.emailAddress && `mailto:${def.feedback?.emailAddress}`) ||
+      ((def.feedback?.emailAddress && `mailto:${def.feedback.emailAddress}`) ||
         config.feedbackLink)
 
     const schema = model.makeFilteredSchema(state, relevantPages)
@@ -340,7 +340,7 @@ export class SummaryViewModel {
    * If a declaration is defined, add this to {@link this._webhookData} as a question has answered `true` to
    */
   addDeclarationAsQuestion() {
-    this._webhookData?.questions?.push({
+    this._webhookData?.questions.push({
       category: null,
       question: 'Declaration',
       fields: [

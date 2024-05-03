@@ -96,7 +96,7 @@ describe('InitialiseSession', () => {
   })
 
   describe('POST /session/{id}', () => {
-    test(' responds with token if file exists', async () => {
+    test('responds with token if file exists', async () => {
       const serverRequestOptions = {
         method: 'POST',
         url: `/session/test`,
