@@ -10,6 +10,7 @@ import {
   type Server
 } from '@hapi/hapi'
 import nunjucks from 'nunjucks'
+import Joi from 'joi'
 import resolvePkg from 'resolve'
 
 import config from '~/src/server/config.js'
@@ -216,13 +217,6 @@ export const plugin = {
     server.route({
       method: 'get',
       path: '/{id}',
-      options: {
-        pre: [
-          {
-            method: queryParamPreHandler
-          }
-        ]
-      },
       handler: (request: Request, h: ResponseToolkit) => {
         const { id } = request.params
         const model = forms[id]
@@ -230,19 +224,24 @@ export const plugin = {
           return getStartPageRedirect(request, h, id, model)
         }
         throw Boom.notFound('No form found for id')
+      },
+      options: {
+        pre: [
+          {
+            method: queryParamPreHandler
+          }
+        ],
+        validate: {
+          params: Joi.object().keys({
+            id: Joi.string().required()
+          })
+        }
       }
     })
 
     server.route({
       method: 'get',
       path: '/{id}/{path*}',
-      options: {
-        pre: [
-          {
-            method: queryParamPreHandler
-          }
-        ]
-      },
       handler: (request: Request, h: ResponseToolkit) => {
         const { path, id } = request.params
         const model = forms[id]
@@ -264,6 +263,19 @@ export const plugin = {
           return getStartPageRedirect(request, h, id, model)
         }
         throw Boom.notFound('No form or page found')
+      },
+      options: {
+        pre: [
+          {
+            method: queryParamPreHandler
+          }
+        ],
+        validate: {
+          params: Joi.object().keys({
+            id: Joi.string().required(),
+            path: Joi.string().required()
+          })
+        }
       }
     })
 
@@ -298,6 +310,7 @@ export const plugin = {
     server.route({
       method: 'post',
       path: '/{id}/{path*}',
+      handler: postHandler,
       options: {
         plugins: {
           'hapi-rate-limit': {
@@ -315,7 +328,12 @@ export const plugin = {
           }
         },
         pre: [{ method: handleFiles }],
-        handler: postHandler
+        validate: {
+          params: Joi.object().keys({
+            id: Joi.string().required(),
+            path: Joi.string().required()
+          })
+        }
       }
     })
   }
