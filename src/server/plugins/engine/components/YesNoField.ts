@@ -15,7 +15,7 @@ import {
  * YesNoField is a radiosField with predefined values.
  */
 export class YesNoField extends ListFormComponent {
-  list: List = {
+  list?: List = {
     name: '__yesNo',
     title: 'Yes/No',
     type: 'boolean',
@@ -33,7 +33,7 @@ export class YesNoField extends ListFormComponent {
 
   itemsSchema = joi.boolean()
   get items() {
-    return this.list.items ?? []
+    return this.list?.items ?? []
   }
 
   get values() {
@@ -49,7 +49,7 @@ export class YesNoField extends ListFormComponent {
       .buildFormSchema('boolean', this, options.required !== false)
       .valid(true, false)
     this.stateSchema = helpers
-      .buildStateSchema(this.list.type, this)
+      .buildStateSchema(this.list?.type, this)
       .valid(true, false)
 
     addClassOptionIfNone(this.options, 'govuk-radios--inline')

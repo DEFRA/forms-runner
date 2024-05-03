@@ -103,14 +103,13 @@ export class ComponentCollection {
     errors?: FormSubmissionErrors,
     conditions?: FormModel['conditions']
   ): ComponentCollectionViewModel {
-    const result =
-      this.items?.map((item: any) => {
-        return {
-          type: item.type,
-          isFormComponent: item.isFormComponent,
-          model: item.getViewModel(formData, errors)
-        }
-      }) ?? []
+    const result = this.items.map((item) => {
+      return {
+        type: item.type,
+        isFormComponent: 'isFormComponent' in item && item.isFormComponent,
+        model: item.getViewModel(formData, errors)
+      }
+    })
 
     if (conditions) {
       return result.filter(

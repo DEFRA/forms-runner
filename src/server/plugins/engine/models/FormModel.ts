@@ -253,8 +253,8 @@ export class FormModel {
     return { allowUnknown: true, presence: 'required' }
   }
 
-  getList(name: string): List | [] {
-    return this.lists.find((list) => list.name === name) ?? []
+  getList(name: string): List | undefined {
+    return this.lists.find((list) => list.name === name)
   }
 
   getContextState(state: FormSubmissionState) {

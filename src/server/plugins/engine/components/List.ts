@@ -1,4 +1,4 @@
-import { type Item } from '@defra/forms-model'
+import { type Item, type List as ListType } from '@defra/forms-model'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import {
@@ -7,7 +7,7 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class List extends ComponentBase {
-  list: List
+  list?: ListType
   get items(): Item[] {
     return this.list?.items ?? []
   }

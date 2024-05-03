@@ -7,9 +7,9 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class FlashCard extends ComponentBase {
-  list: List
+  list?: List
   get items(): Item[] {
-    return this.list.items ?? []
+    return this.list?.items ?? []
   }
 
   constructor(def, model) {
