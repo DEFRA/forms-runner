@@ -71,10 +71,10 @@ export default {
       join(hmpoComponentsPath, 'components')
     ],
     isCached: !config.isDev,
-    context: (request: Request) => ({
+    context: (request: Request | null) => ({
       appVersion: pkg.version,
       assetPath: '/assets',
-      cookiesPolicy: request?.state?.cookies_policy,
+      cookiesPolicy: request?.state.cookies_policy,
       serviceName: capitalize(config.serviceName),
       feedbackLink: config.feedbackLink,
       pageTitle: config.serviceName + ' - GOV.UK',
