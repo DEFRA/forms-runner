@@ -57,8 +57,8 @@ export class FormModel {
   pages: any
   startPage: any
 
-  feeOptions: FormDefinition['feeOptions']
-  specialPages: FormDefinition['specialPages']
+  feeOptions?: FormDefinition['feeOptions']
+  specialPages?: FormDefinition['specialPages']
 
   constructor(def, options) {
     const result = formDefinitionSchema.validate(def, { abortEarly: false })

@@ -62,7 +62,7 @@ export class SummaryViewModel {
     | undefined
 
   _outputs: any // TODO
-  _payApiKey: FormDefinition['payApiKey']
+  _payApiKey?: FormDefinition['payApiKey']
   _webhookData: WebhookData | undefined
   callback?: InitialiseSessionOptions
   showPaymentSkippedWarningPage = false
