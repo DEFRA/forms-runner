@@ -51,7 +51,7 @@ export class FormModel {
   DefaultPageController: any = PageController
   /** the id of the form used for the first url parameter eg localhost:3009/test */
   basePath: string
-  conditions: Record<string, ExecutableCondition> | object
+  conditions: Partial<Record<string, ExecutableCondition>>
   fieldsForContext: ComponentCollection
   fieldsForPrePopulation: Record<string, any>
   pages: any

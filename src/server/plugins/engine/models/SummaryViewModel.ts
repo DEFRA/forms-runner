@@ -1,6 +1,7 @@
 import { type FormDefinition, isMultipleApiKey } from '@defra/forms-model'
 import { type Request } from '@hapi/hapi'
 import { clone, reach } from 'hoek'
+import { type ValidationResult } from 'joi'
 
 import config from '~/src/server/config.js'
 import { decodeFeedbackContextInfo } from '~/src/server/plugins/engine/feedback/index.js'
@@ -162,7 +163,7 @@ export class SummaryViewModel {
       feeOptions.showPaymentSkippedWarningPage ?? false
   }
 
-  private processErrors(result, details) {
+  private processErrors(result: ValidationResult, details) {
     this.errors = result.error.details.map((err) => {
       const name = err.path[err.path.length - 1]
 

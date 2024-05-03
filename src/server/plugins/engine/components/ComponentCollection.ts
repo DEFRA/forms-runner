@@ -112,8 +112,10 @@ export class ComponentCollection {
     })
 
     if (conditions) {
-      return result.filter(
-        (item) => conditions[item.model?.condition]?.fn(formData) ?? true
+      return result.filter((item) =>
+        'condition' in item.model
+          ? conditions[item.model.condition]?.fn(formData)
+          : true
       )
     }
 
