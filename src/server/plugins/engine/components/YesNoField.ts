@@ -69,7 +69,7 @@ export class YesNoField extends ListFormComponent {
     return item?.text ?? ''
   }
 
-  getViewModel(formData: FormData, errors: FormSubmissionErrors) {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const viewModel = super.getViewModel(formData, errors)
 
     viewModel.fieldset = {

@@ -129,7 +129,7 @@ export class PageControllerBase {
     sectionTitle: string
     showTitle: boolean
     components: ComponentCollectionViewModel
-    errors: FormSubmissionErrors
+    errors?: FormSubmissionErrors
     isStartPage: boolean
     startPage?: ResponseObject
     backLink?: string

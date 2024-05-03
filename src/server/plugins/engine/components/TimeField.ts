@@ -23,7 +23,7 @@ export class TimeField extends FormComponent {
     return helpers.getStateSchemaKeys(this.name, 'string', this)
   }
 
-  getViewModel(formData: FormData, errors: FormSubmissionErrors) {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const viewModel = {
       ...super.getViewModel(formData, errors),
       type: 'time'

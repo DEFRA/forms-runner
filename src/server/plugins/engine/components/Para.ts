@@ -5,7 +5,7 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class Para extends ComponentBase {
-  getViewModel(formData: FormData, errors: FormSubmissionErrors) {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const options: any = this.options
     const viewModel = {
       ...super.getViewModel(formData, errors),

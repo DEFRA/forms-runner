@@ -77,7 +77,7 @@ export class MultilineTextField extends FormComponent {
 
   getViewModel(
     formData: FormData,
-    errors: FormSubmissionErrors
+    errors?: FormSubmissionErrors
   ): MultilineTextFieldViewModel {
     const schema = this.schema
     const options = this.options

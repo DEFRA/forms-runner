@@ -8,7 +8,7 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class Html extends ComponentBase {
-  getViewModel(formData: FormData, errors: FormSubmissionErrors) {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const { options } = this
     let content = this.content
     if (config.allowUserTemplates) {

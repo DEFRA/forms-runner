@@ -17,7 +17,7 @@ export class FlashCard extends ComponentBase {
     this.list = model.getList(def.list)
   }
 
-  getViewModel(formData: FormData, errors: FormSubmissionErrors) {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const { items } = this
     const viewModel = super.getViewModel(formData, errors)
 

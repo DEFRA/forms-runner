@@ -27,7 +27,7 @@ export class EmailAddressField extends FormComponent {
     return getStateSchemaKeys(this.name, 'string', this)
   }
 
-  getViewModel(formData: FormData, errors: FormSubmissionErrors) {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const schema = this.schema
     const viewModel = super.getViewModel(formData, errors)
 

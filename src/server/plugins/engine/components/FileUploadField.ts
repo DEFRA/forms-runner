@@ -25,7 +25,7 @@ export class FileUploadField extends FormComponent {
     }
   }
 
-  getViewModel(formData: FormData, errors: FormSubmissionErrors) {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const { options } = this
     const viewModel: ViewModel = {
       ...super.getViewModel(formData, errors),

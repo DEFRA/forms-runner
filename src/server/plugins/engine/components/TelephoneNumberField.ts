@@ -48,7 +48,7 @@ export class TelephoneNumberField extends FormComponent {
     return { [this.name]: this.schema as Schema }
   }
 
-  getViewModel(formData: FormData, errors: FormSubmissionErrors) {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const viewModel = {
       ...super.getViewModel(formData, errors),
       type: 'tel',

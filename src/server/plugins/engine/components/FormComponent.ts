@@ -70,7 +70,7 @@ export class FormComponent extends ComponentBase {
     return string
   }
 
-  getViewModel(formData: FormData, errors: FormSubmissionErrors) {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const options: any = this.options
     const isOptional = options.required === false
     const optionalPostfix =

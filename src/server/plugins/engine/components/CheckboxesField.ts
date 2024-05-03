@@ -39,7 +39,7 @@ export class CheckboxesField extends SelectionControlField {
       .join(', ')
   }
 
-  getViewModel(formData: FormData, errors: FormSubmissionErrors) {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const viewModel = super.getViewModel(formData, errors)
     const formDataItems = (formData[this.name] ?? '').split(',')
     viewModel.items = (viewModel.items ?? []).map((item) => ({

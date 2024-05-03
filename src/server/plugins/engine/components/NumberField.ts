@@ -54,7 +54,7 @@ export class NumberField extends FormComponent {
     return { [this.name]: this.schema as Schema }
   }
 
-  getViewModel(formData: FormData, errors: FormSubmissionErrors) {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const schema: any = this.schema
     const options: any = this.options
     const { suffix, prefix } = options

@@ -9,7 +9,7 @@ import {
 
 export class SelectField extends ListFormComponent {
   dataType = 'list' as DataType
-  getViewModel(formData: FormData, errors: FormSubmissionErrors) {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const options: SelectFieldComponent['options'] = this.options
     const viewModel = super.getViewModel(formData, errors)
 

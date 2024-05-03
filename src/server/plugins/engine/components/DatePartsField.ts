@@ -116,7 +116,7 @@ export class DatePartsField extends FormComponent {
   }
 
   // @ts-expect-error - Property 'getViewModel' in type 'DatePartsField' is not assignable to the same property in base type 'FormComponent'
-  getViewModel(formData: FormData, errors: FormSubmissionErrors) {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const viewModel = super.getViewModel(formData, errors)
 
     // Use the component collection to generate the subitems

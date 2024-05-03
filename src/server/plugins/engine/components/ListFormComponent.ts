@@ -73,7 +73,7 @@ export class ListFormComponent extends FormComponent {
     return item?.text ?? ''
   }
 
-  getViewModel(formData: FormData, errors: FormSubmissionErrors) {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const { name, items } = this
     const viewModel = super.getViewModel(formData, errors)
     const viewModelItems: ListItem[] =

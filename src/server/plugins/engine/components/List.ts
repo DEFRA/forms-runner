@@ -17,7 +17,7 @@ export class List extends ComponentBase {
     this.list = model.getList(def.list)
   }
 
-  getViewModel(formData: FormData, errors: FormSubmissionErrors) {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const { items, options } = this
     const viewModel = super.getViewModel(formData, errors)
 
