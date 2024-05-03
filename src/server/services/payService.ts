@@ -86,7 +86,7 @@ export class PayService {
     }
   }
 
-  referenceFromFees(prefixes = [], referenceFormat = '') {
+  referenceFromFees(prefixes: string[] = [], referenceFormat = '') {
     if (!referenceFormat) {
       const reference = nanoid(10)
       this.logger.info(

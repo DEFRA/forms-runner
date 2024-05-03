@@ -33,15 +33,15 @@ type OutputModel = Output & {
 }
 
 function isWebhookModel(
-  output: OutputModel['outputData']
+  output?: OutputModel['outputData']
 ): output is WebhookModel {
-  return (output as WebhookModel)?.url !== undefined
+  return !!(output && 'url' in output)
 }
 
 function isNotifyModel(
-  output: OutputModel['outputData']
+  output?: OutputModel['outputData']
 ): output is NotifyModel {
-  return (output as NotifyModel)?.emailAddress !== undefined
+  return !!(output && 'emailAddress' in output)
 }
 
 export class StatusService {

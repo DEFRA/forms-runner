@@ -1,4 +1,4 @@
-import PgBoss from 'pg-boss'
+import PgBoss, { type JobWithMetadata } from 'pg-boss'
 
 import config from '~/src/server/config.js'
 import { QueueService } from '~/src/server/services/QueueService.js'
@@ -35,7 +35,7 @@ export class PgBossQueueService extends QueueService {
    * This request will happen once, and timeout in 2s.
    */
   async getReturnRef(jobId: string): Promise<string> {
-    let job
+    let job: JobWithMetadata | null = null
 
     try {
       job = await this.queue.getJobById(jobId)
