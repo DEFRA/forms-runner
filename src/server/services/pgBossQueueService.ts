@@ -39,7 +39,9 @@ export class PgBossQueueService extends QueueService {
 
     try {
       job = await this.queue.getJobById(jobId)
-    } catch (e) {
+    } catch (e) {}
+
+    if (!job) {
       return 'UNKNOWN'
     }
 
