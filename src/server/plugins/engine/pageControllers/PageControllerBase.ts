@@ -466,9 +466,9 @@ export class PageControllerBase {
         !isInitialisedSession
 
       if (shouldRedirectToStartPage) {
-        return startPage!.startsWith('http')
-          ? redirectTo(request, h, startPage!)
-          : redirectTo(request, h, `/${this.model.basePath}${startPage!}`)
+        return startPage?.startsWith('http')
+          ? redirectTo(request, h, startPage)
+          : redirectTo(request, h, `/${this.model.basePath}${startPage}`)
       }
 
       formData.lang = lang
@@ -484,9 +484,9 @@ export class PageControllerBase {
         })
       }
       const viewModel = this.getViewModel(formData, num)
-      viewModel.startPage = startPage!.startsWith('http')
-        ? redirectTo(request, h, startPage!)
-        : redirectTo(request, h, `/${this.model.basePath}${startPage!}`)
+      viewModel.startPage = startPage?.startsWith('http')
+        ? redirectTo(request, h, startPage)
+        : redirectTo(request, h, `/${this.model.basePath}${startPage}`)
 
       this.setPhaseTag(viewModel)
       this.setFeedbackDetails(viewModel, request)
