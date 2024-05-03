@@ -69,10 +69,12 @@ describe('Server PayService Service', () => {
   })
 
   describe('reference is generated correctly', () => {
-    jest.mocked(nanoid).mockReturnValue('b33pb00p')
-
     const today = format(new Date(), 'ddMMyyyy')
     const service = new PayService(server)
+
+    beforeEach(() => {
+      jest.mocked(nanoid).mockReturnValue('b33pb00p')
+    })
 
     test('{{PREFIX}} replacement is correct', () => {
       expect(
