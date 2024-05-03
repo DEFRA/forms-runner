@@ -1,0 +1,72 @@
+{
+  "metadata": {},
+  "startPage": "/first-page",
+  "pages": [
+    {
+      "title": "First page",
+      "path": "/first-page",
+      "components": [
+        {
+          "name": "wqJmSf",
+          "options": {
+            "required": true
+          },
+          "type": "DateField",
+          "title": "dob"
+        }
+      ],
+      "next": [
+        {
+          "path": "/second-page",
+          "condition": "ugLwIF"
+        },
+        {
+          "path": "/third-page"
+        }
+      ]
+    },
+    {
+      "path": "/second-page",
+      "title": "Second page",
+      "components": [],
+      "next": []
+    },
+    {
+      "path": "/third-page",
+      "title": "Third page",
+      "components": [],
+      "next": []
+    }
+  ],
+  "lists": [],
+  "sections": [],
+  "conditions": [
+    {
+      "displayName": "isAtMost30DaysInFuture",
+      "name": "ugLwIF",
+      "value": {
+        "name": "isAtMost30DaysInFuture",
+        "conditions": [
+          {
+            "field": {
+              "name": "wqJmSf",
+              "type": "DateField",
+              "display": "dob"
+            },
+            "operator": "is at most",
+            "value": {
+              "type": "RelativeTime",
+              "timePeriod": "30",
+              "timeUnit": "days",
+              "direction": "in the future",
+              "timeOnly": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "fees": [],
+  "outputs": [],
+  "version": 2
+}

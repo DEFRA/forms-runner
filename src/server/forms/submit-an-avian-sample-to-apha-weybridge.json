@@ -1,0 +1,718 @@
+{
+  "metadata": {},
+  "startPage": "/whats-the-clients-address",
+  "pages": [
+    {
+      "title": "What's the client's address?",
+      "path": "/whats-the-clients-address",
+      "components": [
+        {
+          "name": "oRwwqu",
+          "options": {},
+          "type": "UkAddressField",
+          "title": "Address",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/are-the-birds-be-kept-at-the-clients-address" }],
+      "section": "HrRGBP"
+    },
+    {
+      "path": "/whats-the-clients-name",
+      "title": "What's the client's name?",
+      "components": [
+        {
+          "name": "aQPevM",
+          "options": {},
+          "type": "TextField",
+          "title": "client name",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/whats-the-clients-address" }],
+      "section": "HrRGBP"
+    },
+    {
+      "title": "Summary",
+      "path": "/summary",
+      "controller": "./pages/summary.js",
+      "components": [],
+      "next": []
+    },
+    {
+      "path": "/are-the-birds-be-kept-at-the-clients-address",
+      "title": "Are the birds be kept at the client's address?",
+      "components": [
+        {
+          "name": "MjlbsP",
+          "options": {},
+          "type": "YesNoField",
+          "title": "address birds are kept",
+          "schema": {}
+        }
+      ],
+      "next": [
+        { "path": "/where-are-the-birds-kept" },
+        { "path": "/enter-the-address-of-the-veterinary-practice" }
+      ],
+      "section": "HrRGBP"
+    },
+    {
+      "path": "/where-are-the-birds-kept",
+      "title": "Where are the birds kept?",
+      "components": [
+        {
+          "name": "CzelOU",
+          "options": {},
+          "type": "UkAddressField",
+          "title": "address birds are kept",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/enter-the-address-of-the-veterinary-practice" }],
+      "section": "HrRGBP"
+    },
+    {
+      "path": "/enter-the-address-of-the-veterinary-practice",
+      "title": "Enter the address of the veterinary practice",
+      "components": [
+        {
+          "name": "RSTxeR",
+          "options": {},
+          "type": "UkAddressField",
+          "title": "veterinary practice address",
+          "schema": {}
+        }
+      ],
+      "next": [
+        { "path": "/whats-the-phone-number-of-the-veterinary-practice" }
+      ],
+      "section": "HrRGBP"
+    },
+    {
+      "path": "/whats-the-phone-number-of-the-veterinary-practice",
+      "title": "What's the phone number of the veterinary practice?",
+      "components": [
+        {
+          "name": "KgxRCC",
+          "options": {},
+          "type": "TelephoneNumberField",
+          "title": "phone number",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/whats-your-reference-number" }],
+      "section": "HrRGBP"
+    },
+    {
+      "path": "/whats-your-reference-number",
+      "title": "What's your reference number?",
+      "components": [
+        {
+          "name": "ujvjBf",
+          "options": {},
+          "type": "NumberField",
+          "title": "reference number",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/whats-your-flock-code" }],
+      "section": "HrRGBP"
+    },
+    {
+      "path": "/whats-your-flock-code",
+      "title": "What's your flock code?",
+      "components": [
+        {
+          "name": "tbBYzD",
+          "options": {},
+          "type": "Para",
+          "content": "[hint text about where to find flock code]",
+          "schema": {}
+        },
+        {
+          "name": "RxobbO",
+          "options": { "required": false, "hideTitle": true },
+          "type": "TextField",
+          "title": "flock code",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/what-type-of-birds-are-you-sending-samples-of" }],
+      "section": "HrRGBP"
+    },
+    {
+      "path": "/what-type-of-birds-are-you-sending-samples-of",
+      "title": "What type of birds are you sending samples of?",
+      "components": [
+        {
+          "name": "hCfnvq",
+          "options": {},
+          "type": "RadiosField",
+          "title": "type of bird",
+          "list": "YNxsnv",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/what-breed-or-strain-are-the-birds" }],
+      "section": "mbvfwp"
+    },
+    {
+      "path": "/what-breed-or-strain-are-the-birds",
+      "title": "What breed or strain are the birds?",
+      "components": [
+        {
+          "name": "MgyrKr",
+          "options": {},
+          "type": "TextField",
+          "title": "breed or strain",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/what-sex-are-the-birds" }],
+      "section": "mbvfwp"
+    },
+    {
+      "path": "/what-sex-are-the-birds",
+      "title": "What sex are the birds?",
+      "components": [
+        {
+          "name": "sLFDwo",
+          "options": {},
+          "type": "RadiosField",
+          "title": "sex of bird",
+          "list": "xkCEjI",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/for-what-purpose-are-you-keeping-the-birds" }],
+      "section": "mbvfwp"
+    },
+    {
+      "path": "/for-what-purpose-are-you-keeping-the-birds",
+      "title": "For what purpose are you keeping the birds?",
+      "components": [
+        {
+          "name": "EIZpHw",
+          "options": {},
+          "type": "CheckboxesField",
+          "list": "OjJfCw",
+          "title": "bird purpose",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/are-the-birds-for-organic-production" }]
+    },
+    {
+      "path": "/are-the-birds-for-organic-production",
+      "title": "Are the birds for organic production?",
+      "components": [
+        {
+          "name": "GBTfNd",
+          "options": {},
+          "type": "YesNoField",
+          "title": "organic production",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/what-type-of-housing-are-the-bird-kept-in" }]
+    },
+    {
+      "path": "/what-type-of-housing-are-the-bird-kept-in",
+      "title": "What type of housing are the bird kept in?",
+      "components": [
+        {
+          "name": "PKMsDT",
+          "options": {},
+          "type": "RadiosField",
+          "list": "yCOQVd",
+          "title": "type of housing",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/what-are-the-samples-for" }]
+    },
+    {
+      "path": "/what-are-the-samples-for",
+      "title": "What are the samples for?",
+      "components": [
+        {
+          "name": "EpnTdo",
+          "options": {},
+          "type": "RadiosField",
+          "list": "heRSeU",
+          "title": "sample use",
+          "schema": {}
+        }
+      ],
+      "next": [
+        { "path": "/are-the-samples-from-animals-showing-clinical-signs" }
+      ]
+    },
+    {
+      "path": "/are-the-samples-from-animals-showing-clinical-signs",
+      "title": "Are the samples from animals showing clinical signs?",
+      "components": [
+        {
+          "name": "NZEana",
+          "options": {},
+          "type": "YesNoField",
+          "title": "clinical signs",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/have-you-previously-discussed-this-case-or-outbreak-with-the-animal-and-plant-health-agency"
+        }
+      ]
+    },
+    {
+      "path": "/have-you-previously-discussed-this-case-or-outbreak-with-the-animal-and-plant-health-agency",
+      "title": "Have you previously discussed this case or outbreak with the Animal and Plant Health Agency?",
+      "components": [
+        {
+          "name": "FVStpG",
+          "options": {},
+          "type": "YesNoField",
+          "title": "previous discussions or farm visit",
+          "schema": {}
+        }
+      ],
+      "next": [
+        { "path": "/whats-the-submission-number", "condition": "tvwxMn" },
+        { "path": "/what-are-the-clinical-signs" }
+      ]
+    },
+    {
+      "path": "/whats-the-submission-number",
+      "title": "What's the submission number?",
+      "components": [
+        {
+          "name": "RpxyTV",
+          "options": {},
+          "type": "NumberField",
+          "title": "Submission number",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/did-you-discuss-the-case-by-phone-or-with-an-inspector-visiting-your-farm"
+        }
+      ]
+    },
+    {
+      "path": "/what-are-the-clinical-signs",
+      "title": "What are the clinical signs?",
+      "components": [
+        {
+          "name": "tmurfh",
+          "options": {},
+          "type": "CheckboxesField",
+          "list": "hvbRtn",
+          "title": "clinical signs",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/number-of-birds" }]
+    },
+    {
+      "path": "/did-you-discuss-the-case-by-phone-or-with-an-inspector-visiting-your-farm",
+      "title": "Did you discuss the case by phone or with an inspector visiting your farm?",
+      "components": [
+        {
+          "name": "wrlZEu",
+          "options": {},
+          "type": "CheckboxesField",
+          "list": "WjOtFi",
+          "title": "Phone discussion or farm visit",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/what-are-the-clinical-signs" }]
+    },
+    {
+      "path": "/number-of-birds",
+      "title": "Number of birds",
+      "components": [
+        {
+          "name": "YxwkOI",
+          "options": {},
+          "type": "NumberField",
+          "title": "How many birds are there in the flock?",
+          "schema": {}
+        },
+        {
+          "name": "fhElQy",
+          "options": {},
+          "type": "NumberField",
+          "title": "How old were  the birds when they were placed in the flock?",
+          "schema": {}
+        },
+        {
+          "name": "jjFXVr",
+          "options": {},
+          "type": "NumberField",
+          "title": "How many birds are affected in the group?",
+          "schema": {}
+        },
+        {
+          "name": "btrQrZ",
+          "options": {},
+          "type": "NumberField",
+          "title": "How many birds are affected?",
+          "schema": {}
+        },
+        {
+          "name": "twbngf",
+          "options": {},
+          "type": "NumberField",
+          "title": "How many birds have died?",
+          "schema": {}
+        },
+        {
+          "name": "qIDIZy",
+          "options": {},
+          "type": "NumberField",
+          "title": "How old are the birds now?",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/notes-about-the-birds" }]
+    },
+    {
+      "path": "/notes-about-the-birds",
+      "title": "Notes about the birds",
+      "components": [
+        {
+          "name": "fPzGFL",
+          "options": {},
+          "type": "TextField",
+          "title": "Use this section to include relevant notes about the clinical history of the birds",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/select-the-tests-you-need" }]
+    },
+    {
+      "path": "/select-the-tests-you-need",
+      "title": "Select the tests you need",
+      "components": [
+        {
+          "name": "cMbEOf",
+          "options": {},
+          "type": "Para",
+          "content": "[text about tests]"
+        },
+        {
+          "name": "QrHIVP",
+          "options": { "required": false },
+          "type": "CheckboxesField",
+          "list": "mhRgsw",
+          "title": "Avian influenza tests",
+          "schema": {}
+        },
+        {
+          "name": "hYKziU",
+          "options": { "required": false },
+          "type": "CheckboxesField",
+          "title": "Newcastle disease tests",
+          "list": "HuCLjx",
+          "schema": {}
+        },
+        {
+          "name": "FjDyZl",
+          "options": { "required": false },
+          "type": "CheckboxesField",
+          "list": "eSJUVY",
+          "title": "Avian influenza isolation",
+          "schema": {}
+        },
+        {
+          "name": "NEozBU",
+          "options": { "required": false },
+          "type": "CheckboxesField",
+          "title": "Other tests",
+          "list": "YxfoqE",
+          "hint": "Select other if the test you need is not listed",
+          "schema": {}
+        }
+      ],
+      "next": [
+        { "path": "/sample-information", "condition": "PvOMmc" },
+        { "path": "/what-extra-tests-do-you-need", "condition": "lHkClp" }
+      ]
+    },
+    {
+      "path": "/what-extra-tests-do-you-need",
+      "title": "What extra tests do you need?",
+      "components": [
+        {
+          "name": "ISpLFF",
+          "options": {},
+          "type": "TextField",
+          "title": "extra tests"
+        }
+      ],
+      "next": [{ "path": "/sample-information" }]
+    },
+    {
+      "path": "/sample-information",
+      "title": "Sample information",
+      "components": [
+        {
+          "name": "hQEMQx",
+          "options": {},
+          "type": "TextField",
+          "title": "Bird and sample information",
+          "hint": "This page needs tabular data input. Text input used as subsitute for AI demo."
+        }
+      ],
+      "next": [{ "path": "/summary" }]
+    }
+  ],
+  "lists": [
+    {
+      "title": "Bird type",
+      "name": "YNxsnv",
+      "type": "string",
+      "items": [
+        { "text": "Chicken", "value": "Chicken" },
+        { "text": "Turkey", "value": "Turkey" },
+        { "text": "Duck", "value": "Duck" },
+        { "text": "Goose", "value": "Goose" },
+        { "text": "Partridge", "value": "Partridge" },
+        { "text": "Pheasant", "value": "Pheasant" },
+        { "text": "Other", "value": "Other" }
+      ]
+    },
+    {
+      "title": "sex of bird",
+      "name": "xkCEjI",
+      "type": "string",
+      "items": [
+        { "text": "Male", "value": "Male" },
+        { "text": "Female", "value": "Female" },
+        { "text": "Mixed", "value": "Mixed" },
+        { "text": "Not applicable", "value": "Not applicable" }
+      ]
+    },
+    {
+      "title": "bird purpose",
+      "name": "OjJfCw",
+      "type": "string",
+      "items": [
+        {
+          "text": "Breeder or parent - layers",
+          "value": "Breeder or parent - layers"
+        },
+        {
+          "text": "Breeder or parent - meat",
+          "value": "Breeder or parent - meat"
+        },
+        { "text": "Layers", "value": "Layers" },
+        { "text": "Layers (rear)", "value": "Layers (rear)" },
+        { "text": "Broilers or meat", "value": "Broilers or meat" },
+        { "text": "Captive or zoo", "value": "Captive or zoo" },
+        { "text": "Pet, backyard or show", "value": "Pet, backyard or show" },
+        { "text": "Game (rear)", "value": "Game (rear)" },
+        { "text": "Game )breed)", "value": "Game )breed)" }
+      ]
+    },
+    {
+      "title": "Type of housing",
+      "name": "yCOQVd",
+      "type": "string",
+      "items": [
+        { "text": "Controlled environment", "value": "Controlled environment" },
+        { "text": "Pen or barn", "value": "Pen or barn" },
+        { "text": "Free range", "value": "Free range" },
+        { "text": "Commercial cages", "value": "Commercial cages" },
+        { "text": "Other", "value": "Other" }
+      ]
+    },
+    {
+      "title": "sample use",
+      "name": "heRSeU",
+      "type": "string",
+      "items": [
+        { "text": "Import", "value": "Import" },
+        { "text": "Export", "value": "Export" },
+        { "value": "Quarantine", "text": "Quarantine" }
+      ]
+    },
+    {
+      "title": "Clinical signs",
+      "name": "hvbRtn",
+      "type": "string",
+      "items": [
+        {
+          "text": "Wasting or poor condition",
+          "value": "Wasting or poor condition"
+        },
+        { "text": "Abnormal faeces", "value": "Abnormal faeces" },
+        { "text": "Upper GIT signs", "value": "Upper GIT signs" },
+        {
+          "text": "Vent or cloacal disorders",
+          "value": "Vent or cloacal disorders"
+        },
+        { "text": "Recumbent", "value": "Recumbent" },
+        { "text": "Lameness", "value": "Lameness" },
+        { "text": "Muscular or skeletal ", "value": "Muscular or skeletal " },
+        { "text": "Nervous signs", "value": "Nervous signs" },
+        { "text": "Respiratory", "value": "Respiratory" },
+        { "text": "Skin or feathers", "value": "Skin or feathers" },
+        { "text": "Found dead", "value": "Found dead" },
+        { "text": "Egg drop", "value": "Egg drop" },
+        { "text": "Eqq quality", "value": "Eqq quality" },
+        { "text": "Poor hatchability", "value": "Poor hatchability" },
+        { "text": "Unknown", "value": "Unknown" },
+        { "text": "Healthy", "value": "Healthy" },
+        {
+          "text": "Non-specific clinical signs",
+          "value": "Non-specific clinical signs"
+        },
+        { "text": "Other", "value": "Other" },
+        { "text": "None of the above", "value": "None of the above" }
+      ]
+    },
+    {
+      "title": "Type of discussion",
+      "name": "WjOtFi",
+      "type": "string",
+      "items": [
+        { "text": "Spoke on the phone", "value": "Spoke on the phone" },
+        {
+          "text": "An inspector visited my farm",
+          "value": "An inspector visited my farm"
+        }
+      ]
+    },
+    {
+      "title": "Avian influenza tests ",
+      "name": "mhRgsw",
+      "type": "string",
+      "items": [
+        { "text": "HAIT", "value": "HAIT" },
+        { "text": "AGIDT", "value": "AGIDT" },
+        { "text": "PCR (AI generic) - single", "value": "PCR (AI generic)" },
+        {
+          "text": "PCR (AI generic) - pooled",
+          "value": "PCR (AI generic) - pooled"
+        },
+        {
+          "text": "PCR (H5 specific) - single",
+          "value": "PCR (H5 specific) - single"
+        },
+        {
+          "text": "PCR (H5 specific) - pooled",
+          "value": "PCR (H5 specific) - pooled"
+        }
+      ]
+    },
+    {
+      "title": "Newcastle disease tests",
+      "name": "HuCLjx",
+      "type": "string",
+      "items": [
+        { "text": "PCR - single", "value": "PCR - single" },
+        { "text": "PCR - pooled", "value": "PCR - pooled" },
+        {
+          "text": "HAIT: TC0922 serum, for PPMV-1 and NDV only",
+          "value": "HAIT: TC0922 serum, for PPMV-1 and NDV only"
+        },
+        {
+          "text": "HAIT: TC0922 serum, for all other APMV",
+          "value": "HAIT: TC0922 serum, for all other APMV"
+        }
+      ]
+    },
+    {
+      "title": "Avian virus isolation",
+      "name": "eSJUVY",
+      "type": "string",
+      "items": [
+        {
+          "text": "Avian influenza and NDV",
+          "value": "Avian influenza and NDV"
+        }
+      ]
+    },
+    {
+      "title": "Other tests list",
+      "name": "YxfoqE",
+      "type": "string",
+      "items": [{ "text": "Other", "description": "", "value": "Other" }]
+    }
+  ],
+  "sections": [
+    { "name": "HrRGBP", "title": "Client details", "hideTitle": false },
+    { "name": "mbvfwp", "title": "Bird details", "hideTitle": false }
+  ],
+  "conditions": [
+    {
+      "displayName": "yes - discussed case before",
+      "name": "tvwxMn",
+      "value": {
+        "name": "yes - discussed case before",
+        "conditions": [
+          {
+            "field": {
+              "name": "FVStpG",
+              "type": "YesNoField",
+              "display": "previous discussions or farm visit"
+            },
+            "operator": "is",
+            "value": { "type": "Value", "value": "true", "display": "true" }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Is not other",
+      "name": "PvOMmc",
+      "value": {
+        "name": "Is not other",
+        "conditions": [
+          {
+            "field": {
+              "name": "NEozBU",
+              "type": "CheckboxesField",
+              "display": "Other tests"
+            },
+            "operator": "does not contain",
+            "value": { "type": "Value", "value": "Other", "display": "Other" }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Other tests contains other",
+      "name": "lHkClp",
+      "value": {
+        "name": "Other tests contains other",
+        "conditions": [
+          {
+            "field": {
+              "name": "NEozBU",
+              "type": "CheckboxesField",
+              "display": "Other tests"
+            },
+            "operator": "contains",
+            "value": { "type": "Value", "value": "Other", "display": "Other" }
+          }
+        ]
+      }
+    }
+  ],
+  "fees": [],
+  "outputs": [],
+  "version": 2,
+  "skipSummary": false,
+  "feeOptions": {
+    "allowSubmissionWithoutPayment": true,
+    "maxAttempts": 3,
+    "showPaymentSkippedWarningPage": false
+  }
+}

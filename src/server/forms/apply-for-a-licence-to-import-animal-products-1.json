@@ -1,0 +1,2163 @@
+{
+  "metadata": {},
+  "startPage": "/applicants-name",
+  "pages": [
+    {
+      "title": "Applicant's name",
+      "path": "/applicants-name",
+      "components": [
+        {
+          "name": "Applicant's_name",
+          "options": {},
+          "type": "TextField",
+          "title": "Applicant's name",
+          "hint": "This is the name of importing company, This is the name of importing company, laboratory or individual who is applying for the licence.",
+          "schema": {},
+          "nameHasError": false
+        }
+      ],
+      "next": [{ "path": "/applicants-address" }]
+    },
+    {
+      "path": "/applicants-address",
+      "title": "Applicant's address",
+      "components": [
+        {
+          "name": "kNGNST",
+          "options": {},
+          "type": "UkAddressField",
+          "title": "Applicant's address",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/lead-contacts-name" }]
+    },
+    {
+      "title": "Summary",
+      "path": "/summary",
+      "controller": "./pages/summary.js",
+      "components": [],
+      "next": []
+    },
+    {
+      "path": "/lead-contacts-name",
+      "title": "Lead contact's name",
+      "components": [
+        {
+          "name": "yKTYXK",
+          "options": {},
+          "type": "TextField",
+          "title": "Lead contact's name",
+          "hint": "This should be the person we can contact about any queries we have about your application.",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/lead-contacts-telephone-number" }]
+    },
+    {
+      "path": "/lead-contacts-telephone-number",
+      "title": "Lead contact's telephone number",
+      "components": [
+        {
+          "name": "dnXKkf",
+          "options": {},
+          "type": "TelephoneNumberField",
+          "title": "Lead contact's telephone number",
+          "schema": {}
+        },
+        {
+          "name": "ZFNEBi",
+          "options": { "required": false },
+          "type": "TelephoneNumberField",
+          "title": "Mobile telephone number",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/lead-contacts-email" }]
+    },
+    {
+      "path": "/lead-contacts-email",
+      "title": "Lead contact's email",
+      "components": [
+        {
+          "name": "hNofAa",
+          "options": {},
+          "type": "EmailAddressField",
+          "title": "Lead contact's email address",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/what-is-your-position-in-the-organisation" }]
+    },
+    {
+      "path": "/what-is-your-position-in-the-organisation",
+      "title": "What is your position in the organisation?",
+      "components": [
+        {
+          "name": "UkGQyn",
+          "options": {},
+          "type": "TextField",
+          "title": "your position in the organisation",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/what-are-your-relevant-qualifications" }]
+    },
+    {
+      "path": "/what-are-your-relevant-qualifications",
+      "title": "What are your relevant qualifications?",
+      "components": [
+        {
+          "name": "ofKHPQ",
+          "options": { "hideTitle": false },
+          "type": "MultilineTextField",
+          "title": "your relevant qualifications",
+          "hint": "For example ....",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/type-of-application" }]
+    },
+    {
+      "path": "/what-is-the-name-of-the-lead-contact-at-the-destination-premises",
+      "title": "What is the name of the lead contact at the destination premises?",
+      "components": [
+        {
+          "name": "DBWUOa",
+          "options": {},
+          "type": "TextField",
+          "title": "the name of the lead contact at the destination premises",
+          "hint": "This should be the person in charge of the premises or  responsible for the work been undertaken.",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/destination-premises-address" }]
+    },
+    {
+      "path": "/destination-premises-address",
+      "title": "Destination premises address",
+      "components": [
+        {
+          "name": "yLyyOe",
+          "options": {},
+          "type": "UkAddressField",
+          "title": "Destination premises address",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/destination-premises-telephone-number" }]
+    },
+    {
+      "path": "/destination-premises-telephone-number",
+      "title": "Destination premises telephone number",
+      "components": [
+        {
+          "name": "eFKrqg",
+          "options": {},
+          "type": "TelephoneNumberField",
+          "title": "the destination premises telephone number",
+          "hint": "This should be the most relevant telephone number to contact the lead person at the destination premises on.",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/destination-premises-email-address" }]
+    },
+    {
+      "path": "/destination-premises-email-address",
+      "title": "Destination premises email address",
+      "components": [
+        {
+          "name": "Raoobr",
+          "options": {},
+          "type": "EmailAddressField",
+          "title": "the destination premises email address",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/what-is-their-position-in-the-organisation" }]
+    },
+    {
+      "path": "/what-is-their-position-in-the-organisation",
+      "title": "What is their position in the organisation?",
+      "components": [
+        {
+          "name": "fDWfxx",
+          "options": {},
+          "type": "TextField",
+          "title": "their position in the organisation",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/what-are-thier-relevant-qualifications" }]
+    },
+    {
+      "path": "/what-are-thier-relevant-qualifications",
+      "title": "What are thier relevant qualifications?",
+      "components": [
+        {
+          "name": "MHgEiq",
+          "options": {},
+          "type": "MultilineTextField",
+          "title": "thier relevant qualifications",
+          "hint": "For example ....",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/is-their-an-agent-involved" }]
+    },
+    {
+      "path": "/is-their-an-agent-involved",
+      "title": "Is their an agent involved?",
+      "components": [
+        {
+          "name": "WrVIQZ",
+          "options": {},
+          "type": "YesNoField",
+          "title": "if their is an agent involved",
+          "schema": {},
+          "values": { "type": "listRef" }
+        }
+      ],
+      "next": [
+        { "path": "/agents-name", "condition": "HKRBoy" },
+        {
+          "path": "/does-the-destination-premises-have-relevant-laboratory-accreditation-status"
+        }
+      ]
+    },
+    {
+      "path": "/agents-name",
+      "title": "Agent's name",
+      "components": [
+        {
+          "name": "YnrraU",
+          "options": {},
+          "type": "TextField",
+          "title": "Agent's name",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/agents-address" }]
+    },
+    {
+      "path": "/agents-address",
+      "title": "Agent's address",
+      "components": [
+        {
+          "name": "PCDzyy",
+          "options": {},
+          "type": "UkAddressField",
+          "title": "Agent's address",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/agents-telephone-number" }]
+    },
+    {
+      "path": "/agents-telephone-number",
+      "title": "Agent's telephone number",
+      "components": [
+        {
+          "type": "TelephoneNumberField",
+          "title": "agent's telephone number",
+          "name": "Agent's_telephone_number",
+          "nameHasError": false,
+          "options": {},
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/agents-email" }]
+    },
+    {
+      "path": "/agents-email",
+      "title": "Agent's email",
+      "components": [
+        {
+          "name": "CzzDps",
+          "options": {},
+          "type": "EmailAddressField",
+          "title": "agent's email address",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/does-the-destination-premises-have-relevant-laboratory-accreditation-status"
+        }
+      ]
+    },
+    {
+      "path": "/does-the-destination-premises-have-relevant-laboratory-accreditation-status",
+      "title": "Does the destination premises have relevant laboratory accreditation status?",
+      "components": [
+        {
+          "name": "arLyCf",
+          "options": {},
+          "type": "YesNoField",
+          "title": "Does the destination premises have relevant laboratory accreditation status? ",
+          "hint": "For example, accreditation to ISO17025 or\nhold a license under Specified Animal Pathogens Order (SAPO).",
+          "values": { "type": "listRef" },
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/provide-details-of-the-accreditations",
+          "condition": "KBjDIM"
+        },
+        {
+          "path": "/are-the-standard-operating-procedures-and-good-laboratory-practice-principles-in-place-and-applied"
+        }
+      ]
+    },
+    {
+      "path": "/provide-details-of-the-accreditations",
+      "title": "Provide details of the accreditations",
+      "components": [
+        {
+          "name": "iRsivV",
+          "options": {},
+          "type": "MultilineTextField",
+          "title": "details of the accreditations ",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/are-the-standard-operating-procedures-and-good-laboratory-practice-principles-in-place-and-applied"
+        }
+      ]
+    },
+    {
+      "path": "/are-the-standard-operating-procedures-and-good-laboratory-practice-principles-in-place-and-applied",
+      "title": "Are the Standard Operating Procedures and Good Laboratory Practice principles in place and applied?",
+      "components": [
+        {
+          "name": "CVIfET",
+          "options": {},
+          "type": "Para",
+          "content": "This include the recommendations contained in recognised relevant guidance documents.Refer to the‘Notes for Completion’ for further \ninformation.\n",
+          "schema": {}
+        },
+        {
+          "name": "QHtPgu",
+          "options": { "hideTitle": true },
+          "type": "YesNoField",
+          "title": "if Standard Operating Procedures and Good Laboratory Practice principles in place and applied including the  recommendations contained in recognised relevant guidance documents",
+          "values": { "type": "listRef" },
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/details-of-standard-operating-procedures-and-good-laboratory-practice-principles-in-place-and-applied",
+          "condition": "BKsDGe"
+        },
+        {
+          "path": "/does-the-destination-premises-meet-acdp-or-gmo-containment-standards"
+        }
+      ]
+    },
+    {
+      "path": "/details-of-standard-operating-procedures-and-good-laboratory-practice-principles-in-place-and-applied",
+      "title": "Details of  Standard Operating Procedures and Good Laboratory Practice principles in place and applied",
+      "components": [
+        {
+          "name": "qtkLnE",
+          "options": {},
+          "type": "MultilineTextField",
+          "title": "details of  Standard Operating Procedures and Good Laboratory Practice principles in place and applied",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/does-the-destination-premises-meet-acdp-or-gmo-containment-standards"
+        }
+      ]
+    },
+    {
+      "path": "/does-the-destination-premises-meet-acdp-or-gmo-containment-standards",
+      "title": "Does the destination premises meet ACDP or GMO containment standards?",
+      "components": [
+        {
+          "name": "uvcfKJ",
+          "options": {},
+          "type": "YesNoField",
+          "title": "Does the destination premises meet ACDP or GMO containment standards?",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/what-acdp-contimation-level-does-it-meet",
+          "condition": "ZaeHyu"
+        },
+        {
+          "path": "/is-the-destination-premises-registered-and-approved-under-the-animal-by-products-enforcement-regulations-2011"
+        }
+      ]
+    },
+    {
+      "path": "/what-acdp-contimation-level-does-it-meet",
+      "title": "What ACDP contimation level does it meet?",
+      "components": [
+        {
+          "name": "ACDP_contimation_level",
+          "options": {},
+          "type": "RadiosField",
+          "title": " the ACDP contimation level  that it meets",
+          "list": "nURgMR",
+          "nameHasError": false,
+          "values": { "type": "listRef" },
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/which-contimation-standards-does-it-adhere-to" }]
+    },
+    {
+      "path": "/which-contimation-standards-does-it-adhere-to",
+      "title": "Which contimation standards does it adhere to?",
+      "components": [
+        {
+          "name": "UkrBIS",
+          "options": {},
+          "type": "MultilineTextField",
+          "title": "Which contimation standards does it adhere to?",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/is-the-destination-premises-registered-and-approved-under-the-animal-by-products-enforcement-regulations-2011"
+        }
+      ]
+    },
+    {
+      "path": "/is-the-destination-premises-registered-and-approved-under-the-animal-by-products-enforcement-regulations-2011",
+      "title": "Is the destination premises registered and approved under the Animal By-Products (Enforcement) Regulations 2011?",
+      "components": [
+        {
+          "name": "lzejwO",
+          "options": {},
+          "type": "YesNoField",
+          "title": "Is the destination premises registered and approved under the Animal By-Products (Enforcement) Regulations 2011?",
+          "hint": "Read about registration and approval under the Animal By-Products (Enforcement) Regulations 2011",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/provide-the-registration-or-approval-number",
+          "condition": "btwSCZ"
+        },
+        {
+          "path": "/has-the-destination-premises-carried-out-a-risk-assessment-for-receipt-and-storage-of-the-specified-animal-pathogens-carriers-or-animal-products"
+        }
+      ]
+    },
+    {
+      "path": "/provide-the-registration-or-approval-number",
+      "title": "Provide the registration or approval number",
+      "components": [
+        {
+          "name": "Vksqsn",
+          "options": {},
+          "type": "TextField",
+          "title": "Provide the registration or approval number",
+          "hint": "This reference number is found on the .... and is 10 digits long.",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/has-the-destination-premises-carried-out-a-risk-assessment-for-receipt-and-storage-of-the-specified-animal-pathogens-carriers-or-animal-products"
+        }
+      ]
+    },
+    {
+      "path": "/has-the-destination-premises-carried-out-a-risk-assessment-for-receipt-and-storage-of-the-specified-animal-pathogens-carriers-or-animal-products",
+      "title": "Has the destination premises carried out a risk assessment for receipt and storage of the specified animal pathogens, carriers or animal products?",
+      "components": [
+        {
+          "name": "qmKogc",
+          "options": {},
+          "type": "YesNoField",
+          "title": "Has the destination premises carried out a risk assessment for receipt and storage of the specified animal pathogens, carriers or animal products?",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/provide-details-of-the-a-risk-assessment-for-receipt-and-storage-of-the-specified-animal-pathogenscarriers-or-animal-products",
+          "condition": "whzTKP"
+        },
+        {
+          "path": "/is-the-material-likely-to-come-into-contact-with-ruminating-animals-swine-equidae-or-birds"
+        }
+      ]
+    },
+    {
+      "path": "/provide-details-of-the-a-risk-assessment-for-receipt-and-storage-of-the-specified-animal-pathogenscarriers-or-animal-products",
+      "title": "Provide details of the a risk assessment for receipt and storage of the specified animal pathogens,carriers or animal products",
+      "components": [
+        {
+          "name": "YmeMkG",
+          "options": {},
+          "type": "MultilineTextField",
+          "title": "Provide details of the a risk assessment for receipt and storage of the specified animal pathogens,carriers or animal products",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/is-the-material-likely-to-come-into-contact-with-ruminating-animals-swine-equidae-or-birds"
+        }
+      ]
+    },
+    {
+      "path": "/is-the-material-likely-to-come-into-contact-with-ruminating-animals-swine-equidae-or-birds",
+      "title": "Is the material likely to come into contact with ruminating animals, swine, equidae or birds?",
+      "components": [
+        {
+          "name": "tMixwD",
+          "options": {},
+          "type": "YesNoField",
+          "title": "Is the material likely to come into contact with ruminating animals, swine, equidae or birds?",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/provide-details-of-how-the-material-could-come-into-contact-with-ruminating-animals-swine-equidae-or-birds",
+          "condition": "uGOHDv"
+        },
+        {
+          "path": "/do-any-of-the-laboratory-personnel-who-will-be-handling-the-material-have-contact-with-ruminants-swine-equidae-captive-birds-or-poultry-not-involved-in-the-proposed-work-BSiLAr"
+        }
+      ]
+    },
+    {
+      "path": "/provide-details-of-how-the-material-could-come-into-contact-with-ruminating-animals-swine-equidae-or-birds",
+      "title": "Provide details of how the material could come into contact with ruminating animals, swine, equidae or birds",
+      "components": [
+        {
+          "name": "iVQzhk",
+          "options": {},
+          "type": "MultilineTextField",
+          "title": "Provide details of how the material could come into contact with ruminating animals, swine, equidae or birds",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/do-any-of-the-laboratory-personnel-who-will-be-handling-the-material-have-contact-with-ruminants-swine-equidae-captive-birds-or-poultry-not-involved-in-the-proposed-work-BSiLAr"
+        }
+      ]
+    },
+    {
+      "path": "/do-any-of-the-laboratory-personnel-who-will-be-handling-the-material-have-contact-with-ruminants-swine-equidae-captive-birds-or-poultry-not-involved-in-the-proposed-work-BSiLAr",
+      "title": "Do any of the laboratory personnel who will be handling the material have contact with ruminants, swine,  equidae, captive birds or poultry not involved in the proposed work?",
+      "components": [
+        {
+          "name": "xQGlaN",
+          "options": {},
+          "type": "YesNoField",
+          "title": "If any of the laboratory personnel who will be handling the material have contact with ruminants, swine,  equidae, captive birds or poultry not involved in the proposed work",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/provide-details-of-the-laboratory-personnel-contact-with-ruminants-swine-equidae-captive-birds-or-poultry-not-involved-in-the-proposed-work"
+        }
+      ]
+    },
+    {
+      "path": "/provide-details-of-the-laboratory-personnel-contact-with-ruminants-swine-equidae-captive-birds-or-poultry-not-involved-in-the-proposed-work",
+      "title": "Provide details of the laboratory personnel contact with ruminants, swine,  equidae, captive birds or poultry not involved in the proposed work",
+      "components": [
+        {
+          "name": "eHNVGJ",
+          "options": {},
+          "type": "MultilineTextField",
+          "title": "details of the laboratory personnel contact with ruminants, swine, equidae, captive birds or poultry not involved in the proposed work",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/what-is-the-intended-use-of-the-animal-product-pathogen-or-carrier"
+        }
+      ]
+    },
+    {
+      "path": "/what-is-the-intended-use-of-the-animal-product-pathogen-or-carrier",
+      "title": "What is the intended use of the animal product, pathogen or carrier?",
+      "components": [
+        {
+          "name": "BHKetS",
+          "options": {},
+          "type": "CheckboxesField",
+          "title": "What is the intended use of the animal product, pathogen or carrier?",
+          "list": "kvReMJ",
+          "schema": {}
+        }
+      ],
+      "next": [
+        { "path": "/will-the-animal-product-pathogen-or-carrier-be-used-for" }
+      ]
+    },
+    {
+      "path": "/will-the-animal-product-pathogen-or-carrier-be-used-for",
+      "title": "Will the animal product ,pathogen or carrier be used for",
+      "components": [
+        {
+          "name": "MubNvG",
+          "options": {},
+          "type": "RadiosField",
+          "title": "Will the animal product ,pathogen or carrier be used for either  in vivo or in vitro work",
+          "list": "ufTDIY",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/provide-a-description-of-nature-of-the-testing-taste-testing-research-or-evaluation-that-will-be-carried-out-for-each-type-of-animal-product-animal-pathogen-or-carrier"
+        }
+      ]
+    },
+    {
+      "path": "/provide-a-description-of-nature-of-the-testing-taste-testing-research-or-evaluation-that-will-be-carried-out-for-each-type-of-animal-product-animal-pathogen-or-carrier",
+      "title": "Provide a description of nature of the testing, taste testing, research or evaluation that will be carried out for each type of animal product, animal pathogen or carrier.",
+      "components": [
+        {
+          "name": "lJKxHZ",
+          "options": {},
+          "type": "MultilineTextField",
+          "title": "a description of nature of the testing, taste testing, research or evaluation that will be carried out for each type of animal product, animal pathogen or carrier. ",
+          "hint": "This must include the methods that are going to be used.",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/is-the-animal-product-pathogen-or-carrier-for-commercial-use"
+        }
+      ]
+    },
+    {
+      "path": "/is-the-animal-product-pathogen-or-carrier-for-commercial-use",
+      "title": "Is the animal product, pathogen or carrier for commercial use?",
+      "components": [
+        {
+          "name": "JsgNlX",
+          "options": {},
+          "type": "YesNoField",
+          "title": "if the animal product,pathogen or carrier for commercial use?",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/provide-details-of-the-commercial-use-of-the-product-pathogen-or-carrier",
+          "condition": "iEsJsd"
+        },
+        { "path": "/what-type-of-material-are-you-going-to-be-importing" }
+      ]
+    },
+    {
+      "path": "/provide-details-of-the-commercial-use-of-the-product-pathogen-or-carrier",
+      "title": "Provide details of the commercial use of the product, pathogen or carrier",
+      "components": [
+        {
+          "name": "vBlaIC",
+          "options": {},
+          "type": "MultilineTextField",
+          "title": "details of the commercial use of the product, pathogen or carrier",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/if-it-is-going-to-be-used-for-future-commercial-use-will-it-be-in"
+        }
+      ]
+    },
+    {
+      "path": "/if-it-is-going-to-be-used-for-future-commercial-use-will-it-be-in",
+      "title": "If it is going to be used for future commercial use, will it be in:",
+      "components": [
+        {
+          "name": "AFVmzm",
+          "options": { "exposeToContext": true },
+          "type": "CheckboxesField",
+          "title": "if it is going to be used for future commercial use, will it be in Great Britain ,EU or another country?",
+          "list": "PnkfXe",
+          "schema": {}
+        }
+      ],
+      "next": [
+        { "path": "/which-country-is-it-going-to-be-used-in", "condition": "" },
+        {
+          "path": "/what-type-of-material-are-you-going-to-be-importing",
+          "condition": "kLheAg"
+        }
+      ]
+    },
+    {
+      "path": "/which-country-is-it-going-to-be-used-in",
+      "title": "Which country is  it going to be used in?",
+      "components": [
+        {
+          "name": "bWfizE",
+          "options": {},
+          "type": "TextField",
+          "title": "which country is going to be used in",
+          "schema": {}
+        }
+      ],
+      "next": [
+        { "path": "/what-type-of-material-are-you-going-to-be-importing" }
+      ]
+    },
+    {
+      "path": "/what-type-of-material-are-you-going-to-be-importing",
+      "title": "What type of material are you going to be importing?",
+      "components": [
+        {
+          "name": "OSulOQ",
+          "options": {},
+          "type": "CheckboxesField",
+          "title": "type of material are you going to be importing",
+          "list": "lRDNnw",
+          "hint": " A ‘pathogen’ is an organism or derivative of, which could cause disease in ruminating animals, horses, swine \nor birds",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/have-you-previously-held-or-do-you-currently-hold-an-import-licence-or-authorisation-for-this-type-of-product-or-pathogen"
+        }
+      ]
+    },
+    {
+      "path": "/have-you-previously-held-or-do-you-currently-hold-an-import-licence-or-authorisation-for-this-type-of-product-or-pathogen",
+      "title": "Have you previously held, or do you currently hold an import licence or authorisation for this type of product or pathogen?",
+      "components": [
+        {
+          "name": "GKGaxE",
+          "options": {},
+          "type": "YesNoField",
+          "title": "if you  have previously held or currently hold an import licence or authorisation for the type of product or pathogen",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/licence-or-authorisation-reference-numbers",
+          "condition": "EEDxCa"
+        },
+        { "path": "/how-long-do-you-need-a-licence-for" }
+      ]
+    },
+    {
+      "path": "/licence-or-authorisation-reference-numbers",
+      "title": "Licence or authorisation reference numbers",
+      "components": [
+        {
+          "name": "bHPlBP",
+          "options": {},
+          "type": "MultilineTextField",
+          "title": " all relevant licence and authorisation reference numbers",
+          "hint": "Enter all licence and authorisation referecen numbers you have held or hold for this type of product or pathogen.",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/how-long-do-you-need-a-licence-for" }]
+    },
+    {
+      "path": "/how-long-do-you-need-a-licence-for",
+      "title": "How long do you need a licence for?",
+      "components": [
+        {
+          "name": "kChetD",
+          "options": {},
+          "type": "Para",
+          "content": "The final decision concerning the length of any individual licence or authorisation is made by the issuing officers.",
+          "schema": {}
+        },
+        {
+          "name": "YEuXUH",
+          "options": { "hideTitle": true },
+          "type": "RadiosField",
+          "title": "how long do you need a licence for",
+          "list": "rbvTON",
+          "values": { "type": "listRef" },
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/whats-the-name-of-the-origin-or-exporter-of-the-consignment"
+        }
+      ]
+    },
+    {
+      "path": "/whats-the-name-of-the-origin-or-exporter-of-the-consignment",
+      "title": "What's the name of the origin or exporter of the consignment?",
+      "components": [
+        {
+          "name": "iGdJCA",
+          "options": {},
+          "type": "TextField",
+          "title": "the name of the origin or exporter of the consignment",
+          "hint": "This is the name of the company or individual that the consignment came from.",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/origin-or-exporter-address" }]
+    },
+    {
+      "path": "/origin-or-exporter-address",
+      "title": "Origin or exporter address",
+      "components": [
+        {
+          "name": "bfPivm",
+          "options": {},
+          "type": "MultilineTextField",
+          "title": "Consignment origin or exporter address",
+          "hint": "You must include the country  in the address.",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/origin-or-exporter-telephone-number" }]
+    },
+    {
+      "path": "/origin-or-exporter-telephone-number",
+      "title": "Origin or exporter telephone number",
+      "components": [
+        {
+          "name": "hhPtPu",
+          "options": {},
+          "type": "TelephoneNumberField",
+          "title": "the origin or exporter telephone number",
+          "hint": "Please include the international dialing code.",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/origin-or-exporter-email-address" }]
+    },
+    {
+      "path": "/origin-or-exporter-email-address",
+      "title": "Origin or exporter email address",
+      "components": [
+        {
+          "name": "ssNePJ",
+          "options": {},
+          "type": "EmailAddressField",
+          "title": "origin or exporter's email address",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/countries-of-origin" }]
+    },
+    {
+      "path": "/countries-of-origin",
+      "title": "Countries of origin",
+      "components": [
+        {
+          "name": "dDdRRb",
+          "options": {},
+          "type": "MultilineTextField",
+          "title": "Enter all countries of origin",
+          "hint": "Enter all countries of origin.",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/countries-of-transhipment-if-applicable" }]
+    },
+    {
+      "path": "/countries-of-transhipment-if-applicable",
+      "title": "Countries of transhipment (if applicable)",
+      "components": [
+        {
+          "name": "ywcpJh",
+          "options": { "required": false },
+          "type": "MultilineTextField",
+          "title": "Countries of transhipment (if applicable)",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/tell-us-which-the-species-the-animal-product-pathogen-or-carrier-is-derived-form"
+        }
+      ]
+    },
+    {
+      "path": "/tell-us-which-the-species-the-animal-product-pathogen-or-carrier-is-derived-form",
+      "title": "Tell us which the species the animal product, pathogen or carrier is derived form?",
+      "components": [
+        {
+          "name": "hmYinb",
+          "options": {},
+          "type": "CheckboxesField",
+          "title": "which the species the animal product, pathogen or carrier is derived form",
+          "list": "nuSiyK",
+          "schema": {}
+        }
+      ],
+      "next": [
+        { "path": "/which-species-is-it-derived-from", "condition": "" },
+        {
+          "path": "/does-the-animal-product-contain-any-of-the-following-products",
+          "condition": "KDYkli"
+        }
+      ]
+    },
+    {
+      "path": "/which-species-is-it-derived-from",
+      "title": "Which species is it derived from?",
+      "components": [
+        {
+          "name": "RgdnKf",
+          "options": {},
+          "type": "TextField",
+          "title": " the species was it is derived from",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/does-the-animal-product-contain-any-of-the-following-products"
+        }
+      ]
+    },
+    {
+      "path": "/does-the-animal-product-contain-any-of-the-following-products",
+      "title": "Does the animal product contain any of the following products?",
+      "components": [
+        {
+          "name": "IksrYQ",
+          "options": {},
+          "type": "CheckboxesField",
+          "title": "if the animal product contain any of the following products",
+          "list": "pMFZMV",
+          "schema": {}
+        }
+      ],
+      "next": [
+        { "path": "/what-product-does-it-contain", "condition": "fFcvds" },
+        { "path": "/name-of-the-product-pathogen-or-carrier" }
+      ]
+    },
+    {
+      "path": "/what-product-does-it-contain",
+      "title": "What product does it contain?",
+      "components": [
+        {
+          "name": "jULZyH",
+          "options": {},
+          "type": "TextField",
+          "title": "the product it contains",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/name-of-the-product-pathogen-or-carrier" }]
+    },
+    {
+      "path": "/name-of-the-product-pathogen-or-carrier",
+      "title": "Name of the product, pathogen or carrier",
+      "components": [
+        {
+          "name": "RsAxKm",
+          "options": {},
+          "type": "TextField",
+          "title": "name of product,pathogen or carrier",
+          "schema": {}
+        }
+      ],
+      "next": [
+        { "path": "/provide-a-description-of-the-product-pathogen-or-carrier" }
+      ]
+    },
+    {
+      "path": "/provide-a-description-of-the-product-pathogen-or-carrier",
+      "title": "Provide a description of the product, pathogen or carrier",
+      "components": [
+        {
+          "name": "iocMLz",
+          "options": {},
+          "type": "MultilineTextField",
+          "title": " a description of the product, pathogen or carrier",
+          "hint": "This must be a full description of the product, pathogen or carrier including the category if it is an animal by-product.",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/which-port-or-airport-is-it-entering-through-into-great-britain"
+        }
+      ]
+    },
+    {
+      "path": "/which-port-or-airport-is-it-entering-through-into-great-britain",
+      "title": "Which port or airport is it entering through into Great Britain?",
+      "components": [
+        {
+          "name": "TXvvuw",
+          "options": {},
+          "type": "TextField",
+          "title": "the port or airport is it entering through into Great Britain",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/what-method-of-transport-is-being-used" }]
+    },
+    {
+      "path": "/what-method-of-transport-is-being-used",
+      "title": "What method of transport is being used?",
+      "components": [
+        {
+          "name": "SzSLkv",
+          "options": {},
+          "type": "TextField",
+          "title": "the method of transport is being used",
+          "hint": "For example, cargo ship, airplane or lorry/",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/when-will-it-arrive-in-great-britain" }]
+    },
+    {
+      "path": "/when-will-it-arrive-in-great-britain",
+      "title": "When will it arrive in Great Britain?",
+      "components": [
+        {
+          "name": "VLRrJd",
+          "options": {},
+          "type": "DatePartsField",
+          "title": "When will it arrive in Great Britain",
+          "hint": "For example, 19 11 2024.",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/number-of-consignments" }]
+    },
+    {
+      "path": "/number-of-consignments",
+      "title": "Number of consignments",
+      "components": [
+        {
+          "name": "RsqtYc",
+          "options": {},
+          "type": "NumberField",
+          "title": "Number of consignments",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/type-size-and-number-of-containers-in-which-the-material-is-to-be-imported-in-each-consignment"
+        }
+      ]
+    },
+    {
+      "path": "/type-size-and-number-of-containers-in-which-the-material-is-to-be-imported-in-each-consignment",
+      "title": "Type, size and number of containers in which the material is to be imported in each consignment",
+      "components": [
+        {
+          "name": "pfiKEt",
+          "options": {},
+          "type": "TextField",
+          "title": "Type of container the consignment is being imported in",
+          "schema": {}
+        },
+        {
+          "name": "soYGEu",
+          "options": {},
+          "type": "TextField",
+          "title": "Size of container",
+          "schema": {}
+        },
+        {
+          "name": "LBHWfR",
+          "options": {},
+          "type": "NumberField",
+          "title": "How many containers?",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/container-details" }]
+    },
+    {
+      "path": "/container-details",
+      "title": "Container details",
+      "components": [
+        {
+          "name": "SKSezW",
+          "options": {},
+          "type": "TextField",
+          "title": "Volume of the container",
+          "schema": {}
+        },
+        {
+          "name": "dKFhGb",
+          "options": { "suffix": "Kg" },
+          "type": "NumberField",
+          "title": "Weight of the container",
+          "schema": {}
+        },
+        {
+          "name": "EowphQ",
+          "options": {},
+          "type": "NumberField",
+          "title": "Number of sample in the container",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/what-form-the-material-will-be-transported-in" }]
+    },
+    {
+      "path": "/what-form-the-material-will-be-transported-in",
+      "title": "What form the material will be transported in?",
+      "components": [
+        {
+          "name": "Mzrlyy",
+          "options": {},
+          "type": "TextField",
+          "title": "the form the material will be transported in",
+          "hint": "For example, frozen or on dried ice.",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/give-details-of-any-tests-or-procedures-carried-out-in-the-country-of-origin-to-determine-freedom-from-or-to-eliminate-contaminating-organisms"
+        }
+      ]
+    },
+    {
+      "path": "/give-details-of-any-tests-or-procedures-carried-out-in-the-country-of-origin-to-determine-freedom-from-or-to-eliminate-contaminating-organisms",
+      "title": "Give details of any tests or procedures carried out in the country of origin to determine freedom from, or to eliminate, contaminating organisms",
+      "components": [
+        {
+          "name": "DESyhC",
+          "options": {},
+          "type": "MultilineTextField",
+          "title": "details of any tests or procedures carried out in the country of origin to determine freedom from, or to eliminate, contaminating organisms",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/provide-details-of-all-the-processing-the-animal-product-has-undergone-prior-to-import-also-provide-full-details-of-collection-packaging-processing-heat-treatments-and-filtration"
+        }
+      ]
+    },
+    {
+      "path": "/provide-details-of-all-the-processing-the-animal-product-has-undergone-prior-to-import-also-provide-full-details-of-collection-packaging-processing-heat-treatments-and-filtration",
+      "title": "Provide details of all the processing the animal product has undergone prior to import. Also, provide full details of collection, packaging, processing, heat treatments and filtration",
+      "components": [
+        {
+          "name": "GxsszU",
+          "options": {},
+          "type": "MultilineTextField",
+          "title": "Provide details of all the processing the animal product has undergone prior to import. Also, provide full details of collection, packaging, processing, heat treatments and filtration",
+          "hint": "All heat treatments must have time and temperatures specified.",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/in-the-case-of-blood-plasma-serum-or-faeces-could-these-be-heat-treated-at-56c-for-30-minutes-prior-to-importation-and-still-be-suitable-for-the-purposes-of-the-research-oTXWyD"
+        }
+      ]
+    },
+    {
+      "path": "/in-the-case-of-blood-plasma-serum-or-faeces-could-these-be-heat-treated-at-56c-for-30-minutes-prior-to-importation-and-still-be-suitable-for-the-purposes-of-the-research-oTXWyD",
+      "title": "In the case of blood, plasma, serum or faeces, could these be heat treated at 56°C for 30 minutes prior to  importation and still be suitable for the purposes of the research?",
+      "components": [
+        {
+          "name": "PyJynA",
+          "options": {},
+          "type": "YesNoField",
+          "title": "if in the case of blood, plasma, serum or faeces, could these be heat treated at 56°C for 30 minutes prior to importation and still be suitable for the purposes of the research",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/tick-any-of-the-following-diseases-that-can-be-caused-by-any-pathogens-which-are-handled-at-the-origin-or-exporters-premises"
+        }
+      ]
+    },
+    {
+      "path": "/tick-any-of-the-following-diseases-that-can-be-caused-by-any-pathogens-which-are-handled-at-the-origin-or-exporters-premises",
+      "title": "Tick any of the following diseases that can be caused by any pathogens which are handled at the origin or exporter's premises:",
+      "components": [
+        {
+          "name": "zWDWPI",
+          "options": {},
+          "type": "CheckboxesField",
+          "title": "any of the following diseases that can be caused by any pathogens which are handled at the premises given at question 15",
+          "list": "GoTfsr",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/whats-the-origin-of-the-material" }]
+    },
+    {
+      "path": "/whats-the-origin-of-the-material",
+      "title": "What's the origin of the material?",
+      "components": [
+        {
+          "name": "HmzoYi",
+          "options": {},
+          "type": "RadiosField",
+          "title": "What's the origin of the material?",
+          "list": "eqbJQG",
+          "schema": {},
+          "values": { "type": "listRef" }
+        }
+      ],
+      "next": [
+        { "path": "/where-is-the-material-from", "condition": "GeSNEJ" },
+        {
+          "path": "/is-the-premises-approved-for-export-of-the-products-to-the-eu",
+          "condition": "IbEstA"
+        },
+        {
+          "path": "/were-the-animals-suspected-of-having-a-notifiable-disease-when-the-products-were-collected-according-to-european-uk-or-national-animal-health-legislation-in-the-exporting-country"
+        }
+      ]
+    },
+    {
+      "path": "/where-is-the-material-from",
+      "title": "Where is the material from?",
+      "components": [
+        {
+          "name": "oKYRyv",
+          "options": {},
+          "type": "TextField",
+          "title": "where the materials is from",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/were-the-animals-suspected-of-having-a-notifiable-disease-when-the-products-were-collected-according-to-european-uk-or-national-animal-health-legislation-in-the-exporting-country"
+        }
+      ]
+    },
+    {
+      "path": "/is-the-premises-approved-for-export-of-the-products-to-the-eu",
+      "title": "Is the premises approved for export of the products to the EU?",
+      "components": [
+        {
+          "name": "YdBqQq",
+          "options": {},
+          "type": "YesNoField",
+          "title": "if the premises approved for export of the products to the EU",
+          "schema": {}
+        }
+      ],
+      "next": [
+        { "path": "/provide-the-eu-approval-number" },
+        {
+          "path": "/if-the-premises-have-been-approved-under-national-legislation-of-the-exporting-country-provide-details"
+        }
+      ]
+    },
+    {
+      "path": "/provide-the-eu-approval-number",
+      "title": "Provide the EU approval number",
+      "components": [
+        {
+          "name": "qHHHqj",
+          "options": {},
+          "type": "TextField",
+          "title": "the EU approval number ",
+          "hint": "This is number given to you when .......",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/if-the-premises-have-been-approved-under-national-legislation-of-the-exporting-country-provide-details"
+        }
+      ]
+    },
+    {
+      "path": "/if-the-premises-have-been-approved-under-national-legislation-of-the-exporting-country-provide-details",
+      "title": "If the premises have been approved under national legislation of the exporting country, provide details.",
+      "components": [
+        {
+          "name": "OYlmOC",
+          "options": {},
+          "type": "MultilineTextField",
+          "title": "Enter details of the national legislation of the exporting country that they premises is approved.",
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/were-the-animals-suspected-of-having-a-notifiable-disease-when-the-products-were-collected-according-to-european-uk-or-national-animal-health-legislation-in-the-exporting-country"
+        }
+      ]
+    },
+    {
+      "path": "/were-the-animals-suspected-of-having-a-notifiable-disease-when-the-products-were-collected-according-to-european-uk-or-national-animal-health-legislation-in-the-exporting-country",
+      "title": "Were the animals suspected of having a notifiable disease when the products were collected, according to European, UK or national animal health legislation in the exporting country?",
+      "components": [
+        {
+          "type": "YesNoField",
+          "title": "if the animal products were suspected of having a notifiable disease when they were collected",
+          "name": "notifiable_disease",
+          "nameHasError": false,
+          "options": {},
+          "schema": {}
+        }
+      ],
+      "next": [
+        { "path": "/provide-details-of-the-suspected-notifiable-diseases" },
+        {
+          "path": "/where-the-animal-product-is-not-a-pure-product-a-100-breakdown-of-all-ingredients-must-be-supplied-particularly-in-respect-of-any-animal-derived-material",
+          "condition": "rXGmCt"
+        }
+      ]
+    },
+    {
+      "path": "/provide-details-of-the-suspected-notifiable-diseases",
+      "title": "Provide details of the suspected notifiable diseases",
+      "components": [
+        {
+          "name": "mSIuLx",
+          "options": {},
+          "type": "MultilineTextField",
+          "title": "Provide details of the suspected notifiable diseases"
+        }
+      ],
+      "next": [
+        {
+          "path": "/where-the-animal-product-is-not-a-pure-product-a-100-breakdown-of-all-ingredients-must-be-supplied-particularly-in-respect-of-any-animal-derived-material"
+        }
+      ]
+    },
+    {
+      "path": "/where-the-animal-product-is-not-a-pure-product-a-100-breakdown-of-all-ingredients-must-be-supplied-particularly-in-respect-of-any-animal-derived-material",
+      "title": "Where the animal product is not a ‘pure’ product, a 100% breakdown of all ingredients must be supplied,  particularly in respect of any animal derived material",
+      "components": [
+        {
+          "name": "ZkNddx",
+          "options": {},
+          "type": "MultilineTextField",
+          "title": "Where the animal product is not a ‘pure’ product, a 100% breakdown of all ingredients must be supplied,  particularly in respect of any animal derived material"
+        }
+      ],
+      "next": [
+        {
+          "path": "/describe-the-precautions-taken-at-the-laboratory-to-prevent-the-release-of-the-pathogen-or-carrier"
+        }
+      ]
+    },
+    {
+      "path": "/describe-the-precautions-taken-at-the-laboratory-to-prevent-the-release-of-the-pathogen-or-carrier",
+      "title": "Describe the precautions taken at the laboratory to prevent the release of the pathogen or carrier.",
+      "components": [
+        {
+          "name": "TWyGqR",
+          "options": {},
+          "type": "MultilineTextField",
+          "title": " Describe the precautions taken at the laboratory to prevent the release of the pathogen or carrier."
+        }
+      ],
+      "next": [
+        {
+          "path": "/if-the-pathogen-is-to-be-used-in-animals-state-the-species-and-give-details-of-their-accommodation"
+        }
+      ]
+    },
+    {
+      "path": "/if-the-pathogen-is-to-be-used-in-animals-state-the-species-and-give-details-of-their-accommodation",
+      "title": "If the pathogen is to be used in animals, state the species and give details of their accommodation",
+      "components": [],
+      "next": [
+        {
+          "path": "/for-animal-pathogens-only-can-the-pathogen-be-sub-cultured"
+        }
+      ]
+    },
+    {
+      "path": "/for-animal-pathogens-only-can-the-pathogen-be-sub-cultured",
+      "title": "For animal pathogens only, can the pathogen be sub-cultured?",
+      "components": [
+        {
+          "name": "vyVLQo",
+          "options": {},
+          "type": "YesNoField",
+          "title": "For animal pathogens only, can the pathogen be sub-cultured?"
+        }
+      ],
+      "next": [
+        { "path": "/in-what-medium", "condition": "lxkvnc" },
+        {
+          "path": "/state-the-proximity-and-species-of-the-nearest-livestock-such-as-cattle-sheep-goats-other-ruminants-horses-swine-domestic-fowls-turkeys-geese-ducks-guinea-fowls-pigeons-pheasants-partridges-and-quail-to-the-premises-stated-at-section-i-question-2"
+        }
+      ]
+    },
+    {
+      "path": "/in-what-medium",
+      "title": "In what medium?",
+      "components": [
+        {
+          "name": "CuOdFE",
+          "options": {},
+          "type": "TextField",
+          "title": "In what medium?"
+        }
+      ],
+      "next": [
+        {
+          "path": "/state-the-proximity-and-species-of-the-nearest-livestock-such-as-cattle-sheep-goats-other-ruminants-horses-swine-domestic-fowls-turkeys-geese-ducks-guinea-fowls-pigeons-pheasants-partridges-and-quail-to-the-premises-stated-at-section-i-question-2"
+        }
+      ]
+    },
+    {
+      "path": "/state-the-proximity-and-species-of-the-nearest-livestock-such-as-cattle-sheep-goats-other-ruminants-horses-swine-domestic-fowls-turkeys-geese-ducks-guinea-fowls-pigeons-pheasants-partridges-and-quail-to-the-premises-stated-at-section-i-question-2",
+      "title": "State the proximity and species of the nearest livestock (such as cattle, sheep, goats, other ruminants, horses, swine,  domestic fowls, turkeys, geese, ducks, guinea fowls, pigeons, pheasants, partridges and quail) to the premises  stated at Section I question 2.",
+      "components": [
+        {
+          "name": "PJMYfr",
+          "options": {},
+          "type": "MultilineTextField",
+          "title": "State the proximity and species of the nearest livestock (such as cattle, sheep, goats, other ruminants, horses, swine,  domestic fowls, turkeys, geese, ducks, guinea fowls, pigeons, pheasants, partridges and quail) to the premises stated at Section I question 2."
+        }
+      ],
+      "next": [{ "path": "/disposal-of-residues-and-waste" }]
+    },
+    {
+      "path": "/disposal-of-residues-and-waste",
+      "title": "Disposal of residues and waste",
+      "components": [
+        {
+          "name": "KabUuA",
+          "options": {},
+          "type": "Para",
+          "content": "Provide the name and full postal address of the premises where the residues of the animal product, pathogen or carrier following testing and any packaging will be disposed of. (Material must be disposed of in accordance with environmental and animal by-product legislation)."
+        },
+        {
+          "name": "siEFRg",
+          "options": {},
+          "type": "TextField",
+          "title": "Disposal organisation name"
+        },
+        {
+          "name": "ShPKNo",
+          "options": {},
+          "type": "UkAddressField",
+          "title": "Disposal organisation address"
+        }
+      ],
+      "next": [
+        {
+          "path": "/methods-of-disposal-of-cultures-pathogens-or-carriers-at-the-end-of-the-research-period"
+        }
+      ]
+    },
+    {
+      "path": "/methods-of-disposal-of-cultures-pathogens-or-carriers-at-the-end-of-the-research-period",
+      "title": "Methods of disposal of cultures, pathogens or carriers at the end of the research period.",
+      "components": [
+        {
+          "name": "hROSDS",
+          "options": {},
+          "type": "MultilineTextField",
+          "title": "Methods of disposal of cultures, pathogens or carriers at the end of the research period."
+        }
+      ],
+      "next": [
+        {
+          "path": "/what-will-happen-to-test-animals-and-in-contact-animals-at-the-end-of-the-studies"
+        }
+      ]
+    },
+    {
+      "path": "/what-will-happen-to-test-animals-and-in-contact-animals-at-the-end-of-the-studies",
+      "title": "What will happen to test animals and in-contact animals at the end of the studies?",
+      "components": [
+        {
+          "name": "XszueQ",
+          "options": {},
+          "type": "MultilineTextField",
+          "title": " For in vivo work indicate what will happen to test animals and in-contact animals at the end of the studies."
+        }
+      ],
+      "next": [
+        { "path": "/describe-the-method-of-disposal-of-waste-and-carcases" }
+      ]
+    },
+    {
+      "path": "/describe-the-method-of-disposal-of-waste-and-carcases",
+      "title": "Describe the method of disposal of waste and carcases",
+      "components": [
+        {
+          "name": "jQJCYC",
+          "options": {},
+          "type": "MultilineTextField",
+          "title": "Describe the method of disposal of waste and carcases."
+        }
+      ],
+      "next": [{ "path": "/applicant-declaration" }]
+    },
+    {
+      "path": "/type-of-application",
+      "title": "Type of application",
+      "components": [
+        {
+          "name": "okYgQP",
+          "options": {},
+          "type": "Para",
+          "content": "I am applying for:"
+        },
+        {
+          "name": "IxKXtR",
+          "options": {},
+          "type": "RadiosField",
+          "title": "Application type",
+          "list": "TUqHcO"
+        }
+      ],
+      "next": [
+        {
+          "path": "/what-is-the-name-of-the-lead-contact-at-the-destination-premises"
+        }
+      ]
+    },
+    {
+      "path": "/applicant-declaration",
+      "title": "Applicant declaration",
+      "components": [
+        {
+          "name": "dtqGyH",
+          "options": {},
+          "type": "Para",
+          "content": "I understand that if a licence or authorisation is issued, I must comply with its conditions. <br><br>\nTo the best of my knowledge all the information given above is true.\n"
+        },
+        {
+          "name": "pHBOwX",
+          "options": { "hideTitle": true },
+          "type": "RadiosField",
+          "title": "Confirmation",
+          "list": "Gcfnzj"
+        }
+      ],
+      "next": [
+        { "path": "/responsible-person-declaration" },
+        { "path": "/additional-comments" }
+      ]
+    },
+    {
+      "path": "/responsible-person-declaration",
+      "title": "Responsible person declaration",
+      "components": [
+        {
+          "name": "luwyNH",
+          "options": {},
+          "type": "Para",
+          "content": "If the applicant will not be responsible for carrying out work on the imported material, this form must also be signed by the person responsible for the work carried out <br> <br>"
+        },
+        {
+          "name": "lkpWKF",
+          "options": {},
+          "type": "Para",
+          "content": "As the person responsible for the work carried out, I understand that I must abide by the conditions of any licence or authorisation issued in connection with this application.\n"
+        },
+        {
+          "name": "QzAnjV",
+          "options": {},
+          "type": "RadiosField",
+          "title": "Responsible person confirm",
+          "list": "Gcfnzj"
+        }
+      ],
+      "next": [
+        { "path": "/responsible-premises-declaration" },
+        { "path": "/additional-comments" }
+      ]
+    },
+    {
+      "path": "/responsible-premises-declaration",
+      "title": "Responsible premises declaration",
+      "components": [
+        {
+          "name": "aPWDbm",
+          "options": {},
+          "type": "Para",
+          "content": "If the applicant is not in overall charge of the premises where the work is to be carried out, this form must be countersigned by Head of Department, Head of Laboratory,Biological Safety Officer or similar"
+        },
+        {
+          "name": "FyAsUm",
+          "options": {},
+          "type": "RadiosField",
+          "title": "Responsible premises confirmation",
+          "list": "Gcfnzj"
+        }
+      ],
+      "next": [{ "path": "/additional-comments" }]
+    },
+    {
+      "path": "/additional-comments",
+      "title": "Additional comments",
+      "components": [
+        {
+          "name": "BixcLK",
+          "options": { "required": false },
+          "type": "MultilineTextField",
+          "title": "Additional comments"
+        }
+      ],
+      "next": [{ "path": "/summary" }]
+    }
+  ],
+  "lists": [
+    {
+      "title": "ACDP contimation level",
+      "name": "nURgMR",
+      "type": "string",
+      "items": [
+        { "text": "2", "value": 2 },
+        { "text": "3", "value": 3 },
+        { "text": "4", "value": 4 }
+      ]
+    },
+    {
+      "title": "Intended use of the animal product, pathogen or carrier",
+      "name": "kvReMJ",
+      "type": "string",
+      "items": [
+        { "text": "Technical", "value": "Technical" },
+        { "text": "Pharmaceutical", "value": "Pharmaceutical" },
+        { "text": "Cosmetic", "value": "Cosmetic" },
+        { "text": "Laboratory", "value": "Laboratory" },
+        { "text": "Sampling or evaluation", "value": "Sampling or evaluation" },
+        { "text": "Research", "value": "Research" },
+        { "text": "Human consumption", "value": "Human consumption" },
+        { "text": "Animal consumption", "value": "Animal consumption" },
+        { "text": "Diagnostics", "value": "Diagnostics" }
+      ]
+    },
+    {
+      "title": "invivo or invitro",
+      "name": "ufTDIY",
+      "type": "string",
+      "items": [
+        { "text": "In vitro", "value": "In vitro" },
+        { "text": "In vivo", "value": "In vivo" },
+        { "text": "None of the above", "value": "None of the above" }
+      ]
+    },
+    {
+      "title": "Future commercial use",
+      "name": "PnkfXe",
+      "type": "string",
+      "items": [
+        { "text": "Great Britain", "value": "Great Britain" },
+        { "text": "EU", "value": "EU" },
+        { "text": "Other country", "value": "Other country" }
+      ]
+    },
+    {
+      "title": "Type of material  importing",
+      "name": "lRDNnw",
+      "type": "string",
+      "items": [
+        {
+          "text": " animal product that does not contain or is not suspected to contain a pathogen",
+          "value": " animal product that does not contain or is not suspected to contain a pathogen"
+        },
+        { "text": "animal pathogen", "value": "animal pathogen" },
+        {
+          "text": "animal pathogen carrier",
+          "value": "animal pathogen carrier"
+        }
+      ]
+    },
+    {
+      "title": "Licence length",
+      "name": "rbvTON",
+      "type": "string",
+      "items": [
+        { "text": "1 month", "value": "1 month" },
+        { "text": "3 months", "value": "3 months" },
+        { "text": "6 months", "value": "6 months" },
+        { "text": "1 year", "value": "1 year" },
+        { "text": "2 years", "value": "2 years" },
+        { "text": "3 years", "value": "3 years" }
+      ]
+    },
+    {
+      "title": "Species",
+      "name": "nuSiyK",
+      "type": "string",
+      "items": [
+        { "text": "Cattle", "value": "Cattle" },
+        { "text": "Pig", "value": "Pig" },
+        { "text": "Sheep", "value": "Sheep" },
+        { "text": "Goat", "value": "Goat" },
+        { "text": "Equine", "value": "Equine" },
+        {
+          "text": "Domestic fowl",
+          "description": "For example, chicken or turkey.",
+          "value": "Domestic fowl"
+        },
+        {
+          "text": "Ratite",
+          "description": "For example, an ostrich or emu.",
+          "value": "Ratite"
+        },
+        { "text": "Game", "value": "Game" },
+        { "text": "Other", "value": "Other" }
+      ]
+    },
+    {
+      "title": "Product contains",
+      "name": "pMFZMV",
+      "type": "string",
+      "items": [
+        { "text": "Egg products", "value": "Egg products" },
+        {
+          "text": "Milk or milk based products",
+          "value": "Milk or milk based products"
+        },
+        { "text": "Fish", "value": "Fish" },
+        { "text": "Honey", "value": "Honey" },
+        { "text": "Other", "value": "Other" }
+      ]
+    },
+    {
+      "title": "Diseases",
+      "name": "GoTfsr",
+      "type": "string",
+      "items": [
+        {
+          "text": "Foot and mouth disease ",
+          "value": "Foot and mouth disease "
+        },
+        {
+          "text": "Peste des petits ruminants",
+          "value": "Peste des petits ruminants"
+        },
+        { "text": "Lumpy skin disease ", "value": "Lumpy skin disease " },
+        {
+          "text": "Equine infectious anaemia",
+          "value": "Equine infectious anaemia"
+        },
+        {
+          "text": "Equine encephalomyelitis",
+          "value": "Equine encephalomyelitis"
+        },
+        {
+          "text": "Enzootic bovine leucosis ",
+          "value": "Enzootic bovine leucosis "
+        },
+        {
+          "text": "Swine vesicular disease ",
+          "value": "Swine vesicular disease "
+        },
+        {
+          "text": "Paramyxovirus of pigeons ",
+          "value": "Paramyxovirus of pigeons "
+        },
+        { "text": "Vesicular stomatitis ", "value": "Vesicular stomatitis " },
+        { "text": "African horse sickness", "value": "African horse sickness" },
+        { "text": "Rift Valley fever ", "value": "Rift Valley fever " },
+        { "text": "African swine fever ", "value": "African swine fever " },
+        { "text": "Newcastle disease", "value": "Newcastle disease" },
+        { "text": "Aujeszky’s disease ", "value": "Aujeszky’s disease " },
+        { "text": "Classical swine fever ", "value": "Classical swine fever " },
+        {
+          "text": "Contagious bovine pleuropneumonia",
+          "value": "Contagious bovine pleuropneumonia"
+        },
+        { "text": "Teschen disease", "value": "Teschen disease" },
+        { "text": "Bluetongue ", "value": "Bluetongue " },
+        { "text": "Sheep Pox", "value": "Sheep Pox" },
+        { "text": "Goat Pox", "value": "Goat Pox" },
+        { "text": "Rabies", "value": "Rabies" },
+        { "text": "Avian Influenza", "value": "Avian Influenza" },
+        { "text": "Rinderpest", "value": "Rinderpest" },
+        { "text": "None of the above", "value": "None of the above" }
+      ]
+    },
+    {
+      "title": "The origin of material",
+      "name": "eqbJQG",
+      "type": "string",
+      "items": [
+        { "text": "Farm", "value": "Farm" },
+        { "text": "Abattoir", "value": "Abattoir" },
+        { "text": "Laboratory", "value": "Laboratory" },
+        {
+          "text": "Commercial or processing plant",
+          "value": "Commercial or processing plant"
+        },
+        { "text": "Countryside", "value": "Countryside" },
+        { "text": "Other", "value": "Other" }
+      ]
+    },
+    {
+      "title": "Type of application",
+      "name": "TUqHcO",
+      "type": "string",
+      "items": [
+        {
+          "text": "an authorisation under Trade In Animals And Related Products Regulations 2011 (as amended) ",
+          "value": "an authorisation under Trade In Animals And Related Products Regulations 2011 (as amended) "
+        },
+        {
+          "text": "a licence to import animal or poultry products under the provisions of the Importation of Animal Products and  Poultry Products Order 1980 (as amended)",
+          "value": "a licence to import animal or poultry products under the provisions of the Importation of Animal Products and  Poultry Products Order 1980 (as amended)"
+        },
+        {
+          "text": "a licence to import animal pathogen or carrier under the provisions of the Importation of Animal Pathogens Order 1980 (as amended) ",
+          "value": "a licence to import animal pathogen or carrier under the provisions of the Importation of Animal Pathogens Order 1980 "
+        }
+      ]
+    },
+    {
+      "title": "confirmation",
+      "name": "Gcfnzj",
+      "type": "string",
+      "items": [{ "text": "I confirm", "value": "I confirm" }]
+    }
+  ],
+  "sections": [],
+  "conditions": [
+    {
+      "displayName": "Is an agent involved?",
+      "name": "HKRBoy",
+      "value": {
+        "name": "Is an agent involved?",
+        "conditions": [
+          {
+            "field": {
+              "name": "WrVIQZ",
+              "type": "YesNoField",
+              "display": "Is their an agent involved?"
+            },
+            "operator": "is",
+            "value": { "type": "Value", "value": "true", "display": "true" }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Relevant laboratory accreditation status",
+      "name": "KBjDIM",
+      "value": {
+        "name": "Relevant laboratory accreditation status",
+        "conditions": [
+          {
+            "field": {
+              "name": "arLyCf",
+              "type": "YesNoField",
+              "display": "Does the destination premises have relevant laboratory accreditation status? "
+            },
+            "operator": "is",
+            "value": { "type": "Value", "value": "true", "display": "true" }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Recognised standards",
+      "name": "BKsDGe",
+      "value": {
+        "name": "Recognised standards",
+        "conditions": [
+          {
+            "field": {
+              "name": "QHtPgu",
+              "type": "YesNoField",
+              "display": "Are Standard Operating Procedures/Good Laboratory Practice principles in place and applied including the  recommendations contained in recognised relevant guidance documents?"
+            },
+            "operator": "is",
+            "value": { "type": "Value", "value": "true", "display": "true" }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Contimation standards",
+      "name": "ZaeHyu",
+      "value": {
+        "name": "Contimation standards",
+        "conditions": [
+          {
+            "field": {
+              "name": "uvcfKJ",
+              "type": "YesNoField",
+              "display": "Does the destination premises meet ACDP or GMO containment standards?"
+            },
+            "operator": "is",
+            "value": { "type": "Value", "value": "true", "display": "true" }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Registered or approved",
+      "name": "btwSCZ",
+      "value": {
+        "name": "Registered or approved",
+        "conditions": [
+          {
+            "field": {
+              "name": "lzejwO",
+              "type": "YesNoField",
+              "display": "Is the destination premises registered and approved under the Animal By-Products (Enforcement) Regulations 2011?"
+            },
+            "operator": "is",
+            "value": { "type": "Value", "value": "true", "display": "true" }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Risk assessment details",
+      "name": "whzTKP",
+      "value": {
+        "name": "Risk assessment details",
+        "conditions": [
+          {
+            "field": {
+              "name": "qmKogc",
+              "type": "YesNoField",
+              "display": "Has the destination premises carried out a risk assessment for receipt and storage of the specified animal pathogens, carriers or animal products?"
+            },
+            "operator": "is",
+            "value": { "type": "Value", "value": "true", "display": "true" }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Contact with ruminating animals, swine, equidae or birds?",
+      "name": "uGOHDv",
+      "value": {
+        "name": "Contact with ruminating animals, swine, equidae or birds?",
+        "conditions": [
+          {
+            "field": {
+              "name": "tMixwD",
+              "type": "YesNoField",
+              "display": "Is the material likely to come into contact with ruminating animals, swine, equidae or birds?"
+            },
+            "operator": "is",
+            "value": { "type": "Value", "value": "true", "display": "true" }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Laboratory personnel handling the material",
+      "name": "xLVDiN",
+      "value": {
+        "name": "Laboratory personnel handling the material",
+        "conditions": [
+          {
+            "field": {
+              "name": "xQGlaN",
+              "type": "YesNoField",
+              "display": "If any of the laboratory personnel who will be handling the material have contact with ruminants, swine,  equidae, captive birds or poultry not involved in the proposed work"
+            },
+            "operator": "is",
+            "value": { "type": "Value", "value": "true", "display": "true" }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Commercial use",
+      "name": "iEsJsd",
+      "value": {
+        "name": "Commercial use",
+        "conditions": [
+          {
+            "field": {
+              "name": "JsgNlX",
+              "type": "YesNoField",
+              "display": "if the animal product,pathogen or carrier for commercial use?"
+            },
+            "operator": "is",
+            "value": { "type": "Value", "value": "true", "display": "true" }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Other country",
+      "name": "kLheAg",
+      "value": {
+        "name": "Other country",
+        "conditions": [
+          {
+            "field": {
+              "name": "AFVmzm",
+              "type": "CheckboxesField",
+              "display": "if it is going to be used for future commercial use, will it be in Great Britain ,EU or another country?"
+            },
+            "operator": "contains",
+            "value": {
+              "type": "Value",
+              "value": "Other country",
+              "display": "Other country"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Licence or authorisation",
+      "name": "EEDxCa",
+      "value": {
+        "name": "Licence or authorisation",
+        "conditions": [
+          {
+            "field": {
+              "name": "GKGaxE",
+              "type": "YesNoField",
+              "display": "if you  have previously held or currently hold an import licence or authorisation for the type of product or pathogen"
+            },
+            "operator": "is",
+            "value": { "type": "Value", "value": "true", "display": "true" }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Other species",
+      "name": "KDYkli",
+      "value": {
+        "name": "Other species",
+        "conditions": [
+          {
+            "field": {
+              "name": "hmYinb",
+              "type": "CheckboxesField",
+              "display": "which the species the animal product, pathogen or carrier is derived form"
+            },
+            "operator": "contains",
+            "value": { "type": "Value", "value": "Other", "display": "Other" }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Contains other",
+      "name": "fFcvds",
+      "value": {
+        "name": "Contains other",
+        "conditions": [
+          {
+            "field": {
+              "name": "IksrYQ",
+              "type": "CheckboxesField",
+              "display": "if the animal product contain any of the following products"
+            },
+            "operator": "contains",
+            "value": { "type": "Value", "value": "Other", "display": "Other" }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Where is the material from",
+      "name": "GeSNEJ",
+      "value": {
+        "name": "Where is the material from",
+        "conditions": [
+          {
+            "field": {
+              "name": "HmzoYi",
+              "type": "RadiosField",
+              "display": "the origin of the material"
+            },
+            "operator": "is",
+            "value": { "type": "Value", "value": "Other", "display": "Other" }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "abattoir, commercial or processing plant",
+      "name": "IbEstA",
+      "value": {
+        "name": "abattoir, commercial or processing plant",
+        "conditions": [
+          {
+            "field": {
+              "name": "HmzoYi",
+              "type": "RadiosField",
+              "display": "the origin of the material"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "Abattior",
+              "display": "Abattior"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Notifiable disease",
+      "name": "rXGmCt",
+      "value": {
+        "name": "Notifiable disease",
+        "conditions": [
+          {
+            "field": {
+              "name": "notifiable_disease",
+              "type": "YesNoField",
+              "display": "if the animal products were suspected of having a notifiable disease when they were collected"
+            },
+            "operator": "is",
+            "value": { "type": "Value", "value": "false", "display": "false" }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "What medium",
+      "name": "lxkvnc",
+      "value": {
+        "name": "What medium",
+        "conditions": [
+          {
+            "field": {
+              "name": "vyVLQo",
+              "type": "YesNoField",
+              "display": "For animal pathogens only, can the pathogen be sub-cultured?"
+            },
+            "operator": "is",
+            "value": { "type": "Value", "value": "true", "display": "true" }
+          }
+        ]
+      }
+    }
+  ],
+  "fees": [],
+  "outputs": [],
+  "version": 2,
+  "skipSummary": false,
+  "feeOptions": {
+    "allowSubmissionWithoutPayment": true,
+    "maxAttempts": 3,
+    "showPaymentSkippedWarningPage": false
+  },
+  "declaration": "I understand that if a licence or authorisation is issued, I must comply with its conditions. <br>\nTo the best of my knowledge all the information given above is true.\n"
+}

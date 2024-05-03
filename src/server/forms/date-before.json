@@ -1,0 +1,72 @@
+{
+  "metadata": {},
+  "startPage": "/first-page",
+  "pages": [
+    {
+      "title": "First page",
+      "path": "/first-page",
+      "components": [
+        {
+          "name": "dQpuWz",
+          "options": {},
+          "type": "DatePartsField",
+          "title": "Date parts"
+        }
+      ],
+      "next": [
+        { "path": "/date-before", "condition": "mSExud" },
+        { "path": "/page-after" }
+      ]
+    },
+    {
+      "path": "/date-before",
+      "title": "Date before",
+      "components": [],
+      "next": [{ "path": "/summary" }]
+    },
+    {
+      "title": "Summary",
+      "path": "/summary",
+      "controller": "./pages/summary.js",
+      "components": [],
+      "next": []
+    },
+    {
+      "path": "/page-after",
+      "title": "Page after",
+      "components": [],
+      "next": []
+    }
+  ],
+  "lists": [],
+  "sections": [],
+  "conditions": [
+    {
+      "displayName": "Date is before 1 January 2020",
+      "name": "mSExud",
+      "value": {
+        "name": "Date is before 1 January 2020",
+        "conditions": [
+          {
+            "field": {
+              "name": "dQpuWz",
+              "type": "DatePartsField",
+              "display": "Date parts"
+            },
+            "operator": "is before",
+            "value": {
+              "type": "Value",
+              "value": "2020-01-01",
+              "display": "2020-01-01"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "fees": [],
+  "outputs": [],
+  "version": 2,
+  "skipSummary": false,
+  "feeOptions": {}
+}

@@ -1,0 +1,97 @@
+{
+  "metadata": {},
+  "startPage": "/first-page",
+  "pages": [
+    {
+      "title": "First page",
+      "path": "/first-page",
+      "components": [
+        {
+          "name": "wqJmSf",
+          "options": { "required": false },
+          "type": "RadiosField",
+          "title": "chooseHorseType",
+          "list": "PeVjPw",
+          "schema": {}
+        }
+      ],
+      "next": [
+        { "path": "/second-page", "condition": "ihuObd" },
+        { "path": "/third-page", "condition": "EcLLXH" }
+      ]
+    },
+    {
+      "path": "/second-page",
+      "title": "Second page",
+      "components": [],
+      "next": []
+    },
+    {
+      "path": "/third-page",
+      "title": "Third page",
+      "components": [],
+      "next": []
+    }
+  ],
+  "lists": [
+    {
+      "title": "horseType",
+      "name": "PeVjPw",
+      "type": "string",
+      "items": [
+        { "text": "Shire", "value": "shire" },
+        { "text": "Race", "value": "race" },
+        { "text": "Pantomime", "value": "pantomime" },
+        { "text": "Other", "value": "other" }
+      ]
+    }
+  ],
+  "sections": [],
+  "conditions": [
+    {
+      "displayName": "Not other",
+      "name": "ihuObd",
+      "value": {
+        "name": "Not other",
+        "conditions": [
+          {
+            "field": {
+              "name": "wqJmSf",
+              "type": "RadiosField",
+              "display": "chooseHorseType"
+            },
+            "operator": "is not",
+            "value": { "type": "Value", "value": "other", "display": "other" }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Other",
+      "name": "EcLLXH",
+      "value": {
+        "name": "Other",
+        "conditions": [
+          {
+            "field": {
+              "name": "wqJmSf",
+              "type": "RadiosField",
+              "display": "chooseHorseType"
+            },
+            "operator": "is",
+            "value": { "type": "Value", "value": "other", "display": "other" }
+          }
+        ]
+      }
+    }
+  ],
+  "fees": [],
+  "outputs": [],
+  "version": 2,
+  "skipSummary": false,
+  "feeOptions": {
+    "allowSubmissionWithoutPayment": true,
+    "maxAttempts": 3,
+    "showPaymentSkippedWarningPage": false
+  }
+}

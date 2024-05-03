@@ -1,0 +1,606 @@
+{
+  "metadata": {},
+  "startPage": "/first-page",
+  "pages": [
+    {
+      "title": "First page",
+      "path": "/first-page",
+      "components": [
+        {
+          "name": "bPOSlx",
+          "options": {},
+          "type": "DateTimePartsField",
+          "title": "Date time parts",
+          "schema": {}
+        }
+      ],
+      "next": [
+        { "path": "/second-page", "condition": "UELPOi" },
+        { "path": "/test-1" }
+      ]
+    },
+    {
+      "path": "/second-page",
+      "title": "Second page",
+      "components": [],
+      "next": [{ "path": "/summary" }]
+    },
+    {
+      "title": "Summary",
+      "path": "/summary",
+      "controller": "./pages/summary.js",
+      "components": [],
+      "next": []
+    },
+    {
+      "path": "/test-1",
+      "title": "Test 1",
+      "components": [],
+      "next": [{ "path": "/summary" }]
+    },
+    {
+      "path": "/email-address",
+      "title": "Email address",
+      "components": [
+        {
+          "name": "UMooYm",
+          "options": {},
+          "type": "EmailAddressField",
+          "title": "Email address",
+          "schema": {}
+        }
+      ],
+      "next": [
+        { "path": "/email-address-1", "condition": "mswiRp" },
+        { "path": "/email-address-2" }
+      ]
+    },
+    {
+      "path": "/email-address-1",
+      "title": "Email address 1",
+      "components": [],
+      "next": []
+    },
+    {
+      "path": "/email-address-2",
+      "title": "Email address 2",
+      "components": [],
+      "next": []
+    },
+    {
+      "path": "/file-upload",
+      "title": "File upload",
+      "components": [
+        {
+          "name": "xCFFPz",
+          "options": { "required": false },
+          "type": "FileUploadField",
+          "title": "File upload",
+          "schema": {}
+        }
+      ],
+      "next": [
+        { "path": "/file-upload-1", "condition": "lQJdyW" },
+        { "path": "/file-upload-2" }
+      ]
+    },
+    {
+      "path": "/file-upload-1",
+      "title": "File upload 1",
+      "components": [],
+      "next": []
+    },
+    {
+      "path": "/file-upload-2",
+      "title": "File upload 2",
+      "components": [],
+      "next": []
+    },
+    {
+      "path": "/month-year-parts",
+      "title": "Month year parts",
+      "components": [
+        {
+          "name": "vuVnkb",
+          "options": {},
+          "type": "MonthYearField",
+          "title": "Month year parts",
+          "schema": {}
+        }
+      ],
+      "next": [
+        { "path": "/month-year-parts-1" },
+        { "path": "/month-year-parts-2" }
+      ]
+    },
+    {
+      "path": "/month-year-parts-1",
+      "title": "Month year parts 1",
+      "components": [],
+      "next": []
+    },
+    {
+      "path": "/month-year-parts-2",
+      "title": "Month year parts 2",
+      "components": [],
+      "next": []
+    },
+    {
+      "path": "/multiline-text",
+      "title": "Multiline text",
+      "components": [
+        {
+          "name": "gQBkEL",
+          "options": {},
+          "type": "MultilineTextField",
+          "title": "Multiline text",
+          "schema": {}
+        }
+      ],
+      "next": [
+        { "path": "/multiline-text-1", "condition": "WIqnJe" },
+        { "path": "/multiline-text-2" }
+      ]
+    },
+    {
+      "path": "/multiline-text-1",
+      "title": "Multiline text 1",
+      "components": [],
+      "next": []
+    },
+    {
+      "path": "/multiline-text-2",
+      "title": "Multiline text 2",
+      "components": [],
+      "next": []
+    },
+    {
+      "path": "/number",
+      "title": "Number",
+      "components": [
+        {
+          "name": "OCuYWP",
+          "options": {},
+          "type": "NumberField",
+          "title": "Number",
+          "schema": {}
+        }
+      ],
+      "next": [
+        { "path": "/number-1", "condition": "eQkLri" },
+        { "path": "/number-2" }
+      ]
+    },
+    { "path": "/number-1", "title": "Number 1", "components": [], "next": [] },
+    { "path": "/number-2", "title": "Number 2", "components": [], "next": [] },
+    {
+      "path": "/telephone-number",
+      "title": "Telephone number",
+      "components": [
+        {
+          "name": "xASuGI",
+          "options": {},
+          "type": "TelephoneNumberField",
+          "title": "Telephone number",
+          "schema": {}
+        }
+      ],
+      "next": [
+        { "path": "/telephone-number-1" },
+        { "path": "/telephone-number-2" }
+      ]
+    },
+    {
+      "path": "/telephone-number-1",
+      "title": "Telephone number 1",
+      "components": [],
+      "next": []
+    },
+    {
+      "path": "/telephone-number-2",
+      "title": "Telephone number 2",
+      "components": [],
+      "next": []
+    },
+    {
+      "path": "/text",
+      "title": "Text",
+      "components": [
+        {
+          "name": "npHiCd",
+          "options": {},
+          "type": "TextField",
+          "title": "Text",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/text-1" }, { "path": "/text-2" }]
+    },
+    { "path": "/text-1", "title": "Text 1", "components": [], "next": [] },
+    { "path": "/text-2", "title": "Text 2", "components": [], "next": [] },
+    {
+      "path": "/time",
+      "title": "Time",
+      "components": [
+        {
+          "name": "XKdwrz",
+          "options": {},
+          "type": "TimeField",
+          "title": "Time",
+          "schema": {}
+        }
+      ],
+      "next": [
+        { "path": "/time-1", "condition": "cIRWPq" },
+        { "path": "/time-2" }
+      ]
+    },
+    { "path": "/time-1", "title": "Time 1", "components": [], "next": [] },
+    { "path": "/time-2", "title": "Time 2", "components": [], "next": [] },
+    {
+      "path": "/uk-address",
+      "title": "UK address",
+      "components": [
+        {
+          "name": "CVVGSg",
+          "options": {},
+          "type": "UkAddressField",
+          "title": "UK address",
+          "schema": {}
+        }
+      ],
+      "next": [{ "path": "/uk-address-1" }, { "path": "/uk-address-2" }]
+    },
+    {
+      "path": "/uk-address-1",
+      "title": "UK address 1",
+      "components": [],
+      "next": []
+    },
+    {
+      "path": "/uk-address-2",
+      "title": "UK address 2",
+      "components": [],
+      "next": []
+    },
+    {
+      "path": "/website",
+      "title": "Website",
+      "components": [
+        {
+          "name": "ojCrYW",
+          "options": {},
+          "type": "WebsiteField",
+          "title": "Website",
+          "schema": {}
+        }
+      ],
+      "next": [
+        { "path": "/website-1", "condition": "QPWwgF" },
+        { "path": "/website-2" }
+      ]
+    },
+    {
+      "path": "/website-1",
+      "title": "Website 1",
+      "components": [],
+      "next": []
+    },
+    {
+      "path": "/website-2",
+      "title": "Website 2",
+      "components": [],
+      "next": []
+    },
+    {
+      "path": "/date-time",
+      "title": "Date time",
+      "components": [
+        {
+          "name": "iekbqg",
+          "options": {},
+          "type": "DateTimeField",
+          "title": "Date time"
+        }
+      ],
+      "next": []
+    },
+    {
+      "path": "/date-parts",
+      "title": "Date parts",
+      "components": [
+        {
+          "name": "ZLlCaM",
+          "options": {},
+          "type": "DatePartsField",
+          "title": "Date parts"
+        }
+      ],
+      "next": [
+        { "path": "/date-1", "condition": "UjPTYM" },
+        { "path": "/date-2" }
+      ]
+    },
+    {
+      "path": "/address",
+      "title": "Address",
+      "components": [
+        {
+          "name": "BEoxwh",
+          "options": {},
+          "type": "UkAddressField",
+          "title": "Address"
+        }
+      ],
+      "next": []
+    },
+    {
+      "path": "/date-1",
+      "title": "Date 1",
+      "components": [
+        {
+          "name": "Uqbnji",
+          "options": {},
+          "type": "Para",
+          "content": "Date before 1 January 2020"
+        }
+      ],
+      "next": []
+    },
+    {
+      "path": "/date-2",
+      "title": "Date 2",
+      "components": [
+        {
+          "name": "IkjvIR",
+          "options": {},
+          "type": "Para",
+          "content": "Date after 1 January 2020"
+        }
+      ],
+      "next": []
+    },
+    {
+      "path": "/whats-your-name",
+      "title": "What's your name?",
+      "components": [
+        {
+          "name": "bIKhrk",
+          "options": {},
+          "type": "TextField",
+          "title": "What's your name?"
+        }
+      ],
+      "next": [{ "path": "/whats-your-email-address" }]
+    },
+    {
+      "path": "/whats-your-email-address",
+      "title": "What's your email address?",
+      "components": [
+        {
+          "name": "ASCbRj",
+          "options": {},
+          "type": "EmailAddressField",
+          "title": "What's your email address?"
+        }
+      ],
+      "next": [{ "path": "/check-your-answers" }]
+    },
+    {
+      "path": "/check-your-answers",
+      "title": "Check your answers",
+      "components": [],
+      "next": [],
+      "controller": "./pages/summary.js"
+    }
+  ],
+  "lists": [],
+  "sections": [],
+  "conditions": [
+    {
+      "displayName": "Date time parts",
+      "name": "UELPOi",
+      "value": {
+        "name": "Date time parts",
+        "conditions": [
+          {
+            "field": {
+              "name": "bPOSlx",
+              "type": "DateTimePartsField",
+              "display": "Date time parts"
+            },
+            "operator": "is after",
+            "value": {
+              "type": "Value",
+              "value": "2024-03-21T00:00:00.000Z",
+              "display": "2024-03-21T00:00:00.000Z"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Email address",
+      "name": "mswiRp",
+      "value": {
+        "name": "Email address",
+        "conditions": [
+          {
+            "field": {
+              "name": "UMooYm",
+              "type": "EmailAddressField",
+              "display": "Email address"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "@gov.uk",
+              "display": "@gov.uk"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "File upload",
+      "name": "lQJdyW",
+      "value": {
+        "name": "File upload",
+        "conditions": [
+          {
+            "field": {
+              "name": "xCFFPz",
+              "type": "FileUploadField",
+              "display": "File upload"
+            },
+            "operator": "is",
+            "value": { "type": "Value", "value": "Yes", "display": "Yes" }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Month year parts",
+      "name": "qksZAY",
+      "value": {
+        "name": "Month year parts",
+        "conditions": [
+          {
+            "field": {
+              "name": "vuVnkb",
+              "type": "MonthYearField",
+              "display": "Month year parts"
+            },
+            "operator": "is",
+            "value": { "type": "Value", "value": "yes", "display": "yes" }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Multiline text",
+      "name": "WIqnJe",
+      "value": {
+        "name": "Multiline text",
+        "conditions": [
+          {
+            "field": {
+              "name": "gQBkEL",
+              "type": "MultilineTextField",
+              "display": "Multiline text"
+            },
+            "operator": "is longer than",
+            "value": { "type": "Value", "value": "100", "display": "100" }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Number",
+      "name": "eQkLri",
+      "value": {
+        "name": "Number",
+        "conditions": [
+          {
+            "field": {
+              "name": "OCuYWP",
+              "type": "NumberField",
+              "display": "Number"
+            },
+            "operator": "is more than",
+            "value": { "type": "Value", "value": "10", "display": "10" }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Time",
+      "name": "cIRWPq",
+      "value": {
+        "name": "Time",
+        "conditions": [
+          {
+            "field": {
+              "name": "XKdwrz",
+              "type": "TimeField",
+              "display": "Time"
+            },
+            "operator": "is after",
+            "value": { "type": "Value", "value": "20:00", "display": "20:00" }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Website",
+      "name": "QPWwgF",
+      "value": {
+        "name": "Website",
+        "conditions": [
+          {
+            "field": {
+              "name": "ojCrYW",
+              "type": "WebsiteField",
+              "display": "Website"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "https://www.gov.uk/government/organisations/environment-agency",
+              "display": "https://www.gov.uk/government/organisations/environment-agency"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Telephone",
+      "name": "RVnLys",
+      "value": {
+        "name": "Telephone",
+        "conditions": [
+          {
+            "field": {
+              "name": "xASuGI",
+              "type": "TelephoneNumberField",
+              "display": "Telephone number"
+            },
+            "operator": "is",
+            "value": { "type": "Value", "value": "Yes", "display": "Yes" }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Date parts",
+      "name": "UjPTYM",
+      "value": {
+        "name": "Date parts",
+        "conditions": [
+          {
+            "field": {
+              "name": "ZLlCaM",
+              "type": "DatePartsField",
+              "display": "Date parts"
+            },
+            "operator": "is before",
+            "value": {
+              "type": "Value",
+              "value": "2020-01-01",
+              "display": "2020-01-01"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "fees": [],
+  "outputs": [],
+  "version": 2,
+  "skipSummary": false,
+  "feeOptions": {
+    "allowSubmissionWithoutPayment": true,
+    "maxAttempts": 3,
+    "showPaymentSkippedWarningPage": false
+  }
+}
