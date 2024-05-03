@@ -188,15 +188,19 @@ module.exports = {
     },
     {
       env: {
-        jest: true
+        'jest/globals': true
       },
-      extends: ['plugin:jest/style'],
+      extends: ['plugin:jest/recommended', 'plugin:jest/style'],
       files: ['**/*.test.{cjs,js,mjs,ts}'],
       plugins: ['jest'],
       rules: {
         // Turn off warnings for jest.Expect 'any' types
         '@typescript-eslint/no-unsafe-assignment': 'off',
-        '@typescript-eslint/no-unsafe-argument': 'off'
+        '@typescript-eslint/no-unsafe-argument': 'off',
+
+        // Allow Jest to assert on mocked unbound methods
+        '@typescript-eslint/unbound-method': 'off',
+        'jest/unbound-method': 'error'
       }
     }
   ],
