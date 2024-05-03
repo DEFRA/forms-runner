@@ -124,7 +124,7 @@ export class RepeatingFieldPageController extends PageController {
   }
 
   addRowsToViewContext(response, state) {
-    if (this.options.summaryDisplayMode!.samePage) {
+    if (this.options.summaryDisplayMode?.samePage) {
       const rows = this.summary.getRowsFromAnswers(this.getPartialState(state))
       response.source.context.details = { rows }
     }
@@ -182,7 +182,7 @@ export class RepeatingFieldPageController extends PageController {
         return response
       }
 
-      if (this.options.summaryDisplayMode!.samePage) {
+      if (this.options.summaryDisplayMode?.samePage) {
         return h.redirect(`/${this.model.basePath}${this.path}`)
       }
       return h.redirect(`/${this.model.basePath}${this.path}?view=summary`)
