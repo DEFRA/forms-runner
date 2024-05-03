@@ -103,7 +103,7 @@ describe.skip('Dynamic pages', () => {
   })
 
   afterAll(async () => {
-    server.stop()
+    await server.stop()
   })
 
   afterEach(async () => {
