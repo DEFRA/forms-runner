@@ -60,7 +60,7 @@ export class FormModel {
   feeOptions?: FormDefinition['feeOptions']
   specialPages?: FormDefinition['specialPages']
 
-  constructor(def, options) {
+  constructor(def: FormDefinition, options) {
     const result = formDefinitionSchema.validate(def, { abortEarly: false })
 
     if (result.error) {
@@ -109,11 +109,12 @@ export class FormModel {
       this.conditions[condition.name] = condition
     })
 
-    const exposedComponentDefs = def.pages.flatMap((page) => {
-      return page.components.filter(
-        (component) => component.options?.exposeToContext
-      )
+    const exposedComponentDefs = def.pages.flatMap(({ components = [] }) => {
+      return components.filter(({ options }) => {
+        return 'exposeToContext' in options && options.exposeToContext
+      })
     })
+
     this.fieldsForContext = new ComponentCollection(exposedComponentDefs, this)
     this.fieldsForPrePopulation = {}
     this.pages = def.pages.map((pageDef) => this.makePage(pageDef))
