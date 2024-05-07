@@ -29,6 +29,9 @@ export const configSchema = Joi.object({
   publicDir: Joi.string()
     .optional()
     .default(resolve(dirname(configPath), '../../../public')),
+  managerUrl: Joi.string()
+    .uri()
+    .default('http://forms-manager.dev.cdp-int.defra.cloud'),
   logLevel: Joi.string()
     .optional()
     .allow('trace', 'debug', 'info', 'warn', 'error'),
