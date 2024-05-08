@@ -16,7 +16,7 @@ type ConfigureEnginePlugin = (
 ) => {
   plugin: any
   options: {
-    model: any
+    model?: FormModel
     previewMode: boolean
   }
 }

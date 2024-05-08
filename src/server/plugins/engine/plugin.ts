@@ -77,7 +77,7 @@ interface PluginOptions {
     relativeTo: string
     previewMode: any
   }
-  model: any
+  model?: FormModel
   previewMode: boolean
 }
 
