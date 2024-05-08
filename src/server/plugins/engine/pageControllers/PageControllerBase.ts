@@ -82,7 +82,7 @@ export class PageControllerBase {
     this.backLinkFallback = pageDef.backLinkFallback
 
     // Resolve section
-    this.section = model.sections?.find(
+    this.section = model.sections.find(
       (section) => section.name === pageDef.section
     )
 
@@ -129,7 +129,7 @@ export class PageControllerBase {
     sectionTitle: string
     showTitle: boolean
     components: ComponentCollectionViewModel
-    errors: FormSubmissionErrors
+    errors?: FormSubmissionErrors
     isStartPage: boolean
     startPage?: ResponseObject
     backLink?: string
@@ -240,7 +240,7 @@ export class PageControllerBase {
     const nextLink = this.next.find((link) => {
       const { condition } = link
       if (condition) {
-        return this.model.conditions[condition]?.fn?.(state)
+        return this.model.conditions[condition].fn(state)
       }
       defaultLink = link
       return false
@@ -451,7 +451,7 @@ export class PageControllerBase {
       const { cacheService } = request.services([])
       const lang = this.langFromRequest(request)
       const state = await cacheService.getState(request)
-      const progress = state.progress || []
+      const progress = state.progress ?? []
       const { num } = request.query
       const currentPath = `${this.model.basePath}${this.path}${request.url.search}`
       const startPage = this.model.def.startPage
@@ -461,14 +461,14 @@ export class PageControllerBase {
       const isInitialisedSession = !!state.callback
       const shouldRedirectToStartPage =
         !this.model.options.previewMode &&
-        progress.length === 0 &&
+        !progress.length &&
         !isStartPage &&
         !isInitialisedSession
 
       if (shouldRedirectToStartPage) {
-        return startPage!.startsWith('http')
-          ? redirectTo(request, h, startPage!)
-          : redirectTo(request, h, `/${this.model.basePath}${startPage!}`)
+        return startPage?.startsWith('http')
+          ? redirectTo(request, h, startPage)
+          : redirectTo(request, h, `/${this.model.basePath}${startPage}`)
       }
 
       formData.lang = lang
@@ -484,9 +484,9 @@ export class PageControllerBase {
         })
       }
       const viewModel = this.getViewModel(formData, num)
-      viewModel.startPage = startPage!.startsWith('http')
-        ? redirectTo(request, h, startPage!)
-        : redirectTo(request, h, `/${this.model.basePath}${startPage!}`)
+      viewModel.startPage = startPage?.startsWith('http')
+        ? redirectTo(request, h, startPage)
+        : redirectTo(request, h, `/${this.model.basePath}${startPage}`)
 
       this.setPhaseTag(viewModel)
       this.setFeedbackDetails(viewModel, request)
@@ -541,9 +541,9 @@ export class PageControllerBase {
       /**
        * used for when a user clicks the "back" link. Progress is stored in the state. This is a safer alternative to running javascript that pops the history `onclick`.
        */
-      const lastVisited = progress[progress.length - 1]
-      if (!lastVisited || !lastVisited.startsWith(currentPath)) {
-        if (progress[progress.length - 2] === currentPath) {
+      const lastVisited = progress.at(-1)
+      if (!lastVisited?.startsWith(currentPath)) {
+        if (progress.at(-2) === currentPath) {
           progress.pop()
         } else {
           progress.push(currentPath)
@@ -552,8 +552,7 @@ export class PageControllerBase {
 
       await cacheService.mergeState(request, { progress })
 
-      viewModel.backLink =
-        progress[progress.length - 2] ?? this.backLinkFallback
+      viewModel.backLink = progress.at(-2) ?? this.backLinkFallback
       return h.view(this.viewName, viewModel)
     }
   }

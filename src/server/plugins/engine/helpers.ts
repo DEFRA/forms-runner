@@ -18,16 +18,19 @@ export function proceed(request: Request, h: ResponseToolkit, nextUrl: string) {
   }
 }
 
-type Params = { num?: number; returnUrl: string } | object
+interface Params {
+  num?: number
+  returnUrl: string
+}
 
 export function nonRelativeRedirectUrl(
   request: Request,
   targetUrl: string,
-  params: Params = {}
+  params?: Params
 ) {
   const url = new URL(targetUrl)
 
-  Object.entries(params).forEach(([name, value]) => {
+  Object.entries(params ?? {}).forEach(([name, value]) => {
     url.searchParams.append(name, `${value}`)
   })
 
@@ -44,10 +47,10 @@ export function nonRelativeRedirectUrl(
 export function redirectUrl(
   request: Request,
   targetUrl: string,
-  params: Params = {}
+  params?: Params
 ) {
   const relativeUrl = new RelativeUrl(targetUrl)
-  Object.entries(params).forEach(([name, value]) => {
+  Object.entries(params ?? {}).forEach(([name, value]) => {
     relativeUrl.setParam(name, `${value}`)
   })
 
@@ -65,7 +68,7 @@ export function redirectTo(
   request: Request,
   h: ResponseToolkit,
   targetUrl: string,
-  params = {}
+  params?: Params
 ) {
   if (targetUrl.startsWith('http')) {
     return h.redirect(targetUrl)
@@ -80,23 +83,20 @@ export const idFromFilename = (filename: string) => {
 }
 
 export function getValidStateFromQueryParameters(
-  prePopFields: Record<string, any>,
+  prePopFields: Record<string, string>,
   queryParameters: Record<string, string>,
-  state: Record<string, any> = {}
+  state: Record<string, unknown> = {}
 ) {
-  return Object.entries(queryParameters).reduce<Record<string, any>>(
-    (acc, [key, value]) => {
-      if (reach(prePopFields, key) === undefined || reach(state, key)) {
-        return acc
-      }
-
-      const result = reach(prePopFields, key).validate(value)
-      if (result.error) {
-        return acc
-      }
-      set(acc, key, value)
+  return Object.entries(queryParameters).reduce((acc, [key, value]) => {
+    if (reach(prePopFields, key) === undefined || reach(state, key)) {
       return acc
-    },
-    {}
-  )
+    }
+
+    const result = reach(prePopFields, key).validate(value)
+    if (result.error) {
+      return acc
+    }
+    set(acc, key, value)
+    return acc
+  }, {})
 }

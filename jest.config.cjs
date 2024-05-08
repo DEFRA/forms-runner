@@ -3,6 +3,7 @@
  * @type {import('@jest/types').Config.InitialOptions}
  */
 module.exports = {
+  resetMocks: true,
   resetModules: true,
   restoreMocks: true,
   clearMocks: true,

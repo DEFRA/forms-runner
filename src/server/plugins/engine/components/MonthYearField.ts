@@ -83,7 +83,7 @@ export class MonthYearField extends FormComponent {
   }
 
   // @ts-expect-error - Property 'getViewModel' in type 'MonthYearField' is not assignable to the same property in base type 'FormComponent'
-  getViewModel(formData: FormData, errors: FormSubmissionErrors) {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const viewModel = super.getViewModel(formData, errors)
 
     // Use the component collection to generate the subitems
@@ -93,7 +93,7 @@ export class MonthYearField extends FormComponent {
 
     componentViewModels.forEach((componentViewModel) => {
       // Nunjucks macro expects label to be a string for this component
-      componentViewModel.label = componentViewModel.label?.text?.replace(
+      componentViewModel.label = componentViewModel.label?.text.replace(
         optionalText,
         ''
       ) as any

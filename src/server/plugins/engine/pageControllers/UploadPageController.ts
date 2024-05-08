@@ -14,7 +14,7 @@ export class UploadPageController extends PageController {
   inputComponent: FormComponent
   constructor(model: FormModel, pageDef: any) {
     super(model, pageDef)
-    const inputComponent = this.components?.items?.find(isUploadField)
+    const inputComponent = this.components.items.find(isUploadField)
     if (!inputComponent) {
       throw Error(
         'UploadPageController initialisation failed, no file upload component was found'
@@ -45,13 +45,13 @@ export class UploadPageController extends PageController {
     return async (request: Request, h: ResponseToolkit) => {
       const { query } = request
 
-      if (query?.view === 'playback') {
+      if (query.view === 'playback') {
         return this.playback.makePostRouteHandler()(request, h)
       }
 
       const defaultRes = super.makePostRouteHandler()(request, h)
 
-      if (request.pre?.warning) {
+      if (request.pre.warning) {
         return h.redirect('?view=playback')
       }
 

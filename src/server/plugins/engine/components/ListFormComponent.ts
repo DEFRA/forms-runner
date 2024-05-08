@@ -7,10 +7,7 @@ import joi, { type Schema } from 'joi'
 
 import { type FormModel } from '~/src/server/plugins/engine/components/../models/index.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import {
-  type DataType,
-  type ListItem
-} from '~/src/server/plugins/engine/components/types.js'
+import { type DataType } from '~/src/server/plugins/engine/components/types.js'
 import {
   type FormSubmissionState,
   type FormSubmissionErrors,
@@ -18,7 +15,7 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class ListFormComponent extends FormComponent {
-  list: List
+  list?: List
   listType = 'string'
   formSchema
   stateSchema
@@ -30,14 +27,13 @@ export class ListFormComponent extends FormComponent {
   }
 
   get values(): (string | number | boolean)[] {
-    return this.items?.map((item) => item.value) ?? []
+    return this.items.map((item) => item.value)
   }
 
   constructor(def: ListComponentsDef, model: FormModel) {
     super(def, model)
-    // @ts-expect-error - Type 'List | []' is not assignable to type 'List'
     this.list = model.getList(def.list)
-    this.listType = this.list.type ?? 'string'
+    this.listType = this.list?.type ?? 'string'
     this.options = def.options
 
     let schema = joi[this.listType]()
@@ -73,17 +69,18 @@ export class ListFormComponent extends FormComponent {
     return item?.text ?? ''
   }
 
-  getViewModel(formData: FormData, errors: FormSubmissionErrors) {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const { name, items } = this
     const viewModel = super.getViewModel(formData, errors)
-    const viewModelItems: ListItem[] =
-      items.map(({ text, value, description = '', condition }) => ({
+    const viewModelItems = items.map(
+      ({ text, value, description = '', condition }) => ({
         text: this.localisedString(text),
         value,
         description,
         selected: `${value}` === `${formData[name]}`,
-        condition
-      })) ?? []
+        condition: condition ?? undefined
+      })
+    )
 
     viewModel.items = viewModelItems
 

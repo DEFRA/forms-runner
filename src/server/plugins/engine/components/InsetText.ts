@@ -6,7 +6,7 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class InsetText extends ComponentBase {
-  getViewModel(formData: FormData, errors: FormSubmissionErrors): ViewModel {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors): ViewModel {
     return {
       ...super.getViewModel(formData, errors),
       content: this.content

@@ -36,7 +36,7 @@ describe('ListFormComponent', () => {
   })
 
   describe('getDisplayStringFromState', () => {
-    it('it gets value correctly when state value is string', () => {
+    it('gets value correctly when state value is string', () => {
       const state: FormSubmissionState = {
         progress: [],
         MyListFormComponent: '2'
@@ -45,7 +45,7 @@ describe('ListFormComponent', () => {
       expect(component.getViewModel(state).value).toBe('2')
     })
 
-    it('it gets value correctly when state value is number', () => {
+    it('gets value correctly when state value is number', () => {
       const state: FormSubmissionState = {
         progress: [],
         MyListFormComponent: 2

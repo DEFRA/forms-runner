@@ -2,10 +2,6 @@ import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PlaybackUploadPageController } from '~/src/server/plugins/engine/pageControllers/PlaybackUploadPageController.js'
 import { UploadPageController } from '~/src/server/plugins/engine/pageControllers/UploadPageController.js'
 
-jest.mock(
-  '../../../../../../src/server/plugins/engine/pageControllers/PlaybackUploadPageController'
-)
-
 describe('UploadPageController', () => {
   const def = {
     title: 'Your birth certificate',
@@ -41,14 +37,14 @@ describe('UploadPageController', () => {
     {}
   )
 
-  beforeAll(() => {
+  beforeEach(() => {
     jest
       .spyOn(PlaybackUploadPageController.prototype, 'makePostRouteHandler')
-      .mockReturnValue(async () => true)
+      .mockReturnValue(() => Promise.resolve())
 
     jest
       .spyOn(PlaybackUploadPageController.prototype, 'makeGetRouteHandler')
-      .mockReturnValue(async () => true)
+      .mockReturnValue(() => Promise.resolve())
   })
 
   test('Redirects post handler to the playback page post handler when view=playback', async () => {
@@ -58,8 +54,8 @@ describe('UploadPageController', () => {
         view: 'playback'
       }
     }
-    const result = await pageController.makePostRouteHandler()(request, {})
-    expect(result).toBe(true)
+    await pageController.makePostRouteHandler()(request, {})
+    expect(pageController.playback.makePostRouteHandler).toHaveBeenCalled()
   })
   test('Redirects get handler to the playback page get handler when view=playback', async () => {
     const pageController = new UploadPageController(model, def)
@@ -68,7 +64,7 @@ describe('UploadPageController', () => {
         view: 'playback'
       }
     }
-    const result = await pageController.makeGetRouteHandler()(request, {})
-    expect(result).toBe(true)
+    await pageController.makeGetRouteHandler()(request, {})
+    expect(pageController.playback.makeGetRouteHandler).toHaveBeenCalled()
   })
 })

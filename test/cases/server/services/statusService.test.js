@@ -73,7 +73,8 @@ describe('Status Service', () => {
         await statusService.shouldShowPayErrorPage({
           yar,
           app,
-          params: { id: 'test' }
+          params: { id: 'test' },
+          query: {}
         })
       ).toBe(false)
     })
@@ -95,6 +96,7 @@ describe('Status Service', () => {
           yar,
           app,
           params: { id: 'test' },
+          query: {},
           server
         })
       ).toBe(true)
@@ -126,6 +128,7 @@ describe('Status Service', () => {
           yar,
           app,
           params: { id: 'test' },
+          query: {},
           server
         })
       ).toBe(true)

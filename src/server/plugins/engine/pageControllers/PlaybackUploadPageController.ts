@@ -52,7 +52,7 @@ export class PlaybackUploadPageController extends PageController {
    */
   getRetryUploadViewModel(errors?: FormSubmissionErrors) {
     const viewModel = { ...this.retryUploadViewModel }
-    errors?.errorList?.forEach((err) => {
+    errors?.errorList.forEach((err) => {
       if (err.name === viewModel.name) {
         viewModel.errorMessage = {
           text: err.text

@@ -125,7 +125,7 @@ export class UkAddressField extends FormComponent {
       : ''
   }
 
-  getViewModel(formData: FormData, errors: FormSubmissionErrors) {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const options: any = this.options
     const viewModel = {
       ...super.getViewModel(formData, errors),

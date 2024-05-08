@@ -1,6 +1,7 @@
 import { type FormDefinition, isMultipleApiKey } from '@defra/forms-model'
 import { type Request } from '@hapi/hapi'
 import { clone, reach } from 'hoek'
+import { type ValidationResult } from 'joi'
 
 import config from '~/src/server/config.js'
 import { decodeFeedbackContextInfo } from '~/src/server/plugins/engine/feedback/index.js'
@@ -62,7 +63,7 @@ export class SummaryViewModel {
     | undefined
 
   _outputs: any // TODO
-  _payApiKey: FormDefinition['payApiKey']
+  _payApiKey?: FormDefinition['payApiKey']
   _webhookData: WebhookData | undefined
   callback?: InitialiseSessionOptions
   showPaymentSkippedWarningPage = false
@@ -83,7 +84,7 @@ export class SummaryViewModel {
     this.endPage = endPage
     this.feedbackLink =
       def.feedback?.url ??
-      ((def.feedback?.emailAddress && `mailto:${def.feedback?.emailAddress}`) ||
+      ((def.feedback?.emailAddress && `mailto:${def.feedback.emailAddress}`) ||
         config.feedbackLink)
 
     const schema = model.makeFilteredSchema(state, relevantPages)
@@ -162,7 +163,7 @@ export class SummaryViewModel {
       feeOptions.showPaymentSkippedWarningPage ?? false
   }
 
-  private processErrors(result, details) {
+  private processErrors(result: ValidationResult, details) {
     this.errors = result.error.details.map((err) => {
       const name = err.path[err.path.length - 1]
 
@@ -339,7 +340,7 @@ export class SummaryViewModel {
    * If a declaration is defined, add this to {@link this._webhookData} as a question has answered `true` to
    */
   addDeclarationAsQuestion() {
-    this._webhookData?.questions?.push({
+    this._webhookData?.questions.push({
       category: null,
       question: 'Declaration',
       fields: [

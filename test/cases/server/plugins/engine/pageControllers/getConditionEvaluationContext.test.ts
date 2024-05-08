@@ -3,7 +3,7 @@ import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/index.js'
 
 describe('Condition Evaluation Context', () => {
-  it('it correctly includes/filters state values', () => {
+  it('correctly includes/filters state values', () => {
     const formModel = new FormModel(formJson, {})
 
     // Selected page appears after convergence and contains a conditional field

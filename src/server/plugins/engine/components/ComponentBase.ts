@@ -34,7 +34,7 @@ export class ComponentBase {
     this.type = def.type
     this.name = def.name
     this.title = def.title
-    this.schema = def.schema || {}
+    this.schema = def.schema
     this.options = def.options
     this.hint = 'hint' in def ? def.hint : undefined
     this.content = 'content' in def ? def.content : undefined

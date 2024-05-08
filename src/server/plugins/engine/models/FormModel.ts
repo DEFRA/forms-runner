@@ -51,16 +51,16 @@ export class FormModel {
   DefaultPageController: any = PageController
   /** the id of the form used for the first url parameter eg localhost:3009/test */
   basePath: string
-  conditions: Record<string, ExecutableCondition> | object
+  conditions: Partial<Record<string, ExecutableCondition>>
   fieldsForContext: ComponentCollection
   fieldsForPrePopulation: Record<string, any>
   pages: any
   startPage: any
 
-  feeOptions: FormDefinition['feeOptions']
-  specialPages: FormDefinition['specialPages']
+  feeOptions?: FormDefinition['feeOptions']
+  specialPages?: FormDefinition['specialPages']
 
-  constructor(def, options) {
+  constructor(def: FormDefinition, options) {
     const result = formDefinitionSchema.validate(def, { abortEarly: false })
 
     if (result.error) {
@@ -109,11 +109,12 @@ export class FormModel {
       this.conditions[condition.name] = condition
     })
 
-    const exposedComponentDefs = def.pages.flatMap((page) => {
-      return page.components.filter(
-        (component) => component.options?.exposeToContext
-      )
+    const exposedComponentDefs = def.pages.flatMap(({ components = [] }) => {
+      return components.filter(({ options }) => {
+        return 'exposeToContext' in options && options.exposeToContext
+      })
     })
+
     this.fieldsForContext = new ComponentCollection(exposedComponentDefs, this)
     this.fieldsForPrePopulation = {}
     this.pages = def.pages.map((pageDef) => this.makePage(pageDef))
@@ -252,8 +253,8 @@ export class FormModel {
     return { allowUnknown: true, presence: 'required' }
   }
 
-  getList(name: string): List | [] {
-    return this.lists.find((list) => list.name === name) ?? []
+  getList(name: string): List | undefined {
+    return this.lists.find((list) => list.name === name)
   }
 
   getContextState(state: FormSubmissionState) {

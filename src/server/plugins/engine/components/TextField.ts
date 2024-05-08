@@ -61,7 +61,7 @@ export class TextField extends FormComponent {
     return { [this.name]: this.formSchema as Schema }
   }
 
-  getViewModel(formData: FormData, errors: FormSubmissionErrors) {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const options: any = this.options
     const schema: any = this.schema
     const viewModel = super.getViewModel(formData, errors)

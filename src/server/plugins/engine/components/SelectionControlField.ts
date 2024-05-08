@@ -9,7 +9,7 @@ import {
  * "Selection controls" are checkboxes and radios (and switches), as per Material UI nomenclature.
  */
 export class SelectionControlField extends ListFormComponent {
-  getViewModel(formData: FormData, errors: FormSubmissionErrors) {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const { name, items } = this
     const options: any = this.options
     const viewModel = super.getViewModel(formData, errors)

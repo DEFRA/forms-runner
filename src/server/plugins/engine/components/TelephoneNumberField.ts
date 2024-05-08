@@ -24,7 +24,7 @@ export class TelephoneNumberField extends FormComponent {
     }
     componentSchema = componentSchema
       .pattern(pattern)
-      .message(def.options?.customValidationMessage ?? DEFAULT_MESSAGE)
+      .message(def.options.customValidationMessage ?? DEFAULT_MESSAGE)
       .label(def.title.toLowerCase())
 
     if (schema.max) {
@@ -48,7 +48,7 @@ export class TelephoneNumberField extends FormComponent {
     return { [this.name]: this.schema as Schema }
   }
 
-  getViewModel(formData: FormData, errors: FormSubmissionErrors) {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const viewModel = {
       ...super.getViewModel(formData, errors),
       type: 'tel',

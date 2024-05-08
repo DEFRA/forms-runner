@@ -23,7 +23,7 @@ export class ComponentCollection {
 
   constructor(componentDefs: ComponentDef[] = [], model: FormModel) {
     const components = componentDefs.map((def) => {
-      const Comp: any = Components[def.type]
+      const Comp = Components[def.type]
 
       if (typeof Comp !== 'function') {
         throw new Error(`Component type ${def.type} doesn't exist`)
@@ -33,7 +33,7 @@ export class ComponentCollection {
     })
 
     const formComponents = components.filter(
-      (component) => component.isFormComponent
+      (component) => 'isFormComponent' in component && component.isFormComponent
     )
 
     this.items = components
@@ -70,7 +70,10 @@ export class ComponentCollection {
 
   getPrePopulatedItems() {
     return this.formItems
-      .filter((item) => item.options?.allowPrePopulation)
+      .filter(
+        ({ options }) =>
+          'allowPrePopulation' in options && options.allowPrePopulation
+      )
       .map((item) => item.getStateSchemaKeys())
       .reduce((acc, curr) => merge(acc, curr), {})
   }
@@ -100,18 +103,19 @@ export class ComponentCollection {
     errors?: FormSubmissionErrors,
     conditions?: FormModel['conditions']
   ): ComponentCollectionViewModel {
-    const result =
-      this.items?.map((item: any) => {
-        return {
-          type: item.type,
-          isFormComponent: item.isFormComponent,
-          model: item.getViewModel(formData, errors)
-        }
-      }) ?? []
+    const result = this.items.map((item) => {
+      return {
+        type: item.type,
+        isFormComponent: 'isFormComponent' in item && item.isFormComponent,
+        model: item.getViewModel(formData, errors)
+      }
+    })
 
     if (conditions) {
-      return result.filter(
-        (item) => conditions[item.model?.condition]?.fn(formData) ?? true
+      return result.filter((item) =>
+        'condition' in item.model
+          ? conditions[item.model.condition]?.fn(formData)
+          : true
       )
     }
 

@@ -48,7 +48,7 @@ export class QueueStatusService extends StatusService {
     const otherOutputs = outputs?.filter((output) => output !== firstWebhook)
     if (firstWebhook) {
       if (!queueReference) {
-        const queueResults = await this.queueService?.sendToQueue(
+        const queueResults = await this.queueService.sendToQueue(
           formData,
           firstWebhook.outputData.url,
           firstWebhook.outputData.allowRetry
@@ -68,7 +68,7 @@ export class QueueStatusService extends StatusService {
     }
 
     if (!queueReference) {
-      const queueResults = await this.queueService?.sendToQueue(formData, '')
+      const queueResults = await this.queueService.sendToQueue(formData, '')
       if (!queueResults) {
         this.logQueueServiceError()
       }

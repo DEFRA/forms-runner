@@ -175,7 +175,7 @@ export class SummaryPageController extends PageController {
       /**
        * If a user does not need to pay, redirect them to /status
        */
-      if ((summaryViewModel.fees?.details ?? [])?.length === 0) {
+      if (summaryViewModel.fees?.details.length) {
         return redirectTo(request, h, `/${model.basePath}/status`)
       }
 

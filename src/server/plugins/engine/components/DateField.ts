@@ -62,7 +62,7 @@ export class DateField extends FormComponent {
     return value ? format(parseISO(value), 'd MMMM yyyy') : ''
   }
 
-  getViewModel(formData: FormData, errors: FormSubmissionErrors) {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     return {
       ...super.getViewModel(formData, errors),
       type: 'date'

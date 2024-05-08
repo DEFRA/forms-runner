@@ -38,10 +38,9 @@ export function FeesModel(
   model: FormModel,
   state: FormSubmissionState
 ): FeesModel | undefined {
-  const applicableFees: Fee[] =
-    model.def.fees?.filter((fee) => {
-      return !fee.condition || model.conditions[fee.condition].fn(state)
-    }) ?? []
+  const applicableFees: Fee[] = model.def.fees.filter((fee) => {
+    return !fee.condition || model.conditions[fee.condition].fn(state)
+  })
 
   if (applicableFees.length < 1) {
     return undefined

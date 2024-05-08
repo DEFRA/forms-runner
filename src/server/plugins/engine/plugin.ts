@@ -1,7 +1,7 @@
 import { dirname, join } from 'node:path'
 import { cwd } from 'node:process'
 
-import { FormConfiguration } from '@defra/forms-model'
+import { FormConfiguration, type FormDefinition } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type PluginSpecificConfiguration,
@@ -114,7 +114,7 @@ export const plugin = {
         const payload = request.payload as FormPayload
         const { id, configuration } = payload
 
-        const parsedConfiguration =
+        const parsedConfiguration: FormDefinition =
           typeof configuration === 'string'
             ? JSON.parse(configuration)
             : configuration
@@ -199,10 +199,7 @@ export const plugin = {
       }
 
       const prePopFields = model.fieldsForPrePopulation
-      if (
-        Object.keys(query).length === 0 ||
-        Object.keys(prePopFields).length === 0
-      ) {
+      if (!Object.keys(query).length || !Object.keys(prePopFields).length) {
         return h.continue
       }
       const { cacheService } = request.services([])

@@ -1,6 +1,5 @@
 import { type InputFieldsComponentsDef } from '@defra/forms-model'
 import { format, parse, parseISO } from 'date-fns'
-import { Schema } from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
@@ -139,7 +138,7 @@ export class DateTimePartsField extends FormComponent {
   }
 
   // @ts-expect-error - Property 'getViewModel' in type 'DateTimePartsField' is not assignable to the same property in base type 'FormComponent'
-  getViewModel(formData: FormData, errors: FormSubmissionErrors) {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const viewModel = super.getViewModel(formData, errors)
 
     // Use the component collection to generate the subitems
@@ -149,7 +148,7 @@ export class DateTimePartsField extends FormComponent {
 
     componentViewModels.forEach((componentViewModel) => {
       // Nunjucks macro expects label to be a string for this component
-      componentViewModel.label = componentViewModel.label?.text?.replace(
+      componentViewModel.label = componentViewModel.label?.text.replace(
         optionalText,
         ''
       ) as any

@@ -37,7 +37,7 @@ export class DateTimeField extends FormComponent {
     return value ? format(parseISO(value), 'd MMMM yyyy h:mm') : ''
   }
 
-  getViewModel(formData: FormData, errors: FormSubmissionErrors) {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     return {
       ...super.getViewModel(formData, errors),
       type: 'datetime-local'

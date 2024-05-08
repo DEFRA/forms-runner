@@ -1,9 +1,10 @@
-import { type List } from '@defra/forms-model'
+import { type ListComponentsDef, type List } from '@defra/forms-model'
 import joi, { type Schema } from 'joi'
 
 import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
 import * as helpers from '~/src/server/plugins/engine/components/helpers.js'
 import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormData,
   type FormSubmissionErrors,
@@ -15,7 +16,7 @@ import {
  * YesNoField is a radiosField with predefined values.
  */
 export class YesNoField extends ListFormComponent {
-  list: List = {
+  list?: List = {
     name: '__yesNo',
     title: 'Yes/No',
     type: 'boolean',
@@ -33,14 +34,14 @@ export class YesNoField extends ListFormComponent {
 
   itemsSchema = joi.boolean()
   get items() {
-    return this.list.items ?? []
+    return this.list?.items ?? []
   }
 
   get values() {
     return [true, false]
   }
 
-  constructor(def, model) {
+  constructor(def: ListComponentsDef, model: FormModel) {
     super(def, model)
 
     const { options } = this
@@ -49,7 +50,7 @@ export class YesNoField extends ListFormComponent {
       .buildFormSchema('boolean', this, options.required !== false)
       .valid(true, false)
     this.stateSchema = helpers
-      .buildStateSchema(this.list.type, this)
+      .buildStateSchema(this.list?.type, this)
       .valid(true, false)
 
     addClassOptionIfNone(this.options, 'govuk-radios--inline')
@@ -69,7 +70,7 @@ export class YesNoField extends ListFormComponent {
     return item?.text ?? ''
   }
 
-  getViewModel(formData: FormData, errors: FormSubmissionErrors) {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const viewModel = super.getViewModel(formData, errors)
 
     viewModel.fieldset = {

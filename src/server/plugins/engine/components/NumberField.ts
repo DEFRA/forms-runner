@@ -1,7 +1,11 @@
-import { type NumberFieldComponent } from '@defra/forms-model'
+import {
+  type ComponentDef,
+  type NumberFieldComponent
+} from '@defra/forms-model'
 import joi, { type Schema } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormData,
   type FormSubmissionErrors,
@@ -12,7 +16,7 @@ export class NumberField extends FormComponent {
   schemaOptions: NumberFieldComponent['schema']
   options: NumberFieldComponent['options']
 
-  constructor(def, model) {
+  constructor(def: ComponentDef, model: FormModel) {
     super(def, model)
     this.schemaOptions = def.schema
     this.options = def.options
@@ -21,14 +25,14 @@ export class NumberField extends FormComponent {
 
     schema = schema.label(def.title.toLowerCase())
 
-    if (def.schema?.min && def.schema?.max) {
+    if (def.schema.min && def.schema.max) {
       schema = schema.$
     }
-    if (def.schema?.min ?? false) {
+    if (def.schema.min ?? false) {
       schema = schema.min(min)
     }
 
-    if (def.schema?.max ?? false) {
+    if (def.schema.max ?? false) {
       schema = schema.max(max)
     }
 
@@ -54,7 +58,7 @@ export class NumberField extends FormComponent {
     return { [this.name]: this.schema as Schema }
   }
 
-  getViewModel(formData: FormData, errors: FormSubmissionErrors) {
+  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const schema: any = this.schema
     const options: any = this.options
     const { suffix, prefix } = options
