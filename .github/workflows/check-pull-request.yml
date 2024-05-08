@@ -2,14 +2,16 @@ name: Check Pull Request
 
 on:
   pull_request:
+
+  push:
+    branches:
+      - main
+
   workflow_dispatch:
 
-permissions:
-  contents: read
-  packages: read
-
-env:
-  NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   install:
@@ -30,7 +32,6 @@ jobs:
       - name: Cache dependencies
         uses: actions/cache@v4
         id: npm-install-cache
-
         with:
           enableCrossOsArchive: true
           key: npm-install-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -65,16 +66,24 @@ jobs:
 
       - name: Restore dependencies
         uses: actions/cache/restore@v4
-
         with:
           enableCrossOsArchive: true
           key: npm-install-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
           path: node_modules
 
+      - name: Cache build
+        uses: actions/cache@v4
+        with:
+          enableCrossOsArchive: true
+          key: npm-build-${{ runner.os }}-${{ github.sha }}
+          path: |
+            .server
+            public/build
+
       - name: Run build
         run: npm run build
 
-  tasks:
+  lint:
     name: ${{ matrix.task.description }} (${{ matrix.runner }})
     runs-on: ${{ matrix.runner }}
     needs: [install]
@@ -104,6 +113,33 @@ jobs:
           - description: TypeScript compiler
             run: npm run lint:types
 
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Restore dependencies
+        uses: actions/cache/restore@v4
+        with:
+          enableCrossOsArchive: true
+          key: npm-install-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          path: node_modules
+
+      - name: Run lint task
+        run: ${{ matrix.task.run }}
+
+  tasks:
+    name: ${{ matrix.task.description }} (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    needs: [install, build]
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        runner:
+          - ubuntu-latest
+
+        task:
           - description: Unit tests
             run: npm run test
 
@@ -113,11 +149,19 @@ jobs:
 
       - name: Restore dependencies
         uses: actions/cache/restore@v4
-
         with:
           enableCrossOsArchive: true
           key: npm-install-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
           path: node_modules
+
+      - name: Restore build
+        uses: actions/cache/restore@v4
+        with:
+          enableCrossOsArchive: true
+          key: npm-build-${{ runner.os }}-${{ github.sha }}
+          path: |
+            .server
+            public/build
 
       - name: Run task
         run: ${{ matrix.task.run }}
