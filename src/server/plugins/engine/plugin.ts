@@ -9,8 +9,9 @@ import {
   type ResponseToolkit,
   type Server
 } from '@hapi/hapi'
-import nunjucks from 'nunjucks'
+import { isEqual } from 'date-fns'
 import Joi from 'joi'
+import nunjucks from 'nunjucks'
 import resolvePkg from 'resolve'
 
 import config from '~/src/server/config.js'
@@ -20,6 +21,10 @@ import {
   redirectTo
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
+import {
+  getFormDefinition,
+  getFormMetadata
+} from '~/src/server/plugins/engine/services/formsService.js'
 import { type FormPayload } from '~/src/server/plugins/engine/types.js'
 
 const [govukFrontendPath, hmpoComponentsPath] = [
@@ -47,7 +52,7 @@ function normalisePath(path: string) {
 function getStartPageRedirect(
   request: Request,
   h: ResponseToolkit,
-  id: string,
+  slug: string,
   model: FormModel
 ) {
   const startPage = normalisePath(model.def.startPage ?? '')
@@ -68,8 +73,7 @@ function getStartPageRedirect(
 
 interface PluginOptions {
   relativeTo?: string
-  modelOptions: any
-  configs: any[]
+  model: any
   previewMode: boolean
 }
 
@@ -78,20 +82,24 @@ export const plugin = {
   dependencies: '@hapi/vision',
   multiple: true,
   register: (server: Server, options: PluginOptions) => {
-    const { modelOptions, configs, previewMode } = options
-    server.app.forms = {}
-    const forms = server.app.forms
-
-    configs.forEach((form) => {
-      forms[form.id] = new FormModel(form.configuration, {
-        ...modelOptions,
-        basePath: form.id
-      })
-    })
-
+    const { model, previewMode } = options
     const enabledString = config.previewMode ? `[ENABLED]` : `[DISABLED]`
     const disabledRouteDetailString =
       'A request was made however previewing is disabled. See environment variable details in runner/README.md if this error is not expected.'
+
+    server.app.model = model
+
+    /**
+     * @typedef {object} CacheItem
+     * @property {FormModel} model
+     * @property {Date} updatedAt
+     */
+
+    /**
+     * In-memory cache of FormModel items
+     * @type {Map<string, CacheItem>}
+     */
+    const itemCache = new Map()
 
     /**
      * The following publish endpoints (/publish, /published/{id}, /published)
@@ -193,16 +201,15 @@ export const plugin = {
       h: ResponseToolkit
     ) => {
       const { query } = request
-      const { id } = request.params
-      const model = forms[id]
-      if (!model) {
-        throw Boom.notFound('No form found for id')
-      }
-
+      const model = request.app.model
       const prePopFields = model.fieldsForPrePopulation
-      if (!Object.keys(query).length || !Object.keys(prePopFields).length) {
+      const queryKeysLength = Object.keys(query).length
+      const prePopFieldsKeysLength = Object.keys(prePopFields).length
+
+      if (queryKeysLength === 0 || prePopFieldsKeysLength === 0) {
         return h.continue
       }
+
       const { cacheService } = request.services([])
       const state = await cacheService.getState(request)
       const newValues = getValidStateFromQueryParameters(
@@ -210,30 +217,84 @@ export const plugin = {
         query,
         state
       )
+
       await cacheService.mergeState(request, newValues)
+
       return h.continue
     }
 
+    const loadFormPreHandler = server.app.model
+      ? async (request: Request, h: ResponseToolkit) =>
+          (request.app.model = server.app.model)
+      : async (request: Request, h: ResponseToolkit) => {
+          const { params } = request
+          const { slug } = params
+          /**
+           * @todo Determine from path params
+           */
+          const formState = 'draft'
+
+          // Get the form metadata using the `slug` param
+          const metadata = await getFormMetadata(slug)
+
+          const { id, [formState]: state } = metadata
+
+          // Check the metadata supports the requested state
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+          if (!state) {
+            return Boom.notFound(
+              `No '${formState}' state for form metadata ${id}`
+            )
+          }
+
+          const key = `${id}_${formState}`
+          let item = itemCache.get(key)
+
+          if (!item || !isEqual(item.updatedAt, state.updatedAt)) {
+            server.logger.info(`Getting form definition ${id} (${slug})`)
+
+            // Get the form definition using the `id` from the metadata
+            const definition = await getFormDefinition(id, formState)
+
+            // Generate the form model and add it to the item cache
+            server.logger.info(
+              `Building model for form definition ${id} (${slug})`
+            )
+            const model = new FormModel(definition, { basePath: slug })
+
+            // Create new cache item
+            item = { model, updatedAt: state.updatedAt }
+            itemCache.set(key, item)
+          }
+
+          // Assign the model to the request data
+          // for use in the downstream handler
+          request.app.model = item.model
+
+          return h.continue
+        }
+
     server.route({
       method: 'get',
-      path: '/{id}',
+      path: '/{slug}',
       handler: (request: Request, h: ResponseToolkit) => {
-        const { id } = request.params
-        const model = forms[id]
-        if (model) {
-          return getStartPageRedirect(request, h, id, model)
-        }
-        throw Boom.notFound('No form found for id')
+        const { slug } = request.params
+        const model = request.app.model
+
+        return getStartPageRedirect(request, h, slug, model)
       },
       options: {
         pre: [
+          {
+            method: loadFormPreHandler
+          },
           {
             method: queryParamPreHandler
           }
         ],
         validate: {
           params: Joi.object().keys({
-            id: Joi.string().required()
+            slug: Joi.string().required()
           })
         }
       }
@@ -241,13 +302,14 @@ export const plugin = {
 
     server.route({
       method: 'get',
-      path: '/{id}/{path*}',
+      path: '/{slug}/{path*}',
       handler: (request: Request, h: ResponseToolkit) => {
-        const { path, id } = request.params
-        const model = forms[id]
-        const page = model?.pages.find(
+        const { path, slug } = request.params
+        const model = request.app.model
+        const page = model.pages.find(
           (page) => normalisePath(page.path) === normalisePath(path)
         )
+
         if (page) {
           // NOTE: Start pages should live on gov.uk, but this allows prototypes to include signposting about having to log in.
           if (
@@ -259,20 +321,25 @@ export const plugin = {
 
           return page.makeGetRouteHandler()(request, h)
         }
+
         if (normalisePath(path) === '') {
-          return getStartPageRedirect(request, h, id, model)
+          return getStartPageRedirect(request, h, slug, model)
         }
+
         throw Boom.notFound('No form or page found')
       },
       options: {
         pre: [
+          {
+            method: loadFormPreHandler
+          },
           {
             method: queryParamPreHandler
           }
         ],
         validate: {
           params: Joi.object().keys({
-            id: Joi.string().required(),
+            slug: Joi.string().required(),
             path: Joi.string().required()
           })
         }
@@ -283,33 +350,29 @@ export const plugin = {
 
     const handleFiles = (request: Request, h: ResponseToolkit) => {
       const { path, id } = request.params
-      const model = forms[id]
+      const model = request.app.model
       const page = model?.pages.find(
         (page) => normalisePath(page.path) === normalisePath(path)
       )
+
       return uploadService.handleUploadRequest(request, h, page.pageDef)
     }
 
     const postHandler = async (request: Request, h: ResponseToolkit) => {
       const { path, id } = request.params
-      const model = forms[id]
+      const model = request.app.model
+      const page = model.pages.find(
+        (page) => page.path.replace(/^\//, '') === path
+      )
 
-      if (model) {
-        const page = model.pages.find(
-          (page) => page.path.replace(/^\//, '') === path
-        )
-
-        if (page) {
-          return page.makePostRouteHandler()(request, h)
-        }
+      if (page) {
+        return page.makePostRouteHandler()(request, h)
       }
-
-      throw Boom.notFound('No form of path found')
     }
 
     server.route({
       method: 'post',
-      path: '/{id}/{path*}',
+      path: '/{slug}/{path*}',
       handler: postHandler,
       options: {
         plugins: {
@@ -322,15 +385,15 @@ export const plugin = {
           parse: true,
           multipart: { output: 'stream' },
           maxBytes: uploadService.fileSizeLimit,
-          failAction: async (request: Request, h: ResponseToolkit) => {
+          failAction: (request: Request, h: ResponseToolkit) => {
             request.server.plugins.crumb.generate?.(request, h)
             return h.continue
           }
         },
-        pre: [{ method: handleFiles }],
+        pre: [{ method: loadFormPreHandler }, { method: handleFiles }],
         validate: {
           params: Joi.object().keys({
-            id: Joi.string().required(),
+            slug: Joi.string().required(),
             path: Joi.string().required()
           })
         }
