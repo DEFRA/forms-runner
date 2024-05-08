@@ -1,6 +1,7 @@
 import { isMultipleApiKey, type MultipleApiKeys } from '@defra/forms-model'
 import { type Server } from '@hapi/hapi'
-import { NotifyClient } from 'notifications-node-client/client/notification.js'
+// @ts-expect-error - Allow import without types
+import { NotifyClient } from 'notifications-node-client'
 
 import config from '~/src/server/config.js'
 
@@ -19,6 +20,15 @@ export interface SendNotificationArgs {
   personalisation: Personalisation
   reference: string
   emailReplyToId?: string
+}
+
+interface NotifyInterface {
+  constructor: (apiKey: string) => void
+  sendEmail: (
+    templateId: string,
+    emailAddress: string,
+    personalisation: SendEmailOptions
+  ) => Promise<void>
 }
 
 export class NotifyService {
@@ -67,7 +77,8 @@ export class NotifyService {
       emailReplyToId
     }
 
-    const notifyClient: any = new NotifyClient(apiKey)
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+    const notifyClient = new NotifyClient(apiKey) as NotifyInterface
 
     notifyClient
       .sendEmail(templateId, emailAddress, parsedOptions)
@@ -77,10 +88,12 @@ export class NotifyService {
           'Email sent successfully'
         )
       )
-      .catch((error) =>
+      .catch((error: unknown) =>
         this.logger.error(
           ['NotifyService', 'sendNotification'],
-          `Error processing output: ${error.message}`
+          error instanceof Error
+            ? `Error processing output: ${error.message}`
+            : 'Error processing output'
         )
       )
   }
