@@ -30,7 +30,7 @@ export default [
             join(govukFrontendPath, 'govuk'),
             join(govukFrontendPath, 'govuk/assets'),
             join(hmpoComponentsPath, 'assets'),
-            accessibleAutocompletePath
+            join(accessibleAutocompletePath, 'dist')
           ]
         }
       }
