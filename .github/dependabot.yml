@@ -18,6 +18,7 @@ updates:
       lint:
         patterns:
           - '@typescript-eslint/*'
+          - 'editorconfig-checker'
           - 'eslint'
           - 'eslint-*'
           - 'husky'
