@@ -135,7 +135,7 @@
     "@types/jest": "^29.5.12",
     "@types/lodash": "^4.17.1",
     "@types/mysql": "^2.15.26",
-    "@types/node": "^20.12.8",
+    "@types/node": "^20.12.10",
     "@types/nunjucks": "^3.2.6",
     "@types/resolve": "^1.20.6",
     "@types/url-parse": "^1.4.8",
