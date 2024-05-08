@@ -792,7 +792,7 @@ export class PageControllerBase {
   }
 
   get defaultNextPath() {
-    return `${this.model.basePath || ''}/summary`
+    return `/${this.model.basePath || ''}/summary`
   }
 
   get validationOptions() {
