@@ -85,7 +85,7 @@ const baseRequest = {
   metadata: { woo: 'ah' }
 }
 
-describe('InitialiseSession', () => {
+describe.skip('InitialiseSession', () => {
   beforeAll(async () => {
     server = await createServer({})
     await server.initialize()

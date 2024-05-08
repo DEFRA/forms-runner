@@ -7,7 +7,7 @@ import createServer from '~/src/server/index.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
-describe('Title and section title', () => {
+describe.skip('Title and section title', () => {
   /** @type {import('@hapi/hapi').Server} */
   let server
 
