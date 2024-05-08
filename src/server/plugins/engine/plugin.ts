@@ -73,6 +73,10 @@ function getStartPageRedirect(
 
 interface PluginOptions {
   relativeTo?: string
+  modelOptions: {
+    relativeTo: string
+    previewMode: any
+  }
   model: any
   previewMode: boolean
 }
@@ -82,7 +86,7 @@ export const plugin = {
   dependencies: '@hapi/vision',
   multiple: true,
   register: (server: Server, options: PluginOptions) => {
-    const { model, previewMode } = options
+    const { model, previewMode, modelOptions } = options
     const enabledString = config.previewMode ? `[ENABLED]` : `[DISABLED]`
     const disabledRouteDetailString =
       'A request was made however previewing is disabled. See environment variable details in runner/README.md if this error is not expected.'
@@ -260,7 +264,10 @@ export const plugin = {
             server.logger.info(
               `Building model for form definition ${id} (${slug})`
             )
-            const model = new FormModel(definition, { basePath: slug })
+            const model = new FormModel(definition, {
+              basePath: slug,
+              ...modelOptions
+            })
 
             // Create new cache item
             item = { model, updatedAt: state.updatedAt }

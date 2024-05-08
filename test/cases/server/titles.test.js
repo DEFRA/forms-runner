@@ -7,13 +7,13 @@ import createServer from '~/src/server/index.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
-describe.skip('Title and section title', () => {
+describe('Title and section title', () => {
   /** @type {import('@hapi/hapi').Server} */
   let server
 
   beforeAll(async () => {
     server = await createServer({
-      formFileName: `titles.json`,
+      formFileName: 'titles.json',
       formFilePath: testDir,
       options: { previewMode: true }
     })
@@ -36,10 +36,11 @@ describe.skip('Title and section title', () => {
     expect($('#section-title').html()).toBeNull()
     expect($('h1').text().trim()).toMatch(/^Applicant 1/)
   })
+
   it('does render the section title if it is not the same as the title', async () => {
     const options = {
       method: 'GET',
-      url: '/titles/applicant-one-address?visit=1'
+      url: '/titles/applicant-one-address'
     }
 
     const response = await server.inject(options)
@@ -48,6 +49,7 @@ describe.skip('Title and section title', () => {
     expect($('#section-title').text().trim()).toBe('Applicant 1')
     expect($('h1.govuk-fieldset__heading').text().trim()).toBe('Address')
   })
+
   it('renders the section title as H2, outside of the H1', async () => {
     const options = {
       method: 'GET',

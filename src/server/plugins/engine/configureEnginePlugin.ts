@@ -32,16 +32,17 @@ export const configureEnginePlugin: ConfigureEnginePlugin = (
   // let configs: FormConfiguration[]
   let model
 
-  // const modelOptions = {
-  //   relativeTo: join(config.appDir, 'plugins/engine/views'),
-  //   previewMode: options?.previewMode ?? config.previewMode
-  // }
+  const modelOptions = {
+    relativeTo: join(config.appDir, 'plugins/engine/views'),
+    previewMode: options?.previewMode ?? config.previewMode
+  }
 
   if (formFileName && formFilePath) {
     const formConfigPath = join(formFilePath, formFileName)
     const definition = JSON.parse(fs.readFileSync(formConfigPath, 'utf8'))
     model = new FormModel(definition, {
-      basePath: idFromFilename(formFileName)
+      basePath: idFromFilename(formFileName),
+      ...modelOptions
     })
     //   configs = [
     //     {
