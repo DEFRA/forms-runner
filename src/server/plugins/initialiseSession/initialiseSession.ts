@@ -79,7 +79,7 @@ export const initialiseSession: Plugin<InitialiseSession> = {
         const { options, metadata = {}, ...webhookData } = payload
         const { callbackUrl } = options
 
-        const isExistingForm = server.app.forms?.[formId] ?? false
+        const isExistingForm = server.app.model ?? false
         const { error: callbackSafeListError } = callbackValidation(
           safelist
         ).validate(callbackUrl, {
