@@ -90,6 +90,9 @@ jobs:
           - description: Prettier
             run: npm run format:check
 
+          - description: EditorConfig
+            run: npm run lint:editorconfig
+
           - description: ESLint
             run: npm run lint:js
 
