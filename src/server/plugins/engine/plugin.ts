@@ -117,92 +117,92 @@ export const plugin = {
      * for its own purposes so if you're changing these endpoints you likely need to go and amend
      * the designer too!
      */
-    server.route({
-      method: 'post',
-      path: '/publish',
-      handler: (request: Request, h: ResponseToolkit) => {
-        if (!previewMode) {
-          request.logger.error(
-            [`POST /publish`, 'previewModeError'],
-            disabledRouteDetailString
-          )
-          throw Boom.forbidden('Publishing is disabled')
-        }
-        const payload = request.payload as FormPayload
-        const { id, configuration } = payload
+    // server.route({
+    //   method: 'post',
+    //   path: '/publish',
+    //   handler: (request: Request, h: ResponseToolkit) => {
+    //     if (!previewMode) {
+    //       request.logger.error(
+    //         [`POST /publish`, 'previewModeError'],
+    //         disabledRouteDetailString
+    //       )
+    //       throw Boom.forbidden('Publishing is disabled')
+    //     }
+    //     const payload = request.payload as FormPayload
+    //     const { id, configuration } = payload
 
-        const parsedConfiguration: FormDefinition =
-          typeof configuration === 'string'
-            ? JSON.parse(configuration)
-            : configuration
-        forms[id] = new FormModel(parsedConfiguration, {
-          ...modelOptions,
-          basePath: `${formBasePath}/${id}`
-        })
-        return h.response({}).code(204)
-      },
-      options: {
-        description: `${enabledString} Allows a form to be persisted (published) on the runner server. Requires previewMode to be set to true. See runner/README.md for details on environment variables`
-      }
-    })
+    //     const parsedConfiguration: FormDefinition =
+    //       typeof configuration === 'string'
+    //         ? JSON.parse(configuration)
+    //         : configuration
+    //     forms[id] = new FormModel(parsedConfiguration, {
+    //       ...modelOptions,
+    //       basePath: `${formBasePath}/${id}`
+    //     })
+    //     return h.response({}).code(204)
+    //   },
+    //   options: {
+    //     description: `${enabledString} Allows a form to be persisted (published) on the runner server. Requires previewMode to be set to true. See runner/README.md for details on environment variables`
+    //   }
+    // })
 
-    server.route({
-      method: 'get',
-      path: '/published/{id}',
-      handler: (request: Request, h: ResponseToolkit) => {
-        const { id } = request.params
-        if (!previewMode) {
-          request.logger.error(
-            [`GET /published/${id}`, 'previewModeError'],
-            disabledRouteDetailString
-          )
-          throw Boom.unauthorized('publishing is disabled')
-        }
+    // server.route({
+    //   method: 'get',
+    //   path: '/published/{id}',
+    //   handler: (request: Request, h: ResponseToolkit) => {
+    //     const { id } = request.params
+    //     if (!previewMode) {
+    //       request.logger.error(
+    //         [`GET /published/${id}`, 'previewModeError'],
+    //         disabledRouteDetailString
+    //       )
+    //       throw Boom.unauthorized('publishing is disabled')
+    //     }
 
-        const form = forms[id]
-        if (!form) {
-          return h.response({}).code(204)
-        }
+    //     const form = forms[id]
+    //     if (!form) {
+    //       return h.response({}).code(204)
+    //     }
 
-        const { values } = forms[id]
-        return h.response(JSON.stringify({ id, values })).code(200)
-      },
-      options: {
-        description: `${enabledString} Gets a published form, by form id. Requires previewMode to be set to true. See runner/README.md for details on environment variables`
-      }
-    })
+    //     const { values } = forms[id]
+    //     return h.response(JSON.stringify({ id, values })).code(200)
+    //   },
+    //   options: {
+    //     description: `${enabledString} Gets a published form, by form id. Requires previewMode to be set to true. See runner/README.md for details on environment variables`
+    //   }
+    // })
 
-    server.route({
-      method: 'get',
-      path: '/published',
-      handler: (request: Request, h: ResponseToolkit) => {
-        if (!previewMode) {
-          request.logger.error(
-            [`GET /published`, 'previewModeError'],
-            disabledRouteDetailString
-          )
-          throw Boom.unauthorized('publishing is disabled.')
-        }
-        return h
-          .response(
-            JSON.stringify(
-              Object.keys(forms).map(
-                (key) =>
-                  new FormConfiguration(
-                    key,
-                    forms[key].name,
-                    undefined,
-                    forms[key].def.feedback?.feedbackForm
-                  )
-              )
-            )
-          )
-          .code(200)
-      },
-      options: {
-        description: `${enabledString} Gets all published forms. Requires previewMode to be set to true. See runner/README.md for details on environment variables`
-      }
-    })
+    // server.route({
+    //   method: 'get',
+    //   path: '/published',
+    //   handler: (request: Request, h: ResponseToolkit) => {
+    //     if (!previewMode) {
+    //       request.logger.error(
+    //         [`GET /published`, 'previewModeError'],
+    //         disabledRouteDetailString
+    //       )
+    //       throw Boom.unauthorized('publishing is disabled.')
+    //     }
+    //     return h
+    //       .response(
+    //         JSON.stringify(
+    //           Object.keys(forms).map(
+    //             (key) =>
+    //               new FormConfiguration(
+    //                 key,
+    //                 forms[key].name,
+    //                 undefined,
+    //                 forms[key].def.feedback?.feedbackForm
+    //               )
+    //           )
+    //         )
+    //       )
+    //       .code(200)
+    //   },
+    //   options: {
+    //     description: `${enabledString} Gets all published forms. Requires previewMode to be set to true. See runner/README.md for details on environment variables`
+    //   }
+    // })
 
     const queryParamPreHandler = async (
       request: Request,
