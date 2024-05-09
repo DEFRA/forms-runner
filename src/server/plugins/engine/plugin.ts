@@ -1,7 +1,11 @@
 import { dirname, join } from 'node:path'
 import { cwd } from 'node:process'
 
-import { FormConfiguration, type FormDefinition } from '@defra/forms-model'
+import {
+  FormConfiguration,
+  slugSchema,
+  type FormDefinition
+} from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type PluginSpecificConfiguration,
@@ -301,7 +305,7 @@ export const plugin = {
         ],
         validate: {
           params: Joi.object().keys({
-            slug: Joi.string().required()
+            slug: slugSchema
           })
         }
       }
