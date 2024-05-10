@@ -2,9 +2,9 @@ import { dirname, join } from 'node:path'
 import { cwd } from 'node:process'
 
 import {
-  FormConfiguration,
-  slugSchema,
-  type FormDefinition
+  // FormConfiguration,
+  slugSchema
+  // type FormDefinition
 } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
@@ -90,17 +90,17 @@ export const plugin = {
   dependencies: '@hapi/vision',
   multiple: true,
   register: (server: Server, options: PluginOptions) => {
-    const { model, previewMode, modelOptions } = options
-    const enabledString = config.previewMode ? `[ENABLED]` : `[DISABLED]`
-    const disabledRouteDetailString =
-      'A request was made however previewing is disabled. See environment variable details in runner/README.md if this error is not expected.'
+    const { model, modelOptions } = options
+    // const enabledString = config.previewMode ? `[ENABLED]` : `[DISABLED]`
+    // const disabledRouteDetailString =
+    //   'A request was made however previewing is disabled. See environment variable details in runner/README.md if this error is not expected.'
 
     server.app.model = model
 
     /**
      * @typedef {object} CacheItem
-     * @property {FormModel} model
-     * @property {Date} updatedAt
+     * @property {FormModel} model - the form model
+     * @property {Date} updatedAt - The time the cache item was updated
      */
 
     /**

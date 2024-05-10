@@ -30,7 +30,7 @@ export const configureEnginePlugin: ConfigureEnginePlugin = (
   options?: EngineOptions
 ) => {
   // let configs: FormConfiguration[]
-  let model
+  let model: FormModel | undefined
 
   const modelOptions = {
     relativeTo: join(config.appDir, 'plugins/engine/views'),

@@ -13,19 +13,19 @@ export async function getFormMetadata(slug) {
   const metadata = await getJson(`${managerUrl}/forms/slug/${slug}`)
 
   // Run it through the schema to coerce dates
-  const { value, error } = formMetadataSchema.validate(metadata)
+  const result = formMetadataSchema.validate(metadata)
 
-  if (error) {
-    throw error
+  if (result.error) {
+    throw result.error
   }
 
-  return value
+  return result.value
 }
 
 /**
  * Retrieves a form definition from the form manager for a given id
  * @param {string} id - the id of the form
- * @param {FormState} state - the state of the form
+ * @param {'draft'|'live'} state - the state of the form
  */
 export async function getFormDefinition(id, state) {
   const suffix = state === 'draft' ? '/draft' : ''
@@ -35,5 +35,3 @@ export async function getFormDefinition(id, state) {
 
   return defintion
 }
-
-/** @typedef {'draft'|'live'} FormState */
