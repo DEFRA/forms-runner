@@ -10,11 +10,11 @@ export const request = async <BodyType = Buffer>(
 ) => {
   const { res, payload } = await Wreck[method]<BodyType>(url, options)
 
-  try {
-    return { res, payload }
-  } catch (error) {
-    return { res, error }
+  if (res.statusCode !== 200) {
+    return { res, error: payload || new Error('Unknown error') }
   }
+
+  return { res, payload }
 }
 
 export const get = <BodyType>(url: string, options?: RequestOptions) => {
