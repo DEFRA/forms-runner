@@ -1,7 +1,7 @@
 import { formMetadataSchema } from '@defra/forms-model'
 
 import config from '~/src/server/config.js'
-import { getJson } from '~/src/server/plugins/engine/services/httpService.js'
+import { getJson } from '~/src/server/services/httpService.js'
 
 const { managerUrl } = config
 
@@ -10,7 +10,11 @@ const { managerUrl } = config
  * @param {string} slug - the slug of the form
  */
 export async function getFormMetadata(slug) {
-  const metadata = await getJson(`${managerUrl}/forms/slug/${slug}`)
+  const getJsonByType = /** @type {typeof getJson<FormMetadata>} */ (getJson)
+
+  const { payload: metadata } = await getJsonByType(
+    `${managerUrl}/forms/slug/${slug}`
+  )
 
   // Run it through the schema to coerce dates
   const result = formMetadataSchema.validate(metadata)
@@ -28,10 +32,17 @@ export async function getFormMetadata(slug) {
  * @param {'draft'|'live'} state - the state of the form
  */
 export async function getFormDefinition(id, state) {
+  const getJsonByType = /** @type {typeof getJson<FormDefinition>} */ (getJson)
+
   const suffix = state === 'draft' ? '/draft' : ''
-  const defintion = await getJson(
+  const { payload: definition } = await getJsonByType(
     `${managerUrl}/forms/${id}/definition${suffix}`
   )
 
-  return defintion
+  return definition
 }
+
+/**
+ * @typedef {import('@defra/forms-model').FormDefinition} FormDefinition
+ * @typedef {import('@defra/forms-model').FormMetadata} FormMetadata
+ */
