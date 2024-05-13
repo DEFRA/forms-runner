@@ -3,11 +3,12 @@ import { join } from 'node:path'
 
 import config from '~/src/server/config.js'
 import { idFromFilename } from '~/src/server/plugins/engine/helpers.js'
+import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { plugin } from '~/src/server/plugins/engine/plugin.js'
-import {
-  loadPreConfiguredForms,
-  type FormConfiguration
-} from '~/src/server/plugins/engine/services/configurationService.js'
+// import {
+//   loadPreConfiguredForms,
+//   type FormConfiguration
+// } from '~/src/server/plugins/engine/services/configurationService.js'
 
 type ConfigureEnginePlugin = (
   formFileName?: string,
@@ -15,14 +16,7 @@ type ConfigureEnginePlugin = (
 ) => {
   plugin: any
   options: {
-    modelOptions: {
-      relativeTo: string
-      previewMode: any
-    }
-    configs: {
-      configuration: any
-      id: string
-    }[]
+    model?: FormModel
     previewMode: boolean
   }
 }
@@ -35,28 +29,33 @@ export const configureEnginePlugin: ConfigureEnginePlugin = (
   formFilePath,
   options?: EngineOptions
 ) => {
-  let configs: FormConfiguration[]
-
-  if (formFileName && formFilePath) {
-    const formConfigPath = join(formFilePath, formFileName)
-
-    configs = [
-      {
-        configuration: JSON.parse(fs.readFileSync(formConfigPath, 'utf8')),
-        id: idFromFilename(formFileName)
-      }
-    ]
-  } else {
-    configs = loadPreConfiguredForms()
-  }
+  // let configs: FormConfiguration[]
+  let model: FormModel | undefined
 
   const modelOptions = {
     relativeTo: join(config.appDir, 'plugins/engine/views'),
     previewMode: options?.previewMode ?? config.previewMode
   }
 
+  if (formFileName && formFilePath) {
+    const formConfigPath = join(formFilePath, formFileName)
+    const definition = JSON.parse(fs.readFileSync(formConfigPath, 'utf8'))
+    model = new FormModel(definition, {
+      basePath: idFromFilename(formFileName),
+      ...modelOptions
+    })
+    //   configs = [
+    //     {
+    //       configuration: JSON.parse(fs.readFileSync(formConfigPath, 'utf8')),
+    //       id: idFromFilename(formFileName)
+    //     }
+    //   ]
+    // } else {
+    //   configs = loadPreConfiguredForms()
+  }
+
   return {
     plugin,
-    options: { modelOptions, configs, previewMode: config.previewMode }
+    options: { model, previewMode: config.previewMode }
   }
 }

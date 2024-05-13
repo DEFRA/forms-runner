@@ -3,6 +3,8 @@ import { type Server } from '@hapi/hapi'
 import config from '~/src/server/config.js'
 import createServer from '~/src/server/index.js'
 
+const testDir = 'test/cases/server'
+
 describe('Server Auth', () => {
   let server: Server
 
@@ -14,7 +16,10 @@ describe('Server Auth', () => {
       config.authClientProfileUrl = 'https://example.org/oauth/profile'
       config.authClientId = 'oAuthClientID'
       config.authClientSecret = 'oAuthClientSecret'
-      server = await createServer({})
+      server = await createServer({
+        formFileName: 'test.json',
+        formFilePath: testDir
+      })
       await server.initialize()
     })
 
@@ -37,7 +42,7 @@ describe('Server Auth', () => {
       )
     })
 
-    test('sign in page returns to teh previous url', async () => {
+    test('sign in page returns to the previous url', async () => {
       const options = {
         method: 'POST',
         url: '/login?state=123456&code=123456',
