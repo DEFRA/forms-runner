@@ -67,6 +67,7 @@ export class SummaryViewModel {
   _webhookData: WebhookData | undefined
   callback?: InitialiseSessionOptions
   showPaymentSkippedWarningPage = false
+  serviceStartPage: string
   constructor(
     pageTitle: string,
     model: FormModel,
@@ -74,6 +75,7 @@ export class SummaryViewModel {
     request: Request
   ) {
     this.pageTitle = pageTitle
+    this.serviceStartPage = `/${model.basePath}`
     const { relevantPages, endPage } = this.getRelevantPages(model, state)
     const details = this.summaryDetails(request, model, state, relevantPages)
     const { def } = model
