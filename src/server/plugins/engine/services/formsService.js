@@ -29,9 +29,9 @@ export async function getFormMetadata(slug) {
  */
 export async function getFormDefinition(id, state) {
   const suffix = state === 'draft' ? '/draft' : ''
-  const defintion = await getJson(
+  const definition = await getJson(
     `${managerUrl}/forms/${id}/definition${suffix}`
   )
 
-  return defintion
+  return definition
 }
