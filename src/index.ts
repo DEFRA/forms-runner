@@ -1,6 +1,9 @@
 import createServer from '~/src/server/index.js'
 
-createServer({})
+createServer({
+  formFileName: 'test.json',
+  formFilePath: 'src/server/forms'
+})
   .then((server) => server.start())
   .then(() => process.send?.('online'))
   .catch((err) => {

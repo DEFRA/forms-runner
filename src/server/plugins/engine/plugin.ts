@@ -231,59 +231,58 @@ export const plugin = {
       return h.continue
     }
 
-    const loadFormPreHandler = server.app.model
-      ? async (request: Request, h: ResponseToolkit) =>
-          (request.app.model = server.app.model)
-      : async (request: Request, h: ResponseToolkit) => {
-          const { params } = request
-          const { slug } = params
-          /**
-           * @todo Determine from path params
-           */
-          const formState = 'draft'
+    const loadFormPreHandler = async (request: Request, h: ResponseToolkit) => {
+      if (server.app.model) {
+        request.app.model = server.app.model
 
-          // Get the form metadata using the `slug` param
-          const metadata = await getFormMetadata(slug)
+        return h.continue
+      }
 
-          const { id, [formState]: state } = metadata
+      const { params } = request
+      const { slug } = params
+      /**
+       * @todo Determine from path params
+       */
+      const formState = 'draft'
 
-          // Check the metadata supports the requested state
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-          if (!state) {
-            return Boom.notFound(
-              `No '${formState}' state for form metadata ${id}`
-            )
-          }
+      // Get the form metadata using the `slug` param
+      const metadata = await getFormMetadata(slug)
 
-          const key = `${id}_${formState}`
-          let item = itemCache.get(key)
+      const { id, [formState]: state } = metadata
 
-          if (!item || !isEqual(item.updatedAt, state.updatedAt)) {
-            server.logger.info(`Getting form definition ${id} (${slug})`)
+      // Check the metadata supports the requested state
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      if (!state) {
+        return Boom.notFound(`No '${formState}' state for form metadata ${id}`)
+      }
 
-            // Get the form definition using the `id` from the metadata
-            const definition = await getFormDefinition(id, formState)
+      const key = `${id}_${formState}`
+      let item = itemCache.get(key)
 
-            // Generate the form model and add it to the item cache
-            server.logger.info(
-              `Building model for form definition ${id} (${slug})`
-            )
-            const model = new FormModel(definition, {
-              basePath: slug,
-              ...modelOptions
-            })
+      if (!item || !isEqual(item.updatedAt, state.updatedAt)) {
+        server.logger.info(`Getting form definition ${id} (${slug})`)
 
-            // Create new cache item
-            item = { model, updatedAt: state.updatedAt }
-            itemCache.set(key, item)
-          }
+        // Get the form definition using the `id` from the metadata
+        const definition = await getFormDefinition(id, formState)
 
-          // Assign the model to the request data
-          // for use in the downstream handler
-          request.app.model = item.model
+        // Generate the form model and add it to the item cache
+        server.logger.info(`Building model for form definition ${id} (${slug})`)
+        const model = new FormModel(definition, {
+          basePath: slug,
+          ...modelOptions
+        })
 
-          return h.continue
-        }
+        // Create new cache item
+        item = { model, updatedAt: state.updatedAt }
+        itemCache.set(key, item)
+      }
+
+      // Assign the model to the request data
+      // for use in the downstream handler
+      request.app.model = item.model
+
+      return h.continue
+    }
 
     server.route({
       method: 'get',
