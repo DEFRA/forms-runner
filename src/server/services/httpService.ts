@@ -1,50 +1,44 @@
-import type http from 'node:http'
+import Wreck from '@hapi/wreck'
 
-import wreck from '@hapi/wreck'
+type Method = keyof Pick<typeof Wreck, 'get' | 'post' | 'put' | 'delete'>
+type RequestOptions = Parameters<typeof Wreck.defaults>[0]
 
-type Method = 'get' | 'post' | 'path' | 'put' | 'delete'
-
-export interface Response<T> {
-  res: http.IncomingMessage
-  payload?: T | any
-  error?: Error
-}
-
-export type Request = <T>(
+export const request = async <BodyType = Buffer>(
   method: Method,
   url: string,
-  options?: object
-) => Promise<Response<T>>
+  options?: RequestOptions
+) => {
+  const { res, payload } = await Wreck[method]<BodyType>(url, options)
 
-export const request: Request = async (method, url, options = {}) => {
-  const { res, payload } = await wreck[method](url, options)
-
-  try {
-    return { res, payload }
-  } catch (error) {
-    return { res, error }
+  if (res.statusCode !== 200) {
+    return { res, error: payload || new Error('Unknown error') }
   }
+
+  return { res, payload }
 }
 
-export const get = <T>(url: string, options?: object) => {
-  return request<T>('get', url, options)
+export const get = <BodyType>(url: string, options?: RequestOptions) => {
+  return request<BodyType>('get', url, options)
 }
 
-export const getJson = <T = any>(url: string) => {
-  return get<T>(url, { json: true })
+export const getJson = <BodyType extends object>(url: string) => {
+  return get<BodyType>(url, { json: true })
 }
 
-export const post = <T = any>(url: string, options: object) => {
-  return request<T>('post', url, options)
+export const post = <BodyType>(url: string, options: RequestOptions) => {
+  return request<BodyType>('post', url, options)
 }
 
-export const postJson = <T = any>(url: string, options: object) => {
-  return post<T>(url, {
+export const postJson = <BodyType extends object>(
+  url: string,
+  options: RequestOptions
+) => {
+  return post<BodyType>(url, {
     ...options,
     json: true
   })
 }
 
-export const put = <T = any>(url: string, options: object) => {
-  return request<T>('put', url, options)
+export const put = <BodyType>(url: string, options: RequestOptions) => {
+  return request<BodyType>('put', url, options)
 }
