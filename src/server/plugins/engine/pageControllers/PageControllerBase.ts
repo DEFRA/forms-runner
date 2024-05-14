@@ -133,10 +133,13 @@ export class PageControllerBase {
     isStartPage: boolean
     startPage?: ResponseObject
     backLink?: string
+    serviceStartPage: string
     phaseTag?: string | undefined
   } {
     let showTitle = true
     let pageTitle = this.title
+    const serviceStartPage = `/${this.model.basePath}`
+
     if (config.allowUserTemplates) {
       pageTitle = nunjucks.renderString(pageTitle, {
         ...formData
@@ -177,7 +180,8 @@ export class PageControllerBase {
       showTitle,
       components,
       errors,
-      isStartPage: false
+      isStartPage: false,
+      serviceStartPage
     }
   }
 
