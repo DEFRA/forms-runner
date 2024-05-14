@@ -45,8 +45,3 @@ export async function getFormDefinition(id, state) {
 
   return definition
 }
-
-/**
- * @typedef {import('@defra/forms-model').FormDefinition} FormDefinition
- * @typedef {import('@defra/forms-model').FormMetadata} FormMetadata
- */
