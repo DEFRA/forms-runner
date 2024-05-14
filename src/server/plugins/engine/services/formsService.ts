@@ -10,7 +10,7 @@ const { managerUrl } = config
  * @param {string} slug - the slug of the form
  */
 export async function getFormMetadata(slug) {
-  const getJsonByType = /** @type {typeof getJson<FormMetadata>} */ (getJson)
+  const getJsonByType = /** @type {typeof getJson<FormMetadata>} */ getJson
 
   const { payload: metadata } = await getJsonByType(
     `${managerUrl}/forms/slug/${slug}`
@@ -32,7 +32,7 @@ export async function getFormMetadata(slug) {
  * @param {'draft'|'live'} state - the state of the form
  */
 export async function getFormDefinition(id, state) {
-  const getJsonByType = /** @type {typeof getJson<FormDefinition>} */ (getJson)
+  const getJsonByType = /** @type {typeof getJson<FormDefinition>} */ getJson
 
   const suffix = state === 'draft' ? '/draft' : ''
   const { payload: definition } = await getJsonByType(
