@@ -19,6 +19,7 @@ import nunjucks from 'nunjucks'
 import resolvePkg from 'resolve'
 
 import config from '~/src/server/config.js'
+import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { shouldLogin } from '~/src/server/plugins/auth.js'
 import {
   getValidStateFromQueryParameters,
@@ -84,6 +85,9 @@ interface PluginOptions {
   model?: FormModel
   previewMode: boolean
 }
+
+const stateSchema = Joi.string().valid('draft', 'live').required()
+const pathSchema = Joi.string().required()
 
 export const plugin = {
   name: '@defra/forms-runner/engine',
@@ -204,6 +208,8 @@ export const plugin = {
     //   }
     // })
 
+    const { uploadService } = server.services([])
+
     const queryParamPreHandler = async (
       request: Request,
       h: ResponseToolkit
@@ -238,12 +244,10 @@ export const plugin = {
         return h.continue
       }
 
-      const { params } = request
+      const { params, path } = request
       const { slug } = params
-      /**
-       * @todo Determine from path params
-       */
-      const formState = 'draft'
+      const isPreview = path.toLowerCase().startsWith(PREVIEW_PATH_PREFIX)
+      const formState = isPreview ? params.state : 'live'
 
       // Get the form metadata using the `slug` param
       const metadata = await getFormMetadata(slug)
@@ -251,7 +255,6 @@ export const plugin = {
       const { id, [formState]: state } = metadata
 
       // Check the metadata supports the requested state
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (!state) {
         return Boom.notFound(`No '${formState}' state for form metadata ${id}`)
       }
@@ -260,15 +263,30 @@ export const plugin = {
       let item = itemCache.get(key)
 
       if (!item || !isEqual(item.updatedAt, state.updatedAt)) {
-        server.logger.info(`Getting form definition ${id} (${slug})`)
+        server.logger.info(
+          `Getting form definition ${id} (${slug}) ${formState}`
+        )
 
         // Get the form definition using the `id` from the metadata
         const definition = await getFormDefinition(id, formState)
 
+        if (!definition) {
+          return Boom.notFound(
+            `No definition found for form metadata ${id} (${slug}) ${formState}`
+          )
+        }
+
         // Generate the form model and add it to the item cache
-        server.logger.info(`Building model for form definition ${id} (${slug})`)
+        server.logger.info(
+          `Building model for form definition ${id} (${slug}) ${formState}`
+        )
+
+        const basePath = isPreview
+          ? `${PREVIEW_PATH_PREFIX.substring(1)}/${params.state}/${slug}`
+          : slug
+
         const model = new FormModel(definition, {
-          basePath: slug,
+          basePath,
           ...modelOptions
         })
 
@@ -284,79 +302,38 @@ export const plugin = {
       return h.continue
     }
 
-    server.route({
-      method: 'get',
-      path: '/{slug}',
-      handler: (request: Request, h: ResponseToolkit) => {
-        const { slug } = request.params
-        const model = request.app.model
+    const dispatchHandler = (request: Request, h: ResponseToolkit) => {
+      const { slug } = request.params
+      const model = request.app.model
 
+      return getStartPageRedirect(request, h, slug, model)
+    }
+
+    const getHandler = (request: Request, h: ResponseToolkit) => {
+      const { path, slug } = request.params
+      const model = request.app.model
+      const page = model.pages.find(
+        (page) => normalisePath(page.path) === normalisePath(path)
+      )
+
+      if (page) {
+        // NOTE: Start pages should live on gov.uk, but this allows prototypes to include signposting about having to log in.
+        if (
+          page.pageDef.controller !== './pages/start.js' &&
+          shouldLogin(request)
+        ) {
+          return h.redirect(`/login?returnUrl=${request.path}`)
+        }
+
+        return page.makeGetRouteHandler()(request, h)
+      }
+
+      if (normalisePath(path) === '') {
         return getStartPageRedirect(request, h, slug, model)
-      },
-      options: {
-        pre: [
-          {
-            method: loadFormPreHandler
-          },
-          {
-            method: queryParamPreHandler
-          }
-        ],
-        validate: {
-          params: Joi.object().keys({
-            slug: slugSchema
-          })
-        }
       }
-    })
 
-    server.route({
-      method: 'get',
-      path: '/{slug}/{path*}',
-      handler: (request: Request, h: ResponseToolkit) => {
-        const { path, slug } = request.params
-        const model = request.app.model
-        const page = model.pages.find(
-          (page) => normalisePath(page.path) === normalisePath(path)
-        )
-
-        if (page) {
-          // NOTE: Start pages should live on gov.uk, but this allows prototypes to include signposting about having to log in.
-          if (
-            page.pageDef.controller !== './pages/start.js' &&
-            shouldLogin(request)
-          ) {
-            return h.redirect(`/login?returnUrl=${request.path}`)
-          }
-
-          return page.makeGetRouteHandler()(request, h)
-        }
-
-        if (normalisePath(path) === '') {
-          return getStartPageRedirect(request, h, slug, model)
-        }
-
-        throw Boom.notFound('No form or page found')
-      },
-      options: {
-        pre: [
-          {
-            method: loadFormPreHandler
-          },
-          {
-            method: queryParamPreHandler
-          }
-        ],
-        validate: {
-          params: Joi.object().keys({
-            slug: Joi.string().required(),
-            path: Joi.string().required()
-          })
-        }
-      }
-    })
-
-    const { uploadService } = server.services([])
+      throw Boom.notFound('No form or page found')
+    }
 
     const handleFiles = (request: Request, h: ResponseToolkit) => {
       const { path, id } = request.params
@@ -368,7 +345,7 @@ export const plugin = {
       return uploadService.handleUploadRequest(request, h, page.pageDef)
     }
 
-    const postHandler = async (request: Request, h: ResponseToolkit) => {
+    const postHandler = (request: Request, h: ResponseToolkit) => {
       const { path, id } = request.params
       const model = request.app.model
       const page = model.pages.find(
@@ -380,31 +357,133 @@ export const plugin = {
       }
     }
 
+    const dispatchRouteOptions = {
+      pre: [
+        {
+          method: loadFormPreHandler
+        },
+        {
+          method: queryParamPreHandler
+        }
+      ]
+    }
+
+    server.route({
+      method: 'get',
+      path: '/{slug}',
+      handler: dispatchHandler,
+      options: {
+        ...dispatchRouteOptions,
+        validate: {
+          params: Joi.object().keys({
+            slug: slugSchema
+          })
+        }
+      }
+    })
+
+    server.route({
+      method: 'get',
+      path: '/preview/{state}/{slug}',
+      handler: dispatchHandler,
+      options: {
+        ...dispatchRouteOptions,
+        validate: {
+          params: Joi.object().keys({
+            slug: slugSchema,
+            state: stateSchema
+          })
+        }
+      }
+    })
+
+    const getRouteOptions = {
+      pre: [
+        {
+          method: loadFormPreHandler
+        },
+        {
+          method: queryParamPreHandler
+        }
+      ]
+    }
+
+    server.route({
+      method: 'get',
+      path: '/{slug}/{path*}',
+      handler: getHandler,
+      options: {
+        ...getRouteOptions,
+        validate: {
+          params: Joi.object().keys({
+            slug: slugSchema,
+            path: pathSchema
+          })
+        }
+      }
+    })
+
+    server.route({
+      method: 'get',
+      path: '/preview/{state}/{slug}/{path*}',
+      handler: getHandler,
+      options: {
+        ...getRouteOptions,
+        validate: {
+          params: Joi.object().keys({
+            slug: slugSchema,
+            path: pathSchema,
+            state: stateSchema
+          })
+        }
+      }
+    })
+
+    const postRouteOptions = {
+      plugins: {
+        'hapi-rate-limit': {
+          userPathLimit: 10
+        }
+      } as PluginSpecificConfiguration,
+      payload: {
+        output: 'stream',
+        parse: true,
+        multipart: { output: 'stream' },
+        maxBytes: uploadService.fileSizeLimit,
+        failAction: (request: Request, h: ResponseToolkit) => {
+          request.server.plugins.crumb.generate?.(request, h)
+          return h.continue
+        }
+      },
+      pre: [{ method: loadFormPreHandler }, { method: handleFiles }]
+    }
+
     server.route({
       method: 'post',
       path: '/{slug}/{path*}',
       handler: postHandler,
       options: {
-        plugins: {
-          'hapi-rate-limit': {
-            userPathLimit: 10
-          }
-        } as PluginSpecificConfiguration,
-        payload: {
-          output: 'stream',
-          parse: true,
-          multipart: { output: 'stream' },
-          maxBytes: uploadService.fileSizeLimit,
-          failAction: (request: Request, h: ResponseToolkit) => {
-            request.server.plugins.crumb.generate?.(request, h)
-            return h.continue
-          }
-        },
-        pre: [{ method: loadFormPreHandler }, { method: handleFiles }],
+        ...postRouteOptions,
         validate: {
           params: Joi.object().keys({
-            slug: Joi.string().required(),
-            path: Joi.string().required()
+            slug: slugSchema,
+            path: pathSchema
+          })
+        }
+      }
+    })
+
+    server.route({
+      method: 'post',
+      path: '/preview/{state}/{slug}/{path*}',
+      handler: postHandler,
+      options: {
+        ...postRouteOptions,
+        validate: {
+          params: Joi.object().keys({
+            state: stateSchema,
+            slug: slugSchema,
+            path: pathSchema
           })
         }
       }
