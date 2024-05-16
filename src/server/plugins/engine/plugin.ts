@@ -259,7 +259,13 @@ export const plugin = {
         return Boom.notFound(`No '${formState}' state for form metadata ${id}`)
       }
 
-      const key = `${id}_${formState}`
+      // Cache the models based on id, state and whether
+      // it's a preview or not. There could be up to 3 models
+      // cached for a single form:
+      // "{id}_live_false" (live/live)
+      // "{id}_live_true" (live/preview)
+      // "{id}_draft_true" (draft/preview)
+      const key = `${id}_${formState}_${isPreview}`
       let item = itemCache.get(key)
 
       if (!item || !isEqual(item.updatedAt, state.updatedAt)) {
