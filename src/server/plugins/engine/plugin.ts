@@ -288,7 +288,7 @@ export const plugin = {
         )
 
         const basePath = isPreview
-          ? `${PREVIEW_PATH_PREFIX.substring(1)}/${params.state}/${slug}`
+          ? `${PREVIEW_PATH_PREFIX.substring(1)}/${formState}/${slug}`
           : slug
 
         const model = new FormModel(definition, {
