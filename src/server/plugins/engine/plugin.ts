@@ -101,17 +101,10 @@ export const plugin = {
 
     server.app.model = model
 
-    /**
-     * @typedef {object} CacheItem
-     * @property {FormModel} model - the form model
-     * @property {Date} updatedAt - The time the cache item was updated
-     */
-
-    /**
-     * In-memory cache of FormModel items
-     * @type {Map<string, CacheItem>}
-     */
+    // In-memory cache of FormModel items, exposed
+    // (for testing purposes) through `server.app.forms`
     const itemCache = new Map()
+    server.app.forms = itemCache
 
     /**
      * The following publish endpoints (/publish, /published/{id}, /published)
@@ -282,21 +275,23 @@ export const plugin = {
           )
         }
 
-        // Generate the form model and add it to the item cache
+        // Build the form model
         server.logger.info(
           `Building model for form definition ${id} (${slug}) ${formState}`
         )
 
+        // Set up the basePath for the model
         const basePath = isPreview
           ? `${PREVIEW_PATH_PREFIX.substring(1)}/${formState}/${slug}`
           : slug
 
+        // Construct the form model
         const model = new FormModel(definition, {
           basePath,
           ...modelOptions
         })
 
-        // Create new cache item
+        // Create new item and add it to the item cache
         item = { model, updatedAt: state.updatedAt }
         itemCache.set(key, item)
       }
