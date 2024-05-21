@@ -307,6 +307,9 @@ describe('Model cache', () => {
       // Expect `getFormDefinition` to be called as the updatedAt has moved on
       expect(getFormDefinition).toHaveBeenLastCalledWith(id, 'live')
 
+      // Assert the live/live cache item has the correct updatedAt timestamp
+      expect(server.app.forms.get(`${id}_live_false`).updatedAt).toBe(now2)
+
       // Expect the cache size to remain unchanged
       expect(getCacheSize()).toBe(3)
 
