@@ -102,9 +102,9 @@ export const plugin = {
     server.app.model = model
 
     // In-memory cache of FormModel items, exposed
-    // (for testing purposes) through `server.app.forms`
+    // (for testing purposes) through `server.app.models`
     const itemCache = new Map()
-    server.app.forms = itemCache
+    server.app.models = itemCache
 
     /**
      * The following publish endpoints (/publish, /published/{id}, /published)

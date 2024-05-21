@@ -100,11 +100,11 @@ describe('Model cache', () => {
   let server: Server
 
   const getCacheSize = () => {
-    return server.app.forms.size
+    return server.app.models.size
   }
 
   const getCacheItem = (key) => {
-    return server.app.forms.get(key)
+    return server.app.models.get(key)
   }
 
   beforeAll(async () => {
@@ -113,7 +113,7 @@ describe('Model cache', () => {
   })
 
   beforeEach(() => {
-    server.app.forms.clear()
+    server.app.models.clear()
   })
 
   afterAll(async () => {
