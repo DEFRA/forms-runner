@@ -103,6 +103,10 @@ describe('Model cache', () => {
     return server.app.forms.size
   }
 
+  const getCacheItem = (key) => {
+    return server.app.forms.get(key)
+  }
+
   beforeAll(async () => {
     server = await createServer({})
     await server.initialize()
@@ -308,7 +312,7 @@ describe('Model cache', () => {
       expect(getFormDefinition).toHaveBeenLastCalledWith(id, 'live')
 
       // Assert the live/live cache item has the correct updatedAt timestamp
-      expect(server.app.forms.get(`${id}_live_false`).updatedAt).toBe(now2)
+      expect(getCacheItem(`${id}_live_false`).updatedAt).toBe(now2)
 
       // Expect the cache size to remain unchanged
       expect(getCacheSize()).toBe(3)
