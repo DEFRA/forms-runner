@@ -76,6 +76,7 @@ export class SummaryViewModel {
   ) {
     this.pageTitle = pageTitle
     this.serviceStartPage = `/${model.basePath}`
+    this.name = model.def.name
     const { relevantPages, endPage } = this.getRelevantPages(model, state)
     const details = this.summaryDetails(request, model, state, relevantPages)
     const { def } = model

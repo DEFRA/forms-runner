@@ -2,7 +2,7 @@
 
 {% block templateImports %}
   {{ super() }}
-{% endblock %}}
+{% endblock %}
 
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% from "partials/components.html" import componentList with context %}
@@ -12,6 +12,10 @@
 {% set gridSize = "full" if components[0].type == 'FlashCard' else "two-thirds" %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-{{gridSize}}">
+      {% if previewMode %}
+        {% include "partials/preview-banner.html" %}
+      {% endif %}
+
       {% if errors %}
         {{ govukErrorSummary(errors) }}
       {% endif %}

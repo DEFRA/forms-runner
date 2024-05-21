@@ -15,10 +15,23 @@ export default {
           // processing the request
           const statusCode = response.output.statusCode
 
+          // Check for a form model on the request
+          // and use it to set the correct service name
+          // and start page path. In the event of a error
+          // happening inside a "form" level request, the header
+          // then displays the contextual form text and href
+          const model = request.app.model
+          const viewModel = model
+            ? {
+                name: model.name,
+                serviceStartPage: `/${model.basePath}`
+              }
+            : undefined
+
           // In the event of 404
           // return the `404` view
           if (statusCode === 404) {
-            return h.view('404').code(statusCode)
+            return h.view('404', viewModel).code(statusCode)
           }
 
           request.log('error', {
@@ -31,7 +44,7 @@ export default {
           request.logger.error(response.stack)
 
           // The return the `500` view
-          return h.view('500').code(statusCode)
+          return h.view('500', viewModel).code(statusCode)
         }
         return h.continue
       })

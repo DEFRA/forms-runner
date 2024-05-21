@@ -9,6 +9,7 @@ import resolvePkg from 'resolve'
 
 import pkg from '~/package.json' with { type: 'json' }
 import config from '~/src/server/config.js'
+import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import additionalContexts from '~/src/server/templates/additionalContexts.json' with { type: 'json' }
 
 const [govukFrontendPath, hmpoComponentsPath] = [
@@ -92,7 +93,10 @@ export default {
       phaseTag: config.phaseTag,
       navigation: request?.auth.isAuthenticated
         ? [{ text: 'Sign out', href: '/logout' }]
-        : null
+        : null,
+      previewMode: request?.path.startsWith(PREVIEW_PATH_PREFIX)
+        ? request.params.state
+        : undefined
     })
   }
 }
