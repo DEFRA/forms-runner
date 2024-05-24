@@ -1,6 +1,6 @@
 import { type ComponentDef, type RepeatingFieldPage } from '@defra/forms-model'
 import { type Request, type ResponseToolkit } from '@hapi/hapi'
-import { reach } from 'hoek'
+import { reach } from '@hapi/hoek'
 import joi from 'joi'
 
 import { type FormComponent } from '~/src/server/plugins/engine/components/index.js'
