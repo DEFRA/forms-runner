@@ -1,5 +1,5 @@
 import { type Fee } from '@defra/forms-model'
-import { reach } from 'hoek'
+import { reach } from '@hapi/hoek'
 
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'

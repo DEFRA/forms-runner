@@ -1,8 +1,8 @@
 import { Engine as MemoryEngine } from '@hapi/catbox-memory'
 import { Engine as RedisEngine } from '@hapi/catbox-redis'
 import { type Request, type Server } from '@hapi/hapi'
+import { merge } from '@hapi/hoek'
 import { token } from '@hapi/jwt'
-import { merge } from 'hoek'
 import Redis from 'ioredis'
 
 import config from '~/src/server/config.js'

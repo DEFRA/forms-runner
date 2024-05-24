@@ -1,6 +1,6 @@
 import { type FormDefinition, isMultipleApiKey } from '@defra/forms-model'
 import { type Request } from '@hapi/hapi'
-import { clone, reach } from 'hoek'
+import { clone, reach } from '@hapi/hoek'
 import { type ValidationResult } from 'joi'
 
 import config from '~/src/server/config.js'
