@@ -4,13 +4,13 @@ import Joi from 'joi'
 import config from '~/src/server/config.js'
 import { redirectTo } from '~/src/server/plugins/engine/index.js'
 import {
-  healthCheckRoute,
+  healthRoute,
   publicRoutes,
   homeRoute
 } from '~/src/server/routes/index.js'
 import getRequestInfo from '~/src/server/utils/getRequestInfo.js'
 
-const routes = [...publicRoutes, healthCheckRoute, homeRoute]
+const routes = [...publicRoutes, healthRoute, homeRoute]
 
 enum CookieValue {
   Accept = 'accept',

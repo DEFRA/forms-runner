@@ -74,8 +74,6 @@ export const configSchema = Joi.object({
   privacyPolicyUrl: Joi.string().optional().allow(''),
   notifyTemplateId: Joi.string().optional().allow(''),
   notifyAPIKey: Joi.string().optional().allow(''),
-  lastCommit: Joi.string(),
-  lastTag: Joi.string(),
   apiEnv: Joi.string().allow('test', 'production', '').optional(),
   authEnabled: Joi.boolean().optional(),
   authClientId: Joi.string().when('authEnabled', {

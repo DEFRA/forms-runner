@@ -95,13 +95,6 @@ module.exports = {
   fromEmailAddress: '',
 
   /**
-   * Health checks
-   * These should be configured with environment variables.
-   */
-  // lastCommit: "undefined",
-  // lastTag: "undefined",
-
-  /**
    * API integrations
    */
   // API keys configured within a form may be set like so { "test": "test-key", "production": "prod" }.

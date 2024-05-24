@@ -28,8 +28,6 @@
   "privacyPolicyUrl": "PRIVACY_POLICY_URL",
   "notifyTemplateId": "NOTIFY_TEMPLATE_ID",
   "notifyAPIKey": "NOTIFY_API_KEY",
-  "lastCommit": "LAST_COMMIT",
-  "lastTag": "LAST_TAG",
   "apiEnv": "API_ENV",
   "authEnabled": "AUTH_ENABLED",
   "authClientId": "AUTH_CLIENT_ID",
