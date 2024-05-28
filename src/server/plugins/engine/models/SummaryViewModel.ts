@@ -1,5 +1,5 @@
 import { type Request } from '@hapi/hapi'
-import { clone, reach } from '@hapi/hoek'
+import { reach } from '@hapi/hoek'
 import { type ValidationResult } from 'joi'
 
 import config from '~/src/server/config.js'
@@ -214,7 +214,7 @@ function gatherRepeatPages(state) {
   if (Object.values(state).find((section) => Array.isArray(section))) {
     return state
   }
-  const clonedState = clone(state)
+  const clonedState = structuredClone(state)
   Object.entries(state).forEach(([key, section]) => {
     if (key === 'progress') {
       return

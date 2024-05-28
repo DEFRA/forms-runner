@@ -1,5 +1,4 @@
 import {
-  clone,
   ConditionsModel,
   formDefinitionSchema,
   type ConditionRawData,
@@ -65,7 +64,7 @@ export class FormModel {
 
     // Make a clone of the shallow copy returned
     // by joi so as not to change the source data.
-    def = clone(result.value)
+    def = structuredClone(result.value)
 
     // Add default lists
     def.lists.push({
