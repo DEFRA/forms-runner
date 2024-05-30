@@ -1,5 +1,4 @@
 import { dirname, join } from 'node:path'
-import { cwd } from 'node:process'
 
 import { type Request } from '@hapi/hapi'
 import vision from '@hapi/vision'
@@ -12,15 +11,8 @@ import config from '~/src/server/config.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import additionalContexts from '~/src/server/templates/additionalContexts.json' with { type: 'json' }
 
-const [govukFrontendPath, hmpoComponentsPath] = [
-  'govuk-frontend',
-  'hmpo-components'
-].map((pkgName) =>
-  dirname(
-    resolvePkg.sync(`${pkgName}/package.json`, {
-      basedir: cwd()
-    })
-  )
+const govukFrontendPath = dirname(
+  resolvePkg.sync('govuk-frontend/package.json')
 )
 
 export default {
@@ -68,8 +60,7 @@ export default {
        */
       join(config.appDir, 'views'),
       join(config.appDir, 'plugins/engine/views'),
-      govukFrontendPath,
-      join(hmpoComponentsPath, 'components')
+      govukFrontendPath
     ],
     isCached: !config.isDev,
     context: (request: Request | null) => ({

@@ -8,10 +8,8 @@
 {% from "partials/components.html" import componentList with context %}
 
 {% block content %}
-
-{% set gridSize = "full" if components[0].type == 'FlashCard' else "two-thirds" %}
   <div class="govuk-grid-row">
-    <div class="govuk-grid-column-{{gridSize}}">
+    <div class="govuk-grid-column-two-thirds">
       {% if previewMode %}
         {% include "partials/preview-banner.html" %}
       {% endif %}

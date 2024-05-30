@@ -32,22 +32,14 @@ import {
 } from '~/src/server/plugins/engine/services/formsService.js'
 // import { type FormPayload } from '~/src/server/plugins/engine/types.js'
 
-const [govukFrontendPath, hmpoComponentsPath] = [
-  'govuk-frontend',
-  'hmpo-components'
-].map((pkgName) =>
-  dirname(
-    resolvePkg.sync(`${pkgName}/package.json`, {
-      basedir: cwd()
-    })
-  )
+const govukFrontendPath = dirname(
+  resolvePkg.sync('govuk-frontend/package.json')
 )
 
 nunjucks.configure([
   // Configure Nunjucks to allow rendering of content that is revealed conditionally.
   join(config.appDir, 'plugins/engine/views'),
-  govukFrontendPath,
-  join(hmpoComponentsPath, 'components')
+  govukFrontendPath
 ])
 
 function normalisePath(path: string) {
