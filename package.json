@@ -72,7 +72,6 @@
     "hapi-pino": "^12.1.0",
     "hapi-pulse": "^3.0.1",
     "hapi-rate-limit": "^7.1.0",
-    "hmpo-components": "^6.5.0",
     "ioredis": "^4.16.1",
     "joi": "^17.13.1",
     "lodash": "^4.17.21",

@@ -1,21 +1,15 @@
 import { dirname, join } from 'node:path'
-import { cwd } from 'node:process'
 
 import resolvePkg from 'resolve'
 
 import config from '~/src/server/config.js'
 
-const [accessibleAutocompletePath, govukFrontendPath, hmpoComponentsPath] = [
+const [accessibleAutocompletePath, govukFrontendPath] = [
   'accessible-autocomplete',
-  'govuk-frontend',
-  'hmpo-components'
-].map((pkgName) =>
-  dirname(
-    resolvePkg.sync(`${pkgName}/package.json`, {
-      basedir: cwd()
-    })
-  )
-)
+  'govuk-frontend'
+].map((pkgName) => {
+  return dirname(resolvePkg.sync(`${pkgName}/package.json`))
+})
 
 export default [
   {
@@ -29,7 +23,6 @@ export default [
             join(config.publicDir, 'build'),
             join(govukFrontendPath, 'govuk'),
             join(govukFrontendPath, 'govuk/assets'),
-            join(hmpoComponentsPath, 'assets'),
             join(accessibleAutocompletePath, 'dist')
           ]
         }
