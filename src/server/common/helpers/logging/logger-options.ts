@@ -1,4 +1,4 @@
-import ecsFormat from '@elastic/ecs-pino-format'
+import { ecsFormat } from '@elastic/ecs-pino-format'
 
 import config from '~/src/server/config.js'
 
