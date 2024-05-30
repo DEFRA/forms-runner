@@ -68,7 +68,7 @@
     "dotenv": "^16.4.5",
     "expr-eval": "^2.0.2",
     "form-data": "^4.0.0",
-    "govuk-frontend": "^4.8.0",
+    "govuk-frontend": "^5.4.0",
     "hapi-pino": "^12.1.0",
     "hapi-pulse": "^3.0.1",
     "hapi-rate-limit": "^7.1.0",
