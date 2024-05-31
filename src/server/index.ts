@@ -11,7 +11,7 @@ import Schmervice from '@hapipal/schmervice'
 import blipp from 'blipp'
 
 import config from '~/src/server/config.js'
-// import pluginApplicationStatus from '~/src/server/plugins/applicationStatus/index.js'
+import pluginApplicationStatus from '~/src/server/plugins/applicationStatus/index.js'
 import pluginAuth from '~/src/server/plugins/auth.js'
 import { configureBlankiePlugin } from '~/src/server/plugins/blankie.js'
 import { configureCrumbPlugin } from '~/src/server/plugins/crumb.js'
@@ -169,7 +169,7 @@ async function createServer(routeConfig: RouteConfig) {
   await server.register(
     configureEnginePlugin(formFileName, formFilePath, options)
   )
-  // await server.register(pluginApplicationStatus)
+  await server.register(pluginApplicationStatus)
   await server.register(pluginRouter)
   await server.register(pluginErrorPages)
   await server.register(blipp)

@@ -81,6 +81,36 @@ interface PluginOptions {
 const stateSchema = Joi.string().valid('draft', 'live').required()
 const pathSchema = Joi.string().required()
 
+export async function extractFormInfoFromPath(request) {
+  const { params, path } = request
+  const { slug } = params
+  const isPreview = path.toLowerCase().startsWith(PREVIEW_PATH_PREFIX)
+  const formState = isPreview ? params.state : 'live'
+
+  const metadata = await getFormMetadata(slug)
+  const { id, [formState]: state } = metadata
+
+  // Check the metadata supports the requested state
+  if (!state) {
+    return Boom.notFound(`No '${formState}' state for form metadata ${id}`)
+  }
+
+  // Cache the models based on id, state and whether
+  // it's a preview or not. There could be up to 3 models
+  // cached for a single form:
+  // "{id}_live_false" (live/live)
+  // "{id}_live_true" (live/preview)
+  // "{id}_draft_true" (draft/preview)
+  return {
+    cacheKey: `${id}_${formState}_${isPreview}`,
+    id,
+    slug,
+    formState,
+    state,
+    isPreview
+  }
+}
+
 export const plugin = {
   name: '@defra/forms-runner/engine',
   dependencies: '@hapi/vision',
@@ -229,29 +259,10 @@ export const plugin = {
         return h.continue
       }
 
-      const { params, path } = request
-      const { slug } = params
-      const isPreview = path.toLowerCase().startsWith(PREVIEW_PATH_PREFIX)
-      const formState = isPreview ? params.state : 'live'
+      const { cacheKey, id, slug, formState, state, isPreview } =
+        await extractFormInfoFromPath(request)
 
-      // Get the form metadata using the `slug` param
-      const metadata = await getFormMetadata(slug)
-
-      const { id, [formState]: state } = metadata
-
-      // Check the metadata supports the requested state
-      if (!state) {
-        return Boom.notFound(`No '${formState}' state for form metadata ${id}`)
-      }
-
-      // Cache the models based on id, state and whether
-      // it's a preview or not. There could be up to 3 models
-      // cached for a single form:
-      // "{id}_live_false" (live/live)
-      // "{id}_live_true" (live/preview)
-      // "{id}_draft_true" (draft/preview)
-      const key = `${id}_${formState}_${isPreview}`
-      let item = itemCache.get(key)
+      let item = itemCache.get(cacheKey)
 
       if (!item || !isEqual(item.updatedAt, state.updatedAt)) {
         server.logger.info(
@@ -285,7 +296,7 @@ export const plugin = {
 
         // Create new item and add it to the item cache
         item = { model, updatedAt: state.updatedAt }
-        itemCache.set(key, item)
+        itemCache.set(cacheKey, item)
       }
 
       // Assign the model to the request data

@@ -1,6 +1,8 @@
 import { type Request, type ResponseToolkit } from '@hapi/hapi'
 import Joi from 'joi'
 
+import { extractFormInfoFromPath } from '../engine/plugin.js'
+
 import { checkUserCompletedSummary } from '~/src/server/plugins/applicationStatus/checkUserCompletedSummary.js'
 import { handleUserWithConfirmationViewModel } from '~/src/server/plugins/applicationStatus/handleUserWithConfirmationViewModel.js'
 import {
@@ -25,6 +27,41 @@ const preHandlers = {
   }
 }
 
+async function getHandler(request: Request, h: ResponseToolkit) {
+  const { statusService, cacheService } = request.services([])
+
+  const { cacheKey } = await extractFormInfoFromPath(request)
+  const { model } = request.server.app.models.get(cacheKey)
+
+  const state = await cacheService.getState(request)
+
+  const { reference: newReference } =
+    await statusService.outputRequests(request)
+
+  if (state.callback?.skipSummary?.redirectUrl) {
+    const { redirectUrl } = state.callback.skipSummary
+    request.logger.info(
+      ['applicationStatus'],
+      `Callback skipSummary detected, redirecting ${request.yar.id} to ${redirectUrl} and clearing state`
+    )
+    await cacheService.setConfirmationState(request, {
+      redirectUrl
+    })
+    await cacheService.clearState(request)
+
+    return h.redirect(redirectUrl)
+  }
+
+  const viewModel = statusService.getViewModel(state, model, newReference)
+
+  await cacheService.setConfirmationState(request, {
+    confirmation: viewModel
+  })
+  await cacheService.clearState(request)
+
+  return h.view('confirmation', viewModel)
+}
+
 const index = {
   plugin: {
     name: 'applicationStatus',
@@ -33,50 +70,25 @@ const index = {
     register: (server) => {
       server.route({
         method: 'get',
-        path: '/{id}/status',
+        path: '/{slug}/status',
         options: {
           pre: [
-            preHandlers.retryPay,
             preHandlers.handleUserWithConfirmationViewModel,
             preHandlers.checkUserCompletedSummary
           ],
-          handler: async (request: Request, h: ResponseToolkit) => {
-            const { statusService, cacheService } = request.services([])
-            const { params } = request
-            const form = server.app.forms[params.id]
+          handler: getHandler
+        }
+      })
 
-            const state = await cacheService.getState(request)
-
-            const { reference: newReference } =
-              await statusService.outputRequests(request)
-
-            if (state.callback?.skipSummary?.redirectUrl) {
-              const { redirectUrl } = state.callback.skipSummary
-              request.logger.info(
-                ['applicationStatus'],
-                `Callback skipSummary detected, redirecting ${request.yar.id} to ${redirectUrl} and clearing state`
-              )
-              await cacheService.setConfirmationState(request, {
-                redirectUrl
-              })
-              await cacheService.clearState(request)
-
-              return h.redirect(redirectUrl)
-            }
-
-            const viewModel = statusService.getViewModel(
-              state,
-              form,
-              newReference
-            )
-
-            await cacheService.setConfirmationState(request, {
-              confirmation: viewModel
-            })
-            await cacheService.clearState(request)
-
-            return h.view('confirmation', viewModel)
-          }
+      server.route({
+        method: 'get',
+        path: '/preview/{state}/{slug}/status',
+        options: {
+          pre: [
+            preHandlers.handleUserWithConfirmationViewModel,
+            preHandlers.checkUserCompletedSummary
+          ],
+          handler: getHandler
         }
       })
 
