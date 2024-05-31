@@ -9,8 +9,8 @@
         {
           "name": "Jhimsh",
           "options": {},
-          "type": "Para",
-          "content": "Enter the name of the person applying for the county parish holding (CPH) number.",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">Enter the name of the person applying for the county parish holding (CPH) number.</p>",
           "schema": {}
         },
         {
@@ -103,8 +103,8 @@
         {
           "name": "azvqQo",
           "options": {},
-          "type": "Para",
-          "content": "RPA needs to register you as a business on their system (the Rural Payments service) before they can give you a CPH number. They must do this even if you keep livestock as pets or for a hobby.\n<br>\n<br>\nIf you do not have a business name, enter your full name.",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">RPA needs to register you as a business on their system (the Rural Payments service) before they can give you a CPH number. They must do this even if you keep livestock as pets or for a hobby.\n<br>\n<br>\nIf you do not have a business name, enter your full name.</p>",
           "schema": {}
         },
         {
@@ -145,8 +145,8 @@
         {
           "name": "KVSTXs",
           "options": {},
-          "type": "Para",
-          "content": "RPA needs the legal status of your business to register you on the Rural Payments service.\n<br>\n<br>\nIf you do not have a business, select 'sole proprietorship'.\n<br>\n<br>\nRead more about <a href=\"https://www.gov.uk/set-up-business\" target=\"_blank\">registering a business (opens in new tab)</a> or <a href=\"https://www.gov.uk/guidance/charity-types-how-to-choose-a-structure\" target=\"_blank\">find out more about charity types (opens in new tab)</a>. If you're not sure, seek professional advice.",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">RPA needs the legal status of your business to register you on the Rural Payments service.\n<br>\n<br>\nIf you do not have a business, select 'sole proprietorship'.\n<br>\n<br>\nRead more about <a href=\"https://www.gov.uk/set-up-business\" target=\"_blank\">registering a business (opens in new tab)</a> or <a href=\"https://www.gov.uk/guidance/charity-types-how-to-choose-a-structure\" target=\"_blank\">find out more about charity types (opens in new tab)</a>. If you're not sure, seek professional advice.</p>",
           "schema": {}
         },
         {
@@ -167,8 +167,8 @@
         {
           "name": "AbMavV",
           "options": {},
-          "type": "Para",
-          "content": "Your business should be registered with Companies House if it's a:",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">Your business should be registered with Companies House if it's a:</p>",
           "schema": {}
         },
         {
@@ -214,8 +214,8 @@
         {
           "name": "oMnOYh",
           "options": {},
-          "type": "Para",
-          "content": "<a href=\"https://www.gov.uk/setting-up-charity/register-your-charity\" target=\"_blank\"\">Find out when you must register your charity (opens in new tab).</a>\n<br><br>",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\"><a href=\"https://www.gov.uk/setting-up-charity/register-your-charity\" target=\"_blank\"\">Find out when you must register your charity (opens in new tab).</a>\n<br><br></p>",
           "schema": {}
         },
         {
@@ -238,8 +238,8 @@
         {
           "name": "uHmVat",
           "options": {},
-          "type": "Para",
-          "content": "<a href=\"https://register-of-charities.charitycommission.gov.uk/charity-search\" target=\"_blank\">Search the register of charities (opens in new tab)</a> to find your charity number.",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\"><a href=\"https://register-of-charities.charitycommission.gov.uk/charity-search\" target=\"_blank\">Search the register of charities (opens in new tab)</a> to find your charity number.</p>",
           "schema": {}
         },
         {
@@ -344,8 +344,8 @@
         {
           "name": "NRlngf",
           "options": {},
-          "type": "Para",
-          "content": "Tell us when livestock or animal by-products will arrive. This date must be no more than 6 weeks from today's date. If they will arrive later, do not apply for your CPH number now.\n<br><br>\nIf you do not know when livestock or animal by-products will arrive, give an estimate. If they have already arrived, you can put a date in the past.\n<br><br>\nRPA need to know this so they can prioritise your application.",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">Tell us when livestock or animal by-products will arrive. This date must be no more than 6 weeks from today's date. If they will arrive later, do not apply for your CPH number now.\n<br><br>\nIf you do not know when livestock or animal by-products will arrive, give an estimate. If they have already arrived, you can put a date in the past.\n<br><br>\nRPA need to know this so they can prioritise your application.</p>",
           "schema": {}
         },
         {
@@ -390,8 +390,8 @@
         {
           "name": "GIGZXr",
           "options": {},
-          "type": "Para",
-          "content": "RPA need the National Grid field number for the main area where you'll keep livestock. For example, if you're a:",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">RPA need the National Grid field number for the main area where you'll keep livestock. For example, if you're a:</p>",
           "schema": {}
         },
         {
@@ -404,8 +404,8 @@
         {
           "name": "moXMAe",
           "options": {},
-          "type": "Para",
-          "content": "If your business uses animal by-products, this will be for the premises where you use them.\n<br><br>\nUse the <a href=\"https://magic.defra.gov.uk/\" target=\"_blank\">MAGIC map (opens in new tab)</a> to find the National Grid field numbers for your land or buildings. Follow these instructions:\n\n<ol type=\"1\">\n<li>1. Select ‘Get Started’.</li>\n<li>2. Search for a postcode or place.<br></li>\n<li>3. Using the map, locate the land or building. Use the +/- icons to zoom in and out.<br></li>\n<li>4. In the top toolbar, select the fourth icon along ('Where am I?') - it looks like a target.</li>\n<li>5. Click on the land or building.<br></li>\n<li>6. A pop-up box will appear showing the land details for this location. The National Grid field number is the fourth number down and comes after the ‘Grid Ref’ (Ordnance Survey grid reference). It’s made up of 2 letters and 8 numbers, for example, AB 1234 5678.</li>\n</ol>"
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">If your business uses animal by-products, this will be for the premises where you use them.\n<br><br>\nUse the <a href=\"https://magic.defra.gov.uk/\" target=\"_blank\">MAGIC map (opens in new tab)</a> to find the National Grid field numbers for your land or buildings. Follow these instructions:\n\n<ol type=\"1\">\n<li>1. Select ‘Get Started’.</li>\n<li>2. Search for a postcode or place.<br></li>\n<li>3. Using the map, locate the land or building. Use the +/- icons to zoom in and out.<br></li>\n<li>4. In the top toolbar, select the fourth icon along ('Where am I?') - it looks like a target.</li>\n<li>5. Click on the land or building.<br></li>\n<li>6. A pop-up box will appear showing the land details for this location. The National Grid field number is the fourth number down and comes after the ‘Grid Ref’ (Ordnance Survey grid reference). It’s made up of 2 letters and 8 numbers, for example, AB 1234 5678.</li>\n</ol</p>>"
         },
         {
           "name": "sLRVWq",
@@ -449,8 +449,8 @@
         {
           "name": "ILcbVH",
           "options": {},
-          "type": "Para",
-          "content": "If your business uses animal by-products, this will be for the premises where you use them.\n<br><br>\nUse the <a href=\"https://magic.defra.gov.uk/\" target=\"_blank\">MAGIC map (opens in new tab)</a> to find the National Grid field numbers for your land or buildings. Follow these instructions:\n\n<ol type=\"1\">\n<li>1. Select ‘Get Started’.</li>\n<li>2. Search for a postcode or place.<br></li>\n<li>3. Using the map, locate the land or building. Use the +/- icons to zoom in and out.<br></li>\n<li>4. In the top toolbar, select the fourth icon along ('Where am I?') - it looks like a target.</li>\n<li>5. Click on the land or building.<br></li>\n<li>6. A pop-up box will appear showing the land details for this location. The National Grid field number is the fourth number down and comes after the ‘Grid Ref’ (Ordnance Survey grid reference). It’s made up of 2 letters and 8 numbers, for example, AB 1234 5678.</li>\n</ol>"
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">If your business uses animal by-products, this will be for the premises where you use them.\n<br><br>\nUse the <a href=\"https://magic.defra.gov.uk/\" target=\"_blank\">MAGIC map (opens in new tab)</a> to find the National Grid field numbers for your land or buildings. Follow these instructions:\n\n<ol type=\"1\">\n<li>1. Select ‘Get Started’.</li>\n<li>2. Search for a postcode or place.<br></li>\n<li>3. Using the map, locate the land or building. Use the +/- icons to zoom in and out.<br></li>\n<li>4. In the top toolbar, select the fourth icon along ('Where am I?') - it looks like a target.</li>\n<li>5. Click on the land or building.<br></li>\n<li>6. A pop-up box will appear showing the land details for this location. The National Grid field number is the fourth number down and comes after the ‘Grid Ref’ (Ordnance Survey grid reference). It’s made up of 2 letters and 8 numbers, for example, AB 1234 5678.</li>\n</ol</p>>"
         },
         {
           "name": "psjzoE",
@@ -490,8 +490,8 @@
         {
           "name": "GtuXcI",
           "options": {},
-          "type": "Para",
-          "content": "Find out about the available funding for farmers, growers and land managers (opens in new tab).",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">Find out about the available funding for farmers, growers and land managers (opens in new tab).</p>",
           "schema": {}
         },
         {
@@ -547,8 +547,8 @@
         {
           "name": "sDJyOK",
           "options": {},
-          "type": "Para",
-          "content": "This will help trace the animals to prevent and contain disease."
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">This will help trace the animals to prevent and contain disease</p>."
         },
         {
           "name": "PXRMtw",

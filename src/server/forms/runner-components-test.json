@@ -80,8 +80,8 @@
         {
           "name": "MOB13t",
           "options": {},
-          "type": "Para",
-          "content": "How to check if you're exempt from paying a charge and how to create a business account, and what support or exemptions are available. ",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">How to check if you're exempt from paying a charge and how to create a business account, and what support or exemptions are available.</p>",
           "schema": {}
         }
       ],

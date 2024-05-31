@@ -8,8 +8,8 @@
         {
           "name": "UjidZI",
           "options": {},
-          "type": "Para",
-          "content": "It’s helpful if you can send us links to the relevant pages, or posts if it was posted on social media.",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">It’s helpful if you can send us links to the relevant pages, or posts if it was posted on social media.</p>",
           "schema": {}
         },
         {
@@ -49,8 +49,8 @@
         {
           "name": "OQrrkG",
           "options": {},
-          "type": "Para",
-          "content": "This could be an image or video, for example. Evidence is helpful should the material be deleted before we can find it.It’s safe to save evidence to your device for the purpose of reporting it to us. We recommend deleting it afterwards.",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">This could be an image or video, for example. Evidence is helpful should the material be deleted before we can find it.It’s safe to save evidence to your device for the purpose of reporting it to us. We recommend deleting it afterwards.</p>",
           "schema": {}
         },
         {
@@ -94,8 +94,8 @@
         {
           "name": "HETM3o",
           "options": {},
-          "type": "Para",
-          "content": "Details may include:who shared the materialwhen it was shareda description, if you haven’t provided a link or evidence",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">Details may include:who shared the materialwhen it was shareda description, if you haven’t provided a link or evidence</p>",
           "schema": {}
         },
         {

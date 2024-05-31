@@ -30,7 +30,7 @@
           "options": {
             "condition": "isLisbon"
           },
-          "type": "Para",
+          "type": "Html",
           "content": "",
           "schema": {}
         },
@@ -39,8 +39,8 @@
           "options": {
             "condition": "isPortimao"
           },
-          "type": "Para",
-          "content": "book portimao..",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">book portimao..</p>",
           "schema": {}
         }
       ],
@@ -65,8 +65,8 @@
           "options": {
             "condition": "isLisbon"
           },
-          "type": "Para",
-          "content": "lisbon",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">lisbon</p>",
           "schema": {}
         },
         {
@@ -74,8 +74,8 @@
           "options": {
             "condition": "isPortimao"
           },
-          "type": "Para",
-          "content": "portimao",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">portimao</p>",
           "schema": {}
         }
       ]
