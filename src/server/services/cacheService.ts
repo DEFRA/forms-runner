@@ -50,12 +50,12 @@ export class CacheService {
     request: Request,
     value: object,
     nullOverride = true,
-    arrayMerge = false
+    mergeArrays = false
   ) {
     const key = this.Key(request)
     const state = await this.getState(request)
     let ttl = sessionTimeout
-    merge(state, value, nullOverride, arrayMerge)
+    merge(state, value, { nullOverride, mergeArrays })
     if (state.pay) {
       this.logger.info(
         ['cacheService', request.yar.id],
