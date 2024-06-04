@@ -551,6 +551,13 @@ export class PageControllerBase {
           progress.pop()
         } else {
           progress.push(currentPath)
+
+          // Ensure progress history doesn't grow too large
+          // by curtailing the array to max length of 100
+          const MAX_PROGRESS_ENTRIES = 100
+          if (progress.length > MAX_PROGRESS_ENTRIES) {
+            progress.shift()
+          }
         }
       }
 
@@ -569,7 +576,7 @@ export class PageControllerBase {
     h: ResponseToolkit,
     mergeOptions: {
       nullOverride?: boolean
-      arrayMerge?: boolean
+      mergeArrays?: boolean
       /**
        * if you wish to modify the value just before it is added to the user's session (i.e. after validation and error parsing), use the modifyUpdate method.
        * pass in a function, that takes in the update value. Make sure that this returns the modified value.
@@ -684,11 +691,11 @@ export class PageControllerBase {
       }
     }
 
-    const { nullOverride, arrayMerge, modifyUpdate } = mergeOptions
+    const { nullOverride, mergeArrays, modifyUpdate } = mergeOptions
     if (modifyUpdate) {
       update = modifyUpdate(update)
     }
-    await cacheService.mergeState(request, update, nullOverride, arrayMerge)
+    await cacheService.mergeState(request, update, nullOverride, mergeArrays)
   }
 
   /**

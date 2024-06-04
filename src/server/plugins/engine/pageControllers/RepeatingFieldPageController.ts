@@ -171,7 +171,7 @@ export class RepeatingFieldPageController extends PageController {
       }
 
       const response = await this.handlePostRequest(request, h, {
-        arrayMerge: true,
+        mergeArrays: true,
         modifyUpdate
       })
 
