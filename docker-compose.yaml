@@ -1,0 +1,20 @@
+services:
+  redis:
+    image: redis:7.0.7
+    restart: always
+    ports:
+      - '6379:6379'
+    environment:
+      - REDIS_PASSWORD=my-password
+      - REDIS_PORT=6379
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    ports:
+      - '5540:5540'
+    volumes:
+      - redisinsight:/data
+    depends_on:
+      - redis
+
+volumes:
+  redisinsight:

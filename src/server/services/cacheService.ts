@@ -1,13 +1,10 @@
-import { Engine as MemoryEngine } from '@hapi/catbox-memory'
 import { Engine as RedisEngine } from '@hapi/catbox-redis'
 import { type Request, type Server } from '@hapi/hapi'
 import { merge } from '@hapi/hoek'
 import { token } from '@hapi/jwt'
-import Redis from 'ioredis'
 
-import { createLogger } from '../common/helpers/logging/logger.js'
+import { buildRedisClient } from '../common/helpers/redis-client.js'
 
-import { loggerOptions } from '~/dist/server/common/helpers/logging/logger-options.js'
 import config from '~/src/server/config.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 import {
@@ -16,23 +13,13 @@ import {
 } from '~/src/server/plugins/initialiseSession/types.js'
 import { type WebhookSchema } from '~/src/server/schemas/types.js'
 
-const {
-  redisHost,
-  redisPort,
-  redisPassword,
-  redisTls,
-  isSandbox,
-  sessionTimeout,
-  confirmationSessionTimeout,
-  paymentSessionTimeout
-} = config
+const { sessionTimeout, confirmationSessionTimeout, paymentSessionTimeout } =
+  config
 const partition = 'cache'
 
 enum ADDITIONAL_IDENTIFIER {
   Confirmation = ':confirmation'
 }
-
-const logger = createLogger()
 
 export class CacheService {
   /**
@@ -153,51 +140,10 @@ export const catboxProvider = () => {
    * If redisHost doesn't exist, CatboxMemory will be used instead.
    * More information at {@link https://hapi.dev/module/catbox/api}
    */
-  const provider = {
-    constructor: redisHost ? RedisEngine : MemoryEngine,
-    options: {}
+  const client = buildRedisClient()
+
+  return {
+    constructor: RedisEngine,
+    options: { client, partition }
   }
-
-  if (redisHost) {
-    logger.info('Redis host is set')
-    logger.info(`isSandbox is set to ${isSandbox}`)
-
-    const redisOptions: {
-      password?: string
-      tls?: object
-    } = {}
-
-    if (redisPassword) {
-      redisOptions.password = redisPassword
-    }
-
-    if (redisTls) {
-      redisOptions.tls = {}
-    }
-
-    const client = isSandbox
-      ? new Redis({ host: redisHost, port: redisPort, password: redisPassword })
-      : new Redis.Cluster(
-          [
-            {
-              host: redisHost,
-              port: redisPort
-            }
-          ],
-          {
-            dnsLookup: (address, callback) => callback(null, address, 4),
-            redisOptions
-          }
-        )
-    provider.options = { client, partition }
-  } else {
-    logger.info('Redis host not set')
-    provider.options = { partition }
-  }
-
-  logger.info(
-    `Cache being constructed with constructor: ${provider.constructor.name}`
-  )
-
-  return provider
 }
