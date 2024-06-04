@@ -551,6 +551,13 @@ export class PageControllerBase {
           progress.pop()
         } else {
           progress.push(currentPath)
+
+          // Ensure progress history doesn't grow too large
+          // by curtailing the array to max length of 100
+          const MAX_PROGRESS_ENTRIES = 100
+          if (progress.length > MAX_PROGRESS_ENTRIES) {
+            progress.shift()
+          }
         }
       }
 
