@@ -5,6 +5,9 @@ import { merge } from '@hapi/hoek'
 import { token } from '@hapi/jwt'
 import Redis from 'ioredis'
 
+import { createLogger } from '../common/helpers/logging/logger.js'
+
+import { loggerOptions } from '~/dist/server/common/helpers/logging/logger-options.js'
 import config from '~/src/server/config.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 import {
@@ -28,6 +31,8 @@ const partition = 'cache'
 enum ADDITIONAL_IDENTIFIER {
   Confirmation = ':confirmation'
 }
+
+const logger = createLogger()
 
 export class CacheService {
   /**
@@ -154,6 +159,9 @@ export const catboxProvider = () => {
   }
 
   if (redisHost) {
+    logger.info('Redis host is set')
+    logger.info(`isSandbox is set to ${isSandbox}`)
+
     const redisOptions: {
       password?: string
       tls?: object
@@ -183,8 +191,13 @@ export const catboxProvider = () => {
         )
     provider.options = { client, partition }
   } else {
+    logger.info('Redis host not set')
     provider.options = { partition }
   }
+
+  logger.info(
+    `Cache being constructed with constructor: ${provider.constructor.name}`
+  )
 
   return provider
 }
