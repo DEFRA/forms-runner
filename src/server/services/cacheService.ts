@@ -134,16 +134,3 @@ export class CacheService {
     }
   }
 }
-
-export const catboxProvider = () => {
-  /**
-   * If redisHost doesn't exist, CatboxMemory will be used instead.
-   * More information at {@link https://hapi.dev/module/catbox/api}
-   */
-  const client = buildRedisClient()
-
-  return {
-    constructor: RedisEngine,
-    options: { client, partition }
-  }
-}

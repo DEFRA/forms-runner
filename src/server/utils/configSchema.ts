@@ -57,6 +57,7 @@ export const configSchema = Joi.object({
   }),
   serviceUrl: Joi.string().optional(),
   redisHost: Joi.string().required(),
+  redisKeyPrefix: Joi.string().required(),
   redisUsername: Joi.string().required(),
   redisPassword: Joi.string().required(),
   serviceName: Joi.string().optional(),

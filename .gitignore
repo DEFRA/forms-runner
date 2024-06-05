@@ -9,3 +9,4 @@ coverage
 public/build
 .cache
 .env
+volume/

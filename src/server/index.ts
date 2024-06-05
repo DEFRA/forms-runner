@@ -1,5 +1,7 @@
 import fs from 'node:fs'
 
+import { Engine as CatboxMemory } from '@hapi/catbox-memory'
+import { Engine as CatboxRedis } from '@hapi/catbox-redis'
 import hapi, {
   type ServerOptions,
   type Request,
@@ -9,6 +11,8 @@ import inert from '@hapi/inert'
 import Scooter from '@hapi/scooter'
 import Schmervice from '@hapipal/schmervice'
 import blipp from 'blipp'
+
+import { buildRedisClient } from './common/helpers/redis-client.js'
 
 import config from '~/src/server/config.js'
 // import pluginApplicationStatus from '~/src/server/plugins/applicationStatus/index.js'
@@ -28,7 +32,6 @@ import pluginViews from '~/src/server/plugins/views.js'
 import {
   AddressService,
   CacheService,
-  catboxProvider,
   NotifyService,
   PayService,
   StatusService,
@@ -67,7 +70,17 @@ const serverOptions = (): ServerOptions => {
         xframe: true
       }
     },
-    cache: [{ provider: catboxProvider() }]
+    cache: [
+      {
+        name: 'session',
+        engine: config.isTest
+          ? new CatboxMemory()
+          : new CatboxRedis({
+              partition: config.redisKeyPrefix,
+              client: buildRedisClient()
+            })
+      }
+    ]
   }
 
   const httpsOptions = hasCertificate
