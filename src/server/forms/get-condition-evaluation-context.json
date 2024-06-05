@@ -59,11 +59,9 @@
       "section": "applicantOneDetails",
       "components": [
         {
-          "type": "Para",
-          "content": "Provide the details as they appear on your passport.",
-          "options": {
-            "required": true
-          },
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">Provide the details as they appear on your passport.</p>",
+          "options": {},
           "schema": {}
         },
         {
@@ -133,11 +131,9 @@
       "section": "applicantTwoDetails",
       "components": [
         {
-          "type": "Para",
-          "content": "Provide the details as they appear on your passport.",
-          "options": {
-            "required": true
-          },
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">Provide the details as they appear on your passport.</p>",
+          "options": {},
           "schema": {}
         },
         {
@@ -207,11 +203,9 @@
       "section": "applicantThreeDetails",
       "components": [
         {
-          "type": "Para",
-          "content": "Provide the details as they appear on your passport.",
-          "options": {
-            "required": true
-          },
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">Provide the details as they appear on your passport.</p>",
+          "options": {},
           "schema": {}
         },
         {
@@ -281,11 +275,9 @@
       "section": "applicantFourDetails",
       "components": [
         {
-          "type": "Para",
-          "content": "Provide the details as they appear on your passport.",
-          "options": {
-            "required": true
-          },
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">Provide the details as they appear on your passport.</p>",
+          "options": {},
           "schema": {}
         },
         {
@@ -392,8 +384,8 @@
           "options": {
             "condition": "bDDfgf"
           },
-          "type": "Para",
-          "content": "There Is Someone Called Applicant",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">There Is Someone Called Applicant</p>",
           "schema": {}
         }
       ],
@@ -410,8 +402,8 @@
         {
           "name": "FnMsqX",
           "options": {},
-          "type": "Para",
-          "content": "Another Page"
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">Another Pag</p>e"
         }
       ],
       "next": [

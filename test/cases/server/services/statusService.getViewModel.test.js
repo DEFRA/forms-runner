@@ -48,7 +48,7 @@ describe('Status Service', () => {
     expect(lisbonViewModel.components).toHaveLength(1)
     expect(lisbonViewModel.components[0].model).toEqual({
       attributes: {},
-      content: 'lisbon',
+      content: '<p class="govuk-body">lisbon</p>',
       condition: 'isLisbon'
     })
     const stateForPortimao = {
@@ -61,7 +61,7 @@ describe('Status Service', () => {
     )
     expect(portimaoViewModel.components[0].model).toEqual({
       attributes: {},
-      content: 'portimao',
+      content: '<p class="govuk-body">portimao</p>',
       condition: 'isPortimao'
     })
   })
@@ -82,7 +82,7 @@ describe('Status Service', () => {
     expect(lisbonViewModel.components).toHaveLength(1)
     expect(lisbonViewModel.components[0].model).toEqual({
       attributes: {},
-      content: 'lisbon',
+      content: '<p class="govuk-body">lisbon</p>',
       condition: 'isLisbon'
     })
     const stateForPortimao = {
@@ -95,7 +95,7 @@ describe('Status Service', () => {
     )
     expect(portimaoViewModel.components[0].model).toEqual({
       attributes: {},
-      content: 'portimao',
+      content: '<p class="govuk-body">portimao</p>',
       condition: 'isPortimao'
     })
   })

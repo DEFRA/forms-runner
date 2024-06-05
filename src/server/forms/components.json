@@ -118,8 +118,8 @@
           "schema": {}
         },
         {
-          "type": "Para",
-          "content": "Paragraph...",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">Paragraph...</p>",
           "options": {},
           "schema": {}
         },

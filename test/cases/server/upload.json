@@ -24,8 +24,8 @@
       "path": "/upload-file",
       "components": [
         {
-          "type": "Para",
-          "content": "Provide the details as they appear on your passport",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">Provide the details as they appear on your passport</p>",
           "options": {},
           "schema": {}
         },

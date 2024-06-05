@@ -8,12 +8,7 @@ import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { RepeatingSummaryPageController } from '~/src/server/plugins/engine/pageControllers/RepeatingSummaryPageController.js'
 
-const contentTypes: ComponentDef['type'][] = [
-  'Para',
-  'Details',
-  'Html',
-  'InsetText'
-]
+const contentTypes: ComponentDef['type'][] = ['Details', 'Html', 'InsetText']
 
 function isInputType(component) {
   return !contentTypes.includes(component.type)
