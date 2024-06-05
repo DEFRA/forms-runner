@@ -1,8 +1,16 @@
 import { configSchema } from '~/src/server/utils/configSchema.js'
 
 describe(`Server config validation`, () => {
+  const requiredVars = {
+    redisHost: 'dummy',
+    redisUsername: 'dummy',
+    redisPassword: 'dummy',
+    redisKeyPrefix: 'dummy'
+  }
+
   test('it throws when MATOMO_URL is insecure', () => {
     const configWithInsecureUrl = {
+      ...requiredVars,
       matomoUrl: 'http://insecure.url'
     }
 
@@ -15,6 +23,7 @@ describe(`Server config validation`, () => {
 
   test('it throws when PAY_API_URL is insecure', () => {
     const configWithInsecureUrl = {
+      ...requiredVars,
       payApiUrl: 'http://insecure.url'
     }
 
@@ -27,6 +36,7 @@ describe(`Server config validation`, () => {
 
   test('it throws when PAY_RETURN_URL is insecure and the environment is production', () => {
     const configWithInsecureUrl = {
+      ...requiredVars,
       payReturnUrl: 'http://insecure.url',
       env: 'production',
       apiEnv: 'production'
@@ -41,6 +51,7 @@ describe(`Server config validation`, () => {
 
   test('it succeeds when PAY_RETURN_URL is insecure and the node environment is test', () => {
     const configWithInsecureUrl = {
+      ...requiredVars,
       payReturnUrl: 'http://insecure.url',
       env: 'test',
       apiEnv: 'production'
@@ -53,6 +64,7 @@ describe(`Server config validation`, () => {
 
   test('it succeeds when PAY_RETURN_URL is insecure and the api environment is test', () => {
     const configWithInsecureUrl = {
+      ...requiredVars,
       payReturnUrl: 'http://insecure.url',
       env: 'production',
       apiEnv: 'test'
@@ -65,6 +77,7 @@ describe(`Server config validation`, () => {
 
   test('it throws when oAuth config is incomplete', () => {
     const configWithIncompleteAuth = {
+      ...requiredVars,
       authEnabled: true
     }
     const { error } = configSchema.validate(configWithIncompleteAuth, {
