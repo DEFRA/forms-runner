@@ -26,7 +26,6 @@ module.exports = {
   env: process.env.NODE_ENV || 'development',
   previewMode: false,
   enforceCsrf: true,
-  sandbox: false,
 
   /**
    * Helper flags
@@ -39,9 +38,6 @@ module.exports = {
   }),
   isTest: deferConfig(function () {
     return this.env === 'test'
-  }),
-  isSandbox: deferConfig(function () {
-    return this.sandbox === true || this.sandbox === 'true'
   }),
 
   /**

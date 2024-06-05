@@ -19,7 +19,6 @@
   "redisKeyPrefix": "REDIS_KEY_PREFIX",
   "redisUsername": "REDIS_USERNAME",
   "redisPassword": "REDIS_PASSWORD",
-  "sandbox": "sandbox",
   "serviceName": "SERVICE_NAME",
   "documentUploadApiUrl": "DOCUMENT_UPLOAD_API_URL",
   "sslKey": "SSL_KEY",
