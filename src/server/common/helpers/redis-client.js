@@ -17,7 +17,7 @@ export function buildRedisClient() {
   const db = 0
   let redisClient
 
-  if (config.env !== 'production') {
+  if (!config.isProd) {
     logger.info('Connecting to Redis using single instance')
 
     redisClient = new Redis({
