@@ -9,7 +9,6 @@ import config from '~/src/server/config.js'
  *
  * Local development - 1 Redis instance
  * Out in the wild - Elasticache / Redis Cluster with username and password
- * @returns {import('ioredis').Cluster | import('ioredis').Redis}
  */
 export function buildRedisClient() {
   const logger = createLogger()
@@ -50,8 +49,6 @@ export function buildRedisClient() {
       }
     )
   }
-
-  // TODO add proper logger
 
   redisClient.on('connect', () => {
     logger.info('Connected to Redis server')
