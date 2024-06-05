@@ -1,9 +1,6 @@
-import { Engine as RedisEngine } from '@hapi/catbox-redis'
 import { type Request, type Server } from '@hapi/hapi'
 import { merge } from '@hapi/hoek'
 import { token } from '@hapi/jwt'
-
-import { buildRedisClient } from '../common/helpers/redis-client.js'
 
 import config from '~/src/server/config.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
