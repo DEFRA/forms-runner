@@ -318,8 +318,11 @@ function getPersonalisation(
 
   formSubmissionData.questions?.forEach((question) => {
     question.fields.forEach((field) => {
-      lines.push(`*${field.title}*`)
-      lines.push(field.answer)
+      const { title, answer } = field
+      const isBoolAnswer = typeof answer === 'boolean'
+
+      lines.push(title)
+      lines.push(isBoolAnswer ? (answer ? 'yes' : 'no') : answer)
     })
   })
 

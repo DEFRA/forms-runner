@@ -30,19 +30,6 @@ interface NotifyInterface {
   ) => Promise<void>
 }
 
-function parsePersonalisations(options: Personalisation): Personalisation {
-  const entriesWithReplacedBools = Object.entries(options).map(
-    ([key, value]) => {
-      if (typeof value === 'boolean') {
-        return [key, value ? 'yes' : 'no']
-      }
-      return [key, value]
-    }
-  )
-
-  return Object.fromEntries(entriesWithReplacedBools)
-}
-
 export function sendNotification(args: SendNotificationArgs) {
   const {
     templateId,
@@ -53,7 +40,7 @@ export function sendNotification(args: SendNotificationArgs) {
   } = args
 
   const parsedOptions: SendEmailOptions = {
-    personalisation: parsePersonalisations(personalisation),
+    personalisation,
     reference,
     emailReplyToId
   }
