@@ -1,8 +1,13 @@
+import Boom from '@hapi/boom'
 import { type Request, type ResponseToolkit } from '@hapi/hapi'
+import { format } from 'date-fns'
+import nunjucks from 'nunjucks'
+
+import { type FormSubmissionState } from '../types.js'
 
 import config from '~/src/server/config.js'
+import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
-  decodeFeedbackContextInfo,
   FeedbackContextInfo,
   RelativeUrl
 } from '~/src/server/plugins/engine/feedback/index.js'
@@ -11,8 +16,15 @@ import {
   redirectTo,
   redirectUrl
 } from '~/src/server/plugins/engine/helpers.js'
-import { SummaryViewModel } from '~/src/server/plugins/engine/models/index.js'
+import {
+  type FormModel,
+  SummaryViewModel
+} from '~/src/server/plugins/engine/models/index.js'
+import { type DetailItem } from '~/src/server/plugins/engine/models/types.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
+import { sendNotification } from '~/src/server/utils/notify.js'
+
+const { notifyTemplateId: templateId } = config
 
 export class SummaryPageController extends PageController {
   /**
@@ -103,7 +115,7 @@ export class SummaryPageController extends PageController {
    */
   makePostRouteHandler() {
     return async (request: Request, h: ResponseToolkit) => {
-      const { payService, cacheService } = request.services([])
+      const { cacheService } = request.services([])
       const model = this.model
       const state = await cacheService.getState(request)
       const summaryViewModel = new SummaryViewModel(
@@ -155,82 +167,51 @@ export class SummaryPageController extends PageController {
           const url = request.headers.referer ?? request.path
           return redirectTo(request, h, `${url}#declaration`)
         }
-        summaryViewModel.addDeclarationAsQuestion()
       }
 
+      // Store that the user has completed the summary
       await cacheService.mergeState(request, {
-        outputs: summaryViewModel.outputs,
         userCompletedSummary: true
       })
 
-      request.logger.info(
-        ['Webhook data', 'before send', request.yar.id],
-        JSON.stringify(summaryViewModel.validatedWebhookData)
-      )
+      const path = request.path
+      const isPreview = path.toLowerCase().startsWith(PREVIEW_PATH_PREFIX)
 
-      await cacheService.mergeState(request, {
-        webhookData: summaryViewModel.validatedWebhookData
-      })
+      // If not in preview mode, then send the submission email
+      if (!isPreview) {
+        const emailAddress = this.model.def.outputEmail
 
-      /**
-       * If a user does not need to pay, redirect them to /status
-       */
-      if (summaryViewModel.fees?.details.length) {
-        return redirectTo(request, h, `/${model.basePath}/status`)
-      }
-
-      const payReturnUrl =
-        this.model.feeOptions?.payReturnUrl ?? config.payReturnUrl
-
-      request.logger.info(`payReturnUrl has been configured to ${payReturnUrl}`)
-
-      // user must pay for service
-      const description = payService.descriptionFromFees(summaryViewModel.fees)
-      const url = new URL(`${payReturnUrl}/${model.basePath}/status`).toString()
-      const res = await payService.payRequest(
-        summaryViewModel.fees,
-        summaryViewModel.payApiKey || '',
-        url
-      )
-
-      // TODO:- refactor - this is repeated in applicationStatus
-      const payState = {
-        pay: {
-          payId: res.payment_id,
-          reference: res.reference,
-          self: res._links.self.href,
-          next_url: res._links.next_url.href,
-          returnUrl: url,
-          meta: {
-            amount: summaryViewModel.fees.total,
-            description,
-            attempts: 1,
-            payApiKey: summaryViewModel.payApiKey
-          }
+        if (!emailAddress) {
+          return Boom.internal(
+            'An `outputEmail` is required on the form definition to complete the form submission'
+          )
         }
+
+        /**
+         * @todo Create a real reference number (from mongo?)
+         */
+        const reference = '123'
+
+        await sendEmail(
+          request,
+          summaryViewModel,
+          model,
+          state,
+          reference,
+          emailAddress
+        )
+
+        await cacheService.setConfirmationState(request, { reference })
+      } else {
+        await cacheService.setConfirmationState(request, {
+          reference: 'PREVIEW123'
+        })
       }
 
-      request.yar.set('basePath', model.basePath)
-      await cacheService.mergeState(request, payState)
-      summaryViewModel.webhookDataPaymentReference = res.reference
-      await cacheService.mergeState(request, {
-        webhookData: summaryViewModel.validatedWebhookData
-      })
+      // Clear all form data
+      await cacheService.clearState(request)
 
-      const payRedirectUrl = payState.pay.next_url
-      const { showPaymentSkippedWarningPage } = this.model.feeOptions
-
-      const { skipPayment } = request.payload
-      if (skipPayment === 'true' && showPaymentSkippedWarningPage) {
-        payState.pay.meta.attempts = 0
-        await cacheService.mergeState(request, payState)
-        return h
-          .redirect(`/${model.basePath}/status/payment-skip-warning`)
-          .takeover()
-      }
-
-      await cacheService.mergeState(request, payState)
-      return h.redirect(payRedirectUrl)
+      return redirectTo(request, h, `/${model.basePath}/status`)
     }
   }
 
@@ -275,11 +256,154 @@ export class SummaryPageController extends PageController {
     return {
       ext: {
         onPreHandler: {
-          method: async (_request: Request, h: ResponseToolkit) => {
+          method: (request: Request, h: ResponseToolkit) => {
             return h.continue
           }
         }
       }
     }
+  }
+}
+
+async function sendEmail(
+  request: Request,
+  summaryViewModel: SummaryViewModel,
+  model: FormModel,
+  state: FormSubmissionState,
+  reference: string,
+  emailAddress: string
+) {
+  request.logger.info(['submit', 'email'], 'Preparing email')
+
+  // Get submission email personalisation
+  const personalisation = getPersonalisation(summaryViewModel, model, state)
+
+  request.logger.info(['submit', 'email'], 'Sending email')
+
+  try {
+    // Send submission email
+    await sendNotification({
+      templateId,
+      reference,
+      emailAddress,
+      personalisation
+    })
+
+    request.logger.info(['submit', 'email'], 'Email sent successfully')
+  } catch (err) {
+    request.logger.error(['submit', 'email'], 'Error sending email', err)
+
+    throw err
+  }
+}
+
+function getPersonalisation(
+  summaryViewModel: SummaryViewModel,
+  model: FormModel,
+  state: FormSubmissionState
+) {
+  /**
+   * @todo Refactor this below but the code to
+   * generate the question and answers works for now
+   */
+  const { relevantPages, details } = summaryViewModel
+
+  const formSubmissionData = getFormSubmissionData(
+    relevantPages,
+    details,
+    model,
+    model.getContextState(state)
+  )
+
+  const lines: string[] = []
+
+  formSubmissionData.questions?.forEach((question) => {
+    question.fields.forEach((field) => {
+      lines.push(`*${field.title}*`)
+      lines.push(field.answer)
+    })
+  })
+
+  return {
+    formResults: lines.join('\r\n'),
+    formName: model.name
+  }
+}
+
+function getFormSubmissionData(relevantPages, details, model, contextState) {
+  const questions = relevantPages?.map((page) => {
+    const isRepeatable = !!page.repeatField
+
+    const itemsForPage = details.flatMap((detail) =>
+      detail.items.filter((item) => item.path === page.path)
+    )
+
+    const detailItems = isRepeatable
+      ? [itemsForPage].map((item) => ({ ...item, isRepeatable }))
+      : itemsForPage
+
+    let index = 0
+    const fields = detailItems.flatMap((item, i) => {
+      const fields = [detailItemToField(item)]
+
+      if (item.isRepeatable) {
+        index = i
+      }
+
+      /**
+       * This is currently deprecated whilst GDS fix a known issue with accessibility and conditionally revealed fields
+       */
+      const nestedItems = item?.items?.childrenCollection.formItems
+      nestedItems &&
+        fields.push(nestedItems.map((item) => detailItemToField(item)))
+
+      return fields
+    })
+
+    let pageTitle = page.title
+
+    if (pageTitle) {
+      pageTitle = nunjucks.renderString(page.title.en ?? page.title, {
+        ...contextState
+      })
+    }
+
+    return {
+      category: page.section?.name,
+      question:
+        pageTitle ?? page.components.formItems.map((item) => item.title),
+      fields,
+      index
+    }
+  })
+
+  return {
+    metadata: model.def.metadata,
+    name: model.name,
+    questions
+  }
+}
+
+function answerFromDetailItem(item) {
+  switch (item.dataType) {
+    case 'list':
+      return item.rawValue
+    case 'date':
+      return format(new Date(item.rawValue), 'yyyy-MM-dd')
+    case 'monthYear':
+      // eslint-disable-next-line no-case-declarations
+      const [month, year] = Object.values(item.rawValue)
+      return format(new Date(`${year}-${month}-1`), 'yyyy-MM')
+    default:
+      return item.value
+  }
+}
+
+function detailItemToField(item: DetailItem) {
+  return {
+    key: item.name,
+    title: item.title,
+    type: item.dataType,
+    answer: answerFromDetailItem(item)
   }
 }

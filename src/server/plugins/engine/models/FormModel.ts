@@ -12,7 +12,6 @@ import { Parser } from 'expr-eval'
 import joi from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/index.js'
-import { DEFAULT_FEE_OPTIONS } from '~/src/server/plugins/engine/models/FormModel.feeOptions.js'
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
@@ -46,18 +45,15 @@ export class FormModel {
   lists: FormDefinition['lists']
   sections: FormDefinition['sections'] = []
   options: any
-  name: any
+  name: string
   values: any
   DefaultPageController: any = PageController
-  /** the id of the form used for the first url parameter eg localhost:3009/test */
   basePath: string
   conditions: Partial<Record<string, ExecutableCondition>>
   fieldsForContext: ComponentCollection
   fieldsForPrePopulation: Record<string, any>
   pages: any
   startPage: any
-
-  feeOptions?: FormDefinition['feeOptions']
   specialPages?: FormDefinition['specialPages']
 
   constructor(def: FormDefinition, options) {
@@ -118,9 +114,20 @@ export class FormModel {
     this.fieldsForContext = new ComponentCollection(exposedComponentDefs, this)
     this.fieldsForPrePopulation = {}
     this.pages = def.pages.map((pageDef) => this.makePage(pageDef))
+
+    // All models get an Application Status page
+    this.pages.push(
+      this.makePage({
+        path: '/status',
+        title: 'Application complete',
+        components: [],
+        next: [],
+        controller: './pages/status.js'
+      })
+    )
+
     this.startPage = this.pages.find((page) => page.path === def.startPage)
     this.specialPages = def.specialPages
-    this.feeOptions = { ...DEFAULT_FEE_OPTIONS, ...def.feeOptions }
   }
 
   /**

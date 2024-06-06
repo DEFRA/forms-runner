@@ -7,6 +7,7 @@ export { StartDatePageController } from '~/src/server/plugins/engine/pageControl
 export { StartPageController } from '~/src/server/plugins/engine/pageControllers/StartPageController.js'
 export { SummaryPageController } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 export { UploadPageController } from '~/src/server/plugins/engine/pageControllers/UploadPageController.js'
+export { StatusPageController } from '~/src/server/plugins/engine/pageControllers/StatusPageController.js'
 export {
   getPageController,
   controllerNameFromPath
