@@ -55,9 +55,6 @@
   ],
   "sections": [{ "name": "gcdSFb", "title": "section" }],
   "conditions": [],
-  "fees": [],
   "outputs": [],
-  "version": 2,
-  "skipSummary": false,
-  "feeOptions": { "allowSubmissionWithoutPayment": true, "maxAttempts": 3 }
+  "skipSummary": false
 }

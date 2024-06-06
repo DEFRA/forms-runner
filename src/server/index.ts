@@ -15,8 +15,6 @@ import blipp from 'blipp'
 import { buildRedisClient } from './common/helpers/redis-client.js'
 
 import config from '~/src/server/config.js'
-// import pluginApplicationStatus from '~/src/server/plugins/applicationStatus/index.js'
-import pluginAuth from '~/src/server/plugins/auth.js'
 import { configureBlankiePlugin } from '~/src/server/plugins/blankie.js'
 import { configureCrumbPlugin } from '~/src/server/plugins/crumb.js'
 import { configureEnginePlugin } from '~/src/server/plugins/engine/index.js'
@@ -32,15 +30,9 @@ import pluginViews from '~/src/server/plugins/views.js'
 import {
   AddressService,
   CacheService,
-  NotifyService,
-  PayService,
-  StatusService,
   UploadService,
-  MockUploadService,
-  WebhookService
+  MockUploadService
 } from '~/src/server/services/index.js'
-import { PgBossQueueService } from '~/src/server/services/pgBossQueueService.js'
-import { QueueStatusService } from '~/src/server/services/queueStatusService.js'
 import { type RouteConfig } from '~/src/server/types.js'
 import getRequestInfo from '~/src/server/utils/getRequestInfo.js'
 
@@ -118,30 +110,14 @@ async function createServer(routeConfig: RouteConfig) {
   await server.register(configureBlankiePlugin(config))
   await server.register(configureCrumbPlugin(config, routeConfig))
   await server.register(Schmervice)
-  await server.register(pluginAuth)
 
-  server.registerService([
-    CacheService,
-    NotifyService,
-    PayService,
-    WebhookService,
-    AddressService
-  ])
+  server.registerService([CacheService, AddressService])
   if (!config.documentUploadApiUrl) {
     server.registerService([
       Schmervice.withName('uploadService', {}, MockUploadService)
     ])
   } else {
     server.registerService([UploadService])
-  }
-
-  if (config.enableQueueService) {
-    server.registerService([
-      Schmervice.withName('queueService', {}, PgBossQueueService),
-      Schmervice.withName('statusService', {}, QueueStatusService)
-    ])
-  } else {
-    server.registerService(StatusService)
   }
 
   server.ext('onPreResponse', (request: Request, h: ResponseToolkit) => {
@@ -182,7 +158,7 @@ async function createServer(routeConfig: RouteConfig) {
   await server.register(
     configureEnginePlugin(formFileName, formFilePath, options)
   )
-  // await server.register(pluginApplicationStatus)
+
   await server.register(pluginRouter)
   await server.register(pluginErrorPages)
   await server.register(blipp)

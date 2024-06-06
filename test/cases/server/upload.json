@@ -96,22 +96,5 @@
         }
       ]
     }
-  ],
-  "fees": [
-    {
-      "description": "1 day license",
-      "amount": 10,
-      "condition": "isOneDay"
-    },
-    {
-      "description": "8 day license",
-      "amount": 20,
-      "condition": "isEightDay"
-    },
-    {
-      "description": "expensive name",
-      "amount": 73572,
-      "condition": "nameIsName"
-    }
   ]
 }

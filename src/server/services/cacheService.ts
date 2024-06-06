@@ -8,10 +8,8 @@ import {
   type DecodedSessionToken,
   type InitialiseSessionOptions
 } from '~/src/server/plugins/initialiseSession/types.js'
-import { type WebhookSchema } from '~/src/server/schemas/types.js'
 
-const { sessionTimeout, confirmationSessionTimeout, paymentSessionTimeout } =
-  config
+const { sessionTimeout, confirmationSessionTimeout } = config
 const partition = 'cache'
 
 enum ADDITIONAL_IDENTIFIER {
@@ -43,16 +41,11 @@ export class CacheService {
   ) {
     const key = this.Key(request)
     const state = await this.getState(request)
-    let ttl = sessionTimeout
+    const ttl = sessionTimeout
+
     merge(state, value, { nullOverride, mergeArrays })
-    if (state.pay) {
-      this.logger.info(
-        ['cacheService', request.yar.id],
-        `Pay state detected setting session TTL to ${paymentSessionTimeout}.`
-      )
-      ttl = paymentSessionTimeout
-    }
     await this.cache.set(key, state, ttl)
+
     return this.cache.get(key)
   }
 
@@ -70,7 +63,7 @@ export class CacheService {
     jwt: string,
     data: {
       callback: InitialiseSessionOptions
-    } & Partial<WebhookSchema>
+    }
   ) {
     return this.cache.set(
       this.JWTKey(jwt),

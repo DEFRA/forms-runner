@@ -13,7 +13,6 @@ const options = {
   callbackUrl: 'https://webho.ok',
   message: 'Please fix this thing..',
   customText: {
-    paymentSkipped: false,
     nextSteps: false
   },
   components: [

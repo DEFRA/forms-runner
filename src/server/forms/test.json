@@ -455,20 +455,8 @@
     }
   ],
   "phaseBanner": {},
-  "fees": [],
-  "payApiKey": "",
-  "outputs": [
-    {
-      "name": "LwQeVI",
-      "title": "Test webhook",
-      "type": "webhook",
-      "outputConfiguration": {
-        "url": "https://61bca17e-fe74-40e0-9c15-a901ad120eca.mock.pstmn.io"
-      }
-    }
-  ],
+  "outputs": [],
   "declaration": "<p class=\"govuk-body\">All the answers you have provided are true to the best of your knowledge.</p>",
-  "version": 2,
   "conditions": [
     {
       "name": "hasUKPassport",

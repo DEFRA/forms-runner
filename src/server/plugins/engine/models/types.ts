@@ -6,7 +6,6 @@ import {
 
 import { type Component } from '~/src/server/plugins/engine/models/../components/index.js'
 import { type FeedbackContextInfo } from '~/src/server/plugins/engine/models/../feedback/index.js'
-import { type Fees } from '~/src/server/services/payService.js'
 
 export type Fields = {
   key: string
@@ -23,13 +22,6 @@ export interface Question {
 }
 
 export type Questions = Question[]
-
-export interface WebhookData {
-  name: string
-  metadata: any
-  fees?: Fees
-  questions: Questions
-}
 
 interface FeedbackContextItem {
   key:

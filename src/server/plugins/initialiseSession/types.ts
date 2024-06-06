@@ -15,7 +15,6 @@ export interface InitialiseSessionOptions {
   }
   customText: {
     title: string
-    paymentSkipped?: false | string
     nextSteps?: false | string
   }
   components: ContentComponentsDef[]

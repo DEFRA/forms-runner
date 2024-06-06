@@ -1,7 +1,5 @@
 import { type ComponentType, type ConfirmationPage } from '@defra/forms-model'
 
-import { type FeeDetails } from '~/src/server/services/payService.js'
-
 export interface Field {
   key: string
   type: ComponentType
@@ -15,20 +13,12 @@ export interface Question {
   fields: Field[]
 }
 
-export interface WebhookSchema {
-  name: string
-  preferredLanguage?: string
-  fees: FeeDetails
-  questions: Question[]
-  metadata?: Record<string, unknown>
-}
-
 export type InitialiseSessionField = Pick<Field, 'key' | 'answer'>
 export type InitialiseSessionQuestion = {
   fields: InitialiseSessionField[]
 } & Question
 
-export type InitialiseSessionSchema = {
+export interface InitialiseSessionSchema {
   options: {
     callbackUrl: string
     redirectPath?: string
@@ -36,4 +26,4 @@ export type InitialiseSessionSchema = {
     components: ConfirmationPage['components']
   }
   questions: InitialiseSessionQuestion[]
-} & Pick<WebhookSchema, 'questions' | 'metadata'>
+}

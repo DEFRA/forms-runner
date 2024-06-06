@@ -473,7 +473,6 @@
     }
   ],
   "phaseBanner": {},
-  "fees": [],
   "outputs": [
     {
       "name": "Ric43H5Ctwl4NBDC9x1_4",
@@ -485,7 +484,6 @@
     }
   ],
   "declaration": "<p class=\"govuk-body\">All the answers you have provided are true to the best of your knowledge.</p>",
-  "version": 2,
   "conditions": [
     {
       "name": "hasUKPassport",

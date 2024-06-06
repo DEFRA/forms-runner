@@ -1157,7 +1157,6 @@
       }
     }
   ],
-  "fees": [],
   "outputs": [
     {
       "name": "Steve",
@@ -1166,12 +1165,6 @@
       "outputConfiguration": { "emailAddress": "steven.thomas@defra.gov.uk" }
     }
   ],
-  "version": 2,
   "skipSummary": false,
-  "feeOptions": {
-    "allowSubmissionWithoutPayment": true,
-    "maxAttempts": 3,
-    "showPaymentSkippedWarningPage": false
-  },
   "declaration": "Test declaration"
 }
