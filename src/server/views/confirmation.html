@@ -8,10 +8,8 @@
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-    {% set tmpl = 'Your reference number<br><strong>' + reference + '</strong>' if reference else '' %}
     {{ govukPanel({
-      titleText: "Application complete",
-      html: tmpl
+      titleText: "Application complete"
     }) }}
     </div>
   </div>

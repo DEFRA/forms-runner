@@ -181,26 +181,11 @@ export class SummaryPageController extends PageController {
           )
         }
 
-        /**
-         * @todo Create a real reference number (from mongo?)
-         */
-        const reference = '123'
-
-        await sendEmail(
-          request,
-          summaryViewModel,
-          model,
-          state,
-          reference,
-          emailAddress
-        )
-
-        await cacheService.setConfirmationState(request, { reference })
-      } else {
-        await cacheService.setConfirmationState(request, {
-          reference: 'PREVIEW123'
-        })
+        // Send submission email
+        await sendEmail(request, summaryViewModel, model, state, emailAddress)
       }
+
+      await cacheService.setConfirmationState(request, { confirmed: true })
 
       // Clear all form data
       await cacheService.clearState(request)
@@ -264,7 +249,6 @@ async function sendEmail(
   summaryViewModel: SummaryViewModel,
   model: FormModel,
   state: FormSubmissionState,
-  reference: string,
   emailAddress: string
 ) {
   request.logger.info(['submit', 'email'], 'Preparing email')
@@ -278,7 +262,7 @@ async function sendEmail(
     // Send submission email
     await sendNotification({
       templateId,
-      reference,
+      reference: '',
       emailAddress,
       personalisation
     })
@@ -318,6 +302,7 @@ function getPersonalisation(
 
       lines.push(title)
       lines.push(isBoolAnswer ? (answer ? 'yes' : 'no') : answer)
+      lines.push('\r\n')
     })
   })
 
