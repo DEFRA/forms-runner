@@ -481,6 +481,29 @@ export const plugin = {
         }
       }
     })
-
+    server.route(
+      helpPageRoutes().flatMap((page: string) => [
+        {
+          method: 'get',
+          path: `/{slug}/${page}`,
+          handler: dummyRouteHandler(page)
+        },
+        {
+          method: 'get',
+          path: `/{slug}/{state}/${page}`,
+          handler: dummyRouteHandler(page)
+        }
+      ])
+    )
   }
+}
+
+function dummyRouteHandler(requestName: string) {
+  return (request: Request, h: ResponseToolkit) => {
+    return requestName
+  }
+}
+
+function helpPageRoutes() {
+  return ['cookies', 'privacy-policy', 'accessibility', 'support']
 }
