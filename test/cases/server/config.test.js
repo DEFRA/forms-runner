@@ -5,7 +5,8 @@ describe(`Server config validation`, () => {
     redisHost: 'dummy',
     redisUsername: 'dummy',
     redisPassword: 'dummy',
-    redisKeyPrefix: 'dummy'
+    redisKeyPrefix: 'dummy',
+    sessionCookiePassword: 'test-env-session-cookie-password'
   }
 
   test('it throws when MATOMO_URL is insecure', () => {
