@@ -168,11 +168,6 @@ export class SummaryPageController extends PageController {
         }
       }
 
-      // Store that the user has completed the summary
-      await cacheService.mergeState(request, {
-        userCompletedSummary: true
-      })
-
       const path = request.path
       const isPreview = path.toLowerCase().startsWith(PREVIEW_PATH_PREFIX)
 
