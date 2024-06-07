@@ -231,7 +231,7 @@ export const plugin = {
 
       const { params, path } = request
       const { slug } = params
-      const isPreview = path.toLowerCase().startsWith(PREVIEW_PATH_PREFIX)
+      const isPreview = path.toLowerCase().includes(PREVIEW_PATH_PREFIX)
       const formState = isPreview ? params.state : 'live'
 
       // Get the form metadata using the `slug` param
@@ -274,7 +274,7 @@ export const plugin = {
 
         // Set up the basePath for the model
         const basePath = isPreview
-          ? `${PREVIEW_PATH_PREFIX.substring(1)}/${formState}/${slug}`
+          ? `${slug}/${PREVIEW_PATH_PREFIX.substring(1)}/${formState}`
           : slug
 
         // Construct the form model
@@ -361,77 +361,6 @@ export const plugin = {
       ]
     }
 
-    server.route({
-      method: 'get',
-      path: '/{slug}',
-      handler: dispatchHandler,
-      options: {
-        ...dispatchRouteOptions,
-        validate: {
-          params: Joi.object().keys({
-            slug: slugSchema
-          })
-        }
-      }
-    })
-
-    server.route({
-      method: 'get',
-      path: '/preview/{state}/{slug}',
-      handler: dispatchHandler,
-      options: {
-        ...dispatchRouteOptions,
-        validate: {
-          params: Joi.object().keys({
-            slug: slugSchema,
-            state: stateSchema
-          })
-        }
-      }
-    })
-
-    const getRouteOptions = {
-      pre: [
-        {
-          method: loadFormPreHandler
-        },
-        {
-          method: queryParamPreHandler
-        }
-      ]
-    }
-
-    server.route({
-      method: 'get',
-      path: '/{slug}/{path*}',
-      handler: getHandler,
-      options: {
-        ...getRouteOptions,
-        validate: {
-          params: Joi.object().keys({
-            slug: slugSchema,
-            path: pathSchema
-          })
-        }
-      }
-    })
-
-    server.route({
-      method: 'get',
-      path: '/preview/{state}/{slug}/{path*}',
-      handler: getHandler,
-      options: {
-        ...getRouteOptions,
-        validate: {
-          params: Joi.object().keys({
-            slug: slugSchema,
-            path: pathSchema,
-            state: stateSchema
-          })
-        }
-      }
-    })
-
     const postRouteOptions = {
       plugins: {
         'hapi-rate-limit': {
@@ -451,6 +380,77 @@ export const plugin = {
       pre: [{ method: loadFormPreHandler }, { method: handleFiles }]
     }
 
+    const getRouteOptions = {
+      pre: [
+        {
+          method: loadFormPreHandler
+        },
+        {
+          method: queryParamPreHandler
+        }
+      ]
+    }
+
+    server.route({
+      method: 'get',
+      path: '/{slug}',
+      handler: dispatchHandler,
+      options: {
+        ...dispatchRouteOptions,
+        validate: {
+          params: Joi.object().keys({
+            slug: slugSchema
+          })
+        }
+      }
+    })
+
+    server.route({
+      method: 'get',
+      path: '/{slug}/preview/{state}',
+      handler: dispatchHandler,
+      options: {
+        ...dispatchRouteOptions,
+        validate: {
+          params: Joi.object().keys({
+            slug: slugSchema,
+            state: stateSchema
+          })
+        }
+      }
+    })
+
+    server.route({
+      method: 'get',
+      path: '/{slug}/{path*}',
+      handler: getHandler,
+      options: {
+        ...getRouteOptions,
+        validate: {
+          params: Joi.object().keys({
+            slug: slugSchema,
+            path: pathSchema
+          })
+        }
+      }
+    })
+
+    server.route({
+      method: 'get',
+      path: '/{slug}/preview/{state}/{path*}',
+      handler: getHandler,
+      options: {
+        ...getRouteOptions,
+        validate: {
+          params: Joi.object().keys({
+            slug: slugSchema,
+            path: pathSchema,
+            state: stateSchema
+          })
+        }
+      }
+    })
+
     server.route({
       method: 'post',
       path: '/{slug}/{path*}',
@@ -468,7 +468,7 @@ export const plugin = {
 
     server.route({
       method: 'post',
-      path: '/preview/{state}/{slug}/{path*}',
+      path: '/{slug}/preview/{state}/{path*}',
       handler: postHandler,
       options: {
         ...postRouteOptions,
@@ -481,5 +481,6 @@ export const plugin = {
         }
       }
     })
+
   }
 }

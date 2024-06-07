@@ -85,7 +85,7 @@ export default {
       navigation: request?.auth.isAuthenticated
         ? [{ text: 'Sign out', href: '/logout' }]
         : null,
-      previewMode: request?.path.startsWith(PREVIEW_PATH_PREFIX)
+      previewMode: request?.path.includes(PREVIEW_PATH_PREFIX)
         ? request.params.state
         : undefined
     })
