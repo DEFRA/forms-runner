@@ -162,6 +162,14 @@ export const plugin = {
           )
         }
 
+        const emailAddress = definition.outputEmail
+
+        if (!emailAddress) {
+          return Boom.internal(
+            'An `outputEmail` is required on the form definition to complete the form submission'
+          )
+        }
+
         // Build the form model
         server.logger.info(
           `Building model for form definition ${id} (${slug}) ${formState}`
