@@ -294,13 +294,18 @@ function getPersonalisation(
   )
 
   const lines: string[] = []
+  const now = new Date()
+
+  lines.push(
+    `We’ve received your form at ${format(now, 'h:mmaaa')} on ${format(now, 'd MMMM yyyy')}.`
+  )
 
   formSubmissionData.questions?.forEach((question) => {
     question.fields.forEach((field) => {
       const { title, answer } = field
       const isBoolAnswer = typeof answer === 'boolean'
 
-      lines.push(title)
+      lines.push(`## ${title}`)
       lines.push(isBoolAnswer ? (answer ? 'yes' : 'no') : answer)
       lines.push('\r\n')
     })
