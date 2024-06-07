@@ -1,5 +1,4 @@
 import { dirname, join } from 'node:path'
-import { cwd } from 'node:process'
 
 import {
   // FormConfiguration,
@@ -22,6 +21,7 @@ import config from '~/src/server/config.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { shouldLogin } from '~/src/server/plugins/auth.js'
 import {
+  extractFormInfoFromPath,
   getValidStateFromQueryParameters,
   redirectTo
 } from '~/src/server/plugins/engine/helpers.js'
@@ -229,29 +229,10 @@ export const plugin = {
         return h.continue
       }
 
-      const { params, path } = request
-      const { slug } = params
-      const isPreview = path.toLowerCase().includes(PREVIEW_PATH_PREFIX)
-      const formState = isPreview ? params.state : 'live'
+      const { cacheKey, id, slug, state, formState, isPreview } =
+        await extractFormInfoFromPath(request, PREVIEW_PATH_PREFIX)
 
-      // Get the form metadata using the `slug` param
-      const metadata = await getFormMetadata(slug)
-
-      const { id, [formState]: state } = metadata
-
-      // Check the metadata supports the requested state
-      if (!state) {
-        return Boom.notFound(`No '${formState}' state for form metadata ${id}`)
-      }
-
-      // Cache the models based on id, state and whether
-      // it's a preview or not. There could be up to 3 models
-      // cached for a single form:
-      // "{id}_live_false" (live/live)
-      // "{id}_live_true" (live/preview)
-      // "{id}_draft_true" (draft/preview)
-      const key = `${id}_${formState}_${isPreview}`
-      let item = itemCache.get(key)
+      let item = itemCache.get(cacheKey)
 
       if (!item || !isEqual(item.updatedAt, state.updatedAt)) {
         server.logger.info(
@@ -280,12 +261,14 @@ export const plugin = {
         // Construct the form model
         const model = new FormModel(definition, {
           basePath,
-          ...modelOptions
+          ...modelOptions,
+          isPreview,
+          formState
         })
 
         // Create new item and add it to the item cache
         item = { model, updatedAt: state.updatedAt }
-        itemCache.set(key, item)
+        itemCache.set(cacheKey, item)
       }
 
       // Assign the model to the request data
@@ -329,9 +312,9 @@ export const plugin = {
     }
 
     const handleFiles = (request: Request, h: ResponseToolkit) => {
-      const { path, id } = request.params
+      const { path } = request.params
       const model = request.app.model
-      const page = model?.pages.find(
+      const page = model.pages.find(
         (page) => normalisePath(page.path) === normalisePath(path)
       )
 
@@ -339,7 +322,7 @@ export const plugin = {
     }
 
     const postHandler = (request: Request, h: ResponseToolkit) => {
-      const { path, id } = request.params
+      const { path } = request.params
       const model = request.app.model
       const page = model.pages.find(
         (page) => page.path.replace(/^\//, '') === path
@@ -486,12 +469,26 @@ export const plugin = {
         {
           method: 'get',
           path: `/{slug}/${page}`,
-          handler: dummyRouteHandler(page)
+          handler: dummyRouteHandler(page),
+          options: {
+            pre: [
+              {
+                method: loadFormPreHandler
+              }
+            ]
+          }
         },
         {
           method: 'get',
-          path: `/{slug}/{state}/${page}`,
-          handler: dummyRouteHandler(page)
+          path: `/{slug}/preview/{state}/${page}`,
+          handler: dummyRouteHandler(page),
+          options: {
+            pre: [
+              {
+                method: loadFormPreHandler
+              }
+            ]
+          }
         }
       ])
     )
@@ -500,10 +497,18 @@ export const plugin = {
 
 function dummyRouteHandler(requestName: string) {
   return (request: Request, h: ResponseToolkit) => {
-    return requestName
+    // return `
+    // <p>Page: ${requestName}</p>
+    // <p>Form: ${request.app.model.name}</p>
+    // <p>isPreview: ${request.app.model.isPreview}</p>
+    // <p>formState: ${request.app.model.formState}</p>
+    // `
+    return h.view(`help/${requestName}`, {
+      model: request.app.model
+    })
   }
 }
 
 function helpPageRoutes() {
-  return ['cookies', 'privacy-policy', 'accessibility', 'support']
+  return ['cookies', 'privacy', 'accessibility-statement', 'support']
 }

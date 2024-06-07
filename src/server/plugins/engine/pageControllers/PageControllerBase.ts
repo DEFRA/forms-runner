@@ -135,6 +135,7 @@ export class PageControllerBase {
     backLink?: string
     serviceStartPage: string
     phaseTag?: string | undefined
+    model: FormModel
   } {
     let showTitle = true
     let pageTitle = this.title
@@ -181,7 +182,8 @@ export class PageControllerBase {
       components,
       errors,
       isStartPage: false,
-      serviceStartPage
+      serviceStartPage,
+      model: this.model
     }
   }
 

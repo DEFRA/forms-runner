@@ -161,16 +161,16 @@
     {{ govukFooter({
         meta: {
             items: [{
-                href: privacyPolicyUrl,
+                href: '/' + model.basePath + '/privacy',
                 text: 'Privacy'
             }, {
-                href: '/help/cookies',
+                href: '/' + model.basePath + '/cookies',
                 text: 'Cookies'
             }, {
-                href: '/help/accessibility-statement',
+                href: '/' + model.basePath + '/accessibility-statement',
                 text: 'Accessibility Statement'
             }, {
-                href: '/help/terms-and-conditions',
+                href: '/' + model.basePath + '/terms-and-conditions',
                 text: 'Terms and Conditions'
             }]
         }

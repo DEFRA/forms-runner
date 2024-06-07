@@ -1,6 +1,9 @@
+import { Boom } from '@hapi/boom'
 import { type Request, type ResponseToolkit } from '@hapi/hapi'
 import { reach } from '@hapi/hoek'
 import set from 'lodash/set.js'
+
+import { getFormMetadata } from './services/formsService.js'
 
 import { RelativeUrl } from '~/src/server/plugins/engine/feedback/index.js'
 
@@ -99,4 +102,37 @@ export function getValidStateFromQueryParameters(
     set(acc, key, value)
     return acc
   }, {})
+}
+
+export async function extractFormInfoFromPath(
+  request: Request,
+  PREVIEW_PATH_PREFIX: string
+) {
+  const { params, path } = request
+  const { slug } = params
+  const isPreview = path.toLowerCase().includes(PREVIEW_PATH_PREFIX)
+  const formState = isPreview ? params.state : 'live'
+
+  const metadata = await getFormMetadata(slug)
+  const { id, [formState]: state } = metadata
+
+  // Check the metadata supports the requested state
+  if (!state) {
+    throw Boom.notFound(`No '${formState}' state for form metadata ${id}`)
+  }
+
+  // Cache the models based on id, state and whether
+  // it's a preview or not. There could be up to 3 models
+  // cached for a single form:
+  // "{id}_live_false" (live/live)
+  // "{id}_live_true" (live/preview)
+  // "{id}_draft_true" (draft/preview)
+  return {
+    cacheKey: `${id}_${formState}_${isPreview}`,
+    id,
+    slug,
+    formState,
+    state,
+    isPreview
+  }
 }
