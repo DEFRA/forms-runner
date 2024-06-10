@@ -51,6 +51,9 @@ export class FormModel {
   DefaultPageController: any = PageController
   /** the id of the form used for the first url parameter eg localhost:3009/test */
   basePath: string
+  isPreview: boolean
+  formState: string
+
   conditions: Partial<Record<string, ExecutableCondition>>
   fieldsForContext: ComponentCollection
   fieldsForPrePopulation: Record<string, any>
@@ -94,6 +97,9 @@ export class FormModel {
     this.options = options
     this.name = def.name
     this.values = result.value
+
+    this.isPreview = options.isPreview
+    this.formState = options.formState
 
     if (options.defaultPageController) {
       this.DefaultPageController = getPageController(

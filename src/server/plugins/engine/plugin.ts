@@ -1,5 +1,4 @@
 import { dirname, join } from 'node:path'
-import { cwd } from 'node:process'
 
 import {
   // FormConfiguration,
@@ -22,6 +21,7 @@ import config from '~/src/server/config.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { shouldLogin } from '~/src/server/plugins/auth.js'
 import {
+  extractFormInfoFromPath,
   getValidStateFromQueryParameters,
   redirectTo
 } from '~/src/server/plugins/engine/helpers.js'
@@ -229,29 +229,10 @@ export const plugin = {
         return h.continue
       }
 
-      const { params, path } = request
-      const { slug } = params
-      const isPreview = path.toLowerCase().startsWith(PREVIEW_PATH_PREFIX)
-      const formState = isPreview ? params.state : 'live'
+      const { cacheKey, id, slug, state, formState, isPreview } =
+        await extractFormInfoFromPath(request, PREVIEW_PATH_PREFIX)
 
-      // Get the form metadata using the `slug` param
-      const metadata = await getFormMetadata(slug)
-
-      const { id, [formState]: state } = metadata
-
-      // Check the metadata supports the requested state
-      if (!state) {
-        return Boom.notFound(`No '${formState}' state for form metadata ${id}`)
-      }
-
-      // Cache the models based on id, state and whether
-      // it's a preview or not. There could be up to 3 models
-      // cached for a single form:
-      // "{id}_live_false" (live/live)
-      // "{id}_live_true" (live/preview)
-      // "{id}_draft_true" (draft/preview)
-      const key = `${id}_${formState}_${isPreview}`
-      let item = itemCache.get(key)
+      let item = itemCache.get(cacheKey)
 
       if (!item || !isEqual(item.updatedAt, state.updatedAt)) {
         server.logger.info(
@@ -274,18 +255,20 @@ export const plugin = {
 
         // Set up the basePath for the model
         const basePath = isPreview
-          ? `${PREVIEW_PATH_PREFIX.substring(1)}/${formState}/${slug}`
+          ? `${slug}/${PREVIEW_PATH_PREFIX.substring(1)}/${formState}`
           : slug
 
         // Construct the form model
         const model = new FormModel(definition, {
           basePath,
-          ...modelOptions
+          ...modelOptions,
+          isPreview,
+          formState
         })
 
         // Create new item and add it to the item cache
         item = { model, updatedAt: state.updatedAt }
-        itemCache.set(key, item)
+        itemCache.set(cacheKey, item)
       }
 
       // Assign the model to the request data
@@ -329,9 +312,9 @@ export const plugin = {
     }
 
     const handleFiles = (request: Request, h: ResponseToolkit) => {
-      const { path, id } = request.params
+      const { path } = request.params
       const model = request.app.model
-      const page = model?.pages.find(
+      const page = model.pages.find(
         (page) => normalisePath(page.path) === normalisePath(path)
       )
 
@@ -339,7 +322,7 @@ export const plugin = {
     }
 
     const postHandler = (request: Request, h: ResponseToolkit) => {
-      const { path, id } = request.params
+      const { path } = request.params
       const model = request.app.model
       const page = model.pages.find(
         (page) => page.path.replace(/^\//, '') === path
@@ -351,6 +334,36 @@ export const plugin = {
     }
 
     const dispatchRouteOptions = {
+      pre: [
+        {
+          method: loadFormPreHandler
+        },
+        {
+          method: queryParamPreHandler
+        }
+      ]
+    }
+
+    const postRouteOptions = {
+      plugins: {
+        'hapi-rate-limit': {
+          userPathLimit: 10
+        }
+      } as PluginSpecificConfiguration,
+      payload: {
+        output: 'stream',
+        parse: true,
+        multipart: { output: 'stream' },
+        maxBytes: uploadService.fileSizeLimit,
+        failAction: (request: Request, h: ResponseToolkit) => {
+          request.server.plugins.crumb.generate?.(request, h)
+          return h.continue
+        }
+      },
+      pre: [{ method: loadFormPreHandler }, { method: handleFiles }]
+    }
+
+    const getRouteOptions = {
       pre: [
         {
           method: loadFormPreHandler
@@ -377,7 +390,7 @@ export const plugin = {
 
     server.route({
       method: 'get',
-      path: '/preview/{state}/{slug}',
+      path: '/{slug}/preview/{state}',
       handler: dispatchHandler,
       options: {
         ...dispatchRouteOptions,
@@ -389,17 +402,6 @@ export const plugin = {
         }
       }
     })
-
-    const getRouteOptions = {
-      pre: [
-        {
-          method: loadFormPreHandler
-        },
-        {
-          method: queryParamPreHandler
-        }
-      ]
-    }
 
     server.route({
       method: 'get',
@@ -418,7 +420,7 @@ export const plugin = {
 
     server.route({
       method: 'get',
-      path: '/preview/{state}/{slug}/{path*}',
+      path: '/{slug}/preview/{state}/{path*}',
       handler: getHandler,
       options: {
         ...getRouteOptions,
@@ -432,25 +434,6 @@ export const plugin = {
       }
     })
 
-    const postRouteOptions = {
-      plugins: {
-        'hapi-rate-limit': {
-          userPathLimit: 10
-        }
-      } as PluginSpecificConfiguration,
-      payload: {
-        output: 'stream',
-        parse: true,
-        multipart: { output: 'stream' },
-        maxBytes: uploadService.fileSizeLimit,
-        failAction: (request: Request, h: ResponseToolkit) => {
-          request.server.plugins.crumb.generate?.(request, h)
-          return h.continue
-        }
-      },
-      pre: [{ method: loadFormPreHandler }, { method: handleFiles }]
-    }
-
     server.route({
       method: 'post',
       path: '/{slug}/{path*}',
@@ -468,7 +451,7 @@ export const plugin = {
 
     server.route({
       method: 'post',
-      path: '/preview/{state}/{slug}/{path*}',
+      path: '/{slug}/preview/{state}/{path*}',
       handler: postHandler,
       options: {
         ...postRouteOptions,
@@ -481,5 +464,51 @@ export const plugin = {
         }
       }
     })
+    server.route(
+      helpPageRoutes().flatMap((page: string) => [
+        {
+          method: 'get',
+          path: `/{slug}/${page}`,
+          handler: dummyRouteHandler(page),
+          options: {
+            pre: [
+              {
+                method: loadFormPreHandler
+              }
+            ]
+          }
+        },
+        {
+          method: 'get',
+          path: `/{slug}/preview/{state}/${page}`,
+          handler: dummyRouteHandler(page),
+          options: {
+            pre: [
+              {
+                method: loadFormPreHandler
+              }
+            ]
+          }
+        }
+      ])
+    )
   }
+}
+
+function dummyRouteHandler(requestName: string) {
+  return (request: Request, h: ResponseToolkit) => {
+    // return `
+    // <p>Page: ${requestName}</p>
+    // <p>Form: ${request.app.model.name}</p>
+    // <p>isPreview: ${request.app.model.isPreview}</p>
+    // <p>formState: ${request.app.model.formState}</p>
+    // `
+    return h.view(`help/${requestName}`, {
+      model: request.app.model
+    })
+  }
+}
+
+function helpPageRoutes() {
+  return ['cookies', 'privacy', 'accessibility-statement', 'support']
 }

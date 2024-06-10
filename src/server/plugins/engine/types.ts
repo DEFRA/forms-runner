@@ -1,3 +1,5 @@
+import { type FormModel } from './models/index.js'
+
 import { type InitialiseSessionOptions } from '~/src/server/plugins/initialiseSession/types.js'
 
 /**
@@ -74,4 +76,15 @@ export interface CookiesPolicy {
   essential: boolean
   analytics: 'on' | 'off'
   usage: boolean
+}
+
+declare module '@hapi/hapi' {
+  interface ServerApplicationState {
+    model?: FormModel
+    models: Map<string, FormModel>
+  }
+
+  interface RequestApplicationState {
+    model: FormModel
+  }
 }
