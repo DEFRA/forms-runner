@@ -83,7 +83,8 @@ const stubFormDefinition: FormDefinition = {
     }
   ],
   lists: [],
-  outputs: []
+  outputs: [],
+  outputEmail: 'enrique.chase@defra.gov.uk'
 }
 
 const okStatusCode = 200
