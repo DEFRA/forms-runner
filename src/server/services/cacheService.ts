@@ -26,7 +26,7 @@ export class CacheService {
   logger: Server['logger']
 
   constructor(server: Server) {
-    this.cache = server.cache({ segment: 'cache' })
+    this.cache = server.cache({ cache: 'session', segment: 'formSubmission' })
     this.logger = server.logger
   }
 
