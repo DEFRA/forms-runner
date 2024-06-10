@@ -41,17 +41,6 @@ module.exports = {
   }),
 
   /**
-   * Analytics
-   */
-  // Google Tag Manager - you must amend the privacy notice if you use GTM to load analytics scripts.
-  // gtmId1: "",
-  // gtmId2: "",
-
-  // Matomo (aka Piwik)
-  // matomoId: "",
-  // matomoUrl: "",
-
-  /**
    * Service
    */
   serviceUrl: 'http://localhost:3009', // This is used for redirects back to the runner.

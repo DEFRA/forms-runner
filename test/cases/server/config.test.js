@@ -9,19 +9,6 @@ describe(`Server config validation`, () => {
     sessionCookiePassword: 'test-env-session-cookie-password'
   }
 
-  test('it throws when MATOMO_URL is insecure', () => {
-    const configWithInsecureUrl = {
-      ...requiredVars,
-      matomoUrl: 'http://insecure.url'
-    }
-
-    const { error } = configSchema.validate(configWithInsecureUrl)
-
-    expect(error.message).toContain(
-      'Provided matomoUrl is insecure, please use https'
-    )
-  })
-
   test('it throws when PAY_API_URL is insecure', () => {
     const configWithInsecureUrl = {
       ...requiredVars,

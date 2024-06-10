@@ -126,10 +126,6 @@ See [https://github.com/node-config/node-config#readme](https://github.com/node-
 | PAY_API_URL             | Pay api url                           |           yes           |              |                             |                                                                                                                                           |
 | NOTIFY_TEMPLATE_ID      | Notify api key                        |           yes           |              |                             |          Template ID required to send form payloads via [GOV.UK Notify](https://www.notifications.service.gov.uk) email service.          |
 | NOTIFY_API_KEY          | Notify api key                        |           yes           |              |                             |            API KEY required to send form payloads via [GOV.UK Notify](https://www.notifications.service.gov.uk) email service.            |
-| GTM_ID_1                | Google Tag Manager ID 1               |           no            |              |                             |                                                                                                                                           |
-| GTM_ID_2                | Google Tag Manager ID 2               |           no            |              |                             |                                                                                                                                           |
-| MATOMO_URL              | URL of Matomo                         |           no            |              |                             |                                                                                                                                           |
-| MATOMO_ID               | ID of Matomo site                     |           no            |              |                             |                                                                                                                                           |
 | SSL_KEY                 | SSL Key                               |           no            |              |                             |                                                                                                                                           |
 | SSL_CERT                | SSL Certificate                       |           no            |              |                             |                                                                                                                                           |
 | PREVIEW_MODE            | Preview mode                          |           no            | false        |                             | This should only be used in a dev or testing environment. Setting true will allow POST requests from the designer to add or mutate forms. |
@@ -156,14 +152,6 @@ Additional steps are required for the different output types.
 - Notify
   - A GOV.UK [notify](https://www.notifications.service.gov.uk) is required
   - For each notification you wish to send, a template must be set up. If there are 'personalisations' they must match the configuration
-- Sheets
-  - This is currently a [Google Sheets](https://docs.google.com/spreadsheets) integration
-  - For each sheet you wish to add data to, you must have have the spreadsheet id
-  - You must have a Google Cloud Platform (GCP) account
-  - create a project in GCP and note down the project id.
-  - enable Google Sheets API for this project
-  - Create a [service account](https://developers.google.com/identity/protocols/oauth2/service-account#creatinganaccount) in this project. (You only need to follow the 'Creating a service account' steps on this page)
-    - Once it is created, download the credentials (this will include the private_key and client_email)
 - Webhook
   - The webhook must accept a POST request
   - It should also return with a JSON with the key 'reference' in the body

@@ -41,10 +41,6 @@ export const configSchema = Joi.object({
   browserRefreshUrl: Joi.string().optional(),
   feedbackLink: Joi.string(),
   phaseTag: Joi.string().optional().valid('', 'alpha', 'beta'),
-  gtmId1: Joi.string().optional(),
-  gtmId2: Joi.string().optional(),
-  matomoId: Joi.string().optional(),
-  matomoUrl: Joi.string().custom(secureUrl).optional(),
   payApiUrl: Joi.string().custom(secureUrl),
   payReturnUrl: Joi.when('env', {
     is: Joi.string().valid('development', 'test'),
