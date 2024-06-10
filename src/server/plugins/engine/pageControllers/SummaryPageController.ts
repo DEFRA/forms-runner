@@ -307,12 +307,12 @@ function getPersonalisation(
 
       lines.push(`## ${title}`)
       lines.push(isBoolAnswer ? (answer ? 'yes' : 'no') : answer)
-      lines.push('\r\n')
+      lines.push('\n')
     })
   })
 
   return {
-    formResults: lines.join('\r\n'),
+    formResults: lines.join('\n'),
     formName: model.name
   }
 }
