@@ -103,16 +103,16 @@
     {{ govukFooter({
         meta: {
             items: [{
-                href: ('/' + model.basePath + '/privacy') if model.basePath else '/privacy',
+                href: ('/' + model.basePath + '/privacy') if model.basePath else '/help/privacy',
                 text: 'Privacy'
             }, {
-                href: ('/' + model.basePath + '/cookies') if model.basePath else '/cookies',
+                href: ('/' + model.basePath + '/cookies') if model.basePath else '/help/cookies',
                 text: 'Cookies'
             }, {
-                href: ('/' + model.basePath + '/accessibility-statement') if model.basePath else '/accessibility-statement',
+                href: ('/' + model.basePath + '/accessibility-statement') if model.basePath else '/help/accessibility-statement',
                 text: 'Accessibility Statement'
             }, {
-                href: ('/' + model.basePath + '/terms-and-conditions') if model.basePath else '/terms-and-conditions',
+                href: ('/' + model.basePath + '/terms-and-conditions') if model.basePath else '/help/terms-and-conditions',
                 text: 'Terms and Conditions'
             }]
         }

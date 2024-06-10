@@ -71,13 +71,6 @@ export interface FormData {
   errors?: FormSubmissionErrors | null
 }
 
-export interface CookiesPolicy {
-  isSet: boolean
-  essential: boolean
-  analytics: 'on' | 'off'
-  usage: boolean
-}
-
 declare module '@hapi/hapi' {
   interface ServerApplicationState {
     model?: FormModel

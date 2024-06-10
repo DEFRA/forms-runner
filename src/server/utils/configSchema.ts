@@ -67,7 +67,6 @@ export const configSchema = Joi.object({
   rateLimit: Joi.boolean().optional(),
   fromEmailAddress: Joi.string().optional().allow(''),
   serviceStartPage: Joi.string().optional().allow(''),
-  privacyPolicyUrl: Joi.string().optional().allow(''),
   notifyTemplateId: Joi.string().optional().allow(''),
   notifyAPIKey: Joi.string().optional().allow(''),
   apiEnv: Joi.string().allow('test', 'production', '').optional(),
