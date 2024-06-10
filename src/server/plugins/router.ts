@@ -34,7 +34,7 @@ export default {
       server.route([
         {
           method: 'get',
-          path: '/help/privacy',
+          path: '/privacy',
           handler: async (_request: Request, h: ResponseToolkit) => {
             if (config.privacyPolicyUrl) {
               return h.redirect(config.privacyPolicyUrl)
@@ -44,7 +44,7 @@ export default {
         },
         {
           method: 'get',
-          path: '/help/cookies',
+          path: '/cookies',
           handler: async (request: Request, h: ResponseToolkit) => {
             const cookiesPolicy = request.state.cookies_policy
             const analytics =
@@ -74,7 +74,7 @@ export default {
               }).required()
             }
           },
-          path: '/help/cookies',
+          path: '/cookies',
           handler: async (request: Request, h: ResponseToolkit) => {
             const { cookies } = request.payload as CookiePayload
             const accept = cookies === 'accept'
@@ -106,7 +106,7 @@ export default {
 
       server.route({
         method: 'get',
-        path: '/help/terms-and-conditions',
+        path: '/terms-and-conditions',
         handler: async (_request: Request, h: ResponseToolkit) => {
           return h.view('help/terms-and-conditions')
         }
@@ -114,7 +114,7 @@ export default {
 
       server.route({
         method: 'get',
-        path: '/help/accessibility-statement',
+        path: '/accessibility-statement',
         handler: async (_request: Request, h: ResponseToolkit) => {
           return h.view('help/accessibility-statement')
         }
