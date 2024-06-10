@@ -10,9 +10,12 @@ import {
 } from '~/src/server/plugins/initialiseSession/types.js'
 import { type WebhookSchema } from '~/src/server/schemas/types.js'
 
-const { sessionTimeout, confirmationSessionTimeout, paymentSessionTimeout } =
-  config
-const partition = 'cache'
+const {
+  sessionTimeout,
+  confirmationSessionTimeout,
+  paymentSessionTimeout,
+  redisKeyPrefix
+} = config
 
 enum ADDITIONAL_IDENTIFIER {
   Confirmation = ':confirmation'
@@ -26,7 +29,11 @@ export class CacheService {
   logger: Server['logger']
 
   constructor(server: Server) {
-    this.cache = server.cache({ segment: 'cache' })
+    this.cache = server.cache({
+      cache: 'session',
+      segment: redisKeyPrefix
+    })
+
     this.logger = server.logger
   }
 
@@ -84,7 +91,7 @@ export class CacheService {
     const { payload }: { payload: DecodedSessionToken } = decoded
 
     const userSessionKey = {
-      segment: partition,
+      segment: redisKeyPrefix,
       id: `${request.yar.id}:${payload.group}`
     }
 
@@ -119,14 +126,14 @@ export class CacheService {
       throw Error('No session ID found')
     }
     return {
-      segment: partition,
+      segment: redisKeyPrefix,
       id: `${request.yar.id}:${request.params.id}${additionalIdentifier ?? ''}`
     }
   }
 
   JWTKey(jwt) {
     return {
-      segment: partition,
+      segment: redisKeyPrefix,
       id: jwt
     }
   }
