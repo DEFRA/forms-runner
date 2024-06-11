@@ -162,7 +162,7 @@ export const plugin = {
 
         const emailAddress = definition.outputEmail
 
-        if (!emailAddress) {
+        if (!emailAddress && !isPreview) {
           return Boom.internal(
             'An `outputEmail` is required on the form definition to complete the form submission'
           )
