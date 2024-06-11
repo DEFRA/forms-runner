@@ -1,6 +1,5 @@
 import { type Request, type ResponseToolkit } from '@hapi/hapi'
 
-import config from '~/src/server/config.js'
 import { redirectTo } from '~/src/server/plugins/engine/index.js'
 import {
   healthRoute,
@@ -31,14 +30,6 @@ export default {
           }
         }
       ])
-
-      server.route({
-        method: 'get',
-        path: '/help/terms-and-conditions',
-        handler(_request: Request, h: ResponseToolkit) {
-          return h.view('help/terms-and-conditions')
-        }
-      })
 
       server.route({
         method: 'get',
