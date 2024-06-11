@@ -83,7 +83,6 @@ module.exports = {
    */
   notifyTemplateId: '',
   notifyAPIKey: '',
-  fromEmailAddress: '',
 
   /**
    * API integrations
