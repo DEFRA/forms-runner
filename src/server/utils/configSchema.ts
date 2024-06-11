@@ -45,16 +45,6 @@ export const configSchema = Joi.object({
   gtmId2: Joi.string().optional(),
   matomoId: Joi.string().optional(),
   matomoUrl: Joi.string().custom(secureUrl).optional(),
-  payApiUrl: Joi.string().custom(secureUrl),
-  payReturnUrl: Joi.when('env', {
-    is: Joi.string().valid('development', 'test'),
-    then: Joi.string().default('http://localhost:3009'),
-    otherwise: Joi.when('apiEnv', {
-      is: Joi.string().valid('test'),
-      then: Joi.string().default('http://localhost:3009'),
-      otherwise: Joi.string().custom(secureUrl)
-    })
-  }),
   serviceUrl: Joi.string().optional(),
   redisHost: Joi.string().required(),
   redisKeyPrefix: Joi.string().required(),
@@ -62,40 +52,17 @@ export const configSchema = Joi.object({
   redisPassword: Joi.string().required(),
   serviceName: Joi.string().optional(),
   documentUploadApiUrl: Joi.string().allow(null),
-  previewMode: Joi.boolean().optional(),
   enforceCsrf: Joi.boolean().optional(),
   sslKey: Joi.string().optional(),
   sslCert: Joi.string().optional(),
   sessionTimeout: Joi.number(),
   sessionCookiePassword: Joi.string().required(),
   rateLimit: Joi.boolean().optional(),
-  fromEmailAddress: Joi.string().optional().allow(''),
   serviceStartPage: Joi.string().optional().allow(''),
   privacyPolicyUrl: Joi.string().optional().allow(''),
-  notifyTemplateId: Joi.string().optional().allow(''),
-  notifyAPIKey: Joi.string().optional().allow(''),
+  notifyTemplateId: Joi.string().required(),
+  notifyAPIKey: Joi.string().required(),
   apiEnv: Joi.string().allow('test', 'production', '').optional(),
-  authEnabled: Joi.boolean().optional(),
-  authClientId: Joi.string().when('authEnabled', {
-    then: Joi.required(),
-    otherwise: Joi.optional()
-  }),
-  authClientSecret: Joi.string().when('authEnabled', {
-    then: Joi.required(),
-    otherwise: Joi.optional()
-  }),
-  authClientAuthUrl: Joi.string().when('authEnabled', {
-    then: Joi.required(),
-    otherwise: Joi.optional()
-  }),
-  authClientTokenUrl: Joi.string().when('authEnabled', {
-    then: Joi.required(),
-    otherwise: Joi.optional()
-  }),
-  authClientProfileUrl: Joi.string().when('authEnabled', {
-    then: Joi.required(),
-    otherwise: Joi.optional()
-  }),
   safelist: Joi.array().items(Joi.string()),
   initialisedSessionTimeout: Joi.number(),
   initialisedSessionKey: Joi.string(),
@@ -122,18 +89,6 @@ export const configSchema = Joi.object({
       'HS512'
     )
     .default('HS512'),
-
-  enableQueueService: Joi.boolean().optional(),
-  queueDatabaseUrl: Joi.string().when('enableQueueService', {
-    is: true,
-    then: Joi.required(),
-    otherwise: Joi.optional().allow('')
-  }),
-  queueServicePollingInterval: Joi.number().when('enableQueueService', {
-    is: true,
-    then: Joi.required(),
-    otherwise: Joi.optional()
-  }),
   allowUserTemplates: Joi.boolean().optional()
 })
 

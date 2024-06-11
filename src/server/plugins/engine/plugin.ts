@@ -1,11 +1,6 @@
 import { dirname, join } from 'node:path'
-import { cwd } from 'node:process'
 
-import {
-  // FormConfiguration,
-  slugSchema
-  // type FormDefinition
-} from '@defra/forms-model'
+import { slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type PluginSpecificConfiguration,
@@ -20,7 +15,6 @@ import resolvePkg from 'resolve'
 
 import config from '~/src/server/config.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
-import { shouldLogin } from '~/src/server/plugins/auth.js'
 import {
   getValidStateFromQueryParameters,
   redirectTo
@@ -30,7 +24,6 @@ import {
   getFormDefinition,
   getFormMetadata
 } from '~/src/server/plugins/engine/services/formsService.js'
-// import { type FormPayload } from '~/src/server/plugins/engine/types.js'
 
 const govukFrontendPath = dirname(
   resolvePkg.sync('govuk-frontend/package.json')
@@ -72,10 +65,8 @@ interface PluginOptions {
   relativeTo?: string
   modelOptions: {
     relativeTo: string
-    previewMode: any
   }
   model?: FormModel
-  previewMode: boolean
 }
 
 const stateSchema = Joi.string().valid('draft', 'live').required()
@@ -87,9 +78,6 @@ export const plugin = {
   multiple: true,
   register: (server: Server, options: PluginOptions) => {
     const { model, modelOptions } = options
-    // const enabledString = config.previewMode ? `[ENABLED]` : `[DISABLED]`
-    // const disabledRouteDetailString =
-    //   'A request was made however previewing is disabled. See environment variable details in runner/README.md if this error is not expected.'
 
     server.app.model = model
 
@@ -97,101 +85,6 @@ export const plugin = {
     // (for testing purposes) through `server.app.models`
     const itemCache = new Map()
     server.app.models = itemCache
-
-    /**
-     * The following publish endpoints (/publish, /published/{id}, /published)
-     * are used from the designer for operating in 'preview' mode.
-     * I.E. Designs saved in the designer can be accessed in the runner for viewing.
-     * The designer also uses these endpoints as a persistence mechanism for storing and retrieving data
-     * for its own purposes so if you're changing these endpoints you likely need to go and amend
-     * the designer too!
-     */
-    // server.route({
-    //   method: 'post',
-    //   path: '/publish',
-    //   handler: (request: Request, h: ResponseToolkit) => {
-    //     if (!previewMode) {
-    //       request.logger.error(
-    //         [`POST /publish`, 'previewModeError'],
-    //         disabledRouteDetailString
-    //       )
-    //       throw Boom.forbidden('Publishing is disabled')
-    //     }
-    //     const payload = request.payload as FormPayload
-    //     const { id, configuration } = payload
-
-    //     const parsedConfiguration: FormDefinition =
-    //       typeof configuration === 'string'
-    //         ? JSON.parse(configuration)
-    //         : configuration
-    //     forms[id] = new FormModel(parsedConfiguration, {
-    //       ...modelOptions,
-    //       basePath: `${formBasePath}/${id}`
-    //     })
-    //     return h.response({}).code(204)
-    //   },
-    //   options: {
-    //     description: `${enabledString} Allows a form to be persisted (published) on the runner server. Requires previewMode to be set to true. See runner/README.md for details on environment variables`
-    //   }
-    // })
-
-    // server.route({
-    //   method: 'get',
-    //   path: '/published/{id}',
-    //   handler: (request: Request, h: ResponseToolkit) => {
-    //     const { id } = request.params
-    //     if (!previewMode) {
-    //       request.logger.error(
-    //         [`GET /published/${id}`, 'previewModeError'],
-    //         disabledRouteDetailString
-    //       )
-    //       throw Boom.unauthorized('publishing is disabled')
-    //     }
-
-    //     const form = forms[id]
-    //     if (!form) {
-    //       return h.response({}).code(204)
-    //     }
-
-    //     const { values } = forms[id]
-    //     return h.response(JSON.stringify({ id, values })).code(200)
-    //   },
-    //   options: {
-    //     description: `${enabledString} Gets a published form, by form id. Requires previewMode to be set to true. See runner/README.md for details on environment variables`
-    //   }
-    // })
-
-    // server.route({
-    //   method: 'get',
-    //   path: '/published',
-    //   handler: (request: Request, h: ResponseToolkit) => {
-    //     if (!previewMode) {
-    //       request.logger.error(
-    //         [`GET /published`, 'previewModeError'],
-    //         disabledRouteDetailString
-    //       )
-    //       throw Boom.unauthorized('publishing is disabled.')
-    //     }
-    //     return h
-    //       .response(
-    //         JSON.stringify(
-    //           Object.keys(forms).map(
-    //             (key) =>
-    //               new FormConfiguration(
-    //                 key,
-    //                 forms[key].name,
-    //                 undefined,
-    //                 forms[key].def.feedback?.feedbackForm
-    //               )
-    //           )
-    //         )
-    //       )
-    //       .code(200)
-    //   },
-    //   options: {
-    //     description: `${enabledString} Gets all published forms. Requires previewMode to be set to true. See runner/README.md for details on environment variables`
-    //   }
-    // })
 
     const { uploadService } = server.services([])
 
@@ -267,6 +160,14 @@ export const plugin = {
           )
         }
 
+        const emailAddress = definition.outputEmail
+
+        if (!emailAddress && !isPreview) {
+          return Boom.internal(
+            'An `outputEmail` is required on the form definition to complete the form submission'
+          )
+        }
+
         // Build the form model
         server.logger.info(
           `Building model for form definition ${id} (${slug}) ${formState}`
@@ -310,14 +211,6 @@ export const plugin = {
       )
 
       if (page) {
-        // NOTE: Start pages should live on gov.uk, but this allows prototypes to include signposting about having to log in.
-        if (
-          page.pageDef.controller !== './pages/start.js' &&
-          shouldLogin(request)
-        ) {
-          return h.redirect(`/login?returnUrl=${request.path}`)
-        }
-
         return page.makeGetRouteHandler()(request, h)
       }
 
@@ -339,7 +232,7 @@ export const plugin = {
     }
 
     const postHandler = (request: Request, h: ResponseToolkit) => {
-      const { path, id } = request.params
+      const { path } = request.params
       const model = request.app.model
       const page = model.pages.find(
         (page) => page.path.replace(/^\//, '') === path

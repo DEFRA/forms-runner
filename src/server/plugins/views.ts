@@ -82,9 +82,6 @@ export default {
       serviceStartPage: config.serviceStartPage || '#',
       privacyPolicyUrl: config.privacyPolicyUrl || '/help/privacy',
       phaseTag: config.phaseTag,
-      navigation: request?.auth.isAuthenticated
-        ? [{ text: 'Sign out', href: '/logout' }]
-        : null,
       previewMode: request?.path.startsWith(PREVIEW_PATH_PREFIX)
         ? request.params.state
         : undefined

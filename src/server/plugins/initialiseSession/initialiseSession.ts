@@ -8,14 +8,12 @@ import { token } from '@hapi/jwt'
 import {
   callbackValidation,
   generateSessionTokenForForm,
-  verifyToken,
-  webhookToSessionData
+  verifyToken
 } from '~/src/server/plugins/initialiseSession/helpers.js'
 import {
   type InitialiseSessionOptions,
   type InitialiseSession
 } from '~/src/server/plugins/initialiseSession/types.js'
-import { type WebhookSchema } from '~/src/server/schemas/types.js'
 
 type ConfirmationPage = SpecialPages['confirmationPage']
 
@@ -25,7 +23,7 @@ type InitialiseSessionRequest = {
   }
   payload: {
     options: InitialiseSessionOptions & ConfirmationPage
-  } & WebhookSchema
+  }
 } & Request
 
 export const initialiseSession: Plugin<InitialiseSession> = {
@@ -76,7 +74,7 @@ export const initialiseSession: Plugin<InitialiseSession> = {
         const { payload, params } = request as InitialiseSessionRequest
         const { cacheService } = request.services([])
         const { formId } = params
-        const { options, metadata = {}, ...webhookData } = payload
+        const { options, metadata = {} } = payload
         const { callbackUrl } = options
 
         const isExistingForm = server.app.model ?? false
@@ -121,8 +119,7 @@ export const initialiseSession: Plugin<InitialiseSession> = {
 
         await cacheService.createSession(token, {
           callback: options,
-          metadata,
-          ...webhookToSessionData(webhookData)
+          metadata
         })
 
         return h.response({ token }).code(201)

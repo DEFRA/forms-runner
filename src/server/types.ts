@@ -2,16 +2,7 @@ import { type ServerYar, type Yar } from '@hapi/yar'
 import { type Logger } from 'pino'
 
 import { type RateOptions } from '~/src/server/plugins/rateLimit.js'
-import { type QueueService } from '~/src/server/services/QueueService.js'
-import {
-  type CacheService,
-  type NotifyService,
-  type PayService,
-  type StatusService,
-  type UploadService,
-  type WebhookService
-} from '~/src/server/services/index.js'
-import { type QueueStatusService } from '~/src/server/services/queueStatusService.js'
+import { type CacheService } from '~/src/server/services/index.js'
 
 export interface RouteConfig {
   rateOptions?: RateOptions
@@ -50,13 +41,6 @@ declare module '@hapi/hapi' {
 declare module '@hapipal/schmervice' {
   interface RegisteredServices {
     cacheService: CacheService
-    notifyService: NotifyService
-    payService: PayService
-    uploadService: UploadService
-    webhookService: WebhookService
-    statusService: StatusService
-    queueService: QueueService
-    queueStatusService: QueueStatusService
   }
 
   interface SchmerviceDecorator {

@@ -1,5 +1,4 @@
 {
-  "previewMode": true,
   "enforceCsrf": false,
   "env": "development"
 }

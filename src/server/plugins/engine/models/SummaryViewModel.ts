@@ -1,44 +1,17 @@
-import { type FormDefinition, isMultipleApiKey } from '@defra/forms-model'
 import { type Request } from '@hapi/hapi'
 import { clone, reach } from '@hapi/hoek'
 import { type ValidationResult } from 'joi'
 
 import config from '~/src/server/config.js'
-import { decodeFeedbackContextInfo } from '~/src/server/plugins/engine/feedback/index.js'
-import {
-  feedbackReturnInfoKey,
-  redirectUrl
-} from '~/src/server/plugins/engine/helpers.js'
+import { redirectUrl } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import {
-  EmailModel,
-  FeesModel,
-  NotifyModel,
-  WebhookModel
-} from '~/src/server/plugins/engine/models/submission/index.js'
-import {
-  FEEDBACK_CONTEXT_ITEMS,
-  type WebhookData
-} from '~/src/server/plugins/engine/models/types.js'
 import { SummaryPageController } from '~/src/server/plugins/engine/pageControllers/index.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 import { type InitialiseSessionOptions } from '~/src/server/plugins/initialiseSession/types.js'
-import { webhookSchema } from '~/src/server/schemas/webhookSchema.js'
-
-/**
- * TODO - extract submission behaviour dependencies from the viewmodel
- * skipSummary (replace with reference to this.def.skipSummary?)
- * _payApiKey
- * replace result with errors?
- * remove state and value?
- *
- * TODO - Pull out summary behaviours into separate service classes?
- */
 
 export class SummaryViewModel {
   /**
-   * Responsible for parsing state values to the govuk-frontend summary list template and parsing data for outputs
-   * The plain object is also used to generate data for outputs
+   * Responsible for parsing state values to the govuk-frontend summary list template
    */
 
   pageTitle: string
@@ -47,9 +20,9 @@ export class SummaryViewModel {
   endPage: any // TODO
   result: any
   details: any
+  relevantPages: any[]
   state: any
   value: any
-  fees: FeesModel | undefined
   name: string | undefined
   feedbackLink: string | undefined
   phaseTag: string | undefined
@@ -62,11 +35,7 @@ export class SummaryViewModel {
       }[]
     | undefined
 
-  _outputs: any // TODO
-  _payApiKey?: FormDefinition['payApiKey']
-  _webhookData: WebhookData | undefined
   callback?: InitialiseSessionOptions
-  showPaymentSkippedWarningPage = false
   serviceStartPage: string
   constructor(
     pageTitle: string,
@@ -83,7 +52,6 @@ export class SummaryViewModel {
     this.declaration = def.declaration
     // @ts-expect-error - Type 'boolean | undefined' is not assignable to type 'boolean'
     this.skipSummary = def.skipSummary
-    this._payApiKey = def.feeOptions?.payApiKey ?? def.payApiKey
     this.endPage = endPage
     this.feedbackLink =
       def.feedback?.url ??
@@ -100,70 +68,14 @@ export class SummaryViewModel {
 
     if (result.error) {
       this.processErrors(result, details)
-    } else {
-      this.fees = FeesModel(model, state)
-
-      this._webhookData = WebhookModel(
-        relevantPages,
-        details,
-        model,
-        this.fees,
-        model.getContextState(state)
-      )
-      this._webhookData = this.addFeedbackSourceDataToWebhook(
-        this._webhookData,
-        model,
-        request
-      )
-
-      /**
-       * If there outputs defined, parse the state data for the appropriate outputs.
-       * Skip outputs if this is a callback
-       */
-      if (def.outputs && !state.callback) {
-        this._outputs = def.outputs.map((output) => {
-          switch (output.type) {
-            case 'notify':
-              return {
-                type: 'notify',
-                outputData: NotifyModel(
-                  model,
-                  output.outputConfiguration,
-                  state
-                )
-              }
-            case 'email':
-              return {
-                type: 'email',
-                outputData: EmailModel(
-                  model,
-                  output.outputConfiguration,
-                  this._webhookData
-                )
-              }
-            case 'webhook':
-              return {
-                type: 'webhook',
-                outputData: {
-                  url: output.outputConfiguration.url,
-                  allowRetry: output.outputConfiguration.allowRetry
-                }
-              }
-            default:
-              return {}
-          }
-        })
-      }
     }
 
     this.result = result
     this.details = details
+    this.relevantPages = relevantPages
     this.state = state
     this.value = result.value
     this.callback = state.callback
-    const { feeOptions } = model
-    this.showPaymentSkippedWarningPage =
-      feeOptions.showPaymentSkippedWarningPage ?? false
   }
 
   private processErrors(result: ValidationResult, details) {
@@ -295,96 +207,6 @@ export class SummaryViewModel {
     }
 
     return { relevantPages, endPage }
-  }
-
-  get validatedWebhookData() {
-    const result = webhookSchema.validate(this._webhookData, {
-      abortEarly: false,
-      stripUnknown: true
-    })
-    return result.value
-  }
-
-  get webhookDataPaymentReference() {
-    const fees = this._webhookData?.fees
-
-    if (fees?.paymentReference) {
-      return fees.paymentReference
-    }
-
-    return ''
-  }
-
-  set webhookDataPaymentReference(paymentReference: string) {
-    const fees = this._webhookData?.fees
-    if (fees) {
-      fees.paymentReference = paymentReference
-    }
-  }
-
-  get outputs() {
-    return this._outputs
-  }
-
-  set outputs(value) {
-    this._outputs = value
-  }
-
-  get payApiKey() {
-    if (isMultipleApiKey(this._payApiKey)) {
-      return config.apiEnv === 'production'
-        ? this._payApiKey.production ?? this._payApiKey.test
-        : this._payApiKey.test ?? this._payApiKey.production
-    }
-    return this._payApiKey
-  }
-
-  /**
-   * If a declaration is defined, add this to {@link this._webhookData} as a question has answered `true` to
-   */
-  addDeclarationAsQuestion() {
-    this._webhookData?.questions.push({
-      category: null,
-      question: 'Declaration',
-      fields: [
-        {
-          key: 'declaration',
-          title: 'Declaration',
-          type: 'boolean',
-          answer: true
-        }
-      ]
-    })
-  }
-
-  private addFeedbackSourceDataToWebhook(
-    webhookData,
-    model: FormModel,
-    request
-  ) {
-    if (model.def.feedback?.feedbackForm) {
-      const feedbackContextInfo = decodeFeedbackContextInfo(
-        request.url.searchParams.get(feedbackReturnInfoKey)
-      )
-
-      if (feedbackContextInfo) {
-        webhookData.questions.push(
-          ...FEEDBACK_CONTEXT_ITEMS.map((item) => ({
-            category: null,
-            question: item.display,
-            fields: [
-              {
-                key: item.key,
-                title: item.display,
-                type: 'string',
-                answer: item.get(feedbackContextInfo)
-              }
-            ]
-          }))
-        )
-      }
-    }
-    return webhookData
   }
 }
 

@@ -24,7 +24,6 @@ module.exports = {
    */
   port: process.env.PORT || 3009,
   env: process.env.NODE_ENV || 'development',
-  previewMode: false,
   enforceCsrf: true,
 
   /**
@@ -67,7 +66,6 @@ module.exports = {
    */
   sessionTimeout: 20 * minute,
   confirmationSessionTimeout: 20 * minute,
-  paymentSessionTimeout: 90 * minute, // GOV.UK Pay sessions are 90 minutes. It is possible a user takes longer than 20 minutes to complete a payment.
   // sessionCookiePassword: "",
   // redisHost: "http://localhost",
   // redisPassword: nanoid.random(16), // This should be set if you are deploying replicas
@@ -81,12 +79,10 @@ module.exports = {
 
   /**
    * Email outputs
-   * Email outputs will use notify to send an email to a single inbox. You must configure this for EMAIL outputs.
-   * Not to be confused with notify outputs which is configured per form.
+   * Email outputs will use notify to send an email to a single inbox.
    */
   notifyTemplateId: '',
   notifyAPIKey: '',
-  fromEmailAddress: '',
 
   /**
    * API integrations
@@ -94,25 +90,12 @@ module.exports = {
   // API keys configured within a form may be set like so { "test": "test-key", "production": "prod" }.
   // Control which is used. Accepts "test" | "production" | "".
   apiEnv: '',
-  payApiUrl: 'https://publicapi.payments.service.gov.uk/v1',
   // If both the api env and node env are set to "production", the pay return url will need to be secure.
   // This is not the case if either are set to "test", or if the node env is set to "development"
   // payReturnUrl: "http://localhost:3009"
   // documentUploadApiUrl: "",
   // ordnanceSurveyKey: "", // deprecated - this API is deprecated
   // browserRefreshUrl: "", // deprecated - idk what this does
-
-  /**
-   * Authentication
-   * when setting authEnabled to true, you must configure the rest of the auth options.
-   * Currently only oAuth is supported.
-   */
-  authEnabled: false,
-  // authClientId: "", // oAuth client ID;
-  // authClientSecret: "", // oAuth client Secret
-  // authClientAuthUrl: "", // oAuth client secret
-  // authClientTokenUrl: "", // oAuth client token endpoint
-  // authClientProfileUrl: "" // oAuth client user profile endpoint
 
   /**
    * Logging
@@ -122,13 +105,5 @@ module.exports = {
   logRedactPaths: ["req.headers['x-forwarded-for']"], // You should check your privacy policy before disabling this. Check https://getpino.io/#/docs/redaction on how to configure redaction paths
 
   safelist: ['61bca17e-fe74-40e0-9c15-a901ad120eca.mock.pstmn.io'],
-
-  /**
-   * Failure queue
-   */
-  enableQueueService: false,
-  // queueDatabaseUrl: "postgresql://root:root@localhost:5432/queue
-  queueServicePollingInterval: '500',
-
   allowUserTemplates: false
 }

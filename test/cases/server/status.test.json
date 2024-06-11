@@ -145,25 +145,5 @@
       }
     }
   ],
-  "fees": [],
-  "outputs": [
-    {
-      "name": "webhook",
-      "title": "webhook",
-      "type": "webhook",
-      "outputConfiguration": {
-        "url": "https://webho.ok"
-      }
-    },
-    {
-      "name": "webhook_2",
-      "title": "other webhook",
-      "type": "webhook",
-      "outputConfiguration": {
-        "url": "https://webho.ok"
-      }
-    }
-  ],
-  "version": 2,
   "skipSummary": false
 }

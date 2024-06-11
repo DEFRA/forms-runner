@@ -83,13 +83,7 @@ const stubFormDefinition: FormDefinition = {
     }
   ],
   lists: [],
-  feeOptions: {
-    maxAttempts: 1,
-    showPaymentSkippedWarningPage: false,
-    allowSubmissionWithoutPayment: true
-  },
-  fees: [],
-  outputs: []
+  outputEmail: 'enrique.chase@defra.gov.uk'
 }
 
 const okStatusCode = 200

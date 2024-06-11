@@ -32,17 +32,6 @@
           {{ summaryDetail(detail) }}
         {% endfor %}
 
-        {% if fees and fees.details|length %}
-          <h2 class="govuk-heading-m">Fees</h2>
-          <ul class="govuk-list govuk-list--bullet">
-            {% for fee in fees.details %}
-              <li>{{ fee.description }}: £{{fee.amount / 100}}</li>
-            {% endfor %}
-          </ul>
-          <p class="govuk-body">Total cost: £{{fees.total / 100 }}</p>
-          <p class="govuk-body">You should not be charged an exchange fee if you pay with a UK credit or debit card.</p>
-        {% endif %}
-
         {% if not result.error  %}
             <form method="post" enctype="multipart/form-data" autocomplete="off" novalidate>
               <input type="hidden" name="crumb" value="{{crumb}}"/>
@@ -67,22 +56,7 @@
                   </div>
                 {% endif %}
 
-                <button data-prevent-double-click="true" class="govuk-button" data-module="govuk-button">
-                    {% if fees and fees.details|length %}
-                        Submit and pay
-                    {% else %}
-                        Submit
-                    {% endif %}
-                </button>
-
-                {% if showPaymentSkippedWarningPage %}
-                <div class="govuk-body">
-                  <button data-prevent-double-click="true" class="govuk-body govuk-button--link" name="skipPayment" value="true" data-module="govuk-button">
-                    Unable to pay online
-                  </button>
-                </div>
-              {% endif %}
-
+                <button data-prevent-double-click="true" class="govuk-button" data-module="govuk-button">Submit</button>
             </form>
         {% endif %}
       </div>

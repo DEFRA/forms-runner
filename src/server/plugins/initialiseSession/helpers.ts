@@ -1,39 +1,13 @@
-import { merge } from '@hapi/hoek'
 import { token } from '@hapi/jwt'
 import joi from 'joi'
 import { customAlphabet } from 'nanoid'
 
 import config from '~/src/server/config.js'
-import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
-import { type Field, type WebhookSchema } from '~/src/server/schemas/types.js'
+import { type Field } from '~/src/server/schemas/types.js'
 
 export function fieldToValue(field: Field) {
   const { key, answer } = field
   return { [key]: answer }
-}
-
-export function webhookToSessionData(
-  webhookData: WebhookSchema
-): FormSubmissionState {
-  const { questions } = webhookData
-  return questions.reduce((session, currentQuestion) => {
-    const { fields, category } = currentQuestion
-
-    const values = fields
-      .map(fieldToValue)
-      .reduce((prev, curr) => merge(prev, curr), {})
-
-    if (!category) {
-      return { ...session, ...values }
-    }
-
-    const existingCategoryInSession = session[category] ?? {}
-
-    return {
-      ...session,
-      [category]: { ...existingCategoryInSession, ...values }
-    }
-  }, {})
 }
 
 export function generateSessionTokenForForm(callback, formId) {
