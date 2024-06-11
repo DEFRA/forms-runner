@@ -21,7 +21,7 @@ export default {
     errorOnCacheNotReady: true,
     cookieOptions: {
       password: config.sessionCookiePassword,
-      isSecure: !!config.isDev,
+      isSecure: config.isProd,
       isHttpOnly: true,
       isSameSite: 'Lax'
     }
