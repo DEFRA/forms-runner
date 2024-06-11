@@ -4,6 +4,8 @@ import { fileURLToPath } from 'node:url'
 import FormData from 'form-data'
 import { NotifyClient } from 'notifications-node-client'
 
+import { getSessionCookie } from '../../utils/get-session-cookie.js'
+
 import createServer from '~/src/server/index.js'
 
 jest.mock('notifications-node-client')
@@ -140,7 +142,7 @@ describe('Submission journey test', () => {
     expect(res.statusCode).toEqual(redirectStatusCode)
     expect(res.headers.location).toBe('/components/summary')
 
-    // Extract the session cookie and
+    // Extract the session cookie
     const cookie = getSessionCookie(res)
 
     // GET the summary page
@@ -178,17 +180,3 @@ describe('Submission journey test', () => {
     expect(statusRes.headers['content-type']).toContain(htmlContentType)
   })
 })
-
-function getSessionCookie(res) {
-  const COOKIE_NAME = 'session'
-  const sessionId = res.headers['set-cookie']
-    .map((cookie) => {
-      const [name, value] = cookie.split(';')[0].split('=')
-      return { name, value }
-    })
-    .find(({ name }) => name === COOKIE_NAME).value
-
-  const cookie = `${COOKIE_NAME}=${sessionId}`
-
-  return cookie
-}

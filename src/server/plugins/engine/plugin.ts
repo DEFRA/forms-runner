@@ -65,10 +65,8 @@ interface PluginOptions {
   relativeTo?: string
   modelOptions: {
     relativeTo: string
-    previewMode: any
   }
   model?: FormModel
-  previewMode: boolean
 }
 
 const stateSchema = Joi.string().valid('draft', 'live').required()

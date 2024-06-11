@@ -3,6 +3,8 @@ import { fileURLToPath } from 'node:url'
 
 import { load } from 'cheerio'
 
+import { getSessionCookie } from './utils/get-session-cookie.js'
+
 import createServer from '~/src/server/index.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
@@ -14,8 +16,7 @@ describe('Title and section title', () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: 'titles.json',
-      formFilePath: testDir,
-      options: { previewMode: true }
+      formFilePath: testDir
     })
     await server.initialize()
   })
@@ -38,9 +39,18 @@ describe('Title and section title', () => {
   })
 
   it('does render the section title if it is not the same as the title', async () => {
+    const startResponse = await server.inject({
+      method: 'GET',
+      url: '/titles/applicant-one'
+    })
+
+    // Extract the session cookie
+    const cookie = getSessionCookie(startResponse)
+
     const options = {
       method: 'GET',
-      url: '/titles/applicant-one-address'
+      url: '/titles/applicant-one-address',
+      headers: { cookie }
     }
 
     const response = await server.inject(options)
@@ -64,9 +74,18 @@ describe('Title and section title', () => {
   })
 
   it('Does not render the section title if hideTitle is set to true', async () => {
+    const startResponse = await server.inject({
+      method: 'GET',
+      url: '/titles/applicant-one'
+    })
+
+    // Extract the session cookie
+    const cookie = getSessionCookie(startResponse)
+
     const options = {
       method: 'GET',
-      url: '/titles/applicant-two?visit=1'
+      url: '/titles/applicant-two?visit=1',
+      headers: { cookie }
     }
 
     const response = await server.inject(options)

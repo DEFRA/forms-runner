@@ -464,10 +464,7 @@ export class PageControllerBase {
       const isStartPage = this.path === `${startPage}`
       const isInitialisedSession = !!state.callback
       const shouldRedirectToStartPage =
-        !this.model.options.previewMode &&
-        !progress.length &&
-        !isStartPage &&
-        !isInitialisedSession
+        !progress.length && !isStartPage && !isInitialisedSession
 
       if (shouldRedirectToStartPage) {
         return startPage?.startsWith('http')

@@ -30,7 +30,6 @@
   "notifyTemplateId": "NOTIFY_TEMPLATE_ID",
   "notifyAPIKey": "NOTIFY_API_KEY",
   "apiEnv": "API_ENV",
-  "previewMode": "PREVIEW_MODE",
   "enforceCsrf": "ENFORCE_CSRF",
   "safelist": "SAFELIST",
   "initialisedSessionTimeout": "INITIALISED_SESSION_TIMEOUT",
