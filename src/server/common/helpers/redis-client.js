@@ -25,7 +25,8 @@ export function buildRedisClient() {
       password: config.redisPassword,
       port,
       host: config.redisHost,
-      db
+      db,
+      keyPrefix: config.redisKeyPrefix
     })
   } else {
     logger.info('Connecting to Redis using cluster')
@@ -38,6 +39,7 @@ export function buildRedisClient() {
         }
       ],
       {
+        keyPrefix: config.redisKeyPrefix,
         slotsRefreshTimeout: 2000,
         dnsLookup: (address, callback) => callback(null, address),
         redisOptions: {
