@@ -1,7 +1,7 @@
 import { configureBlankiePlugin } from '~/src/server/plugins/blankie.js'
 
 describe('Server Blankie Plugin', () => {
-  test('configuration options without matomo is correct', () => {
+  test('configuration options are correct', () => {
     const { options } = configureBlankiePlugin()
 
     expect(options).toEqual({

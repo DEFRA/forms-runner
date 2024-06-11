@@ -7,8 +7,6 @@
   "ordnanceSurveyKey": "ORDNANCE_SURVEY_KEY",
   "feedbackLink": "FEEDBACK_LINK",
   "phaseTag": "PHASE_TAG",
-  "matomoId": "MATOMO_ID",
-  "matomoUrl": "MATOMO_URL",
   "serviceUrl": "SERVICE_URL",
   "redisHost": "REDIS_HOST",
   "redisKeyPrefix": "REDIS_KEY_PREFIX",
