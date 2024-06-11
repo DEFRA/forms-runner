@@ -22,8 +22,7 @@ export default {
     cookieOptions: {
       password: config.sessionCookiePassword,
       isSecure: !!config.isDev,
-      isHttpOnly: true,
-      isSameSite: 'Lax'
+      isHttpOnly: true
     }
   }
 }
