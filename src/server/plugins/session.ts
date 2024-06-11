@@ -18,7 +18,6 @@ export default {
      * this only seems to affect the auth code, which we might remove anyway so it's temporarily disabled.
      */
     // storeBlank: false,
-    errorOnCacheNotReady: true,
     cookieOptions: {
       password: config.sessionCookiePassword,
       isSecure: !!config.isDev,
