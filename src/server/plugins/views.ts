@@ -75,7 +75,6 @@ export default {
       sessionTimeout: config.sessionTimeout,
       skipTimeoutWarning: false,
       serviceStartPage: config.serviceStartPage || '#',
-      privacyPolicyUrl: config.privacyPolicyUrl || '/help/privacy',
       phaseTag: config.phaseTag,
       previewMode: request?.path.startsWith(PREVIEW_PATH_PREFIX)
         ? request.params.state

@@ -23,7 +23,6 @@
   "confirmationSessionTimeout": "CONFIRMATION_SESSION_TIMEOUT",
   "sessionCookiePassword": "SESSION_COOKIE_PASSWORD",
   "serviceStartPage": "SERVICE_START_PAGE",
-  "privacyPolicyUrl": "PRIVACY_POLICY_URL",
   "notifyTemplateId": "NOTIFY_TEMPLATE_ID",
   "notifyAPIKey": "NOTIFY_API_KEY",
   "apiEnv": "API_ENV",

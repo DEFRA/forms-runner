@@ -59,7 +59,6 @@ export const configSchema = Joi.object({
   sessionCookiePassword: Joi.string().required(),
   rateLimit: Joi.boolean().optional(),
   serviceStartPage: Joi.string().optional().allow(''),
-  privacyPolicyUrl: Joi.string().optional().allow(''),
   notifyTemplateId: Joi.string().required(),
   notifyAPIKey: Joi.string().required(),
   apiEnv: Joi.string().allow('test', 'production', '').optional(),

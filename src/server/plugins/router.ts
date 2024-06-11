@@ -20,9 +20,6 @@ export default {
           method: 'get',
           path: '/help/privacy',
           handler(_request: Request, h: ResponseToolkit) {
-            if (config.privacyPolicyUrl) {
-              return h.redirect(config.privacyPolicyUrl)
-            }
             return h.view('help/privacy')
           }
         },
