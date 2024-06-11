@@ -8,6 +8,7 @@ import config from '~/src/server/config.js'
 export default {
   plugin: yar,
   options: {
+    maxCookieSize: 0, // Always use server-side storage
     cache: {
       cache: 'session',
       segment: 'session',
