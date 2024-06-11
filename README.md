@@ -146,14 +146,6 @@ Additional steps are required for the different output types.
 - Notify
   - A GOV.UK [notify](https://www.notifications.service.gov.uk) is required
   - For each notification you wish to send, a template must be set up. If there are 'personalisations' they must match the configuration
-- Sheets
-  - This is currently a [Google Sheets](https://docs.google.com/spreadsheets) integration
-  - For each sheet you wish to add data to, you must have have the spreadsheet id
-  - You must have a Google Cloud Platform (GCP) account
-  - create a project in GCP and note down the project id.
-  - enable Google Sheets API for this project
-  - Create a [service account](https://developers.google.com/identity/protocols/oauth2/service-account#creatinganaccount) in this project. (You only need to follow the 'Creating a service account' steps on this page)
-    - Once it is created, download the credentials (this will include the private_key and client_email)
 
 ## Licence
 
