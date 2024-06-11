@@ -76,7 +76,6 @@ const serverOptions = (): ServerOptions => {
         engine: config.isTest
           ? new CatboxMemory()
           : new CatboxRedis({
-              partition: config.redisKeyPrefix,
               client: buildRedisClient()
             })
       }
