@@ -68,10 +68,3 @@ export interface FormData {
   value?: FormPayload
   errors?: FormSubmissionErrors | null
 }
-
-export interface CookiesPolicy {
-  isSet: boolean
-  essential: boolean
-  analytics: 'on' | 'off'
-  usage: boolean
-}

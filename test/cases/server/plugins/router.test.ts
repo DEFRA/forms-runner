@@ -28,20 +28,6 @@ describe('Server Router', () => {
     )
   })
 
-  test('cookies preferences are set', async () => {
-    const options = {
-      method: 'POST',
-      payload: {
-        cookies: 'accept'
-      },
-      url: '/help/cookies'
-    }
-
-    const res = await server.inject(options)
-
-    expect(res.statusCode).toBe(302)
-  })
-
   test('accessibility statement page is served', async () => {
     const options = {
       method: 'GET',

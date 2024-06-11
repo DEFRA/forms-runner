@@ -8,8 +8,6 @@
   "browserRefreshUrl": "BROWSER_REFRESH_URL",
   "feedbackLink": "FEEDBACK_LINK",
   "phaseTag": "PHASE_TAG",
-  "gtmId1": "GTM_ID_1",
-  "gtmId2": "GTM_ID_2",
   "matomoId": "MATOMO_ID",
   "matomoUrl": "MATOMO_URL",
   "serviceUrl": "SERVICE_URL",
