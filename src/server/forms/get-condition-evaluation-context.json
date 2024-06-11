@@ -473,16 +473,6 @@
     }
   ],
   "phaseBanner": {},
-  "outputs": [
-    {
-      "name": "Ric43H5Ctwl4NBDC9x1_4",
-      "title": "email",
-      "type": "email",
-      "outputConfiguration": {
-        "emailAddress": "jennifermyanh.duong@digital.homeoffice.gov.uk"
-      }
-    }
-  ],
   "declaration": "<p class=\"govuk-body\">All the answers you have provided are true to the best of your knowledge.</p>",
   "conditions": [
     {

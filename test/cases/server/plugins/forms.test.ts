@@ -83,7 +83,6 @@ const stubFormDefinition: FormDefinition = {
     }
   ],
   lists: [],
-  outputs: [],
   outputEmail: 'enrique.chase@defra.gov.uk'
 }
 

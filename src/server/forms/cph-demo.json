@@ -1157,14 +1157,6 @@
       }
     }
   ],
-  "outputs": [
-    {
-      "name": "Steve",
-      "title": "email",
-      "type": "email",
-      "outputConfiguration": { "emailAddress": "steven.thomas@defra.gov.uk" }
-    }
-  ],
   "skipSummary": false,
   "declaration": "Test declaration"
 }

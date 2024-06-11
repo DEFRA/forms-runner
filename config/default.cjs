@@ -80,8 +80,7 @@ module.exports = {
 
   /**
    * Email outputs
-   * Email outputs will use notify to send an email to a single inbox. You must configure this for EMAIL outputs.
-   * Not to be confused with notify outputs which is configured per form.
+   * Email outputs will use notify to send an email to a single inbox.
    */
   notifyTemplateId: '',
   notifyAPIKey: '',
