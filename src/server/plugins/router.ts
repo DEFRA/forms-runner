@@ -19,7 +19,7 @@ export default {
         {
           method: 'get',
           path: '/help/privacy',
-          handler: async (_request: Request, h: ResponseToolkit) => {
+          handler(_request: Request, h: ResponseToolkit) {
             if (config.privacyPolicyUrl) {
               return h.redirect(config.privacyPolicyUrl)
             }
@@ -29,7 +29,7 @@ export default {
         {
           method: 'get',
           path: '/help/cookies',
-          handler: async (request: Request, h: ResponseToolkit) => {
+          handler(_request: Request, h: ResponseToolkit) {
             return h.view('help/cookies')
           }
         }
@@ -38,7 +38,7 @@ export default {
       server.route({
         method: 'get',
         path: '/help/terms-and-conditions',
-        handler: async (_request: Request, h: ResponseToolkit) => {
+        handler(_request: Request, h: ResponseToolkit) {
           return h.view('help/terms-and-conditions')
         }
       })
@@ -46,7 +46,7 @@ export default {
       server.route({
         method: 'get',
         path: '/help/accessibility-statement',
-        handler: async (_request: Request, h: ResponseToolkit) => {
+        handler(_request: Request, h: ResponseToolkit) {
           return h.view('help/accessibility-statement')
         }
       })
@@ -54,10 +54,9 @@ export default {
       server.route({
         method: 'get',
         path: '/clear-session',
-        handler: async (request: Request, h: ResponseToolkit) => {
-          if (request.yar) {
-            request.yar.reset()
-          }
+        handler(request: Request, h: ResponseToolkit) {
+          request.yar.reset()
+
           const { redirect } = request.query
           return redirectTo(request, h, (redirect as string) || '/')
         }
@@ -66,10 +65,8 @@ export default {
       server.route({
         method: 'get',
         path: '/timeout',
-        handler: async (request: Request, h: ResponseToolkit) => {
-          if (request.yar) {
-            request.yar.reset()
-          }
+        handler(request: Request, h: ResponseToolkit) {
+          request.yar.reset()
 
           let startPage = '/'
 
