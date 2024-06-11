@@ -38,7 +38,6 @@ export const configSchema = Joi.object({
   logPrettyPrint: Joi.boolean().optional(),
   logRedactPaths: Joi.array().items(Joi.string()).default([]),
   ordnanceSurveyKey: Joi.string().optional(),
-  browserRefreshUrl: Joi.string().optional(),
   feedbackLink: Joi.string(),
   phaseTag: Joi.string().optional().valid('', 'alpha', 'beta'),
   gtmId1: Joi.string().optional(),

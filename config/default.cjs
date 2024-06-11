@@ -83,7 +83,6 @@ module.exports = {
   // payReturnUrl: "http://localhost:3009"
   // documentUploadApiUrl: "",
   // ordnanceSurveyKey: "", // deprecated - this API is deprecated
-  // browserRefreshUrl: "", // deprecated - idk what this does
 
   /**
    * Logging
