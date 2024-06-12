@@ -40,23 +40,11 @@ module.exports = {
   }),
 
   /**
-   * Analytics
-   */
-  // Google Tag Manager - you must amend the privacy notice if you use GTM to load analytics scripts.
-  // gtmId1: "",
-  // gtmId2: "",
-
-  // Matomo (aka Piwik)
-  // matomoId: "",
-  // matomoUrl: "",
-
-  /**
    * Service
    */
   serviceUrl: 'http://localhost:3009', // This is used for redirects back to the runner.
   serviceName: 'Defra Forms',
   serviceStartPage: '',
-  privacyPolicyUrl: '',
   feedbackLink: '#', // Used in your phase banner. Can be a URL or more commonly mailto mailto:feedback@department.gov.uk
   phaseTag: 'beta', // Accepts "alpha" |"beta" | ""
 
@@ -95,7 +83,6 @@ module.exports = {
   // payReturnUrl: "http://localhost:3009"
   // documentUploadApiUrl: "",
   // ordnanceSurveyKey: "", // deprecated - this API is deprecated
-  // browserRefreshUrl: "", // deprecated - idk what this does
 
   /**
    * Logging

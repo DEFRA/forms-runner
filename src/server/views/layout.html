@@ -4,7 +4,6 @@
 {% from "govuk/components/footer/macro.njk" import govukFooter -%}
 {% from "govuk/components/phase-banner/macro.njk" import govukPhaseBanner %}
 {% from "govuk/components/skip-link/macro.njk" import govukSkipLink -%}
-{% from "govuk/components/cookie-banner/macro.njk" import govukCookieBanner %}
 {% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
 
 {% block head %}
@@ -13,46 +12,6 @@
   <link rel="preload" as="font" href="{{ assetPath }}/fonts/bold-affa96571d-v2.woff" type="font/woff" crossorigin="anonymous">
   <link rel="preload" as="font" href="{{ assetPath }}/fonts/light-f591b13f7d-v2.woff" type="font/woff" crossorigin="anonymous">
   <link href="{{ assetPath }}/stylesheets/application.css" rel="stylesheet" />
-
-  {% if gtmId1 %}
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','{{ gtmId1 }}');</script>
-  <!-- End Google Tag Manager -->
-  {% endif %}
-
-  {% if gtmId2 %}
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','{{ gtmId2 }}');</script>
-  <!-- End Google Tag Manager -->
-  {% endif %}
-
-  <!-- Matomo -->
-  {% if matomoUrl and matomoId %}
-    <script type="text/javascript">
-      var _paq = window._paq || [];
-      _paq.push(['disableCookies']);
-      _paq.push(['trackPageView']);
-      _paq.push(['enableLinkTracking']);
-      (function() {
-        var u="{{ matomoUrl }}/piwik/";
-        _paq.push(['setTrackerUrl', u+'piwik.php']);
-        _paq.push(['setSiteId', '{{ matomoId }}']);
-        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-        g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-      })();
-    </script>
-    <noscript><p><img src="{{ matomoUrl }}/piwik/piwik.php?idsite={{ matomoId }}&amp;rec=1" style="border:0;" alt="" /></p></noscript>
-  {% endif %}
-  <!-- End Matomo Code -->
-
   <script src="{{ assetPath }}/accessible-autocomplete.min.js"></script>
 {% endblock %}
 
@@ -76,24 +35,6 @@
     serviceUrl: serviceStartPage
 }) }}
 
-{% endblock %}
-
-{% block bodyStart %}
-  {% if not cookiesPolicy.isSet %}
-    {% include "partials/cookie-banner.html" %}
-  {% endif %}
-
-  {% if gtmId1 %}
-    <noscript>
-      <iframe src="https://www.googletagmanager.com/ns.html?id={{ gtmId1 }}" height="0" width="0" style="display:none;visibility:hidden"></iframe>
-    </noscript>
-  {% endif %}
-
-  {% if gtmId2 %}
-    <noscript>
-      <iframe src="https://www.googletagmanager.com/ns.html?id={{ gtmId2 }}" height="0" width="0" style="display:none;visibility:hidden"></iframe>
-    </noscript>
-  {% endif %}
 {% endblock %}
 
 {% block beforeContent %}
@@ -149,10 +90,6 @@
       {% endif %}
     });
   </script>
-
-  {% if BROWSER_REFRESH_URL %}
-    <script src="{{ BROWSER_REFRESH_URL }}"></script>
-  {% endif %}
 {% endblock %}
 
 
@@ -160,7 +97,7 @@
     {{ govukFooter({
         meta: {
             items: [{
-                href: privacyPolicyUrl,
+                href: '/help/privacy',
                 text: 'Privacy'
             }, {
                 href: '/help/cookies',
@@ -168,9 +105,6 @@
             }, {
                 href: '/help/accessibility-statement',
                 text: 'Accessibility Statement'
-            }, {
-                href: '/help/terms-and-conditions',
-                text: 'Terms and Conditions'
             }]
         }
     }) }}

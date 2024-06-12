@@ -66,21 +66,13 @@ export default {
     context: (request: Request | null) => ({
       appVersion: pkg.version,
       assetPath: '/assets',
-      cookiesPolicy: request?.state.cookies_policy,
       serviceName: capitalize(config.serviceName),
       feedbackLink: config.feedbackLink,
       pageTitle: config.serviceName + ' - GOV.UK',
-      analyticsAccount: config.analyticsAccount,
-      gtmId1: config.gtmId1,
-      gtmId2: config.gtmId2,
       location: request?.app.location,
-      matomoId: config.matomoId,
-      matomoUrl: config.matomoUrl,
-      BROWSER_REFRESH_URL: config.browserRefreshUrl,
       sessionTimeout: config.sessionTimeout,
       skipTimeoutWarning: false,
       serviceStartPage: config.serviceStartPage || '#',
-      privacyPolicyUrl: config.privacyPolicyUrl || '/help/privacy',
       phaseTag: config.phaseTag,
       previewMode: request?.path.startsWith(PREVIEW_PATH_PREFIX)
         ? request.params.state
