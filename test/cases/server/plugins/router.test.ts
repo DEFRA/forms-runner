@@ -23,9 +23,7 @@ describe('Server Router', () => {
     const res = await server.inject(options)
 
     expect(res.statusCode).toBe(200)
-    expect(res.result).toContain(
-      `<h1 class="govuk-heading-l">Cookies on Defra forms</h1>`
-    )
+    expect(res.result).toContain(`<h1 class="govuk-heading-l">Cookies</h1>`)
   })
 
   test('accessibility statement page is served', async () => {
