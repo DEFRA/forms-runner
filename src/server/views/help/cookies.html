@@ -1,6 +1,4 @@
 {% extends 'layout.html' %}
-{% from "govuk/components/radios/macro.njk" import govukRadios %}
-{% from "govuk/components/button/macro.njk" import govukButton %}
 
 {% set pageTitle = "Cookies" %}
 
@@ -8,13 +6,11 @@
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
     <h1 class="govuk-heading-l">Cookies</h1>
-    <p class="govuk-body">Cookies are small files saved on your phone, tablet or computer when you visit a website.
-    </p>
+    <p class="govuk-body">Cookies are small files saved on your phone, tablet or computer when you visit a website.</p>
     <p class="govuk-body">We use essential cookies to make this form work.</p>
 
     <h2 class="govuk-heading-m">Essential cookies</h2>
-    <p class="govuk-body">Essential cookies keep your information secure. We do not need to ask your permission to
-      use them.</p>
+    <p class="govuk-body">Essential cookies keep your information secure. We do not need to ask your permission to use them.</p>
     <table class="govuk-table">
       <thead>
         <tr class="govuk-table__row">
@@ -25,12 +21,12 @@
       </thead>
       <tbody>
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell">session</td>
+          <th scope="row" class="govuk-table__header">session</th>
           <td class="govuk-table__cell">Remembers the information you enter</td>
           <td class="govuk-table__cell">When you close the browser, or after 24 hours</td>
         </tr>
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell">crumb</td>
+          <th scope="row" class="govuk-table__header">crumb</th>
           <td class="govuk-table__cell">Ensures forms can only be submitted from this website</td>
           <td class="govuk-table__cell">When you close the browser</td>
         </tr>
