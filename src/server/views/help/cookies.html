@@ -1,5 +1,7 @@
 {% extends 'layout.html' %}
 
+{% from "govuk/components/table/macro.njk" import govukTable %}
+
 {% set pageTitle = "Cookies" %}
 
 {% block content %}
@@ -11,27 +13,27 @@
 
     <h2 class="govuk-heading-m">Essential cookies</h2>
     <p class="govuk-body">Essential cookies keep your information secure. We do not need to ask your permission to use them.</p>
-    <table class="govuk-table">
-      <thead>
-        <tr class="govuk-table__row">
-          <th class="govuk-table__header" scope="col">Name</th>
-          <th class="govuk-table__header" scope="col">Purpose</th>
-          <th class="govuk-table__header" scope="col">Expires</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="govuk-table__row">
-          <th scope="row" class="govuk-table__header">session</th>
-          <td class="govuk-table__cell">Remembers the information you enter</td>
-          <td class="govuk-table__cell">When you close the browser, or after 24 hours</td>
-        </tr>
-        <tr class="govuk-table__row">
-          <th scope="row" class="govuk-table__header">crumb</th>
-          <td class="govuk-table__cell">Ensures forms can only be submitted from this website</td>
-          <td class="govuk-table__cell">When you close the browser</td>
-        </tr>
-      </tbody>
-    </table>
+    {{ govukTable({
+      firstCellIsHeader: true,
+      caption: "Essential cookies we use",
+      head: [
+        { text: "Name" },
+        { text: "Purpose"},
+        { text: "Expires"}
+      ],
+      rows: [
+        [
+          {text: "session"},
+          {text: "Remembers the information you enter"},
+          {text: "When you close the browser, or after 24 hours"}
+        ],
+        [
+          {text: "crumb"},
+          {text: "Ensures forms can only be submitted from this website"},
+          {text: "When you close the browser"}
+        ]
+      ]
+    }) }}
   </div>
 </div>
 {% endblock %}
