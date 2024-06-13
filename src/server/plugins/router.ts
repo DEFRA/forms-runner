@@ -1,13 +1,9 @@
 import { type Request, type ResponseToolkit } from '@hapi/hapi'
 
 import { redirectTo } from '~/src/server/plugins/engine/index.js'
-import {
-  healthRoute,
-  publicRoutes,
-  homeRoute
-} from '~/src/server/routes/index.js'
+import { healthRoute, publicRoutes } from '~/src/server/routes/index.js'
 
-const routes = [...publicRoutes, healthRoute, homeRoute]
+const routes = [...publicRoutes, healthRoute]
 
 export default {
   plugin: {
