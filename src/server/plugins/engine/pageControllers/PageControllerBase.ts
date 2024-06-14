@@ -1,4 +1,4 @@
-import { type URL, URLSearchParams } from 'node:url'
+import { type URLSearchParams } from 'node:url'
 
 import {
   type Request,
@@ -32,6 +32,7 @@ import {
   type FormSubmissionErrors,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { type CacheService } from '~/src/server/services/index.js'
 
 const FORM_SCHEMA = Symbol('FORM_SCHEMA')
 const STATE_SCHEMA = Symbol('STATE_SCHEMA')
@@ -539,11 +540,9 @@ export class PageControllerBase {
         return evaluatedComponent
       })
 
-      this.updateProgress(progress, request.url)
+      await this.updateProgress(progress, request, cacheService)
 
-      await cacheService.mergeState(request, { progress })
-
-      viewModel.backLink = progress.at(-2) ?? this.backLinkFallback
+      viewModel.backLink = this.getBackLink(progress)
 
       return h.view(this.viewName, viewModel)
     }
@@ -554,9 +553,13 @@ export class PageControllerBase {
    * Used for when a user clicks the "back" link.
    * Progress is stored in the state.
    */
-  protected updateProgress(progress: string[], url: URL) {
+  protected async updateProgress(
+    progress: string[],
+    request: Request,
+    cacheService: CacheService
+  ) {
     const lastVisited = progress.at(-1)
-    const currentPath = `${this.model.basePath}${this.path}${url.search}`
+    const currentPath = `${this.model.basePath}${this.path}${request.url.search}`
 
     if (!lastVisited?.startsWith(currentPath)) {
       if (progress.at(-2) === currentPath) {
@@ -573,6 +576,15 @@ export class PageControllerBase {
         }
       }
     }
+
+    await cacheService.mergeState(request, { progress })
+  }
+
+  /**
+   * Get the back link for a given progress.
+   */
+  protected getBackLink(progress: string[]) {
+    return progress.at(-2) ?? this.backLinkFallback
   }
 
   /**

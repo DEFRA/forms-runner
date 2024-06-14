@@ -107,11 +107,9 @@ export class SummaryPageController extends PageController {
 
       const progress = state.progress ?? []
 
-      this.updateProgress(progress, request.url)
+      await this.updateProgress(progress, request, cacheService)
 
-      await cacheService.mergeState(request, { progress })
-
-      viewModel.backLink = progress.at(-2) ?? this.backLinkFallback
+      viewModel.backLink = this.getBackLink(progress)
 
       return h.view('summary', viewModel)
     }
