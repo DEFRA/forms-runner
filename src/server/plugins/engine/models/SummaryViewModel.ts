@@ -36,7 +36,7 @@ export class SummaryViewModel {
     | undefined
 
   callback?: InitialiseSessionOptions
-  serviceStartPage: string
+  serviceUrl: string
   constructor(
     pageTitle: string,
     model: FormModel,
@@ -44,7 +44,7 @@ export class SummaryViewModel {
     request: Request
   ) {
     this.pageTitle = pageTitle
-    this.serviceStartPage = `/${model.basePath}`
+    this.serviceUrl = `/${model.basePath}`
     this.name = model.def.name
     const { relevantPages, endPage } = this.getRelevantPages(model, state)
     const details = this.summaryDetails(request, model, state, relevantPages)

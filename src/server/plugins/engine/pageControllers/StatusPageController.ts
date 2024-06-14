@@ -25,7 +25,7 @@ export class StatusPageController extends PageController {
       return h.view('confirmation', {
         pageTitle: this.title,
         name: model.name,
-        serviceStartPage: `/${model.basePath}`
+        serviceUrl: `/${model.basePath}`
       })
     }
   }

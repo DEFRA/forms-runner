@@ -42,9 +42,7 @@ module.exports = {
   /**
    * Service
    */
-  serviceUrl: 'http://localhost:3009', // This is used for redirects back to the runner.
   serviceName: 'Submit a form to Defra',
-  serviceStartPage: '',
   feedbackLink: '#', // Used in your phase banner. Can be a URL or more commonly mailto mailto:feedback@department.gov.uk
   phaseTag: 'beta', // Accepts "alpha" |"beta" | ""
 

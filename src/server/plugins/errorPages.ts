@@ -24,7 +24,7 @@ export default {
           const viewModel = model
             ? {
                 name: model.name,
-                serviceStartPage: `/${model.basePath}`
+                serviceUrl: `/${model.basePath}`
               }
             : undefined
 
