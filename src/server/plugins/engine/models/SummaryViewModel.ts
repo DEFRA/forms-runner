@@ -24,6 +24,7 @@ export class SummaryViewModel {
   state: any
   value: any
   name: string | undefined
+  backLink?: string
   feedbackLink: string | undefined
   phaseTag: string | undefined
   declarationError: any // TODO

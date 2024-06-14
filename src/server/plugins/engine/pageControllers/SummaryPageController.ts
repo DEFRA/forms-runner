@@ -104,6 +104,13 @@ export class SummaryPageController extends PageController {
       if (declarationError.length) {
         viewModel.declarationError = declarationError[0]
       }
+
+      const progress = state.progress ?? []
+
+      await this.updateProgress(progress, request, cacheService)
+
+      viewModel.backLink = this.getBackLink(progress)
+
       return h.view('summary', viewModel)
     }
   }

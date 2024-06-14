@@ -1,4 +1,4 @@
-import { URLSearchParams } from 'node:url'
+import { type URLSearchParams } from 'node:url'
 
 import {
   type Request,
@@ -32,6 +32,7 @@ import {
   type FormSubmissionErrors,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { type CacheService } from '~/src/server/services/index.js'
 
 const FORM_SCHEMA = Symbol('FORM_SCHEMA')
 const STATE_SCHEMA = Symbol('STATE_SCHEMA')
@@ -457,7 +458,6 @@ export class PageControllerBase {
       const state = await cacheService.getState(request)
       const progress = state.progress ?? []
       const { num } = request.query
-      const currentPath = `${this.model.basePath}${this.path}${request.url.search}`
       const startPage = this.model.def.startPage
       const formData = this.getFormDataFromState(state, num - 1)
 
@@ -512,6 +512,7 @@ export class PageControllerBase {
         }
         return true
       })
+
       /**
        * For conditional reveal components (which we no longer support until GDS resolves the related accessibility issues {@link https://github.com/alphagov/govuk-frontend/issues/1991}
        */
@@ -539,30 +540,51 @@ export class PageControllerBase {
         return evaluatedComponent
       })
 
-      /**
-       * used for when a user clicks the "back" link. Progress is stored in the state. This is a safer alternative to running javascript that pops the history `onclick`.
-       */
-      const lastVisited = progress.at(-1)
-      if (!lastVisited?.startsWith(currentPath)) {
-        if (progress.at(-2) === currentPath) {
-          progress.pop()
-        } else {
-          progress.push(currentPath)
+      await this.updateProgress(progress, request, cacheService)
 
-          // Ensure progress history doesn't grow too large
-          // by curtailing the array to max length of 100
-          const MAX_PROGRESS_ENTRIES = 100
-          if (progress.length > MAX_PROGRESS_ENTRIES) {
-            progress.shift()
-          }
-        }
-      }
+      viewModel.backLink = this.getBackLink(progress)
 
-      await cacheService.mergeState(request, { progress })
-
-      viewModel.backLink = progress.at(-2) ?? this.backLinkFallback
       return h.view(this.viewName, viewModel)
     }
+  }
+
+  /**
+   * Updates the progress history stack.
+   * Used for when a user clicks the "back" link.
+   * Progress is stored in the state.
+   */
+  protected async updateProgress(
+    progress: string[],
+    request: Request,
+    cacheService: CacheService
+  ) {
+    const lastVisited = progress.at(-1)
+    const currentPath = `${this.model.basePath}${this.path}${request.url.search}`
+
+    if (!lastVisited?.startsWith(currentPath)) {
+      if (progress.at(-2) === currentPath) {
+        progress.pop()
+      } else {
+        progress.push(currentPath)
+
+        // Ensure progress history doesn't grow too large
+        // by curtailing the array to max length of 100
+        const MAX_PROGRESS_ENTRIES = 100
+
+        if (progress.length > MAX_PROGRESS_ENTRIES) {
+          progress.shift()
+        }
+      }
+    }
+
+    await cacheService.mergeState(request, { progress })
+  }
+
+  /**
+   * Get the back link for a given progress.
+   */
+  protected getBackLink(progress: string[]) {
+    return progress.at(-2) ?? this.backLinkFallback
   }
 
   /**
