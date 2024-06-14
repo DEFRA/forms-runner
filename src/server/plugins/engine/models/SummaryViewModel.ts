@@ -27,7 +27,6 @@ export class SummaryViewModel {
   backLink?: string
   feedbackLink: string | undefined
   phaseTag: string | undefined
-  declarationError: any // TODO
   errors:
     | {
         path: string

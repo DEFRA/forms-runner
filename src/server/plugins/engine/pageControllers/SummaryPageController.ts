@@ -100,11 +100,6 @@ export class SummaryPageController extends PageController {
         }
       }
 
-      const declarationError = request.yar.flash('declarationError')
-      if (declarationError.length) {
-        viewModel.declarationError = declarationError[0]
-      }
-
       const progress = state.progress ?? []
 
       await this.updateProgress(progress, request, cacheService)
@@ -154,25 +149,6 @@ export class SummaryPageController extends PageController {
         }
 
         return startPageRedirect
-      }
-
-      /**
-       * If a form is configured with a declaration, a checkbox will be rendered with the configured declaration text.
-       * If the user does not agree to the declaration, the page will be rerendered with a warning.
-       */
-      if (summaryViewModel.declaration && !summaryViewModel.skipSummary) {
-        const { declaration } = request.payload as {
-          declaration?: any
-        }
-
-        if (!declaration) {
-          request.yar.flash(
-            'declarationError',
-            'You must declare to be able to submit this application'
-          )
-          const url = request.headers.referer ?? request.path
-          return redirectTo(request, h, `${url}#declaration`)
-        }
       }
 
       const path = request.path

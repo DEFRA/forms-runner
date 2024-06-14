@@ -39,24 +39,9 @@
                 {%if declaration %}
                 <h2 class="govuk-heading-m" id="declaration">Declaration</h2>
                   {{ declaration | safe  }}
-                  <div class="govuk-form-group {{ 'govuk-form-group--error' if declarationError }}">
-                    {% if declarationError %}
-                        <span id="nationality-error" class="govuk-error-message">
-                            <span class="govuk-visually-hidden">Error:</span> {{declarationError}}
-                        </span>
-                    {% endif %}
-                    <div class="govuk-checkboxes">
-                      <div class="govuk-checkboxes__item">
-                        <input class="govuk-checkboxes__input" id="declaration-1" name="declaration" type="checkbox" value="true">
-                        <label class="govuk-label govuk-checkboxes__label" for="declaration-1">
-                          Confirm
-                        </label>
-                      </div>
-                    </div>
-                  </div>
                 {% endif %}
 
-                <button data-prevent-double-click="true" class="govuk-button" data-module="govuk-button">Submit</button>
+                <button data-prevent-double-click="true" class="govuk-button" data-module="govuk-button">{{ "Accept and Send" if declaration else "Send" }}</button>
             </form>
         {% endif %}
       </div>
