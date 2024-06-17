@@ -516,4 +516,21 @@ describe('Model cache', () => {
       expect(getCacheSize()).toBe(0)
     })
   })
+
+  describe('Help pages', () => {
+    test('Get /help/{slug} page returns 200', async () => {
+      jest
+        .mocked(getFormMetadata)
+        .mockResolvedValue({ ...stubFormMetadata, draft, live })
+
+      const options = {
+        method: 'GET',
+        url: `/help/${slug}`
+      }
+
+      const res = await server.inject(options)
+
+      expect(res.statusCode).toBe(okStatusCode)
+    })
+  })
 })

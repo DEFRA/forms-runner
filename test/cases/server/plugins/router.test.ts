@@ -39,4 +39,15 @@ describe('Server Router', () => {
       '<h1 class="govuk-heading-l">Accessibility Statement</h1>'
     )
   })
+
+  test('Help page is served', async () => {
+    const options = {
+      method: 'GET',
+      url: '/help'
+    }
+
+    const res = await server.inject(options)
+
+    expect(res.statusCode).toBe(200)
+  })
 })
