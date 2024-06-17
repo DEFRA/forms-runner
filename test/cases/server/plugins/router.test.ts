@@ -43,7 +43,7 @@ describe('Server Router', () => {
   test('Help page is served', async () => {
     const options = {
       method: 'GET',
-      url: '/help'
+      url: '/help/get-support'
     }
 
     const res = await server.inject(options)

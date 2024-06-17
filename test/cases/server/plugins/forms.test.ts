@@ -525,7 +525,7 @@ describe('Model cache', () => {
 
       const options = {
         method: 'GET',
-        url: `/help/${slug}`
+        url: `/help/get-support/${slug}`
       }
 
       const res = await server.inject(options)
