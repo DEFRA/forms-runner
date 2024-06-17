@@ -14,10 +14,10 @@ export default {
       server.route([
         {
           method: 'get',
-          path: '/help/{slug?}',
+          path: '/help/get-support/{slug?}',
           async handler(request: Request, h: ResponseToolkit) {
             const { slug } = request.params
-            const viewName = 'help/index'
+            const viewName = 'help/get-support'
 
             // If there's no slug in the path,
             // return the generic help page
