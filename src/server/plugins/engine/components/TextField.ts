@@ -63,14 +63,7 @@ export class TextField extends FormComponent {
 
   getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const options: any = this.options
-    const schema: any = this.schema
     const viewModel = super.getViewModel(formData, errors)
-
-    if (schema.max) {
-      viewModel.attributes = {
-        maxlength: schema.max
-      }
-    }
 
     if (options.autocomplete) {
       viewModel.autocomplete = options.autocomplete
