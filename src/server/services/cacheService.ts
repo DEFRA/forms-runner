@@ -113,7 +113,7 @@ export class CacheService {
     }
     return {
       segment: partition,
-      id: `${request.yar.id}:${request.params.id}${additionalIdentifier ?? ''}`
+      id: `${request.yar.id}:${request.params.state ?? ''}:${request.params.slug ?? ''}:${additionalIdentifier ?? ''}`
     }
   }
 
