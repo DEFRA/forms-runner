@@ -518,7 +518,7 @@ describe('Model cache', () => {
   })
 
   describe('Help pages', () => {
-    test('Get /help/{slug} page returns 200', async () => {
+    test('Contextual help page returns 200', async () => {
       jest
         .mocked(getFormMetadata)
         .mockResolvedValue({ ...stubFormMetadata, draft, live })
