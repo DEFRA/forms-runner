@@ -64,29 +64,6 @@ export default {
           return redirectTo(request, h, (redirect as string) || '/')
         }
       })
-
-      server.route({
-        method: 'get',
-        path: '/timeout',
-        handler(request: Request, h: ResponseToolkit) {
-          request.yar.reset()
-
-          let startPage = '/'
-
-          const { referer } = request.headers
-
-          if (referer) {
-            const match = referer.match(/https?:\/\/[^/]+\/([^/]+).*/)
-            if (match && match.length > 1) {
-              startPage = `/${match[1]}`
-            }
-          }
-
-          return h.view('timeout', {
-            startPage
-          })
-        }
-      })
     }
   }
 }
