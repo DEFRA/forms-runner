@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block pageTitle %}
+  Get help with your form
+{% endblock %}
+
+{% block content %}
+<div class="govuk-width-container">
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if form %}
+        {% include "help/get-support/" + form.id + ".html" ignore missing %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

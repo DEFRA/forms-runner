@@ -75,7 +75,8 @@ export default {
       phaseTag: config.phaseTag,
       previewMode: request?.path.startsWith(PREVIEW_PATH_PREFIX)
         ? request.params.state
-        : undefined
+        : undefined,
+      slug: request?.params.slug
     })
   }
 }
