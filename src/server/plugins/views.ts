@@ -70,8 +70,6 @@ export default {
       feedbackLink: config.feedbackLink,
       pageTitle: config.serviceName + ' - GOV.UK',
       location: request?.app.location,
-      sessionTimeout: config.sessionTimeout,
-      skipTimeoutWarning: false,
       phaseTag: config.phaseTag,
       previewMode: request?.path.startsWith(PREVIEW_PATH_PREFIX)
         ? request.params.state
