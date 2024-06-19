@@ -31,7 +31,7 @@
       {% endif %}
 
       {% include "partials/heading.html" %}
-      <form method="post" enctype="multipart/form-data" autocomplete="on">
+      <form method="post" enctype="multipart/form-data" novalidate>
         <input type="hidden" name="crumb" value="{{crumb}}"/>
         {{ govukNotificationBanner({
             html: infoHtml

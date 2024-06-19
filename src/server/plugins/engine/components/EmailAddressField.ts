@@ -28,14 +28,7 @@ export class EmailAddressField extends FormComponent {
   }
 
   getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
-    const schema = this.schema
     const viewModel = super.getViewModel(formData, errors)
-
-    if ('max' in schema && schema.max) {
-      viewModel.attributes = {
-        maxlength: schema.max
-      }
-    }
 
     viewModel.type = 'email'
     viewModel.autocomplete = 'email'
