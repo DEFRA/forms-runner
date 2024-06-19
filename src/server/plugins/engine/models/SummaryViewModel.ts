@@ -240,7 +240,7 @@ function Item(
   page,
   model: FormModel,
   params: { num?: number; returnUrl: string } = {
-    returnUrl: redirectUrl(request, `/${model.basePath}/summary`)
+    returnUrl: redirectUrl(request, request.path)
   }
 ) {
   const isRepeatable = !!page.repeatField
