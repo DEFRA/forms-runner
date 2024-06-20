@@ -26,6 +26,7 @@ import { configureRateLimitPlugin } from '~/src/server/plugins/rateLimit.js'
 import pluginRouter from '~/src/server/plugins/router.js'
 import pluginSession from '~/src/server/plugins/session.js'
 import pluginViews from '~/src/server/plugins/views.js'
+import { prepareSecureContext } from '~/src/server/secure-context.js'
 import { CacheService } from '~/src/server/services/index.js'
 import { type RouteConfig } from '~/src/server/types.js'
 import getRequestInfo from '~/src/server/utils/getRequestInfo.js'
@@ -91,6 +92,11 @@ async function createServer(routeConfig: RouteConfig) {
     await server.register(configureRateLimitPlugin(routeConfig))
   }
   await server.register(pluginLogging)
+
+  if (config.isProd) {
+    prepareSecureContext(server)
+  }
+
   await server.register(pluginSession)
   await server.register(pluginPulse)
   await server.register(inert)

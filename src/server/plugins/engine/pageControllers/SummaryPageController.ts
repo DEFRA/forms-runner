@@ -241,12 +241,15 @@ async function sendEmail(
 
   try {
     // Send submission email
-    await sendNotification({
-      templateId,
-      reference: '',
-      emailAddress,
-      personalisation
-    })
+    await sendNotification(
+      {
+        templateId,
+        reference: '',
+        emailAddress,
+        personalisation
+      },
+      request.logger
+    )
 
     request.logger.info(['submit', 'email'], 'Email sent successfully')
   } catch (err) {
