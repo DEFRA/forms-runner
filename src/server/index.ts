@@ -1,5 +1,3 @@
-import fs from 'node:fs'
-
 import { Engine as CatboxMemory } from '@hapi/catbox-memory'
 import { Engine as CatboxRedis } from '@hapi/catbox-redis'
 import hapi, {
@@ -33,8 +31,6 @@ import { type RouteConfig } from '~/src/server/types.js'
 import getRequestInfo from '~/src/server/utils/getRequestInfo.js'
 
 const serverOptions = (): ServerOptions => {
-  const hasCertificate = config.sslKey && config.sslCert
-
   const serverOptions: ServerOptions = {
     debug: { request: [`${config.isDev}`] },
     port: config.port,
@@ -70,19 +66,7 @@ const serverOptions = (): ServerOptions => {
     ]
   }
 
-  const httpsOptions = hasCertificate
-    ? {
-        tls: {
-          key: fs.readFileSync(config.sslKey),
-          cert: fs.readFileSync(config.sslCert)
-        }
-      }
-    : {}
-
-  return {
-    ...serverOptions,
-    ...httpsOptions
-  }
+  return serverOptions
 }
 
 async function createServer(routeConfig: RouteConfig) {
