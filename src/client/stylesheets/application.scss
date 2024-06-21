@@ -1,4 +1,11 @@
 $govuk-assets-path: "/assets/";
 
 @import "pkg:govuk-frontend";
-@import "pkg:accessible-autocomplete/src/autocomplete";
+@import "pkg:accessible-autocomplete";
+
+// Use default GDS Transport font for autocomplete
+.autocomplete__hint,
+.autocomplete__input,
+.autocomplete__option {
+  @include govuk-typography-common;
+}
