@@ -34,7 +34,7 @@ describe(`Phase banner`, () => {
 
     const $ = load(response.payload)
 
-    expect($('.govuk-phase-banner__content__tag').text().trim()).toBe('beta')
+    expect($('.govuk-phase-banner__content__tag').text().trim()).toBe('Beta')
   })
 
   test('shows the alpha tag if selected', async () => {
@@ -54,7 +54,7 @@ describe(`Phase banner`, () => {
 
     const $ = load(response.payload)
 
-    expect($('.govuk-phase-banner__content__tag').text().trim()).toBe('alpha')
+    expect($('.govuk-phase-banner__content__tag').text().trim()).toBe('Alpha')
   })
 
   test('does not show the phase banner if None', async () => {
