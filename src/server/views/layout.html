@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block pageTitle -%}
-  {{ pageTitle }} - {{ name if name else serviceName }} - GOV.UK
+  {{ "Error: " if errors | length }}{{ pageTitle }} - {{ name if name else serviceName }} - GOV.UK
 {%- endblock %}
 
 {% block skipLink %}
