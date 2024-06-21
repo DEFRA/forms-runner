@@ -70,7 +70,6 @@ export default {
       assetPath: '/assets',
       serviceName: capitalize(config.serviceName),
       feedbackLink: config.feedbackLink,
-      pageTitle: config.serviceName + ' - GOV.UK',
       location: request?.app.location,
       phaseTag: config.phaseTag,
       previewMode: request?.path.startsWith(PREVIEW_PATH_PREFIX)

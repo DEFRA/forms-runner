@@ -12,9 +12,9 @@
   <link href="{{ assetPath }}/stylesheets/application.css" rel="stylesheet" />
 {% endblock %}
 
-{% block pageTitle %}
-  {{ pageTitle }}
-{% endblock %}
+{% block pageTitle -%}
+  {{ pageTitle }} - {{ name if name else serviceName }} - GOV.UK
+{%- endblock %}
 
 {% block skipLink %}
   {{ govukSkipLink({
