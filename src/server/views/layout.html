@@ -39,14 +39,14 @@
         {% if feedbackLink %}
             {{ govukPhaseBanner({
                 tag: {
-                    text: phaseTag
+                    text: phaseTag | capitalize
                 },
                 html: 'This is a new service – your <a class="govuk-link" href=' + feedbackLink + '>feedback</a> will help us to improve it.'
             }) }}
         {% else %}
             {{ govukPhaseBanner({
                 tag: {
-                    text: phaseTag
+                    text: phaseTag | capitalize
                 }
             }) }}
         {% endif %}
@@ -66,12 +66,10 @@
 
 
 {% block bodyEnd %}
-  <script src="{{ assetPath }}/all.js"></script>
-
-  <script>
-    $(document).ready(function () {
-        GOVUKFrontend.initAll()
-    })
+  <script type="module" src="/javascripts/govuk-frontend.min.js"></script>
+  <script type="module">
+    import { initAll } from '/javascripts/govuk-frontend.min.js'
+    initAll()
   </script>
 {% endblock %}
 

@@ -52,8 +52,8 @@
   </div>
 </div>
 
-<script src="/javascripts/accessible-autocomplete.min.js"></script>
-<script>
+<script type="module" src="/javascripts/accessible-autocomplete.min.js"></script>
+<script type="module">
   if (accessibleAutocomplete) {
     var selectEl = document.querySelector('#{{ component.model.id }}')
     accessibleAutocomplete.enhanceSelectElement({

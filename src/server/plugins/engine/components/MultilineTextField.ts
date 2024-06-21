@@ -9,13 +9,13 @@ import {
   type FormSubmissionErrors
 } from '~/src/server/plugins/engine/types.js'
 
-function inputIsOverWordCount(input, maxWords) {
-  /**
-   * This validation is copied from the govuk-frontend library to match their client side behaviour
-   * the {@link https://github.com/alphagov/govuk-frontend/blob/e1612b13771fb7ca9a58ee85393aec94a1849335/src/govuk/components/character-count/character-count.js#L91 | govuk-frontend} library
-   */
-  const wordCount = input.match(/\S+/g).length || 0
-  return maxWords > wordCount
+/**
+ * Check if the input is over the word count
+ * @see GOV.UK Frontend {@link https://github.com/alphagov/govuk-frontend/blob/v5.4.0/packages/govuk-frontend/src/govuk/components/character-count/character-count.mjs#L343 | Character count `maxwords` implementation}
+ */
+function inputIsOverWordCount(input: string, maxWords: number) {
+  const tokens = input.match(/\S+/g) ?? []
+  return maxWords > tokens.length
 }
 
 export class MultilineTextField extends FormComponent {
