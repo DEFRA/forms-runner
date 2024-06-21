@@ -10,7 +10,6 @@ export { ComponentBase as Component } from '~/src/server/plugins/engine/componen
 export { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 // export { ConditionalFormComponent } from "./ConditionalFormComponent";
 export { DatePartsField } from '~/src/server/plugins/engine/components/DatePartsField.js'
-export { DateTimePartsField } from '~/src/server/plugins/engine/components/DateTimePartsField.js'
 export { Details } from '~/src/server/plugins/engine/components/Details.js'
 export { EmailAddressField } from '~/src/server/plugins/engine/components/EmailAddressField.js'
 export { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
