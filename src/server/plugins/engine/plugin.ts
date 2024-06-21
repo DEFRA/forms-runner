@@ -1,5 +1,3 @@
-import { dirname, join } from 'node:path'
-
 import { slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
@@ -10,10 +8,7 @@ import {
 } from '@hapi/hapi'
 import { isEqual } from 'date-fns'
 import Joi from 'joi'
-import nunjucks from 'nunjucks'
-import resolvePkg from 'resolve'
 
-import config from '~/src/server/config.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
   getValidStateFromQueryParameters,
@@ -24,16 +19,6 @@ import {
   getFormDefinition,
   getFormMetadata
 } from '~/src/server/plugins/engine/services/formsService.js'
-
-const govukFrontendPath = dirname(
-  resolvePkg.sync('govuk-frontend/package.json')
-)
-
-nunjucks.configure([
-  // Configure Nunjucks to allow rendering of content that is revealed conditionally.
-  join(config.appDir, 'plugins/engine/views'),
-  govukFrontendPath
-])
 
 function normalisePath(path: string) {
   return path.replace(/^\//, '').replace(/\/$/, '')

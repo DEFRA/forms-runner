@@ -10,7 +10,6 @@ export class RepeatingSummaryPageController extends PageController {
   getPartialState!: RepeatingFieldPageController['getPartialState']
   options!: RepeatingFieldPageController['options']
   removeAtIndex!: RepeatingFieldPageController['removeAtIndex']
-  hideRowTitles!: RepeatingFieldPageController['hideRowTitles']
 
   inputComponent
 
@@ -105,16 +104,10 @@ export class RepeatingSummaryPageController extends PageController {
       const titleWithIteration = `${title} ${i + 1}`
       return {
         key: {
-          text: titleWithIteration,
-          classes: this.hideRowTitles
-            ? 'govuk-summary-list__row--hidden-titles'
-            : ''
+          text: titleWithIteration
         },
         value: {
-          text: listValueToText?.[value] ?? value,
-          classes: this.hideRowTitles
-            ? 'govuk-summary-list__key--hidden-titles'
-            : ''
+          text: listValueToText?.[value] ?? value
         },
         actions: {
           items: [

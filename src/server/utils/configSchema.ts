@@ -37,7 +37,6 @@ export const configSchema = Joi.object({
     .allow('trace', 'debug', 'info', 'warn', 'error'),
   logPrettyPrint: Joi.boolean().optional(),
   logRedactPaths: Joi.array().items(Joi.string()).default([]),
-  ordnanceSurveyKey: Joi.string().optional(),
   feedbackLink: Joi.string(),
   phaseTag: Joi.string().optional().valid('', 'alpha', 'beta'),
   redisHost: Joi.string().required(),

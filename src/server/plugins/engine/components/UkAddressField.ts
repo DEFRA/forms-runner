@@ -126,7 +126,6 @@ export class UkAddressField extends FormComponent {
   }
 
   getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
-    const options: any = this.options
     const viewModel = {
       ...super.getViewModel(formData, errors),
       children: this.formChildren.getViewModel(formData, errors)
@@ -134,14 +133,6 @@ export class UkAddressField extends FormComponent {
 
     viewModel.fieldset = {
       legend: viewModel.label
-    }
-
-    const { disableLookup } = options
-
-    if (disableLookup !== undefined) {
-      viewModel.disableLookup = disableLookup
-    } else {
-      viewModel.disableLookup = true
     }
 
     return viewModel

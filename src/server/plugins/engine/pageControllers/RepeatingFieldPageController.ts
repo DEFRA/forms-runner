@@ -17,8 +17,7 @@ function isInputType(component) {
 const DEFAULT_OPTIONS = {
   summaryDisplayMode: {
     samePage: false,
-    separatePage: true,
-    hideRowTitles: false
+    separatePage: true
   },
   customText: {}
 }
@@ -32,7 +31,6 @@ export class RepeatingFieldPageController extends PageController {
   isRepeatingFieldPageController = true
   isSamePageDisplayMode: boolean
   isSeparateDisplayMode: boolean
-  hideRowTitles: boolean
 
   options: RepeatingFieldPage['options']
 
@@ -51,7 +49,6 @@ export class RepeatingFieldPageController extends PageController {
 
     this.isSamePageDisplayMode = this.options.summaryDisplayMode.samePage!
     this.isSeparateDisplayMode = this.options.summaryDisplayMode.separatePage!
-    this.hideRowTitles = this.options.summaryDisplayMode.hideRowTitles!
 
     this.inputComponent = inputComponent as FormComponent
 
@@ -63,7 +60,6 @@ export class RepeatingFieldPageController extends PageController {
     this.summary.getPartialState = this.getPartialState
     this.summary.nextIndex = this.nextIndex
     this.summary.removeAtIndex = this.removeAtIndex
-    this.summary.hideRowTitles = this.hideRowTitles
 
     this.summary.options = this.options
   }

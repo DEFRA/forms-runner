@@ -52,7 +52,6 @@ export interface ViewModel {
   content?: Content | Content[] | string
   rows?: number
   items?: ListItem[]
-  disableLookup?: boolean
   fieldset?: {
     legend?: Label
   }
