@@ -44,13 +44,6 @@
           "schema": {}
         },
         {
-          "type": "DateTimeField",
-          "name": "dateTimeField",
-          "title": "Date time field",
-          "options": {},
-          "schema": {}
-        },
-        {
           "type": "DateTimePartsField",
           "name": "dateTimePartsField",
           "title": "Date time parts field",
@@ -180,15 +173,6 @@
           "type": "TimeField",
           "name": "timeField",
           "title": "Time field",
-          "schema": {}
-        },
-        {
-          "options": {
-            "required": false
-          },
-          "type": "DateTimeField",
-          "name": "dateTimeField",
-          "title": "Date time field",
           "schema": {}
         },
         {

@@ -34,10 +34,6 @@ Multiline text field
 12:12
 
 
-## Date time field
-12 December 2012 12:12
-
-
 ## Date time parts field
 12 December 2012 12:12
 
@@ -107,7 +103,6 @@ describe('Submission journey test', () => {
     form.append('datePartsField__month', '12')
     form.append('datePartsField__year', '2012')
     form.append('timeField', '12:12')
-    form.append('dateTimeField', '2012-12-12T12:12')
     form.append('dateTimePartsField__day', '12')
     form.append('dateTimePartsField__month', '12')
     form.append('dateTimePartsField__year', '2012')
