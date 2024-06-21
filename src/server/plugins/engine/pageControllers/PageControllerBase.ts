@@ -473,17 +473,7 @@ export class PageControllerBase {
       }
 
       formData.lang = lang
-      /**
-       * We store the original filename for the user in a separate object (`originalFileNames`), however they are not used for any of the outputs. The S3 url is stored in the state.
-       */
-      const { originalFilenames } = state
-      if (originalFilenames) {
-        Object.entries(formData).forEach(([key, value]) => {
-          if (value && value === (originalFilenames[key] || {}).location) {
-            formData[key] = originalFilenames[key].originalFilename
-          }
-        })
-      }
+
       const viewModel = this.getViewModel(formData, num)
       viewModel.startPage = startPage?.startsWith('http')
         ? redirectTo(request, h, startPage)
@@ -607,15 +597,8 @@ export class PageControllerBase {
     const payload = (request.payload || {}) as FormData
     const formResult: any = this.validateForm(payload)
     const state = await cacheService.getState(request)
-    const originalFilenames = (state || {}).originalFilenames || {}
     const progress = state.progress || []
     const { num } = request.query
-
-    Object.entries(payload).forEach(([key, value]) => {
-      if (value && value === (originalFilenames[key] || {}).location) {
-        payload[key] = originalFilenames[key].originalFilename
-      }
-    })
 
     /**
      * If there are any errors, render the page with the parsed errors
