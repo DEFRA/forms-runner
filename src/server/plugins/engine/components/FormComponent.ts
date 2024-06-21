@@ -85,8 +85,7 @@ export class FormComponent extends ComponentBase {
     const viewModel: ViewModel = {
       ...super.getViewModel(formData, errors),
       label: {
-        text: label,
-        classes: 'govuk-label--s'
+        text: label
       },
       id: name,
       name,
