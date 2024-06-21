@@ -15,7 +15,6 @@ export { DateTimeField } from '~/src/server/plugins/engine/components/DateTimeFi
 export { DateTimePartsField } from '~/src/server/plugins/engine/components/DateTimePartsField.js'
 export { Details } from '~/src/server/plugins/engine/components/Details.js'
 export { EmailAddressField } from '~/src/server/plugins/engine/components/EmailAddressField.js'
-export { FileUploadField } from '~/src/server/plugins/engine/components/FileUploadField.js'
 export { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 export { Html } from '~/src/server/plugins/engine/components/Html.js'
 export { InsetText } from '~/src/server/plugins/engine/components/InsetText.js'

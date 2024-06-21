@@ -144,9 +144,9 @@
           "options": {
             "required": false
           },
-          "type": "FileUploadField",
-          "title": "Evidence File Upload",
-          "hint": "Please upload your evidence here",
+          "type": "MultilineTextField",
+          "title": "Evidence",
+          "hint": "Please enter your evidence here",
           "schema": {}
         }
       ],

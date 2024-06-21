@@ -55,16 +55,6 @@
           "list": "O2uEB1",
           "hint": "Please check all that apply, however you are restricted to a maximum of two choices.",
           "schema": {}
-        },
-        {
-          "name": "M8gMK7",
-          "options": {
-            "required": false
-          },
-          "type": "FileUploadField",
-          "title": "Proof of address",
-          "hint": "This can be a drivers licence or utility bill dated with the last month",
-          "schema": {}
         }
       ],
       "next": [
