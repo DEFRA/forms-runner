@@ -12,7 +12,6 @@
   <link rel="preload" as="font" href="{{ assetPath }}/fonts/bold-affa96571d-v2.woff" type="font/woff" crossorigin="anonymous">
   <link rel="preload" as="font" href="{{ assetPath }}/fonts/light-f591b13f7d-v2.woff" type="font/woff" crossorigin="anonymous">
   <link href="{{ assetPath }}/stylesheets/application.css" rel="stylesheet" />
-  <script src="{{ assetPath }}/accessible-autocomplete.min.js"></script>
 {% endblock %}
 
 {% block pageTitle %}
@@ -69,9 +68,7 @@
 
 
 {% block bodyEnd %}
-  <script src="{{ assetPath }}/object-from-entries-polyfill.js"></script>
   <script src="{{ assetPath }}/all.js"></script>
-  <script src="{{ assetPath }}/govuk-template.js"></script>
 
   <script>
     $(document).ready(function () {
