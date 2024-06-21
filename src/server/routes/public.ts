@@ -21,7 +21,7 @@ export default [
         directory: {
           path: [
             join(config.publicDir, 'javascripts'),
-            join(govukFrontendPath, 'govuk'),
+            join(govukFrontendPath, 'dist/govuk'),
             join(accessibleAutocompletePath, 'dist')
           ]
         }
@@ -36,7 +36,7 @@ export default [
         directory: {
           path: [
             join(config.publicDir, 'stylesheets'),
-            join(govukFrontendPath, 'govuk'),
+            join(govukFrontendPath, 'dist/govuk'),
             join(accessibleAutocompletePath, 'dist')
           ]
         }
@@ -49,7 +49,7 @@ export default [
     options: {
       handler: {
         directory: {
-          path: join(govukFrontendPath, 'govuk/assets')
+          path: join(govukFrontendPath, 'dist/govuk/assets')
         }
       } satisfies HandlerDecorations
     }

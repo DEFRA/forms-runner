@@ -62,7 +62,7 @@ export default {
        */
       join(config.appDir, 'views'),
       join(config.appDir, 'plugins/engine/views'),
-      govukFrontendPath
+      join(govukFrontendPath, 'dist')
     ],
     isCached: !config.isDev,
     context: (request: Request | null) => ({
