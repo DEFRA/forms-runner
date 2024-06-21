@@ -22,5 +22,5 @@
     ".prettierrc.*",
     ".lintstagedrc.*"
   ],
-  "exclude": ["coverage", "node_modules", "public", ".server"]
+  "exclude": ["coverage", "node_modules", ".public", ".server"]
 }

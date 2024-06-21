@@ -46,19 +46,6 @@
   }
 }
 
-.govuk-summary-list {
-  &__row {
-    &--hidden-titles {
-      @extend .govuk-visually-hidden;
-    }
-  }
-  &__key {
-    &--hidden-titles {
-      width: 100%;
-    }
-  }
-}
-
 .govuk-button {
   &--link {
     @extend .govuk-link;
