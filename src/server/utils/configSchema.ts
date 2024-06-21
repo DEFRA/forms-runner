@@ -44,7 +44,6 @@ export const configSchema = Joi.object({
   redisUsername: Joi.string().required(),
   redisPassword: Joi.string().required(),
   serviceName: Joi.string().optional(),
-  documentUploadApiUrl: Joi.string().allow(null),
   enforceCsrf: Joi.boolean().optional(),
   sslKey: Joi.string().optional(),
   sslCert: Joi.string().optional(),

@@ -5,11 +5,7 @@
     </dt>
     <dd class="govuk-summary-list__value">
         {% if item.value %}
-            {% if item.type == 'FileUploadField' %}
-                Uploaded
-            {% else %}
-                {{item.value}}
-            {% endif %}
+            {{item.value}}
         {% else %}
             Not supplied
         {% endif %}

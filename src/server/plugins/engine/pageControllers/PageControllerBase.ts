@@ -604,61 +604,12 @@ export class PageControllerBase {
     } = {}
   ) {
     const { cacheService } = request.services([])
-    const hasFilesizeError = request.payload === null
-    const preHandlerErrors = request.pre.errors
     const payload = (request.payload || {}) as FormData
     const formResult: any = this.validateForm(payload)
     const state = await cacheService.getState(request)
     const originalFilenames = (state || {}).originalFilenames || {}
-    const fileFields = this.getViewModel(formResult)
-      .components.filter((component) => component.type === 'FileUploadField')
-      .map((component) => component.model)
     const progress = state.progress || []
     const { num } = request.query
-
-    // TODO:- Refactor this into a validation method
-    if (hasFilesizeError) {
-      const reformattedErrors = fileFields.map((field) => {
-        return {
-          path: field.name,
-          href: `#${field.name}`,
-          name: field.name,
-          text: 'The selected file must be smaller than 5MB'
-        }
-      })
-
-      formResult.errors = Object.is(formResult.errors, null)
-        ? { titleText: 'There is a problem' }
-        : formResult.errors
-      formResult.errors.errorList = reformattedErrors
-    }
-
-    /**
-     * other file related errors.. assuming file fields will be on their own page. This will replace all other errors from the page if not..
-     */
-    if (preHandlerErrors) {
-      const reformattedErrors: any[] = []
-      preHandlerErrors.forEach((error) => {
-        const reformatted = error
-        const fieldMeta = fileFields.find((field) => field.id === error.name)
-
-        if (typeof reformatted.text === 'string') {
-          /**
-           * if it's not a string it's probably going to be a stack trace.. don't want to show that to the user. A problem for another day.
-           */
-          reformatted.text = reformatted.text.replace(
-            /%s/,
-            fieldMeta?.label?.text.trim() ?? 'the file'
-          )
-          reformattedErrors.push(reformatted)
-        }
-      })
-
-      formResult.errors = Object.is(formResult.errors, null)
-        ? { titleText: 'There is a problem' }
-        : formResult.errors
-      formResult.errors.errorList = reformattedErrors
-    }
 
     Object.entries(payload).forEach(([key, value]) => {
       if (value && value === (originalFilenames[key] || {}).location) {

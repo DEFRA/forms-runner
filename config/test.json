@@ -6,6 +6,5 @@
   "isTest": true,
   "enforceCsrf": false,
   "initialisedSessionKey": "predictable-key",
-  "env": "test",
-  "documentUploadApiUrl": "http://localhost:9000"
+  "env": "test"
 }
