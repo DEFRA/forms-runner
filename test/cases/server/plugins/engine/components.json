@@ -31,13 +31,6 @@
           "schema": {}
         },
         {
-          "type": "DateField",
-          "name": "dateField",
-          "title": "Date field",
-          "options": {},
-          "schema": {}
-        },
-        {
           "type": "DatePartsField",
           "name": "datePartsField",
           "title": "Date parts field",
@@ -153,13 +146,6 @@
           "type": "NumberField",
           "name": "numberField",
           "title": "Number field",
-          "schema": {}
-        },
-        {
-          "options": { "required": false },
-          "type": "DateField",
-          "name": "dateField",
-          "title": "Date field",
           "schema": {}
         },
         {

@@ -1,6 +1,6 @@
 /**
  * IMPORTANT: Exported Components must follow the naming convention implemented in {@link @defra/forms-model#ComponentType}
- * In the Form JSON, components have a type property which is the name of the components, e.g. DateField.
+ * In the Form JSON, components have a type property which is the name of the components, e.g. DatePartsField.
  * Components are loaded in the ComponentsCollection constructor.
  */
 
@@ -9,7 +9,6 @@ export { CheckboxesField } from '~/src/server/plugins/engine/components/Checkbox
 export { ComponentBase as Component } from '~/src/server/plugins/engine/components/ComponentBase.js'
 export { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 // export { ConditionalFormComponent } from "./ConditionalFormComponent";
-export { DateField } from '~/src/server/plugins/engine/components/DateField.js'
 export { DatePartsField } from '~/src/server/plugins/engine/components/DatePartsField.js'
 export { DateTimeField } from '~/src/server/plugins/engine/components/DateTimeField.js'
 export { DateTimePartsField } from '~/src/server/plugins/engine/components/DateTimePartsField.js'

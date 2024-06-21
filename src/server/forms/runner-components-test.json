@@ -43,7 +43,7 @@
         {
           "name": "tVlnZa",
           "options": {},
-          "type": "DateField",
+          "type": "DatePartsField",
           "title": "What date was the vehicle registered at this address?",
           "schema": {}
         },
