@@ -43,8 +43,10 @@ export default {
         },
         prepare: (options, next) => {
           const environment = nunjucks.configure(options.path, {
-            autoescape: true,
-            watch: false
+            trimBlocks: true,
+            lstripBlocks: true,
+            watch: config.isDev,
+            noCache: config.isDev
           })
           environment.addGlobal('additionalContexts', additionalContexts)
           environment.addFilter('isArray', (x) => Array.isArray(x))
