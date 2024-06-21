@@ -55,7 +55,7 @@
     "@hapi/yar": "^11.0.2",
     "@hapipal/schmervice": "^3.0.0",
     "accept-language-parser": "^1.5.0",
-    "accessible-autocomplete": "^2.0.2",
+    "accessible-autocomplete": "^3.0.0",
     "atob": "^2.1.2",
     "blankie": "^5.0.0",
     "blipp": "^4.0.2",
