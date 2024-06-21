@@ -4,5 +4,6 @@
     "NODE_ENV": "development"
   },
   "ignore": ["**/*.test.*"],
-  "ext": "cjs,js,json,ts"
+  "ext": "cjs,js,json,ts",
+  "signal": "SIGINT"
 }
