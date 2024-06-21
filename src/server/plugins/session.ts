@@ -21,8 +21,7 @@ export default {
     // storeBlank: false,
     cookieOptions: {
       password: config.sessionCookiePassword,
-      isSecure: !!config.isDev,
-      isHttpOnly: true
+      isSecure: !!config.isDev
     }
   }
 }

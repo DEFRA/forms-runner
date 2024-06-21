@@ -13,10 +13,7 @@ export const configureCrumbPlugin = (
       logUnauthorized: true,
       enforce: routeConfig?.enforceCsrf ?? config?.enforceCsrf,
       cookieOptions: {
-        path: '/',
         isSecure: !config.isDev,
-        isHttpOnly: true,
-        isSameSite: 'Strict'
       },
       skip: (request: any) => {
         const skippedRoutes = ['/session']
