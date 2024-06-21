@@ -80,7 +80,6 @@ module.exports = {
   // This is not the case if either are set to "test", or if the node env is set to "development"
   // payReturnUrl: "http://localhost:3009"
   // documentUploadApiUrl: "",
-  // ordnanceSurveyKey: "", // deprecated - this API is deprecated
 
   /**
    * Logging

@@ -28,7 +28,6 @@ import pluginRouter from '~/src/server/plugins/router.js'
 import pluginSession from '~/src/server/plugins/session.js'
 import pluginViews from '~/src/server/plugins/views.js'
 import {
-  AddressService,
   CacheService,
   UploadService,
   MockUploadService
@@ -110,7 +109,7 @@ async function createServer(routeConfig: RouteConfig) {
   await server.register(configureCrumbPlugin(config, routeConfig))
   await server.register(Schmervice)
 
-  server.registerService([CacheService, AddressService])
+  server.registerService(CacheService)
   if (!config.documentUploadApiUrl) {
     server.registerService([
       Schmervice.withName('uploadService', {}, MockUploadService)
