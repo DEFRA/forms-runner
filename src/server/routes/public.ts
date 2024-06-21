@@ -1,5 +1,6 @@
 import { dirname, join } from 'node:path'
 
+import { type HandlerDecorations, type ServerRoute } from '@hapi/hapi'
 import resolvePkg from 'resolve'
 
 import config from '~/src/server/config.js'
@@ -14,19 +15,43 @@ const [accessibleAutocompletePath, govukFrontendPath] = [
 export default [
   {
     method: 'GET',
-    path: '/assets/{path*}',
+    path: '/javascripts/{path*}',
     options: {
       handler: {
         directory: {
           path: [
-            join(config.publicDir, 'static'),
-            join(config.publicDir, 'build'),
+            join(config.publicDir, 'javascripts'),
             join(govukFrontendPath, 'govuk'),
-            join(govukFrontendPath, 'govuk/assets'),
             join(accessibleAutocompletePath, 'dist')
           ]
         }
-      }
+      } satisfies HandlerDecorations
+    }
+  },
+  {
+    method: 'GET',
+    path: '/stylesheets/{path*}',
+    options: {
+      handler: {
+        directory: {
+          path: [
+            join(config.publicDir, 'stylesheets'),
+            join(govukFrontendPath, 'govuk'),
+            join(accessibleAutocompletePath, 'dist')
+          ]
+        }
+      } satisfies HandlerDecorations
+    }
+  },
+  {
+    method: 'GET',
+    path: '/assets/{path*}',
+    options: {
+      handler: {
+        directory: {
+          path: join(govukFrontendPath, 'govuk/assets')
+        }
+      } satisfies HandlerDecorations
     }
   }
-]
+] satisfies ServerRoute[]

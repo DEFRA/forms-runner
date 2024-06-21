@@ -628,7 +628,7 @@ export class PageControllerBase {
       })
 
       formResult.errors = Object.is(formResult.errors, null)
-        ? { titleText: 'Fix the following errors' }
+        ? { titleText: 'There is a problem' }
         : formResult.errors
       formResult.errors.errorList = reformattedErrors
     }
@@ -655,7 +655,7 @@ export class PageControllerBase {
       })
 
       formResult.errors = Object.is(formResult.errors, null)
-        ? { titleText: 'Fix the following errors' }
+        ? { titleText: 'There is a problem' }
         : formResult.errors
       formResult.errors.errorList = reformattedErrors
     }
@@ -833,7 +833,7 @@ export class PageControllerBase {
   }
 
   get errorSummaryTitle() {
-    return 'Fix the following errors'
+    return 'There is a problem'
   }
 
   /**

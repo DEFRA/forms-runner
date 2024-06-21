@@ -50,8 +50,8 @@ WORKDIR /home/node/app
 
 COPY --from=productionBuild /home/node/app/package*.json ./
 COPY --from=productionBuild /home/node/app/config ./config
+COPY --from=productionBuild /home/node/app/.public ./.public
 COPY --from=productionBuild /home/node/app/.server ./.server
-COPY --from=productionBuild /home/node/app/public ./public
 
 RUN npm ci --omit=dev
 

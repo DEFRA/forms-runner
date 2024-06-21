@@ -12,9 +12,9 @@ module.exports = {
   reporters: ['default', ['github-actions', { silent: false }], 'summary'],
   collectCoverageFrom: ['src/**/*.{cjs,js,mjs,ts}'],
   modulePathIgnorePatterns: [
+    '<rootDir>/.public/',
     '<rootDir>/.server/',
-    '<rootDir>/coverage/',
-    '<rootDir>/public/'
+    '<rootDir>/coverage/'
   ],
   coverageDirectory: '<rootDir>/coverage',
   setupFiles: ['<rootDir>/jest.setup.cjs'],

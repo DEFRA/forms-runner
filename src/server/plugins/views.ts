@@ -43,8 +43,10 @@ export default {
         },
         prepare: (options, next) => {
           const environment = nunjucks.configure(options.path, {
-            autoescape: true,
-            watch: false
+            trimBlocks: true,
+            lstripBlocks: true,
+            watch: config.isDev,
+            noCache: config.isDev
           })
           environment.addGlobal('additionalContexts', additionalContexts)
           environment.addFilter('isArray', (x) => Array.isArray(x))
@@ -68,7 +70,6 @@ export default {
       assetPath: '/assets',
       serviceName: capitalize(config.serviceName),
       feedbackLink: config.feedbackLink,
-      pageTitle: config.serviceName + ' - GOV.UK',
       location: request?.app.location,
       phaseTag: config.phaseTag,
       previewMode: request?.path.startsWith(PREVIEW_PATH_PREFIX)

@@ -13,7 +13,6 @@ describe('Date time parts field', () => {
 
     expect(returned.fieldset).toEqual({
       legend: {
-        classes: 'govuk-label--s',
         text: def.title
       }
     })
@@ -38,7 +37,6 @@ describe('Date time parts field', () => {
 
     expect(returned.fieldset).toEqual({
       legend: {
-        classes: 'govuk-label--s',
         text: `${def.title} (optional)`
       }
     })

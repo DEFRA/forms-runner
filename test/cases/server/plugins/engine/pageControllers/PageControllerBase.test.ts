@@ -55,7 +55,7 @@ describe('PageControllerBase', () => {
     }
 
     expect(page.getErrors(error)).toEqual({
-      titleText: 'Fix the following errors',
+      titleText: 'There is a problem',
       errorList: [
         {
           path: 'approximate',

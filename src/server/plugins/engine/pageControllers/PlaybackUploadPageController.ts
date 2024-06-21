@@ -16,8 +16,7 @@ export class PlaybackUploadPageController extends PageController {
     fieldset: {
       legend: {
         text: 'Would you like to upload a new image?',
-        isPageHeading: false,
-        classes: 'govuk-fieldset__legend--s'
+        isPageHeading: false
       }
     },
     items: [

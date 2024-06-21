@@ -28,28 +28,42 @@ export class UkAddressField extends FormComponent {
         name: 'addressLine1',
         title: 'Address line 1',
         schema: { max: 100 },
-        options: { required: isRequired }
+        options: {
+          autocomplete: 'address-line1',
+          required: isRequired
+        }
       },
       {
         type: 'TextField',
         name: 'addressLine2',
         title: 'Address line 2',
         schema: { max: 100, allow: '' },
-        options: { required: false }
+        options: {
+          autocomplete: 'address-line2',
+          required: false
+        }
       },
       {
         type: 'TextField',
         name: 'town',
         title: 'Town or city',
         schema: { max: 100 },
-        options: { required: isRequired }
+        options: {
+          autocomplete: 'address-level2',
+          classes: 'govuk-!-width-two-thirds',
+          required: isRequired
+        }
       },
       {
         type: 'TextField',
         name: 'postcode',
         title: 'Postcode',
         schema: { max: 10 },
-        options: { required: isRequired }
+        options: {
+          autocomplete: 'postal-code',
+          classes: 'govuk-input--width-10',
+          required: isRequired
+        }
       }
     ]
 
