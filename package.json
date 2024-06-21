@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "build": "npm run build:server && npm run build:client",
-    "build:client": "sass ./src/client/sass/application.scss ./public/build/stylesheets/application.min.css --embed-sources --pkg-importer=node --quiet-deps --style compressed",
+    "build:client": "sass ./src/client/stylesheets/application.scss ./.public/stylesheets/application.min.css --embed-sources --pkg-importer=node --quiet-deps --style compressed",
     "build:server": "babel --delete-dir-on-start --extensions \".js\",\".ts\" --ignore \"**/*.test.ts\" --copy-files --no-copy-ignored --source-maps --out-dir ./.server ./src",
     "dev": "concurrently \"npm run client:watch\" \"npm run server:watch\"",
     "dev:debug": "concurrently \"npm run client:watch\" \"npm run server:debug\"",

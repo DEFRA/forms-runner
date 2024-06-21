@@ -77,8 +77,8 @@ jobs:
           enableCrossOsArchive: true
           key: npm-build-${{ runner.os }}-${{ github.sha }}
           path: |
+            .public
             .server
-            public/build
 
       - name: Run build
         run: npm run build
@@ -160,8 +160,8 @@ jobs:
           enableCrossOsArchive: true
           key: npm-build-${{ runner.os }}-${{ github.sha }}
           path: |
+            .public
             .server
-            public/build
 
       - name: Run task
         run: ${{ matrix.task.run }}
