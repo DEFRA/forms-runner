@@ -28,6 +28,5 @@ export { TelephoneNumberField } from '~/src/server/plugins/engine/components/Tel
 export { TextField } from '~/src/server/plugins/engine/components/TextField.js'
 export { TimeField } from '~/src/server/plugins/engine/components/TimeField.js'
 export { UkAddressField } from '~/src/server/plugins/engine/components/UkAddressField.js'
-export { WebsiteField } from '~/src/server/plugins/engine/components/WebsiteField.js'
 export { YesNoField } from '~/src/server/plugins/engine/components/YesNoField.js'
 export { MonthYearField } from '~/src/server/plugins/engine/components/MonthYearField.js'
