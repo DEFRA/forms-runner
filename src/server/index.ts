@@ -12,8 +12,7 @@ import Schmervice from '@hapipal/schmervice'
 import blipp from 'blipp'
 import { ProxyAgent } from 'proxy-agent'
 
-import { buildRedisClient } from './common/helpers/redis-client.js'
-
+import { buildRedisClient } from '~/src/server/common/helpers/redis-client.js'
 import config from '~/src/server/config.js'
 import { configureBlankiePlugin } from '~/src/server/plugins/blankie.js'
 import { configureCrumbPlugin } from '~/src/server/plugins/crumb.js'
