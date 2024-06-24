@@ -7,8 +7,10 @@ import hapi, {
 } from '@hapi/hapi'
 import inert from '@hapi/inert'
 import Scooter from '@hapi/scooter'
+import Wreck from '@hapi/wreck'
 import Schmervice from '@hapipal/schmervice'
 import blipp from 'blipp'
+import { ProxyAgent } from 'proxy-agent'
 
 import { buildRedisClient } from './common/helpers/redis-client.js'
 
@@ -28,6 +30,14 @@ import { prepareSecureContext } from '~/src/server/secure-context.js'
 import { CacheService } from '~/src/server/services/index.js'
 import { type RouteConfig } from '~/src/server/types.js'
 import getRequestInfo from '~/src/server/utils/getRequestInfo.js'
+
+const proxyAgent = new ProxyAgent()
+
+Wreck.agents = {
+  https: proxyAgent,
+  http: proxyAgent,
+  httpsAllowUnauthorized: proxyAgent
+}
 
 const serverOptions = (): ServerOptions => {
   const serverOptions: ServerOptions = {
