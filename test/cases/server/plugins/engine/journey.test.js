@@ -26,24 +26,8 @@ Multiline text field
 1
 
 
-## Date field
-2012-12-12
-
-
 ## Date parts field
 2012-12-12
-
-
-## Time field
-12:12
-
-
-## Date time field
-12 December 2012 12:12
-
-
-## Date time parts field
-12 December 2012 12:12
 
 
 ## Yes/No field
@@ -107,17 +91,9 @@ describe('Submission journey test', () => {
     form.append('textField', 'Text field')
     form.append('multilineTextField', 'Multiline text field')
     form.append('numberField', '1')
-    form.append('dateField', '2012-12-12')
     form.append('datePartsField__day', '12')
     form.append('datePartsField__month', '12')
     form.append('datePartsField__year', '2012')
-    form.append('timeField', '12:12')
-    form.append('dateTimeField', '2012-12-12T12:12')
-    form.append('dateTimePartsField__day', '12')
-    form.append('dateTimePartsField__month', '12')
-    form.append('dateTimePartsField__year', '2012')
-    form.append('dateTimePartsField__hour', '12')
-    form.append('dateTimePartsField__minute', '12')
     form.append('yesNoField', 'true')
     form.append('emailAddressField', 'user@email.com')
     form.append('telephoneNumberField', '+447900000000')

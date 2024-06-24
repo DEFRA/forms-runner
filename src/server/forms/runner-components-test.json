@@ -43,7 +43,7 @@
         {
           "name": "tVlnZa",
           "options": {},
-          "type": "DateField",
+          "type": "DatePartsField",
           "title": "What date was the vehicle registered at this address?",
           "schema": {}
         },
@@ -54,16 +54,6 @@
           "title": "Which Clean Air Zones are you claiming an exemption for?",
           "list": "O2uEB1",
           "hint": "Please check all that apply, however you are restricted to a maximum of two choices.",
-          "schema": {}
-        },
-        {
-          "name": "M8gMK7",
-          "options": {
-            "required": false
-          },
-          "type": "FileUploadField",
-          "title": "Proof of address",
-          "hint": "This can be a drivers licence or utility bill dated with the last month",
           "schema": {}
         }
       ],

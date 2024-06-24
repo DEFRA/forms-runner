@@ -9,13 +9,13 @@ describe('PageControllerBase', () => {
       name: '',
       components: [
         {
-          name: 'approximate',
+          name: 'date',
           options: {
             required: true,
             maxDaysInFuture: 30
           },
-          type: 'DateField',
-          title: 'Approximate date of marriage',
+          type: 'DatePartsField',
+          title: 'Date of marriage',
           schema: {}
         }
       ],
@@ -43,8 +43,8 @@ describe('PageControllerBase', () => {
         details: [
           {
             message:
-              '"Approximate date of marriage" must be on or before 2021-12-25T00:00:00.000Z',
-            path: ['approximate']
+              '"Date of marriage" must be on or before 2021-12-25T00:00:00.000Z',
+            path: ['date']
           },
           {
             message: 'something invalid',
@@ -58,10 +58,10 @@ describe('PageControllerBase', () => {
       titleText: 'There is a problem',
       errorList: [
         {
-          path: 'approximate',
-          href: '#approximate',
-          name: 'approximate',
-          text: `"Approximate date of marriage" must be on or before 25 December 2021`
+          path: 'date',
+          href: '#date',
+          name: 'date',
+          text: `"Date of marriage" must be on or before 25 December 2021`
         },
         {
           path: 'somethingElse',
