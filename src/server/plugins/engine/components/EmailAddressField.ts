@@ -3,8 +3,7 @@ import { type InputFieldsComponentsDef } from '@defra/forms-model'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import {
   getStateSchemaKeys,
-  getFormSchemaKeys,
-  addClassOptionIfNone
+  getFormSchemaKeys
 } from '~/src/server/plugins/engine/components/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
@@ -16,7 +15,6 @@ export class EmailAddressField extends FormComponent {
   constructor(def: InputFieldsComponentsDef, model: FormModel) {
     super(def, model)
     this.schema.email = true
-    addClassOptionIfNone(this.options, 'govuk-input--width-20')
   }
 
   getFormSchemaKeys() {
