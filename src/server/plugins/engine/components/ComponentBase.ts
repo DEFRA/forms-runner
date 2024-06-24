@@ -10,6 +10,10 @@ import {
   type ViewModel
 } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import {
+  type FormPayload,
+  type FormSubmissionErrors
+} from '~/src/server/plugins/engine/types.js'
 
 export class ComponentBase {
   type: ComponentDef['type']
@@ -42,9 +46,15 @@ export class ComponentBase {
   }
 
   /**
-   * parses FormData and returns an object provided to a govuk-frontend template to render
+   * parses form payload and returns an object provided to a govuk-frontend template to render
    */
-  getViewModel(): ViewModel {
+  getViewModel(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    payload: FormPayload,
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    errors?: FormSubmissionErrors
+  ): ViewModel {
     return {
       attributes: {}
     }

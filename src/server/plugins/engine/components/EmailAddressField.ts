@@ -7,7 +7,7 @@ import {
 } from '~/src/server/plugins/engine/components/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
-  type FormData,
+  type FormPayload,
   type FormSubmissionErrors
 } from '~/src/server/plugins/engine/types.js'
 
@@ -25,8 +25,8 @@ export class EmailAddressField extends FormComponent {
     return getStateSchemaKeys(this.name, 'string', this)
   }
 
-  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
-    const viewModel = super.getViewModel(formData, errors)
+  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+    const viewModel = super.getViewModel(payload, errors)
 
     viewModel.type = 'email'
     viewModel.autocomplete = 'email'

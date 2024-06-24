@@ -5,7 +5,7 @@ import { FormComponent } from '~/src/server/plugins/engine/components/FormCompon
 import { type MultilineTextFieldViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
-  type FormData,
+  type FormPayload,
   type FormSubmissionErrors
 } from '~/src/server/plugins/engine/types.js'
 
@@ -76,13 +76,13 @@ export class MultilineTextField extends FormComponent {
   }
 
   getViewModel(
-    formData: FormData,
+    payload: FormPayload,
     errors?: FormSubmissionErrors
   ): MultilineTextFieldViewModel {
     const schema = this.schema
     const options = this.options
     const viewModel = super.getViewModel(
-      formData,
+      payload,
       errors
     ) as MultilineTextFieldViewModel
     viewModel.isCharacterOrWordCount = this.isCharacterOrWordCount

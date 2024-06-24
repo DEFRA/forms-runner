@@ -112,10 +112,10 @@ export class PageControllerBase {
 
   /**
    * Used for mapping FormData and errors to govuk-frontend's template api, so a page can be rendered
-   * @param formData - contains a user's form payload, and any validation errors that may have occurred
+   * @param payload - contains a user's form payload, and any validation errors that may have occurred
    */
   getViewModel(
-    formData: FormData,
+    payload: FormPayload,
     iteration?: number,
     errors?: FormSubmissionErrors
   ): {
@@ -143,7 +143,7 @@ export class PageControllerBase {
       sectionTitle = `${sectionTitle} ${iteration}`
     }
 
-    const components = this.components.getViewModel(formData, errors)
+    const components = this.components.getViewModel(payload, errors)
     const formComponents = components.filter(
       ({ isFormComponent }) => isFormComponent
     )
@@ -329,8 +329,8 @@ export class PageControllerBase {
     }
   }
 
-  getStateFromValidForm(formData: FormPayload) {
-    return this.components.getStateFromValidForm(formData)
+  getStateFromValidForm(payload: FormPayload) {
+    return this.components.getStateFromValidForm(payload)
   }
 
   /**
@@ -471,7 +471,7 @@ export class PageControllerBase {
       const progress = state.progress ?? []
       const { num } = request.query
       const startPage = this.model.def.startPage
-      const formData = this.getFormDataFromState(state, num - 1)
+      const payload = this.getFormDataFromState(state, num - 1)
 
       const isStartPage = this.path === `${startPage}`
       const isInitialisedSession = !!state.callback
@@ -484,7 +484,7 @@ export class PageControllerBase {
           : redirectTo(request, h, `/${this.model.basePath}${startPage}`)
       }
 
-      const viewModel = this.getViewModel(formData, num)
+      const viewModel = this.getViewModel(payload, num)
 
       viewModel.startPage = startPage?.startsWith('http')
         ? redirectTo(request, h, startPage)
@@ -605,7 +605,7 @@ export class PageControllerBase {
     } = {}
   ) {
     const { cacheService } = request.services([])
-    const payload = (request.payload || {}) as FormData
+    const payload = (request.payload || {}) as FormPayload
     const formResult = this.validateForm(payload)
     const state = await cacheService.getState(request)
     const progress = state.progress || []

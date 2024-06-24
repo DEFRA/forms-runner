@@ -78,17 +78,17 @@ export class ComponentCollection {
       .reduce((acc, curr) => merge(acc, curr), {})
   }
 
-  getFormDataFromState(state: FormSubmissionState): any {
-    const formData = {}
+  getFormDataFromState(state: FormSubmissionState): FormData {
+    const payload = {}
 
     this.formItems.forEach((item) => {
-      Object.assign(formData, item.getFormDataFromState(state))
+      Object.assign(payload, item.getFormDataFromState(state))
     })
 
-    return formData
+    return payload
   }
 
-  getStateFromValidForm(payload: FormPayload): Record<string, any> {
+  getStateFromValidForm(payload: FormPayload) {
     const state = {}
 
     this.formItems.forEach((item) => {
@@ -99,7 +99,7 @@ export class ComponentCollection {
   }
 
   getViewModel(
-    formData: FormData | FormSubmissionState,
+    payload: FormPayload,
     errors?: FormSubmissionErrors,
     conditions?: FormModel['conditions']
   ): ComponentCollectionViewModel {
@@ -107,14 +107,14 @@ export class ComponentCollection {
       return {
         type: 'type' in item ? item.type : undefined,
         isFormComponent: 'isFormComponent' in item && item.isFormComponent,
-        model: item.getViewModel(formData, errors)
+        model: item.getViewModel(payload, errors)
       }
     })
 
     if (conditions) {
       return result.filter((item) =>
         'condition' in item.model
-          ? conditions[item.model.condition]?.fn(formData)
+          ? conditions[item.model.condition]?.fn(payload)
           : true
       )
     }

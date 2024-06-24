@@ -123,18 +123,18 @@ export class UkAddressField extends FormComponent {
       [`${name}__addressLine2`]: value?.addressLine2,
       [`${name}__town`]: value?.town,
       [`${name}__postcode`]: value?.postcode
-    }
+    } satisfies FormData
   }
 
   getStateValueFromValidForm(payload: FormPayload) {
     const name = this.name
     return payload[`${name}__addressLine1`]
-      ? {
+      ? ({
           addressLine1: payload[`${name}__addressLine1`],
           addressLine2: payload[`${name}__addressLine2`],
           town: payload[`${name}__town`],
           postcode: payload[`${name}__postcode`]
-        }
+        } satisfies FormData)
       : null
   }
 
@@ -151,10 +151,10 @@ export class UkAddressField extends FormComponent {
       : ''
   }
 
-  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
+  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     const { formChildren, options } = this
 
-    const viewModel = super.getViewModel(formData, errors)
+    const viewModel = super.getViewModel(payload, errors)
     let { children, fieldset, label } = viewModel
 
     fieldset ??= {
@@ -172,7 +172,7 @@ export class UkAddressField extends FormComponent {
       }
     }
 
-    children = formChildren.getViewModel(formData, errors)
+    children = formChildren.getViewModel(payload, errors)
 
     return {
       ...viewModel,

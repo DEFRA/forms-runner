@@ -9,9 +9,9 @@ import { type FormModel } from '~/src/server/plugins/engine/components/../models
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type DataType } from '~/src/server/plugins/engine/components/types.js'
 import {
+  type FormPayload,
   type FormSubmissionState,
-  type FormSubmissionErrors,
-  type FormData
+  type FormSubmissionErrors
 } from '~/src/server/plugins/engine/types.js'
 
 export class ListFormComponent extends FormComponent {
@@ -69,15 +69,15 @@ export class ListFormComponent extends FormComponent {
     return item?.text ?? ''
   }
 
-  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
+  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     const { name, items } = this
-    const viewModel = super.getViewModel(formData, errors)
+    const viewModel = super.getViewModel(payload, errors)
     const viewModelItems = items.map(
       ({ text, value, description = '', condition }) => ({
         text,
         value,
         description,
-        selected: `${value}` === `${formData[name]}`,
+        selected: `${value}` === `${payload[name]}`,
         condition: condition ?? undefined
       })
     )

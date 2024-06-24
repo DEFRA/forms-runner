@@ -63,10 +63,7 @@ export interface FormPayload {
   [k: string]: any // the list of values [{ [inputNameOrID]: value }, ...] posted with the form in every page submission.
 }
 
-export interface FormData {
-  value?: FormPayload
-  errors?: FormSubmissionErrors | null
-}
+export type FormData = Omit<FormPayload, 'crumb'>
 
 export interface FormValidationResult<ValueType extends object = FormPayload> {
   value?: ValueType
