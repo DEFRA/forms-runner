@@ -71,8 +71,6 @@ export const plugin = {
     const itemCache = new Map()
     server.app.models = itemCache
 
-    const { uploadService } = server.services([])
-
     const queryParamPreHandler = async (
       request: Request,
       h: ResponseToolkit
@@ -206,16 +204,6 @@ export const plugin = {
       throw Boom.notFound('No form or page found')
     }
 
-    const handleFiles = (request: Request, h: ResponseToolkit) => {
-      const { path, id } = request.params
-      const model = request.app.model
-      const page = model?.pages.find(
-        (page) => normalisePath(page.path) === normalisePath(path)
-      )
-
-      return uploadService.handleUploadRequest(request, h, page.pageDef)
-    }
-
     const postHandler = (request: Request, h: ResponseToolkit) => {
       const { path } = request.params
       const model = request.app.model
@@ -320,13 +308,12 @@ export const plugin = {
         output: 'stream',
         parse: true,
         multipart: { output: 'stream' },
-        maxBytes: uploadService.fileSizeLimit,
         failAction: (request: Request, h: ResponseToolkit) => {
           request.server.plugins.crumb.generate?.(request, h)
           return h.continue
         }
       },
-      pre: [{ method: loadFormPreHandler }, { method: handleFiles }]
+      pre: [{ method: loadFormPreHandler }]
     }
 
     server.route({

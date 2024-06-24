@@ -35,12 +35,6 @@ export class PageController extends PageControllerBase {
         failAction: 'ignore'
       },
       ext: {
-        onPreHandler: {
-          method: async (request: Request, h: ResponseToolkit) => {
-            const { uploadService } = request.services([])
-            return uploadService.handleUploadRequest(request, h, this.pageDef)
-          }
-        },
         onPostHandler: {
           method: async (_request: Request, h: ResponseToolkit) => {
             return h.continue
