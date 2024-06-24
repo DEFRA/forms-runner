@@ -38,13 +38,6 @@
           "schema": {}
         },
         {
-          "type": "TimeField",
-          "name": "timeField",
-          "title": "Time field",
-          "options": {},
-          "schema": {}
-        },
-        {
           "type": "YesNoField",
           "name": "yesNoField",
           "title": "Yes/No field",
@@ -139,13 +132,6 @@
           "type": "DatePartsField",
           "name": "datePartsField",
           "title": "Date parts field",
-          "schema": {}
-        },
-        {
-          "options": { "required": false },
-          "type": "TimeField",
-          "name": "timeField",
-          "title": "Time field",
           "schema": {}
         },
         {

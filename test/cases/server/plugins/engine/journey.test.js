@@ -30,10 +30,6 @@ Multiline text field
 2012-12-12
 
 
-## Time field
-12:12
-
-
 ## Yes/No field
 yes
 
@@ -98,7 +94,6 @@ describe('Submission journey test', () => {
     form.append('datePartsField__day', '12')
     form.append('datePartsField__month', '12')
     form.append('datePartsField__year', '2012')
-    form.append('timeField', '12:12')
     form.append('yesNoField', 'true')
     form.append('emailAddressField', 'user@email.com')
     form.append('telephoneNumberField', '+447900000000')
