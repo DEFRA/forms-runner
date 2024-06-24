@@ -1,15 +1,19 @@
+import { ComponentType, type ComponentDef } from '@defra/forms-model'
+
 import { TelephoneNumberField } from '~/src/server/plugins/engine/components/index.js'
 
 describe('Telephone number field', () => {
   test('Should supply custom validation message if defined', () => {
-    const def = {
+    const def: ComponentDef = {
       name: 'myComponent',
       title: 'My component',
       hint: 'a hint',
+      type: ComponentType.TelephoneNumberField,
       options: {
         customValidationMessage: 'This is a custom error',
         required: false
-      }
+      },
+      schema: {}
     }
     const telephoneNumberField = new TelephoneNumberField(def, {})
     const { schema } = telephoneNumberField
@@ -24,10 +28,11 @@ describe('Telephone number field', () => {
   })
 
   test('Should validate when schema options are supplied', () => {
-    const def = {
+    const def: ComponentDef = {
       name: 'myComponent',
       title: 'My component',
       hint: 'a hint',
+      type: ComponentType.TelephoneNumberField,
       options: {},
       schema: {
         min: 3,
@@ -52,10 +57,11 @@ describe('Telephone number field', () => {
   })
 
   test('Should apply default schema if no options are passed', () => {
-    const def = {
+    const def: ComponentDef = {
       name: 'myComponent',
       title: 'My component',
       hint: 'a hint',
+      type: ComponentType.TelephoneNumberField,
       options: {},
       schema: {}
     }
@@ -67,10 +73,11 @@ describe('Telephone number field', () => {
     )
   })
   test("Should add 'tel' to the autocomplete attribute", () => {
-    const def = {
+    const def: ComponentDef = {
       name: 'myComponent',
       title: 'My component',
       hint: 'a hint',
+      type: ComponentType.TelephoneNumberField,
       options: {},
       schema: {}
     }

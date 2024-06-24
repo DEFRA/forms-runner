@@ -1,3 +1,4 @@
+import { type ComponentDef, ComponentType } from '@defra/forms-model'
 import joi from 'joi'
 
 import { MonthYearField } from '~/src/server/plugins/engine/components/index.js'
@@ -12,12 +13,13 @@ const validate = (schema, value) => {
 
 describe('Month Year Field', () => {
   test('Should validate month and year correctly', () => {
-    const def = {
+    const def: ComponentDef = {
       name: 'myComponent',
       title: 'My component',
       hint: 'a hint',
-      type: 'MonthYearField',
-      options: {}
+      type: ComponentType.MonthYearField,
+      options: {},
+      schema: {}
     }
 
     const monthYearField = new MonthYearField(def)

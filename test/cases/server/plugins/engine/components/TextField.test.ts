@@ -1,16 +1,23 @@
+import {
+  ComponentSubType,
+  ComponentType,
+  type ComponentDef
+} from '@defra/forms-model'
+
 import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
 import { messages } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 
 describe('TextField', () => {
   describe('Generated schema', () => {
-    const componentDefinition = {
-      subType: 'field',
-      type: 'TextField',
-      name: 'firstName',
+    const componentDefinition: ComponentDef = {
       title: "What's your first name?",
+      name: 'firstName',
+      type: ComponentType.TextField,
+      subType: ComponentSubType.Field,
       options: {
         autocomplete: 'given-name'
-      }
+      },
+      schema: {}
     }
 
     const formModel = {

@@ -1,4 +1,7 @@
-import { type InputFieldsComponentsDef } from '@defra/forms-model'
+import {
+  ComponentType,
+  type InputFieldsComponentsDef
+} from '@defra/forms-model'
 import { type Schema } from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
@@ -24,7 +27,7 @@ export class MonthYearField extends FormComponent {
     this.children = new ComponentCollection(
       [
         {
-          type: 'NumberField',
+          type: ComponentType.NumberField,
           name: `${this.name}__month`,
           title: 'Month',
           schema: { min: 1, max: 12 },
@@ -35,7 +38,7 @@ export class MonthYearField extends FormComponent {
           }
         },
         {
-          type: 'NumberField',
+          type: ComponentType.NumberField,
           name: `${this.name}__year`,
           title: 'Year',
           schema: { min: 1000, max: 3000 },
@@ -44,7 +47,7 @@ export class MonthYearField extends FormComponent {
             classes: 'govuk-input--width-4'
           }
         }
-      ] as any,
+      ],
       model
     )
   }

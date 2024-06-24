@@ -1,12 +1,15 @@
+import { ComponentType, type ComponentDef } from '@defra/forms-model'
+
 import { MultilineTextField } from '~/src/server/plugins/engine/components/index.js'
 import { validationOptions } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 
 describe('Multiline text field', () => {
   test('Should supply custom validation message if defined', () => {
-    const def = {
+    const def: ComponentDef = {
       name: 'myComponent',
       title: 'My component',
       hint: 'a hint',
+      type: ComponentType.MultilineTextField,
       options: {
         required: false,
         customValidationMessage: 'This is a custom error'
@@ -25,10 +28,11 @@ describe('Multiline text field', () => {
   })
 
   test('Should validate when schema options are supplied', () => {
-    const def = {
+    const def: ComponentDef = {
       name: 'myComponent',
       title: 'My component',
       hint: 'a hint',
+      type: ComponentType.MultilineTextField,
       options: {},
       schema: {
         min: 4,
@@ -53,10 +57,11 @@ describe('Multiline text field', () => {
   })
 
   test('Should apply default schema if no options are passed', () => {
-    const def = {
+    const def: ComponentDef = {
       name: 'myComponent',
       title: 'My component',
       hint: 'a hint',
+      type: ComponentType.MultilineTextField,
       options: {},
       schema: {}
     }
@@ -70,10 +75,11 @@ describe('Multiline text field', () => {
   })
 
   test('should return correct view model when maxwords or schema.length configured', () => {
-    const multilineTextFieldMaxWordsDef = {
+    const multilineTextFieldMaxWordsDef: ComponentDef = {
       name: 'myComponent',
       title: 'My component',
       hint: 'a hint',
+      type: ComponentType.MultilineTextField,
       options: {
         maxWords: 100
       },
@@ -92,10 +98,11 @@ describe('Multiline text field', () => {
       })
     )
 
-    const multilineTextFieldMaxCharsDef = {
+    const multilineTextFieldMaxCharsDef: ComponentDef = {
       name: 'myComponent',
       title: 'My component',
       hint: 'a hint',
+      type: ComponentType.MultilineTextField,
       options: {},
       schema: {
         max: 5,
@@ -115,10 +122,11 @@ describe('Multiline text field', () => {
   })
 
   test('should return correct view model when not configured with maxwords or schema.length', () => {
-    const def = {
+    const def: ComponentDef = {
       name: 'myComponent',
       title: 'My component',
       hint: 'a hint',
+      type: ComponentType.MultilineTextField,
       options: {},
       schema: {}
     }

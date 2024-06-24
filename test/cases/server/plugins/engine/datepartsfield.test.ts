@@ -1,13 +1,17 @@
+import { ComponentType, type ComponentDef } from '@defra/forms-model'
+
 import { DatePartsField } from '~/src/server/plugins/engine/components/DatePartsField.js'
 
 describe('Date parts field', () => {
   test('Should construct appropriate children when required', () => {
-    const def = {
+    const def: ComponentDef = {
       name: 'myComponent',
       title: 'My component',
+      type: ComponentType.TextField,
       options: {},
       schema: {}
     }
+
     const underTest = new DatePartsField(def, {})
     const returned = underTest.getViewModel({})
 
@@ -24,12 +28,14 @@ describe('Date parts field', () => {
   })
 
   test('Should construct appropriate children when not required', () => {
-    const def = {
+    const def: ComponentDef = {
       name: 'myComponent',
       title: 'My component',
+      type: ComponentType.TextField,
       options: { required: false },
       schema: {}
     }
+
     const underTest = new DatePartsField(def, {})
     const returned = underTest.getViewModel({})
 
@@ -45,13 +51,15 @@ describe('Date parts field', () => {
     ])
   })
   test('Error is displayed correctly', () => {
-    const def = {
+    const def: ComponentDef = {
       name: 'myComponent',
       title: 'My component',
+      hint: 'a hint',
+      type: ComponentType.DatePartsField,
       options: { required: false },
-      schema: {},
-      type: 'DatePartsField'
+      schema: {}
     }
+
     const errors = {
       titleText: 'There is a problem',
       errorList: [
