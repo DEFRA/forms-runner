@@ -11,7 +11,6 @@
   "redisUsername": "REDIS_USERNAME",
   "redisPassword": "REDIS_PASSWORD",
   "serviceName": "SERVICE_NAME",
-  "documentUploadApiUrl": "DOCUMENT_UPLOAD_API_URL",
   "sessionTimeout": "SESSION_TIMEOUT",
   "confirmationSessionTimeout": "CONFIRMATION_SESSION_TIMEOUT",
   "sessionCookiePassword": "SESSION_COOKIE_PASSWORD",
