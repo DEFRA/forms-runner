@@ -56,11 +56,6 @@ module.exports = {
   // redisHost: "http://localhost",
   // redisPassword: nanoid.random(16), // This should be set if you are deploying replicas
 
-  /**
-   * SSL
-   */
-  // sslKey: "", // Path to the SSL key
-  // sslCert: "", // Path to the SSL certificate
   rateLimit: true,
 
   /**

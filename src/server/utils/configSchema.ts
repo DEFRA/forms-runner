@@ -45,8 +45,6 @@ export const configSchema = Joi.object({
   redisPassword: Joi.string().required(),
   serviceName: Joi.string().optional(),
   enforceCsrf: Joi.boolean().optional(),
-  sslKey: Joi.string().optional(),
-  sslCert: Joi.string().optional(),
   sessionTimeout: Joi.number(),
   sessionCookiePassword: Joi.string().required(),
   rateLimit: Joi.boolean().optional(),
@@ -79,7 +77,10 @@ export const configSchema = Joi.object({
       'HS512'
     )
     .default('HS512'),
-  allowUserTemplates: Joi.boolean().optional()
+  allowUserTemplates: Joi.boolean().optional(),
+  httpsProxyUrl: Joi.string().uri({ scheme: 'https' }).optional(),
+  httpsProxyUsername: Joi.string().optional(),
+  httpsProxyPassword: Joi.string().optional()
 })
 
 export function buildConfig(config) {
