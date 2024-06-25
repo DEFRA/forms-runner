@@ -1,3 +1,5 @@
+import { type ComponentType } from '@defra/forms-model'
+
 export interface Label {
   text: string
   classes?: string
@@ -65,11 +67,18 @@ export type MultilineTextFieldViewModel = {
   maxwords?: number
 } & ViewModel
 
-export type ComponentCollectionViewModel = {
-  type: string
-  isFormComponent: boolean
-  model: ViewModel
-}[]
+export type ComponentCollectionViewModel = (
+  | {
+      type: ComponentType
+      isFormComponent: true
+      model: ViewModel
+    }
+  | {
+      type: undefined
+      isFormComponent: false
+      model: ViewModel
+    }
+)[]
 
 export type DataType =
   | 'list'
