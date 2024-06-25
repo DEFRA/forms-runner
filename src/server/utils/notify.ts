@@ -1,88 +1,49 @@
-// @ts-expect-error - Allow import without types
-import { NotifyClient } from 'notifications-node-client'
-import { type Logger } from 'pino'
+import { token } from '@hapi/jwt'
 
 import config from '~/src/server/config.js'
+import { postJson } from '~/src/server/services/httpService.js'
 
-const { notifyAPIKey, httpsProxyUrl, httpsProxyUsername, httpsProxyPassword } =
-  config
+const notifyAPIKey = config.notifyAPIKey as string
+
+const apiKeyId: string = notifyAPIKey.substring(
+  notifyAPIKey.length - 36,
+  notifyAPIKey.length
+)
+const serviceId: string = notifyAPIKey.substring(
+  notifyAPIKey.length - 73,
+  notifyAPIKey.length - 37
+)
 
 type Personalisation = Record<string, any>
-
-interface SendEmailOptions {
-  personalisation: Personalisation
-  reference: string
-  emailReplyToId?: string
-}
-
-interface SetProxyOptions {
-  host: string
-  port: string
-  auth?: {
-    username: string
-    password: string
-  }
-}
 
 export interface SendNotificationArgs {
   templateId: string
   emailAddress: string
   personalisation: Personalisation
-  reference: string
-  emailReplyToId?: string
 }
 
-interface NotifyInterface {
-  constructor: (apiKey: string) => void
-  sendEmail: (
-    templateId: string,
-    emailAddress: string,
-    personalisation: SendEmailOptions
-  ) => Promise<void>
-  setProxy: (options: SetProxyOptions) => void
+function createToken(iss: string, secret: string) {
+  const iat = Math.round(Date.now() / 1000)
+
+  return token.generate({ iss, iat }, secret, {
+    header: { typ: 'JWT', alg: 'HS256' }
+  })
 }
 
-export function sendNotification(args: SendNotificationArgs, logger: Logger) {
-  const {
-    templateId,
-    emailAddress,
-    personalisation,
-    reference,
-    emailReplyToId
-  } = args
+export async function sendNotification(args: SendNotificationArgs) {
+  const { templateId, emailAddress, personalisation } = args
 
-  const parsedOptions: SendEmailOptions = {
-    personalisation,
-    reference,
-    emailReplyToId
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-  const notifyClient = new NotifyClient(notifyAPIKey) as NotifyInterface
-
-  // Set proxy options on the client if available
-  if (httpsProxyUrl) {
-    const proxyUrl = new URL(httpsProxyUrl as string)
-    const host = proxyUrl.host
-    const port = proxyUrl.port || '443'
-    const proxyOptions: SetProxyOptions = { host, port }
-
-    if (httpsProxyUsername && httpsProxyPassword) {
-      proxyOptions.auth = {
-        username: httpsProxyUsername as string,
-        password: httpsProxyPassword as string
+  return postJson(
+    `https://api.notifications.service.gov.uk/v2/notifications/email`,
+    {
+      payload: {
+        template_id: templateId,
+        email_address: emailAddress,
+        personalisation
+      },
+      headers: {
+        Authorization: 'Bearer ' + createToken(serviceId, apiKeyId)
       }
     }
-
-    const hasAuth = !!proxyOptions.auth
-
-    logger.info(
-      ['notify', 'proxy'],
-      `Setting notify client proxy to '${httpsProxyUrl}'. Host: '${host}', Port: '${port}', Auth: '${hasAuth}'`
-    )
-
-    notifyClient.setProxy(proxyOptions)
-  }
-
-  return notifyClient.sendEmail(templateId, emailAddress, parsedOptions)
+  )
 }
