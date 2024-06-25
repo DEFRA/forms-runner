@@ -36,7 +36,7 @@ describe('Server Router', () => {
 
     expect(res.statusCode).toBe(200)
     expect(res.result).toContain(
-      '<h1 class="govuk-heading-l">Accessibility Statement</h1>'
+      `<h1 class="govuk-heading-l">Accessibility Statement for ‘Submit a form to defra’</h1>`
     )
   })
 
