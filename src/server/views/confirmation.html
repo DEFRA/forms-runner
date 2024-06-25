@@ -10,6 +10,8 @@
     {{ govukPanel({
       titleText: "Application complete"
     }) }}
+    <h2 class="govuk-heading-m">What happens next</h2>
+    {% include "help/what-happens-next/" + slug + ".html" ignore missing %}
     </div>
   </div>
 {% endblock %}
