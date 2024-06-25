@@ -2,7 +2,6 @@ import joi, { type Schema } from 'joi'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
-import { type ViewModel } from '~/src/server/plugins/engine/components/types.js'
 import {
   type FormSubmissionState,
   type FormSubmissionErrors,
@@ -48,31 +47,21 @@ export class FormComponent extends ComponentBase {
   }
 
   getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
-    const options = this.options
+    const { hint, name, options, title } = this
+
+    const viewModel = super.getViewModel(formData, errors)
 
     const isRequired = !('required' in options && options.required === false)
     const hideOptional = 'optionalText' in options && options.optionalText
     const hideTitle = 'hideTitle' in options && options.hideTitle
 
     const label = !hideTitle
-      ? `${this.title}${!isRequired && !hideOptional ? optionalText : ''}`
+      ? `${title}${!isRequired && !hideOptional ? optionalText : ''}`
       : ''
 
-    const name = this.name
-
-    const viewModel: ViewModel = {
-      ...super.getViewModel(formData, errors),
-      label: {
-        text: label
-      },
-      id: name,
-      name,
-      value: formData[name]
-    }
-
-    if (this.hint) {
+    if (hint) {
       viewModel.hint = {
-        html: this.hint
+        html: hint
       }
     }
 
@@ -92,7 +81,15 @@ export class FormComponent extends ComponentBase {
       }
     })
 
-    return viewModel
+    return {
+      ...viewModel,
+      label: {
+        text: label
+      },
+      id: name,
+      name,
+      value: formData[name]
+    }
   }
 
   getFormSchemaKeys() {

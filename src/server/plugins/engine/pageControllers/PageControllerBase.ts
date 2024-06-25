@@ -156,15 +156,28 @@ export class PageControllerBase {
       singleFormComponent && singleFormComponent === components[0]
 
     if (singleFormComponent && singleFormComponentIsFirst) {
-      const label = singleFormComponent.model.label
+      const { model } = formComponents[0]
+      const { fieldset, label } = model
 
-      if (pageTitle) {
-        label.text = pageTitle
+      // Check for legend or label
+      const labelOrLegend = fieldset?.legend ?? label
+
+      // Use legend or label as page heading
+      if (labelOrLegend) {
+        labelOrLegend.isPageHeading = true
+
+        labelOrLegend.classes =
+          labelOrLegend === label
+            ? 'govuk-label--l'
+            : 'govuk-fieldset__legend--l'
+
+        if (pageTitle) {
+          labelOrLegend.text = pageTitle
+        }
+
+        pageTitle = pageTitle || labelOrLegend.text
       }
 
-      label.isPageHeading = true
-      label.classes = 'govuk-label--l'
-      pageTitle = pageTitle || label.text
       showTitle = false
     }
 

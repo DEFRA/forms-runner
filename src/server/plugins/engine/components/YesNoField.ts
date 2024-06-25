@@ -71,17 +71,30 @@ export class YesNoField extends ListFormComponent {
   }
 
   getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
-    const viewModel = super.getViewModel(formData, errors)
+    const { name, options } = this
 
-    viewModel.fieldset = {
-      legend: viewModel.label
+    const viewModel = super.getViewModel(formData, errors)
+    let { fieldset, items, label } = viewModel
+
+    if (!('hideTitle' in options && options.hideTitle)) {
+      fieldset ??= {
+        legend: {
+          text: label.text,
+          classes: 'govuk-fieldset__legend--m'
+        }
+      }
     }
-    viewModel.items = this.items.map(({ text, value }) => ({
+
+    items = items?.map(({ text, value }) => ({
       text,
       value,
-      checked: `${value}` === `${formData[this.name]}`
+      checked: `${value}` === `${formData[name]}`
     }))
 
-    return viewModel
+    return {
+      ...viewModel,
+      fieldset,
+      items
+    }
   }
 }
