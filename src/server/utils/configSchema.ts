@@ -45,8 +45,6 @@ export const configSchema = Joi.object({
   redisPassword: Joi.string().required(),
   serviceName: Joi.string().optional(),
   enforceCsrf: Joi.boolean().optional(),
-  sslKey: Joi.string().optional(),
-  sslCert: Joi.string().optional(),
   sessionTimeout: Joi.number(),
   sessionCookiePassword: Joi.string().required(),
   rateLimit: Joi.boolean().optional(),

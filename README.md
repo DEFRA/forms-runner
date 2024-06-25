@@ -116,18 +116,21 @@ Please use a config file instead. This will give you more control over each envi
 The defaults can be found in [config](./config/default.cjs). Place your config files in `runner/config`
 See [https://github.com/node-config/node-config#readme](https://github.com/node-config/node-config#readme) for more info.
 
-| name               | description                           | required | default      |            valid            |                                                          notes                                                          |
-| ------------------ | ------------------------------------- | :------: | ------------ | :-------------------------: | :---------------------------------------------------------------------------------------------------------------------: |
-| NODE_ENV           | Node environment                      |    no    |              | development,test,production |                                                                                                                         |
-| PORT               | Port number                           |    no    | 3009         |                             |                                                                                                                         |
-| NOTIFY_TEMPLATE_ID | Notify api key                        |   yes    |              |                             | Template ID required to send form payloads via [GOV.UK Notify](https://www.notifications.service.gov.uk) email service. |
-| NOTIFY_API_KEY     | Notify api key                        |   yes    |              |                             |   API KEY required to send form payloads via [GOV.UK Notify](https://www.notifications.service.gov.uk) email service.   |
-| SSL_KEY            | SSL Key                               |    no    |              |                             |                                                                                                                         |
-| SSL_CERT           | SSL Certificate                       |    no    |              |                             |                                                                                                                         |
-| LOG_LEVEL          | Log level                             |    no    | debug        |   trace,debug,info,error    |                                                                                                                         |
-| PRIVACY_POLICY_URL | The url used in footer's privacy link |    no    | help/privacy |                             |                                                                                                                         |
-| API_ENV            | Switch for API keys                   |    no    |              |       test,production       |    If the JSON file supplies test and live API keys, this is used to switch between which key which needs to be used    |
-| PHASE_TAG          | Tag to use for phase banner           |    no    | beta         |  alpha, beta, empty string  |                                                                                                                         |
+| name               | description                                                               | required | default      |            valid            |                                                          notes                                                          |
+| ------------------ | ------------------------------------------------------------------------- | :------: | ------------ | :-------------------------: | :---------------------------------------------------------------------------------------------------------------------: |
+| NODE_ENV           | Node environment                                                          |    no    |              | development,test,production |                                                                                                                         |
+| PORT               | Port number                                                               |    no    | 3009         |                             |                                                                                                                         |
+| NOTIFY_TEMPLATE_ID | Notify api key                                                            |   yes    |              |                             | Template ID required to send form payloads via [GOV.UK Notify](https://www.notifications.service.gov.uk) email service. |
+| NOTIFY_API_KEY     | Notify api key                                                            |   yes    |              |                             |   API KEY required to send form payloads via [GOV.UK Notify](https://www.notifications.service.gov.uk) email service.   |
+| LOG_LEVEL          | Log level                                                                 |    no    | debug        |   trace,debug,info,error    |                                                                                                                         |
+| PRIVACY_POLICY_URL | The url used in footer's privacy link                                     |    no    | help/privacy |                             |                                                                                                                         |
+| API_ENV            | Switch for API keys                                                       |    no    |              |       test,production       |    If the JSON file supplies test and live API keys, this is used to switch between which key which needs to be used    |
+| PHASE_TAG          | Tag to use for phase banner                                               |    no    | beta         |  alpha, beta, empty string  |                                                                                                                         |
+| HTTP_PROXY         | HTTP proxy to use, e.g. the one from CDP. Currently used for Hapi Wreck.  |    no    |              |                             |
+| HTTPS_PROXY        | HTTPS proxy to use, e.g. the one from CDP. Currently used for Hapi Wreck. |    no    |              |                             |
+| NO_PROXY           | HTTP proxy to use, e.g. the one from CDP. Currently used for Hapi Wreck.  |    no    |              |                             |
+
+For proxy options, see https://www.npmjs.com/package/proxy-from-env which is used by https://github.com/TooTallNate/proxy-agents/tree/main/packages/proxy-agent.
 
 # Testing
 

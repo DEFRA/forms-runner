@@ -243,7 +243,6 @@ async function sendEmail(
     // Send submission email
     await sendNotification({
       templateId,
-      reference: '',
       emailAddress,
       personalisation
     })

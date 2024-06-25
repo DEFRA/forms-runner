@@ -11,8 +11,6 @@
   "redisUsername": "REDIS_USERNAME",
   "redisPassword": "REDIS_PASSWORD",
   "serviceName": "SERVICE_NAME",
-  "sslKey": "SSL_KEY",
-  "sslCert": "SSL_CERT",
   "sessionTimeout": "SESSION_TIMEOUT",
   "confirmationSessionTimeout": "CONFIRMATION_SESSION_TIMEOUT",
   "sessionCookiePassword": "SESSION_COOKIE_PASSWORD",

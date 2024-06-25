@@ -10,7 +10,7 @@ export const request = async <BodyType = Buffer>(
 ) => {
   const { res, payload } = await Wreck[method]<BodyType>(url, options)
 
-  if (res.statusCode !== 200) {
+  if (!res.statusCode || res.statusCode < 200 || res.statusCode > 299) {
     return { res, error: payload || new Error('Unknown error') }
   }
 

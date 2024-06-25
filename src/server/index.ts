@@ -1,5 +1,3 @@
-import fs from 'node:fs'
-
 import { Engine as CatboxMemory } from '@hapi/catbox-memory'
 import { Engine as CatboxRedis } from '@hapi/catbox-redis'
 import hapi, {
@@ -9,11 +7,12 @@ import hapi, {
 } from '@hapi/hapi'
 import inert from '@hapi/inert'
 import Scooter from '@hapi/scooter'
+import Wreck from '@hapi/wreck'
 import Schmervice from '@hapipal/schmervice'
 import blipp from 'blipp'
+import { ProxyAgent } from 'proxy-agent'
 
-import { buildRedisClient } from './common/helpers/redis-client.js'
-
+import { buildRedisClient } from '~/src/server/common/helpers/redis-client.js'
 import config from '~/src/server/config.js'
 import { configureBlankiePlugin } from '~/src/server/plugins/blankie.js'
 import { configureCrumbPlugin } from '~/src/server/plugins/crumb.js'
@@ -26,13 +25,20 @@ import { configureRateLimitPlugin } from '~/src/server/plugins/rateLimit.js'
 import pluginRouter from '~/src/server/plugins/router.js'
 import pluginSession from '~/src/server/plugins/session.js'
 import pluginViews from '~/src/server/plugins/views.js'
+import { prepareSecureContext } from '~/src/server/secure-context.js'
 import { CacheService } from '~/src/server/services/index.js'
 import { type RouteConfig } from '~/src/server/types.js'
 import getRequestInfo from '~/src/server/utils/getRequestInfo.js'
 
-const serverOptions = (): ServerOptions => {
-  const hasCertificate = config.sslKey && config.sslCert
+const proxyAgent = new ProxyAgent()
 
+Wreck.agents = {
+  https: proxyAgent,
+  http: proxyAgent,
+  httpsAllowUnauthorized: proxyAgent
+}
+
+const serverOptions = (): ServerOptions => {
   const serverOptions: ServerOptions = {
     debug: { request: [`${config.isDev}`] },
     port: config.port,
@@ -68,19 +74,7 @@ const serverOptions = (): ServerOptions => {
     ]
   }
 
-  const httpsOptions = hasCertificate
-    ? {
-        tls: {
-          key: fs.readFileSync(config.sslKey),
-          cert: fs.readFileSync(config.sslCert)
-        }
-      }
-    : {}
-
-  return {
-    ...serverOptions,
-    ...httpsOptions
-  }
+  return serverOptions
 }
 
 async function createServer(routeConfig: RouteConfig) {
@@ -91,6 +85,11 @@ async function createServer(routeConfig: RouteConfig) {
     await server.register(configureRateLimitPlugin(routeConfig))
   }
   await server.register(pluginLogging)
+
+  if (config.isProd) {
+    prepareSecureContext(server)
+  }
+
   await server.register(pluginSession)
   await server.register(pluginPulse)
   await server.register(inert)
