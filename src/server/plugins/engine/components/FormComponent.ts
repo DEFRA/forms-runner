@@ -49,11 +49,14 @@ export class FormComponent extends ComponentBase {
 
   getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const options = this.options
-    const isOptional = options.required === false
-    const optionalPostfix =
-      isOptional && options.optionalText !== false ? optionalText : ''
 
-    const label = options.hideTitle ? '' : `${this.title}${optionalPostfix}`
+    const isRequired = !('required' in options && options.required === false)
+    const hideOptional = 'optionalText' in options && options.optionalText
+    const hideTitle = 'hideTitle' in options && options.hideTitle
+
+    const label = !hideTitle
+      ? `${this.title}${!isRequired && !hideOptional ? optionalText : ''}`
+      : ''
 
     const name = this.name
 

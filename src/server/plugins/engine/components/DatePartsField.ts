@@ -25,8 +25,10 @@ export class DatePartsField extends FormComponent {
     super(def, model)
 
     const { name, options } = this
+
     const isRequired = !('required' in options && options.required === false)
-    const optionalText = 'optionalText' in options && options.optionalText
+    const hideOptional = 'optionalText' in options && options.optionalText
+
     this.children = new ComponentCollection(
       [
         {
@@ -36,7 +38,7 @@ export class DatePartsField extends FormComponent {
           schema: { min: 1, max: 31 },
           options: {
             required: isRequired,
-            optionalText,
+            optionalText: !isRequired && hideOptional,
             classes: 'govuk-input--width-2'
           },
           hint: ''
@@ -48,7 +50,7 @@ export class DatePartsField extends FormComponent {
           schema: { min: 1, max: 12 },
           options: {
             required: isRequired,
-            optionalText,
+            optionalText: !isRequired && hideOptional,
             classes: 'govuk-input--width-2'
           },
           hint: ''
@@ -60,7 +62,7 @@ export class DatePartsField extends FormComponent {
           schema: { min: 1000, max: 3000 },
           options: {
             required: isRequired,
-            optionalText,
+            optionalText: !isRequired && hideOptional,
             classes: 'govuk-input--width-4'
           },
           hint: ''
