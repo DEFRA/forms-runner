@@ -78,8 +78,8 @@ export class DatePartsField extends FormComponent {
 
   getStateSchemaKeys() {
     const { options } = this
-    const { maxDaysInPast, maxDaysInFuture } = options as any
-    let schema: any = this.stateSchema
+    const { maxDaysInPast, maxDaysInFuture } = options
+    let schema = this.stateSchema
 
     schema = schema.custom(
       helpers.getCustomDateValidator(maxDaysInPast, maxDaysInFuture)
@@ -118,7 +118,6 @@ export class DatePartsField extends FormComponent {
     return value ? format(parseISO(value), 'd MMMM yyyy') : ''
   }
 
-  // @ts-expect-error - Property 'getViewModel' in type 'DatePartsField' is not assignable to the same property in base type 'FormComponent'
   getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const viewModel = super.getViewModel(formData, errors)
 
@@ -132,7 +131,7 @@ export class DatePartsField extends FormComponent {
       componentViewModel.label = componentViewModel.label?.text.replace(
         optionalText,
         ''
-      ) as any
+      )
 
       if (componentViewModel.errorMessage) {
         componentViewModel.classes += ' govuk-input--error'

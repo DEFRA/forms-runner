@@ -41,14 +41,14 @@ export class FormComponent extends ComponentBase {
     }
   }
 
-  getStateValueFromValidForm(payload: FormPayload): any {
+  getStateValueFromValidForm(payload: FormPayload) {
     const name = this.name
 
     return name in payload && payload[name] !== '' ? payload[name] : null
   }
 
   getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
-    const options: any = this.options
+    const options = this.options
     const isOptional = options.required === false
     const optionalPostfix =
       isOptional && options.optionalText !== false ? optionalText : ''
@@ -73,11 +73,11 @@ export class FormComponent extends ComponentBase {
       }
     }
 
-    if (options.classes) {
+    if ('classes' in options) {
       viewModel.classes = options.classes
     }
 
-    if (options.condition) {
+    if ('condition' in options) {
       viewModel.condition = options.condition
     }
 

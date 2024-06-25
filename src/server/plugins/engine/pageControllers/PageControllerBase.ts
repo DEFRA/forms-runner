@@ -1,6 +1,11 @@
 import { type URLSearchParams } from 'node:url'
 
-import { type Page, type RepeatingFieldPage } from '@defra/forms-model'
+import {
+  type FormDefinition,
+  type Page,
+  type RepeatingFieldPage,
+  type Section
+} from '@defra/forms-model'
 import {
   type Request,
   type ResponseObject,
@@ -45,26 +50,15 @@ export class PageControllerBase {
   /**
    * The base class for all page controllers. Page controllers are responsible for generating the get and post route handlers when a user navigates to `/{id}/{path*}`.
    */
-  def: {
-    name: string
-    feedback?: {
-      url?: string
-      feedbackForm?: boolean
-      emailAddress?: string
-    }
-    phaseBanner?: {
-      phase?: string
-    }
-  }
-
-  name: string
+  def: FormDefinition
+  name?: string
   model: FormModel
   pageDef: Page | RepeatingFieldPage
   path: string
   title: string
-  condition: any // TODO
-  repeatField: any // TODO
-  section: any // TODO
+  condition?: string
+  repeatField?: string
+  section?: Section
   components: ComponentCollection
   hasFormComponents: boolean
   hasConditionalFormComponents: boolean
@@ -122,13 +116,13 @@ export class PageControllerBase {
    */
   getViewModel(
     formData: FormData,
-    iteration?: any, // TODO
-    errors?: any // TODO
+    iteration?: number,
+    errors?: FormSubmissionErrors
   ): {
     page: PageControllerBase
-    name: string
+    name?: string
     pageTitle: string
-    sectionTitle: string
+    sectionTitle?: string
     showTitle: boolean
     components: ComponentCollectionViewModel
     errors?: FormSubmissionErrors
@@ -218,7 +212,10 @@ export class PageControllerBase {
    * @param state - the values currently stored in a users session
    * @param suppressRepetition - cancels repetition logic
    */
-  getNextPage(state: FormSubmissionState, suppressRepetition = false) {
+  getNextPage(
+    state: FormSubmissionState,
+    suppressRepetition = false
+  ): PageControllerClass | undefined {
     if (this.repeatField && !suppressRepetition) {
       const requiredCount = reach(state, this.repeatField)
       const otherRepeatPagesInSection = this.model.pages.filter(
@@ -258,7 +255,7 @@ export class PageControllerBase {
   /**
    * returns the path to the next page
    */
-  getNext(state: any) {
+  getNext(state: FormSubmissionState) {
     const nextPage = this.getNextPage(state)
     let queryString = ''
     if (nextPage?.repeatField) {
@@ -291,7 +288,7 @@ export class PageControllerBase {
   /**
    * gets the state for the values that can be entered on just this page
    */
-  getFormDataFromState(state: any, atIndex: number): FormData {
+  getFormDataFromState(state: FormSubmissionState, atIndex: number): FormData {
     const pageState = this.section ? state[this.section.name] : state
 
     if (this.repeatField) {
@@ -380,11 +377,11 @@ export class PageControllerBase {
     }
   }
 
-  validateForm(payload) {
+  validateForm(payload: FormPayload) {
     return this.validate(payload, this.formSchema)
   }
 
-  validateState(newState) {
+  validateState(newState: FormSubmissionState) {
     return this.validate(newState, this.stateSchema)
   }
 
@@ -774,7 +771,7 @@ export class PageControllerBase {
     return {}
   }
 
-  get formSchema() {
+  get formSchema(): ObjectSchema<FormPayload> {
     return this[FORM_SCHEMA]
   }
 
@@ -782,7 +779,7 @@ export class PageControllerBase {
     this[FORM_SCHEMA] = value
   }
 
-  get stateSchema() {
+  get stateSchema(): ObjectSchema<FormSubmissionState> {
     return this[STATE_SCHEMA]
   }
 

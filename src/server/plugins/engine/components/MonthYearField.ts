@@ -22,7 +22,7 @@ export class MonthYearField extends FormComponent {
 
   constructor(def: InputFieldsComponentsDef, model: FormModel) {
     super(def, model)
-    const options: any = this.options
+    const options = this.options
 
     this.children = new ComponentCollection(
       [
@@ -85,7 +85,6 @@ export class MonthYearField extends FormComponent {
     return `${monthString} ${year}`
   }
 
-  // @ts-expect-error - Property 'getViewModel' in type 'MonthYearField' is not assignable to the same property in base type 'FormComponent'
   getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const viewModel = super.getViewModel(formData, errors)
 
@@ -99,7 +98,7 @@ export class MonthYearField extends FormComponent {
       componentViewModel.label = componentViewModel.label?.text.replace(
         optionalText,
         ''
-      ) as any
+      )
 
       if (componentViewModel.errorMessage) {
         componentViewModel.classes += ' govuk-input--error'

@@ -90,7 +90,7 @@ export class UkAddressField extends FormComponent {
 
   getStateSchemaKeys() {
     const { name } = this
-    const options: any = this.options
+    const options = this.options
 
     return {
       [name]:
