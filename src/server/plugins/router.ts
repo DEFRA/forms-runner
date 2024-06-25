@@ -1,7 +1,6 @@
 import { type Request, type ResponseToolkit } from '@hapi/hapi'
 
 import { redirectTo } from '~/src/server/plugins/engine/index.js'
-import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import { healthRoute, publicRoutes } from '~/src/server/routes/index.js'
 
 const routes = [...publicRoutes, healthRoute]
@@ -15,8 +14,8 @@ export default {
         {
           method: 'get',
           path: '/help/get-support/{slug?}',
-          async handler(request: Request, h: ResponseToolkit) {
-            const { slug } = request.params
+          handler(request: Request, h: ResponseToolkit) {
+            const slug = request.params.slug as string
             const viewName = 'help/get-support'
 
             // If there's no slug in the path,
@@ -25,9 +24,7 @@ export default {
               return h.view(viewName)
             }
 
-            const form = await getFormMetadata(slug as string)
-
-            return h.view(viewName, { form })
+            return h.view(viewName, { slug })
           }
         },
         {

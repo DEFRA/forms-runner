@@ -6,9 +6,7 @@
 <div class="govuk-width-container">
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      {% if form %}
-        {% include "help/get-support/" + form.id + ".html" ignore missing %}
-      {% endif %}
+      {% include "help/get-support/" + slug + ".html" ignore missing %}
     </div>
   </div>
 </div>
