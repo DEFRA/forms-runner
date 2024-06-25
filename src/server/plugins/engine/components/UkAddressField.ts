@@ -23,8 +23,11 @@ export class UkAddressField extends FormComponent {
   constructor(def: InputFieldsComponentsDef, model: FormModel) {
     super(def, model)
     const { name, options } = this
+
     const stateSchema = helpers.buildStateSchema('date', this)
+
     const isRequired = !('required' in options && options.required === false)
+    const hideOptional = 'optionalText' in options && options.optionalText
 
     const childrenList = [
       {
@@ -34,7 +37,8 @@ export class UkAddressField extends FormComponent {
         schema: { max: 100 },
         options: {
           autocomplete: 'address-line1',
-          required: isRequired
+          required: isRequired,
+          optionalText: !isRequired && hideOptional
         }
       },
       {
@@ -44,7 +48,8 @@ export class UkAddressField extends FormComponent {
         schema: { max: 100, allow: '' },
         options: {
           autocomplete: 'address-line2',
-          required: false
+          required: false,
+          optionalText: !isRequired && hideOptional
         }
       },
       {
@@ -55,7 +60,8 @@ export class UkAddressField extends FormComponent {
         options: {
           autocomplete: 'address-level2',
           classes: 'govuk-!-width-two-thirds',
-          required: isRequired
+          required: isRequired,
+          optionalText: !isRequired && hideOptional
         }
       },
       {
@@ -66,7 +72,8 @@ export class UkAddressField extends FormComponent {
         options: {
           autocomplete: 'postal-code',
           classes: 'govuk-input--width-10',
-          required: isRequired
+          required: isRequired,
+          optionalText: !isRequired && hideOptional
         }
       }
     ] satisfies ComponentDef[]
