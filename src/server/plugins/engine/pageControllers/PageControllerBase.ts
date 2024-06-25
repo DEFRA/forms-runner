@@ -7,6 +7,7 @@ import {
 } from '@hapi/hapi'
 import { merge, reach } from '@hapi/hoek'
 import { format, parseISO } from 'date-fns'
+import { type ValidationResult, type ObjectSchema } from 'joi'
 import nunjucks from 'nunjucks'
 
 import config from '~/src/server/config.js'
@@ -30,7 +31,8 @@ import {
   type FormData,
   type FormPayload,
   type FormSubmissionErrors,
-  type FormSubmissionState
+  type FormSubmissionState,
+  type FormValidationResult
 } from '~/src/server/plugins/engine/types.js'
 import { type CacheService } from '~/src/server/services/index.js'
 
@@ -325,7 +327,9 @@ export class PageControllerBase {
    * Parses the errors from joi.validate so they can be rendered by govuk-frontend templates
    * @param validationResult - provided by joi.validate
    */
-  getErrors(validationResult): FormSubmissionErrors | undefined {
+  getErrors(
+    validationResult?: ValidationResult
+  ): FormSubmissionErrors | undefined {
     if (validationResult?.error) {
       const isoRegex =
         /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/
@@ -359,11 +363,22 @@ export class PageControllerBase {
    * @param value - user's answers
    * @param schema - which schema to validate against
    */
-  validate(value, schema) {
+  validate<ValueType extends object>(
+    value: ValueType,
+    schema: ObjectSchema<ValueType>
+  ): FormValidationResult<ValueType> {
     const result = schema.validate(value, this.validationOptions)
-    const errors = result.error ? this.getErrors(result) : null
 
-    return { value: result.value, errors }
+    if (result.error) {
+      return {
+        value: result.value,
+        errors: this.getErrors(result)
+      }
+    }
+
+    return {
+      value: result.value
+    }
   }
 
   validateForm(payload) {
@@ -581,7 +596,7 @@ export class PageControllerBase {
   ) {
     const { cacheService } = request.services([])
     const payload = (request.payload || {}) as FormData
-    const formResult: any = this.validateForm(payload)
+    const formResult = this.validateForm(payload)
     const state = await cacheService.getState(request)
     const progress = state.progress || []
     const { num } = request.query
