@@ -44,7 +44,7 @@
       "components": [
         {
           "name": "hpmkrN",
-          "options": { "hideTitle": true },
+          "options": {},
           "type": "UkAddressField",
           "title": "Address",
           "schema": {}
@@ -58,7 +58,7 @@
       "components": [
         {
           "name": "fMHViw",
-          "options": { "hideTitle": true },
+          "options": {},
           "type": "TelephoneNumberField",
           "hint": "Enter a telephone number so the Rural Payments Agency (RPA) can contact you if they need to discuss your application.",
           "title": "Telephone number",
@@ -73,7 +73,7 @@
       "components": [
         {
           "name": "MyGRlh",
-          "options": { "hideTitle": true, "required": false },
+          "options": { "required": false },
           "type": "TelephoneNumberField",
           "title": "Second telephone number",
           "schema": {}
@@ -87,7 +87,7 @@
       "components": [
         {
           "name": "uZcVcc",
-          "options": { "hideTitle": true },
+          "options": {},
           "type": "EmailAddressField",
           "title": "Email address",
           "hint": "RPA will email your CPH number to you.",
@@ -125,7 +125,7 @@
       "components": [
         {
           "name": "CMTiOK",
-          "options": { "hideTitle": true },
+          "options": {},
           "type": "YesNoField",
           "title": "Is your business address the same as your home address?",
           "hint": "If you do not have a business, select 'yes'.",
@@ -314,7 +314,7 @@
       "components": [
         {
           "name": "nTEdlT",
-          "options": { "hideTitle": true },
+          "options": {},
           "type": "TextField",
           "title": "What do you do?",
           "schema": {}
@@ -552,7 +552,7 @@
         },
         {
           "name": "PXRMtw",
-          "options": { "hideTitle": true },
+          "options": {},
           "type": "UkAddressField",
           "title": "What's the address where you'll keep livestock or use animal by-products?"
         }

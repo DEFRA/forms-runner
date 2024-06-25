@@ -105,7 +105,7 @@ export class ComponentCollection {
   ): ComponentCollectionViewModel {
     const result = this.items.map((item) => {
       return {
-        type: item.type,
+        type: 'type' in item ? item.type : undefined,
         isFormComponent: 'isFormComponent' in item && item.isFormComponent,
         model: item.getViewModel(formData, errors)
       }

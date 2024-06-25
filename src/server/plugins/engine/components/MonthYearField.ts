@@ -86,7 +86,7 @@ export class MonthYearField extends FormComponent {
   }
 
   getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
-    const { children, options } = this
+    const { children } = this
 
     const viewModel = super.getViewModel(formData, errors)
 
@@ -109,12 +109,10 @@ export class MonthYearField extends FormComponent {
 
     let { fieldset, label } = viewModel
 
-    if (!('hideTitle' in options && options.hideTitle)) {
-      fieldset ??= {
-        legend: {
-          text: label.text,
-          classes: 'govuk-fieldset__legend--m'
-        }
+    fieldset ??= {
+      legend: {
+        text: label.text,
+        classes: 'govuk-fieldset__legend--m'
       }
     }
 

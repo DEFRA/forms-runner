@@ -9,6 +9,7 @@ import { ComponentCollection } from '~/src/server/plugins/engine/components/Comp
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import * as helpers from '~/src/server/plugins/engine/components/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { type PageControllerBase } from '~/src/server/plugins/engine/pageControllers/index.js'
 import {
   type FormData,
   type FormPayload,
@@ -156,12 +157,18 @@ export class UkAddressField extends FormComponent {
     const viewModel = super.getViewModel(formData, errors)
     let { children, fieldset, label } = viewModel
 
-    if (!('hideTitle' in options && options.hideTitle)) {
-      fieldset ??= {
-        legend: {
-          text: label.text,
-          classes: 'govuk-fieldset__legend--m'
-        }
+    fieldset ??= {
+      legend: {
+        text: label.text,
+
+        /**
+         * For screen readers, only hide legend visually. This can be overridden
+         * by single component {@link PageControllerBase | `showTitle` handling}
+         */
+        classes:
+          'hideTitle' in options && options.hideTitle
+            ? 'govuk-visually-hidden'
+            : 'govuk-fieldset__legend--m'
       }
     }
 

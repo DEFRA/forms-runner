@@ -23,9 +23,7 @@
         {
           "type": "RadiosField",
           "title": "Do you have a link to the material?",
-          "options": {
-            "hideTitle": true
-          },
+          "options": {},
           "name": "doyouhavealink",
           "schema": {},
           "list": "HTbt4V"
