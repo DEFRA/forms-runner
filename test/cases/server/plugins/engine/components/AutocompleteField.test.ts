@@ -1,3 +1,9 @@
+import {
+  ComponentSubType,
+  ComponentType,
+  type ComponentDef
+} from '@defra/forms-model'
+
 import { AutocompleteField } from '~/src/server/plugins/engine/components/index.js'
 
 describe('AutocompleteField', () => {
@@ -42,11 +48,11 @@ describe('AutocompleteField', () => {
   ]
 
   describe('Generated schema', () => {
-    const componentDefinition = {
-      subType: 'field',
-      type: 'AutocompleteField',
-      name: 'MyAutocomplete',
+    const componentDefinition: ComponentDef = {
       title: 'Country?',
+      name: 'MyAutocomplete',
+      type: ComponentType.AutocompleteField,
+      subType: ComponentSubType.ListField,
       options: {},
       list: 'Countries',
       schema: {}

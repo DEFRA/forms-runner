@@ -8,7 +8,7 @@ export interface Label {
 export interface Content {
   title?: string
   text: string
-  condition?: any // TODO
+  condition?: string
 }
 
 export type ListItemLabel = Omit<Label, 'text' | 'isPageHeading'>
@@ -36,7 +36,7 @@ export interface ViewModel {
     html: string
   }
   classes?: string
-  condition?: any // TODO
+  condition?: string
   errorMessage?: {
     text: string
   }

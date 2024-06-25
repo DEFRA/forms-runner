@@ -20,7 +20,7 @@ export class CacheService {
   /**
    * This service is responsible for getting, storing or deleting a user's session data in the cache. This service has been registered by {@link createServer}
    */
-  cache: any
+  cache
   logger: Server['logger']
 
   constructor(server: Server) {

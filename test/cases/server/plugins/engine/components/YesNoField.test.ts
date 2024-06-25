@@ -1,12 +1,18 @@
+import {
+  ComponentSubType,
+  ComponentType,
+  type ComponentDef
+} from '@defra/forms-model'
+
 import { YesNoField } from '~/src/server/plugins/engine/components/YesNoField.js'
 
 describe('YesNoField', () => {
   describe('Generated schema', () => {
-    const componentDefinition = {
-      subType: 'field',
-      type: 'YesNoField',
-      name: 'speakEnglish',
+    const componentDefinition: ComponentDef = {
       title: 'Speak English?',
+      name: 'speakEnglish',
+      type: ComponentType.YesNoField,
+      subType: ComponentSubType.Field,
       options: {},
       schema: {}
     }

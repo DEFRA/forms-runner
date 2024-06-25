@@ -1,9 +1,11 @@
+import { ComponentType, type FormDefinition } from '@defra/forms-model'
+
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { PageControllerBase } from '~/src/server/plugins/engine/pageControllers/index.js'
 
 describe('PageControllerBase', () => {
   test('getErrors correctly parses ISO string to readable string', () => {
-    const def = {
+    const def: FormDefinition = {
       title: 'When will you get married?',
       path: '/first-page',
       name: '',
@@ -14,7 +16,7 @@ describe('PageControllerBase', () => {
             required: true,
             maxDaysInFuture: 30
           },
-          type: 'DatePartsField',
+          type: ComponentType.DatePartsField,
           title: 'Date of marriage',
           schema: {}
         }

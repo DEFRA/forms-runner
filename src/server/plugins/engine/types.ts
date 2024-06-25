@@ -67,3 +67,8 @@ export interface FormData {
   value?: FormPayload
   errors?: FormSubmissionErrors | null
 }
+
+export interface FormValidationResult<ValueType extends object = FormPayload> {
+  value?: ValueType
+  errors?: FormSubmissionErrors | null
+}

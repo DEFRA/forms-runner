@@ -1,4 +1,7 @@
-import { type InputFieldsComponentsDef } from '@defra/forms-model'
+import {
+  ComponentType,
+  type InputFieldsComponentsDef
+} from '@defra/forms-model'
 import { type Schema } from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
@@ -19,12 +22,12 @@ export class MonthYearField extends FormComponent {
 
   constructor(def: InputFieldsComponentsDef, model: FormModel) {
     super(def, model)
-    const options: any = this.options
+    const options = this.options
 
     this.children = new ComponentCollection(
       [
         {
-          type: 'NumberField',
+          type: ComponentType.NumberField,
           name: `${this.name}__month`,
           title: 'Month',
           schema: { min: 1, max: 12 },
@@ -35,7 +38,7 @@ export class MonthYearField extends FormComponent {
           }
         },
         {
-          type: 'NumberField',
+          type: ComponentType.NumberField,
           name: `${this.name}__year`,
           title: 'Year',
           schema: { min: 1000, max: 3000 },
@@ -44,7 +47,7 @@ export class MonthYearField extends FormComponent {
             classes: 'govuk-input--width-4'
           }
         }
-      ] as any,
+      ],
       model
     )
   }
@@ -82,7 +85,6 @@ export class MonthYearField extends FormComponent {
     return `${monthString} ${year}`
   }
 
-  // @ts-expect-error - Property 'getViewModel' in type 'MonthYearField' is not assignable to the same property in base type 'FormComponent'
   getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const viewModel = super.getViewModel(formData, errors)
 
@@ -96,7 +98,7 @@ export class MonthYearField extends FormComponent {
       componentViewModel.label = componentViewModel.label?.text.replace(
         optionalText,
         ''
-      ) as any
+      )
 
       if (componentViewModel.errorMessage) {
         componentViewModel.classes += ' govuk-input--error'

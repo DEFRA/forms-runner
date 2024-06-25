@@ -62,7 +62,7 @@ export class TextField extends FormComponent {
   }
 
   getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
-    const options: any = this.options
+    const options = this.options
     const viewModel = super.getViewModel(formData, errors)
 
     if (options.autocomplete) {

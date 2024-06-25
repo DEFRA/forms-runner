@@ -11,7 +11,7 @@ import {
 export class SelectionControlField extends ListFormComponent {
   getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const { name, items } = this
-    const options: any = this.options
+    const options = this.options
     const viewModel = super.getViewModel(formData, errors)
 
     viewModel.fieldset = {

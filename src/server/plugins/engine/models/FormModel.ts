@@ -12,10 +12,14 @@ import joi from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/index.js'
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
-import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
-  PageControllerBase,
-  getPageController
+  getPageController,
+  type PageControllerClass,
+  type PageControllerType
+} from '~/src/server/plugins/engine/pageControllers/helpers.js'
+import {
+  PageController,
+  PageControllerBase
 } from '~/src/server/plugins/engine/pageControllers/index.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 
@@ -46,16 +50,23 @@ export class FormModel {
   options: any
   name: string
   values: any
-  DefaultPageController: any = PageController
+  DefaultPageController: PageControllerType | undefined = PageController
+
   basePath: string
   conditions: Partial<Record<string, ExecutableCondition>>
   fieldsForContext: ComponentCollection
   fieldsForPrePopulation: Record<string, any>
-  pages: any
-  startPage: any
+  pages: PageControllerClass[]
+  startPage?: PageControllerClass
   specialPages?: FormDefinition['specialPages']
 
-  constructor(def: FormDefinition, options) {
+  constructor(
+    def: FormDefinition,
+    options: {
+      basePath: string
+      defaultPageController?: string
+    }
+  ) {
     const result = formDefinitionSchema.validate(def, { abortEarly: false })
 
     if (result.error) {
@@ -207,7 +218,7 @@ export class FormModel {
    * Instantiates a Condition based on {@link ConditionRawData}
    * @param condition
    */
-  makeCondition(condition: ConditionRawData) {
+  makeCondition(condition: ConditionRawData): ExecutableCondition {
     const parser = new Parser({
       operators: {
         logical: true
@@ -226,7 +237,7 @@ export class FormModel {
       return `${offsetTime.getHours()}:${offsetTime.getMinutes()}`
     }
 
-    const { name, value } = condition
+    const { name, displayName, value } = condition
     const expr = this.toConditionExpression(value, parser)
 
     const fn = (value) => {
@@ -240,6 +251,7 @@ export class FormModel {
 
     return {
       name,
+      displayName,
       value,
       expr,
       fn

@@ -5,6 +5,7 @@ import { type ValidationResult } from 'joi'
 import config from '~/src/server/config.js'
 import { redirectUrl } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { SummaryPageController } from '~/src/server/plugins/engine/pageControllers/index.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 import { type InitialiseSessionOptions } from '~/src/server/plugins/initialiseSession/types.js'
@@ -15,18 +16,18 @@ export class SummaryViewModel {
    */
 
   pageTitle: string
-  declaration: any // TODO
-  skipSummary: boolean
-  endPage: any // TODO
+  declaration?: string
+  skipSummary?: boolean
+  endPage?: PageControllerClass
   result: any
   details: any
-  relevantPages: any[]
+  relevantPages: PageControllerClass[]
   state: any
   value: any
   name: string | undefined
   backLink?: string
-  feedbackLink: string | undefined
-  phaseTag: string | undefined
+  feedbackLink?: string
+  phaseTag?: string
   errors:
     | {
         path: string
@@ -50,7 +51,6 @@ export class SummaryViewModel {
     const details = this.summaryDetails(request, model, state, relevantPages)
     const { def } = model
     this.declaration = def.declaration
-    // @ts-expect-error - Type 'boolean | undefined' is not assignable to type 'boolean'
     this.skipSummary = def.skipSummary
     this.endPage = endPage
     this.feedbackLink =
@@ -191,8 +191,9 @@ export class SummaryViewModel {
 
   private getRelevantPages(model: FormModel, state: FormSubmissionState) {
     let nextPage = model.startPage
-    const relevantPages: any[] = []
-    let endPage = null
+    let endPage
+
+    const relevantPages: PageControllerClass[] = []
 
     while (nextPage != null) {
       if (nextPage.hasFormComponents) {
@@ -210,7 +211,7 @@ export class SummaryViewModel {
   }
 }
 
-function gatherRepeatPages(state) {
+function gatherRepeatPages(state: FormSubmissionState) {
   if (Object.values(state).find((section) => Array.isArray(section))) {
     return state
   }

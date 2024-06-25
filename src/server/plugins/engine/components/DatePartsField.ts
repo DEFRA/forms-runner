@@ -1,4 +1,7 @@
-import { type InputFieldsComponentsDef } from '@defra/forms-model'
+import {
+  ComponentType,
+  type InputFieldsComponentsDef
+} from '@defra/forms-model'
 import { parseISO, format } from 'date-fns'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
@@ -27,7 +30,7 @@ export class DatePartsField extends FormComponent {
     this.children = new ComponentCollection(
       [
         {
-          type: 'NumberField',
+          type: ComponentType.NumberField,
           name: `${name}__day`,
           title: 'Day',
           schema: { min: 1, max: 31 },
@@ -39,7 +42,7 @@ export class DatePartsField extends FormComponent {
           hint: ''
         },
         {
-          type: 'NumberField',
+          type: ComponentType.NumberField,
           name: `${name}__month`,
           title: 'Month',
           schema: { min: 1, max: 12 },
@@ -51,7 +54,7 @@ export class DatePartsField extends FormComponent {
           hint: ''
         },
         {
-          type: 'NumberField',
+          type: ComponentType.NumberField,
           name: `${name}__year`,
           title: 'Year',
           schema: { min: 1000, max: 3000 },
@@ -75,8 +78,8 @@ export class DatePartsField extends FormComponent {
 
   getStateSchemaKeys() {
     const { options } = this
-    const { maxDaysInPast, maxDaysInFuture } = options as any
-    let schema: any = this.stateSchema
+    const { maxDaysInPast, maxDaysInFuture } = options
+    let schema = this.stateSchema
 
     schema = schema.custom(
       helpers.getCustomDateValidator(maxDaysInPast, maxDaysInFuture)
@@ -115,7 +118,6 @@ export class DatePartsField extends FormComponent {
     return value ? format(parseISO(value), 'd MMMM yyyy') : ''
   }
 
-  // @ts-expect-error - Property 'getViewModel' in type 'DatePartsField' is not assignable to the same property in base type 'FormComponent'
   getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const viewModel = super.getViewModel(formData, errors)
 
@@ -129,7 +131,7 @@ export class DatePartsField extends FormComponent {
       componentViewModel.label = componentViewModel.label?.text.replace(
         optionalText,
         ''
-      ) as any
+      )
 
       if (componentViewModel.errorMessage) {
         componentViewModel.classes += ' govuk-input--error'

@@ -1,3 +1,9 @@
+import {
+  ComponentSubType,
+  ComponentType,
+  type ComponentDef
+} from '@defra/forms-model'
+
 import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
 
 describe('ListFormComponent', () => {
@@ -36,15 +42,16 @@ describe('ListFormComponent', () => {
   ]
 
   describe('Generated schema', () => {
-    const componentDefinition = {
-      subType: 'field',
-      type: 'SelectField',
-      name: 'mySelectField',
+    const componentDefinition: ComponentDef = {
       title: 'Tada',
+      name: 'mySelectField',
+      type: ComponentType.SelectField,
+      subType: ComponentSubType.ListField,
       options: {},
       list: 'numberOfApplicants',
       schema: {}
     }
+
     const formModel = {
       getList: () => lists[0],
       makePage: () => jest.fn()

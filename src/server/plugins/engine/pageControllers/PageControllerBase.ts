@@ -1,12 +1,19 @@
 import { type URLSearchParams } from 'node:url'
 
 import {
+  type FormDefinition,
+  type Page,
+  type RepeatingFieldPage,
+  type Section
+} from '@defra/forms-model'
+import {
   type Request,
   type ResponseObject,
   type ResponseToolkit
 } from '@hapi/hapi'
 import { merge, reach } from '@hapi/hoek'
 import { format, parseISO } from 'date-fns'
+import { type ValidationResult, type ObjectSchema } from 'joi'
 import nunjucks from 'nunjucks'
 
 import config from '~/src/server/config.js'
@@ -25,12 +32,14 @@ import {
   redirectTo
 } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { validationOptions } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormData,
   type FormPayload,
   type FormSubmissionErrors,
-  type FormSubmissionState
+  type FormSubmissionState,
+  type FormValidationResult
 } from '~/src/server/plugins/engine/types.js'
 import { type CacheService } from '~/src/server/services/index.js'
 
@@ -41,38 +50,24 @@ export class PageControllerBase {
   /**
    * The base class for all page controllers. Page controllers are responsible for generating the get and post route handlers when a user navigates to `/{id}/{path*}`.
    */
-  def: {
-    name: string
-    feedback?: {
-      url?: string
-      feedbackForm?: boolean
-      emailAddress?: string
-    }
-    phaseBanner?: {
-      phase?: string
-    }
-  }
-
-  name: string
+  def: FormDefinition
+  name?: string
   model: FormModel
-  pageDef: any // TODO
+  pageDef: Page | RepeatingFieldPage
   path: string
   title: string
-  condition: any // TODO
-  repeatField: any // TODO
-  section: any // TODO
+  condition?: string
+  repeatField?: string
+  section?: Section
   components: ComponentCollection
   hasFormComponents: boolean
   hasConditionalFormComponents: boolean
   backLinkFallback?: string
 
-  // TODO: pageDef type
-  constructor(model: FormModel, pageDef: Record<string, any> = {}) {
+  constructor(model: FormModel, pageDef: Page | RepeatingFieldPage) {
     const { def } = model
 
-    // @ts-expect-error - 'FormDefinition' is not assignable to type
     this.def = def
-    // @ts-expect-error - Type 'string | undefined' is not assignable to type 'string'
     this.name = def.name
     this.model = model
     this.pageDef = pageDef
@@ -121,13 +116,13 @@ export class PageControllerBase {
    */
   getViewModel(
     formData: FormData,
-    iteration?: any, // TODO
-    errors?: any // TODO
+    iteration?: number,
+    errors?: FormSubmissionErrors
   ): {
     page: PageControllerBase
-    name: string
+    name?: string
     pageTitle: string
-    sectionTitle: string
+    sectionTitle?: string
     showTitle: boolean
     components: ComponentCollectionViewModel
     errors?: FormSubmissionErrors
@@ -161,7 +156,7 @@ export class PageControllerBase {
       singleFormComponent && singleFormComponent === components[0]
 
     if (singleFormComponent && singleFormComponentIsFirst) {
-      const label: any = singleFormComponent.model.label
+      const label = singleFormComponent.model.label
 
       if (pageTitle) {
         label.text = pageTitle
@@ -197,7 +192,7 @@ export class PageControllerBase {
     return (this.pageDef.next || [])
       .map((next: { path: string }) => {
         const { path } = next
-        const page = this.model.pages.find((page: PageControllerBase) => {
+        const page = this.model.pages.find((page) => {
           return path === page.path
         })
 
@@ -217,7 +212,10 @@ export class PageControllerBase {
    * @param state - the values currently stored in a users session
    * @param suppressRepetition - cancels repetition logic
    */
-  getNextPage(state: FormSubmissionState, suppressRepetition = false) {
+  getNextPage(
+    state: FormSubmissionState,
+    suppressRepetition = false
+  ): PageControllerClass | undefined {
     if (this.repeatField && !suppressRepetition) {
       const requiredCount = reach(state, this.repeatField)
       const otherRepeatPagesInSection = this.model.pages.filter(
@@ -257,7 +255,7 @@ export class PageControllerBase {
   /**
    * returns the path to the next page
    */
-  getNext(state: any) {
+  getNext(state: FormSubmissionState) {
     const nextPage = this.getNextPage(state)
     let queryString = ''
     if (nextPage?.repeatField) {
@@ -290,7 +288,7 @@ export class PageControllerBase {
   /**
    * gets the state for the values that can be entered on just this page
    */
-  getFormDataFromState(state: any, atIndex: number): FormData {
+  getFormDataFromState(state: FormSubmissionState, atIndex: number): FormData {
     const pageState = this.section ? state[this.section.name] : state
 
     if (this.repeatField) {
@@ -325,7 +323,9 @@ export class PageControllerBase {
    * Parses the errors from joi.validate so they can be rendered by govuk-frontend templates
    * @param validationResult - provided by joi.validate
    */
-  getErrors(validationResult): FormSubmissionErrors | undefined {
+  getErrors(
+    validationResult?: ValidationResult
+  ): FormSubmissionErrors | undefined {
     if (validationResult?.error) {
       const isoRegex =
         /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/
@@ -359,18 +359,29 @@ export class PageControllerBase {
    * @param value - user's answers
    * @param schema - which schema to validate against
    */
-  validate(value, schema) {
+  validate<ValueType extends object>(
+    value: ValueType,
+    schema: ObjectSchema<ValueType>
+  ): FormValidationResult<ValueType> {
     const result = schema.validate(value, this.validationOptions)
-    const errors = result.error ? this.getErrors(result) : null
 
-    return { value: result.value, errors }
+    if (result.error) {
+      return {
+        value: result.value,
+        errors: this.getErrors(result)
+      }
+    }
+
+    return {
+      value: result.value
+    }
   }
 
-  validateForm(payload) {
+  validateForm(payload: FormPayload) {
     return this.validate(payload, this.formSchema)
   }
 
-  validateState(newState) {
+  validateState(newState: FormSubmissionState) {
     return this.validate(newState, this.stateSchema)
   }
 
@@ -581,7 +592,7 @@ export class PageControllerBase {
   ) {
     const { cacheService } = request.services([])
     const payload = (request.payload || {}) as FormData
-    const formResult: any = this.validateForm(payload)
+    const formResult = this.validateForm(payload)
     const state = await cacheService.getState(request)
     const progress = state.progress || []
     const { num } = request.query
@@ -760,7 +771,7 @@ export class PageControllerBase {
     return {}
   }
 
-  get formSchema() {
+  get formSchema(): ObjectSchema<FormPayload> {
     return this[FORM_SCHEMA]
   }
 
@@ -768,7 +779,7 @@ export class PageControllerBase {
     this[FORM_SCHEMA] = value
   }
 
-  get stateSchema() {
+  get stateSchema(): ObjectSchema<FormSubmissionState> {
     return this[STATE_SCHEMA]
   }
 

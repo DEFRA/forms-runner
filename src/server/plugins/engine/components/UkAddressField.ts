@@ -1,4 +1,8 @@
-import { type InputFieldsComponentsDef } from '@defra/forms-model'
+import {
+  ComponentType,
+  type ComponentDef,
+  type InputFieldsComponentsDef
+} from '@defra/forms-model'
 import joi from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
@@ -22,9 +26,9 @@ export class UkAddressField extends FormComponent {
     const stateSchema = helpers.buildStateSchema('date', this)
     const isRequired = !('required' in options && options.required === false)
 
-    const childrenList: any = [
+    const childrenList = [
       {
-        type: 'TextField',
+        type: ComponentType.TextField,
         name: 'addressLine1',
         title: 'Address line 1',
         schema: { max: 100 },
@@ -34,7 +38,7 @@ export class UkAddressField extends FormComponent {
         }
       },
       {
-        type: 'TextField',
+        type: ComponentType.TextField,
         name: 'addressLine2',
         title: 'Address line 2',
         schema: { max: 100, allow: '' },
@@ -44,7 +48,7 @@ export class UkAddressField extends FormComponent {
         }
       },
       {
-        type: 'TextField',
+        type: ComponentType.TextField,
         name: 'town',
         title: 'Town or city',
         schema: { max: 100 },
@@ -55,7 +59,7 @@ export class UkAddressField extends FormComponent {
         }
       },
       {
-        type: 'TextField',
+        type: ComponentType.TextField,
         name: 'postcode',
         title: 'Postcode',
         schema: { max: 10 },
@@ -65,7 +69,7 @@ export class UkAddressField extends FormComponent {
           required: isRequired
         }
       }
-    ]
+    ] satisfies ComponentDef[]
 
     const stateChildren = new ComponentCollection(childrenList, model)
 
@@ -86,7 +90,7 @@ export class UkAddressField extends FormComponent {
 
   getStateSchemaKeys() {
     const { name } = this
-    const options: any = this.options
+    const options = this.options
 
     return {
       [name]:

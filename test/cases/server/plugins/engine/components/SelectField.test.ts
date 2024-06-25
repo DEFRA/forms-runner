@@ -1,4 +1,8 @@
-import { type ListComponentsDef } from '@defra/forms-model'
+import {
+  ComponentSubType,
+  ComponentType,
+  type ListComponentsDef
+} from '@defra/forms-model'
 
 import { SelectField } from '~/src/server/plugins/engine/components/index.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
@@ -46,10 +50,10 @@ describe('SelectField', () => {
 
   describe('Generated schema', () => {
     const componentDefinition: ListComponentsDef = {
-      subType: 'field',
-      type: 'SelectField',
-      name: 'countryOfBirth',
       title: 'Where were you born?',
+      name: 'countryOfBirth',
+      type: ComponentType.SelectField,
+      subType: ComponentSubType.ListField,
       options: {},
       list: 'Countries',
       schema: {}

@@ -1,3 +1,9 @@
+import {
+  ComponentSubType,
+  ComponentType,
+  type ComponentDef
+} from '@defra/forms-model'
+
 import { CheckboxesField } from '~/src/server/plugins/engine/components/CheckboxesField.js'
 
 describe('CheckboxesField', () => {
@@ -36,9 +42,9 @@ describe('CheckboxesField', () => {
   ]
 
   describe('Generated schema', () => {
-    const componentDefinition = {
-      subType: 'field',
-      type: 'CheckboxesField',
+    const componentDefinition: ComponentDef = {
+      type: ComponentType.CheckboxesField,
+      subType: ComponentSubType.ListField,
       name: 'myCheckbox',
       title: 'Tada',
       options: {},

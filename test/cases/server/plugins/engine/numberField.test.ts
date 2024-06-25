@@ -1,17 +1,19 @@
+import { ComponentType, type ComponentDef } from '@defra/forms-model'
+
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
 import { messages } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 
 describe('Number field', () => {
-  const baseDef = {
+  const baseDef: ComponentDef = {
     name: 'myComponent',
     title: 'My component',
+    type: ComponentType.NumberField,
     options: { required: true },
-    schema: {},
-    type: 'NumberField'
+    schema: {}
   }
 
   test('Error is displayed correctly when max configured', () => {
-    const def = {
+    const def: ComponentDef = {
       ...baseDef,
       schema: { max: 30 }
     }
@@ -26,7 +28,7 @@ describe('Number field', () => {
   })
 
   test('Error is displayed correctly when min configured', () => {
-    const def = {
+    const def: ComponentDef = {
       ...baseDef,
       schema: { min: 30 }
     }
@@ -41,7 +43,7 @@ describe('Number field', () => {
   })
 
   test('Prefix and suffix are passed to view model', () => {
-    const def = {
+    const def: ComponentDef = {
       ...baseDef,
       options: { prefix: '@£%', suffix: '&^%%' }
     }

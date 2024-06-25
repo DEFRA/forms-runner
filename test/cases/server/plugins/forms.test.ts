@@ -1,4 +1,5 @@
 import {
+  ComponentType,
   type FormDefinition,
   type FormMetadata,
   type FormMetadataAuthor,
@@ -57,7 +58,7 @@ const stubFormDefinition: FormDefinition = {
       section: 'section',
       components: [
         {
-          type: 'TextField',
+          type: ComponentType.TextField,
           name: 'textField',
           title: 'This is your first field',
           hint: 'Help text',
