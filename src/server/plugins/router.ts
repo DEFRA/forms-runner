@@ -1,10 +1,22 @@
+import Boom from '@hapi/boom'
 import { type Request, type ResponseToolkit } from '@hapi/hapi'
+
+import { createLogger } from '../common/helpers/logging/logger.js'
 
 import { redirectTo } from '~/src/server/plugins/engine/index.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import { healthRoute, publicRoutes } from '~/src/server/routes/index.js'
 
 const routes = [...publicRoutes, healthRoute]
+
+const logger = createLogger()
+
+const privacyPolicies: Record<string, string> = {
+  'register-a-boat-at-rye-harbour':
+    'https://www.gov.uk/government/publications/rye-harbour-privacy-notice',
+  'apply-for-an-annual-mooring-at-rye-harbour':
+    'https://www.gov.uk/government/publications/rye-harbour-privacy-notice'
+}
 
 export default {
   plugin: {
@@ -35,9 +47,18 @@ export default {
         },
         {
           method: 'get',
-          path: '/help/privacy',
-          handler(_request: Request, h: ResponseToolkit) {
-            return h.view('help/privacy')
+          path: '/help/privacy/{slug?}',
+          handler(request: Request, h: ResponseToolkit) {
+            const { slug } = request.params
+
+            const privacyPolicy = privacyPolicies[slug as string]
+
+            if (!privacyPolicy) {
+              logger.error(`Privacy policy not found for slug ${slug}`)
+              throw Boom.notFound()
+            }
+
+            return h.redirect(privacyPolicy)
           }
         },
         {
