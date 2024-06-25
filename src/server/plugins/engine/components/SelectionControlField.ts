@@ -10,15 +10,21 @@ import {
  */
 export class SelectionControlField extends ListFormComponent {
   getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
-    const { name, items } = this
-    const options = this.options
-    const viewModel = super.getViewModel(formData, errors)
+    const { name, options } = this
 
-    viewModel.fieldset = {
-      legend: viewModel.label
+    const viewModel = super.getViewModel(formData, errors)
+    let { fieldset, items, label } = viewModel
+
+    if (!('hideTitle' in options && options.hideTitle)) {
+      fieldset ??= {
+        legend: {
+          text: label.text,
+          classes: 'govuk-fieldset__legend--m'
+        }
+      }
     }
 
-    viewModel.items = items.map((item) => {
+    items = items?.map((item) => {
       const itemModel: ListItem = {
         text: item.text,
         value: item.value,
@@ -42,6 +48,11 @@ export class SelectionControlField extends ListFormComponent {
       // FIXME:- add this back when GDS fix accessibility issues involving conditional reveal fields
       // return super.addConditionalComponents(item, itemModel, formData, errors);
     })
-    return viewModel
+
+    return {
+      ...viewModel,
+      fieldset,
+      items
+    }
   }
 }

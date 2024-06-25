@@ -151,15 +151,26 @@ export class UkAddressField extends FormComponent {
   }
 
   getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
-    const viewModel = {
-      ...super.getViewModel(formData, errors),
-      children: this.formChildren.getViewModel(formData, errors)
+    const { formChildren, options } = this
+
+    const viewModel = super.getViewModel(formData, errors)
+    let { children, fieldset, label } = viewModel
+
+    if (!('hideTitle' in options && options.hideTitle)) {
+      fieldset ??= {
+        legend: {
+          text: label.text,
+          classes: 'govuk-fieldset__legend--m'
+        }
+      }
     }
 
-    viewModel.fieldset = {
-      legend: viewModel.label
-    }
+    children = formChildren.getViewModel(formData, errors)
 
-    return viewModel
+    return {
+      ...viewModel,
+      fieldset,
+      children
+    }
   }
 }

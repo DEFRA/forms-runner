@@ -133,7 +133,10 @@ export class PageControllerBase {
     phaseTag?: string | undefined
   } {
     let showTitle = true
-    let pageTitle = this.title
+
+    let { title: pageTitle, section } = this
+    let sectionTitle = section?.hideTitle !== true ? section?.title : ''
+
     const serviceUrl = `/${this.model.basePath}`
 
     if (config.allowUserTemplates) {
@@ -141,30 +144,40 @@ export class PageControllerBase {
         ...formData
       })
     }
-    let sectionTitle = !this.section?.hideTitle && this.section?.title
+
     if (sectionTitle && iteration !== undefined) {
       sectionTitle = `${sectionTitle} ${iteration}`
     }
+
     const components = this.components.getViewModel(formData, errors)
+    const formComponents = components.filter(
+      ({ isFormComponent }) => isFormComponent
+    )
 
-    const formComponents = components.filter((c) => c.isFormComponent)
-    const hasSingleFormComponent = formComponents.length === 1
-    const singleFormComponent = hasSingleFormComponent
-      ? formComponents[0]
-      : null
-    const singleFormComponentIsFirst =
-      singleFormComponent && singleFormComponent === components[0]
+    // Single form component? Hide title and customise label or legend instead
+    if (formComponents.length === 1 && formComponents[0] === components[0]) {
+      const { model } = formComponents[0]
+      const { fieldset, label } = model
 
-    if (singleFormComponent && singleFormComponentIsFirst) {
-      const label = singleFormComponent.model.label
+      // Check for legend or label
+      const labelOrLegend = fieldset?.legend ?? label
 
-      if (pageTitle) {
-        label.text = pageTitle
+      // Use legend or label as page heading
+      if (labelOrLegend) {
+        labelOrLegend.isPageHeading = true
+
+        labelOrLegend.classes =
+          labelOrLegend === label
+            ? 'govuk-label--l'
+            : 'govuk-fieldset__legend--l'
+
+        if (pageTitle) {
+          labelOrLegend.text = pageTitle
+        }
+
+        pageTitle = pageTitle || labelOrLegend.text
       }
 
-      label.isPageHeading = true
-      label.classes = 'govuk-label--l'
-      pageTitle = pageTitle || label.text
       showTitle = false
     }
 

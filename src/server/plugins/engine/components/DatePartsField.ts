@@ -121,6 +121,8 @@ export class DatePartsField extends FormComponent {
   }
 
   getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
+    const { options } = this
+
     const viewModel = super.getViewModel(formData, errors)
 
     // Use the component collection to generate the subitems
@@ -143,12 +145,21 @@ export class DatePartsField extends FormComponent {
     const firstError = errors?.errorList[0]
     const errorMessage = firstError && { text: firstError.text }
 
+    let { fieldset, label } = viewModel
+
+    if (!('hideTitle' in options && options.hideTitle)) {
+      fieldset ??= {
+        legend: {
+          text: label.text,
+          classes: 'govuk-fieldset__legend--m'
+        }
+      }
+    }
+
     return {
       ...viewModel,
       errorMessage,
-      fieldset: {
-        legend: viewModel.label
-      },
+      fieldset,
       items: componentViewModels
     }
   }
