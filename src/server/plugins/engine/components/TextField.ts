@@ -2,7 +2,6 @@ import { type TextFieldComponent } from '@defra/forms-model'
 import joi, { type Schema } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormData,
@@ -19,8 +18,6 @@ export class TextField extends FormComponent {
     const { options, schema = {} } = def
     this.options = options
     this.schema = schema
-
-    addClassOptionIfNone(this.options, 'govuk-input--width-20')
 
     let componentSchema = joi.string().required()
     if (options.required === false) {

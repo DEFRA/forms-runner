@@ -1,6 +1,6 @@
 export interface Label {
   text: string
-  classes: string
+  classes?: string
   html?: string
   isPageHeading?: boolean
 }

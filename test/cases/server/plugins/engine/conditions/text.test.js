@@ -37,7 +37,7 @@ describe('TextField based conditions', () => {
     expect(res.statusCode).toEqual(okStatusCode)
     expect(res.headers['content-type']).toContain(htmlContentType)
     expect(res.result).toContain(
-      `<input class="govuk-input govuk-input--width-20" id="${key}" name="${key}" type="text">`
+      `<input class="govuk-input" id="${key}" name="${key}" type="text">`
     )
   })
 
