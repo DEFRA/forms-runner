@@ -74,7 +74,7 @@ export class ListFormComponent extends FormComponent {
     const viewModel = super.getViewModel(formData, errors)
     const viewModelItems = items.map(
       ({ text, value, description = '', condition }) => ({
-        text: this.localisedString(text),
+        text,
         value,
         description,
         selected: `${value}` === `${formData[name]}`,

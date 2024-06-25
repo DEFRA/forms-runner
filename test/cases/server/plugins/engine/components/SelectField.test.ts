@@ -71,7 +71,7 @@ describe('SelectField', () => {
     })
 
     it('includes the first empty item in items list', () => {
-      const { items } = component.getViewModel({ lang: 'en' })
+      const { items } = component.getViewModel({})
       expect(items).toBeTruthy()
       expect(items?.[0]).toEqual({ value: '' })
     })

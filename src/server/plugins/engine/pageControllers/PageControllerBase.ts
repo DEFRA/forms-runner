@@ -375,18 +375,6 @@ export class PageControllerBase {
   }
 
   /**
-   * returns the language set in a user's browser. Can be used for localisable strings
-   */
-  langFromRequest(request: Request) {
-    const lang = request.query.lang || request.yar.get('lang') || 'en'
-    if (lang !== request.yar.get('lang')) {
-      request.i18n.setLocale(lang)
-      request.yar.set('lang', lang)
-    }
-    return request.yar.get('lang')
-  }
-
-  /**
    * Returns an async function. This is called in plugin.ts when there is a GET request at `/{id}/{path*}`
    */
   getConditionEvaluationContext(model: FormModel, state: FormSubmissionState) {
@@ -454,7 +442,6 @@ export class PageControllerBase {
   makeGetRouteHandler() {
     return async (request: Request, h: ResponseToolkit) => {
       const { cacheService } = request.services([])
-      const lang = this.langFromRequest(request)
       const state = await cacheService.getState(request)
       const progress = state.progress ?? []
       const { num } = request.query
@@ -472,9 +459,8 @@ export class PageControllerBase {
           : redirectTo(request, h, `/${this.model.basePath}${startPage}`)
       }
 
-      formData.lang = lang
-
       const viewModel = this.getViewModel(formData, num)
+
       viewModel.startPage = startPage?.startsWith('http')
         ? redirectTo(request, h, startPage)
         : redirectTo(request, h, `/${this.model.basePath}${startPage}`)
@@ -738,16 +724,6 @@ export class PageControllerBase {
 
   getPartialMergeState(value) {
     return this.section ? { [this.section.name]: value } : value
-  }
-
-  localisedString(description, lang: string) {
-    let string
-    if (typeof description === 'string') {
-      string = description
-    } else {
-      string = description[lang] ? description[lang] : description.en
-    }
-    return string
   }
 
   get viewName() {

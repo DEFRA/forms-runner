@@ -34,8 +34,7 @@ describe('YesNoField', () => {
       it('viewModel item Yes is checked when evaluating boolean true', () => {
         const component = new YesNoField(componentDefinition, formModel)
         const formData = {
-          speakEnglish: true,
-          lang: 'en'
+          speakEnglish: true
         }
 
         const viewModel = component.getViewModel(formData)
@@ -51,8 +50,7 @@ describe('YesNoField', () => {
       it("viewModel item Yes is checked when evaluating string 'true'", () => {
         const component = new YesNoField(componentDefinition, formModel)
         const formData = {
-          speakEnglish: 'true',
-          lang: 'en'
+          speakEnglish: 'true'
         }
 
         const viewModel = component.getViewModel(formData)
@@ -68,8 +66,7 @@ describe('YesNoField', () => {
       it('viewModel item No is checked when evaluating boolean false', () => {
         const component = new YesNoField(componentDefinition, formModel)
         const formData = {
-          speakEnglish: false,
-          lang: 'en'
+          speakEnglish: false
         }
 
         const viewModel = component.getViewModel(formData)
@@ -85,8 +82,7 @@ describe('YesNoField', () => {
       it("viewModel item No is checked when evaluating string 'false'", () => {
         const component = new YesNoField(componentDefinition, formModel)
         const formData = {
-          speakEnglish: 'false',
-          lang: 'en'
+          speakEnglish: 'false'
         }
 
         const viewModel = component.getViewModel(formData)

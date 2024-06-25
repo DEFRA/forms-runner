@@ -9,7 +9,7 @@ describe('Date parts field', () => {
       schema: {}
     }
     const underTest = new DatePartsField(def, {})
-    const returned = underTest.getViewModel({ lang: 'en' })
+    const returned = underTest.getViewModel({})
 
     expect(returned.fieldset).toEqual({
       legend: {
@@ -31,7 +31,7 @@ describe('Date parts field', () => {
       schema: {}
     }
     const underTest = new DatePartsField(def, {})
-    const returned = underTest.getViewModel({ lang: 'en' })
+    const returned = underTest.getViewModel({})
 
     expect(returned.fieldset).toEqual({
       legend: {

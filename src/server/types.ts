@@ -15,18 +15,9 @@ declare module '@hapi/hapi' {
   // Here we are decorating Hapi interface types with
   // props from plugins which doesn't export @types
   interface Request {
-    i18n: {
-      // plugin locale
-      setLocale(lang: string): void
-      getLocale(request: Request): void
-      getDefaultLocale(): string
-      getLocales(): string[]
-    }
     logger: Logger
     yar: Yar
   }
-
-  interface Response {}
 
   interface Server {
     logger: Logger

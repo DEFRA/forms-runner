@@ -20,7 +20,6 @@ import { configureCrumbPlugin } from '~/src/server/plugins/crumb.js'
 import { configureEnginePlugin } from '~/src/server/plugins/engine/index.js'
 import pluginErrorPages from '~/src/server/plugins/errorPages.js'
 import { configureInitialiseSessionPlugin } from '~/src/server/plugins/initialiseSession/configurePlugin.js'
-import pluginLocale from '~/src/server/plugins/locale.js'
 import pluginLogging from '~/src/server/plugins/logging.js'
 import pluginPulse from '~/src/server/plugins/pulse.js'
 import { configureRateLimitPlugin } from '~/src/server/plugins/rateLimit.js'
@@ -140,7 +139,6 @@ async function createServer(routeConfig: RouteConfig) {
     return h.continue
   })
 
-  await server.register(pluginLocale)
   await server.register(pluginViews)
   await server.register(
     configureEnginePlugin(formFileName, formFilePath, options)
