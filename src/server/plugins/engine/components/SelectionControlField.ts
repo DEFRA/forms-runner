@@ -15,12 +15,10 @@ export class SelectionControlField extends ListFormComponent {
     const viewModel = super.getViewModel(formData, errors)
     let { fieldset, items, label } = viewModel
 
-    if (!('hideTitle' in options && options.hideTitle)) {
-      fieldset ??= {
-        legend: {
-          text: label.text,
-          classes: 'govuk-fieldset__legend--m'
-        }
+    fieldset ??= {
+      legend: {
+        text: label.text,
+        classes: 'govuk-fieldset__legend--m'
       }
     }
 

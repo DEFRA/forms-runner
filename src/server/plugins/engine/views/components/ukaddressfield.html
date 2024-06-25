@@ -2,7 +2,11 @@
 {% from "govuk/components/fieldset/macro.njk" import govukFieldset %}
 
 {% macro UkAddressField(component) %}
-  {% call govukFieldset(component.model.fieldset) %}
-    {{ componentList(component.model.children) }}
-  {% endcall %}
+  {% set fieldset = component.model.fieldset %}
+  {% set addressFieldHtml = componentList(component.model.children) %}
+
+  {{ govukFieldset({
+    legend: fieldset.legend,
+    html: addressFieldHtml
+  }) if fieldset else addressFieldHtml }}
 {% endmacro %}
