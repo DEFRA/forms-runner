@@ -77,10 +77,7 @@ export const configSchema = Joi.object({
       'HS512'
     )
     .default('HS512'),
-  allowUserTemplates: Joi.boolean().optional(),
-  httpsProxyUrl: Joi.string().uri({ scheme: 'https' }).optional(),
-  httpsProxyUsername: Joi.string().optional(),
-  httpsProxyPassword: Joi.string().optional()
+  allowUserTemplates: Joi.boolean().optional()
 })
 
 export function buildConfig(config) {

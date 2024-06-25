@@ -22,8 +22,5 @@
   "initialisedSessionTimeout": "INITIALISED_SESSION_TIMEOUT",
   "initialisedSessionKey": "INITIALISED_SESSION_KEY",
   "initialisedSessionAlgorithm": "INITIALISED_SESSION_ALGORITHM",
-  "allowUserTemplates": "ALLOW_USER_TEMPLATES",
-  "httpsProxyUrl": "CDP_HTTPS_PROXY",
-  "httpsProxyUsername": "SQUID_USERNAME",
-  "httpsProxyPassword": "SQUID_PASSWORD"
+  "allowUserTemplates": "ALLOW_USER_TEMPLATES"
 }
