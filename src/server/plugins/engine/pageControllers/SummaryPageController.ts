@@ -35,8 +35,6 @@ export class SummaryPageController extends PageController {
    */
   makeGetRouteHandler() {
     return async (request: Request, h: ResponseToolkit) => {
-      this.langFromRequest(request)
-
       const { cacheService } = request.services([])
       const model = this.model
 

@@ -64,7 +64,6 @@ export interface FormPayload {
 }
 
 export interface FormData {
-  lang?: string // form language e.g: "en"
   value?: FormPayload
   errors?: FormSubmissionErrors | null
 }

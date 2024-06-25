@@ -12,17 +12,6 @@ import {
 
 export class FormComponent extends ComponentBase {
   isFormComponent = true
-  __lang = 'en'
-
-  get lang() {
-    return this.__lang
-  }
-
-  set lang(lang) {
-    if (lang) {
-      this.__lang = lang
-    }
-  }
 
   getFormDataFromState(state: FormSubmissionState) {
     const name = this.name
@@ -58,27 +47,13 @@ export class FormComponent extends ComponentBase {
     return name in payload && payload[name] !== '' ? payload[name] : null
   }
 
-  localisedString(description) {
-    let string
-    if (!description) {
-      string = ''
-    } else if (typeof description === 'string') {
-      string = description
-    } else {
-      string = description?.[this.lang] ?? description.en
-    }
-    return string
-  }
-
   getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const options: any = this.options
     const isOptional = options.required === false
     const optionalPostfix =
       isOptional && options.optionalText !== false ? optionalText : ''
-    this.lang = formData.lang
-    const label = options.hideTitle
-      ? ''
-      : `${this.localisedString(this.title)}${optionalPostfix}`
+
+    const label = options.hideTitle ? '' : `${this.title}${optionalPostfix}`
 
     const name = this.name
 
@@ -94,7 +69,7 @@ export class FormComponent extends ComponentBase {
 
     if (this.hint) {
       viewModel.hint = {
-        html: this.localisedString(this.hint)
+        html: this.hint
       }
     }
 

@@ -33,7 +33,7 @@ export class SelectionControlField extends ListFormComponent {
 
       if (item.description) {
         itemModel.hint = {
-          html: this.localisedString(item.description)
+          html: item.description
         }
       }
 

@@ -262,7 +262,7 @@ function Item(
   return {
     name: component.name,
     path: page.path,
-    label: component.localisedString(component.title),
+    label: component.title,
     value: component.getDisplayStringFromState(sectionState),
     rawValue: sectionState[component.name],
     url: redirectUrl(request, `/${model.basePath}${page.path}`, params),
