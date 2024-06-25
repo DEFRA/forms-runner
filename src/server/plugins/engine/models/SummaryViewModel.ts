@@ -18,9 +18,10 @@ export class SummaryViewModel {
   declaration: any // TODO
   skipSummary: boolean
   endPage: any // TODO
+  endPage?: PageControllerClass
   result: any
   details: any
-  relevantPages: any[]
+  relevantPages: PageControllerClass[]
   state: any
   value: any
   name: string | undefined
@@ -191,8 +192,9 @@ export class SummaryViewModel {
 
   private getRelevantPages(model: FormModel, state: FormSubmissionState) {
     let nextPage = model.startPage
-    const relevantPages: any[] = []
-    let endPage = null
+    let endPage
+
+    const relevantPages: PageControllerClass[] = []
 
     while (nextPage != null) {
       if (nextPage.hasFormComponents) {

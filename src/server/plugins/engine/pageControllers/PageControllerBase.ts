@@ -1,5 +1,6 @@
 import { type URLSearchParams } from 'node:url'
 
+import { type Page, type RepeatingFieldPage } from '@defra/forms-model'
 import {
   type Request,
   type ResponseObject,
@@ -26,6 +27,7 @@ import {
   redirectTo
 } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { validationOptions } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormData,
@@ -57,7 +59,7 @@ export class PageControllerBase {
 
   name: string
   model: FormModel
-  pageDef: any // TODO
+  pageDef: Page | RepeatingFieldPage
   path: string
   title: string
   condition: any // TODO
@@ -68,13 +70,10 @@ export class PageControllerBase {
   hasConditionalFormComponents: boolean
   backLinkFallback?: string
 
-  // TODO: pageDef type
-  constructor(model: FormModel, pageDef: Record<string, any> = {}) {
+  constructor(model: FormModel, pageDef: Page | RepeatingFieldPage) {
     const { def } = model
 
-    // @ts-expect-error - 'FormDefinition' is not assignable to type
     this.def = def
-    // @ts-expect-error - Type 'string | undefined' is not assignable to type 'string'
     this.name = def.name
     this.model = model
     this.pageDef = pageDef
@@ -163,7 +162,7 @@ export class PageControllerBase {
       singleFormComponent && singleFormComponent === components[0]
 
     if (singleFormComponent && singleFormComponentIsFirst) {
-      const label: any = singleFormComponent.model.label
+      const label = singleFormComponent.model.label
 
       if (pageTitle) {
         label.text = pageTitle
@@ -199,7 +198,7 @@ export class PageControllerBase {
     return (this.pageDef.next || [])
       .map((next: { path: string }) => {
         const { path } = next
-        const page = this.model.pages.find((page: PageControllerBase) => {
+        const page = this.model.pages.find((page) => {
           return path === page.path
         })
 

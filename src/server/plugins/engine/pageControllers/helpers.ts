@@ -17,10 +17,14 @@ export function isPageController(
   return controllerName in PageControllers
 }
 
+export type PageControllerClass = InstanceType<PageControllerType>
+export type PageControllerType =
+  (typeof PageControllers)[keyof typeof PageControllers]
+
 /**
  * Gets the class for the controller defined in a {@link Page}
  */
-export function getPageController(nameOrPath: string) {
+export function getPageController(nameOrPath: string): PageControllerType {
   const controllerName = path.extname(nameOrPath)
     ? controllerNameFromPath(nameOrPath)
     : nameOrPath

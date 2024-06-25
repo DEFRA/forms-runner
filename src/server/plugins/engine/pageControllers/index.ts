@@ -3,11 +3,8 @@ export { HomePageController } from '~/src/server/plugins/engine/pageControllers/
 export { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 export { PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
 export { RepeatingFieldPageController } from '~/src/server/plugins/engine/pageControllers/RepeatingFieldPageController.js'
+export { RepeatingSummaryPageController } from '~/src/server/plugins/engine/pageControllers/RepeatingSummaryPageController.js'
 export { StartDatePageController } from '~/src/server/plugins/engine/pageControllers/StartDatePageController.js'
 export { StartPageController } from '~/src/server/plugins/engine/pageControllers/StartPageController.js'
 export { SummaryPageController } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 export { StatusPageController } from '~/src/server/plugins/engine/pageControllers/StatusPageController.js'
-export {
-  getPageController,
-  controllerNameFromPath
-} from '~/src/server/plugins/engine/pageControllers/helpers.js'

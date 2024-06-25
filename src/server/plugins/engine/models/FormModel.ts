@@ -13,10 +13,8 @@ import joi from 'joi'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/index.js'
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
-import {
-  PageControllerBase,
-  getPageController
-} from '~/src/server/plugins/engine/pageControllers/index.js'
+import { getPageController } from '~/src/server/plugins/engine/pageControllers/helpers.js'
+import { PageControllerBase } from '~/src/server/plugins/engine/pageControllers/index.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 
 class EvaluationContext {

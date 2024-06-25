@@ -1,5 +1,7 @@
+import { type Page } from '@defra/forms-model'
 import joi from 'joi'
 
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type FormPayload } from '~/src/server/plugins/engine/types.js'
 
@@ -8,8 +10,7 @@ import { type FormPayload } from '~/src/server/plugins/engine/types.js'
  * @deprecated FCDO and HO do not use this controller. No guarantee this will work!
  */
 export class DobPageController extends PageController {
-  // TODO: improve type, see Page once types mature
-  constructor(model: any = {}, pageDef: any = {}) {
+  constructor(model: FormModel, pageDef: Page) {
     super(model, pageDef)
 
     this.stateSchema = this.stateSchema.append({
