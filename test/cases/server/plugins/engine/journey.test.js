@@ -2,15 +2,16 @@ import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import FormData from 'form-data'
-import { NotifyClient } from 'notifications-node-client'
 
 import { getSessionCookie } from '../../utils/get-session-cookie.js'
 
 import createServer from '~/src/server/index.js'
-
-jest.mock('notifications-node-client')
+import { sendNotification } from '~/src/server/utils/notify.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
+
+jest.mock('~/src/server/utils/notify.ts')
+
 const okStatusCode = 200
 const redirectStatusCode = 302
 const htmlContentType = 'text/html'
@@ -85,7 +86,7 @@ describe('Submission journey test', () => {
   })
 
   test('POST /summary returns 302', async () => {
-    const mockClient = jest.mocked(NotifyClient)
+    const sender = jest.mocked(sendNotification)
 
     const form = new FormData()
     form.append('textField', 'Text field')
@@ -139,9 +140,14 @@ describe('Submission journey test', () => {
       payload: summaryForm.getBuffer()
     })
 
-    const context = mockClient.mock.contexts[0]
-    const sendOpts = context.sendEmail.mock.calls[0][2]
-    expect(sendOpts.personalisation.formResults).toContain(formResults)
+    expect(sender).toHaveBeenCalledWith({
+      templateId: process.env.NOTIFY_TEMPLATE_ID,
+      emailAddress: 'enrique.chase@defra.gov.uk',
+      personalisation: {
+        formName: 'All components',
+        formResults: expect.stringContaining(formResults)
+      }
+    })
     expect(submitRes.statusCode).toBe(redirectStatusCode)
     expect(submitRes.headers.location).toBe('/components/status')
 
