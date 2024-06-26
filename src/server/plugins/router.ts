@@ -16,8 +16,11 @@ export default {
         {
           method: 'get',
           path: '/help/get-support/{slug?}',
-          async handler(request: Request, h: ResponseToolkit) {
-            const slug = request.params.slug as string
+          async handler(
+            request: Request<{ Params: { slug?: string } }>,
+            h: ResponseToolkit
+          ) {
+            const { slug } = request.params
             const viewName = 'help/get-support'
 
             // If there's no slug in the path,
