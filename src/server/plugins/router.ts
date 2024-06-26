@@ -1,8 +1,7 @@
 import { type Request, type ResponseToolkit } from '@hapi/hapi'
 
-import { getFormMetadata } from './engine/services/formsService.js'
-
 import { redirectTo } from '~/src/server/plugins/engine/index.js'
+import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import { healthRoute, publicRoutes } from '~/src/server/routes/index.js'
 
 const routes = [...publicRoutes, healthRoute]
