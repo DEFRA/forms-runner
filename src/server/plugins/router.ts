@@ -57,7 +57,7 @@ export default {
 
             if (!privacyPolicy) {
               logger.error(`Privacy policy not found for slug ${slug}`)
-              throw Boom.notFound()
+              return Boom.notFound()
             }
 
             return h.redirect(privacyPolicy)
