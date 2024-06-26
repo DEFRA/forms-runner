@@ -1,8 +1,7 @@
 import Boom from '@hapi/boom'
 import { type Request, type ResponseToolkit } from '@hapi/hapi'
 
-import { createLogger } from '../common/helpers/logging/logger.js'
-
+import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { redirectTo } from '~/src/server/plugins/engine/index.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import { healthRoute, publicRoutes } from '~/src/server/routes/index.js'
