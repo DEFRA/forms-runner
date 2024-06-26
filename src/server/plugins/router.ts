@@ -14,7 +14,8 @@ const privacyPolicies: Record<string, string> = {
   'register-a-boat-at-rye-harbour':
     'https://www.gov.uk/government/publications/rye-harbour-privacy-notice',
   'apply-for-an-annual-mooring-at-rye-harbour':
-    'https://www.gov.uk/government/publications/rye-harbour-privacy-notice'
+    'https://www.gov.uk/government/publications/rye-harbour-privacy-notice',
+  'request-a-form': ''
 }
 
 export default {
