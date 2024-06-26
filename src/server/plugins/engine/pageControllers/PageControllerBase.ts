@@ -155,30 +155,37 @@ export class PageControllerBase {
     )
 
     // Single form component? Hide title and customise label or legend instead
-    if (formComponents.length === 1 && formComponents[0] === components[0]) {
+    if (formComponents.length === 1) {
       const { model } = formComponents[0]
       const { fieldset, label } = model
+
+      // Set as page heading when not following other content
+      const isPageHeading = formComponents[0] === components[0]
 
       // Check for legend or label
       const labelOrLegend = fieldset?.legend ?? label
 
       // Use legend or label as page heading
       if (labelOrLegend) {
-        labelOrLegend.isPageHeading = true
+        const size = isPageHeading ? 'l' : 'm'
 
         labelOrLegend.classes =
           labelOrLegend === label
-            ? 'govuk-label--l'
-            : 'govuk-fieldset__legend--l'
+            ? `govuk-label--${size}`
+            : `govuk-fieldset__legend--${size}`
 
-        if (pageTitle) {
-          labelOrLegend.text = pageTitle
+        if (isPageHeading) {
+          labelOrLegend.isPageHeading = isPageHeading
+
+          if (pageTitle) {
+            labelOrLegend.text = pageTitle
+          }
+
+          pageTitle = pageTitle || labelOrLegend.text
         }
-
-        pageTitle = pageTitle || labelOrLegend.text
       }
 
-      showTitle = false
+      showTitle = !isPageHeading
     }
 
     return {
