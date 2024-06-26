@@ -77,7 +77,19 @@
 {% block footer %}
     {{ govukFooter({
         meta: {
-          items: footerItems
+            items: [{
+                href: '/help/get-support' + ('/' + slug if slug),
+                text: 'Get help with this form'
+            }, {
+                href: '/help/privacy' + ('/' + slug if slug),
+                text: 'Privacy'
+            }, {
+                href: '/help/cookies',
+                text: 'Cookies'
+            }, {
+                href: '/help/accessibility-statement',
+                text: 'Accessibility Statement'
+            }]
         }
     }) }}
 {% endblock %}

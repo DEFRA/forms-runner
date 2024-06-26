@@ -75,35 +75,7 @@ export default {
       previewMode: request?.path.startsWith(PREVIEW_PATH_PREFIX)
         ? request.params.state
         : undefined,
-      slug: request?.params.slug,
-      footerItems: getFooterItems(request, request?.params.slug)
+      slug: request?.params.slug
     })
   }
-}
-
-function getFooterItems(request: Request | null, slug?: string) {
-  return [
-    // contextual footer items, those only for when a form is used
-    ...(slug && request && 'model' in request.app
-      ? [
-          {
-            href: `/help/get-support/${slug}`,
-            text: 'Get help with this form'
-          },
-          {
-            href: `/help/privacy/${slug}`,
-            text: 'Privacy'
-          }
-        ]
-      : []),
-    // footer items that aren't contextual
-    {
-      href: '/help/cookies',
-      text: 'Cookies'
-    },
-    {
-      href: '/help/accessibility-statement',
-      text: 'Accessibility Statement'
-    }
-  ]
 }
