@@ -102,8 +102,6 @@ export class SummaryPageController extends PageController {
 
       await this.updateProgress(progress, request, cacheService)
 
-      viewModel.backLink = this.getBackLink(progress)
-
       return h.view('summary', viewModel)
     }
   }
