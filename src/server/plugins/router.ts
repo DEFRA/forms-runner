@@ -47,11 +47,14 @@ export default {
         },
         {
           method: 'get',
-          path: '/help/privacy/{slug?}',
-          handler(request: Request, h: ResponseToolkit) {
+          path: '/help/privacy/{slug}',
+          handler(
+            request: Request<{ Params: { slug: string } }>,
+            h: ResponseToolkit
+          ) {
             const { slug } = request.params
 
-            const privacyPolicy = privacyPolicies[slug as string]
+            const privacyPolicy = privacyPolicies[slug]
 
             if (!privacyPolicy) {
               logger.error(`Privacy policy not found for slug ${slug}`)
