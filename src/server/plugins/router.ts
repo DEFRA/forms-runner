@@ -15,7 +15,10 @@ export default {
         {
           method: 'get',
           path: '/help/get-support/{slug?}',
-          async handler(request: Request, h: ResponseToolkit) {
+          async handler(
+            request: Request<{ Params: { slug?: string } }>,
+            h: ResponseToolkit
+          ) {
             const { slug } = request.params
             const viewName = 'help/get-support'
 
@@ -25,9 +28,9 @@ export default {
               return h.view(viewName)
             }
 
-            const form = await getFormMetadata(slug as string)
+            const form = await getFormMetadata(slug)
 
-            return h.view(viewName, { form })
+            return h.view(viewName, { slug, name: form.title })
           }
         },
         {
