@@ -1,16 +1,8 @@
-import { dirname, join } from 'node:path'
+import { join } from 'node:path'
 
 import { type HandlerDecorations, type ServerRoute } from '@hapi/hapi'
-import resolvePkg from 'resolve'
 
 import config from '~/src/server/config.js'
-
-const [accessibleAutocompletePath, govukFrontendPath] = [
-  'accessible-autocomplete',
-  'govuk-frontend'
-].map((pkgName) => {
-  return dirname(resolvePkg.sync(`${pkgName}/package.json`))
-})
 
 export default [
   {
@@ -19,11 +11,7 @@ export default [
     options: {
       handler: {
         directory: {
-          path: [
-            join(config.publicDir, 'javascripts'),
-            join(govukFrontendPath, 'dist/govuk'),
-            join(accessibleAutocompletePath, 'dist')
-          ]
+          path: join(config.publicDir, 'javascripts')
         }
       } satisfies HandlerDecorations
     }
@@ -34,11 +22,7 @@ export default [
     options: {
       handler: {
         directory: {
-          path: [
-            join(config.publicDir, 'stylesheets'),
-            join(govukFrontendPath, 'dist/govuk'),
-            join(accessibleAutocompletePath, 'dist')
-          ]
+          path: join(config.publicDir, 'stylesheets')
         }
       } satisfies HandlerDecorations
     }
@@ -49,7 +33,7 @@ export default [
     options: {
       handler: {
         directory: {
-          path: join(govukFrontendPath, 'dist/govuk/assets')
+          path: join(config.publicDir, 'assets')
         }
       } satisfies HandlerDecorations
     }
