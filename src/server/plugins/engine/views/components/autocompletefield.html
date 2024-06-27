@@ -63,13 +63,6 @@
       minLength: 2,
       selectElement: selectEl
     })
-
-    var previousValue = '{{ component.model.rawValue }}'
-    if (previousValue) {
-      var submittedEl = document.querySelector('.submitted')
-      submittedEl.classList.remove('submitted--hidden')
-      document.querySelector('.submitted__{{ component.model.id }}').innerHTML = previousValue
-    }
   }
 </script>
 {% endmacro %}
