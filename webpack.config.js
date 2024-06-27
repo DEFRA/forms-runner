@@ -6,6 +6,7 @@ import { CleanWebpackPlugin } from 'clean-webpack-plugin'
 import CopyPlugin from 'copy-webpack-plugin'
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import TerserPlugin from 'terser-webpack-plugin'
+import WebpackAssetsManifest from 'webpack-assets-manifest'
 
 const { NODE_ENV = 'development' } = process.env
 
@@ -36,8 +37,16 @@ export default {
     poll: 1000
   },
   output: {
-    filename: 'javascripts/[name].min.js',
-    chunkFilename: 'javascripts/[name].min.js',
+    filename:
+      NODE_ENV === 'production'
+        ? 'javascripts/[name].[contenthash:7].min.js'
+        : 'javascripts/[name].js',
+
+    chunkFilename:
+      NODE_ENV === 'production'
+        ? 'javascripts/[name].[chunkhash:7].min.js'
+        : 'javascripts/[name].js',
+
     path: path.join(dirname, '.public'),
     libraryTarget: 'module',
     module: true
@@ -158,8 +167,12 @@ export default {
   },
   plugins: [
     new CleanWebpackPlugin(),
+    new WebpackAssetsManifest(),
     new MiniCssExtractPlugin({
-      filename: 'stylesheets/[name].min.css'
+      filename:
+        NODE_ENV === 'production'
+          ? 'stylesheets/[name].[contenthash:7].min.css'
+          : 'stylesheets/[name].css'
     }),
     new CopyPlugin({
       patterns: [

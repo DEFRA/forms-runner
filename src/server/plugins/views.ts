@@ -1,4 +1,5 @@
-import { dirname, join } from 'node:path'
+import { readFileSync } from 'node:fs'
+import { basename, dirname, join } from 'node:path'
 
 import { type Request, type ServerRegisterPluginObject } from '@hapi/hapi'
 import vision, { type ServerViewsConfiguration } from '@hapi/vision'
@@ -7,8 +8,11 @@ import nunjucks from 'nunjucks'
 import resolvePkg from 'resolve'
 
 import pkg from '~/package.json' with { type: 'json' }
+import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import config from '~/src/server/config.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
+
+const logger = createLogger()
 
 const govukFrontendPath = dirname(
   resolvePkg.sync('govuk-frontend/package.json')
@@ -31,6 +35,8 @@ const nunjucksEnvironment = nunjucks.configure(
   }
 )
 
+let webpackManifest: Record<string, string> | undefined
+
 function nunjucksContext(
   request: Request<{
     Params: {
@@ -39,6 +45,17 @@ function nunjucksContext(
     }
   }> | null
 ) {
+  const manifestPath = join(config.publicDir, 'assets-manifest.json')
+
+  if (!webpackManifest) {
+    try {
+      // eslint-disable-next-line -- Allow JSON type 'any'
+      webpackManifest = JSON.parse(readFileSync(manifestPath, 'utf-8'))
+    } catch (error) {
+      logger.error(`Webpack ${basename(manifestPath)} not found`)
+    }
+  }
+
   const { app, params, path } = request ?? {}
   const isPreviewMode = path?.startsWith(PREVIEW_PATH_PREFIX)
 
@@ -50,7 +67,12 @@ function nunjucksContext(
     location: app?.location,
     phaseTag: config.phaseTag,
     previewMode: isPreviewMode ? params?.state : undefined,
-    slug: params?.slug
+    slug: params?.slug,
+
+    getAssetPath(asset: string) {
+      const webpackAssetPath = webpackManifest?.[asset] ?? asset
+      return `/${webpackAssetPath}`
+    }
   }
 }
 
