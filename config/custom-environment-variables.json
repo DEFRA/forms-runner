@@ -21,6 +21,5 @@
   "safelist": "SAFELIST",
   "initialisedSessionTimeout": "INITIALISED_SESSION_TIMEOUT",
   "initialisedSessionKey": "INITIALISED_SESSION_KEY",
-  "initialisedSessionAlgorithm": "INITIALISED_SESSION_ALGORITHM",
-  "allowUserTemplates": "ALLOW_USER_TEMPLATES"
+  "initialisedSessionAlgorithm": "INITIALISED_SESSION_ALGORITHM"
 }

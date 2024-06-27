@@ -76,8 +76,7 @@ export const configSchema = Joi.object({
       'HS384',
       'HS512'
     )
-    .default('HS512'),
-  allowUserTemplates: Joi.boolean().optional()
+    .default('HS512')
 })
 
 export function buildConfig(config) {

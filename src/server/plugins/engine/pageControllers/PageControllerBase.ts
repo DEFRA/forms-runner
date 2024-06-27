@@ -139,12 +139,6 @@ export class PageControllerBase {
 
     const serviceUrl = `/${this.model.basePath}`
 
-    if (config.allowUserTemplates) {
-      pageTitle = nunjucks.renderString(pageTitle, {
-        ...formData
-      })
-    }
-
     if (sectionTitle && iteration !== undefined) {
       sectionTitle = `${sectionTitle} ${iteration}`
     }

@@ -9,7 +9,6 @@ import resolvePkg from 'resolve'
 import pkg from '~/package.json' with { type: 'json' }
 import config from '~/src/server/config.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
-import additionalContexts from '~/src/server/templates/additionalContexts.json' with { type: 'json' }
 
 const govukFrontendPath = dirname(
   resolvePkg.sync('govuk-frontend/package.json')
@@ -48,7 +47,6 @@ export default {
             watch: config.isDev,
             noCache: config.isDev
           })
-          environment.addGlobal('additionalContexts', additionalContexts)
           environment.addFilter('isArray', (x) => Array.isArray(x))
           options.compileOptions.environment = environment
 
