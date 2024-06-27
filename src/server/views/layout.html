@@ -43,18 +43,12 @@
                 },
                 html: 'This is a new service. Help us improve it and <a class="govuk-link" href="' + feedbackLink + '">give your feedback by email</a>.'
             }) }}
-        {% elif feedbackLink %}
+        {% else %}
             {{ govukPhaseBanner({
                 tag: {
                     text: phaseTag | capitalize
                 },
                 html: 'This is a new service. Help us improve it and <a class="govuk-link" href="' + feedbackLink + '">give your feedback (opens in new tab)</a>.'
-            }) }}
-        {% else %}
-            {{ govukPhaseBanner({
-                tag: {
-                    text: phaseTag | capitalize
-                }
             }) }}
         {% endif %}
     {% endif %}
