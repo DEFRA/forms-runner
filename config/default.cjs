@@ -43,7 +43,6 @@ module.exports = {
    * Service
    */
   serviceName: 'Submit a form to Defra',
-  feedbackLink: '', // Used in your phase banner. Can be a URL or more commonly mailto mailto:feedback@department.gov.uk
   phaseTag: 'beta', // Accepts "alpha" |"beta" | ""
 
   /**
