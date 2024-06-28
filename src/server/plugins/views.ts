@@ -1,11 +1,11 @@
 import { readFileSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import { basename, dirname, join } from 'node:path'
 
 import { type Request, type ServerRegisterPluginObject } from '@hapi/hapi'
 import vision, { type ServerViewsConfiguration } from '@hapi/vision'
 import capitalize from 'lodash/capitalize.js'
 import nunjucks from 'nunjucks'
-import resolvePkg from 'resolve'
 
 import pkg from '~/package.json' with { type: 'json' }
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
@@ -13,9 +13,10 @@ import config from '~/src/server/config.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 
 const logger = createLogger()
+const require = createRequire(import.meta.url)
 
 const govukFrontendPath = dirname(
-  resolvePkg.sync('govuk-frontend/package.json')
+  require.resolve('govuk-frontend/package.json')
 )
 
 const pluginPaths = [
