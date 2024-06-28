@@ -57,6 +57,10 @@ export interface ViewModel {
   fieldset?: {
     legend?: Label
   }
+  formGroup?: {
+    classes?: string
+    attributes?: string | Record<string, string>
+  }
   children?: ComponentCollectionViewModel
   autocomplete?: string
 }
