@@ -159,6 +159,24 @@ export default {
         }
       })
     ],
+    splitChunks: {
+      cacheGroups: {
+        defaultVendors: {
+          /**
+           * Use npm package names
+           * @param {NormalModule} module
+           */
+          name({ userRequest }) {
+            const [[modulePath, pkgName]] = userRequest.matchAll(
+              /node_modules\/([^\\/]+)/g
+            )
+
+            // Move into /javascripts/vendor
+            return path.join('vendor', pkgName || modulePath)
+          }
+        }
+      }
+    },
 
     // Skip bundling unused modules
     providedExports: true,
@@ -193,4 +211,5 @@ export default {
 
 /**
  * @typedef {import('webpack').Configuration} Configuration
+ * @typedef {import('webpack').NormalModule} NormalModule
  */
