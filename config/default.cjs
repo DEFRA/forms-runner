@@ -70,9 +70,6 @@ module.exports = {
   // API keys configured within a form may be set like so { "test": "test-key", "production": "prod" }.
   // Control which is used. Accepts "test" | "production" | "".
   apiEnv: '',
-  // If both the api env and node env are set to "production", the pay return url will need to be secure.
-  // This is not the case if either are set to "test", or if the node env is set to "development"
-  // payReturnUrl: "http://localhost:3009"
 
   /**
    * Logging

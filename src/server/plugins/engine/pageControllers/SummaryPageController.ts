@@ -6,11 +6,7 @@ import nunjucks from 'nunjucks'
 import config from '~/src/server/config.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
-  FeedbackContextInfo,
-  RelativeUrl
-} from '~/src/server/plugins/engine/feedback/index.js'
-import {
-  feedbackReturnInfoKey,
+  getFeedbackLink,
   redirectTo,
   redirectUrl
 } from '~/src/server/plugins/engine/helpers.js'
@@ -123,7 +119,7 @@ export class SummaryPageController extends PageController {
         state,
         request
       )
-      this.setFeedbackDetails(summaryViewModel, request)
+      this.setFeedbackDetails(summaryViewModel)
 
       // redirect user to start page if there are incomplete form errors
       if (summaryViewModel.result.error) {
@@ -173,43 +169,6 @@ export class SummaryPageController extends PageController {
 
       return redirectTo(request, h, `/${model.basePath}/status`)
     }
-  }
-
-  setFeedbackDetails(viewModel: SummaryViewModel, request: Request) {
-    const feedbackContextInfo = this.getFeedbackContextInfo(request)
-
-    if (feedbackContextInfo) {
-      // set the form name to the source form name if this is a feedback form
-      viewModel.name = feedbackContextInfo.formTitle
-    }
-
-    // setting the feedbackLink to undefined here for feedback forms prevents the feedback link from being shown
-    viewModel.feedbackLink = this.feedbackUrlFromRequest(request)
-  }
-
-  getFeedbackContextInfo(request: Request) {
-    if (this.model.def.feedback?.feedbackForm) {
-      if (request.url.searchParams.get(feedbackReturnInfoKey)) {
-        return decodeFeedbackContextInfo(
-          request.url.searchParams.get(feedbackReturnInfoKey)
-        )
-      }
-    }
-  }
-
-  feedbackUrlFromRequest(request: Request) {
-    if (this.model.def.feedback?.url) {
-      const feedbackLink = new RelativeUrl(this.model.def.feedback.url)
-      const returnInfo = new FeedbackContextInfo(
-        this.model.name,
-        'Summary',
-        `${request.url.pathname}${request.url.search}`
-      )
-      feedbackLink.setParam(feedbackReturnInfoKey, returnInfo.toString())
-      return feedbackLink.toString()
-    }
-
-    return undefined
   }
 
   get postRouteOptions() {

@@ -22,16 +22,7 @@ import { CheckboxesField } from '~/src/server/plugins/engine/components/Checkbox
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { RadiosField } from '~/src/server/plugins/engine/components/RadiosField.js'
 import { type ComponentCollectionViewModel } from '~/src/server/plugins/engine/components/types.js'
-import {
-  decodeFeedbackContextInfo,
-  FeedbackContextInfo,
-  RelativeUrl
-} from '~/src/server/plugins/engine/feedback/index.js'
-import {
-  feedbackReturnInfoKey,
-  proceed,
-  redirectTo
-} from '~/src/server/plugins/engine/helpers.js'
+import { proceed, redirectTo } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { validationOptions } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -500,7 +491,7 @@ export class PageControllerBase {
         : redirectTo(request, h, `/${this.model.basePath}${startPage}`)
 
       this.setPhaseTag(viewModel)
-      this.setFeedbackDetails(viewModel, request)
+      this.setFeedbackDetails(viewModel)
 
       /**
        * Content components can be hidden based on a condition. If the condition evaluates to true, it is safe to be kept, otherwise discard it
@@ -626,21 +617,13 @@ export class PageControllerBase {
     if (formResult.errors) {
       // TODO:- refactor to match POST REDIRECT GET pattern.
 
-      return this.renderWithErrors(
-        request,
-        h,
-        payload,
-        num,
-        progress,
-        formResult.errors
-      )
+      return this.renderWithErrors(h, payload, num, progress, formResult.errors)
     }
 
     const newState = this.getStateFromValidForm(formResult.value)
     const stateResult = this.validateState(newState)
     if (stateResult.errors) {
       return this.renderWithErrors(
-        request,
         h,
         payload,
         num,
@@ -692,21 +675,15 @@ export class PageControllerBase {
     }
   }
 
-  setFeedbackDetails(viewModel, request) {
-    const feedbackContextInfo = this.getFeedbackContextInfo(request)
-    if (feedbackContextInfo) {
-      viewModel.name = feedbackContextInfo.formTitle
-    }
-
-    let feedbackLink: string | undefined = ''
+  setFeedbackDetails(viewModel) {
+    const { def } = this
+    let feedbackLink: string | undefined = config.feedbackLink
 
     // setting the feedbackLink to undefined here for feedback forms prevents the feedback link from being shown
-    if (this.def.feedback?.url) {
-      feedbackLink = this.feedbackUrlFromRequest(request)
-    } else if (this.def.feedback?.emailAddress) {
-      feedbackLink = `mailto:${this.def.feedback.emailAddress}`
-    } else {
-      feedbackLink = config.feedbackLink
+    if (def.feedback?.url) {
+      feedbackLink = def.feedback.url
+    } else if (def.feedback?.emailAddress) {
+      feedbackLink = `mailto:${def.feedback.emailAddress}`
     }
 
     if (feedbackLink?.startsWith('mailto:')) {
@@ -719,27 +696,6 @@ export class PageControllerBase {
     }
 
     viewModel.feedbackLink = feedbackLink
-  }
-
-  getFeedbackContextInfo(request: Request) {
-    if (this.def.feedback?.feedbackForm) {
-      return decodeFeedbackContextInfo(
-        request.url.searchParams.get(feedbackReturnInfoKey)
-      )
-    }
-  }
-
-  feedbackUrlFromRequest(request: Request): string | undefined {
-    if (this.def.feedback?.url) {
-      const feedbackLink = new RelativeUrl(this.def.feedback.url)
-      const returnInfo = new FeedbackContextInfo(
-        this.model.name,
-        this.pageDef.title,
-        `${request.url.pathname}${request.url.search}`
-      )
-      feedbackLink.setParam(feedbackReturnInfoKey, returnInfo.toString())
-      return feedbackLink.toString()
-    }
   }
 
   makeGetRoute() {
@@ -837,12 +793,12 @@ export class PageControllerBase {
     }
   }
 
-  private renderWithErrors(request, h, payload, num, progress, errors) {
+  private renderWithErrors(h, payload, num, progress, errors) {
     const viewModel = this.getViewModel(payload, num, errors)
 
     viewModel.backLink = progress[progress.length - 2] ?? this.backLinkFallback
     this.setPhaseTag(viewModel)
-    this.setFeedbackDetails(viewModel, request)
+    this.setFeedbackDetails(viewModel)
 
     return h.view(this.viewName, viewModel)
   }
