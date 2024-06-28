@@ -5,11 +5,7 @@ import nunjucks from 'nunjucks'
 
 import config from '~/src/server/config.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
-import {
-  getFeedbackLink,
-  redirectTo,
-  redirectUrl
-} from '~/src/server/plugins/engine/helpers.js'
+import { redirectTo, redirectUrl } from '~/src/server/plugins/engine/helpers.js'
 import {
   type FormModel,
   SummaryViewModel
@@ -119,7 +115,6 @@ export class SummaryPageController extends PageController {
         state,
         request
       )
-      this.setFeedbackDetails(summaryViewModel)
 
       // redirect user to start page if there are incomplete form errors
       if (summaryViewModel.result.error) {
