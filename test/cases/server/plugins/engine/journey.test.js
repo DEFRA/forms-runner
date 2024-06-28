@@ -3,10 +3,9 @@ import { fileURLToPath } from 'node:url'
 
 import FormData from 'form-data'
 
-import { getSessionCookie } from '../../utils/get-session-cookie.js'
-
 import createServer from '~/src/server/index.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
+import { getSessionCookie } from '~/test/cases/server/utils/get-session-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 

@@ -1,7 +1,6 @@
 import { Redis } from 'ioredis'
 
-import { createLogger } from './logging/logger.js'
-
+import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import config from '~/src/server/config.js'
 
 /**
