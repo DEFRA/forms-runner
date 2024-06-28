@@ -1,8 +1,15 @@
+import {
+  ComponentSubType,
+  ComponentType,
+  type ComponentDef,
+  type FormDefinition
+} from '@defra/forms-model'
+
 import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 
 describe('ListFormComponent', () => {
-  const lists = [
+  const lists: FormDefinition['lists'] = [
     {
       title: 'Turnaround',
       name: 'Turnaround',
@@ -14,13 +21,13 @@ describe('ListFormComponent', () => {
     }
   ]
 
-  const componentDefinition = {
-    subType: 'field',
-    type: 'ListFormComponent',
+  const componentDefinition: ComponentDef = {
     name: 'MyListFormComponent',
     title: 'Turnaround?',
-    options: {},
+    type: ComponentType.CheckboxesField,
+    subType: ComponentSubType.ListField,
     list: 'Turnaround',
+    options: {},
     schema: {}
   }
 

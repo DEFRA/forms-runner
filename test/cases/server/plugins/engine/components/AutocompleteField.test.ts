@@ -1,13 +1,14 @@
 import {
   ComponentSubType,
   ComponentType,
-  type ComponentDef
+  type ComponentDef,
+  type FormDefinition
 } from '@defra/forms-model'
 
 import { AutocompleteField } from '~/src/server/plugins/engine/components/index.js'
 
 describe('AutocompleteField', () => {
-  const lists = [
+  const lists: FormDefinition['lists'] = [
     {
       name: 'Countries',
       title: 'Countries',
