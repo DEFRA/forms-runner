@@ -1,17 +1,24 @@
-import { type ComponentDef, type RepeatingFieldPage } from '@defra/forms-model'
+import { ComponentType, type RepeatingFieldPage } from '@defra/forms-model'
 import { type Request, type ResponseToolkit } from '@hapi/hapi'
 import { reach } from '@hapi/hoek'
 import joi from 'joi'
 
-import { type FormComponent } from '~/src/server/plugins/engine/components/index.js'
+import {
+  type ComponentCollection,
+  type FormComponent
+} from '~/src/server/plugins/engine/components/index.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { RepeatingSummaryPageController } from '~/src/server/plugins/engine/pageControllers/RepeatingSummaryPageController.js'
 
-const contentTypes: ComponentDef['type'][] = ['Details', 'Html', 'InsetText']
+const contentTypes = [
+  ComponentType.Details,
+  ComponentType.Html,
+  ComponentType.InsetText
+]
 
-function isInputType(component) {
-  return !contentTypes.includes(component.type)
+function isInputType(component: ComponentCollection['items'][0]) {
+  return 'type' in component && contentTypes.includes(component.type)
 }
 
 const DEFAULT_OPTIONS = {
