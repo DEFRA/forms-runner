@@ -16,6 +16,8 @@ const privacyPolicies: Record<string, string> = {
   'apply-for-an-annual-mooring-at-rye-harbour':
     'https://www.gov.uk/government/publications/rye-harbour-privacy-notice',
   'request-a-form':
+    'https://defra.sharepoint.com/sites/Community4442/SitePages/Privacy-notice--Defra-Forms.aspx',
+  'register-as-a-unicorn-breeder':
     'https://defra.sharepoint.com/sites/Community4442/SitePages/Privacy-notice--Defra-Forms.aspx'
 }
 
