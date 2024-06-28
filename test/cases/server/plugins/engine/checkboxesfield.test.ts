@@ -1,13 +1,14 @@
 import {
   ComponentSubType,
   ComponentType,
-  type ComponentDef
+  type ComponentDef,
+  type FormDefinition
 } from '@defra/forms-model'
 
 import { CheckboxesField } from '~/src/server/plugins/engine/components/CheckboxesField.js'
 
 describe('CheckboxesField', () => {
-  const lists = [
+  const lists: FormDefinition['lists'] = [
     {
       name: 'numberOfApplicants',
       title: 'Number of people',
