@@ -125,7 +125,8 @@ export class PageControllerBase {
     startPage?: ResponseObject
     backLink?: string
     serviceUrl: string
-    phaseTag?: string | undefined
+    phaseTag?: string
+    feedbackLink?: string
   } {
     let showTitle = true
 
@@ -186,7 +187,8 @@ export class PageControllerBase {
       components,
       errors,
       isStartPage: false,
-      serviceUrl
+      serviceUrl,
+      feedbackLink: this.getFeedbackLink()
     }
   }
 
@@ -483,9 +485,6 @@ export class PageControllerBase {
         ? redirectTo(request, h, startPage)
         : redirectTo(request, h, `/${this.model.basePath}${startPage}`)
 
-      this.setPhaseTag(viewModel)
-      this.setFeedbackDetails(viewModel)
-
       /**
        * Content components can be hidden based on a condition. If the condition evaluates to true, it is safe to be kept, otherwise discard it
        */
@@ -668,11 +667,8 @@ export class PageControllerBase {
     }
   }
 
-  setFeedbackDetails(viewModel, request) {
-    const feedbackContextInfo = this.getFeedbackContextInfo(request)
-    if (feedbackContextInfo) {
-      viewModel.name = feedbackContextInfo.formTitle
-    }
+  getFeedbackLink() {
+    const { def } = this
 
     // setting the feedbackLink to undefined here for feedback forms prevents the feedback link from being shown
     let feedbackLink: string | undefined = this.def.feedback?.emailAddress
@@ -680,10 +676,12 @@ export class PageControllerBase {
       : this.def.feedback?.url
 
     if (!feedbackLink) {
-      feedbackLink = config.get('feedbackLink')
+      feedbackLink = def.feedback?.emailAddress
+        ? `mailto:${def.feedback.emailAddress}`
+        : def.feedback?.url
     }
 
-    if (feedbackLink.startsWith('mailto:')) {
+    if (feedbackLink?.startsWith('mailto:')) {
       try {
         feedbackLink = new URL(feedbackLink).toString() // escape the search params without breaking the ? and & reserved characters in rfc2368
       } catch (err) {
@@ -692,7 +690,7 @@ export class PageControllerBase {
       }
     }
 
-    viewModel.feedbackLink = feedbackLink
+    return feedbackLink
   }
 
   makeGetRoute() {
@@ -782,20 +780,10 @@ export class PageControllerBase {
     return Object.keys(object).length
   }
 
-  private setPhaseTag(viewModel) {
-    // Set phase tag if it exists in form definition (even if empty for 'None'),
-    // otherwise the template context will simply return server config
-    if (this.def.phaseBanner) {
-      viewModel.phaseTag = this.def.phaseBanner.phase
-    }
-  }
-
   private renderWithErrors(h, payload, num, progress, errors) {
     const viewModel = this.getViewModel(payload, num, errors)
 
     viewModel.backLink = progress[progress.length - 2] ?? this.backLinkFallback
-    this.setPhaseTag(viewModel)
-    this.setFeedbackDetails(viewModel)
 
     return h.view(this.viewName, viewModel)
   }

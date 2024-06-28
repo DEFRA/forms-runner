@@ -120,8 +120,6 @@ export class SummaryPageController extends PageController {
         request
       )
 
-      this.setFeedbackDetails(summaryViewModel, request)
-
       // Display error summary on the summary
       // page if there are incomplete form errors
       if (summaryViewModel.result.error) {
