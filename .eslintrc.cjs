@@ -202,7 +202,11 @@ module.exports = {
         '@typescript-eslint/no-unsafe-assignment': 'off',
         '@typescript-eslint/no-unsafe-call': 'off',
         '@typescript-eslint/no-unsafe-member-access': 'off',
-        '@typescript-eslint/no-unsafe-return': 'off'
+        '@typescript-eslint/no-unsafe-return': 'off',
+
+        // Allow floating promises for lazy loading
+        '@typescript-eslint/no-floating-promises': 'off',
+        'promise/always-return': 'off'
       }
     },
     {
