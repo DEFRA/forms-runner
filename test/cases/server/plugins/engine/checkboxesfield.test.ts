@@ -59,10 +59,14 @@ describe('CheckboxesField', () => {
     const component = new CheckboxesField(componentDefinition, formModel)
 
     it('is required by default', () => {
-      expect(component.formSchema.describe().flags.presence).toBe('required')
+      expect(component.formSchema?.describe().flags).toEqual(
+        expect.objectContaining({
+          presence: 'required'
+        })
+      )
     })
     it('allows the items defined in the List object with the correct type', () => {
-      expect(component.formSchema.describe().items).toEqual(
+      expect(component.formSchema?.describe().items).toEqual(
         expect.arrayContaining([
           {
             type: 'number',
@@ -72,7 +76,7 @@ describe('CheckboxesField', () => {
       )
     })
     it('allows single answers', () => {
-      expect(component.formSchema.describe().flags).toEqual(
+      expect(component.formSchema?.describe().flags).toEqual(
         expect.objectContaining({
           single: true
         })
@@ -86,12 +90,14 @@ describe('CheckboxesField', () => {
         },
         formModel
       )
-      expect(component.formSchema.describe().flags.presence).not.toBe(
-        'required'
+      expect(component.formSchema?.describe().flags).not.toEqual(
+        expect.objectContaining({
+          presence: 'required'
+        })
       )
     })
     it('validates correctly', () => {
-      expect(component.formSchema.validate({}).error).toBeTruthy()
+      expect(component.formSchema?.validate({}).error).toBeTruthy()
     })
   })
 })

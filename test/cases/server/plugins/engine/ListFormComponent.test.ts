@@ -60,11 +60,15 @@ describe('ListFormComponent', () => {
     const component = new ListFormComponent(componentDefinition, formModel)
 
     it('is required by default', () => {
-      expect(component.formSchema.describe().flags.presence).toBe('required')
+      expect(component.formSchema?.describe().flags).toEqual(
+        expect.objectContaining({
+          presence: 'required'
+        })
+      )
     })
 
     it('allows the items defined in the List object with the correct type', () => {
-      expect(component.formSchema.describe()).toEqual(
+      expect(component.formSchema?.describe()).toEqual(
         expect.objectContaining({
           type: 'number',
           allow: [1, 2, 3, 4]
@@ -80,18 +84,20 @@ describe('ListFormComponent', () => {
         },
         formModel
       )
-      expect(component.formSchema.describe().flags.presence).not.toBe(
-        'required'
+      expect(component.formSchema?.describe().flags).not.toEqual(
+        expect.objectContaining({
+          presence: 'required'
+        })
       )
     })
 
     it('validates correctly', () => {
       const badPayload = { notMyName: 5 }
-      expect(component.formSchema.validate(badPayload).error).toBeTruthy()
+      expect(component.formSchema?.validate(badPayload).error).toBeTruthy()
     })
 
     it('is labelled correctly', () => {
-      expect(component.formSchema.describe().flags.label).toBe('tada')
+      expect(component.formSchema?.describe().flags.label).toBe('tada')
     })
   })
 })
