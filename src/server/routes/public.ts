@@ -6,36 +6,42 @@ import config from '~/src/server/config.js'
 
 export default [
   {
-    method: 'GET',
-    path: '/javascripts/{path*}',
-    options: {
-      handler: {
-        directory: {
-          path: join(config.publicDir, 'javascripts')
-        }
-      } satisfies HandlerDecorations
-    }
+    from: '/javascripts/{path*}',
+    to: join(config.publicDir, 'javascripts'),
+    immutable: true
   },
   {
-    method: 'GET',
-    path: '/stylesheets/{path*}',
-    options: {
-      handler: {
-        directory: {
-          path: join(config.publicDir, 'stylesheets')
-        }
-      } satisfies HandlerDecorations
-    }
+    from: '/stylesheets/{path*}',
+    to: join(config.publicDir, 'stylesheets'),
+    immutable: true
   },
   {
-    method: 'GET',
-    path: '/assets/{path*}',
-    options: {
-      handler: {
-        directory: {
-          path: join(config.publicDir, 'assets')
-        }
-      } satisfies HandlerDecorations
-    }
+    from: '/assets/fonts/{path*}',
+    to: join(config.publicDir, 'assets/fonts'),
+    immutable: true
+  },
+  {
+    from: '/assets/{path*}',
+    to: join(config.publicDir, 'assets'),
+    immutable: false
   }
-] satisfies ServerRoute[]
+].map((options) => {
+  return {
+    method: 'GET',
+    path: options.from,
+    options: {
+      cache: {
+        // Historically, an infinite max-age is the 32-bit maximum 2,147,483,648
+        // https://datatracker.ietf.org/doc/html/rfc9111#section-1.2.2
+        otherwise: options.immutable
+          ? 'public, max-age=2147483648, immutable'
+          : 'public, max-age=0, must-revalidate'
+      },
+      handler: {
+        directory: {
+          path: options.to
+        }
+      } satisfies HandlerDecorations
+    }
+  } satisfies ServerRoute
+})
