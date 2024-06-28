@@ -3,7 +3,7 @@
   "env": {
     "NODE_ENV": "development"
   },
-  "ignore": ["**/*.test.*"],
+  "ignore": ["**/*.test.*", "./src/client"],
   "ext": "cjs,js,json,ts",
   "signal": "SIGINT"
 }

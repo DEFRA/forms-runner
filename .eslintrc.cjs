@@ -152,6 +152,9 @@ module.exports = {
       files: ['**/*.{cjs,js,mjs}'],
       plugins: ['jsdoc'],
       rules: {
+        // Promise.prototype.catch() errors cannot be typed in JavaScript
+        '@typescript-eslint/use-unknown-in-catch-callback-variable': 'off',
+
         // JSDoc blocks are optional but must be valid
         'jsdoc/require-jsdoc': [
           'error',
@@ -184,6 +187,22 @@ module.exports = {
       files: ['**/*.{js,mjs}'],
       parserOptions: {
         sourceType: 'module'
+      }
+    },
+    {
+      env: {
+        browser: true,
+        node: false
+      },
+      files: ['src/client/**/*.js'],
+      rules: {
+        // Turn off warnings for unavailable types
+        // https://github.com/alphagov/govuk-frontend/issues/2835
+        '@typescript-eslint/no-unsafe-argument': 'off',
+        '@typescript-eslint/no-unsafe-assignment': 'off',
+        '@typescript-eslint/no-unsafe-call': 'off',
+        '@typescript-eslint/no-unsafe-member-access': 'off',
+        '@typescript-eslint/no-unsafe-return': 'off'
       }
     },
     {

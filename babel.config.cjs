@@ -5,6 +5,7 @@ const { NODE_ENV } = process.env
  * @satisfies {import('@babel/core').TransformOptions}
  */
 module.exports = {
+  browserslistEnv: 'node',
   plugins: [
     [
       'module-resolver',
@@ -22,8 +23,11 @@ module.exports = {
     [
       '@babel/preset-env',
       {
-        browserslistEnv: 'node',
+        // Apply bug fixes to avoid transforms
         bugfixes: true,
+
+        // Apply ES module transforms for Jest
+        // https://jestjs.io/docs/ecmascript-modules
         modules: NODE_ENV === 'test' ? 'auto' : false
       }
     ]

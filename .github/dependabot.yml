@@ -10,10 +10,19 @@ updates:
     groups:
       build:
         patterns:
+          - '*-loader'
+          - '*-extract-plugin'
+          - '*-webpack-plugin'
           - '@babel/*'
+          - 'autoprefixer'
           - 'babel-*'
+          - 'core-js'
+          - 'postcss'
+          - 'postcss-*'
           - 'sass'
           - 'typescript'
+          - 'webpack'
+          - 'webpack-*'
 
       lint:
         patterns:
