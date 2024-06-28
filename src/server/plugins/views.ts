@@ -47,7 +47,6 @@ export default {
             watch: config.isDev,
             noCache: config.isDev
           })
-          environment.addFilter('isArray', (x) => Array.isArray(x))
           options.compileOptions.environment = environment
 
           return next()

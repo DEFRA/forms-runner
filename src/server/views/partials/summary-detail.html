@@ -1,14 +1,14 @@
 {% from "partials/summary-row.html" import summaryRow %}
 
 {% macro summaryDetail(data) %}
-    {%  set isRepeatableSection = (data.items[0] | isArray) %}
+    {%  set isRepeatableSection = (data.items[0] is iterable) %}
     {% if not isRepeatableSection %}
         <h2 class="govuk-heading-m">{{data.title}}</h2>
     {% endif %}
   <dl class="govuk-summary-list">
     {% for item in data.items %}
         {% if not hide %}
-        {%- if item | isArray %}
+        {%- if item is iterable %}
             <h2 class="govuk-heading-m govuk-!-margin-top-4 govuk-!-margin-bottom-0">{{data.title}} {{ loop.index }}</h2>
             {% for repeated in item %}
                 {{ summaryRow(repeated) }}
