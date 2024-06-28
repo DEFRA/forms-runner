@@ -30,9 +30,24 @@ function initAutocomplete($select, init) {
     return
   }
 
-  init({
+  const config = {
     id: $select.id,
     selectElement: $select
+  }
+
+  init(config)
+
+  /** @type {HTMLInputElement | null} */
+  const $input = document.querySelector(`#${config.id}`)
+
+  // Allowed values for input
+  const inputValues = [...$select.options].map((option) => option.text)
+
+  // Reset select when input value is not allowed
+  $input?.addEventListener('blur', () => {
+    if (!inputValues.includes($input.value)) {
+      $select.value = ''
+    }
   })
 }
 
