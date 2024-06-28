@@ -16,17 +16,21 @@ export class StatusPageController extends PageController {
       const { cacheService } = request.services([])
       const confirmationState = await cacheService.getConfirmationState(request)
 
+      const viewModel = {
+        pageTitle: this.title,
+        name: model.name,
+        serviceUrl: `/${model.basePath}`
+      }
+
+      this.setFeedbackDetails(viewModel)
+
       // If there's no confirmation state, then
       // redirect the user back to the start of the form
       if (!confirmationState) {
         return h.redirect(`/${model.basePath}`).temporary()
       }
 
-      return h.view('confirmation', {
-        pageTitle: this.title,
-        name: model.name,
-        serviceUrl: `/${model.basePath}`
-      })
+      return h.view('confirmation', viewModel)
     }
   }
 }

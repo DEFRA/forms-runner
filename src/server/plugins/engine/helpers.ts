@@ -4,10 +4,6 @@ import set from 'lodash/set.js'
 
 import { RelativeUrl } from '~/src/server/plugins/engine/feedback/index.js'
 
-export const feedbackReturnInfoKey = 'f_t'
-
-const paramsToCopy = [feedbackReturnInfoKey]
-
 export function proceed(request: Request, h: ResponseToolkit, nextUrl: string) {
   const returnUrl = request.query.returnUrl
 
@@ -23,27 +19,6 @@ interface Params {
   returnUrl: string
 }
 
-export function nonRelativeRedirectUrl(
-  request: Request,
-  targetUrl: string,
-  params?: Params
-) {
-  const url = new URL(targetUrl)
-
-  Object.entries(params ?? {}).forEach(([name, value]) => {
-    url.searchParams.append(name, `${value}`)
-  })
-
-  paramsToCopy.forEach((key) => {
-    const value = request.query[key]
-    if (typeof value === 'string') {
-      url.searchParams.append(key, value)
-    }
-  })
-
-  return url.toString()
-}
-
 export function redirectUrl(
   request: Request,
   targetUrl: string,
@@ -52,13 +27,6 @@ export function redirectUrl(
   const relativeUrl = new RelativeUrl(targetUrl)
   Object.entries(params ?? {}).forEach(([name, value]) => {
     relativeUrl.setParam(name, `${value}`)
-  })
-
-  paramsToCopy.forEach((key) => {
-    const value = request.query[key]
-    if (typeof value === 'string' && !relativeUrl.getParam(key)) {
-      relativeUrl.setParam(key, value)
-    }
   })
 
   return relativeUrl.toString()

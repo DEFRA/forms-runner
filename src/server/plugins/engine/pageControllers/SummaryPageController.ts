@@ -2,7 +2,6 @@ import Boom from '@hapi/boom'
 import {
   type Request,
   type ResponseToolkit,
-  type RouteOptions
 } from '@hapi/hapi'
 import { format } from 'date-fns'
 import nunjucks from 'nunjucks'
@@ -10,11 +9,6 @@ import nunjucks from 'nunjucks'
 import { config } from '~/src/config/index.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
-  FeedbackContextInfo,
-  RelativeUrl
-} from '~/src/server/plugins/engine/feedback/index.js'
-import {
-  feedbackReturnInfoKey,
   redirectTo,
   redirectUrl
 } from '~/src/server/plugins/engine/helpers.js'
@@ -125,8 +119,8 @@ export class SummaryPageController extends PageController {
         state,
         request
       )
-      // TODO fix in follow-up PR
-      // this.setFeedbackDetails(summaryViewModel, request)
+
+      this.setFeedbackDetails(summaryViewModel, request)
 
       // Display error summary on the summary
       // page if there are incomplete form errors
@@ -162,44 +156,7 @@ export class SummaryPageController extends PageController {
     }
   }
 
-  setFeedbackDetails(viewModel: SummaryViewModel, request: Request) {
-    const feedbackContextInfo = this.getFeedbackContextInfo(request)
-
-    if (feedbackContextInfo) {
-      // set the form name to the source form name if this is a feedback form
-      viewModel.name = feedbackContextInfo.formTitle
-    }
-
-    // setting the feedbackLink to undefined here for feedback forms prevents the feedback link from being shown
-    viewModel.feedbackLink = this.feedbackUrlFromRequest(request)
-  }
-
-  getFeedbackContextInfo(request: Request) {
-    if (this.model.def.feedback?.feedbackForm) {
-      if (request.url.searchParams.get(feedbackReturnInfoKey)) {
-        return decodeFeedbackContextInfo(
-          request.url.searchParams.get(feedbackReturnInfoKey)
-        )
-      }
-    }
-  }
-
-  feedbackUrlFromRequest(request: Request) {
-    if (this.model.def.feedback?.url) {
-      const feedbackLink = new RelativeUrl(this.model.def.feedback.url)
-      const returnInfo = new FeedbackContextInfo(
-        this.model.name,
-        'Summary',
-        `${request.url.pathname}${request.url.search}`
-      )
-      feedbackLink.setParam(feedbackReturnInfoKey, returnInfo.toString())
-      return feedbackLink.toString()
-    }
-
-    return undefined
-  }
-
-  get postRouteOptions(): RouteOptions {
+  get postRouteOptions() {
     return {
       ext: {
         onPreHandler: {

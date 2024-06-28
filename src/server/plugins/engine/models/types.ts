@@ -5,7 +5,6 @@ import {
 } from '@defra/forms-model'
 
 import { type Component } from '~/src/server/plugins/engine/models/../components/index.js'
-import { type FeedbackContextInfo } from '~/src/server/plugins/engine/models/../feedback/index.js'
 
 export type Fields = {
   key: string
@@ -22,33 +21,6 @@ export interface Question {
 }
 
 export type Questions = Question[]
-
-interface FeedbackContextItem {
-  key:
-    | 'feedbackContextInfo_formTitle'
-    | 'feedbackContextInfo_pageTitle'
-    | 'feedbackContextInfo_url'
-  display: string
-  get: (contextInfo: FeedbackContextInfo) => string
-}
-
-export const FEEDBACK_CONTEXT_ITEMS: readonly FeedbackContextItem[] = [
-  {
-    key: 'feedbackContextInfo_formTitle',
-    display: 'Feedback source form name',
-    get: (contextInfo) => contextInfo.formTitle
-  },
-  {
-    key: 'feedbackContextInfo_pageTitle',
-    display: 'Feedback source page title',
-    get: (contextInfo) => contextInfo.pageTitle
-  },
-  {
-    key: 'feedbackContextInfo_url',
-    display: 'Feedback source url',
-    get: (contextInfo) => contextInfo.url
-  }
-]
 
 export type ExecutableCondition = ConditionRawData & {
   fn: (state: any) => boolean
