@@ -41,14 +41,14 @@
                 tag: {
                     text: phaseTag | capitalize
                 },
-                html: 'This is a new service. Help us improve it and <a class="govuk-link" href="' + feedbackLink + '">give your feedback by email</a>.'
+                html: 'This is a new service. Help us improve it and <a class="govuk-link" href="' + feedbackLink | escape + '">give your feedback by email</a>.'
             }) }}
         {% else %}
             {{ govukPhaseBanner({
                 tag: {
                     text: phaseTag | capitalize
                 },
-                html: 'This is a new service. Help us improve it and <a class="govuk-link" href="' + feedbackLink + '">give your feedback (opens in new tab)</a>.'
+                html: 'This is a new service. Help us improve it and <a class="govuk-link" href="' + feedbackLink | escape + '">give your feedback (opens in new tab)</a>.'
             }) }}
         {% endif %}
     {% endif %}
