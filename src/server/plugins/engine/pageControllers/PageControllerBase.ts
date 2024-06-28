@@ -16,6 +16,7 @@ import { format, parseISO } from 'date-fns'
 import { type ValidationResult, type ObjectSchema } from 'joi'
 import nunjucks from 'nunjucks'
 
+import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import config from '~/src/server/config.js'
 import { CheckboxesField } from '~/src/server/plugins/engine/components/CheckboxesField.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
@@ -45,6 +46,8 @@ import { type CacheService } from '~/src/server/services/index.js'
 
 const FORM_SCHEMA = Symbol('FORM_SCHEMA')
 const STATE_SCHEMA = Symbol('STATE_SCHEMA')
+
+const logger = createLogger()
 
 export class PageControllerBase {
   /**
@@ -707,7 +710,12 @@ export class PageControllerBase {
     }
 
     if (feedbackLink?.startsWith('mailto:')) {
-      feedbackLink = new URL(feedbackLink).toString() // escape the search params without breaking the ? and & reserved characters in rfc2368
+      try {
+        feedbackLink = new URL(feedbackLink).toString() // escape the search params without breaking the ? and & reserved characters in rfc2368
+      } catch (err) {
+        logger.error(err, `Failed to decode ${feedbackLink}`)
+        feedbackLink = undefined
+      }
     }
 
     viewModel.feedbackLink = feedbackLink
