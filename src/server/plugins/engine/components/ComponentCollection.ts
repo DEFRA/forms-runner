@@ -1,6 +1,6 @@
 import { type ComponentDef } from '@defra/forms-model'
 import { merge } from '@hapi/hoek'
-import joi, { type Schema as JoiSchema } from 'joi'
+import joi, { type Schema } from 'joi'
 
 import { type ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { type FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
@@ -17,9 +17,9 @@ import {
 export class ComponentCollection {
   items: (ComponentBase | ComponentCollection | FormComponent)[]
   formItems: FormComponent /* | ConditionalFormComponent */[]
-  prePopulatedItems: Record<string, JoiSchema>
-  formSchema: JoiSchema
-  stateSchema: JoiSchema
+  prePopulatedItems: Record<string, Schema | undefined>
+  formSchema: Schema
+  stateSchema: Schema
 
   constructor(componentDefs: ComponentDef[] = [], model: FormModel) {
     const components = componentDefs.map((def) => {
@@ -49,7 +49,7 @@ export class ComponentCollection {
   }
 
   getFormSchemaKeys() {
-    const keys = {}
+    const keys: Record<string, Schema | undefined> = {}
 
     this.formItems.forEach((item) => {
       Object.assign(keys, item.getFormSchemaKeys())
@@ -59,7 +59,7 @@ export class ComponentCollection {
   }
 
   getStateSchemaKeys() {
-    const keys = {}
+    const keys: Record<string, Schema | undefined> = {}
 
     this.formItems.forEach((item) => {
       Object.assign(keys, item.getStateSchemaKeys())

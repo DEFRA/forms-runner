@@ -19,7 +19,6 @@ function inputIsOverWordCount(input: string, maxWords: number) {
 }
 
 export class MultilineTextField extends FormComponent {
-  formSchema: StringSchema
   options: MultilineTextFieldComponent['options']
   schema: MultilineTextFieldComponent['schema']
   customValidationMessage?: string
@@ -27,31 +26,49 @@ export class MultilineTextField extends FormComponent {
 
   constructor(def: MultilineTextFieldComponent, model: FormModel) {
     super(def, model)
-    this.options = def.options
-    this.schema = def.schema
-    this.formSchema = Joi.string()
-    this.formSchema = this.formSchema.label(def.title.toLowerCase())
+
+    const { schema, options, title } = def
+    const { min, max } = schema
+
+    let formSchema = Joi.string()
+      .default('')
+      .required()
+      .label(title.toLowerCase())
+
+    if (options.required === false) {
+      formSchema = formSchema.allow('').optional()
+    }
+
+    if (typeof min === 'number' && typeof min === 'number') {
+      formSchema = formSchema.ruleset
+    }
+
+    if (typeof min === 'number') {
+      formSchema = formSchema.min(min)
+    }
+
+    if (typeof max === 'number') {
+      formSchema = formSchema.max(max)
+    }
+
     const { maxWords, customValidationMessage } = def.options
     const isRequired = def.options.required ?? true
 
-    if (isRequired) {
-      this.formSchema = this.formSchema.required()
-    } else {
-      this.formSchema = this.formSchema.allow('').allow(null)
+    if (!isRequired) {
+      formSchema = formSchema.allow('').optional()
     }
-    this.formSchema = this.formSchema.ruleset
 
-    if (def.schema.max) {
-      this.formSchema = this.formSchema.max(def.schema.max)
+    if (max) {
+      formSchema = formSchema.max(max)
       this.isCharacterOrWordCount = true
     }
 
-    if (def.schema.min) {
-      this.formSchema = this.formSchema.min(def.schema.min)
+    if (min) {
+      formSchema = formSchema.min(min)
     }
 
     if (maxWords ?? false) {
-      this.formSchema = this.formSchema.custom((value, helpers) => {
+      formSchema = formSchema.custom((value, helpers) => {
         if (inputIsOverWordCount(value, maxWords)) {
           helpers.error('string.maxWords')
         }
@@ -61,18 +78,15 @@ export class MultilineTextField extends FormComponent {
     }
 
     if (customValidationMessage) {
-      this.formSchema = this.formSchema.rule({
+      formSchema = formSchema.rule({
         message: customValidationMessage
       })
     }
-  }
 
-  getFormSchemaKeys() {
-    return { [this.name]: this.formSchema as Schema }
-  }
-
-  getStateSchemaKeys() {
-    return { [this.name]: this.formSchema as Schema }
+    this.formSchema = formSchema
+    this.stateSchema = formSchema
+    this.schema = schema
+    this.options = options
   }
 
   getViewModel(

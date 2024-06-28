@@ -8,7 +8,7 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class SelectField extends ListFormComponent {
-  dataType = 'list' as DataType
+  dataType: DataType = 'list'
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     const options: SelectFieldComponent['options'] = this.options
     const viewModel = super.getViewModel(payload, errors)

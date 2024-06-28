@@ -1,5 +1,8 @@
-import { type TextFieldComponent } from '@defra/forms-model'
-import joi, { type Schema } from 'joi'
+import {
+  type TextFieldComponent,
+  type EmailAddressFieldComponent
+} from '@defra/forms-model'
+import joi from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
@@ -10,59 +13,54 @@ import {
 
 export class TextField extends FormComponent {
   formSchema
-  stateSchema
 
-  constructor(def: TextFieldComponent, model: FormModel) {
+  constructor(
+    def: TextFieldComponent | EmailAddressFieldComponent,
+    model: FormModel
+  ) {
     super(def, model)
 
-    const { options, schema = {} } = def
-    this.options = options
-    this.schema = schema
+    const { options, schema, title } = def
 
-    let componentSchema = joi.string().required()
+    let formSchema = joi
+      .string()
+      .default('')
+      .required()
+      .label(title.toLowerCase())
+
     if (options.required === false) {
-      componentSchema = componentSchema.optional().allow('').allow(null)
+      formSchema = formSchema.allow('').optional()
     }
 
-    componentSchema = componentSchema.label(
-      (def.title.en ?? def.title ?? def.name).toLowerCase()
-    )
-
     if (schema.max) {
-      componentSchema = componentSchema.max(schema.max)
+      formSchema = formSchema.max(schema.max)
     }
 
     if (schema.min) {
-      componentSchema = componentSchema.min(schema.min)
+      formSchema = formSchema.min(schema.min)
     }
 
     if (schema.regex) {
-      const pattern = new RegExp(schema.regex)
-      componentSchema = componentSchema.pattern(pattern)
+      formSchema = formSchema.pattern(new RegExp(schema.regex))
     }
 
     if (options.customValidationMessage) {
-      componentSchema = componentSchema.messages({
+      formSchema = formSchema.messages({
         any: options.customValidationMessage
       })
     }
 
-    this.formSchema = componentSchema
-  }
-
-  getFormSchemaKeys() {
-    return { [this.name]: this.formSchema as Schema }
-  }
-
-  getStateSchemaKeys() {
-    return { [this.name]: this.formSchema as Schema }
+    this.formSchema = formSchema
+    this.stateSchema = formSchema
+    this.schema = schema
+    this.options = options
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     const options = this.options
     const viewModel = super.getViewModel(payload, errors)
 
-    if (options.autocomplete) {
+    if ('autocomplete' in options) {
       viewModel.autocomplete = options.autocomplete
     }
 

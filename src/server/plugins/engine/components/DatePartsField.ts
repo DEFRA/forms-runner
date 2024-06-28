@@ -1,5 +1,6 @@
 import {
   ComponentType,
+  type DatePartsFieldFieldComponent,
   type InputFieldsComponentsDef
 } from '@defra/forms-model'
 import { parseISO, format } from 'date-fns'
@@ -17,13 +18,14 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class DatePartsField extends FormComponent {
+  options: DatePartsFieldFieldComponent['options']
   children: ComponentCollection
-  dataType = 'date' as DataType
+  dataType: DataType = 'date'
 
   constructor(def: InputFieldsComponentsDef, model: FormModel) {
     super(def, model)
 
-    const { name, options } = this
+    const { name, options } = def
 
     const isRequired = !('required' in options && options.required === false)
     const hideOptional = 'optionalText' in options && options.optionalText
@@ -70,6 +72,7 @@ export class DatePartsField extends FormComponent {
       model
     )
 
+    this.options = options
     this.stateSchema = helpers.buildStateSchema('date', this)
   }
 
@@ -128,14 +131,13 @@ export class DatePartsField extends FormComponent {
       .map((vm) => vm.model)
 
     componentViewModels.forEach((componentViewModel) => {
-      // Nunjucks macro expects label to be a string for this component
-      componentViewModel.label = componentViewModel.label?.text.replace(
-        optionalText,
-        ''
-      )
+      const { classes, errorMessage, label } = componentViewModel
 
-      if (componentViewModel.errorMessage) {
-        componentViewModel.classes += ' govuk-input--error'
+      // Nunjucks macro expects label to be a string for this component
+      componentViewModel.label = label?.text.replace(optionalText, '')
+
+      if (errorMessage) {
+        componentViewModel.classes = `${classes} govuk-input--error`.trim()
       }
     })
 

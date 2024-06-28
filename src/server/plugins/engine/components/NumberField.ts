@@ -1,88 +1,83 @@
-import {
-  type ComponentDef,
-  type NumberFieldComponent
-} from '@defra/forms-model'
-import joi, { type Schema } from 'joi'
+import { type NumberFieldComponent } from '@defra/forms-model'
+import joi from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
-  type FormSubmissionErrors,
-  type FormSubmissionState
+  type FormSubmissionErrors
 } from '~/src/server/plugins/engine/types.js'
 
 export class NumberField extends FormComponent {
-  schemaOptions: NumberFieldComponent['schema']
+  schema: NumberFieldComponent['schema']
   options: NumberFieldComponent['options']
 
-  constructor(def: ComponentDef, model: FormModel) {
+  constructor(def: NumberFieldComponent, model: FormModel) {
     super(def, model)
-    this.schemaOptions = def.schema
-    this.options = def.options
-    const { min, max } = def.schema
-    let schema = joi.number()
 
-    schema = schema.label(def.title.toLowerCase())
+    const { schema, options, title } = def
+    const { min, max } = schema
 
-    if (def.schema.min && def.schema.max) {
-      schema = schema.$
-    }
-    if (def.schema.min ?? false) {
-      schema = schema.min(min)
-    }
+    let formSchema = joi
+      .number()
+      .default('')
+      .required()
+      .label(title.toLowerCase())
 
-    if (def.schema.max ?? false) {
-      schema = schema.max(max)
+    if (options.required === false) {
+      formSchema = formSchema.allow('').optional()
     }
 
-    if (def.options.customValidationMessage) {
-      schema = schema.rule({ message: def.options.customValidationMessage })
+    if (typeof min === 'number' && typeof min === 'number') {
+      formSchema = formSchema.ruleset
     }
 
-    if (def.options.required === false) {
-      const optionalSchema = joi
-        .alternatives()
-        .try(joi.string().allow(null).allow('').default('').optional(), schema)
-      this.schema = optionalSchema
-    } else {
-      this.schema = schema
+    if (typeof min === 'number') {
+      formSchema = formSchema.min(min)
     }
-  }
 
-  getFormSchemaKeys() {
-    return { [this.name]: this.schema as Schema }
-  }
+    if (typeof max === 'number') {
+      formSchema = formSchema.max(max)
+    }
 
-  getStateSchemaKeys() {
-    return { [this.name]: this.schema as Schema }
+    if (
+      'customValidationMessage' in options &&
+      options.customValidationMessage
+    ) {
+      formSchema = formSchema.rule({
+        message: options.customValidationMessage
+      })
+    }
+
+    this.formSchema = formSchema
+    this.stateSchema = formSchema
+    this.schema = schema
+    this.options = options
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     const schema = this.schema
     const options = this.options
+
     const { suffix, prefix } = options
+
     const viewModelPrefix = { prefix: { text: prefix } }
     const viewModelSuffix = { suffix: { text: suffix } }
+
     const viewModel = {
       ...super.getViewModel(payload, errors),
       type: 'number',
+
       // ...False returns nothing, so only adds content when
       // the given options are present.
       ...(options.prefix && viewModelPrefix),
       ...(options.suffix && viewModelSuffix)
     }
 
-    if (this.schemaOptions.precision) {
+    if (schema.precision) {
       viewModel.attributes.step = '0.' + '1'.padStart(schema.precision, '0')
     }
 
     return viewModel
-  }
-
-  getDisplayStringFromState(state: FormSubmissionState) {
-    return state[this.name] || state[this.name] === 0
-      ? state[this.name].toString()
-      : undefined
   }
 }

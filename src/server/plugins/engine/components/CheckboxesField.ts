@@ -13,21 +13,22 @@ export class CheckboxesField extends SelectionControlField {
   constructor(def: ListComponentsDef, model: FormModel) {
     super(def, model)
 
-    let schema = joi.array().single().label(def.title.toLowerCase())
+    const { options, title } = def
 
-    if (def.options.required === false) {
-      // null or empty string is valid for optional fields
-      schema = schema
-        .empty(null)
-        .items(joi[this.listType]().allow(...this.values, ''))
-    } else {
-      schema = schema
-        .items(joi[this.listType]().allow(...this.values))
-        .required()
+    let formSchema = joi
+      .array()
+      .single()
+      .default([])
+      .items(joi[this.listType]().allow(...this.values))
+      .required()
+      .label(title.toLowerCase())
+
+    if (options.required === false) {
+      formSchema = formSchema.allow('').optional()
     }
 
-    this.formSchema = schema
-    this.stateSchema = schema
+    this.formSchema = formSchema
+    this.stateSchema = formSchema
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
