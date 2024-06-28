@@ -686,13 +686,23 @@ export class PageControllerBase {
     if (feedbackContextInfo) {
       viewModel.name = feedbackContextInfo.formTitle
     }
+
+    let feedbackLink: string | undefined = ''
+
     // setting the feedbackLink to undefined here for feedback forms prevents the feedback link from being shown
     if (this.def.feedback?.url) {
-      viewModel.feedbackLink = this.feedbackUrlFromRequest(request)
+      feedbackLink = this.feedbackUrlFromRequest(request)
+    } else if (this.def.feedback?.emailAddress) {
+      feedbackLink = `mailto:${this.def.feedback.emailAddress}`
+    } else {
+      feedbackLink = config.feedbackLink
     }
-    if (this.def.feedback?.emailAddress) {
-      viewModel.feedbackLink = `mailto:${this.def.feedback.emailAddress}`
+
+    if (feedbackLink?.startsWith('mailto:')) {
+      feedbackLink = new URL(feedbackLink).toString() // escape the search params without breaking the ? and & reserved characters in rfc2368
     }
+
+    viewModel.feedbackLink = feedbackLink
   }
 
   getFeedbackContextInfo(request: Request) {
@@ -703,7 +713,7 @@ export class PageControllerBase {
     }
   }
 
-  feedbackUrlFromRequest(request: Request): string | void {
+  feedbackUrlFromRequest(request: Request): string | undefined {
     if (this.def.feedback?.url) {
       const feedbackLink = new RelativeUrl(this.def.feedback.url)
       const returnInfo = new FeedbackContextInfo(
