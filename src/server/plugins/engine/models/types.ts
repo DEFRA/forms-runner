@@ -3,9 +3,13 @@ import {
   type Page,
   type Section
 } from '@defra/forms-model'
+import { type ResponseObject } from '@hapi/hapi'
+
+import { type ComponentCollectionViewModel } from '../components/types.js'
+import { type PageControllerBase } from '../pageControllers/PageControllerBase.js'
+import { type FormSubmissionErrors } from '../types.js'
 
 import { type Component } from '~/src/server/plugins/engine/models/../components/index.js'
-import { type FeedbackContextInfo } from '~/src/server/plugins/engine/models/../feedback/index.js'
 
 export type Fields = {
   key: string
@@ -22,33 +26,6 @@ export interface Question {
 }
 
 export type Questions = Question[]
-
-interface FeedbackContextItem {
-  key:
-    | 'feedbackContextInfo_formTitle'
-    | 'feedbackContextInfo_pageTitle'
-    | 'feedbackContextInfo_url'
-  display: string
-  get: (contextInfo: FeedbackContextInfo) => string
-}
-
-export const FEEDBACK_CONTEXT_ITEMS: Readonly<FeedbackContextItem[]> = [
-  {
-    key: 'feedbackContextInfo_formTitle',
-    display: 'Feedback source form name',
-    get: (contextInfo) => contextInfo.formTitle
-  },
-  {
-    key: 'feedbackContextInfo_pageTitle',
-    display: 'Feedback source page title',
-    get: (contextInfo) => contextInfo.pageTitle
-  },
-  {
-    key: 'feedbackContextInfo_url',
-    display: 'Feedback source url',
-    get: (contextInfo) => contextInfo.url
-  }
-]
 
 export type ExecutableCondition = ConditionRawData & {
   fn: (state: any) => boolean
@@ -99,4 +76,20 @@ export interface Detail {
   name: Section['name'] | undefined
   title: Section['title'] | undefined
   items: DetailItem[]
+}
+
+export interface BaseViewModel {
+  page: PageControllerBase
+  name?: string
+  pageTitle: string
+  sectionTitle?: string
+  showTitle: boolean
+  components: ComponentCollectionViewModel
+  errors?: FormSubmissionErrors
+  isStartPage: boolean
+  startPage?: ResponseObject
+  backLink?: string
+  serviceUrl: string
+  phaseTag?: string
+  feedbackLink?: string
 }

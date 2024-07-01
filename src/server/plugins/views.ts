@@ -6,6 +6,8 @@ import capitalize from 'lodash/capitalize.js'
 import nunjucks from 'nunjucks'
 import resolvePkg from 'resolve'
 
+import { encodeUrl } from './engine/pageControllers/helpers.js'
+
 import pkg from '~/package.json' with { type: 'json' }
 import config from '~/src/server/config.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
@@ -69,7 +71,7 @@ export default {
       appVersion: pkg.version,
       assetPath: '/assets',
       serviceName: capitalize(config.serviceName),
-      feedbackLink: config.feedbackLink,
+      feedbackLink: encodeUrl(config.feedbackLink), // throws. fail early if the feedback link is invalid.
       location: request?.app.location,
       phaseTag: config.phaseTag,
       previewMode: request?.path.startsWith(PREVIEW_PATH_PREFIX)
