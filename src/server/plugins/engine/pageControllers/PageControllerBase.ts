@@ -6,11 +6,7 @@ import {
   type RepeatingFieldPage,
   type Section
 } from '@defra/forms-model'
-import {
-  type Request,
-  type ResponseObject,
-  type ResponseToolkit
-} from '@hapi/hapi'
+import { type Request, type ResponseToolkit } from '@hapi/hapi'
 import { merge, reach } from '@hapi/hoek'
 import { format, parseISO } from 'date-fns'
 import { type ValidationResult, type ObjectSchema } from 'joi'
@@ -18,7 +14,6 @@ import nunjucks from 'nunjucks'
 
 import { type BaseViewModel } from '../models/types.js'
 
-import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import config from '~/src/server/config.js'
 import { CheckboxesField } from '~/src/server/plugins/engine/components/CheckboxesField.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
@@ -41,8 +36,6 @@ import { type CacheService } from '~/src/server/services/index.js'
 
 const FORM_SCHEMA = Symbol('FORM_SCHEMA')
 const STATE_SCHEMA = Symbol('STATE_SCHEMA')
-
-const logger = createLogger()
 
 export class PageControllerBase {
   /**
@@ -183,14 +176,19 @@ export class PageControllerBase {
       errors,
       isStartPage: false,
       serviceUrl,
+      ...this.getSharedViewModelAttributes()
+    }
+  }
 
-      /*
-        Optional values. Only set if they exist in the form definition.
-        If these are not set, the nunjucks context already has default values
-        from the config.
-      */
-      ...(this.getPhaseTag() && { phaseTag: this.getPhaseTag() }),
-      ...(this.getFeedbackLink() && { feedbackLink: this.getFeedbackLink() })
+  getSharedViewModelAttributes() {
+    /*
+      Optional values. Only set if they exist in the form definition.
+      If these are not set, the nunjucks context already has default values
+      from the config.
+    */
+    return {
+      phaseTag: this.getPhaseTag(),
+      feedbackLink: this.getFeedbackLink()
     }
   }
 
@@ -680,13 +678,19 @@ export class PageControllerBase {
       feedbackLink = feedback.url
     } else if (feedback?.emailAddress) {
       feedbackLink = `mailto:${feedback.emailAddress}`
+    } else {
+      feedbackLink = config.feedbackLink
     }
 
     return encodeUrl(feedbackLink)
   }
 
   private getPhaseTag() {
-    return this.def.phaseBanner?.phase
+    if (this.def.phaseBanner) {
+      return this.def.phaseBanner.phase
+    }
+
+    return config.phaseTag
   }
 
   makeGetRoute() {

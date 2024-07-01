@@ -22,6 +22,23 @@ export class SummaryPageController extends PageController {
    * The controller which is used when Page["controller"] is defined as "./pages/summary.js"
    */
 
+  getSummaryViewModel(
+    title: string,
+    model: FormModel,
+    state: FormSubmissionState,
+    request: Request
+  ): SummaryViewModel {
+    const viewModel = new SummaryViewModel(title, model, state, request)
+
+    // We already figure these out in the base page controller. Take them and apply them to our page-specific model.
+    // This is a stop-gap until we can add proper inheritance in place.
+    const sharedAttributes = this.getSharedViewModelAttributes()
+    viewModel.feedbackLink = sharedAttributes.feedbackLink
+    viewModel.phaseTag = sharedAttributes.phaseTag
+
+    return viewModel
+  }
+
   /**
    * Returns an async function. This is called in plugin.ts when there is a GET request at `/{id}/{path*}`,
    */
@@ -34,7 +51,13 @@ export class SummaryPageController extends PageController {
         return this.makePostRouteHandler()(request, h)
       }
       const state = await cacheService.getState(request)
-      const viewModel = new SummaryViewModel(this.title, model, state, request)
+
+      const viewModel = this.getSummaryViewModel(
+        this.title,
+        model,
+        state,
+        request
+      )
 
       if (viewModel.endPage) {
         return redirectTo(
@@ -109,7 +132,7 @@ export class SummaryPageController extends PageController {
       const { cacheService } = request.services([])
       const model = this.model
       const state = await cacheService.getState(request)
-      const summaryViewModel = new SummaryViewModel(
+      const summaryViewModel = this.getSummaryViewModel(
         this.title,
         model,
         state,
