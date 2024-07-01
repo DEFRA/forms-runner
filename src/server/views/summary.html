@@ -17,13 +17,13 @@
         {{ summaryDetail(detail) }}
       {% endfor %}
 
-      {% if not result.error  %}
+      {% if not result.error %}
         <form method="post" autocomplete="off" novalidate>
           <input type="hidden" name="crumb" value="{{crumb}}"/>
 
-          {%if declaration %}
+          {% if declaration %}
             <h2 class="govuk-heading-m" id="declaration">Declaration</h2>
-            {{ declaration | safe  }}
+            {{ declaration | safe }}
           {% endif %}
 
           <button data-prevent-double-click="true" class="govuk-button" data-module="govuk-button">{{ "Accept and Send" if declaration else "Send" }}</button>
