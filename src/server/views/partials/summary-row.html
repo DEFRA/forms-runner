@@ -1,19 +1,21 @@
 {% macro summaryRow(item) %}
-<div class="govuk-summary-list__row">
+  <div class="govuk-summary-list__row">
     <dt class="govuk-summary-list__key">
-        {{item.label}}
+      {{item.label}}
     </dt>
     <dd class="govuk-summary-list__value">
-        {% if item.value %}
-            {{item.value}}
-        {% else %}
-            Not supplied
-        {% endif %}
+      {% if item.inError %}
+        <a class="govuk-link" href="{{item.url}}">Enter {{item.label | lower}}</a>
+      {% else %}
+        {{item.value | default("Not supplied")}}
+      {% endif %}
     </dd>
     <dd class="govuk-summary-list__actions">
+      {% if not item.inError %}
         <a class="govuk-link" href="{{item.url}}">
-            Change<span class="govuk-visually-hidden"> {{item.label}}</span>
+          Change<span class="govuk-visually-hidden"> {{item.label}}</span>
         </a>
+      {% endif %}
     </dd>
-</div>
+  </div>
 {% endmacro %}
