@@ -3,6 +3,11 @@ import {
   type Page,
   type Section
 } from '@defra/forms-model'
+import { type ResponseObject } from '@hapi/hapi'
+
+import { type ComponentCollectionViewModel } from '../components/types.js'
+import { type PageControllerBase } from '../pageControllers/PageControllerBase.js'
+import { type FormSubmissionErrors } from '../types.js'
 
 import { type Component } from '~/src/server/plugins/engine/models/../components/index.js'
 
@@ -71,4 +76,20 @@ export interface Detail {
   name: Section['name'] | undefined
   title: Section['title'] | undefined
   items: DetailItem[]
+}
+
+export interface BaseViewModel {
+  page: PageControllerBase
+  name?: string
+  pageTitle: string
+  sectionTitle?: string
+  showTitle: boolean
+  components: ComponentCollectionViewModel
+  errors?: FormSubmissionErrors
+  isStartPage: boolean
+  startPage?: ResponseObject
+  backLink?: string
+  serviceUrl: string
+  phaseTag?: string
+  feedbackLink?: string
 }
