@@ -19,7 +19,6 @@ import { type ValidationResult, type ObjectSchema } from 'joi'
 import { type BaseViewModel } from '../models/types.js'
 
 import { config } from '~/src/config/index.js'
-import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { CheckboxesField } from '~/src/server/plugins/engine/components/CheckboxesField.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { RadiosField } from '~/src/server/plugins/engine/components/RadiosField.js'
@@ -41,8 +40,6 @@ import { type CacheService } from '~/src/server/services/index.js'
 
 const FORM_SCHEMA = Symbol('FORM_SCHEMA')
 const STATE_SCHEMA = Symbol('STATE_SCHEMA')
-
-const logger = createLogger()
 
 export class PageControllerBase {
   /**
@@ -177,14 +174,19 @@ export class PageControllerBase {
       errors,
       isStartPage: false,
       serviceUrl,
+      ...this.getSharedViewModelAttributes()
+    }
+  }
 
-      /*
-        Optional values. Only set if they exist in the form definition.
-        If these are not set, the nunjucks context already has default values
-        from the config.
-      */
-      ...(this.getPhaseTag() && { phaseTag: this.getPhaseTag() }),
-      ...(this.getFeedbackLink() && { feedbackLink: this.getFeedbackLink() })
+  getSharedViewModelAttributes() {
+    /*
+      Optional values. Only set if they exist in the form definition.
+      If these are not set, the nunjucks context already has default values
+      from the config.
+    */
+    return {
+      phaseTag: this.getPhaseTag(),
+      feedbackLink: this.getFeedbackLink()
     }
   }
 
@@ -667,21 +669,23 @@ export class PageControllerBase {
     const { feedback } = this.def
 
     // setting the feedbackLink to undefined here for feedback forms prevents the feedback link from being shown
-    let feedbackLink: string | undefined = this.def.feedback?.emailAddress
-      ? `mailto:${this.def.feedback.emailAddress}`
-      : this.def.feedback?.url
+    let feedbackLink: string | undefined = feedback?.emailAddress
+      ? `mailto:${feedback.emailAddress}`
+      : feedback?.url
 
     if (!feedbackLink) {
-      feedbackLink = feedback?.emailAddress
-        ? `mailto:${feedback.emailAddress}`
-        : feedback?.url
+      feedbackLink = config.get('feedbackLink')
     }
 
     return encodeUrl(feedbackLink)
   }
 
   private getPhaseTag() {
-    return this.def.phaseBanner?.phase
+    if (this.def.phaseBanner) {
+      return this.def.phaseBanner.phase
+    }
+
+    return config.get('phaseTag')
   }
 
   makeGetRoute() {
