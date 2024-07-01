@@ -4,7 +4,10 @@ import { type Page } from '@defra/forms-model'
 import camelCase from 'lodash/camelCase.js'
 import upperFirst from 'lodash/upperFirst.js'
 
+import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import * as PageControllers from '~/src/server/plugins/engine/pageControllers/index.js'
+
+const logger = createLogger()
 
 export function controllerNameFromPath(filePath: string) {
   const fileName = path.basename(filePath).split('.')[0]
@@ -34,4 +37,18 @@ export function getPageController(nameOrPath: string): PageControllerType {
   }
 
   return PageControllers[controllerName]
+}
+
+/**
+ * Encodes a URL, returning undefined if the process fails.
+ */
+export function encodeUrl(link: string | undefined) {
+  if (link) {
+    try {
+      return new URL(link).toString() // escape the search params without breaking the ? and & reserved characters in rfc2368
+    } catch (err) {
+      logger.error(err, `Failed to encode ${link}`)
+      throw err
+    }
+  }
 }

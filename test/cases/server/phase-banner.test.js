@@ -15,9 +15,7 @@ describe(`Phase banner`, () => {
     await server.stop()
   })
 
-  test('shows the beta tag by default', async () => {
-    // For backwards-compatibility, as the main layout template currently always shows 'beta'.
-    // TODO: default to no phase banner? TBD
+  test('shows the server phase tag by default', async () => {
     server = await createServer({
       formFileName: `phase-default.json`,
       formFilePath: join(testDir, '/forms')
@@ -37,7 +35,7 @@ describe(`Phase banner`, () => {
     expect($('.govuk-phase-banner__content__tag').text().trim()).toBe('Beta')
   })
 
-  test('shows the alpha tag if selected', async () => {
+  test('shows the form phase tag if provided', async () => {
     server = await createServer({
       formFileName: `phase-alpha.json`,
       formFilePath: join(testDir, '/forms')
@@ -55,25 +53,5 @@ describe(`Phase banner`, () => {
     const $ = load(response.payload)
 
     expect($('.govuk-phase-banner__content__tag').text().trim()).toBe('Alpha')
-  })
-
-  test('does not show the phase banner if None', async () => {
-    server = await createServer({
-      formFileName: `phase-none.json`,
-      formFilePath: join(testDir, '/forms')
-    })
-    await server.initialize()
-
-    const options = {
-      method: 'GET',
-      url: '/phase-none/first-page'
-    }
-
-    const response = await server.inject(options)
-    expect(response.statusCode).toBe(200)
-
-    const $ = load(response.payload)
-
-    expect($('.govuk-phase-banner').html()).toBeNull()
   })
 })

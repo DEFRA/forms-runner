@@ -16,15 +16,19 @@ import { format, parseISO } from 'date-fns'
 import { type ValidationResult, type ObjectSchema } from 'joi'
 import nunjucks from 'nunjucks'
 
+import { type BaseViewModel } from '../models/types.js'
+
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import config from '~/src/server/config.js'
 import { CheckboxesField } from '~/src/server/plugins/engine/components/CheckboxesField.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { RadiosField } from '~/src/server/plugins/engine/components/RadiosField.js'
-import { type ComponentCollectionViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { proceed, redirectTo } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
+import {
+  encodeUrl,
+  type PageControllerClass
+} from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { validationOptions } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormData,
@@ -112,21 +116,7 @@ export class PageControllerBase {
     formData: FormData,
     iteration?: number,
     errors?: FormSubmissionErrors
-  ): {
-    page: PageControllerBase
-    name?: string
-    pageTitle: string
-    sectionTitle?: string
-    showTitle: boolean
-    components: ComponentCollectionViewModel
-    errors?: FormSubmissionErrors
-    isStartPage: boolean
-    startPage?: ResponseObject
-    backLink?: string
-    serviceUrl: string
-    phaseTag?: string
-    feedbackLink?: string
-  } {
+  ): BaseViewModel {
     let showTitle = true
 
     let { title: pageTitle, section } = this
@@ -193,7 +183,14 @@ export class PageControllerBase {
       errors,
       isStartPage: false,
       serviceUrl,
-      feedbackLink: this.getFeedbackLink()
+
+      /*
+        Optional values. Only set if they exist in the form definition.
+        If these are not set, the nunjucks context already has default values
+        from the config.
+      */
+      ...(this.getPhaseTag() && { phaseTag: this.getPhaseTag() }),
+      ...(this.getFeedbackLink() && { feedbackLink: this.getFeedbackLink() })
     }
   }
 
@@ -674,27 +671,22 @@ export class PageControllerBase {
     }
   }
 
-  getFeedbackLink() {
-    const { def } = this
-    let feedbackLink: string | undefined = config.feedbackLink
+  private getFeedbackLink() {
+    const { feedback } = this.def
+    let feedbackLink: string | undefined
 
     // setting the feedbackLink to undefined here for feedback forms prevents the feedback link from being shown
-    if (def.feedback?.url) {
-      feedbackLink = def.feedback.url
-    } else if (def.feedback?.emailAddress) {
-      feedbackLink = `mailto:${def.feedback.emailAddress}`
+    if (feedback?.url) {
+      feedbackLink = feedback.url
+    } else if (feedback?.emailAddress) {
+      feedbackLink = `mailto:${feedback.emailAddress}`
     }
 
-    if (feedbackLink?.startsWith('mailto:')) {
-      try {
-        feedbackLink = new URL(feedbackLink).toString() // escape the search params without breaking the ? and & reserved characters in rfc2368
-      } catch (err) {
-        logger.error(err, `Failed to decode ${feedbackLink}`)
-        feedbackLink = undefined
-      }
-    }
+    return encodeUrl(feedbackLink)
+  }
 
-    return feedbackLink
+  private getPhaseTag() {
+    return this.def.phaseBanner?.phase
   }
 
   makeGetRoute() {
