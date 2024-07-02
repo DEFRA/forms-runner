@@ -2,7 +2,6 @@ const { resolve } = require('node:path')
 
 const { deferConfig } = require('config/defer')
 const { configDotenv } = require('dotenv')
-const nanoid = require('nanoid')
 
 configDotenv({
   path: [resolve(__dirname, '../.env')]
@@ -11,14 +10,6 @@ configDotenv({
 const minute = 60 * 1000
 
 module.exports = {
-  /**
-   * Initialised sessions
-   * Allows a user's state to be pre-populated.
-   */
-  initialisedSessionTimeout: minute * 60 * 24 * 28, // Defaults to 28 days. Set the TTL for the initialised session in ms.
-  initialisedSessionKey: `${nanoid.random(16)}`, // This should be set if you are deploying replicas, otherwise the key will be different per replica
-  initialisedSessionAlgorithm: 'HS512', // allowed algorithms: "RS256", "RS384", "RS512","PS256", "PS384", "PS512", "ES256", "ES384", "ES512", "EdDSA", "RS256", "RS384", "RS512", "PS256", "PS384", "PS512", "HS256", "HS384", "HS512"
-
   /**
    * Server
    */
@@ -68,7 +59,5 @@ module.exports = {
   /**
    * Logging
    */
-  logLevel: process.env.LOG_LEVEL || 'info', // Accepts "trace" | "debug" | "info" | "warn" |"error"
-
-  safelist: ['61bca17e-fe74-40e0-9c15-a901ad120eca.mock.pstmn.io']
+  logLevel: process.env.LOG_LEVEL || 'info' // Accepts "trace" | "debug" | "info" | "warn" |"error"
 }

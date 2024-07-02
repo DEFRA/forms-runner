@@ -474,9 +474,7 @@ export class PageControllerBase {
       const payload = this.getFormDataFromState(state, num - 1)
 
       const isStartPage = this.path === `${startPage}`
-      const isInitialisedSession = !!state.callback
-      const shouldRedirectToStartPage =
-        !progress.length && !isStartPage && !isInitialisedSession
+      const shouldRedirectToStartPage = !progress.length && !isStartPage
 
       if (shouldRedirectToStartPage) {
         return startPage?.startsWith('http')

@@ -8,7 +8,6 @@ import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { SummaryPageController } from '~/src/server/plugins/engine/pageControllers/index.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
-import { type InitialiseSessionOptions } from '~/src/server/plugins/initialiseSession/types.js'
 
 export class SummaryViewModel {
   /**
@@ -36,7 +35,6 @@ export class SummaryViewModel {
       }[]
     | undefined
 
-  callback?: InitialiseSessionOptions
   serviceUrl: string
   constructor(
     pageTitle: string,
@@ -75,7 +73,6 @@ export class SummaryViewModel {
     this.relevantPages = relevantPages
     this.state = state
     this.value = result.value
-    this.callback = state.callback
   }
 
   private processErrors(result: ValidationResult, details) {

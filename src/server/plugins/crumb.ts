@@ -14,23 +14,6 @@ export const configureCrumbPlugin = (
       enforce: routeConfig?.enforceCsrf ?? config?.enforceCsrf,
       cookieOptions: {
         isSecure: config.isProd
-      },
-      skip: (request: any) => {
-        const skippedRoutes = ['/session']
-        const isSkippedMethod =
-          request.method === 'post' && request.payload == null
-
-        const isSkippedRoute =
-          skippedRoutes.find((route) => `${request.path}`.startsWith(route)) ??
-          false
-        if (isSkippedRoute) {
-          request.logger.info(
-            ['Crumb', 'CSRF', 'Skipping route'],
-            `${request.url}`
-          )
-        }
-
-        return isSkippedMethod || !!isSkippedRoute
       }
     }
   }

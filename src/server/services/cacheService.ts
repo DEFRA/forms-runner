@@ -1,13 +1,8 @@
 import { type Request, type Server } from '@hapi/hapi'
 import { merge } from '@hapi/hoek'
-import { token } from '@hapi/jwt'
 
 import config from '~/src/server/config.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
-import {
-  type DecodedSessionToken,
-  type InitialiseSessionOptions
-} from '~/src/server/plugins/initialiseSession/types.js'
 
 const { sessionTimeout, confirmationSessionTimeout } = config
 const partition = 'cache'
@@ -59,42 +54,6 @@ export class CacheService {
     return this.cache.set(key, viewModel, confirmationSessionTimeout)
   }
 
-  async createSession(
-    jwt: string,
-    data: {
-      callback: InitialiseSessionOptions
-    }
-  ) {
-    return this.cache.set(
-      this.JWTKey(jwt),
-      data,
-      config.initialisedSessionTimeout
-    )
-  }
-
-  async activateSession(jwt, request) {
-    const { decoded } = token.decode(jwt)
-    const { payload }: { payload: DecodedSessionToken } = decoded
-
-    const userSessionKey = {
-      segment: partition,
-      id: `${request.yar.id}:${payload.group}`
-    }
-
-    const initialisedSession = await this.cache.get(this.JWTKey(jwt))
-
-    const currentSession = await this.cache.get(userSessionKey)
-    const mergedSession = {
-      ...currentSession,
-      ...initialisedSession
-    }
-    this.cache.set(userSessionKey, mergedSession, sessionTimeout)
-    await this.cache.drop(this.JWTKey(jwt))
-    return {
-      redirectPath: initialisedSession?.callback?.redirectPath ?? ''
-    }
-  }
-
   async clearState(request: Request) {
     if (request.yar.id) {
       this.cache.drop(this.Key(request))
@@ -114,13 +73,6 @@ export class CacheService {
     return {
       segment: partition,
       id: `${request.yar.id}:${request.params.state ?? ''}:${request.params.slug ?? ''}:${additionalIdentifier ?? ''}`
-    }
-  }
-
-  JWTKey(jwt) {
-    return {
-      segment: partition,
-      id: jwt
     }
   }
 }
