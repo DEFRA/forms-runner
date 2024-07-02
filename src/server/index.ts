@@ -76,7 +76,7 @@ const serverOptions = (): ServerOptions => {
   return serverOptions
 }
 
-async function createServer(routeConfig: RouteConfig) {
+export async function createServer(routeConfig: RouteConfig) {
   const server = hapi.server(serverOptions())
   const { formFileName, formFilePath, options } = routeConfig
 
@@ -140,5 +140,3 @@ async function createServer(routeConfig: RouteConfig) {
 
   return server
 }
-
-export default createServer

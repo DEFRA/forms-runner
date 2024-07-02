@@ -1,6 +1,6 @@
 import { type Server } from '@hapi/hapi'
 
-import createServer from '~/src/server/index.js'
+import { createServer } from '~/src/server/index.js'
 
 describe('Server Router', () => {
   let server: Server

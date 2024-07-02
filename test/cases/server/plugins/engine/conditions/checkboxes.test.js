@@ -1,7 +1,7 @@
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import createServer from '~/src/server/index.js'
+import { createServer } from '~/src/server/index.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 const okStatusCode = 200

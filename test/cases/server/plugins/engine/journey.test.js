@@ -1,7 +1,7 @@
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import createServer from '~/src/server/index.js'
+import { createServer } from '~/src/server/index.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
 import { getSessionCookie } from '~/test/cases/server/utils/get-session-cookie.js'
 
