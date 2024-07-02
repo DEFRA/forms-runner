@@ -1,13 +1,14 @@
-export function getSessionCookie(res) {
-  const COOKIE_NAME = 'session'
-  const sessionId = res.headers['set-cookie']
-    .map((cookie) => {
-      const [name, value] = cookie.split(';')[0].split('=')
-      return { name, value }
-    })
-    .find(({ name }) => name === COOKIE_NAME).value
+/**
+ * @param {ServerInjectResponse} response
+ */
+export function getSessionCookie(response) {
+  const cookies = [response.headers['set-cookie']].flat()
+  const cookie = cookies.find((header) => header?.includes('session=')) ?? ''
 
-  const cookie = `${COOKIE_NAME}=${sessionId}`
-
-  return cookie
+  const [name, sessionId] = cookie.split(';')[0].split('=')
+  return `${name}=${sessionId}`
 }
+
+/**
+ * @typedef {import('@hapi/hapi').ServerInjectResponse} ServerInjectResponse
+ */
