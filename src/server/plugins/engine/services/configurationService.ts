@@ -1,10 +1,10 @@
 import fs from 'node:fs'
 import { join } from 'node:path'
 
-import config from '~/src/server/config.js'
+import { config } from '~/src/config/index.js'
 import { idFromFilename } from '~/src/server/plugins/engine/helpers.js'
 
-const FORMS_FOLDER = join(config.appDir, 'forms')
+const FORMS_FOLDER = join(config.get('appDir'), 'forms')
 
 export interface FormConfiguration {
   configuration: any // TODO

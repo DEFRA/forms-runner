@@ -12,8 +12,8 @@ import Schmervice from '@hapipal/schmervice'
 import blipp from 'blipp'
 import { ProxyAgent } from 'proxy-agent'
 
+import { config } from '~/src/config/index.js'
 import { buildRedisClient } from '~/src/server/common/helpers/redis-client.js'
-import config from '~/src/server/config.js'
 import { configureBlankiePlugin } from '~/src/server/plugins/blankie.js'
 import { configureCrumbPlugin } from '~/src/server/plugins/crumb.js'
 import { configureEnginePlugin } from '~/src/server/plugins/engine/index.js'
@@ -39,8 +39,8 @@ Wreck.agents = {
 
 const serverOptions = (): ServerOptions => {
   const serverOptions: ServerOptions = {
-    debug: { request: [`${config.isDev}`] },
-    port: config.port,
+    debug: { request: [`${config.get('isDevelopment')}`] },
+    port: config.get('port'),
     router: {
       stripTrailingSlash: true
     },
@@ -64,7 +64,7 @@ const serverOptions = (): ServerOptions => {
     cache: [
       {
         name: 'session',
-        engine: config.isTest
+        engine: config.get('isTest')
           ? new CatboxMemory()
           : new CatboxRedis({
               client: buildRedisClient()
@@ -80,12 +80,12 @@ export async function createServer(routeConfig: RouteConfig = {}) {
   const server = hapi.server(serverOptions())
   const { formFileName, formFilePath } = routeConfig
 
-  if (config.rateLimit) {
+  if (config.get('rateLimit')) {
     await server.register(configureRateLimitPlugin(routeConfig))
   }
   await server.register(pluginLogging)
 
-  if (config.isProd) {
+  if (config.get('isProduction')) {
     prepareSecureContext(server)
   }
 

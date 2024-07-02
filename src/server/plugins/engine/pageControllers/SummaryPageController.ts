@@ -7,7 +7,7 @@ import {
 import { format } from 'date-fns'
 import nunjucks from 'nunjucks'
 
-import config from '~/src/server/config.js'
+import { config } from '~/src/config/index.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
   FeedbackContextInfo,
@@ -26,8 +26,6 @@ import { type DetailItem } from '~/src/server/plugins/engine/models/types.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
-
-const { notifyTemplateId: templateId } = config
 
 export class SummaryPageController extends PageController {
   /**
@@ -246,7 +244,7 @@ async function sendEmail(
   try {
     // Send submission email
     await sendNotification({
-      templateId,
+      templateId: config.get('notifyTemplateId'),
       emailAddress,
       personalisation
     })

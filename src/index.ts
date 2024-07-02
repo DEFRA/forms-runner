@@ -1,5 +1,5 @@
+import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
-import config from '~/src/server/config.js'
 import { createServer } from '~/src/server/index.js'
 
 const logger = createLogger()
@@ -20,7 +20,9 @@ async function startServer() {
   process.send?.('online')
 
   server.logger.info('Server started successfully')
-  server.logger.info(`Access your frontend on http://localhost:${config.port}`)
+  server.logger.info(
+    `Access your frontend on http://localhost:${config.get('port')}`
+  )
 }
 
 startServer().catch((error: unknown) => {

@@ -8,8 +8,8 @@ import nunjucks from 'nunjucks'
 import resolvePkg from 'resolve'
 
 import pkg from '~/package.json' with { type: 'json' }
+import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
-import config from '~/src/server/config.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 
 const logger = createLogger()
@@ -19,8 +19,8 @@ const govukFrontendPath = dirname(
 )
 
 const pluginPaths = [
-  join(config.appDir, 'plugins/engine/views'),
-  join(config.appDir, 'views')
+  join(config.get('appDir'), 'plugins/engine/views'),
+  join(config.get('appDir'), 'views')
 ]
 
 const nunjucksEnvironment = nunjucks.configure(
@@ -30,8 +30,8 @@ const nunjucksEnvironment = nunjucks.configure(
     throwOnUndefined: false,
     trimBlocks: true,
     lstripBlocks: true,
-    watch: config.isDev,
-    noCache: config.isDev
+    watch: config.get('isDevelopment'),
+    noCache: config.get('isDevelopment')
   }
 )
 
@@ -45,7 +45,7 @@ function nunjucksContext(
     }
   }> | null
 ) {
-  const manifestPath = join(config.publicDir, 'assets-manifest.json')
+  const manifestPath = join(config.get('publicDir'), 'assets-manifest.json')
 
   if (!webpackManifest) {
     try {
@@ -62,10 +62,10 @@ function nunjucksContext(
   return {
     appVersion: pkg.version,
     assetPath: '/assets',
-    serviceName: capitalize(config.serviceName),
-    feedbackLink: config.feedbackLink,
+    serviceName: capitalize(config.get('serviceName')),
+    feedbackLink: config.get('feedbackLink'),
     location: app?.location,
-    phaseTag: config.phaseTag,
+    phaseTag: config.get('phaseTag'),
     previewMode: isPreviewMode ? params?.state : undefined,
     slug: params?.slug,
 
@@ -93,7 +93,7 @@ export default {
     },
     path: pluginPaths,
     compileOptions,
-    isCached: config.isProd,
+    isCached: config.get('isProduction'),
     context: nunjucksContext
   }
 } satisfies ServerRegisterPluginObject<ServerViewsConfiguration>
