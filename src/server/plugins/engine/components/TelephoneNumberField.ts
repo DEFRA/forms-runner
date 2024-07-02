@@ -5,7 +5,7 @@ import { FormComponent } from '~/src/server/plugins/engine/components/FormCompon
 import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
-  type FormData,
+  type FormPayload,
   type FormSubmissionErrors
 } from '~/src/server/plugins/engine/types.js'
 
@@ -48,9 +48,9 @@ export class TelephoneNumberField extends FormComponent {
     return { [this.name]: this.schema as Schema }
   }
 
-  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
+  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     const viewModel = {
-      ...super.getViewModel(formData, errors),
+      ...super.getViewModel(payload, errors),
       type: 'tel',
       autocomplete: 'tel'
     }

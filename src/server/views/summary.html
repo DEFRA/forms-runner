@@ -32,7 +32,7 @@
       {% endfor %}
 
       {% if not result.error  %}
-        <form method="post" enctype="multipart/form-data" autocomplete="off" novalidate>
+        <form method="post" autocomplete="off" novalidate>
           <input type="hidden" name="crumb" value="{{crumb}}"/>
 
           {%if declaration %}

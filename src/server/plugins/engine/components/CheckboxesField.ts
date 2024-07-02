@@ -4,7 +4,7 @@ import joi from 'joi'
 import { SelectionControlField } from '~/src/server/plugins/engine/components/SelectionControlField.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
-  type FormData,
+  type FormPayload,
   type FormSubmissionErrors,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
@@ -39,16 +39,15 @@ export class CheckboxesField extends SelectionControlField {
       .join(', ')
   }
 
-  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
-    const viewModel = super.getViewModel(formData, errors)
+  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+    const viewModel = super.getViewModel(payload, errors)
 
     // Handle single (string) or multiple (array) values
-    const formDataItems =
-      this.name in formData ? [formData[this.name]].flat() : []
+    const payloadItems = this.name in payload ? [payload[this.name]].flat() : []
 
     viewModel.items = (viewModel.items ?? []).map((item) => ({
       ...item,
-      checked: formDataItems.some((i) => `${item.value}` === i)
+      checked: payloadItems.some((i) => `${item.value}` === i)
     }))
 
     return viewModel

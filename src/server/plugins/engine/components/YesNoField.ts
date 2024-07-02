@@ -6,7 +6,7 @@ import * as helpers from '~/src/server/plugins/engine/components/helpers.js'
 import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
-  type FormData,
+  type FormPayload,
   type FormSubmissionErrors,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
@@ -70,10 +70,10 @@ export class YesNoField extends ListFormComponent {
     return item?.text ?? ''
   }
 
-  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
+  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     const { name } = this
 
-    const viewModel = super.getViewModel(formData, errors)
+    const viewModel = super.getViewModel(payload, errors)
     let { fieldset, items, label } = viewModel
 
     fieldset ??= {
@@ -86,7 +86,7 @@ export class YesNoField extends ListFormComponent {
     items = items?.map(({ text, value }) => ({
       text,
       value,
-      checked: `${value}` === `${formData[name]}`
+      checked: `${value}` === `${payload[name]}`
     }))
 
     return {

@@ -1,6 +1,6 @@
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
-  type FormData,
+  type FormPayload,
   type FormSubmissionErrors
 } from '~/src/server/plugins/engine/types.js'
 
@@ -11,9 +11,9 @@ export class StartPageController extends PageController {
    * but start pages should really live on gov.uk (whitehall publisher) so a user can be properly signposted.
    */
 
-  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
+  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     return {
-      ...super.getViewModel(formData, errors),
+      ...super.getViewModel(payload, errors),
       isStartPage: true
     }
   }

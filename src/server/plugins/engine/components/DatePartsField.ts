@@ -11,7 +11,6 @@ import * as helpers from '~/src/server/plugins/engine/components/helpers.js'
 import { type DataType } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
-  type FormData,
   type FormPayload,
   type FormSubmissionErrors,
   type FormSubmissionState
@@ -120,12 +119,12 @@ export class DatePartsField extends FormComponent {
     return value ? format(parseISO(value), 'd MMMM yyyy') : ''
   }
 
-  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
-    const viewModel = super.getViewModel(formData, errors)
+  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+    const viewModel = super.getViewModel(payload, errors)
 
     // Use the component collection to generate the subitems
     const componentViewModels = this.children
-      .getViewModel(formData, errors)
+      .getViewModel(payload, errors)
       .map((vm) => vm.model)
 
     componentViewModels.forEach((componentViewModel) => {

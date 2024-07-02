@@ -18,8 +18,8 @@ export class DobPageController extends PageController {
     })
   }
 
-  getStateFromValidForm(formData: FormPayload) {
-    const state = super.getStateFromValidForm(formData)
+  getStateFromValidForm(payload: FormPayload) {
+    const state = super.getStateFromValidForm(payload)
     const age = Math.floor((Date.now() - state.dob) / 31557600000)
 
     state.ageGroup = age < 13 ? 'junior' : age > 65 ? 'senior' : 'full'

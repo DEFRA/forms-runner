@@ -1,15 +1,15 @@
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import {
-  type FormData,
+  type FormPayload,
   type FormSubmissionErrors
 } from '~/src/server/plugins/engine/types.js'
 
 export class Html extends ComponentBase {
-  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
+  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     const { options } = this
 
     const viewModel = {
-      ...super.getViewModel(formData, errors),
+      ...super.getViewModel(payload, errors),
       content: this.content
     }
 

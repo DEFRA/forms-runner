@@ -10,7 +10,6 @@ import { optionalText } from '~/src/server/plugins/engine/components/constants.j
 import { type DataType } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
-  type FormData,
   type FormPayload,
   type FormSubmissionErrors,
   type FormSubmissionState
@@ -85,14 +84,14 @@ export class MonthYearField extends FormComponent {
     return `${monthString} ${year}`
   }
 
-  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
+  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     const { children } = this
 
-    const viewModel = super.getViewModel(formData, errors)
+    const viewModel = super.getViewModel(payload, errors)
 
     // Use the component collection to generate the subitems
     const componentViewModels = children
-      .getViewModel(formData, errors)
+      .getViewModel(payload, errors)
       .map((vm) => vm.model)
 
     componentViewModels.forEach((componentViewModel) => {

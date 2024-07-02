@@ -39,11 +39,11 @@ describe('YesNoField', () => {
     describe('getViewModel', () => {
       it('viewModel item Yes is checked when evaluating boolean true', () => {
         const component = new YesNoField(componentDefinition, formModel)
-        const formData = {
+        const payload = {
           speakEnglish: true
         }
 
-        const viewModel = component.getViewModel(formData)
+        const viewModel = component.getViewModel(payload)
         const yesItem = viewModel.items.filter((item) => item.text === 'Yes')[0]
 
         expect(yesItem).toEqual({
@@ -55,11 +55,11 @@ describe('YesNoField', () => {
 
       it("viewModel item Yes is checked when evaluating string 'true'", () => {
         const component = new YesNoField(componentDefinition, formModel)
-        const formData = {
+        const payload = {
           speakEnglish: 'true'
         }
 
-        const viewModel = component.getViewModel(formData)
+        const viewModel = component.getViewModel(payload)
         const yesItem = viewModel.items.filter((item) => item.text === 'Yes')[0]
 
         expect(yesItem).toEqual({
@@ -71,11 +71,11 @@ describe('YesNoField', () => {
 
       it('viewModel item No is checked when evaluating boolean false', () => {
         const component = new YesNoField(componentDefinition, formModel)
-        const formData = {
+        const payload = {
           speakEnglish: false
         }
 
-        const viewModel = component.getViewModel(formData)
+        const viewModel = component.getViewModel(payload)
         const noItem = viewModel.items.filter((item) => item.text === 'No')[0]
 
         expect(noItem).toEqual({
@@ -87,11 +87,11 @@ describe('YesNoField', () => {
 
       it("viewModel item No is checked when evaluating string 'false'", () => {
         const component = new YesNoField(componentDefinition, formModel)
-        const formData = {
+        const payload = {
           speakEnglish: 'false'
         }
 
-        const viewModel = component.getViewModel(formData)
+        const viewModel = component.getViewModel(payload)
         const noItem = viewModel.items.filter((item) => item.text === 'No')[0]
 
         expect(noItem).toEqual({

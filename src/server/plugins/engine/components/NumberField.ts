@@ -7,7 +7,7 @@ import joi, { type Schema } from 'joi'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
-  type FormData,
+  type FormPayload,
   type FormSubmissionErrors,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
@@ -58,14 +58,14 @@ export class NumberField extends FormComponent {
     return { [this.name]: this.schema as Schema }
   }
 
-  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
+  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     const schema = this.schema
     const options = this.options
     const { suffix, prefix } = options
     const viewModelPrefix = { prefix: { text: prefix } }
     const viewModelSuffix = { suffix: { text: suffix } }
     const viewModel = {
-      ...super.getViewModel(formData, errors),
+      ...super.getViewModel(payload, errors),
       type: 'number',
       // ...False returns nothing, so only adds content when
       // the given options are present.

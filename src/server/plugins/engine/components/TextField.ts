@@ -4,7 +4,7 @@ import joi, { type Schema } from 'joi'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
-  type FormData,
+  type FormPayload,
   type FormSubmissionErrors
 } from '~/src/server/plugins/engine/types.js'
 
@@ -58,9 +58,9 @@ export class TextField extends FormComponent {
     return { [this.name]: this.formSchema as Schema }
   }
 
-  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
+  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     const options = this.options
-    const viewModel = super.getViewModel(formData, errors)
+    const viewModel = super.getViewModel(payload, errors)
 
     if (options.autocomplete) {
       viewModel.autocomplete = options.autocomplete

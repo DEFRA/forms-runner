@@ -1,7 +1,7 @@
 import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
 import { type ListItem } from '~/src/server/plugins/engine/components/types.js'
 import {
-  type FormData,
+  type FormPayload,
   type FormSubmissionErrors
 } from '~/src/server/plugins/engine/types.js'
 
@@ -9,10 +9,10 @@ import {
  * "Selection controls" are checkboxes and radios (and switches), as per Material UI nomenclature.
  */
 export class SelectionControlField extends ListFormComponent {
-  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
+  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     const { name, options } = this
 
-    const viewModel = super.getViewModel(formData, errors)
+    const viewModel = super.getViewModel(payload, errors)
     let { fieldset, items, label } = viewModel
 
     fieldset ??= {
@@ -26,7 +26,7 @@ export class SelectionControlField extends ListFormComponent {
       const itemModel: ListItem = {
         text: item.text,
         value: item.value,
-        checked: `${item.value}` === `${formData[name]}`
+        checked: `${item.value}` === `${payload[name]}`
       }
 
       if (options.bold) {
@@ -44,7 +44,7 @@ export class SelectionControlField extends ListFormComponent {
       return itemModel
 
       // FIXME:- add this back when GDS fix accessibility issues involving conditional reveal fields
-      // return super.addConditionalComponents(item, itemModel, formData, errors);
+      // return super.addConditionalComponents(item, itemModel, payload, errors);
     })
 
     return {

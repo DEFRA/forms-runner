@@ -3,10 +3,9 @@ import joi, { type Schema } from 'joi'
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import {
+  type FormPayload,
   type FormSubmissionState,
-  type FormSubmissionErrors,
-  type FormData,
-  type FormPayload
+  type FormSubmissionErrors
 } from '~/src/server/plugins/engine/types.js'
 
 export class FormComponent extends ComponentBase {
@@ -46,10 +45,10 @@ export class FormComponent extends ComponentBase {
     return name in payload && payload[name] !== '' ? payload[name] : null
   }
 
-  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
+  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     const { hint, name, options, title } = this
 
-    const viewModel = super.getViewModel(formData, errors)
+    const viewModel = super.getViewModel(payload, errors)
 
     const isRequired = !('required' in options && options.required === false)
     const hideOptional = 'optionalText' in options && options.optionalText
@@ -84,7 +83,7 @@ export class FormComponent extends ComponentBase {
       },
       id: name,
       name,
-      value: formData[name]
+      value: payload[name]
     }
   }
 

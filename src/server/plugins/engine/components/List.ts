@@ -7,7 +7,7 @@ import {
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
-  type FormData,
+  type FormPayload,
   type FormSubmissionErrors
 } from '~/src/server/plugins/engine/types.js'
 
@@ -22,9 +22,9 @@ export class List extends ComponentBase {
     this.list = model.getList(def.list)
   }
 
-  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
+  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     const { items, options } = this
-    const viewModel = super.getViewModel(formData, errors)
+    const viewModel = super.getViewModel(payload, errors)
 
     if ('type' in options && options.type) {
       viewModel.type = options.type
