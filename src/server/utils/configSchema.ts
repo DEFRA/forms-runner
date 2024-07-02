@@ -1,21 +1,9 @@
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import Joi, { type CustomHelpers } from 'joi'
-
-import { isUrlSecure } from '~/src/server/utils/url.js'
+import Joi from 'joi'
 
 const configPath = fileURLToPath(import.meta.url)
-
-export function secureUrl(value: string, helper: CustomHelpers) {
-  if (isUrlSecure(value)) {
-    return value
-  }
-
-  return helper.message({
-    custom: `Provided ${helper.state.path} is insecure, please use https`
-  })
-}
 
 /**
  * joi schema validation is used here to ensure that there are not invalid key/values when a server is starting up.
