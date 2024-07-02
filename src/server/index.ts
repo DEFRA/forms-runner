@@ -18,7 +18,6 @@ import { configureBlankiePlugin } from '~/src/server/plugins/blankie.js'
 import { configureCrumbPlugin } from '~/src/server/plugins/crumb.js'
 import { configureEnginePlugin } from '~/src/server/plugins/engine/index.js'
 import pluginErrorPages from '~/src/server/plugins/errorPages.js'
-import { configureInitialiseSessionPlugin } from '~/src/server/plugins/initialiseSession/configurePlugin.js'
 import pluginLogging from '~/src/server/plugins/logging.js'
 import pluginPulse from '~/src/server/plugins/pulse.js'
 import { configureRateLimitPlugin } from '~/src/server/plugins/rateLimit.js'
@@ -94,11 +93,6 @@ async function createServer(routeConfig: RouteConfig) {
   await server.register(pluginPulse)
   await server.register(inert)
   await server.register(Scooter)
-  await server.register(
-    configureInitialiseSessionPlugin({
-      safelist: config.safelist
-    })
-  )
   await server.register(configureBlankiePlugin(config))
   await server.register(configureCrumbPlugin(config, routeConfig))
   await server.register(Schmervice)

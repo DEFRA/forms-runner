@@ -1,21 +1,9 @@
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import Joi, { type CustomHelpers } from 'joi'
-
-import { isUrlSecure } from '~/src/server/utils/url.js'
+import Joi from 'joi'
 
 const configPath = fileURLToPath(import.meta.url)
-
-export function secureUrl(value: string, helper: CustomHelpers) {
-  if (isUrlSecure(value)) {
-    return value
-  }
-
-  return helper.message({
-    custom: `Provided ${helper.state.path} is insecure, please use https`
-  })
-}
 
 /**
  * joi schema validation is used here to ensure that there are not invalid key/values when a server is starting up.
@@ -35,8 +23,6 @@ export const configSchema = Joi.object({
   logLevel: Joi.string()
     .optional()
     .allow('trace', 'debug', 'info', 'warn', 'error'),
-  logPrettyPrint: Joi.boolean().optional(),
-  logRedactPaths: Joi.array().items(Joi.string()).default([]),
   feedbackLink: Joi.string(),
   phaseTag: Joi.string().optional().valid('', 'alpha', 'beta'),
   redisHost: Joi.string().required(),
@@ -49,34 +35,7 @@ export const configSchema = Joi.object({
   sessionCookiePassword: Joi.string().required(),
   rateLimit: Joi.boolean().optional(),
   notifyTemplateId: Joi.string().required(),
-  notifyAPIKey: Joi.string().required(),
-  apiEnv: Joi.string().allow('test', 'production', '').optional(),
-  safelist: Joi.array().items(Joi.string()),
-  initialisedSessionTimeout: Joi.number(),
-  initialisedSessionKey: Joi.string(),
-  initialisedSessionAlgorithm: Joi.string()
-    .allow(
-      'RS256',
-      'RS384',
-      'RS512',
-      'PS256',
-      'PS384',
-      'PS512',
-      'ES256',
-      'ES384',
-      'ES512',
-      'EdDSA',
-      'RS256',
-      'RS384',
-      'RS512',
-      'PS256',
-      'PS384',
-      'PS512',
-      'HS256',
-      'HS384',
-      'HS512'
-    )
-    .default('HS512')
+  notifyAPIKey: Joi.string().required()
 })
 
 export function buildConfig(config) {

@@ -2,7 +2,6 @@ import Boom from '@hapi/boom'
 import { type Request, type ResponseToolkit } from '@hapi/hapi'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
-import { redirectTo } from '~/src/server/plugins/engine/index.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import { healthRoute, publicRoutes } from '~/src/server/routes/index.js'
 
@@ -81,17 +80,6 @@ export default {
         path: '/help/accessibility-statement',
         handler(_request: Request, h: ResponseToolkit) {
           return h.view('help/accessibility-statement')
-        }
-      })
-
-      server.route({
-        method: 'get',
-        path: '/clear-session',
-        handler(request: Request, h: ResponseToolkit) {
-          request.yar.reset()
-
-          const { redirect } = request.query
-          return redirectTo(request, h, (redirect as string) || '/')
         }
       })
     }

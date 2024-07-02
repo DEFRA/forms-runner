@@ -1,5 +1,3 @@
-import { type InitialiseSessionOptions } from '~/src/server/plugins/initialiseSession/types.js'
-
 /**
  * FormSubmissionState is an object containing the following props:
  * 1. progress[]: which indicates the urls the user have already submitted.
@@ -45,7 +43,6 @@ import { type InitialiseSessionOptions } from '~/src/server/plugins/initialiseSe
 export interface FormSubmissionState {
   progress?: string[]
   [propName: string]: any
-  callback?: InitialiseSessionOptions
 }
 
 export interface FormSubmissionErrors {
