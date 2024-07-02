@@ -41,10 +41,14 @@ export class CheckboxesField extends SelectionControlField {
 
   getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
     const viewModel = super.getViewModel(formData, errors)
-    const formDataItems = (formData[this.name] ?? '').split(',')
+
+    // Handle single (string) or multiple (array) values
+    const formDataItems =
+      this.name in formData ? [formData[this.name]].flat() : []
+
     viewModel.items = (viewModel.items ?? []).map((item) => ({
       ...item,
-      checked: !!formDataItems.find((i) => `${item.value}` === i)
+      checked: formDataItems.some((i) => `${item.value}` === i)
     }))
 
     return viewModel
