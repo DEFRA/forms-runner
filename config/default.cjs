@@ -66,21 +66,9 @@ module.exports = {
   notifyAPIKey: '',
 
   /**
-   * API integrations
-   */
-  // API keys configured within a form may be set like so { "test": "test-key", "production": "prod" }.
-  // Control which is used. Accepts "test" | "production" | "".
-  apiEnv: '',
-  // If both the api env and node env are set to "production", the pay return url will need to be secure.
-  // This is not the case if either are set to "test", or if the node env is set to "development"
-  // payReturnUrl: "http://localhost:3009"
-
-  /**
    * Logging
    */
   logLevel: process.env.LOG_LEVEL || 'info', // Accepts "trace" | "debug" | "info" | "warn" |"error"
-  logPrettyPrint: true,
-  logRedactPaths: ["req.headers['x-forwarded-for']"], // You should check your privacy policy before disabling this. Check https://getpino.io/#/docs/redaction on how to configure redaction paths
 
   safelist: ['61bca17e-fe74-40e0-9c15-a901ad120eca.mock.pstmn.io']
 }

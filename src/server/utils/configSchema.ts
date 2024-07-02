@@ -35,8 +35,6 @@ export const configSchema = Joi.object({
   logLevel: Joi.string()
     .optional()
     .allow('trace', 'debug', 'info', 'warn', 'error'),
-  logPrettyPrint: Joi.boolean().optional(),
-  logRedactPaths: Joi.array().items(Joi.string()).default([]),
   feedbackLink: Joi.string(),
   phaseTag: Joi.string().optional().valid('', 'alpha', 'beta'),
   redisHost: Joi.string().required(),
@@ -50,7 +48,6 @@ export const configSchema = Joi.object({
   rateLimit: Joi.boolean().optional(),
   notifyTemplateId: Joi.string().required(),
   notifyAPIKey: Joi.string().required(),
-  apiEnv: Joi.string().allow('test', 'production', '').optional(),
   safelist: Joi.array().items(Joi.string()),
   initialisedSessionTimeout: Joi.number(),
   initialisedSessionKey: Joi.string(),
