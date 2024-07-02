@@ -9,14 +9,14 @@ import {
 import {
   type Request,
   type ResponseObject,
-  type ResponseToolkit
+  type ResponseToolkit,
+  type RouteOptions,
+  type ServerRoute
 } from '@hapi/hapi'
 import { merge, reach } from '@hapi/hoek'
 import { format, parseISO } from 'date-fns'
 import { type ValidationResult, type ObjectSchema } from 'joi'
-import nunjucks from 'nunjucks'
 
-import config from '~/src/server/config.js'
 import { CheckboxesField } from '~/src/server/plugins/engine/components/CheckboxesField.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { RadiosField } from '~/src/server/plugins/engine/components/RadiosField.js'
@@ -724,7 +724,7 @@ export class PageControllerBase {
       path: this.path,
       options: this.getRouteOptions,
       handler: this.makeGetRouteHandler()
-    }
+    } satisfies ServerRoute
   }
 
   makePostRoute() {
@@ -733,7 +733,7 @@ export class PageControllerBase {
       path: this.path,
       options: this.postRouteOptions,
       handler: this.makePostRouteHandler()
-    }
+    } satisfies ServerRoute
   }
 
   findPageByPath(path: string) {
@@ -774,14 +774,14 @@ export class PageControllerBase {
   /**
    * {@link https://hapi.dev/api/?v=20.1.2#route-options}
    */
-  get getRouteOptions() {
+  get getRouteOptions(): RouteOptions {
     return {}
   }
 
   /**
    * {@link https://hapi.dev/api/?v=20.1.2#route-options}
    */
-  get postRouteOptions() {
+  get postRouteOptions(): RouteOptions {
     return {}
   }
 

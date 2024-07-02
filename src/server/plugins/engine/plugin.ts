@@ -4,6 +4,7 @@ import {
   type PluginSpecificConfiguration,
   type Request,
   type ResponseToolkit,
+  type RouteOptions,
   type Server
 } from '@hapi/hapi'
 import { isEqual } from 'date-fns'
@@ -216,7 +217,7 @@ export const plugin = {
       }
     }
 
-    const dispatchRouteOptions = {
+    const dispatchRouteOptions: RouteOptions = {
       pre: [
         {
           method: loadFormPreHandler
@@ -256,7 +257,7 @@ export const plugin = {
       }
     })
 
-    const getRouteOptions = {
+    const getRouteOptions: RouteOptions = {
       pre: [
         {
           method: loadFormPreHandler
@@ -305,9 +306,7 @@ export const plugin = {
         }
       } as PluginSpecificConfiguration,
       payload: {
-        output: 'stream',
         parse: true,
-        multipart: { output: 'stream' },
         failAction: (request: Request, h: ResponseToolkit) => {
           request.server.plugins.crumb.generate?.(request, h)
           return h.continue
