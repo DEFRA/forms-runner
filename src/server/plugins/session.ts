@@ -1,7 +1,7 @@
 import { type ServerRegisterPluginObject } from '@hapi/hapi'
 import yar, { type YarOptions } from '@hapi/yar'
 
-import config from '~/src/server/config.js'
+import { config } from '~/src/config/index.js'
 
 /**
  * Yar is used for temporary session data but not form submissions, e.g. UI helpers, session flags.
@@ -13,7 +13,7 @@ export default {
     cache: {
       cache: 'session',
       segment: 'session',
-      expiresIn: config.sessionTimeout
+      expiresIn: config.get('sessionTimeout')
     },
     /**
      * @todo storeBlank is current commented out as it's a minor efficiency gain but breaks the auth tests if enabled.
@@ -21,8 +21,8 @@ export default {
      */
     // storeBlank: false,
     cookieOptions: {
-      password: config.sessionCookiePassword,
-      isSecure: config.isProd
+      password: config.get('sessionCookiePassword'),
+      isSecure: config.get('isProduction')
     }
   }
 } satisfies ServerRegisterPluginObject<YarOptions>

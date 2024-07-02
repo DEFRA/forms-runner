@@ -1,10 +1,11 @@
 import { type Request, type Server } from '@hapi/hapi'
 import { merge } from '@hapi/hoek'
 
-import config from '~/src/server/config.js'
+import { type ViewModel } from '../plugins/engine/components/types.js'
+
+import { config } from '~/src/config/index.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 
-const { sessionTimeout, confirmationSessionTimeout } = config
 const partition = 'cache'
 
 enum ADDITIONAL_IDENTIFIER {
@@ -36,7 +37,7 @@ export class CacheService {
   ) {
     const key = this.Key(request)
     const state = await this.getState(request)
-    const ttl = sessionTimeout
+    const ttl = config.get('sessionTimeout')
 
     merge(state, value, { nullOverride, mergeArrays })
     await this.cache.set(key, state, ttl)
@@ -49,14 +50,18 @@ export class CacheService {
     return await this.cache.get(key)
   }
 
-  async setConfirmationState(request: Request, viewModel) {
+  async setConfirmationState(request: Request, viewModel: ViewModel) {
     const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation)
-    return this.cache.set(key, viewModel, confirmationSessionTimeout)
+    return this.cache.set(
+      key,
+      viewModel,
+      config.get('confirmationSessionTimeout')
+    )
   }
 
   async clearState(request: Request) {
     if (request.yar.id) {
-      this.cache.drop(this.Key(request))
+      await this.cache.drop(this.Key(request))
     }
   }
 

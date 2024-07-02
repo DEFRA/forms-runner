@@ -110,10 +110,10 @@ $ docker run -p 3000:3000 forms-runner
 
 If there is a .env file present, these will be loaded in.
 
-### ⚠️ See [config](./config/default.cjs) for default values for each environment
+### ⚠️ See [config](./src/config/index.ts) for default values for each environment
 
 Please use a config file instead. This will give you more control over each environment.
-The defaults can be found in [config](./config/default.cjs). Place your config files in `runner/config`
+The defaults can be found in [config](./src/config/index.ts). Place your config files in `runner/config`
 See [https://github.com/node-config/node-config#readme](https://github.com/node-config/node-config#readme) for more info.
 
 | name               | description                                                               | required | default      |            valid            |                                                          notes                                                          |

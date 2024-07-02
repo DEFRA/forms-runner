@@ -2,7 +2,7 @@ import { type Request } from '@hapi/hapi'
 import { reach } from '@hapi/hoek'
 import { type ValidationResult } from 'joi'
 
-import config from '~/src/server/config.js'
+import { config } from '~/src/config/index.js'
 import { redirectUrl } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
@@ -54,7 +54,7 @@ export class SummaryViewModel {
     this.feedbackLink =
       def.feedback?.url ??
       ((def.feedback?.emailAddress && `mailto:${def.feedback.emailAddress}`) ||
-        config.feedbackLink)
+        config.get('feedbackLink'))
 
     const schema = model.makeFilteredSchema(state, relevantPages)
     const collatedRepeatPagesState = gatherRepeatPages(state)

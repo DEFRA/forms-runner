@@ -1,3 +1,4 @@
+process.env.MANAGER_URL = 'http://localhost:3001'
 process.env.REDIS_HOST = 'dummy'
 process.env.REDIS_KEY_PREFIX = 'forms-designer'
 process.env.REDIS_PASSWORD = 'dummy'

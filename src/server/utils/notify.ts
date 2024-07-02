@@ -1,9 +1,9 @@
 import { token } from '@hapi/jwt'
 
-import config from '~/src/server/config.js'
+import { config } from '~/src/config/index.js'
 import { postJson } from '~/src/server/services/httpService.js'
 
-const notifyAPIKey = config.notifyAPIKey as string
+const notifyAPIKey = config.get('notifyAPIKey')
 
 // Extract the two uuids from the notifyApiKey
 // See https://github.com/alphagov/notifications-node-client/blob/main/client/api_client.js#L17

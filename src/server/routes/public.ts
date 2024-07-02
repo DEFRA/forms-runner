@@ -2,27 +2,27 @@ import { join } from 'node:path'
 
 import { type HandlerDecorations, type ServerRoute } from '@hapi/hapi'
 
-import config from '~/src/server/config.js'
+import { config } from '~/src/config/index.js'
 
 export default [
   {
     from: '/javascripts/{path*}',
-    to: join(config.publicDir, 'javascripts'),
+    to: join(config.get('publicDir'), 'javascripts'),
     immutable: true
   },
   {
     from: '/stylesheets/{path*}',
-    to: join(config.publicDir, 'stylesheets'),
+    to: join(config.get('publicDir'), 'stylesheets'),
     immutable: true
   },
   {
     from: '/assets/fonts/{path*}',
-    to: join(config.publicDir, 'assets/fonts'),
+    to: join(config.get('publicDir'), 'assets/fonts'),
     immutable: true
   },
   {
     from: '/assets/{path*}',
-    to: join(config.publicDir, 'assets'),
+    to: join(config.get('publicDir'), 'assets'),
     immutable: false
   }
 ].map((options) => {

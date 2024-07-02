@@ -1,9 +1,7 @@
 import { formMetadataSchema } from '@defra/forms-model'
 
-import config from '~/src/server/config.js'
+import { config } from '~/src/config/index.js'
 import { getJson } from '~/src/server/services/httpService.js'
-
-const { managerUrl } = config
 
 /**
  * Retrieves a form definition from the form manager for a given slug
@@ -13,7 +11,7 @@ export async function getFormMetadata(slug) {
   const getJsonByType = /** @type {typeof getJson<FormMetadata>} */ (getJson)
 
   const { payload: metadata } = await getJsonByType(
-    `${managerUrl}/forms/slug/${slug}`
+    `${config.get('managerUrl')}/forms/slug/${slug}`
   )
 
   // Run it through the schema to coerce dates
@@ -36,7 +34,7 @@ export async function getFormDefinition(id, state) {
 
   const suffix = state === 'draft' ? '/draft' : ''
   const { payload: definition } = await getJsonByType(
-    `${managerUrl}/forms/${id}/definition${suffix}`
+    `${config.get('managerUrl')}/forms/${id}/definition${suffix}`
   )
 
   return definition
