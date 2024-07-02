@@ -1,12 +1,12 @@
-import crumb from '@hapi/crumb'
+import crumb, { type RegisterOptions } from '@hapi/crumb'
 import { type ServerRegisterPluginObject } from '@hapi/hapi'
 
+import config from '~/src/server/config.js'
 import { type RouteConfig } from '~/src/server/types.js'
 
 export const configureCrumbPlugin = (
-  config,
   routeConfig?: RouteConfig
-): ServerRegisterPluginObject<crumb.RegisterOptions> => {
+): ServerRegisterPluginObject<RegisterOptions> => {
   return {
     plugin: crumb,
     options: {

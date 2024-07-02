@@ -1,4 +1,5 @@
-import yar from '@hapi/yar'
+import { type ServerRegisterPluginObject } from '@hapi/hapi'
+import yar, { type YarOptions } from '@hapi/yar'
 
 import config from '~/src/server/config.js'
 
@@ -24,4 +25,4 @@ export default {
       isSecure: config.isProd
     }
   }
-}
+} satisfies ServerRegisterPluginObject<YarOptions>

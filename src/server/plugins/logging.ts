@@ -1,8 +1,9 @@
-import pino from 'hapi-pino'
+import { type ServerRegisterPluginObject } from '@hapi/hapi'
+import hapiPino, { type Options } from 'hapi-pino'
 
 import { loggerOptions } from '~/src/server/common/helpers/logging/logger-options.js'
 
 export default {
-  plugin: pino,
+  plugin: hapiPino,
   options: loggerOptions
-}
+} satisfies ServerRegisterPluginObject<Options>

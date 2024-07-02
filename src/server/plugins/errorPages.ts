@@ -1,4 +1,8 @@
-import { type Request, type ResponseToolkit } from '@hapi/hapi'
+import {
+  type ServerRegisterPluginObject,
+  type Request,
+  type ResponseToolkit
+} from '@hapi/hapi'
 
 /*
  * Add an `onPreResponse` listener to return error pages
@@ -6,7 +10,7 @@ import { type Request, type ResponseToolkit } from '@hapi/hapi'
 export default {
   plugin: {
     name: 'error-pages',
-    register: (server) => {
+    register(server) {
       server.ext('onPreResponse', (request: Request, h: ResponseToolkit) => {
         const response = request.response
 
@@ -50,4 +54,4 @@ export default {
       })
     }
   }
-}
+} satisfies ServerRegisterPluginObject<void>

@@ -1,4 +1,5 @@
 import { ecsFormat } from '@elastic/ecs-pino-format'
+import { type LoggerOptions, type TransportSingleOptions } from 'pino'
 
 import config from '~/src/server/config.js'
 
@@ -9,7 +10,14 @@ const loggerOptions = {
     remove: true
   },
   level: config.logLevel,
-  ...(config.isDev ? { transport: { target: 'pino-pretty' } } : ecsFormat())
+  ...(config.isDev
+    ? { transport: { target: 'pino-pretty' } as TransportSingleOptions }
+    : (ecsFormat() as LoggerFormat))
 }
 
 export { loggerOptions }
+
+type LoggerFormat = Pick<
+  LoggerOptions,
+  'messageKey' | 'timestamp' | 'formatters'
+>

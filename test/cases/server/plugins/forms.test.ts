@@ -103,7 +103,7 @@ describe('Model cache', () => {
   }
 
   beforeAll(async () => {
-    server = await createServer({})
+    server = await createServer()
     await server.initialize()
   })
 

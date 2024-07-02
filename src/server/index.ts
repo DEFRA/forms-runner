@@ -76,9 +76,9 @@ const serverOptions = (): ServerOptions => {
   return serverOptions
 }
 
-export async function createServer(routeConfig: RouteConfig) {
+export async function createServer(routeConfig: RouteConfig = {}) {
   const server = hapi.server(serverOptions())
-  const { formFileName, formFilePath, options } = routeConfig
+  const { formFileName, formFilePath } = routeConfig
 
   if (config.rateLimit) {
     await server.register(configureRateLimitPlugin(routeConfig))
@@ -93,8 +93,8 @@ export async function createServer(routeConfig: RouteConfig) {
   await server.register(pluginPulse)
   await server.register(inert)
   await server.register(Scooter)
-  await server.register(configureBlankiePlugin(config))
-  await server.register(configureCrumbPlugin(config, routeConfig))
+  await server.register(configureBlankiePlugin())
+  await server.register(configureCrumbPlugin(routeConfig))
   await server.register(Schmervice)
 
   server.registerService(CacheService)
@@ -130,10 +130,7 @@ export async function createServer(routeConfig: RouteConfig) {
   })
 
   await server.register(pluginViews)
-  await server.register(
-    configureEnginePlugin(formFileName, formFilePath, options)
-  )
-
+  await server.register(configureEnginePlugin(formFileName, formFilePath))
   await server.register(pluginRouter)
   await server.register(pluginErrorPages)
   await server.register(blipp)

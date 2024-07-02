@@ -1,5 +1,5 @@
 import Boom from '@hapi/boom'
-import { type Request, type ResponseToolkit } from '@hapi/hapi'
+import { type ServerRegisterPluginObject } from '@hapi/hapi'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
@@ -25,63 +25,58 @@ export default {
     name: 'router',
     register: (server) => {
       server.route(routes)
-      server.route([
-        {
-          method: 'get',
-          path: '/help/get-support/{slug?}',
-          async handler(
-            request: Request<{ Params: { slug?: string } }>,
-            h: ResponseToolkit
-          ) {
-            const { slug } = request.params
-            const viewName = 'help/get-support'
 
-            // If there's no slug in the path,
-            // return the generic help page
-            if (!slug) {
-              return h.view(viewName)
-            }
+      server.route<{ Params: { slug?: string } }>({
+        method: 'get',
+        path: '/help/get-support/{slug?}',
+        async handler(request, h) {
+          const { slug } = request.params
+          const viewName = 'help/get-support'
 
-            const form = await getFormMetadata(slug)
-
-            return h.view(viewName, { slug, name: form.title })
+          // If there's no slug in the path,
+          // return the generic help page
+          if (!slug) {
+            return h.view(viewName)
           }
-        },
-        {
-          method: 'get',
-          path: '/help/privacy/{slug}',
-          handler(
-            request: Request<{ Params: { slug: string } }>,
-            h: ResponseToolkit
-          ) {
-            const { slug } = request.params
 
-            const privacyPolicy = privacyPolicies[slug]
+          const form = await getFormMetadata(slug)
 
-            if (!privacyPolicy) {
-              logger.error(`Privacy policy not found for slug ${slug}`)
-              return Boom.notFound()
-            }
-
-            return h.redirect(privacyPolicy)
-          }
-        },
-        {
-          method: 'get',
-          path: '/help/cookies',
-          handler(_request: Request, h: ResponseToolkit) {
-            return h.view('help/cookies')
-          }
+          return h.view(viewName, { slug, name: form.title })
         }
-      ])
+      })
+
+      server.route<{ Params: { slug: string } }>({
+        method: 'get',
+        path: '/help/privacy/{slug}',
+        handler(request, h) {
+          const { slug } = request.params
+
+          const privacyPolicy = privacyPolicies[slug]
+
+          if (!privacyPolicy) {
+            logger.error(`Privacy policy not found for slug ${slug}`)
+            return Boom.notFound()
+          }
+
+          return h.redirect(privacyPolicy)
+        }
+      })
+
+      server.route({
+        method: 'get',
+        path: '/help/cookies',
+        handler(_request, h) {
+          return h.view('help/cookies')
+        }
+      })
 
       server.route({
         method: 'get',
         path: '/help/accessibility-statement',
-        handler(_request: Request, h: ResponseToolkit) {
+        handler(_request, h) {
           return h.view('help/accessibility-statement')
         }
       })
     }
   }
-}
+} satisfies ServerRegisterPluginObject<void>
