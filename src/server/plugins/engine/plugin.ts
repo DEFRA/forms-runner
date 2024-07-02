@@ -306,9 +306,7 @@ export const plugin = {
         }
       } as PluginSpecificConfiguration,
       payload: {
-        output: 'stream',
         parse: true,
-        multipart: { output: 'stream' },
         failAction: (request: Request, h: ResponseToolkit) => {
           request.server.plugins.crumb.generate?.(request, h)
           return h.continue

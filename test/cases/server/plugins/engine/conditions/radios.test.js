@@ -1,8 +1,6 @@
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import FormData from 'form-data'
-
 import createServer from '~/src/server/index.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
@@ -51,13 +49,12 @@ describe('Radio based conditions', () => {
   })
 
   test('Testing POST /radios/first-page with nothing checked redirects correctly', async () => {
-    const form = new FormData()
+    const form = {}
 
     const res = await server.inject({
       method: 'POST',
       url: '/radios/first-page',
-      headers: form.getHeaders(),
-      payload: form.getBuffer()
+      payload: form
     })
 
     expect(res.statusCode).toEqual(redirectStatusCode)
@@ -65,14 +62,14 @@ describe('Radio based conditions', () => {
   })
 
   test('Testing POST /radios/first-page with "other" checked redirects correctly', async () => {
-    const form = new FormData()
-    form.append(key, 'other')
+    const form = {
+      [key]: 'other'
+    }
 
     const res = await server.inject({
       method: 'POST',
       url: '/radios/first-page',
-      headers: form.getHeaders(),
-      payload: form.getBuffer()
+      payload: form
     })
 
     expect(res.statusCode).toEqual(redirectStatusCode)

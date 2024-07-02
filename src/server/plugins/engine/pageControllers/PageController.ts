@@ -28,7 +28,6 @@ export class PageController extends PageControllerBase {
   get postRouteOptions(): RouteOptions {
     return {
       payload: {
-        output: 'stream',
         parse: true,
         maxBytes: Number.MAX_SAFE_INTEGER,
         failAction: 'ignore'

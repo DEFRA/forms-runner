@@ -1,8 +1,6 @@
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import FormData from 'form-data'
-
 import createServer from '~/src/server/index.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
 import { getSessionCookie } from '~/test/cases/server/utils/get-session-cookie.js'
@@ -87,32 +85,30 @@ describe('Submission journey test', () => {
   test('POST /summary returns 302', async () => {
     const sender = jest.mocked(sendNotification)
 
-    const form = new FormData()
-    form.append('textField', 'Text field')
-    form.append('multilineTextField', 'Multiline text field')
-    form.append('numberField', '1')
-    form.append('datePartsField__day', '12')
-    form.append('datePartsField__month', '12')
-    form.append('datePartsField__year', '2012')
-    form.append('yesNoField', 'true')
-    form.append('emailAddressField', 'user@email.com')
-    form.append('telephoneNumberField', '+447900000000')
-    form.append('addressField__addressLine1', 'Address line 1')
-    form.append('addressField__addressLine2', 'Address line 2')
-    form.append('addressField__town', 'Town or city')
-    form.append('addressField__postcode', 'CW1 1AB')
-    form.append('radiosField', 'privateLimitedCompany')
-    form.append('selectField', '910400000')
-    form.append('checkboxesField', 'Arabian')
-    form.append('checkboxesField', 'Shire')
-    form.append('checkboxesField', 'Race')
+    const form = {
+      textField: 'Text field',
+      multilineTextField: 'Multiline text field',
+      numberField: '1',
+      datePartsField__day: '12',
+      datePartsField__month: '12',
+      datePartsField__year: '2012',
+      yesNoField: 'true',
+      emailAddressField: 'user@email.com',
+      telephoneNumberField: '+447900000000',
+      addressField__addressLine1: 'Address line 1',
+      addressField__addressLine2: 'Address line 2',
+      addressField__town: 'Town or city',
+      addressField__postcode: 'CW1 1AB',
+      radiosField: 'privateLimitedCompany',
+      selectField: '910400000',
+      checkboxesField: ['Arabian', 'Shire', 'Race']
+    }
 
     // POST the form data to set the state
     const res = await server.inject({
       method: 'POST',
       url: '/components/all-components',
-      headers: form.getHeaders(),
-      payload: form.getBuffer()
+      payload: form
     })
 
     expect(res.statusCode).toEqual(redirectStatusCode)
@@ -131,12 +127,11 @@ describe('Submission journey test', () => {
     // POST the summary form and assert
     // the mock sendNotification contains
     // the correct personalisation data
-    const summaryForm = new FormData()
     const submitRes = await server.inject({
       method: 'POST',
       url: '/components/summary',
-      headers: { ...summaryForm.getHeaders(), cookie },
-      payload: summaryForm.getBuffer()
+      headers: { cookie },
+      payload: {}
     })
 
     expect(sender).toHaveBeenCalledWith({

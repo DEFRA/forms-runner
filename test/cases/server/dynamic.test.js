@@ -2,7 +2,6 @@ import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { load } from 'cheerio'
-import FormData from 'form-data'
 
 import createServer from '~/src/server/index.js'
 import { CacheService } from '~/src/server/services/cacheService.js'
@@ -58,17 +57,10 @@ const state = {
  * @returns {import('@hapi/hapi').ServerInjectOptions}
  */
 const postOptions = (path, form) => {
-  const formData = new FormData()
-
-  Object.entries(form).forEach(([key, value]) => {
-    formData.append(key, value)
-  })
-
   return {
     method: 'POST',
     url: path,
-    headers: formData.getHeaders(),
-    payload: formData.getBuffer()
+    payload: form
   }
 }
 
