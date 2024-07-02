@@ -18,13 +18,13 @@ describe('Number field', () => {
       schema: { max: 30 }
     }
     const numberField = new NumberField(def)
-    const { schema } = numberField
+    const { formSchema: schema } = numberField
 
-    expect(schema.validate(40, { messages }).error.message).toContain(
+    expect(schema?.validate(40, { messages }).error?.message).toContain(
       'must be 30 or lower'
     )
 
-    expect(schema.validate(30, { messages }).error).toBeUndefined()
+    expect(schema?.validate(30, { messages }).error).toBeUndefined()
   })
 
   test('Error is displayed correctly when min configured', () => {
@@ -33,13 +33,13 @@ describe('Number field', () => {
       schema: { min: 30 }
     }
     const numberField = new NumberField(def)
-    const { schema } = numberField
+    const { formSchema: schema } = numberField
 
-    expect(schema.validate(20, { messages }).error.message).toContain(
+    expect(schema?.validate(20, { messages }).error?.message).toContain(
       'must be 30 or higher'
     )
 
-    expect(schema.validate(40, { messages }).error).toBeUndefined()
+    expect(schema?.validate(40, { messages }).error).toBeUndefined()
   })
 
   test('Prefix and suffix are passed to view model', () => {

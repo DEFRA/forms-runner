@@ -1,5 +1,3 @@
-import joi, { type Schema } from 'joi'
-
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import {
@@ -42,7 +40,7 @@ export class FormComponent extends ComponentBase {
   getStateValueFromValidForm(payload: FormPayload) {
     const name = this.name
 
-    return name in payload && payload[name] !== '' ? payload[name] : null
+    return name in payload ? payload[name] : ''
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
@@ -88,11 +86,11 @@ export class FormComponent extends ComponentBase {
   }
 
   getFormSchemaKeys() {
-    return { [this.name]: joi.any() }
+    return { [this.name]: this.formSchema }
   }
 
-  getStateSchemaKeys(): Record<string, Schema> {
-    return { [this.name]: joi.any() }
+  getStateSchemaKeys() {
+    return { [this.name]: this.formSchema }
   }
 
   getDisplayStringFromState(state) {

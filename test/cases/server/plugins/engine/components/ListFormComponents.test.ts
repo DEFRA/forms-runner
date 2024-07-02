@@ -1,8 +1,15 @@
+import {
+  ComponentSubType,
+  ComponentType,
+  type ComponentDef,
+  type FormDefinition
+} from '@defra/forms-model'
+
 import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 
 describe('ListFormComponent', () => {
-  const lists = [
+  const lists: FormDefinition['lists'] = [
     {
       title: 'Turnaround',
       name: 'Turnaround',
@@ -14,13 +21,13 @@ describe('ListFormComponent', () => {
     }
   ]
 
-  const componentDefinition = {
-    subType: 'field',
-    type: 'ListFormComponent',
+  const componentDefinition: ComponentDef = {
     name: 'MyListFormComponent',
     title: 'Turnaround?',
-    options: {},
+    type: ComponentType.CheckboxesField,
+    subType: ComponentSubType.ListField,
     list: 'Turnaround',
+    options: {},
     schema: {}
   }
 
@@ -67,17 +74,16 @@ describe('ListFormComponent', () => {
     )
 
     it('schema validates correctly when the field is optional', () => {
-      const schema = optionalComponent.formSchema
+      const { formSchema: schema } = optionalComponent
 
-      expect(schema.validate('1').error).toBeUndefined()
-      expect(schema.validate('2').error).toBeUndefined()
-      expect(schema.validate('').error).toBeUndefined()
-      expect(schema.validate(null).error).toBeUndefined()
+      expect(schema?.validate('1').error).toBeUndefined()
+      expect(schema?.validate('2').error).toBeUndefined()
+      expect(schema?.validate('').error).toBeUndefined()
 
       const errorMessage = '"turnaround?" must be one of [1, 2, ]'
-      expect(schema.validate(10).error.message).toEqual(errorMessage)
-      expect(schema.validate('ten').error.message).toEqual(errorMessage)
-      expect(schema.validate(2).error.message).toEqual(errorMessage)
+      expect(schema?.validate(10).error?.message).toEqual(errorMessage)
+      expect(schema?.validate('ten').error?.message).toEqual(errorMessage)
+      expect(schema?.validate(2).error?.message).toEqual(errorMessage)
     })
   })
 })

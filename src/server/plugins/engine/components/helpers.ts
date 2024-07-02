@@ -71,26 +71,15 @@ export function buildStateSchema(schemaType, component) {
   return schema
 }
 
-export function getFormSchemaKeys(_name, schemaType, component) {
-  const schema = buildFormSchema(schemaType, component)
-
-  return { [component.name]: schema }
-}
-
-export function getStateSchemaKeys(name, schemaType, component) {
-  const schema = buildStateSchema(schemaType, component)
-
-  return { [name]: schema }
-}
-
 export const addClassOptionIfNone = (
-  options: { classes?: string; [prop: string]: any },
+  options: Partial<{ classes: string }>,
   className: string
 ) => {
   if (!options.classes) {
     options.classes = className
   }
 }
+
 export function getCustomDateValidator(
   maxDaysInPast?: number,
   maxDaysInFuture?: number

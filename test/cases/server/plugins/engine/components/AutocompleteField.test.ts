@@ -1,13 +1,14 @@
 import {
   ComponentSubType,
   ComponentType,
-  type ComponentDef
+  type ComponentDef,
+  type FormDefinition
 } from '@defra/forms-model'
 
 import { AutocompleteField } from '~/src/server/plugins/engine/components/index.js'
 
 describe('AutocompleteField', () => {
-  const lists = [
+  const lists: FormDefinition['lists'] = [
     {
       name: 'Countries',
       title: 'Countries',
@@ -66,11 +67,15 @@ describe('AutocompleteField', () => {
     const component = new AutocompleteField(componentDefinition, formModel)
 
     it('is required by default', () => {
-      expect(component.formSchema.describe().flags.presence).toBe('required')
+      expect(component.formSchema?.describe().flags).toEqual(
+        expect.objectContaining({
+          presence: 'required'
+        })
+      )
     })
 
     it('validates correctly', () => {
-      expect(component.formSchema.validate({}).error).toBeTruthy()
+      expect(component.formSchema?.validate({}).error).toBeTruthy()
     })
 
     it('includes the first empty item in items list', () => {

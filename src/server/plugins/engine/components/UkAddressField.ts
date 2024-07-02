@@ -1,7 +1,8 @@
 import {
   ComponentType,
   type ComponentDef,
-  type InputFieldsComponentsDef
+  type InputFieldsComponentsDef,
+  type UkAddressFieldComponent
 } from '@defra/forms-model'
 import joi from 'joi'
 
@@ -18,14 +19,14 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class UkAddressField extends FormComponent {
+  options: UkAddressFieldComponent['options']
   formChildren: ComponentCollection
   stateChildren: ComponentCollection
 
   constructor(def: InputFieldsComponentsDef, model: FormModel) {
     super(def, model)
-    const { name, options } = this
 
-    const stateSchema = helpers.buildStateSchema('date', this)
+    const { name, options } = def
 
     const isRequired = !('required' in options && options.required === false)
     const hideOptional = 'optionalText' in options && options.optionalText
@@ -89,6 +90,9 @@ export class UkAddressField extends FormComponent {
 
     this.formChildren = formChildren
     this.stateChildren = stateChildren
+    this.options = options
+
+    const stateSchema = helpers.buildStateSchema('date', this)
     this.stateSchema = stateSchema
   }
 
@@ -103,10 +107,7 @@ export class UkAddressField extends FormComponent {
     return {
       [name]:
         options.required === false
-          ? joi
-              .object()
-              .keys(this.stateChildren.getStateSchemaKeys())
-              .allow(null)
+          ? joi.object().keys(this.stateChildren.getStateSchemaKeys())
           : joi
               .object()
               .keys(this.stateChildren.getStateSchemaKeys())
@@ -128,14 +129,16 @@ export class UkAddressField extends FormComponent {
 
   getStateValueFromValidForm(payload: FormPayload) {
     const name = this.name
-    return payload[`${name}__addressLine1`]
-      ? ({
-          addressLine1: payload[`${name}__addressLine1`],
-          addressLine2: payload[`${name}__addressLine2`],
-          town: payload[`${name}__town`],
-          postcode: payload[`${name}__postcode`]
-        } satisfies FormData)
-      : null
+    return (
+      payload[`${name}__addressLine1`]
+        ? {
+            addressLine1: payload[`${name}__addressLine1`],
+            addressLine2: payload[`${name}__addressLine2`],
+            town: payload[`${name}__town`],
+            postcode: payload[`${name}__postcode`]
+          }
+        : {}
+    ) satisfies FormData
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {

@@ -1,8 +1,8 @@
 import {
   ComponentType,
-  type InputFieldsComponentsDef
+  type InputFieldsComponentsDef,
+  type MonthYearFieldComponent
 } from '@defra/forms-model'
-import { type Schema } from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
@@ -16,39 +16,45 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class MonthYearField extends FormComponent {
+  options: MonthYearFieldComponent['options']
   children: ComponentCollection
-  dataType = 'monthYear' as DataType
+  dataType: DataType = 'monthYear'
 
   constructor(def: InputFieldsComponentsDef, model: FormModel) {
     super(def, model)
-    const options = this.options
+
+    const { name, options } = def
+
+    const isRequired = !('required' in options && options.required === false)
 
     this.children = new ComponentCollection(
       [
         {
           type: ComponentType.NumberField,
-          name: `${this.name}__month`,
+          name: `${name}__month`,
           title: 'Month',
           schema: { min: 1, max: 12 },
           options: {
-            required: options.required,
+            required: isRequired,
             classes: 'govuk-input--width-2',
             customValidationMessage: '{{label}} must be between 1 and 12'
           }
         },
         {
           type: ComponentType.NumberField,
-          name: `${this.name}__year`,
+          name: `${name}__year`,
           title: 'Year',
           schema: { min: 1000, max: 3000 },
           options: {
-            required: options.required,
+            required: isRequired,
             classes: 'govuk-input--width-4'
           }
         }
       ],
       model
     )
+
+    this.options = options
   }
 
   getFormSchemaKeys() {
@@ -57,7 +63,7 @@ export class MonthYearField extends FormComponent {
 
   getStateSchemaKeys() {
     return {
-      [this.name]: this.children.getStateSchemaKeys() as Schema
+      [this.name]: this.children.getStateSchemaKeys()
     }
   }
 
@@ -95,14 +101,13 @@ export class MonthYearField extends FormComponent {
       .map((vm) => vm.model)
 
     componentViewModels.forEach((componentViewModel) => {
-      // Nunjucks macro expects label to be a string for this component
-      componentViewModel.label = componentViewModel.label?.text.replace(
-        optionalText,
-        ''
-      )
+      const { classes, errorMessage, label } = componentViewModel
 
-      if (componentViewModel.errorMessage) {
-        componentViewModel.classes += ' govuk-input--error'
+      // Nunjucks macro expects label to be a string for this component
+      componentViewModel.label = label?.text.replace(optionalText, '')
+
+      if (errorMessage) {
+        componentViewModel.classes = `${classes} govuk-input--error`.trim()
       }
     })
 

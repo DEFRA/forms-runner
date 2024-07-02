@@ -1,9 +1,5 @@
-import {
-  type ComponentDef,
-  type ContentComponentsDef,
-  type InputFieldsComponentsDef
-} from '@defra/forms-model'
-import { type Schema as JoiSchema } from 'joi'
+import { type ComponentDef } from '@defra/forms-model'
+import { type Schema } from 'joi'
 
 import {
   type DataType,
@@ -16,13 +12,14 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class ComponentBase {
-  type: ComponentDef['type']
-  name: ComponentDef['name']
-  title: ComponentDef['title']
-  schema: ComponentDef['schema']
-  options: ComponentDef['options']
-  hint?: InputFieldsComponentsDef['hint']
-  content?: ContentComponentsDef['content']
+  type
+  name
+  title
+  schema
+  options
+  hint
+  content
+
   /**
    * This is passed onto webhooks, see {@link answerFromDetailItem}
    */
@@ -30,18 +27,20 @@ export class ComponentBase {
   model: FormModel
 
   /** joi schemas based on a component defined in the form JSON. This validates a user's answer and is generated from {@link ComponentDef} */
-  formSchema?: JoiSchema
-  stateSchema?: JoiSchema
+  formSchema?: Schema
+  stateSchema?: Schema
 
   constructor(def: ComponentDef, model: FormModel) {
-    // component definition properties
     this.type = def.type
     this.name = def.name
     this.title = def.title
     this.schema = def.schema
     this.options = def.options
+
+    // Properties found on some components only
     this.hint = 'hint' in def ? def.hint : undefined
     this.content = 'content' in def ? def.content : undefined
+
     this.model = model
   }
 
