@@ -14,9 +14,7 @@ import {
 import { merge, reach } from '@hapi/hoek'
 import { format, parseISO } from 'date-fns'
 import { type ValidationResult, type ObjectSchema } from 'joi'
-import nunjucks from 'nunjucks'
 
-import config from '~/src/server/config.js'
 import { CheckboxesField } from '~/src/server/plugins/engine/components/CheckboxesField.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { RadiosField } from '~/src/server/plugins/engine/components/RadiosField.js'
