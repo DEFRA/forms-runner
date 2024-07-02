@@ -1,6 +1,7 @@
 import { type ServerYar, type Yar } from '@hapi/yar'
 import { type Logger } from 'pino'
 
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type RateOptions } from '~/src/server/plugins/rateLimit.js'
 import { type CacheService } from '~/src/server/services/index.js'
 
@@ -19,13 +20,19 @@ declare module '@hapi/hapi' {
     yar: Yar
   }
 
+  interface RequestApplicationState {
+    location: string
+    model?: FormModel
+  }
+
   interface Server {
     logger: Logger
     yar: ServerYar
   }
 
-  interface RequestApplicationState {
-    location: string
+  interface ServerApplicationState {
+    model?: FormModel
+    models: Map<string, { model: FormModel; updatedAt: Date }>
   }
 }
 

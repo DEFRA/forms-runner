@@ -14,7 +14,7 @@ export class PageController extends PageControllerBase {
     return {
       ext: {
         onPostHandler: {
-          method(_request: Request, h: ResponseToolkit) {
+          method(_request, h) {
             return h.continue
           }
         }
@@ -34,7 +34,7 @@ export class PageController extends PageControllerBase {
       },
       ext: {
         onPostHandler: {
-          method(_request: Request, h: ResponseToolkit) {
+          method(_request, h) {
             return h.continue
           }
         }

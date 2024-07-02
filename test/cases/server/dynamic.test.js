@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 
 import { load } from 'cheerio'
 
-import createServer from '~/src/server/index.js'
+import { createServer } from '~/src/server/index.js'
 import { CacheService } from '~/src/server/services/cacheService.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))

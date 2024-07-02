@@ -7,7 +7,7 @@ import {
 } from '@defra/forms-model'
 import { type Server } from '@hapi/hapi'
 
-import createServer from '~/src/server/index.js'
+import { createServer } from '~/src/server/index.js'
 import {
   getFormDefinition,
   getFormMetadata
@@ -103,7 +103,7 @@ describe('Model cache', () => {
   }
 
   beforeAll(async () => {
-    server = await createServer({})
+    server = await createServer()
     await server.initialize()
   })
 

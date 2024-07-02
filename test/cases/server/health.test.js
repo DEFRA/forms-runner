@@ -1,8 +1,8 @@
-import createServer from '~/src/server/index.js'
+import { createServer } from '~/src/server/index.js'
 
 describe('Health check route', () => {
   const startServer = async () => {
-    const server = await createServer({})
+    const server = await createServer()
     await server.initialize()
     return server
   }

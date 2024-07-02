@@ -1,11 +1,12 @@
 import { slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
+  type Plugin,
   type PluginSpecificConfiguration,
   type Request,
   type ResponseToolkit,
   type RouteOptions,
-  type Server
+  type ResponseObject
 } from '@hapi/hapi'
 import { isEqual } from 'date-fns'
 import Joi from 'joi'
@@ -32,7 +33,7 @@ function getStartPageRedirect(
   model: FormModel
 ) {
   const startPage = normalisePath(model.def.startPage ?? '')
-  let startPageRedirect: any
+  let startPageRedirect: ResponseObject
 
   if (startPage.startsWith('http')) {
     startPageRedirect = redirectTo(request, h, startPage)
@@ -47,12 +48,9 @@ function getStartPageRedirect(
   return startPageRedirect
 }
 
-interface PluginOptions {
-  relativeTo?: string
-  modelOptions: {
-    relativeTo: string
-  }
+export interface PluginOptions {
   model?: FormModel
+  modelOptions?: ConstructorParameters<typeof FormModel>[1]
 }
 
 const stateSchema = Joi.string().valid('draft', 'live').required()
@@ -62,14 +60,14 @@ export const plugin = {
   name: '@defra/forms-runner/engine',
   dependencies: '@hapi/vision',
   multiple: true,
-  register: (server: Server, options: PluginOptions) => {
+  register(server, options) {
     const { model, modelOptions } = options
 
     server.app.model = model
 
     // In-memory cache of FormModel items, exposed
     // (for testing purposes) through `server.app.models`
-    const itemCache = new Map()
+    const itemCache = new Map<string, { model: FormModel; updatedAt: Date }>()
     server.app.models = itemCache
 
     const queryParamPreHandler = async (
@@ -78,7 +76,7 @@ export const plugin = {
     ) => {
       const { query } = request
       const model = request.app.model
-      const prePopFields = model.fieldsForPrePopulation
+      const prePopFields = model?.fieldsForPrePopulation ?? {}
       const queryKeysLength = Object.keys(query).length
       const prePopFieldsKeysLength = Object.keys(prePopFields).length
 
@@ -99,7 +97,15 @@ export const plugin = {
       return h.continue
     }
 
-    const loadFormPreHandler = async (request: Request, h: ResponseToolkit) => {
+    const loadFormPreHandler = async (
+      request: Request<{
+        Params: {
+          slug: string
+          state?: 'draft' | 'live'
+        }
+      }>,
+      h: ResponseToolkit
+    ) => {
       if (server.app.model) {
         request.app.model = server.app.model
 
@@ -109,7 +115,7 @@ export const plugin = {
       const { params, path } = request
       const { slug } = params
       const isPreview = path.toLowerCase().startsWith(PREVIEW_PATH_PREFIX)
-      const formState = isPreview ? params.state : 'live'
+      const formState = isPreview && params.state ? params.state : 'live'
 
       // Get the form metadata using the `slug` param
       const metadata = await getFormMetadata(slug)
@@ -180,17 +186,34 @@ export const plugin = {
       return h.continue
     }
 
-    const dispatchHandler = (request: Request, h: ResponseToolkit) => {
+    const dispatchHandler = (
+      request: Request<{
+        Params: {
+          slug: string
+          state?: 'draft' | 'live'
+        }
+      }>,
+      h: ResponseToolkit
+    ) => {
       const { slug } = request.params
       const model = request.app.model
 
       return getStartPageRedirect(request, h, slug, model)
     }
 
-    const getHandler = (request: Request, h: ResponseToolkit) => {
+    const getHandler = (
+      request: Request<{
+        Params: {
+          path: string
+          slug: string
+          state: 'draft' | 'live'
+        }
+      }>,
+      h: ResponseToolkit
+    ) => {
       const { path, slug } = request.params
       const model = request.app.model
-      const page = model.pages.find(
+      const page = model?.pages.find(
         (page) => normalisePath(page.path) === normalisePath(path)
       )
 
@@ -208,7 +231,7 @@ export const plugin = {
     const postHandler = (request: Request, h: ResponseToolkit) => {
       const { path } = request.params
       const model = request.app.model
-      const page = model.pages.find(
+      const page = model?.pages.find(
         (page) => page.path.replace(/^\//, '') === path
       )
 
@@ -299,7 +322,7 @@ export const plugin = {
       }
     })
 
-    const postRouteOptions = {
+    const postRouteOptions: RouteOptions = {
       plugins: {
         'hapi-rate-limit': {
           userPathLimit: 10
@@ -307,7 +330,7 @@ export const plugin = {
       } as PluginSpecificConfiguration,
       payload: {
         parse: true,
-        failAction: (request: Request, h: ResponseToolkit) => {
+        failAction: (request, h) => {
           request.server.plugins.crumb.generate?.(request, h)
           return h.continue
         }
@@ -346,4 +369,4 @@ export const plugin = {
       }
     })
   }
-}
+} satisfies Plugin<PluginOptions>
