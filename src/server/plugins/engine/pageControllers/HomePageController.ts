@@ -1,13 +1,13 @@
-import { type Request, type ResponseToolkit } from '@hapi/hapi'
+import { type RouteOptions } from '@hapi/hapi'
 
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 
 export class HomePageController extends PageController {
-  get getRouteOptions() {
+  get getRouteOptions(): RouteOptions {
     return {
       ext: {
         onPostHandler: {
-          method: (_request: Request, h: ResponseToolkit) => {
+          method(_request, h) {
             return h.continue
           }
         }
@@ -15,11 +15,11 @@ export class HomePageController extends PageController {
     }
   }
 
-  get postRouteOptions() {
+  get postRouteOptions(): RouteOptions {
     return {
       ext: {
         onPostHandler: {
-          method: (_request: Request, h: ResponseToolkit) => {
+          method(_request, h) {
             return h.continue
           }
         }

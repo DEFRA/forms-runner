@@ -1,5 +1,9 @@
 import Boom from '@hapi/boom'
-import { type Request, type ResponseToolkit } from '@hapi/hapi'
+import {
+  type Request,
+  type ResponseToolkit,
+  type RouteOptions
+} from '@hapi/hapi'
 import { format } from 'date-fns'
 import nunjucks from 'nunjucks'
 
@@ -212,11 +216,11 @@ export class SummaryPageController extends PageController {
     return undefined
   }
 
-  get postRouteOptions() {
+  get postRouteOptions(): RouteOptions {
     return {
       ext: {
         onPreHandler: {
-          method: (request: Request, h: ResponseToolkit) => {
+          method(request, h) {
             return h.continue
           }
         }
