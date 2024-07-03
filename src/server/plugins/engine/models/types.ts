@@ -32,7 +32,7 @@ interface FeedbackContextItem {
   get: (contextInfo: FeedbackContextInfo) => string
 }
 
-export const FEEDBACK_CONTEXT_ITEMS: Readonly<FeedbackContextItem[]> = [
+export const FEEDBACK_CONTEXT_ITEMS: readonly FeedbackContextItem[] = [
   {
     key: 'feedbackContextInfo_formTitle',
     display: 'Feedback source form name',
