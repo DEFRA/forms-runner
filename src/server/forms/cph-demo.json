@@ -129,7 +129,6 @@
           "type": "YesNoField",
           "title": "Is your business address the same as your home address?",
           "hint": "If you do not have a business, select 'yes'.",
-          "values": { "type": "listRef" },
           "schema": {}
         }
       ],
@@ -263,7 +262,6 @@
           "list": "ycOtLx",
           "title": "Business type",
           "hint": "Select the main purpose of your business. If you're a farmer and you keep livestock, select 'farmer'.",
-          "values": { "type": "listRef" },
           "schema": {}
         }
       ],
@@ -431,7 +429,6 @@
           "type": "YesNoField",
           "hint": "RPA needs to know about any other land or buildings you'll use to keep livestock.",
           "title": "Will you keep livestock or use animal by-products anywhere else?",
-          "values": { "type": "listRef" },
           "schema": {}
         }
       ],
