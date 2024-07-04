@@ -12,7 +12,7 @@ const logger = createLogger()
 const privacyPolicies: Record<string, string> = {
   'register-a-boat-at-rye-harbour':
     'https://www.gov.uk/government/publications/rye-harbour-privacy-notice',
-  'apply-for-an-annual-mooring-at-rye-harbour':
+  'apply-for-an-annual-mooring-licence-at-rye-harbour':
     'https://www.gov.uk/government/publications/rye-harbour-privacy-notice',
   'request-a-form':
     'https://defra.sharepoint.com/sites/Community4442/SitePages/Privacy-notice--Defra-Forms.aspx',
