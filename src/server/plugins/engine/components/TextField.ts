@@ -19,7 +19,7 @@ export class TextField extends FormComponent {
     this.options = options
     this.schema = schema
 
-    let componentSchema = joi.string().required()
+    let componentSchema = joi.string().trim().required()
     if (options.required === false) {
       componentSchema = componentSchema.optional().allow('').allow(null)
     }
