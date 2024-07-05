@@ -1,5 +1,4 @@
 import { type ListComponentsDef, type List } from '@defra/forms-model'
-import joi from 'joi'
 
 import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
 import {
@@ -35,7 +34,6 @@ export class YesNoField extends ListFormComponent {
     ]
   }
 
-  itemsSchema = joi.boolean()
   get items() {
     return this.list?.items ?? []
   }
