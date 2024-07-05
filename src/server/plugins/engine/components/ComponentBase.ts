@@ -1,7 +1,9 @@
 import {
-  type ComponentDef,
   type ContentComponentsDef,
-  type InputFieldsComponentsDef
+  hasContentField,
+  hasInputField,
+  type InputFieldsComponentsDef,
+  type ComponentDef
 } from '@defra/forms-model'
 import joi, {
   type AlternativesSchema,
@@ -42,14 +44,20 @@ export class ComponentBase {
   stateSchema: ComponentSchema = joi.string()
 
   constructor(def: ComponentDef, model: FormModel) {
-    // component definition properties
     this.type = def.type
     this.name = def.name
     this.title = def.title
     this.schema = def.schema
     this.options = def.options
-    this.hint = 'hint' in def ? def.hint : undefined
-    this.content = 'content' in def ? def.content : undefined
+
+    if (hasInputField(def)) {
+      this.hint = def.hint
+    }
+
+    if (hasContentField(def)) {
+      this.content = def.content
+    }
+
     this.model = model
   }
 
