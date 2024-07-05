@@ -36,6 +36,7 @@ export class SummaryViewModel {
     | undefined
 
   serviceUrl: string
+  showErrorSummary?: boolean
   constructor(
     pageTitle: string,
     model: FormModel,
