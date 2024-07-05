@@ -24,11 +24,11 @@ export class TextField extends FormComponent {
 
     formSchema = formSchema.label(title.toLowerCase())
 
-    if (schema.max) {
+    if (typeof schema.max === 'number') {
       formSchema = formSchema.max(schema.max)
     }
 
-    if (schema.min) {
+    if (typeof schema.min === 'number') {
       formSchema = formSchema.min(schema.min)
     }
 
