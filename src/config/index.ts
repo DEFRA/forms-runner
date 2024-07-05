@@ -65,10 +65,11 @@ export const config = convict({
     default: 'Submit a form to Defra'
   },
   feedbackLink: {
+    doc: 'Used in your phase banner. Can be a URL or more commonly mailto mailto:feedback@department.gov.uk',
     format: String,
-    default: '#', // Used in your phase banner. Can be a URL or more commonly mailto mailto:feedback@department.gov.uk
+    default: null,
     env: 'FEEDBACK_LINK'
-  },
+  } as SchemaObj<string>,
   phaseTag: {
     format: String,
     default: 'beta', // Accepts "alpha" |"beta" | ""
