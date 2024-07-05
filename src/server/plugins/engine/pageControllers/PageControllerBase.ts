@@ -692,7 +692,7 @@ export class PageControllerBase {
     }
 
     // setting the feedbackLink to undefined here for feedback forms prevents the feedback link from being shown
-    let feedbackLink: string | undefined = this.feedbackUrlFromRequest(request)
+    let feedbackLink = this.feedbackUrlFromRequest(request)
 
     if (!feedbackLink) {
       feedbackLink = this.def.feedback?.emailAddress
