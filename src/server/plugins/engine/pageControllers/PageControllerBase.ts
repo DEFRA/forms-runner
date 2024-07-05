@@ -691,18 +691,16 @@ export class PageControllerBase {
       viewModel.name = feedbackContextInfo.formTitle
     }
 
-    let feedbackLink: string | undefined = ''
-
     // setting the feedbackLink to undefined here for feedback forms prevents the feedback link from being shown
-    if (this.def.feedback?.url) {
-      feedbackLink = this.feedbackUrlFromRequest(request)
-    } else if (this.def.feedback?.emailAddress) {
-      feedbackLink = `mailto:${this.def.feedback.emailAddress}`
-    } else {
-      feedbackLink = config.get('feedbackLink')
+    let feedbackLink: string | undefined = this.feedbackUrlFromRequest(request)
+
+    if (!feedbackLink) {
+      feedbackLink = this.def.feedback?.emailAddress
+        ? `mailto:${this.def.feedback.emailAddress}`
+        : config.get('feedbackLink')
     }
 
-    if (feedbackLink?.startsWith('mailto:')) {
+    if (feedbackLink.startsWith('mailto:')) {
       try {
         feedbackLink = new URL(feedbackLink).toString() // escape the search params without breaking the ? and & reserved characters in rfc2368
       } catch (err) {
