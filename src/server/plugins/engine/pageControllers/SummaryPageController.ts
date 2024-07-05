@@ -125,7 +125,8 @@ export class SummaryPageController extends PageController {
         state,
         request
       )
-      this.setFeedbackDetails(summaryViewModel, request)
+      // TODO fix in follow-up PR
+      // this.setFeedbackDetails(summaryViewModel, request)
 
       // Display error summary on the summary
       // page if there are incomplete form errors
