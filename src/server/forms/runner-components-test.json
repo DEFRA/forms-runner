@@ -10,9 +10,6 @@
           "options": {},
           "type": "YesNoField",
           "title": "Do you own a vehicle?",
-          "values": {
-            "type": "listRef"
-          },
           "schema": {}
         },
         {
