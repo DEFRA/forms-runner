@@ -127,28 +127,12 @@ export class SummaryPageController extends PageController {
       )
       this.setFeedbackDetails(summaryViewModel, request)
 
-      // redirect user to start page if there are incomplete form errors
+      // Display error summary on the summary
+      // page if there are incomplete form errors
       if (summaryViewModel.result.error) {
-        request.logger.error(`SummaryPage Error`, summaryViewModel.result.error)
-        /** defaults to the first page */
-        let startPageRedirect = redirectTo(
-          request,
-          h,
-          `/${model.basePath}${model.def.pages[0].path}`
-        )
-        const startPage = model.def.startPage
+        summaryViewModel.showErrorSummary = true
 
-        if (startPage?.startsWith('http')) {
-          startPageRedirect = redirectTo(request, h, startPage)
-        } else if (model.def.pages.find((page) => page.path === startPage)) {
-          startPageRedirect = redirectTo(
-            request,
-            h,
-            `/${model.basePath}${startPage}`
-          )
-        }
-
-        return startPageRedirect
+        return h.view('summary', summaryViewModel)
       }
 
       const path = request.path
