@@ -1,7 +1,8 @@
 import {
-  type ListComponentsDef,
+  type Item,
   type List,
-  type Item
+  type ListComponentsDef,
+  type YesNoFieldComponent
 } from '@defra/forms-model'
 import joi from 'joi'
 
@@ -15,10 +16,11 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class ListFormComponent extends FormComponent {
-  options: ListComponentsDef['options']
+  options: ListComponentsDef['options'] | YesNoFieldComponent['options']
+  schema: ListComponentsDef['schema'] | YesNoFieldComponent['options']
 
   list?: List
-  listType: List['type']
+  listType: List['type'] = 'string'
   dataType: DataType = 'list'
 
   get items(): Item[] {
@@ -29,28 +31,34 @@ export class ListFormComponent extends FormComponent {
     return this.items.map((item) => item.value)
   }
 
-  constructor(def: ListComponentsDef, model: FormModel) {
+  constructor(def: ListComponentsDef | YesNoFieldComponent, model: FormModel) {
     super(def, model)
-    this.list = model.getList(def.list)
-    this.listType = this.list?.type ?? 'string'
-    this.options = def.options
+
+    const { schema, options, title } = def
+
+    if ('list' in def) {
+      this.list = model.getList(def.list)
+      this.listType = this.list?.type ?? 'string'
+    }
 
     let formSchema = joi[this.listType]()
 
     /**
      * Only allow a user to answer with values that have been defined in the list
      */
-    if (def.options.required === false) {
+    if (options.required === false) {
       // null or empty string is valid for optional fields
       formSchema = formSchema.empty(null).valid(...this.values, '')
     } else {
       formSchema = formSchema.valid(...this.values).required()
     }
 
-    formSchema = formSchema.label(def.title.toLowerCase())
+    formSchema = formSchema.label(title.toLowerCase())
 
     this.formSchema = formSchema
     this.stateSchema = formSchema
+    this.options = options
+    this.schema = schema
   }
 
   getDisplayStringFromState(state: FormSubmissionState): string | string[] {

@@ -1,14 +1,36 @@
-import { type SelectFieldComponent } from '@defra/forms-model'
+import {
+  type AutocompleteFieldComponent,
+  type SelectFieldComponent
+} from '@defra/forms-model'
 
 import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
 import { type DataType } from '~/src/server/plugins/engine/components/types.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   type FormPayload,
   type FormSubmissionErrors
 } from '~/src/server/plugins/engine/types.js'
 
 export class SelectField extends ListFormComponent {
-  dataType = 'list' as DataType
+  options:
+    | SelectFieldComponent['options']
+    | AutocompleteFieldComponent['options']
+
+  schema: SelectFieldComponent['schema']
+  dataType: DataType = 'list'
+
+  constructor(
+    def: SelectFieldComponent | AutocompleteFieldComponent,
+    model: FormModel
+  ) {
+    super(def, model)
+
+    const { schema, options } = def
+
+    this.options = options
+    this.schema = schema
+  }
+
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     const options: SelectFieldComponent['options'] = this.options
     const viewModel = super.getViewModel(payload, errors)

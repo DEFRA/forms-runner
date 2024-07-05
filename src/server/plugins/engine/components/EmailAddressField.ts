@@ -1,4 +1,4 @@
-import { type InputFieldsComponentsDef } from '@defra/forms-model'
+import { type EmailAddressFieldComponent } from '@defra/forms-model'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
@@ -8,9 +8,16 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class EmailAddressField extends FormComponent {
-  constructor(def: InputFieldsComponentsDef, model: FormModel) {
+  options: EmailAddressFieldComponent['options']
+  schema: EmailAddressFieldComponent['schema']
+
+  constructor(def: EmailAddressFieldComponent, model: FormModel) {
     super(def, model)
-    this.schema.email = true
+
+    const { schema, options } = def
+
+    this.options = options
+    this.schema = schema
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {

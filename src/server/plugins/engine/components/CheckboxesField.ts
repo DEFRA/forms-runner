@@ -1,4 +1,4 @@
-import { type ListComponentsDef } from '@defra/forms-model'
+import { type CheckboxesFieldComponent } from '@defra/forms-model'
 import joi from 'joi'
 
 import { SelectionControlField } from '~/src/server/plugins/engine/components/SelectionControlField.js'
@@ -10,12 +10,17 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class CheckboxesField extends SelectionControlField {
-  constructor(def: ListComponentsDef, model: FormModel) {
+  options: CheckboxesFieldComponent['options']
+  schema: CheckboxesFieldComponent['schema']
+
+  constructor(def: CheckboxesFieldComponent, model: FormModel) {
     super(def, model)
 
-    let formSchema = joi.array<string>().single().label(def.title.toLowerCase())
+    const { options, schema, title } = def
 
-    if (def.options.required === false) {
+    let formSchema = joi.array<string>().single().label(title.toLowerCase())
+
+    if (options.required === false) {
       // null or empty string is valid for optional fields
       formSchema = formSchema
         .empty(null)
@@ -28,6 +33,8 @@ export class CheckboxesField extends SelectionControlField {
 
     this.formSchema = formSchema
     this.stateSchema = formSchema
+    this.options = options
+    this.schema = schema
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {

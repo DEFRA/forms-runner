@@ -1,9 +1,18 @@
-import { SelectionControlField } from '~/src/server/plugins/engine/components/SelectionControlField.js'
+import { type RadiosFieldComponent } from '@defra/forms-model'
 
-/**
- * @description sorry about the empty class...
- * Exported Components must follow the naming convention implemented in @defra/forms-model/components ComponentType.
- * In the Form JSON, components have a type property which is the name of the components, e.g. DatePartsField.
- * Components are loaded in the ComponentsCollection constructor.
- */
-export class RadiosField extends SelectionControlField {}
+import { SelectionControlField } from '~/src/server/plugins/engine/components/SelectionControlField.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+
+export class RadiosField extends SelectionControlField {
+  options: RadiosFieldComponent['options']
+  schema: RadiosFieldComponent['schema']
+
+  constructor(def: RadiosFieldComponent, model: FormModel) {
+    super(def, model)
+
+    const { schema, options } = def
+
+    this.options = options
+    this.schema = schema
+  }
+}

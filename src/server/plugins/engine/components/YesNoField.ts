@@ -1,4 +1,4 @@
-import { type ListComponentsDef, type List } from '@defra/forms-model'
+import { type List, type YesNoFieldComponent } from '@defra/forms-model'
 
 import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
 import {
@@ -18,6 +18,9 @@ import {
  * YesNoField is a radiosField with predefined values.
  */
 export class YesNoField extends ListFormComponent {
+  options: YesNoFieldComponent['options']
+  schema: YesNoFieldComponent['schema']
+
   list?: List = {
     name: '__yesNo',
     title: 'Yes/No',
@@ -42,10 +45,10 @@ export class YesNoField extends ListFormComponent {
     return [true, false]
   }
 
-  constructor(def: ListComponentsDef, model: FormModel) {
+  constructor(def: YesNoFieldComponent, model: FormModel) {
     super(def, model)
 
-    const { options } = this
+    const { options, schema } = def
 
     this.formSchema = buildFormSchema(
       'boolean',
@@ -58,7 +61,10 @@ export class YesNoField extends ListFormComponent {
       false
     )
 
-    addClassOptionIfNone(this.options, 'govuk-radios--inline')
+    addClassOptionIfNone(options, 'govuk-radios--inline')
+
+    this.options = options
+    this.schema = schema
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {

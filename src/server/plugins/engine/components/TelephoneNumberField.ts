@@ -11,21 +11,27 @@ import {
 
 const PATTERN = /^[0-9\\\s+()-]*$/
 const DEFAULT_MESSAGE = 'Enter a telephone number in the correct format'
+
 export class TelephoneNumberField extends FormComponent {
+  options: TelephoneNumberFieldComponent['options']
+  schema: TelephoneNumberFieldComponent['schema']
+
   constructor(def: TelephoneNumberFieldComponent, model: FormModel) {
     super(def, model)
 
-    const { options = {}, schema = {} } = def
+    const { schema, options, title } = def
+
     const pattern = schema.regex ? new RegExp(schema.regex) : PATTERN
     let formSchema = joi.string()
 
     if (options.required === false) {
       formSchema = formSchema.allow('').allow(null)
     }
+
     formSchema = formSchema
       .pattern(pattern)
-      .message(def.options.customValidationMessage ?? DEFAULT_MESSAGE)
-      .label(def.title.toLowerCase())
+      .message(options.customValidationMessage ?? DEFAULT_MESSAGE)
+      .label(title.toLowerCase())
 
     if (schema.max) {
       formSchema = formSchema.max(schema.max)
@@ -35,9 +41,11 @@ export class TelephoneNumberField extends FormComponent {
       formSchema = formSchema.min(schema.min)
     }
 
-    this.formSchema = formSchema
+    addClassOptionIfNone(options, 'govuk-input--width-20')
 
-    addClassOptionIfNone(this.options, 'govuk-input--width-20')
+    this.formSchema = formSchema
+    this.options = options
+    this.schema = schema
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {

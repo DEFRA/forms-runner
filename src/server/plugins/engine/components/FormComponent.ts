@@ -51,7 +51,7 @@ export class FormComponent extends ComponentBase {
 
     const viewModel = super.getViewModel(payload, errors)
 
-    const isRequired = !('required' in options && options.required === false)
+    const isRequired = !('required' in options) || options.required !== false
     const hideOptional = 'optionalText' in options && options.optionalText
     const label = `${title}${!isRequired && !hideOptional ? optionalText : ''}`
 

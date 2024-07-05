@@ -1,7 +1,4 @@
-import {
-  ComponentType,
-  type InputFieldsComponentsDef
-} from '@defra/forms-model'
+import { ComponentType, type MonthYearFieldComponent } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
@@ -15,39 +12,46 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class MonthYearField extends FormComponent {
+  options: MonthYearFieldComponent['options']
+  schema: MonthYearFieldComponent['schema']
   children: ComponentCollection
-  dataType = 'monthYear' as DataType
+  dataType: DataType = 'monthYear'
 
-  constructor(def: InputFieldsComponentsDef, model: FormModel) {
+  constructor(def: MonthYearFieldComponent, model: FormModel) {
     super(def, model)
-    const options = this.options
+
+    const { name, options, schema } = def
+    const isRequired = options.required !== false
 
     this.children = new ComponentCollection(
       [
         {
           type: ComponentType.NumberField,
-          name: `${this.name}__month`,
+          name: `${name}__month`,
           title: 'Month',
           schema: { min: 1, max: 12 },
           options: {
-            required: options.required,
+            required: isRequired,
             classes: 'govuk-input--width-2',
             customValidationMessage: '{{label}} must be between 1 and 12'
           }
         },
         {
           type: ComponentType.NumberField,
-          name: `${this.name}__year`,
+          name: `${name}__year`,
           title: 'Year',
           schema: { min: 1000, max: 3000 },
           options: {
-            required: options.required,
+            required: isRequired,
             classes: 'govuk-input--width-4'
           }
         }
       ],
       model
     )
+
+    this.options = options
+    this.schema = schema
   }
 
   getFormSchemaKeys() {

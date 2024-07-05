@@ -1,6 +1,6 @@
 import {
   ComponentType,
-  type InputFieldsComponentsDef
+  type DatePartsFieldFieldComponent
 } from '@defra/forms-model'
 import { parseISO, format } from 'date-fns'
 
@@ -20,15 +20,17 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class DatePartsField extends FormComponent {
+  options: DatePartsFieldFieldComponent['options']
+  schema: DatePartsFieldFieldComponent['schema']
   children: ComponentCollection
-  dataType = 'date' as DataType
+  dataType: DataType = 'date'
 
-  constructor(def: InputFieldsComponentsDef, model: FormModel) {
+  constructor(def: DatePartsFieldFieldComponent, model: FormModel) {
     super(def, model)
 
-    const { name, options } = this
+    const { name, options, schema } = def
 
-    const isRequired = !('required' in options && options.required === false)
+    const isRequired = !('required' in options) || options.required !== false
     const hideOptional = 'optionalText' in options && options.optionalText
 
     this.children = new ComponentCollection(
@@ -73,6 +75,8 @@ export class DatePartsField extends FormComponent {
       model
     )
 
+    this.options = options
+    this.schema = schema
     this.stateSchema = buildStateSchema('date', this)
   }
 

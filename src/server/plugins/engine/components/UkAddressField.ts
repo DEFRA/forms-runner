@@ -1,7 +1,7 @@
 import {
   ComponentType,
   type ComponentDef,
-  type InputFieldsComponentsDef
+  type UkAddressFieldComponent
 } from '@defra/forms-model'
 import joi from 'joi'
 
@@ -18,16 +18,17 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class UkAddressField extends FormComponent {
+  options: UkAddressFieldComponent['options']
+  schema: UkAddressFieldComponent['schema']
   formChildren: ComponentCollection
   stateChildren: ComponentCollection
 
-  constructor(def: InputFieldsComponentsDef, model: FormModel) {
+  constructor(def: UkAddressFieldComponent, model: FormModel) {
     super(def, model)
-    const { name, options } = this
 
-    const stateSchema = buildStateSchema('date', this)
+    const { name, options, schema } = def
 
-    const isRequired = !('required' in options && options.required === false)
+    const isRequired = !('required' in options) || options.required !== false
     const hideOptional = 'optionalText' in options && options.optionalText
 
     const childrenList = [
@@ -89,9 +90,11 @@ export class UkAddressField extends FormComponent {
 
     const formChildren = new ComponentCollection(childrenList, model)
 
+    this.options = options
+    this.schema = schema
     this.formChildren = formChildren
     this.stateChildren = stateChildren
-    this.stateSchema = stateSchema
+    this.stateSchema = buildStateSchema('date', this)
   }
 
   getFormSchemaKeys() {
