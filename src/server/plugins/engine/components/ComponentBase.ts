@@ -60,3 +60,5 @@ export class ComponentBase {
     }
   }
 }
+
+export type ComponentSchemaNested = Record<string, JoiSchema | undefined>
