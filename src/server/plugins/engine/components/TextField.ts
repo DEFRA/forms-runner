@@ -21,9 +21,7 @@ export class TextField extends FormComponent {
       formSchema = formSchema.optional().allow('').allow(null)
     }
 
-    formSchema = formSchema.label(
-      (def.title.en ?? def.title ?? def.name).toLowerCase()
-    )
+    formSchema = formSchema.label(title.toLowerCase())
 
     if (schema.max) {
       formSchema = formSchema.max(schema.max)
