@@ -72,7 +72,7 @@ describe('ListFormComponent', () => {
     )
 
     it('schema validates correctly when the field is optional', () => {
-      const schema = optionalComponent.formSchema
+      const { formSchema: schema } = optionalComponent
 
       expect(schema.validate('1').error).toBeUndefined()
       expect(schema.validate('2').error).toBeUndefined()

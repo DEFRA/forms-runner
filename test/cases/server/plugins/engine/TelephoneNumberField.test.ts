@@ -16,7 +16,7 @@ describe('Telephone number field', () => {
       schema: {}
     }
     const telephoneNumberField = new TelephoneNumberField(def, {})
-    const { schema } = telephoneNumberField
+    const { formSchema: schema } = telephoneNumberField
 
     expect(schema.validate('not a phone').error.message).toBe(
       'This is a custom error'
@@ -41,7 +41,7 @@ describe('Telephone number field', () => {
       }
     }
     const telephoneNumberField = new TelephoneNumberField(def, {})
-    const { schema } = telephoneNumberField
+    const { formSchema: schema } = telephoneNumberField
 
     expect(schema.validate('1234').error).toBeUndefined()
     expect(schema.validate('12345').error).toBeUndefined()
@@ -66,7 +66,7 @@ describe('Telephone number field', () => {
       schema: {}
     }
     const telephoneNumberField = new TelephoneNumberField(def, {})
-    const { schema } = telephoneNumberField
+    const { formSchema: schema } = telephoneNumberField
 
     expect(schema.validate('not a phone').error.message).toBe(
       'Enter a telephone number in the correct format'

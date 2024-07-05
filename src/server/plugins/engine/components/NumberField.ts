@@ -21,32 +21,38 @@ export class NumberField extends FormComponent {
     this.schemaOptions = def.schema
     this.options = def.options
     const { min, max } = def.schema
-    let schema = joi.number()
+    let formSchema = joi.number()
 
-    schema = schema.label(def.title.toLowerCase())
+    formSchema = formSchema.label(def.title.toLowerCase())
 
     if (def.schema.min && def.schema.max) {
-      schema = schema.$
+      formSchema = formSchema.$
     }
     if (def.schema.min ?? false) {
-      schema = schema.min(min)
+      formSchema = formSchema.min(min)
     }
 
     if (def.schema.max ?? false) {
-      schema = schema.max(max)
+      formSchema = formSchema.max(max)
     }
 
     if (def.options.customValidationMessage) {
-      schema = schema.rule({ message: def.options.customValidationMessage })
+      formSchema = formSchema.rule({
+        message: def.options.customValidationMessage
+      })
     }
 
     if (def.options.required === false) {
       const optionalSchema = joi
-        .alternatives()
-        .try(joi.string().allow(null).allow('').default('').optional(), schema)
-      this.schema = optionalSchema
+        .alternatives<string | number>()
+        .try(
+          joi.string().allow(null).allow('').default('').optional(),
+          formSchema
+        )
+
+      this.formSchema = optionalSchema
     } else {
-      this.schema = schema
+      this.formSchema = formSchema
     }
   }
 

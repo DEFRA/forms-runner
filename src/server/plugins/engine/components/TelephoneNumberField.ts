@@ -17,25 +17,25 @@ export class TelephoneNumberField extends FormComponent {
 
     const { options = {}, schema = {} } = def
     const pattern = schema.regex ? new RegExp(schema.regex) : PATTERN
-    let componentSchema = joi.string()
+    let formSchema = joi.string()
 
     if (options.required === false) {
-      componentSchema = componentSchema.allow('').allow(null)
+      formSchema = formSchema.allow('').allow(null)
     }
-    componentSchema = componentSchema
+    formSchema = formSchema
       .pattern(pattern)
       .message(def.options.customValidationMessage ?? DEFAULT_MESSAGE)
       .label(def.title.toLowerCase())
 
     if (schema.max) {
-      componentSchema = componentSchema.max(schema.max)
+      formSchema = formSchema.max(schema.max)
     }
 
     if (schema.min) {
-      componentSchema = componentSchema.min(schema.min)
+      formSchema = formSchema.min(schema.min)
     }
 
-    this.schema = componentSchema
+    this.formSchema = formSchema
 
     addClassOptionIfNone(this.options, 'govuk-input--width-20')
   }

@@ -28,29 +28,31 @@ export class MultilineTextField extends FormComponent {
     super(def, model)
     this.options = def.options
     this.schema = def.schema
-    this.formSchema = Joi.string()
-    this.formSchema = this.formSchema.label(def.title.toLowerCase())
+
     const { maxWords, customValidationMessage } = def.options
     const isRequired = def.options.required ?? true
 
+    let formSchema = Joi.string().label(def.title.toLowerCase())
+
     if (isRequired) {
-      this.formSchema = this.formSchema.required()
+      formSchema = formSchema.required()
     } else {
-      this.formSchema = this.formSchema.allow('').allow(null)
+      formSchema = formSchema.allow('').allow(null)
     }
-    this.formSchema = this.formSchema.ruleset
+
+    formSchema = formSchema.ruleset
 
     if (def.schema.max) {
-      this.formSchema = this.formSchema.max(def.schema.max)
+      formSchema = formSchema.max(def.schema.max)
       this.isCharacterOrWordCount = true
     }
 
     if (def.schema.min) {
-      this.formSchema = this.formSchema.min(def.schema.min)
+      formSchema = formSchema.min(def.schema.min)
     }
 
     if (maxWords ?? false) {
-      this.formSchema = this.formSchema.custom((value, helpers) => {
+      formSchema = formSchema.custom((value, helpers) => {
         if (inputIsOverWordCount(value, maxWords)) {
           helpers.error('string.maxWords')
         }
@@ -60,10 +62,12 @@ export class MultilineTextField extends FormComponent {
     }
 
     if (customValidationMessage) {
-      this.formSchema = this.formSchema.rule({
+      formSchema = formSchema.rule({
         message: customValidationMessage
       })
     }
+
+    this.formSchema = formSchema
   }
 
   getViewModel(
