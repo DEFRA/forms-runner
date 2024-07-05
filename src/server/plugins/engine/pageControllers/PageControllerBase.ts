@@ -17,6 +17,8 @@ import { merge, reach } from '@hapi/hoek'
 import { format, parseISO } from 'date-fns'
 import { type ValidationResult, type ObjectSchema } from 'joi'
 
+import { config } from '~/src/config/index.js'
+import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { CheckboxesField } from '~/src/server/plugins/engine/components/CheckboxesField.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { RadiosField } from '~/src/server/plugins/engine/components/RadiosField.js'
@@ -45,6 +47,8 @@ import { type CacheService } from '~/src/server/services/index.js'
 
 const FORM_SCHEMA = Symbol('FORM_SCHEMA')
 const STATE_SCHEMA = Symbol('STATE_SCHEMA')
+
+const logger = createLogger()
 
 export class PageControllerBase {
   /**
@@ -686,13 +690,26 @@ export class PageControllerBase {
     if (feedbackContextInfo) {
       viewModel.name = feedbackContextInfo.formTitle
     }
+
     // setting the feedbackLink to undefined here for feedback forms prevents the feedback link from being shown
-    if (this.def.feedback?.url) {
-      viewModel.feedbackLink = this.feedbackUrlFromRequest(request)
+    let feedbackLink = this.feedbackUrlFromRequest(request)
+
+    if (!feedbackLink) {
+      feedbackLink = this.def.feedback?.emailAddress
+        ? `mailto:${this.def.feedback.emailAddress}`
+        : config.get('feedbackLink')
     }
-    if (this.def.feedback?.emailAddress) {
-      viewModel.feedbackLink = `mailto:${this.def.feedback.emailAddress}`
+
+    if (feedbackLink.startsWith('mailto:')) {
+      try {
+        feedbackLink = new URL(feedbackLink).toString() // escape the search params without breaking the ? and & reserved characters in rfc2368
+      } catch (err) {
+        logger.error(err, `Failed to decode ${feedbackLink}`)
+        feedbackLink = undefined
+      }
     }
+
+    viewModel.feedbackLink = feedbackLink
   }
 
   getFeedbackContextInfo(request: Request) {
@@ -703,7 +720,7 @@ export class PageControllerBase {
     }
   }
 
-  feedbackUrlFromRequest(request: Request): string | void {
+  feedbackUrlFromRequest(request: Request): string | undefined {
     if (this.def.feedback?.url) {
       const feedbackLink = new RelativeUrl(this.def.feedback.url)
       const returnInfo = new FeedbackContextInfo(

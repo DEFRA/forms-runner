@@ -36,18 +36,19 @@
 
 {% block beforeContent %}
     {% if phaseTag %}
-        {% if feedbackLink %}
+        {% if 'mailto:' in feedbackLink %}
             {{ govukPhaseBanner({
                 tag: {
                     text: phaseTag | capitalize
                 },
-                html: 'This is a new service – your <a class="govuk-link" href=' + feedbackLink + '>feedback</a> will help us to improve it.'
+                html: 'This is a new service. Help us improve it and <a class="govuk-link" target="_blank" rel="noopener noreferrer" href="' + feedbackLink | escape + '">give your feedback by email</a>.'
             }) }}
         {% else %}
             {{ govukPhaseBanner({
                 tag: {
                     text: phaseTag | capitalize
-                }
+                },
+                html: 'This is a new service. Help us improve it and <a class="govuk-link" target="_blank" rel="noopener noreferrer" href="' + feedbackLink | escape + '">give your feedback (opens in new tab)</a>.'
             }) }}
         {% endif %}
     {% endif %}
