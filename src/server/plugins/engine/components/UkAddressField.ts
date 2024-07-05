@@ -69,7 +69,9 @@ export class UkAddressField extends FormComponent {
         type: ComponentType.TextField,
         name: 'postcode',
         title: 'Postcode',
-        schema: { max: 10 },
+        schema: {
+          regex: '^[a-zA-Z]{1,2}\\d[a-zA-Z\\d]?\\s?\\d[a-zA-Z]{2}$'
+        },
         options: {
           autocomplete: 'postal-code',
           classes: 'govuk-input--width-10',
