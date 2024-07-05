@@ -58,7 +58,11 @@ describe('ListFormComponent', () => {
     const component = new ListFormComponent(componentDefinition, formModel)
 
     it('is required by default', () => {
-      expect(component.formSchema.describe().flags.presence).toBe('required')
+      expect(component.formSchema.describe().flags).toEqual(
+        expect.objectContaining({
+          presence: 'required'
+        })
+      )
     })
 
     it('allows the items defined in the List object with the correct type', () => {
@@ -78,8 +82,10 @@ describe('ListFormComponent', () => {
         },
         formModel
       )
-      expect(component.formSchema.describe().flags.presence).not.toBe(
-        'required'
+      expect(component.formSchema.describe().flags).not.toEqual(
+        expect.objectContaining({
+          presence: 'required'
+        })
       )
     })
 

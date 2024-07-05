@@ -20,7 +20,7 @@ describe('Number field', () => {
     const numberField = new NumberField(def)
     const { formSchema: schema } = numberField
 
-    expect(schema.validate(40, { messages }).error.message).toContain(
+    expect(schema.validate(40, { messages }).error?.message).toContain(
       'must be 30 or lower'
     )
 
@@ -35,7 +35,7 @@ describe('Number field', () => {
     const numberField = new NumberField(def)
     const { formSchema: schema } = numberField
 
-    expect(schema.validate(20, { messages }).error.message).toContain(
+    expect(schema.validate(20, { messages }).error?.message).toContain(
       'must be 30 or higher'
     )
 
