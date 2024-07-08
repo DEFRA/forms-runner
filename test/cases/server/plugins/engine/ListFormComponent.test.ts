@@ -1,13 +1,14 @@
 import {
   ComponentSubType,
   ComponentType,
-  type ComponentDef
+  type ComponentDef,
+  type FormDefinition
 } from '@defra/forms-model'
 
 import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
 
 describe('ListFormComponent', () => {
-  const lists = [
+  const lists: FormDefinition['lists'] = [
     {
       name: 'numberOfApplicants',
       title: 'Number of people',
