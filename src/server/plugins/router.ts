@@ -17,7 +17,9 @@ const privacyPolicies: Record<string, string> = {
   'request-a-form':
     'https://defra.sharepoint.com/sites/Community4442/SitePages/Privacy-notice--Defra-Forms.aspx',
   'register-as-a-unicorn-breeder':
-    'https://defra.sharepoint.com/sites/Community4442/SitePages/Privacy-notice--Defra-Forms.aspx'
+    'https://defra.sharepoint.com/sites/Community4442/SitePages/Privacy-notice--Defra-Forms.aspx',
+  'report-fraud-and-irregularity-against-the-environment-agency':
+    'https://www.gov.uk/government/publications/whistleblowing-at-the-environment-agency-privacy-notice'
 }
 
 export default {
