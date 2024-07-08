@@ -30,8 +30,8 @@ export class DatePartsField extends FormComponent {
 
     const { name, options, schema } = def
 
-    const isRequired = !('required' in options) || options.required !== false
-    const hideOptional = 'optionalText' in options && options.optionalText
+    const isRequired = options.required !== false
+    const hideOptional = options.optionalText
 
     this.children = new ComponentCollection(
       [

@@ -29,7 +29,7 @@ export class Details extends ComponentBase {
       html: this.content
     }
 
-    if ('condition' in options && options.condition) {
+    if (options.condition) {
       viewModel.condition = options.condition
     }
 
