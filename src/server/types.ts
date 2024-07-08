@@ -21,7 +21,6 @@ declare module '@hapi/hapi' {
   }
 
   interface RequestApplicationState {
-    location: string
     model?: FormModel
   }
 

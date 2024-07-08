@@ -56,7 +56,7 @@ function nunjucksContext(
     }
   }
 
-  const { app, params, path } = request ?? {}
+  const { params, path } = request ?? {}
   const isPreviewMode = path?.startsWith(PREVIEW_PATH_PREFIX)
 
   return {
@@ -64,7 +64,6 @@ function nunjucksContext(
     assetPath: '/assets',
     serviceName: capitalize(config.get('serviceName')),
     feedbackLink: config.get('feedbackLink'),
-    location: app?.location,
     phaseTag: config.get('phaseTag'),
     previewMode: isPreviewMode ? params?.state : undefined,
     slug: params?.slug,

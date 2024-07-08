@@ -27,7 +27,6 @@ import pluginViews from '~/src/server/plugins/views.js'
 import { prepareSecureContext } from '~/src/server/secure-context.js'
 import { CacheService } from '~/src/server/services/index.js'
 import { type RouteConfig } from '~/src/server/types.js'
-import getRequestInfo from '~/src/server/utils/getRequestInfo.js'
 
 const proxyAgent = new ProxyAgent()
 
@@ -117,14 +116,6 @@ export async function createServer(routeConfig: RouteConfig = {}) {
     ) {
       response.header('cache-control', 'no-store')
     }
-
-    return h.continue
-  })
-
-  server.ext('onRequest', (request: Request, h: ResponseToolkit) => {
-    const { pathname } = getRequestInfo(request)
-
-    request.app.location = pathname
 
     return h.continue
   })
