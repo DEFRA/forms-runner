@@ -53,7 +53,6 @@ export class FormModel {
   conditions: Partial<Record<string, ExecutableCondition>>
   pages: PageControllerClass[]
   startPage?: PageControllerClass
-  specialPages?: FormDefinition['specialPages']
 
   constructor(
     def: FormDefinition,
@@ -124,7 +123,6 @@ export class FormModel {
     )
 
     this.startPage = this.pages.find((page) => page.path === def.startPage)
-    this.specialPages = def.specialPages
   }
 
   /**

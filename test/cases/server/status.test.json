@@ -57,30 +57,6 @@
       "components": []
     }
   ],
-  "specialPages": {
-    "confirmationPage": {
-      "components": [
-        {
-          "name": "cd",
-          "options": {
-            "condition": "isLisbon"
-          },
-          "type": "Html",
-          "content": "<p class=\"govuk-body\">lisbon</p>",
-          "schema": {}
-        },
-        {
-          "name": "ab",
-          "options": {
-            "condition": "isPortimao"
-          },
-          "type": "Html",
-          "content": "<p class=\"govuk-body\">portimao</p>",
-          "schema": {}
-        }
-      ]
-    }
-  },
   "lists": [
     {
       "title": "which consulate",
