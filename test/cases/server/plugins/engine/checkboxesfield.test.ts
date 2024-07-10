@@ -1,5 +1,4 @@
 import {
-  ComponentSubType,
   ComponentType,
   type ComponentDef,
   type FormDefinition
@@ -45,7 +44,6 @@ describe('CheckboxesField', () => {
   describe('Generated schema', () => {
     const componentDefinition: ComponentDef = {
       type: ComponentType.CheckboxesField,
-      subType: ComponentSubType.ListField,
       name: 'myCheckbox',
       title: 'Tada',
       options: {},

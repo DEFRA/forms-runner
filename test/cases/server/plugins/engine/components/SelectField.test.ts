@@ -1,5 +1,4 @@
 import {
-  ComponentSubType,
   ComponentType,
   type FormDefinition,
   type ListComponentsDef
@@ -54,7 +53,6 @@ describe('SelectField', () => {
       title: 'Where were you born?',
       name: 'countryOfBirth',
       type: ComponentType.SelectField,
-      subType: ComponentSubType.ListField,
       options: {},
       list: 'Countries',
       schema: {}

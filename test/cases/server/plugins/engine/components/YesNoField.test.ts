@@ -1,8 +1,4 @@
-import {
-  ComponentSubType,
-  ComponentType,
-  type ComponentDef
-} from '@defra/forms-model'
+import { ComponentType, type ComponentDef } from '@defra/forms-model'
 
 import { YesNoField } from '~/src/server/plugins/engine/components/YesNoField.js'
 
@@ -12,7 +8,6 @@ describe('YesNoField', () => {
       title: 'Speak English?',
       name: 'speakEnglish',
       type: ComponentType.YesNoField,
-      subType: ComponentSubType.Field,
       options: {},
       schema: {}
     }
