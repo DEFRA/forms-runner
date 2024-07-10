@@ -8,7 +8,6 @@ import {
 } from '@defra/forms-model'
 import {
   type Request,
-  type ResponseObject,
   type ResponseToolkit,
   type RouteOptions,
   type ServerRoute
@@ -17,24 +16,18 @@ import { merge, reach } from '@hapi/hoek'
 import { format, parseISO } from 'date-fns'
 import { type ValidationResult, type ObjectSchema } from 'joi'
 
+import { type BaseViewModel } from '../models/types.js'
+
 import { config } from '~/src/config/index.js'
-import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { CheckboxesField } from '~/src/server/plugins/engine/components/CheckboxesField.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { RadiosField } from '~/src/server/plugins/engine/components/RadiosField.js'
-import { type ComponentCollectionViewModel } from '~/src/server/plugins/engine/components/types.js'
-import {
-  decodeFeedbackContextInfo,
-  FeedbackContextInfo,
-  RelativeUrl
-} from '~/src/server/plugins/engine/feedback/index.js'
-import {
-  feedbackReturnInfoKey,
-  proceed,
-  redirectTo
-} from '~/src/server/plugins/engine/helpers.js'
+import { proceed, redirectTo } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
+import {
+  encodeUrl,
+  type PageControllerClass
+} from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { validationOptions } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormData,
@@ -47,8 +40,6 @@ import { type CacheService } from '~/src/server/services/index.js'
 
 const FORM_SCHEMA = Symbol('FORM_SCHEMA')
 const STATE_SCHEMA = Symbol('STATE_SCHEMA')
-
-const logger = createLogger()
 
 export class PageControllerBase {
   /**
@@ -122,20 +113,7 @@ export class PageControllerBase {
     payload: FormPayload,
     iteration?: number,
     errors?: FormSubmissionErrors
-  ): {
-    page: PageControllerBase
-    name?: string
-    pageTitle: string
-    sectionTitle?: string
-    showTitle: boolean
-    components: ComponentCollectionViewModel
-    errors?: FormSubmissionErrors
-    isStartPage: boolean
-    startPage?: ResponseObject
-    backLink?: string
-    serviceUrl: string
-    phaseTag?: string | undefined
-  } {
+  ): BaseViewModel {
     let showTitle = true
 
     let { title: pageTitle, section } = this
@@ -195,7 +173,20 @@ export class PageControllerBase {
       components,
       errors,
       isStartPage: false,
-      serviceUrl
+      serviceUrl,
+      ...this.getSharedViewModelAttributes()
+    }
+  }
+
+  getSharedViewModelAttributes() {
+    /*
+      Optional values. Only set if they exist in the form definition.
+      If these are not set, the nunjucks context already has default values
+      from the config.
+    */
+    return {
+      phaseTag: this.getPhaseTag(),
+      feedbackLink: this.getFeedbackLink()
     }
   }
 
@@ -492,9 +483,6 @@ export class PageControllerBase {
         ? redirectTo(request, h, startPage)
         : redirectTo(request, h, `/${this.model.basePath}${startPage}`)
 
-      this.setPhaseTag(viewModel)
-      this.setFeedbackDetails(viewModel, request)
-
       /**
        * Content components can be hidden based on a condition. If the condition evaluates to true, it is safe to be kept, otherwise discard it
        */
@@ -619,21 +607,13 @@ export class PageControllerBase {
     if (formResult.errors) {
       // TODO:- refactor to match POST REDIRECT GET pattern.
 
-      return this.renderWithErrors(
-        request,
-        h,
-        payload,
-        num,
-        progress,
-        formResult.errors
-      )
+      return this.renderWithErrors(h, payload, num, progress, formResult.errors)
     }
 
     const newState = this.getStateFromValidForm(formResult.value)
     const stateResult = this.validateState(newState)
     if (stateResult.errors) {
       return this.renderWithErrors(
-        request,
         h,
         payload,
         num,
@@ -685,52 +665,27 @@ export class PageControllerBase {
     }
   }
 
-  setFeedbackDetails(viewModel, request) {
-    const feedbackContextInfo = this.getFeedbackContextInfo(request)
-    if (feedbackContextInfo) {
-      viewModel.name = feedbackContextInfo.formTitle
-    }
+  private getFeedbackLink() {
+    const { feedback } = this.def
 
     // setting the feedbackLink to undefined here for feedback forms prevents the feedback link from being shown
-    let feedbackLink = this.feedbackUrlFromRequest(request)
+    let feedbackLink: string | undefined = feedback?.emailAddress
+      ? `mailto:${feedback.emailAddress}`
+      : feedback?.url
 
     if (!feedbackLink) {
-      feedbackLink = this.def.feedback?.emailAddress
-        ? `mailto:${this.def.feedback.emailAddress}`
-        : config.get('feedbackLink')
+      feedbackLink = config.get('feedbackLink')
     }
 
-    if (feedbackLink.startsWith('mailto:')) {
-      try {
-        feedbackLink = new URL(feedbackLink).toString() // escape the search params without breaking the ? and & reserved characters in rfc2368
-      } catch (err) {
-        logger.error(err, `Failed to decode ${feedbackLink}`)
-        feedbackLink = undefined
-      }
-    }
-
-    viewModel.feedbackLink = feedbackLink
+    return encodeUrl(feedbackLink)
   }
 
-  getFeedbackContextInfo(request: Request) {
-    if (this.def.feedback?.feedbackForm) {
-      return decodeFeedbackContextInfo(
-        request.url.searchParams.get(feedbackReturnInfoKey)
-      )
+  private getPhaseTag() {
+    if (this.def.phaseBanner) {
+      return this.def.phaseBanner.phase
     }
-  }
 
-  feedbackUrlFromRequest(request: Request): string | undefined {
-    if (this.def.feedback?.url) {
-      const feedbackLink = new RelativeUrl(this.def.feedback.url)
-      const returnInfo = new FeedbackContextInfo(
-        this.model.name,
-        this.pageDef.title,
-        `${request.url.pathname}${request.url.search}`
-      )
-      feedbackLink.setParam(feedbackReturnInfoKey, returnInfo.toString())
-      return feedbackLink.toString()
-    }
+    return config.get('phaseTag')
   }
 
   makeGetRoute() {
@@ -820,20 +775,10 @@ export class PageControllerBase {
     return Object.keys(object).length
   }
 
-  private setPhaseTag(viewModel) {
-    // Set phase tag if it exists in form definition (even if empty for 'None'),
-    // otherwise the template context will simply return server config
-    if (this.def.phaseBanner) {
-      viewModel.phaseTag = this.def.phaseBanner.phase
-    }
-  }
-
-  private renderWithErrors(request, h, payload, num, progress, errors) {
+  private renderWithErrors(h, payload, num, progress, errors) {
     const viewModel = this.getViewModel(payload, num, errors)
 
     viewModel.backLink = progress[progress.length - 2] ?? this.backLinkFallback
-    this.setPhaseTag(viewModel)
-    this.setFeedbackDetails(viewModel, request)
 
     return h.view(this.viewName, viewModel)
   }

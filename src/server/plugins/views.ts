@@ -7,6 +7,8 @@ import capitalize from 'lodash/capitalize.js'
 import nunjucks from 'nunjucks'
 import resolvePkg from 'resolve'
 
+import { encodeUrl } from './engine/pageControllers/helpers.js'
+
 import pkg from '~/package.json' with { type: 'json' }
 import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
@@ -63,7 +65,7 @@ function nunjucksContext(
     appVersion: pkg.version,
     assetPath: '/assets',
     serviceName: capitalize(config.get('serviceName')),
-    feedbackLink: config.get('feedbackLink'),
+    feedbackLink: encodeUrl(config.get('feedbackLink')),
     phaseTag: config.get('phaseTag'),
     previewMode: isPreviewMode ? params?.state : undefined,
     slug: params?.slug,

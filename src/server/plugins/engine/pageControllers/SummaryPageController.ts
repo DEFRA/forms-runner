@@ -2,7 +2,6 @@ import Boom from '@hapi/boom'
 import {
   type Request,
   type ResponseToolkit,
-  type RouteOptions
 } from '@hapi/hapi'
 import { format } from 'date-fns'
 import nunjucks from 'nunjucks'
@@ -10,11 +9,6 @@ import nunjucks from 'nunjucks'
 import { config } from '~/src/config/index.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
-  FeedbackContextInfo,
-  RelativeUrl
-} from '~/src/server/plugins/engine/feedback/index.js'
-import {
-  feedbackReturnInfoKey,
   redirectTo,
   redirectUrl
 } from '~/src/server/plugins/engine/helpers.js'
@@ -32,6 +26,23 @@ export class SummaryPageController extends PageController {
    * The controller which is used when Page["controller"] is defined as "./pages/summary.js"
    */
 
+  getSummaryViewModel(
+    title: string,
+    model: FormModel,
+    state: FormSubmissionState,
+    request: Request
+  ): SummaryViewModel {
+    const viewModel = new SummaryViewModel(title, model, state, request)
+
+    // We already figure these out in the base page controller. Take them and apply them to our page-specific model.
+    // This is a stop-gap until we can add proper inheritance in place.
+    const sharedAttributes = this.getSharedViewModelAttributes()
+    viewModel.feedbackLink = sharedAttributes.feedbackLink
+    viewModel.phaseTag = sharedAttributes.phaseTag
+
+    return viewModel
+  }
+
   /**
    * Returns an async function. This is called in plugin.ts when there is a GET request at `/{id}/{path*}`,
    */
@@ -44,7 +55,13 @@ export class SummaryPageController extends PageController {
         return this.makePostRouteHandler()(request, h)
       }
       const state = await cacheService.getState(request)
-      const viewModel = new SummaryViewModel(this.title, model, state, request)
+
+      const viewModel = this.getSummaryViewModel(
+        this.title,
+        model,
+        state,
+        request
+      )
 
       if (viewModel.endPage) {
         return redirectTo(
@@ -119,14 +136,12 @@ export class SummaryPageController extends PageController {
       const { cacheService } = request.services([])
       const model = this.model
       const state = await cacheService.getState(request)
-      const summaryViewModel = new SummaryViewModel(
+      const summaryViewModel = this.getSummaryViewModel(
         this.title,
         model,
         state,
         request
       )
-      // TODO fix in follow-up PR
-      // this.setFeedbackDetails(summaryViewModel, request)
 
       // Display error summary on the summary
       // page if there are incomplete form errors
@@ -162,44 +177,7 @@ export class SummaryPageController extends PageController {
     }
   }
 
-  setFeedbackDetails(viewModel: SummaryViewModel, request: Request) {
-    const feedbackContextInfo = this.getFeedbackContextInfo(request)
-
-    if (feedbackContextInfo) {
-      // set the form name to the source form name if this is a feedback form
-      viewModel.name = feedbackContextInfo.formTitle
-    }
-
-    // setting the feedbackLink to undefined here for feedback forms prevents the feedback link from being shown
-    viewModel.feedbackLink = this.feedbackUrlFromRequest(request)
-  }
-
-  getFeedbackContextInfo(request: Request) {
-    if (this.model.def.feedback?.feedbackForm) {
-      if (request.url.searchParams.get(feedbackReturnInfoKey)) {
-        return decodeFeedbackContextInfo(
-          request.url.searchParams.get(feedbackReturnInfoKey)
-        )
-      }
-    }
-  }
-
-  feedbackUrlFromRequest(request: Request) {
-    if (this.model.def.feedback?.url) {
-      const feedbackLink = new RelativeUrl(this.model.def.feedback.url)
-      const returnInfo = new FeedbackContextInfo(
-        this.model.name,
-        'Summary',
-        `${request.url.pathname}${request.url.search}`
-      )
-      feedbackLink.setParam(feedbackReturnInfoKey, returnInfo.toString())
-      return feedbackLink.toString()
-    }
-
-    return undefined
-  }
-
-  get postRouteOptions(): RouteOptions {
+  get postRouteOptions() {
     return {
       ext: {
         onPreHandler: {
