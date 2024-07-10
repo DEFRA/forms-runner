@@ -148,18 +148,6 @@ export class SummaryViewModel {
           const item = Item(request, component, sectionState, page, model)
           if (items.find((cbItem) => cbItem.name === item.name)) return
           items.push(item)
-          if (component.items) {
-            const selectedValue = sectionState[component.name]
-            const selectedItem = component.items.filter(
-              (i) => i.value === selectedValue
-            )[0]
-            if (selectedItem?.childrenCollection) {
-              for (const cc of selectedItem.childrenCollection.formItems) {
-                const cItem = Item(request, cc, sectionState, page, model)
-                items.push(cItem)
-              }
-            }
-          }
         }
       })
 

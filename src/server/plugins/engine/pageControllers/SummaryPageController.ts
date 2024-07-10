@@ -301,13 +301,6 @@ function getFormSubmissionData(relevantPages, details, model) {
         index = i
       }
 
-      /**
-       * This is currently deprecated whilst GDS fix a known issue with accessibility and conditionally revealed fields
-       */
-      const nestedItems = item?.items?.childrenCollection.formItems
-      nestedItems &&
-        fields.push(nestedItems.map((item) => detailItemToField(item)))
-
       return fields
     })
 
