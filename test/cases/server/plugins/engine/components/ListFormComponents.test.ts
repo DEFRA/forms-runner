@@ -1,5 +1,4 @@
 import {
-  ComponentSubType,
   ComponentType,
   type ComponentDef,
   type FormDefinition
@@ -25,7 +24,6 @@ describe('ListFormComponent', () => {
     name: 'MyListFormComponent',
     title: 'Turnaround?',
     type: ComponentType.CheckboxesField,
-    subType: ComponentSubType.ListField,
     list: 'Turnaround',
     options: {},
     schema: {}

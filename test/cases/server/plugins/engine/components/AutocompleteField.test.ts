@@ -1,5 +1,4 @@
 import {
-  ComponentSubType,
   ComponentType,
   type ComponentDef,
   type FormDefinition
@@ -53,7 +52,6 @@ describe('AutocompleteField', () => {
       title: 'Country?',
       name: 'MyAutocomplete',
       type: ComponentType.AutocompleteField,
-      subType: ComponentSubType.ListField,
       options: {},
       list: 'Countries',
       schema: {}

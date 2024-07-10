@@ -1,5 +1,4 @@
 import {
-  ComponentSubType,
   ComponentType,
   type ComponentDef,
   type FormDefinition
@@ -47,7 +46,6 @@ describe('ListFormComponent', () => {
       title: 'Tada',
       name: 'mySelectField',
       type: ComponentType.SelectField,
-      subType: ComponentSubType.ListField,
       options: {},
       list: 'numberOfApplicants',
       schema: {}
