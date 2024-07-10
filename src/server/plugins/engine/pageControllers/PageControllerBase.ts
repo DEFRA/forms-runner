@@ -67,7 +67,6 @@ export class PageControllerBase {
   components: ComponentCollection
   hasFormComponents: boolean
   hasConditionalFormComponents: boolean
-  backLinkFallback?: string
 
   constructor(model: FormModel, pageDef: Page | RepeatingFieldPage) {
     const { def } = model
@@ -80,7 +79,6 @@ export class PageControllerBase {
     this.title = pageDef.title
     this.condition = pageDef.condition
     this.repeatField = pageDef.repeatField
-    this.backLinkFallback = pageDef.backLinkFallback
 
     // Resolve section
     this.section = model.sections.find(
@@ -568,7 +566,7 @@ export class PageControllerBase {
    * Get the back link for a given progress.
    */
   protected getBackLink(progress: string[]) {
-    return progress.at(-2) ?? this.backLinkFallback
+    return progress.at(-2)
   }
 
   /**
@@ -812,7 +810,7 @@ export class PageControllerBase {
   private renderWithErrors(request, h, payload, num, progress, errors) {
     const viewModel = this.getViewModel(payload, num, errors)
 
-    viewModel.backLink = progress[progress.length - 2] ?? this.backLinkFallback
+    viewModel.backLink = progress[progress.length - 2]
     this.setPhaseTag(viewModel)
     this.setFeedbackDetails(viewModel, request)
 
