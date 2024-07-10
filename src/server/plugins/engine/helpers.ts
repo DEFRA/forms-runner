@@ -17,7 +17,6 @@ export function proceed(request: Request, h: ResponseToolkit, nextUrl: string) {
 }
 
 interface Params {
-  num?: number
   returnUrl: string
 }
 

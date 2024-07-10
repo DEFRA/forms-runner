@@ -1,5 +1,4 @@
 import { type Request } from '@hapi/hapi'
-import { reach } from '@hapi/hoek'
 import { type ValidationResult } from 'joi'
 
 import { config } from '~/src/config/index.js'
@@ -123,30 +122,11 @@ export class SummaryViewModel {
 
     ;[undefined, ...model.sections].forEach((section) => {
       const items: DetailItem[] = []
-      let sectionState = section ? state[section.name] || {} : state
+      const sectionState = section ? state[section.name] || {} : state
 
       const sectionPages = relevantPages.filter(
         (page) => page.section === section
       )
-
-      const repeatablePage = sectionPages.find((page) => !!page.repeatField)
-      // Currently can't handle repeatable page outside a section.
-      // In fact currently if any page in a section is repeatable it's expected that all pages in that section will be
-      // repeatable
-      if (section && repeatablePage) {
-        if (!state[section.name]) {
-          state[section.name] = sectionState = []
-        }
-        // Make sure the right number of items
-        const requiredIterations = reach(state, repeatablePage.repeatField)
-        if (requiredIterations < sectionState.length) {
-          state[section.name] = sectionState.slice(0, requiredIterations)
-        } else {
-          for (let i = sectionState.length; i < requiredIterations; i++) {
-            sectionState.push({})
-          }
-        }
-      }
 
       sectionPages.forEach((page) => {
         for (const component of page.components.formItems) {
@@ -156,24 +136,12 @@ export class SummaryViewModel {
         }
       })
 
-      if (items.length > 0) {
-        if (Array.isArray(sectionState)) {
-          details.push({
-            name: section?.name,
-            title: section?.title,
-            items: [...Array(reach(state, repeatablePage.repeatField))].map(
-              (_x, i) => {
-                return items.map((item) => item[i])
-              }
-            )
-          })
-        } else {
-          details.push({
-            name: section?.name,
-            title: section?.title,
-            items
-          })
-        }
+      if (items.length) {
+        details.push({
+          name: section?.name,
+          title: section?.title,
+          items
+        })
       }
     })
 
@@ -195,7 +163,7 @@ export class SummaryViewModel {
       ) {
         endPage = nextPage
       }
-      nextPage = nextPage.getNextPage(state, true)
+      nextPage = nextPage.getNextPage(state)
     }
 
     return { relevantPages, endPage }
@@ -231,26 +199,10 @@ function Item(
   sectionState: FormSubmissionState,
   page: PageControllerClass,
   model: FormModel,
-  params: { num?: number; returnUrl: string } = {
+  params: { returnUrl: string } = {
     returnUrl: redirectUrl(request, `/${model.basePath}/summary`)
   }
 ): DetailItem {
-  const isRepeatable = !!page.repeatField
-
-  // TODO:- deprecate in favour of section based and/or repeatingFieldPageController
-  if (isRepeatable && Array.isArray(sectionState)) {
-    return sectionState.map((state, i) => {
-      const collated = Object.values(state).reduce(
-        (acc: object, p: any) => ({ ...acc, ...p }),
-        {}
-      )
-      return Item(request, component, collated, page, model, {
-        ...params,
-        num: i + 1
-      })
-    })
-  }
-
   return {
     name: component.name,
     path: page.path,

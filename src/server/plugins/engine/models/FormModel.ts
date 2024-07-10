@@ -143,28 +143,19 @@ export class FormModel {
     // Build the entire model schema
     // from the individual pages/sections
     let schema = joi.object().required()
+
     ;[undefined, ...this.sections].forEach((section) => {
       const sectionPages = relevantPages.filter(
         (page) => page.section === section
       )
 
-      if (sectionPages.length > 0) {
+      if (sectionPages.length) {
         if (section) {
-          const isRepeatable = sectionPages.find(
-            (page) => page.pageDef.repeatField
-          )
-
-          let sectionSchema: joi.ObjectSchema | joi.ArraySchema<string> = joi
-            .object()
-            .required()
+          let sectionSchema = joi.object().required()
 
           sectionPages.forEach((sectionPage) => {
             sectionSchema = sectionSchema.concat(sectionPage.stateSchema)
           })
-
-          if (isRepeatable) {
-            sectionSchema = joi.array<string>().items(sectionSchema)
-          }
 
           schema = schema.append({
             [section.name]: sectionSchema

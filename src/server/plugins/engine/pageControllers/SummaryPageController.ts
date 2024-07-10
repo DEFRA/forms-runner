@@ -68,7 +68,6 @@ export class SummaryPageController extends PageController {
         const parts = path.split('.')
         const section = parts[0]
         const property = parts.length > 1 ? parts[parts.length - 1] : null
-        const iteration = parts.length === 3 ? Number(parts[1]) + 1 : null
         const pageWithError = model.pages.filter((page) => {
           if (page.section && page.section.name === section) {
             let propertyMatches = true
@@ -92,8 +91,7 @@ export class SummaryPageController extends PageController {
         })[0]
         if (pageWithError) {
           const params = {
-            returnUrl: redirectUrl(request, `/${model.basePath}/summary`),
-            num: iteration && pageWithError.repeatField ? iteration : null
+            returnUrl: redirectUrl(request, `/${model.basePath}/summary`)
           }
           return redirectTo(
             request,
@@ -292,32 +290,18 @@ function getFormSubmissionData(
   model: FormModel
 ) {
   const questions = relevantPages.map((page) => {
-    const isRepeatable = !!page.repeatField
-
     const itemsForPage = details.flatMap((detail) =>
       detail.items.filter((item) => item.path === page.path)
     )
 
-    const detailItems = isRepeatable
-      ? [itemsForPage].map((item) => ({ ...item, isRepeatable }))
-      : itemsForPage
-
-    let index = 0
-    const fields = detailItems.flatMap((item, i) => {
-      const fields = [detailItemToField(item)]
-
-      if (item.isRepeatable) {
-        index = i
-      }
-
-      return fields
+    const fields = itemsForPage.flatMap((item) => {
+      return [detailItemToField(item)]
     })
 
     return {
       category: page.section?.name,
       question: page.title,
-      fields,
-      index
+      fields
     }
   })
 

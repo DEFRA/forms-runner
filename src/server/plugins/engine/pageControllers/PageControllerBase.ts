@@ -1,9 +1,7 @@
-import { type URLSearchParams } from 'node:url'
-
 import {
+  type Link,
   type FormDefinition,
   type Page,
-  type RepeatingFieldPage,
   type Section
 } from '@defra/forms-model'
 import {
@@ -13,7 +11,7 @@ import {
   type RouteOptions,
   type ServerRoute
 } from '@hapi/hapi'
-import { merge, reach } from '@hapi/hoek'
+import { merge } from '@hapi/hoek'
 import { format, parseISO } from 'date-fns'
 import joi from 'joi'
 import { type ValidationResult, type ObjectSchema } from 'joi'
@@ -58,17 +56,16 @@ export class PageControllerBase {
   def: FormDefinition
   name?: string
   model: FormModel
-  pageDef: Page | RepeatingFieldPage
+  pageDef: Page
   path: string
   title: string
   condition?: string
-  repeatField?: string
   section?: Section
   components: ComponentCollection
   hasFormComponents: boolean
   hasConditionalFormComponents: boolean
 
-  constructor(model: FormModel, pageDef: Page | RepeatingFieldPage) {
+  constructor(model: FormModel, pageDef: Page) {
     const { def } = model
 
     this.def = def
@@ -78,7 +75,6 @@ export class PageControllerBase {
     this.path = pageDef.path
     this.title = pageDef.title
     this.condition = pageDef.condition
-    this.repeatField = pageDef.repeatField
 
     // Resolve section
     this.section = model.sections.find(
@@ -105,7 +101,6 @@ export class PageControllerBase {
    */
   getViewModel(
     payload: FormPayload,
-    iteration?: number,
     errors?: FormSubmissionErrors
   ): {
     page: PageControllerBase
@@ -124,13 +119,9 @@ export class PageControllerBase {
     let showTitle = true
 
     let { title: pageTitle, section } = this
-    let sectionTitle = section?.hideTitle !== true ? section?.title : ''
+    const sectionTitle = section?.hideTitle !== true ? section?.title : ''
 
     const serviceUrl = `/${this.model.basePath}`
-
-    if (sectionTitle && iteration !== undefined) {
-      sectionTitle = `${sectionTitle} ${iteration}`
-    }
 
     const components = this.components.getViewModel(payload, errors)
     const formComponents = components.filter(
@@ -216,98 +207,43 @@ export class PageControllerBase {
    * @param state - the values currently stored in a users session
    * @param suppressRepetition - cancels repetition logic
    */
-  getNextPage(
-    state: FormSubmissionState,
-    suppressRepetition = false
-  ): PageControllerClass | undefined {
-    if (this.repeatField && !suppressRepetition) {
-      const requiredCount = reach(state, this.repeatField)
-      const otherRepeatPagesInSection = this.model.pages.filter(
-        (page) => page.section === this.section && page.repeatField
-      )
-      const sectionState = state[this.section.name] || {}
-      if (
-        Object.keys(sectionState[sectionState.length - 1]).length ===
-        otherRepeatPagesInSection.length
-      ) {
-        // iterated all pages at least once
-        const lastIteration = sectionState[sectionState.length - 1]
-        if (
-          otherRepeatPagesInSection.length === this.objLength(lastIteration)
-        ) {
-          // this iteration is 'complete'
-          if (sectionState.length < requiredCount) {
-            return this.findPageByPath(Object.keys(lastIteration)[0])
-          }
-        }
-      }
-    }
+  getNextPage(state: FormSubmissionState): PageControllerClass | undefined {
+    const { conditions } = this.model
 
     let defaultLink: PageLink | undefined
     const nextLink = this.next.find((link) => {
       const { condition } = link
-      if (condition) {
-        return this.model.conditions[condition].fn(state)
+
+      if (condition && condition in conditions) {
+        return conditions[condition]?.fn(state) ?? false
       }
+
       defaultLink = link
       return false
     })
+
     return nextLink?.page ?? defaultLink?.page
   }
 
-  // TODO: type
   /**
    * returns the path to the next page
    */
   getNext(state: FormSubmissionState) {
     const nextPage = this.getNextPage(state)
-    let queryString = ''
-    if (nextPage?.repeatField) {
-      const requiredCount = reach(state, nextPage.repeatField)
-      const otherRepeatPagesInSection = this.model.pages.filter(
-        (page) => page.section === this.section && page.repeatField
-      )
-      const sectionState = state[nextPage.section.name]
-      const lastInSection = sectionState?.[sectionState.length - 1] ?? {}
-      const isLastComplete =
-        Object.keys(lastInSection).length === otherRepeatPagesInSection.length
-      const num = sectionState
-        ? isLastComplete
-          ? this.objLength(sectionState) + 1
-          : this.objLength(sectionState)
-        : 1
-
-      if (num <= requiredCount) {
-        queryString = `?${new URLSearchParams({ num: `${num}` })}`
-      }
-    }
 
     if (nextPage) {
-      return `/${this.model.basePath || ''}${nextPage.path}${queryString}`
+      return `/${this.model.basePath || ''}${nextPage.path}`
     }
+
     return this.defaultNextPath
   }
 
-  // TODO: types
   /**
    * gets the state for the values that can be entered on just this page
    */
-  getFormDataFromState(state: FormSubmissionState, atIndex: number): FormData {
+  getFormDataFromState(state: FormSubmissionState): FormData {
     const pageState = this.section ? state[this.section.name] : state
 
-    if (this.repeatField) {
-      const repeatedPageState =
-        pageState?.[atIndex ?? (pageState.length - 1 || 0)] ?? {}
-      const values = Object.values(repeatedPageState)
-
-      const newState = values.length
-        ? values.reduce((acc: any, page: any) => ({ ...acc, ...page }), {})
-        : {}
-
-      return {
-        ...this.components.getFormDataFromState(newState as FormSubmissionState)
-      }
-    }
     return {
       ...this.components.getFormDataFromState(pageState || {})
     }
@@ -387,8 +323,6 @@ export class PageControllerBase {
    * Returns an async function. This is called in plugin.ts when there is a GET request at `/{id}/{path*}`
    */
   getConditionEvaluationContext(model: FormModel, state: FormSubmissionState) {
-    // Note: This function does not support repeatFields right now
-
     let relevantState: FormSubmissionState = {}
     // Start at our startPage
     let nextPage = model.startPage
@@ -453,9 +387,8 @@ export class PageControllerBase {
       const { cacheService } = request.services([])
       const state = await cacheService.getState(request)
       const progress = state.progress ?? []
-      const { num } = request.query
       const startPage = this.model.def.startPage
-      const payload = this.getFormDataFromState(state, num - 1)
+      const payload = this.getFormDataFromState(state)
 
       const isStartPage = this.path === `${startPage}`
       const shouldRedirectToStartPage = !progress.length && !isStartPage
@@ -466,7 +399,7 @@ export class PageControllerBase {
           : redirectTo(request, h, `/${this.model.basePath}${startPage}`)
       }
 
-      const viewModel = this.getViewModel(payload, num)
+      const viewModel = this.getViewModel(payload)
 
       viewModel.startPage = startPage?.startsWith('http')
         ? redirectTo(request, h, startPage)
@@ -591,7 +524,6 @@ export class PageControllerBase {
     const formResult = this.validateForm(payload)
     const state = await cacheService.getState(request)
     const progress = state.progress || []
-    const { num } = request.query
 
     /**
      * If there are any errors, render the page with the parsed errors
@@ -603,7 +535,6 @@ export class PageControllerBase {
         request,
         h,
         payload,
-        num,
         progress,
         formResult.errors
       )
@@ -616,28 +547,14 @@ export class PageControllerBase {
         request,
         h,
         payload,
-        num,
         progress,
         stateResult.errors
       )
     }
 
     let update = this.getPartialMergeState(stateResult.value)
-    if (this.repeatField) {
-      const updateValue = { [this.path]: update[this.section.name] }
-      const sectionState = state[this.section.name]
-      if (!sectionState) {
-        update = { [this.section.name]: [updateValue] }
-      } else if (!sectionState[num - 1]) {
-        sectionState.push(updateValue)
-        update = { [this.section.name]: sectionState }
-      } else {
-        sectionState[num - 1] = merge(sectionState[num - 1] ?? {}, updateValue)
-        update = { [this.section.name]: sectionState }
-      }
-    }
-
     const { nullOverride, mergeArrays, modifyUpdate } = mergeOptions
+
     if (modifyUpdate) {
       update = modifyUpdate(update)
     }
@@ -808,8 +725,8 @@ export class PageControllerBase {
     }
   }
 
-  private renderWithErrors(request, h, payload, num, progress, errors) {
-    const viewModel = this.getViewModel(payload, num, errors)
+  private renderWithErrors(request, h, payload, progress, errors) {
+    const viewModel = this.getViewModel(payload, errors)
 
     viewModel.backLink = progress[progress.length - 2]
     this.setPhaseTag(viewModel)
