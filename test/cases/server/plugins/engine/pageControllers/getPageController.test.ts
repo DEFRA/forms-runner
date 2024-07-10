@@ -13,39 +13,19 @@ describe('Engine Page Controllers getPageController', () => {
     })
 
     test('kebab-case is pascal-case', () => {
-      const filePath = './pages/dob.js'
+      const filePath = './pages/home.js'
       const controllerName = controllerNameFromPath(filePath)
-      expect(controllerName).toBe('DobPageController')
+      expect(controllerName).toBe('HomePageController')
     })
   })
 
   describe('getPageController', () => {
-    test('it returns DobPageController when a legacy path is passed', () => {
-      const controllerFromPath = getPageController('./pages/dob.js')
-      expect(controllerFromPath).toEqual(PageControllers.DobPageController)
-
-      const controllerFromName = getPageController('DobPageController')
-      expect(controllerFromName).toEqual(PageControllers.DobPageController)
-    })
-
     test('it returns HomePageController when a legacy path is passed', () => {
       const controllerFromPath = getPageController('./pages/home.js')
       expect(controllerFromPath).toEqual(PageControllers.HomePageController)
 
       const controllerFromName = getPageController('HomePageController')
       expect(controllerFromName).toEqual(PageControllers.HomePageController)
-    })
-
-    test('it returns StartDatePageController when a legacy path is passed', () => {
-      const controllerFromPath = getPageController('./pages/start-date.js')
-      expect(controllerFromPath).toEqual(
-        PageControllers.StartDatePageController
-      )
-
-      const controllerFromName = getPageController('StartDatePageController')
-      expect(controllerFromName).toEqual(
-        PageControllers.StartDatePageController
-      )
     })
 
     test('it returns StartPageController when a legacy path is passed', () => {
