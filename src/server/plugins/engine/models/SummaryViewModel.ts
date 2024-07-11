@@ -1,10 +1,14 @@
 import { type Request } from '@hapi/hapi'
-import { reach } from '@hapi/hoek'
 import { type ValidationResult } from 'joi'
 
 import { config } from '~/src/config/index.js'
+import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
 import { redirectUrl } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import {
+  type Detail,
+  type DetailItem
+} from '~/src/server/plugins/engine/models/types.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { SummaryPageController } from '~/src/server/plugins/engine/pageControllers/index.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
@@ -19,7 +23,7 @@ export class SummaryViewModel {
   skipSummary?: boolean
   endPage?: PageControllerClass
   result: any
-  details: any
+  details: Detail[]
   relevantPages: PageControllerClass[]
   state: any
   value: any
@@ -76,13 +80,13 @@ export class SummaryViewModel {
     this.value = result.value
   }
 
-  private processErrors(result: ValidationResult, details) {
-    this.errors = result.error.details.map((err) => {
-      const name = err.path[err.path.length - 1]
+  private processErrors(result: ValidationResult, details: Detail[]) {
+    this.errors = result.error?.details.map((err) => {
+      const name = err.path[err.path.length - 1] ?? ''
 
       return {
         path: err.path.join('.'),
-        name,
+        name: name.toString(),
         message: err.message
       }
     })
@@ -109,78 +113,35 @@ export class SummaryViewModel {
   }
 
   private summaryDetails(
-    request,
+    request: Request,
     model: FormModel,
     state: FormSubmissionState,
-    relevantPages
+    relevantPages: PageControllerClass[]
   ) {
-    const details: object[] = []
+    const details: Detail[] = []
 
     ;[undefined, ...model.sections].forEach((section) => {
-      const items: any[] = []
-      let sectionState = section ? state[section.name] || {} : state
+      const items: DetailItem[] = []
+      const sectionState = section ? state[section.name] || {} : state
 
       const sectionPages = relevantPages.filter(
         (page) => page.section === section
       )
-
-      const repeatablePage = sectionPages.find((page) => !!page.repeatField)
-      // Currently can't handle repeatable page outside a section.
-      // In fact currently if any page in a section is repeatable it's expected that all pages in that section will be
-      // repeatable
-      if (section && repeatablePage) {
-        if (!state[section.name]) {
-          state[section.name] = sectionState = []
-        }
-        // Make sure the right number of items
-        const requiredIterations = reach(state, repeatablePage.repeatField)
-        if (requiredIterations < sectionState.length) {
-          state[section.name] = sectionState.slice(0, requiredIterations)
-        } else {
-          for (let i = sectionState.length; i < requiredIterations; i++) {
-            sectionState.push({})
-          }
-        }
-      }
 
       sectionPages.forEach((page) => {
         for (const component of page.components.formItems) {
           const item = Item(request, component, sectionState, page, model)
           if (items.find((cbItem) => cbItem.name === item.name)) return
           items.push(item)
-          if (component.items) {
-            const selectedValue = sectionState[component.name]
-            const selectedItem = component.items.filter(
-              (i) => i.value === selectedValue
-            )[0]
-            if (selectedItem?.childrenCollection) {
-              for (const cc of selectedItem.childrenCollection.formItems) {
-                const cItem = Item(request, cc, sectionState, page, model)
-                items.push(cItem)
-              }
-            }
-          }
         }
       })
 
-      if (items.length > 0) {
-        if (Array.isArray(sectionState)) {
-          details.push({
-            name: section?.name,
-            title: section?.title,
-            items: [...Array(reach(state, repeatablePage.repeatField))].map(
-              (_x, i) => {
-                return items.map((item) => item[i])
-              }
-            )
-          })
-        } else {
-          details.push({
-            name: section?.name,
-            title: section?.title,
-            items
-          })
-        }
+      if (items.length) {
+        details.push({
+          name: section?.name,
+          title: section?.title,
+          items
+        })
       }
     })
 
@@ -202,7 +163,7 @@ export class SummaryViewModel {
       ) {
         endPage = nextPage
       }
-      nextPage = nextPage.getNextPage(state, true)
+      nextPage = nextPage.getNextPage(state)
     }
 
     return { relevantPages, endPage }
@@ -233,31 +194,15 @@ function gatherRepeatPages(state: FormSubmissionState) {
  * Creates an Item object for Details
  */
 function Item(
-  request,
-  component,
-  sectionState,
-  page,
+  request: Request,
+  component: FormComponentFieldClass,
+  sectionState: FormSubmissionState,
+  page: PageControllerClass,
   model: FormModel,
-  params: { num?: number; returnUrl: string } = {
+  params: { returnUrl: string } = {
     returnUrl: redirectUrl(request, `/${model.basePath}/summary`)
   }
-) {
-  const isRepeatable = !!page.repeatField
-
-  // TODO:- deprecate in favour of section based and/or repeatingFieldPageController
-  if (isRepeatable && Array.isArray(sectionState)) {
-    return sectionState.map((state, i) => {
-      const collated = Object.values(state).reduce(
-        (acc: object, p: any) => ({ ...acc, ...p }),
-        {}
-      )
-      return Item(request, component, collated, page, model, {
-        ...params,
-        num: i + 1
-      })
-    })
-  }
-
+): DetailItem {
   return {
     name: component.name,
     path: page.path,

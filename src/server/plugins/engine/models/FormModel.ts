@@ -53,7 +53,6 @@ export class FormModel {
   conditions: Partial<Record<string, ExecutableCondition>>
   pages: PageControllerClass[]
   startPage?: PageControllerClass
-  specialPages?: FormDefinition['specialPages']
 
   constructor(
     def: FormDefinition,
@@ -124,7 +123,6 @@ export class FormModel {
     )
 
     this.startPage = this.pages.find((page) => page.path === def.startPage)
-    this.specialPages = def.specialPages
   }
 
   /**
@@ -138,32 +136,26 @@ export class FormModel {
    * build the entire model schema from individual pages/sections and filter out answers
    * for pages which are no longer accessible due to an answer that has been changed
    */
-  makeFilteredSchema(_state: FormSubmissionState, relevantPages) {
+  makeFilteredSchema(
+    _state: FormSubmissionState,
+    relevantPages: PageControllerClass[]
+  ) {
     // Build the entire model schema
     // from the individual pages/sections
     let schema = joi.object().required()
+
     ;[undefined, ...this.sections].forEach((section) => {
       const sectionPages = relevantPages.filter(
         (page) => page.section === section
       )
 
-      if (sectionPages.length > 0) {
+      if (sectionPages.length) {
         if (section) {
-          const isRepeatable = sectionPages.find(
-            (page) => page.pageDef.repeatField
-          )
-
-          let sectionSchema: joi.ObjectSchema | joi.ArraySchema<string> = joi
-            .object()
-            .required()
+          let sectionSchema = joi.object().required()
 
           sectionPages.forEach((sectionPage) => {
             sectionSchema = sectionSchema.concat(sectionPage.stateSchema)
           })
-
-          if (isRepeatable) {
-            sectionSchema = joi.array<string>().items(sectionSchema)
-          }
 
           schema = schema.append({
             [section.name]: sectionSchema

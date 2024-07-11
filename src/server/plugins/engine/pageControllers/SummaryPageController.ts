@@ -21,9 +21,14 @@ import {
   type FormModel,
   SummaryViewModel
 } from '~/src/server/plugins/engine/models/index.js'
-import { type DetailItem } from '~/src/server/plugins/engine/models/types.js'
+import {
+  type Detail,
+  type DetailItem
+} from '~/src/server/plugins/engine/models/types.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
+import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+import { type Field } from '~/src/server/schemas/types.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
 
 export class SummaryPageController extends PageController {
@@ -63,7 +68,6 @@ export class SummaryPageController extends PageController {
         const parts = path.split('.')
         const section = parts[0]
         const property = parts.length > 1 ? parts[parts.length - 1] : null
-        const iteration = parts.length === 3 ? Number(parts[1]) + 1 : null
         const pageWithError = model.pages.filter((page) => {
           if (page.section && page.section.name === section) {
             let propertyMatches = true
@@ -87,8 +91,7 @@ export class SummaryPageController extends PageController {
         })[0]
         if (pageWithError) {
           const params = {
-            returnUrl: redirectUrl(request, `/${model.basePath}/summary`),
-            num: iteration && pageWithError.repeatField ? iteration : null
+            returnUrl: redirectUrl(request, `/${model.basePath}/summary`)
           }
           return redirectTo(
             request,
@@ -257,14 +260,14 @@ function getPersonalisation(
     model
   )
 
-  const lines: string[] = []
+  const lines: (string | number)[] = []
   const now = new Date()
 
   lines.push(
     `We’ve received your form at ${format(now, 'h:mmaaa')} on ${format(now, 'd MMMM yyyy')}.`
   )
 
-  formSubmissionData.questions?.forEach((question) => {
+  formSubmissionData.questions.forEach((question) => {
     question.fields.forEach((field) => {
       const { title, answer } = field
       const isBoolAnswer = typeof answer === 'boolean'
@@ -281,41 +284,24 @@ function getPersonalisation(
   }
 }
 
-function getFormSubmissionData(relevantPages, details, model) {
-  const questions = relevantPages?.map((page) => {
-    const isRepeatable = !!page.repeatField
-
+function getFormSubmissionData(
+  relevantPages: PageControllerClass[],
+  details: Detail[],
+  model: FormModel
+) {
+  const questions = relevantPages.map((page) => {
     const itemsForPage = details.flatMap((detail) =>
       detail.items.filter((item) => item.path === page.path)
     )
 
-    const detailItems = isRepeatable
-      ? [itemsForPage].map((item) => ({ ...item, isRepeatable }))
-      : itemsForPage
-
-    let index = 0
-    const fields = detailItems.flatMap((item, i) => {
-      const fields = [detailItemToField(item)]
-
-      if (item.isRepeatable) {
-        index = i
-      }
-
-      /**
-       * This is currently deprecated whilst GDS fix a known issue with accessibility and conditionally revealed fields
-       */
-      const nestedItems = item?.items?.childrenCollection.formItems
-      nestedItems &&
-        fields.push(nestedItems.map((item) => detailItemToField(item)))
-
-      return fields
+    const fields = itemsForPage.flatMap((item) => {
+      return [detailItemToField(item)]
     })
 
     return {
       category: page.section?.name,
       question: page.title,
-      fields,
-      index
+      fields
     }
   })
 
@@ -326,7 +312,7 @@ function getFormSubmissionData(relevantPages, details, model) {
   }
 }
 
-function answerFromDetailItem(item) {
+function answerFromDetailItem(item: DetailItem) {
   switch (item.dataType) {
     case 'list':
       return item.rawValue
@@ -341,7 +327,7 @@ function answerFromDetailItem(item) {
   }
 }
 
-function detailItemToField(item: DetailItem) {
+function detailItemToField(item: DetailItem): Field {
   return {
     key: item.name,
     title: item.title,

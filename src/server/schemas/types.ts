@@ -1,10 +1,12 @@
-import { type ComponentType, type ConfirmationPage } from '@defra/forms-model'
+import { type ConfirmationPage } from '@defra/forms-model'
+
+import { type DetailItem } from '~/src/server/plugins/engine/models/types.js'
 
 export interface Field {
   key: string
-  type: ComponentType
-  title: string
-  answer: any
+  type: DetailItem['dataType']
+  title: DetailItem['title']
+  answer: DetailItem['rawValue']
 }
 
 export interface Question {

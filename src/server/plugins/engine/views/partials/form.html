@@ -5,25 +5,9 @@
   <input type="hidden" name="crumb" value="{{crumb}}"/>
   {{ componentList(components) }}
 
-  {% if page.isRepeatingFieldPageController and details %}
-    {{ govukButton({
-      attributes: { id: "add-another"},
-      classes: "govuk-button govuk-button--secondary",
-      text: "Add to list"
-      })
-    }}
-    {{ govukSummaryList(details) }}
-  {% endif %}
-
   {% if isStartPage %}
     {{ govukButton({ attributes: { id: "submit" }, text: "Start now", isStartButton: true }) }}
   {% else %}
-    {% if page.isRepeatingFieldPageController and page.isSamePageDisplayMode %}
-      {% if details.rows.length %}
-        {{ govukButton({ attributes: { id: "submit" }, text: "Continue", name: "next", value: "continue"}) }}
-      {% endif %}
-    {% else %}
-      {{ govukButton({ attributes: { id: "submit" }, text: "Continue" }) }}
-    {% endif %}
+    {{ govukButton({ attributes: { id: "submit" }, text: "Continue" }) }}
   {% endif %}
 </form>
