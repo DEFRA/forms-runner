@@ -55,7 +55,6 @@ export class FormModel {
   basePath: string
   conditions: Partial<Record<string, ExecutableCondition>>
   fieldsForContext: ComponentCollection
-  fieldsForPrePopulation: Record<string, any>
   pages: PageControllerClass[]
   startPage?: PageControllerClass
   specialPages?: FormDefinition['specialPages']
@@ -122,7 +121,6 @@ export class FormModel {
     })
 
     this.fieldsForContext = new ComponentCollection(exposedComponentDefs, this)
-    this.fieldsForPrePopulation = {}
     this.pages = def.pages.map((pageDef) => this.makePage(pageDef))
 
     // All models get an Application Status page

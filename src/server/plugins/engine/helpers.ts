@@ -1,6 +1,4 @@
 import { type Request, type ResponseToolkit } from '@hapi/hapi'
-import { reach } from '@hapi/hoek'
-import set from 'lodash/set.js'
 
 import { RelativeUrl } from '~/src/server/plugins/engine/feedback/index.js'
 
@@ -80,23 +78,4 @@ export function redirectTo(
 
 export const idFromFilename = (filename: string) => {
   return filename.replace(/govsite\.|\.json|/gi, '')
-}
-
-export function getValidStateFromQueryParameters(
-  prePopFields: Record<string, string>,
-  queryParameters: Record<string, string>,
-  state: Record<string, unknown> = {}
-) {
-  return Object.entries(queryParameters).reduce((acc, [key, value]) => {
-    if (reach(prePopFields, key) === undefined || reach(state, key)) {
-      return acc
-    }
-
-    const result = reach(prePopFields, key).validate(value)
-    if (result.error) {
-      return acc
-    }
-    set(acc, key, value)
-    return acc
-  }, {})
 }

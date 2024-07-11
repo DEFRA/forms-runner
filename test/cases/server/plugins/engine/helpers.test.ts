@@ -1,12 +1,10 @@
 import { type ResponseToolkit } from '@hapi/hapi'
-import Joi from 'joi'
 
 import {
   proceed,
   redirectTo,
   redirectUrl,
-  nonRelativeRedirectUrl,
-  getValidStateFromQueryParameters
+  nonRelativeRedirectUrl
 } from '~/src/server/plugins/engine/helpers.js'
 
 describe('Helpers', () => {
@@ -315,67 +313,6 @@ describe('Helpers', () => {
       const nextUrl = 'https://test.com'
       const url = nonRelativeRedirectUrl(request, nextUrl)
       expect(url).toBe('https://test.com/?f_t=true')
-    })
-  })
-
-  describe('getValidStateFromQueryParameters', () => {
-    test('Should return an empty object if none of the query parameters relate to valid fields for pre-population', () => {
-      const query = {
-        aBadQueryParam: 'A value'
-      }
-      const prePopFields = {
-        eggType: Joi.string().required()
-      }
-      expect(
-        Object.keys(getValidStateFromQueryParameters(prePopFields, query))
-      ).toHaveLength(0)
-    })
-
-    test('Should return an empty object when a query parameter is valid, but a value already exists in the form state', () => {
-      const query = {
-        aBadQueryParam: 'A value',
-        eggType: 'Hard boiled'
-      }
-      const prePopFields = {
-        eggType: Joi.string().required()
-      }
-      const state = {
-        eggType: 'Fried'
-      }
-
-      expect(
-        Object.keys(
-          getValidStateFromQueryParameters(prePopFields, query, state)
-        )
-      ).toHaveLength(0)
-    })
-
-    test('Should be able to update nested object values', () => {
-      const query = {
-        'yourEggs.eggType': 'Fried egg'
-      }
-      const prePopFields = {
-        yourEggs: {
-          eggType: Joi.string().required()
-        }
-      }
-      expect(
-        getValidStateFromQueryParameters(prePopFields, query).yourEggs.eggType
-      ).toBe('Fried egg')
-    })
-
-    test('Should reject a value if it fails validation', () => {
-      const query = {
-        'yourEggs.eggType': 'deviled'
-      }
-      const prePopFields = {
-        yourEggs: {
-          eggType: Joi.string().valid('boiled', 'fried', 'poached')
-        }
-      }
-      expect(
-        Object.keys(getValidStateFromQueryParameters(prePopFields, query))
-      ).toHaveLength(0)
     })
   })
 })
