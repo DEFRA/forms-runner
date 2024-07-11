@@ -50,6 +50,9 @@ export class YesNoField extends ListFormComponent {
 
     const { options, schema } = def
 
+    this.options = options
+    this.schema = schema
+
     this.formSchema = buildFormSchema(
       'boolean',
       this,
@@ -62,9 +65,6 @@ export class YesNoField extends ListFormComponent {
     )
 
     addClassOptionIfNone(options, 'govuk-radios--inline')
-
-    this.options = options
-    this.schema = schema
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
