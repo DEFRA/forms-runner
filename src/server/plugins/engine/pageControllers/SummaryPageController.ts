@@ -5,7 +5,6 @@ import {
   type RouteOptions
 } from '@hapi/hapi'
 import { format } from 'date-fns'
-import nunjucks from 'nunjucks'
 
 import { config } from '~/src/config/index.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
@@ -244,8 +243,7 @@ async function sendEmail(
 
 function getPersonalisation(
   summaryViewModel: SummaryViewModel,
-  model: FormModel,
-  state: FormSubmissionState
+  model: FormModel
 ) {
   /**
    * @todo Refactor this below but the code to
@@ -256,8 +254,7 @@ function getPersonalisation(
   const formSubmissionData = getFormSubmissionData(
     relevantPages,
     details,
-    model,
-    model.getContextState(state)
+    model
   )
 
   const lines: string[] = []
@@ -284,7 +281,7 @@ function getPersonalisation(
   }
 }
 
-function getFormSubmissionData(relevantPages, details, model, contextState) {
+function getFormSubmissionData(relevantPages, details, model) {
   const questions = relevantPages?.map((page) => {
     const isRepeatable = !!page.repeatField
 
@@ -317,9 +314,7 @@ function getFormSubmissionData(relevantPages, details, model, contextState) {
     let pageTitle = page.title
 
     if (pageTitle) {
-      pageTitle = nunjucks.renderString(page.title.en ?? page.title, {
-        ...contextState
-      })
+      pageTitle = page.title.en ?? page.title
     }
 
     return {

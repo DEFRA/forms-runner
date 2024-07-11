@@ -306,17 +306,11 @@ export class PageControllerBase {
         : {}
 
       return {
-        ...this.components.getFormDataFromState(
-          newState as FormSubmissionState
-        ),
-        ...this.model.fieldsForContext.getFormDataFromState(
-          newState as FormSubmissionState
-        )
+        ...this.components.getFormDataFromState(newState as FormSubmissionState)
       }
     }
     return {
-      ...this.components.getFormDataFromState(pageState || {}),
-      ...this.model.getContextState(state)
+      ...this.components.getFormDataFromState(pageState || {})
     }
   }
 
