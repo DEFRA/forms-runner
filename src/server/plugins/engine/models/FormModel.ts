@@ -11,15 +11,13 @@ import { Parser } from 'expr-eval'
 import joi from 'joi'
 
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
+import { PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
 import {
   getPageController,
   type PageControllerClass,
   type PageControllerType
 } from '~/src/server/plugins/engine/pageControllers/helpers.js'
-import {
-  PageController,
-  PageControllerBase
-} from '~/src/server/plugins/engine/pageControllers/index.js'
+import { PageController } from '~/src/server/plugins/engine/pageControllers/index.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 
 class EvaluationContext {
@@ -184,7 +182,7 @@ export class FormModel {
   /**
    * instantiates a Page based on {@link Page}
    */
-  makePage(pageDef: Page) {
+  makePage(pageDef: Page): PageControllerClass {
     if (pageDef.controller) {
       const PageController = getPageController(pageDef.controller)
 

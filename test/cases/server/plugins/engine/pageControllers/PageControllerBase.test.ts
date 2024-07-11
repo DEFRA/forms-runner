@@ -1,7 +1,7 @@
 import { ComponentType, type FormDefinition } from '@defra/forms-model'
 
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { PageControllerBase } from '~/src/server/plugins/engine/pageControllers/index.js'
+import { PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
 
 describe('PageControllerBase', () => {
   test('getErrors correctly parses ISO string to readable string', () => {

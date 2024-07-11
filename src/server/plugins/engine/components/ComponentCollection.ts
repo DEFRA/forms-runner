@@ -2,12 +2,14 @@ import { type ComponentDef } from '@defra/forms-model'
 import joi from 'joi'
 
 import {
-  type ComponentBase,
   type ComponentSchema,
   type ComponentSchemaNested
 } from '~/src/server/plugins/engine/components/ComponentBase.js'
-import { type FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import * as Components from '~/src/server/plugins/engine/components/index.js'
+import {
+  getComponentField,
+  type ComponentFieldClass,
+  type FormComponentFieldClass
+} from '~/src/server/plugins/engine/components/helpers.js'
 import { type ComponentCollectionViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
@@ -18,24 +20,25 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class ComponentCollection {
-  items: (ComponentBase | ComponentCollection | FormComponent)[]
-  formItems: FormComponent /* | ConditionalFormComponent */[]
+  items: ComponentFieldClass[]
+  formItems: FormComponentFieldClass[]
   formSchema: ComponentSchema
   stateSchema: ComponentSchema
 
   constructor(componentDefs: ComponentDef[] = [], model: FormModel) {
     const components = componentDefs.map((def) => {
-      const Comp = Components[def.type]
+      const Component = getComponentField(def)
 
-      if (typeof Comp !== 'function') {
+      if (!Component) {
         throw new Error(`Component type ${def.type} doesn't exist`)
       }
 
-      return new Comp(def, model)
+      return new Component(def, model)
     })
 
     const formComponents = components.filter(
-      (component) => 'isFormComponent' in component && component.isFormComponent
+      (component): component is FormComponentFieldClass =>
+        'isFormComponent' in component && component.isFormComponent
     )
 
     this.items = components

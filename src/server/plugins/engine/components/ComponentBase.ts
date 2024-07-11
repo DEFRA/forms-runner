@@ -34,7 +34,7 @@ export class ComponentBase {
   /**
    * This is passed onto webhooks, see {@link answerFromDetailItem}
    */
-  dataType?: DataType = 'text'
+  dataType: DataType = 'text'
   model: FormModel
 
   /** joi schemas based on a component defined in the form JSON. This validates a user's answer and is generated from {@link ComponentDef} */

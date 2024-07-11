@@ -9,7 +9,7 @@ import { ComponentCollection } from '~/src/server/plugins/engine/components/Comp
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { buildStateSchema } from '~/src/server/plugins/engine/components/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { type PageControllerBase } from '~/src/server/plugins/engine/pageControllers/index.js'
+import { type PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
 import {
   type FormData,
   type FormPayload,

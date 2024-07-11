@@ -1,5 +1,44 @@
+import { type ComponentDef } from '@defra/forms-model'
 import { add, startOfToday, sub } from 'date-fns'
 import joi from 'joi'
+
+import * as Components from '~/src/server/plugins/engine/components/index.js'
+
+export type ComponentFieldClass = InstanceType<ComponentFieldType>
+export type ComponentFieldType = (typeof Components)[keyof typeof Components]
+
+export type FormComponentFieldClass = InstanceType<FormComponentFieldType>
+export type FormComponentFieldType =
+  | typeof Components.AutocompleteField
+  | typeof Components.CheckboxesField
+  | typeof Components.DatePartsField
+  | typeof Components.EmailAddressField
+  | typeof Components.MonthYearField
+  | typeof Components.MultilineTextField
+  | typeof Components.NumberField
+  | typeof Components.SelectField
+  | typeof Components.TelephoneNumberField
+  | typeof Components.TextField
+  | typeof Components.UkAddressField
+
+export function hasComponentField(
+  componentType: string
+): componentType is keyof typeof Components {
+  return componentType in Components
+}
+
+/**
+ * Gets the field class for each {@link ComponentDef} type
+ */
+export function getComponentField(component: ComponentDef) {
+  const { type } = component
+
+  if (!hasComponentField(type)) {
+    return
+  }
+
+  return Components[type]
+}
 
 /**
  * FIXME:- this code is bonkers. buildFormSchema and buildState schema are duplicates.
