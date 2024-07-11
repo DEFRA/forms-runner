@@ -22,7 +22,7 @@ describe('Multiline text field', () => {
     const { formSchema } = multilineTextField
     expect(formSchema.validate('a').error).toBeUndefined()
 
-    expect(formSchema.validate('too many').error.message).toBe(
+    expect(formSchema.validate('too many').error?.message).toBe(
       'This is a custom error'
     )
   })
@@ -44,15 +44,15 @@ describe('Multiline text field', () => {
 
     expect(formSchema.validate('yolk', validationOptions).error).toBeUndefined()
 
-    expect(formSchema.validate('egg', validationOptions).error.message).toBe(
+    expect(formSchema.validate('egg', validationOptions).error?.message).toBe(
       'my component must be 4 characters or more'
     )
     expect(
-      formSchema.validate('scrambled', validationOptions).error.message
+      formSchema.validate('scrambled', validationOptions).error?.message
     ).toBe('my component must be 5 characters or less')
 
     expect(
-      formSchema.validate('scrambled', validationOptions).error.message
+      formSchema.validate('scrambled', validationOptions).error?.message
     ).toBe('my component must be 5 characters or less')
   })
 
@@ -68,7 +68,7 @@ describe('Multiline text field', () => {
     const multilineTextField = new MultilineTextField(def, {})
     const { formSchema } = multilineTextField
 
-    expect(formSchema.validate('', validationOptions).error.message).toBe(
+    expect(formSchema.validate('', validationOptions).error?.message).toBe(
       'Enter my component'
     )
     expect(formSchema.validate('benedict').error).toBeUndefined()

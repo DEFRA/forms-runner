@@ -1,9 +1,11 @@
-import { type ListComponentsDef, type List } from '@defra/forms-model'
-import joi, { type Schema } from 'joi'
+import { type List, type YesNoFieldComponent } from '@defra/forms-model'
 
 import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
-import * as helpers from '~/src/server/plugins/engine/components/helpers.js'
-import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers.js'
+import {
+  addClassOptionIfNone,
+  buildFormSchema,
+  buildStateSchema
+} from '~/src/server/plugins/engine/components/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
@@ -16,6 +18,9 @@ import {
  * YesNoField is a radiosField with predefined values.
  */
 export class YesNoField extends ListFormComponent {
+  options: YesNoFieldComponent['options']
+  schema: YesNoFieldComponent['schema']
+
   list?: List = {
     name: '__yesNo',
     title: 'Yes/No',
@@ -32,7 +37,6 @@ export class YesNoField extends ListFormComponent {
     ]
   }
 
-  itemsSchema = joi.boolean()
   get items() {
     return this.list?.items ?? []
   }
@@ -41,27 +45,26 @@ export class YesNoField extends ListFormComponent {
     return [true, false]
   }
 
-  constructor(def: ListComponentsDef, model: FormModel) {
+  constructor(def: YesNoFieldComponent, model: FormModel) {
     super(def, model)
 
-    const { options } = this
+    const { options, schema } = def
 
-    this.formSchema = helpers
-      .buildFormSchema('boolean', this, options.required !== false)
-      .valid(true, false)
-    this.stateSchema = helpers
-      .buildStateSchema(this.list?.type, this)
-      .valid(true, false)
+    this.options = options
+    this.schema = schema
 
-    addClassOptionIfNone(this.options, 'govuk-radios--inline')
-  }
+    this.formSchema = buildFormSchema(
+      'boolean',
+      this,
+      options.required !== false
+    ).valid(true, false)
 
-  getFormSchemaKeys() {
-    return { [this.name]: this.formSchema as Schema }
-  }
+    this.stateSchema = buildStateSchema(this.list?.type, this).valid(
+      true,
+      false
+    )
 
-  getStateSchemaKeys() {
-    return { [this.name]: this.stateSchema as Schema }
+    addClassOptionIfNone(options, 'govuk-radios--inline')
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {

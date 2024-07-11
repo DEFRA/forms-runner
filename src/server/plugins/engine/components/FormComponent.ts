@@ -1,6 +1,7 @@
-import joi, { type Schema } from 'joi'
-
-import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
+import {
+  ComponentBase,
+  type ComponentSchemaKeys
+} from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import {
   type FormPayload,
@@ -50,7 +51,7 @@ export class FormComponent extends ComponentBase {
 
     const viewModel = super.getViewModel(payload, errors)
 
-    const isRequired = !('required' in options && options.required === false)
+    const isRequired = !('required' in options) || options.required !== false
     const hideOptional = 'optionalText' in options && options.optionalText
     const label = `${title}${!isRequired && !hideOptional ? optionalText : ''}`
 
@@ -87,12 +88,12 @@ export class FormComponent extends ComponentBase {
     }
   }
 
-  getFormSchemaKeys() {
-    return { [this.name]: joi.any() }
+  getFormSchemaKeys(): ComponentSchemaKeys {
+    return { [this.name]: this.formSchema }
   }
 
-  getStateSchemaKeys(): Record<string, Schema> {
-    return { [this.name]: joi.any() }
+  getStateSchemaKeys(): ComponentSchemaKeys {
+    return { [this.name]: this.formSchema }
   }
 
   getDisplayStringFromState(state) {

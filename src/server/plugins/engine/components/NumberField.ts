@@ -1,8 +1,5 @@
-import {
-  type ComponentDef,
-  type NumberFieldComponent
-} from '@defra/forms-model'
-import joi, { type Schema } from 'joi'
+import { type NumberFieldComponent } from '@defra/forms-model'
+import joi from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
@@ -13,49 +10,48 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class NumberField extends FormComponent {
-  schemaOptions: NumberFieldComponent['schema']
   options: NumberFieldComponent['options']
+  schema: NumberFieldComponent['schema']
 
-  constructor(def: ComponentDef, model: FormModel) {
+  constructor(def: NumberFieldComponent, model: FormModel) {
     super(def, model)
-    this.schemaOptions = def.schema
-    this.options = def.options
-    const { min, max } = def.schema
-    let schema = joi.number()
 
-    schema = schema.label(def.title.toLowerCase())
+    const { options, schema, title } = def
 
-    if (def.schema.min && def.schema.max) {
-      schema = schema.$
+    let formSchema = joi.number().label(title.toLowerCase())
+
+    if (schema.min && schema.max) {
+      formSchema = formSchema.$
     }
-    if (def.schema.min ?? false) {
-      schema = schema.min(min)
+    if (schema.min ?? false) {
+      formSchema = formSchema.min(schema.min)
     }
 
-    if (def.schema.max ?? false) {
-      schema = schema.max(max)
+    if (schema.max ?? false) {
+      formSchema = formSchema.max(schema.max)
     }
 
-    if (def.options.customValidationMessage) {
-      schema = schema.rule({ message: def.options.customValidationMessage })
+    if (options.customValidationMessage) {
+      formSchema = formSchema.rule({
+        message: options.customValidationMessage
+      })
     }
 
-    if (def.options.required === false) {
+    if (options.required === false) {
       const optionalSchema = joi
-        .alternatives()
-        .try(joi.string().allow(null).allow('').default('').optional(), schema)
-      this.schema = optionalSchema
+        .alternatives<string | number>()
+        .try(
+          joi.string().allow(null).allow('').default('').optional(),
+          formSchema
+        )
+
+      this.formSchema = optionalSchema
     } else {
-      this.schema = schema
+      this.formSchema = formSchema
     }
-  }
 
-  getFormSchemaKeys() {
-    return { [this.name]: this.schema as Schema }
-  }
-
-  getStateSchemaKeys() {
-    return { [this.name]: this.schema as Schema }
+    this.options = options
+    this.schema = schema
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
@@ -73,7 +69,7 @@ export class NumberField extends FormComponent {
       ...(options.suffix && viewModelSuffix)
     }
 
-    if (this.schemaOptions.precision) {
+    if (schema.precision) {
       viewModel.attributes.step = '0.' + '1'.padStart(schema.precision, '0')
     }
 

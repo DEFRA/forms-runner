@@ -1,9 +1,10 @@
 import {
-  type ListComponentsDef,
+  type Item,
   type List,
-  type Item
+  type ListComponentsDef,
+  type YesNoFieldComponent
 } from '@defra/forms-model'
-import joi, { type Schema } from 'joi'
+import joi from 'joi'
 
 import { type FormModel } from '~/src/server/plugins/engine/components/../models/index.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
@@ -15,12 +16,12 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class ListFormComponent extends FormComponent {
+  options: ListComponentsDef['options'] | YesNoFieldComponent['options']
+  schema: ListComponentsDef['schema'] | YesNoFieldComponent['options']
+
   list?: List
-  listType = 'string'
-  formSchema
-  stateSchema
-  options: ListComponentsDef['options']
-  dataType = 'list' as DataType
+  listType: List['type'] = 'string'
+  dataType: DataType = 'list'
 
   get items(): Item[] {
     return this.list?.items ?? []
@@ -30,36 +31,34 @@ export class ListFormComponent extends FormComponent {
     return this.items.map((item) => item.value)
   }
 
-  constructor(def: ListComponentsDef, model: FormModel) {
+  constructor(def: ListComponentsDef | YesNoFieldComponent, model: FormModel) {
     super(def, model)
-    this.list = model.getList(def.list)
-    this.listType = this.list?.type ?? 'string'
-    this.options = def.options
 
-    let schema = joi[this.listType]()
+    const { schema, options, title } = def
+
+    if ('list' in def) {
+      this.list = model.getList(def.list)
+      this.listType = this.list?.type ?? 'string'
+    }
+
+    let formSchema = joi[this.listType]()
 
     /**
      * Only allow a user to answer with values that have been defined in the list
      */
-    if (def.options.required === false) {
+    if (options.required === false) {
       // null or empty string is valid for optional fields
-      schema = schema.empty(null).valid(...this.values, '')
+      formSchema = formSchema.empty(null).valid(...this.values, '')
     } else {
-      schema = schema.valid(...this.values).required()
+      formSchema = formSchema.valid(...this.values).required()
     }
 
-    schema = schema.label(def.title.toLowerCase())
+    formSchema = formSchema.label(title.toLowerCase())
 
-    this.formSchema = schema
-    this.stateSchema = schema
-  }
-
-  getFormSchemaKeys() {
-    return { [this.name]: this.formSchema as Schema }
-  }
-
-  getStateSchemaKeys() {
-    return { [this.name]: this.stateSchema as Schema }
+    this.formSchema = formSchema
+    this.stateSchema = formSchema
+    this.options = options
+    this.schema = schema
   }
 
   getDisplayStringFromState(state: FormSubmissionState): string | string[] {

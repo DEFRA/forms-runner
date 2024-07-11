@@ -311,16 +311,9 @@ function getFormSubmissionData(relevantPages, details, model) {
       return fields
     })
 
-    let pageTitle = page.title
-
-    if (pageTitle) {
-      pageTitle = page.title.en ?? page.title
-    }
-
     return {
       category: page.section?.name,
-      question:
-        pageTitle ?? page.components.formItems.map((item) => item.title),
+      question: page.title,
       fields,
       index
     }

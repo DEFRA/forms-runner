@@ -1,5 +1,5 @@
 import { type ComponentDef, ComponentType } from '@defra/forms-model'
-import joi from 'joi'
+import joi, { type ObjectSchema } from 'joi'
 
 import { MonthYearField } from '~/src/server/plugins/engine/components/index.js'
 import { messages } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -7,7 +7,7 @@ import { messages } from '~/src/server/plugins/engine/pageControllers/validation
 /**
  * This replicates {@link PageControllerBase.validate}
  */
-const validate = (schema, value) => {
+const validate = (schema: ObjectSchema, value: object) => {
   return schema.validate(value, { messages })
 }
 
@@ -36,14 +36,14 @@ describe('Month Year Field', () => {
       validate(schema, {
         myComponent__year: 2000,
         myComponent__month: 0
-      }).error.message
+      }).error?.message
     ).toContain('must be between 1 and 12')
 
     expect(
       validate(schema, {
         myComponent__year: 1,
         myComponent__month: 12
-      }).error.message
+      }).error?.message
     ).toContain('must be 1000 or higher')
 
     expect(

@@ -1,7 +1,7 @@
 import {
-  type ListComponentsDef,
   type Item,
-  type List as ListType
+  type List as ListType,
+  type ListComponent
 } from '@defra/forms-model'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
@@ -12,14 +12,22 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class List extends ComponentBase {
+  schema: ListComponent['schema']
+  options: ListComponent['options']
   list?: ListType
+
   get items(): Item[] {
     return this.list?.items ?? []
   }
 
-  constructor(def: ListComponentsDef, model: FormModel) {
+  constructor(def: ListComponent, model: FormModel) {
     super(def, model)
-    this.list = model.getList(def.list)
+
+    const { list, options, schema } = def
+
+    this.list = model.getList(list)
+    this.options = options
+    this.schema = schema
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {

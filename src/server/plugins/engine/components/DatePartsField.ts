@@ -1,13 +1,16 @@
 import {
   ComponentType,
-  type InputFieldsComponentsDef
+  type DatePartsFieldFieldComponent
 } from '@defra/forms-model'
 import { parseISO, format } from 'date-fns'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
-import * as helpers from '~/src/server/plugins/engine/components/helpers.js'
+import {
+  buildStateSchema,
+  getCustomDateValidator
+} from '~/src/server/plugins/engine/components/helpers.js'
 import { type DataType } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
@@ -17,15 +20,17 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class DatePartsField extends FormComponent {
+  options: DatePartsFieldFieldComponent['options']
+  schema: DatePartsFieldFieldComponent['schema']
   children: ComponentCollection
-  dataType = 'date' as DataType
+  dataType: DataType = 'date'
 
-  constructor(def: InputFieldsComponentsDef, model: FormModel) {
+  constructor(def: DatePartsFieldFieldComponent, model: FormModel) {
     super(def, model)
 
-    const { name, options } = this
+    const { name, options, schema } = def
 
-    const isRequired = !('required' in options && options.required === false)
+    const isRequired = !('required' in options) || options.required !== false
     const hideOptional = 'optionalText' in options && options.optionalText
 
     this.children = new ComponentCollection(
@@ -70,7 +75,9 @@ export class DatePartsField extends FormComponent {
       model
     )
 
-    this.stateSchema = helpers.buildStateSchema('date', this)
+    this.options = options
+    this.schema = schema
+    this.stateSchema = buildStateSchema('date', this)
   }
 
   getFormSchemaKeys() {
@@ -83,7 +90,7 @@ export class DatePartsField extends FormComponent {
     let schema = this.stateSchema
 
     schema = schema.custom(
-      helpers.getCustomDateValidator(maxDaysInPast, maxDaysInFuture)
+      getCustomDateValidator(maxDaysInPast, maxDaysInFuture)
     )
 
     return { [this.name]: schema }

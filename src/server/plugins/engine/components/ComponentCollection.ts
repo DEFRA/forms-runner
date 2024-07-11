@@ -1,7 +1,11 @@
 import { type ComponentDef } from '@defra/forms-model'
-import joi, { type Schema as JoiSchema } from 'joi'
+import joi from 'joi'
 
-import { type ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
+import {
+  type ComponentBase,
+  type ComponentSchema,
+  type ComponentSchemaNested
+} from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { type FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import * as Components from '~/src/server/plugins/engine/components/index.js'
 import { type ComponentCollectionViewModel } from '~/src/server/plugins/engine/components/types.js'
@@ -16,8 +20,8 @@ import {
 export class ComponentCollection {
   items: (ComponentBase | ComponentCollection | FormComponent)[]
   formItems: FormComponent /* | ConditionalFormComponent */[]
-  formSchema: JoiSchema
-  stateSchema: JoiSchema
+  formSchema: ComponentSchema
+  stateSchema: ComponentSchema
 
   constructor(componentDefs: ComponentDef[] = [], model: FormModel) {
     const components = componentDefs.map((def) => {
@@ -46,7 +50,7 @@ export class ComponentCollection {
   }
 
   getFormSchemaKeys() {
-    const keys = {}
+    const keys: ComponentSchemaNested = {}
 
     this.formItems.forEach((item) => {
       Object.assign(keys, item.getFormSchemaKeys())
@@ -56,7 +60,7 @@ export class ComponentCollection {
   }
 
   getStateSchemaKeys() {
-    const keys = {}
+    const keys: ComponentSchemaNested = {}
 
     this.formItems.forEach((item) => {
       Object.assign(keys, item.getStateSchemaKeys())

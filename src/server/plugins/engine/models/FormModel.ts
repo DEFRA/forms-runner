@@ -155,7 +155,7 @@ export class FormModel {
             (page) => page.pageDef.repeatField
           )
 
-          let sectionSchema: joi.ObjectSchema | joi.ArraySchema = joi
+          let sectionSchema: joi.ObjectSchema | joi.ArraySchema<string> = joi
             .object()
             .required()
 
@@ -164,7 +164,7 @@ export class FormModel {
           })
 
           if (isRepeatable) {
-            sectionSchema = joi.array().items(sectionSchema)
+            sectionSchema = joi.array<string>().items(sectionSchema)
           }
 
           schema = schema.append({

@@ -27,11 +27,7 @@ export function buildFormSchema(schemaType, component, isRequired = true) {
   }
 
   if (component.title) {
-    schema = schema.label(
-      typeof component.title === 'string'
-        ? component.title.toLowerCase()
-        : component.title.en.toLowerCase()
-    )
+    schema = schema.label(component.title.toLowerCase())
   }
 
   if (component.options.required === false) {
@@ -49,11 +45,7 @@ export function buildStateSchema(schemaType, component) {
   let schema = buildSchema(schemaType, component.schema)
 
   if (component.title) {
-    schema = schema.label(
-      typeof component.title === 'string'
-        ? component.title.toLowerCase()
-        : component.title.en.toLowerCase()
-    )
+    schema = schema.label(component.title.toLowerCase())
   }
 
   if (component.options.required !== false) {

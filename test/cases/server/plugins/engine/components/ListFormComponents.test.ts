@@ -72,7 +72,7 @@ describe('ListFormComponent', () => {
     )
 
     it('schema validates correctly when the field is optional', () => {
-      const schema = optionalComponent.formSchema
+      const { formSchema: schema } = optionalComponent
 
       expect(schema.validate('1').error).toBeUndefined()
       expect(schema.validate('2').error).toBeUndefined()
@@ -80,9 +80,9 @@ describe('ListFormComponent', () => {
       expect(schema.validate(null).error).toBeUndefined()
 
       const errorMessage = '"turnaround?" must be one of [1, 2, ]'
-      expect(schema.validate(10).error.message).toEqual(errorMessage)
-      expect(schema.validate('ten').error.message).toEqual(errorMessage)
-      expect(schema.validate(2).error.message).toEqual(errorMessage)
+      expect(schema.validate(10).error?.message).toEqual(errorMessage)
+      expect(schema.validate('ten').error?.message).toEqual(errorMessage)
+      expect(schema.validate(2).error?.message).toEqual(errorMessage)
     })
   })
 })

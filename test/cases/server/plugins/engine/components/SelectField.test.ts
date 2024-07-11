@@ -66,7 +66,11 @@ describe('SelectField', () => {
     const component = new SelectField(componentDefinition, formModel)
 
     it('is required by default', () => {
-      expect(component.formSchema.describe().flags.presence).toBe('required')
+      expect(component.formSchema.describe().flags).toEqual(
+        expect.objectContaining({
+          presence: 'required'
+        })
+      )
     })
 
     it('validates correctly', () => {

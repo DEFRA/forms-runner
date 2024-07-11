@@ -1,10 +1,26 @@
+import { type AutocompleteFieldComponent } from '@defra/forms-model'
+
 import { SelectField } from '~/src/server/plugins/engine/components/SelectField.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
+  type FormData,
   type FormSubmissionErrors,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 
 export class AutocompleteField extends SelectField {
+  options: AutocompleteFieldComponent['options']
+  schema: AutocompleteFieldComponent['schema']
+
+  constructor(def: AutocompleteFieldComponent, model: FormModel) {
+    super(def, model)
+
+    const { schema, options } = def
+
+    this.options = options
+    this.schema = schema
+  }
+
   getDisplayStringFromState(state: FormSubmissionState): string {
     const { name, items } = this
     const value = state[name]

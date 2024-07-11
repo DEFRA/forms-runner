@@ -1,5 +1,5 @@
 import { type TelephoneNumberFieldComponent } from '@defra/forms-model'
-import joi, { type Schema } from 'joi'
+import joi from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers.js'
@@ -11,41 +11,41 @@ import {
 
 const PATTERN = /^[0-9\\\s+()-]*$/
 const DEFAULT_MESSAGE = 'Enter a telephone number in the correct format'
+
 export class TelephoneNumberField extends FormComponent {
+  options: TelephoneNumberFieldComponent['options']
+  schema: TelephoneNumberFieldComponent['schema']
+
   constructor(def: TelephoneNumberFieldComponent, model: FormModel) {
     super(def, model)
 
-    const { options = {}, schema = {} } = def
+    const { schema, options, title } = def
+
     const pattern = schema.regex ? new RegExp(schema.regex) : PATTERN
-    let componentSchema = joi.string()
+    let formSchema = joi.string()
 
     if (options.required === false) {
-      componentSchema = componentSchema.allow('').allow(null)
+      formSchema = formSchema.allow('').allow(null)
     }
-    componentSchema = componentSchema
+
+    formSchema = formSchema
       .pattern(pattern)
-      .message(def.options.customValidationMessage ?? DEFAULT_MESSAGE)
-      .label(def.title.toLowerCase())
+      .message(options.customValidationMessage ?? DEFAULT_MESSAGE)
+      .label(title.toLowerCase())
 
     if (schema.max) {
-      componentSchema = componentSchema.max(schema.max)
+      formSchema = formSchema.max(schema.max)
     }
 
     if (schema.min) {
-      componentSchema = componentSchema.min(schema.min)
+      formSchema = formSchema.min(schema.min)
     }
 
-    this.schema = componentSchema
+    addClassOptionIfNone(options, 'govuk-input--width-20')
 
-    addClassOptionIfNone(this.options, 'govuk-input--width-20')
-  }
-
-  getFormSchemaKeys() {
-    return { [this.name]: this.schema as Schema }
-  }
-
-  getStateSchemaKeys() {
-    return { [this.name]: this.schema as Schema }
+    this.formSchema = formSchema
+    this.options = options
+    this.schema = schema
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {

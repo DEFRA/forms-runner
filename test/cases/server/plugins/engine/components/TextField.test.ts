@@ -22,14 +22,20 @@ describe('TextField', () => {
     const component = new TextField(componentDefinition, formModel)
 
     it('is required by default', () => {
-      expect(component.formSchema.describe().flags.presence).toBe('required')
+      expect(component.formSchema.describe().flags).toEqual(
+        expect.objectContaining({
+          presence: 'required'
+        })
+      )
     })
 
     it('is not required when explicitly configured', () => {
       const component = TextComponent({ options: { required: false } })
 
-      expect(component.formSchema.describe().flags.presence).not.toBe(
-        'required'
+      expect(component.formSchema.describe().flags).not.toEqual(
+        expect.objectContaining({
+          presence: 'required'
+        })
       )
     })
 
