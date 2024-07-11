@@ -7,7 +7,6 @@ import joi from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { buildStateSchema } from '~/src/server/plugins/engine/components/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
 import {
@@ -26,10 +25,16 @@ export class UkAddressField extends FormComponent {
   constructor(def: UkAddressFieldComponent, model: FormModel) {
     super(def, model)
 
-    const { name, options, schema } = def
+    const { name, options, schema, title } = def
 
     const isRequired = options.required !== false
     const hideOptional = options.optionalText
+
+    let stateSchema = joi.object().required().label(title)
+
+    if (options.required === false) {
+      stateSchema = stateSchema.allow('').allow(null)
+    }
 
     const childrenList = [
       {
@@ -94,7 +99,7 @@ export class UkAddressField extends FormComponent {
     this.schema = schema
     this.children = formChildren
     this.stateChildren = stateChildren
-    this.stateSchema = buildStateSchema('date', this)
+    this.stateSchema = stateSchema
   }
 
   getFormSchemaKeys() {

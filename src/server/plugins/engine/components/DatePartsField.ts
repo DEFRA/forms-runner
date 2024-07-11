@@ -3,14 +3,12 @@ import {
   type DatePartsFieldFieldComponent
 } from '@defra/forms-model'
 import { parseISO, format } from 'date-fns'
+import joi from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
-import {
-  buildStateSchema,
-  getCustomDateValidator
-} from '~/src/server/plugins/engine/components/helpers.js'
+import { getCustomDateValidator } from '~/src/server/plugins/engine/components/helpers.js'
 import { type DataType } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
@@ -28,10 +26,16 @@ export class DatePartsField extends FormComponent {
   constructor(def: DatePartsFieldFieldComponent, model: FormModel) {
     super(def, model)
 
-    const { name, options, schema } = def
+    const { name, options, schema, title } = def
 
     const isRequired = options.required !== false
     const hideOptional = options.optionalText
+
+    let stateSchema = joi.date().required().label(title)
+
+    if (options.required === false) {
+      stateSchema = stateSchema.allow('').allow(null)
+    }
 
     this.children = new ComponentCollection(
       [
@@ -77,7 +81,7 @@ export class DatePartsField extends FormComponent {
 
     this.options = options
     this.schema = schema
-    this.stateSchema = buildStateSchema('date', this)
+    this.stateSchema = stateSchema
   }
 
   getFormSchemaKeys() {
