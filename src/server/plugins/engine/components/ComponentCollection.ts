@@ -6,11 +6,10 @@ import {
   type ComponentSchemaNested
 } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import {
-  hasComponentField,
+  getComponentField,
   type ComponentFieldClass,
   type FormComponentFieldClass
 } from '~/src/server/plugins/engine/components/helpers.js'
-import * as Components from '~/src/server/plugins/engine/components/index.js'
 import { type ComponentCollectionViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
@@ -28,12 +27,13 @@ export class ComponentCollection {
 
   constructor(componentDefs: ComponentDef[] = [], model: FormModel) {
     const components = componentDefs.map((def) => {
-      if (!hasComponentField(def.type)) {
+      const Component = getComponentField(def)
+
+      if (!Component) {
         throw new Error(`Component type ${def.type} doesn't exist`)
       }
 
-      const Comp = Components[def.type]
-      return new Comp(def, model)
+      return new Component(def, model)
     })
 
     const formComponents = components.filter(

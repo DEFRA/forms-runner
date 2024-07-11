@@ -1,3 +1,4 @@
+import { type ComponentDef } from '@defra/forms-model'
 import { add, startOfToday, sub } from 'date-fns'
 import joi from 'joi'
 
@@ -24,6 +25,19 @@ export function hasComponentField(
   componentType: string
 ): componentType is keyof typeof Components {
   return componentType in Components
+}
+
+/**
+ * Gets the field class for each {@link ComponentDef} type
+ */
+export function getComponentField(component: ComponentDef) {
+  const { type } = component
+
+  if (!hasComponentField(type)) {
+    return
+  }
+
+  return Components[type]
 }
 
 /**
