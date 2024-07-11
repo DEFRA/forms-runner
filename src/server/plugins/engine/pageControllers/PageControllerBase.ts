@@ -15,6 +15,7 @@ import {
 } from '@hapi/hapi'
 import { merge, reach } from '@hapi/hoek'
 import { format, parseISO } from 'date-fns'
+import joi from 'joi'
 import { type ValidationResult, type ObjectSchema } from 'joi'
 
 import { config } from '~/src/config/index.js'
@@ -91,20 +92,6 @@ export class PageControllerBase {
     const conditionalFormComponents = components.formItems.filter(
       (c: any) => c.conditionalComponents
     )
-
-    const fieldsForPrePopulation = components.prePopulatedItems
-
-    if (this.section) {
-      this.model.fieldsForPrePopulation[this.section.name] = {
-        ...(this.model.fieldsForPrePopulation[this.section.name] ?? {}),
-        ...fieldsForPrePopulation
-      }
-    } else {
-      this.model.fieldsForPrePopulation = {
-        ...this.model.fieldsForPrePopulation,
-        ...fieldsForPrePopulation
-      }
-    }
 
     this.components = components
     this.hasFormComponents = !!components.formItems.length

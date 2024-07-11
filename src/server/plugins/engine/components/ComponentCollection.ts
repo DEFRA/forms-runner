@@ -1,5 +1,4 @@
 import { type ComponentDef } from '@defra/forms-model'
-import { merge } from '@hapi/hoek'
 import joi, { type Schema as JoiSchema } from 'joi'
 
 import { type ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
@@ -17,7 +16,6 @@ import {
 export class ComponentCollection {
   items: (ComponentBase | ComponentCollection | FormComponent)[]
   formItems: FormComponent /* | ConditionalFormComponent */[]
-  prePopulatedItems: Record<string, JoiSchema>
   formSchema: JoiSchema
   stateSchema: JoiSchema
 
@@ -45,7 +43,6 @@ export class ComponentCollection {
       .keys({ crumb: joi.string().optional().allow('') })
 
     this.stateSchema = joi.object().keys(this.getStateSchemaKeys()).required()
-    this.prePopulatedItems = this.getPrePopulatedItems()
   }
 
   getFormSchemaKeys() {
@@ -66,16 +63,6 @@ export class ComponentCollection {
     })
 
     return keys
-  }
-
-  getPrePopulatedItems() {
-    return this.formItems
-      .filter(
-        ({ options }) =>
-          'allowPrePopulation' in options && options.allowPrePopulation
-      )
-      .map((item) => item.getStateSchemaKeys())
-      .reduce((acc, curr) => merge(acc, curr), {})
   }
 
   getFormDataFromState(state: FormSubmissionState): FormData {

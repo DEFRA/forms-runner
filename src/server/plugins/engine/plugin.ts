@@ -12,10 +12,7 @@ import { isEqual } from 'date-fns'
 import Joi from 'joi'
 
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
-import {
-  getValidStateFromQueryParameters,
-  redirectTo
-} from '~/src/server/plugins/engine/helpers.js'
+import { redirectTo } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   getFormDefinition,
@@ -69,33 +66,6 @@ export const plugin = {
     // (for testing purposes) through `server.app.models`
     const itemCache = new Map<string, { model: FormModel; updatedAt: Date }>()
     server.app.models = itemCache
-
-    const queryParamPreHandler = async (
-      request: Request,
-      h: ResponseToolkit
-    ) => {
-      const { query } = request
-      const model = request.app.model
-      const prePopFields = model?.fieldsForPrePopulation ?? {}
-      const queryKeysLength = Object.keys(query).length
-      const prePopFieldsKeysLength = Object.keys(prePopFields).length
-
-      if (queryKeysLength === 0 || prePopFieldsKeysLength === 0) {
-        return h.continue
-      }
-
-      const { cacheService } = request.services([])
-      const state = await cacheService.getState(request)
-      const newValues = getValidStateFromQueryParameters(
-        prePopFields,
-        query,
-        state
-      )
-
-      await cacheService.mergeState(request, newValues)
-
-      return h.continue
-    }
 
     const loadFormPreHandler = async (
       request: Request<{
@@ -244,9 +214,6 @@ export const plugin = {
       pre: [
         {
           method: loadFormPreHandler
-        },
-        {
-          method: queryParamPreHandler
         }
       ]
     }
@@ -284,9 +251,6 @@ export const plugin = {
       pre: [
         {
           method: loadFormPreHandler
-        },
-        {
-          method: queryParamPreHandler
         }
       ]
     }
