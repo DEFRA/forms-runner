@@ -10,7 +10,6 @@ import { add } from 'date-fns'
 import { Parser } from 'expr-eval'
 import joi from 'joi'
 
-import { ComponentCollection } from '~/src/server/plugins/engine/components/index.js'
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
 import {
   getPageController,
@@ -54,7 +53,6 @@ export class FormModel {
 
   basePath: string
   conditions: Partial<Record<string, ExecutableCondition>>
-  fieldsForContext: ComponentCollection
   pages: PageControllerClass[]
   startPage?: PageControllerClass
   specialPages?: FormDefinition['specialPages']
@@ -114,13 +112,6 @@ export class FormModel {
       this.conditions[condition.name] = condition
     })
 
-    const exposedComponentDefs = def.pages.flatMap(({ components = [] }) => {
-      return components.filter(({ options }) => {
-        return 'exposeToContext' in options && options.exposeToContext
-      })
-    })
-
-    this.fieldsForContext = new ComponentCollection(exposedComponentDefs, this)
     this.pages = def.pages.map((pageDef) => this.makePage(pageDef))
 
     // All models get an Application Status page
@@ -271,22 +262,5 @@ export class FormModel {
 
   getList(name: string): List | undefined {
     return this.lists.find((list) => list.name === name)
-  }
-
-  getContextState(state: FormSubmissionState) {
-    const contextState = Object.keys(state).reduce((acc, curr) => {
-      if (typeof state[curr] === 'object') {
-        return {
-          ...acc,
-          ...state[curr]
-        }
-      }
-      return {
-        ...acc,
-        [curr]: state[curr]
-      }
-    }, {})
-
-    return this.fieldsForContext.getFormDataFromState(contextState)
   }
 }
