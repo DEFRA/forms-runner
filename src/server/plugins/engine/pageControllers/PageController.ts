@@ -1,8 +1,4 @@
-import {
-  type Request,
-  type ResponseToolkit,
-  type RouteOptions
-} from '@hapi/hapi'
+import { type RouteOptions } from '@hapi/hapi'
 
 import { PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
 
