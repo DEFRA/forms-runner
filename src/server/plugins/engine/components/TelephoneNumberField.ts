@@ -1,5 +1,5 @@
 import { type TelephoneNumberFieldComponent } from '@defra/forms-model'
-import joi, { type Schema } from 'joi'
+import joi from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers.js'
@@ -38,14 +38,6 @@ export class TelephoneNumberField extends FormComponent {
     this.schema = componentSchema
 
     addClassOptionIfNone(this.options, 'govuk-input--width-20')
-  }
-
-  getFormSchemaKeys() {
-    return { [this.name]: this.schema as Schema }
-  }
-
-  getStateSchemaKeys() {
-    return { [this.name]: this.schema as Schema }
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {

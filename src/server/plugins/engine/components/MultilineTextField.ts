@@ -1,5 +1,5 @@
 import { type MultilineTextFieldComponent } from '@defra/forms-model'
-import Joi, { type Schema, type StringSchema } from 'joi'
+import Joi from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type MultilineTextFieldViewModel } from '~/src/server/plugins/engine/components/types.js'
@@ -19,7 +19,6 @@ function inputIsOverWordCount(input: string, maxWords: number) {
 }
 
 export class MultilineTextField extends FormComponent {
-  formSchema: StringSchema
   options: MultilineTextFieldComponent['options']
   schema: MultilineTextFieldComponent['schema']
   customValidationMessage?: string
@@ -65,14 +64,6 @@ export class MultilineTextField extends FormComponent {
         message: customValidationMessage
       })
     }
-  }
-
-  getFormSchemaKeys() {
-    return { [this.name]: this.formSchema as Schema }
-  }
-
-  getStateSchemaKeys() {
-    return { [this.name]: this.formSchema as Schema }
   }
 
   getViewModel(

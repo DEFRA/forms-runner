@@ -1,8 +1,9 @@
 import { type ComponentDef } from '@defra/forms-model'
-import joi, { type Schema as JoiSchema } from 'joi'
+import joi from 'joi'
 
 import {
   type ComponentBase,
+  type ComponentSchema,
   type ComponentSchemaNested
 } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { type FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
@@ -19,8 +20,8 @@ import {
 export class ComponentCollection {
   items: (ComponentBase | ComponentCollection | FormComponent)[]
   formItems: FormComponent /* | ConditionalFormComponent */[]
-  formSchema: JoiSchema
-  stateSchema: JoiSchema
+  formSchema: ComponentSchema
+  stateSchema: ComponentSchema
 
   constructor(componentDefs: ComponentDef[] = [], model: FormModel) {
     const components = componentDefs.map((def) => {

@@ -1,9 +1,12 @@
 import { type ListComponentsDef, type List } from '@defra/forms-model'
-import joi, { type Schema } from 'joi'
+import joi from 'joi'
 
 import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
-import * as helpers from '~/src/server/plugins/engine/components/helpers.js'
-import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers.js'
+import {
+  addClassOptionIfNone,
+  buildFormSchema,
+  buildStateSchema
+} from '~/src/server/plugins/engine/components/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
@@ -46,22 +49,18 @@ export class YesNoField extends ListFormComponent {
 
     const { options } = this
 
-    this.formSchema = helpers
-      .buildFormSchema('boolean', this, options.required !== false)
-      .valid(true, false)
-    this.stateSchema = helpers
-      .buildStateSchema(this.list?.type, this)
-      .valid(true, false)
+    this.formSchema = buildFormSchema(
+      'boolean',
+      this,
+      options.required !== false
+    ).valid(true, false)
+
+    this.stateSchema = buildStateSchema(this.list?.type, this).valid(
+      true,
+      false
+    )
 
     addClassOptionIfNone(this.options, 'govuk-radios--inline')
-  }
-
-  getFormSchemaKeys() {
-    return { [this.name]: this.formSchema as Schema }
-  }
-
-  getStateSchemaKeys() {
-    return { [this.name]: this.stateSchema as Schema }
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {

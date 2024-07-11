@@ -7,7 +7,10 @@ import { parseISO, format } from 'date-fns'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
-import * as helpers from '~/src/server/plugins/engine/components/helpers.js'
+import {
+  buildStateSchema,
+  getCustomDateValidator
+} from '~/src/server/plugins/engine/components/helpers.js'
 import { type DataType } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
@@ -70,7 +73,7 @@ export class DatePartsField extends FormComponent {
       model
     )
 
-    this.stateSchema = helpers.buildStateSchema('date', this)
+    this.stateSchema = buildStateSchema('date', this)
   }
 
   getFormSchemaKeys() {
@@ -83,7 +86,7 @@ export class DatePartsField extends FormComponent {
     let schema = this.stateSchema
 
     schema = schema.custom(
-      helpers.getCustomDateValidator(maxDaysInPast, maxDaysInFuture)
+      getCustomDateValidator(maxDaysInPast, maxDaysInFuture)
     )
 
     return { [this.name]: schema }

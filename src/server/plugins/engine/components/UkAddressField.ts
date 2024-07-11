@@ -7,7 +7,7 @@ import joi from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import * as helpers from '~/src/server/plugins/engine/components/helpers.js'
+import { buildStateSchema } from '~/src/server/plugins/engine/components/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageControllerBase } from '~/src/server/plugins/engine/pageControllers/index.js'
 import {
@@ -25,7 +25,7 @@ export class UkAddressField extends FormComponent {
     super(def, model)
     const { name, options } = this
 
-    const stateSchema = helpers.buildStateSchema('date', this)
+    const stateSchema = buildStateSchema('date', this)
 
     const isRequired = !('required' in options && options.required === false)
     const hideOptional = 'optionalText' in options && options.optionalText

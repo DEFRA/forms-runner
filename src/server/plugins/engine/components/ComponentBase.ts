@@ -3,7 +3,14 @@ import {
   type ContentComponentsDef,
   type InputFieldsComponentsDef
 } from '@defra/forms-model'
-import { type Schema as JoiSchema } from 'joi'
+import joi, {
+  type AlternativesSchema,
+  type ArraySchema,
+  type BooleanSchema,
+  type NumberSchema,
+  type ObjectSchema,
+  type StringSchema
+} from 'joi'
 
 import {
   type DataType,
@@ -23,6 +30,7 @@ export class ComponentBase {
   options: ComponentDef['options']
   hint?: InputFieldsComponentsDef['hint']
   content?: ContentComponentsDef['content']
+
   /**
    * This is passed onto webhooks, see {@link answerFromDetailItem}
    */
@@ -30,8 +38,8 @@ export class ComponentBase {
   model: FormModel
 
   /** joi schemas based on a component defined in the form JSON. This validates a user's answer and is generated from {@link ComponentDef} */
-  formSchema?: JoiSchema
-  stateSchema?: JoiSchema
+  formSchema: ComponentSchema = joi.string()
+  stateSchema: ComponentSchema = joi.string()
 
   constructor(def: ComponentDef, model: FormModel) {
     // component definition properties
@@ -61,4 +69,20 @@ export class ComponentBase {
   }
 }
 
-export type ComponentSchemaNested = Record<string, JoiSchema | undefined>
+export type ComponentSchema =
+  | AlternativesSchema<string | number>
+  | ArraySchema<string>
+  | ArraySchema<number>
+  | ArraySchema<boolean>
+  | BooleanSchema<string>
+  | NumberSchema<string>
+  | NumberSchema
+  | ObjectSchema
+  | StringSchema
+
+export type ComponentSchemaNested = Record<string, ComponentSchema | undefined>
+
+export type ComponentSchemaKeys = Record<
+  string,
+  ComponentSchema | ComponentSchemaNested | undefined
+>

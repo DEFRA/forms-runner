@@ -2,7 +2,7 @@ import {
   type ComponentDef,
   type NumberFieldComponent
 } from '@defra/forms-model'
-import joi, { type Schema } from 'joi'
+import joi from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
@@ -48,14 +48,6 @@ export class NumberField extends FormComponent {
     } else {
       this.schema = schema
     }
-  }
-
-  getFormSchemaKeys() {
-    return { [this.name]: this.schema as Schema }
-  }
-
-  getStateSchemaKeys() {
-    return { [this.name]: this.schema as Schema }
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {

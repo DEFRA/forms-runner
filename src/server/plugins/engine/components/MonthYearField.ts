@@ -2,7 +2,6 @@ import {
   ComponentType,
   type InputFieldsComponentsDef
 } from '@defra/forms-model'
-import { type Schema } from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
@@ -57,7 +56,7 @@ export class MonthYearField extends FormComponent {
 
   getStateSchemaKeys() {
     return {
-      [this.name]: this.children.getStateSchemaKeys() as Schema
+      [this.name]: this.children.getStateSchemaKeys()
     }
   }
 

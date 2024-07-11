@@ -3,7 +3,7 @@ import {
   type List,
   type Item
 } from '@defra/forms-model'
-import joi, { type Schema } from 'joi'
+import joi from 'joi'
 
 import { type FormModel } from '~/src/server/plugins/engine/components/../models/index.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
@@ -15,12 +15,11 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class ListFormComponent extends FormComponent {
-  list?: List
-  listType = 'string'
-  formSchema
-  stateSchema
   options: ListComponentsDef['options']
-  dataType = 'list' as DataType
+
+  list?: List
+  listType: List['type']
+  dataType: DataType = 'list'
 
   get items(): Item[] {
     return this.list?.items ?? []
@@ -52,14 +51,6 @@ export class ListFormComponent extends FormComponent {
 
     this.formSchema = schema
     this.stateSchema = schema
-  }
-
-  getFormSchemaKeys() {
-    return { [this.name]: this.formSchema as Schema }
-  }
-
-  getStateSchemaKeys() {
-    return { [this.name]: this.stateSchema as Schema }
   }
 
   getDisplayStringFromState(state: FormSubmissionState): string | string[] {

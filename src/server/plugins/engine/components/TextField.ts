@@ -1,5 +1,5 @@
 import { type TextFieldComponent } from '@defra/forms-model'
-import joi, { type Schema } from 'joi'
+import joi from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
@@ -9,9 +9,6 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class TextField extends FormComponent {
-  formSchema
-  stateSchema
-
   constructor(def: TextFieldComponent, model: FormModel) {
     super(def, model)
 
@@ -48,14 +45,6 @@ export class TextField extends FormComponent {
     }
 
     this.formSchema = componentSchema
-  }
-
-  getFormSchemaKeys() {
-    return { [this.name]: this.formSchema as Schema }
-  }
-
-  getStateSchemaKeys() {
-    return { [this.name]: this.formSchema as Schema }
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
