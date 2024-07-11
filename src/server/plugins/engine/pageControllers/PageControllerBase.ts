@@ -191,16 +191,17 @@ export class PageControllerBase {
     return Array.isArray(this.pageDef.next) && this.pageDef.next.length > 0
   }
 
-  get next() {
-    return (this.pageDef.next || [])
-      .map((next: { path: string }) => {
+  get next(): PageLink[] {
+    return (this.pageDef.next ?? [])
+      .map((next) => {
         const { path } = next
+
         const page = this.model.pages.find((page) => {
           return path === page.path
         })
 
         if (!page) {
-          return null
+          return undefined
         }
 
         return {
@@ -208,7 +209,7 @@ export class PageControllerBase {
           page
         }
       })
-      .filter((v: object | null) => !!v)
+      .filter((v) => !!v)
   }
 
   /**
@@ -242,7 +243,7 @@ export class PageControllerBase {
       }
     }
 
-    let defaultLink
+    let defaultLink: PageLink | undefined
     const nextLink = this.next.find((link) => {
       const { condition } = link
       if (condition) {
@@ -816,4 +817,8 @@ export class PageControllerBase {
 
     return h.view(this.viewName, viewModel)
   }
+}
+
+export interface PageLink extends Link {
+  page: PageControllerClass
 }

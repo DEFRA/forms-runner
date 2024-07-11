@@ -3,8 +3,13 @@ import { reach } from '@hapi/hoek'
 import { type ValidationResult } from 'joi'
 
 import { config } from '~/src/config/index.js'
+import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
 import { redirectUrl } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import {
+  type Detail,
+  type DetailItem
+} from '~/src/server/plugins/engine/models/types.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { SummaryPageController } from '~/src/server/plugins/engine/pageControllers/index.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
@@ -19,7 +24,7 @@ export class SummaryViewModel {
   skipSummary?: boolean
   endPage?: PageControllerClass
   result: any
-  details: any
+  details: Detail[]
   relevantPages: PageControllerClass[]
   state: any
   value: any
@@ -76,13 +81,13 @@ export class SummaryViewModel {
     this.value = result.value
   }
 
-  private processErrors(result: ValidationResult, details) {
-    this.errors = result.error.details.map((err) => {
-      const name = err.path[err.path.length - 1]
+  private processErrors(result: ValidationResult, details: Detail[]) {
+    this.errors = result.error?.details.map((err) => {
+      const name = err.path[err.path.length - 1] ?? ''
 
       return {
         path: err.path.join('.'),
-        name,
+        name: name.toString(),
         message: err.message
       }
     })
@@ -109,15 +114,15 @@ export class SummaryViewModel {
   }
 
   private summaryDetails(
-    request,
+    request: Request,
     model: FormModel,
     state: FormSubmissionState,
-    relevantPages
+    relevantPages: PageControllerClass[]
   ) {
-    const details: object[] = []
+    const details: Detail[] = []
 
     ;[undefined, ...model.sections].forEach((section) => {
-      const items: any[] = []
+      const items: DetailItem[] = []
       let sectionState = section ? state[section.name] || {} : state
 
       const sectionPages = relevantPages.filter(
@@ -221,15 +226,15 @@ function gatherRepeatPages(state: FormSubmissionState) {
  * Creates an Item object for Details
  */
 function Item(
-  request,
-  component,
-  sectionState,
-  page,
+  request: Request,
+  component: FormComponentFieldClass,
+  sectionState: FormSubmissionState,
+  page: PageControllerClass,
   model: FormModel,
   params: { num?: number; returnUrl: string } = {
     returnUrl: redirectUrl(request, `/${model.basePath}/summary`)
   }
-) {
+): DetailItem {
   const isRepeatable = !!page.repeatField
 
   // TODO:- deprecate in favour of section based and/or repeatingFieldPageController

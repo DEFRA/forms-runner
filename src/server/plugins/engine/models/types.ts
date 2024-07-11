@@ -1,18 +1,16 @@
 import {
   type ConditionRawData,
-  type Page,
+  type FormDefinition,
   type Section
 } from '@defra/forms-model'
 
 import { type ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
-import { type FeedbackContextInfo } from '~/src/server/plugins/engine/models/../feedback/index.js'
+import { type FeedbackContextInfo } from '~/src/server/plugins/engine/feedback/index.js'
+import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
+import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+import { type Field } from '~/src/server/schemas/types.js'
 
-export type Fields = {
-  key: string
-  title: string
-  type: string
-  answer: string | number | boolean
-}[]
+export type Fields = Field[]
 
 export interface Question {
   category: string | null
@@ -51,7 +49,7 @@ export const FEEDBACK_CONTEXT_ITEMS: readonly FeedbackContextItem[] = [
 ]
 
 export type ExecutableCondition = ConditionRawData & {
-  fn: (state: any) => boolean
+  fn: (state: FormSubmissionState) => boolean
 }
 
 /**
@@ -73,7 +71,7 @@ export interface DetailItem {
   /**
    * Path to redirect the user to if they decide to change this value
    */
-  path: Page['path']
+  path: PageControllerClass['path']
 
   /**
    * String and/or display value of a field. For example, a Date will be displayed as 25 December 2022
@@ -83,20 +81,21 @@ export interface DetailItem {
   /**
    * Raw value of a field. For example, a Date will be displayed as 2022-12-25
    */
-  rawValue: string | number | object
+  rawValue: string | number | boolean
   url: string
   pageId: string
   type: ComponentBase['type']
   title: ComponentBase['title']
   dataType: ComponentBase['dataType']
   items?: DetailItem[]
+  inError?: boolean
 }
 
 /**
  * Used to render a row on a Summary List (check your answers)
  */
 export interface Detail {
-  name: Section['name'] | undefined
-  title: Section['title'] | undefined
+  name?: Section['name']
+  title?: Section['title']
   items: DetailItem[]
 }

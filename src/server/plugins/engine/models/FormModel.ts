@@ -136,7 +136,10 @@ export class FormModel {
    * build the entire model schema from individual pages/sections and filter out answers
    * for pages which are no longer accessible due to an answer that has been changed
    */
-  makeFilteredSchema(_state: FormSubmissionState, relevantPages) {
+  makeFilteredSchema(
+    _state: FormSubmissionState,
+    relevantPages: PageControllerClass[]
+  ) {
     // Build the entire model schema
     // from the individual pages/sections
     let schema = joi.object().required()
