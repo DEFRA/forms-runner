@@ -6,9 +6,9 @@ import {
 } from '@defra/forms-model'
 import joi from 'joi'
 
-import { type FormModel } from '~/src/server/plugins/engine/components/../models/index.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type DataType } from '~/src/server/plugins/engine/components/types.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
   type FormSubmissionState,

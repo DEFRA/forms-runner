@@ -4,7 +4,7 @@ import {
   type Section
 } from '@defra/forms-model'
 
-import { type Component } from '~/src/server/plugins/engine/models/../components/index.js'
+import { type ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { type FeedbackContextInfo } from '~/src/server/plugins/engine/models/../feedback/index.js'
 
 export type Fields = {
@@ -62,13 +62,13 @@ export interface DetailItem {
   /**
    * Name of the component defined in the JSON {@link FormDefinition}
    */
-  name: Component['name']
+  name: ComponentBase['name']
 
   /**
    * Title of the component defined in the JSON {@link FormDefinition}
-   * Used as a human readable form of {@link Component.#name} and HTML content for HTML Label tag
+   * Used as a human readable form of {@link ComponentBase.name} and HTML content for HTML Label tag
    */
-  label: Component['title']
+  label: ComponentBase['title']
 
   /**
    * Path to redirect the user to if they decide to change this value
@@ -86,10 +86,10 @@ export interface DetailItem {
   rawValue: string | number | object
   url: string
   pageId: string
-  type: Component['type']
-  title: Component['title']
-  dataType?: Component['dataType']
-  items: DetailItem[]
+  type: ComponentBase['type']
+  title: ComponentBase['title']
+  dataType: ComponentBase['dataType']
+  items?: DetailItem[]
 }
 
 /**
