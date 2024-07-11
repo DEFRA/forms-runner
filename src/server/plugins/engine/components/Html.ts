@@ -28,7 +28,7 @@ export class Html extends ComponentBase {
       content: this.content
     }
 
-    if ('condition' in options && options.condition) {
+    if (options.condition) {
       viewModel.condition = options.condition
     }
 

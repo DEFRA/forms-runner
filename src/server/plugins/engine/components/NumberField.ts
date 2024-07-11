@@ -20,14 +20,15 @@ export class NumberField extends FormComponent {
 
     let formSchema = joi.number().label(title.toLowerCase())
 
-    if (schema.min && schema.max) {
+    if (typeof schema.min === 'number' && typeof schema.max === 'number') {
       formSchema = formSchema.$
     }
-    if (schema.min ?? false) {
+
+    if (typeof schema.min === 'number') {
       formSchema = formSchema.min(schema.min)
     }
 
-    if (schema.max ?? false) {
+    if (typeof schema.max === 'number') {
       formSchema = formSchema.max(schema.max)
     }
 

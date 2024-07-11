@@ -28,8 +28,8 @@ export class UkAddressField extends FormComponent {
 
     const { name, options, schema } = def
 
-    const isRequired = !('required' in options) || options.required !== false
-    const hideOptional = 'optionalText' in options && options.optionalText
+    const isRequired = options.required !== false
+    const hideOptional = options.optionalText
 
     const childrenList = [
       {
@@ -170,10 +170,9 @@ export class UkAddressField extends FormComponent {
          * For screen readers, only hide legend visually. This can be overridden
          * by single component {@link PageControllerBase | `showTitle` handling}
          */
-        classes:
-          'hideTitle' in options && options.hideTitle
-            ? 'govuk-visually-hidden'
-            : 'govuk-fieldset__legend--m'
+        classes: options.hideTitle
+          ? 'govuk-visually-hidden'
+          : 'govuk-fieldset__legend--m'
       }
     }
 

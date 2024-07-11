@@ -41,18 +41,20 @@ export class MultilineTextField extends FormComponent {
 
     formSchema = formSchema.ruleset
 
-    if (schema.max) {
+    if (typeof schema.max === 'number') {
       formSchema = formSchema.max(schema.max)
       this.isCharacterOrWordCount = true
     }
 
-    if (schema.min) {
+    if (typeof schema.min === 'number') {
       formSchema = formSchema.min(schema.min)
     }
 
-    if (options.maxWords ?? false) {
-      formSchema = formSchema.custom((value, helpers) => {
-        if (inputIsOverWordCount(value, options.maxWords)) {
+    if (typeof options.maxWords === 'number') {
+      const { maxWords } = options
+
+      formSchema = formSchema.custom((value: string, helpers) => {
+        if (inputIsOverWordCount(value, maxWords)) {
           helpers.error('string.maxWords')
         }
         return value

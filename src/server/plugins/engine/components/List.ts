@@ -34,7 +34,7 @@ export class List extends ComponentBase {
     const { items, options } = this
     const viewModel = super.getViewModel(payload, errors)
 
-    if ('type' in options && options.type) {
+    if (options.type) {
       viewModel.type = options.type
     }
 
