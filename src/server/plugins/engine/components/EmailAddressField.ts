@@ -1,4 +1,5 @@
 import { type EmailAddressFieldComponent } from '@defra/forms-model'
+import { type StringSchema } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
@@ -10,6 +11,7 @@ import {
 export class EmailAddressField extends FormComponent {
   declare options: EmailAddressFieldComponent['options']
   declare schema: EmailAddressFieldComponent['schema']
+  declare formSchema: StringSchema
 
   constructor(def: EmailAddressFieldComponent, model: FormModel) {
     super(def, model)

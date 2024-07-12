@@ -1,5 +1,5 @@
 import { type CheckboxesFieldComponent } from '@defra/forms-model'
-import joi from 'joi'
+import joi, { type ArraySchema } from 'joi'
 
 import { SelectionControlField } from '~/src/server/plugins/engine/components/SelectionControlField.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
@@ -12,6 +12,8 @@ import {
 export class CheckboxesField extends SelectionControlField {
   declare options: CheckboxesFieldComponent['options']
   declare schema: CheckboxesFieldComponent['schema']
+  declare formSchema: ArraySchema<string>
+  declare stateSchema: ArraySchema<string>
 
   constructor(def: CheckboxesFieldComponent, model: FormModel) {
     super(def, model)

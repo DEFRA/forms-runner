@@ -4,7 +4,12 @@ import {
   type ListComponentsDef,
   type YesNoFieldComponent
 } from '@defra/forms-model'
-import joi from 'joi'
+import joi, {
+  type ArraySchema,
+  type BooleanSchema,
+  type NumberSchema,
+  type StringSchema
+} from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type DataType } from '~/src/server/plugins/engine/components/types.js'
@@ -18,6 +23,17 @@ import {
 export class ListFormComponent extends FormComponent {
   declare options: ListComponentsDef['options'] | YesNoFieldComponent['options']
   declare schema: ListComponentsDef['schema'] | YesNoFieldComponent['options']
+  declare formSchema:
+    | ArraySchema<string>
+    | BooleanSchema<string>
+    | NumberSchema<string>
+    | StringSchema
+
+  declare stateSchema:
+    | ArraySchema<string>
+    | BooleanSchema<string>
+    | NumberSchema<string>
+    | StringSchema
 
   list?: List
   listType: List['type'] = 'string'
