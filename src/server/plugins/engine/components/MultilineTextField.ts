@@ -23,7 +23,6 @@ export class MultilineTextField extends FormComponent {
   declare schema: MultilineTextFieldComponent['schema']
   declare formSchema: StringSchema
 
-  customValidationMessage?: string
   isCharacterOrWordCount = false
 
   constructor(def: MultilineTextFieldComponent, model: FormModel) {
