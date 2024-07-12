@@ -31,7 +31,12 @@ export class ListFormComponent extends FormComponent {
     return this.items.map((item) => item.value)
   }
 
-  constructor(def: ListComponentsDef | YesNoFieldComponent, model: FormModel) {
+  constructor(
+    def:
+      | ListComponentsDef // Allow for Yes/No field custom list
+      | (YesNoFieldComponent & Pick<ListComponentsDef, 'list'>),
+    model: FormModel
+  ) {
     super(def, model)
 
     const { schema, options, title } = def

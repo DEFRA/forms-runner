@@ -7,7 +7,6 @@ import joi from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { buildStateSchema } from '~/src/server/plugins/engine/components/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
 import {
@@ -20,16 +19,22 @@ import {
 export class UkAddressField extends FormComponent {
   options: UkAddressFieldComponent['options']
   schema: UkAddressFieldComponent['schema']
-  formChildren: ComponentCollection
+  children: ComponentCollection
   stateChildren: ComponentCollection
 
   constructor(def: UkAddressFieldComponent, model: FormModel) {
     super(def, model)
 
-    const { name, options, schema } = def
+    const { name, options, schema, title } = def
 
     const isRequired = options.required !== false
     const hideOptional = options.optionalText
+
+    let stateSchema = joi.object().required().label(title)
+
+    if (options.required === false) {
+      stateSchema = stateSchema.allow('').allow(null)
+    }
 
     const childrenList = [
       {
@@ -92,13 +97,13 @@ export class UkAddressField extends FormComponent {
 
     this.options = options
     this.schema = schema
-    this.formChildren = formChildren
+    this.children = formChildren
     this.stateChildren = stateChildren
-    this.stateSchema = buildStateSchema('date', this)
+    this.stateSchema = stateSchema
   }
 
   getFormSchemaKeys() {
-    return this.formChildren.getFormSchemaKeys()
+    return this.children.getFormSchemaKeys()
   }
 
   getStateSchemaKeys() {
@@ -157,7 +162,7 @@ export class UkAddressField extends FormComponent {
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
-    const { formChildren, options } = this
+    const { children: formChildren, options } = this
 
     const viewModel = super.getViewModel(payload, errors)
     let { children, fieldset, label } = viewModel

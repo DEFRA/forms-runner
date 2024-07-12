@@ -4,7 +4,6 @@ import {
 } from '@defra/forms-model'
 
 import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
-import { type DataType } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   type FormPayload,
@@ -17,7 +16,6 @@ export class SelectField extends ListFormComponent {
     | AutocompleteFieldComponent['options']
 
   schema: SelectFieldComponent['schema']
-  dataType: DataType = 'list'
 
   constructor(
     def: SelectFieldComponent | AutocompleteFieldComponent,

@@ -9,6 +9,7 @@ import joi, {
   type AlternativesSchema,
   type ArraySchema,
   type BooleanSchema,
+  type DateSchema,
   type NumberSchema,
   type ObjectSchema,
   type StringSchema
@@ -83,6 +84,7 @@ export type ComponentSchema =
   | ArraySchema<number>
   | ArraySchema<boolean>
   | BooleanSchema<string>
+  | DateSchema
   | NumberSchema<string>
   | NumberSchema
   | ObjectSchema
