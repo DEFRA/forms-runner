@@ -20,7 +20,7 @@ import {
 export class UkAddressField extends FormComponent {
   options: UkAddressFieldComponent['options']
   schema: UkAddressFieldComponent['schema']
-  formChildren: ComponentCollection
+  children: ComponentCollection
   stateChildren: ComponentCollection
 
   constructor(def: UkAddressFieldComponent, model: FormModel) {
@@ -92,13 +92,13 @@ export class UkAddressField extends FormComponent {
 
     this.options = options
     this.schema = schema
-    this.formChildren = formChildren
+    this.children = formChildren
     this.stateChildren = stateChildren
     this.stateSchema = buildStateSchema('date', this)
   }
 
   getFormSchemaKeys() {
-    return this.formChildren.getFormSchemaKeys()
+    return this.children.getFormSchemaKeys()
   }
 
   getStateSchemaKeys() {
@@ -157,7 +157,7 @@ export class UkAddressField extends FormComponent {
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
-    const { formChildren, options } = this
+    const { children: formChildren, options } = this
 
     const viewModel = super.getViewModel(payload, errors)
     let { children, fieldset, label } = viewModel
