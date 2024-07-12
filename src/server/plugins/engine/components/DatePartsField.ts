@@ -18,8 +18,8 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class DatePartsField extends FormComponent {
-  options: DatePartsFieldFieldComponent['options']
-  schema: DatePartsFieldFieldComponent['schema']
+  declare options: DatePartsFieldFieldComponent['options']
+  declare schema: DatePartsFieldFieldComponent['schema']
   children: ComponentCollection
   dataType: DataType = 'date'
 

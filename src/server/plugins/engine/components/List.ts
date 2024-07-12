@@ -12,8 +12,8 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class List extends ComponentBase {
-  schema: ListComponent['schema']
-  options: ListComponent['options']
+  declare schema: ListComponent['schema']
+  declare options: ListComponent['options']
   list?: ListType
 
   get items(): Item[] {

@@ -10,8 +10,8 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class NumberField extends FormComponent {
-  options: NumberFieldComponent['options']
-  schema: NumberFieldComponent['schema']
+  declare options: NumberFieldComponent['options']
+  declare schema: NumberFieldComponent['schema']
 
   constructor(def: NumberFieldComponent, model: FormModel) {
     super(def, model)

@@ -10,8 +10,8 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class CheckboxesField extends SelectionControlField {
-  options: CheckboxesFieldComponent['options']
-  schema: CheckboxesFieldComponent['schema']
+  declare options: CheckboxesFieldComponent['options']
+  declare schema: CheckboxesFieldComponent['schema']
 
   constructor(def: CheckboxesFieldComponent, model: FormModel) {
     super(def, model)

@@ -8,8 +8,8 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class Details extends ComponentBase {
-  options: DetailsComponent['options']
-  schema: DetailsComponent['schema']
+  declare options: DetailsComponent['options']
+  declare schema: DetailsComponent['schema']
 
   constructor(def: DetailsComponent, model: FormModel) {
     super(def, model)

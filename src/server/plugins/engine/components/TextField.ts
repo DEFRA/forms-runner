@@ -9,8 +9,8 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class TextField extends FormComponent {
-  options: TextFieldComponent['options']
-  schema: TextFieldComponent['schema']
+  declare options: TextFieldComponent['options']
+  declare schema: TextFieldComponent['schema']
 
   constructor(def: TextFieldComponent, model: FormModel) {
     super(def, model)

@@ -13,8 +13,8 @@ const PATTERN = /^[0-9\\\s+()-]*$/
 const DEFAULT_MESSAGE = 'Enter a telephone number in the correct format'
 
 export class TelephoneNumberField extends FormComponent {
-  options: TelephoneNumberFieldComponent['options']
-  schema: TelephoneNumberFieldComponent['schema']
+  declare options: TelephoneNumberFieldComponent['options']
+  declare schema: TelephoneNumberFieldComponent['schema']
 
   constructor(def: TelephoneNumberFieldComponent, model: FormModel) {
     super(def, model)

@@ -16,8 +16,8 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class ListFormComponent extends FormComponent {
-  options: ListComponentsDef['options'] | YesNoFieldComponent['options']
-  schema: ListComponentsDef['schema'] | YesNoFieldComponent['options']
+  declare options: ListComponentsDef['options'] | YesNoFieldComponent['options']
+  declare schema: ListComponentsDef['schema'] | YesNoFieldComponent['options']
 
   list?: List
   listType: List['type'] = 'string'

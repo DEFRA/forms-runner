@@ -19,8 +19,8 @@ function inputIsOverWordCount(input: string, maxWords: number) {
 }
 
 export class MultilineTextField extends FormComponent {
-  options: MultilineTextFieldComponent['options']
-  schema: MultilineTextFieldComponent['schema']
+  declare options: MultilineTextFieldComponent['options']
+  declare schema: MultilineTextFieldComponent['schema']
   customValidationMessage?: string
   isCharacterOrWordCount = false
 

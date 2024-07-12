@@ -14,8 +14,8 @@ import {
  * YesNoField is a radiosField with predefined values.
  */
 export class YesNoField extends ListFormComponent {
-  options: YesNoFieldComponent['options']
-  schema: YesNoFieldComponent['schema']
+  declare options: YesNoFieldComponent['options']
+  declare schema: YesNoFieldComponent['schema']
 
   constructor(def: YesNoFieldComponent, model: FormModel) {
     super({ ...def, list: '__yesNo' }, model)

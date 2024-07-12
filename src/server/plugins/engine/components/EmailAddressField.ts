@@ -8,8 +8,8 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class EmailAddressField extends FormComponent {
-  options: EmailAddressFieldComponent['options']
-  schema: EmailAddressFieldComponent['schema']
+  declare options: EmailAddressFieldComponent['options']
+  declare schema: EmailAddressFieldComponent['schema']
 
   constructor(def: EmailAddressFieldComponent, model: FormModel) {
     super(def, model)

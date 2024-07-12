@@ -12,8 +12,8 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class MonthYearField extends FormComponent {
-  options: MonthYearFieldComponent['options']
-  schema: MonthYearFieldComponent['schema']
+  declare options: MonthYearFieldComponent['options']
+  declare schema: MonthYearFieldComponent['schema']
   children: ComponentCollection
   dataType: DataType = 'monthYear'
 
