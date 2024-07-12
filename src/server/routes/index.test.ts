@@ -2,7 +2,7 @@ import { type Server } from '@hapi/hapi'
 
 import { createServer } from '~/src/server/index.js'
 
-describe('Server Router', () => {
+describe('Routes', () => {
   let server: Server
 
   beforeAll(async () => {

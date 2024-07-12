@@ -20,7 +20,7 @@ describe(`Phase banner`, () => {
     // TODO: default to no phase banner? TBD
     server = await createServer({
       formFileName: `phase-default.json`,
-      formFilePath: join(testDir, '/forms')
+      formFilePath: join(testDir, 'definitions')
     })
     await server.initialize()
 
@@ -40,7 +40,7 @@ describe(`Phase banner`, () => {
   test('shows the alpha tag if selected', async () => {
     server = await createServer({
       formFileName: `phase-alpha.json`,
-      formFilePath: join(testDir, '/forms')
+      formFilePath: join(testDir, 'definitions')
     })
     await server.initialize()
 
@@ -60,7 +60,7 @@ describe(`Phase banner`, () => {
   test('does not show the phase banner if None', async () => {
     server = await createServer({
       formFileName: `phase-none.json`,
-      formFilePath: join(testDir, '/forms')
+      formFilePath: join(testDir, 'definitions')
     })
     await server.initialize()
 
