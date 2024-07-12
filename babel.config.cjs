@@ -19,7 +19,6 @@ module.exports = {
     '@babel/plugin-syntax-import-attributes'
   ],
   presets: [
-    '@babel/preset-typescript',
     [
       '@babel/preset-env',
       {
@@ -29,6 +28,12 @@ module.exports = {
         // Apply ES module transforms for Jest
         // https://jestjs.io/docs/ecmascript-modules
         modules: NODE_ENV === 'test' ? 'auto' : false
+      }
+    ],
+    [
+      '@babel/preset-typescript',
+      {
+        allowDeclareFields: true
       }
     ]
   ],
