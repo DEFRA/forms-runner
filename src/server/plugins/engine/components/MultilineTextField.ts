@@ -15,7 +15,7 @@ import {
  */
 function inputIsOverWordCount(input: string, maxWords: number) {
   const tokens = input.match(/\S+/g) ?? []
-  return maxWords > tokens.length
+  return maxWords < tokens.length
 }
 
 export class MultilineTextField extends FormComponent {
@@ -33,7 +33,7 @@ export class MultilineTextField extends FormComponent {
 
     const isRequired = options.required !== false
 
-    let formSchema = Joi.string().label(title.toLowerCase())
+    let formSchema = Joi.string().trim().label(title.toLowerCase())
 
     if (isRequired) {
       formSchema = formSchema.required()
@@ -41,15 +41,17 @@ export class MultilineTextField extends FormComponent {
       formSchema = formSchema.allow('').allow(null)
     }
 
-    formSchema = formSchema.ruleset
+    if (typeof schema.length !== 'number') {
+      if (typeof schema.max === 'number') {
+        formSchema = formSchema.max(schema.max)
+        this.isCharacterOrWordCount = true
+      }
 
-    if (typeof schema.max === 'number') {
-      formSchema = formSchema.max(schema.max)
-      this.isCharacterOrWordCount = true
-    }
-
-    if (typeof schema.min === 'number') {
-      formSchema = formSchema.min(schema.min)
+      if (typeof schema.min === 'number') {
+        formSchema = formSchema.min(schema.min)
+      }
+    } else {
+      formSchema = formSchema.length(schema.length)
     }
 
     if (typeof options.maxWords === 'number') {
@@ -57,7 +59,19 @@ export class MultilineTextField extends FormComponent {
 
       formSchema = formSchema.custom((value: string, helpers) => {
         if (inputIsOverWordCount(value, maxWords)) {
-          helpers.error('string.maxWords')
+          const local = { limit: maxWords }
+          const message = options.customValidationMessage
+
+          if (message) {
+            return helpers.message(
+              {
+                custom: message
+              },
+              local
+            )
+          }
+
+          return helpers.error('string.maxWords', local)
         }
         return value
       }, 'max words validation')
@@ -65,9 +79,22 @@ export class MultilineTextField extends FormComponent {
       this.isCharacterOrWordCount = true
     }
 
+    if (schema.regex) {
+      const pattern = new RegExp(schema.regex)
+      formSchema = formSchema.pattern(pattern)
+    }
+
     if (options.customValidationMessage) {
-      formSchema = formSchema.rule({
-        message: options.customValidationMessage
+      const message = options.customValidationMessage
+
+      formSchema = formSchema.messages({
+        'any.required': message,
+        'string.empty': message,
+        'string.max': message,
+        'string.min': message,
+        'string.length': message,
+        'string.pattern.base': message,
+        'string.maxWords': message
       })
     }
 

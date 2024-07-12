@@ -21,10 +21,6 @@ export class NumberField extends FormComponent {
 
     let formSchema = joi.number().label(title.toLowerCase())
 
-    if (typeof schema.min === 'number' && typeof schema.max === 'number') {
-      formSchema = formSchema.$
-    }
-
     if (typeof schema.min === 'number') {
       formSchema = formSchema.min(schema.min)
     }
@@ -34,8 +30,13 @@ export class NumberField extends FormComponent {
     }
 
     if (options.customValidationMessage) {
-      formSchema = formSchema.rule({
-        message: options.customValidationMessage
+      const message = options.customValidationMessage
+
+      formSchema = formSchema.messages({
+        'any.required': message,
+        'number.base': message,
+        'number.min': message,
+        'number.max': message
       })
     }
 
