@@ -17,7 +17,7 @@ export class EmailAddressField extends FormComponent {
 
     const { schema, options, title } = def
 
-    let formSchema = joi.string().label(title.toLowerCase()).email()
+    let formSchema = joi.string().trim().label(title.toLowerCase()).email()
 
     if (options.required === false) {
       formSchema = formSchema.allow('').allow(null)

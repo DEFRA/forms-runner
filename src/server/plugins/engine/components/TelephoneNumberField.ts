@@ -22,7 +22,11 @@ export class TelephoneNumberField extends FormComponent {
 
     const { schema, options, title } = def
 
-    let formSchema = joi.string().label(title.toLowerCase()).pattern(PATTERN)
+    let formSchema = joi
+      .string()
+      .trim()
+      .label(title.toLowerCase())
+      .pattern(PATTERN)
 
     if (options.required === false) {
       formSchema = formSchema.allow('').allow(null)

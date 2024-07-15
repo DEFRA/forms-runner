@@ -44,7 +44,7 @@ export class NumberField extends FormComponent {
       const optionalSchema = joi
         .alternatives<string | number>()
         .try(
-          joi.string().allow(null).allow('').default('').optional(),
+          joi.string().trim().allow(null).allow('').default('').optional(),
           formSchema
         )
 
