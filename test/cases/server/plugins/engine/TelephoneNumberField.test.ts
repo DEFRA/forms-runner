@@ -38,6 +38,12 @@ describe('Telephone number field', () => {
     expect(schema.validate('01606 765432', opts).error).toBeUndefined()
     expect(schema.validate('0203 765 443', opts).error).toBeUndefined()
     expect(schema.validate('0800 123 321', opts).error).toBeUndefined()
+    expect(schema.validate('(01606) 765432', opts).error).toBeUndefined()
+    expect(schema.validate('(01606) 765-432', opts).error).toBeUndefined()
+    expect(schema.validate('01606 765-432', opts).error).toBeUndefined()
+    expect(schema.validate('+44203-765-443', opts).error).toBeUndefined()
+    expect(schema.validate('0800123-321', opts).error).toBeUndefined()
+    expect(schema.validate('0800-123-321', opts).error).toBeUndefined()
   })
 
   test('Should validate when schema options are supplied', () => {
