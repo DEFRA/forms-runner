@@ -21,16 +21,15 @@ export class CheckboxesField extends SelectionControlField {
     const { options, schema, title } = def
 
     let formSchema = joi.array<string>().single().label(title.toLowerCase())
+    const listSchema = joi[this.listType]().label(title.toLowerCase())
 
     if (options.required === false) {
       // null or empty string is valid for optional fields
       formSchema = formSchema
         .empty(null)
-        .items(joi[this.listType]().valid(...this.values, ''))
+        .items(listSchema.valid(...this.values, ''))
     } else {
-      formSchema = formSchema
-        .items(joi[this.listType]().valid(...this.values))
-        .required()
+      formSchema = formSchema.items(listSchema.valid(...this.values)).required()
     }
 
     this.formSchema = formSchema
