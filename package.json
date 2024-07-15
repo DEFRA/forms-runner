@@ -78,10 +78,10 @@
     "resolve": "^1.19.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.24.7",
-    "@babel/core": "^7.24.7",
+    "@babel/cli": "^7.24.8",
+    "@babel/core": "^7.24.8",
     "@babel/plugin-syntax-import-attributes": "^7.24.7",
-    "@babel/preset-env": "^7.24.7",
+    "@babel/preset-env": "^7.24.8",
     "@babel/preset-typescript": "^7.24.7",
     "@typescript-eslint/eslint-plugin": "^7.15.0",
     "@typescript-eslint/parser": "^7.15.0",
