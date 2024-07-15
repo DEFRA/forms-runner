@@ -9,8 +9,8 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class AutocompleteField extends SelectField {
-  options: AutocompleteFieldComponent['options']
-  schema: AutocompleteFieldComponent['schema']
+  declare options: AutocompleteFieldComponent['options']
+  declare schema: AutocompleteFieldComponent['schema']
 
   constructor(def: AutocompleteFieldComponent, model: FormModel) {
     super(def, model)

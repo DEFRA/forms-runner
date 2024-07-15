@@ -8,7 +8,7 @@ const messageTemplate = {
   max: '{{#label}} must be {{#limit}} characters or less',
   min: '{{#label}} must be {{#limit}} characters or more',
   pattern: 'Enter a valid {{#label}}',
-  email: '{{#label}} must be a valid email address',
+  email: 'Enter {{#label}} in the correct format',
   number: '{{#label}} must be a number',
   numberMin: '{{#label}} must be {{#limit}} or higher',
   numberMax: '{{#label}} must be {{#limit}} or lower',

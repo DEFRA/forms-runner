@@ -1,5 +1,5 @@
 import { type TelephoneNumberFieldComponent } from '@defra/forms-model'
-import joi from 'joi'
+import joi, { type StringSchema } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers.js'
@@ -13,8 +13,9 @@ const PATTERN = /^[0-9\\\s+()-]*$/
 const DEFAULT_MESSAGE = 'Enter a telephone number in the correct format'
 
 export class TelephoneNumberField extends FormComponent {
-  options: TelephoneNumberFieldComponent['options']
-  schema: TelephoneNumberFieldComponent['schema']
+  declare options: TelephoneNumberFieldComponent['options']
+  declare schema: TelephoneNumberFieldComponent['schema']
+  declare formSchema: StringSchema
 
   constructor(def: TelephoneNumberFieldComponent, model: FormModel) {
     super(def, model)

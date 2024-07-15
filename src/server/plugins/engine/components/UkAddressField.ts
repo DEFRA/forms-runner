@@ -17,8 +17,8 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class UkAddressField extends FormComponent {
-  options: UkAddressFieldComponent['options']
-  schema: UkAddressFieldComponent['schema']
+  declare options: UkAddressFieldComponent['options']
+  declare schema: UkAddressFieldComponent['schema']
   children: ComponentCollection
   stateChildren: ComponentCollection
 

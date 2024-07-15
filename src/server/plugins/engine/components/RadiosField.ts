@@ -4,8 +4,8 @@ import { SelectionControlField } from '~/src/server/plugins/engine/components/Se
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 
 export class RadiosField extends SelectionControlField {
-  options: RadiosFieldComponent['options']
-  schema: RadiosFieldComponent['schema']
+  declare options: RadiosFieldComponent['options']
+  declare schema: RadiosFieldComponent['schema']
 
   constructor(def: RadiosFieldComponent, model: FormModel) {
     super(def, model)

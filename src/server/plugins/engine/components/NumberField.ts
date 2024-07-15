@@ -1,5 +1,5 @@
 import { type NumberFieldComponent } from '@defra/forms-model'
-import joi from 'joi'
+import joi, { type AlternativesSchema, type NumberSchema } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
@@ -10,8 +10,9 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class NumberField extends FormComponent {
-  options: NumberFieldComponent['options']
-  schema: NumberFieldComponent['schema']
+  declare options: NumberFieldComponent['options']
+  declare schema: NumberFieldComponent['schema']
+  declare formSchema: AlternativesSchema<string | number> | NumberSchema
 
   constructor(def: NumberFieldComponent, model: FormModel) {
     super(def, model)

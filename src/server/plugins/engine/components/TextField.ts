@@ -1,5 +1,8 @@
-import { type TextFieldComponent } from '@defra/forms-model'
-import joi from 'joi'
+import {
+  type EmailAddressFieldComponent,
+  type TextFieldComponent
+} from '@defra/forms-model'
+import joi, { type StringSchema } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
@@ -9,10 +12,20 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class TextField extends FormComponent {
-  options: TextFieldComponent['options']
-  schema: TextFieldComponent['schema']
+  declare options:
+    | TextFieldComponent['options']
+    | EmailAddressFieldComponent['options']
 
-  constructor(def: TextFieldComponent, model: FormModel) {
+  declare schema:
+    | TextFieldComponent['schema']
+    | EmailAddressFieldComponent['options']
+
+  declare formSchema: StringSchema
+
+  constructor(
+    def: TextFieldComponent | EmailAddressFieldComponent,
+    model: FormModel
+  ) {
     super(def, model)
 
     const { options, schema, title } = def

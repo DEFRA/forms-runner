@@ -8,8 +8,8 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class Html extends ComponentBase {
-  options: HtmlComponent['options']
-  schema: HtmlComponent['schema']
+  declare options: HtmlComponent['options']
+  declare schema: HtmlComponent['schema']
 
   constructor(def: HtmlComponent, model: FormModel) {
     super(def, model)

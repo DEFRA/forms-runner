@@ -9,8 +9,8 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class InsetText extends ComponentBase {
-  options: InsetTextComponent['options']
-  schema: InsetTextComponent['schema']
+  declare options: InsetTextComponent['options']
+  declare schema: InsetTextComponent['schema']
 
   constructor(def: InsetTextComponent, model: FormModel) {
     super(def, model)

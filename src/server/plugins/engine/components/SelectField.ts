@@ -11,11 +11,11 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class SelectField extends ListFormComponent {
-  options:
+  declare options:
     | SelectFieldComponent['options']
     | AutocompleteFieldComponent['options']
 
-  schema: SelectFieldComponent['schema']
+  declare schema: SelectFieldComponent['schema']
 
   constructor(
     def: SelectFieldComponent | AutocompleteFieldComponent,
