@@ -1,14 +1,14 @@
 import { type EmailAddressFieldComponent } from '@defra/forms-model'
 import joi from 'joi'
 
-import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
+import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
   type FormSubmissionErrors
 } from '~/src/server/plugins/engine/types.js'
 
-export class EmailAddressField extends TextField {
+export class EmailAddressField extends FormComponent {
   declare options: EmailAddressFieldComponent['options']
   declare schema: EmailAddressFieldComponent['schema']
 
