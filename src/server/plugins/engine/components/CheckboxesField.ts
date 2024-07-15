@@ -26,10 +26,10 @@ export class CheckboxesField extends SelectionControlField {
       // null or empty string is valid for optional fields
       formSchema = formSchema
         .empty(null)
-        .items(joi[this.listType]().allow(...this.values, ''))
+        .items(joi[this.listType]().valid(...this.values, ''))
     } else {
       formSchema = formSchema
-        .items(joi[this.listType]().allow(...this.values))
+        .items(joi[this.listType]().valid(...this.values))
         .required()
     }
 
