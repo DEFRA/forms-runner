@@ -1,4 +1,5 @@
 import {
+  ComponentType,
   type Link,
   type FormDefinition,
   type Page,
@@ -421,7 +422,8 @@ export class PageControllerBase {
       // Filter our components based on their conditions using our calculated state
       viewModel.components = viewModel.components.filter((component) => {
         if (
-          (component.model.content || component.type === 'Details') &&
+          (!!component.model.content ||
+            component.type === ComponentType.Details) &&
           component.model.condition
         ) {
           const condition = this.model.conditions[component.model.condition]
