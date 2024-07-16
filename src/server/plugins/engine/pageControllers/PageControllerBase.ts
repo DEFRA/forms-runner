@@ -1,4 +1,5 @@
 import {
+  ComponentType,
   type Link,
   type FormDefinition,
   type Page,
@@ -113,6 +114,7 @@ export class PageControllerBase {
     isStartPage: boolean
     startPage?: ResponseObject
     backLink?: string
+    feedbackLink?: string
     serviceUrl: string
     phaseTag?: string | undefined
   } {
@@ -205,7 +207,6 @@ export class PageControllerBase {
 
   /**
    * @param state - the values currently stored in a users session
-   * @param suppressRepetition - cancels repetition logic
    */
   getNextPage(state: FormSubmissionState): PageControllerClass | undefined {
     const { conditions } = this.model
@@ -268,9 +269,7 @@ export class PageControllerBase {
         titleText: this.errorSummaryTitle,
         errorList: validationResult.error.details.map((err) => {
           const name = err.path
-            .map((name: string, index: number) =>
-              index > 0 ? `__${name}` : name
-            )
+            .map((name, index) => (index > 0 ? `__${name}` : name))
             .join('')
 
           return {
@@ -420,11 +419,12 @@ export class PageControllerBase {
       // Filter our components based on their conditions using our calculated state
       viewModel.components = viewModel.components.filter((component) => {
         if (
-          (component.model.content || component.type === 'Details') &&
+          (!!component.model.content ||
+            component.type === ComponentType.Details) &&
           component.model.condition
         ) {
           const condition = this.model.conditions[component.model.condition]
-          return condition.fn(relevantState)
+          return condition?.fn(relevantState)
         }
         return true
       })
@@ -438,7 +438,7 @@ export class PageControllerBase {
         if (content instanceof Array) {
           evaluatedComponent.model.content = content.filter((item) =>
             item.condition
-              ? this.model.conditions[item.condition].fn(relevantState)
+              ? this.model.conditions[item.condition]?.fn(relevantState)
               : true
           )
         }
@@ -448,7 +448,7 @@ export class PageControllerBase {
         if (items instanceof Array) {
           evaluatedComponent.model.items = items.filter((item) =>
             item.condition
-              ? this.model.conditions[item.condition].fn(relevantState)
+              ? this.model.conditions[item.condition]?.fn(relevantState)
               : true
           )
         }
@@ -582,7 +582,10 @@ export class PageControllerBase {
     }
   }
 
-  setFeedbackDetails(viewModel, request) {
+  setFeedbackDetails(
+    viewModel: ReturnType<typeof this.getViewModel>,
+    request: Request
+  ) {
     const feedbackContextInfo = this.getFeedbackContextInfo(request)
     if (feedbackContextInfo) {
       viewModel.name = feedbackContextInfo.formTitle
@@ -655,11 +658,11 @@ export class PageControllerBase {
   /**
    * TODO:- proceed is interfering with subclasses
    */
-  proceed(request: Request, h: ResponseToolkit, state) {
+  proceed(request: Request, h: ResponseToolkit, state: FormSubmissionState) {
     return proceed(request, h, this.getNext(state))
   }
 
-  getPartialMergeState(value) {
+  getPartialMergeState(value?: FormSubmissionState) {
     return this.section ? { [this.section.name]: value } : value
   }
 
@@ -717,7 +720,7 @@ export class PageControllerBase {
     return Object.keys(object).length
   }
 
-  private setPhaseTag(viewModel) {
+  private setPhaseTag(viewModel: ReturnType<typeof this.getViewModel>) {
     // Set phase tag if it exists in form definition (even if empty for 'None'),
     // otherwise the template context will simply return server config
     if (this.def.phaseBanner) {
@@ -725,7 +728,13 @@ export class PageControllerBase {
     }
   }
 
-  private renderWithErrors(request, h, payload, progress, errors) {
+  private renderWithErrors(
+    request: Request,
+    h: ResponseToolkit,
+    payload: FormPayload,
+    progress: string[],
+    errors?: FormSubmissionErrors
+  ) {
     const viewModel = this.getViewModel(payload, errors)
 
     viewModel.backLink = progress[progress.length - 2]

@@ -4,45 +4,33 @@ import { RelativeUrl } from '~/src/server/plugins/engine/feedback/index.js'
 
 export const feedbackReturnInfoKey = 'f_t'
 
-const paramsToCopy = [feedbackReturnInfoKey]
+const paramsToCopy = [feedbackReturnInfoKey] as const
 
-export function proceed(request: Request, h: ResponseToolkit, nextUrl: string) {
-  const returnUrl = request.query.returnUrl
+export function proceed(
+  request: Pick<RequestWithQuery, 'query'>,
+  h: Pick<ResponseToolkit, 'redirect'>,
+  nextUrl: string
+) {
+  const { returnUrl } = request.query
 
-  if (typeof returnUrl === 'string' && returnUrl.startsWith('/')) {
+  if (returnUrl?.startsWith('/')) {
     return h.redirect(returnUrl)
   } else {
     return redirectTo(request, h, nextUrl)
   }
 }
 
-interface Params {
-  returnUrl: string
+interface Params extends Partial<Record<string, string>> {
+  returnUrl?: string
+  [feedbackReturnInfoKey]?: string
 }
 
-export function nonRelativeRedirectUrl(
-  request: Request,
-  targetUrl: string,
-  params?: Params
-) {
-  const url = new URL(targetUrl)
-
-  Object.entries(params ?? {}).forEach(([name, value]) => {
-    url.searchParams.append(name, `${value}`)
-  })
-
-  paramsToCopy.forEach((key) => {
-    const value = request.query[key]
-    if (typeof value === 'string') {
-      url.searchParams.append(key, value)
-    }
-  })
-
-  return url.toString()
-}
+type RequestWithQuery = Request<{
+  Query: Params
+}>
 
 export function redirectUrl(
-  request: Request,
+  request: Pick<RequestWithQuery, 'query'>,
   targetUrl: string,
   params?: Params
 ) {
@@ -62,8 +50,8 @@ export function redirectUrl(
 }
 
 export function redirectTo(
-  request: Request,
-  h: ResponseToolkit,
+  request: Pick<RequestWithQuery, 'query'>,
+  h: Pick<ResponseToolkit, 'redirect'>,
   targetUrl: string,
   params?: Params
 ) {
