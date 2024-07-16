@@ -3,8 +3,7 @@ import { type ResponseToolkit } from '@hapi/hapi'
 import {
   proceed,
   redirectTo,
-  redirectUrl,
-  nonRelativeRedirectUrl
+  redirectUrl
 } from '~/src/server/plugins/engine/helpers.js'
 
 describe('Helpers', () => {
@@ -298,21 +297,6 @@ describe('Helpers', () => {
       const nextUrl = 'badgers/monkeys'
       const returned = redirectUrl(request, nextUrl, { f_t: 'newValue' })
       expect(returned).toBe(`${nextUrl}?f_t=newValue`)
-    })
-  })
-
-  describe('nonRelativeRedirectUrl', () => {
-    test('Should return non-relative url with correct query parameters', () => {
-      const request = {
-        query: {
-          visit: '123',
-          f_t: 'true',
-          ignored: true
-        }
-      }
-      const nextUrl = 'https://test.com'
-      const url = nonRelativeRedirectUrl(request, nextUrl)
-      expect(url).toBe('https://test.com/?f_t=true')
     })
   })
 })

@@ -20,27 +20,6 @@ interface Params {
   returnUrl: string
 }
 
-export function nonRelativeRedirectUrl(
-  request: Request,
-  targetUrl: string,
-  params?: Params
-) {
-  const url = new URL(targetUrl)
-
-  Object.entries(params ?? {}).forEach(([name, value]) => {
-    url.searchParams.append(name, `${value}`)
-  })
-
-  paramsToCopy.forEach((key) => {
-    const value = request.query[key]
-    if (typeof value === 'string') {
-      url.searchParams.append(key, value)
-    }
-  })
-
-  return url.toString()
-}
-
 export function redirectUrl(
   request: Request,
   targetUrl: string,
