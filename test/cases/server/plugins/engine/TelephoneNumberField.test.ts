@@ -23,15 +23,9 @@ describe('Telephone number field', () => {
       'This is a custom error'
     )
     expect(schema.validate('', opts).error).toBeUndefined()
-    expect(schema.validate('+111-111-11', opts).error?.message).toBe(
-      'This is a custom error'
-    )
-    expect(schema.validate('+111 111 11', opts).error?.message).toBe(
-      'This is a custom error'
-    )
-    expect(schema.validate('+11111111', opts).error?.message).toBe(
-      'This is a custom error'
-    )
+    expect(schema.validate('+111-111-11', opts).error?.message).toBeUndefined()
+    expect(schema.validate('+111 111 11', opts).error?.message).toBeUndefined()
+    expect(schema.validate('+11111111', opts).error?.message).toBeUndefined()
     expect(schema.validate('+44 7930 111 222', opts).error).toBeUndefined()
     expect(schema.validate('07930 111 222', opts).error).toBeUndefined()
     expect(schema.validate('01606 76543', opts).error).toBeUndefined()
@@ -58,21 +52,11 @@ describe('Telephone number field', () => {
     const telephoneNumberField = new TelephoneNumberField(def, {})
     const { formSchema: schema } = telephoneNumberField
 
-    expect(schema.validate('1234', opts).error?.message).toBe(
-      'Enter a valid telephone number'
-    )
-    expect(schema.validate('12345', opts).error?.message).toBe(
-      'Enter a valid telephone number'
-    )
-    expect(schema.validate('1', opts).error?.message).toBe(
-      'Enter a valid telephone number'
-    )
-    expect(schema.validate('12-3', opts).error?.message).toBe(
-      'Enter a valid telephone number'
-    )
-    expect(schema.validate('1  1', opts).error?.message).toBe(
-      'Enter a valid telephone number'
-    )
+    expect(schema.validate('1234', opts).error?.message).toBeUndefined()
+    expect(schema.validate('12345', opts).error?.message).toBeUndefined()
+    expect(schema.validate('1', opts).error?.message).toBeUndefined()
+    expect(schema.validate('12-3', opts).error?.message).toBeUndefined()
+    expect(schema.validate('1  1', opts).error?.message).toBeUndefined()
   })
 
   test('Should apply default schema if no options are passed', () => {

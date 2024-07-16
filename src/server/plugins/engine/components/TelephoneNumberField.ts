@@ -9,8 +9,7 @@ import {
   type FormSubmissionErrors
 } from '~/src/server/plugins/engine/types.js'
 
-const PATTERN =
-  /\s*(([+](\s?\d)([-\s]?\d)|0)?(\s?\d)([-\s]?\d){9}|[(](\s?\d)([-\s]?\d)+\s*[)]([-\s]?\d)+)\s*/
+const PATTERN = /^[0-9\\\s+()-]*$/
 
 export class TelephoneNumberField extends FormComponent {
   declare options: TelephoneNumberFieldComponent['options']
