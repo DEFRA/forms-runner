@@ -655,7 +655,7 @@ export class PageControllerBase {
   /**
    * TODO:- proceed is interfering with subclasses
    */
-  proceed(request: Request, h: ResponseToolkit, state) {
+  proceed(request: Request, h: ResponseToolkit, state: FormSubmissionState) {
     return proceed(request, h, this.getNext(state))
   }
 

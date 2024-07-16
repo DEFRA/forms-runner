@@ -8,7 +8,7 @@ import {
 
 describe('Helpers', () => {
   describe('proceed', () => {
-    let h: ResponseToolkit
+    let h: Pick<ResponseToolkit, 'redirect'>
     const returnValue = ''
     beforeEach(() => {
       h = {
@@ -26,8 +26,8 @@ describe('Helpers', () => {
       const nextUrl = 'badgers/monkeys'
       const returned = proceed(request, h, nextUrl)
 
-      expect(h.redirect.mock.calls).toHaveLength(1)
-      expect(h.redirect.mock.calls[0]).toEqual(
+      expect(jest.mocked(h.redirect).mock.calls).toHaveLength(1)
+      expect(jest.mocked(h.redirect).mock.calls[0]).toEqual(
         expect.arrayContaining([returnUrl])
       )
       expect(returned).toEqual(returnValue)
@@ -40,8 +40,8 @@ describe('Helpers', () => {
       const nextUrl = 'badgers/monkeys'
       const returned = proceed(request, h, nextUrl)
 
-      expect(h.redirect.mock.calls).toHaveLength(1)
-      expect(h.redirect.mock.calls[0]).toEqual(
+      expect(jest.mocked(h.redirect).mock.calls).toHaveLength(1)
+      expect(jest.mocked(h.redirect).mock.calls[0]).toEqual(
         expect.arrayContaining([nextUrl])
       )
       expect(returned).toEqual(returnValue)
@@ -57,8 +57,8 @@ describe('Helpers', () => {
       const nextUrl = 'badgers/monkeys'
       const returned = proceed(request, h, nextUrl)
 
-      expect(h.redirect.mock.calls).toHaveLength(1)
-      expect(h.redirect.mock.calls[0]).toEqual(
+      expect(jest.mocked(h.redirect).mock.calls).toHaveLength(1)
+      expect(jest.mocked(h.redirect).mock.calls[0]).toEqual(
         expect.arrayContaining([nextUrl])
       )
       expect(returned).toEqual(returnValue)
@@ -73,8 +73,8 @@ describe('Helpers', () => {
       const nextUrl = 'badgers/monkeys'
       const returned = proceed(request, h, nextUrl)
 
-      expect(h.redirect.mock.calls).toHaveLength(1)
-      expect(h.redirect.mock.calls[0]).toEqual(
+      expect(jest.mocked(h.redirect).mock.calls).toHaveLength(1)
+      expect(jest.mocked(h.redirect).mock.calls[0]).toEqual(
         expect.arrayContaining([`${nextUrl}?f_t=myValue`])
       )
       expect(returned).toEqual(returnValue)
@@ -89,8 +89,8 @@ describe('Helpers', () => {
       const nextUrl = 'badgers/monkeys?f_t=newValue'
       const returned = proceed(request, h, nextUrl)
 
-      expect(h.redirect.mock.calls).toHaveLength(1)
-      expect(h.redirect.mock.calls[0]).toEqual(
+      expect(jest.mocked(h.redirect).mock.calls).toHaveLength(1)
+      expect(jest.mocked(h.redirect).mock.calls[0]).toEqual(
         expect.arrayContaining([nextUrl])
       )
       expect(returned).toEqual(returnValue)
@@ -98,7 +98,7 @@ describe('Helpers', () => {
   })
 
   describe('redirectTo', () => {
-    let h: ResponseToolkit
+    let h: Pick<ResponseToolkit, 'redirect'>
     const returnValue = ''
     beforeEach(() => {
       h = {
@@ -113,8 +113,8 @@ describe('Helpers', () => {
       const nextUrl = 'badgers/monkeys'
       const returned = redirectTo(request, h, nextUrl)
 
-      expect(h.redirect.mock.calls).toHaveLength(1)
-      expect(h.redirect.mock.calls[0]).toEqual(
+      expect(jest.mocked(h.redirect).mock.calls).toHaveLength(1)
+      expect(jest.mocked(h.redirect).mock.calls[0]).toEqual(
         expect.arrayContaining([nextUrl])
       )
       expect(returned).toEqual(returnValue)
@@ -130,8 +130,8 @@ describe('Helpers', () => {
       const nextUrl = 'badgers/monkeys'
       const returned = redirectTo(request, h, nextUrl)
 
-      expect(h.redirect.mock.calls).toHaveLength(1)
-      expect(h.redirect.mock.calls[0]).toEqual(
+      expect(jest.mocked(h.redirect).mock.calls).toHaveLength(1)
+      expect(jest.mocked(h.redirect).mock.calls[0]).toEqual(
         expect.arrayContaining([nextUrl])
       )
       expect(returned).toEqual(returnValue)
@@ -146,8 +146,8 @@ describe('Helpers', () => {
       const nextUrl = 'badgers/monkeys'
       const returned = redirectTo(request, h, nextUrl)
 
-      expect(h.redirect.mock.calls).toHaveLength(1)
-      expect(h.redirect.mock.calls[0]).toEqual(
+      expect(jest.mocked(h.redirect).mock.calls).toHaveLength(1)
+      expect(jest.mocked(h.redirect).mock.calls[0]).toEqual(
         expect.arrayContaining([`${nextUrl}?f_t=myValue`])
       )
       expect(returned).toEqual(returnValue)
@@ -162,8 +162,8 @@ describe('Helpers', () => {
       const nextUrl = 'badgers/monkeys?f_t=newValue'
       const returned = redirectTo(request, h, nextUrl)
 
-      expect(h.redirect.mock.calls).toHaveLength(1)
-      expect(h.redirect.mock.calls[0]).toEqual(
+      expect(jest.mocked(h.redirect).mock.calls).toHaveLength(1)
+      expect(jest.mocked(h.redirect).mock.calls[0]).toEqual(
         expect.arrayContaining([nextUrl])
       )
       expect(returned).toEqual(returnValue)
@@ -181,8 +181,8 @@ describe('Helpers', () => {
         badger: 'monkeys'
       })
 
-      expect(h.redirect.mock.calls).toHaveLength(1)
-      expect(h.redirect.mock.calls[0]).toEqual(
+      expect(jest.mocked(h.redirect).mock.calls).toHaveLength(1)
+      expect(jest.mocked(h.redirect).mock.calls[0]).toEqual(
         expect.arrayContaining([
           `${nextUrl}?returnUrl=%2Fmyreturnurl&badger=monkeys&f_t=myValue`
         ])
@@ -199,8 +199,8 @@ describe('Helpers', () => {
       const nextUrl = 'badgers/monkeys'
       const returned = redirectTo(request, h, nextUrl, { f_t: 'newValue' })
 
-      expect(h.redirect.mock.calls).toHaveLength(1)
-      expect(h.redirect.mock.calls[0]).toEqual(
+      expect(jest.mocked(h.redirect).mock.calls).toHaveLength(1)
+      expect(jest.mocked(h.redirect).mock.calls[0]).toEqual(
         expect.arrayContaining([`${nextUrl}?f_t=newValue`])
       )
       expect(returned).toEqual(returnValue)
@@ -215,8 +215,8 @@ describe('Helpers', () => {
       const nextUrl = 'http://www.example.com/monkeys'
       const returned = redirectTo(request, h, nextUrl, { f_t: 'newValue' })
 
-      expect(h.redirect.mock.calls).toHaveLength(1)
-      expect(h.redirect.mock.calls[0]).toEqual(
+      expect(jest.mocked(h.redirect).mock.calls).toHaveLength(1)
+      expect(jest.mocked(h.redirect).mock.calls[0]).toEqual(
         expect.arrayContaining([nextUrl])
       )
       expect(returned).toEqual(returnValue)
