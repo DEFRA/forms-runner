@@ -1,10 +1,10 @@
-import { dirname } from 'node:path'
+import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { load } from 'cheerio'
 
 import { createServer } from '~/src/server/index.js'
-import { getSessionCookie } from '~/test/cases/server/utils/get-session-cookie.js'
+import { getSessionCookie } from '~/test/utils/get-session-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
@@ -15,7 +15,7 @@ describe('Title and section title', () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: 'titles.json',
-      formFilePath: testDir
+      formFilePath: join(testDir, 'definitions')
     })
     await server.initialize()
   })

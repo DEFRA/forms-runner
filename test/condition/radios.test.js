@@ -1,4 +1,4 @@
-import { dirname } from 'node:path'
+import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { createServer } from '~/src/server/index.js'
@@ -9,15 +9,15 @@ const redirectStatusCode = 302
 const htmlContentType = 'text/html'
 const key = 'wqJmSf'
 
-describe('Checkboxes based conditions', () => {
+describe('Radio based conditions', () => {
   /** @type {import('@hapi/hapi').Server} */
   let server
 
   // Create server before each test
   beforeAll(async () => {
     server = await createServer({
-      formFileName: 'checkboxes.json',
-      formFilePath: testDir
+      formFileName: 'radios.json',
+      formFilePath: resolve(testDir, '../form/definitions')
     })
     await server.initialize()
   })
@@ -26,53 +26,53 @@ describe('Checkboxes based conditions', () => {
     await server.stop()
   })
 
-  test('Checkboxes are rendered', async () => {
+  test('Radio are rendered', async () => {
     const res = await server.inject({
       method: 'GET',
-      url: '/checkboxes/first-page'
+      url: '/radios/first-page'
     })
 
     expect(res.statusCode).toEqual(okStatusCode)
     expect(res.headers['content-type']).toContain(htmlContentType)
     expect(res.result).toContain(
-      `<input class="govuk-checkboxes__input" id="${key}" name="${key}" type="checkbox" value="shire">`
+      `<input class="govuk-radios__input" id="${key}" name="${key}" type="radio" value="shire">`
     )
     expect(res.result).toContain(
-      `<input class="govuk-checkboxes__input" id="${key}-2" name="${key}" type="checkbox" value="race">`
+      `<input class="govuk-radios__input" id="${key}-2" name="${key}" type="radio" value="race">`
     )
     expect(res.result).toContain(
-      `<input class="govuk-checkboxes__input" id="${key}-3" name="${key}" type="checkbox" value="pantomime">`
+      `<input class="govuk-radios__input" id="${key}-3" name="${key}" type="radio" value="pantomime">`
     )
     expect(res.result).toContain(
-      `<input class="govuk-checkboxes__input" id="${key}-4" name="${key}" type="checkbox" value="other">`
+      `<input class="govuk-radios__input" id="${key}-4" name="${key}" type="radio" value="other">`
     )
   })
 
-  test('Testing POST /checkboxes/first-page with nothing checked redirects correctly', async () => {
+  test('Testing POST /radios/first-page with nothing checked redirects correctly', async () => {
     const form = {}
 
     const res = await server.inject({
       method: 'POST',
-      url: '/checkboxes/first-page',
+      url: '/radios/first-page',
       payload: form
     })
 
     expect(res.statusCode).toEqual(redirectStatusCode)
-    expect(res.headers.location).toBe('/checkboxes/second-page')
+    expect(res.headers.location).toBe('/radios/second-page')
   })
 
-  test('Testing POST /checkboxes/first-page with "other" checked redirects correctly', async () => {
+  test('Testing POST /radios/first-page with "other" checked redirects correctly', async () => {
     const form = {
       [key]: 'other'
     }
 
     const res = await server.inject({
       method: 'POST',
-      url: '/checkboxes/first-page',
+      url: '/radios/first-page',
       payload: form
     })
 
     expect(res.statusCode).toEqual(redirectStatusCode)
-    expect(res.headers.location).toBe('/checkboxes/third-page')
+    expect(res.headers.location).toBe('/radios/third-page')
   })
 })

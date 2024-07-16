@@ -1,9 +1,9 @@
-import { dirname } from 'node:path'
+import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { createServer } from '~/src/server/index.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
-import { getSessionCookie } from '~/test/cases/server/utils/get-session-cookie.js'
+import { getSessionCookie } from '~/test/utils/get-session-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
@@ -63,7 +63,7 @@ describe('Submission journey test', () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: 'components.json',
-      formFilePath: testDir
+      formFilePath: join(testDir, 'definitions')
     })
     await server.initialize()
   })

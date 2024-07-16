@@ -1,4 +1,4 @@
-import { dirname } from 'node:path'
+import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { load } from 'cheerio'
@@ -15,7 +15,7 @@ describe(`Feedback`, () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: `feedback.json`,
-      formFilePath: testDir
+      formFilePath: join(testDir, 'definitions')
     })
     await server.initialize()
   })

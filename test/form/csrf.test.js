@@ -1,4 +1,4 @@
-import { dirname } from 'node:path'
+import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { load } from 'cheerio'
@@ -31,7 +31,7 @@ describe('CSRF', () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: 'basic-v0.json',
-      formFilePath: testDir,
+      formFilePath: join(testDir, 'definitions'),
       enforceCsrf: true
     })
     await server.initialize()

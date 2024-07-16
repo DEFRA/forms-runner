@@ -1,4 +1,4 @@
-import { dirname } from 'node:path'
+import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { createServer } from '~/src/server/index.js'
@@ -17,7 +17,7 @@ describe('TextField based conditions', () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: 'text.json',
-      formFilePath: testDir
+      formFilePath: resolve(testDir, '../form/definitions')
     })
     await server.initialize()
   })
