@@ -80,9 +80,11 @@ describe('Date parts field', () => {
   })
 })
 
-function dateComponent(name, width) {
+function dateComponent(name: string, width: number) {
   return {
-    label: name,
+    label: expect.objectContaining({
+      text: name
+    }),
     id: `myComponent__${name.toLowerCase()}`,
     name: `myComponent__${name.toLowerCase()}`,
     value: undefined,

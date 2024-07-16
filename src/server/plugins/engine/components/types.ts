@@ -17,7 +17,7 @@ export type ListItemLabel = Omit<Label, 'text' | 'isPageHeading'>
 
 export interface ListItem {
   text?: string
-  value: string | boolean | number
+  value?: string | boolean | number
   hint?: {
     html: string
   }
