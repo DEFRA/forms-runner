@@ -10,7 +10,6 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 const PATTERN = /^[0-9\\\s+()-]*$/
-const DEFAULT_MESSAGE = 'Enter a telephone number in the correct format'
 
 export class TelephoneNumberField extends FormComponent {
   declare options: TelephoneNumberFieldComponent['options']
@@ -22,24 +21,24 @@ export class TelephoneNumberField extends FormComponent {
 
     const { schema, options, title } = def
 
-    const pattern = schema.regex ? new RegExp(schema.regex) : PATTERN
-    let formSchema = joi.string()
+    let formSchema = joi
+      .string()
+      .trim()
+      .label(title.toLowerCase())
+      .pattern(PATTERN)
 
     if (options.required === false) {
       formSchema = formSchema.allow('').allow(null)
     }
 
-    formSchema = formSchema
-      .pattern(pattern)
-      .message(options.customValidationMessage ?? DEFAULT_MESSAGE)
-      .label(title.toLowerCase())
+    if (options.customValidationMessage) {
+      const message = options.customValidationMessage
 
-    if (typeof schema.max === 'number') {
-      formSchema = formSchema.max(schema.max)
-    }
-
-    if (typeof schema.min === 'number') {
-      formSchema = formSchema.min(schema.min)
+      formSchema = formSchema.messages({
+        'any.required': message,
+        'string.empty': message,
+        'string.pattern.base': message
+      })
     }
 
     addClassOptionIfNone(options, 'govuk-input--width-20')

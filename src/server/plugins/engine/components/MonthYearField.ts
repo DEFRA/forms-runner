@@ -33,7 +33,7 @@ export class MonthYearField extends FormComponent {
           options: {
             required: isRequired,
             classes: 'govuk-input--width-2',
-            customValidationMessage: '{{label}} must be between 1 and 12'
+            customValidationMessage: '{{#label}} must be between 1 and 12'
           }
         },
         {

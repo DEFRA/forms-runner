@@ -1,22 +1,39 @@
 import { type EmailAddressFieldComponent } from '@defra/forms-model'
+import joi from 'joi'
 
-import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
+import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
   type FormSubmissionErrors
 } from '~/src/server/plugins/engine/types.js'
 
-export class EmailAddressField extends TextField {
+export class EmailAddressField extends FormComponent {
   declare options: EmailAddressFieldComponent['options']
   declare schema: EmailAddressFieldComponent['schema']
 
   constructor(def: EmailAddressFieldComponent, model: FormModel) {
     super(def, model)
 
-    const { schema, options } = def
+    const { schema, options, title } = def
 
-    this.formSchema = this.formSchema.email()
+    let formSchema = joi.string().trim().label(title.toLowerCase()).email()
+
+    if (options.required === false) {
+      formSchema = formSchema.allow('').allow(null)
+    }
+
+    if (options.customValidationMessage) {
+      const message = options.customValidationMessage
+
+      formSchema = formSchema.messages({
+        'any.required': message,
+        'string.empty': message,
+        'string.email': message
+      })
+    }
+
+    this.formSchema = formSchema
     this.options = options
     this.schema = schema
   }

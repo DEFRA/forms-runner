@@ -30,19 +30,22 @@ export class TextField extends FormComponent {
 
     const { options, schema, title } = def
 
-    let formSchema = joi.string().trim().required()
+    let formSchema = joi.string().trim().label(title.toLowerCase()).required()
+
     if (options.required === false) {
       formSchema = formSchema.optional().allow('').allow(null)
     }
 
-    formSchema = formSchema.label(title.toLowerCase())
+    if (typeof schema.length !== 'number') {
+      if (typeof schema.max === 'number') {
+        formSchema = formSchema.max(schema.max)
+      }
 
-    if (typeof schema.max === 'number') {
-      formSchema = formSchema.max(schema.max)
-    }
-
-    if (typeof schema.min === 'number') {
-      formSchema = formSchema.min(schema.min)
+      if (typeof schema.min === 'number') {
+        formSchema = formSchema.min(schema.min)
+      }
+    } else {
+      formSchema = formSchema.length(schema.length)
     }
 
     if (schema.regex) {
@@ -51,8 +54,15 @@ export class TextField extends FormComponent {
     }
 
     if (options.customValidationMessage) {
+      const message = options.customValidationMessage
+
       formSchema = formSchema.messages({
-        any: options.customValidationMessage
+        'any.required': message,
+        'string.empty': message,
+        'string.max': message,
+        'string.min': message,
+        'string.length': message,
+        'string.pattern.base': message
       })
     }
 
