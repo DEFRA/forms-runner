@@ -10,16 +10,37 @@ import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 
 describe('CheckboxesField', () => {
+  const examples = [
+    {
+      text: '1 point',
+      value: '1',
+      state: 1
+    },
+    {
+      text: '2 points',
+      value: '2',
+      state: 2
+    },
+    {
+      text: '3 points',
+      value: '3',
+      state: 3
+    },
+    {
+      text: '4 points',
+      value: '4',
+      state: 4
+    }
+  ]
+
   const list = {
     title: 'Example number list',
     name: 'listNumber',
     type: 'number',
-    items: [
-      { text: '1 point', value: 1 },
-      { text: '2 points', value: 2 },
-      { text: '3 points', value: 3 },
-      { text: '4 points', value: 4 }
-    ]
+    items: examples.map((example) => ({
+      text: example.text,
+      value: example.state
+    }))
   } satisfies List
 
   const definition = {
@@ -184,17 +205,23 @@ describe('CheckboxesField', () => {
   })
 
   describe('State', () => {
-    it('Returns text from single state value', () => {
-      const text = component.getDisplayStringFromState({
-        [def.name]: [1]
-      })
+    it.each([...examples])(
+      "Returns text '$text' from state [$state]",
+      (item) => {
+        const text = component.getDisplayStringFromState({
+          [def.name]: [item.state]
+        })
 
-      expect(text).toBe('1 point')
-    })
+        expect(text).toBe(item.text)
+      }
+    )
 
     it('Returns text from multiple state values', () => {
+      const item1 = examples[0]
+      const item2 = examples[2]
+
       const text = component.getDisplayStringFromState({
-        [def.name]: [1, 3]
+        [def.name]: [item1.state, item2.state]
       })
 
       expect(text).toBe('1 point, 3 points')
@@ -202,19 +229,11 @@ describe('CheckboxesField', () => {
   })
 
   describe('View model', () => {
-    const items = [
-      {
-        text: '1 point',
-        value: '1',
-        state: 1
-      }
-    ]
-
     it('sets Nunjucks component defaults', () => {
-      const item = items[0]
+      const item = examples[0]
 
       const viewModel = component.getViewModel({
-        [def.name]: item.value
+        [def.name]: [item.value]
       })
 
       expect(viewModel).toEqual(
@@ -222,14 +241,14 @@ describe('CheckboxesField', () => {
           label: { text: def.title },
           name: 'myComponent',
           id: 'myComponent',
-          value: item.value
+          value: [item.value]
         })
       )
     })
 
-    it.each([...items])('sets Nunjucks component checkbox items', (item) => {
+    it.each([...examples])('sets Nunjucks component checkbox items', (item) => {
       const viewModel = component.getViewModel({
-        [def.name]: item.value
+        [def.name]: [item.value]
       })
 
       expect(viewModel.items).toEqual(
