@@ -34,6 +34,7 @@ export const messages: ValidationOptions['messages'] = {
   'number.min': messageTemplate.numberMin,
   'number.max': messageTemplate.numberMax,
 
+  'any.only': messageTemplate.selectRequired,
   'any.required': messageTemplate.selectRequired,
   'any.empty': messageTemplate.required,
 

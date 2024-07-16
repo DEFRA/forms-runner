@@ -1,101 +1,314 @@
 import {
   ComponentType,
-  type ComponentDef,
-  type FormDefinition
+  type FormDefinition,
+  type List,
+  type ListComponentsDef
 } from '@defra/forms-model'
 
 import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
+import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 
 describe('ListFormComponent', () => {
-  const lists: FormDefinition['lists'] = [
+  const listNumber = {
+    title: 'Example number list',
+    name: 'listNumber',
+    type: 'number',
+    items: [
+      { text: '1 point', value: 1 },
+      { text: '2 points', value: 2 },
+      { text: '3 points', value: 3 },
+      { text: '4 points', value: 4 }
+    ]
+  } satisfies List
+
+  const listString = {
+    title: 'Example string list',
+    name: 'listString',
+    type: 'string',
+    items: [
+      { text: '1 hour', value: '1' },
+      { text: '2 hours', value: '2' },
+      { text: '3 hours', value: '3' },
+      { text: '4 hours', value: '4' }
+    ]
+  } satisfies List
+
+  const definition = {
+    pages: [],
+    lists: [listNumber, listString],
+    sections: [],
+    conditions: []
+  } satisfies FormDefinition
+
+  describe.each([
     {
-      name: 'numberOfApplicants',
-      title: 'Number of people',
-      type: 'number',
-      items: [
-        {
-          text: '1',
-          value: 1,
-          description: '',
-          condition: ''
-        },
-        {
-          text: '2',
-          value: 2,
-          description: '',
-          condition: ''
-        },
-        {
-          text: '3',
-          value: 3,
-          description: '',
-          condition: ''
-        },
-        {
-          text: '4',
-          value: 4,
-          description: '',
-          condition: ''
+      component: {
+        title: 'Example checkboxes',
+        name: 'myCheckboxes',
+        type: ComponentType.CheckboxesField,
+        list: 'listNumber',
+        options: {},
+        schema: {}
+      } satisfies ListComponentsDef,
+
+      options: {
+        type: 'number',
+        allow: [1, 2, 3, 4],
+        list: listNumber,
+        items: [
+          {
+            text: '1 point',
+            value: '1',
+            state: 1
+          }
+        ]
+      }
+    },
+    {
+      component: {
+        title: 'Example radios',
+        name: 'myRadios',
+        type: ComponentType.RadiosField,
+        list: 'listString',
+        options: {},
+        schema: {}
+      } satisfies ListComponentsDef,
+
+      options: {
+        type: 'string',
+        allow: ['1', '2', '3', '4'],
+        list: listString,
+        items: [
+          {
+            text: '1 hour',
+            value: '1',
+            state: '1'
+          }
+        ]
+      }
+    },
+    {
+      component: {
+        title: 'Example select',
+        name: 'mySelect',
+        type: ComponentType.SelectField,
+        list: 'listString',
+        options: {},
+        schema: {}
+      } satisfies ListComponentsDef,
+
+      options: {
+        type: 'string',
+        allow: ['1', '2', '3', '4'],
+        list: listString,
+        items: [
+          {
+            text: '2 hours',
+            value: '2',
+            state: '2'
+          }
+        ]
+      }
+    },
+    {
+      component: {
+        title: 'Example autocomplete',
+        name: 'myAutocomplete',
+        type: ComponentType.AutocompleteField,
+        list: 'listString',
+        options: {},
+        schema: {}
+      } satisfies ListComponentsDef,
+
+      options: {
+        type: 'string',
+        allow: ['1', '2', '3', '4'],
+        list: listString,
+        items: [
+          {
+            text: '3 hours',
+            value: '3',
+            state: '3'
+          }
+        ]
+      }
+    }
+  ])('Component: $component.type', ({ component: def, options }) => {
+    let formModel: FormModel
+    let component: ListFormComponent
+    let label: string
+
+    beforeEach(() => {
+      formModel = new FormModel(definition, {
+        basePath: 'test'
+      })
+
+      component = new ListFormComponent(def, formModel)
+      label = def.title.toLowerCase()
+    })
+
+    describe('Schema', () => {
+      it('uses component title as label', () => {
+        const { formSchema } = component
+
+        expect(formSchema.describe().flags).toEqual(
+          expect.objectContaining({ label })
+        )
+      })
+
+      it('is required by default', () => {
+        const { formSchema } = component
+
+        expect(formSchema.describe().flags).toEqual(
+          expect.objectContaining({
+            presence: 'required'
+          })
+        )
+      })
+
+      it('is optional when configured', () => {
+        const componentOptional = new ListFormComponent(
+          { ...def, options: { required: false } },
+          formModel
+        )
+
+        const { formSchema } = componentOptional
+
+        expect(formSchema.describe().flags).not.toEqual(
+          expect.objectContaining({
+            presence: 'required'
+          })
+        )
+
+        const result = formSchema.validate(undefined, opts)
+        expect(result.error).toBeUndefined()
+      })
+
+      it('is configured with list items', () => {
+        const { formSchema } = component
+
+        expect(formSchema.describe()).toEqual(
+          expect.objectContaining({
+            allow: options.allow,
+            type: options.type
+          })
+        )
+      })
+
+      it.each([...options.allow])(
+        'accepts valid list item value %s',
+        (value) => {
+          const { formSchema } = component
+
+          const result = formSchema.validate(value, opts)
+          expect(result.error).toBeUndefined()
         }
-      ]
-    }
-  ]
+      )
 
-  describe('Generated schema', () => {
-    const componentDefinition: ComponentDef = {
-      title: 'Tada',
-      name: 'mySelectField',
-      type: ComponentType.SelectField,
-      options: {},
-      list: 'numberOfApplicants',
-      schema: {}
-    }
+      it('adds errors for empty value', () => {
+        const { formSchema } = component
 
-    const formModel = {
-      getList: () => lists[0],
-      makePage: () => jest.fn()
-    }
-    const component = new ListFormComponent(componentDefinition, formModel)
+        const result = formSchema.validate(undefined, opts)
 
-    it('is required by default', () => {
-      expect(component.formSchema.describe().flags).toEqual(
-        expect.objectContaining({
-          presence: 'required'
+        expect(result.error).toEqual(
+          expect.objectContaining({ message: `Select ${label}` })
+        )
+      })
+
+      it('adds errors for invalid values', () => {
+        const { formSchema } = component
+
+        const result1 = formSchema.validate('invalid-value', opts)
+        const result2 = formSchema.validate(
+          { unknown: 'invalid-payload' },
+          opts
+        )
+
+        const message = expect.stringMatching(`^Select ${label}`)
+
+        expect(result1.error).toEqual(expect.objectContaining({ message }))
+        expect(result2.error).toEqual(expect.objectContaining({ message }))
+      })
+    })
+
+    describe('State', () => {
+      it.each([...options.items])(
+        "Returns text '$text' from state $state",
+        (item) => {
+          const text = component.getDisplayStringFromState({
+            [def.name]: item.state
+          })
+
+          expect(text).toBe(item.text)
+        }
+      )
+    })
+
+    describe('View model', () => {
+      it('sets Nunjucks component defaults', () => {
+        const item = options.items[0]
+
+        const viewModel = component.getViewModel({
+          [def.name]: item.value
         })
+
+        expect(viewModel).toEqual(
+          expect.objectContaining({
+            label: { text: def.title },
+            name: def.name,
+            id: def.name,
+            value: item.value
+          })
+        )
+      })
+
+      it.each([...options.items])(
+        'sets Nunjucks component list items',
+        (item) => {
+          const viewModel = component.getViewModel({
+            [def.name]: item.value
+          })
+
+          expect(viewModel.items).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({
+                text: item.text,
+                value: item.value,
+                selected: true
+              })
+            ])
+          )
+        }
       )
     })
 
-    it('allows the items defined in the List object with the correct type', () => {
-      expect(component.formSchema.describe()).toEqual(
-        expect.objectContaining({
-          type: 'number',
-          allow: [1, 2, 3, 4]
+    describe('List items', () => {
+      it('returns list items', () => {
+        const { items } = component
+        expect(items).toEqual(options.list.items)
+      })
+
+      it('returns list items matching type', () => {
+        const { values } = component
+        expect(values).toEqual(expect.arrayContaining([]))
+      })
+
+      it('returns empty list when missing', () => {
+        const definitionNoList = {
+          pages: [],
+          lists: [],
+          sections: [],
+          conditions: []
+        } satisfies FormDefinition
+
+        const formModel = new FormModel(definitionNoList, {
+          basePath: 'test'
         })
-      )
-    })
 
-    it('is not required when explicitly configured', () => {
-      const component = new ListFormComponent(
-        {
-          ...componentDefinition,
-          options: { required: false }
-        },
-        formModel
-      )
-      expect(component.formSchema.describe().flags).not.toEqual(
-        expect.objectContaining({
-          presence: 'required'
-        })
-      )
-    })
-
-    it('validates correctly', () => {
-      const badPayload = { notMyName: 5 }
-      expect(component.formSchema.validate(badPayload).error).toBeTruthy()
-    })
-
-    it('is labelled correctly', () => {
-      expect(component.formSchema.describe().flags.label).toBe('tada')
+        const { items } = new ListFormComponent(def, formModel)
+        expect(items).toEqual([])
+      })
     })
   })
 })

@@ -95,7 +95,7 @@ export class ListFormComponent extends FormComponent {
     const viewModelItems = items.map(
       ({ text, value, description = '', condition }) => ({
         text,
-        value,
+        value: `${value}`,
         description,
         selected: `${value}` === `${payload[name]}`,
         condition: condition ?? undefined

@@ -39,11 +39,13 @@ describe('YesNoField', () => {
         }
 
         const viewModel = component.getViewModel(payload)
-        const yesItem = viewModel.items.filter((item) => item.text === 'Yes')[0]
+        const yesItem = viewModel.items?.filter(
+          (item) => item.text === 'Yes'
+        )[0]
 
         expect(yesItem).toEqual({
           text: 'Yes',
-          value: true,
+          value: 'true',
           checked: true
         })
       })
@@ -55,11 +57,13 @@ describe('YesNoField', () => {
         }
 
         const viewModel = component.getViewModel(payload)
-        const yesItem = viewModel.items.filter((item) => item.text === 'Yes')[0]
+        const yesItem = viewModel.items?.filter(
+          (item) => item.text === 'Yes'
+        )[0]
 
         expect(yesItem).toEqual({
           text: 'Yes',
-          value: true,
+          value: 'true',
           checked: true
         })
       })
@@ -71,11 +75,11 @@ describe('YesNoField', () => {
         }
 
         const viewModel = component.getViewModel(payload)
-        const noItem = viewModel.items.filter((item) => item.text === 'No')[0]
+        const noItem = viewModel.items?.filter((item) => item.text === 'No')[0]
 
         expect(noItem).toEqual({
           text: 'No',
-          value: false,
+          value: 'false',
           checked: true
         })
       })
@@ -87,11 +91,11 @@ describe('YesNoField', () => {
         }
 
         const viewModel = component.getViewModel(payload)
-        const noItem = viewModel.items.filter((item) => item.text === 'No')[0]
+        const noItem = viewModel.items?.filter((item) => item.text === 'No')[0]
 
         expect(noItem).toEqual({
           text: 'No',
-          value: false,
+          value: 'false',
           checked: true
         })
       })
