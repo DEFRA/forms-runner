@@ -1,10 +1,14 @@
+import { type FormDefinition } from '@defra/forms-model'
+
 import formJson from '~/src/server/forms/get-condition-evaluation-context.json' with { type: 'json' }
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/index.js'
 
 describe('Condition Evaluation Context', () => {
   it('correctly includes/filters state values', () => {
-    const formModel = new FormModel(formJson, {})
+    const formModel = new FormModel(formJson as FormDefinition, {
+      basePath: 'test'
+    })
 
     // Selected page appears after convergence and contains a conditional field
     // This is the page we're theoretically browsing to
@@ -12,7 +16,11 @@ describe('Condition Evaluation Context', () => {
       (page) => page.path === '/testconditions'
     )
 
-    const page = new PageController(formModel, testConditionsPage?.pageDef)
+    if (!testConditionsPage) {
+      throw new Error('Test conditions page not found')
+    }
+
+    const page = new PageController(formModel, testConditionsPage.pageDef)
 
     // The state below shows we said we had a UKPassport and entered details for an applicant
     const completeState = {
@@ -51,7 +59,11 @@ describe('Condition Evaluation Context', () => {
     )
 
     // Our relevantState should know our applicants firstName is Martin
-    expect(relevantState.applicantOneDetails.firstName).toBe('Martin')
+    expect(relevantState.applicantOneDetails).toEqual(
+      expect.objectContaining({
+        firstName: 'Martin'
+      })
+    )
 
     // Now mark that we don't have a UK Passport
     completeState.checkBeforeYouStart.ukPassport = false
@@ -60,7 +72,11 @@ describe('Condition Evaluation Context', () => {
     relevantState = page.getConditionEvaluationContext(formModel, completeState)
 
     // Our relevantState should no longer know anything about our applicant
-    expect(relevantState.checkBeforeYouStart.ukPassport).toBe(false)
     expect(relevantState.applicantOneDetails).toBeUndefined()
+    expect(relevantState.checkBeforeYouStart).toEqual(
+      expect.objectContaining({
+        ukPassport: false
+      })
+    )
   })
 })

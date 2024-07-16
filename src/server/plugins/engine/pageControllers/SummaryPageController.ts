@@ -83,7 +83,8 @@ export class SummaryPageController extends PageController {
               page.condition &&
               model.conditions[page.condition]
             ) {
-              conditionMatches = model.conditions[page.condition].fn(state)
+              conditionMatches =
+                model.conditions[page.condition]?.fn(state) ?? false
             }
             return propertyMatches && conditionMatches
           }

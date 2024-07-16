@@ -39,12 +39,14 @@ export class List extends ComponentBase {
     }
 
     viewModel.content = items.map((item) => {
-      const contentItem: { text: string; condition?: any } = {
+      const contentItem: { text: string; condition?: string } = {
         text: item.text
       }
+
       if (item.condition) {
         contentItem.condition = item.condition
       }
+
       return contentItem
     })
 

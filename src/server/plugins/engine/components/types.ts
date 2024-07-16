@@ -43,7 +43,7 @@ export interface ViewModel {
     text: string
   }
   summaryHtml?: string
-  html?: any // TODO
+  html?: string
   attributes: {
     autocomplete?: string
     maxlength?: number

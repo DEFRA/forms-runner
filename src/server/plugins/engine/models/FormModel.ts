@@ -2,6 +2,7 @@ import {
   ConditionsModel,
   formDefinitionSchema,
   type ConditionRawData,
+  type ConditionWrapperValue,
   type FormDefinition,
   type List,
   type Page
@@ -21,13 +22,16 @@ import { PageController } from '~/src/server/plugins/engine/pageControllers/inde
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 
 class EvaluationContext {
-  constructor(conditions, value) {
+  constructor(
+    conditions: Partial<Record<string, ExecutableCondition>>,
+    value: FormSubmissionState
+  ) {
     Object.assign(this, value)
 
     for (const key in conditions) {
       Object.defineProperty(this, key, {
         get() {
-          return conditions[key].fn(value)
+          return conditions[key]?.fn(value)
         }
       })
     }
@@ -44,9 +48,9 @@ export class FormModel {
 
   lists: FormDefinition['lists']
   sections: FormDefinition['sections'] = []
-  options: any
+  options: { basePath: string; defaultPageController?: string }
   name: string
-  values: any
+  values: FormDefinition
   DefaultPageController: PageControllerType | undefined = PageController
 
   basePath: string
@@ -54,13 +58,7 @@ export class FormModel {
   pages: PageControllerClass[]
   startPage?: PageControllerClass
 
-  constructor(
-    def: FormDefinition,
-    options: {
-      basePath: string
-      defaultPageController?: string
-    }
-  ) {
+  constructor(def: typeof this.def, options: typeof this.options) {
     const result = formDefinitionSchema.validate(def, { abortEarly: false })
 
     if (result.error) {
@@ -92,7 +90,7 @@ export class FormModel {
     this.lists = def.lists
     this.sections = def.sections
     this.options = options
-    this.name = def.name
+    this.name = def.name ?? ''
     this.values = result.value
 
     if (options.defaultPageController) {
@@ -219,7 +217,7 @@ export class FormModel {
     const { name, displayName, value } = condition
     const expr = this.toConditionExpression(value, parser)
 
-    const fn = (value) => {
+    const fn = (value: FormSubmissionState) => {
       const ctx = new EvaluationContext(this.conditions, value)
       try {
         return expr.evaluate(ctx)
@@ -237,7 +235,7 @@ export class FormModel {
     }
   }
 
-  toConditionExpression(value, parser) {
+  toConditionExpression(value: ConditionWrapperValue, parser: Parser) {
     if (typeof value === 'string') {
       return parser.parse(value)
     }

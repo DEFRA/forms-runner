@@ -3,6 +3,7 @@ import {
   type FormDefinition,
   type Section
 } from '@defra/forms-model'
+import { type Expression } from 'expr-eval'
 
 import { type ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { type FeedbackContextInfo } from '~/src/server/plugins/engine/feedback/index.js'
@@ -49,6 +50,7 @@ export const FEEDBACK_CONTEXT_ITEMS: readonly FeedbackContextItem[] = [
 ]
 
 export type ExecutableCondition = ConditionRawData & {
+  expr: Expression
   fn: (state: FormSubmissionState) => boolean
 }
 
