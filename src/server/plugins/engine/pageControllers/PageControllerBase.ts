@@ -113,6 +113,7 @@ export class PageControllerBase {
     isStartPage: boolean
     startPage?: ResponseObject
     backLink?: string
+    feedbackLink?: string
     serviceUrl: string
     phaseTag?: string | undefined
   } {
@@ -582,7 +583,10 @@ export class PageControllerBase {
     }
   }
 
-  setFeedbackDetails(viewModel, request) {
+  setFeedbackDetails(
+    viewModel: ReturnType<typeof this.getViewModel>,
+    request: Request
+  ) {
     const feedbackContextInfo = this.getFeedbackContextInfo(request)
     if (feedbackContextInfo) {
       viewModel.name = feedbackContextInfo.formTitle
