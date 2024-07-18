@@ -21,6 +21,10 @@ export class NumberField extends FormComponent {
 
     let formSchema = joi.number().label(title.toLowerCase())
 
+    if (options.required === false) {
+      formSchema = formSchema.allow('', null).optional()
+    }
+
     if (typeof schema.min === 'number') {
       formSchema = formSchema.min(schema.min)
     }
@@ -40,19 +44,7 @@ export class NumberField extends FormComponent {
       })
     }
 
-    if (options.required === false) {
-      const optionalSchema = joi
-        .alternatives<string | number>()
-        .try(
-          joi.string().trim().allow(null).allow('').default('').optional(),
-          formSchema
-        )
-
-      this.formSchema = optionalSchema
-    } else {
-      this.formSchema = formSchema
-    }
-
+    this.formSchema = formSchema
     this.options = options
     this.schema = schema
   }

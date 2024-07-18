@@ -24,11 +24,11 @@ export class TelephoneNumberField extends FormComponent {
     let formSchema = joi
       .string()
       .trim()
-      .label(title.toLowerCase())
       .pattern(PATTERN)
+      .label(title.toLowerCase())
 
     if (options.required === false) {
-      formSchema = formSchema.allow('').allow(null)
+      formSchema = formSchema.allow('', null)
     }
 
     if (options.customValidationMessage) {
