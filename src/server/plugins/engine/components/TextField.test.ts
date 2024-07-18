@@ -273,12 +273,15 @@ describe('TextFieldComponent', () => {
         expect(result).toEqual(output)
       })
 
-      it.each(assertions)('validates custom example', ({ input, output }) => {
-        const { formSchema } = component
+      it.each([...assertions])(
+        'validates custom example',
+        ({ input, output }) => {
+          const { formSchema } = component
 
-        const result = formSchema.validate(input, opts)
-        expect(result).toEqual(output)
-      })
+          const result = formSchema.validate(input, opts)
+          expect(result).toEqual(output)
+        }
+      )
     })
   })
 })
