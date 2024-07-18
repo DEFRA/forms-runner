@@ -52,6 +52,23 @@ describe('PageControllerBase', () => {
     controller = new PageControllerBase(formModel, page)
   })
 
+  describe('Form validation', () => {
+    it('includes title text', () => {
+      const result = controller.validateForm({})
+
+      expect(result.errors).toEqual(
+        expect.objectContaining({
+          titleText: 'There is a problem'
+        })
+      )
+    })
+
+    it('includes all field errors', () => {
+      const result = controller.validateForm({})
+      expect(result.errors?.errorList).toHaveLength(4)
+    })
+  })
+
   describe('Error formatting', () => {
     it('formats dates with ISO strings', () => {
       const errors = controller.getErrors({
