@@ -88,7 +88,7 @@ export class MonthYearField extends FormComponent {
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
-    const { children } = this
+    const { children, name } = this
 
     const viewModel = super.getViewModel(payload, errors)
 
@@ -110,6 +110,15 @@ export class MonthYearField extends FormComponent {
       }
     })
 
+    // Filter errors for this component only
+    const componentErrors = errors?.errorList.filter(
+      (error) => error.name.startsWith(`${name}__`) // E.g. `${name}__year`
+    )
+
+    const errorMessage = componentErrors?.[0] && {
+      text: componentErrors[0].text
+    }
+
     let { fieldset, label } = viewModel
 
     fieldset ??= {
@@ -121,6 +130,7 @@ export class MonthYearField extends FormComponent {
 
     return {
       ...viewModel,
+      errorMessage,
       fieldset,
       items: componentViewModels
     }

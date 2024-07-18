@@ -7,7 +7,7 @@ describe('Date parts field', () => {
     const def: ComponentDef = {
       name: 'myComponent',
       title: 'My component',
-      type: ComponentType.TextField,
+      type: ComponentType.DatePartsField,
       options: {},
       schema: {}
     }
@@ -32,7 +32,7 @@ describe('Date parts field', () => {
     const def: ComponentDef = {
       name: 'myComponent',
       title: 'My component',
-      type: ComponentType.TextField,
+      type: ComponentType.DatePartsField,
       options: { required: false },
       schema: {}
     }
@@ -66,16 +66,16 @@ describe('Date parts field', () => {
       titleText: 'There is a problem',
       errorList: [
         {
-          path: 'approximate__day',
-          href: '#approximate__day',
-          name: 'approximate__day',
-          text: '"Day" must be a number'
+          path: 'myComponent__day',
+          href: '#myComponent__day',
+          name: 'myComponent__day',
+          text: 'Day must be a number'
         }
       ]
     }
     const underTest = new DatePartsField(def)
     const returned = underTest.getViewModel({}, errors)
-    expect(returned.errorMessage.text).toBe('"Day" must be a number')
+    expect(returned.errorMessage?.text).toBe('Day must be a number')
     expect(underTest.getViewModel({}).errorMessage).toBeUndefined()
   })
 })

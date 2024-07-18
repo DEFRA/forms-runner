@@ -131,10 +131,12 @@ export class DatePartsField extends FormComponent {
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+    const { children, name } = this
+
     const viewModel = super.getViewModel(payload, errors)
 
     // Use the component collection to generate the subitems
-    const componentViewModels = this.children
+    const componentViewModels = children
       .getViewModel(payload, errors)
       .map((vm) => vm.model)
 
@@ -151,8 +153,14 @@ export class DatePartsField extends FormComponent {
       }
     })
 
-    const firstError = errors?.errorList[0]
-    const errorMessage = firstError && { text: firstError.text }
+    // Filter errors for this component only
+    const componentErrors = errors?.errorList.filter(
+      (error) => error.name.startsWith(`${name}__`) // E.g. `${name}__year`
+    )
+
+    const errorMessage = componentErrors?.[0] && {
+      text: componentErrors[0].text
+    }
 
     let { fieldset, label } = viewModel
 
