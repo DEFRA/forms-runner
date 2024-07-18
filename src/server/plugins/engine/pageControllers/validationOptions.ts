@@ -29,8 +29,6 @@ export const messages: ValidationOptions['messages'] = {
   'string.maxWords': messageTemplate.maxWords,
 
   'number.base': messageTemplate.number,
-  'number.empty': messageTemplate.required,
-  'number.required': messageTemplate.required,
   'number.min': messageTemplate.numberMin,
   'number.max': messageTemplate.numberMax,
 
