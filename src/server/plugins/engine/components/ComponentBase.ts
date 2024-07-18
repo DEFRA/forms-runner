@@ -6,7 +6,6 @@ import {
   type ComponentDef
 } from '@defra/forms-model'
 import joi, {
-  type AlternativesSchema,
   type ArraySchema,
   type BooleanSchema,
   type DateSchema,
@@ -79,7 +78,6 @@ export class ComponentBase {
 }
 
 export type ComponentSchema =
-  | AlternativesSchema<string | number>
   | ArraySchema<string>
   | ArraySchema<number>
   | ArraySchema<boolean>
