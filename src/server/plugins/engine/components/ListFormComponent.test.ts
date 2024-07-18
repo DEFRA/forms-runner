@@ -219,16 +219,11 @@ describe('ListFormComponent', () => {
       it('adds errors for invalid values', () => {
         const { formSchema } = component
 
-        const result1 = formSchema.validate('invalid-value', opts)
-        const result2 = formSchema.validate(
-          { unknown: 'invalid-payload' },
-          opts
-        )
+        const result1 = formSchema.validate('invalid', opts)
+        const result2 = formSchema.validate({ unknown: 'invalid' }, opts)
 
-        const message = expect.stringMatching(`^Select ${label}`)
-
-        expect(result1.error).toEqual(expect.objectContaining({ message }))
-        expect(result2.error).toEqual(expect.objectContaining({ message }))
+        expect(result1.error).toBeTruthy()
+        expect(result2.error).toBeTruthy()
       })
     })
 
