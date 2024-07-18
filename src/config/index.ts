@@ -159,7 +159,7 @@ export const config = convict({
   logLevel: {
     doc: 'Logging level',
     format: ['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'],
-    default: 'info',
+    default: process.env.NODE_ENV === 'development' ? 'error' : 'info',
     env: 'LOG_LEVEL'
   },
 
