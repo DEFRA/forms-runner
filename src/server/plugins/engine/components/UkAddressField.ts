@@ -30,10 +30,10 @@ export class UkAddressField extends FormComponent {
     const isRequired = options.required !== false
     const hideOptional = options.optionalText
 
-    let stateSchema = joi.object().required().label(title)
+    let stateSchema = joi.object().label(title).required()
 
     if (options.required === false) {
-      stateSchema = stateSchema.allow('').allow(null)
+      stateSchema = stateSchema.allow('', null).optional()
     }
 
     const childrenList = [

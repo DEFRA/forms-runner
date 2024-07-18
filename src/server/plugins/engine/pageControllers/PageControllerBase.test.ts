@@ -1,77 +1,112 @@
-import { ComponentType, type FormDefinition } from '@defra/forms-model'
+import {
+  ComponentType,
+  type ComponentDef,
+  type FormDefinition,
+  type Page
+} from '@defra/forms-model'
+import { ValidationError } from 'joi'
 
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
 
 describe('PageControllerBase', () => {
-  test('getErrors correctly parses ISO string to readable string', () => {
-    const def: FormDefinition = {
-      title: 'When will you get married?',
+  const component1: ComponentDef = {
+    name: 'dateField',
+    title: 'Date of marriage',
+    type: ComponentType.DatePartsField,
+    options: {},
+    schema: {}
+  }
+
+  const component2: ComponentDef = {
+    name: 'yesNoField',
+    title: 'Have you previously been married?',
+    type: ComponentType.YesNoField,
+    options: {},
+    schema: {}
+  }
+
+  let page: Page
+  let definition: FormDefinition
+  let formModel: FormModel
+  let controller: PageControllerBase
+
+  beforeEach(() => {
+    page = {
       path: '/first-page',
-      name: '',
-      components: [
-        {
-          name: 'date',
-          options: {
-            required: true,
-            maxDaysInFuture: 30
-          },
-          type: ComponentType.DatePartsField,
-          title: 'Date of marriage',
-          schema: {}
-        }
-      ],
-      next: [
-        {
-          path: '/second-page'
-        }
-      ]
-    }
-    const page = new PageControllerBase(
-      new FormModel(
-        {
-          pages: [],
-          startPage: '/start',
-          sections: [],
-          lists: [],
-          conditions: []
-        },
-        {}
-      ),
-      def
-    )
-    const error = {
-      error: {
-        details: [
-          {
-            message:
-              '"Date of marriage" must be on or before 2021-12-25T00:00:00.000Z',
-            path: ['date']
-          },
-          {
-            message: 'something invalid',
-            path: ['somethingElse']
-          }
-        ]
-      }
+      title: 'When will you get married?',
+      components: [component1, component2]
     }
 
-    expect(page.getErrors(error)).toEqual({
-      titleText: 'There is a problem',
-      errorList: [
-        {
-          path: 'date',
-          href: '#date',
-          name: 'date',
-          text: `"Date of marriage" must be on or before 25 December 2021`
-        },
-        {
-          path: 'somethingElse',
-          href: '#somethingElse',
-          name: 'somethingElse',
-          text: 'something invalid'
-        }
-      ]
+    definition = {
+      pages: [page],
+      lists: [],
+      sections: [],
+      conditions: []
+    }
+
+    formModel = new FormModel(definition, {
+      basePath: 'test'
+    })
+
+    controller = new PageControllerBase(formModel, page)
+  })
+
+  describe('Form validation', () => {
+    it('includes title text', () => {
+      const result = controller.validateForm({})
+
+      expect(result.errors).toEqual(
+        expect.objectContaining({
+          titleText: 'There is a problem'
+        })
+      )
+    })
+
+    it('includes all field errors', () => {
+      const result = controller.validateForm({})
+      expect(result.errors?.errorList).toHaveLength(4)
+    })
+  })
+
+  describe('Error formatting', () => {
+    it('formats dates with ISO strings', () => {
+      const errors = controller.getErrors({
+        error: new ValidationError(
+          'Date of marriage example',
+          [
+            {
+              message:
+                '"Date of marriage" must be on or before 2021-12-25T00:00:00.000Z',
+              path: ['dateField'],
+              type: 'date.max'
+            },
+            {
+              message: 'something invalid',
+              path: ['yesNoField'],
+              type: 'string.pattern.base'
+            }
+          ],
+          undefined
+        )
+      })
+
+      expect(errors?.errorList).toEqual(
+        expect.arrayContaining([
+          {
+            path: 'dateField',
+            href: '#dateField',
+            name: 'dateField',
+            text: `"Date of marriage" must be on or before 25 December 2021`
+          },
+          {
+            path: 'yesNoField',
+            href: '#yesNoField',
+            name: 'yesNoField',
+            text: 'something invalid'
+          }
+        ])
+      )
     })
   })
 })

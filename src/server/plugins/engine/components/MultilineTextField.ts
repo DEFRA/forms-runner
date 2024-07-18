@@ -23,7 +23,6 @@ export class MultilineTextField extends FormComponent {
   declare schema: MultilineTextFieldComponent['schema']
   declare formSchema: StringSchema
 
-  customValidationMessage?: string
   isCharacterOrWordCount = false
 
   constructor(def: MultilineTextFieldComponent, model: FormModel) {
@@ -31,14 +30,10 @@ export class MultilineTextField extends FormComponent {
 
     const { schema, options, title } = def
 
-    const isRequired = options.required !== false
+    let formSchema = Joi.string().trim().label(title.toLowerCase()).required()
 
-    let formSchema = Joi.string().trim().label(title.toLowerCase())
-
-    if (isRequired) {
-      formSchema = formSchema.required()
-    } else {
-      formSchema = formSchema.allow('').allow(null)
+    if (options.required === false) {
+      formSchema = formSchema.allow('', null).optional()
     }
 
     if (typeof schema.length !== 'number') {

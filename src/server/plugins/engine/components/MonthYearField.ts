@@ -98,14 +98,15 @@ export class MonthYearField extends FormComponent {
       .map((vm) => vm.model)
 
     componentViewModels.forEach((componentViewModel) => {
-      // Nunjucks macro expects label to be a string for this component
-      componentViewModel.label = componentViewModel.label?.text.replace(
-        optionalText,
-        ''
-      )
+      const { classes, label, errorMessage } = componentViewModel
 
-      if (componentViewModel.errorMessage) {
-        componentViewModel.classes += ' govuk-input--error'
+      if (label) {
+        label.text = label.text.replace(optionalText, '')
+        label.toString = () => label.text // Date component uses string labels
+      }
+
+      if (errorMessage) {
+        componentViewModel.classes = `${classes} govuk-input--error`.trim()
       }
     })
 

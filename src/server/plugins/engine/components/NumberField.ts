@@ -19,7 +19,11 @@ export class NumberField extends FormComponent {
 
     const { options, schema, title } = def
 
-    let formSchema = joi.number().label(title.toLowerCase())
+    let formSchema = joi.number().label(title.toLowerCase()).required()
+
+    if (options.required === false) {
+      formSchema = formSchema.allow('', null).optional()
+    }
 
     if (typeof schema.min === 'number') {
       formSchema = formSchema.min(schema.min)
@@ -40,19 +44,7 @@ export class NumberField extends FormComponent {
       })
     }
 
-    if (options.required === false) {
-      const optionalSchema = joi
-        .alternatives<string | number>()
-        .try(
-          joi.string().trim().allow(null).allow('').default('').optional(),
-          formSchema
-        )
-
-      this.formSchema = optionalSchema
-    } else {
-      this.formSchema = formSchema
-    }
-
+    this.formSchema = formSchema
     this.options = options
     this.schema = schema
   }
@@ -60,12 +52,16 @@ export class NumberField extends FormComponent {
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     const schema = this.schema
     const options = this.options
+
     const { suffix, prefix } = options
+
     const viewModelPrefix = { prefix: { text: prefix } }
     const viewModelSuffix = { suffix: { text: suffix } }
+
     const viewModel = {
       ...super.getViewModel(payload, errors),
       type: 'number',
+
       // ...False returns nothing, so only adds content when
       // the given options are present.
       ...(options.prefix && viewModelPrefix),

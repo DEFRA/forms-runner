@@ -259,7 +259,7 @@ export class PageControllerBase {
    * @param validationResult - provided by joi.validate
    */
   getErrors(
-    validationResult?: ValidationResult
+    validationResult?: Pick<ValidationResult, 'error'>
   ): FormSubmissionErrors | undefined {
     if (validationResult?.error) {
       const isoRegex =

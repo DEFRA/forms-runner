@@ -63,18 +63,13 @@ export class ListFormComponent extends FormComponent {
     }
 
     let formSchema = joi[this.listType]()
+      .valid(...this.values)
+      .label(title.toLowerCase())
+      .required()
 
-    /**
-     * Only allow a user to answer with values that have been defined in the list
-     */
     if (options.required === false) {
-      // null or empty string is valid for optional fields
-      formSchema = formSchema.empty(null).valid(...this.values, '')
-    } else {
-      formSchema = formSchema.valid(...this.values).required()
+      formSchema = formSchema.empty(null).valid('').optional()
     }
-
-    formSchema = formSchema.label(title.toLowerCase())
 
     this.formSchema = formSchema
     this.stateSchema = formSchema
