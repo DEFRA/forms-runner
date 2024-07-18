@@ -67,9 +67,9 @@ describe('YesNoField', () => {
 
       const { formSchema } = componentOptional
 
-      expect(formSchema.describe().flags).not.toEqual(
+      expect(formSchema.describe().flags).toEqual(
         expect.objectContaining({
-          presence: 'required'
+          presence: 'optional'
         })
       )
 

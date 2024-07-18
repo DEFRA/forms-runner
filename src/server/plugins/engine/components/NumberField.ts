@@ -19,7 +19,7 @@ export class NumberField extends FormComponent {
 
     const { options, schema, title } = def
 
-    let formSchema = joi.number().label(title.toLowerCase())
+    let formSchema = joi.number().label(title.toLowerCase()).required()
 
     if (options.required === false) {
       formSchema = formSchema.allow('', null).optional()

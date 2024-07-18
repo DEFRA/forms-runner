@@ -32,6 +32,7 @@ export class CheckboxesField extends SelectionControlField {
           : listSchema.valid(...this.values, '')
       )
       .label(title.toLowerCase())
+      .required()
 
     if (!isRequired) {
       formSchema = formSchema.empty(null).optional()

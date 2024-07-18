@@ -68,7 +68,7 @@ export class ListFormComponent extends FormComponent {
       .required()
 
     if (options.required === false) {
-      formSchema = formSchema.empty(null).valid('')
+      formSchema = formSchema.empty(null).valid('').optional()
     }
 
     this.formSchema = formSchema

@@ -32,9 +32,9 @@ describe('TextField', () => {
     it('is not required when explicitly configured', () => {
       const component = TextComponent({ options: { required: false } })
 
-      expect(component.formSchema.describe().flags).not.toEqual(
+      expect(component.formSchema.describe().flags).toEqual(
         expect.objectContaining({
-          presence: 'required'
+          presence: 'optional'
         })
       )
     })

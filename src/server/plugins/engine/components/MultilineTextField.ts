@@ -33,7 +33,7 @@ export class MultilineTextField extends FormComponent {
     let formSchema = Joi.string().trim().label(title.toLowerCase()).required()
 
     if (options.required === false) {
-      formSchema = formSchema.allow('', null)
+      formSchema = formSchema.allow('', null).optional()
     }
 
     if (typeof schema.length !== 'number') {

@@ -17,10 +17,15 @@ export class EmailAddressField extends FormComponent {
 
     const { schema, options, title } = def
 
-    let formSchema = joi.string().trim().label(title.toLowerCase()).email()
+    let formSchema = joi
+      .string()
+      .email()
+      .trim()
+      .label(title.toLowerCase())
+      .required()
 
     if (options.required === false) {
-      formSchema = formSchema.allow('').allow(null)
+      formSchema = formSchema.allow('', null).optional()
     }
 
     if (options.customValidationMessage) {
