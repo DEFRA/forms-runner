@@ -58,7 +58,7 @@ export default {
   module: {
     rules: [
       {
-        test: /\.(js|mjs)$/,
+        test: /\.(js|mjs|scss)$/,
         loader: 'source-map-loader',
         enforce: 'pre'
       },
