@@ -248,7 +248,7 @@ describe('CheckboxesField', () => {
 
     it.each([...examples])('sets Nunjucks component checkbox items', (item) => {
       const viewModel = component.getViewModel({
-        [def.name]: [item.value]
+        [def.name]: item.value
       })
 
       expect(viewModel.items).toEqual(
