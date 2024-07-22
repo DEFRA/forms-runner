@@ -96,6 +96,8 @@
     "cookie": "^0.6.0",
     "copy-webpack-plugin": "^12.0.2",
     "core-js": "^3.37.1",
+    "cssnano": "^7.0.4",
+    "cssnano-preset-default": "^7.0.4",
     "editorconfig-checker": "^5.1.8",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",

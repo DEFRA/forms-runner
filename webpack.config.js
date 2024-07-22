@@ -105,7 +105,10 @@ export default {
           {
             loader: 'sass-loader',
             options: {
-              sassOptions: { quietDeps: true },
+              sassOptions: {
+                outputStyle: 'expanded',
+                quietDeps: true
+              },
               warnRuleAsWarning: true
             }
           }
