@@ -45,7 +45,11 @@ const stubFormMetadata: FormMetadata = {
   title: 'Test form',
   organisation: 'Defra',
   teamName: 'Defra Forms',
-  teamEmail: 'defraforms@defra.gov.uk'
+  teamEmail: 'defraforms@defra.gov.uk',
+  createdAt: now,
+  createdBy: author,
+  updatedAt: now,
+  updatedBy: author
 }
 
 const stubFormDefinition: FormDefinition = {
