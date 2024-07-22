@@ -25,12 +25,12 @@ export class CheckboxesField extends SelectionControlField {
       ? joi.array<string>()
       : joi.array<number>()
 
-    const itemsSchema = joi[type]().allow(...this.values)
+    const itemsSchema = joi[type]().valid(...this.values).label(title.toLowerCase())
     formSchema = formSchema.items(itemsSchema).single().label(title.toLowerCase())
 
     if (options.required === false) {
       // null is valid for optional fields
-      formSchema = formSchema.allow(null).default(null)
+      formSchema = formSchema.optional().allow(null).default(null)
     } else {
       formSchema = formSchema.required()
     }
@@ -58,7 +58,7 @@ export class CheckboxesField extends SelectionControlField {
     if (typeof value === 'string') {
       const val = value.trim()
       if (val) {
-        items = value.split(',')
+        items = val.split(',')
       }
     }
 
