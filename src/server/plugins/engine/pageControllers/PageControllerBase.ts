@@ -350,7 +350,7 @@ export class PageControllerBase {
          * Similarly for optional {@link RadiosField}, the evaluation context should default to null.
          */
         if (
-          componentState === undefined &&
+          (componentState === null || componentState === undefined) &&
           component instanceof CheckboxesField &&
           !component.options.required
         ) {
