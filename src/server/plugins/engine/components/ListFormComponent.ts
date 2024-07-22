@@ -25,12 +25,14 @@ export class ListFormComponent extends FormComponent {
   declare schema: ListComponentsDef['schema'] | YesNoFieldComponent['options']
   declare formSchema:
     | ArraySchema<string>
+    | ArraySchema<number>
     | BooleanSchema<string>
     | NumberSchema<string>
     | StringSchema
 
   declare stateSchema:
     | ArraySchema<string>
+    | ArraySchema<number>
     | BooleanSchema<string>
     | NumberSchema<string>
     | StringSchema
