@@ -105,7 +105,6 @@ export default {
           {
             loader: 'sass-loader',
             options: {
-              api: 'modern-compiler',
               sassOptions: { quietDeps: true },
               warnRuleAsWarning: true
             }
