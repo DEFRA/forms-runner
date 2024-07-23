@@ -7,7 +7,7 @@
       {% if item.inError %}
         <a class="govuk-link" href="{{item.url}}">Enter {{item.label | lower}}</a>
       {% else %}
-        {{item.value | default("Not supplied")}}
+        {{ item.value | default("Not supplied", true) }}
       {% endif %}
     </dd>
     <dd class="govuk-summary-list__actions">

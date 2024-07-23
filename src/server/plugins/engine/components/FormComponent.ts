@@ -101,6 +101,6 @@ export class FormComponent extends ComponentBase {
   }
 
   getDisplayStringFromState(state) {
-    return state[this.name]
+    return state[this.name] ?? ''
   }
 }
