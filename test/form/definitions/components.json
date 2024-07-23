@@ -85,9 +85,36 @@
           "options": {},
           "list": "horseBreed",
           "type": "CheckboxesField",
-          "name": "checkboxesField",
-          "title": "Checkboxes field",
-          "hint": "Please help",
+          "name": "checkboxesSingle",
+          "title": "Checkboxes field 1",
+          "hint": "Select all that apply.",
+          "schema": {}
+        },
+        {
+          "options": {},
+          "list": "horseBreed",
+          "type": "CheckboxesField",
+          "name": "checkboxesMultiple",
+          "title": "Checkboxes field 2",
+          "hint": "Select all that apply.",
+          "schema": {}
+        },
+        {
+          "options": {},
+          "list": "points",
+          "type": "CheckboxesField",
+          "name": "checkboxesSingleNumber",
+          "title": "Checkboxes field 3 (number)",
+          "hint": "Select all that apply.",
+          "schema": {}
+        },
+        {
+          "options": {},
+          "list": "points",
+          "type": "CheckboxesField",
+          "name": "checkboxesMultipleNumber",
+          "title": "Checkboxes field 4 (number)",
+          "hint": "Select all that apply.",
           "schema": {}
         },
         {
@@ -364,6 +391,18 @@
         { "text": "Shire", "value": "Shire" },
         { "text": "Shetland", "value": "Shetland" },
         { "text": "Race", "value": "Race" }
+      ]
+    },
+    {
+      "name": "points",
+      "title": "Number of points",
+      "type": "number",
+      "items": [
+        { "text": "None", "value": 0 },
+        { "text": "1 point", "value": 1 },
+        { "text": "2 points", "value": 2 },
+        { "text": "3 points", "value": 3 },
+        { "text": "4 points", "value": 4 }
       ]
     }
   ],
