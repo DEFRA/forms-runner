@@ -524,10 +524,14 @@ export class PageControllerBase {
     h: ResponseToolkit
   ) => Promise<ResponseObject | Boom> {
     return async (request, h) => {
-      const payload = this.getPayload(request)
-      const formResult = this.validateForm(payload)
+      const formPayload = this.getPayload(request)
+      const formResult = this.validateForm(formPayload)
+
       let state = await this.getState(request)
       const progress = state.progress ?? []
+
+      // Sanitised payload after validation
+      const payload = formResult.value ?? {}
 
       /**
        * If there are any errors, render the page with the parsed errors
@@ -543,8 +547,9 @@ export class PageControllerBase {
         )
       }
 
-      const newState = this.getStateFromValidForm(request, formResult.value)
+      const newState = this.getStateFromValidForm(request, payload)
       const stateResult = this.validateState(newState)
+
       if (stateResult.errors) {
         return this.renderWithErrors(
           request,
