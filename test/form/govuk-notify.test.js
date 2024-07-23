@@ -52,8 +52,21 @@ privateLimitedCompany
 910400000
 
 
-## Checkboxes field
-Arabian,Shire,Race`
+## Checkboxes field 1
+Shetland
+
+
+## Checkboxes field 2
+Arabian,Shire,Race
+
+
+## Checkboxes field 3 (number)
+1
+
+
+## Checkboxes field 4 (number)
+0,1
+`
 
 describe('Submission journey test', () => {
   /** @type {import('@hapi/hapi').Server} */
@@ -101,7 +114,10 @@ describe('Submission journey test', () => {
       addressField__postcode: 'CW1 1AB',
       radiosField: 'privateLimitedCompany',
       selectField: '910400000',
-      checkboxesField: ['Arabian', 'Shire', 'Race']
+      checkboxesSingle: 'Shetland',
+      checkboxesMultiple: ['Arabian', 'Shire', 'Race'],
+      checkboxesSingleNumber: 1,
+      checkboxesMultipleNumber: [0, 1]
     }
 
     // POST the form data to set the state
