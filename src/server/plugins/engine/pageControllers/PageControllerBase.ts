@@ -516,8 +516,12 @@ export class PageControllerBase {
     mergeOptions?: merge.Options
   ) {
     const { cacheService } = request.services([])
-    const payload = (request.payload || {}) as FormPayload
-    const formResult = this.validateForm(payload)
+    const { payload: requestPayload } = request
+
+    const formPayload = typeof requestPayload === 'object' ? requestPayload : {}
+    const formResult = this.validateForm(formPayload)
+    const payload = formResult.value ?? {}
+
     const state = await cacheService.getState(request)
     const progress = state.progress ?? []
 
@@ -536,7 +540,7 @@ export class PageControllerBase {
       )
     }
 
-    const newState = this.getStateFromValidForm(formResult.value)
+    const newState = this.getStateFromValidForm(payload)
     const stateResult = this.validateState(newState)
     if (stateResult.errors) {
       return this.renderWithErrors(
