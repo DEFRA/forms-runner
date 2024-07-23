@@ -35,11 +35,11 @@ export class CheckboxesField extends SelectionControlField {
       .required()
 
     if (options.required === false) {
-      formSchema = formSchema.empty(null).default([]).optional()
+      formSchema = formSchema.optional()
     }
 
-    this.formSchema = formSchema
-    this.stateSchema = formSchema
+    this.formSchema = formSchema.default([])
+    this.stateSchema = formSchema.default(null).allow(null)
     this.options = options
     this.schema = schema
   }

@@ -70,11 +70,11 @@ export class ListFormComponent extends FormComponent {
       .required()
 
     if (options.required === false) {
-      formSchema = formSchema.empty(null).valid('').optional()
+      formSchema = formSchema.valid('').optional()
     }
 
-    this.formSchema = formSchema
-    this.stateSchema = formSchema
+    this.formSchema = formSchema.default('')
+    this.stateSchema = formSchema.default(null).allow(null)
     this.options = options
     this.schema = schema
   }

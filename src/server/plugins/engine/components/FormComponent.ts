@@ -107,7 +107,7 @@ export class FormComponent extends ComponentBase {
   }
 
   getStateSchemaKeys(): ComponentSchemaKeys {
-    return { [this.name]: this.formSchema }
+    return { [this.name]: this.stateSchema }
   }
 
   getDisplayStringFromState(state) {
