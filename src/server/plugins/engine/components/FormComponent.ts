@@ -44,8 +44,18 @@ export class FormComponent extends ComponentBase {
 
   getStateValueFromValidForm(payload: FormPayload) {
     const name = this.name
+    const value = payload[name]
 
-    return name in payload && payload[name] !== '' ? payload[name] : null
+    // Check for empty fields
+    const isMissing = !(name in payload) || value === undefined
+    const isEmpty = value === '' || (Array.isArray(value) && !value.length)
+
+    // Default to null in state
+    if (isMissing || isEmpty) {
+      return null
+    }
+
+    return value
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
