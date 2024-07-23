@@ -18,8 +18,8 @@ export class CheckboxesField extends SelectionControlField {
   constructor(def: CheckboxesFieldComponent, model: FormModel) {
     super(def, model)
 
+    const { listType: type } = this
     const { options, schema, title } = def
-    const type = this.listType
 
     let formSchema =
       type === 'string' ? joi.array<string>() : joi.array<number>()
@@ -32,12 +32,10 @@ export class CheckboxesField extends SelectionControlField {
       .items(itemsSchema)
       .single()
       .label(title.toLowerCase())
+      .required()
 
     if (options.required === false) {
-      // null is valid for optional fields
-      formSchema = formSchema.optional().allow(null).default(null)
-    } else {
-      formSchema = formSchema.required()
+      formSchema = formSchema.empty(null).default([]).optional()
     }
 
     this.formSchema = formSchema
@@ -55,23 +53,33 @@ export class CheckboxesField extends SelectionControlField {
       .join(', ')
   }
 
+  getFormValueFromState(state: FormSubmissionState) {
+    const { name } = this
+
+    if (Array.isArray(state[name])) {
+      return state[name]
+    }
+  }
+
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     const viewModel = super.getViewModel(payload, errors)
-    const value = payload[this.name]
-    let items: string[] = []
+    let { items, value } = viewModel
 
-    if (typeof value === 'string') {
-      const val = value.trim()
-      if (val) {
-        items = val.split(',')
-      }
-    }
+    const payloadItems = Array.isArray(value) ? value : []
 
     // Apply checked status to each of the items
-    viewModel.items?.forEach((item) => {
-      item.checked = items.some((i) => `${item.value}` === i)
+    items = items?.map((item) => {
+      const checked = payloadItems.some((value) => `${item.value}` === value)
+
+      return {
+        ...item,
+        checked
+      }
     })
 
-    return viewModel
+    return {
+      ...viewModel,
+      items
+    }
   }
 }
