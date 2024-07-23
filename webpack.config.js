@@ -4,7 +4,6 @@ import { fileURLToPath } from 'node:url'
 
 import { CleanWebpackPlugin } from 'clean-webpack-plugin'
 import CopyPlugin from 'copy-webpack-plugin'
-import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import TerserPlugin from 'terser-webpack-plugin'
 import WebpackAssetsManifest from 'webpack-assets-manifest'
 
@@ -59,7 +58,7 @@ export default {
   module: {
     rules: [
       {
-        test: /\.(js|mjs)$/,
+        test: /\.(js|mjs|scss)$/,
         loader: 'source-map-loader',
         enforce: 'pre'
       },
@@ -93,22 +92,23 @@ export default {
       },
       {
         test: /\.scss$/,
+        type: 'asset/resource',
+        generator: {
+          binary: false,
+          filename:
+            NODE_ENV === 'production'
+              ? 'stylesheets/[name].[contenthash:7].min.css'
+              : 'stylesheets/[name].css'
+        },
         use: [
-          MiniCssExtractPlugin.loader,
-          {
-            loader: 'css-loader',
-            options: {
-              // Allow sass-loader to process CSS @import first
-              // before we use css-loader to extract `url()` etc
-              importLoaders: 2
-            }
-          },
           'postcss-loader',
           {
             loader: 'sass-loader',
             options: {
-              api: 'modern-compiler',
-              sassOptions: { quietDeps: true },
+              sassOptions: {
+                outputStyle: 'expanded',
+                quietDeps: true
+              },
               warnRuleAsWarning: true
             }
           }
@@ -186,12 +186,6 @@ export default {
   plugins: [
     new CleanWebpackPlugin(),
     new WebpackAssetsManifest(),
-    new MiniCssExtractPlugin({
-      filename:
-        NODE_ENV === 'production'
-          ? 'stylesheets/[name].[contenthash:7].min.css'
-          : 'stylesheets/[name].css'
-    }),
     new CopyPlugin({
       patterns: [
         {
