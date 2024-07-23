@@ -69,7 +69,9 @@ export class CheckboxesField extends SelectionControlField {
 
     // Apply checked status to each of the items
     items = items?.map((item) => {
-      const checked = payloadItems.some((value) => `${item.value}` === value)
+      const checked = payloadItems.some(
+        (value) => `${item.value}` === `${value}`
+      )
 
       return {
         ...item,

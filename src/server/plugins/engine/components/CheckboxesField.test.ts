@@ -13,22 +13,22 @@ describe('CheckboxesField', () => {
   const examples = [
     {
       text: '1 point',
-      value: '1',
+      value: 1,
       state: 1
     },
     {
       text: '2 points',
-      value: '2',
+      value: 2,
       state: 2
     },
     {
       text: '3 points',
-      value: '3',
+      value: 3,
       state: 3
     },
     {
       text: '4 points',
-      value: '4',
+      value: 4,
       state: 4
     }
   ]
@@ -144,15 +144,21 @@ describe('CheckboxesField', () => {
     it('accepts valid checkbox single value', () => {
       const { formSchema } = component
 
-      const result = formSchema.validate(1, opts)
-      expect(result.error).toBeUndefined()
+      const result1 = formSchema.validate(1, opts)
+      const result2 = formSchema.validate('1', opts)
+
+      expect(result1.error).toBeUndefined()
+      expect(result2.error).toBeUndefined()
     })
 
     it('accepts valid checkbox multiple values', () => {
       const { formSchema } = component
 
-      const result = formSchema.validate([1, 3], opts)
-      expect(result.error).toBeUndefined()
+      const result1 = formSchema.validate([1, 3], opts)
+      const result2 = formSchema.validate(['1', '3'], opts)
+
+      expect(result1.error).toBeUndefined()
+      expect(result2.error).toBeUndefined()
     })
 
     it('adds errors for empty value', () => {
@@ -255,7 +261,7 @@ describe('CheckboxesField', () => {
         expect.arrayContaining([
           expect.objectContaining({
             text: item.text,
-            value: item.value,
+            value: `${item.value}`,
             checked: true
           })
         ])
