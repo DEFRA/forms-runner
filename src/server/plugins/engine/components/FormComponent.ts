@@ -44,8 +44,13 @@ export class FormComponent extends ComponentBase {
 
   getStateValueFromValidForm(payload: FormPayload) {
     const name = this.name
+    const value = payload[name]
 
-    return name in payload && payload[name] !== '' ? payload[name] : null
+    if (!(name in payload) || typeof value === 'undefined' || value === '') {
+      return null
+    }
+
+    return value
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
