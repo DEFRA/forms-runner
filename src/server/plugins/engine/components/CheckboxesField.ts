@@ -65,7 +65,11 @@ export class CheckboxesField extends SelectionControlField {
     const viewModel = super.getViewModel(payload, errors)
     let { items, value } = viewModel
 
-    const payloadItems = Array.isArray(value) ? value : []
+    let payloadItems: string[] | number[] = []
+
+    // Allow strings (temporarily) via controller renderWithErrors()
+    payloadItems = Array.isArray(value) ? value : payloadItems
+    payloadItems = typeof value === 'string' ? [value] : payloadItems
 
     // Apply checked status to each of the items
     items = items?.map((item) => {
@@ -81,6 +85,7 @@ export class CheckboxesField extends SelectionControlField {
 
     return {
       ...viewModel,
+      value: payloadItems,
       items
     }
   }

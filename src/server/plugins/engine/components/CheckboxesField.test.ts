@@ -252,6 +252,24 @@ describe('CheckboxesField', () => {
       )
     })
 
+    it('handles Nunjucks component value when schema validation is skipped', () => {
+      const value = `${examples[0].value}`
+
+      // Value as single string (not an array)
+      const viewModel1 = component.getViewModel({
+        [def.name]: value
+      })
+
+      // Value as undefined (not an array)
+      const viewModel2 = component.getViewModel({
+        [def.name]: undefined
+      })
+
+      // Both values should be returned as arrays
+      expect(viewModel1.value).toEqual([value])
+      expect(viewModel2.value).toEqual([])
+    })
+
     it.each([...examples])('sets Nunjucks component checkbox items', (item) => {
       const viewModel = component.getViewModel({
         [def.name]: [item.value]
