@@ -12,34 +12,34 @@ import {
 export class CheckboxesField extends SelectionControlField {
   declare options: CheckboxesFieldComponent['options']
   declare schema: CheckboxesFieldComponent['schema']
-  declare formSchema: ArraySchema<string>
-  declare stateSchema: ArraySchema<string>
+  declare formSchema: ArraySchema<string> | ArraySchema<number>
+  declare stateSchema: ArraySchema<string> | ArraySchema<number>
 
   constructor(def: CheckboxesFieldComponent, model: FormModel) {
     super(def, model)
 
+    const { listType: type } = this
     const { options, schema, title } = def
 
-    const isRequired = options.required !== false
-    const listSchema = joi[this.listType]().label(title.toLowerCase())
+    let formSchema =
+      type === 'string' ? joi.array<string>() : joi.array<number>()
 
-    let formSchema = joi
-      .array<string>()
+    const itemsSchema = joi[type]()
+      .valid(...this.values)
+      .label(title.toLowerCase())
+
+    formSchema = formSchema
+      .items(itemsSchema)
       .single()
-      .items(
-        isRequired
-          ? listSchema.valid(...this.values)
-          : listSchema.valid(...this.values, '')
-      )
       .label(title.toLowerCase())
       .required()
 
-    if (!isRequired) {
-      formSchema = formSchema.empty(null).optional()
+    if (options.required === false) {
+      formSchema = formSchema.optional()
     }
 
-    this.formSchema = formSchema
-    this.stateSchema = formSchema
+    this.formSchema = formSchema.default([])
+    this.stateSchema = formSchema.default(null).allow(null)
     this.options = options
     this.schema = schema
   }
@@ -53,17 +53,40 @@ export class CheckboxesField extends SelectionControlField {
       .join(', ')
   }
 
+  getFormValueFromState(state: FormSubmissionState) {
+    const { name } = this
+
+    if (Array.isArray(state[name])) {
+      return state[name]
+    }
+  }
+
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     const viewModel = super.getViewModel(payload, errors)
+    let { items, value } = viewModel
 
-    // Handle single (string) or multiple (array) values
-    const payloadItems = this.name in payload ? [payload[this.name]].flat() : []
+    let payloadItems: string[] | number[] = []
 
-    viewModel.items = (viewModel.items ?? []).map((item) => ({
-      ...item,
-      checked: payloadItems.some((i) => `${item.value}` === i)
-    }))
+    // Allow strings (temporarily) via controller renderWithErrors()
+    payloadItems = Array.isArray(value) ? value : payloadItems
+    payloadItems = typeof value === 'string' ? [value] : payloadItems
 
-    return viewModel
+    // Apply checked status to each of the items
+    items = items?.map((item) => {
+      const checked = payloadItems.some(
+        (value) => `${item.value}` === `${value}`
+      )
+
+      return {
+        ...item,
+        checked
+      }
+    })
+
+    return {
+      ...viewModel,
+      value: payloadItems,
+      items
+    }
   }
 }
