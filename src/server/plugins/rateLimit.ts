@@ -10,9 +10,9 @@ export interface RateOptions {
 
 export const configureRateLimitPlugin = (routeConfig?: RouteConfig) => {
   const options = routeConfig
-    ? routeConfig.rateOptions ?? {
+    ? (routeConfig.rateOptions ?? {
         enabled: false
-      }
+      })
     : {
         trustProxy: true,
         pathLimit: false,
