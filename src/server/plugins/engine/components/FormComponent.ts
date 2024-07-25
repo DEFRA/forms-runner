@@ -1,4 +1,4 @@
-import capitalize from 'lodash/capitalize.js'
+import upperFirst from 'lodash/upperFirst.js'
 
 import {
   ComponentBase,
@@ -83,10 +83,10 @@ export class FormComponent extends ComponentBase {
 
     errors?.errorList.forEach((err) => {
       if (err.name === name) {
-        err.text = capitalize(err.text)
+        err.text = upperFirst(err.text)
 
         viewModel.errorMessage = {
-          text: capitalize(err.text)
+          text: err.text
         }
       }
     })
