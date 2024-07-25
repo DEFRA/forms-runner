@@ -21,7 +21,9 @@ const privacyPolicies: Record<string, string> = {
   'report-fraud-and-irregularity-against-the-environment-agency':
     'https://www.gov.uk/government/publications/whistleblowing-at-the-environment-agency-privacy-notice',
   'apply-for-a-county-parish-holding-cph-number':
-    'https://www.gov.uk/guidance/rpa-privacy-notices'
+    'https://www.gov.uk/guidance/rpa-privacy-notices',
+  'submit-a-complaint-for-weeds-that-are-causing-damage-or-harm':
+    'https://www.gov.uk/government/organisations/natural-england/about/personal-information-charter'
 }
 
 export default {
