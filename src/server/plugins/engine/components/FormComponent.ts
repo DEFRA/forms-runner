@@ -1,5 +1,3 @@
-import capitalize from 'lodash/capitalize.js'
-
 import {
   ComponentBase,
   type ComponentSchemaKeys
@@ -83,10 +81,10 @@ export class FormComponent extends ComponentBase {
 
     errors?.errorList.forEach((err) => {
       if (err.name === name) {
-        err.text = capitalize(err.text)
+        err.text = err.text.charAt(0).toUpperCase() + err.text.substring(1)
 
         viewModel.errorMessage = {
-          text: capitalize(err.text)
+          text: err.text
         }
       }
     })
