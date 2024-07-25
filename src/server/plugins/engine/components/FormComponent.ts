@@ -1,3 +1,5 @@
+import upperFirst from 'lodash/upperFirst.js'
+
 import {
   ComponentBase,
   type ComponentSchemaKeys
@@ -81,7 +83,7 @@ export class FormComponent extends ComponentBase {
 
     errors?.errorList.forEach((err) => {
       if (err.name === name) {
-        err.text = err.text.charAt(0).toUpperCase() + err.text.substring(1)
+        err.text = upperFirst(err.text)
 
         viewModel.errorMessage = {
           text: err.text
