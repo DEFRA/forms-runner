@@ -1,7 +1,9 @@
 import { type ComponentDef, ComponentType } from '@defra/forms-model'
 import joi, { type ObjectSchema } from 'joi'
 
+import { type ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { MonthYearField } from '~/src/server/plugins/engine/components/index.js'
+import { type PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
 import { messages } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 
 /**
