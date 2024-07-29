@@ -206,14 +206,6 @@ export class FormModel {
       return add(new Date(), { [timeUnit]: timePeriod }).toISOString()
     }
 
-    /**
-     * TODO:- this is most definitely broken.
-     */
-    parser.functions.timeForComparison = function (timePeriod, timeUnit) {
-      const offsetTime = add(Number(timePeriod), timeUnit)
-      return `${offsetTime.getHours()}:${offsetTime.getMinutes()}`
-    }
-
     const { name, displayName, value } = condition
     const expr = this.toConditionExpression(value, parser)
 
