@@ -3,6 +3,7 @@ import {
   formDefinitionSchema,
   type ConditionWrapper,
   type ConditionsModelData,
+  type DateUnits,
   type FormDefinition,
   type List,
   type Page
@@ -202,7 +203,10 @@ export class FormModel {
       }
     })
 
-    parser.functions.dateForComparison = function (timePeriod, timeUnit) {
+    parser.functions.dateForComparison = function (
+      timePeriod: number,
+      timeUnit: DateUnits
+    ) {
       return add(new Date(), { [timeUnit]: timePeriod }).toISOString()
     }
 
