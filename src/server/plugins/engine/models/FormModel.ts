@@ -232,10 +232,6 @@ export class FormModel {
   }
 
   toConditionExpression(value: ConditionsModelData, parser: Parser) {
-    if (typeof value === 'string') {
-      return parser.parse(value)
-    }
-
     const conditions = ConditionsModel.from(value)
     return parser.parse(conditions.toExpression())
   }
