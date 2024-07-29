@@ -4,6 +4,7 @@ import { merge } from '@hapi/hoek'
 import { type ViewModel } from '../plugins/engine/components/types.js'
 
 import { config } from '~/src/config/index.js'
+import { type createServer } from '~/src/server/index.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 
 const partition = 'cache'

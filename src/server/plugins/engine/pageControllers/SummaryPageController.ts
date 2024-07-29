@@ -313,7 +313,7 @@ function getFormSubmissionData(
   }
 }
 
-function answerFromDetailItem(item: DetailItem) {
+export function answerFromDetailItem(item: DetailItem) {
   switch (item.dataType) {
     case 'list':
       return item.rawValue
