@@ -1,5 +1,5 @@
 import {
-  type ConditionRawData,
+  type ConditionWrapper,
   type FormDefinition,
   type Section
 } from '@defra/forms-model'
@@ -49,7 +49,7 @@ export const FEEDBACK_CONTEXT_ITEMS: readonly FeedbackContextItem[] = [
   }
 ]
 
-export type ExecutableCondition = ConditionRawData & {
+export type ExecutableCondition = ConditionWrapper & {
   expr: Expression
   fn: (state: FormSubmissionState) => boolean
 }

@@ -1,8 +1,8 @@
 import {
   ConditionsModel,
   formDefinitionSchema,
-  type ConditionRawData,
-  type ConditionWrapperValue,
+  type ConditionWrapper,
+  type ConditionsModelData,
   type FormDefinition,
   type List,
   type Page
@@ -192,10 +192,10 @@ export class FormModel {
   }
 
   /**
-   * Instantiates a Condition based on {@link ConditionRawData}
+   * Instantiates a Condition based on {@link ConditionWrapper}
    * @param condition
    */
-  makeCondition(condition: ConditionRawData): ExecutableCondition {
+  makeCondition(condition: ConditionWrapper): ExecutableCondition {
     const parser = new Parser({
       operators: {
         logical: true
@@ -235,7 +235,7 @@ export class FormModel {
     }
   }
 
-  toConditionExpression(value: ConditionWrapperValue, parser: Parser) {
+  toConditionExpression(value: ConditionsModelData, parser: Parser) {
     if (typeof value === 'string') {
       return parser.parse(value)
     }
