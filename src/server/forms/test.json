@@ -460,27 +460,112 @@
     {
       "name": "hasUKPassport",
       "displayName": "hasUKPassport",
-      "value": "checkBeforeYouStart.ukPassport==true"
+      "value": {
+        "name": "hasUKPassport",
+        "conditions": [
+          {
+            "field": {
+              "name": "checkBeforeYouStart.ukPassport",
+              "type": "YesNoField",
+              "display": "Do you have a UK passport?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "true",
+              "display": "true"
+            }
+          }
+        ]
+      }
     },
     {
       "name": "doesntHaveUKPassport",
       "displayName": "doesntHaveUKPassport",
-      "value": "checkBeforeYouStart.ukPassport==false"
+      "value": {
+        "name": "doesntHaveUKPassport",
+        "conditions": [
+          {
+            "field": {
+              "name": "checkBeforeYouStart.ukPassport",
+              "type": "YesNoField",
+              "display": "Do you have a UK passport?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "false",
+              "display": "false"
+            }
+          }
+        ]
+      }
     },
     {
       "name": "moreThanOneApplicant",
       "displayName": "moreThanOneApplicant",
-      "value": "applicantDetails.numberOfApplicants > 1"
+      "value": {
+        "name": "moreThanOneApplicant",
+        "conditions": [
+          {
+            "field": {
+              "name": "applicantDetails.numberOfApplicants",
+              "type": "SelectField",
+              "display": "How many applicants are there?"
+            },
+            "operator": "is more than",
+            "value": {
+              "type": "Value",
+              "value": "1",
+              "display": "1"
+            }
+          }
+        ]
+      }
     },
     {
       "name": "moreThanTwoApplicants",
       "displayName": "moreThanTwoApplicants",
-      "value": "applicantDetails.numberOfApplicants > 2"
+      "value": {
+        "name": "moreThanTwoApplicants",
+        "conditions": [
+          {
+            "field": {
+              "name": "applicantDetails.numberOfApplicants",
+              "type": "SelectField",
+              "display": "How many applicants are there?"
+            },
+            "operator": "is more than",
+            "value": {
+              "type": "Value",
+              "value": "2",
+              "display": "2"
+            }
+          }
+        ]
+      }
     },
     {
       "name": "moreThanThreeApplicants",
       "displayName": "moreThanThreeApplicants",
-      "value": "applicantDetails.numberOfApplicants > 3"
+      "value": {
+        "name": "moreThanThreeApplicants",
+        "conditions": [
+          {
+            "field": {
+              "name": "applicantDetails.numberOfApplicants",
+              "type": "SelectField",
+              "display": "How many applicants are there?"
+            },
+            "operator": "is more than",
+            "value": {
+              "type": "Value",
+              "value": "3",
+              "display": "3"
+            }
+          }
+        ]
+      }
     }
   ]
 }
