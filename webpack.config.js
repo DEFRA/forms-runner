@@ -105,6 +105,7 @@ export default {
           {
             loader: 'sass-loader',
             options: {
+              api: 'legacy',
               sassOptions: {
                 outputStyle: 'expanded',
                 quietDeps: true
