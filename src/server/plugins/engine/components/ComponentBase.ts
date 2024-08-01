@@ -1,7 +1,6 @@
 import {
   type ContentComponentsDef,
   hasContentField,
-  hasInputField,
   type InputFieldsComponentsDef,
   type ComponentDef
 } from '@defra/forms-model'
@@ -51,7 +50,7 @@ export class ComponentBase {
     this.schema = def.schema
     this.options = def.options
 
-    if (hasInputField(def)) {
+    if (!hasContentField(def)) {
       this.hint = def.hint
     }
 
