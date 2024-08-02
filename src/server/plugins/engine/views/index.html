@@ -1,9 +1,5 @@
 {% extends 'layout.html' %}
 
-{% block templateImports %}
-  {{ super() }}
-{% endblock %}
-
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% from "partials/components.html" import componentList with context %}
 
@@ -20,11 +16,13 @@
 
       {% include "partials/heading.html" %}
 
-      {% if page.hasNext %}
-        {% include "partials/form.html" %}
-      {% else %}
-        {{ componentList(components) }}
-      {% endif %}
+      {% block form %}
+        {% if page.hasNext %}
+          {% include "partials/form.html" %}
+        {% else %}
+          {{ componentList(components) }}
+        {% endif %}
+      {% endblock %}
 
       <pre>{{ value | dump(2) | safe }}</pre>
     </div>

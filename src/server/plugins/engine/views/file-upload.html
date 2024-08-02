@@ -1,0 +1,33 @@
+{% extends 'index.html' %}
+
+{% from "partials/summary-detail.html" import summaryDetail %}
+{% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/file-upload/macro.njk" import govukFileUpload %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% block form %}
+    {{ componentList(components | rejectattr('isFormComponent')) }}
+
+    <form method="post" enctype="multipart/form-data" autocomplete="off" novalidate action="{{ formAction }}">
+    {{ govukFileUpload({
+      id: "file",
+      name: "file",
+      label: {
+        text: "Upload a file",
+        classes: "govuk-visually-hidden"
+      },
+      attributes: {
+        accept: ".doc,.docx,.csv,.odt,.xlsx,.xls,.rtf,.txt,.pdf,.jpeg,.jpg,.png"
+      }
+    }) }}
+
+    {{ govukButton({ attributes: { id: "submit" }, text: "Upload file", classes: "govuk-button--secondary" }) }}
+  </form>
+
+  <form method="post" novalidate>
+    <input type="hidden" name="crumb" value="{{crumb}}"/>
+    {{ componentList(components | selectattr('isFormComponent')) }}
+    {{ govukButton({ attributes: { id: "submit" }, text: "Continue" }) }}
+  </form>
+{% endblock %}

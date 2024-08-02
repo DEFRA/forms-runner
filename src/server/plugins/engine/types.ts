@@ -66,3 +66,13 @@ export interface FormValidationResult<ValueType extends object = FormPayload> {
   value?: ValueType
   errors?: FormSubmissionErrors | null
 }
+
+export interface UploadInitiateResponse {
+  uploadId: string
+  uploadUrl: string
+  statusUrl: string
+}
+
+export interface UploadStatusResponse {
+  uploadStatus: string
+}
