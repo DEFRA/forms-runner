@@ -144,6 +144,12 @@ export const config = convict({
     env: 'NOTIFY_API_KEY'
   } as SchemaObj<string>,
 
+  runnerUrl: {
+    format: String,
+    default: null,
+    env: 'RUNNER_URL'
+  } as SchemaObj<string>,
+
   /**
    * API integrations
    */
@@ -152,6 +158,24 @@ export const config = convict({
     default: null,
     env: 'MANAGER_URL'
   } as SchemaObj<string>,
+
+  submissionUrl: {
+    format: String,
+    default: null,
+    env: 'SUBMISSION_URL'
+  } as SchemaObj<string>,
+
+  uploaderUrl: {
+    format: String,
+    default: null,
+    env: 'UPLOADER_URL'
+  } as SchemaObj<string>,
+
+  uploaderBucketName: {
+    format: String,
+    default: 'files',
+    env: 'UPLOADER_BUCKET_NAME'
+  },
 
   /**
    * Logging
