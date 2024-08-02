@@ -5,7 +5,8 @@ import joi, {
   type DateSchema,
   type NumberSchema,
   type ObjectSchema,
-  type StringSchema
+  type StringSchema,
+  type AnySchema
 } from 'joi'
 
 import {
@@ -68,12 +69,14 @@ export type ComponentSchema =
   | ArraySchema<string>
   | ArraySchema<number>
   | ArraySchema<boolean>
+  | ArraySchema<object>
   | BooleanSchema<string>
   | DateSchema
   | NumberSchema<string>
   | NumberSchema
   | ObjectSchema
   | StringSchema
+  | AnySchema
 
 export type ComponentSchemaNested = Record<string, ComponentSchema | undefined>
 

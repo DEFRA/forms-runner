@@ -3,3 +3,4 @@ export { PageController } from '~/src/server/plugins/engine/pageControllers/Page
 export { StartPageController } from '~/src/server/plugins/engine/pageControllers/StartPageController.js'
 export { SummaryPageController } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 export { StatusPageController } from '~/src/server/plugins/engine/pageControllers/StatusPageController.js'
+export { FileUploadPageController } from '~/src/server/plugins/engine/pageControllers/FileUploadPageController.js'

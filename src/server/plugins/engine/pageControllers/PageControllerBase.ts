@@ -710,7 +710,7 @@ export class PageControllerBase {
     }
   }
 
-  private renderWithErrors(
+  protected renderWithErrors(
     request: Request,
     h: ResponseToolkit,
     payload: FormPayload,
