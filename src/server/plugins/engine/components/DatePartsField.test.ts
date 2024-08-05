@@ -1,4 +1,10 @@
-import { ComponentType, type ComponentDef } from '@defra/forms-model'
+import {
+  ComponentType,
+  type DatePartsFieldFieldComponent,
+  type ComponentDef
+} from '@defra/forms-model'
+
+import { type FormModel } from '../models/FormModel.js'
 
 import { DatePartsField } from '~/src/server/plugins/engine/components/DatePartsField.js'
 
@@ -12,7 +18,7 @@ describe('Date parts field', () => {
       schema: {}
     }
 
-    const underTest = new DatePartsField(def, {})
+    const underTest = new DatePartsField(def, {} as FormModel) // FormModel param not required for testing
     const returned = underTest.getViewModel({})
 
     expect(returned.fieldset).toEqual({
@@ -37,7 +43,7 @@ describe('Date parts field', () => {
       schema: {}
     }
 
-    const underTest = new DatePartsField(def, {})
+    const underTest = new DatePartsField(def, {} as FormModel) // FormModel param not required for testing
     const returned = underTest.getViewModel({})
 
     expect(returned.fieldset).toEqual({
@@ -73,10 +79,32 @@ describe('Date parts field', () => {
         }
       ]
     }
-    const underTest = new DatePartsField(def)
+
+    const underTest = new DatePartsField(def, {} as FormModel)
     const returned = underTest.getViewModel({}, errors)
     expect(returned.errorMessage?.text).toBe('Day must be a number')
     expect(underTest.getViewModel({}).errorMessage).toBeUndefined()
+  })
+  test('Condition evaluation used yyyy-MM-dd format', () => {
+    const datePartsFieldComponent = {
+      title: 'Example checkboxes',
+      name: 'myComponent',
+      type: ComponentType.DatePartsField,
+      options: {},
+      schema: {}
+    } satisfies DatePartsFieldFieldComponent
+
+    const underTest = new DatePartsField(
+      datePartsFieldComponent,
+      {} as FormModel // FormModel param not required for testing
+    )
+
+    const conditonEvaluationStateValue =
+      underTest.getConditionEvaluationStateValue({
+        myComponent: '2024-12-31T01:02:03.004Z'
+      })
+
+    expect(conditonEvaluationStateValue).toBe('2024-12-31')
   })
 })
 

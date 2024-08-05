@@ -1,5 +1,6 @@
 import { type FormDefinition } from '@defra/forms-model'
 
+import dateFormConditionJson from '~/src/server/forms/date-branching.json' with { type: 'json' }
 import formJson from '~/src/server/forms/get-condition-evaluation-context.json' with { type: 'json' }
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/index.js'
@@ -78,5 +79,41 @@ describe('Condition Evaluation Context', () => {
         ukPassport: false
       })
     )
+  })
+
+  describe('DatePartsField', () => {
+    it('correctly transforms DateTimeParts components', () => {
+      const formModel = new FormModel(dateFormConditionJson as FormDefinition, {
+        basePath: 'test'
+      })
+
+      const testConditionsPage = formModel.pages.find(
+        (page) => page.path === '/page-one'
+      )
+
+      if (!testConditionsPage) {
+        throw new Error('Test conditions page not found')
+      }
+
+      const page = new PageController(formModel, testConditionsPage.pageDef)
+
+      const completeState = {
+        progress: [],
+        BWvMaM: '2024-01-05T01:02:03.004Z'
+      }
+
+      // get the state including our DatePartsField
+      const relevantState = page.getConditionEvaluationContext(
+        formModel,
+        completeState
+      )
+
+      // Ensure dates are transformed to yyyy-MM-dd format
+      expect(relevantState).toEqual(
+        expect.objectContaining({
+          BWvMaM: '2024-01-05'
+        })
+      )
+    })
   })
 })

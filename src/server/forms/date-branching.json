@@ -1,0 +1,85 @@
+{
+  "name": "Date condition test",
+  "startPage": "/page-one",
+  "pages": [
+    {
+      "path": "/page-one",
+      "title": "Page one",
+      "components": [
+        {
+          "name": "BWvMaM",
+          "title": "Date field",
+          "type": "DatePartsField",
+          "hint": "",
+          "options": {},
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/is-not-2024-08-01"
+        },
+        {
+          "path": "/is-2024-08-01",
+          "condition": "RVtgRf"
+        }
+      ]
+    },
+    {
+      "title": "Is not 2024-08-01",
+      "path": "/is-not-2024-08-01",
+      "controller": "SummaryPageController",
+      "components": [],
+      "next": []
+    },
+    {
+      "path": "/is-2024-08-01",
+      "title": "Is 2024-08-01",
+      "components": [],
+      "next": []
+    }
+  ],
+  "conditions": [
+    {
+      "name": "RVtgRf",
+      "displayName": "Is 2024-08-01",
+      "value": {
+        "name": "Is 2024-08-01",
+        "conditions": [
+          {
+            "field": {
+              "name": "BWvMaM",
+              "type": "DatePartsField",
+              "display": "Date field"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "2024-08-01",
+              "display": "2024-08-01"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "sections": [],
+  "lists": [
+    {
+      "title": "test",
+      "name": "iwXEkZ",
+      "type": "string",
+      "items": [
+        {
+          "text": "foo",
+          "value": "foo"
+        },
+        {
+          "text": "bar",
+          "value": "bar"
+        }
+      ]
+    }
+  ],
+  "skipSummary": false
+}
