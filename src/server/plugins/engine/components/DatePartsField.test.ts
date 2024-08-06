@@ -1,9 +1,25 @@
 import { ComponentType, type ComponentDef } from '@defra/forms-model'
 
 import { DatePartsField } from '~/src/server/plugins/engine/components/DatePartsField.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { type FormDefinition } from '~/src/server/plugins/engine/services/formsService.js'
+
+
 
 describe('Date parts field', () => {
+  let formModel: FormModel
+
+  beforeEach(() => {
+    const definition: FormDefinition = {
+      pages: [],
+      lists: [],
+      sections: [],
+      conditions: []
+    }
+
+    formModel = new FormModel(definition, { basePath: '' })
+  })
+
   test('Should construct appropriate children when required', () => {
     const def: ComponentDef = {
       name: 'myComponent',
@@ -13,7 +29,7 @@ describe('Date parts field', () => {
       schema: {}
     }
 
-    const underTest = new DatePartsField(def, {} as FormModel) // FormModel param not required for testing
+    const underTest = new DatePartsField(def, formModel)
     const returned = underTest.getViewModel({})
 
     expect(returned.fieldset).toEqual({
@@ -38,7 +54,7 @@ describe('Date parts field', () => {
       schema: {}
     }
 
-    const underTest = new DatePartsField(def, {} as FormModel) // FormModel param not required for testing
+    const underTest = new DatePartsField(def, formModel)
     const returned = underTest.getViewModel({})
 
     expect(returned.fieldset).toEqual({
@@ -75,7 +91,7 @@ describe('Date parts field', () => {
       ]
     }
 
-    const underTest = new DatePartsField(def, {} as FormModel)
+    const underTest = new DatePartsField(def, formModel)
     const returned = underTest.getViewModel({}, errors)
     expect(returned.errorMessage?.text).toBe('Day must be a number')
     expect(underTest.getViewModel({}).errorMessage).toBeUndefined()
@@ -89,10 +105,7 @@ describe('Date parts field', () => {
       schema: {}
     }
 
-    const underTest = new DatePartsField(
-      datePartsFieldComponent,
-      {} as FormModel // FormModel param not required for testing
-    )
+    const underTest = new DatePartsField(datePartsFieldComponent, formModel)
 
     const conditonEvaluationStateValue =
       underTest.getConditionEvaluationStateValue({
