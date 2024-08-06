@@ -1,12 +1,7 @@
-import {
-  ComponentType,
-  type DatePartsFieldFieldComponent,
-  type ComponentDef
-} from '@defra/forms-model'
+import { ComponentType, type ComponentDef } from '@defra/forms-model'
 
 import { DatePartsField } from '~/src/server/plugins/engine/components/DatePartsField.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-
 
 describe('Date parts field', () => {
   test('Should construct appropriate children when required', () => {
@@ -86,13 +81,13 @@ describe('Date parts field', () => {
     expect(underTest.getViewModel({}).errorMessage).toBeUndefined()
   })
   test('Condition evaluation used yyyy-MM-dd format', () => {
-    const datePartsFieldComponent = {
+    const datePartsFieldComponent: ComponentDef = {
       title: 'Example checkboxes',
       name: 'myComponent',
       type: ComponentType.DatePartsField,
       options: {},
       schema: {}
-    } satisfies DatePartsFieldFieldComponent
+    }
 
     const underTest = new DatePartsField(
       datePartsFieldComponent,
