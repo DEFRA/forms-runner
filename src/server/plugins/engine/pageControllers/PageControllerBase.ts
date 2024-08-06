@@ -17,7 +17,6 @@ import { format, parseISO } from 'date-fns'
 import joi from 'joi'
 import { type ValidationResult, type ObjectSchema } from 'joi'
 
-
 import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { CheckboxesField } from '~/src/server/plugins/engine/components/CheckboxesField.js'
