@@ -15,7 +15,9 @@ describe('Date parts field', () => {
       conditions: []
     }
 
-    formModel = new FormModel(definition, { basePath: '' })
+    formModel = new FormModel(definition, {
+      basePath: 'test'
+    })
   })
 
   test('Should construct appropriate children when required', () => {
