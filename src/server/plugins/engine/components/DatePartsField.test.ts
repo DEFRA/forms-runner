@@ -4,9 +4,9 @@ import {
   type ComponentDef
 } from '@defra/forms-model'
 
-import { type FormModel } from '../models/FormModel.js'
-
 import { DatePartsField } from '~/src/server/plugins/engine/components/DatePartsField.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+
 
 describe('Date parts field', () => {
   test('Should construct appropriate children when required', () => {
