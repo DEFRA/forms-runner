@@ -125,9 +125,13 @@ export class DatePartsField extends FormComponent {
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
-    const name = this.name
-    const value = state[name]
+    const value = state[this.name]
     return value ? format(parseISO(value), 'd MMMM yyyy') : ''
+  }
+
+  getConditionEvaluationStateValue(state: FormSubmissionState): string {
+    const value = state[this.name]
+    return value ? format(parseISO(value), 'yyyy-MM-dd') : '' // strip the time as it interferes with equals/not equals
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {

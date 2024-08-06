@@ -1,10 +1,9 @@
 import { type Request, type Server } from '@hapi/hapi'
 import { merge } from '@hapi/hoek'
 
-import { type ViewModel } from '../plugins/engine/components/types.js'
-
 import { config } from '~/src/config/index.js'
 import { type createServer } from '~/src/server/index.js'
+import { type ViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 
 const partition = 'cache'

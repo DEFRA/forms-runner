@@ -21,6 +21,7 @@ import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { CheckboxesField } from '~/src/server/plugins/engine/components/CheckboxesField.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { DatePartsField } from '~/src/server/plugins/engine/components/DatePartsField.js'
 import { RadiosField } from '~/src/server/plugins/engine/components/RadiosField.js'
 import { type ComponentCollectionViewModel } from '~/src/server/plugins/engine/components/types.js'
 import {
@@ -361,6 +362,9 @@ export class PageControllerBase {
           !component.options.required
         ) {
           componentState = null
+        } else if (component instanceof DatePartsField) {
+          componentState =
+            component.getConditionEvaluationStateValue(currentState)
         }
 
         newValue[component.name] = componentState
