@@ -45,14 +45,16 @@ export interface FormSubmissionState {
   [propName: string]: any
 }
 
+export interface FormSubmissionError {
+  path: string // e.g: "firstName"
+  href: string // e.g: "#firstName"
+  name: string // e.g: "firstName"
+  text: string // e.g: '"First name" is not allowed to be empty'
+}
+
 export interface FormSubmissionErrors {
   titleText: string // e.b: "There is a problem"
-  errorList: {
-    path: string // e.g: "firstName"
-    href: string // e.g: "#firstName"
-    name: string // e.g: "firstName"
-    text: string // e.g: '"First name" is not allowed to be empty'
-  }[]
+  errorList: FormSubmissionError[]
 }
 
 export interface FormPayload {

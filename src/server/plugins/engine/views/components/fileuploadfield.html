@@ -1,12 +1,17 @@
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
 
 {% macro FileUploadField(component) %}
-  {% set model = component.model %}
+  {% set model = component.model.upload %}
 
   <h2 class="govuk-heading-m">Uploaded files</h2>
   {% if model.count %}
     <p class="govuk-body" aria-live="polite">{{model.successfulCount}} of {{model.count}} files uploaded</p>
-    {{ govukSummaryList(component.model.summary) }}
+    <p class="govuk-body">
+      {% if model.pendingCount %}
+        <a href="." class="govuk-link govuk-link--no-visited-state">Refresh page to update file upload progress</a>
+      {% endif %}
+    </p>
+    {{ govukSummaryList(model.summary) }}
   {% else %}
     <p class="govuk-body" aria-live="polite">{{model.count}} files uploaded</p>
   {% endif %}

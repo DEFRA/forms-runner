@@ -402,6 +402,7 @@ export class PageControllerBase {
           : redirectTo(request, h, `/${this.model.basePath}${startPage}`)
       }
 
+      await this.preparePayloadForViewModel(request, payload)
       const viewModel = this.getViewModel(payload)
 
       viewModel.startPage = startPage?.startsWith('http')
@@ -468,6 +469,11 @@ export class PageControllerBase {
     }
   }
 
+  protected async preparePayloadForViewModel(
+    request: Request,
+    data: FormPayload
+  ) {}
+
   /**
    * Updates the progress history stack.
    * Used for when a user clicks the "back" link.
@@ -521,6 +527,8 @@ export class PageControllerBase {
      * If there are any errors, render the page with the parsed errors
      */
     if (formResult.errors) {
+      await this.preparePayloadForViewModel(request, payload)
+
       // TODO:- refactor to match POST REDIRECT GET pattern.
 
       return this.renderWithErrors(
@@ -535,6 +543,8 @@ export class PageControllerBase {
     const newState = this.getStateFromValidForm(formResult.value)
     const stateResult = this.validateState(newState)
     if (stateResult.errors) {
+      await this.preparePayloadForViewModel(request, payload)
+
       return this.renderWithErrors(
         request,
         h,

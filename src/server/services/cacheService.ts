@@ -78,6 +78,7 @@ export class CacheService {
   async clearState(request: Request) {
     if (request.yar.id) {
       await this.cache.drop(this.Key(request))
+      await this.cache.drop(this.Key(request, ADDITIONAL_IDENTIFIER.Upload))
     }
   }
 

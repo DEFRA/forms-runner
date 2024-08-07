@@ -39,48 +39,76 @@ export class FileUploadField extends FormComponent {
         filename: joi.string().required(),
         contentType: joi.string().required(),
         detectedContentType: joi.string().optional(),
-        fileStatus: joi.string().valid('complete').required(),
-        contentLength: joi.number().required(),
-        checksumSha256: joi.string().required(),
-        s3Key: joi.string().required(),
-        s3Bucket: joi.string().required()
+        contentLength: joi.number().required()
       })
       .required()
 
-    const statusSchema = joi
+    const formFileSchema = fileSchema.append({
+      fileStatus: joi
+        .string()
+        .valid('complete', 'rejected', 'pending')
+        .required(),
+      checksumSha256: joi.string().optional(),
+      s3Key: joi.string().optional(),
+      s3Bucket: joi.string().optional(),
+      hasError: joi.boolean().optional(),
+      errorMessage: joi.string().optional()
+    })
+
+    const stateFileSchema = fileSchema.append({
+      fileStatus: joi.string().valid('complete').required(),
+      checksumSha256: joi.string().optional(),
+      s3Key: joi.string().required(),
+      s3Bucket: joi.string().required()
+    })
+
+    const metadataSchema = joi
+      .object()
+      .keys({
+        formId: joi.string().required(),
+        retrievalKey: joi.string().email().required(),
+        path: joi.string().uri({ relativeOnly: true }).required()
+      })
+      .required()
+
+    const formStatusSchema = joi
+      .object({
+        uploadStatus: joi.string().valid('ready', 'pending').required(),
+        metadata: metadataSchema,
+        form: joi.object().required().keys({
+          file: formFileSchema
+        }),
+        numberOfRejectedFiles: joi.number().optional()
+      })
+      .required()
+
+    const stateStatusSchema = joi
       .object({
         uploadStatus: joi.string().valid('ready').required(),
-        metadata: joi
-          .object()
-          .required()
-          .keys({
-            formId: joi.string().required(),
-            retrievalKey: joi.string().email().required(),
-            path: joi.string().uri({ relativeOnly: true }).required()
-          }),
+        metadata: metadataSchema,
         form: joi.object().required().keys({
-          file: fileSchema
+          file: stateFileSchema
         }),
         numberOfRejectedFiles: joi.number().valid(0).required()
       })
       .required()
 
-    const itemSchema = joi
-      .object({
-        uploadId: joi.string().uuid().required(),
-        status: statusSchema
-      })
-      .label(title.toLowerCase())
-      .required()
+    const itemSchema = joi.object({
+      uploadId: joi.string().uuid().required()
+    })
 
-    let formSchema = joi
-      .array()
-      .items(itemSchema)
-      .label(title.toLowerCase())
-      .required()
+    const formItemSchema = itemSchema.append({
+      status: formStatusSchema
+    })
+
+    const stateItemSchema = itemSchema.append({
+      status: stateStatusSchema
+    })
+
+    let formSchema = joi.array().label(title.toLowerCase()).required()
 
     if (options.required === false) {
-      formSchema = formSchema.allow('').optional()
+      formSchema = formSchema.optional()
     }
 
     if (typeof schema.length !== 'number') {
@@ -95,21 +123,8 @@ export class FileUploadField extends FormComponent {
       formSchema = formSchema.length(schema.length)
     }
 
-    // if (options.customValidationMessage) {
-    //   const message = options.customValidationMessage
-
-    //   formSchema = formSchema.messages({
-    //     'any.required': message,
-    //     'string.empty': message,
-    //     'string.max': message,
-    //     'string.min': message,
-    //     'string.length': message,
-    //     'string.pattern.base': message
-    //   })
-    // }
-
-    this.formSchema = joi.any()
-    this.stateSchema = formSchema.default(null).allow(null)
+    this.formSchema = formSchema.items(formItemSchema)
+    this.stateSchema = formSchema.items(stateItemSchema)
     this.options = options
     this.schema = schema
   }
@@ -123,8 +138,10 @@ export class FileUploadField extends FormComponent {
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+    const viewModel = super.getViewModel(payload, errors)
     const files = payload[this.name] ?? []
     const count = files.length
+    let pendingCount = 0
     let successfulCount = 0
 
     const rows = files.map((item) => {
@@ -140,22 +157,24 @@ export class FileUploadField extends FormComponent {
       if (fileStatus === 'complete') {
         successfulCount++
         tag = uploadTag('green', 'Uploaded')
-      } else if (fileStatus === 'rejected') {
-        tag = uploadTag('red', 'Error')
-      } else {
+      } else if (fileStatus === 'pending') {
+        pendingCount++
         tag = uploadTag('yellow', 'Uploading')
+      } else {
+        tag = uploadTag('red', 'Error')
       }
 
-      const key = file.hasError
-        ? {
-            html: `<div class="govuk-form-group govuk-form-group--error">
+      const key =
+        errors && file.hasError
+          ? {
+              html: `<div class="govuk-form-group govuk-form-group--error">
             <div class="govuk-!-margin-bottom-3">${file.filename}</div>
             <p class="govuk-error-message">${file.errorMessage}</p>
             </div>`
-          }
-        : {
-            text: file.filename
-          }
+            }
+          : {
+              text: file.filename
+            }
 
       return {
         key,
@@ -166,6 +185,7 @@ export class FileUploadField extends FormComponent {
           items: [
             {
               href: '#',
+              classes: 'govuk-link--no-visited-state',
               text: 'Remove',
               visuallyHiddenText: 'remove'
             }
@@ -174,10 +194,19 @@ export class FileUploadField extends FormComponent {
       }
     })
 
-    const viewModel = {
+    viewModel.value = ''
+    viewModel.name = 'file'
+
+    if ('accept' in this.options) {
+      viewModel.attributes.accept = this.options.accept
+    }
+
+    viewModel.upload = {
       count,
+      pendingCount,
       successfulCount,
-      summary: { classes: 'govuk-summary-list--long-key', rows }
+      summary: { classes: 'govuk-summary-list--long-key', rows },
+      formAction: payload.formAction
     }
 
     return viewModel
