@@ -75,6 +75,42 @@ export interface UploadInitiateResponse {
   statusUrl: string
 }
 
+export enum UploadStatus {
+  initiated = 'initiated',
+  pending = 'pending',
+  ready = 'ready'
+}
+
+export enum FileStatus {
+  complete = 'complete',
+  rejected = 'rejected',
+  pending = 'pending'
+}
+
+export interface FileUpload {
+  fileId: string
+  filename: string
+  contentType: string
+  fileStatus: FileStatus
+  contentLength: number
+  checksumSha256?: string
+  detectedContentType?: string
+  s3Key?: string
+  s3Bucket?: string
+  hasError?: boolean
+  errorMessage?: string
+}
+
+export interface UploadStatusForm {
+  file: FileUpload
+}
+
 export interface UploadStatusResponse {
-  uploadStatus: string
+  uploadStatus: UploadStatus
+  form: UploadStatusForm
+}
+
+export interface FileState {
+  uploadId: string
+  status: UploadStatusResponse
 }

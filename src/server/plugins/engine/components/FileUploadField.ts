@@ -1,31 +1,24 @@
 import { type FileUploadFieldComponent } from '@defra/forms-model'
-import joi, { type ArraySchema, type AnySchema } from 'joi'
+import joi, { type ArraySchema } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { type FileUploadFieldViewModel } from '~/src/server/plugins/engine/components/types.js'
+import { escapeHtml, filesize } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormSubmissionState,
   type FormPayload,
-  type FormSubmissionErrors
+  type FormSubmissionErrors,
+  type FileState,
+  FileStatus
 } from '~/src/server/plugins/engine/types.js'
-
-function filesize(bytes: number) {
-  let i = -1
-  const byteUnits = [' kB', ' MB', ' GB', ' TB', 'PB', 'EB', 'ZB', 'YB']
-  do {
-    bytes = bytes / 1000
-    i++
-  } while (bytes > 1000)
-
-  return Math.max(bytes, 0.1).toFixed(1) + byteUnits[i]
-}
 
 export class FileUploadField extends FormComponent {
   declare options: FileUploadFieldComponent['options']
 
   declare schema: FileUploadFieldComponent['schema']
 
-  declare formSchema: AnySchema
+  declare formSchema: ArraySchema<object>
   declare stateSchema: ArraySchema<object>
 
   constructor(def: FileUploadFieldComponent, model: FormModel) {
@@ -137,16 +130,32 @@ export class FileUploadField extends FormComponent {
     }
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
-    const viewModel = super.getViewModel(payload, errors)
-    const files = payload[this.name] ?? []
+  getDisplayStringFromState(state) {
+    const value = this.getFormValueFromState(state)
+
+    return Array.isArray(value)
+      ? value
+          .map((file: FileState) => file.status.form.file.filename)
+          .join(', ')
+      : ''
+  }
+
+  getViewModel(
+    payload: FormPayload,
+    errors?: FormSubmissionErrors
+  ): FileUploadFieldViewModel {
+    const viewModel = super.getViewModel(
+      payload,
+      errors
+    ) as FileUploadFieldViewModel
+    const files = (payload[this.name] ?? []) as FileState[]
     const count = files.length
     let pendingCount = 0
     let successfulCount = 0
 
-    const rows = files.map((item) => {
-      const { status, uploadId } = item
-      const { form, uploadStatus } = status
+    const rows = files.map((item: FileState) => {
+      const { status } = item
+      const { form } = status
       const { file } = form
       const { fileStatus } = file
       let tag
@@ -154,10 +163,10 @@ export class FileUploadField extends FormComponent {
       const uploadTag = (css: string, text: string) =>
         `<strong class="govuk-tag govuk-tag--${css}">${text}</strong>`
 
-      if (fileStatus === 'complete') {
+      if (fileStatus === FileStatus.complete) {
         successfulCount++
         tag = uploadTag('green', 'Uploaded')
-      } else if (fileStatus === 'pending') {
+      } else if (fileStatus === FileStatus.pending) {
         pendingCount++
         tag = uploadTag('yellow', 'Uploading')
       } else {
@@ -168,8 +177,8 @@ export class FileUploadField extends FormComponent {
         errors && file.hasError
           ? {
               html: `<div class="govuk-form-group govuk-form-group--error">
-            <div class="govuk-!-margin-bottom-3">${file.filename}</div>
-            <p class="govuk-error-message">${file.errorMessage}</p>
+              <div class="govuk-!-margin-bottom-3">${escapeHtml(file.filename)}</div>
+              <p class="govuk-error-message">${escapeHtml(file.errorMessage ?? '')}</p>
             </div>`
             }
           : {
@@ -194,9 +203,13 @@ export class FileUploadField extends FormComponent {
       }
     })
 
+    // File input can't have a initial value
     viewModel.value = ''
+
+    // Override the component name we send to CDP
     viewModel.name = 'file'
 
+    // Set up the `accept` attribute
     if ('accept' in this.options) {
       viewModel.attributes.accept = this.options.accept
     }
