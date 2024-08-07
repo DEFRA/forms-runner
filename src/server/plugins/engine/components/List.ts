@@ -14,6 +14,7 @@ import {
 export class List extends ComponentBase {
   declare schema: ListComponent['schema']
   declare options: ListComponent['options']
+  hint: ListComponent['hint']
   list?: ListType
 
   get items(): Item[] {
@@ -23,8 +24,9 @@ export class List extends ComponentBase {
   constructor(def: ListComponent, model: FormModel) {
     super(def, model)
 
-    const { list, options, schema } = def
+    const { hint, list, options, schema } = def
 
+    this.hint = hint
     this.list = model.getList(list)
     this.options = options
     this.schema = schema
@@ -38,7 +40,16 @@ export class List extends ComponentBase {
       viewModel.type = options.type
     }
 
-    viewModel.content = items.map((item) => {
+    if (options.classes) {
+      viewModel.classes = options.classes
+    }
+
+    viewModel.content = {
+      title: !options.hideTitle ? this.title : undefined,
+      text: this.hint ?? ''
+    }
+
+    viewModel.items = items.map((item) => {
       const contentItem: { text: string; condition?: string } = {
         text: item.text
       }

@@ -1,4 +1,7 @@
-import { type ComponentDef } from '@defra/forms-model'
+import {
+  type ComponentDef,
+  type ContentComponentsDef
+} from '@defra/forms-model'
 import { add, startOfToday, sub } from 'date-fns'
 import { type CustomHelpers } from 'joi'
 
@@ -20,6 +23,11 @@ export type FormComponentFieldType =
   | typeof Components.TelephoneNumberField
   | typeof Components.TextField
   | typeof Components.UkAddressField
+
+export type FormComponentFieldComponent = Exclude<
+  ComponentDef,
+  ContentComponentsDef
+>
 
 export function hasComponentField(
   componentType: string

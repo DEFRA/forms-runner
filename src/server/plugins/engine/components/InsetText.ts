@@ -11,12 +11,14 @@ import {
 export class InsetText extends ComponentBase {
   declare options: InsetTextComponent['options']
   declare schema: InsetTextComponent['schema']
+  content: InsetTextComponent['content']
 
   constructor(def: InsetTextComponent, model: FormModel) {
     super(def, model)
 
-    const { schema, options } = def
+    const { content, schema, options } = def
 
+    this.content = content
     this.options = options
     this.schema = schema
   }

@@ -10,12 +10,14 @@ import {
 export class Details extends ComponentBase {
   declare options: DetailsComponent['options']
   declare schema: DetailsComponent['schema']
+  content: DetailsComponent['content']
 
   constructor(def: DetailsComponent, model: FormModel) {
     super(def, model)
 
-    const { schema, options } = def
+    const { content, schema, options } = def
 
+    this.content = content
     this.options = options
     this.schema = schema
   }
