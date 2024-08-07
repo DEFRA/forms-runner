@@ -25,6 +25,7 @@ export async function initiateUpload(formId, path, retrievalKey) {
       path,
       retrievalKey
     }
+    // maxFileSize: 25 * 1000 * 1000
   }
 
   const { payload: initiate } = await postJsonByType(

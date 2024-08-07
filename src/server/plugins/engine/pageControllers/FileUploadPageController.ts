@@ -4,44 +4,40 @@ import {
   type Page
 } from '@defra/forms-model'
 import Boom from '@hapi/boom'
+import { type Request, type ResponseToolkit } from '@hapi/hapi'
+import { type ValidationResult } from 'joi'
+
 import {
-  type ResponseObject,
-  type Request,
-  type ResponseToolkit
-} from '@hapi/hapi'
-
-import { type ComponentCollectionViewModel } from '../components/types.js'
-import { type FormPayload, type FormSubmissionErrors } from '../types.js'
-
-import { type PageControllerBase } from './PageControllerBase.js'
+  type FormSubmissionError,
+  type FormPayload,
+  type FormSubmissionErrors
+} from '../types.js'
 
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
   initiateUpload,
-  getUploadStatus
+  getUploadStatus,
+  type UploadStatusResponse
 } from '~/src/server/plugins/engine/services/uploadService.js'
 
 export class FileUploadPageController extends PageController {
+  fileUploadComponent: FileUploadFieldComponent
+
   constructor(model: FormModel, pageDef: Page) {
-    const name = FileUploadPageController.getComponentName(pageDef.path)
-    const fileUploadComponent: FileUploadFieldComponent = {
-      type: ComponentType.FileUploadField,
-      name,
-      title: 'Upload a file',
-      options: {
-        required: true,
-        accept: '.doc,.docx,.csv,.odt,.xlsx,.xls,.rtf,.txt,.pdf,.jpeg,.jpg,.png'
-      },
-      schema: {
-        min: 1,
-        max: 10
-      }
+    const fileUploadComponent = pageDef.components?.find(
+      (c) => c.type === ComponentType.FileUploadField
+    )
+
+    if (!fileUploadComponent) {
+      throw Boom.badImplementation(
+        `No FileUploadFieldComponent found in FileUploadPageController '${pageDef.path}'`
+      )
     }
 
-    pageDef.components?.push(fileUploadComponent)
-
     super(model, pageDef)
+
+    this.fileUploadComponent = fileUploadComponent
   }
 
   makeGetRouteHandler() {
@@ -53,29 +49,79 @@ export class FileUploadPageController extends PageController {
     }
   }
 
-  async handlePostRequest(request: Request, h: ResponseToolkit) {
-    await this.getUpload(request)
+  makePostRouteHandler() {
+    return async (request: Request, h: ResponseToolkit) => {
+      await this.getUpload(request)
+      const files = await this.refreshFileUploadStatus(request)
 
-    const files = await this.refreshFileUploadStatus(request)
-    const newState = this.getStateFromValidForm({
-      [this.getComponentName()]: files
-    })
-    const stateResult = this.validateState(newState)
+      if (!request.payload) {
+        request.payload = {}
+      }
 
-    if (stateResult.errors) {
-      const { cacheService } = request.services([])
-      const payload = (request.payload || {}) as FormPayload
-      const state = await cacheService.getState(request)
-      const progress = state.progress || []
+      if (typeof request.payload === 'object') {
+        request.payload[this.getComponentName()] = files
+      }
 
-      return this.renderWithErrors(
-        request,
-        h,
-        payload,
-        progress,
-        stateResult.errors
-      )
+      return super.makePostRouteHandler()(request, h)
     }
+  }
+
+  protected async preparePayloadForViewModel(
+    request: Request,
+    payload: FormPayload
+  ): Promise<void> {
+    const upload = await this.getUpload(request)
+    payload.formAction = upload.uploadUrl
+  }
+
+  getErrors(
+    validationResult?: Pick<ValidationResult, 'error'>
+  ): FormSubmissionErrors | undefined {
+    if (validationResult?.error) {
+      const errorList: FormSubmissionError[] = []
+      const arraySizeErrorTypes = ['array.min', 'array.max', 'array.length']
+
+      validationResult.error.details.forEach((err) => {
+        const type = err.type
+        const path = err.path.join('.')
+        const formatter = (name: string | number, index: number) =>
+          index > 0 ? `__${name}` : name
+        const name = err.path.map(formatter).join('')
+        const href = `#${name}`
+        const lastPath = err.path[err.path.length - 1]
+
+        if (type === 'any.only' && lastPath === 'fileStatus') {
+          if (err.context?.value === 'pending') {
+            const text = 'The selected file has not fully uploaded'
+            errorList.push({ path, href, name, text })
+          }
+        } else if (type === 'object.unknown' && lastPath === 'errorMessage') {
+          const text = err.context?.value as string
+          errorList.push({ path, href, name, text })
+        } else if (arraySizeErrorTypes.includes(type)) {
+          errorList.push({ path, href, name, text: err.message })
+        }
+      })
+
+      return {
+        titleText: this.errorSummaryTitle,
+        errorList
+      }
+    }
+  }
+
+  private getComponentName() {
+    return this.fileUploadComponent.name
+  }
+
+  private async getFilesFromState(request: Request) {
+    const { cacheService } = request.services([])
+    const state = await cacheService.getState(request)
+    const pageState = this.section ? (state[this.section.name] ?? {}) : state
+    const fileUploadComponentName = this.getComponentName()
+    const files = pageState[fileUploadComponentName] ?? []
+
+    return files
   }
 
   private async getUpload(request: Request) {
@@ -98,17 +144,23 @@ export class FileUploadPageController extends PageController {
 
     if (upload?.uploadId) {
       // If there is a current upload check
-      // it hasn't been consumed & re-use it
+      // it hasn't been consumed and re-use it
       const uploadId = upload.uploadId
       const statusResponse = await getUploadStatus(uploadId)
 
       if (statusResponse?.uploadStatus !== 'initiated') {
         // Store the current upload in the state
         const state = await cacheService.getState(request)
-        const pageState = this.section ? state[this.section.name] ?? {} : state
-        const fileUploadComponentName = `${this.path}_files`
+        const pageState = this.section
+          ? (state[this.section.name] ?? {})
+          : state
+        const fileUploadComponentName = this.getComponentName()
         const files = pageState[fileUploadComponentName] ?? []
 
+        // @todo
+        // Only add to files state if the file is an object
+        // This secures us against the html file input having an 'multiple' attribute added
+        // or it being changes to a simple text field or similar
         files.unshift({ uploadId, status: statusResponse })
 
         const update = this.getPartialMergeState({
@@ -123,48 +175,7 @@ export class FileUploadPageController extends PageController {
       upload = await initiateAndStoreNewUpload()
     }
 
-    this.formAction = upload.uploadUrl
-
     return upload
-  }
-
-  getViewModel(
-    payload: FormPayload,
-    errors?: FormSubmissionErrors
-  ): {
-    page: PageControllerBase
-    name?: string
-    pageTitle: string
-    sectionTitle?: string
-    showTitle: boolean
-    components: ComponentCollectionViewModel
-    errors?: FormSubmissionErrors
-    isStartPage: boolean
-    startPage?: ResponseObject
-    backLink?: string
-    feedbackLink?: string
-    serviceUrl: string
-    phaseTag?: string | undefined
-  } {
-    const viewModel = super.getViewModel(payload, errors)
-
-    viewModel.formAction = this.formAction
-
-    return viewModel
-  }
-
-  private getComponentName() {
-    return FileUploadPageController.getComponentName(this.path)
-  }
-
-  private async getFilesFromState(request: Request) {
-    const { cacheService } = request.services([])
-    const state = await cacheService.getState(request)
-    const pageState = this.section ? state[this.section.name] ?? {} : state
-    const fileUploadComponentName = this.getComponentName()
-    const files = pageState[fileUploadComponentName] ?? []
-
-    return files
   }
 
   private async refreshFileUploadStatus(request: Request) {
@@ -172,9 +183,9 @@ export class FileUploadPageController extends PageController {
     const files = await this.getFilesFromState(request)
 
     // Refresh any unresolved uploads
-    const promises = []
+    const promises: Promise<UploadStatusResponse | undefined>[] = []
     const indexes: number[] = []
-    files.forEach((file, index) => {
+    files.forEach((file, index: number) => {
       if (file.status.uploadStatus === 'pending') {
         promises.push(getUploadStatus(file.uploadId))
         indexes.push(index)
@@ -199,9 +210,5 @@ export class FileUploadPageController extends PageController {
 
   get viewName() {
     return 'file-upload'
-  }
-
-  static getComponentName(path: string) {
-    return `${path}_files`
   }
 }
