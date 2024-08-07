@@ -8,7 +8,7 @@ import { createServer } from '~/src/server/index.js'
 const testDir = dirname(fileURLToPath(import.meta.url))
 
 describe(`Phase banner`, () => {
-  /** @type {import('@hapi/hapi').Server} */
+  /** @type {Server} */
   let server
 
   afterEach(async () => {
@@ -77,3 +77,7 @@ describe(`Phase banner`, () => {
     expect($('.govuk-phase-banner').html()).toBeNull()
   })
 })
+
+/**
+ * @import { Server } from '@hapi/hapi'
+ */

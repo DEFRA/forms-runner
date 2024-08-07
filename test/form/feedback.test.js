@@ -8,7 +8,7 @@ import { createServer } from '~/src/server/index.js'
 const testDir = dirname(fileURLToPath(import.meta.url))
 
 describe(`Feedback`, () => {
-  /** @type {import('@hapi/hapi').Server} */
+  /** @type {Server} */
   let server
 
   // Create server before each test
@@ -40,3 +40,7 @@ describe(`Feedback`, () => {
     )
   })
 })
+
+/**
+ * @import { Server } from '@hapi/hapi'
+ */

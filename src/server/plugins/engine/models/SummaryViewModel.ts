@@ -58,7 +58,8 @@ export class SummaryViewModel {
     this.endPage = endPage
     this.feedbackLink =
       def.feedback?.url ??
-      ((def.feedback?.emailAddress && `mailto:${def.feedback.emailAddress}`) ||
+      ((!!def.feedback?.emailAddress &&
+        `mailto:${def.feedback.emailAddress}`) ||
         config.get('feedbackLink'))
 
     const schema = model.makeFilteredSchema(state, relevantPages)

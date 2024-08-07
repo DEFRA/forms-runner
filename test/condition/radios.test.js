@@ -10,7 +10,7 @@ const htmlContentType = 'text/html'
 const key = 'wqJmSf'
 
 describe('Radio based conditions', () => {
-  /** @type {import('@hapi/hapi').Server} */
+  /** @type {Server} */
   let server
 
   // Create server before each test
@@ -76,3 +76,7 @@ describe('Radio based conditions', () => {
     expect(res.headers.location).toBe('/radios/third-page')
   })
 })
+
+/**
+ * @import { Server } from '@hapi/hapi'
+ */

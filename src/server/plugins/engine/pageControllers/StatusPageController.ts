@@ -1,3 +1,4 @@
+import { type Boom } from '@hapi/boom'
 import {
   type ResponseObject,
   type Request,
@@ -10,7 +11,7 @@ export class StatusPageController extends PageController {
   makeGetRouteHandler(): (
     request: Request,
     h: ResponseToolkit
-  ) => Promise<ResponseObject> {
+  ) => Promise<ResponseObject | Boom> {
     return async (request, h) => {
       const model = this.model
       const { cacheService } = request.services([])

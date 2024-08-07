@@ -18,8 +18,8 @@ export class RelativeUrl {
     }
   }
 
-  setParam(name: string, value: string | undefined) {
-    this.url.searchParams.set(name, value || '')
+  setParam(name: string, value?: string) {
+    this.url.searchParams.set(name, value ?? '')
     return this
   }
 

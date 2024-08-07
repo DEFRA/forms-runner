@@ -4,7 +4,7 @@ import { FeedbackContextInfo } from '~/src/server/plugins/engine/feedback/Feedba
 
 export function decodeFeedbackContextInfo(
   encoded: string | Buffer | undefined | null
-): FeedbackContextInfo | void {
+): FeedbackContextInfo | undefined {
   if (encoded) {
     const decoded = JSON.parse(atob(encoded))
 

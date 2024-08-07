@@ -9,7 +9,7 @@ import { createServer } from '~/src/server/index.js'
 const testDir = dirname(fileURLToPath(import.meta.url))
 
 describe('CSRF', () => {
-  /** @type {import('@hapi/hapi').Server} */
+  /** @type {Server} */
   let server
 
   /**
@@ -89,5 +89,5 @@ describe('CSRF', () => {
 })
 
 /**
- * @typedef {import('@hapi/hapi').ServerInjectOptions} ServerInjectOptions
+ * @import { Server, ServerInjectOptions } from '@hapi/hapi'
  */

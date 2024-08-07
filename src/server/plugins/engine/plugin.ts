@@ -26,7 +26,6 @@ function normalisePath(path: string) {
 function getStartPageRedirect(
   request: Request,
   h: ResponseToolkit,
-  slug: string,
   model: FormModel
 ) {
   const startPage = normalisePath(model.def.startPage ?? '')
@@ -165,10 +164,8 @@ export const plugin = {
       }>,
       h: ResponseToolkit
     ) => {
-      const { slug } = request.params
-      const model = request.app.model
-
-      return getStartPageRedirect(request, h, slug, model)
+      const { model } = request.app
+      return getStartPageRedirect(request, h, model)
     }
 
     const getHandler = (
@@ -181,8 +178,9 @@ export const plugin = {
       }>,
       h: ResponseToolkit
     ) => {
-      const { path, slug } = request.params
-      const model = request.app.model
+      const { model } = request.app
+      const { path } = request.params
+
       const page = model?.pages.find(
         (page) => normalisePath(page.path) === normalisePath(path)
       )
@@ -192,7 +190,7 @@ export const plugin = {
       }
 
       if (normalisePath(path) === '') {
-        return getStartPageRedirect(request, h, slug, model)
+        return getStartPageRedirect(request, h, model)
       }
 
       throw Boom.notFound('No form or page found')

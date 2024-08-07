@@ -9,7 +9,7 @@ import { getSessionCookie } from '~/test/utils/get-session-cookie.js'
 const testDir = dirname(fileURLToPath(import.meta.url))
 
 describe('Title and section title', () => {
-  /** @type {import('@hapi/hapi').Server} */
+  /** @type {Server} */
   let server
 
   beforeAll(async () => {
@@ -94,3 +94,7 @@ describe('Title and section title', () => {
     expect($('h2#section-title').html()).toBeNull()
   })
 })
+
+/**
+ * @import { Server } from '@hapi/hapi'
+ */

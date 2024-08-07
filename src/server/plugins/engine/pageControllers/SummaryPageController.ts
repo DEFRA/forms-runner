@@ -1,6 +1,7 @@
-import Boom from '@hapi/boom'
+import { internal, type Boom } from '@hapi/boom'
 import {
   type Request,
+  type ResponseObject,
   type ResponseToolkit,
   type RouteOptions
 } from '@hapi/hapi'
@@ -39,8 +40,11 @@ export class SummaryPageController extends PageController {
   /**
    * Returns an async function. This is called in plugin.ts when there is a GET request at `/{id}/{path*}`,
    */
-  makeGetRouteHandler() {
-    return async (request: Request, h: ResponseToolkit) => {
+  makeGetRouteHandler(): (
+    request: Request,
+    h: ResponseToolkit
+  ) => Promise<ResponseObject | Boom> {
+    return async (request, h) => {
       const { cacheService } = request.services([])
       const model = this.model
 
@@ -68,7 +72,7 @@ export class SummaryPageController extends PageController {
         const parts = path.split('.')
         const section = parts[0]
         const property = parts.length > 1 ? parts[parts.length - 1] : null
-        const pageWithError = model.pages.filter((page) => {
+        const pageWithError = model.pages.find((page) => {
           if (page.section && page.section.name === section) {
             let propertyMatches = true
             let conditionMatches = true
@@ -89,7 +93,7 @@ export class SummaryPageController extends PageController {
             return propertyMatches && conditionMatches
           }
           return false
-        })[0]
+        })
         if (pageWithError) {
           const params = {
             returnUrl: redirectUrl(request, `/${model.basePath}/summary`)
@@ -117,8 +121,11 @@ export class SummaryPageController extends PageController {
    * Returns an async function. This is called in plugin.ts when there is a POST request at `/{id}/{path*}`.
    * If a form is incomplete, a user will be redirected to the start page.
    */
-  makePostRouteHandler() {
-    return async (request: Request, h: ResponseToolkit) => {
+  makePostRouteHandler(): (
+    request: Request,
+    h: ResponseToolkit
+  ) => Promise<ResponseObject | Boom> {
+    return async (request, h) => {
       const { cacheService } = request.services([])
       const model = this.model
       const state = await cacheService.getState(request)
@@ -147,7 +154,7 @@ export class SummaryPageController extends PageController {
         const emailAddress = this.model.def.outputEmail
 
         if (!emailAddress) {
-          return Boom.internal(
+          return internal(
             'An `outputEmail` is required on the form definition to complete the form submission'
           )
         }
@@ -225,7 +232,7 @@ async function sendEmail(
   request.logger.info(['submit', 'email'], 'Preparing email')
 
   // Get submission email personalisation
-  const personalisation = getPersonalisation(summaryViewModel, model, state)
+  const personalisation = getPersonalisation(summaryViewModel, model)
 
   request.logger.info(['submit', 'email'], 'Sending email')
 
@@ -245,7 +252,7 @@ async function sendEmail(
   }
 }
 
-function getPersonalisation(
+export function getPersonalisation(
   summaryViewModel: SummaryViewModel,
   model: FormModel
 ) {

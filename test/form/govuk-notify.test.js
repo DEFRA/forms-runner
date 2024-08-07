@@ -69,7 +69,7 @@ Arabian,Shire,Race
 `
 
 describe('Submission journey test', () => {
-  /** @type {import('@hapi/hapi').Server} */
+  /** @type {Server} */
   let server
 
   // Create server before each test
@@ -172,3 +172,7 @@ describe('Submission journey test', () => {
     expect(statusRes.headers['content-type']).toContain(htmlContentType)
   })
 })
+
+/**
+ * @import { Server } from '@hapi/hapi'
+ */
