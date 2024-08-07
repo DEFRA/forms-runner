@@ -268,7 +268,7 @@ export class PageControllerBase {
         /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/
 
       return {
-        titleText: this.errorSummaryTitle,
+        titleText: 'There is a problem',
         errorList: validationResult.error.details.map((err) => {
           const name = err.path
             .map((name, index) => (index > 0 ? `__${name}` : name))
@@ -468,7 +468,7 @@ export class PageControllerBase {
 
       viewModel.backLink = this.getBackLink(progress)
 
-      return h.view(this.viewName, viewModel)
+      return h.view('index', viewModel)
     }
   }
 
@@ -677,10 +677,6 @@ export class PageControllerBase {
     return this.section ? { [this.section.name]: value } : value
   }
 
-  get viewName() {
-    return 'index'
-  }
-
   get defaultNextPath() {
     return `/${this.model.basePath || ''}/summary`
   }
@@ -691,10 +687,6 @@ export class PageControllerBase {
 
   get conditionOptions() {
     return this.model.conditionOptions
-  }
-
-  get errorSummaryTitle() {
-    return 'There is a problem'
   }
 
   /**
@@ -752,7 +744,7 @@ export class PageControllerBase {
     this.setPhaseTag(viewModel)
     this.setFeedbackDetails(viewModel, request)
 
-    return h.view(this.viewName, viewModel)
+    return h.view('index', viewModel)
   }
 }
 
