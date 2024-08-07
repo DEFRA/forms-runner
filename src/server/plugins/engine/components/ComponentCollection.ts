@@ -1,10 +1,7 @@
 import { type ComponentDef } from '@defra/forms-model'
-import joi from 'joi'
+import joi, { type ObjectSchema } from 'joi'
 
-import {
-  type ComponentSchema,
-  type ComponentSchemaNested
-} from '~/src/server/plugins/engine/components/ComponentBase.js'
+import { type ComponentSchemaNested } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import {
   getComponentField,
   type ComponentFieldClass,
@@ -22,8 +19,8 @@ import {
 export class ComponentCollection {
   items: ComponentFieldClass[]
   formItems: FormComponentFieldClass[]
-  formSchema: ComponentSchema
-  stateSchema: ComponentSchema
+  formSchema: ObjectSchema<FormPayload>
+  stateSchema: ObjectSchema<FormSubmissionState>
 
   constructor(componentDefs: ComponentDef[] = [], model: FormModel) {
     const components = componentDefs.map((def) => {
@@ -44,12 +41,15 @@ export class ComponentCollection {
     this.items = components
     this.formItems = formComponents
     this.formSchema = joi
-      .object()
+      .object<FormPayload>()
       .keys(this.getFormSchemaKeys())
       .required()
       .keys({ crumb: joi.string().optional().allow('') })
 
-    this.stateSchema = joi.object().keys(this.getStateSchemaKeys()).required()
+    this.stateSchema = joi
+      .object<FormSubmissionState>()
+      .keys(this.getStateSchemaKeys())
+      .required()
   }
 
   getFormSchemaKeys() {

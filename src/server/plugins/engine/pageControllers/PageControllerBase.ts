@@ -52,6 +52,9 @@ const STATE_SCHEMA = Symbol('STATE_SCHEMA')
 const logger = createLogger()
 
 export class PageControllerBase {
+  declare [FORM_SCHEMA]: ObjectSchema<FormPayload>;
+  declare [STATE_SCHEMA]: ObjectSchema<FormSubmissionState>
+
   /**
    * The base class for all page controllers. Page controllers are responsible for generating the get and post route handlers when a user navigates to `/{id}/{path*}`.
    */
@@ -516,7 +519,7 @@ export class PageControllerBase {
     const payload = (request.payload || {}) as FormPayload
     const formResult = this.validateForm(payload)
     const state = await cacheService.getState(request)
-    const progress = state.progress || []
+    const progress = state.progress ?? []
 
     /**
      * If there are any errors, render the page with the parsed errors
@@ -687,7 +690,7 @@ export class PageControllerBase {
     return {}
   }
 
-  get formSchema(): ObjectSchema<FormPayload> {
+  get formSchema() {
     return this[FORM_SCHEMA]
   }
 
@@ -695,7 +698,7 @@ export class PageControllerBase {
     this[FORM_SCHEMA] = value
   }
 
-  get stateSchema(): ObjectSchema<FormSubmissionState> {
+  get stateSchema() {
     return this[STATE_SCHEMA]
   }
 
