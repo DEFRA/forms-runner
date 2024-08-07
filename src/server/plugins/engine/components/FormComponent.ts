@@ -5,6 +5,8 @@ import {
   type ComponentSchemaKeys
 } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
+import { type FormComponentFieldComponent } from '~/src/server/plugins/engine/components/helpers.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   type FormPayload,
   type FormSubmissionState,
@@ -12,7 +14,17 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class FormComponent extends ComponentBase {
+  hint: FormComponentFieldComponent['hint']
+
   isFormComponent = true
+
+  constructor(def: FormComponentFieldComponent, model: FormModel) {
+    super(def, model)
+
+    const { hint } = def
+
+    this.hint = hint
+  }
 
   getFormDataFromState(state: FormSubmissionState) {
     const name = this.name

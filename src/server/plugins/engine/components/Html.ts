@@ -10,12 +10,14 @@ import {
 export class Html extends ComponentBase {
   declare options: HtmlComponent['options']
   declare schema: HtmlComponent['schema']
+  content: HtmlComponent['content']
 
   constructor(def: HtmlComponent, model: FormModel) {
     super(def, model)
 
-    const { schema, options } = def
+    const { content, schema, options } = def
 
+    this.content = content
     this.options = options
     this.schema = schema
   }

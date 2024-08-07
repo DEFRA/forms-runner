@@ -14,6 +14,7 @@ import {
 export class List extends ComponentBase {
   declare schema: ListComponent['schema']
   declare options: ListComponent['options']
+  hint: ListComponent['hint']
   list?: ListType
 
   get items(): Item[] {
@@ -23,8 +24,9 @@ export class List extends ComponentBase {
   constructor(def: ListComponent, model: FormModel) {
     super(def, model)
 
-    const { list, options, schema } = def
+    const { hint, list, options, schema } = def
 
+    this.hint = hint
     this.list = model.getList(list)
     this.options = options
     this.schema = schema

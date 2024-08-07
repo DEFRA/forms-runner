@@ -1,9 +1,4 @@
-import {
-  type ContentComponentsDef,
-  hasContentField,
-  type InputFieldsComponentsDef,
-  type ComponentDef
-} from '@defra/forms-model'
+import { type ComponentDef } from '@defra/forms-model'
 import joi, {
   type ArraySchema,
   type BooleanSchema,
@@ -30,8 +25,6 @@ export class ComponentBase {
   title: ComponentDef['title']
   schema: ComponentDef['schema']
   options: ComponentDef['options']
-  hint?: InputFieldsComponentsDef['hint']
-  content?: ContentComponentsDef['content']
 
   /**
    * This is passed onto webhooks, see {@link answerFromDetailItem}
@@ -49,14 +42,6 @@ export class ComponentBase {
     this.title = def.title
     this.schema = def.schema
     this.options = def.options
-
-    if (!hasContentField(def)) {
-      this.hint = def.hint
-    }
-
-    if (hasContentField(def)) {
-      this.content = def.content
-    }
 
     this.model = model
   }
