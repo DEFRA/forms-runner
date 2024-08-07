@@ -38,6 +38,6 @@ export function prepareSecureContext(server) {
 }
 
 /**
- * @typedef {import('@hapi/hapi').Server} Server
- * @typedef {import('node:tls').SecureContext} SecureContext
+ * @import { Server } from '@hapi/hapi'
+ * @import { SecureContext } from 'node:tls'
  */

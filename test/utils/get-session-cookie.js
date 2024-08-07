@@ -10,5 +10,5 @@ export function getSessionCookie(response) {
 }
 
 /**
- * @typedef {import('@hapi/hapi').ServerInjectResponse} ServerInjectResponse
+ * @import { ServerInjectResponse } from '@hapi/hapi'
  */

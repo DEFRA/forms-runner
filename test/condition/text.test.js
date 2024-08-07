@@ -10,7 +10,7 @@ const htmlContentType = 'text/html'
 const key = 'wqJmSf'
 
 describe('TextField based conditions', () => {
-  /** @type {import('@hapi/hapi').Server} */
+  /** @type {Server} */
   let server
 
   // Create server before each test
@@ -82,3 +82,7 @@ describe('TextField based conditions', () => {
     expect(res.headers.location).toBe('/text/third-page')
   })
 })
+
+/**
+ * @import { Server } from '@hapi/hapi'
+ */

@@ -205,6 +205,5 @@ export default {
 }
 
 /**
- * @typedef {import('webpack').Configuration} Configuration
- * @typedef {import('webpack').NormalModule} NormalModule
+ * @import { Configuration, NormalModule } from 'webpack'
  */

@@ -22,5 +22,5 @@ export default {
 }
 
 /**
- * @typedef {import('postcss-load-config').Config} Config
+ * @import { Config } from 'postcss-load-config'
  */

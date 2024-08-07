@@ -6,7 +6,7 @@ import { createServer } from '~/src/server/index.js'
 const testDir = dirname(fileURLToPath(import.meta.url))
 
 describe('Rate limit', () => {
-  /** @type {import('@hapi/hapi').Server} */
+  /** @type {Server} */
   let server
 
   const options = {
@@ -54,3 +54,7 @@ describe('Rate limit', () => {
     )
   })
 })
+
+/**
+ * @import { Server } from '@hapi/hapi'
+ */
