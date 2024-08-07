@@ -68,7 +68,7 @@ export class SummaryPageController extends PageController {
         const parts = path.split('.')
         const section = parts[0]
         const property = parts.length > 1 ? parts[parts.length - 1] : null
-        const pageWithError = model.pages.filter((page) => {
+        const pageWithError = model.pages.find((page) => {
           if (page.section && page.section.name === section) {
             let propertyMatches = true
             let conditionMatches = true
@@ -89,7 +89,7 @@ export class SummaryPageController extends PageController {
             return propertyMatches && conditionMatches
           }
           return false
-        })[0]
+        })
         if (pageWithError) {
           const params = {
             returnUrl: redirectUrl(request, `/${model.basePath}/summary`)
@@ -225,7 +225,7 @@ async function sendEmail(
   request.logger.info(['submit', 'email'], 'Preparing email')
 
   // Get submission email personalisation
-  const personalisation = getPersonalisation(summaryViewModel, model, state)
+  const personalisation = getPersonalisation(summaryViewModel, model)
 
   request.logger.info(['submit', 'email'], 'Sending email')
 
@@ -245,7 +245,7 @@ async function sendEmail(
   }
 }
 
-function getPersonalisation(
+export function getPersonalisation(
   summaryViewModel: SummaryViewModel,
   model: FormModel
 ) {

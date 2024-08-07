@@ -15,7 +15,7 @@ export let secureContext
 export function prepareSecureContext(server) {
   const originalCreateSecureContext = tls.createSecureContext
 
-  tls.createSecureContext = (options = {}) => {
+  tls.createSecureContext = function (options = {}) {
     const trustStoreCerts = getTrustStoreCerts(process.env)
 
     if (!trustStoreCerts.length) {
@@ -25,6 +25,7 @@ export function prepareSecureContext(server) {
     const originalSecureContext = originalCreateSecureContext(options)
 
     trustStoreCerts.forEach((cert) => {
+      // eslint-disable-next-line -- Node.js API not documented
       originalSecureContext.context.addCACert(cert)
     })
 

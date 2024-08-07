@@ -51,7 +51,7 @@ function nunjucksContext(
     try {
       // eslint-disable-next-line -- Allow JSON type 'any'
       webpackManifest = JSON.parse(readFileSync(manifestPath, 'utf-8'))
-    } catch (error) {
+    } catch {
       logger.error(`Webpack ${basename(manifestPath)} not found`)
     }
   }

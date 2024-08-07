@@ -217,7 +217,7 @@ export class FormModel {
       const ctx = new EvaluationContext(this.conditions, value)
       try {
         return expr.evaluate(ctx)
-      } catch (err) {
+      } catch {
         return false
       }
     }
