@@ -7,37 +7,42 @@ import Boom from '@hapi/boom'
 import { type Request, type ResponseToolkit } from '@hapi/hapi'
 import { type ValidationResult } from 'joi'
 
-import {
-  type FormSubmissionError,
-  type FormPayload,
-  type FormSubmissionErrors
-} from '../types.js'
-
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
   initiateUpload,
   getUploadStatus,
-  type UploadStatusResponse
+  type UploadStatusResponse,
+  type UploadInitiateResponse
 } from '~/src/server/plugins/engine/services/uploadService.js'
+import {
+  type FormSubmissionError,
+  type FormPayload,
+  type FormSubmissionErrors,
+  type FileState,
+  UploadStatus
+} from '~/src/server/plugins/engine/types.js'
 
 export class FileUploadPageController extends PageController {
   fileUploadComponent: FileUploadFieldComponent
 
   constructor(model: FormModel, pageDef: Page) {
-    const fileUploadComponent = pageDef.components?.find(
+    // Get the file upload components from the list of components
+    const fileUploadComponents = pageDef.components?.filter(
       (c) => c.type === ComponentType.FileUploadField
     )
 
-    if (!fileUploadComponent) {
+    // Assert we have exactly 1 file upload component
+    if (!fileUploadComponents || fileUploadComponents.length !== 1) {
       throw Boom.badImplementation(
-        `No FileUploadFieldComponent found in FileUploadPageController '${pageDef.path}'`
+        `Expected 1 FileUploadFieldComponent in FileUploadPageController '${pageDef.path}'`
       )
     }
 
     super(model, pageDef)
 
-    this.fileUploadComponent = fileUploadComponent
+    // Assign the file upload component to the controller
+    this.fileUploadComponent = fileUploadComponents[0]
   }
 
   makeGetRouteHandler() {
@@ -54,6 +59,10 @@ export class FileUploadPageController extends PageController {
       await this.getUpload(request)
       const files = await this.refreshFileUploadStatus(request)
 
+      // PageControllerBase.makePostRouteHandler expects the values
+      // of components to be sent in the form POST payload.
+      // For CDP File Uploads, this isn't the case, so we manipulate
+      // the payload here and add in the files as if they came from the form.
       if (!request.payload) {
         request.payload = {}
       }
@@ -121,13 +130,24 @@ export class FileUploadPageController extends PageController {
     const fileUploadComponentName = this.getComponentName()
     const files = pageState[fileUploadComponentName] ?? []
 
-    return files
+    return files as FileState[]
   }
 
+  /**
+   * Returns the CDP upload from state (separate to form state)
+   * If one exists and hasn't been consumed, re-use it otherwise
+   * we initiate a new one.
+   * @param request - the hapi request
+   */
   private async getUpload(request: Request) {
     const { cacheService } = request.services([])
-    let upload = await cacheService.getUploadState(request)
+    let upload = (await cacheService.getUploadState(request)) as
+      | UploadInitiateResponse
+      | undefined
 
+    /**
+     * @todo don't initiate anymore after `this.fileUploadComponent.options.max`
+     */
     const initiateAndStoreNewUpload = async () => {
       const formId = this.model.options.formId
       const outputEmail =
@@ -137,6 +157,11 @@ export class FileUploadPageController extends PageController {
         request.path,
         outputEmail
       )
+
+      if (initiateResponse === undefined) {
+        throw Boom.badRequest('Unexpected empty response from initiateUpload')
+      }
+
       await cacheService.setUploadState(request, initiateResponse)
 
       return initiateResponse
@@ -148,21 +173,28 @@ export class FileUploadPageController extends PageController {
       const uploadId = upload.uploadId
       const statusResponse = await getUploadStatus(uploadId)
 
-      if (statusResponse?.uploadStatus !== 'initiated') {
-        // Store the current upload in the state
+      if (statusResponse === undefined) {
+        throw Boom.badRequest(
+          `Unexpected empty response from getUploadStatus for ${uploadId}`
+        )
+      }
+
+      // If the upload is no longer in an "initiated" status,
+      // store it in the state and initiate a new CDP upload
+      if (statusResponse.uploadStatus !== UploadStatus.initiated) {
         const state = await cacheService.getState(request)
         const pageState = this.section
           ? (state[this.section.name] ?? {})
           : state
         const fileUploadComponentName = this.getComponentName()
-        const files = pageState[fileUploadComponentName] ?? []
-        const file = statusResponse?.form.file
+        const files = (pageState[fileUploadComponentName] ?? []) as FileState[]
+        const file = statusResponse.form.file
 
         // Only add to files state if the file is an object.
         // This secures against html tampering of the file input
         // by adding a 'multiple' attribute or it being
         // changed to a simple text field or similar.
-        if (file && typeof file === 'object' && !Array.isArray(file)) {
+        if (typeof file === 'object' && !Array.isArray(file)) {
           files.unshift({ uploadId, status: statusResponse })
 
           const update = this.getPartialMergeState({
@@ -181,24 +213,35 @@ export class FileUploadPageController extends PageController {
     return upload
   }
 
+  /**
+   * For all of the files stored in state that are pending,
+   * refresh their status as they may now be `complete` or `rejected`.
+   */
   private async refreshFileUploadStatus(request: Request) {
     const { cacheService } = request.services([])
     const files = await this.getFilesFromState(request)
 
-    // Refresh any unresolved uploads
     const promises: Promise<UploadStatusResponse | undefined>[] = []
     const indexes: number[] = []
-    files.forEach((file, index: number) => {
-      if (file.status.uploadStatus === 'pending') {
+
+    // Refresh any pending uploads
+    files.forEach((file: FileState, index: number) => {
+      if (file.status.uploadStatus === UploadStatus.pending) {
         promises.push(getUploadStatus(file.uploadId))
         indexes.push(index)
       }
     })
 
     if (promises.length) {
-      const result = await Promise.all(promises)
+      const results = await Promise.all(promises)
+
+      // Update state with the latest result
       indexes.forEach((idx, index) => {
-        files[idx].status = result[index]
+        const result = results[index]
+
+        if (result !== undefined) {
+          files[idx].status = result
+        }
       })
 
       const update = this.getPartialMergeState({

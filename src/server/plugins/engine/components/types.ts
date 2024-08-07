@@ -71,6 +71,10 @@ export type MultilineTextFieldViewModel = {
   maxwords?: number
 } & ViewModel
 
+export type FileUploadFieldViewModel = {
+  upload: object
+} & ViewModel
+
 export type ComponentCollectionViewModel = (
   | {
       type: ComponentType
