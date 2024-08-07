@@ -32,16 +32,15 @@ export class CacheService {
   async mergeState(
     request: Request,
     value: object,
-    nullOverride = true,
-    mergeArrays = false
+    mergeOptions?: merge.Options
   ) {
     const key = this.Key(request)
     const state = await this.getState(request)
     const ttl = config.get('sessionTimeout')
 
-    merge(state, value, { nullOverride, mergeArrays })
-    await this.cache.set(key, state, ttl)
+    merge(state, value, mergeOptions)
 
+    await this.cache.set(key, state, ttl)
     return this.cache.get(key)
   }
 

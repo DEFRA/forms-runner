@@ -15,8 +15,7 @@ import {
 } from '@hapi/hapi'
 import { merge } from '@hapi/hoek'
 import { format, parseISO } from 'date-fns'
-import joi from 'joi'
-import { type ValidationResult, type ObjectSchema } from 'joi'
+import joi, { type ObjectSchema, type ValidationResult } from 'joi'
 
 import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
@@ -66,7 +65,6 @@ export class PageControllerBase {
   section?: Section
   components: ComponentCollection
   hasFormComponents: boolean
-  hasConditionalFormComponents: boolean
 
   constructor(model: FormModel, pageDef: Page) {
     const { def } = model
@@ -77,7 +75,6 @@ export class PageControllerBase {
     this.pageDef = pageDef
     this.path = pageDef.path
     this.title = pageDef.title
-    this.condition = pageDef.condition
 
     // Resolve section
     this.section = model.sections.find(
@@ -86,20 +83,16 @@ export class PageControllerBase {
 
     // Components collection
     const components = new ComponentCollection(pageDef.components, model)
-    const conditionalFormComponents = components.formItems.filter(
-      (c: any) => c.conditionalComponents
-    )
 
     this.components = components
     this.hasFormComponents = !!components.formItems.length
-    this.hasConditionalFormComponents = !!conditionalFormComponents.length
 
     this[FORM_SCHEMA] = this.components.formSchema
     this[STATE_SCHEMA] = this.components.stateSchema
   }
 
   /**
-   * Used for mapping FormData and errors to govuk-frontend's template api, so a page can be rendered
+   * Used for mapping form payloads and errors to govuk-frontend's template api, so a page can be rendered
    * @param payload - contains a user's form payload, and any validation errors that may have occurred
    */
   getViewModel(
@@ -517,15 +510,7 @@ export class PageControllerBase {
   async handlePostRequest(
     request: Request,
     h: ResponseToolkit,
-    mergeOptions: {
-      nullOverride?: boolean
-      mergeArrays?: boolean
-      /**
-       * if you wish to modify the value just before it is added to the user's session (i.e. after validation and error parsing), use the modifyUpdate method.
-       * pass in a function, that takes in the update value. Make sure that this returns the modified value.
-       */
-      modifyUpdate?: <T>(value: T) => any
-    } = {}
+    mergeOptions?: merge.Options
   ) {
     const { cacheService } = request.services([])
     const payload = (request.payload || {}) as FormPayload
@@ -560,13 +545,12 @@ export class PageControllerBase {
       )
     }
 
-    let update = this.getPartialMergeState(stateResult.value)
-    const { nullOverride, mergeArrays, modifyUpdate } = mergeOptions
-
-    if (modifyUpdate) {
-      update = modifyUpdate(update)
+    const update = this.getPartialMergeState(stateResult.value)
+    if (!update) {
+      return
     }
-    await cacheService.mergeState(request, update, nullOverride, mergeArrays)
+
+    await cacheService.mergeState(request, update, mergeOptions)
   }
 
   /**
@@ -717,10 +701,6 @@ export class PageControllerBase {
 
   set stateSchema(value) {
     this[STATE_SCHEMA] = value
-  }
-
-  private objLength(object: object) {
-    return Object.keys(object).length
   }
 
   private setPhaseTag(viewModel: ReturnType<typeof this.getViewModel>) {
