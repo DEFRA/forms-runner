@@ -41,8 +41,9 @@ export async function initiateUpload(formId, path, retrievalKey) {
  * @param {string} uploadId - the ID of the upload
  */
 export async function getUploadStatus(uploadId) {
-  const getJsonByType = /**
- @type {typeof getJson<UploadStatusResponse>} */ (getJson)
+  const getJsonByType = /** @type {typeof getJson<UploadStatusResponse>} */ (
+    getJson
+  )
 
   const { payload: status } = await getJsonByType(
     `${uploaderUrl}/status/${uploadId}`
