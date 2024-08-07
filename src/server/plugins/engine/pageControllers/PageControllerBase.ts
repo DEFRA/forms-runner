@@ -5,6 +5,7 @@ import {
   type Page,
   type Section
 } from '@defra/forms-model'
+import { type Boom } from '@hapi/boom'
 import {
   type Request,
   type ResponseObject,
@@ -385,8 +386,11 @@ export class PageControllerBase {
     return relevantState
   }
 
-  makeGetRouteHandler() {
-    return async (request: Request, h: ResponseToolkit) => {
+  makeGetRouteHandler(): (
+    request: Request,
+    h: ResponseToolkit
+  ) => Promise<ResponseObject | Boom> {
+    return async (request, h) => {
       const { cacheService } = request.services([])
       const state = await cacheService.getState(request)
       const progress = state.progress ?? []
@@ -568,8 +572,11 @@ export class PageControllerBase {
   /**
    * Returns an async function. This is called in plugin.ts when there is a POST request at `/{id}/{path*}`
    */
-  makePostRouteHandler() {
-    return async (request: Request, h: ResponseToolkit) => {
+  makePostRouteHandler(): (
+    request: Request,
+    h: ResponseToolkit
+  ) => Promise<ResponseObject | Boom> {
+    return async (request, h) => {
       const response = await this.handlePostRequest(request, h)
       if (response?.source?.context?.errors) {
         return response
