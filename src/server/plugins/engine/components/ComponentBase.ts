@@ -26,6 +26,8 @@ export class ComponentBase {
   schema: ComponentDef['schema']
   options: ComponentDef['options']
 
+  isFormComponent = false
+
   /**
    * This is passed onto webhooks, see {@link answerFromDetailItem}
    */

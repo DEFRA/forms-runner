@@ -38,7 +38,7 @@ export class ComponentCollection {
 
     const formComponents = components.filter(
       (component): component is FormComponentFieldClass =>
-        'isFormComponent' in component && component.isFormComponent
+        component.isFormComponent
     )
 
     this.items = components
@@ -99,8 +99,8 @@ export class ComponentCollection {
   ): ComponentCollectionViewModel {
     const result = this.items.map((item) => {
       return {
-        type: 'type' in item ? item.type : undefined,
-        isFormComponent: 'isFormComponent' in item && item.isFormComponent,
+        type: item.type,
+        isFormComponent: item.isFormComponent,
         model: item.getViewModel(payload, errors)
       }
     })
