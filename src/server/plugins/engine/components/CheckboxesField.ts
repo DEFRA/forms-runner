@@ -1,7 +1,11 @@
 import { type CheckboxesFieldComponent } from '@defra/forms-model'
 import joi, { type ArraySchema } from 'joi'
 
-import { SelectionControlField } from '~/src/server/plugins/engine/components/SelectionControlField.js'
+import {
+  SelectionControlField,
+  type SelectionControlPayload,
+  type SelectionControlState
+} from '~/src/server/plugins/engine/components/SelectionControlField.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
@@ -44,16 +48,7 @@ export class CheckboxesField extends SelectionControlField {
     this.schema = schema
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
-    return state[this.name]
-      ?.map(
-        (value) =>
-          this.items.find((item) => `${item.value}` === `${value}`)?.text ?? ''
-      )
-      .join(', ')
-  }
-
-  getFormValueFromState(state: FormSubmissionState) {
+  getFormValueFromState(state: FormSubmissionState<SelectionControlState>) {
     const { name } = this
 
     if (Array.isArray(state[name])) {
@@ -61,7 +56,10 @@ export class CheckboxesField extends SelectionControlField {
     }
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+  getViewModel(
+    payload: FormPayload<SelectionControlPayload>,
+    errors?: FormSubmissionErrors
+  ) {
     const viewModel = super.getViewModel(payload, errors)
     let { items, value } = viewModel
 

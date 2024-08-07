@@ -10,7 +10,6 @@ import { FormComponent } from '~/src/server/plugins/engine/components/FormCompon
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
 import {
-  type FormData,
   type FormPayload,
   type FormSubmissionErrors,
   type FormSubmissionState
@@ -52,7 +51,7 @@ export class UkAddressField extends FormComponent {
         type: ComponentType.TextField,
         name: 'addressLine2',
         title: 'Address line 2',
-        schema: { max: 100, allow: '' },
+        schema: { max: 100 },
         options: {
           autocomplete: 'address-line2',
           required: false,
@@ -124,32 +123,33 @@ export class UkAddressField extends FormComponent {
     }
   }
 
-  getFormDataFromState(state: FormSubmissionState) {
-    const name = this.name
+  getFormDataFromState(state: FormSubmissionState<UkAddressState>) {
+    const { name } = this
     const value = state[name]
 
     return {
-      [`${name}__addressLine1`]: value?.addressLine1,
-      [`${name}__addressLine2`]: value?.addressLine2,
-      [`${name}__town`]: value?.town,
-      [`${name}__postcode`]: value?.postcode
-    } satisfies FormData
+      [`${name}__addressLine1`]: value?.addressLine1 ?? '',
+      [`${name}__addressLine2`]: value?.addressLine2 ?? '',
+      [`${name}__town`]: value?.town ?? '',
+      [`${name}__postcode`]: value?.postcode ?? ''
+    }
   }
 
-  getStateValueFromValidForm(payload: FormPayload) {
-    const name = this.name
+  getStateValueFromValidForm(payload: FormPayload<UkAddressPayload>) {
+    const { name } = this
+
     return payload[`${name}__addressLine1`]
-      ? ({
-          addressLine1: payload[`${name}__addressLine1`],
-          addressLine2: payload[`${name}__addressLine2`],
-          town: payload[`${name}__town`],
-          postcode: payload[`${name}__postcode`]
-        } satisfies FormData)
+      ? {
+          addressLine1: payload[`${name}__addressLine1`] ?? '',
+          addressLine2: payload[`${name}__addressLine2`] ?? '',
+          town: payload[`${name}__town`] ?? '',
+          postcode: payload[`${name}__postcode`] ?? ''
+        }
       : null
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
-    const name = this.name
+  getDisplayStringFromState(state: FormSubmissionState<UkAddressState>) {
+    const { name } = this
     const value = state[name]
 
     return value
@@ -161,7 +161,10 @@ export class UkAddressField extends FormComponent {
       : ''
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+  getViewModel(
+    payload: FormPayload<UkAddressPayload>,
+    errors?: FormSubmissionErrors
+  ) {
     const { children: formChildren, options } = this
 
     const viewModel = super.getViewModel(payload, errors)
@@ -190,3 +193,6 @@ export class UkAddressField extends FormComponent {
     }
   }
 }
+
+export type UkAddressPayload = Record<string, string | undefined>
+export type UkAddressState = Record<string, Record<string, string> | null>

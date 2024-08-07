@@ -38,7 +38,6 @@ import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { validationOptions } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
-  type FormData,
   type FormPayload,
   type FormSubmissionErrors,
   type FormSubmissionState,
@@ -240,12 +239,19 @@ export class PageControllerBase {
   /**
    * gets the state for the values that can be entered on just this page
    */
-  getFormDataFromState(state: FormSubmissionState): FormData {
+  getFormDataFromState(state: FormSubmissionState): FormPayload {
+    const payload: FormPayload = {}
     const pageState = this.section ? state[this.section.name] : state
 
-    return {
-      ...this.components.getFormDataFromState(pageState || {})
+    if (
+      !pageState ||
+      Array.isArray(pageState) ||
+      typeof pageState !== 'object'
+    ) {
+      return payload
     }
+
+    return this.components.getFormDataFromState(pageState)
   }
 
   getStateFromValidForm(payload: FormPayload) {
@@ -290,7 +296,7 @@ export class PageControllerBase {
    * @param value - user's answers
    * @param schema - which schema to validate against
    */
-  validate<ValueType extends object>(
+  validate<ValueType extends FormPayload | FormSubmissionState>(
     value: ValueType,
     schema: ObjectSchema<ValueType>
   ): FormValidationResult<ValueType> {

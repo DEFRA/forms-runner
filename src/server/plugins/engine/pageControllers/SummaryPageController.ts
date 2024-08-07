@@ -28,7 +28,6 @@ import {
 } from '~/src/server/plugins/engine/models/types.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
-import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 import { type Field } from '~/src/server/schemas/types.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
 
@@ -160,7 +159,7 @@ export class SummaryPageController extends PageController {
         }
 
         // Send submission email
-        await sendEmail(request, summaryViewModel, model, state, emailAddress)
+        await sendEmail(request, summaryViewModel, model, emailAddress)
       }
 
       await cacheService.setConfirmationState(request, { confirmed: true })
@@ -226,7 +225,6 @@ async function sendEmail(
   request: Request,
   summaryViewModel: SummaryViewModel,
   model: FormModel,
-  state: FormSubmissionState,
   emailAddress: string
 ) {
   request.logger.info(['submit', 'email'], 'Preparing email')

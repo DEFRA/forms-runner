@@ -9,8 +9,10 @@ import { type FormComponentFieldComponent } from '~/src/server/plugins/engine/co
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   type FormPayload,
-  type FormSubmissionState,
-  type FormSubmissionErrors
+  type FormSchemaValue,
+  type FormStateValue,
+  type FormSubmissionErrors,
+  type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 
 export class FormComponent extends ComponentBase {
@@ -26,36 +28,43 @@ export class FormComponent extends ComponentBase {
     this.hint = hint
   }
 
-  getFormDataFromState(state: FormSubmissionState) {
-    const name = this.name
+  getFormDataFromState(state: FormSubmissionState): FormPayload {
+    const { name } = this
+
+    const payload: FormPayload = {}
 
     if (name in state) {
-      return {
-        [name]: this.getFormValueFromState(state)
-      }
+      payload.name = this.getFormValueFromState(state)
     }
 
-    return undefined
+    return payload
   }
 
-  getFormValueFromState(state: FormSubmissionState) {
-    const name = this.name
+  getFormValueFromState(state: FormSubmissionState): FormSchemaValue {
+    const { name } = this
+    const value = state[name]
 
-    if (name in state) {
-      return state[name] === null ? '' : state[name].toString()
+    // Base form component can only handle strings/numbers
+    if (!(typeof value === 'string' || typeof value === 'number')) {
+      return ''
     }
+
+    return value
   }
 
-  getStateFromValidForm(payload: FormPayload) {
-    const name = this.name
+  getStateFromValidForm(payload: FormPayload): FormSubmissionState {
+    const { name } = this
 
     return {
       [name]: this.getStateValueFromValidForm(payload)
     }
   }
 
-  getStateValueFromValidForm(payload: FormPayload) {
-    const name = this.name
+  getStateValueFromValidForm<FormPayloadType extends FormPayload>(
+    payload: FormPayloadType
+  ): FormStateValue {
+    const { name } = this
+
     const value = payload[name]
 
     // Check for empty fields
@@ -103,6 +112,8 @@ export class FormComponent extends ComponentBase {
       }
     })
 
+    const value = payload[name]
+
     return {
       ...viewModel,
       label: {
@@ -110,7 +121,7 @@ export class FormComponent extends ComponentBase {
       },
       id: name,
       name,
-      value: payload[name]
+      value
     }
   }
 
@@ -122,7 +133,15 @@ export class FormComponent extends ComponentBase {
     return { [this.name]: this.stateSchema }
   }
 
-  getDisplayStringFromState(state) {
-    return state[this.name] ?? ''
+  getDisplayStringFromState(state: FormSubmissionState) {
+    const { name } = this
+    const value = state[name]
+
+    // Base form component can only handle strings/numbers
+    if (!(typeof value === 'string' || typeof value === 'number')) {
+      return ''
+    }
+
+    return value.toString()
   }
 }

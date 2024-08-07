@@ -100,41 +100,64 @@ export class DatePartsField extends FormComponent {
     return { [this.name]: schema }
   }
 
-  getFormDataFromState(state: FormSubmissionState) {
-    const name = this.name
+  getFormDataFromState(state: FormSubmissionState<DatePartsState>) {
+    const { name } = this
+
     const value = state[name]
-    const dateValue = new Date(value)
+
+    const date = typeof value === 'string' ? new Date(value) : undefined
+
+    const day = date ? date.getDate() : ''
+    const month = date ? date.getMonth() + 1 : ''
+    const year = date ? date.getFullYear() : ''
 
     return {
-      [`${name}__day`]: value && dateValue.getDate(),
-      [`${name}__month`]: value && dateValue.getMonth() + 1,
-      [`${name}__year`]: value && dateValue.getFullYear()
+      [`${name}__day`]: day,
+      [`${name}__month`]: month,
+      [`${name}__year`]: year
     }
   }
 
-  getStateValueFromValidForm(payload: FormPayload) {
-    const name = this.name
+  getStateValueFromValidForm(payload: FormPayload<DatePartsPayload>) {
+    const { name } = this
 
-    return payload[`${name}__year`]
-      ? new Date(
-          payload[`${name}__year`],
-          payload[`${name}__month`] - 1,
-          payload[`${name}__day`]
-        )
-      : null
+    const day = payload[`${name}__day`]
+    const month = payload[`${name}__month`]
+    const year = payload[`${name}__year`]
+
+    if (
+      typeof day !== 'number' ||
+      typeof month !== 'number' ||
+      typeof year !== 'number'
+    ) {
+      return null
+    }
+
+    return new Date(year, month - 1, day)
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
-    const value = state[this.name]
-    return value ? format(parseISO(value), 'd MMMM yyyy') : ''
+  getDisplayStringFromState(state: FormSubmissionState<DatePartsState>) {
+    const { name } = this
+    const value = state[name]
+
+    return typeof value === 'string'
+      ? format(parseISO(value), 'd MMMM yyyy')
+      : ''
   }
 
-  getConditionEvaluationStateValue(state: FormSubmissionState): string {
-    const value = state[this.name]
-    return value ? format(parseISO(value), 'yyyy-MM-dd') : '' // strip the time as it interferes with equals/not equals
+  getConditionEvaluationStateValue(state: FormSubmissionState<DatePartsState>) {
+    const { name } = this
+    const value = state[name]
+
+    return typeof value === 'string'
+      ? format(parseISO(value), 'yyyy-MM-dd')
+      : '' // strip the time as it interferes with equals/not equals
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+  getViewModel(
+    payload: FormPayload<DatePartsPayload>,
+    errors?: FormSubmissionErrors
+  ) {
     const { children, name } = this
 
     const viewModel = super.getViewModel(payload, errors)
@@ -183,3 +206,6 @@ export class DatePartsField extends FormComponent {
     }
   }
 }
+
+export type DatePartsPayload = Record<string, number | undefined>
+export type DatePartsState = Record<string, number | null>

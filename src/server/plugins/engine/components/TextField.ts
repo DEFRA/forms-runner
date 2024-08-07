@@ -72,7 +72,10 @@ export class TextField extends FormComponent {
     this.schema = schema
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+  getViewModel(
+    payload: FormPayload<TextPayload>,
+    errors?: FormSubmissionErrors
+  ) {
     const options = this.options
     const viewModel = super.getViewModel(payload, errors)
 
@@ -83,3 +86,6 @@ export class TextField extends FormComponent {
     return viewModel
   }
 }
+
+export type TextPayload = Record<string, string | undefined>
+export type TextState = Record<string, string | null>

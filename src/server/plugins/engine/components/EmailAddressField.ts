@@ -44,7 +44,10 @@ export class EmailAddressField extends FormComponent {
     this.schema = schema
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+  getViewModel(
+    payload: FormPayload<EmailAddressPayload>,
+    errors?: FormSubmissionErrors
+  ) {
     const viewModel = super.getViewModel(payload, errors)
 
     viewModel.type = 'email'
@@ -53,3 +56,6 @@ export class EmailAddressField extends FormComponent {
     return viewModel
   }
 }
+
+export type EmailAddressPayload = Record<string, string | undefined>
+export type EmailAddressState = Record<string, string | null>

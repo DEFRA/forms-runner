@@ -5,8 +5,7 @@ import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/hel
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
-  type FormSubmissionErrors,
-  type FormSubmissionState
+  type FormSubmissionErrors
 } from '~/src/server/plugins/engine/types.js'
 
 /**
@@ -28,17 +27,12 @@ export class YesNoField extends ListFormComponent {
     this.schema = schema
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
-    const value = state[this.name]
-    const item = this.items.find((item) => item.value === value)
-    return item?.text ?? ''
-  }
-
-  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
-    const { name } = this
-
+  getViewModel(
+    payload: FormPayload<YesNoPayload>,
+    errors?: FormSubmissionErrors
+  ) {
     const viewModel = super.getViewModel(payload, errors)
-    let { fieldset, items, label } = viewModel
+    let { fieldset, items, label, value } = viewModel
 
     fieldset ??= {
       legend: {
@@ -47,11 +41,15 @@ export class YesNoField extends ListFormComponent {
       }
     }
 
-    items = items?.map(({ text, value }) => ({
-      text,
-      value,
-      checked: `${value}` === `${payload[name]}`
+    items = items?.map((item) => ({
+      text: item.text,
+      value: `${item.value}`,
+      checked: item.selected
     }))
+
+    if (typeof value !== 'boolean') {
+      value = undefined
+    }
 
     return {
       ...viewModel,
@@ -60,3 +58,6 @@ export class YesNoField extends ListFormComponent {
     }
   }
 }
+
+export type YesNoPayload = Record<string, boolean | undefined>
+export type YesNoState = Record<string, boolean | null>

@@ -5,8 +5,7 @@ import { FormComponent } from '~/src/server/plugins/engine/components/FormCompon
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
-  type FormSubmissionErrors,
-  type FormSubmissionState
+  type FormSubmissionErrors
 } from '~/src/server/plugins/engine/types.js'
 
 export class NumberField extends FormComponent {
@@ -50,7 +49,10 @@ export class NumberField extends FormComponent {
     this.schema = schema
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+  getViewModel(
+    payload: FormPayload<NumberPayload>,
+    errors?: FormSubmissionErrors
+  ) {
     const schema = this.schema
     const options = this.options
 
@@ -75,10 +77,7 @@ export class NumberField extends FormComponent {
 
     return viewModel
   }
-
-  getDisplayStringFromState(state: FormSubmissionState) {
-    return state[this.name] || state[this.name] === 0
-      ? state[this.name].toString()
-      : undefined
-  }
 }
+
+export type NumberPayload = Record<string, number | undefined>
+export type NumberState = Record<string, number | null>

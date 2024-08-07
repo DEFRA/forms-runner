@@ -1,5 +1,7 @@
 import { type ComponentType } from '@defra/forms-model'
 
+import { type FormSchemaValue } from '~/src/server/plugins/engine/types.js'
+
 export interface Label {
   text: string
   classes?: string
@@ -28,12 +30,12 @@ export interface ListItem {
 }
 
 // TODO: Break this down for each component (Same as model/Component).
-export interface ViewModel {
+export interface ViewModel extends Record<string, unknown> {
   label?: Label
   type?: string
   id?: string
   name?: string
-  value?: any // TODO
+  value?: FormSchemaValue
   hint?: {
     html: string
   }
@@ -64,12 +66,6 @@ export interface ViewModel {
   children?: ComponentCollectionViewModel
   autocomplete?: string
 }
-
-export type MultilineTextFieldViewModel = {
-  maxlength?: number
-  isCharacterOrWordCount: boolean
-  maxwords?: number
-} & ViewModel
 
 export type ComponentCollectionViewModel = (
   | {

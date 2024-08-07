@@ -232,6 +232,40 @@ describe('CheckboxesField', () => {
 
       expect(text).toBe('1 point, 3 points')
     })
+
+    it('Returns text from multiple (outdated) state values', () => {
+      const item1 = examples[1]
+      const item2 = examples[3]
+
+      const text = component.getDisplayStringFromState({
+        [def.name]: [
+          1234, // E.g. Dummy deleted value in Redis state
+          item1.state,
+          5678, // E.g. Dummy deleted value in Redis state
+          item2.state
+        ]
+      })
+
+      expect(text).toBe('2 points, 4 points')
+    })
+
+    it('Returns text from non-array state value', () => {
+      const item = examples[0]
+
+      const text = component.getDisplayStringFromState({
+        [def.name]: item.state
+      })
+
+      expect(text).toBe('1 point')
+    })
+
+    it('Returns text from non-array (outdated) state value', () => {
+      const text = component.getDisplayStringFromState({
+        [def.name]: 'list-item-deleted'
+      })
+
+      expect(text).toBe('')
+    })
   })
 
   describe('View model', () => {

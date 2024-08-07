@@ -64,15 +64,15 @@ export class MonthYearField extends FormComponent {
     }
   }
 
-  getFormDataFromState(state: FormSubmissionState) {
+  getFormDataFromState(state: FormSubmissionState<MonthYearState>) {
     return this.children.getFormDataFromState(state)
   }
 
-  getStateValueFromValidForm(payload: FormPayload) {
+  getStateValueFromValidForm(payload: FormPayload<MonthYearPayload>) {
     return this.children.getStateFromValidForm(payload)
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
+  getDisplayStringFromState(state: FormSubmissionState<MonthYearState>) {
     const values = state[this.name]
     const year = values?.[`${this.name}__year`] ?? 'Not supplied'
 
@@ -87,7 +87,10 @@ export class MonthYearField extends FormComponent {
     return `${monthString} ${year}`
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+  getViewModel(
+    payload: FormPayload<MonthYearPayload>,
+    errors?: FormSubmissionErrors
+  ) {
     const { children, name } = this
 
     const viewModel = super.getViewModel(payload, errors)
@@ -136,3 +139,6 @@ export class MonthYearField extends FormComponent {
     }
   }
 }
+
+type MonthYearPayload = Record<string, string | undefined>
+type MonthYearState = Record<string, string | null>

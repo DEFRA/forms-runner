@@ -28,6 +28,7 @@ export class ListFormComponent extends FormComponent {
     | ArraySchema<number>
     | BooleanSchema<string>
     | NumberSchema<string>
+    | NumberSchema
     | StringSchema
 
   declare stateSchema:
@@ -35,6 +36,7 @@ export class ListFormComponent extends FormComponent {
     | ArraySchema<number>
     | BooleanSchema<string>
     | NumberSchema<string>
+    | NumberSchema
     | StringSchema
 
   list?: List
@@ -79,22 +81,35 @@ export class ListFormComponent extends FormComponent {
     this.schema = schema
   }
 
-  getDisplayStringFromState(state: FormSubmissionState): string | string[] {
+  getDisplayStringFromState(state: FormSubmissionState<ListFormState>) {
     const { name, items } = this
-    const value = state[name]
-    const item = items.find((item) => String(item.value) === String(value))
-    return item?.text ?? ''
+
+    // Handle single (string) or multiple (array) values
+    const stateItems = [state[name] ?? ''].flat()
+
+    return stateItems
+      .flatMap(
+        (stateValue) =>
+          items.find(({ value }) => `${value}` === `${stateValue}`) ?? []
+      )
+      .map((item) => item.text)
+      .join(', ')
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
-    const { name, items } = this
+  getViewModel(
+    payload: FormPayload<ListFormPayload>,
+    errors?: FormSubmissionErrors
+  ) {
+    const { items } = this
+
     const viewModel = super.getViewModel(payload, errors)
+
     const viewModelItems = items.map(
       ({ text, value, description = '', condition }) => ({
         text,
         value: `${value}`,
         description,
-        selected: `${value}` === `${payload[name]}`,
+        selected: value === viewModel.value,
         condition: condition ?? undefined
       })
     )
@@ -104,3 +119,13 @@ export class ListFormComponent extends FormComponent {
     return viewModel
   }
 }
+
+export type ListFormPayload = Record<
+  string,
+  string | number | boolean | string[] | number[] | undefined
+>
+
+export type ListFormState = Record<
+  string,
+  string | number | boolean | string[] | number[] | null
+>

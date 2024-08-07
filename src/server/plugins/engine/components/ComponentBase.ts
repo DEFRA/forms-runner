@@ -51,9 +51,9 @@ export class ComponentBase {
   /**
    * parses form payload and returns an object provided to a govuk-frontend template to render
    */
-  getViewModel(
+  getViewModel<FormPayloadType extends FormPayload>(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    payload: FormPayload,
+    payload: FormPayloadType,
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     errors?: FormSubmissionErrors

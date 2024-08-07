@@ -29,7 +29,10 @@ export class SelectField extends ListFormComponent {
     this.schema = schema
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+  getViewModel(
+    payload: FormPayload<SelectPayload>,
+    errors?: FormSubmissionErrors
+  ) {
     const { options } = this
 
     const viewModel = super.getViewModel(payload, errors)
@@ -42,3 +45,6 @@ export class SelectField extends ListFormComponent {
     return viewModel
   }
 }
+
+export type SelectPayload = Record<string, string | undefined>
+export type SelectState = Record<string, string | null>

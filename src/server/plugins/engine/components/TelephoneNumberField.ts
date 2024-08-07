@@ -50,7 +50,10 @@ export class TelephoneNumberField extends FormComponent {
     this.schema = schema
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+  getViewModel(
+    payload: FormPayload<TelephoneNumberPayload>,
+    errors?: FormSubmissionErrors
+  ) {
     const viewModel = {
       ...super.getViewModel(payload, errors),
       type: 'tel',
@@ -60,3 +63,6 @@ export class TelephoneNumberField extends FormComponent {
     return viewModel
   }
 }
+
+export type TelephoneNumberPayload = Record<string, string | undefined>
+export type TelephoneNumberState = Record<string, string | null>
