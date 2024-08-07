@@ -156,18 +156,21 @@ export class FileUploadPageController extends PageController {
           : state
         const fileUploadComponentName = this.getComponentName()
         const files = pageState[fileUploadComponentName] ?? []
+        const file = statusResponse?.form.file
 
-        // @todo
-        // Only add to files state if the file is an object
-        // This secures us against the html file input having an 'multiple' attribute added
-        // or it being changes to a simple text field or similar
-        files.unshift({ uploadId, status: statusResponse })
+        // Only add to files state if the file is an object.
+        // This secures against html tampering of the file input
+        // by adding a 'multiple' attribute or it being
+        // changed to a simple text field or similar.
+        if (file && typeof file === 'object' && !Array.isArray(file)) {
+          files.unshift({ uploadId, status: statusResponse })
 
-        const update = this.getPartialMergeState({
-          [fileUploadComponentName]: files
-        })
+          const update = this.getPartialMergeState({
+            [fileUploadComponentName]: files
+          })
 
-        await cacheService.mergeState(request, update)
+          await cacheService.mergeState(request, update)
+        }
 
         upload = await initiateAndStoreNewUpload()
       }
