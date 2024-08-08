@@ -29,16 +29,14 @@ export class CacheService {
     return cached || {}
   }
 
-  async mergeState(
-    request: Request,
-    value: object,
-    mergeOptions?: merge.Options
-  ) {
+  async mergeState(request: Request, value: object) {
     const key = this.Key(request)
     const state = await this.getState(request)
     const ttl = config.get('sessionTimeout')
 
-    merge(state, value, mergeOptions)
+    merge(state, value, {
+      mergeArrays: false
+    })
 
     await this.cache.set(key, state, ttl)
     return this.cache.get(key)
