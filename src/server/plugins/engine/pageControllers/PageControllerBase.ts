@@ -510,11 +510,7 @@ export class PageControllerBase {
   /**
    * deals with parsing errors and saving answers to state
    */
-  async handlePostRequest(
-    request: Request,
-    h: ResponseToolkit,
-    mergeOptions?: merge.Options
-  ) {
+  async handlePostRequest(request: Request, h: ResponseToolkit) {
     const { cacheService } = request.services([])
     const payload = (request.payload || {}) as FormPayload
     const formResult = this.validateForm(payload)
@@ -553,7 +549,7 @@ export class PageControllerBase {
       return
     }
 
-    await cacheService.mergeState(request, update, mergeOptions)
+    await cacheService.mergeState(request, update)
   }
 
   /**
