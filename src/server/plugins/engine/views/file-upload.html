@@ -6,27 +6,13 @@
 {% from "govuk/components/file-upload/macro.njk" import govukFileUpload %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 
-{% set uploadComponent = components[0] %}
-{% set uploadModel = uploadComponent.model %}
-{% set upload = uploadModel.upload %}
-{% set formAction = upload.formAction %}
+{% set model = fileUploadComponent.model %}
+{% set action = model.upload.formAction %}
 
 {% block form %}
-  {#
-  {{ componentList(components | rejectattr('isFormComponent')) }}
-  #}
-  <form method="post" enctype="multipart/form-data" autocomplete="off" novalidate action="{{ formAction }}">
-    {{ govukFileUpload(uploadModel) }}
+  <form method="post" enctype="multipart/form-data" autocomplete="off" novalidate action="{{ action }}">
+    {{ govukFileUpload(model) }}
     {{ govukButton({ text: "Upload file", classes: "govuk-button--secondary" }) }}
   </form>
-
-  <form method="post" novalidate>
-    <input type="hidden" name="crumb" value="{{crumb}}"/>
-    {#
-    {{ componentList(components | selectattr('isFormComponent')) }}
-    #}
-    {{ componentList([uploadComponent]) }}
-
-    {{ govukButton({ attributes: { id: "submit" }, text: "Continue" }) }}
-  </form>
+  {{super()}}
 {% endblock %}

@@ -10,8 +10,11 @@ import {
   type FormPayload,
   type FormSubmissionErrors,
   type FileState,
+  type FilesState,
   FileStatus
 } from '~/src/server/plugins/engine/types.js'
+
+export const uploadIdSchema = joi.string().uuid().required()
 
 export class FileUploadField extends FormComponent {
   declare options: FileUploadFieldComponent['options']
@@ -36,17 +39,17 @@ export class FileUploadField extends FormComponent {
       })
       .required()
 
-    const formFileSchema = fileSchema.append({
-      fileStatus: joi
-        .string()
-        .valid('complete', 'rejected', 'pending')
-        .required(),
-      checksumSha256: joi.string().optional(),
-      s3Key: joi.string().optional(),
-      s3Bucket: joi.string().optional(),
-      hasError: joi.boolean().optional(),
-      errorMessage: joi.string().optional()
-    })
+    // const formFileSchema = fileSchema.append({
+    //   fileStatus: joi
+    //     .string()
+    //     .valid('complete', 'rejected', 'pending')
+    //     .required(),
+    //   checksumSha256: joi.string().optional(),
+    //   s3Key: joi.string().optional(),
+    //   s3Bucket: joi.string().optional(),
+    //   hasError: joi.boolean().optional(),
+    //   errorMessage: joi.string().optional()
+    // })
 
     const stateFileSchema = fileSchema.append({
       fileStatus: joi.string().valid('complete').required(),
@@ -64,16 +67,16 @@ export class FileUploadField extends FormComponent {
       })
       .required()
 
-    const formStatusSchema = joi
-      .object({
-        uploadStatus: joi.string().valid('ready', 'pending').required(),
-        metadata: metadataSchema,
-        form: joi.object().required().keys({
-          file: formFileSchema
-        }),
-        numberOfRejectedFiles: joi.number().optional()
-      })
-      .required()
+    // const formStatusSchema = joi
+    //   .object({
+    //     uploadStatus: joi.string().valid('ready', 'pending').required(),
+    //     metadata: metadataSchema,
+    //     form: joi.object().required().keys({
+    //       file: formFileSchema
+    //     }),
+    //     numberOfRejectedFiles: joi.number().optional()
+    //   })
+    //   .required()
 
     const stateStatusSchema = joi
       .object({
@@ -87,18 +90,18 @@ export class FileUploadField extends FormComponent {
       .required()
 
     const itemSchema = joi.object({
-      uploadId: joi.string().uuid().required()
+      uploadId: uploadIdSchema
     })
 
-    const formItemSchema = itemSchema.append({
-      status: formStatusSchema
-    })
+    // const formItemSchema = itemSchema.append({
+    //   status: formStatusSchema
+    // })
 
     const stateItemSchema = itemSchema.append({
       status: stateStatusSchema
     })
 
-    let formSchema = joi.array().label(title.toLowerCase()).required()
+    let formSchema = joi.array().label(title.toLowerCase()).single().required()
 
     if (options.required === false) {
       formSchema = formSchema.optional()
@@ -116,7 +119,7 @@ export class FileUploadField extends FormComponent {
       formSchema = formSchema.length(schema.length)
     }
 
-    this.formSchema = formSchema.items(formItemSchema)
+    this.formSchema = formSchema.items(stateItemSchema)
     this.stateSchema = formSchema.items(stateItemSchema)
     this.options = options
     this.schema = schema
@@ -148,7 +151,7 @@ export class FileUploadField extends FormComponent {
       payload,
       errors
     ) as FileUploadFieldViewModel
-    const files = (payload[this.name] ?? []) as FileState[]
+    const files = (payload[this.name] ?? []) as FilesState
     const count = files.length
     let pendingCount = 0
     let successfulCount = 0
@@ -176,7 +179,7 @@ export class FileUploadField extends FormComponent {
       const key =
         errors && file.hasError
           ? {
-              html: `<div class="govuk-form-group govuk-form-group--error">
+              html: `<div class="govuk-form-group govuk-form-group--error govuk-!-margin-bottom-0">
               <div class="govuk-!-margin-bottom-3">${escapeHtml(file.filename)}</div>
               <p class="govuk-error-message">${escapeHtml(file.errorMessage ?? '')}</p>
             </div>`
@@ -185,10 +188,12 @@ export class FileUploadField extends FormComponent {
               text: file.filename
             }
 
+      const hiddenInput = `<input name="${viewModel.name}" type="hidden" value="${item.uploadId}">`
+
       return {
         key,
         value: {
-          html: `${filesize(file.contentLength)} ${tag}`
+          html: `${filesize(file.contentLength)} ${tag} ${hiddenInput}`
         },
         actions: {
           items: [
@@ -219,7 +224,7 @@ export class FileUploadField extends FormComponent {
       pendingCount,
       successfulCount,
       summary: { classes: 'govuk-summary-list--long-key', rows },
-      formAction: payload.formAction
+      formAction: files.formAction
     }
 
     return viewModel

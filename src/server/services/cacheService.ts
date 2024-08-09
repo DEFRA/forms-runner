@@ -5,11 +5,16 @@ import { config } from '~/src/config/index.js'
 import { type createServer } from '~/src/server/index.js'
 import { type ViewModel } from '~/src/server/plugins/engine/components/types.js'
 import {
-  type FormSubmissionState,
-  type UploadInitiateResponse
+  type TempFileState,
+  type TempUploadState,
+  type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 
 const partition = 'cache'
+const mergeOptions: merge.Options = {
+  nullOverride: true,
+  mergeArrays: false
+}
 
 enum ADDITIONAL_IDENTIFIER {
   Confirmation = ':confirmation',
@@ -43,16 +48,19 @@ export class CacheService {
     })
 
     await this.cache.set(key, state, ttl)
-    return this.cache.get(key)
+
+    return state
   }
 
   async getConfirmationState(request: Request) {
     const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation)
+
     return await this.cache.get(key)
   }
 
   async setConfirmationState(request: Request, viewModel: ViewModel) {
     const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation)
+
     return this.cache.set(
       key,
       viewModel,
@@ -62,19 +70,18 @@ export class CacheService {
 
   async getUploadState(request: Request) {
     const key = this.Key(request, ADDITIONAL_IDENTIFIER.Upload)
-    const state = (await this.cache.get(key)) || {}
+    const uploadState = ((await this.cache.get(key)) ?? {}) as TempUploadState
+    const path = request.path
 
-    return state[request.path]
+    return (uploadState[path] ?? { files: [] })
   }
 
-  async setUploadState(request: Request, value: UploadInitiateResponse) {
+  async setUploadState(request: Request, value: TempFileState) {
     const key = this.Key(request, ADDITIONAL_IDENTIFIER.Upload)
-    const state = (await this.cache.get(key)) || {}
-
-    state[request.path] = value
-
     const ttl = config.get('sessionTimeout')
-    await this.cache.set(key, state, ttl)
+    const path = request.path
+
+    await this.cache.set(key, { [path]: value }, ttl)
   }
 
   async clearState(request: Request) {

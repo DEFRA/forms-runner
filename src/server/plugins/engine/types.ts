@@ -1,3 +1,10 @@
+import { type ResponseObject } from '@hapi/hapi'
+
+import {
+  type FormComponentViewModel,
+  type ComponentCollectionViewModel
+} from '~/src/server/plugins/engine/components/types.js'
+import { type PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
 /**
  * FormSubmissionState is an object containing the following props:
  * 1. progress[]: which indicates the urls the user have already submitted.
@@ -110,7 +117,38 @@ export interface UploadStatusResponse {
   form: UploadStatusForm
 }
 
+export type FileStateArray = FileState[]
+
 export interface FileState {
   uploadId: string
   status: UploadStatusResponse
 }
+
+export type FilesState = FileStateArray & { formAction: string }
+
+export interface TempFileState {
+  upload?: UploadInitiateResponse
+  files: FileStateArray
+}
+
+export type TempUploadState = Record<string, TempFileState>;
+
+export interface PageViewModel {
+  page: PageControllerBase
+  name?: string
+  pageTitle: string
+  sectionTitle?: string
+  showTitle: boolean
+  components: ComponentCollectionViewModel
+  errors?: FormSubmissionErrors
+  isStartPage: boolean
+  startPage?: ResponseObject
+  backLink?: string
+  feedbackLink?: string
+  serviceUrl: string
+  phaseTag?: string | undefined
+}
+
+export type FileUploadPageViewModel = {
+  fileUploadComponent: FormComponentViewModel
+} & PageViewModel

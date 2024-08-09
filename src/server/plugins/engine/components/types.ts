@@ -75,17 +75,21 @@ export type FileUploadFieldViewModel = {
   upload: object
 } & ViewModel
 
+export interface FormComponentViewModel {
+  type: ComponentType
+  isFormComponent: true
+  model: ViewModel
+}
+
+export interface ContentComponentViewModel {
+  type: undefined
+  isFormComponent: false
+  model: ViewModel
+}
+
 export type ComponentCollectionViewModel = (
-  | {
-      type: ComponentType
-      isFormComponent: true
-      model: ViewModel
-    }
-  | {
-      type: undefined
-      isFormComponent: false
-      model: ViewModel
-    }
+  | FormComponentViewModel
+  | ContentComponentViewModel
 )[]
 
 export type DataType =
