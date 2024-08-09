@@ -9,3 +9,5 @@ $govuk-assets-path: "/assets/";
 .autocomplete__option {
   @include govuk-typography-common;
 }
+
+@import "summary-list";

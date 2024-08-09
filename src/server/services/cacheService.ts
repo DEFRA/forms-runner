@@ -4,12 +4,16 @@ import { merge } from '@hapi/hoek'
 import { config } from '~/src/config/index.js'
 import { type createServer } from '~/src/server/index.js'
 import { type ViewModel } from '~/src/server/plugins/engine/components/types.js'
-import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+import {
+  type FormSubmissionState,
+  type UploadInitiateResponse
+} from '~/src/server/plugins/engine/types.js'
 
 const partition = 'cache'
 
 enum ADDITIONAL_IDENTIFIER {
-  Confirmation = ':confirmation'
+  Confirmation = ':confirmation',
+  Upload = ':upload'
 }
 
 export class CacheService {
@@ -56,9 +60,27 @@ export class CacheService {
     )
   }
 
+  async getUploadState(request: Request) {
+    const key = this.Key(request, ADDITIONAL_IDENTIFIER.Upload)
+    const state = (await this.cache.get(key)) || {}
+
+    return state[request.path]
+  }
+
+  async setUploadState(request: Request, value: UploadInitiateResponse) {
+    const key = this.Key(request, ADDITIONAL_IDENTIFIER.Upload)
+    const state = (await this.cache.get(key)) || {}
+
+    state[request.path] = value
+
+    const ttl = config.get('sessionTimeout')
+    await this.cache.set(key, state, ttl)
+  }
+
   async clearState(request: Request) {
     if (request.yar.id) {
       await this.cache.drop(this.Key(request))
+      await this.cache.drop(this.Key(request, ADDITIONAL_IDENTIFIER.Upload))
     }
   }
 

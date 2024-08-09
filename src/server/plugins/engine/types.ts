@@ -45,14 +45,16 @@ export interface FormSubmissionState {
   [propName: string]: any
 }
 
+export interface FormSubmissionError {
+  path: string // e.g: "firstName"
+  href: string // e.g: "#firstName"
+  name: string // e.g: "firstName"
+  text: string // e.g: '"First name" is not allowed to be empty'
+}
+
 export interface FormSubmissionErrors {
   titleText: string // e.b: "There is a problem"
-  errorList: {
-    path: string // e.g: "firstName"
-    href: string // e.g: "#firstName"
-    name: string // e.g: "firstName"
-    text: string // e.g: '"First name" is not allowed to be empty'
-  }[]
+  errorList: FormSubmissionError[]
 }
 
 export interface FormPayload {
@@ -65,4 +67,50 @@ export type FormData = Omit<FormPayload, 'crumb'>
 export interface FormValidationResult<ValueType extends object = FormPayload> {
   value?: ValueType
   errors?: FormSubmissionErrors | null
+}
+
+export interface UploadInitiateResponse {
+  uploadId: string
+  uploadUrl: string
+  statusUrl: string
+}
+
+export enum UploadStatus {
+  initiated = 'initiated',
+  pending = 'pending',
+  ready = 'ready'
+}
+
+export enum FileStatus {
+  complete = 'complete',
+  rejected = 'rejected',
+  pending = 'pending'
+}
+
+export interface FileUpload {
+  fileId: string
+  filename: string
+  contentType: string
+  fileStatus: FileStatus
+  contentLength: number
+  checksumSha256?: string
+  detectedContentType?: string
+  s3Key?: string
+  s3Bucket?: string
+  hasError?: boolean
+  errorMessage?: string
+}
+
+export interface UploadStatusForm {
+  file: FileUpload
+}
+
+export interface UploadStatusResponse {
+  uploadStatus: UploadStatus
+  form: UploadStatusForm
+}
+
+export interface FileState {
+  uploadId: string
+  status: UploadStatusResponse
 }
