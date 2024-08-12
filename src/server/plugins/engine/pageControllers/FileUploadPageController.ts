@@ -253,8 +253,6 @@ export class FileUploadPageController extends PageController {
       // If the upload is no longer in an "initiated" status,
       // store it in the temp state and initiate a new CDP upload
       if (statusResponse.uploadStatus !== UploadStatus.initiated) {
-        const file = statusResponse.form.file
-
         // Only add to files state if the file is an object.
         // This secures against html tampering of the file input
         // by adding a 'multiple' attribute or it being
