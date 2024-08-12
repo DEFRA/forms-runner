@@ -132,7 +132,7 @@ export interface TempFileState {
   files: FileStateArray
 }
 
-export type TempUploadState = Record<string, TempFileState>;
+export type TempUploadState = Record<string, TempFileState>
 
 export interface PageViewModel {
   page: PageControllerBase

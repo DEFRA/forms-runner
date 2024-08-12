@@ -15,7 +15,7 @@ import {
 } from '@hapi/hapi'
 import { merge } from '@hapi/hoek'
 import { format, parseISO } from 'date-fns'
-import type joi from 'joi';
+import type joi from 'joi'
 import { type ObjectSchema, type ValidationResult } from 'joi'
 
 import { config } from '~/src/config/index.js'
