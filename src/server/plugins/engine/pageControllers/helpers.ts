@@ -1,5 +1,4 @@
 import {
-  controllerNameFromPath,
   isControllerName,
   type ControllerType,
   type Page
@@ -21,10 +20,8 @@ export type PageControllerType =
  * Gets the class for the controller defined in a {@link Page}
  */
 export function getPageController(
-  nameOrPath: string
+  controllerName: string
 ): PageControllerType | undefined {
-  const controllerName = controllerNameFromPath(nameOrPath)
-
   if (!isPageController(controllerName)) {
     return
   }

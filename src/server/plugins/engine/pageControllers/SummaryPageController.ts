@@ -45,10 +45,6 @@ const templateId = config.get('notifyTemplateId')
 
 export class SummaryPageController extends PageController {
   /**
-   * The controller which is used when Page["controller"] is defined as "./pages/summary.js"
-   */
-
-  /**
    * Returns an async function. This is called in plugin.ts when there is a GET request at `/{id}/{path*}`,
    */
   makeGetRouteHandler(): (
