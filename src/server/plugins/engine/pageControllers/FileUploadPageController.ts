@@ -7,7 +7,11 @@ import Boom from '@hapi/boom'
 import { type Request, type ResponseToolkit } from '@hapi/hapi'
 import joi, { type ValidationResult } from 'joi'
 
-import { uploadIdSchema } from '~/src/server/plugins/engine/components/FileUploadField.js'
+import {
+  uploadIdSchema,
+  tempItemSchema,
+  tempStatusSchema
+} from '~/src/server/plugins/engine/components/FileUploadField.js'
 import { type FormComponentViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
@@ -255,8 +259,13 @@ export class FileUploadPageController extends PageController {
         // This secures against html tampering of the file input
         // by adding a 'multiple' attribute or it being
         // changed to a simple text field or similar.
-        if (typeof file === 'object' && !Array.isArray(file)) {
-          uploadState.files.unshift({ uploadId, status: statusResponse })
+        const validateResult = tempItemSchema.validate({
+          uploadId,
+          status: statusResponse
+        })
+
+        if (!validateResult.error) {
+          uploadState.files.unshift(validateResult.value)
         }
 
         upload = await initiateAndStoreNewUpload()
@@ -285,9 +294,10 @@ export class FileUploadPageController extends PageController {
       // Update state with the latest result
       indexes.forEach((idx, index) => {
         const result = results[index]
+        const validateResult = tempStatusSchema.validate(result)
 
-        if (result !== undefined) {
-          files[idx].status = result
+        if (!validateResult.error) {
+          files[idx].status = validateResult.value
         }
       })
 

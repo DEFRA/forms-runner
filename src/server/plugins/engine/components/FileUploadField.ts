@@ -16,6 +16,75 @@ import {
 
 export const uploadIdSchema = joi.string().uuid().required()
 
+export const fileSchema = joi
+  .object({
+    fileId: joi.string().uuid().required(),
+    filename: joi.string().required(),
+    contentType: joi.string().required(),
+    detectedContentType: joi.string().optional(),
+    contentLength: joi.number().required()
+  })
+  .required()
+
+export const tempFileSchema = fileSchema.append({
+  fileStatus: joi.string().valid('complete', 'rejected', 'pending').required(),
+  checksumSha256: joi.string().optional(),
+  s3Key: joi.string().optional(),
+  s3Bucket: joi.string().optional(),
+  hasError: joi.boolean().optional(),
+  errorMessage: joi.string().optional()
+})
+
+export const formFileSchema = fileSchema.append({
+  fileStatus: joi.string().valid('complete').required(),
+  checksumSha256: joi.string().optional(),
+  s3Key: joi.string().required(),
+  s3Bucket: joi.string().required()
+})
+
+export const metadataSchema = joi
+  .object()
+  .keys({
+    formId: joi.string().required(),
+    retrievalKey: joi.string().email().required(),
+    path: joi.string().uri({ relativeOnly: true }).required()
+  })
+  .required()
+
+export const tempStatusSchema = joi
+  .object({
+    uploadStatus: joi.string().valid('ready', 'pending').required(),
+    metadata: metadataSchema,
+    form: joi.object().required().keys({
+      file: tempFileSchema
+    }),
+    numberOfRejectedFiles: joi.number().optional()
+  })
+  .required()
+
+export const formStatusSchema = joi
+  .object({
+    uploadStatus: joi.string().valid('ready').required(),
+    metadata: metadataSchema,
+    form: joi.object().required().keys({
+      file: formFileSchema
+    }),
+    numberOfRejectedFiles: joi.number().valid(0).required()
+  })
+  .required()
+
+export const itemSchema = joi.object({
+  uploadId: uploadIdSchema
+})
+
+export const tempItemSchema = itemSchema.append({
+  status: tempStatusSchema
+})
+
+export const formItemSchema = itemSchema.append({
+  status: formStatusSchema
+})
+
 export class FileUploadField extends FormComponent {
   declare options: FileUploadFieldComponent['options']
 
@@ -28,78 +97,6 @@ export class FileUploadField extends FormComponent {
     super(def, model)
 
     const { options, schema, title } = def
-
-    const fileSchema = joi
-      .object({
-        fileId: joi.string().uuid().required(),
-        filename: joi.string().required(),
-        contentType: joi.string().required(),
-        detectedContentType: joi.string().optional(),
-        contentLength: joi.number().required()
-      })
-      .required()
-
-    // const formFileSchema = fileSchema.append({
-    //   fileStatus: joi
-    //     .string()
-    //     .valid('complete', 'rejected', 'pending')
-    //     .required(),
-    //   checksumSha256: joi.string().optional(),
-    //   s3Key: joi.string().optional(),
-    //   s3Bucket: joi.string().optional(),
-    //   hasError: joi.boolean().optional(),
-    //   errorMessage: joi.string().optional()
-    // })
-
-    const stateFileSchema = fileSchema.append({
-      fileStatus: joi.string().valid('complete').required(),
-      checksumSha256: joi.string().optional(),
-      s3Key: joi.string().required(),
-      s3Bucket: joi.string().required()
-    })
-
-    const metadataSchema = joi
-      .object()
-      .keys({
-        formId: joi.string().required(),
-        retrievalKey: joi.string().email().required(),
-        path: joi.string().uri({ relativeOnly: true }).required()
-      })
-      .required()
-
-    // const formStatusSchema = joi
-    //   .object({
-    //     uploadStatus: joi.string().valid('ready', 'pending').required(),
-    //     metadata: metadataSchema,
-    //     form: joi.object().required().keys({
-    //       file: formFileSchema
-    //     }),
-    //     numberOfRejectedFiles: joi.number().optional()
-    //   })
-    //   .required()
-
-    const stateStatusSchema = joi
-      .object({
-        uploadStatus: joi.string().valid('ready').required(),
-        metadata: metadataSchema,
-        form: joi.object().required().keys({
-          file: stateFileSchema
-        }),
-        numberOfRejectedFiles: joi.number().valid(0).required()
-      })
-      .required()
-
-    const itemSchema = joi.object({
-      uploadId: uploadIdSchema
-    })
-
-    // const formItemSchema = itemSchema.append({
-    //   status: formStatusSchema
-    // })
-
-    const stateItemSchema = itemSchema.append({
-      status: stateStatusSchema
-    })
 
     let formSchema = joi.array().label(title.toLowerCase()).single().required()
 
@@ -119,8 +116,8 @@ export class FileUploadField extends FormComponent {
       formSchema = formSchema.length(schema.length)
     }
 
-    this.formSchema = formSchema.items(stateItemSchema)
-    this.stateSchema = formSchema.items(stateItemSchema)
+    this.formSchema = formSchema.items(formItemSchema)
+    this.stateSchema = formSchema.items(formItemSchema)
     this.options = options
     this.schema = schema
   }
@@ -180,9 +177,9 @@ export class FileUploadField extends FormComponent {
         errors && file.hasError
           ? {
               html: `<div class="govuk-form-group govuk-form-group--error govuk-!-margin-bottom-0">
-              <div class="govuk-!-margin-bottom-3">${escapeHtml(file.filename)}</div>
-              <p class="govuk-error-message">${escapeHtml(file.errorMessage ?? '')}</p>
-            </div>`
+          <div class="govuk-!-margin-bottom-3">${escapeHtml(file.filename)}</div>
+          <p class="govuk-error-message">${escapeHtml(file.errorMessage ?? '')}</p>
+        </div>`
             }
           : {
               text: file.filename
