@@ -384,7 +384,7 @@ export class PageControllerBase {
     const { cacheService } = request.services([])
     const update = this.getPartialMergeState(state)
 
-    return await cacheService.mergeState(request, update)
+    return cacheService.mergeState(request, update)
   }
 
   makeGetRouteHandler(): (

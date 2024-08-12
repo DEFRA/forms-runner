@@ -47,7 +47,7 @@ export class CacheService {
 
     await this.cache.set(key, state, ttl)
 
-    return state
+    return this.cache.get(key)
   }
 
   async getConfirmationState(request: Request) {
