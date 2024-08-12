@@ -10,7 +10,7 @@
           "path": "/uk-passport"
         }
       ],
-      "controller": "./pages/start.js"
+      "controller": "StartPageController"
     },
     {
       "path": "/uk-passport",
@@ -389,7 +389,7 @@
     },
     {
       "path": "/summary",
-      "controller": "./pages/summary.js",
+      "controller": "SummaryPageController",
       "title": "Summary",
       "components": [],
       "next": []

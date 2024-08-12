@@ -117,7 +117,7 @@ export class FormModel {
         title: 'Form submitted',
         components: [],
         next: [],
-        controller: './pages/status.js'
+        controller: 'StatusPageController'
       })
     )
 
