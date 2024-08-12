@@ -147,7 +147,7 @@ export interface PageViewModel {
   backLink?: string
   feedbackLink?: string
   serviceUrl: string
-  phaseTag?: string | undefined
+  phaseTag?: string
 }
 
 export type FileUploadPageViewModel = {
