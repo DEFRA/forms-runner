@@ -19,6 +19,7 @@ updates:
           - 'postcss'
           - 'postcss-*'
           - 'sass'
+          - 'tsc-alias'
           - 'typescript'
           - 'webpack'
           - 'webpack-*'
@@ -46,6 +47,7 @@ updates:
           - 'concurrently'
           - 'jest'
           - 'nodemon'
+          - 'tsx'
 
       types:
         patterns:
