@@ -2,46 +2,61 @@ import {
   controllerNameFromPath,
   getPageController
 } from '~/src/server/plugins/engine/pageControllers/helpers.js'
-import * as PageControllers from '~/src/server/plugins/engine/pageControllers/index.js'
+import {
+  HomePageController,
+  PageController,
+  StartPageController,
+  SummaryPageController,
+  StatusPageController
+} from '~/src/server/plugins/engine/pageControllers/index.js'
 
-describe('Engine Page Controllers getPageController', () => {
-  describe('controllerNameFromPath', () => {
-    test('controller name is extracted correctly', () => {
-      const filePath = './pages/summary.js'
-      const controllerName = controllerNameFromPath(filePath)
-      expect(controllerName).toBe('SummaryPageController')
-    })
+describe('Page controller helpers', () => {
+  const controllers = [
+    {
+      name: 'HomePageController',
+      path: './pages/home.js',
+      controller: HomePageController
+    },
+    {
+      name: 'PageController',
+      path: './pages/page.js',
+      controller: PageController
+    },
+    {
+      name: 'StartPageController',
+      path: './pages/start.js',
+      controller: StartPageController
+    },
+    {
+      name: 'SummaryPageController',
+      path: './pages/summary.js',
+      controller: SummaryPageController
+    },
+    {
+      name: 'StatusPageController',
+      path: './pages/status.js',
+      controller: StatusPageController
+    }
+  ]
 
-    test('kebab-case is pascal-case', () => {
-      const filePath = './pages/home.js'
-      const controllerName = controllerNameFromPath(filePath)
-      expect(controllerName).toBe('HomePageController')
-    })
+  describe('Helper: controllerNameFromPath', () => {
+    it.each([...controllers])(
+      "returns controller name for '$path' legacy path",
+      ({ name, path }) => {
+        expect(controllerNameFromPath(path)).toEqual(name)
+      }
+    )
   })
 
-  describe('getPageController', () => {
-    test('it returns HomePageController when a legacy path is passed', () => {
-      const controllerFromPath = getPageController('./pages/home.js')
-      expect(controllerFromPath).toEqual(PageControllers.HomePageController)
+  describe('Helper: getPageController', () => {
+    it.each([...controllers])(
+      "returns page controller '$name'",
+      ({ controller, name, path }) => {
+        expect(getPageController(name)).toEqual(controller)
 
-      const controllerFromName = getPageController('HomePageController')
-      expect(controllerFromName).toEqual(PageControllers.HomePageController)
-    })
-
-    test('it returns StartPageController when a legacy path is passed', () => {
-      const controllerFromPath = getPageController('./pages/start.js')
-      expect(controllerFromPath).toEqual(PageControllers.StartPageController)
-
-      const controllerFromName = getPageController('StartPageController')
-      expect(controllerFromName).toEqual(PageControllers.StartPageController)
-    })
-
-    test('it returns SummaryPageController when a legacy path is passed', () => {
-      const controllerFromPath = getPageController('./pages/summary.js')
-      expect(controllerFromPath).toEqual(PageControllers.SummaryPageController)
-
-      const controllerFromName = getPageController('SummaryPageController')
-      expect(controllerFromName).toEqual(PageControllers.SummaryPageController)
-    })
+        // Check for legacy path support
+        expect(getPageController(path)).toEqual(controller)
+      }
+    )
   })
 })
