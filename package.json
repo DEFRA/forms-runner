@@ -90,7 +90,7 @@
     "babel-plugin-module-resolver": "^5.0.2",
     "babel-plugin-replace-import-extension": "^1.1.4",
     "babel-plugin-transform-import-meta": "^2.2.1",
-    "cheerio": "^1.0.0-rc.10",
+    "cheerio": "^1.0.0",
     "clean-webpack-plugin": "^4.0.0",
     "concurrently": "^8.0.0",
     "cookie": "^0.6.0",
