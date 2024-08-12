@@ -6,15 +6,21 @@ import upperFirst from 'lodash/upperFirst.js'
 
 import * as PageControllers from '~/src/server/plugins/engine/pageControllers/index.js'
 
-export function controllerNameFromPath(filePath: string) {
-  const fileName = path.basename(filePath).split('.')[0]
-  return `${upperFirst(camelCase(fileName))}PageController`
+export function controllerNameFromPath(nameOrPath?: string) {
+  if (!nameOrPath || !path.extname(nameOrPath)) {
+    return nameOrPath
+  }
+
+  const fileName = camelCase(path.basename(nameOrPath).split('.')[0])
+  const prefix = fileName !== 'page' ? upperFirst(fileName) : ''
+
+  return `${prefix}PageController`
 }
 
 export function isPageController(
-  controllerName: string
+  controllerName?: string
 ): controllerName is keyof typeof PageControllers {
-  return controllerName in PageControllers
+  return !!controllerName && controllerName in PageControllers
 }
 
 export type PageControllerClass = InstanceType<PageControllerType>
@@ -27,9 +33,7 @@ export type PageControllerType =
 export function getPageController(
   nameOrPath: string
 ): PageControllerType | undefined {
-  const controllerName = path.extname(nameOrPath)
-    ? controllerNameFromPath(nameOrPath)
-    : nameOrPath
+  const controllerName = controllerNameFromPath(nameOrPath)
 
   if (!isPageController(controllerName)) {
     return

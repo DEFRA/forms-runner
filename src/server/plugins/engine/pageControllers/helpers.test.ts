@@ -1,6 +1,7 @@
 import {
   controllerNameFromPath,
-  getPageController
+  getPageController,
+  isPageController
 } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
   HomePageController,
@@ -58,5 +59,23 @@ describe('Page controller helpers', () => {
         expect(getPageController(path)).toEqual(controller)
       }
     )
+  })
+
+  describe('Helper: isPageController', () => {
+    it.each([...controllers])(
+      "allows valid page controller '$name'",
+      ({ name }) => {
+        expect(isPageController(name)).toBe(true)
+      }
+    )
+
+    it.each([
+      { name: './pages/unknown.js' },
+      { name: 'UnknownPageController' },
+      { name: undefined },
+      { name: '' }
+    ])("rejects invalid page controller '$name'", ({ name }) => {
+      expect(isPageController(name)).toBe(false)
+    })
   })
 })
