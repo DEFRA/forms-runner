@@ -20,7 +20,6 @@
       summary.addEventListener('click', function (e) {
         e.preventDefault()
         if(e.target.tagName === 'A') {
-          'govuk-summary-list__row'
           e.target.closest('.govuk-summary-list__row').remove()
         }
       }, false)
