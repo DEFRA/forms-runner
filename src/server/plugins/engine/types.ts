@@ -49,6 +49,7 @@ import { type PageControllerBase } from '~/src/server/plugins/engine/pageControl
  */
 export interface FormSubmissionState {
   progress?: string[]
+  upload?: TempUploadState
   [propName: string]: any
 }
 

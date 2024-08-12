@@ -84,7 +84,7 @@ export class FileUploadPageController extends PageController {
       stateFileIds.includes(file.uploadId)
     )
 
-    await cacheService.setUploadState(request, uploadState)
+    await cacheService.mergeUploadState(request, uploadState)
 
     return super.setState(request, state)
   }
@@ -226,7 +226,7 @@ export class FileUploadPageController extends PageController {
         throw Boom.badRequest('Unexpected empty response from initiateUpload')
       }
 
-      await cacheService.setUploadState(request, {
+      await cacheService.mergeUploadState(request, {
         upload: initiateResponse,
         files: uploadState.files
       })
@@ -291,7 +291,7 @@ export class FileUploadPageController extends PageController {
         }
       })
 
-      await cacheService.setUploadState(request, { upload, files })
+      await cacheService.mergeUploadState(request, { upload, files })
     }
 
     // Store the formAction on the array

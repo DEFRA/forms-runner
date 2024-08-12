@@ -6,7 +6,6 @@ import { type createServer } from '~/src/server/index.js'
 import { type ViewModel } from '~/src/server/plugins/engine/components/types.js'
 import {
   type TempFileState,
-  type TempUploadState,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 
@@ -17,8 +16,7 @@ const mergeOptions: merge.Options = {
 }
 
 enum ADDITIONAL_IDENTIFIER {
-  Confirmation = ':confirmation',
-  Upload = ':upload'
+  Confirmation = ':confirmation'
 }
 
 export class CacheService {
@@ -69,25 +67,24 @@ export class CacheService {
   }
 
   async getUploadState(request: Request) {
-    const key = this.Key(request, ADDITIONAL_IDENTIFIER.Upload)
-    const uploadState = ((await this.cache.get(key)) ?? {}) as TempUploadState
+    const state = await this.getState(request)
+    const uploadState = state.upload ?? {}
     const path = request.path
 
-    return (uploadState[path] ?? { files: [] })
+    return uploadState[path] ?? { files: [] }
   }
 
-  async setUploadState(request: Request, value: TempFileState) {
-    const key = this.Key(request, ADDITIONAL_IDENTIFIER.Upload)
-    const ttl = config.get('sessionTimeout')
+  async mergeUploadState(request: Request, value: TempFileState) {
     const path = request.path
 
-    await this.cache.set(key, { [path]: value }, ttl)
+    await this.mergeState(request, {
+      upload: { [path]: value }
+    })
   }
 
   async clearState(request: Request) {
     if (request.yar.id) {
       await this.cache.drop(this.Key(request))
-      await this.cache.drop(this.Key(request, ADDITIONAL_IDENTIFIER.Upload))
     }
   }
 
