@@ -16,6 +16,8 @@ updates:
           - 'autoprefixer'
           - 'babel-*'
           - 'core-js'
+          - 'cssnano'
+          - 'cssnano-*'
           - 'postcss'
           - 'postcss-*'
           - 'sass'
