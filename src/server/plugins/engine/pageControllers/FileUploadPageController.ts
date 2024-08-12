@@ -148,11 +148,7 @@ export class FileUploadPageController extends PageController {
         const href = `#${name}`
         const lastPath = err.path[err.path.length - 1]
 
-        if (!path.startsWith(componentName)) {
-          // The error is for another field on the
-          // page so defer to the standard getError
-          errorList.push(this.getError(err))
-        } else {
+        if (path.startsWith(componentName)) {
           if (type === 'any.required' && path === name) {
             errorList.push({ path, href, name, text: err.message })
           } else if (type === 'any.only' && lastPath === 'fileStatus') {
@@ -166,6 +162,10 @@ export class FileUploadPageController extends PageController {
           } else if (arraySizeErrorTypes.includes(type)) {
             errorList.push({ path, href, name, text: err.message })
           }
+        } else {
+          // The error is for another field on the
+          // page so defer to the standard getError
+          errorList.push(this.getError(err))
         }
       })
 
