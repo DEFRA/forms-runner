@@ -117,7 +117,7 @@ export class FormModel {
         title: 'Application complete',
         components: [],
         next: [],
-        controller: './pages/status.js'
+        controller: 'StatusPageController'
       })
     )
 

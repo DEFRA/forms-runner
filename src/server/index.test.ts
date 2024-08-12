@@ -75,7 +75,7 @@ const stubFormDefinition: FormDefinition = {
     {
       title: 'Summary',
       path: '/summary',
-      controller: './pages/summary.js',
+      controller: 'SummaryPageController',
       components: []
     }
   ],

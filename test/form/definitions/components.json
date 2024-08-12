@@ -132,7 +132,7 @@
       "title": "Summary",
       "components": [],
       "next": [],
-      "controller": "./pages/summary.js"
+      "controller": "SummaryPageController"
     }
   ],
   "sections": [

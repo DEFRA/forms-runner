@@ -77,7 +77,7 @@
           "path": "/do-you-own-a-vehicle"
         }
       ],
-      "controller": "./pages/start.js"
+      "controller": "StartPageController"
     },
     {
       "path": "/details-about-your-vehicle",
@@ -196,7 +196,7 @@
       "title": "Summary",
       "components": [],
       "next": [],
-      "controller": "./pages/summary.js"
+      "controller": "SummaryPageController"
     }
   ],
   "lists": [

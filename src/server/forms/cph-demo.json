@@ -521,7 +521,7 @@
       "title": "Check your answers before submitting your form",
       "components": [],
       "next": [],
-      "controller": "./pages/summary.js"
+      "controller": "SummaryPageController"
     },
     {
       "path": "/whats-your-business-address",

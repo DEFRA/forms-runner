@@ -24,7 +24,7 @@
     },
     {
       "path": "/summary",
-      "controller": "./pages/summary.js",
+      "controller": "SummaryPageController",
       "title": "Summary",
       "components": [],
       "next": []

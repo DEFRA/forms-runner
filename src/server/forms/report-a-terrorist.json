@@ -82,7 +82,7 @@
     {
       "title": "summary",
       "path": "/summary",
-      "controller": "./pages/summary.js",
+      "controller": "SummaryPageController",
       "components": []
     },
     {
