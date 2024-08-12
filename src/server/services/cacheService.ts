@@ -10,10 +10,6 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 const partition = 'cache'
-const mergeOptions: merge.Options = {
-  nullOverride: true,
-  mergeArrays: false
-}
 
 enum ADDITIONAL_IDENTIFIER {
   Confirmation = ':confirmation'
