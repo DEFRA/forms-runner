@@ -123,21 +123,17 @@ export class FileUploadField extends FormComponent {
   }
 
   getFormValueFromState(state: FormSubmissionState) {
-    const name = this.name
+    const { name } = this
 
-    if (name in state) {
-      return state[name] === null ? [] : state[name]
+    if (Array.isArray(state[name])) {
+      return state[name]
     }
   }
 
-  getDisplayStringFromState(state) {
-    const value = this.getFormValueFromState(state)
-
-    return Array.isArray(value)
-      ? value
-          .map((file: FileState) => file.status.form.file.filename)
-          .join(', ')
-      : ''
+  getDisplayStringFromState(state: FormSubmissionState) {
+    return state[this.name]
+      ?.map((file: FileState) => file.status.form.file.filename)
+      .join(', ')
   }
 
   getViewModel(
