@@ -187,11 +187,20 @@ export class FileUploadPageController extends PageController {
       errors
     ) as FileUploadPageViewModel
 
+    const name = this.fileUploadComponent.name
     const fileUploadComponent = viewModel.components.find(
-      (component) => component.model.id === this.fileUploadComponent.name
-    ) as FormComponentViewModel
+      (component) => component.model.id === name
+    )
 
-    viewModel.fileUploadComponent = fileUploadComponent
+    // Assert we have our file upload component in the view model
+    if (!fileUploadComponent) {
+      throw Boom.badImplementation(
+        `Expected to find file upload component name '${name}' in the view model`
+      )
+    }
+
+    viewModel.fileUploadComponent =
+      fileUploadComponent as FormComponentViewModel
 
     return viewModel
   }
