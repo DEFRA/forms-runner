@@ -8,7 +8,6 @@ import {
   NotificationBanner,
   Radios,
   SkipLink
-  // @ts-expect-error -- No types available
 } from 'govuk-frontend'
 
 createAll(Button)
