@@ -157,7 +157,9 @@ export class FileUploadPageController extends PageController {
               errorList.push({ path, href, name, text })
             }
           } else if (type === 'object.unknown' && lastPath === 'errorMessage') {
-            const text = err.context?.value as string
+            const value = err.context?.value
+            const text =
+              value && typeof value === 'string' ? value : 'Unknown error'
             errorList.push({ path, href, name, text })
           } else if (arraySizeErrorTypes.includes(type)) {
             errorList.push({ path, href, name, text: err.message })
