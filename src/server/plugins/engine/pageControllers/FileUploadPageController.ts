@@ -218,6 +218,11 @@ export class FileUploadPageController extends PageController {
      */
     const initiateAndStoreNewUpload = async () => {
       const formId = this.model.options.formId
+
+      if (!formId) {
+        throw Boom.badRequest('Unable to initiate an upload without a formId')
+      }
+
       const outputEmail =
         this.model.def.outputEmail ?? 'defraforms@defra.gov.uk'
       const initiateResponse = await initiateUpload(
