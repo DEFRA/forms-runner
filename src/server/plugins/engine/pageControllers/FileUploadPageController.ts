@@ -292,15 +292,18 @@ export class FileUploadPageController extends PageController {
     })
 
     if (promises.length) {
-      const results = await Promise.all(promises)
+      const results = await Promise.allSettled(promises)
 
       // Update state with the latest result
       indexes.forEach((idx, index) => {
         const result = results[index]
-        const validateResult = tempStatusSchema.validate(result)
 
-        if (!validateResult.error) {
-          files[idx].status = validateResult.value
+        if (result.status === 'fulfilled') {
+          const validateResult = tempStatusSchema.validate(result.value)
+
+          if (!validateResult.error) {
+            files[idx].status = validateResult.value
+          }
         }
       })
 
