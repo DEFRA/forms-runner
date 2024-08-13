@@ -23,6 +23,7 @@ export type FormComponentFieldType =
   | typeof Components.TelephoneNumberField
   | typeof Components.TextField
   | typeof Components.UkAddressField
+  | typeof Components.FileUploadField
 
 export type FormComponentFieldComponent = Exclude<
   ComponentDef,
