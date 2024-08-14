@@ -1,7 +1,6 @@
 import { config } from '~/src/config/index.js'
 import { getJson, postJson } from '~/src/server/services/httpService.js'
 
-const runnerUrl = config.get('runnerUrl')
 const uploaderUrl = config.get('uploaderUrl')
 const submissionUrl = config.get('submissionUrl')
 const uploaderBucketName = config.get('uploaderBucketName')
@@ -17,7 +16,7 @@ export async function initiateUpload(formId, path, retrievalKey) {
     /** @type {typeof postJson<UploadInitiateResponse>} */ (postJson)
 
   const payload = {
-    redirect: `${runnerUrl}${path}`,
+    redirect: path,
     callback: `${submissionUrl}/files/upload`,
     s3Bucket: uploaderBucketName,
     metadata: {
