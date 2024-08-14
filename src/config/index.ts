@@ -144,12 +144,6 @@ export const config = convict({
     env: 'NOTIFY_API_KEY'
   } as SchemaObj<string>,
 
-  runnerUrl: {
-    format: String,
-    default: null,
-    env: 'RUNNER_URL'
-  } as SchemaObj<string>,
-
   /**
    * API integrations
    */
