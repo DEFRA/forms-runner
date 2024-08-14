@@ -4,6 +4,7 @@ import { getJson, postJson } from '~/src/server/services/httpService.js'
 const uploaderUrl = config.get('uploaderUrl')
 const submissionUrl = config.get('submissionUrl')
 const uploaderBucketName = config.get('uploaderBucketName')
+const stagingPrefix = config.get('stagingPrefix')
 
 /**
  * Initiates a CDP file upload
@@ -20,6 +21,7 @@ export async function initiateUpload(formId, path, retrievalKey, mimeTypes) {
     redirect: path,
     callback: `${submissionUrl}/file`,
     s3Bucket: uploaderBucketName,
+    s3Path: stagingPrefix,
     metadata: {
       formId,
       path,

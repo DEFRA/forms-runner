@@ -1,4 +1,4 @@
-import { internal, type Boom } from '@hapi/boom'
+import Boom from '@hapi/boom'
 import {
   type Request,
   type ResponseObject,
@@ -28,9 +28,14 @@ import {
 } from '~/src/server/plugins/engine/models/types.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
-import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+import {
+  TempFileState,
+  TempUploadState,
+  type FormSubmissionState
+} from '~/src/server/plugins/engine/types.js'
 import { type Field } from '~/src/server/schemas/types.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
+import { persistFile } from '~/src/server/plugins/engine/services/formSubmissionService.js'
 
 const designerUrl = config.get('designerUrl')
 const templateId = config.get('notifyTemplateId')
@@ -46,7 +51,7 @@ export class SummaryPageController extends PageController {
   makeGetRouteHandler(): (
     request: Request,
     h: ResponseToolkit
-  ) => Promise<ResponseObject | Boom> {
+  ) => Promise<ResponseObject | Boom.Boom> {
     return async (request, h) => {
       const { cacheService } = request.services([])
       const model = this.model
@@ -127,7 +132,7 @@ export class SummaryPageController extends PageController {
   makePostRouteHandler(): (
     request: Request,
     h: ResponseToolkit
-  ) => Promise<ResponseObject | Boom> {
+  ) => Promise<ResponseObject | Boom.Boom> {
     return async (request, h) => {
       const { cacheService } = request.services([])
       const model = this.model
@@ -157,13 +162,13 @@ export class SummaryPageController extends PageController {
         const emailAddress = this.model.def.outputEmail
 
         if (!emailAddress) {
-          return internal(
+          return Boom.internal(
             'An `outputEmail` is required on the form definition to complete the form submission'
           )
         }
 
         // Send submission email
-        await sendEmail(request, summaryViewModel, model, state, emailAddress)
+        await submitForm(request, summaryViewModel, model, state, emailAddress)
       }
 
       await cacheService.setConfirmationState(request, { confirmed: true })
@@ -225,11 +230,52 @@ export class SummaryPageController extends PageController {
   }
 }
 
-async function sendEmail(
+async function submitForm(
   request: Request,
   summaryViewModel: SummaryViewModel,
   model: FormModel,
   state: FormSubmissionState,
+  emailAddress: string
+) {
+  await extendFileRetention(request, state, emailAddress)
+  await sendEmail(request, summaryViewModel, model, emailAddress)
+}
+
+async function extendFileRetention(
+  request: Request,
+  state: FormSubmissionState,
+  updatedRetrievalKey: string
+) {
+  const { upload: fileUploadStates } = state
+
+  if (!fileUploadStates) {
+    return
+  }
+
+  for (const upload of Object.values(fileUploadStates)) {
+    for (const fileState of upload.files) {
+      const { fileId } = fileState.status.form.file
+      const { retrievalKey } = fileState.status.metadata
+
+      request.logger.info(`Requesting persistence for file ${fileId}`)
+
+      try {
+        /** @todo handle rollbacks */
+        await persistFile(fileId, retrievalKey, updatedRetrievalKey)
+      } catch (err) {
+        request.logger.error(err, 'Error persisting file')
+        throw Boom.internal()
+      }
+
+      request.logger.info(`Completed persistence request for file ${fileId}`)
+    }
+  }
+}
+
+async function sendEmail(
+  request: Request,
+  summaryViewModel: SummaryViewModel,
+  model: FormModel,
   emailAddress: string
 ) {
   request.logger.info(['submit', 'email'], 'Preparing email')
