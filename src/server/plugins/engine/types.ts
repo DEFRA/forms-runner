@@ -1,3 +1,10 @@
+import { type ResponseObject } from '@hapi/hapi'
+
+import {
+  type FormComponentViewModel,
+  type ComponentCollectionViewModel
+} from '~/src/server/plugins/engine/components/types.js'
+import { type PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
 /**
  * FormSubmissionState is an object containing the following props:
  * 1. progress[]: which indicates the urls the user have already submitted.
@@ -42,17 +49,20 @@
  */
 export interface FormSubmissionState {
   progress?: string[]
+  upload?: TempUploadState
   [propName: string]: any
+}
+
+export interface FormSubmissionError {
+  path: string // e.g: "firstName"
+  href: string // e.g: "#firstName"
+  name: string // e.g: "firstName"
+  text: string // e.g: '"First name" is not allowed to be empty'
 }
 
 export interface FormSubmissionErrors {
   titleText: string // e.b: "There is a problem"
-  errorList: {
-    path: string // e.g: "firstName"
-    href: string // e.g: "#firstName"
-    name: string // e.g: "firstName"
-    text: string // e.g: '"First name" is not allowed to be empty'
-  }[]
+  errorList: FormSubmissionError[]
 }
 
 export interface FormPayload {
@@ -66,3 +76,80 @@ export interface FormValidationResult<ValueType extends object = FormPayload> {
   value?: ValueType
   errors?: FormSubmissionErrors | null
 }
+
+export interface UploadInitiateResponse {
+  uploadId: string
+  uploadUrl: string
+  statusUrl: string
+}
+
+export enum UploadStatus {
+  initiated = 'initiated',
+  pending = 'pending',
+  ready = 'ready'
+}
+
+export enum FileStatus {
+  complete = 'complete',
+  rejected = 'rejected',
+  pending = 'pending'
+}
+
+export interface FileUpload {
+  fileId: string
+  filename: string
+  contentType: string
+  fileStatus: FileStatus
+  contentLength: number
+  checksumSha256?: string
+  detectedContentType?: string
+  s3Key?: string
+  s3Bucket?: string
+  hasError?: boolean
+  errorMessage?: string
+}
+
+export interface UploadStatusForm {
+  file: FileUpload
+}
+
+export interface UploadStatusResponse {
+  uploadStatus: UploadStatus
+  form: UploadStatusForm
+}
+
+export type FileStateArray = FileState[]
+
+export interface FileState {
+  uploadId: string
+  status: UploadStatusResponse
+}
+
+export type FilesState = FileStateArray & { formAction: string }
+
+export interface TempFileState {
+  upload?: UploadInitiateResponse
+  files: FileStateArray
+}
+
+export type TempUploadState = Record<string, TempFileState>
+
+export interface PageViewModel {
+  page: PageControllerBase
+  name?: string
+  pageTitle: string
+  sectionTitle?: string
+  showTitle: boolean
+  components: ComponentCollectionViewModel
+  errors?: FormSubmissionErrors
+  isStartPage: boolean
+  startPage?: ResponseObject
+  backLink?: string
+  feedbackLink?: string
+  serviceUrl: string
+  phaseTag?: string
+}
+
+export type FileUploadPageViewModel = {
+  fileUploadComponent: FormComponentViewModel
+} & PageViewModel

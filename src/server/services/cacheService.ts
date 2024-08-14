@@ -4,7 +4,10 @@ import { merge } from '@hapi/hoek'
 import { config } from '~/src/config/index.js'
 import { type createServer } from '~/src/server/index.js'
 import { type ViewModel } from '~/src/server/plugins/engine/components/types.js'
-import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+import {
+  type TempFileState,
+  type FormSubmissionState
+} from '~/src/server/plugins/engine/types.js'
 
 const partition = 'cache'
 
@@ -39,21 +42,40 @@ export class CacheService {
     })
 
     await this.cache.set(key, state, ttl)
-    return this.cache.get(key)
+
+    return this.getState(request)
   }
 
   async getConfirmationState(request: Request) {
     const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation)
+
     return await this.cache.get(key)
   }
 
   async setConfirmationState(request: Request, viewModel: ViewModel) {
     const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation)
+
     return this.cache.set(
       key,
       viewModel,
       config.get('confirmationSessionTimeout')
     )
+  }
+
+  async getUploadState(request: Request) {
+    const state = await this.getState(request)
+    const uploadState = state.upload ?? {}
+    const path = request.path
+
+    return uploadState[path] ?? { files: [] }
+  }
+
+  async mergeUploadState(request: Request, value: TempFileState) {
+    const path = request.path
+
+    await this.mergeState(request, {
+      upload: { [path]: value }
+    })
   }
 
   async clearState(request: Request) {

@@ -15,7 +15,8 @@ import {
 } from '@hapi/hapi'
 import { merge } from '@hapi/hoek'
 import { format, parseISO } from 'date-fns'
-import joi, { type ObjectSchema, type ValidationResult } from 'joi'
+import type joi from 'joi'
+import { type ObjectSchema, type ValidationResult } from 'joi'
 
 import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
@@ -23,7 +24,6 @@ import { CheckboxesField } from '~/src/server/plugins/engine/components/Checkbox
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { DatePartsField } from '~/src/server/plugins/engine/components/DatePartsField.js'
 import { RadiosField } from '~/src/server/plugins/engine/components/RadiosField.js'
-import { type ComponentCollectionViewModel } from '~/src/server/plugins/engine/components/types.js'
 import {
   decodeFeedbackContextInfo,
   FeedbackContextInfo,
@@ -38,6 +38,7 @@ import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { validationOptions } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
+  type PageViewModel,
   type FormData,
   type FormPayload,
   type FormSubmissionErrors,
@@ -68,6 +69,8 @@ export class PageControllerBase {
   section?: Section
   components: ComponentCollection
   hasFormComponents: boolean
+  errorSummaryTitle = 'There is a problem'
+  viewName = 'index'
 
   constructor(model: FormModel, pageDef: Page) {
     const { def } = model
@@ -101,21 +104,7 @@ export class PageControllerBase {
   getViewModel(
     payload: FormPayload,
     errors?: FormSubmissionErrors
-  ): {
-    page: PageControllerBase
-    name?: string
-    pageTitle: string
-    sectionTitle?: string
-    showTitle: boolean
-    components: ComponentCollectionViewModel
-    errors?: FormSubmissionErrors
-    isStartPage: boolean
-    startPage?: ResponseObject
-    backLink?: string
-    feedbackLink?: string
-    serviceUrl: string
-    phaseTag?: string | undefined
-  } {
+  ): PageViewModel {
     let showTitle = true
 
     let { title: pageTitle, section } = this
@@ -260,29 +249,31 @@ export class PageControllerBase {
     validationResult?: Pick<ValidationResult, 'error'>
   ): FormSubmissionErrors | undefined {
     if (validationResult?.error) {
-      const isoRegex =
-        /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/
-
       return {
-        titleText: 'There is a problem',
-        errorList: validationResult.error.details.map((err) => {
-          const name = err.path
-            .map((name, index) => (index > 0 ? `__${name}` : name))
-            .join('')
-
-          return {
-            path: err.path.join('.'),
-            href: `#${name}`,
-            name,
-            text: err.message.replace(isoRegex, (text) => {
-              return format(parseISO(text), 'd MMMM yyyy')
-            })
-          }
-        })
+        titleText: this.errorSummaryTitle,
+        errorList: validationResult.error.details.map(this.getError)
       }
     }
 
     return undefined
+  }
+
+  protected getError(err: joi.ValidationErrorItem) {
+    const isoRegex =
+      /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/
+
+    const name = err.path
+      .map((name, index) => (index > 0 ? `__${name}` : name))
+      .join('')
+
+    return {
+      path: err.path.join('.'),
+      href: `#${name}`,
+      name,
+      text: err.message.replace(isoRegex, (text) => {
+        return format(parseISO(text), 'd MMMM yyyy')
+      })
+    }
   }
 
   /**
@@ -382,17 +373,30 @@ export class PageControllerBase {
     return relevantState
   }
 
+  async getState(request: Request) {
+    const { cacheService } = request.services([])
+    const state = await cacheService.getState(request)
+
+    return state
+  }
+
+  async setState(request: Request, state: FormSubmissionState) {
+    const { cacheService } = request.services([])
+    const update = this.getPartialMergeState(state)
+
+    return cacheService.mergeState(request, update)
+  }
+
   makeGetRouteHandler(): (
     request: Request,
     h: ResponseToolkit
   ) => Promise<ResponseObject | Boom> {
     return async (request, h) => {
       const { cacheService } = request.services([])
-      const state = await cacheService.getState(request)
+      const state = await this.getState(request)
       const progress = state.progress ?? []
       const startPage = this.model.def.startPage
       const payload = this.getFormDataFromState(state)
-
       const isStartPage = this.path === `${startPage}`
       const shouldRedirectToStartPage = !progress.length && !isStartPage
 
@@ -464,7 +468,7 @@ export class PageControllerBase {
 
       viewModel.backLink = this.getBackLink(progress)
 
-      return h.view('index', viewModel)
+      return h.view(this.viewName, viewModel)
     }
   }
 
@@ -507,69 +511,55 @@ export class PageControllerBase {
     return progress.at(-2)
   }
 
-  /**
-   * deals with parsing errors and saving answers to state
-   */
-  async handlePostRequest(request: Request, h: ResponseToolkit) {
-    const { cacheService } = request.services([])
-    const payload = (request.payload || {}) as FormPayload
-    const formResult = this.validateForm(payload)
-    const state = await cacheService.getState(request)
-    const progress = state.progress ?? []
-
-    /**
-     * If there are any errors, render the page with the parsed errors
-     */
-    if (formResult.errors) {
-      // TODO:- refactor to match POST REDIRECT GET pattern.
-
-      return this.renderWithErrors(
-        request,
-        h,
-        payload,
-        progress,
-        formResult.errors
-      )
-    }
-
-    const newState = this.getStateFromValidForm(formResult.value)
-    const stateResult = this.validateState(newState)
-    if (stateResult.errors) {
-      return this.renderWithErrors(
-        request,
-        h,
-        payload,
-        progress,
-        stateResult.errors
-      )
-    }
-
-    const update = this.getPartialMergeState(stateResult.value)
-    if (!update) {
-      return
-    }
-
-    await cacheService.mergeState(request, update)
+  protected getPayload(request: Request) {
+    return (request.payload || {}) as FormPayload
   }
 
-  /**
-   * Returns an async function. This is called in plugin.ts when there is a POST request at `/{id}/{path*}`
-   */
   makePostRouteHandler(): (
     request: Request,
     h: ResponseToolkit
   ) => Promise<ResponseObject | Boom> {
     return async (request, h) => {
-      const response = await this.handlePostRequest(request, h)
-      if (response?.source?.context?.errors) {
-        return response
+      const payload = this.getPayload(request)
+      const formResult = this.validateForm(payload)
+      let state = await this.getState(request)
+      const progress = state.progress ?? []
+
+      /**
+       * If there are any errors, render the page with the parsed errors
+       */
+      if (formResult.errors) {
+        // TODO:- refactor to match POST REDIRECT GET pattern.
+        return this.renderWithErrors(
+          request,
+          h,
+          payload,
+          progress,
+          formResult.errors
+        )
       }
-      const { cacheService } = request.services([])
-      const savedState = await cacheService.getState(request)
-      // This is required to ensure we don't navigate to an incorrect page based on stale state values
+
+      const newState = this.getStateFromValidForm(formResult.value)
+      const stateResult = this.validateState(newState)
+      if (stateResult.errors) {
+        return this.renderWithErrors(
+          request,
+          h,
+          payload,
+          progress,
+          stateResult.errors
+        )
+      }
+
+      if (stateResult.value) {
+        state = await this.setState(request, stateResult.value)
+      }
+
+      // This is required to ensure we don't navigate
+      // to an incorrect page based on stale state values
       const relevantState = this.getConditionEvaluationContext(
         this.model,
-        savedState
+        state
       )
 
       return this.proceed(request, h, relevantState)
@@ -656,7 +646,7 @@ export class PageControllerBase {
     return proceed(request, h, this.getNext(state))
   }
 
-  getPartialMergeState(value?: FormSubmissionState) {
+  getPartialMergeState(value: FormSubmissionState) {
     return this.section ? { [this.section.name]: value } : value
   }
 
@@ -710,7 +700,7 @@ export class PageControllerBase {
     }
   }
 
-  private renderWithErrors(
+  protected renderWithErrors(
     request: Request,
     h: ResponseToolkit,
     payload: FormPayload,
@@ -723,7 +713,7 @@ export class PageControllerBase {
     this.setPhaseTag(viewModel)
     this.setFeedbackDetails(viewModel, request)
 
-    return h.view('index', viewModel)
+    return h.view(this.viewName, viewModel)
   }
 }
 

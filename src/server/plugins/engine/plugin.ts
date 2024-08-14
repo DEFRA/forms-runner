@@ -140,6 +140,7 @@ export const plugin = {
         // Construct the form model
         const model = new FormModel(definition, {
           basePath,
+          formId: metadata.id,
           ...modelOptions
         })
 
