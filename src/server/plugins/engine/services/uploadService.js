@@ -17,7 +17,7 @@ export async function initiateUpload(formId, path, retrievalKey) {
 
   const payload = {
     redirect: path,
-    callback: `${submissionUrl}/files/upload`,
+    callback: `${submissionUrl}/file`,
     s3Bucket: uploaderBucketName,
     metadata: {
       formId,
