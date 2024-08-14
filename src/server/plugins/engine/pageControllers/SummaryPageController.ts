@@ -1,4 +1,4 @@
-import Boom from '@hapi/boom'
+import { internal, type Boom } from '@hapi/boom'
 import {
   type Request,
   type ResponseObject,
@@ -51,7 +51,7 @@ export class SummaryPageController extends PageController {
   makeGetRouteHandler(): (
     request: Request,
     h: ResponseToolkit
-  ) => Promise<ResponseObject | Boom.Boom> {
+  ) => Promise<ResponseObject | Boom> {
     return async (request, h) => {
       const { cacheService } = request.services([])
       const model = this.model
@@ -132,7 +132,7 @@ export class SummaryPageController extends PageController {
   makePostRouteHandler(): (
     request: Request,
     h: ResponseToolkit
-  ) => Promise<ResponseObject | Boom.Boom> {
+  ) => Promise<ResponseObject | Boom> {
     return async (request, h) => {
       const { cacheService } = request.services([])
       const model = this.model
@@ -162,7 +162,7 @@ export class SummaryPageController extends PageController {
         const emailAddress = this.model.def.outputEmail
 
         if (!emailAddress) {
-          return Boom.internal(
+          return internal(
             'An `outputEmail` is required on the form definition to complete the form submission'
           )
         }
@@ -264,7 +264,7 @@ async function extendFileRetention(
         await persistFile(fileId, retrievalKey, updatedRetrievalKey)
       } catch (err) {
         request.logger.error(err, 'Error persisting file')
-        throw Boom.internal()
+        throw internal()
       }
 
       request.logger.info(`Completed persistence request for file ${fileId}`)
