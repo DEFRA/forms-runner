@@ -10,8 +10,9 @@ const uploaderBucketName = config.get('uploaderBucketName')
  * @param {string} formId - the ID of the form
  * @param {string} path - the path of the page in the form
  * @param {string} retrievalKey - the retrieval key for the files
+ * @param {string} [mimeTypes] - the list of accepted mimeTypes
  */
-export async function initiateUpload(formId, path, retrievalKey) {
+export async function initiateUpload(formId, path, retrievalKey, mimeTypes) {
   const postJsonByType =
     /** @type {typeof postJson<UploadInitiateResponse>} */ (postJson)
 
@@ -23,7 +24,8 @@ export async function initiateUpload(formId, path, retrievalKey) {
       formId,
       path,
       retrievalKey
-    }
+    },
+    mimeTypes: mimeTypes?.split(',')
     // maxFileSize: 25 * 1000 * 1000
   }
 

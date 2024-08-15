@@ -239,7 +239,8 @@ export class FileUploadPageController extends PageController {
       const initiateResponse = await initiateUpload(
         formId,
         request.path,
-        outputEmail
+        outputEmail,
+        this.fileUploadComponent.options.accept
       )
 
       if (initiateResponse === undefined) {
