@@ -25,6 +25,8 @@ const privacyPolicies: Record<string, string> = {
   'submit-a-complaint-for-weeds-that-are-causing-damage-or-harm':
     'https://www.gov.uk/government/organisations/natural-england/about/personal-information-charter',
   'request-an-update-to-a-form':
+    'https://defra.sharepoint.com/sites/Community4442/SitePages/Privacy-notice--Defra-Forms.aspx',
+  'report-a-bug-or-issue-with-a-form':
     'https://defra.sharepoint.com/sites/Community4442/SitePages/Privacy-notice--Defra-Forms.aspx'
 }
 
