@@ -23,7 +23,9 @@ const privacyPolicies: Record<string, string> = {
   'apply-for-a-county-parish-holding-cph-number':
     'https://www.gov.uk/guidance/rpa-privacy-notices',
   'submit-a-complaint-for-weeds-that-are-causing-damage-or-harm':
-    'https://www.gov.uk/government/organisations/natural-england/about/personal-information-charter'
+    'https://www.gov.uk/government/organisations/natural-england/about/personal-information-charter',
+  'request-an-update-to-a-form':
+    'https://defra.sharepoint.com/sites/Community4442/SitePages/Privacy-notice--Defra-Forms.aspx'
 }
 
 export default {
