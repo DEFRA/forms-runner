@@ -27,7 +27,9 @@ const privacyPolicies: Record<string, string> = {
   'request-an-update-to-a-form':
     'https://defra.sharepoint.com/sites/Community4442/SitePages/Privacy-notice--Defra-Forms.aspx',
   'report-a-bug-or-issue-with-a-form':
-    'https://defra.sharepoint.com/sites/Community4442/SitePages/Privacy-notice--Defra-Forms.aspx'
+    'https://defra.sharepoint.com/sites/Community4442/SitePages/Privacy-notice--Defra-Forms.aspx',
+  'request-fire-service-equipment-from-the-environment-agency':
+    'https://www.gov.uk/government/publications/request-environmental-protection-equipment-privacy-notice'
 }
 
 export default {
