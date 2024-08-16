@@ -50,7 +50,6 @@ export class FileUploadPageController extends PageController {
       )
     }
 
-    fileUploadComponents[0].schema.max = 2
     super(model, pageDef)
 
     // Assign the file upload component to the controller
