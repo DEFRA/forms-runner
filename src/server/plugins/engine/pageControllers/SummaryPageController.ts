@@ -28,14 +28,10 @@ import {
 } from '~/src/server/plugins/engine/models/types.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
-import {
-  TempFileState,
-  TempUploadState,
-  type FormSubmissionState
-} from '~/src/server/plugins/engine/types.js'
+import { persistFile } from '~/src/server/plugins/engine/services/formSubmissionService.js'
+import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 import { type Field } from '~/src/server/schemas/types.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
-import { persistFile } from '~/src/server/plugins/engine/services/formSubmissionService.js'
 
 const designerUrl = config.get('designerUrl')
 const templateId = config.get('notifyTemplateId')
@@ -237,12 +233,11 @@ async function submitForm(
   state: FormSubmissionState,
   emailAddress: string
 ) {
-  await extendFileRetention(request, state, emailAddress)
+  await extendFileRetention(state, emailAddress)
   await sendEmail(request, summaryViewModel, model, emailAddress)
 }
 
 async function extendFileRetention(
-  request: Request,
   state: FormSubmissionState,
   updatedRetrievalKey: string
 ) {
@@ -252,24 +247,16 @@ async function extendFileRetention(
     return
   }
 
-  for (const upload of Object.values(fileUploadStates)) {
-    for (const fileState of upload.files) {
-      const { fileId } = fileState.status.form.file
-      const { retrievalKey } = fileState.status.metadata
+  const persistenceJobs = Object.values(fileUploadStates).flatMap((upload) =>
+    upload.files.map((file) => {
+      const { fileId } = file.status.form.file
+      const { retrievalKey } = file.status.metadata
 
-      request.logger.info(`Requesting persistence for file ${fileId}`)
+      return persistFile(fileId, retrievalKey, updatedRetrievalKey)
+    })
+  )
 
-      try {
-        /** @todo handle rollbacks */
-        await persistFile(fileId, retrievalKey, updatedRetrievalKey)
-      } catch (err) {
-        request.logger.error(err, 'Error persisting file')
-        throw internal()
-      }
-
-      request.logger.info(`Completed persistence request for file ${fileId}`)
-    }
-  }
+  return Promise.allSettled(persistenceJobs)
 }
 
 async function sendEmail(

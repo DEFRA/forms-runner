@@ -1,7 +1,9 @@
 import { config } from '~/src/config/index.js'
-import { getJson, postJson } from '~/src/server/services/httpService.js'
+import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { postJson } from '~/src/server/services/httpService.js'
 
 const submissionUrl = config.get('submissionUrl')
+const logger = createLogger()
 
 /**
  * Initiates a CDP file upload
@@ -22,5 +24,12 @@ export async function persistFile(
     persistedRetrievalKey
   }
 
-  return postJsonByType(`${submissionUrl}/file/persist`, { payload })
+  logger.info(`Completed persistence request for file ${fileId}`)
+
+  const result = await postJsonByType(`${submissionUrl}/file/persist`, {
+    payload
+  })
+
+  logger.info(`Completed persistence request for file ${fileId}`)
+  return result
 }
