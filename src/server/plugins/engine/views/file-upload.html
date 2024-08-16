@@ -12,7 +12,7 @@
 {% block form %}
   <form method="post" enctype="multipart/form-data" autocomplete="off" novalidate action="{{ action }}">
     {{ govukFileUpload(model) }}
-    {{ govukButton({ text: "Upload file", classes: "govuk-button--secondary" }) }}
+    {{ govukButton({ text: "Upload file", classes: "govuk-button--secondary", preventDoubleClick: true }) }}
   </form>
   {{super()}}
 {% endblock %}

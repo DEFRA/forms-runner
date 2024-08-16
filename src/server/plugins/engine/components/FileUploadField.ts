@@ -189,7 +189,10 @@ export class FileUploadField extends FormComponent {
         actions: {
           items: [
             {
-              html: `<button type="submit" class="govuk-button govuk-button--secondary govuk-!-margin-0" name="__remove" value="${item.uploadId}">Remove${item.removed ? 'd' : ''}</button>`
+              html: `<button type="submit" data-prevent-double-click="true"
+                class="govuk-button govuk-button--secondary govuk-!-margin-0"
+                name="__remove"
+                value="${item.uploadId}">Remove</button>`
             }
           ]
         }
