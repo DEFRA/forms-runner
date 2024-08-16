@@ -74,21 +74,14 @@ export class FileUploadPageController extends PageController {
   }
 
   async setState(request: Request, state: FormSubmissionState) {
-    // Update the upload state
     const { cacheService } = request.services([])
-    const uploadState = await cacheService.getUploadState(request)
 
-    // Clear down any temp files not included
+    // Clear down any removed temp files not included
     // in the state getting saved for this page
     const componentName = this.getComponentName()
-    const stateFileIds = state[componentName].map(
-      (file: FileState) => file.uploadId
-    )
-    uploadState.files = uploadState.files.filter((file) =>
-      stateFileIds.includes(file.uploadId)
-    )
-
-    await cacheService.mergeUploadState(request, uploadState)
+    await cacheService.mergeUploadState(request, {
+      files: state[componentName]
+    })
 
     return super.setState(request, state)
   }
@@ -103,7 +96,11 @@ export class FileUploadPageController extends PageController {
 
   makePostRouteHandler() {
     return async (request: Request, h: ResponseToolkit) => {
-      await this.refreshUpload(request)
+      const removed = await this.refreshUpload(request)
+
+      if (removed) {
+        return super.makeGetRouteHandler()(request, h)
+      }
 
       return super.makePostRouteHandler()(request, h)
     }
@@ -112,21 +109,10 @@ export class FileUploadPageController extends PageController {
   protected getPayload(request: Request) {
     const payload = (request.payload || {}) as FormPayload
     const name = this.getComponentName()
-    const value = payload[name]
-    const validateResult = joi
-      .array()
-      .items(uploadIdSchema)
-      .single()
-      .default([])
-      .validate(value)
+    const files = (request.app.files || []) as FilesState
 
-    if (!validateResult.error) {
-      const files = (request.app.files || []) as FilesState
-      payload[name] = validateResult.value.map((str: string) => {
-        return files.find((file) => file.uploadId === str)
-      })
-      payload[name].formAction = files.formAction
-    }
+    payload[name] = files
+    payload[name].formAction = files.formAction
 
     return payload
   }
@@ -223,12 +209,48 @@ export class FileUploadPageController extends PageController {
     const { cacheService } = request.services([])
     const uploadState = await cacheService.getUploadState(request)
     let upload = uploadState.upload
+    let removed = false
+
+    if (request.payload) {
+      const payload = request.payload as FormPayload
+      if ('__remove' in payload) {
+        removed = true
+
+        const fileToRemove = uploadState.files.find(
+          (file) => file.uploadId === payload['__remove']
+        )
+
+        if (fileToRemove) {
+          const state = await super.getState(request)
+          const componentState =
+            this.getFormDataFromState(state)[this.getComponentName()]
+
+          if (
+            Array.isArray(componentState) &&
+            componentState.find(
+              (file) => file.uploadId === fileToRemove.uploadId
+            )
+          ) {
+            fileToRemove.removed = true
+          } else {
+            uploadState.files = uploadState.files.filter(
+              (item) => item !== fileToRemove
+            )
+          }
+
+          await cacheService.mergeUploadState(request, {
+            files: uploadState.files
+          })
+        }
+      }
+    }
 
     /**
      * @todo don't initiate anymore after `this.fileUploadComponent.options.max`
      */
     const initiateAndStoreNewUpload = async () => {
       const formId = this.model.options.formId
+      const fileUploadComponent = this.fileUploadComponent
 
       if (!formId) {
         throw Boom.badRequest('Unable to initiate an upload without a formId')
@@ -240,7 +262,7 @@ export class FileUploadPageController extends PageController {
         formId,
         request.path,
         outputEmail,
-        this.fileUploadComponent.options.accept
+        fileUploadComponent.options.accept
       )
 
       if (initiateResponse === undefined) {
@@ -323,13 +345,13 @@ export class FileUploadPageController extends PageController {
     }
 
     // Store the formAction on the array
-    const filesState = files as FilesState
+    const filesState = files.filter((item) => !item.removed) as FilesState
     filesState.formAction = upload.uploadUrl
 
     // Store the file and the upload on the request
     request.app.files = filesState
     request.app.upload = upload
 
-    return upload
+    return removed
   }
 }

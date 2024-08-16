@@ -181,20 +181,15 @@ export class FileUploadField extends FormComponent {
               text: file.filename
             }
 
-      const hiddenInput = `<input name="${viewModel.name}" type="hidden" value="${item.uploadId}">`
-
       return {
         key,
         value: {
-          html: `${filesize(file.contentLength)} ${tag} ${hiddenInput}`
+          html: `${filesize(file.contentLength)} ${tag}`
         },
         actions: {
           items: [
             {
-              href: '#',
-              classes: 'govuk-link--no-visited-state',
-              text: 'Remove',
-              visuallyHiddenText: 'remove'
+              html: `<button type="submit" class="govuk-button govuk-button--secondary govuk-!-margin-0" name="__remove" value="${item.uploadId}">Remove${item.removed ? 'd' : ''}</button>`
             }
           ]
         }
