@@ -1,3 +1,4 @@
+import { ComponentType } from '@defra/forms-model'
 import { internal, type Boom } from '@hapi/boom'
 import {
   type Request,
@@ -29,7 +30,10 @@ import {
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { persistFile } from '~/src/server/plugins/engine/services/formSubmissionService.js'
-import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+import {
+  type FileState,
+  type FormSubmissionState
+} from '~/src/server/plugins/engine/types.js'
 import { type Field } from '~/src/server/schemas/types.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
 
@@ -233,29 +237,36 @@ async function submitForm(
   state: FormSubmissionState,
   emailAddress: string
 ) {
-  await extendFileRetention(state, emailAddress)
+  await extendFileRetention(model, state, emailAddress)
   await sendEmail(request, summaryViewModel, model, emailAddress)
 }
 
 async function extendFileRetention(
+  model: FormModel,
   state: FormSubmissionState,
   updatedRetrievalKey: string
 ) {
-  const { upload: fileUploadStates } = state
-
-  if (!fileUploadStates) {
-    return
-  }
-
-  const persistenceJobs = Object.values(fileUploadStates).flatMap((upload) =>
-    upload.files.map((file) => {
-      const { fileId } = file.status.form.file
-      const { retrievalKey } = file.status.metadata
-
-      return persistFile(fileId, retrievalKey, updatedRetrievalKey)
-    })
+  // Find out our file upload components
+  const fileUploadComponentNames = model.pages.flatMap((page) =>
+    page.components.formItems
+      .filter((item) => item.type === ComponentType.FileUploadField)
+      .map((item) => item.name)
   )
 
+  // Pull the state for each file upload component
+  const fileUploadStates = fileUploadComponentNames.map(
+    (name) => state[name] as FileState
+  )
+
+  // Create a job to persist each file
+  const persistenceJobs = Object.values(fileUploadStates).map((upload) => {
+    const { fileId } = upload.status.form.file
+    const { retrievalKey } = upload.status.metadata
+
+    return persistFile(fileId, retrievalKey, updatedRetrievalKey)
+  })
+
+  /** @todo handle failures */
   return Promise.allSettled(persistenceJobs)
 }
 
