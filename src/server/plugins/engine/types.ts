@@ -152,4 +152,5 @@ export interface PageViewModel {
 
 export type FileUploadPageViewModel = {
   fileUploadComponent: FormComponentViewModel
+  preUploadComponents: ComponentCollectionViewModel
 } & PageViewModel

@@ -10,6 +10,7 @@
 {% set action = model.upload.formAction %}
 
 {% block form %}
+  {{ componentList(preUploadComponents) }}
   <form method="post" enctype="multipart/form-data" autocomplete="off" novalidate action="{{ action }}">
     {{ govukFileUpload(model) }}
     {{ govukButton({ text: "Upload file", classes: "govuk-button--secondary", preventDoubleClick: true, disabled: not action }) }}

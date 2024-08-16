@@ -52,6 +52,15 @@ export class FileUploadPageController extends PageController {
 
     super(model, pageDef)
 
+    const fileUploadComponent = fileUploadComponents[0]
+
+    // Assert the file upload component is the first form component
+    if (this.components.formItems[0].name !== fileUploadComponent.name) {
+      throw Boom.badImplementation(
+        `Expected '${fileUploadComponent.name}' to be the first form component in FileUploadPageController '${pageDef.path}'`
+      )
+    }
+
     // Assign the file upload component to the controller
     this.fileUploadComponent = fileUploadComponents[0]
   }
@@ -172,19 +181,12 @@ export class FileUploadPageController extends PageController {
     ) as FileUploadPageViewModel
 
     const name = this.fileUploadComponent.name
-    const fileUploadComponent = viewModel.components.find(
-      (component) => component.model.id === name
-    )
+    const components = viewModel.components
+    const id = components.findIndex((component) => component.model.id === name)
 
-    // Assert we have our file upload component in the view model
-    if (!fileUploadComponent) {
-      throw Boom.badImplementation(
-        `Expected to find file upload component name '${name}' in the view model`
-      )
-    }
-
-    viewModel.fileUploadComponent =
-      fileUploadComponent as FormComponentViewModel
+    viewModel.fileUploadComponent = components[id] as FormComponentViewModel
+    viewModel.preUploadComponents = components.slice(0, id)
+    viewModel.components = components.slice(id)
 
     return viewModel
   }
