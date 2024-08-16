@@ -31,6 +31,8 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import { CacheService } from '~/src/server/services/cacheService.js'
 
+const MAX_UPLOADS = 25
+
 export class FileUploadPageController extends PageController {
   viewName = 'file-upload'
   fileUploadComponent: FileUploadFieldComponent
@@ -48,6 +50,7 @@ export class FileUploadPageController extends PageController {
       )
     }
 
+    fileUploadComponents[0].schema.max = 2
     super(model, pageDef)
 
     // Assign the file upload component to the controller
@@ -75,7 +78,10 @@ export class FileUploadPageController extends PageController {
 
   makeGetRouteHandler() {
     return async (request: Request, h: ResponseToolkit) => {
-      await this.refreshUpload(request)
+      const { cacheService } = request.services([])
+      const state = await cacheService.getUploadState(request)
+
+      await this.refreshUpload(request, state, cacheService)
 
       return super.makeGetRouteHandler()(request, h)
     }
@@ -83,11 +89,17 @@ export class FileUploadPageController extends PageController {
 
   makePostRouteHandler() {
     return async (request: Request, h: ResponseToolkit) => {
-      const removed = await this.refreshUpload(request)
+      const { cacheService } = request.services([])
+      const state = await cacheService.getUploadState(request)
+
+      // Check for any removed files in the POST payload
+      const removed = await this.checkRemovedFiles(request, state, cacheService)
 
       if (removed) {
-        return super.makeGetRouteHandler()(request, h)
+        return h.redirect(request.path)
       }
+
+      await this.refreshUpload(request, state, cacheService)
 
       return super.makePostRouteHandler()(request, h)
     }
@@ -192,15 +204,14 @@ export class FileUploadPageController extends PageController {
    * For all of the files stored in state that are `pending`,
    * their status is refreshed as they may now be `complete` or `rejected`.
    * @param request - the hapi request
-   * @returns true if any files have been removed otherwise false
+   * @param state - the upload state
+   * @param cacheService - the cache service
    */
-  private async refreshUpload(request: Request) {
-    const { cacheService } = request.services([])
-    const state = await cacheService.getUploadState(request)
-
-    // Check for any removed files in the POST payload
-    const removed = await this.checkRemovedFiles(request, state, cacheService)
-
+  private async refreshUpload(
+    request: Request,
+    state: TempFileState,
+    cacheService: CacheService
+  ) {
     await this.checkUploadStatus(request, state, cacheService)
 
     await this.refreshPendingFiles(request, state, cacheService)
@@ -212,8 +223,6 @@ export class FileUploadPageController extends PageController {
     const filesState = files as FilesState
     filesState.formAction = upload?.uploadUrl
     request.app.files = filesState
-
-    return removed
   }
 
   /**
@@ -319,34 +328,31 @@ export class FileUploadPageController extends PageController {
    * @param request - the hapi request
    * @param state - the upload state
    * @param cacheService - the cache service
+   * @returns true if any files have been removed otherwise false
    */
   private async checkRemovedFiles(
     request: Request,
     state: TempFileState,
     cacheService: CacheService
   ) {
-    let removed = false
+    const payload = super.getPayload(request)
+    const removeId = payload.__remove
 
-    if (request.method === 'post' && request.payload) {
-      const payload = super.getPayload(request)
-      const removeId = payload.__remove
+    if (removeId) {
+      const fileToRemove = state.files.find(
+        (file) => file.uploadId === removeId
+      )
 
-      if (removeId) {
-        removed = true
+      if (fileToRemove) {
+        state.files = state.files.filter((item) => item !== fileToRemove)
 
-        const fileToRemove = state.files.find(
-          (file) => file.uploadId === removeId
-        )
-
-        if (fileToRemove) {
-          state.files = state.files.filter((item) => item !== fileToRemove)
-
-          await cacheService.mergeUploadState(request, state)
-        }
+        await cacheService.mergeUploadState(request, state)
       }
+
+      return true
     }
 
-    return removed
+    return false
   }
 
   /**
@@ -354,7 +360,6 @@ export class FileUploadPageController extends PageController {
    * @param request - the hapi request
    * @param state - the upload state
    * @param cacheService - the cache service
-   * @todo don't initiate anymore after `this.fileUploadComponent.options.max`
    */
   private async initiateAndStoreNewUpload(
     request: Request,
@@ -362,25 +367,34 @@ export class FileUploadPageController extends PageController {
     cacheService: CacheService
   ) {
     const formId = this.model.options.formId
-    const fileUploadComponent = this.fileUploadComponent
+    const { options, schema } = this.fileUploadComponent
 
     if (!formId) {
       throw Boom.badRequest('Unable to initiate an upload without a formId')
     }
 
-    const outputEmail = this.model.def.outputEmail ?? 'defraforms@defra.gov.uk'
-    const upload = await initiateUpload(
-      formId,
-      request.path,
-      outputEmail,
-      fileUploadComponent.options.accept
-    )
+    // Reset the upload in state
+    state.upload = undefined
 
-    if (upload === undefined) {
-      throw Boom.badRequest('Unexpected empty response from initiateUpload')
+    // Don't initiate anymore after minimum of `schema.max` or MAX_UPLOADS
+    const max = Math.min(schema.max ?? MAX_UPLOADS, MAX_UPLOADS)
+
+    if (state.files.length < max) {
+      const outputEmail =
+        this.model.def.outputEmail ?? 'defraforms@defra.gov.uk'
+      const newUpload = await initiateUpload(
+        formId,
+        request.path,
+        outputEmail,
+        options.accept
+      )
+
+      if (newUpload === undefined) {
+        throw Boom.badRequest('Unexpected empty response from initiateUpload')
+      }
+
+      state.upload = newUpload
     }
-
-    state.upload = upload
 
     await cacheService.mergeUploadState(request, state)
   }
