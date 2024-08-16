@@ -5,10 +5,9 @@ import {
 } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type Request, type ResponseToolkit } from '@hapi/hapi'
-import joi, { type ValidationResult } from 'joi'
+import { type ValidationResult } from 'joi'
 
 import {
-  uploadIdSchema,
   tempItemSchema,
   tempStatusSchema
 } from '~/src/server/plugins/engine/components/FileUploadField.js'
@@ -27,9 +26,10 @@ import {
   type FileState,
   type FilesState,
   UploadStatus,
-  type FormSubmissionState,
-  type FileUploadPageViewModel
+  type FileUploadPageViewModel,
+  type TempFileState
 } from '~/src/server/plugins/engine/types.js'
+import { CacheService } from '~/src/server/services/cacheService.js'
 
 export class FileUploadPageController extends PageController {
   viewName = 'file-upload'
@@ -73,19 +73,6 @@ export class FileUploadPageController extends PageController {
     return state
   }
 
-  async setState(request: Request, state: FormSubmissionState) {
-    const { cacheService } = request.services([])
-
-    // Clear down any removed temp files not included
-    // in the state getting saved for this page
-    const componentName = this.getComponentName()
-    await cacheService.mergeUploadState(request, {
-      files: state[componentName]
-    })
-
-    return super.setState(request, state)
-  }
-
   makeGetRouteHandler() {
     return async (request: Request, h: ResponseToolkit) => {
       await this.refreshUpload(request)
@@ -107,12 +94,12 @@ export class FileUploadPageController extends PageController {
   }
 
   protected getPayload(request: Request) {
-    const payload = (request.payload || {}) as FormPayload
+    const payload = super.getPayload(request)
     const name = this.getComponentName()
     const files = (request.app.files || []) as FilesState
 
+    // Append the files from state to the payload
     payload[name] = files
-    payload[name].formAction = files.formAction
 
     return payload
   }
@@ -196,86 +183,52 @@ export class FileUploadPageController extends PageController {
   }
 
   /**
-   * Returns the CDP upload from state (separate to form state)
+   * Refreshes the CDP upload and files in the
+   * state and checks for any removed files.
    *
-   * If one exists and hasn't been consumed, re-use it otherwise
-   * we initiate a new one.
+   * If an upload exists and hasn't been consumed
+   * it gets re-used, otherwise we initiate a new one.
    *
-   * For all of the files stored in state that are pending,
-   * refresh their status as they may now be `complete` or `rejected`.
+   * For all of the files stored in state that are `pending`,
+   * their status is refreshed as they may now be `complete` or `rejected`.
    * @param request - the hapi request
+   * @returns true if any files have been removed otherwise false
    */
   private async refreshUpload(request: Request) {
     const { cacheService } = request.services([])
-    const uploadState = await cacheService.getUploadState(request)
-    let upload = uploadState.upload
-    let removed = false
+    const state = await cacheService.getUploadState(request)
 
-    if (request.payload) {
-      const payload = request.payload as FormPayload
-      if ('__remove' in payload) {
-        removed = true
+    // Check for any removed files in the POST payload
+    const removed = await this.checkRemovedFiles(request, state, cacheService)
 
-        const fileToRemove = uploadState.files.find(
-          (file) => file.uploadId === payload['__remove']
-        )
+    await this.checkUploadStatus(request, state, cacheService)
 
-        if (fileToRemove) {
-          const state = await super.getState(request)
-          const componentState =
-            this.getFormDataFromState(state)[this.getComponentName()]
+    await this.refreshPendingFiles(request, state, cacheService)
 
-          if (
-            Array.isArray(componentState) &&
-            componentState.find(
-              (file) => file.uploadId === fileToRemove.uploadId
-            )
-          ) {
-            fileToRemove.removed = true
-          } else {
-            uploadState.files = uploadState.files.filter(
-              (item) => item !== fileToRemove
-            )
-          }
+    const { upload, files } = state
 
-          await cacheService.mergeUploadState(request, {
-            files: uploadState.files
-          })
-        }
-      }
-    }
+    // Store the formAction on the array and
+    // the files on the request
+    const filesState = files as FilesState
+    filesState.formAction = upload?.uploadUrl
+    request.app.files = filesState
 
-    /**
-     * @todo don't initiate anymore after `this.fileUploadComponent.options.max`
-     */
-    const initiateAndStoreNewUpload = async () => {
-      const formId = this.model.options.formId
-      const fileUploadComponent = this.fileUploadComponent
+    return removed
+  }
 
-      if (!formId) {
-        throw Boom.badRequest('Unable to initiate an upload without a formId')
-      }
-
-      const outputEmail =
-        this.model.def.outputEmail ?? 'defraforms@defra.gov.uk'
-      const initiateResponse = await initiateUpload(
-        formId,
-        request.path,
-        outputEmail,
-        fileUploadComponent.options.accept
-      )
-
-      if (initiateResponse === undefined) {
-        throw Boom.badRequest('Unexpected empty response from initiateUpload')
-      }
-
-      await cacheService.mergeUploadState(request, {
-        upload: initiateResponse,
-        files: uploadState.files
-      })
-
-      return initiateResponse
-    }
+  /**
+   * If an upload exists and hasn't been consumed
+   * it gets re-used, otherwise a ne wone is initiated.
+   * @param request - the hapi request
+   * @param state - the upload state
+   * @param cacheService - the cache service
+   */
+  private async checkUploadStatus(
+    request: Request,
+    state: TempFileState,
+    cacheService: CacheService
+  ) {
+    const { upload, files } = state
 
     if (upload?.uploadId) {
       // If there is a current upload check
@@ -289,9 +242,10 @@ export class FileUploadPageController extends PageController {
         )
       }
 
-      // If the upload is no longer in an "initiated" status,
-      // store it in the temp state and initiate a new CDP upload
-      if (statusResponse.uploadStatus !== UploadStatus.initiated) {
+      // If the upload is in an "initiated" status, re-use it
+      if (statusResponse.uploadStatus === UploadStatus.initiated) {
+        return upload
+      } else {
         // Only add to files state if the file is an object.
         // This secures against html tampering of the file input
         // by adding a 'multiple' attribute or it being
@@ -302,23 +256,33 @@ export class FileUploadPageController extends PageController {
         })
 
         if (!validateResult.error) {
-          uploadState.files.unshift(validateResult.value)
+          files.unshift(validateResult.value)
         }
 
-        upload = await initiateAndStoreNewUpload()
+        await this.initiateAndStoreNewUpload(request, state, cacheService)
       }
     } else {
-      upload = await initiateAndStoreNewUpload()
+      await this.initiateAndStoreNewUpload(request, state, cacheService)
     }
+  }
 
-    // For all of the files stored in state that are pending,
-    // refresh their status as they may now be `complete` or `rejected`.
-    const files = uploadState.files
+  /**
+   * For all of the files stored in state that are `pending`,
+   * their status is refreshed as they may now be `complete` or `rejected`.
+   * @param request - the hapi request
+   * @param state - the upload state
+   * @param cacheService - the cache service
+   */
+  private async refreshPendingFiles(
+    request: Request,
+    state: TempFileState,
+    cacheService: CacheService
+  ) {
     const promises: Promise<UploadStatusResponse | undefined>[] = []
     const indexes: number[] = []
 
     // Refresh any pending uploads
-    files.forEach((file: FileState, index: number) => {
+    state.files.forEach((file: FileState, index: number) => {
       if (file.status.uploadStatus === UploadStatus.pending) {
         promises.push(getUploadStatus(file.uploadId))
         indexes.push(index)
@@ -326,6 +290,7 @@ export class FileUploadPageController extends PageController {
     })
 
     if (promises.length) {
+      let filesUpdated = false
       const results = await Promise.allSettled(promises)
 
       // Update state with the latest result
@@ -336,22 +301,87 @@ export class FileUploadPageController extends PageController {
           const validateResult = tempStatusSchema.validate(result.value)
 
           if (!validateResult.error) {
-            files[idx].status = validateResult.value
+            state.files[idx].status = validateResult.value
+            filesUpdated = true
           }
         }
       })
 
-      await cacheService.mergeUploadState(request, { upload, files })
+      if (filesUpdated) {
+        await cacheService.mergeUploadState(request, state)
+      }
+    }
+  }
+
+  /**
+   * Checks the payload for a file getting removed
+   * and removes it from the upload files if found
+   * @param request - the hapi request
+   * @param state - the upload state
+   * @param cacheService - the cache service
+   */
+  private async checkRemovedFiles(
+    request: Request,
+    state: TempFileState,
+    cacheService: CacheService
+  ) {
+    let removed = false
+
+    if (request.method === 'post' && request.payload) {
+      const payload = super.getPayload(request)
+      const removeId = payload.__remove
+
+      if (removeId) {
+        removed = true
+
+        const fileToRemove = state.files.find(
+          (file) => file.uploadId === removeId
+        )
+
+        if (fileToRemove) {
+          state.files = state.files.filter((item) => item !== fileToRemove)
+
+          await cacheService.mergeUploadState(request, state)
+        }
+      }
     }
 
-    // Store the formAction on the array
-    const filesState = files.filter((item) => !item.removed) as FilesState
-    filesState.formAction = upload.uploadUrl
-
-    // Store the file and the upload on the request
-    request.app.files = filesState
-    request.app.upload = upload
-
     return removed
+  }
+
+  /**
+   * Initiates a CDP file upload and stores in the upload state
+   * @param request - the hapi request
+   * @param state - the upload state
+   * @param cacheService - the cache service
+   * @todo don't initiate anymore after `this.fileUploadComponent.options.max`
+   */
+  private async initiateAndStoreNewUpload(
+    request: Request,
+    state: TempFileState,
+    cacheService: CacheService
+  ) {
+    const formId = this.model.options.formId
+    const fileUploadComponent = this.fileUploadComponent
+
+    if (!formId) {
+      throw Boom.badRequest('Unable to initiate an upload without a formId')
+    }
+
+    const outputEmail = this.model.def.outputEmail ?? 'defraforms@defra.gov.uk'
+    const upload = await initiateUpload(
+      formId,
+      request.path,
+      outputEmail,
+      fileUploadComponent.options.accept
+    )
+
+    if (upload === undefined) {
+      throw Boom.badRequest('Unexpected empty response from initiateUpload')
+    }
+
+    state.upload = upload
+
+    await cacheService.mergeUploadState(request, state)
   }
 }

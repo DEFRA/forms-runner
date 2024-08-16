@@ -123,10 +123,9 @@ export type FileStateArray = FileState[]
 export interface FileState {
   uploadId: string
   status: UploadStatusResponse
-  removed: boolean
 }
 
-export type FilesState = FileStateArray & { formAction: string }
+export type FilesState = FileStateArray & { formAction?: string }
 
 export interface TempFileState {
   upload?: UploadInitiateResponse
