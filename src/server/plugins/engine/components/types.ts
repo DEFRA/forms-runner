@@ -71,7 +71,6 @@ export type MultilineTextFieldViewModel = {
   maxwords?: number
 } & ViewModel
 
-
 export interface FileUploadSummaryRow {
   name: string
   errorMessage?: string
