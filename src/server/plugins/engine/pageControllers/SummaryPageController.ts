@@ -292,7 +292,7 @@ export function getPersonalisation(
   formSubmissionData.questions.forEach((question) => {
     question.fields.forEach((field) => {
       const { title, answer, type } = field
-      let value = 'Not provided'
+      let value = ''
 
       if (typeof answer === 'string') {
         value = answer
@@ -303,7 +303,7 @@ export function getPersonalisation(
       } else if (type === 'file') {
         const uploads = answer
 
-        if (uploads.length) {
+        if (Array.isArray(uploads) && uploads.length) {
           const files = uploads.map((upload) => upload.status.form.file)
           const bullets = files
             .map(
@@ -358,6 +358,7 @@ function getFormSubmissionData(
 export function answerFromDetailItem(item: DetailItem) {
   switch (item.dataType) {
     case 'list':
+    case 'file':
       return item.rawValue
     case 'date':
       return format(new Date(item.rawValue), 'yyyy-MM-dd')
@@ -365,8 +366,6 @@ export function answerFromDetailItem(item: DetailItem) {
       // eslint-disable-next-line no-case-declarations
       const [month, year] = Object.values(item.rawValue)
       return format(new Date(`${year}-${month}-1`), 'yyyy-MM')
-    case 'file':
-      return item.rawValue
     default:
       return item.value
   }

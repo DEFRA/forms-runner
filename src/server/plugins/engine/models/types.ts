@@ -9,7 +9,7 @@ import { type ComponentBase } from '~/src/server/plugins/engine/components/Compo
 import { type FeedbackContextInfo } from '~/src/server/plugins/engine/feedback/index.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
-  type FileStateArray,
+  type FileState,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import { type Field } from '~/src/server/schemas/types.js'
@@ -86,7 +86,7 @@ export interface DetailItem {
   /**
    * Raw value of a field. For example, a Date will be displayed as 2022-12-25
    */
-  rawValue: string | number | boolean | FileStateArray
+  rawValue: string | number | boolean | (FileState[] | null)
   url: string
   pageId: string
   type: ComponentBase['type']
