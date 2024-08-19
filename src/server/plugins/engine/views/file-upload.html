@@ -8,14 +8,13 @@
 {% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
 
 {% set model = fileUploadComponent.model %}
-{% set action = model.upload.formAction %}
 
 {% block form %}
   {{ componentList(preUploadComponents) }}
-  <form method="post" enctype="multipart/form-data" autocomplete="off" novalidate action="{{ action }}">
+  <form method="post" enctype="multipart/form-data" autocomplete="off" novalidate action="{{ formAction }}">
     {{ govukFileUpload(model) }}
 
-    {% if action %}
+    {% if formAction %}
       {{ govukButton({ text: "Upload file", classes: "govuk-button--secondary", preventDoubleClick: true }) }}
     {% else %}
       {{ govukWarningText({

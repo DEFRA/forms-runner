@@ -85,7 +85,6 @@ export type FileUploadFieldViewModel = {
     pendingCount: number
     successfulCount: number
     summary: FileUploadSummaryRow[]
-    formAction?: string
   }
 } & ViewModel
 

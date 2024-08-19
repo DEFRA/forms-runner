@@ -1,3 +1,5 @@
+import { type Request } from '@hapi/hapi'
+
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
   type FormPayload,
@@ -11,9 +13,13 @@ export class StartPageController extends PageController {
    * but start pages should really live on gov.uk (whitehall publisher) so a user can be properly signposted.
    */
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+  getViewModel(
+    request: Request,
+    payload: FormPayload,
+    errors?: FormSubmissionErrors
+  ) {
     return {
-      ...super.getViewModel(payload, errors),
+      ...super.getViewModel(request, payload, errors),
       isStartPage: true
     }
   }

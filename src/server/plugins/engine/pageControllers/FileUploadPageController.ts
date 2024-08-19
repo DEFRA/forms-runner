@@ -24,7 +24,6 @@ import {
   type FormPayload,
   type FormSubmissionErrors,
   type FileState,
-  type FilesState,
   UploadStatus,
   type FileUploadPageViewModel,
   type TempFileState
@@ -118,8 +117,8 @@ export class FileUploadPageController extends PageController {
     const name = this.getComponentName()
     const files = request.app.files ?? []
 
-    // Append the files from state to the payload
-    payload[name] = files
+    // Append the files to the payload
+    payload[name] = files.length ? files : null
 
     return payload
   }
@@ -177,10 +176,12 @@ export class FileUploadPageController extends PageController {
   }
 
   getViewModel(
+    request: Request,
     payload: FormPayload,
     errors?: FormSubmissionErrors
   ): FileUploadPageViewModel {
     const viewModel = super.getViewModel(
+      request,
       payload,
       errors
     ) as FileUploadPageViewModel
@@ -189,6 +190,8 @@ export class FileUploadPageController extends PageController {
     const components = viewModel.components
     const id = components.findIndex((component) => component.model.id === name)
 
+    viewModel.path = request.path
+    viewModel.formAction = request.app.formAction
     viewModel.fileUploadComponent = components[id] as FormComponentViewModel
     viewModel.preUploadComponents = components.slice(0, id)
     viewModel.components = components.slice(id)
@@ -224,11 +227,9 @@ export class FileUploadPageController extends PageController {
 
     const { upload, files } = state
 
-    // Store the formAction on the array and
-    // the files on the request
-    const filesState = files as FilesState
-    filesState.formAction = upload?.uploadUrl
-    request.app.files = filesState
+    // Store the files and formAction on the request
+    request.app.files = files
+    request.app.formAction = upload?.uploadUrl
   }
 
   /**
@@ -265,10 +266,11 @@ export class FileUploadPageController extends PageController {
         // This secures against html tampering of the file input
         // by adding a 'multiple' attribute or it being
         // changed to a simple text field or similar.
-        const validateResult = tempItemSchema.validate({
-          uploadId,
-          status: statusResponse
-        })
+        const validateResult: ValidationResult<FileState> =
+          tempItemSchema.validate({
+            uploadId,
+            status: statusResponse
+          })
 
         if (!validateResult.error) {
           files.unshift(validateResult.value)
@@ -313,7 +315,8 @@ export class FileUploadPageController extends PageController {
         const result = results[index]
 
         if (result.status === 'fulfilled') {
-          const validateResult = tempStatusSchema.validate(result.value)
+          const validateResult: ValidationResult<UploadStatusResponse> =
+            tempStatusSchema.validate(result.value)
 
           if (!validateResult.error) {
             state.files[idx].status = validateResult.value

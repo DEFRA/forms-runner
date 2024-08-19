@@ -13,7 +13,6 @@ import {
   type FormPayload,
   type FormSubmissionErrors,
   type FileState,
-  type FilesState,
   FileStatus
 } from '~/src/server/plugins/engine/types.js'
 
@@ -104,7 +103,7 @@ export class FileUploadField extends FormComponent {
     let formSchema = joi.array().label(title.toLowerCase()).single().required()
 
     if (options.required === false) {
-      formSchema = formSchema.optional()
+      formSchema = formSchema.optional().allow(null)
     }
 
     if (typeof schema.length !== 'number') {
@@ -119,7 +118,7 @@ export class FileUploadField extends FormComponent {
       formSchema = formSchema.length(schema.length)
     }
 
-    this.formSchema = formSchema.items(formItemSchema)
+    this.formSchema = formSchema.items(formItemSchema).empty(null)
     this.stateSchema = formSchema.items(formItemSchema)
     this.options = options
     this.schema = schema
@@ -137,6 +136,10 @@ export class FileUploadField extends FormComponent {
     const value = this.getFormValueFromState(state)
     const count = Array.isArray(value) ? value.length : 0
 
+    if (!count) {
+      return super.getDisplayStringFromState(state)
+    }
+
     return `You uploaded ${count} file${count !== 1 ? 's' : ''}`
   }
 
@@ -148,7 +151,7 @@ export class FileUploadField extends FormComponent {
       payload,
       errors
     ) as FileUploadFieldViewModel
-    const files = (payload[this.name] ?? []) as FilesState
+    const files = (payload[this.name] ?? []) as FileState[]
     const count = files.length
     let pendingCount = 0
     let successfulCount = 0
@@ -194,8 +197,7 @@ export class FileUploadField extends FormComponent {
       count,
       pendingCount,
       successfulCount,
-      summary,
-      formAction: files.formAction
+      summary
     }
 
     return viewModel

@@ -10,7 +10,7 @@
     <p class="govuk-body">{{upload.successfulCount}} of {{upload.count}} files uploaded</p>
     <p class="govuk-body">
       {% if upload.pendingCount %}
-        <a href="." class="govuk-link govuk-link--no-visited-state">Refresh page to update file upload progress</a>
+        <a href="{{ path }}" class="govuk-link govuk-link--no-visited-state">Refresh page to update file upload progress</a>
       {% endif %}
     </p>
     {% if upload.summary | length %}

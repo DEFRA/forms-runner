@@ -102,6 +102,7 @@ export class PageControllerBase {
    * @param payload - contains a user's form payload, and any validation errors that may have occurred
    */
   getViewModel(
+    request: Request,
     payload: FormPayload,
     errors?: FormSubmissionErrors
   ): PageViewModel {
@@ -408,7 +409,7 @@ export class PageControllerBase {
           : redirectTo(request, h, `/${this.model.basePath}${startPage}`)
       }
 
-      const viewModel = this.getViewModel(payload)
+      const viewModel = this.getViewModel(request, payload)
 
       viewModel.startPage = startPage?.startsWith('http')
         ? redirectTo(request, h, startPage)
@@ -709,7 +710,7 @@ export class PageControllerBase {
     progress: string[],
     errors?: FormSubmissionErrors
   ) {
-    const viewModel = this.getViewModel(payload, errors)
+    const viewModel = this.getViewModel(request, payload, errors)
 
     viewModel.backLink = progress[progress.length - 2]
     this.setPhaseTag(viewModel)
