@@ -153,6 +153,12 @@ export const config = convict({
     env: 'MANAGER_URL'
   } as SchemaObj<string>,
 
+  designerUrl: {
+    format: String,
+    default: null,
+    env: 'DESIGNER_URL'
+  } as SchemaObj<string>,
+
   submissionUrl: {
     format: String,
     default: null,
