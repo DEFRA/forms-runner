@@ -1,4 +1,5 @@
-{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/tag/macro.njk" import govukTag %}
 
 {% macro FileUploadField(component) %}
   {% set model = component.model %}
@@ -12,7 +13,38 @@
         <a href="." class="govuk-link govuk-link--no-visited-state">Refresh page to update file upload progress</a>
       {% endif %}
     </p>
-    {{ govukSummaryList(upload.summary) }}
+    {% if upload.summary | length %}
+      <dl class="govuk-summary-list govuk-summary-list--long-key">
+        {% for item in upload.summary %}
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+              {% if item.errorMessage %}
+                <div class="govuk-form-group govuk-form-group--error govuk-!-margin-bottom-0">
+                  <div class="govuk-!-margin-bottom-3">{{ item.name }}</div>
+                  <p class="govuk-error-message">{{ item.errorMessage }}</p>
+                </div>
+              {% else %}
+                {{ item.name }}
+              {% endif %}
+            </dt>
+            <dd class="govuk-summary-list__value">{{ item.size }} {{ govukTag(item.tag) }}</dd>
+            <dd class="govuk-summary-list__actions">
+              {{ govukButton({
+                name: "__remove",
+                value: item.uploadId,
+                text: "Remove",
+                attributes: {
+                  style: "margin-top: -7px"
+
+                },
+                classes: "govuk-button--secondary govuk-!-margin-bottom-0",
+                preventDoubleClick: true
+              }) }}
+            </dd>
+          </div>
+        {% endfor %}
+      </dl>
+    {% endif %}
   {% else %}
     <p class="govuk-body" aria-live="polite">{{upload.count}} files uploaded</p>
   {% endif %}

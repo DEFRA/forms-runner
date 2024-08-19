@@ -3,7 +3,7 @@ import joi, { type ArraySchema } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type FileUploadFieldViewModel } from '~/src/server/plugins/engine/components/types.js'
-import { escapeHtml, filesize } from '~/src/server/plugins/engine/helpers.js'
+import { filesize } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormSubmissionState,
@@ -150,53 +150,29 @@ export class FileUploadField extends FormComponent {
     let pendingCount = 0
     let successfulCount = 0
 
-    const rows = files.map((item: FileState) => {
+    const summary = files.map((item: FileState) => {
       const { status } = item
       const { form } = status
       const { file } = form
       const { fileStatus } = file
       let tag
 
-      const uploadTag = (css: string, text: string) =>
-        `<strong class="govuk-tag govuk-tag--${css}">${text}</strong>`
-
       if (fileStatus === FileStatus.complete) {
         successfulCount++
-        tag = uploadTag('green', 'Uploaded')
+        tag = { classes: 'govuk-tag--green', text: 'Uploaded' }
       } else if (fileStatus === FileStatus.pending) {
         pendingCount++
-        tag = uploadTag('yellow', 'Uploading')
+        tag = { classes: 'govuk-tag--yellow', text: 'Uploading' }
       } else {
-        tag = uploadTag('red', 'Error')
+        tag = { classes: 'govuk-tag--red', text: 'Error' }
       }
 
-      const key =
-        errors && file.hasError
-          ? {
-              html: `<div class="govuk-form-group govuk-form-group--error govuk-!-margin-bottom-0">
-          <div class="govuk-!-margin-bottom-3">${escapeHtml(file.filename)}</div>
-          <p class="govuk-error-message">${escapeHtml(file.errorMessage ?? '')}</p>
-        </div>`
-            }
-          : {
-              text: file.filename
-            }
-
       return {
-        key,
-        value: {
-          html: `${filesize(file.contentLength)} ${tag}`
-        },
-        actions: {
-          items: [
-            {
-              html: `<button type="submit" data-prevent-double-click="true"
-                class="govuk-button govuk-button--secondary govuk-!-margin-0"
-                name="__remove"
-                value="${item.uploadId}">Remove</button>`
-            }
-          ]
-        }
+        name: file.filename,
+        errorMessage: errors && file.errorMessage,
+        size: filesize(file.contentLength),
+        tag,
+        uploadId: item.uploadId
       }
     })
 
@@ -215,7 +191,7 @@ export class FileUploadField extends FormComponent {
       count,
       pendingCount,
       successfulCount,
-      summary: { classes: 'govuk-summary-list--long-key', rows },
+      summary,
       formAction: files.formAction
     }
 
