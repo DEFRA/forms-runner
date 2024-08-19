@@ -2,7 +2,10 @@ import { type FileUploadFieldComponent } from '@defra/forms-model'
 import joi, { type ArraySchema } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { type FileUploadFieldViewModel } from '~/src/server/plugins/engine/components/types.js'
+import {
+  type DataType,
+  type FileUploadFieldViewModel
+} from '~/src/server/plugins/engine/components/types.js'
 import { filesize } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
@@ -87,8 +90,8 @@ export const formItemSchema = itemSchema.append({
 
 export class FileUploadField extends FormComponent {
   declare options: FileUploadFieldComponent['options']
-
   declare schema: FileUploadFieldComponent['schema']
+  dataType: DataType = 'file'
 
   declare formSchema: ArraySchema<object>
   declare stateSchema: ArraySchema<object>
