@@ -7,7 +7,7 @@
 
   <h2 class="govuk-heading-m">Uploaded files</h2>
   {% if upload.count %}
-    <p class="govuk-body" aria-live="polite">{{upload.successfulCount}} of {{upload.count}} files uploaded</p>
+    <p class="govuk-body">{{upload.successfulCount}} of {{upload.count}} files uploaded</p>
     <p class="govuk-body">
       {% if upload.pendingCount %}
         <a href="." class="govuk-link govuk-link--no-visited-state">Refresh page to update file upload progress</a>
@@ -40,12 +40,13 @@
                 classes: "govuk-button--secondary govuk-!-margin-bottom-0",
                 preventDoubleClick: true
               }) }}
+              <span class="govuk-visually-hidden">{{ item.name }}</span>
             </dd>
           </div>
         {% endfor %}
       </dl>
     {% endif %}
   {% else %}
-    <p class="govuk-body" aria-live="polite">{{upload.count}} files uploaded</p>
+    <p class="govuk-body">{{upload.count}} files uploaded</p>
   {% endif %}
 {% endmacro %}
