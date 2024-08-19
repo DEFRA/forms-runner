@@ -29,7 +29,7 @@ import {
   type FileUploadPageViewModel,
   type TempFileState
 } from '~/src/server/plugins/engine/types.js'
-import { CacheService } from '~/src/server/services/cacheService.js'
+import { type CacheService } from '~/src/server/services/cacheService.js'
 
 const MAX_UPLOADS = 25
 
@@ -71,7 +71,7 @@ export class FileUploadPageController extends PageController {
     const name = this.getComponentName()
     const files = request.app.files
 
-    // Now merge in the temporary state (overwriting the files in state)
+    // Overwrite the files with those in the upload state
     if (this.section) {
       if (!state[this.section.name]) {
         state[this.section.name] = {}
@@ -116,7 +116,7 @@ export class FileUploadPageController extends PageController {
   protected getPayload(request: Request) {
     const payload = super.getPayload(request)
     const name = this.getComponentName()
-    const files = (request.app.files || []) as FilesState
+    const files = request.app.files ?? []
 
     // Append the files from state to the payload
     payload[name] = files

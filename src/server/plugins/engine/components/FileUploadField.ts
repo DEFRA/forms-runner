@@ -131,9 +131,10 @@ export class FileUploadField extends FormComponent {
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
-    return state[this.name]
-      ?.map((file: FileState) => file.status.form.file.filename)
-      .join(', ')
+    const value = this.getFormValueFromState(state)
+    const count = Array.isArray(value) ? value.length : 0
+
+    return `You uploaded ${count} file${count !== 1 ? 's' : ''}`
   }
 
   getViewModel(
