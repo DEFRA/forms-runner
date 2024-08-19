@@ -251,7 +251,9 @@ export class PageControllerBase {
     if (validationResult?.error) {
       return {
         titleText: this.errorSummaryTitle,
-        errorList: validationResult.error.details.map(this.getError)
+        errorList: validationResult.error.details.map((err) =>
+          this.getError(err)
+        )
       }
     }
 

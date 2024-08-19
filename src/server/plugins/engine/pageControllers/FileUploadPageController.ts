@@ -129,38 +129,43 @@ export class FileUploadPageController extends PageController {
   ): FormSubmissionErrors | undefined {
     if (validationResult?.error) {
       const errorList: FormSubmissionError[] = []
-      const arraySizeErrorTypes = ['array.min', 'array.max', 'array.length']
       const componentName = this.getComponentName()
 
       validationResult.error.details.forEach((err) => {
-        const type = err.type
-        const path = err.path.join('.')
-        const formatter = (name: string | number, index: number) =>
-          index > 0 ? `__${name}` : name
-        const name = err.path.map(formatter).join('')
-        const href = `#${name}`
-        const lastPath = err.path[err.path.length - 1]
+        const isUploadError = err.path[0] === componentName
+        const isUploadRootError = isUploadError && err.path.length === 1
 
-        if (path.startsWith(componentName)) {
-          if (type === 'any.required' && path === name) {
-            errorList.push({ path, href, name, text: err.message })
-          } else if (type === 'any.only' && lastPath === 'fileStatus') {
-            if (err.context?.value === 'pending') {
-              const text = 'The selected file has not fully uploaded'
-              errorList.push({ path, href, name, text })
-            }
+        if (!isUploadError || isUploadRootError) {
+          // The error is for the root of the upload or another
+          // field on the page so defer to the standard getError
+          errorList.push(this.getError(err))
+        } else {
+          const type = err.type
+          const path = err.path.join('.')
+          const formatter = (name: string | number, index: number) =>
+            index > 0 ? `__${name}` : name
+          const name = err.path.map(formatter).join('')
+          const lastPath = err.path[err.path.length - 1]
+
+          if (
+            type === 'any.only' &&
+            lastPath === 'fileStatus' &&
+            err.context?.value === 'pending'
+          ) {
+            const text = 'The selected file has not fully uploaded'
+            const href = `#${err.path.slice(0, 2).map(formatter).join('')}`
+
+            errorList.push({ path, href, name, text })
           } else if (type === 'object.unknown' && lastPath === 'errorMessage') {
             const value = err.context?.value
-            const text =
-              value && typeof value === 'string' ? value : 'Unknown error'
-            errorList.push({ path, href, name, text })
-          } else if (arraySizeErrorTypes.includes(type)) {
-            errorList.push({ path, href, name, text: err.message })
+
+            if (value) {
+              const text = typeof value === 'string' ? value : 'Unknown error'
+              const href = `#${err.path.slice(0, 2).map(formatter).join('')}`
+
+              errorList.push({ path, href, name, text })
+            }
           }
-        } else {
-          // The error is for another field on the
-          // page so defer to the standard getError
-          errorList.push(this.getError(err))
         }
       })
 

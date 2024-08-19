@@ -30,6 +30,7 @@
             <dd class="govuk-summary-list__value">{{ item.size }} {{ govukTag(item.tag) }}</dd>
             <dd class="govuk-summary-list__actions">
               {{ govukButton({
+                id: model.id + "__" + loop.index0,
                 name: "__remove",
                 value: item.uploadId,
                 text: "Remove",
