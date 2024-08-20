@@ -71,8 +71,21 @@ export type MultilineTextFieldViewModel = {
   maxwords?: number
 } & ViewModel
 
+export interface FileUploadSummaryRow {
+  name: string
+  errorMessage?: string
+  size: string
+  tag: { classes: string; text: string }
+  uploadId: string
+}
+
 export type FileUploadFieldViewModel = {
-  upload: object
+  upload: {
+    count: number
+    pendingCount: number
+    successfulCount: number
+    summary: FileUploadSummaryRow[]
+  }
 } & ViewModel
 
 export interface FormComponentViewModel {

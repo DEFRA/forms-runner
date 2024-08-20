@@ -1,5 +1,4 @@
 import { type Request, type ResponseToolkit } from '@hapi/hapi'
-import njk from 'nunjucks'
 
 import { RelativeUrl } from '~/src/server/plugins/engine/feedback/index.js'
 
@@ -77,8 +76,4 @@ export const filesize = (bytes: number) => {
   } while (bytes > 1000)
 
   return Math.max(bytes, 0.1).toFixed(1) + byteUnits[i]
-}
-
-export const escapeHtml = (str: string) => {
-  return njk.lib.escape(str)
 }

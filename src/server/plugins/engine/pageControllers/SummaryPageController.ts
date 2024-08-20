@@ -5,7 +5,7 @@ import {
   type ResponseToolkit,
   type RouteOptions
 } from '@hapi/hapi'
-import { format } from 'date-fns'
+import { format, addDays } from 'date-fns'
 
 import { config } from '~/src/config/index.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
@@ -31,6 +31,9 @@ import { type PageControllerClass } from '~/src/server/plugins/engine/pageContro
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 import { type Field } from '~/src/server/schemas/types.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
+
+const designerUrl = config.get('designerUrl')
+const templateId = config.get('notifyTemplateId')
 
 export class SummaryPageController extends PageController {
   /**
@@ -239,7 +242,7 @@ async function sendEmail(
   try {
     // Send submission email
     await sendNotification({
-      templateId: config.get('notifyTemplateId'),
+      templateId,
       emailAddress,
       personalisation
     })
@@ -262,14 +265,25 @@ export function getPersonalisation(
    */
   const { relevantPages, details } = summaryViewModel
 
+  const now = new Date()
+  const fileExpiryDate = addDays(now, 30)
+  const formattedExpiryDate = `${format(fileExpiryDate, 'h:mmaaa')} on ${format(fileExpiryDate, 'eeee d MMMM yyyy')}`
   const formSubmissionData = getFormSubmissionData(
     relevantPages,
     details,
     model
   )
 
-  const lines: (string | number)[] = []
-  const now = new Date()
+  const lines: string[] = []
+  const files = formSubmissionData.questions.flatMap((question) =>
+    question.fields.filter((field) => field.type === 'file')
+  )
+
+  if (files.length) {
+    lines.push(
+      `^ For security reasons, the links in this email expire at ${formattedExpiryDate}\n`
+    )
+  }
 
   lines.push(
     `We’ve received your form at ${format(now, 'h:mmaaa')} on ${format(now, 'd MMMM yyyy')}.`
@@ -277,11 +291,34 @@ export function getPersonalisation(
 
   formSubmissionData.questions.forEach((question) => {
     question.fields.forEach((field) => {
-      const { title, answer } = field
-      const isBoolAnswer = typeof answer === 'boolean'
+      const { title, answer, type } = field
+      let value = ''
+
+      if (typeof answer === 'string') {
+        value = answer
+      } else if (typeof answer === 'number') {
+        value = answer.toString()
+      } else if (typeof answer === 'boolean') {
+        value = answer ? 'yes' : 'no'
+      } else if (Array.isArray(answer)) {
+        const uploads = answer
+
+        if (type === 'file') {
+          const files = uploads.map((upload) => upload.status.form.file)
+          const bullets = files
+            .map(
+              (file) =>
+                `* [${file.filename}](${designerUrl}/file-download/${file.fileId})`
+            )
+            .join('\n')
+          value = `${files.length} files uploaded (links expire ${formattedExpiryDate}):\n\n${bullets}`
+        } else {
+          value = answer.toString()
+        }
+      }
 
       lines.push(`## ${title}`)
-      lines.push(isBoolAnswer ? (answer ? 'yes' : 'no') : answer)
+      lines.push(value)
       lines.push('\n')
     })
   })
@@ -323,6 +360,7 @@ function getFormSubmissionData(
 export function answerFromDetailItem(item: DetailItem) {
   switch (item.dataType) {
     case 'list':
+    case 'file':
       return item.rawValue
     case 'date':
       return format(new Date(item.rawValue), 'yyyy-MM-dd')

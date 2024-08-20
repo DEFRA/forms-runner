@@ -5,14 +5,23 @@
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% from "govuk/components/file-upload/macro.njk" import govukFileUpload %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
 
 {% set model = fileUploadComponent.model %}
-{% set action = model.upload.formAction %}
 
 {% block form %}
-  <form method="post" enctype="multipart/form-data" autocomplete="off" novalidate action="{{ action }}">
+  {{ componentList(preUploadComponents) }}
+  <form method="post" enctype="multipart/form-data" autocomplete="off" novalidate action="{{ formAction }}">
     {{ govukFileUpload(model) }}
-    {{ govukButton({ text: "Upload file", classes: "govuk-button--secondary" }) }}
+
+    {% if formAction %}
+      {{ govukButton({ text: "Upload file", classes: "govuk-button--secondary", preventDoubleClick: true }) }}
+    {% else %}
+      {{ govukWarningText({
+        text: "You have reached the maximum number of files. Please remove a file to upload more.",
+        iconFallbackText: "Warning"
+      }) }}
+    {% endif %}
   </form>
   {{super()}}
 {% endblock %}

@@ -118,18 +118,14 @@ export interface UploadStatusResponse {
   form: UploadStatusForm
 }
 
-export type FileStateArray = FileState[]
-
 export interface FileState {
   uploadId: string
   status: UploadStatusResponse
 }
 
-export type FilesState = FileStateArray & { formAction: string }
-
 export interface TempFileState {
   upload?: UploadInitiateResponse
-  files: FileStateArray
+  files: FileState[]
 }
 
 export type TempUploadState = Record<string, TempFileState>
@@ -151,5 +147,8 @@ export interface PageViewModel {
 }
 
 export type FileUploadPageViewModel = {
+  path: string
+  formAction?: string
   fileUploadComponent: FormComponentViewModel
+  preUploadComponents: ComponentCollectionViewModel
 } & PageViewModel
