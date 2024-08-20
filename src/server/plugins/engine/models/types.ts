@@ -86,7 +86,7 @@ export interface DetailItem {
   /**
    * Raw value of a field. For example, a Date will be displayed as 2022-12-25
    */
-  rawValue: string | number | boolean | (FileState[] | null)
+  rawValue: string | number | boolean | FileState[] | null
   url: string
   pageId: string
   type: ComponentBase['type']

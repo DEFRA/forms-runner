@@ -300,10 +300,10 @@ export function getPersonalisation(
         value = answer.toString()
       } else if (typeof answer === 'boolean') {
         value = answer ? 'yes' : 'no'
-      } else if (type === 'file') {
+      } else if (Array.isArray(answer)) {
         const uploads = answer
 
-        if (Array.isArray(uploads) && uploads.length) {
+        if (type === 'file') {
           const files = uploads.map((upload) => upload.status.form.file)
           const bullets = files
             .map(
@@ -312,6 +312,8 @@ export function getPersonalisation(
             )
             .join('\n')
           value = `${files.length} files uploaded (links expire ${formattedExpiryDate}):\n\n${bullets}`
+        } else {
+          value = answer.toString()
         }
       }
 
