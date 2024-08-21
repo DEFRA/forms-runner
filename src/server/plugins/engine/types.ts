@@ -98,14 +98,8 @@ export enum FileStatus {
 export interface FileUpload {
   fileId: string
   filename: string
-  contentType: string
   fileStatus: FileStatus
   contentLength: number
-  checksumSha256?: string
-  detectedContentType?: string
-  s3Key?: string
-  s3Bucket?: string
-  hasError?: boolean
   errorMessage?: string
 }
 
