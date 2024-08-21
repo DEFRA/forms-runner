@@ -258,16 +258,15 @@ async function extendFileRetention(
     (name) => state[name] as FileState
   )
 
-  // Create a job to persist each file
-  const persistenceJobs = Object.values(fileUploadStates).map((upload) => {
+  // Create a batch of files to update to persist each file
+  const files = Object.values(fileUploadStates).map((upload) => {
     const { fileId } = upload.status.form.file
     const { retrievalKey } = upload.status.metadata
 
-    return persistFile(fileId, retrievalKey, updatedRetrievalKey)
+    return { fileId, initiatedRetrievalKey: retrievalKey }
   })
 
-  /** @todo handle failures */
-  return Promise.allSettled(persistenceJobs)
+  return persistFile(files, updatedRetrievalKey)
 }
 
 async function sendEmail(

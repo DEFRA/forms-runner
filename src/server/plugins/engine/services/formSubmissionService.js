@@ -7,29 +7,24 @@ const logger = createLogger()
 
 /**
  * Initiates a CDP file upload
- * @param {string} fileId - the ID of the file
- * @param {string} initiatedRetrievalKey - retrieval key when initiating upload
+ * @param {{fileId: string, initiatedRetrievalKey: string}[]} files - batch of files to persist
  * @param {string} persistedRetrievalKey - final retrieval key when submitting
  */
-export async function persistFile(
-  fileId,
-  initiatedRetrievalKey,
-  persistedRetrievalKey
-) {
+export async function persistFile(files, persistedRetrievalKey) {
   const postJsonByType = /** @type {typeof postJson} */ (postJson)
 
   const payload = {
-    fileId,
-    initiatedRetrievalKey,
+    files,
     persistedRetrievalKey
   }
 
-  logger.info(`Completed persistence request for file ${fileId}`)
+  logger.info(`Completed persistence request`)
 
-  const result = await postJsonByType(`${submissionUrl}/file/persist`, {
+  const result = await postJsonByType(`${submissionUrl}/files/persist`, {
     payload
   })
 
-  logger.info(`Completed persistence request for file ${fileId}`)
+  logger.info(`Completed persistence request`)
+
   return result
 }
