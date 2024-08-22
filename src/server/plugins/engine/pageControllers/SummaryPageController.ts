@@ -273,7 +273,6 @@ async function extendFileRetention(
   }
 }
 
-
 async function sendEmail(
   request: Request,
   summaryViewModel: SummaryViewModel,
