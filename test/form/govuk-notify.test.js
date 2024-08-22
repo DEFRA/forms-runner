@@ -21,8 +21,9 @@ const okStatusCode = 200
 const redirectStatusCode = 302
 const htmlContentType = 'text/html'
 
+const FILE_EXPIRY_DAYS = 30
 const now = new Date()
-const fileExpiryDate = addDays(now, 30)
+const fileExpiryDate = addDays(now, FILE_EXPIRY_DAYS)
 const formattedExpiryDate = `${format(fileExpiryDate, 'h:mmaaa')} on ${format(fileExpiryDate, 'eeee d MMMM yyyy')}`
 
 const formResults = `## Text field
