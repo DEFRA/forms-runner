@@ -103,13 +103,21 @@ export interface FileUpload {
   errorMessage?: string
 }
 
+export interface FileUploadMetadata {
+  formId: string
+  path: string
+  retrievalKey: string
+}
+
 export interface UploadStatusForm {
-  file: FileUpload
+  file?: FileUpload
 }
 
 export interface UploadStatusResponse {
   uploadStatus: UploadStatus
+  metadata: FileUploadMetadata
   form: UploadStatusForm
+  numberOfRejectedFiles?: number
 }
 
 export interface FileState {
