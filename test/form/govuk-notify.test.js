@@ -153,7 +153,38 @@ describe('Submission journey test', () => {
 
   test('POST /summary returns 302', async () => {
     const sender = jest.mocked(sendNotification)
+    jest.mocked(initiateUpload).mockResolvedValue(uploadInitiateResponse)
+    jest.mocked(getUploadStatus).mockResolvedValue(readyStatusResponse)
 
+    // Components page
+    const res = await componentsPage()
+
+    // Extract the session cookie
+    const cookie = getSessionCookie(res)
+
+    // File upload page
+    await fileUploadPage(cookie)
+
+    // Summary page
+    await summaryPage(cookie)
+
+    expect(sender).toHaveBeenCalledWith({
+      templateId: process.env.NOTIFY_TEMPLATE_ID,
+      emailAddress: 'enrique.chase@defra.gov.uk',
+      personalisation: {
+        formName: 'All components',
+        formResults: expect.stringContaining(formResults)
+      }
+    })
+
+    // Status page
+    await statusPage(cookie)
+  })
+
+  /**
+   * POSTs data to the components page
+   */
+  async function componentsPage() {
     const form = {
       textField: 'Text field',
       multilineTextField: 'Multiline text field',
@@ -183,59 +214,65 @@ describe('Submission journey test', () => {
       payload: form
     })
 
-    // Extract the session cookie
-    const cookie = getSessionCookie(res)
-
     expect(res.statusCode).toEqual(redirectStatusCode)
     expect(res.headers.location).toBe(fileUploadPath)
 
-    jest.mocked(initiateUpload).mockResolvedValue(uploadInitiateResponse)
-    jest.mocked(getUploadStatus).mockResolvedValue(readyStatusResponse)
+    return res
+  }
 
-    // Adds a file
+  /**
+   * Adds a file to the temp state as
+   * would happen on redirect from CDP
+   * @param {string} cookie
+   */
+  async function fileUploadPage(cookie) {
     await server.inject({
       method: 'GET',
       url: fileUploadPath,
       headers: { cookie }
     })
 
-    const fileUploadRes = await server.inject({
+    const res = await server.inject({
       method: 'POST',
       url: fileUploadPath,
       headers: { cookie }
     })
 
-    expect(fileUploadRes.statusCode).toEqual(redirectStatusCode)
-    expect(fileUploadRes.headers.location).toBe(summaryPath)
+    expect(res.statusCode).toEqual(redirectStatusCode)
+    expect(res.headers.location).toBe(summaryPath)
 
-    // GET the summary page
+    return res
+  }
+
+  /**
+   * GETs and POSTs the summary page
+   * @param {string} cookie
+   */
+  async function summaryPage(cookie) {
     await server.inject({
       method: 'GET',
       url: summaryPath,
       headers: { cookie }
     })
 
-    // POST the summary form and assert
-    // the mock sendNotification contains
-    // the correct personalisation data
-    const submitRes = await server.inject({
+    const res = await server.inject({
       method: 'POST',
       url: summaryPath,
       headers: { cookie },
       payload: {}
     })
 
-    expect(sender).toHaveBeenCalledWith({
-      templateId: process.env.NOTIFY_TEMPLATE_ID,
-      emailAddress: 'enrique.chase@defra.gov.uk',
-      personalisation: {
-        formName: 'All components',
-        formResults: expect.stringContaining(formResults)
-      }
-    })
-    expect(submitRes.statusCode).toBe(redirectStatusCode)
-    expect(submitRes.headers.location).toBe('/components/status')
+    expect(res.statusCode).toBe(redirectStatusCode)
+    expect(res.headers.location).toBe('/components/status')
 
+    return res
+  }
+
+  /**
+   * GETs the summary page
+   * @param {string} cookie
+   */
+  async function statusPage(cookie) {
     // Finally GET the /{slug}/status page
     const statusRes = await server.inject({
       method: 'GET',
@@ -245,7 +282,7 @@ describe('Submission journey test', () => {
 
     expect(statusRes.statusCode).toBe(okStatusCode)
     expect(statusRes.headers['content-type']).toContain(htmlContentType)
-  })
+  }
 })
 
 /**
