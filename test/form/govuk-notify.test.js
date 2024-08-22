@@ -154,15 +154,6 @@ describe('Submission journey test', () => {
   test('POST /summary returns 302', async () => {
     const sender = jest.mocked(sendNotification)
 
-    // GET the start page to create a session
-    const initialiseRes = await server.inject({
-      method: 'GET',
-      url: componentsPath
-    })
-
-    // Extract the session cookie
-    const cookie = getSessionCookie(initialiseRes)
-
     const form = {
       textField: 'Text field',
       multilineTextField: 'Multiline text field',
@@ -189,9 +180,11 @@ describe('Submission journey test', () => {
     const res = await server.inject({
       method: 'POST',
       url: componentsPath,
-      payload: form,
-      headers: { cookie }
+      payload: form
     })
+
+    // Extract the session cookie
+    const cookie = getSessionCookie(res)
 
     expect(res.statusCode).toEqual(redirectStatusCode)
     expect(res.headers.location).toBe(fileUploadPath)
