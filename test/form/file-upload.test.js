@@ -1,6 +1,7 @@
-import { load } from 'cheerio'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
+import { load } from 'cheerio'
 
 import { createServer } from '~/src/server/index.js'
 import {
