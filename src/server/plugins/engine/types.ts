@@ -109,20 +109,23 @@ export interface FileUploadMetadata {
   retrievalKey: string
 }
 
-export interface UploadStatusForm {
-  file?: FileUpload
-}
-
 export interface UploadStatusResponse {
   uploadStatus: UploadStatus
   metadata: FileUploadMetadata
-  form: UploadStatusForm
+  form: { file?: FileUpload }
+  numberOfRejectedFiles?: number
+}
+
+export interface UploadState {
+  uploadStatus: UploadStatus
+  metadata: FileUploadMetadata
+  form: { file: FileUpload }
   numberOfRejectedFiles?: number
 }
 
 export interface FileState {
   uploadId: string
-  status: UploadStatusResponse
+  status: UploadState
 }
 
 export interface TempFileState {

@@ -17,7 +17,6 @@ jest.mock('~/src/server/plugins/engine/services/uploadService.js')
 const okStatusCode = 200
 const redirectStatusCode = 302
 const badRequestStatusCode = 400
-const htmlContentType = 'text/html'
 
 /**
  * @satisfies {UploadInitiateResponse}

@@ -27,17 +27,18 @@ import {
   UploadStatus,
   type FileUploadPageViewModel,
   type TempFileState,
-  FileStatus
+  FileStatus,
+  type UploadState
 } from '~/src/server/plugins/engine/types.js'
 import { type CacheService } from '~/src/server/services/cacheService.js'
 
 const MAX_UPLOADS = 25
 
-const prepareStatus = (status: UploadStatusResponse) => {
+const prepareStatus = (status: UploadState) => {
   const file = status.form.file
-  const isPending = file?.fileStatus === FileStatus.pending
+  const isPending = file.fileStatus === FileStatus.pending
 
-  if (!file?.errorMessage && isPending) {
+  if (!file.errorMessage && isPending) {
     file.errorMessage = 'The selected file has not fully uploaded'
   }
 
@@ -328,7 +329,7 @@ export class FileUploadPageController extends PageController {
         const result = results[index]
 
         if (result.status === 'fulfilled') {
-          const validateResult: ValidationResult<UploadStatusResponse> =
+          const validateResult: ValidationResult<UploadState> =
             tempStatusSchema.validate(result.value, { stripUnknown: true })
 
           if (!validateResult.error) {

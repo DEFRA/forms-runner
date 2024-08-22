@@ -1,17 +1,30 @@
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { addDays, format } from 'date-fns'
+
 import { createServer } from '~/src/server/index.js'
+import {
+  initiateUpload,
+  getUploadStatus
+} from '~/src/server/plugins/engine/services/uploadService.js'
+import { FileStatus, UploadStatus } from '~/src/server/plugins/engine/types.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
 import { getSessionCookie } from '~/test/utils/get-session-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
 jest.mock('~/src/server/utils/notify.ts')
+jest.mock('~/src/server/plugins/engine/services/uploadService.js')
 
 const okStatusCode = 200
 const redirectStatusCode = 302
 const htmlContentType = 'text/html'
+
+const now = new Date()
+const fileExpiryDate = addDays(now, 30)
+const formattedExpiryDate = `${format(fileExpiryDate, 'h:mmaaa')} on ${format(fileExpiryDate, 'eeee d MMMM yyyy')}`
+
 const formResults = `## Text field
 Text field
 
@@ -66,7 +79,45 @@ Arabian,Shire,Race
 
 ## Checkboxes field 4 (number)
 0,1
+
+
+## Upload your methodology statement
+1 files uploaded (links expire ${formattedExpiryDate}):
+
+* [test.pdf](https://test-designer.cdp-int.defra.cloud/file-download/5a76a1a3-bc8a-4bc0-859a-116d775c7f15)
+
 `
+
+/**
+ * @satisfies {UploadInitiateResponse}
+ */
+const uploadInitiateResponse = {
+  uploadId: '15b2303c-9965-4632-acb6-0776081e0399',
+  uploadUrl:
+    'http://localhost:7337/upload-and-scan/15b2303c-9965-4632-acb6-0776081e0399',
+  statusUrl: 'http://localhost:7337/status/15b2303c-9965-4632-acb6-0776081e0399'
+}
+
+/**
+ * @satisfies {UploadStatusResponse}
+ */
+const readyStatusResponse = {
+  uploadStatus: UploadStatus.ready,
+  metadata: {
+    formId: '66c304662ad3b5fe57210e7c',
+    path: '/file-upload-test/page-one',
+    retrievalKey: 'enrique.chase@defra.gov.uk'
+  },
+  form: {
+    file: {
+      fileId: '5a76a1a3-bc8a-4bc0-859a-116d775c7f15',
+      filename: 'test.pdf',
+      contentLength: 1024,
+      fileStatus: FileStatus.complete
+    }
+  },
+  numberOfRejectedFiles: 0
+}
 
 describe('Submission journey test', () => {
   /** @type {Server} */
@@ -98,6 +149,15 @@ describe('Submission journey test', () => {
   test('POST /summary returns 302', async () => {
     const sender = jest.mocked(sendNotification)
 
+    // GET the start page to create a session
+    const initialiseRes = await server.inject({
+      method: 'GET',
+      url: '/components/all-components'
+    })
+
+    // Extract the session cookie
+    const cookie = getSessionCookie(initialiseRes)
+
     const form = {
       textField: 'Text field',
       multilineTextField: 'Multiline text field',
@@ -124,14 +184,31 @@ describe('Submission journey test', () => {
     const res = await server.inject({
       method: 'POST',
       url: '/components/all-components',
-      payload: form
+      payload: form,
+      headers: { cookie }
     })
 
     expect(res.statusCode).toEqual(redirectStatusCode)
-    expect(res.headers.location).toBe('/components/summary')
+    expect(res.headers.location).toBe('/components/methodology-statement')
 
-    // Extract the session cookie
-    const cookie = getSessionCookie(res)
+    jest.mocked(initiateUpload).mockResolvedValue(uploadInitiateResponse)
+    jest.mocked(getUploadStatus).mockResolvedValue(readyStatusResponse)
+
+    // Adds a file
+    await server.inject({
+      method: 'GET',
+      url: '/components/methodology-statement',
+      headers: { cookie }
+    })
+
+    const fileUploadRes = await server.inject({
+      method: 'POST',
+      url: '/components/methodology-statement',
+      headers: { cookie }
+    })
+
+    expect(fileUploadRes.statusCode).toEqual(redirectStatusCode)
+    expect(fileUploadRes.headers.location).toBe('/components/summary')
 
     // GET the summary page
     await server.inject({
@@ -175,4 +252,9 @@ describe('Submission journey test', () => {
 
 /**
  * @import { Server } from '@hapi/hapi'
+ */
+
+/**
+ * @typedef {import('~/src/server/plugins/engine/types.js').UploadInitiateResponse} UploadInitiateResponse
+ * @typedef {import('~/src/server/plugins/engine/types.js').UploadStatusResponse} UploadStatusResponse
  */
