@@ -12,6 +12,7 @@ const testDir = dirname(fileURLToPath(import.meta.url))
 
 jest.mock('~/src/server/plugins/engine/services/formSubmissionService.js')
 jest.mock('~/src/server/plugins/engine/services/uploadService.js')
+jest.mock('~/src/server/utils/notify.ts')
 
 const okStatusCode = 200
 const redirectStatusCode = 302
@@ -35,6 +36,31 @@ const readyFile = {
         detectedContentType: 'application/pdf',
         s3Key:
           'staging/a95c9603-5ddd-4ed3-a912-bc2351a5eb21/a9e7470b-86a5-4826-a908-360a36aac71d',
+        s3Bucket: 'my-bucket'
+      }
+    },
+    numberOfRejectedFiles: 0
+  }
+}
+
+const readyFile2 = {
+  uploadId: '404a31b2-8ee8-49b5-a6e8-23da9e69ba1f',
+  status: {
+    uploadStatus: UploadStatus.ready,
+    metadata: {
+      retrievalKey: 'foo.bar@defra.gov.uk'
+    },
+    form: {
+      file: {
+        fileId: 'a9e7470b-86a5-4826-a908-360a36aac72a',
+        filename: 'myfile.pdf',
+        contentType: 'application/pdf',
+        fileStatus: FileStatus.complete,
+        contentLength: 735163,
+        checksumSha256: 'zWNFyfw47D528j+CYd/qZQ6adJgGuG47SDJStfIUfmk=',
+        detectedContentType: 'application/pdf',
+        s3Key:
+          'staging/404a31b2-8ee8-49b5-a6e8-23da9e69ba1f/a9e7470b-86a5-4826-a908-360a36aac71z',
         s3Bucket: 'my-bucket'
       }
     },
@@ -81,34 +107,21 @@ describe('Submission journey test', () => {
   })
 
   test('POST /file-upload-component returns 302', async () => {
-    jest.spyOn(CacheService.prototype, 'getUploadState').mockResolvedValueOnce({
-      upload: {
-        uploadId: '123-546-789',
-        uploadUrl: 'http://localhost:7337/upload-and-scan/123-546-789',
-        statusUrl: 'http://localhost:7337/status/123-546-789'
-      },
-      files: []
-    })
+    jest.spyOn(CacheService.prototype, 'getUploadState').mockResolvedValueOnce(
+      /** @type {import('~/src/server/plugins/engine/types.js').TempFileState} */ ({
+        upload: {
+          uploadId: '123-546-788',
+          uploadUrl: 'http://localhost:7337/upload-and-scan/123-546-788',
+          statusUrl: 'http://localhost:7337/status/123-546-788'
+        },
+        files: [readyFile, readyFile2]
+      })
+    )
 
-    jest.mocked(uploadService.getUploadStatus).mockResolvedValueOnce({
-      uploadStatus: UploadStatus.initiated,
-      metadata: {
-        retrievalKey: 'dummy'
-      },
-      form: {
-        file: {
-          fileId: 'dummy',
-          filename: 'dummy',
-          contentType: 'dummy',
-          fileStatus: FileStatus.complete,
-          contentLength: 0,
-          checksumSha256: 'dummy',
-          detectedContentType: 'dummy',
-          s3Key: 'dummy',
-          s3Bucket: 'dummy'
-        }
-      }
-    })
+    jest
+      .mocked(uploadService.getUploadStatus)
+      .mockResolvedValueOnce(readyFile.status)
+      .mockResolvedValueOnce(readyFile2.status)
 
     jest.mocked(uploadService.initiateUpload).mockResolvedValueOnce({
       uploadId: '123-546-790',
@@ -117,8 +130,7 @@ describe('Submission journey test', () => {
     })
 
     const form = {
-      crumb: 'dummyCrumb',
-      fileUploadComponentName: [readyFile]
+      crumb: 'dummyCrumb'
     }
 
     // POST the form data to set the state
@@ -148,7 +160,7 @@ describe('Submission journey test', () => {
       method: 'POST',
       url: '/file-upload/summary',
       headers: { cookie },
-      payload: {}
+      payload: { form }
     })
 
     expect(persistFiles).toHaveBeenCalledTimes(1)
@@ -164,6 +176,19 @@ describe('Submission journey test', () => {
 
     expect(statusRes.statusCode).toBe(okStatusCode)
     expect(statusRes.headers['content-type']).toContain(htmlContentType)
+    expect(persistFiles).toHaveBeenCalledWith(
+      [
+        {
+          fileId: readyFile.status.form.file.fileId,
+          initiatedRetrievalKey: readyFile.status.metadata.retrievalKey
+        },
+        {
+          fileId: readyFile2.status.form.file.fileId,
+          initiatedRetrievalKey: readyFile2.status.metadata.retrievalKey
+        }
+      ],
+      'enrique.chase@defra.gov.uk'
+    )
   })
 })
 
