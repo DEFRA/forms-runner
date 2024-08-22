@@ -35,9 +35,9 @@ const MAX_UPLOADS = 25
 
 const prepareStatus = (status: UploadStatusResponse) => {
   const file = status.form.file
-  const isPending = file.fileStatus === FileStatus.pending
+  const isPending = file?.fileStatus === FileStatus.pending
 
-  if (!file.errorMessage && isPending) {
+  if (!file?.errorMessage && isPending) {
     file.errorMessage = 'The selected file has not fully uploaded'
   }
 
@@ -243,7 +243,7 @@ export class FileUploadPageController extends PageController {
 
   /**
    * If an upload exists and hasn't been consumed
-   * it gets re-used, otherwise a ne wone is initiated.
+   * it gets re-used, otherwise a new one is initiated.
    * @param request - the hapi request
    * @param state - the upload state
    * @param cacheService - the cache service
