@@ -49,7 +49,7 @@ export class FormModel {
 
   lists: FormDefinition['lists']
   sections: FormDefinition['sections'] = []
-  options: { basePath: string; defaultPageController?: string; formId?: string }
+  options: { basePath: string; defaultPageController?: string }
   name: string
   values: FormDefinition
   DefaultPageController: PageControllerType | undefined = PageController

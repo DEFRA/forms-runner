@@ -22,8 +22,6 @@ const readyFile = {
   status: {
     uploadStatus: UploadStatus.ready,
     metadata: {
-      formId: '66ba2f912aec9371f10b04fd',
-      path: '/file-upload/page-one',
       retrievalKey: 'foo.bar@defra.gov.uk'
     },
     form: {
@@ -95,8 +93,6 @@ describe('Submission journey test', () => {
     jest.mocked(uploadService.getUploadStatus).mockResolvedValueOnce({
       uploadStatus: UploadStatus.initiated,
       metadata: {
-        formId: 'dummy',
-        path: '/dummy',
         retrievalKey: 'dummy'
       },
       form: {
