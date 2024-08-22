@@ -78,7 +78,7 @@ const readyStatusResponse = {
   numberOfRejectedFiles: 0
 }
 
-describe('File upload tests', () => {
+describe('File upload GET tests', () => {
   /** @type {Server} */
   let server
 
@@ -166,6 +166,24 @@ describe('File upload tests', () => {
     })
 
     expect(res2.statusCode).toBe(okStatusCode)
+  })
+})
+
+describe('File upload POST tests', () => {
+  /** @type {Server} */
+  let server
+
+  // Create server before each test
+  beforeAll(async () => {
+    server = await createServer({
+      formFileName: 'file-upload.json',
+      formFilePath: resolve(testDir, '../form/definitions')
+    })
+    await server.initialize()
+  })
+
+  afterAll(async () => {
+    await server.stop()
   })
 
   test('POST /file-upload with pending file returns 200 with errors', async () => {
