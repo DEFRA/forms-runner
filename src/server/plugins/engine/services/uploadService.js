@@ -25,7 +25,10 @@ export async function initiateUpload(formId, path, retrievalKey, mimeTypes) {
       path,
       retrievalKey
     },
-    mimeTypes: mimeTypes?.split(',')
+    mimeTypes: mimeTypes
+      ?.split(',')
+      .map((type) => type.trim())
+      .filter((type) => type !== '')
     // maxFileSize: 25 * 1000 * 1000
   }
 
