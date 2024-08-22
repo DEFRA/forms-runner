@@ -88,7 +88,9 @@ Arabian,Shire,Race
 
 `
 
-const url = '/components/all-components'
+const componentsPath = '/components/all-components'
+const fileUploadPath = '/components/methodology-statement'
+const summaryPath = '/components/summary'
 
 /**
  * @satisfies {UploadInitiateResponse}
@@ -141,7 +143,7 @@ describe('Submission journey test', () => {
   test('GET /all-components returns 200', async () => {
     const res = await server.inject({
       method: 'GET',
-      url
+      url: componentsPath
     })
 
     expect(res.statusCode).toEqual(okStatusCode)
@@ -154,7 +156,7 @@ describe('Submission journey test', () => {
     // GET the start page to create a session
     const initialiseRes = await server.inject({
       method: 'GET',
-      url
+      url: componentsPath
     })
 
     // Extract the session cookie
@@ -185,13 +187,13 @@ describe('Submission journey test', () => {
     // POST the form data to set the state
     const res = await server.inject({
       method: 'POST',
-      url,
+      url: componentsPath,
       payload: form,
       headers: { cookie }
     })
 
     expect(res.statusCode).toEqual(redirectStatusCode)
-    expect(res.headers.location).toBe('/components/methodology-statement')
+    expect(res.headers.location).toBe(fileUploadPath)
 
     jest.mocked(initiateUpload).mockResolvedValue(uploadInitiateResponse)
     jest.mocked(getUploadStatus).mockResolvedValue(readyStatusResponse)
@@ -199,23 +201,23 @@ describe('Submission journey test', () => {
     // Adds a file
     await server.inject({
       method: 'GET',
-      url: '/components/methodology-statement',
+      url: fileUploadPath,
       headers: { cookie }
     })
 
     const fileUploadRes = await server.inject({
       method: 'POST',
-      url: '/components/methodology-statement',
+      url: fileUploadPath,
       headers: { cookie }
     })
 
     expect(fileUploadRes.statusCode).toEqual(redirectStatusCode)
-    expect(fileUploadRes.headers.location).toBe('/components/summary')
+    expect(fileUploadRes.headers.location).toBe(summaryPath)
 
     // GET the summary page
     await server.inject({
       method: 'GET',
-      url: '/components/summary',
+      url: summaryPath,
       headers: { cookie }
     })
 
@@ -224,7 +226,7 @@ describe('Submission journey test', () => {
     // the correct personalisation data
     const submitRes = await server.inject({
       method: 'POST',
-      url: '/components/summary',
+      url: summaryPath,
       headers: { cookie },
       payload: {}
     })
