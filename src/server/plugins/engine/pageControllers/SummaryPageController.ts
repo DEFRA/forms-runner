@@ -29,7 +29,7 @@ import {
 } from '~/src/server/plugins/engine/models/types.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
-import { persistFile } from '~/src/server/plugins/engine/services/formSubmissionService.js'
+import { persistFiles } from '~/src/server/plugins/engine/services/formSubmissionService.js'
 import {
   type FileState,
   type FormSubmissionState
@@ -255,19 +255,24 @@ async function extendFileRetention(
 
   // Pull the state for each file upload component
   const fileUploadStates = fileUploadComponentNames.map(
-    (name) => state[name] as FileState
+    (name) => state[name] as FileState[]
   )
 
   // Create a batch of files to update to persist each file
-  const files = Object.values(fileUploadStates).map((upload) => {
-    const { fileId } = upload.status.form.file
-    const { retrievalKey } = upload.status.metadata
+  const files = fileUploadStates.flatMap((uploadPage) =>
+    uploadPage.map((upload) => {
+      const { fileId } = upload.status.form.file
+      const { retrievalKey } = upload.status.metadata
 
-    return { fileId, initiatedRetrievalKey: retrievalKey }
-  })
+      return { fileId, initiatedRetrievalKey: retrievalKey }
+    })
+  )
 
-  return persistFile(files, updatedRetrievalKey)
+  if (files.length) {
+    return persistFiles(files, updatedRetrievalKey)
+  }
 }
+
 
 async function sendEmail(
   request: Request,

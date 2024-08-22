@@ -10,7 +10,7 @@ const logger = createLogger()
  * @param {{fileId: string, initiatedRetrievalKey: string}[]} files - batch of files to persist
  * @param {string} persistedRetrievalKey - final retrieval key when submitting
  */
-export async function persistFile(files, persistedRetrievalKey) {
+export async function persistFiles(files, persistedRetrievalKey) {
   const postJsonByType = /** @type {typeof postJson} */ (postJson)
 
   const payload = {

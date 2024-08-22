@@ -2,7 +2,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { createServer } from '~/src/server/index.js'
-import { persistFile } from '~/src/server/plugins/engine/services/formSubmissionService.js'
+import { persistFiles } from '~/src/server/plugins/engine/services/formSubmissionService.js'
 import * as uploadService from '~/src/server/plugins/engine/services/uploadService.js'
 import { FileStatus, UploadStatus } from '~/src/server/plugins/engine/types.js'
 import { CacheService } from '~/src/server/services/cacheService.js'
@@ -155,7 +155,7 @@ describe('Submission journey test', () => {
       payload: {}
     })
 
-    expect(persistFile).toHaveBeenCalledTimes(1)
+    expect(persistFiles).toHaveBeenCalledTimes(1)
     expect(submitRes.statusCode).toBe(redirectStatusCode)
     expect(submitRes.headers.location).toBe('/file-upload/status')
 
