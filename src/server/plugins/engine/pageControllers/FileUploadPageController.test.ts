@@ -58,11 +58,13 @@ describe('FileUploadPageController', () => {
   describe('Constructor', () => {
     it('throws unless there is exactly 1 file upload component', () => {
       expect(() => {
-        new FileUploadPageController(formModel, {
+        const fileUploadController = new FileUploadPageController(formModel, {
           path: '/first-page',
           title: 'Upload files',
           components: [component1]
         })
+
+        return fileUploadController
       }).toThrow(
         `Expected 1 FileUploadFieldComponent in FileUploadPageController '${page.path}'`
       )
@@ -78,11 +80,13 @@ describe('FileUploadPageController', () => {
       }
 
       expect(() => {
-        new FileUploadPageController(formModel, {
+        const fileUploadController = new FileUploadPageController(formModel, {
           path: '/first-page',
           title: 'Upload files',
           components: [textComponent, component2]
         })
+
+        return fileUploadController
       }).toThrow(
         `Expected '${component2.name}' to be the first form component in FileUploadPageController '${page.path}'`
       )

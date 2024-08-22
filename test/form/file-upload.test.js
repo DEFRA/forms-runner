@@ -18,6 +18,13 @@ const okStatusCode = 200
 const redirectStatusCode = 302
 const badRequestStatusCode = 400
 
+const url = '/file-upload/methodology-statement'
+const metadata = {
+  formId: '66c304662ad3b5fe57210e7c',
+  path: url,
+  retrievalKey: 'enrique.chase@defra.gov.uk'
+}
+
 /**
  * @satisfies {UploadInitiateResponse}
  */
@@ -33,11 +40,7 @@ const uploadInitiateResponse = {
  */
 const initiatedStatusResponse = {
   uploadStatus: UploadStatus.initiated,
-  metadata: {
-    formId: '66c304662ad3b5fe57210e7c',
-    path: '/file-upload-test/page-one',
-    retrievalKey: 'enrique.chase@defra.gov.uk'
-  },
+  metadata,
   form: {}
 }
 
@@ -46,11 +49,7 @@ const initiatedStatusResponse = {
  */
 const pendingStatusResponse = {
   uploadStatus: UploadStatus.pending,
-  metadata: {
-    formId: '66c304662ad3b5fe57210e7c',
-    path: '/file-upload-test/page-one',
-    retrievalKey: 'enrique.chase@defra.gov.uk'
-  },
+  metadata,
   form: {
     file: {
       fileId: '5a76a1a3-bc8a-4bc0-859a-116d775c7f15',
@@ -66,11 +65,7 @@ const pendingStatusResponse = {
  */
 const readyStatusResponse = {
   uploadStatus: UploadStatus.ready,
-  metadata: {
-    formId: '66c304662ad3b5fe57210e7c',
-    path: '/file-upload-test/page-one',
-    retrievalKey: 'enrique.chase@defra.gov.uk'
-  },
+  metadata,
   form: {
     file: {
       fileId: '5a76a1a3-bc8a-4bc0-859a-116d775c7f15',
@@ -104,7 +99,7 @@ describe('File upload tests', () => {
 
     const options = {
       method: 'GET',
-      url: '/file-upload/methodology-statement'
+      url
     }
 
     const res = await server.inject(options)
@@ -117,7 +112,7 @@ describe('File upload tests', () => {
 
     const options = {
       method: 'GET',
-      url: '/file-upload/methodology-statement'
+      url
     }
 
     const res1 = await server.inject(options)
@@ -151,7 +146,7 @@ describe('File upload tests', () => {
 
     const options = {
       method: 'GET',
-      url: '/file-upload/methodology-statement'
+      url
     }
 
     const res1 = await server.inject(options)
@@ -177,7 +172,7 @@ describe('File upload tests', () => {
 
     const options = {
       method: 'GET',
-      url: '/file-upload/methodology-statement'
+      url
     }
 
     const res1 = await server.inject(options)
@@ -190,7 +185,7 @@ describe('File upload tests', () => {
     jest.mocked(getUploadStatus).mockResolvedValue(pendingStatusResponse)
     const res2 = await server.inject({
       method: 'POST',
-      url: '/file-upload/methodology-statement',
+      url,
       headers: { cookie }
     })
 
@@ -221,7 +216,7 @@ describe('File upload tests', () => {
 
     const options = {
       method: 'GET',
-      url: '/file-upload/methodology-statement'
+      url
     }
 
     const res1 = await server.inject(options)
@@ -233,7 +228,7 @@ describe('File upload tests', () => {
 
     const res2 = await server.inject({
       method: 'GET',
-      url: '/file-upload/methodology-statement',
+      url,
       headers: { cookie }
     })
 
@@ -241,7 +236,7 @@ describe('File upload tests', () => {
 
     const res3 = await server.inject({
       method: 'POST',
-      url: '/file-upload/methodology-statement',
+      url,
       headers: { cookie }
     })
 
@@ -255,7 +250,7 @@ describe('File upload tests', () => {
 
     const options = {
       method: 'GET',
-      url: '/file-upload/methodology-statement'
+      url
     }
 
     const res1 = await server.inject(options)
@@ -267,7 +262,7 @@ describe('File upload tests', () => {
 
     const res2 = await server.inject({
       method: 'GET',
-      url: '/file-upload/methodology-statement',
+      url,
       headers: { cookie }
     })
 
@@ -275,7 +270,7 @@ describe('File upload tests', () => {
 
     const res3 = await server.inject({
       method: 'POST',
-      url: '/file-upload/methodology-statement',
+      url,
       headers: { cookie },
       payload: {
         __remove: '15b2303c-9965-4632-acb6-0776081e0399'

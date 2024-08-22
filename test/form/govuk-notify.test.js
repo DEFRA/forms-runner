@@ -88,6 +88,8 @@ Arabian,Shire,Race
 
 `
 
+const url = '/components/all-components'
+
 /**
  * @satisfies {UploadInitiateResponse}
  */
@@ -139,7 +141,7 @@ describe('Submission journey test', () => {
   test('GET /all-components returns 200', async () => {
     const res = await server.inject({
       method: 'GET',
-      url: '/components/all-components'
+      url
     })
 
     expect(res.statusCode).toEqual(okStatusCode)
@@ -152,7 +154,7 @@ describe('Submission journey test', () => {
     // GET the start page to create a session
     const initialiseRes = await server.inject({
       method: 'GET',
-      url: '/components/all-components'
+      url
     })
 
     // Extract the session cookie
@@ -183,7 +185,7 @@ describe('Submission journey test', () => {
     // POST the form data to set the state
     const res = await server.inject({
       method: 'POST',
-      url: '/components/all-components',
+      url,
       payload: form,
       headers: { cookie }
     })
