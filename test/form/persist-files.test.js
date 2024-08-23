@@ -75,7 +75,7 @@ describe('Submission journey test', () => {
   // Create server before each test
   beforeAll(async () => {
     server = await createServer({
-      formFileName: 'file-upload.json',
+      formFileName: 'file-upload-2.json',
       formFilePath: join(testDir, 'definitions')
     })
     await server.initialize()
