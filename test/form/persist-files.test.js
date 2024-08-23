@@ -29,14 +29,8 @@ const readyFile = {
       file: {
         fileId: 'a9e7470b-86a5-4826-a908-360a36aac71d',
         filename: 'api details.pdf',
-        contentType: 'application/pdf',
         fileStatus: FileStatus.complete,
-        contentLength: 735163,
-        checksumSha256: 'zWNFyfw47D528j+CYd/qZQ6adJgGuG47SDJStfIUfmk=',
-        detectedContentType: 'application/pdf',
-        s3Key:
-          'staging/a95c9603-5ddd-4ed3-a912-bc2351a5eb21/a9e7470b-86a5-4826-a908-360a36aac71d',
-        s3Bucket: 'my-bucket'
+        contentLength: 735163
       }
     },
     numberOfRejectedFiles: 0
@@ -54,14 +48,8 @@ const readyFile2 = {
       file: {
         fileId: 'a9e7470b-86a5-4826-a908-360a36aac72a',
         filename: 'myfile.pdf',
-        contentType: 'application/pdf',
         fileStatus: FileStatus.complete,
-        contentLength: 735163,
-        checksumSha256: 'zWNFyfw47D528j+CYd/qZQ6adJgGuG47SDJStfIUfmk=',
-        detectedContentType: 'application/pdf',
-        s3Key:
-          'staging/404a31b2-8ee8-49b5-a6e8-23da9e69ba1f/a9e7470b-86a5-4826-a908-360a36aac71z',
-        s3Bucket: 'my-bucket'
+        contentLength: 735163
       }
     },
     numberOfRejectedFiles: 0
@@ -99,7 +87,7 @@ describe('Submission journey test', () => {
 
     const res = await server.inject({
       method: 'GET',
-      url: '/file-upload/file-upload-component'
+      url: '/file-upload-2/file-upload-component'
     })
 
     expect(res.statusCode).toEqual(okStatusCode)
@@ -136,12 +124,12 @@ describe('Submission journey test', () => {
     // POST the form data to set the state
     const res = await server.inject({
       method: 'POST',
-      url: '/file-upload/file-upload-component',
+      url: '/file-upload-2/file-upload-component',
       payload: form
     })
 
     expect(res.statusCode).toEqual(redirectStatusCode)
-    expect(res.headers.location).toBe('/file-upload/summary')
+    expect(res.headers.location).toBe('/file-upload-2/summary')
 
     // Extract the session cookie
     const cookie = getSessionCookie(res)
@@ -149,7 +137,7 @@ describe('Submission journey test', () => {
     // GET the summary page
     await server.inject({
       method: 'GET',
-      url: '/file-upload/summary',
+      url: '/file-upload-2/summary',
       headers: { cookie }
     })
 
@@ -158,19 +146,19 @@ describe('Submission journey test', () => {
     // the correct personalisation data
     const submitRes = await server.inject({
       method: 'POST',
-      url: '/file-upload/summary',
+      url: '/file-upload-2/summary',
       headers: { cookie },
       payload: { form }
     })
 
     expect(persistFiles).toHaveBeenCalledTimes(1)
     expect(submitRes.statusCode).toBe(redirectStatusCode)
-    expect(submitRes.headers.location).toBe('/file-upload/status')
+    expect(submitRes.headers.location).toBe('/file-upload-2/status')
 
     // Finally GET the /{slug}/status page
     const statusRes = await server.inject({
       method: 'GET',
-      url: '/file-upload/status',
+      url: '/file-upload-2/status',
       headers: { cookie }
     })
 
