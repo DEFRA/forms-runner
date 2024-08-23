@@ -26,11 +26,30 @@ import {
   type FileState,
   UploadStatus,
   type FileUploadPageViewModel,
-  type TempFileState
+  type TempFileState,
+  FileStatus,
+  type UploadState
 } from '~/src/server/plugins/engine/types.js'
 import { type CacheService } from '~/src/server/services/cacheService.js'
 
 const MAX_UPLOADS = 25
+
+function prepareStatus(status: UploadState) {
+  const file = status.form.file
+  const isPending = file.fileStatus === FileStatus.pending
+
+  if (!file.errorMessage && isPending) {
+    file.errorMessage = 'The selected file has not fully uploaded'
+  }
+
+  return status
+}
+
+function prepareFileState(fileState: FileState) {
+  prepareStatus(fileState.status)
+
+  return fileState
+}
 
 export class FileUploadPageController extends PageController {
   viewName = 'file-upload'
@@ -146,16 +165,7 @@ export class FileUploadPageController extends PageController {
           const name = err.path.map(formatter).join('')
           const lastPath = err.path[err.path.length - 1]
 
-          if (
-            type === 'any.only' &&
-            lastPath === 'fileStatus' &&
-            err.context?.value === 'pending'
-          ) {
-            const text = 'The selected file has not fully uploaded'
-            const href = `#${err.path.slice(0, 2).map(formatter).join('')}`
-
-            errorList.push({ path, href, name, text })
-          } else if (type === 'object.unknown' && lastPath === 'errorMessage') {
+          if (type === 'object.unknown' && lastPath === 'errorMessage') {
             const value = err.context?.value
 
             if (value) {
@@ -234,7 +244,7 @@ export class FileUploadPageController extends PageController {
 
   /**
    * If an upload exists and hasn't been consumed
-   * it gets re-used, otherwise a ne wone is initiated.
+   * it gets re-used, otherwise a new one is initiated.
    * @param request - the hapi request
    * @param state - the upload state
    * @param cacheService - the cache service
@@ -262,18 +272,21 @@ export class FileUploadPageController extends PageController {
       if (statusResponse.uploadStatus === UploadStatus.initiated) {
         return upload
       } else {
-        // Only add to files state if the file is an object.
+        // Only add to files state if the file validates.
         // This secures against html tampering of the file input
         // by adding a 'multiple' attribute or it being
         // changed to a simple text field or similar.
         const validateResult: ValidationResult<FileState> =
-          tempItemSchema.validate({
-            uploadId,
-            status: statusResponse
-          })
+          tempItemSchema.validate(
+            {
+              uploadId,
+              status: statusResponse
+            },
+            { stripUnknown: true }
+          )
 
         if (!validateResult.error) {
-          files.unshift(validateResult.value)
+          files.unshift(prepareFileState(validateResult.value))
         }
 
         await this.initiateAndStoreNewUpload(request, state, cacheService)
@@ -311,19 +324,20 @@ export class FileUploadPageController extends PageController {
       const results = await Promise.allSettled(promises)
 
       // Update state with the latest result
-      indexes.forEach((idx, index) => {
+      for (let index = 0; index < indexes.length; index++) {
+        const idx = indexes[index]
         const result = results[index]
 
         if (result.status === 'fulfilled') {
-          const validateResult: ValidationResult<UploadStatusResponse> =
-            tempStatusSchema.validate(result.value)
+          const validateResult: ValidationResult<UploadState> =
+            tempStatusSchema.validate(result.value, { stripUnknown: true })
 
           if (!validateResult.error) {
-            state.files[idx].status = validateResult.value
+            state.files[idx].status = prepareStatus(validateResult.value)
             filesUpdated = true
           }
         }
-      })
+      }
 
       if (filesUpdated) {
         await cacheService.mergeUploadState(request, state)

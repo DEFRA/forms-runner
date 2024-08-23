@@ -22,26 +22,17 @@ export const fileSchema = joi
   .object({
     fileId: joi.string().uuid().required(),
     filename: joi.string().required(),
-    contentType: joi.string().required(),
-    detectedContentType: joi.string().optional(),
     contentLength: joi.number().required()
   })
   .required()
 
 export const tempFileSchema = fileSchema.append({
   fileStatus: joi.string().valid('complete', 'rejected', 'pending').required(),
-  checksumSha256: joi.string().optional(),
-  s3Key: joi.string().optional(),
-  s3Bucket: joi.string().optional(),
-  hasError: joi.boolean().optional(),
   errorMessage: joi.string().optional()
 })
 
 export const formFileSchema = fileSchema.append({
-  fileStatus: joi.string().valid('complete').required(),
-  checksumSha256: joi.string().optional(),
-  s3Key: joi.string().required(),
-  s3Bucket: joi.string().required()
+  fileStatus: joi.string().valid('complete').required()
 })
 
 export const metadataSchema = joi

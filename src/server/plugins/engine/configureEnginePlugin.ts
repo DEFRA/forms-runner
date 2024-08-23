@@ -24,8 +24,11 @@ export const configureEnginePlugin = (
       fs.readFileSync(formConfigPath, 'utf8')
     ) as FormDefinition
 
+    const id = idFromFilename(formFileName)
+
     model = new FormModel(definition, {
-      basePath: idFromFilename(formFileName)
+      formId: id,
+      basePath: id
     })
   }
 

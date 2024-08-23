@@ -125,7 +125,33 @@
           "schema": {}
         }
       ],
-      "next": [{ "path": "/summary" }]
+      "next": [{ "path": "/methodology-statement" }]
+    },
+    {
+      "path": "/methodology-statement",
+      "title": "Upload your methodology statement",
+      "section": "section",
+      "controller": "FileUploadPageController",
+      "components": [
+        {
+          "name": "fileUpload",
+          "type": "FileUploadField",
+          "hint": "Upload 2 copies of your methodology statement in Word, PDF or JPEG. The maximum file size for each file is 100MB",
+          "title": "Upload your methodology statement",
+          "options": {
+            "accept": "application/pdf,image/jpeg,image/png"
+          },
+          "schema": {
+            "min": 1,
+            "max": 2
+          }
+        }
+      ],
+      "next": [
+        {
+          "path": "/summary"
+        }
+      ]
     },
     {
       "path": "/summary",

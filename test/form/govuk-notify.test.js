@@ -1,17 +1,31 @@
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { addDays, format } from 'date-fns'
+
 import { createServer } from '~/src/server/index.js'
+import {
+  initiateUpload,
+  getUploadStatus
+} from '~/src/server/plugins/engine/services/uploadService.js'
+import { FileStatus, UploadStatus } from '~/src/server/plugins/engine/types.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
 import { getSessionCookie } from '~/test/utils/get-session-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
 jest.mock('~/src/server/utils/notify.ts')
+jest.mock('~/src/server/plugins/engine/services/uploadService.js')
 
 const okStatusCode = 200
 const redirectStatusCode = 302
 const htmlContentType = 'text/html'
+
+const FILE_EXPIRY_DAYS = 30
+const now = new Date()
+const fileExpiryDate = addDays(now, FILE_EXPIRY_DAYS)
+const formattedExpiryDate = `${format(fileExpiryDate, 'h:mmaaa')} on ${format(fileExpiryDate, 'eeee d MMMM yyyy')}`
+
 const formResults = `## Text field
 Text field
 
@@ -66,7 +80,49 @@ Arabian,Shire,Race
 
 ## Checkboxes field 4 (number)
 0,1
+
+
+## Upload your methodology statement
+1 files uploaded (links expire ${formattedExpiryDate}):
+
+* [test.pdf](https://test-designer.cdp-int.defra.cloud/file-download/5a76a1a3-bc8a-4bc0-859a-116d775c7f15)
+
 `
+
+const componentsPath = '/components/all-components'
+const fileUploadPath = '/components/methodology-statement'
+const summaryPath = '/components/summary'
+
+/**
+ * @satisfies {UploadInitiateResponse}
+ */
+const uploadInitiateResponse = {
+  uploadId: '15b2303c-9965-4632-acb6-0776081e0399',
+  uploadUrl:
+    'http://localhost:7337/upload-and-scan/15b2303c-9965-4632-acb6-0776081e0399',
+  statusUrl: 'http://localhost:7337/status/15b2303c-9965-4632-acb6-0776081e0399'
+}
+
+/**
+ * @satisfies {UploadStatusResponse}
+ */
+const readyStatusResponse = {
+  uploadStatus: UploadStatus.ready,
+  metadata: {
+    formId: '66c304662ad3b5fe57210e7c',
+    path: '/file-upload-test/page-one',
+    retrievalKey: 'enrique.chase@defra.gov.uk'
+  },
+  form: {
+    file: {
+      fileId: '5a76a1a3-bc8a-4bc0-859a-116d775c7f15',
+      filename: 'test.pdf',
+      contentLength: 1024,
+      fileStatus: FileStatus.complete
+    }
+  },
+  numberOfRejectedFiles: 0
+}
 
 describe('Submission journey test', () => {
   /** @type {Server} */
@@ -88,7 +144,7 @@ describe('Submission journey test', () => {
   test('GET /all-components returns 200', async () => {
     const res = await server.inject({
       method: 'GET',
-      url: '/components/all-components'
+      url: componentsPath
     })
 
     expect(res.statusCode).toEqual(okStatusCode)
@@ -97,7 +153,38 @@ describe('Submission journey test', () => {
 
   test('POST /summary returns 302', async () => {
     const sender = jest.mocked(sendNotification)
+    jest.mocked(initiateUpload).mockResolvedValue(uploadInitiateResponse)
+    jest.mocked(getUploadStatus).mockResolvedValue(readyStatusResponse)
 
+    // Components page
+    const res = await componentsPage()
+
+    // Extract the session cookie
+    const cookie = getSessionCookie(res)
+
+    // File upload page
+    await fileUploadPage(cookie)
+
+    // Summary page
+    await summaryPage(cookie)
+
+    expect(sender).toHaveBeenCalledWith({
+      templateId: process.env.NOTIFY_TEMPLATE_ID,
+      emailAddress: 'enrique.chase@defra.gov.uk',
+      personalisation: {
+        formName: 'All components',
+        formResults: expect.stringContaining(formResults)
+      }
+    })
+
+    // Status page
+    await statusPage(cookie)
+  })
+
+  /**
+   * POSTs data to the components page
+   */
+  async function componentsPage() {
     const form = {
       textField: 'Text field',
       multilineTextField: 'Multiline text field',
@@ -123,44 +210,69 @@ describe('Submission journey test', () => {
     // POST the form data to set the state
     const res = await server.inject({
       method: 'POST',
-      url: '/components/all-components',
+      url: componentsPath,
       payload: form
     })
 
     expect(res.statusCode).toEqual(redirectStatusCode)
-    expect(res.headers.location).toBe('/components/summary')
+    expect(res.headers.location).toBe(fileUploadPath)
 
-    // Extract the session cookie
-    const cookie = getSessionCookie(res)
+    return res
+  }
 
-    // GET the summary page
+  /**
+   * Adds a file to the temp state as
+   * would happen on redirect from CDP
+   * @param {string} cookie
+   */
+  async function fileUploadPage(cookie) {
     await server.inject({
       method: 'GET',
-      url: '/components/summary',
+      url: fileUploadPath,
       headers: { cookie }
     })
 
-    // POST the summary form and assert
-    // the mock sendNotification contains
-    // the correct personalisation data
-    const submitRes = await server.inject({
+    const res = await server.inject({
       method: 'POST',
-      url: '/components/summary',
+      url: fileUploadPath,
+      headers: { cookie }
+    })
+
+    expect(res.statusCode).toEqual(redirectStatusCode)
+    expect(res.headers.location).toBe(summaryPath)
+
+    return res
+  }
+
+  /**
+   * GETs and POSTs the summary page
+   * @param {string} cookie
+   */
+  async function summaryPage(cookie) {
+    await server.inject({
+      method: 'GET',
+      url: summaryPath,
+      headers: { cookie }
+    })
+
+    const res = await server.inject({
+      method: 'POST',
+      url: summaryPath,
       headers: { cookie },
       payload: {}
     })
 
-    expect(sender).toHaveBeenCalledWith({
-      templateId: process.env.NOTIFY_TEMPLATE_ID,
-      emailAddress: 'enrique.chase@defra.gov.uk',
-      personalisation: {
-        formName: 'All components',
-        formResults: expect.stringContaining(formResults)
-      }
-    })
-    expect(submitRes.statusCode).toBe(redirectStatusCode)
-    expect(submitRes.headers.location).toBe('/components/status')
+    expect(res.statusCode).toBe(redirectStatusCode)
+    expect(res.headers.location).toBe('/components/status')
 
+    return res
+  }
+
+  /**
+   * GETs the summary page
+   * @param {string} cookie
+   */
+  async function statusPage(cookie) {
     // Finally GET the /{slug}/status page
     const statusRes = await server.inject({
       method: 'GET',
@@ -170,9 +282,14 @@ describe('Submission journey test', () => {
 
     expect(statusRes.statusCode).toBe(okStatusCode)
     expect(statusRes.headers['content-type']).toContain(htmlContentType)
-  })
+  }
 })
 
 /**
  * @import { Server } from '@hapi/hapi'
+ */
+
+/**
+ * @typedef {import('~/src/server/plugins/engine/types.js').UploadInitiateResponse} UploadInitiateResponse
+ * @typedef {import('~/src/server/plugins/engine/types.js').UploadStatusResponse} UploadStatusResponse
  */

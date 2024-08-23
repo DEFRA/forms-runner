@@ -98,29 +98,34 @@ export enum FileStatus {
 export interface FileUpload {
   fileId: string
   filename: string
-  contentType: string
   fileStatus: FileStatus
   contentLength: number
-  checksumSha256?: string
-  detectedContentType?: string
-  s3Key?: string
-  s3Bucket?: string
-  hasError?: boolean
   errorMessage?: string
 }
 
-export interface UploadStatusForm {
-  file: FileUpload
+export interface FileUploadMetadata {
+  formId: string
+  path: string
+  retrievalKey: string
 }
 
 export interface UploadStatusResponse {
   uploadStatus: UploadStatus
-  form: UploadStatusForm
+  metadata: FileUploadMetadata
+  form: { file?: FileUpload }
+  numberOfRejectedFiles?: number
+}
+
+export interface UploadState {
+  uploadStatus: UploadStatus
+  metadata: FileUploadMetadata
+  form: { file: FileUpload }
+  numberOfRejectedFiles?: number
 }
 
 export interface FileState {
   uploadId: string
-  status: UploadStatusResponse
+  status: UploadState
 }
 
 export interface TempFileState {
