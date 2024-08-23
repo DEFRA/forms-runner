@@ -34,7 +34,7 @@ import { type CacheService } from '~/src/server/services/cacheService.js'
 
 const MAX_UPLOADS = 25
 
-const prepareStatus = (status: UploadState) => {
+function prepareStatus(status: UploadState) {
   const file = status.form.file
   const isPending = file.fileStatus === FileStatus.pending
 
@@ -45,7 +45,7 @@ const prepareStatus = (status: UploadState) => {
   return status
 }
 
-const prepareFileState = (fileState: FileState) => {
+function prepareFileState(fileState: FileState) {
   prepareStatus(fileState.status)
 
   return fileState
