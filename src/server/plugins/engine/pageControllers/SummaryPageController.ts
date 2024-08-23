@@ -246,27 +246,30 @@ async function extendFileRetention(
   state: FormSubmissionState,
   updatedRetrievalKey: string
 ) {
-  // Find out our file upload components
-  const fileUploadComponentNames = model.pages.flatMap((page) =>
-    page.components.formItems
-      .filter((item) => item.type === ComponentType.FileUploadField)
-      .map((item) => item.name)
-  )
+  const files: { fileId: string; initiatedRetrievalKey: string }[] = []
 
-  // Pull the state for each file upload component
-  const fileUploadStates = fileUploadComponentNames.map(
-    (name) => state[name] as FileState[]
-  )
+  // Create a batch of files to update to persist each file.
+  // For each file upload component, pull the state for each.
+  model.pages.forEach((page) => {
+    const pageState = page.section ? state[page.section.name] : state
 
-  // Create a batch of files to update to persist each file
-  const files = fileUploadStates.flatMap((uploadPage) =>
-    uploadPage.map((upload) => {
-      const { fileId } = upload.status.form.file
-      const { retrievalKey } = upload.status.metadata
+    page.components.formItems.forEach((item) => {
+      if (item.type === ComponentType.FileUploadField) {
+        const componentState = pageState?.[item.name]
 
-      return { fileId, initiatedRetrievalKey: retrievalKey }
+        if (Array.isArray(componentState)) {
+          files.push(
+            ...componentState.map((fileState: FileState) => {
+              const { fileId } = fileState.status.form.file
+              const { retrievalKey } = fileState.status.metadata
+
+              return { fileId, initiatedRetrievalKey: retrievalKey }
+            })
+          )
+        }
+      }
     })
-  )
+  })
 
   if (files.length) {
     return persistFiles(files, updatedRetrievalKey)
