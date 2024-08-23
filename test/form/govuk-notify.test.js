@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { addDays, format } from 'date-fns'
 
 import { createServer } from '~/src/server/index.js'
+import { persistFiles } from '~/src/server/plugins/engine/services/formSubmissionService.js'
 import {
   initiateUpload,
   getUploadStatus
@@ -16,6 +17,7 @@ const testDir = dirname(fileURLToPath(import.meta.url))
 
 jest.mock('~/src/server/utils/notify.ts')
 jest.mock('~/src/server/plugins/engine/services/uploadService.js')
+jest.mock('~/src/server/plugins/engine/services/formSubmissionService.js')
 
 const okStatusCode = 200
 const redirectStatusCode = 302
@@ -109,8 +111,6 @@ const uploadInitiateResponse = {
 const readyStatusResponse = {
   uploadStatus: UploadStatus.ready,
   metadata: {
-    formId: '66c304662ad3b5fe57210e7c',
-    path: '/file-upload-test/page-one',
     retrievalKey: 'enrique.chase@defra.gov.uk'
   },
   form: {
@@ -168,6 +168,7 @@ describe('Submission journey test', () => {
     // Summary page
     await summaryPage(cookie)
 
+    expect(persistFiles).toHaveBeenCalledTimes(1)
     expect(sender).toHaveBeenCalledWith({
       templateId: process.env.NOTIFY_TEMPLATE_ID,
       emailAddress: 'enrique.chase@defra.gov.uk',
