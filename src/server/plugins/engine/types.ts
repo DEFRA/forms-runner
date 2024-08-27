@@ -104,8 +104,6 @@ export interface FileUpload {
 }
 
 export interface FileUploadMetadata {
-  formId: string
-  path: string
   retrievalKey: string
 }
 

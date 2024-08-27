@@ -1,3 +1,4 @@
+import { ComponentType } from '@defra/forms-model'
 import { internal, type Boom } from '@hapi/boom'
 import {
   type Request,
@@ -28,7 +29,11 @@ import {
 } from '~/src/server/plugins/engine/models/types.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
-import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+import { persistFiles } from '~/src/server/plugins/engine/services/formSubmissionService.js'
+import {
+  type FileState,
+  type FormSubmissionState
+} from '~/src/server/plugins/engine/types.js'
 import { type Field } from '~/src/server/schemas/types.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
 
@@ -163,7 +168,7 @@ export class SummaryPageController extends PageController {
         }
 
         // Send submission email
-        await sendEmail(request, summaryViewModel, model, state, emailAddress)
+        await submitForm(request, summaryViewModel, model, state, emailAddress)
       }
 
       await cacheService.setConfirmationState(request, { confirmed: true })
@@ -225,11 +230,56 @@ export class SummaryPageController extends PageController {
   }
 }
 
-async function sendEmail(
+async function submitForm(
   request: Request,
   summaryViewModel: SummaryViewModel,
   model: FormModel,
   state: FormSubmissionState,
+  emailAddress: string
+) {
+  await extendFileRetention(model, state, emailAddress)
+  await sendEmail(request, summaryViewModel, model, emailAddress)
+}
+
+async function extendFileRetention(
+  model: FormModel,
+  state: FormSubmissionState,
+  updatedRetrievalKey: string
+) {
+  const files: { fileId: string; initiatedRetrievalKey: string }[] = []
+
+  // For each file upload component with files in
+  // state, add the files to the batch getting persisted
+  model.pages.forEach((page) => {
+    const pageState = page.section ? state[page.section.name] : state
+
+    page.components.formItems.forEach((item) => {
+      if (item.type === ComponentType.FileUploadField) {
+        const componentState = pageState?.[item.name]
+
+        if (Array.isArray(componentState)) {
+          files.push(
+            ...componentState.map((fileState: FileState) => {
+              const { fileId } = fileState.status.form.file
+              const { retrievalKey } = fileState.status.metadata
+
+              return { fileId, initiatedRetrievalKey: retrievalKey }
+            })
+          )
+        }
+      }
+    })
+  })
+
+  if (files.length) {
+    return persistFiles(files, updatedRetrievalKey)
+  }
+}
+
+async function sendEmail(
+  request: Request,
+  summaryViewModel: SummaryViewModel,
+  model: FormModel,
   emailAddress: string
 ) {
   request.logger.info(['submit', 'email'], 'Preparing email')

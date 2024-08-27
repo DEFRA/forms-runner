@@ -27,8 +27,6 @@ describe('FileUploadFieldComponent', () => {
       status: {
         uploadStatus: 'pending',
         metadata: {
-          formId: '66c304662ad3b5fe57210e7c',
-          path: '/file-upload-test/page-one',
           retrievalKey: 'enrique.chase@defra.gov.uk'
         },
         form: {
@@ -48,8 +46,6 @@ describe('FileUploadFieldComponent', () => {
       status: {
         uploadStatus: 'ready',
         metadata: {
-          formId: '66c304662ad3b5fe57210e7c',
-          path: '/file-upload-test/page-one',
           retrievalKey: 'enrique.chase@defra.gov.uk'
         },
         form: {
@@ -69,8 +65,6 @@ describe('FileUploadFieldComponent', () => {
       status: {
         uploadStatus: 'ready',
         metadata: {
-          formId: '66c304662ad3b5fe57210e7c',
-          path: '/file-upload-test/page-one',
           retrievalKey: 'enrique.chase@defra.gov.uk'
         },
         form: {
@@ -92,8 +86,6 @@ describe('FileUploadFieldComponent', () => {
       status: {
         uploadStatus: 'ready',
         metadata: {
-          formId: '66c304662ad3b5fe57210e7c',
-          path: '/file-upload-test/page-one',
           retrievalKey: 'enrique.chase@defra.gov.uk'
         },
         form: {
@@ -112,8 +104,6 @@ describe('FileUploadFieldComponent', () => {
       status: {
         uploadStatus: 'ready',
         metadata: {
-          formId: '66c304662ad3b5fe57210e7c',
-          path: '/file-upload-test/page-one',
           retrievalKey: 'enrique.chase@defra.gov.uk'
         },
         form: {
@@ -132,8 +122,6 @@ describe('FileUploadFieldComponent', () => {
       status: {
         uploadStatus: 'ready',
         metadata: {
-          formId: '66c304662ad3b5fe57210e7c',
-          path: '/file-upload-test/page-one',
           retrievalKey: 'enrique.chase@defra.gov.uk'
         },
         form: {

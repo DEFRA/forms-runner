@@ -1,0 +1,39 @@
+{
+  "conditions": [],
+  "startPage": "/file-upload-component",
+  "pages": [
+    {
+      "path": "/file-upload-component",
+      "title": "File upload component",
+      "controller": "FileUploadPageController",
+      "components": [
+        {
+          "type": "FileUploadField",
+          "name": "fileUploadComponentName",
+          "title": "Upload something",
+          "hint": "",
+          "options": {},
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/summary"
+        }
+      ]
+    },
+    {
+      "path": "/summary",
+      "title": "Summary",
+      "controller": "SummaryPageController",
+      "components": [],
+      "next": []
+    }
+  ],
+  "lists": [],
+  "sections": [],
+  "phaseBanner": {},
+  "outputEmail": "enrique.chase@defra.gov.uk",
+  "skipSummary": false,
+  "name": "summary test"
+}

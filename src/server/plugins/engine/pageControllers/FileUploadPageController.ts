@@ -389,12 +389,7 @@ export class FileUploadPageController extends PageController {
     state: TempFileState,
     cacheService: CacheService
   ) {
-    const formId = this.model.options.formId
     const { options, schema } = this.fileUploadComponent
-
-    if (!formId) {
-      throw Boom.badRequest('Unable to initiate an upload without a formId')
-    }
 
     // Reset the upload in state
     state.upload = undefined
@@ -406,7 +401,6 @@ export class FileUploadPageController extends PageController {
       const outputEmail =
         this.model.def.outputEmail ?? 'defraforms@defra.gov.uk'
       const newUpload = await initiateUpload(
-        formId,
         request.path,
         outputEmail,
         options.accept

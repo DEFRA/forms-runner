@@ -4,15 +4,15 @@ import { getJson, postJson } from '~/src/server/services/httpService.js'
 const uploaderUrl = config.get('uploaderUrl')
 const submissionUrl = config.get('submissionUrl')
 const uploaderBucketName = config.get('uploaderBucketName')
+const stagingPrefix = config.get('stagingPrefix')
 
 /**
  * Initiates a CDP file upload
- * @param {string} formId - the ID of the form
  * @param {string} path - the path of the page in the form
  * @param {string} retrievalKey - the retrieval key for the files
  * @param {string} [mimeTypes] - the csv string of accepted mimeTypes
  */
-export async function initiateUpload(formId, path, retrievalKey, mimeTypes) {
+export async function initiateUpload(path, retrievalKey, mimeTypes) {
   const postJsonByType =
     /** @type {typeof postJson<UploadInitiateResponse>} */ (postJson)
 
@@ -20,9 +20,8 @@ export async function initiateUpload(formId, path, retrievalKey, mimeTypes) {
     redirect: path,
     callback: `${submissionUrl}/file`,
     s3Bucket: uploaderBucketName,
+    s3Path: stagingPrefix,
     metadata: {
-      formId,
-      path,
       retrievalKey
     },
     mimeTypes: mimeTypes

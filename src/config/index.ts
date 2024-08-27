@@ -191,6 +191,13 @@ export const config = convict({
     format: Array,
     default: ['61bca17e-fe74-40e0-9c15-a901ad120eca.mock.pstmn.io'],
     env: 'SAFELIST'
+  },
+
+  stagingPrefix: {
+    doc: 'Prefix for staging files in S3',
+    format: String,
+    default: 'staging',
+    env: 'STAGING_PREFIX'
   }
 })
 

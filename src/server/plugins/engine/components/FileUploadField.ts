@@ -38,9 +38,7 @@ export const formFileSchema = fileSchema.append({
 export const metadataSchema = joi
   .object()
   .keys({
-    formId: joi.string().required(),
-    retrievalKey: joi.string().email().required(),
-    path: joi.string().uri({ relativeOnly: true }).required()
+    retrievalKey: joi.string().email().required()
   })
   .required()
 
