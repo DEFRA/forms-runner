@@ -336,7 +336,7 @@ export function getPersonalisation(
   }
 
   lines.push(
-    `We’ve received your form at ${format(now, 'h:mmaaa')} on ${format(now, 'd MMMM yyyy')}.`
+    `Form received at ${format(now, 'h:mmaaa')} on ${format(now, 'd MMMM yyyy')}.`
   )
 
   formSubmissionData.questions.forEach((question) => {
