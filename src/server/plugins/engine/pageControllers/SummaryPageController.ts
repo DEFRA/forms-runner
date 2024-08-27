@@ -361,7 +361,7 @@ export function getPersonalisation(
                 `* [${file.filename}](${designerUrl}/file-download/${file.fileId})`
             )
             .join('\n')
-          value = `${files.length} files uploaded (links expire ${formattedExpiryDate}):\n\n${bullets}`
+          value = `${files.length} file${files.length !== 1 ? 's' : ''} uploaded (links expire ${formattedExpiryDate}):\n\n${bullets}`
         } else {
           value = answer.toString()
         }
