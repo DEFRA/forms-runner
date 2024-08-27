@@ -85,7 +85,7 @@ Arabian,Shire,Race
 
 
 ## Upload your methodology statement
-1 files uploaded (links expire ${formattedExpiryDate}):
+1 file uploaded (links expire ${formattedExpiryDate}):
 
 * [test.pdf](https://test-designer.cdp-int.defra.cloud/file-download/5a76a1a3-bc8a-4bc0-859a-116d775c7f15)
 
