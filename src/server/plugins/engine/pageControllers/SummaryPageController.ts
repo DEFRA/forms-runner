@@ -248,8 +248,8 @@ async function extendFileRetention(
 ) {
   const files: { fileId: string; initiatedRetrievalKey: string }[] = []
 
-  // Create a batch of files to update to persist each file.
-  // For each file upload component, pull the state for each.
+  // For each file upload component with files in
+  // state, add the files to the batch getting persisted
   model.pages.forEach((page) => {
     const pageState = page.section ? state[page.section.name] : state
 

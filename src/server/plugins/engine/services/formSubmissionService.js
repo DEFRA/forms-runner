@@ -4,7 +4,7 @@ import { postJson } from '~/src/server/services/httpService.js'
 const submissionUrl = config.get('submissionUrl')
 
 /**
- * Initiates a CDP file upload
+ * Persist files by extending the time-to-live to 30 days
  * @param {{fileId: string, initiatedRetrievalKey: string}[]} files - batch of files to persist
  * @param {string} persistedRetrievalKey - final retrieval key when submitting
  */
