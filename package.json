@@ -22,7 +22,7 @@
     "test": "jest --coverage --verbose",
     "test:watch": "jest --watch",
     "client:watch": "NODE_ENV=development npm run build:client -- --watch",
-    "server:watch": "tsx watch --clear-screen=false --enable-source-maps --exclude \"./src/**/*.test.*\" --exclude \"./src/client\"",
+    "server:watch": "NODE_ENV=development tsx watch --clear-screen=false --enable-source-maps --exclude \"./src/**/*.test.*\" --exclude \"./src/client\"",
     "server:watch:dev": "npm run server:watch -- ./src",
     "server:watch:debug": "npm run server:watch -- --inspect-wait ./src",
     "prestart": "npm run build",
