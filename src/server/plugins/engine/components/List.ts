@@ -43,6 +43,11 @@ export class List extends ComponentBase {
       viewModel.classes = options.classes
     }
 
+    if (options.bold) {
+      viewModel.classes ??= ''
+      viewModel.classes = `${viewModel.classes} govuk-!-font-weight-bold`.trim()
+    }
+
     viewModel.content = {
       title: !options.hideTitle ? this.title : undefined,
       text: this.hint ?? ''
