@@ -12,6 +12,7 @@ import { config } from '~/src/config/index.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { DataType } from '~/src/server/plugins/engine/components/types.js'
 import {
+  decodeFeedbackContextInfo,
   FeedbackContextInfo,
   RelativeUrl
 } from '~/src/server/plugins/engine/feedback/index.js'
