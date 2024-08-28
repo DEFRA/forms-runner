@@ -13,7 +13,10 @@ import joi, {
 } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { DataType } from '~/src/server/plugins/engine/components/types.js'
+import {
+  DataType,
+  type ListItem
+} from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
@@ -93,13 +96,14 @@ export class ListFormComponent extends FormComponent {
     const { name, items } = this
     const viewModel = super.getViewModel(payload, errors)
     const viewModelItems = items.map(
-      ({ text, value, description = '', condition }) => ({
-        text,
-        value: `${value}`,
-        description,
-        selected: `${value}` === `${payload[name]}`,
-        condition: condition ?? undefined
-      })
+      ({ text, value, description = '', condition }) =>
+        ({
+          text,
+          value: `${value}`,
+          hint: { html: description },
+          selected: `${value}` === `${payload[name]}`,
+          condition: condition ?? undefined
+        }) satisfies ListItem
     )
 
     viewModel.items = viewModelItems
