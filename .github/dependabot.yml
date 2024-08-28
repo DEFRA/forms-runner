@@ -48,7 +48,6 @@ updates:
           - 'cheerio'
           - 'concurrently'
           - 'jest'
-          - 'nodemon'
           - 'tsx'
 
       types:
