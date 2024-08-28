@@ -105,10 +105,10 @@ export default {
           {
             loader: 'sass-loader',
             options: {
-              api: 'legacy',
               sassOptions: {
-                outputStyle: 'expanded',
-                quietDeps: true
+                quietDeps: true,
+                sourceMapIncludeSources: true,
+                style: 'expanded'
               },
               warnRuleAsWarning: true
             }
