@@ -100,7 +100,7 @@ export class ListFormComponent extends FormComponent {
         ({
           text,
           value: `${value}`,
-          hint: { html: description },
+          hint: { text: description },
           selected: `${value}` === `${payload[name]}`,
           condition: condition ?? undefined
         }) satisfies ListItem

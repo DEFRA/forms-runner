@@ -52,7 +52,7 @@ export class List extends ComponentBase {
       ({ text, description = '', condition }) =>
         ({
           text,
-          hint: { html: description },
+          hint: { text: description },
           condition: condition ?? undefined
         }) satisfies ListItem
     )
