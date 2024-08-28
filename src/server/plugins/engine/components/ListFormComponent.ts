@@ -2,6 +2,7 @@ import {
   type Item,
   type List,
   type ListComponentsDef,
+  type SelectionComponentsDef,
   type YesNoFieldComponent
 } from '@defra/forms-model'
 import joi, {
@@ -21,8 +22,11 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class ListFormComponent extends FormComponent {
-  declare options: ListComponentsDef['options'] | YesNoFieldComponent['options']
-  declare schema: ListComponentsDef['schema'] | YesNoFieldComponent['options']
+  declare options: Extract<
+    SelectionComponentsDef,
+    { options: object }
+  >['options']
+
   declare formSchema:
     | ArraySchema<string>
     | ArraySchema<number>
@@ -51,13 +55,13 @@ export class ListFormComponent extends FormComponent {
 
   constructor(
     def:
-      | ListComponentsDef // Allow for Yes/No field custom list
+      | SelectionComponentsDef // Allow for Yes/No field custom list
       | (YesNoFieldComponent & Pick<ListComponentsDef, 'list'>),
     model: FormModel
   ) {
     super(def, model)
 
-    const { schema, options, title } = def
+    const { options, title } = def
 
     if ('list' in def) {
       this.list = model.getList(def.list)
@@ -76,7 +80,6 @@ export class ListFormComponent extends FormComponent {
     this.formSchema = formSchema.default('')
     this.stateSchema = formSchema.default(null).allow(null)
     this.options = options
-    this.schema = schema
   }
 
   getDisplayStringFromState(state: FormSubmissionState): string | string[] {

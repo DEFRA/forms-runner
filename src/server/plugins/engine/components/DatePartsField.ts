@@ -19,14 +19,13 @@ import {
 
 export class DatePartsField extends FormComponent {
   declare options: DatePartsFieldFieldComponent['options']
-  declare schema: DatePartsFieldFieldComponent['schema']
   children: ComponentCollection
   dataType: DataType = 'date'
 
   constructor(def: DatePartsFieldFieldComponent, model: FormModel) {
     super(def, model)
 
-    const { name, options, schema, title } = def
+    const { name, options, title } = def
 
     const isRequired = options.required !== false
     const hideOptional = options.optionalText
@@ -80,7 +79,6 @@ export class DatePartsField extends FormComponent {
     )
 
     this.options = options
-    this.schema = schema
     this.stateSchema = stateSchema
   }
 

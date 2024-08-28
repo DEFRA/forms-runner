@@ -13,8 +13,7 @@ describe('Telephone number field', () => {
       options: {
         customValidationMessage: 'This is a custom error',
         required: false
-      },
-      schema: {}
+      }
     }
     const telephoneNumberField = new TelephoneNumberField(def, {})
     const { formSchema: schema } = telephoneNumberField
@@ -46,8 +45,7 @@ describe('Telephone number field', () => {
       title: 'Telephone number',
       hint: 'a hint',
       type: ComponentType.TelephoneNumberField,
-      options: {},
-      schema: {}
+      options: {}
     }
     const telephoneNumberField = new TelephoneNumberField(def, {})
     const { formSchema: schema } = telephoneNumberField
@@ -65,8 +63,7 @@ describe('Telephone number field', () => {
       title: 'Telephone number',
       hint: 'a hint',
       type: ComponentType.TelephoneNumberField,
-      options: {},
-      schema: {}
+      options: {}
     }
     const telephoneNumberField = new TelephoneNumberField(def, {})
     const { formSchema: schema } = telephoneNumberField
@@ -81,8 +78,7 @@ describe('Telephone number field', () => {
       title: 'My component',
       hint: 'a hint',
       type: ComponentType.TelephoneNumberField,
-      options: {},
-      schema: {}
+      options: {}
     }
     const telephoneNumberField = new TelephoneNumberField(def, {})
     expect(telephoneNumberField.getViewModel({})).toEqual(

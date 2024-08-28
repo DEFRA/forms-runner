@@ -10,15 +10,13 @@ import {
 
 export class AutocompleteField extends SelectField {
   declare options: AutocompleteFieldComponent['options']
-  declare schema: AutocompleteFieldComponent['schema']
 
   constructor(def: AutocompleteFieldComponent, model: FormModel) {
     super(def, model)
 
-    const { schema, options } = def
+    const { options } = def
 
     this.options = options
-    this.schema = schema
   }
 
   getDisplayStringFromState(state: FormSubmissionState): string {

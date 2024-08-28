@@ -13,13 +13,12 @@ const PATTERN = /^[0-9\\\s+()-]*$/
 
 export class TelephoneNumberField extends FormComponent {
   declare options: TelephoneNumberFieldComponent['options']
-  declare schema: TelephoneNumberFieldComponent['schema']
   declare formSchema: StringSchema
 
   constructor(def: TelephoneNumberFieldComponent, model: FormModel) {
     super(def, model)
 
-    const { schema, options, title } = def
+    const { options, title } = def
 
     let formSchema = joi
       .string()
@@ -47,7 +46,6 @@ export class TelephoneNumberField extends FormComponent {
     this.formSchema = formSchema.default('')
     this.stateSchema = formSchema.default(null).allow(null)
     this.options = options
-    this.schema = schema
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {

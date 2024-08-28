@@ -18,14 +18,13 @@ import {
 
 export class UkAddressField extends FormComponent {
   declare options: UkAddressFieldComponent['options']
-  declare schema: UkAddressFieldComponent['schema']
   children: ComponentCollection
   stateChildren: ComponentCollection
 
   constructor(def: UkAddressFieldComponent, model: FormModel) {
     super(def, model)
 
-    const { name, options, schema, title } = def
+    const { name, options, title } = def
 
     const isRequired = options.required !== false
     const hideOptional = options.optionalText
@@ -52,7 +51,7 @@ export class UkAddressField extends FormComponent {
         type: ComponentType.TextField,
         name: 'addressLine2',
         title: 'Address line 2',
-        schema: { max: 100, allow: '' },
+        schema: { max: 100 },
         options: {
           autocomplete: 'address-line2',
           required: false,
@@ -96,7 +95,6 @@ export class UkAddressField extends FormComponent {
     const formChildren = new ComponentCollection(childrenList, model)
 
     this.options = options
-    this.schema = schema
     this.children = formChildren
     this.stateChildren = stateChildren
     this.stateSchema = stateSchema

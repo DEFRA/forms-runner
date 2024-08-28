@@ -34,8 +34,7 @@ describe('EmailAddressFieldComponent', () => {
         title: 'Example email address field',
         name: 'myComponent',
         type: ComponentType.EmailAddressField,
-        options: {},
-        schema: {}
+        options: {}
       } satisfies EmailAddressFieldComponent
 
       component = new EmailAddressField(def, formModel)
@@ -150,8 +149,7 @@ describe('EmailAddressFieldComponent', () => {
           title: 'Example email address field',
           name: 'myComponent',
           type: ComponentType.EmailAddressField,
-          options: {},
-          schema: {}
+          options: {}
         } satisfies EmailAddressFieldComponent,
         assertions: [
           {
@@ -174,8 +172,7 @@ describe('EmailAddressFieldComponent', () => {
           title: 'Example email address field',
           name: 'myComponent',
           type: ComponentType.EmailAddressField,
-          options: {},
-          schema: {}
+          options: {}
         } satisfies EmailAddressFieldComponent,
         assertions: [
           {

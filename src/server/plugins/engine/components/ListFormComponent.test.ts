@@ -48,8 +48,7 @@ describe('ListFormComponent', () => {
         name: 'myCheckboxes',
         type: ComponentType.CheckboxesField,
         list: 'listNumber',
-        options: {},
-        schema: {}
+        options: {}
       } satisfies ListComponentsDef,
 
       options: {
@@ -71,8 +70,7 @@ describe('ListFormComponent', () => {
         name: 'myRadios',
         type: ComponentType.RadiosField,
         list: 'listString',
-        options: {},
-        schema: {}
+        options: {}
       } satisfies ListComponentsDef,
 
       options: {
@@ -94,8 +92,7 @@ describe('ListFormComponent', () => {
         name: 'mySelect',
         type: ComponentType.SelectField,
         list: 'listString',
-        options: {},
-        schema: {}
+        options: {}
       } satisfies ListComponentsDef,
 
       options: {
@@ -117,8 +114,7 @@ describe('ListFormComponent', () => {
         name: 'myAutocomplete',
         type: ComponentType.AutocompleteField,
         list: 'listString',
-        options: {},
-        schema: {}
+        options: {}
       } satisfies ListComponentsDef,
 
       options: {

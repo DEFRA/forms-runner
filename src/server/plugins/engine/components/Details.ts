@@ -9,17 +9,15 @@ import {
 
 export class Details extends ComponentBase {
   declare options: DetailsComponent['options']
-  declare schema: DetailsComponent['schema']
   content: DetailsComponent['content']
 
   constructor(def: DetailsComponent, model: FormModel) {
     super(def, model)
 
-    const { content, schema, options } = def
+    const { content, options } = def
 
     this.content = content
     this.options = options
-    this.schema = schema
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {

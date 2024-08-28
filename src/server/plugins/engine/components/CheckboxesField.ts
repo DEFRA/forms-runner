@@ -11,7 +11,6 @@ import {
 
 export class CheckboxesField extends SelectionControlField {
   declare options: CheckboxesFieldComponent['options']
-  declare schema: CheckboxesFieldComponent['schema']
   declare formSchema: ArraySchema<string> | ArraySchema<number>
   declare stateSchema: ArraySchema<string> | ArraySchema<number>
 
@@ -19,7 +18,7 @@ export class CheckboxesField extends SelectionControlField {
     super(def, model)
 
     const { listType: type } = this
-    const { options, schema, title } = def
+    const { options, title } = def
 
     let formSchema =
       type === 'string' ? joi.array<string>() : joi.array<number>()
@@ -41,7 +40,6 @@ export class CheckboxesField extends SelectionControlField {
     this.formSchema = formSchema.default([])
     this.stateSchema = formSchema.default(null).allow(null)
     this.options = options
-    this.schema = schema
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {

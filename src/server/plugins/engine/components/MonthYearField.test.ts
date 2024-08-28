@@ -20,8 +20,7 @@ describe('Month Year Field', () => {
       title: 'My component',
       hint: 'a hint',
       type: ComponentType.MonthYearField,
-      options: {},
-      schema: {}
+      options: {}
     }
 
     const monthYearField = new MonthYearField(def)

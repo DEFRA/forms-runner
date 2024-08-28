@@ -14,8 +14,7 @@ describe('FileUploadPageController', () => {
     content: '<b>Guidance<b>',
     title: 'Guidance',
     type: ComponentType.Html,
-    options: {},
-    schema: {}
+    options: {}
   }
 
   const component2: ComponentDef = {

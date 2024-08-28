@@ -15,17 +15,15 @@ import {
  */
 export class YesNoField extends ListFormComponent {
   declare options: YesNoFieldComponent['options']
-  declare schema: YesNoFieldComponent['schema']
 
   constructor(def: YesNoFieldComponent, model: FormModel) {
     super({ ...def, list: '__yesNo' }, model)
 
-    const { options, schema } = def
+    const { options } = def
 
     addClassOptionIfNone(options, 'govuk-radios--inline')
 
     this.options = options
-    this.schema = schema
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
