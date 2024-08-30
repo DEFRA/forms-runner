@@ -381,9 +381,7 @@ export function getPersonalisation(
 }
 
 function literal(str: string) {
-  return `\`\`\`
-${str}
-\`\`\``
+  return `\`\`\`\n${str}\n\`\`\``
 }
 
 function getFormSubmissionData(
