@@ -345,11 +345,11 @@ export function getPersonalisation(
       let value = ''
 
       if (typeof answer === 'string') {
-        value = answer
+        value = literal(answer)
       } else if (typeof answer === 'number') {
-        value = answer.toString()
+        value = literal(answer.toString())
       } else if (typeof answer === 'boolean') {
-        value = answer ? 'yes' : 'no'
+        value = literal(answer ? 'yes' : 'no')
       } else if (Array.isArray(answer)) {
         const uploads = answer
 
@@ -361,9 +361,10 @@ export function getPersonalisation(
                 `* [${file.filename}](${designerUrl}/file-download/${file.fileId})`
             )
             .join('\n')
+
           value = `${files.length} file${files.length !== 1 ? 's' : ''} uploaded (links expire ${formattedExpiryDate}):\n\n${bullets}`
         } else {
-          value = answer.toString()
+          value = literal(answer.toString())
         }
       }
 
@@ -377,6 +378,10 @@ export function getPersonalisation(
     formResults: lines.join('\n'),
     formName: model.name
   }
+}
+
+function literal(str: string) {
+  return `\`\`\`\n${str}\n\`\`\``
 }
 
 function getFormSubmissionData(
