@@ -29,59 +29,87 @@ const fileExpiryDate = addDays(now, FILE_EXPIRY_DAYS)
 const formattedExpiryDate = `${format(fileExpiryDate, 'h:mmaaa')} on ${format(fileExpiryDate, 'eeee d MMMM yyyy')}`
 
 const formResults = `## Text field
+\`\`\`
 Text field
+\`\`\`
 
 
 ## Multiline text field
+\`\`\`
 Multiline text field
+\`\`\`
 
 
 ## Number field
+\`\`\`
 1
+\`\`\`
 
 
 ## Date parts field
+\`\`\`
 2012-12-12
+\`\`\`
 
 
 ## Yes/No field
+\`\`\`
 yes
+\`\`\`
 
 
 ## Email address field
+\`\`\`
 user@email.com
+\`\`\`
 
 
 ## Telephone number field
+\`\`\`
 +447900000000
+\`\`\`
 
 
 ## Telephone number field
+\`\`\`
 Address line 1, Address line 2, Town or city, CW1 1AB
+\`\`\`
 
 
 ## Radios field
+\`\`\`
 privateLimitedCompany
+\`\`\`
 
 
 ## Select field
+\`\`\`
 910400000
+\`\`\`
 
 
 ## Checkboxes field 1
+\`\`\`
 Shetland
+\`\`\`
 
 
 ## Checkboxes field 2
+\`\`\`
 Arabian,Shire,Race
+\`\`\`
 
 
 ## Checkboxes field 3 (number)
+\`\`\`
 1
+\`\`\`
 
 
 ## Checkboxes field 4 (number)
+\`\`\`
 0,1
+\`\`\`
 
 
 ## Upload your methodology statement
