@@ -60,7 +60,15 @@ export class SummaryPageController extends PageController {
         return this.makePostRouteHandler()(request, h)
       }
       const state = await cacheService.getState(request)
-      const viewModel = new SummaryViewModel(this.title, model, state, request)
+      const relevantState = this.getConditionEvaluationContext(model, state)
+
+      const viewModel = new SummaryViewModel(
+        this.title,
+        model,
+        state,
+        relevantState,
+        request
+      )
 
       if (viewModel.endPage) {
         return redirectTo(
@@ -137,10 +145,15 @@ export class SummaryPageController extends PageController {
       const { cacheService } = request.services([])
       const model = this.model
       const state = await cacheService.getState(request)
+      const relevantState = this.getConditionEvaluationContext(
+        this.model,
+        state
+      )
       const summaryViewModel = new SummaryViewModel(
         this.title,
         model,
         state,
+        relevantState,
         request
       )
       // TODO fix in follow-up PR

@@ -45,12 +45,16 @@ export class SummaryViewModel {
     pageTitle: string,
     model: FormModel,
     state: FormSubmissionState,
+    relevantState: FormSubmissionState,
     request: Request
   ) {
     this.pageTitle = pageTitle
     this.serviceUrl = `/${model.basePath}`
     this.name = model.def.name
-    const { relevantPages, endPage } = this.getRelevantPages(model, state)
+    const { relevantPages, endPage } = this.getRelevantPages(
+      model,
+      relevantState
+    )
     const details = this.summaryDetails(request, model, state, relevantPages)
     const { def } = model
     this.declaration = def.declaration
