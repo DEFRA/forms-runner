@@ -101,7 +101,9 @@ export class PageControllerBase {
 
   /**
    * Used for mapping form payloads and errors to govuk-frontend's template api, so a page can be rendered
-   * @param payload - contains a user's form payload, and any validation errors that may have occurred
+   * @param request - the hapi request
+   * @param payload - contains a user's form payload
+   * @param [errors] - validation errors that may have occurred
    */
   getViewModel(
     request: Request,
