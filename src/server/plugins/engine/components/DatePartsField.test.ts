@@ -119,7 +119,7 @@ describe('Date parts field', () => {
     expect(conditonEvaluationStateValue).toBe('2024-12-31')
   })
 
-  describe('Form validation', () => {
+  describe('Validation', () => {
     const output = {
       value: {
         myComponent__day: 1,
@@ -207,7 +207,7 @@ describe('Date parts field', () => {
     })
   })
 
-  describe('State validation', () => {
+  describe('State', () => {
     const now = new Date()
     const _1DayInPast = addDays(now, -1)
     const _2DaysInPast = addDays(now, -2)
