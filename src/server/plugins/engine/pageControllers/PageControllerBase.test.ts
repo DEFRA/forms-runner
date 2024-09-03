@@ -33,7 +33,8 @@ describe('PageControllerBase', () => {
     page = {
       path: '/first-page',
       title: 'When will you get married?',
-      components: [component1, component2]
+      components: [component1, component2],
+      next: []
     }
 
     definition = {

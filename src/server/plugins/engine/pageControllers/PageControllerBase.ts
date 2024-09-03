@@ -3,7 +3,9 @@ import {
   type Link,
   type FormDefinition,
   type Page,
-  type Section
+  type Section,
+  hasNext,
+  hasComponents
 } from '@defra/forms-model'
 import { type Boom } from '@hapi/boom'
 import {
@@ -88,10 +90,10 @@ export class PageControllerBase {
     )
 
     // Components collection
-    const components = new ComponentCollection(pageDef.components, model)
+    const components = hasComponents(pageDef) ? pageDef.components : []
 
-    this.components = components
-    this.hasFormComponents = !!components.formItems.length
+    this.components = new ComponentCollection(components, model)
+    this.hasFormComponents = !!this.components.formItems.length
 
     this[FORM_SCHEMA] = this.components.formSchema
     this[STATE_SCHEMA] = this.components.stateSchema
@@ -165,15 +167,12 @@ export class PageControllerBase {
     }
   }
 
-  /**
-   * utility function that checks if this page has any items in the {@link Page.next} object.
-   */
-  get hasNext() {
-    return Array.isArray(this.pageDef.next) && this.pageDef.next.length > 0
-  }
-
   get next(): PageLink[] {
-    return (this.pageDef.next ?? [])
+    if (!hasNext(this.pageDef)) {
+      return []
+    }
+
+    return this.pageDef.next
       .map((next) => {
         const { path } = next
 

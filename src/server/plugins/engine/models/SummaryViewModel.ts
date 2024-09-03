@@ -10,7 +10,6 @@ import {
   type DetailItem
 } from '~/src/server/plugins/engine/models/types.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
-import { SummaryPageController } from '~/src/server/plugins/engine/pageControllers/index.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 
 export class SummaryViewModel {
@@ -158,10 +157,7 @@ export class SummaryViewModel {
     while (nextPage != null) {
       if (nextPage.hasFormComponents) {
         relevantPages.push(nextPage)
-      } else if (
-        !nextPage.hasNext &&
-        !(nextPage instanceof SummaryPageController)
-      ) {
+      } else if (nextPage.next.length) {
         endPage = nextPage
       }
       nextPage = nextPage.getNextPage(state)
