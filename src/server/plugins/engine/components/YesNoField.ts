@@ -33,8 +33,6 @@ export class YesNoField extends ListFormComponent {
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
-    const { name } = this
-
     const viewModel = super.getViewModel(payload, errors)
     let { fieldset, items, label } = viewModel
 
@@ -45,10 +43,9 @@ export class YesNoField extends ListFormComponent {
       }
     }
 
-    items = items?.map(({ text, value }) => ({
-      text,
-      value,
-      checked: `${value}` === `${payload[name]}`
+    items = items?.map(({ selected, ...item }) => ({
+      ...item,
+      checked: selected
     }))
 
     return {

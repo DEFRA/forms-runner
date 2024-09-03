@@ -10,7 +10,7 @@ import {
  */
 export class SelectionControlField extends ListFormComponent {
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
-    const { name, options } = this
+    const { options } = this
 
     const viewModel = super.getViewModel(payload, errors)
     let { fieldset, items, label } = viewModel
@@ -22,12 +22,8 @@ export class SelectionControlField extends ListFormComponent {
       }
     }
 
-    items = items?.map((item) => {
-      const itemModel: ListItem = {
-        text: item.text,
-        value: item.value,
-        checked: `${item.value}` === `${payload[name]}`
-      }
+    items = items?.map(({ selected, ...item }) => {
+      const itemModel = { ...item, checked: selected } satisfies ListItem
 
       if ('bold' in options && options.bold) {
         itemModel.label = {
@@ -35,16 +31,7 @@ export class SelectionControlField extends ListFormComponent {
         }
       }
 
-      if (item.description) {
-        itemModel.hint = {
-          html: item.description
-        }
-      }
-
       return itemModel
-
-      // FIXME:- add this back when GDS fix accessibility issues involving conditional reveal fields
-      // return super.addConditionalComponents(item, itemModel, payload, errors);
     })
 
     return {

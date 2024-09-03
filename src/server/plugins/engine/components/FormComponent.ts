@@ -81,7 +81,7 @@ export class FormComponent extends ComponentBase {
 
     if (hint) {
       viewModel.hint = {
-        html: hint
+        text: hint
       }
     }
 

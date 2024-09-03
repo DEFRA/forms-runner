@@ -19,7 +19,7 @@ export interface ListItem {
   text?: string
   value?: string | boolean | number
   hint?: {
-    html: string
+    text: string
   }
   checked?: boolean
   selected?: boolean
@@ -35,7 +35,7 @@ export interface ViewModel {
   name?: string
   value?: any // TODO
   hint?: {
-    html: string
+    text: string
   }
   classes?: string
   condition?: string

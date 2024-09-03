@@ -5,6 +5,7 @@ import {
 } from '@defra/forms-model'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
+import { type ListItem } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
@@ -47,17 +48,14 @@ export class List extends ComponentBase {
       text: this.hint ?? ''
     }
 
-    viewModel.items = items.map((item) => {
-      const contentItem: { text: string; condition?: string } = {
-        text: item.text
-      }
-
-      if (item.condition) {
-        contentItem.condition = item.condition
-      }
-
-      return contentItem
-    })
+    viewModel.items = items.map(
+      ({ text, description = '', condition }) =>
+        ({
+          text,
+          hint: { text: description },
+          condition: condition ?? undefined
+        }) satisfies ListItem
+    )
 
     return viewModel
   }
