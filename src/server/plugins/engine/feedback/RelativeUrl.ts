@@ -30,7 +30,7 @@ export class RelativeUrl {
   toString() {
     let url = this.url.pathname + this.url.search
     if (url.startsWith('/') && !this.originalUrlString.startsWith('/')) {
-      url = url.substr(1)
+      url = url.slice(1)
     }
     return url
   }
