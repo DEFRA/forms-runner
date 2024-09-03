@@ -1,7 +1,4 @@
-import {
-  ComponentType,
-  type DatePartsFieldFieldComponent
-} from '@defra/forms-model'
+import { ComponentType, type DatePartsFieldComponent } from '@defra/forms-model'
 import { parseISO, format } from 'date-fns'
 import joi from 'joi'
 
@@ -18,11 +15,11 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class DatePartsField extends FormComponent {
-  declare options: DatePartsFieldFieldComponent['options']
+  declare options: DatePartsFieldComponent['options']
   children: ComponentCollection
   dataType: DataType = 'date'
 
-  constructor(def: DatePartsFieldFieldComponent, model: FormModel) {
+  constructor(def: DatePartsFieldComponent, model: FormModel) {
     super(def, model)
 
     const { name, options, title } = def
