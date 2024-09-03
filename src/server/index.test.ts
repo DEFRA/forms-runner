@@ -72,7 +72,7 @@ const stubFormDefinition: FormDefinition = {
           schema: {}
         }
       ],
-      next: [{ path: '/summary' }]
+      next: [{ path: ControllerPath.Summary }]
     },
     {
       title: 'Summary',
