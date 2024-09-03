@@ -27,7 +27,7 @@ export class DatePartsField extends FormComponent {
     const isRequired = options.required !== false
     const hideOptional = options.optionalText
 
-    let stateSchema = joi.date().label(title).required()
+    let stateSchema = joi.date().label(title.toLowerCase()).required()
 
     if (options.required === false) {
       stateSchema = stateSchema.allow('', null).optional()
