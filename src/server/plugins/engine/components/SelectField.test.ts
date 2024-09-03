@@ -54,8 +54,7 @@ describe('SelectField', () => {
       name: 'countryOfBirth',
       type: ComponentType.SelectField,
       options: {},
-      list: 'Countries',
-      schema: {}
+      list: 'Countries'
     }
 
     const formModel: FormModel = {

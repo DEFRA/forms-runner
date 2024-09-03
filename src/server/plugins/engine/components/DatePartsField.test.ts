@@ -1,8 +1,11 @@
-import { ComponentType, type ComponentDef } from '@defra/forms-model'
+import {
+  ComponentType,
+  type ComponentDef,
+  type FormDefinition
+} from '@defra/forms-model'
 
 import { DatePartsField } from '~/src/server/plugins/engine/components/DatePartsField.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { type FormDefinition } from '~/src/server/plugins/engine/services/formsService.js'
 
 describe('Date parts field', () => {
   let formModel: FormModel
@@ -25,8 +28,7 @@ describe('Date parts field', () => {
       name: 'myComponent',
       title: 'My component',
       type: ComponentType.DatePartsField,
-      options: {},
-      schema: {}
+      options: {}
     }
 
     const underTest = new DatePartsField(def, formModel)
@@ -50,8 +52,7 @@ describe('Date parts field', () => {
       name: 'myComponent',
       title: 'My component',
       type: ComponentType.DatePartsField,
-      options: { required: false },
-      schema: {}
+      options: { required: false }
     }
 
     const underTest = new DatePartsField(def, formModel)
@@ -75,8 +76,7 @@ describe('Date parts field', () => {
       title: 'My component',
       hint: 'a hint',
       type: ComponentType.DatePartsField,
-      options: { required: false },
-      schema: {}
+      options: { required: false }
     }
 
     const errors = {
@@ -101,8 +101,7 @@ describe('Date parts field', () => {
       title: 'Example checkboxes',
       name: 'myComponent',
       type: ComponentType.DatePartsField,
-      options: {},
-      schema: {}
+      options: {}
     }
 
     const underTest = new DatePartsField(datePartsFieldComponent, formModel)

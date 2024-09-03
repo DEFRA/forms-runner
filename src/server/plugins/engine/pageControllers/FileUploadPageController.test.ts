@@ -14,8 +14,7 @@ describe('FileUploadPageController', () => {
     content: '<b>Guidance<b>',
     title: 'Guidance',
     type: ComponentType.Html,
-    options: {},
-    schema: {}
+    options: {}
   }
 
   const component2: ComponentDef = {
@@ -38,7 +37,8 @@ describe('FileUploadPageController', () => {
     page = {
       path: '/first-page',
       title: 'Upload files',
-      components: [component1, component2]
+      components: [component1, component2],
+      next: []
     }
 
     definition = {
@@ -61,7 +61,8 @@ describe('FileUploadPageController', () => {
         const fileUploadController = new FileUploadPageController(formModel, {
           path: '/first-page',
           title: 'Upload files',
-          components: [component1]
+          components: [component1],
+          next: []
         })
 
         return fileUploadController
@@ -83,7 +84,8 @@ describe('FileUploadPageController', () => {
         const fileUploadController = new FileUploadPageController(formModel, {
           path: '/first-page',
           title: 'Upload files',
-          components: [textComponent, component2]
+          components: [textComponent, component2],
+          next: []
         })
 
         return fileUploadController

@@ -53,8 +53,7 @@ describe('AutocompleteField', () => {
       name: 'MyAutocomplete',
       type: ComponentType.AutocompleteField,
       options: {},
-      list: 'Countries',
-      schema: {}
+      list: 'Countries'
     }
 
     const formModel = {

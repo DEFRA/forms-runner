@@ -29,7 +29,7 @@ export class SelectionControlField extends ListFormComponent {
         checked: `${item.value}` === `${payload[name]}`
       }
 
-      if (options.bold) {
+      if ('bold' in options && options.bold) {
         itemModel.label = {
           classes: 'govuk-label--s'
         }

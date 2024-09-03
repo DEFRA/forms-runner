@@ -14,16 +14,14 @@ describe('PageControllerBase', () => {
     name: 'dateField',
     title: 'Date of marriage',
     type: ComponentType.DatePartsField,
-    options: {},
-    schema: {}
+    options: {}
   }
 
   const component2: ComponentDef = {
     name: 'yesNoField',
     title: 'Have you previously been married?',
     type: ComponentType.YesNoField,
-    options: {},
-    schema: {}
+    options: {}
   }
 
   let page: Page
@@ -35,7 +33,8 @@ describe('PageControllerBase', () => {
     page = {
       path: '/first-page',
       title: 'When will you get married?',
-      components: [component1, component2]
+      components: [component1, component2],
+      next: []
     }
 
     definition = {

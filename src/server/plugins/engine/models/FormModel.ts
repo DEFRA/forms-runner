@@ -1,5 +1,7 @@
 import {
   ConditionsModel,
+  ControllerPath,
+  ControllerType,
   formDefinitionSchema,
   type ConditionWrapper,
   type ConditionsModelData,
@@ -110,16 +112,21 @@ export class FormModel {
 
     this.pages = def.pages.map((pageDef) => this.makePage(pageDef))
 
-    // All models get an Application Status page
-    this.pages.push(
-      this.makePage({
-        path: '/status',
-        title: 'Form submitted',
-        components: [],
-        next: [],
-        controller: 'StatusPageController'
-      })
-    )
+    if (
+      !def.pages.some(
+        ({ controller }) =>
+          // Check for user-provided status page (optional)
+          controller === ControllerType.Status
+      )
+    ) {
+      this.pages.push(
+        this.makePage({
+          title: 'Form submitted',
+          path: ControllerPath.Status,
+          controller: ControllerType.Status
+        })
+      )
+    }
 
     this.startPage = this.pages.find((page) => page.path === def.startPage)
   }

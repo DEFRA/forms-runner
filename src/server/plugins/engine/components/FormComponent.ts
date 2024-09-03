@@ -71,7 +71,7 @@ export class FormComponent extends ComponentBase {
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
-    const { hint, name, options, title } = this
+    const { hint, name, options = {}, title } = this
 
     const viewModel = super.getViewModel(payload, errors)
 

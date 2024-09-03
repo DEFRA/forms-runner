@@ -1,52 +1,53 @@
+import { ControllerType, ControllerTypes } from '@defra/forms-model'
+
 import {
-  controllerNameFromPath,
   getPageController,
-  isPageController
+  isPageController,
+  type PageControllerType
 } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
+  FileUploadPageController,
   HomePageController,
   PageController,
   StartPageController,
-  SummaryPageController,
-  StatusPageController
+  StatusPageController,
+  SummaryPageController
 } from '~/src/server/plugins/engine/pageControllers/index.js'
 
 describe('Page controller helpers', () => {
-  const controllers = [
-    {
-      name: 'HomePageController',
-      path: './pages/home.js',
-      controller: HomePageController
-    },
-    {
-      name: 'PageController',
-      path: './pages/page.js',
-      controller: PageController
-    },
-    {
-      name: 'StartPageController',
-      path: './pages/start.js',
-      controller: StartPageController
-    },
-    {
-      name: 'SummaryPageController',
-      path: './pages/summary.js',
-      controller: SummaryPageController
-    },
-    {
-      name: 'StatusPageController',
-      path: './pages/status.js',
-      controller: StatusPageController
-    }
-  ]
+  const controllers = ControllerTypes.map((defaults) => {
+    let controller: PageControllerType | undefined
 
-  describe('Helper: controllerNameFromPath', () => {
-    it.each([...controllers])(
-      "returns controller name for '$path' legacy path",
-      ({ name, path }) => {
-        expect(controllerNameFromPath(path)).toEqual(name)
-      }
-    )
+    switch (defaults.name) {
+      case ControllerType.Start:
+        controller = StartPageController
+        break
+
+      case ControllerType.Home:
+        controller = HomePageController
+        break
+
+      case ControllerType.Page:
+        controller = PageController
+        break
+
+      case ControllerType.FileUpload:
+        controller = FileUploadPageController
+        break
+
+      case ControllerType.Summary:
+        controller = SummaryPageController
+        break
+
+      case ControllerType.Status:
+        controller = StatusPageController
+        break
+    }
+
+    return {
+      ...defaults,
+      controller
+    }
   })
 
   describe('Helper: getPageController', () => {

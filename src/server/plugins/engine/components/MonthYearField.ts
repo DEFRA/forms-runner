@@ -13,14 +13,13 @@ import {
 
 export class MonthYearField extends FormComponent {
   declare options: MonthYearFieldComponent['options']
-  declare schema: MonthYearFieldComponent['schema']
   children: ComponentCollection
   dataType: DataType = 'monthYear'
 
   constructor(def: MonthYearFieldComponent, model: FormModel) {
     super(def, model)
 
-    const { name, options, schema } = def
+    const { name, options } = def
     const isRequired = options.required !== false
 
     this.children = new ComponentCollection(
@@ -51,7 +50,6 @@ export class MonthYearField extends FormComponent {
     )
 
     this.options = options
-    this.schema = schema
   }
 
   getFormSchemaKeys() {

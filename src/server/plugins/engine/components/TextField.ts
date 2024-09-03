@@ -16,9 +16,7 @@ export class TextField extends FormComponent {
     | TextFieldComponent['options']
     | EmailAddressFieldComponent['options']
 
-  declare schema:
-    | TextFieldComponent['schema']
-    | EmailAddressFieldComponent['options']
+  declare schema: TextFieldComponent['schema']
 
   declare formSchema: StringSchema
 
@@ -28,7 +26,8 @@ export class TextField extends FormComponent {
   ) {
     super(def, model)
 
-    const { options, schema, title } = def
+    const { options, title } = def
+    const schema = 'schema' in def ? def.schema : {}
 
     let formSchema = joi.string().trim().label(title.toLowerCase()).required()
 
@@ -76,7 +75,7 @@ export class TextField extends FormComponent {
     const options = this.options
     const viewModel = super.getViewModel(payload, errors)
 
-    if (options.autocomplete) {
+    if ('autocomplete' in options) {
       viewModel.autocomplete = options.autocomplete
     }
 

@@ -62,8 +62,7 @@ describe('CheckboxesField', () => {
       name: 'myComponent',
       type: ComponentType.CheckboxesField,
       list: 'listNumber',
-      options: {},
-      schema: {}
+      options: {}
     } satisfies CheckboxesFieldComponent
 
     formModel = new FormModel(definition, {

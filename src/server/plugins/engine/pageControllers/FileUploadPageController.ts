@@ -1,5 +1,6 @@
 import {
   ComponentType,
+  hasComponents,
   type FileUploadFieldComponent,
   type Page
 } from '@defra/forms-model'
@@ -57,12 +58,14 @@ export class FileUploadPageController extends PageController {
 
   constructor(model: FormModel, pageDef: Page) {
     // Get the file upload components from the list of components
-    const fileUploadComponents = pageDef.components?.filter(
-      (c) => c.type === ComponentType.FileUploadField
-    )
+    const fileUploadComponents = hasComponents(pageDef)
+      ? pageDef.components.filter(
+          (c) => c.type === ComponentType.FileUploadField
+        )
+      : []
 
     // Assert we have exactly 1 file upload component
-    if (!fileUploadComponents || fileUploadComponents.length !== 1) {
+    if (fileUploadComponents.length !== 1) {
       throw Boom.badImplementation(
         `Expected 1 FileUploadFieldComponent in FileUploadPageController '${pageDef.path}'`
       )

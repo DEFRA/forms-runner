@@ -1,6 +1,8 @@
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { ControllerPath } from '@defra/forms-model'
+
 import { createServer } from '~/src/server/index.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
@@ -25,7 +27,7 @@ describe('Rate limit', () => {
     })
     server.route({
       method: 'GET',
-      path: '/start',
+      path: ControllerPath.Start,
       handler: () => {
         return {}
       },

@@ -17,7 +17,7 @@
       {% include "partials/heading.html" %}
 
       {% block form %}
-        {% if page.hasNext %}
+        {% if page.next | length %}
           {% include "partials/form.html" %}
         {% else %}
           {{ componentList(components) }}

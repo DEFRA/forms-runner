@@ -15,18 +15,15 @@ export class SelectField extends ListFormComponent {
     | SelectFieldComponent['options']
     | AutocompleteFieldComponent['options']
 
-  declare schema: SelectFieldComponent['schema']
-
   constructor(
     def: SelectFieldComponent | AutocompleteFieldComponent,
     model: FormModel
   ) {
     super(def, model)
 
-    const { schema, options } = def
+    const { options } = def
 
     this.options = options
-    this.schema = schema
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {

@@ -12,7 +12,6 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class List extends ComponentBase {
-  declare schema: ListComponent['schema']
   declare options: ListComponent['options']
   hint: ListComponent['hint']
   list?: ListType
@@ -24,12 +23,11 @@ export class List extends ComponentBase {
   constructor(def: ListComponent, model: FormModel) {
     super(def, model)
 
-    const { hint, list, options, schema } = def
+    const { hint, list, options } = def
 
     this.hint = hint
     this.list = model.getList(list)
     this.options = options
-    this.schema = schema
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {

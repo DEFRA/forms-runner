@@ -27,8 +27,7 @@ describe('YesNoField', () => {
       title: 'Example yes/no',
       name: 'myComponent',
       type: ComponentType.YesNoField,
-      options: {},
-      schema: {}
+      options: {}
     } satisfies YesNoFieldComponent
 
     formModel = new FormModel(definition, {
