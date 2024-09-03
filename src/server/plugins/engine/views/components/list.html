@@ -1,29 +1,36 @@
 {% macro List(component) %}
-    {% set params = component.model %}
+  {% set params = component.model %}
 
+  <div class="govuk-form-group">
     {% if params.content.title %}
-        <h2 class="govuk-heading-m govuk-!-margin-bottom-3">
-          {{ params.content.title }}
-        </h2>
+      <h2 class="govuk-heading-m govuk-!-margin-bottom-3">
+        {{ params.content.title }}
+      </h2>
     {% endif %}
 
     {% if params.content.text %}
-        <p class="govuk-body">
-          {{ params.content.text }}
-        </p>
+      <p class="govuk-body">
+        {{ params.content.text }}
+      </p>
     {% endif %}
 
     {% if params.type == 'numbered' %}
-        <ol class="govuk-list govuk-list--number {%- if params.classes %} {{ params.classes }}{% endif %}">
+      <ol class="govuk-list govuk-list--number {%- if params.classes %} {{ params.classes }}{% endif %}">
     {% else %}
-        <ul class="govuk-list govuk-list--bullet {%- if params.classes %} {{ params.classes }}{% endif %}">
+      <ul class="govuk-list govuk-list--bullet {%- if params.classes %} {{ params.classes }}{% endif %}">
     {% endif %}
-    {%- for item in params.items %}
-        <li>{{ item.text | safe }}</li>
+    {% for item in params.items %}
+      <li>
+        {{ item.text }}
+        {% if item.hint.text | length %}
+          <br><span class="govuk-hint govuk-!-display-inline-block">{{ item.hint.text }}</span>
+        {% endif %}
+      </li>
     {% endfor %}
     {% if params.type == 'numbered' %}
-        </ol>
+      </ol>
     {% else %}
-        </ul>
+      </ul>
     {% endif %}
+  </div>
 {% endmacro %}

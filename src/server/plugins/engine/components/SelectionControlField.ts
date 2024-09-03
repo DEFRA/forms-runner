@@ -26,9 +26,8 @@ export class SelectionControlField extends ListFormComponent {
       const itemModel = { ...item, checked: selected } satisfies ListItem
 
       if ('bold' in options && options.bold) {
-        itemModel.label = {
-          classes: 'govuk-label--s'
-        }
+        itemModel.label ??= {}
+        itemModel.label.classes = 'govuk-label--s'
       }
 
       return itemModel
