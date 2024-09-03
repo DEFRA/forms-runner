@@ -10,6 +10,7 @@ import { format, addDays } from 'date-fns'
 
 import { config } from '~/src/config/index.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
+import { DataType } from '~/src/server/plugins/engine/components/types.js'
 import {
   FeedbackContextInfo,
   RelativeUrl
@@ -326,7 +327,7 @@ export function getPersonalisation(
 
   const lines: string[] = []
   const files = formSubmissionData.questions.flatMap((question) =>
-    question.fields.filter((field) => field.type === 'file')
+    question.fields.filter((field) => field.type === DataType.File)
   )
 
   if (files.length) {
@@ -353,7 +354,7 @@ export function getPersonalisation(
       } else if (Array.isArray(answer)) {
         const uploads = answer
 
-        if (type === 'file') {
+        if (type === DataType.File) {
           const files = uploads.map((upload) => upload.status.form.file)
           const bullets = files
             .map(
@@ -408,19 +409,36 @@ function getFormSubmissionData(
 }
 
 export function answerFromDetailItem(item: DetailItem) {
-  switch (item.dataType) {
-    case 'list':
-    case 'file':
-      return item.rawValue
-    case 'date':
-      return format(new Date(item.rawValue), 'yyyy-MM-dd')
-    case 'monthYear':
-      // eslint-disable-next-line no-case-declarations
-      const [month, year] = Object.values(item.rawValue)
-      return format(new Date(`${year}-${month}-1`), 'yyyy-MM')
-    default:
-      return item.value
+  let value: DetailItem['rawValue'] = ''
+
+  if (item.rawValue === null) {
+    return value
   }
+
+  switch (item.dataType) {
+    case DataType.List:
+      value = item.rawValue
+      break
+
+    case DataType.File:
+      value = item.rawValue
+      break
+
+    case DataType.Date:
+      value = format(new Date(item.rawValue), 'yyyy-MM-dd')
+      break
+
+    case DataType.MonthYear: {
+      const [month, year] = Object.values(item.rawValue)
+      value = format(new Date(`${year}-${month}-1`), 'yyyy-MM')
+      break
+    }
+
+    default:
+      value = item.value
+  }
+
+  return value
 }
 
 function detailItemToField(item: DetailItem): Field {

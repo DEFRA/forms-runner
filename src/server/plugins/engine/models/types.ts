@@ -1,11 +1,18 @@
 import {
   type ConditionWrapper,
+  type DatePartsFieldComponent,
+  type FileUploadFieldComponent,
   type FormDefinition,
+  type InputFieldsComponentsDef,
+  type ListComponentsDef,
+  type MonthYearFieldComponent,
+  type NumberFieldComponent,
   type Section
 } from '@defra/forms-model'
 import { type Expression } from 'expr-eval'
 
 import { type ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
+import { type DataType } from '~/src/server/plugins/engine/components/types.js'
 import { type FeedbackContextInfo } from '~/src/server/plugins/engine/feedback/index.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
@@ -60,8 +67,7 @@ export type ExecutableCondition = ConditionWrapper & {
 /**
  * Used to render a row on a Summary List (check your answers)
  */
-
-export interface DetailItem {
+export interface DetailItemBase {
   /**
    * Name of the component defined in the JSON {@link FormDefinition}
    */
@@ -74,9 +80,14 @@ export interface DetailItem {
   label: ComponentBase['title']
 
   /**
-   * Path to redirect the user to if they decide to change this value
+   * Path to page excluding base path
    */
   path: PageControllerClass['path']
+
+  /**
+   * Path to page including base path
+   */
+  pageId: string
 
   /**
    * String and/or display value of a field. For example, a Date will be displayed as 25 December 2022
@@ -84,17 +95,68 @@ export interface DetailItem {
   value: string
 
   /**
+   * Flag to indicate if field is in error and should be changed
+   */
+  inError?: boolean
+
+  /**
    * Raw value of a field. For example, a Date will be displayed as 2022-12-25
    */
   rawValue: string | number | boolean | FileState[] | null
+
   url: string
-  pageId: string
   type: ComponentBase['type']
   title: ComponentBase['title']
   dataType: ComponentBase['dataType']
-  items?: DetailItem[]
-  inError?: boolean
 }
+
+export interface DetailItemDate extends DetailItemBase {
+  type: DatePartsFieldComponent['type']
+  dataType: DataType.Date
+  rawValue: string | null
+}
+
+export interface DetailItemMonthYear extends DetailItemBase {
+  type: MonthYearFieldComponent['type']
+  dataType: DataType.MonthYear
+  rawValue: string | null
+}
+
+export interface DetailItemList extends DetailItemBase {
+  type: ListComponentsDef['type']
+  dataType: DataType.List
+  items: DetailItem[]
+  rawValue: string | number | boolean | null
+}
+
+export interface DetailItemNumber extends DetailItemBase {
+  type: NumberFieldComponent['type']
+  dataType: DataType.Number
+  rawValue: number | null
+}
+
+export interface DetailItemText extends DetailItemBase {
+  type: Exclude<
+    InputFieldsComponentsDef,
+    NumberFieldComponent | FileUploadFieldComponent
+  >['type']
+  dataType: DataType.Text
+  rawValue: FileState[] | null
+}
+
+export interface DetailItemFileUpload extends DetailItemBase {
+  type: FileUploadFieldComponent['type']
+  dataType: DataType.File
+  rawValue: FileState[] | null
+}
+
+export type DetailItem =
+  | DetailItemDate
+  | DetailItemMonthYear
+  | DetailItemList
+  | DetailItemNumber
+  | DetailItemText
+  | DetailItemFileUpload
 
 /**
  * Used to render a row on a Summary List (check your answers)

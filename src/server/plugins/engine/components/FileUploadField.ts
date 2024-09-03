@@ -3,7 +3,7 @@ import joi, { type ArraySchema } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import {
-  type DataType,
+  DataType,
   type FileUploadFieldViewModel
 } from '~/src/server/plugins/engine/components/types.js'
 import { filesize } from '~/src/server/plugins/engine/helpers.js'
@@ -79,7 +79,7 @@ export const formItemSchema = itemSchema.append({
 export class FileUploadField extends FormComponent {
   declare options: FileUploadFieldComponent['options']
   declare schema: FileUploadFieldComponent['schema']
-  dataType: DataType = 'file'
+  dataType: DataType = DataType.File
 
   declare formSchema: ArraySchema<object>
   declare stateSchema: ArraySchema<object>

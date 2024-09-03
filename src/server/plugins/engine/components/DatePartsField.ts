@@ -6,7 +6,7 @@ import { ComponentCollection } from '~/src/server/plugins/engine/components/Comp
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import { getCustomDateValidator } from '~/src/server/plugins/engine/components/helpers.js'
-import { type DataType } from '~/src/server/plugins/engine/components/types.js'
+import { DataType } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
@@ -17,7 +17,7 @@ import {
 export class DatePartsField extends FormComponent {
   declare options: DatePartsFieldComponent['options']
   children: ComponentCollection
-  dataType: DataType = 'date'
+  dataType: DataType = DataType.Date
 
   constructor(def: DatePartsFieldComponent, model: FormModel) {
     super(def, model)
