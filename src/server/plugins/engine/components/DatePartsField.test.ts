@@ -1,11 +1,14 @@
 import {
   ComponentType,
   type ComponentDef,
+  type DatePartsFieldComponent,
   type FormDefinition
 } from '@defra/forms-model'
+import { addDays, startOfDay } from 'date-fns'
 
 import { DatePartsField } from '~/src/server/plugins/engine/components/DatePartsField.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 
 describe('Date parts field', () => {
   let formModel: FormModel
@@ -70,6 +73,7 @@ describe('Date parts field', () => {
       dateComponent('Year', 4)
     ])
   })
+
   test('Error is displayed correctly', () => {
     const def: ComponentDef = {
       name: 'myComponent',
@@ -96,6 +100,7 @@ describe('Date parts field', () => {
     expect(returned.errorMessage?.text).toBe('Day must be a number')
     expect(underTest.getViewModel({}).errorMessage).toBeUndefined()
   })
+
   test('Condition evaluation used yyyy-MM-dd format', () => {
     const datePartsFieldComponent: ComponentDef = {
       title: 'Example checkboxes',
@@ -113,6 +118,178 @@ describe('Date parts field', () => {
 
     expect(conditonEvaluationStateValue).toBe('2024-12-31')
   })
+
+  describe('Form validation', () => {
+    const output = {
+      value: {
+        myComponent__day: 1,
+        myComponent__month: 1,
+        myComponent__year: 2001
+      }
+    }
+
+    describe.each([
+      {
+        description: 'Trim empty spaces',
+        component: {
+          title: 'Example date parts field',
+          name: 'myComponent',
+          type: ComponentType.DatePartsField,
+          options: {}
+        } satisfies DatePartsFieldComponent,
+        assertions: [
+          {
+            input: {
+              myComponent__day: ' 01',
+              myComponent__month: ' 01',
+              myComponent__year: ' 2001'
+            },
+            output
+          },
+          {
+            input: {
+              myComponent__day: '01 ',
+              myComponent__month: '01 ',
+              myComponent__year: '2001 '
+            },
+            output
+          },
+          {
+            input: {
+              myComponent__day: ' 01 \n\n',
+              myComponent__month: ' 01 \n\n',
+              myComponent__year: ' 2001 \n\n'
+            },
+            output
+          }
+        ]
+      }
+    ])('$description', ({ component: def, assertions }) => {
+      let component: DatePartsField
+
+      beforeEach(() => {
+        component = new DatePartsField(def, formModel)
+      })
+
+      it('validates empty value', () => {
+        const { formSchema } = component.children
+
+        const input = {
+          myComponent__day: '',
+          myComponent__month: '',
+          myComponent__year: ''
+        }
+
+        const output = {
+          value: {
+            myComponent__day: '',
+            myComponent__month: '',
+            myComponent__year: ''
+          },
+          error: new Error(
+            'day must be a number. month must be a number. year must be a number'
+          )
+        }
+
+        const result = formSchema.validate(input, opts)
+        expect(result).toEqual(output)
+      })
+
+      it.each([...assertions])(
+        'validates custom example',
+        ({ input, output }) => {
+          const { formSchema } = component.children
+
+          const result = formSchema.validate(input, opts)
+          expect(result).toEqual(output)
+        }
+      )
+    })
+  })
+
+  describe('State validation', () => {
+    const now = new Date()
+    const _1DayInPast = addDays(now, -1)
+    const _2DaysInPast = addDays(now, -2)
+    const _1DayInFuture = addDays(now, 1)
+    const _2DaysInFuture = addDays(now, 2)
+
+    describe.each([
+      {
+        description: 'Options maxDaysInPast',
+        component: {
+          title: 'Example date parts field',
+          name: 'myComponent',
+          type: ComponentType.DatePartsField,
+          options: {
+            maxDaysInPast: 1
+          }
+        } satisfies DatePartsFieldComponent,
+        assertions: [
+          {
+            input: _2DaysInPast,
+            output: {
+              value: _2DaysInPast,
+              error: new Error(
+                `example date parts field must be the same as or after ${startOfDay(_1DayInPast).toISOString()}`
+              )
+            }
+          },
+          {
+            input: now,
+            output: {
+              value: now
+            }
+          }
+        ]
+      },
+      {
+        description: 'Options maxDaysInFuture',
+        component: {
+          title: 'Example date parts field',
+          name: 'myComponent',
+          type: ComponentType.DatePartsField,
+          options: {
+            maxDaysInFuture: 1
+          }
+        } satisfies DatePartsFieldComponent,
+        assertions: [
+          {
+            input: _2DaysInFuture,
+            output: {
+              value: _2DaysInFuture,
+              error: new Error(
+                `example date parts field must be the same as or before ${startOfDay(_1DayInFuture).toISOString()}`
+              )
+            }
+          },
+          {
+            input: now,
+            output: {
+              value: now
+            }
+          }
+        ]
+      }
+    ])('$description', ({ component: def, assertions }) => {
+      let component: DatePartsField
+
+      beforeEach(() => {
+        component = new DatePartsField(def, formModel)
+      })
+
+      it.each([...assertions])(
+        'validates custom example',
+        ({ input, output }) => {
+          const keys = component.getStateSchemaKeys()
+          const schema = keys[component.name]
+
+          const result = schema.validate(input, opts)
+          expect(result).toEqual(output)
+        }
+      )
+    })
+  })
 })
 
 function dateComponent(name: string, width: number) {
@@ -128,5 +305,3 @@ function dateComponent(name: string, width: number) {
     attributes: {}
   }
 }
-
-// TODO: write test to make sure maxDaysInPast and maxDaysInFuture work as expected (based on current date instead of server initialisation date)
