@@ -209,10 +209,10 @@ describe('Date parts field', () => {
 
   describe('State', () => {
     const now = new Date()
-    const _1DayInPast = addDays(now, -1)
-    const _2DaysInPast = addDays(now, -2)
-    const _1DayInFuture = addDays(now, 1)
-    const _2DaysInFuture = addDays(now, 2)
+    const OneDayInPast = addDays(now, -1)
+    const TwoDaysInPast = addDays(now, -2)
+    const OneDayInFuture = addDays(now, 1)
+    const TwoDaysInFuture = addDays(now, 2)
 
     describe.each([
       {
@@ -227,11 +227,11 @@ describe('Date parts field', () => {
         } satisfies DatePartsFieldComponent,
         assertions: [
           {
-            input: _2DaysInPast,
+            input: TwoDaysInPast,
             output: {
-              value: _2DaysInPast,
+              value: TwoDaysInPast,
               error: new Error(
-                `example date parts field must be the same as or after ${startOfDay(_1DayInPast).toISOString()}`
+                `example date parts field must be the same as or after ${startOfDay(OneDayInPast).toISOString()}`
               )
             }
           },
@@ -255,11 +255,11 @@ describe('Date parts field', () => {
         } satisfies DatePartsFieldComponent,
         assertions: [
           {
-            input: _2DaysInFuture,
+            input: TwoDaysInFuture,
             output: {
-              value: _2DaysInFuture,
+              value: TwoDaysInFuture,
               error: new Error(
-                `example date parts field must be the same as or before ${startOfDay(_1DayInFuture).toISOString()}`
+                `example date parts field must be the same as or before ${startOfDay(OneDayInFuture).toISOString()}`
               )
             }
           },
