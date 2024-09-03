@@ -13,7 +13,7 @@ import joi, {
 } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { type DataType } from '~/src/server/plugins/engine/components/types.js'
+import { DataType } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
@@ -43,7 +43,7 @@ export class ListFormComponent extends FormComponent {
 
   list?: List
   listType: List['type'] = 'string'
-  dataType: DataType = 'list'
+  dataType: DataType = DataType.List
 
   get items(): Item[] {
     return this.list?.items ?? []
