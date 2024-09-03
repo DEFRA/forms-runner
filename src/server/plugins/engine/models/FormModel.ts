@@ -113,11 +113,9 @@ export class FormModel {
     // All models get an Application Status page
     this.pages.push(
       this.makePage({
-        path: '/status',
         title: 'Form submitted',
-        components: [],
-        next: [],
-        controller: 'StatusPageController'
+        path: ControllerPath.Status,
+        controller: ControllerType.Status
       })
     )
 

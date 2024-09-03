@@ -1,26 +1,16 @@
-import path from 'node:path'
-
-import { type Page } from '@defra/forms-model'
-import camelCase from 'lodash/camelCase.js'
-import upperFirst from 'lodash/upperFirst.js'
+import {
+  controllerNameFromPath,
+  isControllerName,
+  type ControllerType,
+  type Page
+} from '@defra/forms-model'
 
 import * as PageControllers from '~/src/server/plugins/engine/pageControllers/index.js'
 
-export function controllerNameFromPath(nameOrPath?: string) {
-  if (!nameOrPath || !path.extname(nameOrPath)) {
-    return nameOrPath
-  }
-
-  const fileName = camelCase(path.basename(nameOrPath).split('.')[0])
-  const prefix = fileName !== 'page' ? upperFirst(fileName) : ''
-
-  return `${prefix}PageController`
-}
-
 export function isPageController(
-  controllerName?: string
+  controllerName?: string | ControllerType
 ): controllerName is keyof typeof PageControllers {
-  return !!controllerName && controllerName in PageControllers
+  return isControllerName(controllerName) && controllerName in PageControllers
 }
 
 export type PageControllerClass = InstanceType<PageControllerType>

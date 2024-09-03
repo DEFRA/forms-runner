@@ -1,5 +1,7 @@
 import {
   ComponentType,
+  ControllerPath,
+  ControllerType,
   type FormDefinition,
   type FormMetadata,
   type FormMetadataAuthor,
@@ -74,9 +76,8 @@ const stubFormDefinition: FormDefinition = {
     },
     {
       title: 'Summary',
-      path: '/summary',
-      controller: 'SummaryPageController',
-      components: []
+      path: ControllerPath.Summary,
+      controller: ControllerType.Summary
     }
   ],
   conditions: [],
