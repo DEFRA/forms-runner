@@ -79,9 +79,9 @@
     "resolve": "^1.19.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.24.8",
+    "@babel/cli": "^7.25.6",
     "@babel/core": "^7.25.2",
-    "@babel/plugin-syntax-import-attributes": "^7.24.7",
+    "@babel/plugin-syntax-import-attributes": "^7.25.6",
     "@babel/preset-env": "^7.25.4",
     "@babel/preset-typescript": "^7.24.7",
     "@typescript-eslint/eslint-plugin": "^8.4.0",
