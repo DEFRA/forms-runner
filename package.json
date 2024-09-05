@@ -78,9 +78,9 @@
     "resolve": "^1.19.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.24.8",
+    "@babel/cli": "^7.25.6",
     "@babel/core": "^7.25.2",
-    "@babel/plugin-syntax-import-attributes": "^7.24.7",
+    "@babel/plugin-syntax-import-attributes": "^7.25.6",
     "@babel/preset-env": "^7.25.4",
     "@babel/preset-typescript": "^7.24.7",
     "@typescript-eslint/eslint-plugin": "^8.4.0",
@@ -96,7 +96,7 @@
     "cookie": "^0.6.0",
     "copy-webpack-plugin": "^12.0.2",
     "core-js": "^3.38.1",
-    "cssnano": "^7.0.5",
+    "cssnano": "^7.0.6",
     "cssnano-preset-default": "^7.0.4",
     "editorconfig-checker": "^5.1.8",
     "eslint": "^8.57.0",
