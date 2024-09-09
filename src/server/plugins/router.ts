@@ -9,29 +9,6 @@ const routes = [...publicRoutes, healthRoute]
 
 const logger = createLogger()
 
-const privacyPolicies: Record<string, string> = {
-  'register-a-boat-at-rye-harbour':
-    'https://www.gov.uk/government/publications/rye-harbour-privacy-notice',
-  'apply-for-an-annual-mooring-licence-at-rye-harbour':
-    'https://www.gov.uk/government/publications/rye-harbour-privacy-notice',
-  'request-a-form':
-    'https://defra.sharepoint.com/sites/Community4442/SitePages/Privacy-notice--Defra-Forms.aspx',
-  'register-as-a-unicorn-breeder':
-    'https://defra.sharepoint.com/sites/Community4442/SitePages/Privacy-notice--Defra-Forms.aspx',
-  'report-fraud-and-irregularity-against-the-environment-agency':
-    'https://www.gov.uk/government/publications/whistleblowing-at-the-environment-agency-privacy-notice',
-  'apply-for-a-county-parish-holding-cph-number':
-    'https://www.gov.uk/guidance/rpa-privacy-notices',
-  'submit-a-complaint-for-weeds-that-are-causing-damage-or-harm':
-    'https://www.gov.uk/government/organisations/natural-england/about/personal-information-charter',
-  'request-an-update-to-a-form':
-    'https://defra.sharepoint.com/sites/Community4442/SitePages/Privacy-notice--Defra-Forms.aspx',
-  'report-a-bug-or-issue-with-a-form':
-    'https://defra.sharepoint.com/sites/Community4442/SitePages/Privacy-notice--Defra-Forms.aspx',
-  'request-fire-service-equipment-from-the-environment-agency':
-    'https://www.gov.uk/government/publications/request-environmental-protection-equipment-privacy-notice'
-}
-
 export default {
   plugin: {
     name: 'router',
@@ -60,17 +37,18 @@ export default {
       server.route<{ Params: { slug: string } }>({
         method: 'get',
         path: '/help/privacy/{slug}',
-        handler(request, h) {
+        async handler(request, h) {
           const { slug } = request.params
 
-          const privacyPolicy = privacyPolicies[slug]
+          const form = await getFormMetadata(slug)
+          const { privacyNoticeUrl } = form
 
-          if (!privacyPolicy) {
-            logger.error(`Privacy policy not found for slug ${slug}`)
+          if (!privacyNoticeUrl) {
+            logger.error(`Privacy notice not found for slug ${slug}`)
             return Boom.notFound()
           }
 
-          return h.redirect(privacyPolicy)
+          return h.redirect(privacyNoticeUrl)
         }
       })
 
