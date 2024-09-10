@@ -3,11 +3,34 @@
 {% set pageTitle = "Get help with your form" %}
 
 {% block content %}
-<div class="govuk-width-container">
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      {% include "help/get-support/" + slug + ".html" ignore missing %}
+  {% if form.contact %}
+    <div class="govuk-width-container">
+      <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+          <h2 class="govuk-heading-m">{{ pageTitle }}</h2>
+          {% if form.contact.phone %}
+            <h3 class="govuk-heading-s">Telephone</h3>
+            <p class="govuk-body">If you have a unique reference number, have it with you when you call.</p>
+            <p class="govuk-body">{{ form.contact.phone | escape | nl2br | safe }}</p>
+            <p class="govuk-body"><a href="https://www.gov.uk/call-charges" class="govuk-link govuk-link--no-visited-state">Find out about call charges</a></p>
+          {% endif %}
+
+          {% if form.contact.email %}
+            <h3 class="govuk-heading-s">Email</h3>
+            <ul class="govuk-list">
+              <li><a class="govuk-link govuk-link--no-visited-state" href="mailto:{{ form.contact.email.address }}">{{ form.contact.email.address }}</a></li>
+              <li>{{ form.contact.email.responseTime }}</li>
+            </ul>
+          {% endif %}
+
+          {% if form.contact.online %}
+            <h3 class="govuk-heading-s">Online contact form</h3>
+            <ul class="govuk-list">
+              <li><a class="govuk-link govuk-link--no-visited-state" href="{{ form.contact.online.url }}">{{ form.contact.online.text }}</a></li>
+            </ul>
+          {% endif %}
+        </div>
+      </div>
     </div>
-  </div>
-</div>
+  {% endif %}
 {% endblock %}
