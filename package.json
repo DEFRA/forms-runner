@@ -92,7 +92,7 @@
     "babel-plugin-transform-import-meta": "^2.2.1",
     "cheerio": "^1.0.0",
     "clean-webpack-plugin": "^4.0.0",
-    "concurrently": "^8.0.0",
+    "concurrently": "^9.0.0",
     "cookie": "^0.6.0",
     "copy-webpack-plugin": "^12.0.2",
     "core-js": "^3.38.1",
