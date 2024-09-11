@@ -5,6 +5,7 @@ import { addDays, format } from 'date-fns'
 
 import { createServer } from '~/src/server/index.js'
 import { persistFiles } from '~/src/server/plugins/engine/services/formSubmissionService.js'
+import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
   initiateUpload,
   getUploadStatus
@@ -18,6 +19,7 @@ const testDir = dirname(fileURLToPath(import.meta.url))
 jest.mock('~/src/server/utils/notify.ts')
 jest.mock('~/src/server/plugins/engine/services/uploadService.js')
 jest.mock('~/src/server/plugins/engine/services/formSubmissionService.js')
+jest.mock('~/src/server/plugins/engine/services/formsService.js')
 
 const okStatusCode = 200
 const redirectStatusCode = 302
@@ -124,6 +126,31 @@ const fileUploadPath = '/components/methodology-statement'
 const summaryPath = '/components/summary'
 
 /**
+ * @satisfies {FormMetadataAuthor}
+ */
+const author = {
+  id: 'J6PlucvwkmNlYxX9HnSEj27AcJAVx_08IvZ-IPNTvAN',
+  displayName: 'Enrique Chase'
+}
+
+/**
+ * @satisfies {FormMetadata}
+ */
+const stubFormMetadata = {
+  id: '661e4ca5039739ef2902b214',
+  slug: 'components',
+  title: 'Components form',
+  organisation: 'Defra',
+  teamName: 'Defra Forms',
+  teamEmail: 'defraforms@defra.gov.uk',
+  submissionGuidance: 'We’ll send you an email to let you know the outcome.',
+  createdAt: now,
+  createdBy: author,
+  updatedAt: now,
+  updatedBy: author
+}
+
+/**
  * @satisfies {UploadInitiateResponse}
  */
 const uploadInitiateResponse = {
@@ -183,6 +210,7 @@ describe('Submission journey test', () => {
     const sender = jest.mocked(sendNotification)
     jest.mocked(initiateUpload).mockResolvedValue(uploadInitiateResponse)
     jest.mocked(getUploadStatus).mockResolvedValue(readyStatusResponse)
+    jest.mocked(getFormMetadata).mockResolvedValue(stubFormMetadata)
 
     // Components page
     const res = await componentsPage()
@@ -319,6 +347,9 @@ describe('Submission journey test', () => {
  */
 
 /**
+ * @typedef {import('@defra/forms-model').FormMetadataAuthor} FormMetadataAuthor
+ * @typedef {import('@defra/forms-model').FormMetadataState} FormMetadataState
+ * @typedef {import('@defra/forms-model').FormMetadata} FormMetadata
  * @typedef {import('~/src/server/plugins/engine/types.js').UploadInitiateResponse} UploadInitiateResponse
  * @typedef {import('~/src/server/plugins/engine/types.js').UploadStatusResponse} UploadStatusResponse
  */
