@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { basename, dirname, join } from 'node:path'
 
+import { markdownToHtml } from '@defra/forms-model'
 import { type Request, type ServerRegisterPluginObject } from '@hapi/hapi'
 import vision, { type ServerViewsConfiguration } from '@hapi/vision'
 import capitalize from 'lodash/capitalize.js'
@@ -34,6 +35,7 @@ const nunjucksEnvironment = nunjucks.configure(
     noCache: config.get('isDevelopment')
   }
 )
+nunjucksEnvironment.addFilter('markdownToHtml', markdownToHtml)
 
 let webpackManifest: Record<string, string> | undefined
 

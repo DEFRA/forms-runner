@@ -30,7 +30,7 @@ export default {
 
           const form = await getFormMetadata(slug)
 
-          return h.view(viewName, { slug, name: form.title })
+          return h.view(viewName, { form })
         }
       })
 
