@@ -11,9 +11,9 @@
         titleText: pageTitle
       }) }}
       <h2 class="govuk-heading-m">What happens next</h2>
-      <p class="govuk-body">
-        {{ submissionGuidance | escape | nl2br | safe }}
-      </p>
+      <div class="app-prose-scope">
+        {{ submissionGuidance | markdownToHtml | safe }}
+      </div>
     </div>
   </div>
 {% endblock %}
