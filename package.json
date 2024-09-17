@@ -72,7 +72,7 @@
     "joi": "^17.13.3",
     "lodash": "^4.17.21",
     "nunjucks": "^3.2.3",
-    "pino": "^9.3.2",
+    "pino": "^9.4.0",
     "pino-pretty": "^11.2.2",
     "proxy-agent": "^6.4.0",
     "resolve": "^1.19.0"
