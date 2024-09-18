@@ -212,10 +212,5 @@ describe('Submission journey test', () => {
 
 /**
  * @import { Server } from '@hapi/hapi'
- */
-
-/**
- * @typedef {import('@defra/forms-model').FormMetadataAuthor} FormMetadataAuthor
- * @typedef {import('@defra/forms-model').FormMetadataState} FormMetadataState
- * @typedef {import('@defra/forms-model').FormMetadata} FormMetadata
+ * @import { FormMetadata, FormMetadataAuthor } from '@defra/forms-model'
  */

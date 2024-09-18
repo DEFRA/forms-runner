@@ -302,9 +302,5 @@ describe('File upload POST tests', () => {
 
 /**
  * @import { Server } from '@hapi/hapi'
- */
-
-/**
- * @typedef {import('~/src/server/plugins/engine/types.js').UploadInitiateResponse} UploadInitiateResponse
- * @typedef {import('~/src/server/plugins/engine/types.js').UploadStatusResponse} UploadStatusResponse
+ * @import { UploadInitiateResponse, UploadStatusResponse } from '~/src/server/plugins/engine/types.js'
  */

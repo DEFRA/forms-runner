@@ -344,12 +344,6 @@ describe('Submission journey test', () => {
 
 /**
  * @import { Server } from '@hapi/hapi'
- */
-
-/**
- * @typedef {import('@defra/forms-model').FormMetadataAuthor} FormMetadataAuthor
- * @typedef {import('@defra/forms-model').FormMetadataState} FormMetadataState
- * @typedef {import('@defra/forms-model').FormMetadata} FormMetadata
- * @typedef {import('~/src/server/plugins/engine/types.js').UploadInitiateResponse} UploadInitiateResponse
- * @typedef {import('~/src/server/plugins/engine/types.js').UploadStatusResponse} UploadStatusResponse
+ * @import { FormMetadata, FormMetadataAuthor } from '@defra/forms-model'
+ * @import { UploadInitiateResponse, UploadStatusResponse } from '~/src/server/plugins/engine/types.js'
  */
