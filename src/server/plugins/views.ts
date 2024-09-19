@@ -35,7 +35,7 @@ const nunjucksEnvironment = nunjucks.configure(
     noCache: config.get('isDevelopment')
   }
 )
-nunjucksEnvironment.addFilter('markdownToHtml', markdownToHtml)
+nunjucksEnvironment.addFilter('markdown', markdownToHtml)
 
 let webpackManifest: Record<string, string> | undefined
 

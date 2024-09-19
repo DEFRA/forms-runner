@@ -1,4 +1,4 @@
-{% extends 'layout.html' %}
+{% extends "layout.html" %}
 
 {% from "govuk/components/panel/macro.njk" import govukPanel %}
 
@@ -10,7 +10,10 @@
       {{ govukPanel({
         titleText: pageTitle
       }) }}
-      {% include "help/what-happens-next/" + slug + ".html" ignore missing %}
+      <h2 class="govuk-heading-m">What happens next</h2>
+      <div class="app-prose-scope">
+        {{ submissionGuidance | markdown | safe }}
+      </div>
     </div>
   </div>
 {% endblock %}

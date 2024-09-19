@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url'
 
 import { createServer } from '~/src/server/index.js'
 import { persistFiles } from '~/src/server/plugins/engine/services/formSubmissionService.js'
+import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import * as uploadService from '~/src/server/plugins/engine/services/uploadService.js'
 import { FileStatus, UploadStatus } from '~/src/server/plugins/engine/types.js'
 import { CacheService } from '~/src/server/services/cacheService.js'
@@ -13,6 +14,7 @@ const testDir = dirname(fileURLToPath(import.meta.url))
 jest.mock('~/src/server/plugins/engine/services/formSubmissionService.js')
 jest.mock('~/src/server/plugins/engine/services/uploadService.js')
 jest.mock('~/src/server/utils/notify.ts')
+jest.mock('~/src/server/plugins/engine/services/formsService.js')
 
 const okStatusCode = 200
 const redirectStatusCode = 302
@@ -56,6 +58,32 @@ const readyFile2 = {
   }
 }
 
+const now = new Date()
+
+/**
+ * @satisfies {FormMetadataAuthor}
+ */
+const author = {
+  id: 'J6PlucvwkmNlYxX9HnSEj27AcJAVx_08IvZ-IPNTvAN',
+  displayName: 'Enrique Chase'
+}
+
+/**
+ * @satisfies {FormMetadata}
+ */
+const stubFormMetadata = {
+  id: '661e4ca5039739ef2902b214',
+  slug: 'file-upload-2',
+  title: 'File upload 2 form',
+  organisation: 'Defra',
+  teamName: 'Defra Forms',
+  teamEmail: 'defraforms@defra.gov.uk',
+  submissionGuidance: 'We’ll send you an email to let you know the outcome.',
+  createdAt: now,
+  createdBy: author,
+  updatedAt: now,
+  updatedBy: author
+}
 describe('Submission journey test', () => {
   /** @type {Server} */
   let server
@@ -110,6 +138,8 @@ describe('Submission journey test', () => {
       .mocked(uploadService.getUploadStatus)
       .mockResolvedValueOnce(readyFile.status)
       .mockResolvedValueOnce(readyFile2.status)
+
+    jest.mocked(getFormMetadata).mockResolvedValue(stubFormMetadata)
 
     jest.mocked(uploadService.initiateUpload).mockResolvedValueOnce({
       uploadId: '123-546-790',
@@ -182,4 +212,5 @@ describe('Submission journey test', () => {
 
 /**
  * @import { Server } from '@hapi/hapi'
+ * @import { FormMetadata, FormMetadataAuthor } from '@defra/forms-model'
  */

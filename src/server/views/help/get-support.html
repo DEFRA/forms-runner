@@ -10,9 +10,8 @@
           <h1 class="govuk-heading-l">{{ pageTitle }}</h1>
           {% if form.contact.phone %}
             <h2 class="govuk-heading-m">Telephone</h2>
-            <p class="govuk-body">If you have a unique reference number, have it with you when you call.</p>
             <div class="app-prose-scope">
-              {{ form.contact.phone | markdownToHtml | safe }}
+              {{ form.contact.phone | markdown | safe }}
             </div>
             <p class="govuk-body"><a href="https://www.gov.uk/call-charges" class="govuk-link govuk-link--no-visited-state">Find out about call charges</a></p>
           {% endif %}
