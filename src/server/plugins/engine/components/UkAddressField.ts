@@ -37,6 +37,13 @@ export class UkAddressField extends FormComponent {
 
     const childrenList = [
       {
+        name: 'text',
+        title: 'hint',
+        content: `<p id="waste-hint" class="govuk-hint">${this.hint}</p>`,
+        type: ComponentType.Html,
+        options: {}
+      },
+      {
         type: ComponentType.TextField,
         name: 'addressLine1',
         title: 'Address line 1',
