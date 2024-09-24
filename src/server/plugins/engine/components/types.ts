@@ -19,6 +19,7 @@ export interface ListItem {
   text?: string
   value?: string | boolean | number
   hint?: {
+    id?: string
     text: string
   }
   checked?: boolean
@@ -35,6 +36,7 @@ export interface ViewModel {
   name?: string
   value?: any // TODO
   hint?: {
+    id?: string
     text: string
   }
   classes?: string
@@ -55,6 +57,7 @@ export interface ViewModel {
   rows?: number
   items?: ListItem[]
   fieldset?: {
+    attributes?: string | Record<string, string>
     legend?: Label
   }
   formGroup?: {
