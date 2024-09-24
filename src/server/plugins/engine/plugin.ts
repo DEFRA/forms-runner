@@ -119,7 +119,8 @@ export const plugin = {
           )
         }
 
-        const emailAddress = definition.outputEmail
+        const emailAddress =
+          metadata.notificationEmail ?? definition.outputEmail
 
         if (!emailAddress && !isPreview) {
           return Boom.internal(
