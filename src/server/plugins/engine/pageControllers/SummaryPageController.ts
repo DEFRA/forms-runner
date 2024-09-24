@@ -182,7 +182,7 @@ export class SummaryPageController extends PageController {
 
         if (!emailAddress) {
           return internal(
-            'An `outputEmail` is required on the form definition to complete the form submission'
+            'An email address is required to complete the form submission'
           )
         }
 
