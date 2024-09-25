@@ -32,6 +32,7 @@ import {
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { persistFiles } from '~/src/server/plugins/engine/services/formSubmissionService.js'
+import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
   type FileState,
   type FormSubmissionState
@@ -169,16 +170,18 @@ export class SummaryPageController extends PageController {
         return h.view('summary', summaryViewModel)
       }
 
-      const path = request.path
+      const { path, params } = request
       const isPreview = path.toLowerCase().startsWith(PREVIEW_PATH_PREFIX)
 
       // If not in preview mode, then send the submission email
       if (!isPreview) {
-        const emailAddress = this.model.def.outputEmail
+        // Get the form metadata using the `slug` param
+        const { notificationEmail } = await getFormMetadata(params.slug)
+        const emailAddress = notificationEmail ?? this.model.def.outputEmail
 
         if (!emailAddress) {
           return internal(
-            'An `outputEmail` is required on the form definition to complete the form submission'
+            'An email address is required to complete the form submission'
           )
         }
 

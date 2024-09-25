@@ -80,6 +80,11 @@ jobs:
             .public
             .server
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
       - name: Run build
         run: npm run build
 
@@ -124,6 +129,11 @@ jobs:
           key: npm-install-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
           path: node_modules
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
       - name: Run lint task
         run: ${{ matrix.task.run }}
 
@@ -162,6 +172,11 @@ jobs:
           path: |
             .public
             .server
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
 
       - name: Run task
         run: ${{ matrix.task.run }}

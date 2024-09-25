@@ -119,11 +119,12 @@ export const plugin = {
           )
         }
 
-        const emailAddress = definition.outputEmail
+        const emailAddress =
+          metadata.notificationEmail ?? definition.outputEmail
 
         if (!emailAddress && !isPreview) {
           return Boom.internal(
-            'An `outputEmail` is required on the form definition to complete the form submission'
+            'An email address is required to complete the form submission'
           )
         }
 
