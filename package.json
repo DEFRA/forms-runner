@@ -135,7 +135,7 @@
     "postcss-load-config": "^6.0.1",
     "postcss-loader": "^8.1.1",
     "prettier": "^3.3.3",
-    "sass-embedded": "^1.78.0",
+    "sass-embedded": "^1.79.3",
     "sass-loader": "^16.0.2",
     "source-map-loader": "^5.0.0",
     "terser-webpack-plugin": "^5.3.10",
