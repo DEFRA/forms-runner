@@ -176,9 +176,8 @@ export class SummaryPageController extends PageController {
       // If not in preview mode, then send the submission email
       if (!isPreview) {
         // Get the form metadata using the `slug` param
-        const metadata = await getFormMetadata(params.slug)
-        const emailAddress =
-          metadata.notificationEmail ?? this.model.def.outputEmail
+        const { notificationEmail } = await getFormMetadata(params.slug)
+        const emailAddress = notificationEmail ?? this.model.def.outputEmail
 
         if (!emailAddress) {
           return internal(
