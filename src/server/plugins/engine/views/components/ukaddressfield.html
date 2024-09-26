@@ -1,12 +1,25 @@
 {% from "partials/components.html" import componentList %}
 {% from "govuk/components/fieldset/macro.njk" import govukFieldset %}
+{% from "govuk/components/hint/macro.njk" import govukHint %}
 
 {% macro UkAddressField(component) %}
   {% set fieldset = component.model.fieldset %}
   {% set addressFieldHtml = componentList(component.model.children) %}
 
+  {% if component.model.hint %}
+    {% set addressHintHtml %}
+      {{ govukHint({
+        id: component.model.name + "-hint",
+        text: component.model.hint.text
+      } if fieldset else component.model.hint) }}
+    {% endset %}
+
+    {% set addressFieldHtml = addressHintHtml + addressFieldHtml %}
+  {% endif %}
+
   {{ govukFieldset({
     legend: fieldset.legend,
+    attributes: fieldset.attributes,
     html: addressFieldHtml
   }) if fieldset else addressFieldHtml }}
 {% endmacro %}

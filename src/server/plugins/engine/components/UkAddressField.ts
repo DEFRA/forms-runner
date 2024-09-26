@@ -160,10 +160,10 @@ export class UkAddressField extends FormComponent {
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
-    const { children: formChildren, options } = this
+    const { children: formChildren, name, options } = this
 
     const viewModel = super.getViewModel(payload, errors)
-    let { children, fieldset, label } = viewModel
+    let { children, fieldset, hint, label } = viewModel
 
     fieldset ??= {
       legend: {
@@ -176,6 +176,13 @@ export class UkAddressField extends FormComponent {
         classes: options.hideTitle
           ? 'govuk-visually-hidden'
           : 'govuk-fieldset__legend--m'
+      }
+    }
+
+    if (hint) {
+      hint.id ??= `${name}-hint`
+      fieldset.attributes ??= {
+        'aria-describedby': hint.id
       }
     }
 
