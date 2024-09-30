@@ -233,10 +233,8 @@ export class PageControllerBase {
    * gets the state for the values that can be entered on just this page
    */
   getFormDataFromState(state: FormSubmissionState): FormData {
-    const pageState = this.section ? state[this.section.name] : state
-
     return {
-      ...this.components.getFormDataFromState(pageState || {})
+      ...this.components.getFormDataFromState(state)
     }
   }
 
@@ -323,14 +321,12 @@ export class PageControllerBase {
     // While the current page isn't null
     while (nextPage != null) {
       // Either get the current state or the current state of the section if this page belongs to a section
-      const currentState =
-        (nextPage.section ? state[nextPage.section.name] : state) ?? {}
-      let newValue = {}
+      const newValue = {}
 
       if (!hasRepeater(nextPage.pageDef)) {
         // Iterate all components on this page and pull out the saved values from the state
         for (const component of nextPage.components.items) {
-          let componentState = currentState[component.name]
+          let componentState = state[component.name]
 
           /**
            * For evaluation context purposes, optional {@link CheckboxesField}
@@ -654,7 +650,7 @@ export class PageControllerBase {
   }
 
   getPartialMergeState(value: FormSubmissionState) {
-    return this.section ? { [this.section.name]: value } : value
+    return value
   }
 
   get defaultNextPath() {

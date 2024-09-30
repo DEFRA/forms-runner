@@ -254,7 +254,7 @@ function gatherRepeatPages(state: FormSubmissionState) {
 function Item(
   request: Request,
   component: FormComponentFieldClass,
-  sectionState: FormSubmissionState,
+  state: FormSubmissionState,
   page: PageControllerClass,
   model: FormModel,
   params: { returnUrl: string } = {
@@ -265,8 +265,8 @@ function Item(
     name: component.name,
     path: page.path,
     label: component.title,
-    value: component.getDisplayStringFromState(sectionState),
-    rawValue: sectionState[component.name],
+    value: component.getDisplayStringFromState(state),
+    rawValue: state[component.name],
     url: redirectUrl(request, `/${model.basePath}${page.path}`, params),
     pageId: `/${model.basePath}${page.path}`,
     type: component.type,
