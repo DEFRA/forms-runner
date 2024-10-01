@@ -180,3 +180,20 @@ jobs:
 
       - name: Run task
         run: ${{ matrix.task.run }}
+
+  analysis:
+    name: Analysis
+    runs-on: ubuntu-latest
+    needs: [install, build, tasks]
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
