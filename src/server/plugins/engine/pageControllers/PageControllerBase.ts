@@ -353,15 +353,10 @@ export class PageControllerBase {
           ) {
             componentState = null
           } else if (component instanceof DatePartsField) {
-            componentState =
-              component.getConditionEvaluationStateValue(currentState)
+            componentState = component.getConditionEvaluationStateValue(state)
           }
 
           newValue[component.name] = componentState
-        }
-
-        if (nextPage.section) {
-          newValue = { [nextPage.section.name]: newValue }
         }
 
         // Combine our stored values with the existing relevantState that we've been building up
