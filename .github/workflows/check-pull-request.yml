@@ -151,7 +151,9 @@ jobs:
 
         task:
           - description: Unit tests
+            name: test-unit
             run: npm run test
+            cache: coverage
 
     steps:
       - name: Checkout
@@ -178,6 +180,14 @@ jobs:
         with:
           node-version-file: .nvmrc
 
+      - name: Cache task
+        if: ${{ matrix.task.cache }}
+        uses: actions/cache@v4
+        with:
+          enableCrossOsArchive: true
+          key: ${{ matrix.task.name }}-${{ runner.os }}
+          path: ${{ matrix.task.cache }}
+
       - name: Run task
         run: ${{ matrix.task.run }}
 
@@ -191,6 +201,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Restore unit test coverage
+        uses: actions/cache/restore@v4
+        with:
+          enableCrossOsArchive: true
+          key: test-unit-${{ runner.os }}
+          path: coverage
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v3.0.0
