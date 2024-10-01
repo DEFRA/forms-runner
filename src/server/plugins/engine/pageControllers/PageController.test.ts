@@ -26,30 +26,31 @@ describe('Condition Evaluation Context', () => {
     // The state below shows we said we had a UKPassport and entered details for an applicant
     const completeState = {
       progress: [
-        '/csds/uk-passport?visit=7O4_nT1TVI',
-        '/csds/how-many-people?visit=7O4_nT1TVI',
-        '/csds/applicant-one?visit=7O4_nT1TVI',
-        '/csds/applicant-one-address?visit=7O4_nT1TVI',
-        '/csds/contact-details?visit=7O4_nT1TVI'
+        '/csds/uk-passport',
+        '/csds/how-many-people',
+        '/csds/applicant-one',
+        '/csds/applicant-one-address',
+        '/csds/contact-details'
       ],
-      checkBeforeYouStart: {
-        ukPassport: true
+      ukPassport: true,
+      numberOfApplicants: 2,
+      applicantOneFirstName: 'Enrique',
+      applicantOneMiddleName: null,
+      applicantOneLastName: 'Chase',
+      applicantOneAddress: {
+        addressLine1: 'AddressLine1',
+        addressLine2: 'AddressLine2',
+        town: 'Town',
+        postcode: 'Postcode'
       },
-      applicantDetails: {
-        numberOfApplicants: 1,
-        phoneNumber: '1234567890',
-        emailAddress: 'developer@example.com'
-      },
-      applicantOneDetails: {
-        firstName: 'Martin',
-        middleName: null,
-        lastName: 'Crawley',
-        address: {
-          addressLine1: 'AddressLine1',
-          addressLine2: 'AddressLine2',
-          town: 'Town',
-          postcode: 'Postcode'
-        }
+      applicantTwoFirstName: 'John',
+      applicantTwoMiddleName: null,
+      applicantTwoLastName: 'Doe',
+      applicantTwoAddress: {
+        addressLine1: 'AddressLine1',
+        addressLine2: 'AddressLine2',
+        town: 'Town',
+        postcode: 'Postcode'
       }
     }
 
@@ -59,22 +60,31 @@ describe('Condition Evaluation Context', () => {
       completeState
     )
 
-    // Our relevantState should know our applicants firstName is Martin
-    expect(relevantState.applicantOneDetails).toEqual(
+    // Our relevantState should know our first applicant
+    expect(relevantState).toEqual(
       expect.objectContaining({
-        firstName: 'Martin'
+        applicantOneFirstName: 'Enrique',
+        applicantOneLastName: 'Chase',
+        applicantOneAddress: {
+          addressLine1: 'AddressLine1',
+          addressLine2: 'AddressLine2',
+          town: 'Town',
+          postcode: 'Postcode'
+        }
       })
     )
 
     // Now mark that we don't have a UK Passport
-    completeState.checkBeforeYouStart.ukPassport = false
+    completeState.ukPassport = false
 
     // And recalculate our relevantState
     relevantState = page.getConditionEvaluationContext(formModel, completeState)
 
     // Our relevantState should no longer know anything about our applicant
-    expect(relevantState.applicantOneDetails).toBeUndefined()
-    expect(relevantState.checkBeforeYouStart).toEqual(
+    expect(relevantState.applicantOneFirstName).toBeUndefined()
+    expect(relevantState.applicantOneLastName).toBeUndefined()
+    expect(relevantState.applicantOneAddress).toBeUndefined()
+    expect(relevantState).toEqual(
       expect.objectContaining({
         ukPassport: false
       })
