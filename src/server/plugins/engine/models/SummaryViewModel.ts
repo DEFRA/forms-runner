@@ -124,37 +124,8 @@ export class SummaryViewModel {
   ) {
     const details: Detail[] = []
 
-    const stateBySection = [undefined, ...model.sections].reduce<
-      Record<string, object>
-    >((sectionAcc, section) => {
-      const pages = model.pages.filter(
-        (page) => page.section?.name === section?.name
-      )
-      const components = pages.flatMap((page) =>
-        page.components.formItems.map((component) => component.name)
-      )
-
-      const componentStates = components.reduce<Record<string, object>>(
-        (componentAcc, componentName) => {
-          if (componentName in state) {
-            componentAcc[componentName] = state[componentName]
-          }
-
-          return componentAcc
-        },
-        {}
-      )
-
-      sectionAcc[section?.name ?? 'base'] = componentStates
-
-      return sectionAcc
-    }, {})
-
     ;[undefined, ...model.sections].forEach((section) => {
       const items: DetailItem[] = []
-      const sectionState = section?.name
-        ? stateBySection[section.name]
-        : stateBySection.base
 
       const sectionPages = relevantPages.filter(
         (page) => page.section === section
@@ -162,7 +133,7 @@ export class SummaryViewModel {
 
       sectionPages.forEach((page) => {
         for (const component of page.components.formItems) {
-          const item = Item(request, component, sectionState, page, model)
+          const item = Item(request, component, state, page, model)
           if (items.find((cbItem) => cbItem.name === item.name)) return
           items.push(item)
         }
