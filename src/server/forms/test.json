@@ -43,6 +43,8 @@
       "components": [
         {
           "type": "Html",
+          "name": "html",
+          "title": "Html",
           "content": "<p class=\"govuk-body\">If you still think you're eligible please contact the Foreign and Commonwealth Office.</p>",
           "options": {},
           "schema": {}
@@ -79,6 +81,8 @@
       "components": [
         {
           "type": "Html",
+          "name": "html",
+          "title": "Html",
           "content": "<p class=\"govuk-body\">Provide the details as they appear on your passport.</p>",
           "options": {},
           "schema": {}
@@ -151,6 +155,8 @@
       "components": [
         {
           "type": "Html",
+          "name": "html",
+          "title": "Html",
           "content": "<p class=\"govuk-body\">Provide the details as they appear on your passport.</p>",
           "options": {},
           "schema": {}
@@ -223,6 +229,8 @@
       "components": [
         {
           "type": "Html",
+          "name": "html",
+          "title": "Html",
           "content": "<p class=\"govuk-body\">Provide the details as they appear on your passport.</p>",
           "options": {},
           "schema": {}
@@ -295,6 +303,8 @@
       "components": [
         {
           "type": "Html",
+          "name": "html",
+          "title": "Html",
           "content": "<p class=\"govuk-body\">Provide the details as they appear on your passport.</p>",
           "options": {},
           "schema": {}

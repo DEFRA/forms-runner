@@ -16,6 +16,7 @@
           "name": "LdOljB",
           "options": {},
           "type": "InsetText",
+          "title": "Inset text",
           "content": "<strong>It does not matter what you pick as it will redirect you to the same page</strong>",
           "schema": {}
         }
@@ -66,6 +67,7 @@
       "components": [
         {
           "name": "MOB13t",
+          "title": "Html",
           "options": {},
           "type": "Html",
           "content": "<p class=\"govuk-body\">How to check if you're exempt from paying a charge and how to create a business account, and what support or exemptions are available.</p>",
@@ -203,7 +205,7 @@
     {
       "title": "Vehicle Type",
       "name": "ckrDmV",
-      "type": "string",
+      "type": "number",
       "items": [
         {
           "text": "Car",

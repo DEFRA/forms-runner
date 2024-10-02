@@ -119,6 +119,7 @@
         },
         {
           "type": "Details",
+          "name": "details",
           "title": "Title",
           "content": "Content",
           "options": {},

@@ -91,18 +91,23 @@
         },
         {
           "type": "Html",
+          "name": "html",
+          "title": "Html",
           "content": "<p class=\"govuk-body\">Paragraph...</p>",
           "options": {},
           "schema": {}
         },
         {
           "type": "InsetText",
+          "name": "insetText",
+          "title": "Inset text",
           "content": "Inset text",
           "options": {},
           "schema": {}
         },
         {
           "type": "Details",
+          "name": "details",
           "title": "Title",
           "content": "Content",
           "options": {},

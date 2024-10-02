@@ -3,6 +3,7 @@
   "startPage": "/start",
   "pages": [
     {
+      "title": "Buy a rod fishing licence",
       "path": "/start",
       "components": [
         {
@@ -24,6 +25,7 @@
       ]
     },
     {
+      "title": "What's your name?",
       "path": "/full-name",
       "components": [
         {
