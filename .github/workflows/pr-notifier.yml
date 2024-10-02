@@ -46,7 +46,7 @@ jobs:
   notify:
     name: Slack notify
     runs-on: ubuntu-latest
-    if: github.actor != 'dependabot[bot]'
+    if: ${{ !contains(github.ref, 'dependabot/') }}
 
     steps:
       - name: Build Slack JSON
