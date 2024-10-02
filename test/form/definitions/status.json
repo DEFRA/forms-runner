@@ -27,6 +27,7 @@
       "components": [
         {
           "name": "svTCNd",
+          "title": "Html",
           "options": {
             "condition": "isLisbon"
           },
@@ -36,6 +37,7 @@
         },
         {
           "name": "OaLeTn",
+          "title": "Html",
           "options": {
             "condition": "isPortimao"
           },
