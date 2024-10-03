@@ -85,6 +85,9 @@ jobs:
           - description: ESLint
             run: npm run lint:js
 
+          - description: Stylelint
+            run: npm run lint:scss
+
           - description: TypeScript compiler
             run: npm run lint:types
 
