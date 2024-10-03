@@ -29,6 +29,7 @@ export class CacheService {
 
   async getState(request: Request): Promise<FormSubmissionState> {
     const cached = await this.cache.get(this.Key(request))
+
     return cached || {}
   }
 
