@@ -68,9 +68,7 @@ export class SummaryViewModel {
         config.get('feedbackLink'))
 
     const schema = model.makeFilteredSchema(state, relevantPages)
-    const collatedRepeatPagesState = gatherRepeatPages(state)
-
-    const result = schema.validate(collatedRepeatPagesState, {
+    const result = schema.validate(state, {
       abortEarly: false,
       stripUnknown: true
     })
@@ -198,26 +196,6 @@ export class SummaryViewModel {
 
     return { relevantPages, endPage }
   }
-}
-
-function gatherRepeatPages(state: FormSubmissionState) {
-  if (Object.values(state).find((section) => Array.isArray(section))) {
-    return state
-  }
-  const clonedState = structuredClone(state)
-  Object.entries(state).forEach(([key, section]) => {
-    if (key === 'progress') {
-      return
-    }
-    if (Array.isArray(section)) {
-      clonedState[key] = section.map((pages) =>
-        Object.values(pages).reduce(
-          (acc: object, p: any) => ({ ...acc, ...p }),
-          {}
-        )
-      )
-    }
-  })
 }
 
 /**
