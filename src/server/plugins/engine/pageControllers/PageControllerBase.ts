@@ -380,9 +380,8 @@ export class PageControllerBase {
 
   async setState(request: Request, state: FormSubmissionState) {
     const { cacheService } = request.services([])
-    const update = this.getPartialMergeState(state)
 
-    return cacheService.mergeState(request, update)
+    return cacheService.mergeState(request, state)
   }
 
   makeGetRouteHandler(): (
@@ -642,10 +641,6 @@ export class PageControllerBase {
    */
   proceed(request: Request, h: ResponseToolkit, state: FormSubmissionState) {
     return proceed(request, h, this.getNext(state))
-  }
-
-  getPartialMergeState(value: FormSubmissionState) {
-    return value
   }
 
   get defaultNextPath() {
