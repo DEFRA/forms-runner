@@ -182,6 +182,9 @@ jobs:
           key: ${{ matrix.task.name }}-${{ runner.os }}-${{ github.sha }}
           path: ${{ matrix.task.cache }}
 
+      - name: Run task
+        run: ${{ matrix.task.run }}
+
       - name: Save test coverage
         if: ${{ always() }}
         uses: actions/upload-artifact@v4.4.0
@@ -189,9 +192,6 @@ jobs:
           name: ${{ matrix.task.description }} coverage (${{ matrix.runner }})
           path: coverage
           if-no-files-found: ignore
-
-      - name: Run task
-        run: ${{ matrix.task.run }}
 
   analysis:
     name: Analysis
