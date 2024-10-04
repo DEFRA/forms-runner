@@ -174,20 +174,27 @@ export class SummaryPageController extends PageController {
       const isPreview = path.toLowerCase().startsWith(PREVIEW_PATH_PREFIX)
 
       // If not in preview mode, then send the submission email
-      if (!isPreview) {
-        // Get the form metadata using the `slug` param
-        const { notificationEmail } = await getFormMetadata(params.slug)
-        const emailAddress = notificationEmail ?? this.model.def.outputEmail
+      // if (!isPreview) {
+      // Get the form metadata using the `slug` param
+      const { notificationEmail } = await getFormMetadata(params.slug)
+      const emailAddress = notificationEmail ?? this.model.def.outputEmail
 
-        if (!emailAddress) {
-          return internal(
-            'An email address is required to complete the form submission'
-          )
-        }
-
-        // Send submission email
-        await submitForm(request, summaryViewModel, model, state, emailAddress)
+      if (!emailAddress) {
+        return internal(
+          'An email address is required to complete the form submission'
+        )
       }
+
+      // Send submission email
+      await submitForm(
+        request,
+        summaryViewModel,
+        model,
+        state,
+        emailAddress,
+        isPreview
+      )
+      // }
 
       await cacheService.setConfirmationState(request, { confirmed: true })
 
@@ -253,7 +260,8 @@ async function submitForm(
   summaryViewModel: SummaryViewModel,
   model: FormModel,
   state: FormSubmissionState,
-  emailAddress: string
+  emailAddress: string,
+  isPreview: boolean
 ) {
   await extendFileRetention(model, state, emailAddress)
   await sendEmail(request, summaryViewModel, model, emailAddress)
@@ -298,12 +306,13 @@ async function sendEmail(
   request: Request,
   summaryViewModel: SummaryViewModel,
   model: FormModel,
-  emailAddress: string
+  emailAddress: string,
+  isPreview: boolean
 ) {
   request.logger.info(['submit', 'email'], 'Preparing email')
 
   // Get submission email personalisation
-  const personalisation = getPersonalisation(summaryViewModel, model)
+  const personalisation = getPersonalisation(summaryViewModel, model, isPreview)
 
   request.logger.info(['submit', 'email'], 'Sending email')
 
@@ -325,7 +334,8 @@ async function sendEmail(
 
 export function getPersonalisation(
   summaryViewModel: SummaryViewModel,
-  model: FormModel
+  model: FormModel,
+  isPreview: boolean
 ) {
   /**
    * @todo Refactor this below but the code to
@@ -342,6 +352,10 @@ export function getPersonalisation(
     model
   )
 
+  const formName = isPreview
+    ? `TEST FORM SUBMISSION: ${model.name}`
+    : `Form received: ${model.name}`
+
   const lines: string[] = []
   const files = formSubmissionData.questions.flatMap((question) =>
     question.fields.filter((field) => field.type === DataType.File)
@@ -351,6 +365,10 @@ export function getPersonalisation(
     lines.push(
       `^ For security reasons, the links in this email expire at ${formattedExpiryDate}\n`
     )
+  }
+
+  if (isPreview) {
+    lines.push(`This is a test of the ${formSubmissionData.name} form.`)
   }
 
   lines.push(
@@ -394,7 +412,7 @@ export function getPersonalisation(
 
   return {
     formResults: lines.join('\n'),
-    formName: model.name
+    formName
   }
 }
 
