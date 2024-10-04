@@ -10,15 +10,16 @@ module.exports = {
   restoreMocks: true,
   clearMocks: true,
   silent: true,
-  testMatch: ['**/*.test.{cjs,js,mjs,ts}'],
+  testMatch: ['<rootDir>/src/**/*.test.{cjs,js,mjs,ts}'],
   reporters: CI
     ? [['github-actions', { silent: false }], 'summary']
     : ['default', 'summary'],
-  collectCoverageFrom: ['src/**/*.{cjs,js,mjs,ts}'],
-  modulePathIgnorePatterns: [
-    '<rootDir>/.public/',
-    '<rootDir>/.server/',
-    '<rootDir>/coverage/'
+  collectCoverageFrom: ['<rootDir>/src/**/*.{cjs,js,mjs,ts}'],
+  coveragePathIgnorePatterns: [
+    '<rootDir>/node_modules/',
+    '<rootDir>/.server',
+    '<rootDir>/src/client',
+    '<rootDir>/test'
   ],
   coverageDirectory: '<rootDir>/coverage',
   setupFiles: ['<rootDir>/jest.setup.cjs'],
