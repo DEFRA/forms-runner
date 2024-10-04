@@ -99,6 +99,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           enableCrossOsArchive: true
+          fail-on-cache-miss: true
           key: npm-install-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
           path: node_modules
 
@@ -136,6 +137,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           enableCrossOsArchive: true
+          fail-on-cache-miss: true
           key: npm-install-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
           path: node_modules
 
@@ -143,6 +145,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           enableCrossOsArchive: true
+          fail-on-cache-miss: true
           key: npm-build-${{ runner.os }}-${{ github.sha }}
           path: |
             .public
@@ -189,6 +192,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           enableCrossOsArchive: true
+          fail-on-cache-miss: true
           key: test-unit-${{ runner.os }}-${{ github.sha }}
           path: coverage
 
