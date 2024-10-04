@@ -1,3 +1,5 @@
+const { CI } = process.env
+
 /**
  * Jest config
  * @type {import('@jest/types').Config.InitialOptions}
@@ -9,7 +11,9 @@ module.exports = {
   clearMocks: true,
   silent: true,
   testMatch: ['**/*.test.{cjs,js,mjs,ts}'],
-  reporters: ['default', ['github-actions', { silent: false }], 'summary'],
+  reporters: CI
+    ? [['github-actions', { silent: false }], 'summary']
+    : ['default', 'summary'],
   collectCoverageFrom: ['src/**/*.{cjs,js,mjs,ts}'],
   modulePathIgnorePatterns: [
     '<rootDir>/.public/',
