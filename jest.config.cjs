@@ -1,3 +1,5 @@
+const { CI } = process.env
+
 /**
  * Jest config
  * @type {import('@jest/types').Config.InitialOptions}
@@ -8,13 +10,16 @@ module.exports = {
   restoreMocks: true,
   clearMocks: true,
   silent: true,
-  testMatch: ['**/*.test.{cjs,js,mjs,ts}'],
-  reporters: ['default', ['github-actions', { silent: false }], 'summary'],
-  collectCoverageFrom: ['src/**/*.{cjs,js,mjs,ts}'],
-  modulePathIgnorePatterns: [
-    '<rootDir>/.public/',
-    '<rootDir>/.server/',
-    '<rootDir>/coverage/'
+  testMatch: ['<rootDir>/src/**/*.test.{cjs,js,mjs,ts}'],
+  reporters: CI
+    ? [['github-actions', { silent: false }], 'summary']
+    : ['default', 'summary'],
+  collectCoverageFrom: ['<rootDir>/src/**/*.{cjs,js,mjs,ts}'],
+  coveragePathIgnorePatterns: [
+    '<rootDir>/node_modules/',
+    '<rootDir>/.server',
+    '<rootDir>/src/client',
+    '<rootDir>/test'
   ],
   coverageDirectory: '<rootDir>/coverage',
   setupFiles: ['<rootDir>/jest.setup.cjs'],
@@ -22,6 +27,7 @@ module.exports = {
     '^.+\\.(cjs|js|mjs|ts)$': [
       'babel-jest',
       {
+        plugins: ['transform-import-meta'],
         rootMode: 'upward'
       }
     ]
