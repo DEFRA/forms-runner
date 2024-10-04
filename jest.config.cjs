@@ -26,6 +26,7 @@ module.exports = {
     '^.+\\.(cjs|js|mjs|ts)$': [
       'babel-jest',
       {
+        plugins: ['transform-import-meta'],
         rootMode: 'upward'
       }
     ]
