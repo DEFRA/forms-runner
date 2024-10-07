@@ -170,11 +170,8 @@ export class SummaryPageController extends PageController {
         return h.view('summary', summaryViewModel)
       }
 
-      const { path, params } = request
-      const isPreview = path.toLowerCase().startsWith(PREVIEW_PATH_PREFIX)
+      const { params } = request
 
-      // If not in preview mode, then send the submission email
-      // if (!isPreview) {
       // Get the form metadata using the `slug` param
       const { notificationEmail } = await getFormMetadata(params.slug)
       const emailAddress = notificationEmail ?? this.model.def.outputEmail
@@ -186,15 +183,7 @@ export class SummaryPageController extends PageController {
       }
 
       // Send submission email
-      await submitForm(
-        request,
-        summaryViewModel,
-        model,
-        state,
-        emailAddress,
-        isPreview
-      )
-      // }
+      await submitForm(request, summaryViewModel, model, state, emailAddress)
 
       await cacheService.setConfirmationState(request, { confirmed: true })
 
@@ -260,8 +249,7 @@ async function submitForm(
   summaryViewModel: SummaryViewModel,
   model: FormModel,
   state: FormSubmissionState,
-  emailAddress: string,
-  isPreview: boolean
+  emailAddress: string
 ) {
   await extendFileRetention(model, state, emailAddress)
   await sendEmail(request, summaryViewModel, model, emailAddress)
@@ -306,10 +294,13 @@ async function sendEmail(
   request: Request,
   summaryViewModel: SummaryViewModel,
   model: FormModel,
-  emailAddress: string,
-  isPreview: boolean
+  emailAddress: string
 ) {
   request.logger.info(['submit', 'email'], 'Preparing email')
+
+  const { path } = request
+
+  const isPreview = path.toLowerCase().startsWith(PREVIEW_PATH_PREFIX)
 
   // Get submission email personalisation
   const personalisation = getPersonalisation(summaryViewModel, model, isPreview)
