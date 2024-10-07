@@ -1,51 +1,52 @@
+import {
+  type ComponentDef,
+  ComponentType,
+  type FormDefinition
+} from '@defra/forms-model'
+import { type Request } from '@hapi/hapi'
 import { format } from 'date-fns'
 
 import { getPersonalisation } from './SummaryPageController.js'
 
 import {
-  type FormModel,
-  type SummaryViewModel
+  FormModel,
+  SummaryViewModel
 } from '~/src/server/plugins/engine/models/index.js'
 
 describe('getPersonalisation', () => {
-  const summaryViewModel: SummaryViewModel = {
-    pageTitle: 'Summary',
-    result: 'Success',
-    state: {},
-    value: {},
-    relevantPages: [
-      {
-        path: '/page1',
-        title: 'Page 1',
-        section: { name: 'Section 1' }
-      }
-    ],
-    details: [
-      {
-        items: [
-          {
-            path: '/page1',
-            name: 'field1',
-            title: 'Field 1',
-            dataType: 'string',
-            value: 'Answer 1'
-          }
-        ]
-      }
-    ],
-    metadata: {},
-    feedback: {},
-    pages: []
+  const component1: ComponentDef = {
+    name: 'dateField',
+    title: 'Date of marriage',
+    type: ComponentType.DatePartsField,
+    options: {}
   }
 
-  const model: FormModel = {
-    name: 'Test Form',
-    def: {
-      metadata: {},
-      feedback: {}
-    },
-    pages: []
+  const page = {
+    path: '/first-page',
+    title: 'When will you get married?',
+    components: [component1],
+    next: []
   }
+
+  const definition: FormDefinition = {
+    name: 'Test Form',
+    pages: [page],
+    lists: [],
+    sections: [],
+    conditions: []
+  }
+
+  const model: FormModel = new FormModel(definition, {
+    basePath: 'test'
+  })
+
+  const summaryViewModel: SummaryViewModel = new SummaryViewModel(
+    'Summary',
+    model,
+    {},
+    {},
+    {} as Request
+  )
 
   it('should generate personalisation with form results and form name - Live form', () => {
     const result = getPersonalisation(summaryViewModel, model, false)
