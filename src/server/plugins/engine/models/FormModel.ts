@@ -148,10 +148,10 @@ export class FormModel {
   ) {
     // Build the entire model schema
     // from the individual pages/sections
-    const schema = joi.object().required()
+    let schema = joi.object().required()
 
     relevantPages.forEach((page) => {
-      schema.concat(page.stateSchema)
+      schema = schema.concat(page.stateSchema)
     })
 
     return schema
