@@ -5,8 +5,8 @@ import { load } from 'cheerio'
 
 import { createServer } from '~/src/server/index.js'
 import {
-  initiateUpload,
-  getUploadStatus
+  getUploadStatus,
+  initiateUpload
 } from '~/src/server/plugins/engine/services/uploadService.js'
 import { FileStatus, UploadStatus } from '~/src/server/plugins/engine/types.js'
 import { getSessionCookie } from '~/test/utils/get-session-cookie.js'

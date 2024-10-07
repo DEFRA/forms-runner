@@ -1,5 +1,4 @@
 import {
-  createAll,
   Button,
   CharacterCount,
   Checkboxes,
@@ -7,7 +6,8 @@ import {
   Header,
   NotificationBanner,
   Radios,
-  SkipLink
+  SkipLink,
+  createAll
 } from 'govuk-frontend'
 
 createAll(Button)

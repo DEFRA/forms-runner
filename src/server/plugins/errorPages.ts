@@ -1,7 +1,7 @@
 import {
-  type ServerRegisterPluginObject,
   type Request,
-  type ResponseToolkit
+  type ResponseToolkit,
+  type ServerRegisterPluginObject
 } from '@hapi/hapi'
 
 /*

@@ -20,8 +20,8 @@ import {
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
-  type FormSubmissionState,
-  type FormSubmissionErrors
+  type FormSubmissionErrors,
+  type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 
 export class ListFormComponent extends FormComponent {

@@ -9,8 +9,8 @@ import { type FormComponentFieldComponent } from '~/src/server/plugins/engine/co
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   type FormPayload,
-  type FormSubmissionState,
-  type FormSubmissionErrors
+  type FormSubmissionErrors,
+  type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 
 export class FormComponent extends ComponentBase {
