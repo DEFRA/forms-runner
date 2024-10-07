@@ -1,8 +1,8 @@
 import {
   ComponentType,
+  type CheckboxesFieldComponent,
   type FormDefinition,
-  type List,
-  type CheckboxesFieldComponent
+  type List
 } from '@defra/forms-model'
 
 import { CheckboxesField } from '~/src/server/plugins/engine/components/CheckboxesField.js'

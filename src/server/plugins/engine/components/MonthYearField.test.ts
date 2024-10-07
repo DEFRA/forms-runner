@@ -1,4 +1,4 @@
-import { type ComponentDef, ComponentType } from '@defra/forms-model'
+import { ComponentType, type ComponentDef } from '@defra/forms-model'
 import joi, { type ObjectSchema } from 'joi'
 
 import { type ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'

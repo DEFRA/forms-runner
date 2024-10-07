@@ -50,7 +50,7 @@ export function getComponentField(component: ComponentDef) {
 }
 
 export const addClassOptionIfNone = (
-  options: Extract<ComponentDef['options'], { classes?: string }>,
+  options: Extract<ComponentDef, { options: { classes?: string } }>['options'],
   className: string
 ) => {
   if (!options.classes) {

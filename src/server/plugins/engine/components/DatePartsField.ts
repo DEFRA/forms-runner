@@ -1,5 +1,5 @@
 import { ComponentType, type DatePartsFieldComponent } from '@defra/forms-model'
-import { parseISO, format } from 'date-fns'
+import { format, parseISO } from 'date-fns'
 import joi from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'

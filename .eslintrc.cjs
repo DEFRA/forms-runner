@@ -78,6 +78,10 @@ module.exports = {
           'error',
           {
             alphabetize: { order: 'asc' },
+            named: {
+              enabled: true,
+              types: 'types-last'
+            },
             'newlines-between': 'always'
           }
         ],

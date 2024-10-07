@@ -1,7 +1,7 @@
 import {
   ComponentType,
-  type FormDefinition,
-  type FileUploadFieldComponent
+  type FileUploadFieldComponent,
+  type FormDefinition
 } from '@defra/forms-model'
 
 import {

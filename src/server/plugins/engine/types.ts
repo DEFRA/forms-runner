@@ -1,8 +1,8 @@
 import { type ResponseObject } from '@hapi/hapi'
 
 import {
-  type FormComponentViewModel,
-  type ComponentCollectionViewModel
+  type ComponentCollectionViewModel,
+  type FormComponentViewModel
 } from '~/src/server/plugins/engine/components/types.js'
 import { type PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
 /**
