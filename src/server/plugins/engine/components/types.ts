@@ -1,4 +1,4 @@
-import { type ComponentType } from '@defra/forms-model'
+import { type FormComponentsDef } from '@defra/forms-model'
 
 export interface Label {
   text: string
@@ -92,7 +92,7 @@ export type FileUploadFieldViewModel = {
 } & ViewModel
 
 export interface FormComponentViewModel {
-  type: ComponentType
+  type: FormComponentsDef['type']
   isFormComponent: true
   model: ViewModel
 }
