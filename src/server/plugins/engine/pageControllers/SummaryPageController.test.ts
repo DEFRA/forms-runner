@@ -1,9 +1,18 @@
-import { format, addDays } from 'date-fns'
+import { format } from 'date-fns'
 
 import { getPersonalisation } from './SummaryPageController.js'
 
+import {
+  type FormModel,
+  type SummaryViewModel
+} from '~/src/server/plugins/engine/models/index.js'
+
 describe('getPersonalisation', () => {
-  const summaryViewModel = {
+  const summaryViewModel: SummaryViewModel = {
+    pageTitle: 'Summary',
+    result: 'Success',
+    state: {},
+    value: {},
     relevantPages: [
       {
         path: '/page1',
@@ -23,10 +32,13 @@ describe('getPersonalisation', () => {
           }
         ]
       }
-    ]
+    ],
+    metadata: {},
+    feedback: {},
+    pages: []
   }
 
-  const model = {
+  const model: FormModel = {
     name: 'Test Form',
     def: {
       metadata: {},
