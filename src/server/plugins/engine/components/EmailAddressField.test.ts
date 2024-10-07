@@ -8,7 +8,7 @@ import { EmailAddressField } from '~/src/server/plugins/engine/components/EmailA
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 
-describe('EmailAddressFieldComponent', () => {
+describe('EmailAddressField', () => {
   const definition = {
     pages: [],
     lists: [],
