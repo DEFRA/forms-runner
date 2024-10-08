@@ -4,7 +4,7 @@ import {
   type ListComponentsDef
 } from '@defra/forms-model'
 
-import { SelectField } from '~/src/server/plugins/engine/components/index.js'
+import { SelectField } from '~/src/server/plugins/engine/components/SelectField.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 
 describe('SelectField', () => {

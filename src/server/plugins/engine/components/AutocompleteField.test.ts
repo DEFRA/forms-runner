@@ -4,7 +4,7 @@ import {
   type FormDefinition
 } from '@defra/forms-model'
 
-import { AutocompleteField } from '~/src/server/plugins/engine/components/index.js'
+import { AutocompleteField } from '~/src/server/plugins/engine/components/AutocompleteField.js'
 
 describe('AutocompleteField', () => {
   const lists: FormDefinition['lists'] = [
