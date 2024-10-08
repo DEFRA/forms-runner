@@ -94,9 +94,9 @@ describe.each([
 
         const { formSchema } = componentOptional
 
-        expect(formSchema.describe().flags).toEqual(
+        expect(formSchema.describe()).toEqual(
           expect.objectContaining({
-            presence: 'optional'
+            allow: expect.arrayContaining([''])
           })
         )
 

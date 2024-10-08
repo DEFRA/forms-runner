@@ -24,7 +24,7 @@ export class EmailAddressField extends FormComponent {
       .required()
 
     if (options.required === false) {
-      formSchema = formSchema.allow('').optional()
+      formSchema = formSchema.allow('')
     }
 
     if (options.customValidationMessage) {

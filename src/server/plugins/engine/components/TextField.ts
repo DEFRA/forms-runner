@@ -32,7 +32,7 @@ export class TextField extends FormComponent {
     let formSchema = joi.string().trim().label(title.toLowerCase()).required()
 
     if (options.required === false) {
-      formSchema = formSchema.allow('').optional()
+      formSchema = formSchema.allow('')
     }
 
     if (typeof schema.length !== 'number') {

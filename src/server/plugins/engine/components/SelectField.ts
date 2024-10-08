@@ -22,7 +22,15 @@ export class SelectField extends ListFormComponent {
     super(def, model)
 
     const { options } = def
+    let { formSchema } = this
 
+    if (options.required === false) {
+      formSchema = formSchema.allow('')
+    } else {
+      formSchema = formSchema.empty('')
+    }
+
+    this.formSchema = formSchema
     this.options = options
   }
 
