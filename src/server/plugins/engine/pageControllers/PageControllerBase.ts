@@ -19,6 +19,7 @@ import { merge } from '@hapi/hoek'
 import { format, parseISO } from 'date-fns'
 import type joi from 'joi'
 import { type ObjectSchema, type ValidationResult } from 'joi'
+import upperFirst from 'lodash/upperFirst.js'
 
 import { config } from '~/src/config/index.js'
 import { CheckboxesField } from '~/src/server/plugins/engine/components/CheckboxesField.js'
@@ -282,9 +283,11 @@ export class PageControllerBase {
       path: err.path.join('.'),
       href: `#${name}`,
       name,
-      text: err.message.replace(isoRegex, (text) => {
-        return format(parseISO(text), 'd MMMM yyyy')
-      })
+      text: upperFirst(
+        err.message.replace(isoRegex, (text) =>
+          format(parseISO(text), 'd MMMM yyyy')
+        )
+      )
     }
   }
 

@@ -76,36 +76,48 @@ describe('PageControllerBase', () => {
           [
             {
               message:
-                '"Date of marriage" must be on or before 2021-12-25T00:00:00.000Z',
+                'Date of marriage must be on or before 2021-12-25T00:00:00.000Z',
               path: ['dateField'],
               type: 'date.max'
-            },
-            {
-              message: 'something invalid',
-              path: ['yesNoField'],
-              type: 'string.pattern.base'
             }
           ],
           undefined
         )
       })
 
-      expect(errors?.errorList).toEqual(
-        expect.arrayContaining([
-          {
-            path: 'dateField',
-            href: '#dateField',
-            name: 'dateField',
-            text: `"Date of marriage" must be on or before 25 December 2021`
-          },
-          {
-            path: 'yesNoField',
-            href: '#yesNoField',
-            name: 'yesNoField',
-            text: 'something invalid'
-          }
-        ])
-      )
+      expect(errors?.errorList).toEqual([
+        {
+          path: 'dateField',
+          href: '#dateField',
+          name: 'dateField',
+          text: 'Date of marriage must be on or before 25 December 2021'
+        }
+      ])
+    })
+
+    it('formats first letter to uppercase', () => {
+      const errors = controller.getErrors({
+        error: new ValidationError(
+          'Date of marriage example',
+          [
+            {
+              message: 'year must be a number',
+              path: ['dateField'],
+              type: 'number.base'
+            }
+          ],
+          undefined
+        )
+      })
+
+      expect(errors?.errorList).toEqual([
+        {
+          path: 'dateField',
+          href: '#dateField',
+          name: 'dateField',
+          text: 'Year must be a number'
+        }
+      ])
     })
   })
 })
