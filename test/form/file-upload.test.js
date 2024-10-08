@@ -1,7 +1,7 @@
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { load } from 'cheerio'
+import { within } from '@testing-library/dom'
 
 import { createServer } from '~/src/server/index.js'
 import {
@@ -9,6 +9,7 @@ import {
   initiateUpload
 } from '~/src/server/plugins/engine/services/uploadService.js'
 import { FileStatus, UploadStatus } from '~/src/server/plugins/engine/types.js'
+import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getSessionCookie } from '~/test/utils/get-session-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
@@ -103,9 +104,22 @@ describe('File upload GET tests', () => {
       url
     }
 
-    const res = await server.inject(options)
+    const { document, response } = await renderResponse(server, options)
+    expect(response.statusCode).toBe(okStatusCode)
 
-    expect(res.statusCode).toBe(okStatusCode)
+    const $heading1 = within(document.body).getByRole('heading', {
+      name: 'Upload your methodology statement'
+    })
+
+    const $heading2 = within(document.body).getByRole('heading', {
+      name: 'Uploaded files'
+    })
+
+    expect($heading1).toBeInTheDocument()
+    expect($heading1).toHaveClass('govuk-heading-l')
+
+    expect($heading2).toBeInTheDocument()
+    expect($heading2).toHaveClass('govuk-heading-m')
   })
 
   test('GET /file-upload returns uses cached initiated upload', async () => {
@@ -202,31 +216,35 @@ describe('File upload POST tests', () => {
     const cookie = getSessionCookie(res1)
 
     jest.mocked(getUploadStatus).mockResolvedValue(pendingStatusResponse)
-    const res2 = await server.inject({
+
+    const { document, response } = await renderResponse(server, {
       method: 'POST',
       url,
       headers: { cookie }
     })
 
-    expect(res2.statusCode).toBe(okStatusCode)
-    const $ = load(res2.payload)
+    expect(response.statusCode).toBe(okStatusCode)
 
-    expect(
-      $('.govuk-error-summary__list li:nth-child(1) a').text().trim()
-    ).toBe('The selected file has not fully uploaded')
+    const $lists = within(document.body).getAllByRole('list')
+    const $links = within($lists[0]).getAllByRole('link')
 
-    expect(
-      $('.govuk-error-summary__list li:nth-child(2) a').text().trim()
-    ).toBe('Upload your methodology statement must contain at least 2 items')
-
-    expect($('#XIwyEs-error').text().trim()).toBe(
-      'Error: Upload your methodology statement must contain at least 2 items'
+    expect($links[0]).toHaveTextContent(
+      'The selected file has not fully uploaded'
     )
-    expect(
-      $('.govuk-summary-list .govuk-summary-list__key .govuk-error-message')
-        .text()
-        .trim()
-    ).toBe('The selected file has not fully uploaded')
+
+    expect($links[1]).toHaveTextContent(
+      'Upload your methodology statement must contain at least 2 items'
+    )
+
+    const $input = within(document.body).getByLabelText(
+      'Upload your methodology statement (optional)'
+    )
+
+    expect($input).toHaveAccessibleDescription(
+      expect.stringContaining(
+        'Error: Upload your methodology statement must contain at least 2 items'
+      )
+    )
   })
 
   test('POST /file-upload with 2 valid files returns 302 to /summary', async () => {

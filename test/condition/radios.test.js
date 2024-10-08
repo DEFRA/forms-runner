@@ -1,12 +1,12 @@
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { within } from '@testing-library/dom'
+
 import { createServer } from '~/src/server/index.js'
+import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
-const okStatusCode = 200
-const redirectStatusCode = 302
-const htmlContentType = 'text/html'
 const key = 'wqJmSf'
 
 describe('Radio based conditions', () => {
@@ -27,25 +27,50 @@ describe('Radio based conditions', () => {
   })
 
   test('Radio are rendered', async () => {
-    const res = await server.inject({
+    const options = {
       method: 'GET',
       url: '/radios/first-page'
-    })
+    }
 
-    expect(res.statusCode).toEqual(okStatusCode)
-    expect(res.headers['content-type']).toContain(htmlContentType)
-    expect(res.result).toContain(
-      `<input class="govuk-radios__input" id="${key}" name="${key}" type="radio" value="shire">`
-    )
-    expect(res.result).toContain(
-      `<input class="govuk-radios__input" id="${key}-2" name="${key}" type="radio" value="race">`
-    )
-    expect(res.result).toContain(
-      `<input class="govuk-radios__input" id="${key}-3" name="${key}" type="radio" value="pantomime">`
-    )
-    expect(res.result).toContain(
-      `<input class="govuk-radios__input" id="${key}-4" name="${key}" type="radio" value="other">`
-    )
+    const { document } = await renderResponse(server, options)
+
+    for (const example of [
+      {
+        name: key,
+        id: key,
+        text: 'Shire',
+        value: 'shire'
+      },
+      {
+        name: key,
+        id: `${key}-2`,
+        text: 'Race',
+        value: 'race'
+      },
+      {
+        name: key,
+        id: `${key}-3`,
+        text: 'Pantomime',
+        value: 'pantomime'
+      },
+      {
+        name: key,
+        id: `${key}-4`,
+        text: 'Other',
+        value: 'other'
+      }
+    ]) {
+      const $radio = within(document.body).getByRole('radio', {
+        name: example.text
+      })
+
+      expect($radio).toBeInTheDocument()
+      expect($radio).toHaveAttribute('id', example.id)
+      expect($radio).toHaveAttribute('name', example.name)
+      expect($radio).toHaveAttribute('value', example.value)
+      expect($radio).toHaveClass('govuk-radios__input')
+      expect($radio).not.toBeChecked()
+    }
   })
 
   test('Testing POST /radios/first-page with nothing checked redirects correctly', async () => {
@@ -57,7 +82,7 @@ describe('Radio based conditions', () => {
       payload: form
     })
 
-    expect(res.statusCode).toEqual(redirectStatusCode)
+    expect(res.statusCode).toBe(302)
     expect(res.headers.location).toBe('/radios/second-page')
   })
 
@@ -72,7 +97,7 @@ describe('Radio based conditions', () => {
       payload: form
     })
 
-    expect(res.statusCode).toEqual(redirectStatusCode)
+    expect(res.statusCode).toBe(302)
     expect(res.headers.location).toBe('/radios/third-page')
   })
 })

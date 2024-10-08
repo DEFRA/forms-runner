@@ -1,12 +1,12 @@
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { within } from '@testing-library/dom'
+
 import { createServer } from '~/src/server/index.js'
+import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
-const okStatusCode = 200
-const redirectStatusCode = 302
-const htmlContentType = 'text/html'
 const key = 'wqJmSf'
 
 describe('TextField based conditions', () => {
@@ -27,16 +27,22 @@ describe('TextField based conditions', () => {
   })
 
   test('TextField is rendered', async () => {
-    const res = await server.inject({
+    const options = {
       method: 'GET',
       url: '/text/first-page'
+    }
+
+    const { document } = await renderResponse(server, options)
+
+    const $input = within(document.body).getByRole('textbox', {
+      name: 'First page'
     })
 
-    expect(res.statusCode).toEqual(okStatusCode)
-    expect(res.headers['content-type']).toContain(htmlContentType)
-    expect(res.result).toContain(
-      `<input class="govuk-input" id="${key}" name="${key}" type="text">`
-    )
+    expect($input).toBeInTheDocument()
+    expect($input).toHaveAttribute('id', key)
+    expect($input).toHaveAttribute('name', key)
+    expect($input).toHaveClass('govuk-input')
+    expect($input).not.toHaveValue()
   })
 
   test('Testing POST /text/first-page with an nothing string redirects correctly', async () => {
@@ -48,7 +54,7 @@ describe('TextField based conditions', () => {
       payload: form
     })
 
-    expect(res.statusCode).toEqual(redirectStatusCode)
+    expect(res.statusCode).toBe(302)
     expect(res.headers.location).toBe('/text/second-page')
   })
 
@@ -63,7 +69,7 @@ describe('TextField based conditions', () => {
       payload: form
     })
 
-    expect(res.statusCode).toEqual(redirectStatusCode)
+    expect(res.statusCode).toBe(302)
     expect(res.headers.location).toBe('/text/second-page')
   })
 
@@ -78,7 +84,7 @@ describe('TextField based conditions', () => {
       payload: form
     })
 
-    expect(res.statusCode).toEqual(redirectStatusCode)
+    expect(res.statusCode).toBe(302)
     expect(res.headers.location).toBe('/text/third-page')
   })
 })
