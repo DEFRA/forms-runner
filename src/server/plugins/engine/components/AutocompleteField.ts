@@ -2,6 +2,7 @@ import { type AutocompleteFieldComponent } from '@defra/forms-model'
 
 import { SelectField } from '~/src/server/plugins/engine/components/SelectField.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormData,
   type FormSubmissionErrors,
@@ -15,8 +16,17 @@ export class AutocompleteField extends SelectField {
     super(def, model)
 
     const { options } = def
+    let { formSchema } = this
+
+    if (options.required !== false) {
+      formSchema = formSchema.messages({
+        'any.only': messageTemplate.required,
+        'any.required': messageTemplate.required
+      })
+    }
 
     this.options = options
+    this.formSchema = formSchema
   }
 
   getDisplayStringFromState(state: FormSubmissionState): string {

@@ -132,7 +132,7 @@ describe.each([
 
         expect(result.error).toEqual(
           expect.objectContaining({
-            message: `Select ${label}`
+            message: `Enter ${label}`
           })
         )
       })
