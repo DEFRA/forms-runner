@@ -10,7 +10,10 @@ module.exports = {
   restoreMocks: true,
   clearMocks: true,
   silent: true,
-  testMatch: ['<rootDir>/src/**/*.test.{cjs,js,mjs,ts}'],
+  testMatch: [
+    '<rootDir>/src/**/*.test.{cjs,js,mjs,ts}',
+    '<rootDir>/test/**/*.test.{cjs,js,mjs,ts}'
+  ],
   reporters: CI
     ? [['github-actions', { silent: false }], 'summary']
     : ['default', 'summary'],
