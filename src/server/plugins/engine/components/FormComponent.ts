@@ -1,5 +1,4 @@
 import { type FormComponentsDef } from '@defra/forms-model'
-import upperFirst from 'lodash/upperFirst.js'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { type ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
@@ -86,8 +85,6 @@ export class FormComponent extends ComponentBase {
 
     errors?.errorList.forEach((err) => {
       if (err.name === name || err.path.includes(name)) {
-        err.text = upperFirst(err.text)
-
         viewModel.errorMessage = {
           text: err.text
         }
