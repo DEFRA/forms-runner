@@ -52,7 +52,6 @@ updates:
 
       tools:
         patterns:
-          - 'cheerio'
           - 'concurrently'
           - 'jest'
           - 'tsx'
