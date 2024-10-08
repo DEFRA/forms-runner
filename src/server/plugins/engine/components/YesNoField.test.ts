@@ -7,6 +7,7 @@ import {
 import { YesNoField } from '~/src/server/plugins/engine/components/YesNoField.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import { listYesNoExamples } from '~/test/fixtures/list.js'
 
 describe('YesNoField', () => {
   const definition = {
@@ -138,18 +139,7 @@ describe('YesNoField', () => {
   })
 
   describe('View model', () => {
-    const items = [
-      {
-        text: 'Yes',
-        value: true,
-        state: true
-      },
-      {
-        text: 'No',
-        value: false,
-        state: false
-      }
-    ]
+    const items = listYesNoExamples
 
     it('sets Nunjucks component defaults', () => {
       const item = items[0]
@@ -171,6 +161,10 @@ describe('YesNoField', () => {
     it.each([...items])('sets Nunjucks component radio items', (item) => {
       const viewModel = component.getViewModel({
         [def.name]: item.value
+      })
+
+      expect(viewModel.items?.[0]).not.toMatchObject({
+        value: '' // First item is never empty
       })
 
       expect(viewModel.items).toEqual(
