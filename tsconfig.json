@@ -12,7 +12,8 @@
     "baseUrl": "./",
     "paths": {
       "~/*": ["./*"]
-    }
+    },
+    "types": ["@testing-library/jest-dom"]
   },
   "include": [
     "**/*.cjs",

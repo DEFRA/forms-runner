@@ -11,7 +11,7 @@ import {
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 
-describe('FileUploadFieldComponent', () => {
+describe('FileUploadField', () => {
   const definition = {
     pages: [],
     lists: [],

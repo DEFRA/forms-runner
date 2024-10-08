@@ -1,6 +1,8 @@
 import { type Server } from '@hapi/hapi'
+import { within } from '@testing-library/dom'
 
 import { createServer } from '~/src/server/index.js'
+import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 describe('Routes', () => {
   let server: Server
@@ -20,10 +22,14 @@ describe('Routes', () => {
       url: '/help/cookies'
     }
 
-    const res = await server.inject(options)
+    const { document } = await renderResponse(server, options)
 
-    expect(res.statusCode).toBe(200)
-    expect(res.result).toContain(`<h1 class="govuk-heading-l">Cookies</h1>`)
+    const $heading = within(document.body).getByRole('heading', {
+      name: 'Cookies'
+    })
+
+    expect($heading).toBeInTheDocument()
+    expect($heading).toHaveClass('govuk-heading-l')
   })
 
   test('accessibility statement page is served', async () => {
@@ -32,12 +38,14 @@ describe('Routes', () => {
       url: '/help/accessibility-statement'
     }
 
-    const res = await server.inject(options)
+    const { document } = await renderResponse(server, options)
 
-    expect(res.statusCode).toBe(200)
-    expect(res.result).toContain(
-      '<h1 class="govuk-heading-l">Accessibility statement for this form</h1>'
-    )
+    const $heading = within(document.body).getByRole('heading', {
+      name: 'Accessibility statement for this form'
+    })
+
+    expect($heading).toBeInTheDocument()
+    expect($heading).toHaveClass('govuk-heading-l')
   })
 
   test('Help page is served', async () => {

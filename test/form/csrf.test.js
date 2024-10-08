@@ -1,10 +1,10 @@
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { load } from 'cheerio'
 import cookie from 'cookie'
 
 import { createServer } from '~/src/server/index.js'
+import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
@@ -42,7 +42,8 @@ describe('CSRF', () => {
   })
 
   test('get request returns CSRF header', async () => {
-    const response = await server.inject(
+    const { document, response } = await renderResponse(
+      server,
       options({
         method: 'GET',
         payload: undefined
@@ -60,8 +61,11 @@ describe('CSRF', () => {
       `crumb=${csrfToken}; HttpOnly; SameSite=Strict; Path=/`
     )
 
-    const $ = load(response.payload)
-    expect($('[name=crumb]').val()).toEqual(csrfToken)
+    const $input = document.querySelector('[name=crumb]')
+
+    expect($input).toBeInTheDocument()
+    expect($input).toHaveAttribute('type', 'hidden')
+    expect($input).toHaveValue(csrfToken)
   })
 
   test('post request without CSRF token returns 403 forbidden', async () => {

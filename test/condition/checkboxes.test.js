@@ -1,12 +1,12 @@
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { within } from '@testing-library/dom'
+
 import { createServer } from '~/src/server/index.js'
+import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
-const okStatusCode = 200
-const redirectStatusCode = 302
-const htmlContentType = 'text/html'
 const key = 'wqJmSf'
 
 describe('Checkboxes based conditions', () => {
@@ -27,25 +27,50 @@ describe('Checkboxes based conditions', () => {
   })
 
   test('Checkboxes are rendered', async () => {
-    const res = await server.inject({
+    const options = {
       method: 'GET',
       url: '/checkboxes/first-page'
-    })
+    }
 
-    expect(res.statusCode).toEqual(okStatusCode)
-    expect(res.headers['content-type']).toContain(htmlContentType)
-    expect(res.result).toContain(
-      `<input class="govuk-checkboxes__input" id="${key}" name="${key}" type="checkbox" value="shire">`
-    )
-    expect(res.result).toContain(
-      `<input class="govuk-checkboxes__input" id="${key}-2" name="${key}" type="checkbox" value="race">`
-    )
-    expect(res.result).toContain(
-      `<input class="govuk-checkboxes__input" id="${key}-3" name="${key}" type="checkbox" value="pantomime">`
-    )
-    expect(res.result).toContain(
-      `<input class="govuk-checkboxes__input" id="${key}-4" name="${key}" type="checkbox" value="other">`
-    )
+    const { document } = await renderResponse(server, options)
+
+    for (const example of [
+      {
+        name: key,
+        id: key,
+        text: 'Shire',
+        value: 'shire'
+      },
+      {
+        name: key,
+        id: `${key}-2`,
+        text: 'Race',
+        value: 'race'
+      },
+      {
+        name: key,
+        id: `${key}-3`,
+        text: 'Pantomime',
+        value: 'pantomime'
+      },
+      {
+        name: key,
+        id: `${key}-4`,
+        text: 'Other',
+        value: 'other'
+      }
+    ]) {
+      const $checkbox = within(document.body).getByRole('checkbox', {
+        name: example.text
+      })
+
+      expect($checkbox).toBeInTheDocument()
+      expect($checkbox).toHaveAttribute('id', example.id)
+      expect($checkbox).toHaveAttribute('name', example.name)
+      expect($checkbox).toHaveAttribute('value', example.value)
+      expect($checkbox).toHaveClass('govuk-checkboxes__input')
+      expect($checkbox).not.toBeChecked()
+    }
   })
 
   test('Testing POST /checkboxes/first-page with nothing checked redirects correctly', async () => {
@@ -57,7 +82,7 @@ describe('Checkboxes based conditions', () => {
       payload: form
     })
 
-    expect(res.statusCode).toEqual(redirectStatusCode)
+    expect(res.statusCode).toBe(302)
     expect(res.headers.location).toBe('/checkboxes/second-page')
   })
 
@@ -72,7 +97,7 @@ describe('Checkboxes based conditions', () => {
       payload: form
     })
 
-    expect(res.statusCode).toEqual(redirectStatusCode)
+    expect(res.statusCode).toBe(302)
     expect(res.headers.location).toBe('/checkboxes/third-page')
   })
 })

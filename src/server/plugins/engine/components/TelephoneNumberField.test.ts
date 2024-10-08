@@ -1,6 +1,6 @@
 import { ComponentType, type ComponentDef } from '@defra/forms-model'
 
-import { TelephoneNumberField } from '~/src/server/plugins/engine/components/index.js'
+import { TelephoneNumberField } from '~/src/server/plugins/engine/components/TelephoneNumberField.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 
 describe('Telephone number field', () => {
