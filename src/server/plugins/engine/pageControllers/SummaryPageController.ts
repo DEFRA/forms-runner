@@ -9,7 +9,6 @@ import {
 import { format, addDays } from 'date-fns'
 
 import { config } from '~/src/config/index.js'
-import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { DataType } from '~/src/server/plugins/engine/components/types.js'
 import {
   decodeFeedbackContextInfo,
@@ -17,6 +16,7 @@ import {
   RelativeUrl
 } from '~/src/server/plugins/engine/feedback/index.js'
 import {
+  checkIfPreview,
   feedbackReturnInfoKey,
   redirectTo,
   redirectUrl
@@ -300,7 +300,7 @@ async function sendEmail(
 
   const { path } = request
 
-  const isPreview = path.toLowerCase().startsWith(PREVIEW_PATH_PREFIX)
+  const isPreview = checkIfPreview(path)
 
   // Get submission email personalisation
   const personalisation = getPersonalisation(summaryViewModel, model, isPreview)
@@ -402,8 +402,8 @@ export function getPersonalisation(
   })
 
   return {
-    formResults: lines.join('\n'),
-    formName
+    body: lines.join('\n'),
+    subject: formName
   }
 }
 

@@ -12,7 +12,10 @@ import { isEqual } from 'date-fns'
 import Joi from 'joi'
 
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
-import { redirectTo } from '~/src/server/plugins/engine/helpers.js'
+import {
+  checkIfPreview,
+  redirectTo
+} from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   getFormDefinition,
@@ -83,7 +86,7 @@ export const plugin = {
 
       const { params, path } = request
       const { slug } = params
-      const isPreview = path.toLowerCase().startsWith(PREVIEW_PATH_PREFIX)
+      const isPreview = checkIfPreview(path)
       const formState = isPreview && params.state ? params.state : 'live'
 
       // Get the form metadata using the `slug` param
