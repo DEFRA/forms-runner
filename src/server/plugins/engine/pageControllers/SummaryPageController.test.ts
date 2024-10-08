@@ -29,7 +29,7 @@ describe('getPersonalisation', () => {
   }
 
   const definition: FormDefinition = {
-    name: 'Test Form',
+    name: 'New Form',
     pages: [page],
     lists: [],
     sections: [],
@@ -54,8 +54,8 @@ describe('getPersonalisation', () => {
     const formattedNow = format(now, 'h:mmaaa')
     const formattedDate = format(now, 'd MMMM yyyy')
 
-    expect(result.formName).toBe('Form received: Test Form')
-    expect(result.formResults).toContain(
+    expect(result.subject).toBe('Form received: New Form')
+    expect(result.body).toContain(
       `Form received at ${formattedNow} on ${formattedDate}`
     )
   })
@@ -63,7 +63,7 @@ describe('getPersonalisation', () => {
   it('should generate personalisation with form results and form name - Preview form', () => {
     const result = getPersonalisation(summaryViewModel, model, true)
 
-    expect(result.formName).toBe('TEST FORM SUBMISSION: Test Form')
-    expect(result.formResults).toContain('This is a test of the Test Form form')
+    expect(result.subject).toBe('TEST FORM SUBMISSION: New Form')
+    expect(result.body).toContain('This is a test of the New Form form')
   })
 })
