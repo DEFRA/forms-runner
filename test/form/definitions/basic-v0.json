@@ -22,8 +22,7 @@
         {
           "path": "/full-name"
         }
-      ],
-      "title": "Start"
+      ]
     },
     {
       "title": "What's your name?",
@@ -43,8 +42,7 @@
         {
           "path": "/summary"
         }
-      ],
-      "title": "What's your name"
+      ]
     },
     {
       "path": "/summary",

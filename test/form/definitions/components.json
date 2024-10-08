@@ -123,8 +123,7 @@
           "title": "Title",
           "content": "Content",
           "options": {},
-          "schema": {},
-          "name": "title"
+          "schema": {}
         }
       ],
       "next": [{ "path": "/methodology-statement" }]

@@ -7,8 +7,6 @@
       "section": "applicantOneDetails",
       "components": [
         {
-          "name": "kDIAOo",
-          "title": "Html",
           "type": "Html",
           "name": "html",
           "title": "Html",
@@ -110,8 +108,6 @@
       "section": "applicantTwoDetails",
       "components": [
         {
-          "name": "nfgAOo",
-          "title": "Html",
           "type": "Html",
           "name": "html",
           "title": "Html",

@@ -22,8 +22,7 @@
         {
           "path": "/full-name"
         }
-      ],
-      "title": "Licence type"
+      ]
     },
     {
       "title": "What's your name?",
@@ -43,8 +42,7 @@
         {
           "path": "/summary"
         }
-      ],
-      "title": "Name"
+      ]
     },
     {
       "path": "/summary",

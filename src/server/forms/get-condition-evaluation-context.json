@@ -59,8 +59,6 @@
       "section": "applicantOneDetails",
       "components": [
         {
-          "title": "Html",
-          "name": "wefhD",
           "type": "Html",
           "name": "html",
           "title": "Html",
@@ -135,8 +133,6 @@
       "section": "applicantTwoDetails",
       "components": [
         {
-          "title": "Html",
-          "name": "sddet",
           "type": "Html",
           "name": "html",
           "title": "Html",
@@ -211,8 +207,6 @@
       "section": "applicantThreeDetails",
       "components": [
         {
-          "title": "Html",
-          "name": "srrgH",
           "type": "Html",
           "name": "html",
           "title": "Html",
@@ -287,8 +281,6 @@
       "section": "applicantFourDetails",
       "components": [
         {
-          "title": "Html",
-          "name": "sdfsS",
           "type": "Html",
           "name": "html",
           "title": "Html",
@@ -396,7 +388,6 @@
       "title": "TestConditions",
       "components": [
         {
-          "title": "Html",
           "name": "pmmRYP",
           "title": "Html",
           "options": {
@@ -418,7 +409,6 @@
       "title": "AnotherTest",
       "components": [
         {
-          "title": "Html",
           "name": "FnMsqX",
           "title": "Html",
           "options": {},
