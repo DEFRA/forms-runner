@@ -83,14 +83,6 @@ describe('PageControllerBase', () => {
                 key: 'dateField',
                 title: 'date of marriage'
               }
-            },
-            {
-              message: 'something invalid',
-              path: ['yesNoField'],
-              type: 'string.pattern.base',
-              context: {
-                key: 'yesNoField'
-              }
             }
           ],
           undefined
@@ -108,18 +100,40 @@ describe('PageControllerBase', () => {
               key: 'dateField',
               title: 'date of marriage'
             }
-          },
-          {
-            path: ['yesNoField'],
-            href: '#yesNoField',
-            name: 'yesNoField',
-            text: 'something invalid',
-            context: {
-              key: 'yesNoField'
-            }
           }
         ])
       )
+    })
+
+    it('formats first letter to uppercase', () => {
+      const errors = controller.getErrors({
+        error: new ValidationError(
+          'Date of marriage example',
+          [
+            {
+              message: 'something invalid',
+              path: ['yesNoField'],
+              type: 'string.pattern.base',
+              context: {
+                key: 'yesNoField'
+              }
+            }
+          ],
+          undefined
+        )
+      })
+
+      expect(errors?.errorList).toEqual([
+        {
+          path: ['yesNoField'],
+          href: '#yesNoField',
+          name: 'yesNoField',
+          text: 'Something invalid',
+          context: {
+            key: 'yesNoField'
+          }
+        }
+      ])
     })
   })
 })
