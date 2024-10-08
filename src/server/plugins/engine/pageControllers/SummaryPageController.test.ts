@@ -1,6 +1,6 @@
 import {
-  type ComponentDef,
   ComponentType,
+  type ComponentDef,
   type FormDefinition
 } from '@defra/forms-model'
 import { type Request } from '@hapi/hapi'
