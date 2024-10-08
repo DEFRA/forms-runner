@@ -9,6 +9,7 @@ import {
   FileUploadPageController,
   HomePageController,
   PageController,
+  RepeatPageController,
   StartPageController,
   StatusPageController,
   SummaryPageController
@@ -29,6 +30,10 @@ describe('Page controller helpers', () => {
 
       case ControllerType.Page:
         controller = PageController
+        break
+
+      case ControllerType.Repeat:
+        controller = RepeatPageController
         break
 
       case ControllerType.FileUpload:
