@@ -1,6 +1,10 @@
 import { type Request, type ResponseToolkit } from '@hapi/hapi'
+import { format, parseISO } from 'date-fns'
+import { type ValidationErrorItem, type ValidationResult } from 'joi'
+import upperFirst from 'lodash/upperFirst.js'
 
 import { RelativeUrl } from '~/src/server/plugins/engine/feedback/index.js'
+import { type FormSubmissionErrors } from '~/src/server/plugins/engine/types.js'
 
 export const feedbackReturnInfoKey = 'f_t'
 
@@ -76,4 +80,42 @@ export const filesize = (bytes: number) => {
   } while (bytes > 1000)
 
   return Math.max(bytes, 0.1).toFixed(1) + byteUnits[i]
+}
+
+/**
+ * Parses the errors from joi.validate so they can be rendered by govuk-frontend templates
+ * @param validationResult - provided by joi.validate
+ */
+export function getPageErrors(
+  validationResult: Pick<ValidationResult, 'error'> | undefined,
+  options: Omit<FormSubmissionErrors, 'errorList'>
+): FormSubmissionErrors | undefined {
+  if (!validationResult?.error) {
+    return
+  }
+
+  return {
+    titleText: options.titleText, // e.g. "There is a problem"
+    errorList: validationResult.error.details.map(getPageError)
+  }
+}
+
+export function getPageError(err: ValidationErrorItem) {
+  const isoRegex =
+    /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/
+
+  const name = err.path
+    .map((name, index) => (index > 0 ? `__${name}` : name))
+    .join('')
+
+  return {
+    path: err.path.join('.'),
+    href: `#${name}`,
+    name,
+    text: upperFirst(
+      err.message.replace(isoRegex, (text) =>
+        format(parseISO(text), 'd MMMM yyyy')
+      )
+    )
+  }
 }
