@@ -44,7 +44,7 @@ function initAutocomplete($select, init) {
 
   // Reset select when input value is not allowed
   $input?.addEventListener('blur', () => {
-    if (!inputValues.includes($input.value)) {
+    if (!$input.value || !inputValues.includes($input.value)) {
       $select.value = ''
     }
   })
