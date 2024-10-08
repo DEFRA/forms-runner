@@ -2,6 +2,7 @@ import {
   ComponentType,
   hasComponents,
   hasNext,
+  hasRepeater,
   type FormDefinition,
   type Link,
   type Page,
@@ -239,7 +240,7 @@ export class PageControllerBase {
     }
   }
 
-  getStateFromValidForm(payload: FormPayload) {
+  getStateFromValidForm(request: Request, payload: FormPayload) {
     return this.components.getStateFromValidForm(payload)
   }
 
@@ -326,48 +327,50 @@ export class PageControllerBase {
         (nextPage.section ? state[nextPage.section.name] : state) ?? {}
       let newValue = {}
 
-      // Iterate all components on this page and pull out the saved values from the state
-      for (const component of nextPage.components.items) {
-        let componentState = currentState[component.name]
+      if (!hasRepeater(nextPage.pageDef)) {
+        // Iterate all components on this page and pull out the saved values from the state
+        for (const component of nextPage.components.items) {
+          let componentState = currentState[component.name]
 
-        /**
-         * For evaluation context purposes, optional {@link CheckboxesField}
-         * with an undefined value (i.e. nothing selected) should default to [].
-         * This way conditions are not evaluated against `undefined` which throws errors.
-         * Currently these errors are caught and the evaluation returns default `false`.
-         * @see {@link PageControllerBase.getNextPage} for `undefined` return value
-         * @see {@link FormModel.makeCondition} for try/catch block with default `false`
-         * For negative conditions this is a problem because E.g.
-         * The condition: 'selectedchecks' does not contain 'someval'
-         * should return true IF 'selectedchecks' is undefined, not throw and return false.
-         * Similarly for optional {@link RadiosField}, the evaluation context should default to null.
-         */
-        if (
-          (componentState === null || componentState === undefined) &&
-          component instanceof CheckboxesField &&
-          !component.options.required
-        ) {
-          componentState = []
-        } else if (
-          componentState === undefined &&
-          component instanceof RadiosField &&
-          !component.options.required
-        ) {
-          componentState = null
-        } else if (component instanceof DatePartsField) {
-          componentState =
-            component.getConditionEvaluationStateValue(currentState)
+          /**
+           * For evaluation context purposes, optional {@link CheckboxesField}
+           * with an undefined value (i.e. nothing selected) should default to [].
+           * This way conditions are not evaluated against `undefined` which throws errors.
+           * Currently these errors are caught and the evaluation returns default `false`.
+           * @see {@link PageControllerBase.getNextPage} for `undefined` return value
+           * @see {@link FormModel.makeCondition} for try/catch block with default `false`
+           * For negative conditions this is a problem because E.g.
+           * The condition: 'selectedchecks' does not contain 'someval'
+           * should return true IF 'selectedchecks' is undefined, not throw and return false.
+           * Similarly for optional {@link RadiosField}, the evaluation context should default to null.
+           */
+          if (
+            (componentState === null || componentState === undefined) &&
+            component instanceof CheckboxesField &&
+            !component.options.required
+          ) {
+            componentState = []
+          } else if (
+            componentState === undefined &&
+            component instanceof RadiosField &&
+            !component.options.required
+          ) {
+            componentState = null
+          } else if (component instanceof DatePartsField) {
+            componentState =
+              component.getConditionEvaluationStateValue(currentState)
+          }
+
+          newValue[component.name] = componentState
         }
 
-        newValue[component.name] = componentState
-      }
+        if (nextPage.section) {
+          newValue = { [nextPage.section.name]: newValue }
+        }
 
-      if (nextPage.section) {
-        newValue = { [nextPage.section.name]: newValue }
+        // Combine our stored values with the existing relevantState that we've been building up
+        relevantState = merge(relevantState, newValue)
       }
-
-      // Combine our stored values with the existing relevantState that we've been building up
-      relevantState = merge(relevantState, newValue)
 
       // By passing our current relevantState to getNextPage, we will check if we can navigate to this next page (including doing any condition checks if applicable)
       nextPage = nextPage.getNextPage(relevantState)
@@ -487,7 +490,7 @@ export class PageControllerBase {
     cacheService: CacheService
   ) {
     const lastVisited = progress.at(-1)
-    const currentPath = `${this.model.basePath}${this.path}${request.url.search}`
+    const currentPath = `${request.path.substring(1)}${request.url.search}`
 
     if (!lastVisited?.startsWith(currentPath)) {
       if (progress.at(-2) === currentPath) {
@@ -543,7 +546,7 @@ export class PageControllerBase {
         )
       }
 
-      const newState = this.getStateFromValidForm(formResult.value)
+      const newState = this.getStateFromValidForm(request, formResult.value)
       const stateResult = this.validateState(newState)
       if (stateResult.errors) {
         return this.renderWithErrors(

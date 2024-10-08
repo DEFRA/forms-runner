@@ -9,6 +9,7 @@ import {
   type Detail,
   type DetailItem
 } from '~/src/server/plugins/engine/models/types.js'
+import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 
@@ -133,10 +134,38 @@ export class SummaryViewModel {
       )
 
       sectionPages.forEach((page) => {
-        for (const component of page.components.formItems) {
-          const item = Item(request, component, sectionState, page, model)
-          if (items.find((cbItem) => cbItem.name === item.name)) return
-          items.push(item)
+        if (page instanceof RepeatPageController) {
+          const { options } = page.repeat
+          const { name, title } = options
+          const repeatSummaryPath = page.getSummaryPath(request)
+          const path = `/${model.basePath}${page.path}`
+          const rawValue = sectionState[options.name]
+          const isInitialised = Array.isArray(rawValue)
+          const value = isInitialised ? rawValue.length.toString() : '0'
+          const url = redirectUrl(
+            request,
+            isInitialised ? repeatSummaryPath : path,
+            {
+              returnUrl: redirectUrl(request, `/${model.basePath}/summary`)
+            }
+          )
+
+          items.push({
+            name,
+            path: page.path,
+            label: isInitialised ? `${title}s added` : title,
+            value: `You added ${value} ${title}${value === '1' ? '' : 's'}`,
+            rawValue,
+            url,
+            pageId: path,
+            title
+          })
+        } else {
+          for (const component of page.components.formItems) {
+            const item = Item(request, component, sectionState, page, model)
+            if (items.find((cbItem) => cbItem.name === item.name)) return
+            items.push(item)
+          }
         }
       })
 

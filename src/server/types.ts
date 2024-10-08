@@ -25,6 +25,13 @@ declare module '@hapi/hapi' {
     model?: FormModel
     files?: FileState[]
     formAction?: string
+    repeat?: {
+      list: FormData[]
+      item?: {
+        value: FormData
+        index: number
+      }
+    }
   }
 
   interface Server {
