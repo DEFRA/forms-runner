@@ -16,10 +16,8 @@ import {
   type ServerRoute
 } from '@hapi/hapi'
 import { merge } from '@hapi/hoek'
-import { format, parseISO } from 'date-fns'
 import type joi from 'joi'
 import { type ObjectSchema, type ValidationResult } from 'joi'
-import upperFirst from 'lodash/upperFirst.js'
 
 import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
@@ -34,6 +32,7 @@ import {
 } from '~/src/server/plugins/engine/feedback/index.js'
 import {
   feedbackReturnInfoKey,
+  getPageErrors,
   proceed,
   redirectTo
 } from '~/src/server/plugins/engine/helpers.js'
@@ -251,36 +250,9 @@ export class PageControllerBase {
   getErrors(
     validationResult?: Pick<ValidationResult, 'error'>
   ): FormSubmissionErrors | undefined {
-    if (validationResult?.error) {
-      return {
-        titleText: this.errorSummaryTitle,
-        errorList: validationResult.error.details.map((err) =>
-          this.getError(err)
-        )
-      }
-    }
-
-    return undefined
-  }
-
-  protected getError(err: joi.ValidationErrorItem) {
-    const isoRegex =
-      /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/
-
-    const name = err.path
-      .map((name, index) => (index > 0 ? `__${name}` : name))
-      .join('')
-
-    return {
-      path: err.path.join('.'),
-      href: `#${name}`,
-      name,
-      text: upperFirst(
-        err.message.replace(isoRegex, (text) =>
-          format(parseISO(text), 'd MMMM yyyy')
-        )
-      )
-    }
+    return getPageErrors(validationResult, {
+      titleText: this.errorSummaryTitle
+    })
   }
 
   /**
