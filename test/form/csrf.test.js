@@ -42,7 +42,7 @@ describe('CSRF', () => {
   })
 
   test('get request returns CSRF header', async () => {
-    const { document, response } = await renderResponse(
+    const { response } = await renderResponse(
       server,
       options({
         method: 'GET',

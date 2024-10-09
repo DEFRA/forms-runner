@@ -1,8 +1,6 @@
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { within } from '@testing-library/dom'
-
 import { createServer } from '~/src/server/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
@@ -40,13 +38,13 @@ describe('Feedback link', () => {
       href: 'mailto:test@feedback.cat'
     }
   ])("should match route '$url'", async ({ url, name, href }) => {
-    const { document } = await renderResponse(server, {
+    const { container } = await renderResponse(server, {
       method: 'GET',
       url
     })
 
     const $phaseBanner = document.querySelector('.govuk-phase-banner')
-    const $link = within(document.body).getByRole('link', { name })
+    const $link = container.getByRole('link', { name })
 
     expect($link).toBeInTheDocument()
     expect($link).toHaveAttribute('href', href)
