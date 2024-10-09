@@ -402,8 +402,8 @@ export function getPersonalisation(
   })
 
   lines.push('Thanks,')
-  lines.push('Defra')
   lines.push('\n')
+  lines.push('Defra')
 
   return {
     body: lines.join('\n'),
