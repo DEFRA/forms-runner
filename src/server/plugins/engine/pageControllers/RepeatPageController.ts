@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto'
 
 import { ControllerType, type Page, type Repeat } from '@defra/forms-model'
-import { badRequest, notFound } from '@hapi/boom'
+import { badImplementation, badRequest, notFound } from '@hapi/boom'
 import { type Request, type ResponseToolkit } from '@hapi/hapi'
 import Joi from 'joi'
 
@@ -37,19 +37,19 @@ export class RepeatPageController extends PageController {
     super(model, pageDef)
 
     if (pageDef.controller !== ControllerType.Repeat) {
-      throw new Error('Invalid controller for Repeat page')
+      throw badImplementation('Invalid controller for Repeat page')
     }
 
     this.repeat = pageDef.repeat
 
     const { options, schema } = this.repeat
+    schema.max = 2
+    const itemId = Joi.string().uuid().required()
 
-    this.formSchema = this.formSchema.append({
-      itemId: Joi.string().uuid().required()
-    })
+    this.formSchema = this.formSchema.append({ itemId })
     this.stateSchema = Joi.object<FormSubmissionState>().keys({
       [options.name]: Joi.array()
-        .items(this.stateSchema.append({ itemId: Joi.string().required() }))
+        .items(this.stateSchema.append({ itemId }))
         .min(schema.min)
         .max(schema.max)
         .label(`${options.title} list`)
