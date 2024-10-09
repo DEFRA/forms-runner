@@ -2,7 +2,6 @@ import { slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type Plugin,
-  type PluginSpecificConfiguration,
   type Request,
   type ResponseObject,
   type ResponseToolkit,
@@ -286,11 +285,6 @@ export const plugin = {
     })
 
     const postRouteOptions: RouteOptions = {
-      plugins: {
-        'hapi-rate-limit': {
-          userPathLimit: 10
-        }
-      } as PluginSpecificConfiguration,
       payload: {
         parse: true,
         failAction: (request, h) => {
