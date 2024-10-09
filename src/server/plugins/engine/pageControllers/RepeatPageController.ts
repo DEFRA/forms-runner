@@ -43,7 +43,6 @@ export class RepeatPageController extends PageController {
     this.repeat = pageDef.repeat
 
     const { options, schema } = this.repeat
-    schema.max = 2
     const itemId = Joi.string().uuid().required()
 
     this.formSchema = this.formSchema.append({ itemId })
