@@ -12,6 +12,7 @@ import {
 } from '~/src/server/plugins/engine/services/uploadService.js'
 import { FileStatus, UploadStatus } from '~/src/server/plugins/engine/types.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
+import * as fixtures from '~/test/fixtures/index.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
@@ -126,31 +127,6 @@ const fileUploadPath = '/components/methodology-statement'
 const summaryPath = '/components/summary'
 
 /**
- * @satisfies {FormMetadataAuthor}
- */
-const author = {
-  id: 'J6PlucvwkmNlYxX9HnSEj27AcJAVx_08IvZ-IPNTvAN',
-  displayName: 'Enrique Chase'
-}
-
-/**
- * @satisfies {FormMetadata}
- */
-const stubFormMetadata = {
-  id: '661e4ca5039739ef2902b214',
-  slug: 'components',
-  title: 'Components form',
-  organisation: 'Defra',
-  teamName: 'Defra Forms',
-  teamEmail: 'defraforms@defra.gov.uk',
-  submissionGuidance: 'We’ll send you an email to let you know the outcome.',
-  createdAt: now,
-  createdBy: author,
-  updatedAt: now,
-  updatedBy: author
-}
-
-/**
  * @satisfies {UploadInitiateResponse}
  */
 const uploadInitiateResponse = {
@@ -210,7 +186,7 @@ describe('Submission journey test', () => {
     const sender = jest.mocked(sendNotification)
     jest.mocked(initiateUpload).mockResolvedValue(uploadInitiateResponse)
     jest.mocked(getUploadStatus).mockResolvedValue(readyStatusResponse)
-    jest.mocked(getFormMetadata).mockResolvedValue(stubFormMetadata)
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
 
     // Components page
     const res = await componentsPage()

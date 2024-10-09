@@ -7,6 +7,7 @@ import { getFormMetadata } from '~/src/server/plugins/engine/services/formsServi
 import * as uploadService from '~/src/server/plugins/engine/services/uploadService.js'
 import { FileStatus, UploadStatus } from '~/src/server/plugins/engine/types.js'
 import { CacheService } from '~/src/server/services/cacheService.js'
+import * as fixtures from '~/test/fixtures/index.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
@@ -58,32 +59,6 @@ const readyFile2 = {
   }
 }
 
-const now = new Date()
-
-/**
- * @satisfies {FormMetadataAuthor}
- */
-const author = {
-  id: 'J6PlucvwkmNlYxX9HnSEj27AcJAVx_08IvZ-IPNTvAN',
-  displayName: 'Enrique Chase'
-}
-
-/**
- * @satisfies {FormMetadata}
- */
-const stubFormMetadata = {
-  id: '661e4ca5039739ef2902b214',
-  slug: 'file-upload-2',
-  title: 'File upload 2 form',
-  organisation: 'Defra',
-  teamName: 'Defra Forms',
-  teamEmail: 'defraforms@defra.gov.uk',
-  submissionGuidance: 'We’ll send you an email to let you know the outcome.',
-  createdAt: now,
-  createdBy: author,
-  updatedAt: now,
-  updatedBy: author
-}
 describe('Submission journey test', () => {
   /** @type {Server} */
   let server
@@ -139,7 +114,7 @@ describe('Submission journey test', () => {
       .mockResolvedValueOnce(readyFile.status)
       .mockResolvedValueOnce(readyFile2.status)
 
-    jest.mocked(getFormMetadata).mockResolvedValue(stubFormMetadata)
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
 
     jest.mocked(uploadService.initiateUpload).mockResolvedValueOnce({
       uploadId: '123-546-790',
