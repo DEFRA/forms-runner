@@ -1,9 +1,10 @@
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { load } from 'cheerio'
+import { within } from '@testing-library/dom'
 
 import { createServer } from '~/src/server/index.js'
+import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
@@ -29,12 +30,14 @@ describe(`Phase banner`, () => {
       url: '/phase-default/first-page'
     }
 
-    const response = await server.inject(options)
-    expect(response.statusCode).toBe(200)
+    const { document } = await renderResponse(server, options)
 
-    const $ = load(response.payload)
+    const $phaseBanner = /** @type {HTMLElement} */ (
+      document.querySelector('.govuk-phase-banner')
+    )
 
-    expect($('.govuk-phase-banner__content__tag').text().trim()).toBe('Beta')
+    const $phaseTag = within($phaseBanner).getByRole('strong')
+    expect($phaseTag).toHaveTextContent('Beta')
   })
 
   test('shows the alpha tag if selected', async () => {
@@ -49,12 +52,14 @@ describe(`Phase banner`, () => {
       url: '/phase-alpha/first-page'
     }
 
-    const response = await server.inject(options)
-    expect(response.statusCode).toBe(200)
+    const { document } = await renderResponse(server, options)
 
-    const $ = load(response.payload)
+    const $phaseBanner = /** @type {HTMLElement} */ (
+      document.querySelector('.govuk-phase-banner')
+    )
 
-    expect($('.govuk-phase-banner__content__tag').text().trim()).toBe('Alpha')
+    const $phaseTag = within($phaseBanner).getByRole('strong')
+    expect($phaseTag).toHaveTextContent('Alpha')
   })
 
   test('does not show the phase banner if None', async () => {
@@ -69,12 +74,13 @@ describe(`Phase banner`, () => {
       url: '/phase-none/first-page'
     }
 
-    const response = await server.inject(options)
-    expect(response.statusCode).toBe(200)
+    const { document } = await renderResponse(server, options)
 
-    const $ = load(response.payload)
+    const $phaseBanner = /** @type {HTMLElement} */ (
+      document.querySelector('.govuk-phase-banner')
+    )
 
-    expect($('.govuk-phase-banner').html()).toBeNull()
+    expect($phaseBanner).not.toBeInTheDocument()
   })
 })
 

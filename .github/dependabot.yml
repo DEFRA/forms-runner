@@ -26,6 +26,10 @@ updates:
           - 'webpack'
           - 'webpack-*'
 
+        # Exclude packages in other groups
+        exclude-patterns:
+          - 'postcss-scss'
+
       lint:
         patterns:
           - '@typescript-eslint/*'
@@ -34,7 +38,10 @@ updates:
           - 'eslint-*'
           - 'husky'
           - 'lint-staged'
+          - 'postcss-scss'
           - 'prettier'
+          - 'stylelint'
+          - 'stylelint-*'
 
       logging:
         patterns:
@@ -45,7 +52,6 @@ updates:
 
       tools:
         patterns:
-          - 'cheerio'
           - 'concurrently'
           - 'jest'
           - 'tsx'

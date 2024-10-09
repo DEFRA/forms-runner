@@ -1,20 +1,22 @@
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { load } from 'cheerio'
+import { within } from '@testing-library/dom'
 
 import { createServer } from '~/src/server/index.js'
+import { renderResponse } from '~/test/helpers/component-helpers.js'
 
+const { FEEDBACK_LINK } = process.env
 const testDir = dirname(fileURLToPath(import.meta.url))
 
-describe(`Feedback`, () => {
+describe('Feedback link', () => {
   /** @type {Server} */
   let server
 
   // Create server before each test
   beforeAll(async () => {
     server = await createServer({
-      formFileName: `feedback.json`,
+      formFileName: 'feedback.json',
       formFilePath: join(testDir, 'definitions')
     })
     await server.initialize()
@@ -23,21 +25,35 @@ describe(`Feedback`, () => {
   afterAll(async () => {
     await server.stop()
   })
-  test('get request returns configured form page', async () => {
-    const options = {
-      method: 'GET',
-      url: '/feedback/uk-passport'
+
+  it.each([
+    {
+      // Default feedback link
+      url: '/help/cookies',
+      name: 'give your feedback (opens in new tab)',
+      href: FEEDBACK_LINK
+    },
+    {
+      // Email address from feedback.json
+      url: '/feedback/uk-passport',
+      name: 'give your feedback by email',
+      href: 'mailto:test@feedback.cat'
     }
+  ])("should match route '$url'", async ({ url, name, href }) => {
+    const { document } = await renderResponse(server, {
+      method: 'GET',
+      url
+    })
 
-    const response = await server.inject(options)
-    expect(response.statusCode).toBe(200)
-    expect(response.headers['content-type']).toContain('text/html')
+    const $phaseBanner = document.querySelector('.govuk-phase-banner')
+    const $link = within(document.body).getByRole('link', { name })
 
-    const $ = load(response.payload)
+    expect($link).toBeInTheDocument()
+    expect($link).toHaveAttribute('href', href)
+    expect($link).toHaveClass('govuk-link')
 
-    expect($('.govuk-phase-banner__text .govuk-link').attr('href')).toBe(
-      'mailto:test@feedback.cat'
-    )
+    expect($phaseBanner).toHaveAttribute('class', 'govuk-phase-banner')
+    expect($phaseBanner).toContainElement($link)
   })
 })
 

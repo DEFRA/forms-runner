@@ -77,16 +77,27 @@ jobs:
 
         task:
           - description: Prettier
+            name: lint-prettier
             run: npm run format:check
+            cache: .cache/prettier
 
           - description: EditorConfig
+            name: lint-editorconfig
             run: npm run lint:editorconfig
 
           - description: ESLint
+            name: lint-js
             run: npm run lint:js
+            cache: .cache/eslint
+
+          - description: Stylelint
+            run: npm run lint:scss
+            cache: .cache/stylelint
 
           - description: TypeScript compiler
-            run: npm run lint:types
+            name: lint-types
+            run: npm run lint:types -- --incremental --pretty
+            cache: '**/*.tsbuildinfo'
 
     steps:
       - name: Checkout
@@ -96,8 +107,18 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           enableCrossOsArchive: true
+          fail-on-cache-miss: true
           key: npm-install-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
           path: node_modules
+
+      - name: Cache task
+        if: ${{ matrix.task.cache }}
+        uses: actions/cache@v4
+        with:
+          enableCrossOsArchive: true
+          save-always: true
+          key: ${{ matrix.task.name }}-${{ runner.os }}
+          path: ${{ matrix.task.cache }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -133,6 +154,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           enableCrossOsArchive: true
+          fail-on-cache-miss: true
           key: npm-install-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
           path: node_modules
 
@@ -140,6 +162,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           enableCrossOsArchive: true
+          fail-on-cache-miss: true
           key: npm-build-${{ runner.os }}-${{ github.sha }}
           path: |
             .public
@@ -155,14 +178,24 @@ jobs:
         uses: actions/cache@v4
         with:
           enableCrossOsArchive: true
-          key: ${{ matrix.task.name }}-${{ runner.os }}
+          save-always: true
+          key: ${{ matrix.task.name }}-${{ runner.os }}-${{ github.sha }}
           path: ${{ matrix.task.cache }}
 
       - name: Run task
         run: ${{ matrix.task.run }}
 
+      - name: Save test coverage
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4.4.0
+        with:
+          name: ${{ matrix.task.description }} coverage (${{ matrix.runner }})
+          path: coverage
+          if-no-files-found: ignore
+
   analysis:
     name: Analysis
+    if: ${{ always() }}
     runs-on: ubuntu-latest
     needs: [build, tasks]
 
@@ -176,11 +209,12 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           enableCrossOsArchive: true
-          key: test-unit-${{ runner.os }}
+          fail-on-cache-miss: true
+          key: test-unit-${{ runner.os }}-${{ github.sha }}
           path: coverage
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@v3.0.0
+        uses: SonarSource/sonarcloud-github-action@v3.1.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

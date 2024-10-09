@@ -8,7 +8,7 @@ import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 
-describe('TextFieldComponent', () => {
+describe('TextField', () => {
   const definition = {
     pages: [],
     lists: [],

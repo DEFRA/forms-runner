@@ -1,7 +1,7 @@
 import { type Boom } from '@hapi/boom'
 import {
-  type ResponseObject,
   type Request,
+  type ResponseObject,
   type ResponseToolkit
 } from '@hapi/hapi'
 

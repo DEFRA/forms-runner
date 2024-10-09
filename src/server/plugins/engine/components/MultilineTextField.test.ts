@@ -1,6 +1,6 @@
 import { ComponentType, type ComponentDef } from '@defra/forms-model'
 
-import { MultilineTextField } from '~/src/server/plugins/engine/components/index.js'
+import { MultilineTextField } from '~/src/server/plugins/engine/components/MultilineTextField.js'
 import { validationOptions } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 
 describe('Multiline text field', () => {

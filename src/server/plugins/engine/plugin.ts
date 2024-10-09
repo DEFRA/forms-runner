@@ -4,9 +4,9 @@ import {
   type Plugin,
   type PluginSpecificConfiguration,
   type Request,
+  type ResponseObject,
   type ResponseToolkit,
-  type RouteOptions,
-  type ResponseObject
+  type RouteOptions
 } from '@hapi/hapi'
 import { isEqual } from 'date-fns'
 import Joi from 'joi'

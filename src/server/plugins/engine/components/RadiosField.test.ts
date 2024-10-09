@@ -1,10 +1,10 @@
 import {
   ComponentType,
-  type AutocompleteFieldComponent,
-  type FormDefinition
+  type FormDefinition,
+  type RadiosFieldComponent
 } from '@defra/forms-model'
 
-import { AutocompleteField } from '~/src/server/plugins/engine/components/AutocompleteField.js'
+import { RadiosField } from '~/src/server/plugins/engine/components/RadiosField.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
@@ -19,10 +19,10 @@ describe.each([
     component: {
       title: 'String list',
       name: 'myComponent',
-      type: ComponentType.AutocompleteField,
+      type: ComponentType.RadiosField,
       list: 'listString',
       options: {}
-    } satisfies AutocompleteFieldComponent,
+    } satisfies RadiosFieldComponent,
 
     options: {
       list: listString,
@@ -34,10 +34,10 @@ describe.each([
     component: {
       title: 'Number list',
       name: 'myComponent',
-      type: ComponentType.AutocompleteField,
+      type: ComponentType.RadiosField,
       list: 'listNumber',
       options: {}
-    } satisfies AutocompleteFieldComponent,
+    } satisfies RadiosFieldComponent,
 
     options: {
       list: listNumber,
@@ -45,7 +45,7 @@ describe.each([
       allow: [1, 2, 3, 4]
     }
   }
-])('AutocompleteField: $component.title', ({ component: def, options }) => {
+])('RadiosField: $component.title', ({ component: def, options }) => {
   const definition = {
     pages: [],
     lists: [options.list],
@@ -54,7 +54,7 @@ describe.each([
   } satisfies FormDefinition
 
   let formModel: FormModel
-  let component: AutocompleteField
+  let component: RadiosField
   let label: string
 
   beforeEach(() => {
@@ -62,7 +62,7 @@ describe.each([
       basePath: 'test'
     })
 
-    component = new AutocompleteField(def, formModel)
+    component = new RadiosField(def, formModel)
     label = def.title.toLowerCase()
   })
 
@@ -87,7 +87,7 @@ describe.each([
       })
 
       it('is optional when configured', () => {
-        const componentOptional = new AutocompleteField(
+        const componentOptional = new RadiosField(
           { ...def, options: { required: false } },
           formModel
         )
@@ -100,11 +100,11 @@ describe.each([
           })
         )
 
-        const result = formSchema.validate('', opts)
+        const result = formSchema.validate(undefined, opts)
         expect(result.error).toBeUndefined()
       })
 
-      it('is configured with autocomplete suggestions', () => {
+      it('is configured with radio items', () => {
         const { formSchema } = component
 
         expect(formSchema.describe()).toEqual(
@@ -115,24 +115,21 @@ describe.each([
         )
       })
 
-      it.each([...options.allow])(
-        'accepts valid list item (value: %s)',
-        (value) => {
-          const { formSchema } = component
+      it.each([...options.allow])('accepts valid radio item', (value) => {
+        const { formSchema } = component
 
-          const result = formSchema.validate(value, opts)
-          expect(result.error).toBeUndefined()
-        }
-      )
+        const result = formSchema.validate(value, opts)
+        expect(result.error).toBeUndefined()
+      })
 
       it('adds errors for empty value', () => {
         const { formSchema } = component
 
-        const result = formSchema.validate('', opts)
+        const result = formSchema.validate(undefined, opts)
 
         expect(result.error).toEqual(
           expect.objectContaining({
-            message: expect.stringContaining(`Select ${label}`)
+            message: `Select ${label}`
           })
         )
       })
@@ -177,14 +174,14 @@ describe.each([
       })
 
       it.each([...options.examples])(
-        'sets Nunjucks component autocomplete suggestions',
+        'sets Nunjucks component radio items',
         (item) => {
           const viewModel = component.getViewModel({
             [def.name]: item.value
           })
 
-          expect(viewModel.items?.[0]).toMatchObject({
-            value: '' // First item is always empty
+          expect(viewModel.items?.[0]).not.toMatchObject({
+            value: '' // First item is never empty
           })
 
           expect(viewModel.items).toEqual(
@@ -192,7 +189,7 @@ describe.each([
               expect.objectContaining({
                 text: item.text,
                 value: `${item.value}`,
-                selected: true
+                checked: true
               })
             ])
           )
@@ -200,13 +197,13 @@ describe.each([
       )
     })
 
-    describe('Autocomplete suggestions', () => {
-      it('returns autocomplete suggestions', () => {
+    describe('Radio items', () => {
+      it('returns radio items', () => {
         const { items } = component
         expect(items).toEqual(options.list.items)
       })
 
-      it('returns autocomplete suggestions matching type', () => {
+      it('returns radio items matching type', () => {
         const { values } = component
         expect(values).toEqual(expect.arrayContaining([]))
       })
@@ -223,7 +220,7 @@ describe.each([
           basePath: 'test'
         })
 
-        const { items } = new AutocompleteField(def, formModel)
+        const { items } = new RadiosField(def, formModel)
         expect(items).toEqual([])
       })
     })

@@ -1,9 +1,9 @@
 import { Engine as CatboxMemory } from '@hapi/catbox-memory'
 import { Engine as CatboxRedis } from '@hapi/catbox-redis'
 import hapi, {
-  type ServerOptions,
   type Request,
-  type ResponseToolkit
+  type ResponseToolkit,
+  type ServerOptions
 } from '@hapi/hapi'
 import inert from '@hapi/inert'
 import Scooter from '@hapi/scooter'
