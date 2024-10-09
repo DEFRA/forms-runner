@@ -19,7 +19,7 @@ describe('CSRF', () => {
   const options = (opts) => {
     return {
       method: 'POST',
-      url: '/basic-v0/start',
+      url: '/basic/start',
       payload: {
         licenceLength: '1'
       },
@@ -30,7 +30,7 @@ describe('CSRF', () => {
   // Create server before each test
   beforeAll(async () => {
     server = await createServer({
-      formFileName: 'basic-v0.json',
+      formFileName: 'basic.json',
       formFilePath: join(testDir, 'definitions'),
       enforceCsrf: true
     })
