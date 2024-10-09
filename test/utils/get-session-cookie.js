@@ -1,12 +1,32 @@
-/**
- * @param {ServerInjectResponse} response
- */
-export function getSessionCookie(response) {
-  const cookies = [response.headers['set-cookie']].flat()
-  const cookie = cookies.find((header) => header?.includes('session=')) ?? ''
+import cookie from 'cookie'
 
-  const [name, sessionId] = cookie.split(';')[0].split('=')
-  return `${name}=${sessionId}`
+/**
+ * @param {ServerInjectResponse<string | object>} response
+ * @param {string} name
+ */
+export function getCookie(response, name) {
+  const headers = [response.headers['set-cookie']].flat()
+  const header = headers.find((header) => header?.includes(`${name}=`)) ?? ''
+
+  const value = cookie.parse(header)[name]
+
+  if (!value) {
+    throw new Error(`Cookie ${name} not found`)
+  }
+
+  return value
+}
+
+/**
+ * @param {ServerInjectResponse<string | object>} response
+ * @param {string} name
+ */
+export function getCookieHeader(response, name) {
+  const value = getCookie(response, name)
+
+  return {
+    cookie: `${name}=${value}`
+  }
 }
 
 /**
