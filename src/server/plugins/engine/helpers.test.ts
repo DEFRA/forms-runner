@@ -2,6 +2,7 @@ import { type ResponseToolkit } from '@hapi/hapi'
 
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
+  encodeUrl,
   hasPreviewPath,
   proceed,
   redirectTo,
@@ -72,6 +73,31 @@ describe('Helpers', () => {
 
       expect(h.redirect).toHaveBeenCalledTimes(1)
       expect(h.redirect).toHaveBeenCalledWith(nextUrl)
+    })
+  })
+
+  describe('encodeUrl', () => {
+    it.each([
+      {
+        input: 'http://example.com?myParam=has spaces&more£',
+        output: 'http://example.com/?myParam=has%20spaces&more%C2%A3'
+      },
+      {
+        input: 'mailto:hello@example.com?subject=has spaces&body=more£',
+        output: 'mailto:hello@example.com?subject=has%20spaces&body=more%C2%A3'
+      }
+    ])('should percent encode parameters', ({ input, output }) => {
+      const returned = encodeUrl(input)
+      expect(returned).toBe(output)
+    })
+
+    it('should return undefined when no url is provided', () => {
+      const returned = encodeUrl()
+      expect(returned).toBeUndefined()
+    })
+
+    it('should throw when invalid url is provided', () => {
+      expect(() => encodeUrl('not a url')).toThrow()
     })
   })
 
