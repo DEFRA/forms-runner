@@ -30,7 +30,7 @@ export function proceed(
 /**
  * Encodes a URL, returning undefined if the process fails.
  */
-export function encodeUrl(link: string | undefined) {
+export function encodeUrl(link?: string) {
   if (link) {
     try {
       return new URL(link).toString() // escape the search params without breaking the ? and & reserved characters in rfc2368
