@@ -18,6 +18,7 @@
       {% include "partials/heading.html" %}
 
       <form method="post" novalidate>
+        <input type="hidden" name="crumb" value="{{crumb}}"/>
         {{ govukRadios(field) }}
         {{ govukButton({ attributes: { id: "submit", type: "submit" }, text: "Continue" }) }}
       </form>

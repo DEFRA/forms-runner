@@ -21,6 +21,7 @@
 
       <div class="govuk-button-group">
         <form method="post" novalidate>
+          <input type="hidden" name="crumb" value="{{crumb}}"/>
           {{ govukButton({ attributes: { id: "submit", type: "submit" }, text: "Continue", name: "action", value: "continue" }) }}
           {{ govukButton({ attributes: { id: "add-another", type: "submit" }, text: "Add another " + repeatTitle, classes: "govuk-button--secondary", name: "action", value: "add-another" }) }}
         </form>
