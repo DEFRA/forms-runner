@@ -4,7 +4,6 @@ import { URL } from 'node:url'
  * site.
  */
 export class RelativeUrl {
-  static FEEDBACK_RETURN_INFO_PARAMETER = 'f_t'
   static VISIT_IDENTIFIER_PARAMETER = 'visit'
   url: URL
   originalUrlString: string
