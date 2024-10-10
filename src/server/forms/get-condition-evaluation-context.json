@@ -20,10 +20,6 @@
           "path": "/how-many-people"
         },
         {
-          "path": "/anothertest",
-          "condition": "WLkGmF"
-        },
-        {
           "path": "/testconditions",
           "condition": "doesntHaveUKPassport"
         }
@@ -32,7 +28,6 @@
     },
     {
       "path": "/how-many-people",
-      "section": "applicantDetails",
       "components": [
         {
           "options": {
@@ -68,7 +63,7 @@
         },
         {
           "type": "TextField",
-          "name": "firstName",
+          "name": "applicantOneFirstName",
           "title": "First name",
           "options": {
             "required": true
@@ -81,14 +76,14 @@
             "optionalText": false
           },
           "type": "TextField",
-          "name": "middleName",
+          "name": "applicantOneMiddleName",
           "title": "Middle name",
           "hint": "If you have a middle name on your passport you must include it here",
           "schema": {}
         },
         {
           "type": "TextField",
-          "name": "lastName",
+          "name": "applicantOneLastName",
           "title": "Surname",
           "options": {
             "required": true
@@ -98,7 +93,7 @@
       ],
       "next": [
         {
-          "path": "/testconditions"
+          "path": "/applicant-one-address"
         }
       ]
     },
@@ -108,7 +103,7 @@
       "components": [
         {
           "type": "UkAddressField",
-          "name": "address",
+          "name": "applicantOneAddress",
           "title": "Address",
           "options": {
             "required": true
@@ -122,7 +117,7 @@
           "condition": "moreThanOneApplicant"
         },
         {
-          "path": "/contact-details"
+          "path": "/testconditions"
         }
       ],
       "title": "Address"
@@ -142,7 +137,7 @@
         },
         {
           "type": "TextField",
-          "name": "firstName",
+          "name": "applicantTwoFirstName",
           "title": "First name",
           "options": {
             "required": true
@@ -155,14 +150,14 @@
             "optionalText": false
           },
           "type": "TextField",
-          "name": "middleName",
+          "name": "applicantTwoMiddleName",
           "title": "Middle name",
           "hint": "If you have a middle name on your passport you must include it here",
           "schema": {}
         },
         {
           "type": "TextField",
-          "name": "lastName",
+          "name": "applicantTwoLastName",
           "title": "Surname",
           "options": {
             "required": true
@@ -182,187 +177,8 @@
       "components": [
         {
           "type": "UkAddressField",
-          "name": "address",
+          "name": "applicantTwoAddress",
           "title": "Address",
-          "options": {
-            "required": true
-          },
-          "schema": {}
-        }
-      ],
-      "next": [
-        {
-          "path": "/applicant-three",
-          "condition": "moreThanTwoApplicants"
-        },
-        {
-          "path": "/contact-details"
-        }
-      ],
-      "title": "Address"
-    },
-    {
-      "path": "/applicant-three",
-      "title": "Applicant 3",
-      "section": "applicantThreeDetails",
-      "components": [
-        {
-          "type": "Html",
-          "name": "html",
-          "title": "Html",
-          "content": "<p class=\"govuk-body\">Provide the details as they appear on your passport.</p>",
-          "options": {},
-          "schema": {}
-        },
-        {
-          "type": "TextField",
-          "name": "firstName",
-          "title": "First name",
-          "options": {
-            "required": true
-          },
-          "schema": {}
-        },
-        {
-          "options": {
-            "required": false,
-            "optionalText": false
-          },
-          "type": "TextField",
-          "name": "middleName",
-          "title": "Middle name",
-          "hint": "If you have a middle name on your passport you must include it here",
-          "schema": {}
-        },
-        {
-          "type": "TextField",
-          "name": "lastName",
-          "title": "Surname",
-          "options": {
-            "required": true
-          },
-          "schema": {}
-        }
-      ],
-      "next": [
-        {
-          "path": "/applicant-three-address"
-        }
-      ]
-    },
-    {
-      "path": "/applicant-three-address",
-      "section": "applicantThreeDetails",
-      "components": [
-        {
-          "type": "UkAddressField",
-          "name": "address",
-          "title": "Address",
-          "options": {
-            "required": true
-          },
-          "schema": {}
-        }
-      ],
-      "next": [
-        {
-          "path": "/applicant-four",
-          "condition": "moreThanThreeApplicants"
-        },
-        {
-          "path": "/contact-details"
-        }
-      ],
-      "title": "Address"
-    },
-    {
-      "path": "/applicant-four",
-      "title": "Applicant 4",
-      "section": "applicantFourDetails",
-      "components": [
-        {
-          "type": "Html",
-          "name": "html",
-          "title": "Html",
-          "content": "<p class=\"govuk-body\">Provide the details as they appear on your passport.</p>",
-          "options": {},
-          "schema": {}
-        },
-        {
-          "type": "TextField",
-          "name": "firstName",
-          "title": "First name",
-          "options": {
-            "required": true
-          },
-          "schema": {}
-        },
-        {
-          "options": {
-            "required": false,
-            "optionalText": false
-          },
-          "type": "TextField",
-          "name": "middleName",
-          "title": "Middle name",
-          "hint": "If you have a middle name on your passport you must include it here",
-          "schema": {}
-        },
-        {
-          "type": "TextField",
-          "name": "lastName",
-          "title": "Surname",
-          "options": {
-            "required": true
-          },
-          "schema": {}
-        }
-      ],
-      "next": [
-        {
-          "path": "/applicant-four-address"
-        }
-      ]
-    },
-    {
-      "path": "/applicant-four-address",
-      "section": "applicantFourDetails",
-      "components": [
-        {
-          "type": "UkAddressField",
-          "name": "address",
-          "title": "Address",
-          "options": {
-            "required": true
-          },
-          "schema": {}
-        }
-      ],
-      "next": [
-        {
-          "path": "/contact-details"
-        }
-      ],
-      "title": "Address"
-    },
-    {
-      "path": "/contact-details",
-      "section": "applicantDetails",
-      "components": [
-        {
-          "type": "TelephoneNumberField",
-          "name": "phoneNumber",
-          "title": "Phone number",
-          "hint": "If you haven't got a UK phone number, include country code",
-          "options": {
-            "required": true
-          },
-          "schema": {}
-        },
-        {
-          "type": "EmailAddressField",
-          "name": "emailAddress",
-          "title": "Your email address",
           "options": {
             "required": true
           },
@@ -374,7 +190,7 @@
           "path": "/testconditions"
         }
       ],
-      "title": "Applicant contact details"
+      "title": "Address"
     },
     {
       "path": "/summary",
@@ -403,24 +219,6 @@
           "path": "/summary"
         }
       ]
-    },
-    {
-      "path": "/anothertest",
-      "title": "AnotherTest",
-      "components": [
-        {
-          "name": "FnMsqX",
-          "title": "Html",
-          "options": {},
-          "type": "Html",
-          "content": "<p class=\"govuk-body\">Another Pag</p>e"
-        }
-      ],
-      "next": [
-        {
-          "path": "/summary"
-        }
-      ]
     }
   ],
   "lists": [
@@ -440,18 +238,6 @@
           "value": 2,
           "description": "",
           "condition": ""
-        },
-        {
-          "text": "3",
-          "value": 3,
-          "description": "",
-          "condition": ""
-        },
-        {
-          "text": "4",
-          "value": 4,
-          "description": "",
-          "condition": ""
         }
       ]
     }
@@ -462,24 +248,12 @@
       "title": "Check before you start"
     },
     {
-      "name": "applicantDetails",
-      "title": "Applicant details"
-    },
-    {
       "name": "applicantOneDetails",
       "title": "Applicant 1"
     },
     {
       "name": "applicantTwoDetails",
       "title": "Applicant 2"
-    },
-    {
-      "name": "applicantThreeDetails",
-      "title": "Applicant 3"
-    },
-    {
-      "name": "applicantFourDetails",
-      "title": "Applicant 4"
     }
   ],
   "phaseBanner": {},
@@ -493,7 +267,7 @@
         "conditions": [
           {
             "field": {
-              "name": "checkBeforeYouStart.ukPassport",
+              "name": "ukPassport",
               "type": "YesNoField",
               "display": "Do you have a UK passport?"
             },
@@ -502,165 +276,6 @@
               "type": "Value",
               "value": "true",
               "display": "true"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "moreThanOneApplicant",
-      "displayName": "moreThanOneApplicant",
-      "value": {
-        "name": "moreThanOneApplicant",
-        "conditions": [
-          {
-            "field": {
-              "name": "applicantDetails.numberOfApplicants",
-              "type": "SelectField",
-              "display": "How many applicants are there?"
-            },
-            "operator": "is more than",
-            "value": {
-              "type": "Value",
-              "value": "1",
-              "display": "1"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "moreThanTwoApplicants",
-      "displayName": "moreThanTwoApplicants",
-      "value": {
-        "name": "moreThanTwoApplicants",
-        "conditions": [
-          {
-            "field": {
-              "name": "applicantDetails.numberOfApplicants",
-              "type": "SelectField",
-              "display": "How many applicants are there?"
-            },
-            "operator": "is more than",
-            "value": {
-              "type": "Value",
-              "value": "2",
-              "display": "2"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "moreThanThreeApplicants",
-      "displayName": "moreThanThreeApplicants",
-      "value": {
-        "name": "moreThanThreeApplicants",
-        "conditions": [
-          {
-            "field": {
-              "name": "applicantDetails.numberOfApplicants",
-              "type": "SelectField",
-              "display": "How many applicants are there?"
-            },
-            "operator": "is more than",
-            "value": {
-              "type": "Value",
-              "value": "3",
-              "display": "3"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "displayName": "Another",
-      "name": "nAQyYp",
-      "value": {
-        "name": "Another",
-        "conditions": [
-          {
-            "conditionName": "doesntHaveUKPassport",
-            "conditionDisplayName": "doesntHaveUKPassport"
-          }
-        ]
-      }
-    },
-    {
-      "displayName": "Another2",
-      "name": "QFdzTQ",
-      "value": {
-        "name": "Another2",
-        "conditions": [
-          {
-            "field": {
-              "name": "checkBeforeYouStart.ukPassport",
-              "type": "YesNoField",
-              "display": "Do you have a UK passport?"
-            },
-            "operator": "is",
-            "value": {
-              "type": "Value",
-              "value": "true",
-              "display": "true"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "displayName": "Another3",
-      "name": "WLkGmF",
-      "value": {
-        "name": "Another3",
-        "conditions": [
-          {
-            "field": {
-              "name": "applicantOneDetails.firstName",
-              "type": "TextField",
-              "display": "First name"
-            },
-            "operator": "is",
-            "value": {
-              "type": "Value",
-              "value": "Applicant",
-              "display": "Applicant"
-            }
-          },
-          {
-            "coordinator": "and",
-            "field": {
-              "name": "checkBeforeYouStart.ukPassport",
-              "type": "YesNoField",
-              "display": "Do you have a UK passport?"
-            },
-            "operator": "is",
-            "value": {
-              "type": "Value",
-              "value": "false",
-              "display": "false"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "bDDfgf",
-      "displayName": "testCondition",
-      "value": {
-        "name": "testCondition",
-        "conditions": [
-          {
-            "field": {
-              "name": "applicantOneDetails.firstName",
-              "type": "TextField",
-              "display": "First name"
-            },
-            "operator": "is",
-            "value": {
-              "type": "Value",
-              "value": "Applicant",
-              "display": "Applicant"
             }
           }
         ]
@@ -674,7 +289,7 @@
         "conditions": [
           {
             "field": {
-              "name": "checkBeforeYouStart.ukPassport",
+              "name": "ukPassport",
               "type": "YesNoField",
               "display": "Do you have a UK passport?"
             },
@@ -683,6 +298,28 @@
               "type": "Value",
               "value": "false",
               "display": "false"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "moreThanOneApplicant",
+      "displayName": "moreThanOneApplicant",
+      "value": {
+        "name": "moreThanOneApplicant",
+        "conditions": [
+          {
+            "field": {
+              "name": "numberOfApplicants",
+              "type": "SelectField",
+              "display": "How many applicants are there?"
+            },
+            "operator": "is more than",
+            "value": {
+              "type": "Value",
+              "value": "1",
+              "display": "1"
             }
           }
         ]

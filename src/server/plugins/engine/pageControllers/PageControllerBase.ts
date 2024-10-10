@@ -232,10 +232,8 @@ export class PageControllerBase {
    * gets the state for the values that can be entered on just this page
    */
   getFormDataFromState(state: FormSubmissionState): FormData {
-    const pageState = this.section ? state[this.section.name] : state
-
     return {
-      ...this.components.getFormDataFromState(pageState || {})
+      ...this.components.getFormDataFromState(state)
     }
   }
 
@@ -322,13 +320,11 @@ export class PageControllerBase {
     // While the current page isn't null
     while (nextPage != null) {
       // Either get the current state or the current state of the section if this page belongs to a section
-      const currentState =
-        (nextPage.section ? state[nextPage.section.name] : state) ?? {}
-      let newValue = {}
+      const newValue = {}
 
       // Iterate all components on this page and pull out the saved values from the state
       for (const component of nextPage.components.items) {
-        let componentState = currentState[component.name]
+        let componentState = state[component.name]
 
         /**
          * For evaluation context purposes, optional {@link CheckboxesField}
@@ -355,15 +351,10 @@ export class PageControllerBase {
         ) {
           componentState = null
         } else if (component instanceof DatePartsField) {
-          componentState =
-            component.getConditionEvaluationStateValue(currentState)
+          componentState = component.getConditionEvaluationStateValue(state)
         }
 
         newValue[component.name] = componentState
-      }
-
-      if (nextPage.section) {
-        newValue = { [nextPage.section.name]: newValue }
       }
 
       // Combine our stored values with the existing relevantState that we've been building up
@@ -386,9 +377,8 @@ export class PageControllerBase {
 
   async setState(request: Request, state: FormSubmissionState) {
     const { cacheService } = request.services([])
-    const update = this.getPartialMergeState(state)
 
-    return cacheService.mergeState(request, update)
+    return cacheService.mergeState(request, state)
   }
 
   makeGetRouteHandler(): (
@@ -648,10 +638,6 @@ export class PageControllerBase {
    */
   proceed(request: Request, h: ResponseToolkit, state: FormSubmissionState) {
     return proceed(request, h, this.getNext(state))
-  }
-
-  getPartialMergeState(value: FormSubmissionState) {
-    return this.section ? { [this.section.name]: value } : value
   }
 
   get defaultNextPath() {
