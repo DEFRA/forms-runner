@@ -229,8 +229,8 @@ describe('Submission journey test', () => {
       templateId: process.env.NOTIFY_TEMPLATE_ID,
       emailAddress: 'enrique.chase@defra.gov.uk',
       personalisation: {
-        formName: 'All components',
-        formResults: expect.stringContaining(formResults)
+        subject: 'Form received: All components',
+        body: expect.stringContaining(formResults)
       }
     })
 
