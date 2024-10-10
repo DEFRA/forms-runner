@@ -54,7 +54,7 @@ describe('TextField based conditions', () => {
       payload: form
     })
 
-    expect(res.statusCode).toEqual(200)
+    expect(res.statusCode).toBe(200)
   })
 
   test('Testing POST /text/first-page with an empty string redirects correctly', async () => {

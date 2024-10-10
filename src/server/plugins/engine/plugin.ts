@@ -405,6 +405,7 @@ export const plugin = {
           slug: string
           path: string
         }
+        Payload: { action: string }
       }>,
       h: ResponseToolkit
     ) => {
@@ -520,11 +521,11 @@ export const plugin = {
     const postListDeleteHandler = (
       request: Request<{
         Params: {
-          state?: 'draft' | 'live'
+          state: 'draft' | 'live'
           slug: string
           path: string
-          itemId: string
         }
+        Payload: { confirm?: boolean }
       }>,
       h: ResponseToolkit
     ) => {

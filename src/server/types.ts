@@ -4,7 +4,10 @@ import { type ServerYar, type Yar } from '@hapi/yar'
 import { type Logger } from 'pino'
 
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { type FileState } from '~/src/server/plugins/engine/types.js'
+import {
+  type FileState,
+  type FormData
+} from '~/src/server/plugins/engine/types.js'
 import { type CacheService } from '~/src/server/services/index.js'
 
 export interface RouteConfig {

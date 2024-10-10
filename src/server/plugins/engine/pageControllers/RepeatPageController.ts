@@ -9,6 +9,7 @@ import { ADD_ANOTHER, CONTINUE } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
+  type FormData,
   type FormPayload,
   type FormSubmissionErrors,
   type FormSubmissionState,
@@ -46,7 +47,7 @@ export class RepeatPageController extends PageController {
     const itemId = Joi.string().uuid().required()
 
     this.formSchema = this.formSchema.append({ itemId })
-    this.stateSchema = Joi.object<FormSubmissionState>().keys({
+    this.stateSchema = Joi.object<FormData>().keys({
       [options.name]: Joi.array()
         .items(this.stateSchema.append({ itemId }))
         .min(schema.min)
@@ -193,7 +194,17 @@ export class RepeatPageController extends PageController {
   }
 
   makePostListSummaryRouteHandler() {
-    return async (request: Request, h: ResponseToolkit) => {
+    return async (
+      request: Request<{
+        Params: {
+          state: 'draft' | 'live'
+          slug: string
+          path: string
+        }
+        Payload: { action: string }
+      }>,
+      h: ResponseToolkit
+    ) => {
       const { payload } = request
       const { action } = payload
       const state = await super.getState(request)
@@ -268,7 +279,17 @@ export class RepeatPageController extends PageController {
   }
 
   makePostListDeleteRouteHandler() {
-    return async (request: Request, h: ResponseToolkit) => {
+    return async (
+      request: Request<{
+        Params: {
+          state: 'draft' | 'live'
+          slug: string
+          path: string
+        }
+        Payload: { confirm?: boolean }
+      }>,
+      h: ResponseToolkit
+    ) => {
       const { payload } = request
       const { confirm } = payload
 
@@ -329,7 +350,7 @@ export class RepeatPageController extends PageController {
     const { title } = this.repeat.options
     const sectionTitle = section?.hideTitle !== true ? section?.title : ''
     const serviceUrl = `/${model.basePath}`
-    const firstQuestionId = this.components.formItems.at(0)?.name
+    const firstQuestion = this.components.formItems.at(0)
     const rows: Row[] = []
     let count = 0
 
@@ -360,7 +381,9 @@ export class RepeatPageController extends PageController {
             text: `${title} ${index + 1}`
           },
           value: {
-            text: firstQuestionId ? item[firstQuestionId] : ''
+            text: firstQuestion
+              ? firstQuestion.getDisplayStringFromState(item)
+              : ''
           },
           actions: {
             items
