@@ -20,7 +20,6 @@ import { configureEnginePlugin } from '~/src/server/plugins/engine/index.js'
 import pluginErrorPages from '~/src/server/plugins/errorPages.js'
 import pluginLogging from '~/src/server/plugins/logging.js'
 import pluginPulse from '~/src/server/plugins/pulse.js'
-import { configureRateLimitPlugin } from '~/src/server/plugins/rateLimit.js'
 import pluginRouter from '~/src/server/plugins/router.js'
 import pluginSession from '~/src/server/plugins/session.js'
 import pluginViews from '~/src/server/plugins/views.js'
@@ -79,9 +78,6 @@ export async function createServer(routeConfig: RouteConfig = {}) {
   const server = hapi.server(serverOptions())
   const { formFileName, formFilePath } = routeConfig
 
-  if (config.get('rateLimit')) {
-    await server.register(configureRateLimitPlugin(routeConfig))
-  }
   await server.register(pluginLogging)
 
   if (config.get('isProduction')) {

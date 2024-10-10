@@ -124,11 +124,6 @@ export const config = convict({
     } as SchemaObj<string>
   },
 
-  rateLimit: {
-    format: Boolean,
-    default: true
-  },
-
   /**
    * Email outputs
    * Email outputs will use notify to send an email to a single inbox.
