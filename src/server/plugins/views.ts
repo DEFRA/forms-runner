@@ -12,6 +12,7 @@ import pkg from '~/package.json' with { type: 'json' }
 import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
+import { encodeUrl } from '~/src/server/plugins/engine/helpers.js'
 
 const logger = createLogger()
 
@@ -65,7 +66,7 @@ function nunjucksContext(
     appVersion: pkg.version,
     assetPath: '/assets',
     serviceName: capitalize(config.get('serviceName')),
-    feedbackLink: config.get('feedbackLink'),
+    feedbackLink: encodeUrl(config.get('feedbackLink')),
     phaseTag: config.get('phaseTag'),
     previewMode: isPreviewMode ? params?.state : undefined,
     slug: params?.slug,

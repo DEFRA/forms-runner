@@ -1,7 +1,6 @@
 import { type Request } from '@hapi/hapi'
 import { type ValidationResult } from 'joi'
 
-import { config } from '~/src/config/index.js'
 import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
 import { redirectUrl } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
@@ -55,11 +54,6 @@ export class SummaryViewModel {
     const { def } = model
     this.declaration = def.declaration
     this.skipSummary = def.skipSummary
-    this.feedbackLink =
-      def.feedback?.url ??
-      ((!!def.feedback?.emailAddress &&
-        `mailto:${def.feedback.emailAddress}`) ||
-        config.get('feedbackLink'))
 
     const schema = model.makeFilteredSchema(state, relevantPages)
     const result = schema.validate(state, {

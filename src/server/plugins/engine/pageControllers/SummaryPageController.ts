@@ -15,13 +15,7 @@ import { addDays, format } from 'date-fns'
 import { config } from '~/src/config/index.js'
 import { DataType } from '~/src/server/plugins/engine/components/types.js'
 import {
-  FeedbackContextInfo,
-  RelativeUrl,
-  decodeFeedbackContextInfo
-} from '~/src/server/plugins/engine/feedback/index.js'
-import {
   checkFormStatus,
-  feedbackReturnInfoKey,
   redirectTo,
   redirectUrl
 } from '~/src/server/plugins/engine/helpers.js'
@@ -61,6 +55,30 @@ export class SummaryPageController extends PageController {
   /**
    * The controller which is used when Page["controller"] is defined as "./pages/summary.js"
    */
+
+  getSummaryViewModel(
+    title: string,
+    model: FormModel,
+    state: FormSubmissionState,
+    request: Request
+  ): SummaryViewModel {
+    const relevantState = this.getConditionEvaluationContext(model, state)
+
+    const viewModel = new SummaryViewModel(
+      title,
+      model,
+      state,
+      relevantState,
+      request
+    )
+
+    // We already figure these out in the base page controller. Take them and apply them to our page-specific model.
+    // This is a stop-gap until we can add proper inheritance in place.
+    viewModel.feedbackLink = this.getFeedbackLink()
+    viewModel.phaseTag = this.getPhaseTag()
+
+    return viewModel
+  }
 
   /**
    * Returns an async function. This is called in plugin.ts when there is a GET request at `/{id}/{path*}`,
@@ -137,6 +155,8 @@ export class SummaryPageController extends PageController {
       await this.updateProgress(progress, request, cacheService)
 
       viewModel.backLink = this.getBackLink(progress)
+      viewModel.feedbackLink = this.getFeedbackLink()
+      viewModel.phaseTag = this.getPhaseTag()
 
       return h.view('summary', viewModel)
     }
@@ -165,8 +185,9 @@ export class SummaryPageController extends PageController {
         relevantState,
         request
       )
-      // TODO fix in follow-up PR
-      // this.setFeedbackDetails(summaryViewModel, request)
+
+      summaryViewModel.feedbackLink = this.getFeedbackLink()
+      summaryViewModel.phaseTag = this.getPhaseTag()
 
       // Display error summary on the summary
       // page if there are incomplete form errors
@@ -198,43 +219,6 @@ export class SummaryPageController extends PageController {
 
       return redirectTo(request, h, `/${model.basePath}/status`)
     }
-  }
-
-  setFeedbackDetails(viewModel: SummaryViewModel, request: Request) {
-    const feedbackContextInfo = this.getFeedbackContextInfo(request)
-
-    if (feedbackContextInfo) {
-      // set the form name to the source form name if this is a feedback form
-      viewModel.name = feedbackContextInfo.formTitle
-    }
-
-    // setting the feedbackLink to undefined here for feedback forms prevents the feedback link from being shown
-    viewModel.feedbackLink = this.feedbackUrlFromRequest(request)
-  }
-
-  getFeedbackContextInfo(request: Request) {
-    if (this.model.def.feedback?.feedbackForm) {
-      if (request.url.searchParams.get(feedbackReturnInfoKey)) {
-        return decodeFeedbackContextInfo(
-          request.url.searchParams.get(feedbackReturnInfoKey)
-        )
-      }
-    }
-  }
-
-  feedbackUrlFromRequest(request: Request) {
-    if (this.model.def.feedback?.url) {
-      const feedbackLink = new RelativeUrl(this.model.def.feedback.url)
-      const returnInfo = new FeedbackContextInfo(
-        this.model.name,
-        'Summary',
-        `${request.url.pathname}${request.url.search}`
-      )
-      feedbackLink.setParam(feedbackReturnInfoKey, returnInfo.toString())
-      return feedbackLink.toString()
-    }
-
-    return undefined
   }
 
   get postRouteOptions(): RouteOptions {
