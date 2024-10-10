@@ -53,12 +53,12 @@
   ],
   "sections": [
     {
-      "name": "personalDetails",
-      "title": "Personal details"
-    },
-    {
       "name": "licenceDetails",
       "title": "Licence details"
+    },
+    {
+      "name": "personalDetails",
+      "title": "Personal details"
     }
   ],
   "lists": [
