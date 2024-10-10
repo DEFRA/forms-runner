@@ -71,16 +71,12 @@ export class ListFormComponent extends FormComponent {
       this.listType = this.list?.type ?? 'string'
     }
 
-    let formSchema = joi[this.listType]()
+    const formSchema = joi[this.listType]()
       .valid(...this.values)
       .label(title.toLowerCase())
       .required()
 
-    if (options.required === false) {
-      formSchema = formSchema.valid('').optional()
-    }
-
-    this.formSchema = formSchema.default('')
+    this.formSchema = formSchema
     this.stateSchema = formSchema.default(null).allow(null)
     this.options = options
   }

@@ -68,13 +68,13 @@ describe('EmailAddressField', () => {
 
         const { formSchema } = componentOptional
 
-        expect(formSchema.describe().flags).toEqual(
+        expect(formSchema.describe()).toEqual(
           expect.objectContaining({
-            presence: 'optional'
+            allow: ['']
           })
         )
 
-        const result = formSchema.validate(undefined, opts)
+        const result = formSchema.validate('', opts)
         expect(result.error).toBeUndefined()
       })
 

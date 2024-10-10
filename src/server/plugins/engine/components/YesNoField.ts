@@ -20,9 +20,15 @@ export class YesNoField extends ListFormComponent {
     super({ ...def, list: '__yesNo' }, model)
 
     const { options } = def
+    let { formSchema } = this
 
     addClassOptionIfNone(options, 'govuk-radios--inline')
 
+    if (options.required === false) {
+      formSchema = formSchema.optional()
+    }
+
+    this.formSchema = formSchema
     this.options = options
   }
 

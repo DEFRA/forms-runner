@@ -30,7 +30,7 @@ export class DatePartsField extends FormComponent {
     let stateSchema = joi.date().label(title.toLowerCase()).required()
 
     if (options.required === false) {
-      stateSchema = stateSchema.allow('', null).optional()
+      stateSchema = stateSchema.allow(null)
     }
 
     this.children = new ComponentCollection(

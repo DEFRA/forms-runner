@@ -45,7 +45,7 @@ describe('TextField based conditions', () => {
     expect($input).not.toHaveValue()
   })
 
-  test('Testing POST /text/first-page with an nothing string redirects correctly', async () => {
+  test('Testing POST /text/first-page without values does not redirect', async () => {
     const form = {}
 
     const res = await server.inject({
@@ -54,8 +54,7 @@ describe('TextField based conditions', () => {
       payload: form
     })
 
-    expect(res.statusCode).toBe(302)
-    expect(res.headers.location).toBe('/text/second-page')
+    expect(res.statusCode).toEqual(200)
   })
 
   test('Testing POST /text/first-page with an empty string redirects correctly', async () => {

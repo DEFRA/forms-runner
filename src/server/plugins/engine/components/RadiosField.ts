@@ -10,7 +10,13 @@ export class RadiosField extends SelectionControlField {
     super(def, model)
 
     const { options } = def
+    let { formSchema } = this
 
+    if (options.required === false) {
+      formSchema = formSchema.optional()
+    }
+
+    this.formSchema = formSchema
     this.options = options
   }
 }

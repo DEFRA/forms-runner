@@ -94,9 +94,9 @@ describe.each([
 
         const { formSchema } = componentOptional
 
-        expect(formSchema.describe().flags).toEqual(
+        expect(formSchema.describe()).toEqual(
           expect.objectContaining({
-            presence: 'optional'
+            allow: expect.arrayContaining([''])
           })
         )
 
@@ -132,7 +132,7 @@ describe.each([
 
         expect(result.error).toEqual(
           expect.objectContaining({
-            message: expect.stringContaining(`Select ${label}`)
+            message: `Select ${label}`
           })
         )
       })
