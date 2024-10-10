@@ -27,14 +27,6 @@ export function proceed(
   }
 }
 
-interface Params extends Partial<Record<string, string>> {
-  returnUrl?: string
-}
-
-type RequestWithQuery = Request<{
-  Query: Params
-}>
-
 /**
  * Encodes a URL, returning undefined if the process fails.
  */
@@ -113,3 +105,11 @@ export function checkFormStatus(path: string): FormStatus {
     state
   }
 }
+
+export interface Params extends Partial<Record<string, string>> {
+  returnUrl?: string
+}
+
+export type RequestWithQuery = Request<{
+  Query: Params
+}>
