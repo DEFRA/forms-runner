@@ -1,7 +1,6 @@
 import { type Request, type ResponseToolkit } from '@hapi/hapi'
 
-import { PREVIEW_PATH_PREFIX } from '../../constants.js'
-
+import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { RelativeUrl } from '~/src/server/plugins/engine/feedback/index.js'
 
 export const feedbackReturnInfoKey = 'f_t'
@@ -80,6 +79,6 @@ export const filesize = (bytes: number) => {
   return Math.max(bytes, 0.1).toFixed(1) + byteUnits[i]
 }
 
-export const checkIfPreview = (path: string) => {
+export function hasPreviewPath(path: string) {
   return path.toLowerCase().startsWith(PREVIEW_PATH_PREFIX)
 }

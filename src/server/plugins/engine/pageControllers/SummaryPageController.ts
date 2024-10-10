@@ -16,8 +16,8 @@ import {
   decodeFeedbackContextInfo
 } from '~/src/server/plugins/engine/feedback/index.js'
 import {
-  checkIfPreview,
   feedbackReturnInfoKey,
+  hasPreviewPath,
   redirectTo,
   redirectUrl
 } from '~/src/server/plugins/engine/helpers.js'
@@ -300,7 +300,7 @@ async function sendEmail(
 
   const { path } = request
 
-  const isPreview = checkIfPreview(path)
+  const isPreview = hasPreviewPath(path)
 
   // Get submission email personalisation
   const personalisation = getPersonalisation(summaryViewModel, model, isPreview)
@@ -343,7 +343,7 @@ export function getPersonalisation(
     model
   )
 
-  const formName = isPreview
+  const subject = isPreview
     ? `TEST FORM SUBMISSION: ${model.name}`
     : `Form received: ${model.name}`
 
@@ -403,7 +403,7 @@ export function getPersonalisation(
 
   return {
     body: lines.join('\n'),
-    subject: formName
+    subject
   }
 }
 

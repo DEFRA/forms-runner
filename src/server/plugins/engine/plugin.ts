@@ -13,7 +13,7 @@ import Joi from 'joi'
 
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
-  checkIfPreview,
+  hasPreviewPath,
   redirectTo
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
@@ -86,7 +86,7 @@ export const plugin = {
 
       const { params, path } = request
       const { slug } = params
-      const isPreview = checkIfPreview(path)
+      const isPreview = hasPreviewPath(path)
       const formState = isPreview && params.state ? params.state : 'live'
 
       // Get the form metadata using the `slug` param

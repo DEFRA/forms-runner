@@ -1,6 +1,8 @@
 import { type ResponseToolkit } from '@hapi/hapi'
 
+import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
+  hasPreviewPath,
   proceed,
   redirectTo,
   redirectUrl
@@ -297,6 +299,23 @@ describe('Helpers', () => {
       const nextUrl = 'badgers/monkeys'
       const returned = redirectUrl(request, nextUrl, { f_t: 'newValue' })
       expect(returned).toBe(`${nextUrl}?f_t=newValue`)
+    })
+  })
+
+  describe('hasPreviewPath', () => {
+    it('Should return true for paths starting with PREVIEW_PATH_PREFIX', () => {
+      const path = `${PREVIEW_PATH_PREFIX}/some/path`
+      expect(hasPreviewPath(path)).toBe(true)
+    })
+
+    it('Should return false for paths not starting with PREVIEW_PATH_PREFIX', () => {
+      const path = '/some/other/path'
+      expect(hasPreviewPath(path)).toBe(false)
+    })
+
+    it('Should be case insensitive', () => {
+      const path = `${PREVIEW_PATH_PREFIX.toUpperCase()}/some/path`
+      expect(hasPreviewPath(path)).toBe(true)
     })
   })
 })
