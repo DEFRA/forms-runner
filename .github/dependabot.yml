@@ -53,7 +53,9 @@ updates:
       tools:
         patterns:
           - 'concurrently'
+          - 'global-jsdom'
           - 'jest'
+          - 'jsdom'
           - 'tsx'
 
       types:

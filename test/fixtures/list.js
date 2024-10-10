@@ -1,5 +1,6 @@
-import { type List } from '@defra/forms-model'
-
+/**
+ * @satisfies {List}
+ */
 export const listNumber = {
   title: 'Example number list',
   name: 'listNumber',
@@ -10,7 +11,7 @@ export const listNumber = {
     { text: '3 points', value: 3 },
     { text: '4 points', value: 4 }
   ]
-} satisfies List
+}
 
 export const listNumberExamples = [
   {
@@ -35,6 +36,9 @@ export const listNumberExamples = [
   }
 ]
 
+/**
+ * @satisfies {List}
+ */
 export const listString = {
   title: 'Example string list',
   name: 'listString',
@@ -45,7 +49,7 @@ export const listString = {
     { text: '3 hours', value: '3' },
     { text: '4 hours', value: '4' }
   ]
-} satisfies List
+}
 
 export const listStringExamples = [
   {
@@ -82,3 +86,7 @@ export const listYesNoExamples = [
     state: false
   }
 ]
+
+/**
+ * @import { List } from '@defra/forms-model'
+ */
