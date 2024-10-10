@@ -65,38 +65,6 @@ describe('Helpers', () => {
       )
       expect(returned).toEqual(returnValue)
     })
-
-    test('Should copy feedback param from the original request', () => {
-      const request = {
-        query: {
-          f_t: 'myValue'
-        }
-      }
-      const nextUrl = 'badgers/monkeys'
-      const returned = proceed(request, h, nextUrl)
-
-      expect(jest.mocked(h.redirect).mock.calls).toHaveLength(1)
-      expect(jest.mocked(h.redirect).mock.calls[0]).toEqual(
-        expect.arrayContaining([`${nextUrl}?f_t=myValue`])
-      )
-      expect(returned).toEqual(returnValue)
-    })
-
-    test('Should use params provided in nextUrl in preference to those in the original request', () => {
-      const request = {
-        query: {
-          f_t: 'myValue'
-        }
-      }
-      const nextUrl = 'badgers/monkeys?f_t=newValue'
-      const returned = proceed(request, h, nextUrl)
-
-      expect(jest.mocked(h.redirect).mock.calls).toHaveLength(1)
-      expect(jest.mocked(h.redirect).mock.calls[0]).toEqual(
-        expect.arrayContaining([nextUrl])
-      )
-      expect(returned).toEqual(returnValue)
-    })
   })
 
   describe('redirectTo', () => {
@@ -138,91 +106,6 @@ describe('Helpers', () => {
       )
       expect(returned).toEqual(returnValue)
     })
-
-    test('Should copy feedback param from the original request', () => {
-      const request = {
-        query: {
-          f_t: 'myValue'
-        }
-      }
-      const nextUrl = 'badgers/monkeys'
-      const returned = redirectTo(request, h, nextUrl)
-
-      expect(jest.mocked(h.redirect).mock.calls).toHaveLength(1)
-      expect(jest.mocked(h.redirect).mock.calls[0]).toEqual(
-        expect.arrayContaining([`${nextUrl}?f_t=myValue`])
-      )
-      expect(returned).toEqual(returnValue)
-    })
-
-    test('Should use params provided in nextUrl in preference to those in the original request', () => {
-      const request = {
-        query: {
-          f_t: 'myValue'
-        }
-      }
-      const nextUrl = 'badgers/monkeys?f_t=newValue'
-      const returned = redirectTo(request, h, nextUrl)
-
-      expect(jest.mocked(h.redirect).mock.calls).toHaveLength(1)
-      expect(jest.mocked(h.redirect).mock.calls[0]).toEqual(
-        expect.arrayContaining([nextUrl])
-      )
-      expect(returned).toEqual(returnValue)
-    })
-
-    test('Should set params from params object', () => {
-      const request = {
-        query: {
-          f_t: 'myValue'
-        }
-      }
-      const nextUrl = 'badgers/monkeys'
-      const returned = redirectTo(request, h, nextUrl, {
-        returnUrl: '/myreturnurl',
-        badger: 'monkeys'
-      })
-
-      expect(jest.mocked(h.redirect).mock.calls).toHaveLength(1)
-      expect(jest.mocked(h.redirect).mock.calls[0]).toEqual(
-        expect.arrayContaining([
-          `${nextUrl}?returnUrl=%2Fmyreturnurl&badger=monkeys&f_t=myValue`
-        ])
-      )
-      expect(returned).toEqual(returnValue)
-    })
-
-    test('Should use params provided in params object in preference to those in the original request', () => {
-      const request = {
-        query: {
-          f_t: 'myValue'
-        }
-      }
-      const nextUrl = 'badgers/monkeys'
-      const returned = redirectTo(request, h, nextUrl, { f_t: 'newValue' })
-
-      expect(jest.mocked(h.redirect).mock.calls).toHaveLength(1)
-      expect(jest.mocked(h.redirect).mock.calls[0]).toEqual(
-        expect.arrayContaining([`${nextUrl}?f_t=newValue`])
-      )
-      expect(returned).toEqual(returnValue)
-    })
-
-    test('Should redirect to absolute url as provided without any adulteration', () => {
-      const request = {
-        query: {
-          f_t: 'myValue'
-        }
-      }
-      const nextUrl = 'http://www.example.com/monkeys'
-      const returned = redirectTo(request, h, nextUrl, { f_t: 'newValue' })
-
-      expect(jest.mocked(h.redirect).mock.calls).toHaveLength(1)
-      expect(jest.mocked(h.redirect).mock.calls[0]).toEqual(
-        expect.arrayContaining([nextUrl])
-      )
-      expect(returned).toEqual(returnValue)
-    })
   })
 
   describe('redirectUrl', () => {
@@ -249,35 +132,9 @@ describe('Helpers', () => {
       expect(returned).toEqual(nextUrl)
     })
 
-    test('Should copy feedback param from the original request', () => {
-      const request = {
-        query: {
-          f_t: 'myValue'
-        }
-      }
-      const nextUrl = 'badgers/monkeys'
-      const returned = redirectUrl(request, nextUrl)
-
-      expect(returned).toBe(`${nextUrl}?f_t=myValue`)
-    })
-
-    test('Should use params provided in nextUrl in preference to those in the original request', () => {
-      const request = {
-        query: {
-          f_t: 'myValue'
-        }
-      }
-      const nextUrl = 'badgers/monkeys?f_t=newValue'
-      const returned = redirectUrl(request, nextUrl)
-
-      expect(returned).toEqual(nextUrl)
-    })
-
     test('Should set params from params object', () => {
       const request = {
-        query: {
-          f_t: 'myValue'
-        }
+        query: {}
       }
       const nextUrl = 'badgers/monkeys'
       const returned = redirectUrl(request, nextUrl, {
@@ -286,19 +143,8 @@ describe('Helpers', () => {
       })
 
       expect(returned).toBe(
-        `${nextUrl}?returnUrl=%2Fmyreturnurl&badger=monkeys&f_t=myValue`
+        `${nextUrl}?returnUrl=%2Fmyreturnurl&badger=monkeys`
       )
-    })
-
-    test('Should use params provided in params object in preference to those in the original request', () => {
-      const request = {
-        query: {
-          f_t: 'myValue'
-        }
-      }
-      const nextUrl = 'badgers/monkeys'
-      const returned = redirectUrl(request, nextUrl, { f_t: 'newValue' })
-      expect(returned).toBe(`${nextUrl}?f_t=newValue`)
     })
   })
 
