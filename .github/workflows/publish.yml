@@ -13,6 +13,8 @@ on:
       - 'src/**'
       - '!**/*.test.*'
 
+  workflow_dispatch:
+
 concurrency:
   group: publish
 
