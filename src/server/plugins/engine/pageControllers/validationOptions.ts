@@ -1,8 +1,8 @@
-import { type ValidationOptions } from 'joi'
+import { type LanguageMessages, type ValidationOptions } from 'joi'
 /**
  * see @link https://joi.dev/api/?v=17.4.2#template-syntax for template syntax
  */
-const messageTemplate = {
+export const messageTemplate = {
   required: 'Enter {{#label}}',
   selectRequired: 'Select {{#label}}',
   max: '{{#label}} must be {{#limit}} characters or less',
@@ -19,7 +19,7 @@ const messageTemplate = {
   dateMax: '{{#label}} must be the same as or before {{#limit}}'
 }
 
-export const messages: ValidationOptions['messages'] = {
+export const messages: LanguageMessages = {
   'string.base': messageTemplate.required,
   'string.min': messageTemplate.min,
   'string.empty': messageTemplate.required,
