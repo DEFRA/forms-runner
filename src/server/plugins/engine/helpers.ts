@@ -23,14 +23,6 @@ export function proceed(
   }
 }
 
-interface Params extends Partial<Record<string, string>> {
-  returnUrl?: string
-}
-
-type RequestWithQuery = Request<{
-  Query: Params
-}>
-
 /**
  * Encodes a URL, returning undefined if the process fails.
  */
@@ -90,3 +82,11 @@ export const filesize = (bytes: number) => {
 export function hasPreviewPath(path: string) {
   return path.toLowerCase().startsWith(PREVIEW_PATH_PREFIX)
 }
+
+export interface Params extends Partial<Record<string, string>> {
+  returnUrl?: string
+}
+
+export type RequestWithQuery = Request<{
+  Query: Params
+}>

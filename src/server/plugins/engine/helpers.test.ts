@@ -5,138 +5,97 @@ import {
   hasPreviewPath,
   proceed,
   redirectTo,
-  redirectUrl
+  redirectUrl,
+  type RequestWithQuery
 } from '~/src/server/plugins/engine/helpers.js'
 
 describe('Helpers', () => {
+  let request: Pick<RequestWithQuery, 'query'>
+  let h: Pick<ResponseToolkit, 'redirect'>
+
+  beforeEach(() => {
+    request = {
+      query: {}
+    }
+
+    h = {
+      redirect: jest.fn()
+    }
+  })
+
   describe('proceed', () => {
-    let h: Pick<ResponseToolkit, 'redirect'>
-    const returnValue = ''
-    beforeEach(() => {
-      h = {
-        redirect: jest.fn().mockReturnValue(returnValue)
-      }
+    it('should redirect to the returnUrl if one is provided', () => {
+      request.query.returnUrl = '/my-return-url'
+
+      const nextUrl = 'badgers/monkeys'
+      proceed(request, h, nextUrl)
+
+      expect(h.redirect).toHaveBeenCalledTimes(1)
+      expect(h.redirect).toHaveBeenCalledWith(request.query.returnUrl)
     })
 
-    test('Should redirect to the returnUrl if one is provided', () => {
-      const returnUrl = '/my-return-url'
-      const request = {
-        query: {
-          returnUrl
-        }
-      }
+    it('should redirect to next url when no query params', () => {
       const nextUrl = 'badgers/monkeys'
-      const returned = proceed(request, h, nextUrl)
+      proceed(request, h, nextUrl)
 
-      expect(jest.mocked(h.redirect).mock.calls).toHaveLength(1)
-      expect(jest.mocked(h.redirect).mock.calls[0]).toEqual(
-        expect.arrayContaining([returnUrl])
-      )
-      expect(returned).toEqual(returnValue)
+      expect(h.redirect).toHaveBeenCalledTimes(1)
+      expect(h.redirect).toHaveBeenCalledWith(nextUrl)
     })
 
-    test('Should redirect to next url when no query params', () => {
-      const request = {
-        query: {}
-      }
+    it('should redirect to next url ignoring most params from original request', () => {
+      request.query.myParam = 'myValue'
+      request.query.myParam2 = 'myValue2'
+
       const nextUrl = 'badgers/monkeys'
-      const returned = proceed(request, h, nextUrl)
+      proceed(request, h, nextUrl)
 
-      expect(jest.mocked(h.redirect).mock.calls).toHaveLength(1)
-      expect(jest.mocked(h.redirect).mock.calls[0]).toEqual(
-        expect.arrayContaining([nextUrl])
-      )
-      expect(returned).toEqual(returnValue)
-    })
-
-    test('Should redirect to next url ignoring most params from original request', () => {
-      const request = {
-        query: {
-          myParam: 'myValue',
-          myParam2: 'myValue2'
-        }
-      }
-      const nextUrl = 'badgers/monkeys'
-      const returned = proceed(request, h, nextUrl)
-
-      expect(jest.mocked(h.redirect).mock.calls).toHaveLength(1)
-      expect(jest.mocked(h.redirect).mock.calls[0]).toEqual(
-        expect.arrayContaining([nextUrl])
-      )
-      expect(returned).toEqual(returnValue)
+      expect(h.redirect).toHaveBeenCalledTimes(1)
+      expect(h.redirect).toHaveBeenCalledWith(nextUrl)
     })
   })
 
   describe('redirectTo', () => {
-    let h: Pick<ResponseToolkit, 'redirect'>
-    const returnValue = ''
-    beforeEach(() => {
-      h = {
-        redirect: jest.fn().mockReturnValue(returnValue)
-      }
+    it('should redirect to next url when no query params in the request', () => {
+      const nextUrl = 'badgers/monkeys'
+      redirectTo(request, h, nextUrl)
+
+      expect(h.redirect).toHaveBeenCalledTimes(1)
+      expect(h.redirect).toHaveBeenCalledWith(nextUrl)
     })
 
-    test('Should redirect to next url when no query params in the request', () => {
-      const request = {
-        query: {}
-      }
+    it('should redirect to next url ignoring most params from original request', () => {
+      request.query.myParam = 'myValue'
+      request.query.myParam2 = 'myValue2'
+
       const nextUrl = 'badgers/monkeys'
-      const returned = redirectTo(request, h, nextUrl)
+      redirectTo(request, h, nextUrl)
 
-      expect(jest.mocked(h.redirect).mock.calls).toHaveLength(1)
-      expect(jest.mocked(h.redirect).mock.calls[0]).toEqual(
-        expect.arrayContaining([nextUrl])
-      )
-      expect(returned).toEqual(returnValue)
-    })
-
-    test('Should redirect to next url ignoring most params from original request', () => {
-      const request = {
-        query: {
-          myParam: 'myValue',
-          myParam2: 'myValue2'
-        }
-      }
-      const nextUrl = 'badgers/monkeys'
-      const returned = redirectTo(request, h, nextUrl)
-
-      expect(jest.mocked(h.redirect).mock.calls).toHaveLength(1)
-      expect(jest.mocked(h.redirect).mock.calls[0]).toEqual(
-        expect.arrayContaining([nextUrl])
-      )
-      expect(returned).toEqual(returnValue)
+      expect(h.redirect).toHaveBeenCalledTimes(1)
+      expect(h.redirect).toHaveBeenCalledWith(nextUrl)
     })
   })
 
   describe('redirectUrl', () => {
-    test('Should return target url when no query params in the request', () => {
-      const request = {
-        query: {}
-      }
+    it('should return target url when no query params in the request', () => {
       const nextUrl = 'badgers/monkeys'
       const returned = redirectUrl(request, nextUrl)
 
       expect(returned).toEqual(nextUrl)
     })
 
-    test('Should return target url ignoring most params from original request', () => {
-      const request = {
-        query: {
-          myParam: 'myValue',
-          myParam2: 'myValue2'
-        }
-      }
+    it('should return target url ignoring most params from original request', () => {
+      request.query.myParam = 'myValue'
+      request.query.myParam2 = 'myValue2'
+
       const nextUrl = 'badgers/monkeys'
       const returned = redirectUrl(request, nextUrl)
 
       expect(returned).toEqual(nextUrl)
     })
 
-    test('Should set params from params object', () => {
-      const request = {
-        query: {}
-      }
+    it('should set params from params object', () => {
       const nextUrl = 'badgers/monkeys'
+
       const returned = redirectUrl(request, nextUrl, {
         returnUrl: '/myreturnurl',
         badger: 'monkeys'
@@ -149,17 +108,17 @@ describe('Helpers', () => {
   })
 
   describe('hasPreviewPath', () => {
-    it('Should return true for paths starting with PREVIEW_PATH_PREFIX', () => {
+    it('should return true for paths starting with PREVIEW_PATH_PREFIX', () => {
       const path = `${PREVIEW_PATH_PREFIX}/some/path`
       expect(hasPreviewPath(path)).toBe(true)
     })
 
-    it('Should return false for paths not starting with PREVIEW_PATH_PREFIX', () => {
+    it('should return false for paths not starting with PREVIEW_PATH_PREFIX', () => {
       const path = '/some/other/path'
       expect(hasPreviewPath(path)).toBe(false)
     })
 
-    it('Should be case insensitive', () => {
+    it('should be case insensitive', () => {
       const path = `${PREVIEW_PATH_PREFIX.toUpperCase()}/some/path`
       expect(hasPreviewPath(path)).toBe(true)
     })
