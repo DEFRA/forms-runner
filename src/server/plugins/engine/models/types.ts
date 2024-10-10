@@ -13,7 +13,6 @@ import { type Expression } from 'expr-eval'
 
 import { type ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { type DataType } from '~/src/server/plugins/engine/components/types.js'
-import { type FeedbackContextInfo } from '~/src/server/plugins/engine/feedback/index.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
   type FileState,
@@ -31,33 +30,6 @@ export interface Question {
 }
 
 export type Questions = Question[]
-
-interface FeedbackContextItem {
-  key:
-    | 'feedbackContextInfo_formTitle'
-    | 'feedbackContextInfo_pageTitle'
-    | 'feedbackContextInfo_url'
-  display: string
-  get: (contextInfo: FeedbackContextInfo) => string
-}
-
-export const FEEDBACK_CONTEXT_ITEMS: readonly FeedbackContextItem[] = [
-  {
-    key: 'feedbackContextInfo_formTitle',
-    display: 'Feedback source form name',
-    get: (contextInfo) => contextInfo.formTitle
-  },
-  {
-    key: 'feedbackContextInfo_pageTitle',
-    display: 'Feedback source page title',
-    get: (contextInfo) => contextInfo.pageTitle
-  },
-  {
-    key: 'feedbackContextInfo_url',
-    display: 'Feedback source url',
-    get: (contextInfo) => contextInfo.url
-  }
-]
 
 export type ExecutableCondition = ConditionWrapper & {
   expr: Expression
