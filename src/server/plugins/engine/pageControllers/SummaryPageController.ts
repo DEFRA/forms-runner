@@ -401,10 +401,6 @@ export function getPersonalisation(
     })
   })
 
-  lines.push('Thanks,')
-  lines.push('\n')
-  lines.push('Defra')
-
   return {
     body: lines.join('\n'),
     subject: formName
