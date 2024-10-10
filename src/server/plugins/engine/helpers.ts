@@ -5,6 +5,9 @@ import { RelativeUrl } from '~/src/server/plugins/engine/feedback/index.js'
 
 export const feedbackReturnInfoKey = 'f_t'
 
+export const ADD_ANOTHER = 'add-another'
+export const CONTINUE = 'continue'
+
 const paramsToCopy = [feedbackReturnInfoKey] as const
 
 export function proceed(

@@ -12,10 +12,13 @@ import Joi from 'joi'
 
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
+  ADD_ANOTHER,
+  CONTINUE,
   hasPreviewPath,
   redirectTo
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import {
   getFormDefinition,
   getFormMetadata
@@ -23,6 +26,12 @@ import {
 
 function normalisePath(path: string) {
   return path.replace(/^\//, '').replace(/\/$/, '')
+}
+
+function getPage(model: FormModel | undefined, path: string) {
+  return model?.pages.find(
+    (page) => normalisePath(page.path) === normalisePath(path)
+  )
 }
 
 function getStartPageRedirect(
@@ -53,6 +62,7 @@ export interface PluginOptions {
 
 const stateSchema = Joi.string().valid('draft', 'live').required()
 const pathSchema = Joi.string().required()
+const itemIdSchema = Joi.string().uuid().required()
 
 export const plugin = {
   name: '@defra/forms-runner/engine',
@@ -183,10 +193,7 @@ export const plugin = {
     ) => {
       const { model } = request.app
       const { path } = request.params
-
-      const page = model?.pages.find(
-        (page) => normalisePath(page.path) === normalisePath(path)
-      )
+      const page = getPage(model, path)
 
       if (page) {
         return page.makeGetRouteHandler()(request, h)
@@ -241,8 +248,8 @@ export const plugin = {
         ...dispatchRouteOptions,
         validate: {
           params: Joi.object().keys({
-            slug: slugSchema,
-            state: stateSchema
+            state: stateSchema,
+            slug: slugSchema
           })
         }
       }
@@ -258,22 +265,7 @@ export const plugin = {
 
     server.route({
       method: 'get',
-      path: '/{slug}/{path*}',
-      handler: getHandler,
-      options: {
-        ...getRouteOptions,
-        validate: {
-          params: Joi.object().keys({
-            slug: slugSchema,
-            path: pathSchema
-          })
-        }
-      }
-    })
-
-    server.route({
-      method: 'get',
-      path: '/preview/{state}/{slug}/{path*}',
+      path: '/{slug}/{path}/{itemId?}',
       handler: getHandler,
       options: {
         ...getRouteOptions,
@@ -281,7 +273,24 @@ export const plugin = {
           params: Joi.object().keys({
             slug: slugSchema,
             path: pathSchema,
-            state: stateSchema
+            itemId: Joi.string().uuid()
+          })
+        }
+      }
+    })
+
+    server.route({
+      method: 'get',
+      path: '/preview/{state}/{slug}/{path}/{itemId?}',
+      handler: getHandler,
+      options: {
+        ...getRouteOptions,
+        validate: {
+          params: Joi.object().keys({
+            state: stateSchema,
+            slug: slugSchema,
+            path: pathSchema,
+            itemId: Joi.string().uuid()
           })
         }
       }
@@ -300,10 +309,69 @@ export const plugin = {
 
     server.route({
       method: 'post',
-      path: '/{slug}/{path*}',
+      path: '/{slug}/{path}/{itemId?}',
       handler: postHandler,
       options: {
         ...postRouteOptions,
+        validate: {
+          params: Joi.object().keys({
+            slug: slugSchema,
+            path: pathSchema,
+            itemId: Joi.string().uuid()
+          })
+        }
+      }
+    })
+
+    server.route({
+      method: 'post',
+      path: '/preview/{state}/{slug}/{path}/{itemId?}',
+      handler: postHandler,
+      options: {
+        ...postRouteOptions,
+        validate: {
+          params: Joi.object().keys({
+            state: stateSchema,
+            slug: slugSchema,
+            path: pathSchema,
+            itemId: Joi.string().uuid()
+          })
+        }
+      }
+    })
+
+    /**
+     * "AddAnother" repeat routes
+     */
+
+    // List summary GET route
+    const getListSummaryHandler = (
+      request: Request<{
+        Params: {
+          state?: 'draft' | 'live'
+          slug: string
+          path: string
+        }
+      }>,
+      h: ResponseToolkit
+    ) => {
+      const { model } = request.app
+      const { path } = request.params
+      const page = getPage(model, path)
+
+      if (page && page instanceof RepeatPageController) {
+        return page.makeGetListSummaryRouteHandler()(request, h)
+      }
+
+      throw Boom.notFound('No form or page found')
+    }
+
+    server.route({
+      method: 'get',
+      path: '/{slug}/{path}/summary',
+      handler: getListSummaryHandler,
+      options: {
+        ...getRouteOptions,
         validate: {
           params: Joi.object().keys({
             slug: slugSchema,
@@ -314,17 +382,203 @@ export const plugin = {
     })
 
     server.route({
-      method: 'post',
-      path: '/preview/{state}/{slug}/{path*}',
-      handler: postHandler,
+      method: 'get',
+      path: '/preview/{state}/{slug}/{path}/summary',
+      handler: getListSummaryHandler,
       options: {
-        ...postRouteOptions,
+        ...getRouteOptions,
         validate: {
           params: Joi.object().keys({
             state: stateSchema,
             slug: slugSchema,
             path: pathSchema
           })
+        }
+      }
+    })
+
+    // List summary POST route
+    const postListSummaryHandler = (
+      request: Request<{
+        Params: {
+          state: 'draft' | 'live'
+          slug: string
+          path: string
+        }
+        Payload: { action: string }
+      }>,
+      h: ResponseToolkit
+    ) => {
+      const { model } = request.app
+      const { path } = request.params
+      const page = getPage(model, path)
+
+      if (page && page instanceof RepeatPageController) {
+        return page.makePostListSummaryRouteHandler()(request, h)
+      }
+
+      throw Boom.notFound('No form or page found')
+    }
+
+    server.route({
+      method: 'post',
+      path: '/{slug}/{path}/summary',
+      handler: postListSummaryHandler,
+      options: {
+        ...getRouteOptions,
+        validate: {
+          params: Joi.object().keys({
+            slug: slugSchema,
+            path: pathSchema
+          }),
+          payload: Joi.object()
+            .keys({
+              action: Joi.string().valid(ADD_ANOTHER, CONTINUE).required()
+            })
+            .required()
+        }
+      }
+    })
+
+    server.route({
+      method: 'post',
+      path: '/preview/{state}/{slug}/{path}/summary',
+      handler: postListSummaryHandler,
+      options: {
+        ...getRouteOptions,
+        validate: {
+          params: Joi.object().keys({
+            state: stateSchema,
+            slug: slugSchema,
+            path: pathSchema
+          }),
+          payload: Joi.object()
+            .keys({
+              action: Joi.string().valid(ADD_ANOTHER, CONTINUE).required()
+            })
+            .required()
+        }
+      }
+    })
+
+    // List delete GET route
+    const getListDeleteHandler = (
+      request: Request<{
+        Params: {
+          state?: 'draft' | 'live'
+          slug: string
+          path: string
+          itemId: string
+        }
+      }>,
+      h: ResponseToolkit
+    ) => {
+      const { model } = request.app
+      const { path } = request.params
+      const page = getPage(model, path)
+
+      if (page && page instanceof RepeatPageController) {
+        return page.makeGetListDeleteRouteHandler()(request, h)
+      }
+
+      throw Boom.notFound('No form or page found')
+    }
+
+    server.route({
+      method: 'get',
+      path: '/{slug}/{path}/{itemId}/confirm-delete',
+      handler: getListDeleteHandler,
+      options: {
+        ...getRouteOptions,
+        validate: {
+          params: Joi.object().keys({
+            slug: slugSchema,
+            path: pathSchema,
+            itemId: itemIdSchema
+          })
+        }
+      }
+    })
+
+    server.route({
+      method: 'get',
+      path: '/preview/{state}/{slug}/{path}/{itemId}/confirm-delete',
+      handler: getListDeleteHandler,
+      options: {
+        ...getRouteOptions,
+        validate: {
+          params: Joi.object().keys({
+            state: stateSchema,
+            slug: slugSchema,
+            path: pathSchema,
+            itemId: itemIdSchema
+          })
+        }
+      }
+    })
+
+    // List delete POST route
+    const postListDeleteHandler = (
+      request: Request<{
+        Params: {
+          state: 'draft' | 'live'
+          slug: string
+          path: string
+        }
+        Payload: { confirm?: boolean }
+      }>,
+      h: ResponseToolkit
+    ) => {
+      const { model } = request.app
+      const { path } = request.params
+      const page = getPage(model, path)
+
+      if (page && page instanceof RepeatPageController) {
+        return page.makePostListDeleteRouteHandler()(request, h)
+      }
+
+      throw Boom.notFound('No form or page found')
+    }
+
+    server.route({
+      method: 'post',
+      path: '/{slug}/{path}/{itemId}/confirm-delete',
+      handler: postListDeleteHandler,
+      options: {
+        ...getRouteOptions,
+        validate: {
+          params: Joi.object().keys({
+            slug: slugSchema,
+            path: pathSchema,
+            itemId: itemIdSchema
+          }),
+          payload: Joi.object()
+            .keys({
+              confirm: Joi.boolean().default(false)
+            })
+            .required()
+        }
+      }
+    })
+
+    server.route({
+      method: 'post',
+      path: '/preview/{state}/{slug}/{path}/{itemId}/confirm-delete',
+      handler: postListDeleteHandler,
+      options: {
+        ...getRouteOptions,
+        validate: {
+          params: Joi.object().keys({
+            state: stateSchema,
+            slug: slugSchema,
+            path: pathSchema,
+            itemId: itemIdSchema
+          }),
+          payload: Joi.object()
+            .keys({
+              confirm: Joi.boolean().default(false)
+            })
+            .required()
         }
       }
     })

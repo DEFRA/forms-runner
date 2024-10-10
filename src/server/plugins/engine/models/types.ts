@@ -102,12 +102,12 @@ export interface DetailItemBase {
   /**
    * Raw value of a field. For example, a Date will be displayed as 2022-12-25
    */
-  rawValue: string | number | boolean | FileState[] | null
+  rawValue: string | number | boolean | FileState[] | [] | null
 
   url: string
-  type: ComponentBase['type']
+  type?: ComponentBase['type']
   title: ComponentBase['title']
-  dataType: ComponentBase['dataType']
+  dataType?: ComponentBase['dataType']
 }
 
 export interface DetailItemDate extends DetailItemBase {
@@ -150,6 +150,10 @@ export interface DetailItemFileUpload extends DetailItemBase {
   rawValue: FileState[] | null
 }
 
+export interface DetailItemRepeat extends DetailItemBase {
+  rawValue: [] | null
+}
+
 export type DetailItem =
   | DetailItemDate
   | DetailItemMonthYear
@@ -157,6 +161,7 @@ export type DetailItem =
   | DetailItemNumber
   | DetailItemText
   | DetailItemFileUpload
+  | DetailItemRepeat
 
 /**
  * Used to render a row on a Summary List (check your answers)

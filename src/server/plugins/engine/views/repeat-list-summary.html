@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if previewMode %}
+        {% include "partials/preview-banner.html" %}
+      {% endif %}
+
+      {% if errors %}
+        {{ govukErrorSummary(errors) }}
+      {% endif %}
+
+      {% include "partials/heading.html" %}
+
+      {{ govukSummaryList({ rows: rows }) }}
+
+      <div class="govuk-button-group">
+        <form method="post" novalidate>
+          {{ govukButton({ attributes: { id: "submit", type: "submit" }, text: "Continue", name: "action", value: "continue" }) }}
+          {{ govukButton({ attributes: { id: "add-another", type: "submit" }, text: "Add another " + repeatTitle, classes: "govuk-button--secondary", name: "action", value: "add-another" }) }}
+        </form>
+      </div>
+
+      <pre>{{ value | dump(2) | safe }}</pre>
+    </div>
+  </div>
+{% endblock %}

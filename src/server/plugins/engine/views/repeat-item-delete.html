@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if previewMode %}
+        {% include "partials/preview-banner.html" %}
+      {% endif %}
+
+      {% if errors %}
+        {{ govukErrorSummary(errors) }}
+      {% endif %}
+
+      {% include "partials/heading.html" %}
+
+      <form method="post" novalidate>
+        {{ govukRadios(field) }}
+        {{ govukButton({ attributes: { id: "submit", type: "submit" }, text: "Continue" }) }}
+      </form>
+    </div>
+  </div>
+{% endblock %}
