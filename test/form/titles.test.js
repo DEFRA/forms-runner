@@ -1,11 +1,9 @@
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { within } from '@testing-library/dom'
-
 import { createServer } from '~/src/server/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
-import { getSessionCookie } from '~/test/utils/get-session-cookie.js'
+import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
@@ -13,8 +11,8 @@ describe('Title and section title', () => {
   /** @type {Server} */
   let server
 
-  /** @type {string} */
-  let cookie
+  /** @type {OutgoingHttpHeaders} */
+  let headers
 
   beforeAll(async () => {
     server = await createServer({
@@ -25,11 +23,12 @@ describe('Title and section title', () => {
     await server.initialize()
 
     // Extract the session cookie
-    cookie = getSessionCookie(
+    headers = getCookieHeader(
       await server.inject({
         method: 'GET',
         url: '/titles/applicant-one'
-      })
+      }),
+      'session'
     )
   })
 
@@ -43,10 +42,10 @@ describe('Title and section title', () => {
       url: '/titles/applicant-one'
     }
 
-    const { document } = await renderResponse(server, options)
+    const { container } = await renderResponse(server, options)
 
     const $section = document.getElementById('section-title')
-    const $heading = within(document.body).getByRole('heading', {
+    const $heading = container.getByRole('heading', {
       name: 'Applicant 1',
       level: 1
     })
@@ -60,17 +59,17 @@ describe('Title and section title', () => {
     const options = {
       method: 'GET',
       url: '/titles/applicant-one-address',
-      headers: { cookie }
+      headers
     }
 
-    const { document } = await renderResponse(server, options)
+    const { container } = await renderResponse(server, options)
 
-    const $section = within(document.body).getByRole('heading', {
+    const $section = container.getByRole('heading', {
       name: 'Applicant 1',
       level: 2
     })
 
-    const $heading = within(document.body).getByRole('heading', {
+    const $heading = container.getByRole('heading', {
       name: 'Address',
       level: 1
     })
@@ -86,13 +85,13 @@ describe('Title and section title', () => {
     const options = {
       method: 'GET',
       url: '/titles/applicant-two',
-      headers: { cookie }
+      headers
     }
 
-    const { document } = await renderResponse(server, options)
+    const { container } = await renderResponse(server, options)
 
     const $section = document.getElementById('section-title')
-    const $heading = within(document.body).getByRole('heading', {
+    const $heading = container.getByRole('heading', {
       name: 'Applicant 2 details',
       level: 1
     })
@@ -105,4 +104,5 @@ describe('Title and section title', () => {
 
 /**
  * @import { Server } from '@hapi/hapi'
+ * @import { OutgoingHttpHeaders } from 'node:http'
  */

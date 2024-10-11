@@ -10,7 +10,7 @@ import {
 } from '~/src/server/plugins/engine/services/uploadService.js'
 import { FileStatus, UploadStatus } from '~/src/server/plugins/engine/types.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
-import { getSessionCookie } from '~/test/utils/get-session-cookie.js'
+import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
@@ -104,15 +104,17 @@ describe('File upload GET tests', () => {
       url
     }
 
-    const { document, response } = await renderResponse(server, options)
+    const { container, response } = await renderResponse(server, options)
     expect(response.statusCode).toBe(okStatusCode)
 
-    const $heading1 = within(document.body).getByRole('heading', {
-      name: 'Upload your methodology statement'
+    const $heading1 = container.getByRole('heading', {
+      name: 'Upload your methodology statement',
+      level: 1
     })
 
-    const $heading2 = within(document.body).getByRole('heading', {
-      name: 'Uploaded files'
+    const $heading2 = container.getByRole('heading', {
+      name: 'Uploaded files',
+      level: 2
     })
 
     expect($heading1).toBeInTheDocument()
@@ -131,28 +133,20 @@ describe('File upload GET tests', () => {
     }
 
     const res1 = await server.inject(options)
-
     expect(res1.statusCode).toBe(okStatusCode)
 
     // Extract the session cookie
-    const cookie = getSessionCookie(res1)
+    const headers = getCookieHeader(res1, 'session')
 
     jest.mocked(getUploadStatus).mockResolvedValueOnce(initiatedStatusResponse)
 
-    const res2 = await server.inject({
-      ...options,
-      headers: { cookie }
-    })
-
+    const res2 = await server.inject({ ...options, headers })
     expect(res2.statusCode).toBe(okStatusCode)
 
     // Assert invalid status response from CDP throws
     jest.mocked(getUploadStatus).mockResolvedValueOnce(undefined)
-    const res3 = await server.inject({
-      ...options,
-      headers: { cookie }
-    })
 
+    const res3 = await server.inject({ ...options, headers })
     expect(res3.statusCode).toBe(badRequestStatusCode)
   })
 
@@ -165,20 +159,15 @@ describe('File upload GET tests', () => {
     }
 
     const res1 = await server.inject(options)
-
     expect(res1.statusCode).toBe(okStatusCode)
 
     // Extract the session cookie
-    const cookie = getSessionCookie(res1)
+    const headers = getCookieHeader(res1, 'session')
 
     jest.mocked(getUploadStatus).mockResolvedValue(pendingStatusResponse)
     jest.mocked(initiateUpload).mockResolvedValueOnce(uploadInitiateResponse)
 
-    const res2 = await server.inject({
-      ...options,
-      headers: { cookie }
-    })
-
+    const res2 = await server.inject({ ...options, headers })
     expect(res2.statusCode).toBe(okStatusCode)
   })
 })
@@ -209,23 +198,22 @@ describe('File upload POST tests', () => {
     }
 
     const res1 = await server.inject(options)
-
     expect(res1.statusCode).toBe(okStatusCode)
 
     // Extract the session cookie
-    const cookie = getSessionCookie(res1)
+    const headers = getCookieHeader(res1, 'session')
 
     jest.mocked(getUploadStatus).mockResolvedValue(pendingStatusResponse)
 
-    const { document, response } = await renderResponse(server, {
+    const { container, response } = await renderResponse(server, {
       method: 'POST',
       url,
-      headers: { cookie }
+      headers
     })
 
     expect(response.statusCode).toBe(okStatusCode)
 
-    const $lists = within(document.body).getAllByRole('list')
+    const $lists = container.getAllByRole('list')
     const $links = within($lists[0]).getAllByRole('link')
 
     expect($links[0]).toHaveTextContent(
@@ -236,7 +224,7 @@ describe('File upload POST tests', () => {
       'Upload your methodology statement must contain at least 2 items'
     )
 
-    const $input = within(document.body).getByLabelText(
+    const $input = container.getByLabelText(
       'Upload your methodology statement (optional)'
     )
 
@@ -257,16 +245,15 @@ describe('File upload POST tests', () => {
     }
 
     const res1 = await server.inject(options)
-
     expect(res1.statusCode).toBe(okStatusCode)
 
     // Extract the session cookie
-    const cookie = getSessionCookie(res1)
+    const headers = getCookieHeader(res1, 'session')
 
     const res2 = await server.inject({
       method: 'GET',
       url,
-      headers: { cookie }
+      headers
     })
 
     expect(res2.statusCode).toBe(okStatusCode)
@@ -274,7 +261,7 @@ describe('File upload POST tests', () => {
     const res3 = await server.inject({
       method: 'POST',
       url,
-      headers: { cookie }
+      headers
     })
 
     expect(res3.statusCode).toBe(redirectStatusCode)
@@ -291,16 +278,15 @@ describe('File upload POST tests', () => {
     }
 
     const res1 = await server.inject(options)
-
     expect(res1.statusCode).toBe(okStatusCode)
 
     // Extract the session cookie
-    const cookie = getSessionCookie(res1)
+    const headers = getCookieHeader(res1, 'session')
 
     const res2 = await server.inject({
       method: 'GET',
       url,
-      headers: { cookie }
+      headers
     })
 
     expect(res2.statusCode).toBe(okStatusCode)
@@ -308,7 +294,7 @@ describe('File upload POST tests', () => {
     const res3 = await server.inject({
       method: 'POST',
       url,
-      headers: { cookie },
+      headers,
       payload: {
         __remove: '15b2303c-9965-4632-acb6-0776081e0399'
       }

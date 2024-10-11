@@ -1,8 +1,6 @@
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { within } from '@testing-library/dom'
-
 import { createServer } from '~/src/server/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
@@ -32,9 +30,9 @@ describe('TextField based conditions', () => {
       url: '/text/first-page'
     }
 
-    const { document } = await renderResponse(server, options)
+    const { container } = await renderResponse(server, options)
 
-    const $input = within(document.body).getByRole('textbox', {
+    const $input = container.getByRole('textbox', {
       name: 'First page'
     })
 
