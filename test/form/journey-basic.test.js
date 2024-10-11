@@ -272,16 +272,63 @@ describe('Form journey', () => {
       expect($section2).toBeInTheDocument()
     })
 
-    it('should render field value and change link', () => {
+    it('should render field values', () => {
       for (const { fields = [] } of journey) {
         for (const detail of fields) {
           const index = $titles.findIndex(
             ({ textContent }) => textContent?.trim() === detail.title
           )
 
+          // Check for field title and value
           expect($titles[index]).toHaveTextContent(detail.title)
           expect($values[index]).toHaveTextContent(detail.value)
-          expect($actions[index]).toHaveTextContent(`Change ${detail.title}`)
+        }
+      }
+    })
+
+    it('should render field change links', async () => {
+      for (const { fields = [], paths } of journey) {
+        for (const detail of fields) {
+          const index = $titles.findIndex(
+            ({ textContent }) => textContent?.trim() === detail.title
+          )
+
+          /** @satisfies {HTMLAnchorElement} */
+          const $changeLink = within($actions[index]).getByRole('link', {
+            name: `Change ${detail.title}`
+          })
+
+          const returnUrl = '/basic/summary'
+
+          // Check for change link
+          expect($changeLink).toBeInTheDocument()
+          expect($changeLink).toHaveAttribute(
+            'href',
+            `${paths.current}?returnUrl=${encodeURIComponent(returnUrl)}`
+          )
+
+          // Follow change link
+          const response1 = await server.inject({
+            url: $changeLink.href,
+            headers
+          })
+
+          expect(response1.statusCode).toBe(200)
+
+          const payload = Object.fromEntries(
+            fields.map(({ name, value }) => [name, value])
+          )
+
+          // Submit and redirect back to summary page
+          const response2 = await server.inject({
+            url: $changeLink.href,
+            headers,
+            method: 'POST',
+            payload: { ...payload, crumb: csrfToken }
+          })
+
+          expect(response2.statusCode).toBe(302)
+          expect(response2.headers.location).toBe(returnUrl)
         }
       }
     })
