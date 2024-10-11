@@ -86,7 +86,20 @@ export const filesize = (bytes: number) => {
 
 export function checkFormStatus(path: string): FormStatus {
   const isPreview = path.toLowerCase().startsWith(PREVIEW_PATH_PREFIX)
-  const state = isPreview ? (path.split('/')[2] as FormState) : FormState.LIVE
+
+  let state: FormState
+
+  if (isPreview) {
+    const previewState = path.split('/')[2]
+
+    if (!Object.values(FormState).includes(previewState as FormState)) {
+      throw new Error(`Invalid form state: ${previewState}`)
+    }
+
+    state = previewState as FormState
+  } else {
+    state = FormState.LIVE
+  }
 
   return {
     isPreview,

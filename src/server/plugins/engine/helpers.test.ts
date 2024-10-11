@@ -326,5 +326,12 @@ describe('Helpers', () => {
         isPreview: true
       })
     })
+
+    it('throws an error for invalid form state', () => {
+      const path = `${PREVIEW_PATH_PREFIX}/invalid-state`
+      expect(() => checkFormStatus(path)).toThrow(
+        'Invalid form state: invalid-state'
+      )
+    })
   })
 })
