@@ -7,7 +7,7 @@ import { getFormMetadata } from '~/src/server/plugins/engine/services/formsServi
 import * as uploadService from '~/src/server/plugins/engine/services/uploadService.js'
 import { FileStatus, UploadStatus } from '~/src/server/plugins/engine/types.js'
 import { CacheService } from '~/src/server/services/cacheService.js'
-import { getSessionCookie } from '~/test/utils/get-session-cookie.js'
+import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
@@ -162,13 +162,13 @@ describe('Submission journey test', () => {
     expect(res.headers.location).toBe('/file-upload-2/summary')
 
     // Extract the session cookie
-    const cookie = getSessionCookie(res)
+    const headers = getCookieHeader(res, 'session')
 
     // GET the summary page
     await server.inject({
       method: 'GET',
       url: '/file-upload-2/summary',
-      headers: { cookie }
+      headers
     })
 
     // POST the summary form and assert
@@ -177,7 +177,7 @@ describe('Submission journey test', () => {
     const submitRes = await server.inject({
       method: 'POST',
       url: '/file-upload-2/summary',
-      headers: { cookie },
+      headers,
       payload: { form }
     })
 
@@ -189,7 +189,7 @@ describe('Submission journey test', () => {
     const statusRes = await server.inject({
       method: 'GET',
       url: '/file-upload-2/status',
-      headers: { cookie }
+      headers
     })
 
     expect(statusRes.statusCode).toBe(okStatusCode)

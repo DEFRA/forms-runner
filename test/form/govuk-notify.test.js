@@ -12,7 +12,7 @@ import {
 } from '~/src/server/plugins/engine/services/uploadService.js'
 import { FileStatus, UploadStatus } from '~/src/server/plugins/engine/types.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
-import { getSessionCookie } from '~/test/utils/get-session-cookie.js'
+import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
@@ -216,13 +216,13 @@ describe('Submission journey test', () => {
     const res = await componentsPage()
 
     // Extract the session cookie
-    const cookie = getSessionCookie(res)
+    const headers = getCookieHeader(res, 'session')
 
     // File upload page
-    await fileUploadPage(cookie)
+    await fileUploadPage(headers)
 
     // Summary page
-    await summaryPage(cookie)
+    await summaryPage(headers)
 
     expect(persistFiles).toHaveBeenCalledTimes(1)
     expect(sender).toHaveBeenCalledWith({
@@ -235,7 +235,7 @@ describe('Submission journey test', () => {
     })
 
     // Status page
-    await statusPage(cookie)
+    await statusPage(headers)
   })
 
   /**
@@ -280,19 +280,19 @@ describe('Submission journey test', () => {
   /**
    * Adds a file to the temp state as
    * would happen on redirect from CDP
-   * @param {string} cookie
+   * @param {OutgoingHttpHeaders} headers
    */
-  async function fileUploadPage(cookie) {
+  async function fileUploadPage(headers) {
     await server.inject({
       method: 'GET',
       url: fileUploadPath,
-      headers: { cookie }
+      headers
     })
 
     const res = await server.inject({
       method: 'POST',
       url: fileUploadPath,
-      headers: { cookie }
+      headers
     })
 
     expect(res.statusCode).toEqual(redirectStatusCode)
@@ -303,19 +303,19 @@ describe('Submission journey test', () => {
 
   /**
    * GETs and POSTs the summary page
-   * @param {string} cookie
+   * @param {OutgoingHttpHeaders} headers
    */
-  async function summaryPage(cookie) {
+  async function summaryPage(headers) {
     await server.inject({
       method: 'GET',
       url: summaryPath,
-      headers: { cookie }
+      headers
     })
 
     const res = await server.inject({
       method: 'POST',
       url: summaryPath,
-      headers: { cookie },
+      headers,
       payload: {}
     })
 
@@ -327,14 +327,14 @@ describe('Submission journey test', () => {
 
   /**
    * GETs the summary page
-   * @param {string} cookie
+   * @param {OutgoingHttpHeaders} headers
    */
-  async function statusPage(cookie) {
+  async function statusPage(headers) {
     // Finally GET the /{slug}/status page
     const statusRes = await server.inject({
       method: 'GET',
       url: '/components/status',
-      headers: { cookie }
+      headers
     })
 
     expect(statusRes.statusCode).toBe(okStatusCode)
@@ -345,5 +345,6 @@ describe('Submission journey test', () => {
 /**
  * @import { Server } from '@hapi/hapi'
  * @import { FormMetadata, FormMetadataAuthor } from '@defra/forms-model'
+ * @import { OutgoingHttpHeaders } from 'node:http'
  * @import { UploadInitiateResponse, UploadStatusResponse } from '~/src/server/plugins/engine/types.js'
  */

@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 
 import { createServer } from '~/src/server/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
-import { getSessionCookie } from '~/test/utils/get-session-cookie.js'
+import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
@@ -11,8 +11,8 @@ describe('Title and section title', () => {
   /** @type {Server} */
   let server
 
-  /** @type {string} */
-  let cookie
+  /** @type {OutgoingHttpHeaders} */
+  let headers
 
   beforeAll(async () => {
     server = await createServer({
@@ -23,11 +23,12 @@ describe('Title and section title', () => {
     await server.initialize()
 
     // Extract the session cookie
-    cookie = getSessionCookie(
+    headers = getCookieHeader(
       await server.inject({
         method: 'GET',
         url: '/titles/applicant-one'
-      })
+      }),
+      'session'
     )
   })
 
@@ -58,7 +59,7 @@ describe('Title and section title', () => {
     const options = {
       method: 'GET',
       url: '/titles/applicant-one-address',
-      headers: { cookie }
+      headers
     }
 
     const { container } = await renderResponse(server, options)
@@ -84,7 +85,7 @@ describe('Title and section title', () => {
     const options = {
       method: 'GET',
       url: '/titles/applicant-two',
-      headers: { cookie }
+      headers
     }
 
     const { container } = await renderResponse(server, options)
@@ -103,4 +104,5 @@ describe('Title and section title', () => {
 
 /**
  * @import { Server } from '@hapi/hapi'
+ * @import { OutgoingHttpHeaders } from 'node:http'
  */

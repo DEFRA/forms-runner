@@ -6,7 +6,7 @@ import { hasRepeater } from '@defra/forms-model'
 import { createServer } from '~/src/server/index.js'
 import { ADD_ANOTHER, CONTINUE } from '~/src/server/plugins/engine/helpers.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
-import { getSessionCookie } from '~/test/utils/get-session-cookie.js'
+import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
@@ -21,25 +21,22 @@ const url = '/repeat/pizza-order'
  * @param {Server} server
  * @param {PageRepeat} repeatPage
  * @param {number} [expectedItemCount]
- * @param {string} [cookie]
+ * @param {OutgoingHttpHeaders} [headers]
  */
 async function createRepeatItem(
   server,
   repeatPage,
   expectedItemCount = 1,
-  cookie
+  headers
 ) {
   const options = {
     method: 'POST',
     url,
+    headers,
     payload: {
       sQsXKK: 'Ham',
       VcmoiL: 2
     }
-  }
-
-  if (cookie) {
-    Object.assign(options, { headers: { cookie } })
   }
 
   const res1 = await server.inject(options)
@@ -61,7 +58,7 @@ async function createRepeatItem(
 
   return {
     item: listState[listState.length - 1],
-    cookie: getSessionCookie(res1)
+    headers: headers ?? getCookieHeader(res1, 'session')
   }
 }
 
@@ -131,22 +128,22 @@ describe('Repeat GET tests', () => {
   })
 
   test('GET /repeat/pizza-order/{id} returns 200', async () => {
-    const { item, cookie } = await createRepeatItem(server, repeatPage)
+    const { item, headers } = await createRepeatItem(server, repeatPage)
     const res = await server.inject({
       method: 'GET',
       url: `${url}/${item.itemId}`,
-      headers: { cookie }
+      headers
     })
 
     expect(res.statusCode).toBe(okStatusCode)
   })
 
   test('GET /repeat/pizza-order/{id}/confirm-delete returns 200', async () => {
-    const { item, cookie } = await createRepeatItem(server, repeatPage)
+    const { item, headers } = await createRepeatItem(server, repeatPage)
     const res = await server.inject({
       method: 'GET',
       url: `${url}/${item.itemId}/confirm-delete`,
-      headers: { cookie }
+      headers
     })
 
     expect(res.statusCode).toBe(okStatusCode)
@@ -162,13 +159,13 @@ describe('Repeat GET tests', () => {
   })
 
   test('GET /repeat/pizza-order/summary with items returns 200', async () => {
-    const { cookie } = await createRepeatItem(server, repeatPage)
-    await createRepeatItem(server, repeatPage, 2, cookie)
+    const { headers } = await createRepeatItem(server, repeatPage)
+    await createRepeatItem(server, repeatPage, 2, headers)
 
     const options = {
       method: 'GET',
       url: `${url}/summary`,
-      headers: { cookie }
+      headers
     }
 
     const res = await server.inject(options)
@@ -208,11 +205,11 @@ describe('Repeat POST tests', () => {
   })
 
   test('POST /repeat/pizza-order/{id} returns 302', async () => {
-    const { item, cookie } = await createRepeatItem(server, repeatPage)
+    const { item, headers } = await createRepeatItem(server, repeatPage)
     const res = await server.inject({
       method: 'POST',
       url: `${url}/${item.itemId}`,
-      headers: { cookie },
+      headers,
       payload: {
         sQsXKK: 'Ham',
         VcmoiL: 3
@@ -224,11 +221,11 @@ describe('Repeat POST tests', () => {
   })
 
   test('POST /repeat/pizza-order/{id}/confirm-delete returns 302', async () => {
-    const { item, cookie } = await createRepeatItem(server, repeatPage)
+    const { item, headers } = await createRepeatItem(server, repeatPage)
     const res = await server.inject({
       method: 'POST',
       url: `${url}/${item.itemId}/confirm-delete`,
-      headers: { cookie },
+      headers,
       payload: {
         confirm: true
       }
@@ -252,12 +249,12 @@ describe('Repeat POST tests', () => {
   })
 
   test('POST /repeat/pizza-order/summary CONTINUE returns 302', async () => {
-    const { cookie } = await createRepeatItem(server, repeatPage)
+    const { headers } = await createRepeatItem(server, repeatPage)
 
     const res = await server.inject({
       method: 'POST',
       url: `${url}/summary`,
-      headers: { cookie },
+      headers,
       payload: {
         action: CONTINUE
       }
@@ -268,13 +265,13 @@ describe('Repeat POST tests', () => {
   })
 
   test('POST /repeat/pizza-order/summary ADD_ANOTHER returns 200 with errors over schema.max', async () => {
-    const { cookie } = await createRepeatItem(server, repeatPage)
-    await createRepeatItem(server, repeatPage, 2, cookie)
+    const { headers } = await createRepeatItem(server, repeatPage)
+    await createRepeatItem(server, repeatPage, 2, headers)
 
     const { container, response } = await renderResponse(server, {
       method: 'POST',
       url: `${url}/summary`,
-      headers: { cookie },
+      headers,
       payload: {
         action: ADD_ANOTHER
       }
@@ -292,4 +289,5 @@ describe('Repeat POST tests', () => {
 /**
  * @import { Server } from '@hapi/hapi'
  * @import { PageRepeat } from '@defra/forms-model'
+ * @import { OutgoingHttpHeaders } from 'node:http'
  */
