@@ -63,6 +63,9 @@ export interface PluginOptions {
 const stateSchema = Joi.string().valid('draft', 'live').required()
 const pathSchema = Joi.string().required()
 const itemIdSchema = Joi.string().uuid().required()
+const crumbSchema = Joi.string().optional().allow('')
+const actionSchema = Joi.string().valid(ADD_ANOTHER, CONTINUE).required()
+const confirmSchema = Joi.boolean().default(false)
 
 export const plugin = {
   name: '@defra/forms-runner/engine',
@@ -433,7 +436,8 @@ export const plugin = {
           }),
           payload: Joi.object()
             .keys({
-              action: Joi.string().valid(ADD_ANOTHER, CONTINUE).required()
+              crumb: crumbSchema,
+              action: actionSchema
             })
             .required()
         }
@@ -454,7 +458,8 @@ export const plugin = {
           }),
           payload: Joi.object()
             .keys({
-              action: Joi.string().valid(ADD_ANOTHER, CONTINUE).required()
+              crumb: crumbSchema,
+              action: actionSchema
             })
             .required()
         }
@@ -554,7 +559,8 @@ export const plugin = {
           }),
           payload: Joi.object()
             .keys({
-              confirm: Joi.boolean().default(false)
+              crumb: crumbSchema,
+              confirm: confirmSchema
             })
             .required()
         }
@@ -576,7 +582,8 @@ export const plugin = {
           }),
           payload: Joi.object()
             .keys({
-              confirm: Joi.boolean().default(false)
+              crumb: crumbSchema,
+              confirm: confirmSchema
             })
             .required()
         }
