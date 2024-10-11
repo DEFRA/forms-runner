@@ -73,14 +73,6 @@ export class SummaryPageController extends PageController {
         request
       )
 
-      if (viewModel.endPage) {
-        return redirectTo(
-          request,
-          h,
-          `/${model.basePath}${viewModel.endPage.path}`
-        )
-      }
-
       /**
        * iterates through the errors. If there are errors, a user will be redirected to the page
        * with the error with returnUrl=`/${model.basePath}/summary` in the URL query parameter.
