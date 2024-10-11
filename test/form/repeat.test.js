@@ -2,7 +2,6 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { hasRepeater } from '@defra/forms-model'
-import { within } from '@testing-library/dom'
 
 import { createServer } from '~/src/server/index.js'
 import { ADD_ANOTHER, CONTINUE } from '~/src/server/plugins/engine/helpers.js'
@@ -102,14 +101,14 @@ describe('Repeat GET tests', () => {
       url
     }
 
-    const { document, response } = await renderResponse(server, options)
+    const { container, response } = await renderResponse(server, options)
     expect(response.statusCode).toBe(okStatusCode)
 
-    const $heading1 = within(document.body).getByRole('heading', {
+    const $heading1 = container.getByRole('heading', {
       name: 'Pizza order'
     })
 
-    const $heading2 = within(document.body).getByRole('heading', {
+    const $heading2 = container.getByRole('heading', {
       name: 'Pizza 1'
     })
 
@@ -272,7 +271,7 @@ describe('Repeat POST tests', () => {
     const { cookie } = await createRepeatItem(server, repeatPage)
     await createRepeatItem(server, repeatPage, 2, cookie)
 
-    const { document, response } = await renderResponse(server, {
+    const { container, response } = await renderResponse(server, {
       method: 'POST',
       url: `${url}/summary`,
       headers: { cookie },
@@ -283,7 +282,7 @@ describe('Repeat POST tests', () => {
 
     expect(response.statusCode).toBe(okStatusCode)
 
-    const $alerts = within(document.body).getAllByRole('alert')
+    const $alerts = container.getAllByRole('alert')
 
     expect($alerts[0]).toHaveTextContent('There is a problem')
     expect($alerts[0]).toHaveTextContent('You can only add up to 2 Pizzas')

@@ -1,8 +1,6 @@
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { within } from '@testing-library/dom'
-
 import { createServer } from '~/src/server/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
@@ -32,7 +30,7 @@ describe('Radio based conditions', () => {
       url: '/radios/first-page'
     }
 
-    const { document } = await renderResponse(server, options)
+    const { container } = await renderResponse(server, options)
 
     for (const example of [
       {
@@ -60,7 +58,7 @@ describe('Radio based conditions', () => {
         value: 'other'
       }
     ]) {
-      const $radio = within(document.body).getByRole('radio', {
+      const $radio = container.getByRole('radio', {
         name: example.text
       })
 

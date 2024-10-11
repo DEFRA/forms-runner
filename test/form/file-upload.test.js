@@ -104,14 +104,14 @@ describe('File upload GET tests', () => {
       url
     }
 
-    const { document, response } = await renderResponse(server, options)
+    const { container, response } = await renderResponse(server, options)
     expect(response.statusCode).toBe(okStatusCode)
 
-    const $heading1 = within(document.body).getByRole('heading', {
+    const $heading1 = container.getByRole('heading', {
       name: 'Upload your methodology statement'
     })
 
-    const $heading2 = within(document.body).getByRole('heading', {
+    const $heading2 = container.getByRole('heading', {
       name: 'Uploaded files'
     })
 
@@ -217,7 +217,7 @@ describe('File upload POST tests', () => {
 
     jest.mocked(getUploadStatus).mockResolvedValue(pendingStatusResponse)
 
-    const { document, response } = await renderResponse(server, {
+    const { container, response } = await renderResponse(server, {
       method: 'POST',
       url,
       headers: { cookie }
@@ -225,7 +225,7 @@ describe('File upload POST tests', () => {
 
     expect(response.statusCode).toBe(okStatusCode)
 
-    const $lists = within(document.body).getAllByRole('list')
+    const $lists = container.getAllByRole('list')
     const $links = within($lists[0]).getAllByRole('link')
 
     expect($links[0]).toHaveTextContent(
@@ -236,7 +236,7 @@ describe('File upload POST tests', () => {
       'Upload your methodology statement must contain at least 2 items'
     )
 
-    const $input = within(document.body).getByLabelText(
+    const $input = container.getByLabelText(
       'Upload your methodology statement (optional)'
     )
 
