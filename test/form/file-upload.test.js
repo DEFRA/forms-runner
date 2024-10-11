@@ -108,11 +108,13 @@ describe('File upload GET tests', () => {
     expect(response.statusCode).toBe(okStatusCode)
 
     const $heading1 = container.getByRole('heading', {
-      name: 'Upload your methodology statement'
+      name: 'Upload your methodology statement',
+      level: 1
     })
 
     const $heading2 = container.getByRole('heading', {
-      name: 'Uploaded files'
+      name: 'Uploaded files',
+      level: 2
     })
 
     expect($heading1).toBeInTheDocument()

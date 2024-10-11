@@ -24,7 +24,8 @@ describe('Routes', () => {
     const { container } = await renderResponse(server, options)
 
     const $heading = container.getByRole('heading', {
-      name: 'Cookies'
+      name: 'Cookies',
+      level: 1
     })
 
     expect($heading).toBeInTheDocument()
@@ -40,7 +41,8 @@ describe('Routes', () => {
     const { container } = await renderResponse(server, options)
 
     const $heading = container.getByRole('heading', {
-      name: 'Accessibility statement for this form'
+      name: 'Accessibility statement for this form',
+      level: 1
     })
 
     expect($heading).toBeInTheDocument()

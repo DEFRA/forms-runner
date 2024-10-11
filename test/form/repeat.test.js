@@ -2,6 +2,7 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { hasRepeater } from '@defra/forms-model'
+import { within } from '@testing-library/dom'
 
 import { createServer } from '~/src/server/index.js'
 import { ADD_ANOTHER, CONTINUE } from '~/src/server/plugins/engine/helpers.js'
@@ -102,11 +103,13 @@ describe('Repeat GET tests', () => {
     expect(response.statusCode).toBe(okStatusCode)
 
     const $heading1 = container.getByRole('heading', {
-      name: 'Pizza order'
+      name: 'Pizza order',
+      level: 1
     })
 
     const $heading2 = container.getByRole('heading', {
-      name: 'Pizza 1'
+      name: 'Pizza 1',
+      level: 2
     })
 
     expect($heading1).toBeInTheDocument()
@@ -279,10 +282,16 @@ describe('Repeat POST tests', () => {
 
     expect(response.statusCode).toBe(okStatusCode)
 
-    const $alerts = container.getAllByRole('alert')
+    const $errorSummary = container.getByRole('alert')
+    const $errorItems = within($errorSummary).getAllByRole('listitem')
 
-    expect($alerts[0]).toHaveTextContent('There is a problem')
-    expect($alerts[0]).toHaveTextContent('You can only add up to 2 Pizzas')
+    const $heading = within($errorSummary).getByRole('heading', {
+      name: 'There is a problem',
+      level: 2
+    })
+
+    expect($heading).toBeInTheDocument()
+    expect($errorItems[0]).toHaveTextContent('You can only add up to 2 Pizzas')
   })
 })
 
