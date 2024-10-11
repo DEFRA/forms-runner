@@ -306,22 +306,23 @@ describe('Helpers', () => {
     it('Should return true/live for paths starting with PREVIEW_PATH_PREFIX and form is live', () => {
       const path = `${PREVIEW_PATH_PREFIX}/live/another/segment`
       expect(checkFormStatus(path)).toStrictEqual({
-        isDraftOrLive: 'live',
+        state: 'live',
         isPreview: true
       })
     })
 
     it('Should return false for paths not starting with PREVIEW_PATH_PREFIX', () => {
       const path = '/some/other/path'
-      const result = checkFormStatus(path)
-      expect(result.isPreview).toBe(false)
-      expect(result.isDraftOrLive).toBeUndefined()
+      expect(checkFormStatus(path)).toStrictEqual({
+        state: 'live',
+        isPreview: false
+      })
     })
 
     it('Should be case insensitive and return draft when form is draft', () => {
       const path = `${PREVIEW_PATH_PREFIX.toUpperCase()}/draft/path`
       expect(checkFormStatus(path)).toStrictEqual({
-        isDraftOrLive: 'draft',
+        state: 'draft',
         isPreview: true
       })
     })

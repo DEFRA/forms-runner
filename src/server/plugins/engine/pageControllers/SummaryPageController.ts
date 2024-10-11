@@ -301,7 +301,7 @@ async function sendEmail(
 
   const { path } = request
 
-  const formStatus = checkFormStatus(path)
+  const formStatus: FormStatus = checkFormStatus(path)
 
   // Get submission email personalisation
   const personalisation = getPersonalisation(
@@ -365,7 +365,7 @@ export function getPersonalisation(
 
   if (formStatus.isPreview) {
     lines.push(
-      `This is a test of the ${formSubmissionData.name} ${formStatus.isDraftOrLive} form.`
+      `This is a test of the ${formSubmissionData.name} ${formStatus.state} form.`
     )
   }
 

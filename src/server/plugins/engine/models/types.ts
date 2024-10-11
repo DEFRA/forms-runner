@@ -172,7 +172,12 @@ export interface Detail {
   items: DetailItem[]
 }
 
+export enum FormState {
+  DRAFT = 'draft',
+  LIVE = 'live'
+}
+
 export interface FormStatus {
   isPreview: boolean
-  isDraftOrLive: string | undefined
+  state: FormState
 }

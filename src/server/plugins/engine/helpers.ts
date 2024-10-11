@@ -1,5 +1,7 @@
 import { type Request, type ResponseToolkit } from '@hapi/hapi'
 
+import { FormState, type FormStatus } from './models/types.js'
+
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { RelativeUrl } from '~/src/server/plugins/engine/feedback/index.js'
 
@@ -82,12 +84,12 @@ export const filesize = (bytes: number) => {
   return Math.max(bytes, 0.1).toFixed(1) + byteUnits[i]
 }
 
-export function checkFormStatus(path: string) {
+export function checkFormStatus(path: string): FormStatus {
   const isPreview = path.toLowerCase().startsWith(PREVIEW_PATH_PREFIX)
-  const isDraftOrLive = isPreview ? path.split('/')[2] : undefined
+  const state = isPreview ? (path.split('/')[2] as FormState) : FormState.LIVE
 
   return {
     isPreview,
-    isDraftOrLive
+    state
   }
 }

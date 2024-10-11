@@ -6,6 +6,8 @@ import {
 import { type Request } from '@hapi/hapi'
 import { format } from 'date-fns'
 
+import { FormState } from '../models/types.js'
+
 import {
   FormModel,
   SummaryViewModel
@@ -49,7 +51,7 @@ describe('SummaryPageController', () => {
     )
 
     const formStatus = (previewStatus: boolean) => ({
-      isDraftOrLive: 'draft',
+      state: FormState.DRAFT,
       isPreview: previewStatus
     })
 
