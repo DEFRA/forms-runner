@@ -7,7 +7,7 @@ import { within } from '@testing-library/dom'
 import { createServer } from '~/src/server/index.js'
 import { ADD_ANOTHER, CONTINUE } from '~/src/server/plugins/engine/helpers.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
-import { getSessionCookie } from '~/test/utils/get-session-cookie.js'
+import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
@@ -22,25 +22,22 @@ const url = '/repeat/pizza-order'
  * @param {Server} server
  * @param {PageRepeat} repeatPage
  * @param {number} [expectedItemCount]
- * @param {string} [cookie]
+ * @param {OutgoingHttpHeaders} [headers]
  */
 async function createRepeatItem(
   server,
   repeatPage,
   expectedItemCount = 1,
-  cookie
+  headers
 ) {
   const options = {
     method: 'POST',
     url,
+    headers,
     payload: {
       sQsXKK: 'Ham',
       VcmoiL: 2
     }
-  }
-
-  if (cookie) {
-    Object.assign(options, { headers: { cookie } })
   }
 
   const res1 = await server.inject(options)
@@ -62,7 +59,7 @@ async function createRepeatItem(
 
   return {
     item: listState[listState.length - 1],
-    cookie: getSessionCookie(res1)
+    headers: headers ?? getCookieHeader(res1, 'session')
   }
 }
 
@@ -102,15 +99,17 @@ describe('Repeat GET tests', () => {
       url
     }
 
-    const { document, response } = await renderResponse(server, options)
+    const { container, response } = await renderResponse(server, options)
     expect(response.statusCode).toBe(okStatusCode)
 
-    const $heading1 = within(document.body).getByRole('heading', {
-      name: 'Pizza order'
+    const $heading1 = container.getByRole('heading', {
+      name: 'Pizza order',
+      level: 1
     })
 
-    const $heading2 = within(document.body).getByRole('heading', {
-      name: 'Pizza 1'
+    const $heading2 = container.getByRole('heading', {
+      name: 'Pizza 1',
+      level: 2
     })
 
     expect($heading1).toBeInTheDocument()
@@ -132,22 +131,22 @@ describe('Repeat GET tests', () => {
   })
 
   test('GET /repeat/pizza-order/{id} returns 200', async () => {
-    const { item, cookie } = await createRepeatItem(server, repeatPage)
+    const { item, headers } = await createRepeatItem(server, repeatPage)
     const res = await server.inject({
       method: 'GET',
       url: `${url}/${item.itemId}`,
-      headers: { cookie }
+      headers
     })
 
     expect(res.statusCode).toBe(okStatusCode)
   })
 
   test('GET /repeat/pizza-order/{id}/confirm-delete returns 200', async () => {
-    const { item, cookie } = await createRepeatItem(server, repeatPage)
+    const { item, headers } = await createRepeatItem(server, repeatPage)
     const res = await server.inject({
       method: 'GET',
       url: `${url}/${item.itemId}/confirm-delete`,
-      headers: { cookie }
+      headers
     })
 
     expect(res.statusCode).toBe(okStatusCode)
@@ -163,13 +162,13 @@ describe('Repeat GET tests', () => {
   })
 
   test('GET /repeat/pizza-order/summary with items returns 200', async () => {
-    const { cookie } = await createRepeatItem(server, repeatPage)
-    await createRepeatItem(server, repeatPage, 2, cookie)
+    const { headers } = await createRepeatItem(server, repeatPage)
+    await createRepeatItem(server, repeatPage, 2, headers)
 
     const options = {
       method: 'GET',
       url: `${url}/summary`,
-      headers: { cookie }
+      headers
     }
 
     const res = await server.inject(options)
@@ -209,11 +208,11 @@ describe('Repeat POST tests', () => {
   })
 
   test('POST /repeat/pizza-order/{id} returns 302', async () => {
-    const { item, cookie } = await createRepeatItem(server, repeatPage)
+    const { item, headers } = await createRepeatItem(server, repeatPage)
     const res = await server.inject({
       method: 'POST',
       url: `${url}/${item.itemId}`,
-      headers: { cookie },
+      headers,
       payload: {
         sQsXKK: 'Ham',
         VcmoiL: 3
@@ -225,11 +224,11 @@ describe('Repeat POST tests', () => {
   })
 
   test('POST /repeat/pizza-order/{id}/confirm-delete returns 302', async () => {
-    const { item, cookie } = await createRepeatItem(server, repeatPage)
+    const { item, headers } = await createRepeatItem(server, repeatPage)
     const res = await server.inject({
       method: 'POST',
       url: `${url}/${item.itemId}/confirm-delete`,
-      headers: { cookie },
+      headers,
       payload: {
         confirm: true
       }
@@ -253,12 +252,12 @@ describe('Repeat POST tests', () => {
   })
 
   test('POST /repeat/pizza-order/summary CONTINUE returns 302', async () => {
-    const { cookie } = await createRepeatItem(server, repeatPage)
+    const { headers } = await createRepeatItem(server, repeatPage)
 
     const res = await server.inject({
       method: 'POST',
       url: `${url}/summary`,
-      headers: { cookie },
+      headers,
       payload: {
         action: CONTINUE
       }
@@ -269,13 +268,13 @@ describe('Repeat POST tests', () => {
   })
 
   test('POST /repeat/pizza-order/summary ADD_ANOTHER returns 200 with errors over schema.max', async () => {
-    const { cookie } = await createRepeatItem(server, repeatPage)
-    await createRepeatItem(server, repeatPage, 2, cookie)
+    const { headers } = await createRepeatItem(server, repeatPage)
+    await createRepeatItem(server, repeatPage, 2, headers)
 
-    const { document, response } = await renderResponse(server, {
+    const { container, response } = await renderResponse(server, {
       method: 'POST',
       url: `${url}/summary`,
-      headers: { cookie },
+      headers,
       payload: {
         action: ADD_ANOTHER
       }
@@ -283,14 +282,21 @@ describe('Repeat POST tests', () => {
 
     expect(response.statusCode).toBe(okStatusCode)
 
-    const $alerts = within(document.body).getAllByRole('alert')
+    const $errorSummary = container.getByRole('alert')
+    const $errorItems = within($errorSummary).getAllByRole('listitem')
 
-    expect($alerts[0]).toHaveTextContent('There is a problem')
-    expect($alerts[0]).toHaveTextContent('You can only add up to 2 Pizzas')
+    const $heading = within($errorSummary).getByRole('heading', {
+      name: 'There is a problem',
+      level: 2
+    })
+
+    expect($heading).toBeInTheDocument()
+    expect($errorItems[0]).toHaveTextContent('You can only add up to 2 Pizzas')
   })
 })
 
 /**
  * @import { Server } from '@hapi/hapi'
  * @import { PageRepeat } from '@defra/forms-model'
+ * @import { OutgoingHttpHeaders } from 'node:http'
  */

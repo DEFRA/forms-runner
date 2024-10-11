@@ -93,14 +93,7 @@ export class RepeatPageController extends PageController {
     // When editing an existing item, get the item from
     // the array list and set its values onto the state
     if (item) {
-      if (this.section) {
-        const sectionState = state[this.section.name]
-        state[this.section.name] = { ...sectionState, ...item.value }
-
-        return state
-      } else {
-        return { ...state, ...item.value }
-      }
+      return { ...state, ...item.value }
     }
 
     return state
@@ -155,8 +148,7 @@ export class RepeatPageController extends PageController {
   }
 
   private getListFromState(state: FormSubmissionState) {
-    const pageState = this.section ? (state[this.section.name] ?? {}) : state
-    const listState = pageState[this.repeat.options.name]
+    const listState = state[this.repeat.options.name]
 
     return Array.isArray(listState) ? listState : []
   }
@@ -302,9 +294,9 @@ export class RepeatPageController extends PageController {
           // Remove the item from the list
           list.splice(item.index, 1)
 
-          const update = this.getPartialMergeState({
+          const update = {
             [this.repeat.options.name]: list
-          })
+          }
 
           await cacheService.mergeState(request, update)
         }

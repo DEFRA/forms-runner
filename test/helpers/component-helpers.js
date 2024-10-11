@@ -1,4 +1,5 @@
-import { JSDOM } from 'jsdom'
+import { within } from '@testing-library/dom'
+import JSDOM from 'global-jsdom'
 
 /**
  * Render HTTP response
@@ -11,8 +12,9 @@ export async function renderResponse(server, options) {
   )
 
   const { document } = renderDOM(response.result)
+  const container = within(document.body)
 
-  return { response, document }
+  return { container, response }
 }
 
 /**
@@ -20,7 +22,8 @@ export async function renderResponse(server, options) {
  * @param {string | Buffer} [html]
  */
 export function renderDOM(html) {
-  return new JSDOM(html).window
+  JSDOM(html?.toString())
+  return window
 }
 
 /**

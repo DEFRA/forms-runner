@@ -30,7 +30,7 @@ describe(`Phase banner`, () => {
       url: '/phase-default/first-page'
     }
 
-    const { document } = await renderResponse(server, options)
+    await renderResponse(server, options)
 
     const $phaseBanner = /** @type {HTMLElement} */ (
       document.querySelector('.govuk-phase-banner')
@@ -52,7 +52,7 @@ describe(`Phase banner`, () => {
       url: '/phase-alpha/first-page'
     }
 
-    const { document } = await renderResponse(server, options)
+    await renderResponse(server, options)
 
     const $phaseBanner = /** @type {HTMLElement} */ (
       document.querySelector('.govuk-phase-banner')
@@ -74,7 +74,7 @@ describe(`Phase banner`, () => {
       url: '/phase-none/first-page'
     }
 
-    const { document } = await renderResponse(server, options)
+    await renderResponse(server, options)
 
     const $phaseBanner = /** @type {HTMLElement} */ (
       document.querySelector('.govuk-phase-banner')

@@ -93,14 +93,7 @@ export class FileUploadPageController extends PageController {
     const files = request.app.files
 
     // Overwrite the files with those in the upload state
-    if (this.section) {
-      if (!state[this.section.name]) {
-        state[this.section.name] = {}
-      }
-      state[this.section.name][name] = files
-    } else {
-      state[name] = files
-    }
+    state[name] = files
 
     return state
   }

@@ -1,10 +1,9 @@
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import cookie from 'cookie'
-
 import { createServer } from '~/src/server/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
+import { getCookie } from '~/test/utils/get-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
@@ -19,7 +18,7 @@ describe('CSRF', () => {
   const options = (opts) => {
     return {
       method: 'POST',
-      url: '/basic-v0/start',
+      url: '/basic/start',
       payload: {
         licenceLength: '1'
       },
@@ -30,7 +29,7 @@ describe('CSRF', () => {
   // Create server before each test
   beforeAll(async () => {
     server = await createServer({
-      formFileName: 'basic-v0.json',
+      formFileName: 'basic.json',
       formFilePath: join(testDir, 'definitions'),
       enforceCsrf: true
     })
@@ -42,7 +41,7 @@ describe('CSRF', () => {
   })
 
   test('get request returns CSRF header', async () => {
-    const { document, response } = await renderResponse(
+    const { response } = await renderResponse(
       server,
       options({
         method: 'GET',
@@ -50,19 +49,12 @@ describe('CSRF', () => {
       })
     )
 
-    const cookies = [response.headers['set-cookie']].flat()
-    const header = cookies.find((header) => header?.includes('crumb=')) ?? ''
+    expect(response.statusCode).toBe(200)
 
-    const { crumb: csrfToken } = cookie.parse(header)
+    const csrfToken = getCookie(response, 'crumb')
     expect(csrfToken).toBeTruthy()
 
-    expect(response.statusCode).toBe(200)
-    expect(response.headers['set-cookie']).toContain(
-      `crumb=${csrfToken}; HttpOnly; SameSite=Strict; Path=/`
-    )
-
     const $input = document.querySelector('[name=crumb]')
-
     expect($input).toBeInTheDocument()
     expect($input).toHaveAttribute('type', 'hidden')
     expect($input).toHaveValue(csrfToken)

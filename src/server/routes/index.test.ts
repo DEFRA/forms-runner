@@ -1,5 +1,4 @@
 import { type Server } from '@hapi/hapi'
-import { within } from '@testing-library/dom'
 
 import { createServer } from '~/src/server/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
@@ -22,10 +21,11 @@ describe('Routes', () => {
       url: '/help/cookies'
     }
 
-    const { document } = await renderResponse(server, options)
+    const { container } = await renderResponse(server, options)
 
-    const $heading = within(document.body).getByRole('heading', {
-      name: 'Cookies'
+    const $heading = container.getByRole('heading', {
+      name: 'Cookies',
+      level: 1
     })
 
     expect($heading).toBeInTheDocument()
@@ -38,10 +38,11 @@ describe('Routes', () => {
       url: '/help/accessibility-statement'
     }
 
-    const { document } = await renderResponse(server, options)
+    const { container } = await renderResponse(server, options)
 
-    const $heading = within(document.body).getByRole('heading', {
-      name: 'Accessibility statement for this form'
+    const $heading = container.getByRole('heading', {
+      name: 'Accessibility statement for this form',
+      level: 1
     })
 
     expect($heading).toBeInTheDocument()

@@ -150,28 +150,8 @@ export class FormModel {
     // from the individual pages/sections
     let schema = joi.object().required()
 
-    ;[undefined, ...this.sections].forEach((section) => {
-      const sectionPages = relevantPages.filter(
-        (page) => page.section === section
-      )
-
-      if (sectionPages.length) {
-        if (section) {
-          let sectionSchema = joi.object().required()
-
-          sectionPages.forEach((sectionPage) => {
-            sectionSchema = sectionSchema.concat(sectionPage.stateSchema)
-          })
-
-          schema = schema.append({
-            [section.name]: sectionSchema
-          })
-        } else {
-          sectionPages.forEach((sectionPage) => {
-            schema = schema.concat(sectionPage.stateSchema)
-          })
-        }
-      }
+    relevantPages.forEach((page) => {
+      schema = schema.concat(page.stateSchema)
     })
 
     return schema

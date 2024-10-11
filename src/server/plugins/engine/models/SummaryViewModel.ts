@@ -67,9 +67,7 @@ export class SummaryViewModel {
         config.get('feedbackLink'))
 
     const schema = model.makeFilteredSchema(state, relevantPages)
-    const collatedRepeatPagesState = gatherRepeatPages(state)
-
-    const result = schema.validate(collatedRepeatPagesState, {
+    const result = schema.validate(state, {
       abortEarly: false,
       stripUnknown: true
     })
@@ -127,7 +125,6 @@ export class SummaryViewModel {
 
     ;[undefined, ...model.sections].forEach((section) => {
       const items: DetailItem[] = []
-      const sectionState = section ? state[section.name] || {} : state
 
       const sectionPages = relevantPages.filter(
         (page) => page.section === section
@@ -139,7 +136,7 @@ export class SummaryViewModel {
           const { name, title } = options
           const repeatSummaryPath = page.getSummaryPath(request)
           const path = `/${model.basePath}${page.path}`
-          const rawValue = sectionState[options.name]
+          const rawValue = state[options.name]
           const isInitialised = Array.isArray(rawValue)
           const value = isInitialised ? rawValue.length.toString() : '0'
           const url = redirectUrl(
@@ -162,7 +159,7 @@ export class SummaryViewModel {
           })
         } else {
           for (const component of page.components.formItems) {
-            const item = Item(request, component, sectionState, page, model)
+            const item = Item(request, component, state, page, model)
             if (items.find((cbItem) => cbItem.name === item.name)) return
             items.push(item)
           }
@@ -200,33 +197,13 @@ export class SummaryViewModel {
   }
 }
 
-function gatherRepeatPages(state: FormSubmissionState) {
-  if (Object.values(state).find((section) => Array.isArray(section))) {
-    return state
-  }
-  const clonedState = structuredClone(state)
-  Object.entries(state).forEach(([key, section]) => {
-    if (key === 'progress') {
-      return
-    }
-    if (Array.isArray(section)) {
-      clonedState[key] = section.map((pages) =>
-        Object.values(pages).reduce(
-          (acc: object, p: any) => ({ ...acc, ...p }),
-          {}
-        )
-      )
-    }
-  })
-}
-
 /**
  * Creates an Item object for Details
  */
 function Item(
   request: Request,
   component: FormComponentFieldClass,
-  sectionState: FormSubmissionState,
+  state: FormSubmissionState,
   page: PageControllerClass,
   model: FormModel,
   params: { returnUrl: string } = {
@@ -237,8 +214,8 @@ function Item(
     name: component.name,
     path: page.path,
     label: component.title,
-    value: component.getDisplayStringFromState(sectionState),
-    rawValue: sectionState[component.name],
+    value: component.getDisplayStringFromState(state),
+    rawValue: state[component.name],
     url: redirectUrl(request, `/${model.basePath}${page.path}`, params),
     pageId: `/${model.basePath}${page.path}`,
     type: component.type,
