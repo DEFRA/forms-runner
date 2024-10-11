@@ -171,3 +171,8 @@ export interface Detail {
   title?: Section['title']
   items: DetailItem[]
 }
+
+export interface FormStatus {
+  isPreview: boolean
+  isDraftOrLive: string | undefined
+}

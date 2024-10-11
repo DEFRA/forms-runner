@@ -82,6 +82,12 @@ export const filesize = (bytes: number) => {
   return Math.max(bytes, 0.1).toFixed(1) + byteUnits[i]
 }
 
-export function hasPreviewPath(path: string) {
-  return path.toLowerCase().startsWith(PREVIEW_PATH_PREFIX)
+export function checkFormStatus(path: string) {
+  const isPreview = path.toLowerCase().startsWith(PREVIEW_PATH_PREFIX)
+  const isDraftOrLive = isPreview ? path.split('/')[2] : undefined
+
+  return {
+    isPreview,
+    isDraftOrLive
+  }
 }

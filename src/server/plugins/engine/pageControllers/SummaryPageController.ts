@@ -16,8 +16,8 @@ import {
   decodeFeedbackContextInfo
 } from '~/src/server/plugins/engine/feedback/index.js'
 import {
+  checkFormStatus,
   feedbackReturnInfoKey,
-  hasPreviewPath,
   redirectTo,
   redirectUrl
 } from '~/src/server/plugins/engine/helpers.js'
@@ -27,7 +27,8 @@ import {
 } from '~/src/server/plugins/engine/models/index.js'
 import {
   type Detail,
-  type DetailItem
+  type DetailItem,
+  type FormStatus
 } from '~/src/server/plugins/engine/models/types.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
@@ -300,10 +301,14 @@ async function sendEmail(
 
   const { path } = request
 
-  const isPreview = hasPreviewPath(path)
+  const formStatus = checkFormStatus(path)
 
   // Get submission email personalisation
-  const personalisation = getPersonalisation(summaryViewModel, model, isPreview)
+  const personalisation = getPersonalisation(
+    summaryViewModel,
+    model,
+    formStatus
+  )
 
   request.logger.info(['submit', 'email'], 'Sending email')
 
@@ -326,7 +331,7 @@ async function sendEmail(
 export function getPersonalisation(
   summaryViewModel: SummaryViewModel,
   model: FormModel,
-  isPreview: boolean
+  formStatus: FormStatus
 ) {
   /**
    * @todo Refactor this below but the code to
@@ -343,7 +348,7 @@ export function getPersonalisation(
     model
   )
 
-  const subject = isPreview
+  const subject = formStatus.isPreview
     ? `TEST FORM SUBMISSION: ${model.name}`
     : `Form received: ${model.name}`
 
@@ -358,8 +363,10 @@ export function getPersonalisation(
     )
   }
 
-  if (isPreview) {
-    lines.push(`This is a test of the ${formSubmissionData.name} form.`)
+  if (formStatus.isPreview) {
+    lines.push(
+      `This is a test of the ${formSubmissionData.name} ${formStatus.isDraftOrLive} form.`
+    )
   }
 
   lines.push(
