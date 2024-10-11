@@ -98,7 +98,8 @@ describe('Form journey', () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: 'basic.json',
-      formFilePath: join(testDir, 'definitions')
+      formFilePath: join(testDir, 'definitions'),
+      enforceCsrf: true
     })
 
     await server.initialize()
@@ -109,8 +110,8 @@ describe('Form journey', () => {
     })
 
     // Extract the session cookie
-    csrfToken = getCookie(response, 'session')
-    headers = getCookieHeader(response, 'session')
+    csrfToken = getCookie(response, 'crumb')
+    headers = getCookieHeader(response, ['session', 'crumb'])
   })
 
   beforeEach(() => {

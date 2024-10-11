@@ -19,16 +19,22 @@ export function getCookie(response, name) {
 
 /**
  * @param {ServerInjectResponse<string | object>} response
- * @param {string} name
+ * @param {string | string[]} names
+ * @returns {Pick<OutgoingHttpHeaders, 'cookie'>}
  */
-export function getCookieHeader(response, name) {
-  const value = getCookie(response, name)
+export function getCookieHeader(response, names) {
+  const cookies = /** @satisfies {string[]} */ ([])
+
+  for (const name of [names].flat()) {
+    cookies.push([name, getCookie(response, name)].join('='))
+  }
 
   return {
-    cookie: `${name}=${value}`
+    cookie: cookies.join('; ')
   }
 }
 
 /**
  * @import { ServerInjectResponse } from '@hapi/hapi'
+ * @import { OutgoingHttpHeaders } from 'node:http'
  */
