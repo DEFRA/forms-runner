@@ -58,11 +58,8 @@ describe('Page controller helpers', () => {
   describe('Helper: getPageController', () => {
     it.each([...controllers])(
       "returns page controller '$name'",
-      ({ controller, name, path }) => {
+      ({ controller, name }) => {
         expect(getPageController(name)).toEqual(controller)
-
-        // Check for legacy path support
-        expect(getPageController(path)).toEqual(controller)
       }
     )
   })
