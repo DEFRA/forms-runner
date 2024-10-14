@@ -32,7 +32,10 @@ function normalisePath(path: string) {
   return path.replace(/^\//, '').replace(/\/$/, '')
 }
 
-function getPage(model: FormModel | undefined, path: string) {
+function getPage(request: FormRequest | FormRequestPayload) {
+  const { model } = request.app
+  const { path } = request.params
+
   return model?.pages.find(
     (page) => normalisePath(page.path) === normalisePath(path)
   )
@@ -178,7 +181,7 @@ export const plugin = {
     ) => {
       const { model } = request.app
       const { path } = request.params
-      const page = getPage(model, path)
+      const page = getPage(request)
 
       if (page) {
         return page.makeGetRouteHandler()(request, h)
@@ -195,11 +198,7 @@ export const plugin = {
       request: FormRequestPayload,
       h: ResponseToolkit<FormRequestPayloadRefs>
     ) => {
-      const { path } = request.params
-      const model = request.app.model
-      const page = model?.pages.find(
-        (page) => page.path.replace(/^\//, '') === path
-      )
+      const page = getPage(request)
 
       if (page) {
         return page.makePostRouteHandler()(request, h)
@@ -337,9 +336,7 @@ export const plugin = {
       request: FormRequest,
       h: ResponseToolkit<FormRequestRefs>
     ) => {
-      const { model } = request.app
-      const { path } = request.params
-      const page = getPage(model, path)
+      const page = getPage(request)
 
       if (page && page instanceof RepeatPageController) {
         return page.makeGetListSummaryRouteHandler()(request, h)
@@ -384,9 +381,7 @@ export const plugin = {
       request: FormRequestPayload,
       h: ResponseToolkit<FormRequestPayloadRefs>
     ) => {
-      const { model } = request.app
-      const { path } = request.params
-      const page = getPage(model, path)
+      const page = getPage(request)
 
       if (page && page instanceof RepeatPageController) {
         return page.makePostListSummaryRouteHandler()(request, h)
@@ -443,9 +438,7 @@ export const plugin = {
       request: FormRequest,
       h: ResponseToolkit<FormRequestRefs>
     ) => {
-      const { model } = request.app
-      const { path } = request.params
-      const page = getPage(model, path)
+      const page = getPage(request)
 
       if (page && page instanceof RepeatPageController) {
         return page.makeGetListDeleteRouteHandler()(request, h)
@@ -492,9 +485,7 @@ export const plugin = {
       request: FormRequestPayload,
       h: ResponseToolkit<FormRequestPayloadRefs>
     ) => {
-      const { model } = request.app
-      const { path } = request.params
-      const page = getPage(model, path)
+      const page = getPage(request)
 
       if (page && page instanceof RepeatPageController) {
         return page.makePostListDeleteRouteHandler()(request, h)
