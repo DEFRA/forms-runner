@@ -3,7 +3,6 @@ import { merge } from '@hapi/hoek'
 
 import { config } from '~/src/config/index.js'
 import { type createServer } from '~/src/server/index.js'
-import { type ViewModel } from '~/src/server/plugins/engine/components/types.js'
 import {
   type FormSubmissionState,
   type TempFileState
@@ -47,20 +46,16 @@ export class CacheService {
     return this.getState(request)
   }
 
-  async getConfirmationState(request: Request) {
+  async getConfirmationState(request: Request): Promise<{ confirmed?: true }> {
     const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation)
+    const value = await this.cache.get(key)
 
-    return await this.cache.get(key)
+    return value || {}
   }
 
-  async setConfirmationState(request: Request, viewModel: ViewModel) {
+  async setConfirmationState(request: Request, value: { confirmed?: true }) {
     const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation)
-
-    return this.cache.set(
-      key,
-      viewModel,
-      config.get('confirmationSessionTimeout')
-    )
+    return this.cache.set(key, value, config.get('confirmationSessionTimeout'))
   }
 
   async getUploadState(request: Request) {
