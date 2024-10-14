@@ -55,7 +55,7 @@ export class SummaryViewModel {
     this.declaration = def.declaration
     this.skipSummary = def.skipSummary
 
-    const schema = model.makeFilteredSchema(state, relevantPages)
+    const schema = model.makeFilteredSchema(relevantPages)
     const result = schema.validate(state, {
       abortEarly: false,
       stripUnknown: true

@@ -134,21 +134,18 @@ export class FormModel {
   /**
    * build the entire model schema from individual pages/sections
    */
-  makeSchema(state: FormSubmissionState) {
-    return this.makeFilteredSchema(state, this.pages)
+  makeSchema() {
+    return this.makeFilteredSchema(this.pages)
   }
 
   /**
    * build the entire model schema from individual pages/sections and filter out answers
    * for pages which are no longer accessible due to an answer that has been changed
    */
-  makeFilteredSchema(
-    _state: FormSubmissionState,
-    relevantPages: PageControllerClass[]
-  ) {
+  makeFilteredSchema(relevantPages: PageControllerClass[]) {
     // Build the entire model schema
     // from the individual pages/sections
-    let schema = joi.object().required()
+    let schema = joi.object<FormSubmissionState>().required()
 
     relevantPages.forEach((page) => {
       schema = schema.concat(page.stateSchema)
