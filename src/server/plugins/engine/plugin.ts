@@ -203,6 +203,8 @@ export const plugin = {
       if (page) {
         return page.makePostRouteHandler()(request, h)
       }
+
+      throw Boom.notFound('No form or page found')
     }
 
     const dispatchRouteOptions: RouteOptions<FormRequestRefs> = {
