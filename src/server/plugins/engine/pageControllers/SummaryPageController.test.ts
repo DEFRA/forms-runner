@@ -6,6 +6,8 @@ import {
 import { type Request } from '@hapi/hapi'
 import { format } from 'date-fns'
 
+import { FormState } from '../models/types.js'
+
 import {
   FormModel,
   SummaryViewModel
@@ -29,7 +31,7 @@ describe('SummaryPageController', () => {
     }
 
     const definition: FormDefinition = {
-      name: 'New Form',
+      name: 'New',
       pages: [page],
       lists: [],
       sections: [],
@@ -48,23 +50,36 @@ describe('SummaryPageController', () => {
       {} as Request
     )
 
+    const formStatus = (previewStatus: boolean) => ({
+      state: FormState.DRAFT,
+      isPreview: previewStatus
+    })
+
     it('should generate personalisation with form results and form name - Live form', () => {
-      const result = getPersonalisation(summaryViewModel, model, false)
+      const result = getPersonalisation(
+        summaryViewModel,
+        model,
+        formStatus(false)
+      )
       const now = new Date()
       const formattedNow = format(now, 'h:mmaaa')
       const formattedDate = format(now, 'd MMMM yyyy')
 
-      expect(result.subject).toBe('Form received: New Form')
+      expect(result.subject).toBe('Form received: New')
       expect(result.body).toContain(
         `Form received at ${formattedNow} on ${formattedDate}`
       )
     })
 
     it('should generate personalisation with form results and form name - Preview form', () => {
-      const result = getPersonalisation(summaryViewModel, model, true)
+      const result = getPersonalisation(
+        summaryViewModel,
+        model,
+        formStatus(true)
+      )
 
-      expect(result.subject).toBe('TEST FORM SUBMISSION: New Form')
-      expect(result.body).toContain('This is a test of the New Form form')
+      expect(result.subject).toBe('TEST FORM SUBMISSION: New')
+      expect(result.body).toContain('This is a test of the New draft form')
     })
   })
 })

@@ -14,7 +14,7 @@ import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
   ADD_ANOTHER,
   CONTINUE,
-  hasPreviewPath,
+  checkFormStatus,
   redirectTo
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
@@ -98,7 +98,7 @@ export const plugin = {
 
       const { params, path } = request
       const { slug } = params
-      const isPreview = hasPreviewPath(path)
+      const { isPreview } = checkFormStatus(path)
       const formState = isPreview && params.state ? params.state : 'live'
 
       // Get the form metadata using the `slug` param

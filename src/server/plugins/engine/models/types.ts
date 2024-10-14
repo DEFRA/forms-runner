@@ -171,3 +171,13 @@ export interface Detail {
   title?: Section['title']
   items: DetailItem[]
 }
+
+export enum FormState {
+  DRAFT = 'draft',
+  LIVE = 'live'
+}
+
+export interface FormStatus {
+  isPreview: boolean
+  state: FormState
+}

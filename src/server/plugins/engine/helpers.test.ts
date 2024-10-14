@@ -2,7 +2,7 @@ import { type ResponseToolkit } from '@hapi/hapi'
 
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
-  hasPreviewPath,
+  checkFormStatus,
   proceed,
   redirectTo,
   redirectUrl
@@ -303,19 +303,35 @@ describe('Helpers', () => {
   })
 
   describe('hasPreviewPath', () => {
-    it('Should return true for paths starting with PREVIEW_PATH_PREFIX', () => {
-      const path = `${PREVIEW_PATH_PREFIX}/some/path`
-      expect(hasPreviewPath(path)).toBe(true)
+    it('Should return true/live for paths starting with PREVIEW_PATH_PREFIX and form is live', () => {
+      const path = `${PREVIEW_PATH_PREFIX}/live/another/segment`
+      expect(checkFormStatus(path)).toStrictEqual({
+        state: 'live',
+        isPreview: true
+      })
     })
 
     it('Should return false for paths not starting with PREVIEW_PATH_PREFIX', () => {
       const path = '/some/other/path'
-      expect(hasPreviewPath(path)).toBe(false)
+      expect(checkFormStatus(path)).toStrictEqual({
+        state: 'live',
+        isPreview: false
+      })
     })
 
-    it('Should be case insensitive', () => {
-      const path = `${PREVIEW_PATH_PREFIX.toUpperCase()}/some/path`
-      expect(hasPreviewPath(path)).toBe(true)
+    it('Should be case insensitive and return draft when form is draft', () => {
+      const path = `${PREVIEW_PATH_PREFIX.toUpperCase()}/draft/path`
+      expect(checkFormStatus(path)).toStrictEqual({
+        state: 'draft',
+        isPreview: true
+      })
+    })
+
+    it('throws an error for invalid form state', () => {
+      const path = `${PREVIEW_PATH_PREFIX}/invalid-state`
+      expect(() => checkFormStatus(path)).toThrow(
+        'Invalid form state: invalid-state'
+      )
     })
   })
 })
