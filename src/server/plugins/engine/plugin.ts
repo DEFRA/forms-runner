@@ -428,7 +428,7 @@ export const plugin = {
       path: '/{slug}/{path}/summary',
       handler: postListSummaryHandler,
       options: {
-        ...getRouteOptions,
+        ...postRouteOptions,
         validate: {
           params: Joi.object().keys({
             slug: slugSchema,
@@ -449,7 +449,7 @@ export const plugin = {
       path: '/preview/{state}/{slug}/{path}/summary',
       handler: postListSummaryHandler,
       options: {
-        ...getRouteOptions,
+        ...postRouteOptions,
         validate: {
           params: Joi.object().keys({
             state: stateSchema,
@@ -550,7 +550,7 @@ export const plugin = {
       path: '/{slug}/{path}/{itemId}/confirm-delete',
       handler: postListDeleteHandler,
       options: {
-        ...getRouteOptions,
+        ...postRouteOptions,
         validate: {
           params: Joi.object().keys({
             slug: slugSchema,
@@ -572,7 +572,7 @@ export const plugin = {
       path: '/preview/{state}/{slug}/{path}/{itemId}/confirm-delete',
       handler: postListDeleteHandler,
       options: {
-        ...getRouteOptions,
+        ...postRouteOptions,
         validate: {
           params: Joi.object().keys({
             state: stateSchema,
