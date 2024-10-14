@@ -20,13 +20,11 @@ export type PageControllerType =
 /**
  * Gets the class for the controller defined in a {@link Page}
  */
-export function getPageController(
-  nameOrPath: string
-): PageControllerType | undefined {
+export function getPageController(nameOrPath?: string): PageControllerType {
   const controllerName = controllerNameFromPath(nameOrPath)
 
   if (!isPageController(controllerName)) {
-    return
+    return PageControllers.PageController
   }
 
   return PageControllers[controllerName]

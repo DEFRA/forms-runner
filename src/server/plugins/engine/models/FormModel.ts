@@ -15,13 +15,10 @@ import { Parser } from 'expr-eval'
 import joi from 'joi'
 
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
-import { PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
 import {
   getPageController,
-  type PageControllerClass,
-  type PageControllerType
+  type PageControllerClass
 } from '~/src/server/plugins/engine/pageControllers/helpers.js'
-import { PageController } from '~/src/server/plugins/engine/pageControllers/index.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 
 class EvaluationContext {
@@ -51,11 +48,9 @@ export class FormModel {
 
   lists: FormDefinition['lists']
   sections: FormDefinition['sections'] = []
-  options: { basePath: string; defaultPageController?: string }
+  options: { basePath: string }
   name: string
   values: FormDefinition
-  DefaultPageController: PageControllerType | undefined = PageController
-
   basePath: string
   conditions: Partial<Record<string, ExecutableCondition>>
   pages: PageControllerClass[]
@@ -95,16 +90,9 @@ export class FormModel {
     this.options = options
     this.name = def.name ?? ''
     this.values = result.value
-
-    if (options.defaultPageController) {
-      this.DefaultPageController = getPageController(
-        options.defaultPageController
-      )
-    }
-
     this.basePath = options.basePath
-
     this.conditions = {}
+
     def.conditions.forEach((conditionDef) => {
       const condition = this.makeCondition(conditionDef)
       this.conditions[condition.name] = condition
@@ -158,22 +146,8 @@ export class FormModel {
    * instantiates a Page based on {@link Page}
    */
   makePage(pageDef: Page): PageControllerClass {
-    if (pageDef.controller) {
-      const PageController = getPageController(pageDef.controller)
-
-      if (!PageController) {
-        throw new Error(`PageController for ${pageDef.controller} not found`)
-      }
-
-      return new PageController(this, pageDef)
-    }
-
-    if (this.DefaultPageController) {
-      const DefaultPageController = this.DefaultPageController
-      return new DefaultPageController(this, pageDef)
-    }
-
-    return new PageControllerBase(this, pageDef)
+    const PageController = getPageController(pageDef.controller)
+    return new PageController(this, pageDef)
   }
 
   /**
