@@ -128,13 +128,9 @@ export class SummaryViewModel {
           const rawValue = state[options.name]
           const isInitialised = Array.isArray(rawValue)
           const value = isInitialised ? rawValue.length.toString() : '0'
-          const url = redirectUrl(
-            request,
-            isInitialised ? repeatSummaryPath : path,
-            {
-              returnUrl: redirectUrl(request, `/${model.basePath}/summary`)
-            }
-          )
+          const url = redirectUrl(isInitialised ? repeatSummaryPath : path, {
+            returnUrl: redirectUrl(`/${model.basePath}/summary`)
+          })
 
           items.push({
             name,
@@ -148,7 +144,7 @@ export class SummaryViewModel {
           })
         } else {
           for (const component of page.components.formItems) {
-            const item = Item(request, component, state, page, model)
+            const item = Item(component, state, page, model)
             if (items.find((cbItem) => cbItem.name === item.name)) return
             items.push(item)
           }
@@ -188,13 +184,12 @@ export class SummaryViewModel {
  * Creates an Item object for Details
  */
 function Item(
-  request: Request,
   component: FormComponentFieldClass,
   state: FormSubmissionState,
   page: PageControllerClass,
   model: FormModel,
   params: { returnUrl: string } = {
-    returnUrl: redirectUrl(request, `/${model.basePath}/summary`)
+    returnUrl: redirectUrl(`/${model.basePath}/summary`)
   }
 ): DetailItem {
   return {
@@ -203,7 +198,7 @@ function Item(
     label: component.title,
     value: component.getDisplayStringFromState(state),
     rawValue: state[component.name],
-    url: redirectUrl(request, `/${model.basePath}${page.path}`, params),
+    url: redirectUrl(`/${model.basePath}${page.path}`, params),
     pageId: `/${model.basePath}${page.path}`,
     type: component.type,
     title: component.title,
