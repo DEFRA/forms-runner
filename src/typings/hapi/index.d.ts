@@ -60,6 +60,30 @@ declare module '@hapipal/schmervice' {
   }
 }
 
+declare module '@hapi/scooter' {
+  declare const hapiScooter: {
+    plugin: Plugin
+  }
+
+  export = hapiScooter
+}
+
+declare module 'blankie' {
+  declare const blankie: {
+    plugin: Plugin<Record<string, boolean | string[]>>
+  }
+
+  export = blankie
+}
+
+declare module 'blipp' {
+  declare const blipp: {
+    plugin: Plugin
+  }
+
+  export = blipp
+}
+
 declare module 'hapi-pulse' {
   declare const hapiPulse: {
     plugin: Plugin<{

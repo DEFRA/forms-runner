@@ -1,8 +1,8 @@
-import { configureBlankiePlugin } from '~/src/server/plugins/blankie.js'
+import pluginBlankie from '~/src/server/plugins/blankie.js'
 
 describe('Server Blankie Plugin', () => {
   test('configuration options are correct', () => {
-    const { options } = configureBlankiePlugin()
+    const { options } = pluginBlankie
 
     expect(options).toEqual({
       defaultSrc: ['self'],
