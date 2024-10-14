@@ -11,7 +11,7 @@ import {
   type Page
 } from '@defra/forms-model'
 import { add } from 'date-fns'
-import { Parser } from 'expr-eval'
+import { Parser, type Value } from 'expr-eval'
 import joi from 'joi'
 
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
@@ -21,26 +21,9 @@ import {
 } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 
-class EvaluationContext {
-  constructor(
-    conditions: Partial<Record<string, ExecutableCondition>>,
-    value: FormSubmissionState
-  ) {
-    Object.assign(this, value)
-
-    for (const key in conditions) {
-      Object.defineProperty(this, key, {
-        get() {
-          return conditions[key]?.fn(value)
-        }
-      })
-    }
-  }
-}
-
 export class FormModel {
   /**
-   * Responsible for instantiating the {@link PageControllerBase} and {@link EvaluationContext} from a form JSON
+   * Responsible for instantiating the {@link PageControllerClass} and condition context from a form JSON
    */
 
   /** the entire form JSON as an object */
@@ -161,20 +144,19 @@ export class FormModel {
       }
     })
 
-    parser.functions.dateForComparison = function (
-      timePeriod: number,
-      timeUnit: DateUnits
-    ) {
-      return add(new Date(), { [timeUnit]: timePeriod }).toISOString()
-    }
+    Object.assign(parser.functions, {
+      dateForComparison(timePeriod: number, timeUnit: DateUnits) {
+        return add(new Date(), { [timeUnit]: timePeriod }).toISOString()
+      }
+    })
 
     const { name, displayName, value } = condition
     const expr = this.toConditionExpression(value, parser)
 
     const fn = (value: FormSubmissionState) => {
-      const ctx = new EvaluationContext(this.conditions, value)
+      const ctx = this.toConditionContext(value, this.conditions)
       try {
-        return expr.evaluate(ctx)
+        return expr.evaluate(ctx) as boolean
       } catch {
         return false
       }
@@ -187,6 +169,23 @@ export class FormModel {
       expr,
       fn
     }
+  }
+
+  toConditionContext(
+    value: FormSubmissionState,
+    conditions: Partial<Record<string, ExecutableCondition>>
+  ) {
+    const context = { ...value }
+
+    for (const key in conditions) {
+      Object.defineProperty(context, key, {
+        get() {
+          return conditions[key]?.fn(value)
+        }
+      })
+    }
+
+    return context as Extract<Value, Record<string, Value>>
   }
 
   toConditionExpression(value: ConditionsModelData, parser: Parser) {
