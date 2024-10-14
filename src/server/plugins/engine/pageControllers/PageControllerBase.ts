@@ -400,15 +400,15 @@ export class PageControllerBase {
 
       if (shouldRedirectToStartPage) {
         return startPage?.startsWith('http')
-          ? redirectTo(request, h, startPage)
-          : redirectTo(request, h, `/${this.model.basePath}${startPage}`)
+          ? redirectTo(h, startPage)
+          : redirectTo(h, `/${this.model.basePath}${startPage}`)
       }
 
       const viewModel = this.getViewModel(request, payload)
 
       viewModel.startPage = startPage?.startsWith('http')
-        ? redirectTo(request, h, startPage)
-        : redirectTo(request, h, `/${this.model.basePath}${startPage}`)
+        ? redirectTo(h, startPage)
+        : redirectTo(h, `/${this.model.basePath}${startPage}`)
 
       /**
        * Content components can be hidden based on a condition. If the condition evaluates to true, it is safe to be kept, otherwise discard it

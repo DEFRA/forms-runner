@@ -3,7 +3,6 @@ import Boom from '@hapi/boom'
 import {
   type Plugin,
   type Request,
-  type ResponseObject,
   type ResponseToolkit,
   type RouteOptions
 } from '@hapi/hapi'
@@ -34,25 +33,14 @@ function getPage(model: FormModel | undefined, path: string) {
   )
 }
 
-function getStartPageRedirect(
-  request: Request,
-  h: ResponseToolkit,
-  model: FormModel
-) {
-  const startPage = normalisePath(model.def.startPage ?? '')
-  let startPageRedirect: ResponseObject
+function getStartPageRedirect(h: ResponseToolkit, model?: FormModel) {
+  const startPage = normalisePath(model?.def.startPage ?? '')
 
-  if (startPage.startsWith('http')) {
-    startPageRedirect = redirectTo(request, h, startPage)
-  } else {
-    startPageRedirect = redirectTo(
-      request,
-      h,
-      `/${model.basePath}/${startPage}`
-    )
+  if (startPage.startsWith('http') || !model?.basePath) {
+    return redirectTo(h, startPage)
   }
 
-  return startPageRedirect
+  return redirectTo(h, `/${model.basePath}/${startPage}`)
 }
 
 export interface PluginOptions {
@@ -181,7 +169,7 @@ export const plugin = {
       h: ResponseToolkit
     ) => {
       const { model } = request.app
-      return getStartPageRedirect(request, h, model)
+      return getStartPageRedirect(h, model)
     }
 
     const getHandler = (
@@ -203,7 +191,7 @@ export const plugin = {
       }
 
       if (normalisePath(path) === '') {
-        return getStartPageRedirect(request, h, model)
+        return getStartPageRedirect(h, model)
       }
 
       throw Boom.notFound('No form or page found')

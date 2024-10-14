@@ -23,7 +23,7 @@ export function proceed(
   if (returnUrl?.startsWith('/')) {
     return h.redirect(returnUrl)
   } else {
-    return redirectTo(request, h, nextUrl)
+    return redirectTo(h, nextUrl)
   }
 }
 
@@ -41,12 +41,9 @@ export function encodeUrl(link?: string) {
   }
 }
 
-export function redirectUrl(
-  request: Pick<RequestWithQuery, 'query'>,
-  targetUrl: string,
-  params?: Params
-) {
+export function redirectUrl(targetUrl: string, params?: Params) {
   const relativeUrl = new RelativeUrl(targetUrl)
+
   Object.entries(params ?? {}).forEach(([name, value]) => {
     relativeUrl.setParam(name, `${value}`)
   })
@@ -55,7 +52,6 @@ export function redirectUrl(
 }
 
 export function redirectTo(
-  request: Pick<RequestWithQuery, 'query'>,
   h: Pick<ResponseToolkit, 'redirect'>,
   targetUrl: string,
   params?: Params
@@ -64,7 +60,7 @@ export function redirectTo(
     return h.redirect(targetUrl)
   }
 
-  const url = redirectUrl(request, targetUrl, params)
+  const url = redirectUrl(targetUrl, params)
   return h.redirect(url)
 }
 

@@ -137,10 +137,9 @@ export class SummaryPageController extends PageController {
         })
         if (pageWithError) {
           const params = {
-            returnUrl: redirectUrl(request, `/${model.basePath}/summary`)
+            returnUrl: redirectUrl(`/${model.basePath}/summary`)
           }
           return redirectTo(
-            request,
             h,
             `/${model.basePath}${pageWithError.path}`,
             params
@@ -205,7 +204,7 @@ export class SummaryPageController extends PageController {
       // Clear all form data
       await cacheService.clearState(request)
 
-      return redirectTo(request, h, `/${model.basePath}/status`)
+      return redirectTo(h, `/${model.basePath}/status`)
     }
   }
 

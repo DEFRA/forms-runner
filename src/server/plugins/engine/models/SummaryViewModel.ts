@@ -124,7 +124,7 @@ export class SummaryViewModel {
           addRepeaterItem(page, request, model, state, items)
         } else {
           for (const component of page.components.formItems) {
-            const item = Item(request, component, state, page, model)
+            const item = Item(component, state, page, model)
             if (items.find((cbItem) => cbItem.name === item.name)) return
             items.push(item)
           }
@@ -174,8 +174,8 @@ function addRepeaterItem(
   const rawValue = page.getListFromState(state)
   const hasItems = rawValue.length > 0
   const value = hasItems ? rawValue.length.toString() : '0'
-  const url = redirectUrl(request, hasItems ? repeatSummaryPath : path, {
-    returnUrl: redirectUrl(request, `/${model.basePath}/summary`)
+  const url = redirectUrl(hasItems ? repeatSummaryPath : path, {
+    returnUrl: redirectUrl(`/${model.basePath}/summary`)
   })
 
   const subItems: DetailItem[][] = []
@@ -183,7 +183,7 @@ function addRepeaterItem(
   rawValue.forEach((itemState) => {
     const sub: DetailItem[] = []
     for (const component of page.components.formItems) {
-      const item = Item(request, component, itemState, page, model)
+      const item = Item(component, itemState, page, model)
       if (sub.find((cbItem) => cbItem.name === item.name)) return
       sub.push(item)
     }
@@ -206,13 +206,12 @@ function addRepeaterItem(
  * Creates an Item object for Details
  */
 function Item(
-  request: Request,
   component: FormComponentFieldClass,
   state: FormSubmissionState,
   page: PageControllerClass,
   model: FormModel,
   params: { returnUrl: string } = {
-    returnUrl: redirectUrl(request, `/${model.basePath}/summary`)
+    returnUrl: redirectUrl(`/${model.basePath}/summary`)
   }
 ): DetailItem {
   return {
@@ -221,7 +220,7 @@ function Item(
     label: component.title,
     value: component.getDisplayStringFromState(state),
     rawValue: state[component.name],
-    url: redirectUrl(request, `/${model.basePath}${page.path}`, params),
+    url: redirectUrl(`/${model.basePath}${page.path}`, params),
     type: component.type,
     title: component.title,
     dataType: component.dataType
