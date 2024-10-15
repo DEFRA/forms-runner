@@ -4,7 +4,7 @@ import { SelectField } from '~/src/server/plugins/engine/components/SelectField.
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
-  type FormData,
+  type FormPayload,
   type FormSubmissionErrors,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
@@ -42,8 +42,8 @@ export class AutocompleteField extends SelectField {
     return item?.text ?? ''
   }
 
-  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
-    const viewModel = super.getViewModel(formData, errors)
+  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+    const viewModel = super.getViewModel(payload, errors)
 
     viewModel.formGroup ??= {}
     viewModel.formGroup.attributes = {
