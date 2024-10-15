@@ -4,6 +4,8 @@ import {
   type Item
 } from '@defra/forms-model'
 
+import { type FormValue } from '~/src/server/plugins/engine/types.js'
+
 export interface Label {
   text: string
   classes?: string
@@ -48,7 +50,7 @@ export interface ViewModel extends Record<string, unknown> {
   type?: string
   id?: string
   name?: string
-  value?: unknown
+  value?: FormValue
   hint?: {
     id?: string
     text: string
