@@ -55,24 +55,6 @@ export class MonthYearField extends FormComponent {
     this.options = options
   }
 
-  getFormSchemaKeys() {
-    return this.children.getFormSchemaKeys()
-  }
-
-  getStateSchemaKeys() {
-    return {
-      [this.name]: this.children.getStateSchemaKeys()
-    }
-  }
-
-  getFormDataFromState(state: FormSubmissionState) {
-    return this.children.getFormDataFromState(state)
-  }
-
-  getStateValueFromValidForm(payload: FormPayload) {
-    return this.children.getStateFromValidForm(payload)
-  }
-
   getDisplayStringFromState(state: FormSubmissionState) {
     const values = state[this.name]
     const year = values?.[`${this.name}__year`] ?? 'Not supplied'

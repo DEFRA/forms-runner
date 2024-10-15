@@ -33,7 +33,11 @@ export class FormComponent extends ComponentBase {
   }
 
   getFormDataFromState(state: FormSubmissionState): FormData {
-    const name = this.name
+    const { children, name } = this
+
+    if (children) {
+      return children.getFormDataFromState(state)
+    }
 
     if (!(name in state)) {
       return {}
@@ -53,7 +57,11 @@ export class FormComponent extends ComponentBase {
   }
 
   getStateFromValidForm(payload: FormPayload): FormState {
-    const name = this.name
+    const { children, name } = this
+
+    if (children) {
+      return children.getStateFromValidForm(payload)
+    }
 
     return {
       [name]: this.getStateValueFromValidForm(payload)
@@ -121,11 +129,27 @@ export class FormComponent extends ComponentBase {
   }
 
   getFormSchemaKeys(): ComponentSchemaKeys {
-    return { [this.name]: this.formSchema }
+    const { children, name, formSchema } = this
+
+    if (children) {
+      return children.getFormSchemaKeys()
+    }
+
+    return {
+      [name]: formSchema
+    }
   }
 
   getStateSchemaKeys(): ComponentSchemaKeys {
-    return { [this.name]: this.stateSchema }
+    const { children, name, stateSchema } = this
+
+    if (children) {
+      return children.getStateSchemaKeys()
+    }
+
+    return {
+      [name]: stateSchema
+    }
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
