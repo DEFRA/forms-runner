@@ -293,7 +293,7 @@ export class PageControllerBase {
    * @param value - user's answers
    * @param schema - which schema to validate against
    */
-  validate<ValueType extends object>(
+  validate<ValueType extends FormPayload | FormSubmissionState>(
     value: ValueType,
     schema: ObjectSchema<ValueType>
   ): FormValidationResult<ValueType> {
@@ -330,7 +330,7 @@ export class PageControllerBase {
     // While the current page isn't null
     while (nextPage != null) {
       // Either get the current state or the current state of the section if this page belongs to a section
-      const newValue = {}
+      const newValue: Record<string, unknown> = {}
 
       if (!hasRepeater(nextPage.pageDef)) {
         // Iterate all components on this page and pull out the saved values from the state
