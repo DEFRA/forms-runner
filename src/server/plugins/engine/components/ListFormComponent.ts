@@ -81,10 +81,12 @@ export class ListFormComponent extends FormComponent {
     this.options = options
   }
 
-  getDisplayStringFromState(state: FormSubmissionState): string | string[] {
-    const { name, items } = this
+  getDisplayStringFromState(state: FormSubmissionState) {
+    const { items, name } = this
+
     const value = state[name]
-    const item = items.find((item) => String(item.value) === String(value))
+    const item = items.find((item) => item.value === value)
+
     return item?.text ?? ''
   }
 
@@ -97,7 +99,7 @@ export class ListFormComponent extends FormComponent {
           text,
           value: `${value}`,
           hint: { text: description },
-          selected: `${value}` === `${payload[name]}`,
+          selected: value === payload[name],
           condition: condition ?? undefined
         }) satisfies ListItem
     )
