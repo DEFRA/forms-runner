@@ -82,9 +82,9 @@ export class ListFormComponent extends FormComponent {
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
-    const { items, name } = this
+    const { items } = this
 
-    const value = state[name]
+    const value = this.getFormValueFromState(state)
     const item = items.find((item) => item.value === value)
 
     return item?.text ?? ''
@@ -92,17 +92,25 @@ export class ListFormComponent extends FormComponent {
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     const { name, items } = this
+
     const viewModel = super.getViewModel(payload, errors)
-    const viewModelItems = items.map(
-      ({ text, value, description = '', condition }) =>
-        ({
-          text,
-          value: `${value}`,
-          hint: { text: description },
-          selected: value === payload[name],
-          condition: condition ?? undefined
-        }) satisfies ListItem
-    )
+
+    const viewModelItems = items.map((item) => {
+      const value =
+        typeof payload[name] === 'string' ||
+        typeof payload[name] === 'number' ||
+        typeof payload[name] === 'boolean'
+          ? payload[name]
+          : ''
+
+      return {
+        ...item,
+        value: item.value,
+        hint: { text: item.description ?? '' },
+        selected: item.value === value,
+        condition: item.condition ?? undefined
+      } satisfies ListItem
+    })
 
     viewModel.items = viewModelItems
 

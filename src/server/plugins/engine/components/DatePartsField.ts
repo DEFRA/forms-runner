@@ -92,37 +92,56 @@ export class DatePartsField extends FormComponent {
   }
 
   getFormDataFromState(state: FormSubmissionState) {
-    const name = this.name
-    const value = state[name]
-    const dateValue = new Date(value)
+    const { name } = this
+
+    const value = this.getFormValueFromState(state)
+    const dateValue = typeof value === 'string' ? new Date(value) : undefined
+
+    const day = dateValue ? dateValue.getDate() : ''
+    const month = dateValue ? dateValue.getMonth() + 1 : ''
+    const year = dateValue ? dateValue.getFullYear() : ''
 
     return {
-      [`${name}__day`]: value && dateValue.getDate(),
-      [`${name}__month`]: value && dateValue.getMonth() + 1,
-      [`${name}__year`]: value && dateValue.getFullYear()
+      [`${name}__day`]: day,
+      [`${name}__month`]: month,
+      [`${name}__year`]: year
     }
   }
 
-  getStateValueFromValidForm(payload: FormPayload) {
-    const name = this.name
+  getStateFromValidForm(payload: FormPayload) {
+    const { name } = this
 
-    return payload[`${name}__year`]
-      ? new Date(
-          payload[`${name}__year`],
-          payload[`${name}__month`] - 1,
-          payload[`${name}__day`]
-        )
-      : null
+    const day = payload[`${name}__day`]
+    const month = payload[`${name}__month`]
+    const year = payload[`${name}__year`]
+
+    if (
+      typeof day !== 'number' ||
+      typeof month !== 'number' ||
+      typeof year !== 'number'
+    ) {
+      return {}
+    }
+
+    return {
+      [name]: new Date(year, month - 1, day).toString()
+    }
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
-    const value = state[this.name]
-    return value ? format(parseISO(value), 'd MMMM yyyy') : ''
+    const value = this.getFormValueFromState(state)
+
+    return typeof value === 'string'
+      ? format(parseISO(value), 'd MMMM yyyy')
+      : ''
   }
 
   getConditionEvaluationStateValue(state: FormSubmissionState): string {
-    const value = state[this.name]
-    return value ? format(parseISO(value), 'yyyy-MM-dd') : '' // strip the time as it interferes with equals/not equals
+    const value = this.getFormValueFromState(state)
+
+    return typeof value === 'string'
+      ? format(parseISO(value), 'yyyy-MM-dd') // strip the time as it interferes with equals/not equals
+      : ''
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {

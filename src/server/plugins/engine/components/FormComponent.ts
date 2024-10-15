@@ -49,11 +49,18 @@ export class FormComponent extends ComponentBase {
   }
 
   getFormValueFromState(state: FormSubmissionState): FormValue {
-    const name = this.name
+    const { name } = this
 
-    if (name in state) {
-      return state[name] === null ? '' : state[name].toString()
+    if (
+      state[name] === null ||
+      (typeof state[name] !== 'string' &&
+        typeof state[name] !== 'number' &&
+        typeof state[name] !== 'boolean')
+    ) {
+      return
     }
+
+    return state[name]
   }
 
   getStateFromValidForm(payload: FormPayload): FormState {
@@ -69,7 +76,7 @@ export class FormComponent extends ComponentBase {
   }
 
   getStateValueFromValidForm(payload: FormPayload): FormStateValue {
-    const name = this.name
+    const { name } = this
     const value = payload[name]
 
     // Check for empty fields
@@ -153,6 +160,7 @@ export class FormComponent extends ComponentBase {
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
-    return state[this.name] ?? ''
+    const { name } = this
+    return typeof state[name] === 'string' ? state[name] : ''
   }
 }

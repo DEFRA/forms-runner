@@ -60,17 +60,19 @@ export class MonthYearField extends FormComponent {
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
-    const values = state[this.name]
-    const year = values?.[`${this.name}__year`] ?? 'Not supplied'
+    const values = this.getFormDataFromState(state)
 
-    let monthString = 'Not supplied'
-    const monthValue = values?.[`${this.name}__month`]
-    if (monthValue) {
-      const date = new Date()
-      date.setMonth(monthValue - 1)
-      monthString = date.toLocaleString('default', { month: 'long' })
+    const month = values[`${this.name}__month`]
+    const year = values[`${this.name}__year`]
+
+    if (typeof month !== 'number' || typeof year !== 'number') {
+      return ''
     }
 
+    const date = new Date()
+    date.setMonth(month - 1)
+
+    const monthString = date.toLocaleString('default', { month: 'long' })
     return `${monthString} ${year}`
   }
 
