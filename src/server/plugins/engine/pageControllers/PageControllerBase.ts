@@ -36,6 +36,7 @@ import { validationOptions } from '~/src/server/plugins/engine/pageControllers/v
 import {
   type FormData,
   type FormPayload,
+  type FormState,
   type FormSubmissionErrors,
   type FormSubmissionState,
   type FormValidationResult,
@@ -316,7 +317,7 @@ export class PageControllerBase {
    * Returns an async function. This is called in plugin.ts when there is a GET request at `/{id}/{path*}`
    */
   getConditionEvaluationContext(model: FormModel, state: FormSubmissionState) {
-    let relevantState: FormSubmissionState = {}
+    let relevantState: FormState = {}
     // Start at our startPage
     let nextPage = model.startPage
 

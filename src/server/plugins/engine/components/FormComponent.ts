@@ -9,9 +9,13 @@ import { optionalText } from '~/src/server/plugins/engine/components/constants.j
 import { type FormComponentFieldComponent } from '~/src/server/plugins/engine/components/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
+  type FormData,
   type FormPayload,
+  type FormState,
+  type FormStateValue,
   type FormSubmissionErrors,
-  type FormSubmissionState
+  type FormSubmissionState,
+  type FormValue
 } from '~/src/server/plugins/engine/types.js'
 
 export class FormComponent extends ComponentBase {
@@ -28,19 +32,19 @@ export class FormComponent extends ComponentBase {
     this.hint = hint
   }
 
-  getFormDataFromState(state: FormSubmissionState) {
+  getFormDataFromState(state: FormSubmissionState): FormData {
     const name = this.name
 
-    if (name in state) {
-      return {
-        [name]: this.getFormValueFromState(state)
-      }
+    if (!(name in state)) {
+      return {}
     }
 
-    return undefined
+    return {
+      [name]: this.getFormValueFromState(state)
+    }
   }
 
-  getFormValueFromState(state: FormSubmissionState) {
+  getFormValueFromState(state: FormSubmissionState): FormValue {
     const name = this.name
 
     if (name in state) {
@@ -48,7 +52,7 @@ export class FormComponent extends ComponentBase {
     }
   }
 
-  getStateFromValidForm(payload: FormPayload) {
+  getStateFromValidForm(payload: FormPayload): FormState {
     const name = this.name
 
     return {
@@ -56,7 +60,7 @@ export class FormComponent extends ComponentBase {
     }
   }
 
-  getStateValueFromValidForm(payload: FormPayload) {
+  getStateValueFromValidForm(payload: FormPayload): FormStateValue {
     const name = this.name
     const value = payload[name]
 
