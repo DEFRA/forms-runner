@@ -357,7 +357,6 @@ describe('Submission journey test', () => {
 
 /**
  * @import { Server } from '@hapi/hapi'
- * @import { FormMetadata, FormMetadataAuthor } from '@defra/forms-model'
  * @import { OutgoingHttpHeaders } from 'node:http'
  * @import { UploadInitiateResponse, UploadStatusResponse } from '~/src/server/plugins/engine/types.js'
  */

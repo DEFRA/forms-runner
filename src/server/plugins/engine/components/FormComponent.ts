@@ -1,3 +1,4 @@
+import { type FormComponentsDef } from '@defra/forms-model'
 import upperFirst from 'lodash/upperFirst.js'
 
 import {
@@ -6,7 +7,6 @@ import {
 } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { type ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
-import { type FormComponentFieldComponent } from '~/src/server/plugins/engine/components/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   type FormPayload,
@@ -15,12 +15,12 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class FormComponent extends ComponentBase {
-  hint: FormComponentFieldComponent['hint']
+  hint: FormComponentsDef['hint']
   children: ComponentCollection | undefined
 
   isFormComponent = true
 
-  constructor(def: FormComponentFieldComponent, model: FormModel) {
+  constructor(def: FormComponentsDef, model: FormModel) {
     super(def, model)
 
     const { hint } = def

@@ -19,18 +19,6 @@ import {
   type FormData,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
-import { type Field } from '~/src/server/schemas/types.js'
-
-export type Fields = Field[]
-
-export interface Question {
-  category: string | null
-  question: string
-  fields: Fields
-  index?: number
-}
-
-export type Questions = Question[]
 
 export type ExecutableCondition = ConditionWrapper & {
   expr: Expression
