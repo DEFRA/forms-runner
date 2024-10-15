@@ -274,7 +274,7 @@ async function sendEmail(
 
   const { path } = request
 
-  const formStatus: FormStatus = checkFormStatus(path)
+  const formStatus = checkFormStatus(path)
 
   // Get submission email personalisation
   const personalisation = getPersonalisation(
