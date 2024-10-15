@@ -55,6 +55,12 @@ Multiline text field
 \`\`\`
 
 
+## Month year field
+\`\`\`
+2012-12
+\`\`\`
+
+
 ## Yes/No field
 \`\`\`
 yes
@@ -225,6 +231,8 @@ describe('Submission journey test', () => {
       datePartsField__day: '12',
       datePartsField__month: '12',
       datePartsField__year: '2012',
+      monthYearField__month: '12',
+      monthYearField__year: '2012',
       yesNoField: 'true',
       emailAddressField: 'user@email.com',
       telephoneNumberField: '+447900000000',
