@@ -24,6 +24,9 @@ const okStatusCode = 200
 const redirectStatusCode = 302
 const htmlContentType = 'text/html'
 
+/**
+ * @satisfies {FileState}
+ */
 const readyFile = {
   uploadId: '404a31b2-8ee8-49b5-a6e8-23da9e69ba9e',
   status: {
@@ -43,6 +46,9 @@ const readyFile = {
   }
 }
 
+/**
+ * @satisfies {FileState}
+ */
 const readyFile2 = {
   uploadId: '404a31b2-8ee8-49b5-a6e8-23da9e69ba1f',
   status: {
@@ -102,7 +108,7 @@ describe('Submission journey test', () => {
 
   test('POST /file-upload-component returns 302', async () => {
     jest.spyOn(CacheService.prototype, 'getUploadState').mockResolvedValueOnce(
-      /** @type {import('~/src/server/plugins/engine/types.js').TempFileState} */ ({
+      /** @type {TempFileState} */ ({
         upload: {
           uploadId: '123-546-788',
           uploadUrl: 'http://localhost:7337/upload-and-scan/123-546-788',
@@ -201,5 +207,5 @@ describe('Submission journey test', () => {
 
 /**
  * @import { Server } from '@hapi/hapi'
- * @import { FormMetadata, FormMetadataAuthor } from '@defra/forms-model'
+ * @import { FileState, TempFileState } from '~/src/server/plugins/engine/types.js'
  */

@@ -145,7 +145,7 @@ export class FileUploadPageController extends PageController {
     const files = request.app.files ?? []
 
     // Append the files to the payload
-    payload[name] = files.length ? files : null
+    payload[name] = files.length ? files : undefined
 
     return payload
   }
