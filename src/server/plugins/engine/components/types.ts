@@ -32,6 +32,16 @@ export interface ListItem {
   condition?: string
 }
 
+export interface DateInputItem {
+  label?: Label
+  type?: string
+  id?: string
+  name?: string
+  value?: number
+  classes?: string
+  condition?: undefined
+}
+
 // TODO: Break this down for each component (Same as model/Component).
 export interface ViewModel extends Record<string, unknown> {
   label?: Label
@@ -65,7 +75,7 @@ export interface ViewModel extends Record<string, unknown> {
   }
   content?: Content | Content[] | string
   rows?: number
-  items?: ListItem[]
+  items?: ListItem[] | DateInputItem[]
   fieldset?: {
     attributes?: string | Record<string, string>
     legend?: Label
