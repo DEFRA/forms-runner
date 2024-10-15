@@ -11,6 +11,7 @@ import { type ComponentCollectionViewModel } from '~/src/server/plugins/engine/c
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
+  type FormState,
   type FormSubmissionErrors,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
@@ -71,7 +72,7 @@ export class ComponentCollection {
     return keys
   }
 
-  getFormDataFromState(state: FormSubmissionState): FormPayload {
+  getFormDataFromState(state: FormSubmissionState) {
     const payload: FormPayload = {}
 
     this.formItems.forEach((item) => {
@@ -82,7 +83,7 @@ export class ComponentCollection {
   }
 
   getStateFromValidForm(payload: FormPayload) {
-    const state: FormSubmissionState = {}
+    const state: FormState = {}
 
     this.formItems.forEach((item) => {
       Object.assign(state, item.getStateFromValidForm(payload))

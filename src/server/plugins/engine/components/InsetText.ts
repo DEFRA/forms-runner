@@ -1,7 +1,6 @@
 import { type InsetTextComponent } from '@defra/forms-model'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
-import { type ViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   type FormPayload,
@@ -19,7 +18,7 @@ export class InsetText extends ComponentBase {
     this.content = content
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors): ViewModel {
+  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     return {
       ...super.getViewModel(payload, errors),
       content: this.content

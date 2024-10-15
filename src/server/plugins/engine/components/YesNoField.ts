@@ -2,6 +2,7 @@ import { type YesNoFieldComponent } from '@defra/forms-model'
 
 import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
 import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers.js'
+import { type ListItem } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
@@ -49,10 +50,10 @@ export class YesNoField extends ListFormComponent {
       }
     }
 
-    items = items?.map(({ selected, ...item }) => ({
-      ...item,
-      checked: selected
-    }))
+    items = items?.map((item) => {
+      const checked = 'selected' in item && item.selected
+      return { ...item, checked } satisfies ListItem
+    })
 
     return {
       ...viewModel,
