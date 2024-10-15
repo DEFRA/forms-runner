@@ -7,9 +7,3 @@ export interface Field {
   answer: DetailItem['rawValue']
   item: DetailItem
 }
-
-export interface Question {
-  category?: string
-  question: string
-  fields: Field[]
-}
