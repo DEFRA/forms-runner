@@ -36,8 +36,8 @@ import { type PageControllerClass } from '~/src/server/plugins/engine/pageContro
 import { validationOptions } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
-  type FormData,
   type FormPayload,
+  type FormState,
   type FormSubmissionErrors,
   type FormSubmissionState,
   type FormValidationResult,
@@ -241,7 +241,7 @@ export class PageControllerBase {
   /**
    * gets the state for the values that can be entered on just this page
    */
-  getFormDataFromState(state: FormSubmissionState): FormData {
+  getFormDataFromState(state: FormSubmissionState): FormPayload {
     return {
       ...this.components.getFormDataFromState(state)
     }
@@ -326,7 +326,7 @@ export class PageControllerBase {
    * Returns an async function. This is called in plugin.ts when there is a GET request at `/{id}/{path*}`
    */
   getConditionEvaluationContext(model: FormModel, state: FormSubmissionState) {
-    let relevantState: FormSubmissionState = {}
+    let relevantState: FormState = {}
     // Start at our startPage
     let nextPage = model.startPage
 
