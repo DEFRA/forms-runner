@@ -1,4 +1,8 @@
-import { type FormComponentsDef } from '@defra/forms-model'
+import {
+  type ContentComponentsDef,
+  type FormComponentsDef,
+  type Item
+} from '@defra/forms-model'
 
 export interface Label {
   text: string
@@ -17,7 +21,7 @@ export type ListItemLabel = Omit<Label, 'text' | 'isPageHeading'>
 
 export interface ListItem {
   text?: string
-  value?: string | boolean | number
+  value?: Item['value']
   hint?: {
     id?: string
     text: string
@@ -104,7 +108,7 @@ export interface FormComponentViewModel {
 }
 
 export interface ContentComponentViewModel {
-  type: undefined
+  type: ContentComponentsDef['type']
   isFormComponent: false
   model: ViewModel
 }
