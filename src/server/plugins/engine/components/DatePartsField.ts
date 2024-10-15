@@ -47,8 +47,7 @@ export class DatePartsField extends FormComponent {
             required: isRequired,
             optionalText: !isRequired && hideOptional,
             classes: 'govuk-input--width-2'
-          },
-          hint: ''
+          }
         },
         {
           type: ComponentType.NumberField,
@@ -59,8 +58,7 @@ export class DatePartsField extends FormComponent {
             required: isRequired,
             optionalText: !isRequired && hideOptional,
             classes: 'govuk-input--width-2'
-          },
-          hint: ''
+          }
         },
         {
           type: ComponentType.NumberField,
@@ -71,8 +69,7 @@ export class DatePartsField extends FormComponent {
             required: isRequired,
             optionalText: !isRequired && hideOptional,
             classes: 'govuk-input--width-4'
-          },
-          hint: ''
+          }
         }
       ],
       model
