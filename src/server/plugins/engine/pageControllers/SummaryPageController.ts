@@ -312,7 +312,7 @@ async function sendEmail(
   emailAddress: string
 ) {
   const { path } = request
-  const formStatus: FormStatus = checkFormStatus(path)
+  const formStatus = checkFormStatus(path)
   const logTags = ['submit', 'email']
 
   request.logger.info(logTags, 'Preparing email', formStatus)
