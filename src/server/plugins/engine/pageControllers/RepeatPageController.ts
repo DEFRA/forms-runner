@@ -70,7 +70,8 @@ export class RepeatPageController extends PageController {
   getStateFromValidForm(request: Request, payload: FormPayload) {
     const { item, list } = this.getRepeatAppData(request)
     const state = super.getStateFromValidForm(request, payload)
-    const updated = { ...state, itemId: payload.itemId }
+
+    const updated: FormData = { ...state, itemId: payload.itemId }
     const newList = [...list]
 
     if (!item) {
@@ -325,7 +326,7 @@ export class RepeatPageController extends PageController {
 
   getListSummaryViewModel(
     request: Request,
-    state: FormSubmissionState,
+    state: FormData[],
     errors?: FormSubmissionErrors
   ): {
     name: string | undefined
