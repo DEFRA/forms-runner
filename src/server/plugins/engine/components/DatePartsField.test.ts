@@ -301,7 +301,6 @@ function dateComponent(name: string, width: number) {
     name: `myComponent__${name.toLowerCase()}`,
     value: undefined,
     classes: `govuk-input--width-${width}`,
-    type: 'number',
-    attributes: {}
+    type: 'number'
   }
 }
