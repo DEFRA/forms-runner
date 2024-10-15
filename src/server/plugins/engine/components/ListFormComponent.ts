@@ -85,10 +85,10 @@ export class ListFormComponent extends FormComponent {
     const { values: listValues, name } = this
 
     const value = state[name]
-    const values = [value ?? []].flat().map(String)
+    const values = [value ?? []].flat()
 
     const selected = listValues.filter((listValue) =>
-      values.includes(`${listValue}`)
+      values.includes(listValue)
     )
 
     if (!selected.length) {
@@ -119,17 +119,11 @@ export class ListFormComponent extends FormComponent {
     let { items, value } = viewModel
 
     // Support multiple values for checkboxes
-    const values = [value ?? []].flat().map(String)
+    const values = [value ?? []].flat()
 
     items = listItems.map((item) => {
-      const value = `${item.value}`
-      const selected = values.includes(value)
-
-      const itemModel: ListItem = {
-        ...item,
-        selected,
-        value
-      }
+      const selected = values.includes(item.value)
+      const itemModel: ListItem = { ...item, selected }
 
       if (item.description) {
         itemModel.hint = {
