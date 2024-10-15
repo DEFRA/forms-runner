@@ -3,9 +3,13 @@ import { type ServerRegisterPluginObject } from '@hapi/hapi'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
-import { healthRoute, publicRoutes } from '~/src/server/routes/index.js'
+import {
+  healthRoute,
+  publicRoutes,
+  fileUploadRoute
+} from '~/src/server/routes/index.js'
 
-const routes = [...publicRoutes, healthRoute]
+const routes = [...publicRoutes, healthRoute, fileUploadRoute]
 
 const logger = createLogger()
 
