@@ -100,10 +100,6 @@ export class UkAddressField extends FormComponent {
     this.stateSchema = stateSchema
   }
 
-  getFormSchemaKeys() {
-    return this.children.getFormSchemaKeys()
-  }
-
   getStateSchemaKeys() {
     const { name } = this
     const options = this.options

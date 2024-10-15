@@ -1,3 +1,4 @@
+import { type FormComponentsDef } from '@defra/forms-model'
 import upperFirst from 'lodash/upperFirst.js'
 
 import {
@@ -6,7 +7,6 @@ import {
 } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { type ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
-import { type FormComponentFieldComponent } from '~/src/server/plugins/engine/components/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   type FormData,
@@ -14,17 +14,16 @@ import {
   type FormState,
   type FormStateValue,
   type FormSubmissionErrors,
-  type FormSubmissionState,
-  type FormValue
+  type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 
 export class FormComponent extends ComponentBase {
-  hint: FormComponentFieldComponent['hint']
+  hint: FormComponentsDef['hint']
   children: ComponentCollection | undefined
 
   isFormComponent = true
 
-  constructor(def: FormComponentFieldComponent, model: FormModel) {
+  constructor(def: FormComponentsDef, model: FormModel) {
     super(def, model)
 
     const { hint } = def
@@ -33,27 +32,27 @@ export class FormComponent extends ComponentBase {
   }
 
   getFormDataFromState(state: FormSubmissionState): FormData {
-    const name = this.name
+    const { children, name } = this
+
+    if (children) {
+      return children.getFormDataFromState(state)
+    }
 
     if (!(name in state)) {
       return {}
     }
 
     return {
-      [name]: this.getFormValueFromState(state)
-    }
-  }
-
-  getFormValueFromState(state: FormSubmissionState): FormValue {
-    const name = this.name
-
-    if (name in state) {
-      return state[name] === null ? '' : state[name].toString()
+      [name]: state[name]
     }
   }
 
   getStateFromValidForm(payload: FormPayload): FormState {
-    const name = this.name
+    const { children, name } = this
+
+    if (children) {
+      return children.getStateFromValidForm(payload)
+    }
 
     return {
       [name]: this.getStateValueFromValidForm(payload)
@@ -121,11 +120,27 @@ export class FormComponent extends ComponentBase {
   }
 
   getFormSchemaKeys(): ComponentSchemaKeys {
-    return { [this.name]: this.formSchema }
+    const { children, name, formSchema } = this
+
+    if (children) {
+      return children.getFormSchemaKeys()
+    }
+
+    return {
+      [name]: formSchema
+    }
   }
 
   getStateSchemaKeys(): ComponentSchemaKeys {
-    return { [this.name]: this.stateSchema }
+    const { children, name, stateSchema } = this
+
+    if (children) {
+      return children.getStateSchemaKeys()
+    }
+
+    return {
+      [name]: stateSchema
+    }
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {

@@ -6,8 +6,7 @@ import { type ListItem } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
-  type FormSubmissionErrors,
-  type FormSubmissionState
+  type FormSubmissionErrors
 } from '~/src/server/plugins/engine/types.js'
 
 /**
@@ -31,12 +30,6 @@ export class YesNoField extends ListFormComponent {
 
     this.formSchema = formSchema
     this.options = options
-  }
-
-  getDisplayStringFromState(state: FormSubmissionState) {
-    const value = state[this.name]
-    const item = this.items.find((item) => item.value === value)
-    return item?.text ?? ''
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {

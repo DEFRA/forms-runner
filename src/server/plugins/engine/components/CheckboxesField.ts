@@ -45,18 +45,22 @@ export class CheckboxesField extends SelectionControlField {
   getDisplayStringFromState(state: FormSubmissionState) {
     const { items, name } = this
 
-    const values = state[name]
+    const { [name]: values } = this.getFormDataFromState(state)
 
     return values
-      ?.map((value) => items.find((item) => item.value === value)?.text ?? '')
+      .map((value) => items.find((item) => item.value === value)?.text ?? '')
       .join(', ')
   }
 
-  getFormValueFromState(state: FormSubmissionState) {
+  getFormDataFromState(state: FormSubmissionState) {
     const { name } = this
 
-    if (Array.isArray(state[name])) {
-      return state[name]
+    const values = Array.isArray(state[name]) ? state[name] : []
+
+    return {
+      [name]: values.filter(
+        (value) => typeof value === 'string' || typeof value === 'number'
+      )
     }
   }
 
