@@ -95,31 +95,48 @@ export enum FileStatus {
   pending = 'pending'
 }
 
-export interface FileUpload {
+export type FileUpload = {
   fileId: string
   filename: string
-  fileStatus: FileStatus
   contentLength: number
-  errorMessage?: string
-}
+} & (
+  | {
+      fileStatus: FileStatus.complete | FileStatus.rejected | FileStatus.pending
+      errorMessage?: string
+    }
+  | {
+      fileStatus: FileStatus.complete
+      errorMessage?: undefined
+    }
+)
 
 export interface FileUploadMetadata {
   retrievalKey: string
 }
 
-export interface UploadStatusResponse {
-  uploadStatus: UploadStatus
-  metadata: FileUploadMetadata
-  form: { file?: FileUpload }
-  numberOfRejectedFiles?: number
-}
+export type UploadStatusResponse =
+  | {
+      uploadStatus: UploadStatus.initiated
+      metadata: FileUploadMetadata
+      form: { file?: undefined }
+    }
+  | {
+      uploadStatus: UploadStatus.pending | UploadStatus.ready
+      metadata: FileUploadMetadata
+      form: { file: FileUpload }
+      numberOfRejectedFiles?: number
+    }
+  | {
+      uploadStatus: UploadStatus.ready
+      metadata: FileUploadMetadata
+      form: { file: FileUpload }
+      numberOfRejectedFiles: 0
+    }
 
-export interface UploadState {
-  uploadStatus: UploadStatus
-  metadata: FileUploadMetadata
-  form: { file: FileUpload }
-  numberOfRejectedFiles?: number
-}
+export type UploadState = Exclude<
+  UploadStatusResponse,
+  { uploadStatus: UploadStatus.initiated }
+>
 
 export interface FileState {
   uploadId: string

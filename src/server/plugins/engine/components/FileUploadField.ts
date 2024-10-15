@@ -10,6 +10,7 @@ import { filesize } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   FileStatus,
+  UploadStatus,
   type FileState,
   type FormPayload,
   type FormSubmissionErrors,
@@ -27,12 +28,15 @@ export const fileSchema = joi
   .required()
 
 export const tempFileSchema = fileSchema.append({
-  fileStatus: joi.string().valid('complete', 'rejected', 'pending').required(),
+  fileStatus: joi
+    .string()
+    .valid(FileStatus.complete, FileStatus.rejected, FileStatus.pending)
+    .required(),
   errorMessage: joi.string().optional()
 })
 
 export const formFileSchema = fileSchema.append({
-  fileStatus: joi.string().valid('complete').required()
+  fileStatus: joi.string().valid(FileStatus.complete).required()
 })
 
 export const metadataSchema = joi
@@ -44,7 +48,10 @@ export const metadataSchema = joi
 
 export const tempStatusSchema = joi
   .object({
-    uploadStatus: joi.string().valid('ready', 'pending').required(),
+    uploadStatus: joi
+      .string()
+      .valid(UploadStatus.ready, UploadStatus.pending)
+      .required(),
     metadata: metadataSchema,
     form: joi.object().required().keys({
       file: tempFileSchema
@@ -55,7 +62,7 @@ export const tempStatusSchema = joi
 
 export const formStatusSchema = joi
   .object({
-    uploadStatus: joi.string().valid('ready').required(),
+    uploadStatus: joi.string().valid(UploadStatus.ready).required(),
     metadata: metadataSchema,
     form: joi.object().required().keys({
       file: formFileSchema
