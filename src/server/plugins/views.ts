@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import { basename, dirname, join } from 'node:path'
 
 import { markdownToHtml } from '@defra/forms-model'
-import { type Request, type ServerRegisterPluginObject } from '@hapi/hapi'
+import { type ServerRegisterPluginObject } from '@hapi/hapi'
 import vision, { type ServerViewsConfiguration } from '@hapi/vision'
 import capitalize from 'lodash/capitalize.js'
 import nunjucks from 'nunjucks'
@@ -13,6 +13,10 @@ import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { encodeUrl } from '~/src/server/plugins/engine/helpers.js'
+import {
+  type FormRequest,
+  type FormRequestPayload
+} from '~/src/server/routes/types.js'
 
 const logger = createLogger()
 
@@ -40,14 +44,7 @@ nunjucksEnvironment.addFilter('markdown', markdownToHtml)
 
 let webpackManifest: Record<string, string> | undefined
 
-function nunjucksContext(
-  request: Request<{
-    Params: {
-      slug?: string
-      state?: 'draft' | 'live'
-    }
-  }> | null
-) {
+function nunjucksContext(request: FormRequest | FormRequestPayload | null) {
   const manifestPath = join(config.get('publicDir'), 'assets-manifest.json')
 
   if (!webpackManifest) {
