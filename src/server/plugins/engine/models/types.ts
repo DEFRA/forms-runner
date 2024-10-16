@@ -108,6 +108,7 @@ export interface DetailItemBase {
   type?: ComponentBase['type']
   title: ComponentBase['title']
   dataType?: ComponentBase['dataType']
+  subItems?: DetailItem[][]
 }
 
 export interface DetailItemDate extends DetailItemBase {
@@ -152,16 +153,18 @@ export interface DetailItemFileUpload extends DetailItemBase {
 
 export interface DetailItemRepeat extends DetailItemBase {
   rawValue: [] | null
+  subItems: DetailItem[][]
 }
 
-export type DetailItem =
+export type DetailItemComponent =
   | DetailItemDate
   | DetailItemMonthYear
   | DetailItemList
   | DetailItemNumber
   | DetailItemText
   | DetailItemFileUpload
-  | DetailItemRepeat
+
+export type DetailItem = DetailItemComponent | DetailItemRepeat
 
 /**
  * Used to render a row on a Summary List (check your answers)
