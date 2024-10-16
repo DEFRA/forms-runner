@@ -38,6 +38,13 @@
           "schema": {}
         },
         {
+          "type": "MonthYearField",
+          "name": "monthYearField",
+          "title": "Month year field",
+          "options": {},
+          "schema": {}
+        },
+        {
           "type": "YesNoField",
           "name": "yesNoField",
           "title": "Yes/No field",

@@ -33,7 +33,11 @@ export class FormComponent extends ComponentBase {
   }
 
   getFormDataFromState(state: FormSubmissionState): FormData {
-    const name = this.name
+    const { children, name } = this
+
+    if (children) {
+      return children.getFormDataFromState(state)
+    }
 
     if (!(name in state)) {
       return {}
@@ -45,15 +49,26 @@ export class FormComponent extends ComponentBase {
   }
 
   getFormValueFromState(state: FormSubmissionState): FormValue {
-    const name = this.name
+    const { name } = this
 
-    if (name in state) {
-      return state[name] === null ? '' : state[name].toString()
+    if (
+      state[name] === null ||
+      (typeof state[name] !== 'string' &&
+        typeof state[name] !== 'number' &&
+        typeof state[name] !== 'boolean')
+    ) {
+      return
     }
+
+    return state[name]
   }
 
   getStateFromValidForm(payload: FormPayload): FormState {
-    const name = this.name
+    const { children, name } = this
+
+    if (children) {
+      return children.getStateFromValidForm(payload)
+    }
 
     return {
       [name]: this.getStateValueFromValidForm(payload)
@@ -61,7 +76,7 @@ export class FormComponent extends ComponentBase {
   }
 
   getStateValueFromValidForm(payload: FormPayload): FormStateValue {
-    const name = this.name
+    const { name } = this
     const value = payload[name]
 
     // Check for empty fields
@@ -121,14 +136,31 @@ export class FormComponent extends ComponentBase {
   }
 
   getFormSchemaKeys(): ComponentSchemaKeys {
-    return { [this.name]: this.formSchema }
+    const { children, name, formSchema } = this
+
+    if (children) {
+      return children.getFormSchemaKeys()
+    }
+
+    return {
+      [name]: formSchema
+    }
   }
 
   getStateSchemaKeys(): ComponentSchemaKeys {
-    return { [this.name]: this.stateSchema }
+    const { children, name, stateSchema } = this
+
+    if (children) {
+      return children.getStateSchemaKeys()
+    }
+
+    return {
+      [name]: stateSchema
+    }
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
-    return state[this.name] ?? ''
+    const { name } = this
+    return typeof state[name] === 'string' ? state[name] : ''
   }
 }

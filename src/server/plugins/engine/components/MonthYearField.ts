@@ -23,7 +23,9 @@ export class MonthYearField extends FormComponent {
     super(def, model)
 
     const { name, options } = def
+
     const isRequired = options.required !== false
+    const hideOptional = options.optionalText
 
     this.children = new ComponentCollection(
       [
@@ -34,6 +36,7 @@ export class MonthYearField extends FormComponent {
           schema: { min: 1, max: 12 },
           options: {
             required: isRequired,
+            optionalText: !isRequired && hideOptional,
             classes: 'govuk-input--width-2',
             customValidationMessage: '{{#label}} must be between 1 and 12'
           }
@@ -45,6 +48,7 @@ export class MonthYearField extends FormComponent {
           schema: { min: 1000, max: 3000 },
           options: {
             required: isRequired,
+            optionalText: !isRequired && hideOptional,
             classes: 'govuk-input--width-4'
           }
         }
@@ -55,36 +59,20 @@ export class MonthYearField extends FormComponent {
     this.options = options
   }
 
-  getFormSchemaKeys() {
-    return this.children.getFormSchemaKeys()
-  }
-
-  getStateSchemaKeys() {
-    return {
-      [this.name]: this.children.getStateSchemaKeys()
-    }
-  }
-
-  getFormDataFromState(state: FormSubmissionState) {
-    return this.children.getFormDataFromState(state)
-  }
-
-  getStateValueFromValidForm(payload: FormPayload) {
-    return this.children.getStateFromValidForm(payload)
-  }
-
   getDisplayStringFromState(state: FormSubmissionState) {
-    const values = state[this.name]
-    const year = values?.[`${this.name}__year`] ?? 'Not supplied'
+    const values = this.getFormDataFromState(state)
 
-    let monthString = 'Not supplied'
-    const monthValue = values?.[`${this.name}__month`]
-    if (monthValue) {
-      const date = new Date()
-      date.setMonth(monthValue - 1)
-      monthString = date.toLocaleString('default', { month: 'long' })
+    const month = values[`${this.name}__month`]
+    const year = values[`${this.name}__year`]
+
+    if (typeof month !== 'number' || typeof year !== 'number') {
+      return ''
     }
 
+    const date = new Date()
+    date.setMonth(month - 1)
+
+    const monthString = date.toLocaleString('default', { month: 'long' })
     return `${monthString} ${year}`
   }
 

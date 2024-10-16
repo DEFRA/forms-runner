@@ -171,7 +171,7 @@ describe('YesNoField', () => {
         expect.arrayContaining([
           expect.objectContaining({
             text: item.text,
-            value: `${item.value}`,
+            value: item.value,
             checked: true
           })
         ])

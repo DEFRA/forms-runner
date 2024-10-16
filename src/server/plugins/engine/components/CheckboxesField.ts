@@ -43,43 +43,42 @@ export class CheckboxesField extends SelectionControlField {
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
-    return state[this.name]
-      ?.map(
-        (value) =>
-          this.items.find((item) => `${item.value}` === `${value}`)?.text ?? ''
-      )
+    const { items } = this
+
+    const values = this.getFormValueFromState(state)
+
+    return values
+      .map((value) => items.find((item) => item.value === value)?.text ?? '')
       .join(', ')
   }
 
   getFormValueFromState(state: FormSubmissionState) {
     const { name } = this
+    const values = state[name]
 
-    if (Array.isArray(state[name])) {
-      return state[name]
+    if (!Array.isArray(values)) {
+      return []
     }
+
+    return values.filter(
+      (value) => typeof value === 'string' || typeof value === 'number'
+    )
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     const viewModel = super.getViewModel(payload, errors)
     let { items, value } = viewModel
 
-    let payloadItems: string[] | number[] = []
-
     // Allow strings (temporarily) via controller renderWithErrors()
-    payloadItems = Array.isArray(value) ? value : payloadItems
-    payloadItems = typeof value === 'string' ? [value] : payloadItems
+    const payloadItems = [value]
+      .flat()
+      .filter((value) => typeof value === 'string' || typeof value === 'number')
 
     // Apply checked status to each of the items
-    items = items?.map((item) => {
-      const checked = payloadItems.some(
-        (value) => `${item.value}` === `${value}`
-      )
-
-      return {
-        ...item,
-        checked
-      }
-    })
+    items = items?.map((item) => ({
+      ...item,
+      checked: payloadItems.some((value) => item.value === value)
+    }))
 
     return {
       ...viewModel,
