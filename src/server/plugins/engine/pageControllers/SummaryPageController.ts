@@ -1,7 +1,6 @@
 import { ComponentType } from '@defra/forms-model'
 import { internal, type Boom } from '@hapi/boom'
 import {
-  type Request,
   type ResponseObject,
   type ResponseToolkit,
   type RouteOptions
@@ -32,6 +31,12 @@ import {
   type FileState,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import {
+  type FormRequest,
+  type FormRequestPayload,
+  type FormRequestPayloadRefs,
+  type FormRequestRefs
+} from '~/src/server/routes/types.js'
 import { type Field } from '~/src/server/schemas/types.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
 
@@ -47,7 +52,7 @@ export class SummaryPageController extends PageController {
     title: string,
     model: FormModel,
     state: FormSubmissionState,
-    request: Request
+    request: FormRequest
   ): SummaryViewModel {
     const relevantState = this.getConditionEvaluationContext(model, state)
 
@@ -71,8 +76,8 @@ export class SummaryPageController extends PageController {
    * Returns an async function. This is called in plugin.ts when there is a GET request at `/{id}/{path*}`,
    */
   makeGetRouteHandler(): (
-    request: Request,
-    h: ResponseToolkit
+    request: FormRequest,
+    h: ResponseToolkit<FormRequestRefs>
   ) => Promise<ResponseObject | Boom> {
     return async (request, h) => {
       const { cacheService } = request.services([])
@@ -126,10 +131,9 @@ export class SummaryPageController extends PageController {
         })
         if (pageWithError) {
           const params = {
-            returnUrl: redirectUrl(request, `/${model.basePath}/summary`)
+            returnUrl: redirectUrl(`/${model.basePath}/summary`)
           }
           return redirectTo(
-            request,
             h,
             `/${model.basePath}${pageWithError.path}`,
             params
@@ -154,8 +158,8 @@ export class SummaryPageController extends PageController {
    * If a form is incomplete, a user will be redirected to the start page.
    */
   makePostRouteHandler(): (
-    request: Request,
-    h: ResponseToolkit
+    request: FormRequestPayload,
+    h: ResponseToolkit<FormRequestPayloadRefs>
   ) => Promise<ResponseObject | Boom> {
     return async (request, h) => {
       const { cacheService } = request.services([])
@@ -204,11 +208,11 @@ export class SummaryPageController extends PageController {
       // Clear all form data
       await cacheService.clearState(request)
 
-      return redirectTo(request, h, `/${model.basePath}/status`)
+      return redirectTo(h, `/${model.basePath}/status`)
     }
   }
 
-  get postRouteOptions(): RouteOptions {
+  get postRouteOptions(): RouteOptions<FormRequestPayloadRefs> {
     return {
       ext: {
         onPreHandler: {
@@ -222,7 +226,7 @@ export class SummaryPageController extends PageController {
 }
 
 async function submitForm(
-  request: Request,
+  request: FormRequestPayload,
   summaryViewModel: SummaryViewModel,
   model: FormModel,
   state: FormSubmissionState,
@@ -266,7 +270,7 @@ async function extendFileRetention(
 }
 
 async function sendEmail(
-  request: Request,
+  request: FormRequestPayload,
   summaryViewModel: SummaryViewModel,
   model: FormModel,
   emailAddress: string
@@ -275,7 +279,7 @@ async function sendEmail(
 
   const { path } = request
 
-  const formStatus: FormStatus = checkFormStatus(path)
+  const formStatus = checkFormStatus(path)
 
   // Get submission email personalisation
   const personalisation = getPersonalisation(

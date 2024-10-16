@@ -3,7 +3,6 @@ import {
   type ComponentDef,
   type FormDefinition
 } from '@defra/forms-model'
-import { type Request } from '@hapi/hapi'
 import { format } from 'date-fns'
 
 import { FormState } from '../models/types.js'
@@ -13,6 +12,7 @@ import {
   SummaryViewModel
 } from '~/src/server/plugins/engine/models/index.js'
 import { getPersonalisation } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
+import { type FormRequest } from '~/src/server/routes/types.js'
 
 describe('SummaryPageController', () => {
   describe('getPersonalisation', () => {
@@ -47,7 +47,7 @@ describe('SummaryPageController', () => {
       model,
       {},
       {},
-      {} as Request
+      {} as FormRequest
     )
 
     const formStatus = (previewStatus: boolean) => ({

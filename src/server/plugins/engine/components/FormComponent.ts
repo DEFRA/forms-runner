@@ -4,6 +4,7 @@ import {
   ComponentBase,
   type ComponentSchemaKeys
 } from '~/src/server/plugins/engine/components/ComponentBase.js'
+import { type ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import { type FormComponentFieldComponent } from '~/src/server/plugins/engine/components/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
@@ -15,6 +16,7 @@ import {
 
 export class FormComponent extends ComponentBase {
   hint: FormComponentFieldComponent['hint']
+  children: ComponentCollection | undefined
 
   isFormComponent = true
 
@@ -122,7 +124,7 @@ export class FormComponent extends ComponentBase {
     return { [this.name]: this.stateSchema }
   }
 
-  getDisplayStringFromState(state) {
+  getDisplayStringFromState(state: FormSubmissionState) {
     return state[this.name] ?? ''
   }
 }

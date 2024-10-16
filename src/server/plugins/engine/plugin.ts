@@ -2,8 +2,6 @@ import { slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type Plugin,
-  type Request,
-  type ResponseObject,
   type ResponseToolkit,
   type RouteOptions
 } from '@hapi/hapi'
@@ -23,36 +21,37 @@ import {
   getFormDefinition,
   getFormMetadata
 } from '~/src/server/plugins/engine/services/formsService.js'
+import {
+  type FormRequest,
+  type FormRequestPayload,
+  type FormRequestPayloadRefs,
+  type FormRequestRefs
+} from '~/src/server/routes/types.js'
 
 function normalisePath(path: string) {
   return path.replace(/^\//, '').replace(/\/$/, '')
 }
 
-function getPage(model: FormModel | undefined, path: string) {
+function getPage(request: FormRequest | FormRequestPayload) {
+  const { model } = request.app
+  const { path } = request.params
+
   return model?.pages.find(
     (page) => normalisePath(page.path) === normalisePath(path)
   )
 }
 
 function getStartPageRedirect(
-  request: Request,
-  h: ResponseToolkit,
-  model: FormModel
+  h: ResponseToolkit<FormRequestRefs>,
+  model?: FormModel
 ) {
-  const startPage = normalisePath(model.def.startPage ?? '')
-  let startPageRedirect: ResponseObject
+  const startPage = normalisePath(model?.def.startPage ?? '')
 
-  if (startPage.startsWith('http')) {
-    startPageRedirect = redirectTo(request, h, startPage)
-  } else {
-    startPageRedirect = redirectTo(
-      request,
-      h,
-      `/${model.basePath}/${startPage}`
-    )
+  if (startPage.startsWith('http') || !model?.basePath) {
+    return redirectTo(h, startPage)
   }
 
-  return startPageRedirect
+  return redirectTo(h, `/${model.basePath}/${startPage}`)
 }
 
 export interface PluginOptions {
@@ -82,13 +81,10 @@ export const plugin = {
     server.app.models = itemCache
 
     const loadFormPreHandler = async (
-      request: Request<{
-        Params: {
-          slug: string
-          state?: 'draft' | 'live'
-        }
-      }>,
-      h: ResponseToolkit
+      request: FormRequest | FormRequestPayload,
+      h:
+        | ResponseToolkit<FormRequestRefs>
+        | ResponseToolkit<FormRequestPayloadRefs>
     ) => {
       if (server.app.model) {
         request.app.model = server.app.model
@@ -172,56 +168,46 @@ export const plugin = {
     }
 
     const dispatchHandler = (
-      request: Request<{
-        Params: {
-          slug: string
-          state?: 'draft' | 'live'
-        }
-      }>,
-      h: ResponseToolkit
+      request: FormRequest,
+      h: ResponseToolkit<FormRequestRefs>
     ) => {
       const { model } = request.app
-      return getStartPageRedirect(request, h, model)
+      return getStartPageRedirect(h, model)
     }
 
     const getHandler = (
-      request: Request<{
-        Params: {
-          path: string
-          slug: string
-          state: 'draft' | 'live'
-        }
-      }>,
-      h: ResponseToolkit
+      request: FormRequest,
+      h: ResponseToolkit<FormRequestRefs>
     ) => {
       const { model } = request.app
       const { path } = request.params
-      const page = getPage(model, path)
+      const page = getPage(request)
 
       if (page) {
         return page.makeGetRouteHandler()(request, h)
       }
 
       if (normalisePath(path) === '') {
-        return getStartPageRedirect(request, h, model)
+        return getStartPageRedirect(h, model)
       }
 
       throw Boom.notFound('No form or page found')
     }
 
-    const postHandler = (request: Request, h: ResponseToolkit) => {
-      const { path } = request.params
-      const model = request.app.model
-      const page = model?.pages.find(
-        (page) => page.path.replace(/^\//, '') === path
-      )
+    const postHandler = (
+      request: FormRequestPayload,
+      h: ResponseToolkit<FormRequestPayloadRefs>
+    ) => {
+      const page = getPage(request)
 
       if (page) {
         return page.makePostRouteHandler()(request, h)
       }
+
+      throw Boom.notFound('No form or page found')
     }
 
-    const dispatchRouteOptions: RouteOptions = {
+    const dispatchRouteOptions: RouteOptions<FormRequestRefs> = {
       pre: [
         {
           method: loadFormPreHandler
@@ -258,7 +244,7 @@ export const plugin = {
       }
     })
 
-    const getRouteOptions: RouteOptions = {
+    const getRouteOptions: RouteOptions<FormRequestRefs> = {
       pre: [
         {
           method: loadFormPreHandler
@@ -299,7 +285,7 @@ export const plugin = {
       }
     })
 
-    const postRouteOptions: RouteOptions = {
+    const postRouteOptions: RouteOptions<FormRequestPayloadRefs> = {
       payload: {
         parse: true,
         failAction: (request, h) => {
@@ -349,18 +335,10 @@ export const plugin = {
 
     // List summary GET route
     const getListSummaryHandler = (
-      request: Request<{
-        Params: {
-          state?: 'draft' | 'live'
-          slug: string
-          path: string
-        }
-      }>,
-      h: ResponseToolkit
+      request: FormRequest,
+      h: ResponseToolkit<FormRequestRefs>
     ) => {
-      const { model } = request.app
-      const { path } = request.params
-      const page = getPage(model, path)
+      const page = getPage(request)
 
       if (page && page instanceof RepeatPageController) {
         return page.makeGetListSummaryRouteHandler()(request, h)
@@ -402,19 +380,10 @@ export const plugin = {
 
     // List summary POST route
     const postListSummaryHandler = (
-      request: Request<{
-        Params: {
-          state: 'draft' | 'live'
-          slug: string
-          path: string
-        }
-        Payload: { action: string }
-      }>,
-      h: ResponseToolkit
+      request: FormRequestPayload,
+      h: ResponseToolkit<FormRequestPayloadRefs>
     ) => {
-      const { model } = request.app
-      const { path } = request.params
-      const page = getPage(model, path)
+      const page = getPage(request)
 
       if (page && page instanceof RepeatPageController) {
         return page.makePostListSummaryRouteHandler()(request, h)
@@ -428,7 +397,7 @@ export const plugin = {
       path: '/{slug}/{path}/summary',
       handler: postListSummaryHandler,
       options: {
-        ...getRouteOptions,
+        ...postRouteOptions,
         validate: {
           params: Joi.object().keys({
             slug: slugSchema,
@@ -449,7 +418,7 @@ export const plugin = {
       path: '/preview/{state}/{slug}/{path}/summary',
       handler: postListSummaryHandler,
       options: {
-        ...getRouteOptions,
+        ...postRouteOptions,
         validate: {
           params: Joi.object().keys({
             state: stateSchema,
@@ -468,19 +437,10 @@ export const plugin = {
 
     // List delete GET route
     const getListDeleteHandler = (
-      request: Request<{
-        Params: {
-          state?: 'draft' | 'live'
-          slug: string
-          path: string
-          itemId: string
-        }
-      }>,
-      h: ResponseToolkit
+      request: FormRequest,
+      h: ResponseToolkit<FormRequestRefs>
     ) => {
-      const { model } = request.app
-      const { path } = request.params
-      const page = getPage(model, path)
+      const page = getPage(request)
 
       if (page && page instanceof RepeatPageController) {
         return page.makeGetListDeleteRouteHandler()(request, h)
@@ -524,19 +484,10 @@ export const plugin = {
 
     // List delete POST route
     const postListDeleteHandler = (
-      request: Request<{
-        Params: {
-          state: 'draft' | 'live'
-          slug: string
-          path: string
-        }
-        Payload: { confirm?: boolean }
-      }>,
-      h: ResponseToolkit
+      request: FormRequestPayload,
+      h: ResponseToolkit<FormRequestPayloadRefs>
     ) => {
-      const { model } = request.app
-      const { path } = request.params
-      const page = getPage(model, path)
+      const page = getPage(request)
 
       if (page && page instanceof RepeatPageController) {
         return page.makePostListDeleteRouteHandler()(request, h)
@@ -550,7 +501,7 @@ export const plugin = {
       path: '/{slug}/{path}/{itemId}/confirm-delete',
       handler: postListDeleteHandler,
       options: {
-        ...getRouteOptions,
+        ...postRouteOptions,
         validate: {
           params: Joi.object().keys({
             slug: slugSchema,
@@ -572,7 +523,7 @@ export const plugin = {
       path: '/preview/{state}/{slug}/{path}/{itemId}/confirm-delete',
       handler: postListDeleteHandler,
       options: {
-        ...getRouteOptions,
+        ...postRouteOptions,
         validate: {
           params: Joi.object().keys({
             state: stateSchema,

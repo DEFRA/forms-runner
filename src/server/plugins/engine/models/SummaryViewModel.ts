@@ -1,4 +1,3 @@
-import { type Request } from '@hapi/hapi'
 import { type ValidationResult } from 'joi'
 
 import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
@@ -11,6 +10,10 @@ import {
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+import {
+  type FormRequest,
+  type FormRequestPayload
+} from '~/src/server/routes/types.js'
 
 export class SummaryViewModel {
   /**
@@ -44,7 +47,7 @@ export class SummaryViewModel {
     model: FormModel,
     state: FormSubmissionState,
     relevantState: FormSubmissionState,
-    request: Request
+    request: FormRequest | FormRequestPayload
   ) {
     this.pageTitle = pageTitle
     this.serviceUrl = `/${model.basePath}`
@@ -55,7 +58,7 @@ export class SummaryViewModel {
     this.declaration = def.declaration
     this.skipSummary = def.skipSummary
 
-    const schema = model.makeFilteredSchema(state, relevantPages)
+    const schema = model.makeFilteredSchema(relevantPages)
     const result = schema.validate(state, {
       abortEarly: false,
       stripUnknown: true
@@ -105,7 +108,7 @@ export class SummaryViewModel {
   }
 
   private summaryDetails(
-    request: Request,
+    request: FormRequest | FormRequestPayload,
     model: FormModel,
     state: FormSubmissionState,
     relevantPages: PageControllerClass[]
@@ -128,13 +131,9 @@ export class SummaryViewModel {
           const rawValue = state[options.name]
           const isInitialised = Array.isArray(rawValue)
           const value = isInitialised ? rawValue.length.toString() : '0'
-          const url = redirectUrl(
-            request,
-            isInitialised ? repeatSummaryPath : path,
-            {
-              returnUrl: redirectUrl(request, `/${model.basePath}/summary`)
-            }
-          )
+          const url = redirectUrl(isInitialised ? repeatSummaryPath : path, {
+            returnUrl: redirectUrl(`/${model.basePath}/summary`)
+          })
 
           items.push({
             name,
@@ -148,7 +147,7 @@ export class SummaryViewModel {
           })
         } else {
           for (const component of page.components.formItems) {
-            const item = Item(request, component, state, page, model)
+            const item = Item(component, state, page, model)
             if (items.find((cbItem) => cbItem.name === item.name)) return
             items.push(item)
           }
@@ -188,13 +187,12 @@ export class SummaryViewModel {
  * Creates an Item object for Details
  */
 function Item(
-  request: Request,
   component: FormComponentFieldClass,
   state: FormSubmissionState,
   page: PageControllerClass,
   model: FormModel,
   params: { returnUrl: string } = {
-    returnUrl: redirectUrl(request, `/${model.basePath}/summary`)
+    returnUrl: redirectUrl(`/${model.basePath}/summary`)
   }
 ): DetailItem {
   return {
@@ -203,7 +201,7 @@ function Item(
     label: component.title,
     value: component.getDisplayStringFromState(state),
     rawValue: state[component.name],
-    url: redirectUrl(request, `/${model.basePath}${page.path}`, params),
+    url: redirectUrl(`/${model.basePath}${page.path}`, params),
     pageId: `/${model.basePath}${page.path}`,
     type: component.type,
     title: component.title,

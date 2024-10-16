@@ -6,12 +6,12 @@ import {
   encodeUrl,
   proceed,
   redirectTo,
-  redirectUrl,
-  type RequestWithQuery
+  redirectUrl
 } from '~/src/server/plugins/engine/helpers.js'
+import { type FormRequest } from '~/src/server/routes/types.js'
 
 describe('Helpers', () => {
-  let request: Pick<RequestWithQuery, 'query'>
+  let request: Pick<FormRequest, 'query'>
   let h: Pick<ResponseToolkit, 'redirect'>
 
   beforeEach(() => {
@@ -58,7 +58,7 @@ describe('Helpers', () => {
   describe('redirectTo', () => {
     it('should redirect to next url when no query params in the request', () => {
       const nextUrl = 'badgers/monkeys'
-      redirectTo(request, h, nextUrl)
+      redirectTo(h, nextUrl)
 
       expect(h.redirect).toHaveBeenCalledTimes(1)
       expect(h.redirect).toHaveBeenCalledWith(nextUrl)
@@ -69,7 +69,7 @@ describe('Helpers', () => {
       request.query.myParam2 = 'myValue2'
 
       const nextUrl = 'badgers/monkeys'
-      redirectTo(request, h, nextUrl)
+      redirectTo(h, nextUrl)
 
       expect(h.redirect).toHaveBeenCalledTimes(1)
       expect(h.redirect).toHaveBeenCalledWith(nextUrl)
@@ -104,7 +104,7 @@ describe('Helpers', () => {
   describe('redirectUrl', () => {
     it('should return target url when no query params in the request', () => {
       const nextUrl = 'badgers/monkeys'
-      const returned = redirectUrl(request, nextUrl)
+      const returned = redirectUrl(nextUrl)
 
       expect(returned).toEqual(nextUrl)
     })
@@ -114,7 +114,7 @@ describe('Helpers', () => {
       request.query.myParam2 = 'myValue2'
 
       const nextUrl = 'badgers/monkeys'
-      const returned = redirectUrl(request, nextUrl)
+      const returned = redirectUrl(nextUrl)
 
       expect(returned).toEqual(nextUrl)
     })
@@ -122,7 +122,7 @@ describe('Helpers', () => {
     it('should set params from params object', () => {
       const nextUrl = 'badgers/monkeys'
 
-      const returned = redirectUrl(request, nextUrl, {
+      const returned = redirectUrl(nextUrl, {
         returnUrl: '/myreturnurl',
         badger: 'monkeys'
       })

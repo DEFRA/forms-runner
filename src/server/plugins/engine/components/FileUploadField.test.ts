@@ -10,6 +10,11 @@ import {
 } from '~/src/server/plugins/engine/components/FileUploadField.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import {
+  FileStatus,
+  UploadStatus,
+  type FileState
+} from '~/src/server/plugins/engine/types.js'
 
 describe('FileUploadField', () => {
   const definition = {
@@ -21,11 +26,11 @@ describe('FileUploadField', () => {
 
   let formModel: FormModel
 
-  const validTempState = [
+  const validTempState: FileState[] = [
     {
       uploadId: '3075efea-e5de-476f-a0bf-9ae7ef56ca69',
       status: {
-        uploadStatus: 'pending',
+        uploadStatus: UploadStatus.pending,
         metadata: {
           retrievalKey: 'enrique.chase@defra.gov.uk'
         },
@@ -33,7 +38,7 @@ describe('FileUploadField', () => {
           file: {
             fileId: 'fcb4f0f8-6862-4836-86dc-f56ff900b0ff',
             filename: 'SampleJPGImage_30mbmb.jpg',
-            fileStatus: 'pending',
+            fileStatus: FileStatus.pending,
             contentLength: 30789588,
             errorMessage: 'The selected file has not fully uploaded'
           }
@@ -44,7 +49,7 @@ describe('FileUploadField', () => {
     {
       uploadId: 'c7e8c8f1-fa5b-4587-966a-96066c6356bb',
       status: {
-        uploadStatus: 'ready',
+        uploadStatus: UploadStatus.ready,
         metadata: {
           retrievalKey: 'enrique.chase@defra.gov.uk'
         },
@@ -52,7 +57,7 @@ describe('FileUploadField', () => {
           file: {
             fileId: 'e1d6cf98-35a7-4f97-8a28-cdd2b115d8fa',
             filename: 'virus.txt',
-            fileStatus: 'rejected',
+            fileStatus: FileStatus.rejected,
             contentLength: 9662,
             errorMessage: 'The selected file contains a virus'
           }
@@ -63,7 +68,7 @@ describe('FileUploadField', () => {
     {
       uploadId: 'ec9f9b26-76c6-4ede-8aaa-3d4e02fe9984',
       status: {
-        uploadStatus: 'ready',
+        uploadStatus: UploadStatus.ready,
         metadata: {
           retrievalKey: 'enrique.chase@defra.gov.uk'
         },
@@ -71,7 +76,7 @@ describe('FileUploadField', () => {
           file: {
             fileId: '71fb359c-dee7-4c2e-8701-239eb892765a',
             filename: 'SampleJPGImage_20mbmb.jpg',
-            fileStatus: 'complete',
+            fileStatus: FileStatus.complete,
             contentLength: 21348301
           }
         },
@@ -80,11 +85,11 @@ describe('FileUploadField', () => {
     }
   ]
 
-  const validState = [
+  const validState: FileState[] = [
     {
       uploadId: '3075efea-e5de-476f-a0bf-9ae7ef56ca69',
       status: {
-        uploadStatus: 'ready',
+        uploadStatus: UploadStatus.ready,
         metadata: {
           retrievalKey: 'enrique.chase@defra.gov.uk'
         },
@@ -92,7 +97,7 @@ describe('FileUploadField', () => {
           file: {
             fileId: 'fcb4f0f8-6862-4836-86dc-f56ff900b0ff',
             filename: 'SampleJPGImage_30mbmb.jpg',
-            fileStatus: 'complete',
+            fileStatus: FileStatus.complete,
             contentLength: 30789588
           }
         },
@@ -102,7 +107,7 @@ describe('FileUploadField', () => {
     {
       uploadId: 'c7e8c8f1-fa5b-4587-966a-96066c6356bb',
       status: {
-        uploadStatus: 'ready',
+        uploadStatus: UploadStatus.ready,
         metadata: {
           retrievalKey: 'enrique.chase@defra.gov.uk'
         },
@@ -110,7 +115,7 @@ describe('FileUploadField', () => {
           file: {
             fileId: 'e1d6cf98-35a7-4f97-8a28-cdd2b115d8fa',
             filename: 'error-messages.txt',
-            fileStatus: 'complete',
+            fileStatus: FileStatus.complete,
             contentLength: 9662
           }
         },
@@ -120,7 +125,7 @@ describe('FileUploadField', () => {
     {
       uploadId: 'ec9f9b26-76c6-4ede-8aaa-3d4e02fe9984',
       status: {
-        uploadStatus: 'ready',
+        uploadStatus: UploadStatus.ready,
         metadata: {
           retrievalKey: 'enrique.chase@defra.gov.uk'
         },
@@ -128,7 +133,7 @@ describe('FileUploadField', () => {
           file: {
             fileId: '71fb359c-dee7-4c2e-8701-239eb892765a',
             filename: 'SampleJPGImage_20mbmb.jpg',
-            fileStatus: 'complete',
+            fileStatus: FileStatus.complete,
             contentLength: 21348301
           }
         },

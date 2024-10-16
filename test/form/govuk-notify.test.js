@@ -268,7 +268,8 @@ describe('Submission journey test', () => {
     const res = await server.inject({
       method: 'POST',
       url: fileUploadPath,
-      headers
+      headers,
+      payload: {}
     })
 
     expect(res.statusCode).toEqual(redirectStatusCode)

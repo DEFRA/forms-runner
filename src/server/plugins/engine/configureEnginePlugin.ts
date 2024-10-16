@@ -27,7 +27,6 @@ export const configureEnginePlugin = (
     const id = idFromFilename(formFileName)
 
     model = new FormModel(definition, {
-      formId: id,
       basePath: id
     })
   }
