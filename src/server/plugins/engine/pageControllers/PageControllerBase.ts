@@ -146,8 +146,13 @@ export class PageControllerBase {
         if (isPageHeading) {
           labelOrLegend.isPageHeading = isPageHeading
 
+          // Check for optional in label
+          const isOptional = labelOrLegend.text.includes('optional')
+
           if (pageTitle) {
-            labelOrLegend.text = pageTitle
+            labelOrLegend.text = isOptional
+              ? pageTitle + ' (optional)'
+              : pageTitle
           }
 
           pageTitle = pageTitle || labelOrLegend.text
