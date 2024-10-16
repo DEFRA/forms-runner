@@ -4,7 +4,10 @@ import { fileURLToPath } from 'node:url'
 import { addDays, format } from 'date-fns'
 
 import { createServer } from '~/src/server/index.js'
-import { persistFiles } from '~/src/server/plugins/engine/services/formSubmissionService.js'
+import {
+  persistFiles,
+  submit
+} from '~/src/server/plugins/engine/services/formSubmissionService.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
   getUploadStatus,
@@ -155,6 +158,16 @@ const readyStatusResponse = {
   numberOfRejectedFiles: 0
 }
 
+const submitResponse = {
+  message: 'Submit completed',
+  result: {
+    files: {
+      main: '00000000-0000-0000-0000-000000000000',
+      repeaters: {}
+    }
+  }
+}
+
 describe('Submission journey test', () => {
   /** @type {Server} */
   let server
@@ -187,6 +200,7 @@ describe('Submission journey test', () => {
     jest.mocked(initiateUpload).mockResolvedValue(uploadInitiateResponse)
     jest.mocked(getUploadStatus).mockResolvedValue(readyStatusResponse)
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+    jest.mocked(submit).mockResolvedValue(submitResponse)
 
     // Components page
     const res = await componentsPage()

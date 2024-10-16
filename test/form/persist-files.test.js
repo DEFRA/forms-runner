@@ -2,7 +2,10 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { createServer } from '~/src/server/index.js'
-import { persistFiles } from '~/src/server/plugins/engine/services/formSubmissionService.js'
+import {
+  persistFiles,
+  submit
+} from '~/src/server/plugins/engine/services/formSubmissionService.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import * as uploadService from '~/src/server/plugins/engine/services/uploadService.js'
 import { FileStatus, UploadStatus } from '~/src/server/plugins/engine/types.js'
@@ -122,6 +125,16 @@ describe('Submission journey test', () => {
       statusUrl: 'http://localhost:7337/status/123-546-790'
     })
 
+    jest.mocked(submit).mockResolvedValueOnce({
+      message: 'Submit completed',
+      result: {
+        files: {
+          main: '00000000-0000-0000-0000-000000000000',
+          repeaters: {}
+        }
+      }
+    })
+
     const form = {
       crumb: 'dummyCrumb'
     }
@@ -157,6 +170,7 @@ describe('Submission journey test', () => {
     })
 
     expect(persistFiles).toHaveBeenCalledTimes(1)
+    expect(submit).toHaveBeenCalledTimes(1)
     expect(submitRes.statusCode).toBe(redirectStatusCode)
     expect(submitRes.headers.location).toBe('/file-upload-2/status')
 

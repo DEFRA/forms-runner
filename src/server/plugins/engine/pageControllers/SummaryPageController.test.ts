@@ -11,7 +11,10 @@ import {
   SummaryViewModel
 } from '~/src/server/plugins/engine/models/index.js'
 import { FormState } from '~/src/server/plugins/engine/models/types.js'
-import { getPersonalisation } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
+import {
+  getPersonalisation,
+  getQuestions
+} from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 
 describe('SummaryPageController', () => {
   describe('getPersonalisation', () => {
@@ -54,10 +57,22 @@ describe('SummaryPageController', () => {
       isPreview: previewStatus
     })
 
+    const submitResponse = {
+      message: 'Submit completed',
+      result: {
+        files: {
+          main: '00000000-0000-0000-0000-000000000000',
+          repeaters: {}
+        }
+      }
+    }
+
     it('should generate personalisation with form results and form name - Live form', () => {
+      const questions = getQuestions(summaryViewModel, model)
       const result = getPersonalisation(
-        summaryViewModel,
+        questions,
         model,
+        submitResponse,
         formStatus(false)
       )
       const now = new Date()
@@ -71,9 +86,11 @@ describe('SummaryPageController', () => {
     })
 
     it('should generate personalisation with form results and form name - Preview form', () => {
+      const questions = getQuestions(summaryViewModel, model)
       const result = getPersonalisation(
-        summaryViewModel,
+        questions,
         model,
+        submitResponse,
         formStatus(true)
       )
 
