@@ -7,7 +7,8 @@ import { redirectUrl } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   type Detail,
-  type DetailItem
+  type DetailItem,
+  type DetailItemComponent
 } from '~/src/server/plugins/engine/models/types.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
@@ -142,6 +143,20 @@ export class SummaryViewModel {
             }
           )
 
+          const subItems: DetailItem[][] = []
+
+          if (isInitialised) {
+            rawValue.forEach((itemState) => {
+              const sub: DetailItem[] = []
+              for (const component of page.components.formItems) {
+                const item = Item(request, component, itemState, page, model)
+                if (sub.find((cbItem) => cbItem.name === item.name)) return
+                sub.push(item)
+              }
+              subItems.push(sub)
+            })
+          }
+
           items.push({
             name,
             path: page.path,
@@ -150,7 +165,8 @@ export class SummaryViewModel {
             rawValue,
             url,
             pageId: path,
-            title
+            title,
+            subItems
           })
         } else {
           for (const component of page.components.formItems) {
@@ -202,7 +218,7 @@ function Item(
   params: { returnUrl: string } = {
     returnUrl: redirectUrl(request, `/${model.basePath}/summary`)
   }
-): DetailItem {
+): DetailItemComponent {
   return {
     name: component.name,
     path: page.path,
