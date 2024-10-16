@@ -4,7 +4,11 @@ import {
   type ComponentCollectionViewModel,
   type FormComponentViewModel
 } from '~/src/server/plugins/engine/components/types.js'
-import { type PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
+import {
+  type FileUploadPageController,
+  type PageController
+} from '~/src/server/plugins/engine/pageControllers/index.js'
+
 /**
  * FormSubmissionState is an object containing the following props:
  * 1. progress[]: which indicates the urls the user have already submitted.
@@ -133,8 +137,8 @@ export interface TempFileState {
 
 export type TempUploadState = Record<string, TempFileState>
 
-export interface PageViewModel {
-  page: PageControllerBase
+export interface PageViewModelBase {
+  page: PageController
   name?: string
   pageTitle: string
   sectionTitle?: string
@@ -149,9 +153,12 @@ export interface PageViewModel {
   phaseTag?: string
 }
 
-export type FileUploadPageViewModel = {
+export interface FileUploadPageViewModel extends PageViewModelBase {
+  page: FileUploadPageController
   path: string
   formAction?: string
   fileUploadComponent: FormComponentViewModel
   preUploadComponents: ComponentCollectionViewModel
-} & PageViewModel
+}
+
+export type PageViewModel = PageViewModelBase | FileUploadPageViewModel
