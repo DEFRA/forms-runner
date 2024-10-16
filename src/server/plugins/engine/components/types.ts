@@ -33,12 +33,12 @@ export interface ListItem {
 }
 
 // TODO: Break this down for each component (Same as model/Component).
-export interface ViewModel {
+export interface ViewModel extends Record<string, unknown> {
   label?: Label
   type?: string
   id?: string
   name?: string
-  value?: any // TODO
+  value?: unknown
   hint?: {
     id?: string
     text: string
@@ -76,13 +76,13 @@ export interface ViewModel {
   }
   children?: ComponentCollectionViewModel
   autocomplete?: string
+  upload?: {
+    count: number
+    pendingCount: number
+    successfulCount: number
+    summary: FileUploadSummaryRow[]
+  }
 }
-
-export type MultilineTextFieldViewModel = {
-  maxlength?: number
-  isCharacterOrWordCount: boolean
-  maxwords?: number
-} & ViewModel
 
 export interface FileUploadSummaryRow {
   name: string
@@ -91,15 +91,6 @@ export interface FileUploadSummaryRow {
   tag: { classes: string; text: string }
   uploadId: string
 }
-
-export type FileUploadFieldViewModel = {
-  upload: {
-    count: number
-    pendingCount: number
-    successfulCount: number
-    summary: FileUploadSummaryRow[]
-  }
-} & ViewModel
 
 export interface FormComponentViewModel {
   type: FormComponentsDef['type']
