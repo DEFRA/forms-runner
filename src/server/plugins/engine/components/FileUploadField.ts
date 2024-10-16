@@ -2,10 +2,7 @@ import { type FileUploadFieldComponent } from '@defra/forms-model'
 import joi, { type ArraySchema } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import {
-  DataType,
-  type FileUploadFieldViewModel
-} from '~/src/server/plugins/engine/components/types.js'
+import { DataType } from '~/src/server/plugins/engine/components/types.js'
 import { filesize } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
@@ -139,16 +136,12 @@ export class FileUploadField extends FormComponent {
     return `You uploaded ${count} file${count !== 1 ? 's' : ''}`
   }
 
-  getViewModel(
-    payload: FormPayload,
-    errors?: FormSubmissionErrors
-  ): FileUploadFieldViewModel {
-    const viewModel = super.getViewModel(
-      payload,
-      errors
-    ) as FileUploadFieldViewModel
+  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+    const viewModel = super.getViewModel(payload, errors)
+
     const files = (payload[this.name] ?? []) as FileState[]
     const count = files.length
+
     let pendingCount = 0
     let successfulCount = 0
 
