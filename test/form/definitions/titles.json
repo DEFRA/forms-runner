@@ -72,6 +72,27 @@
       "title": "Address"
     },
     {
+      "path": "/applicant-one-address-optional",
+      "section": "applicantOneDetails",
+      "components": [
+        {
+          "type": "UkAddressField",
+          "name": "address",
+          "title": "Address",
+          "options": {
+            "required": false
+          },
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/contact-details"
+        }
+      ],
+      "title": "Address"
+    },
+    {
       "path": "/contact-details",
       "section": "applicantDetails",
       "components": [
