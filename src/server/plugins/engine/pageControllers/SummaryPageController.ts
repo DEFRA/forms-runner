@@ -320,8 +320,11 @@ export function getPersonalisation(
   const { relevantPages, details } = summaryViewModel
 
   const now = new Date()
+  const formattedNow = `${format(now, 'h:mmaaa')} on ${format(now, 'd MMMM yyyy')}`
+
   const fileExpiryDate = addDays(now, 30)
   const formattedExpiryDate = `${format(fileExpiryDate, 'h:mmaaa')} on ${format(fileExpiryDate, 'eeee d MMMM yyyy')}`
+
   const formSubmissionData = getFormSubmissionData(
     relevantPages,
     details,
@@ -349,9 +352,7 @@ export function getPersonalisation(
     )
   }
 
-  lines.push(
-    `Form received at ${format(now, 'h:mmaaa')} on ${format(now, 'd MMMM yyyy')}.`
-  )
+  lines.push(`Form received at ${formattedNow}.\n`)
 
   formSubmissionData.questions.forEach((question) => {
     question.fields.forEach((field) => {
