@@ -27,6 +27,7 @@ import { CheckboxesField } from '~/src/server/plugins/engine/components/Checkbox
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { DatePartsField } from '~/src/server/plugins/engine/components/DatePartsField.js'
 import { RadiosField } from '~/src/server/plugins/engine/components/RadiosField.js'
+import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import {
   FeedbackContextInfo,
   RelativeUrl,
@@ -152,7 +153,7 @@ export class PageControllerBase {
 
           if (pageTitle) {
             labelOrLegend.text = isOptional
-              ? pageTitle + ' (optional)'
+              ? `${pageTitle}${optionalText}`
               : pageTitle
           }
 
