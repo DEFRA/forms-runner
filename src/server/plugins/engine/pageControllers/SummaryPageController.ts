@@ -24,8 +24,7 @@ import {
 } from '~/src/server/plugins/engine/models/index.js'
 import {
   type Detail,
-  type DetailItem,
-  type FormStatus
+  type DetailItem
 } from '~/src/server/plugins/engine/models/types.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
@@ -402,7 +401,7 @@ export function getPersonalisation(
   questions: QuestionRecord[],
   model: FormModel,
   submitResponse: SubmitResponsePayload,
-  formStatus: FormStatus
+  formStatus: ReturnType<typeof checkFormStatus>
 ) {
   /**
    * @todo Refactor this below but the code to

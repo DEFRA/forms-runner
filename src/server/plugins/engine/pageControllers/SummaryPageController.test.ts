@@ -9,12 +9,11 @@ import {
   FormModel,
   SummaryViewModel
 } from '~/src/server/plugins/engine/models/index.js'
-import { FormState } from '~/src/server/plugins/engine/models/types.js'
 import {
   getPersonalisation,
   getQuestions
 } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
-import { type FormRequest } from '~/src/server/routes/types.js'
+import { FormStatus, type FormRequest } from '~/src/server/routes/types.js'
 
 describe('SummaryPageController', () => {
   describe('getPersonalisation', () => {
@@ -53,7 +52,7 @@ describe('SummaryPageController', () => {
     )
 
     const formStatus = (previewStatus: boolean) => ({
-      state: FormState.DRAFT,
+      state: FormStatus.Draft,
       isPreview: previewStatus
     })
 
