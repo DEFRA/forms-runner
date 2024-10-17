@@ -100,6 +100,24 @@ describe('Title and section title', () => {
     expect($heading).toBeInTheDocument()
     expect($heading).toHaveClass('govuk-heading-l')
   })
+
+  it('render title with optional when there is single component in page and is selected as optional', async () => {
+    const options = {
+      method: 'GET',
+      url: '/titles/applicant-one-address-optional',
+      headers
+    }
+
+    const { container } = await renderResponse(server, options)
+
+    const $heading = container.getByRole('heading', {
+      name: 'Address (optional)',
+      level: 1
+    })
+
+    expect($heading).toBeInTheDocument()
+    expect($heading).toHaveClass('govuk-fieldset__heading')
+  })
 })
 
 /**
