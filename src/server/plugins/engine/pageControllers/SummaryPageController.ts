@@ -332,14 +332,17 @@ async function sendEmail(
   model: FormModel,
   emailAddress: string
 ) {
-  request.logger.info(['submit', 'email'], 'Preparing email')
-
   const { path } = request
-
   const formStatus: FormStatus = checkFormStatus(path)
+  const logTags = ['submit', 'email']
+
+  request.logger.info(logTags, 'Preparing email', formStatus)
 
   // Get questions and submit data
   const questions = getQuestions(summaryViewModel, model)
+
+  request.logger.info(logTags, 'Submitting data')
+
   const submitResponse = await submitData(
     questions,
     emailAddress,
@@ -351,6 +354,8 @@ async function sendEmail(
   }
 
   // Get submission email personalisation
+  request.logger.info(logTags, 'Getting personalisation data')
+
   const personalisation = getPersonalisation(
     questions,
     model,
@@ -358,7 +363,7 @@ async function sendEmail(
     formStatus
   )
 
-  request.logger.info(['submit', 'email'], 'Sending email')
+  request.logger.info(logTags, 'Sending email')
 
   try {
     // Send submission email
@@ -368,9 +373,9 @@ async function sendEmail(
       personalisation
     })
 
-    request.logger.info(['submit', 'email'], 'Email sent successfully')
+    request.logger.info(logTags, 'Email sent successfully')
   } catch (err) {
-    request.logger.error(['submit', 'email'], 'Error sending email', err)
+    request.logger.error(logTags, 'Error sending email', err)
 
     throw err
   }
