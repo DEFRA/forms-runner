@@ -147,7 +147,8 @@ export class PageControllerBase {
           labelOrLegend.isPageHeading = isPageHeading
 
           // Check for optional in label
-          const isOptional = labelOrLegend.text.includes('optional')
+          const isOptional =
+            this.components.formItems.at(0)?.options.required === false
 
           if (pageTitle) {
             labelOrLegend.text = isOptional
