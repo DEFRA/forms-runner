@@ -1,4 +1,8 @@
-import { ComponentType } from '@defra/forms-model'
+import {
+  ComponentType,
+  type SubmitPayload,
+  type SubmitResponsePayload
+} from '@defra/forms-model'
 import { badRequest, internal, type Boom } from '@hapi/boom'
 import {
   type Request,
@@ -41,11 +45,7 @@ import {
   type FileState,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
-import {
-  type Field,
-  type SubmitPayload,
-  type SubmitResponsePayload
-} from '~/src/server/schemas/types.js'
+import { type Field } from '~/src/server/schemas/types.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
 
 const designerUrl = config.get('designerUrl')
