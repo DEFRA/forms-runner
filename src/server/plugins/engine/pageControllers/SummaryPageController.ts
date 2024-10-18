@@ -246,21 +246,30 @@ async function extendFileRetention(
   // For each file upload component with files in
   // state, add the files to the batch getting persisted
   model.pages.forEach((page) => {
-    page.components.formItems.forEach((item) => {
-      if (item.type === ComponentType.FileUploadField) {
-        const componentState = state[item.name]
+    const fileUploadComponents = page.components.formItems.filter(
+      (component) => component.type === ComponentType.FileUploadField
+    )
 
-        if (Array.isArray(componentState)) {
-          files.push(
-            ...componentState.map((fileState: FileState) => {
-              const { fileId } = fileState.status.form.file
-              const { retrievalKey } = fileState.status.metadata
+    fileUploadComponents.forEach((item) => {
+      const componentState = state[item.name]
 
-              return { fileId, initiatedRetrievalKey: retrievalKey }
-            })
-          )
-        }
+      if (!Array.isArray(componentState)) {
+        return
       }
+
+      const values = componentState.filter(
+        (value): value is FileState =>
+          typeof value === 'object' && 'uploadId' in value
+      )
+
+      files.push(
+        ...values.map((fileState) => {
+          const { fileId } = fileState.status.form.file
+          const { retrievalKey } = fileState.status.metadata
+
+          return { fileId, initiatedRetrievalKey: retrievalKey }
+        })
+      )
     })
   })
 
