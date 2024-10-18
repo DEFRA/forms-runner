@@ -7,8 +7,7 @@ import { redirectUrl } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   type Detail,
-  type DetailItem,
-  type DetailItemComponent
+  type DetailItem
 } from '~/src/server/plugins/engine/models/types.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
@@ -224,7 +223,7 @@ function Item(
   params: { returnUrl: string } = {
     returnUrl: redirectUrl(request, `/${model.basePath}/summary`)
   }
-): DetailItemComponent {
+): DetailItem {
   return {
     name: component.name,
     path: page.path,
