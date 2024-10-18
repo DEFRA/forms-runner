@@ -1,5 +1,5 @@
 import { ComponentType } from '@defra/forms-model'
-import { internal, type Boom } from '@hapi/boom'
+import { type Boom } from '@hapi/boom'
 import {
   type Request,
   type ResponseObject,
@@ -119,13 +119,24 @@ export class SummaryPageController extends PageController {
         }
       }
 
+      const { params } = request
+
+      // Get the form metadata using the `slug` param
+      const slug = params.slug
+      const { notificationEmail } = await getFormMetadata(slug)
+
       const progress = state.progress ?? []
 
       await this.updateProgress(progress, request, cacheService)
 
       viewModel.backLink = this.getBackLink(progress)
 
-      return h.view('summary', viewModel)
+      return h.view('summary', {
+        ...viewModel,
+        notificationEmail,
+        slug,
+        designerUrl
+      })
     }
   }
 
