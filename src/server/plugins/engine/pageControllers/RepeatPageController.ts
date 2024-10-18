@@ -155,9 +155,17 @@ export class RepeatPageController extends PageController {
   }
 
   private getListFromState(state: FormSubmissionState) {
-    const listState = state[this.repeat.options.name]
+    const { name } = this.repeat.options
+    const values = state[name]
 
-    return Array.isArray(listState) ? listState : []
+    if (!Array.isArray(values)) {
+      return []
+    }
+
+    return values.filter(
+      (value): value is FormData =>
+        typeof value === 'object' && !('uploadId' in value)
+    )
   }
 
   makeGetRouteHandler() {
@@ -355,6 +363,10 @@ export class RepeatPageController extends PageController {
       count = state.length
 
       state.forEach((item, index) => {
+        if (typeof item.itemId !== 'string') {
+          return
+        }
+
         const items: RowAction[] = [
           {
             href: `/${model.basePath}${this.path}/${item.itemId}${request.url.search}`,

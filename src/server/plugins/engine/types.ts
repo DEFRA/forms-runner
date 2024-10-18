@@ -1,3 +1,4 @@
+import { type Item } from '@defra/forms-model'
 import { type ResponseObject } from '@hapi/hapi'
 
 import {
@@ -87,10 +88,16 @@ export type FormPayload = {
 } & FormData
 
 export type FormData = Partial<Record<string, FormValue>>
-export type FormValue = NonNullable<unknown> | undefined
+export type FormValue =
+  | string
+  | number
+  | boolean
+  | FileState[]
+  | Item['value'][]
+  | undefined
 
 export type FormState = Partial<Record<string, FormStateValue>>
-export type FormStateValue = FormValue | null
+export type FormStateValue = FormValue | FormData[] | null
 
 export interface FormValidationResult<ValueType extends object = FormPayload> {
   value?: ValueType

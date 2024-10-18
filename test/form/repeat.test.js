@@ -51,14 +51,25 @@ async function createRepeatItem(
   const request = res1.request
   const { cacheService } = request.services([])
   const state = await cacheService.getState(request)
-  const listState = state[repeatName]
+  const values = state[repeatName]
 
-  if (!Array.isArray(listState) || listState.length !== expectedItemCount) {
+  if (!(Array.isArray(values) && values.length === expectedItemCount)) {
     throw new Error('Unexpected list state')
   }
 
+  const item = values
+    .filter(
+      /** @returns {value is FormData & { itemId?: string }} */
+      (value) => !!value && typeof value === 'object'
+    )
+    .at(-1)
+
+  if (typeof item?.itemId !== 'string') {
+    throw new Error('No item state found')
+  }
+
   return {
-    item: listState[listState.length - 1],
+    item,
     headers: headers ?? getCookieHeader(res1, 'session')
   }
 }
@@ -299,4 +310,5 @@ describe('Repeat POST tests', () => {
  * @import { Server } from '@hapi/hapi'
  * @import { PageRepeat } from '@defra/forms-model'
  * @import { OutgoingHttpHeaders } from 'node:http'
+ * @import { FormData } from '~/src/server/plugins/engine/types.js'
  */

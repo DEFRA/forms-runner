@@ -1,6 +1,5 @@
 import { ComponentType, type DatePartsFieldComponent } from '@defra/forms-model'
-import { format, parseISO } from 'date-fns'
-import joi from 'joi'
+import { format, parse } from 'date-fns'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
@@ -30,12 +29,6 @@ export class DatePartsField extends FormComponent {
     const isRequired = options.required !== false
     const hideOptional = options.optionalText
 
-    let stateSchema = joi.date().label(title.toLowerCase()).required()
-
-    if (options.required === false) {
-      stateSchema = stateSchema.allow(null)
-    }
-
     this.children = new ComponentCollection(
       [
         {
@@ -47,8 +40,7 @@ export class DatePartsField extends FormComponent {
             required: isRequired,
             optionalText: !isRequired && hideOptional,
             classes: 'govuk-input--width-2'
-          },
-          hint: ''
+          }
         },
         {
           type: ComponentType.NumberField,
@@ -59,8 +51,7 @@ export class DatePartsField extends FormComponent {
             required: isRequired,
             optionalText: !isRequired && hideOptional,
             classes: 'govuk-input--width-2'
-          },
-          hint: ''
+          }
         },
         {
           type: ComponentType.NumberField,
@@ -71,65 +62,54 @@ export class DatePartsField extends FormComponent {
             required: isRequired,
             optionalText: !isRequired && hideOptional,
             classes: 'govuk-input--width-4'
-          },
-          hint: ''
+          }
         }
       ],
       model
     )
 
     this.options = options
-    this.stateSchema = stateSchema
-  }
 
-  getFormSchemaKeys() {
-    return this.children.getFormSchemaKeys()
-  }
+    this.formSchema = this.children.formSchema
+      .custom(getCustomDateValidator(this))
+      .label(title)
 
-  getStateSchemaKeys() {
-    const { options } = this
-    const { maxDaysInPast, maxDaysInFuture } = options
-    let schema = this.stateSchema
-
-    schema = schema.custom(
-      getCustomDateValidator(maxDaysInPast, maxDaysInFuture)
-    )
-
-    return { [this.name]: schema }
-  }
-
-  getFormDataFromState(state: FormSubmissionState) {
-    const name = this.name
-    const value = state[name]
-    const dateValue = new Date(value)
-
-    return {
-      [`${name}__day`]: value && dateValue.getDate(),
-      [`${name}__month`]: value && dateValue.getMonth() + 1,
-      [`${name}__year`]: value && dateValue.getFullYear()
-    }
-  }
-
-  getStateValueFromValidForm(payload: FormPayload) {
-    const name = this.name
-
-    return payload[`${name}__year`]
-      ? new Date(
-          payload[`${name}__year`],
-          payload[`${name}__month`] - 1,
-          payload[`${name}__day`]
-        )
-      : null
+    this.stateSchema = this.children.stateSchema
+      .custom(getCustomDateValidator(this))
+      .label(title)
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
-    const value = state[this.name]
-    return value ? format(parseISO(value), 'd MMMM yyyy') : ''
+    const value = this.getConditionEvaluationStateValue(state)
+
+    if (!value) {
+      return ''
+    }
+
+    const date = parse(value, 'yyyy-MM-dd', new Date())
+    return format(date, 'd MMMM yyyy')
   }
 
   getConditionEvaluationStateValue(state: FormSubmissionState): string {
-    const value = state[this.name]
-    return value ? format(parseISO(value), 'yyyy-MM-dd') : '' // strip the time as it interferes with equals/not equals
+    const { name } = this
+
+    const data = this.getFormDataFromState(state)
+
+    const {
+      [`${name}__day`]: day,
+      [`${name}__month`]: month,
+      [`${name}__year`]: year
+    } = data
+
+    if (
+      typeof day !== 'number' ||
+      typeof month !== 'number' ||
+      typeof year !== 'number'
+    ) {
+      return ''
+    }
+
+    return format(`${year}-${month}-${day}`, 'yyyy-MM-dd')
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {

@@ -110,17 +110,24 @@ export class FileUploadField extends FormComponent {
     this.schema = schema
   }
 
-  getFormValueFromState(state: FormSubmissionState) {
+  getFormDataFromState(state: FormSubmissionState) {
     const { name } = this
 
-    if (Array.isArray(state[name])) {
-      return state[name]
+    const values = Array.isArray(state[name]) ? state[name] : []
+
+    return {
+      [name]: values.filter(
+        (value): value is FileState =>
+          typeof value === 'object' && 'uploadId' in value
+      )
     }
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
-    const value = this.getFormValueFromState(state)
-    const count = Array.isArray(value) ? value.length : 0
+    const { name } = this
+
+    const { [name]: values } = this.getFormDataFromState(state)
+    const count = values.length
 
     if (!count) {
       return super.getDisplayStringFromState(state)

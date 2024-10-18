@@ -245,9 +245,10 @@ describe('FileUploadField', () => {
     describe('State', () => {
       it('Returns text from state value', () => {
         const text = component.getDisplayStringFromState({
-          [def.name]: [{}, {}]
+          [def.name]: validState
         })
-        expect(text).toBe('You uploaded 2 files')
+
+        expect(text).toBe('You uploaded 3 files')
       })
     })
 
@@ -256,6 +257,7 @@ describe('FileUploadField', () => {
         const viewModel = component.getViewModel({
           [def.name]: validState
         })
+
         expect(viewModel).toEqual(
           expect.objectContaining({
             label: { text: def.title },
