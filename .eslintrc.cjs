@@ -86,13 +86,13 @@ module.exports = {
           }
         ],
 
-        // Check relative import paths are used
+        // Check relative import paths use aliases
         'no-restricted-imports': [
           'error',
           {
             patterns: [
               {
-                group: ['../'],
+                group: ['./', '../'],
                 message: 'Relative imports are not allowed.'
               }
             ]
