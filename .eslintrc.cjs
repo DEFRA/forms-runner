@@ -93,7 +93,7 @@ module.exports = {
             patterns: [
               {
                 group: ['./', '../'],
-                message: 'Relative imports are not allowed.'
+                message: "Please use '~/*' import alias instead."
               }
             ]
           }
