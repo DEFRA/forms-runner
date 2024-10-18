@@ -153,18 +153,16 @@ export interface DetailItemFileUpload extends DetailItemBase {
 
 export interface DetailItemRepeat extends DetailItemBase {
   rawValue: [] | null
-  subItems: DetailItem[][]
 }
 
-export type DetailItemComponent =
+export type DetailItem =
   | DetailItemDate
   | DetailItemMonthYear
   | DetailItemList
   | DetailItemNumber
   | DetailItemText
   | DetailItemFileUpload
-
-export type DetailItem = DetailItemComponent | DetailItemRepeat
+  | DetailItemRepeat
 
 /**
  * Used to render a row on a Summary List (check your answers)
