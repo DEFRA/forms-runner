@@ -120,9 +120,7 @@ export class SummaryPageController extends PageController {
       }
 
       const { params } = request
-
-      // Get the form metadata using the `slug` param
-      const slug = params.slug
+      const { slug } = params as { slug: string }
       const { notificationEmail } = await getFormMetadata(slug)
 
       const progress = state.progress ?? []
