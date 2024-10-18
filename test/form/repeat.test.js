@@ -293,6 +293,77 @@ describe('Repeat POST tests', () => {
     expect($heading).toBeInTheDocument()
     expect($errorItems[0]).toHaveTextContent('You can only add up to 2 Pizzas')
   })
+
+  test('POST /repeat/pizza-order/summary CONTINUE returns 302 to /summary', async () => {
+    const { headers } = await createRepeatItem(server, repeatPage)
+
+    const res = await server.inject({
+      method: 'POST',
+      url: `${url}/summary`,
+      headers,
+      payload: {
+        action: CONTINUE
+      }
+    })
+
+    expect(res.statusCode).toBe(redirectStatusCode)
+    expect(res.headers.location).toBe('/repeat/summary')
+
+    const { container, response } = await renderResponse(server, {
+      method: 'GET',
+      url: '/repeat/summary',
+      headers,
+      payload: {
+        action: CONTINUE
+      }
+    })
+
+    expect(response.statusCode).toBe(okStatusCode)
+
+    const $values = container
+      .getAllByRole('definition')
+      .filter(({ classList }) =>
+        classList.contains('govuk-summary-list__value')
+      )
+
+    expect($values[0]).toHaveTextContent('You added 1 Pizza')
+  })
+
+  test('POST /repeat/pizza-order/summary with 2 items CONTINUE returns 302 to /summary', async () => {
+    const { headers } = await createRepeatItem(server, repeatPage)
+    await createRepeatItem(server, repeatPage, 2, headers)
+
+    const res = await server.inject({
+      method: 'POST',
+      url: `${url}/summary`,
+      headers,
+      payload: {
+        action: CONTINUE
+      }
+    })
+
+    expect(res.statusCode).toBe(redirectStatusCode)
+    expect(res.headers.location).toBe('/repeat/summary')
+
+    const { container, response } = await renderResponse(server, {
+      method: 'GET',
+      url: '/repeat/summary',
+      headers,
+      payload: {
+        action: CONTINUE
+      }
+    })
+
+    expect(response.statusCode).toBe(okStatusCode)
+
+    const $values = container
+      .getAllByRole('definition')
+      .filter(({ classList }) =>
+        classList.contains('govuk-summary-list__value')
+      )
+
+    expect($values[0]).toHaveTextContent('You added 2 Pizzas')
+  })
 })
 
 /**
