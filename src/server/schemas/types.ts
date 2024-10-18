@@ -13,31 +13,3 @@ export interface Question {
   question: string
   fields: Field[]
 }
-
-export interface SubmitRecord {
-  name: string
-  title: string
-  value: string
-}
-
-export interface SubmitRecordSet {
-  title: string
-  value: SubmitRecord[][]
-}
-
-export interface SubmitPayload {
-  sessionId: string
-  retrievalKey: string
-  main: SubmitRecord[]
-  repeaters: SubmitRecordSet[]
-}
-
-export interface SubmitResponsePayload {
-  message: string
-  result: {
-    files: {
-      main: string
-      repeaters: Record<string, string>
-    }
-  }
-}

@@ -42,5 +42,5 @@ export async function submit(data) {
 }
 
 /**
- * @import { SubmitPayload, SubmitResponsePayload } from '~/src/server/schemas/types.js'
+ * @import { SubmitPayload, SubmitResponsePayload } from '@defra/forms-model'
  */
