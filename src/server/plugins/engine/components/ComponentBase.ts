@@ -8,12 +8,8 @@ import joi, {
   type StringSchema
 } from 'joi'
 
-import {
-  DataType,
-  type ViewModel
-} from '~/src/server/plugins/engine/components/types.js'
+import { type ViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { answerFromDetailItem } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 import {
   type FormPayload,
   type FormSubmissionErrors
@@ -27,11 +23,6 @@ export class ComponentBase {
   options?: Extract<ComponentDef, { options: object }>['options']
 
   isFormComponent = false
-
-  /**
-   * This is passed onto webhooks, see {@link answerFromDetailItem}
-   */
-  dataType: DataType = DataType.Text
   model: FormModel
 
   /** joi schemas based on a component defined in the form JSON. This validates a user's answer and is generated from {@link ComponentDef} */
