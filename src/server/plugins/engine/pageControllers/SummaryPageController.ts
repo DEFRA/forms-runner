@@ -294,7 +294,7 @@ async function extendFileRetention(
   }
 }
 
-async function submitData(
+function submitData(
   records: QuestionRecord[],
   retrievalKey: string,
   sessionId: string
