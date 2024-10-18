@@ -17,7 +17,7 @@
 
       {% include "partials/heading.html" %}
 
-      {{ govukSummaryList({ rows: rows }) }}
+      {{ govukSummaryList({ classes: 'govuk-summary-list--long-actions', rows: rows }) }}
 
       <div class="govuk-button-group">
         <form method="post" novalidate>
