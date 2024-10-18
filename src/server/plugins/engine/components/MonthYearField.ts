@@ -3,10 +3,7 @@ import { ComponentType, type MonthYearFieldComponent } from '@defra/forms-model'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
-import {
-  DataType,
-  type DateInputItem
-} from '~/src/server/plugins/engine/components/types.js'
+import { type DateInputItem } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
@@ -17,7 +14,6 @@ import {
 export class MonthYearField extends FormComponent {
   declare options: MonthYearFieldComponent['options']
   children: ComponentCollection
-  dataType: DataType = DataType.MonthYear
 
   constructor(def: MonthYearFieldComponent, model: FormModel) {
     super(def, model)

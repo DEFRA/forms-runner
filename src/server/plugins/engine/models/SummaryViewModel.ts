@@ -9,8 +9,12 @@ import {
 } from '~/src/server/plugins/engine/models/types.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
-import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 import {
+  type FormState,
+  type FormSubmissionState
+} from '~/src/server/plugins/engine/types.js'
+import {
+  type FormQuery,
   type FormRequest,
   type FormRequestPayload
 } from '~/src/server/routes/types.js'
@@ -116,7 +120,7 @@ export class SummaryViewModel {
     const details: Detail[] = []
 
     ;[undefined, ...model.sections].forEach((section) => {
-      const items: DetailItem[] = []
+      const items: Detail['items'] = []
 
       const sectionPages = relevantPages.filter(
         (page) => page.section === section
@@ -126,30 +130,33 @@ export class SummaryViewModel {
         if (page instanceof RepeatPageController) {
           const { options } = page.repeat
           const { name, title } = options
-          const repeatSummaryPath = page.getSummaryPath(request)
-          const path = `/${model.basePath}${page.path}`
-          const rawValue = state[options.name]
+          const rawValue = state[name]
+
           const isInitialised = Array.isArray(rawValue)
           const value = isInitialised ? rawValue.length.toString() : '0'
-          const url = redirectUrl(isInitialised ? repeatSummaryPath : path, {
-            returnUrl: redirectUrl(`/${model.basePath}/summary`)
-          })
+
+          const pagePath = `/${model.basePath}${page.path}`
+          const repeatSummaryPath = page.getSummaryPath(request)
+          const returnUrl = redirectUrl(page.defaultNextPath)
+
+          // Path to change link
+          const url = redirectUrl(
+            isInitialised ? repeatSummaryPath : pagePath,
+            { returnUrl }
+          )
 
           items.push({
             name,
-            path: page.path,
+            title,
             label: isInitialised ? `${title}s added` : title,
             value: `You added ${value} ${title}${value === '1' ? '' : 's'}`,
-            rawValue,
-            url,
-            pageId: path,
-            title
+            rawValue: state[name],
+            page,
+            url
           })
         } else {
           for (const component of page.components.formItems) {
-            const item = Item(component, state, page, model)
-            if (items.find((cbItem) => cbItem.name === item.name)) return
-            items.push(item)
+            items.push(Item(page, component, model, state))
           }
         }
       })
@@ -187,24 +194,30 @@ export class SummaryViewModel {
  * Creates an Item object for Details
  */
 function Item(
-  component: FormComponentFieldClass,
-  state: FormSubmissionState,
   page: PageControllerClass,
+  component: FormComponentFieldClass,
   model: FormModel,
-  params: { returnUrl: string } = {
-    returnUrl: redirectUrl(`/${model.basePath}/summary`)
-  }
+  state: FormState,
+  params?: FormQuery
 ): DetailItem {
+  const { name, title } = component
+  const { basePath } = model
+
+  const pagePath = `/${basePath}${page.path}`
+  const returnUrl = redirectUrl(page.getSummaryPath())
+
+  // Path to change link
+  const url = redirectUrl(pagePath, { returnUrl, ...params })
+
   return {
-    name: component.name,
-    path: page.path,
-    label: component.title,
-    value: component.getDisplayStringFromState(state),
-    rawValue: state[component.name],
-    url: redirectUrl(`/${model.basePath}${page.path}`, params),
-    pageId: `/${model.basePath}${page.path}`,
+    name,
+    title,
+    label: title,
     type: component.type,
-    title: component.title,
-    dataType: component.dataType
+    value: component.getDisplayStringFromState(state),
+    markdownValue: component.getMarkdownStringFromState(state),
+    rawValue: state[name],
+    page,
+    url
   }
 }

@@ -114,12 +114,3 @@ export type ComponentCollectionViewModel = (
   | FormComponentViewModel
   | ContentComponentViewModel
 )[]
-
-export enum DataType {
-  List = 'list',
-  Text = 'text',
-  Date = 'date',
-  MonthYear = 'monthYear',
-  Number = 'number',
-  File = 'file'
-}

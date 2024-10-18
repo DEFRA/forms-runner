@@ -152,4 +152,9 @@ export class FormComponent extends ComponentBase {
     const { name } = this
     return typeof state[name] === 'string' ? state[name] : ''
   }
+
+  getMarkdownStringFromState(state: FormSubmissionState) {
+    const formatted = this.getDisplayStringFromState(state)
+    return `\`\`\`\n${formatted}\n\`\`\``
+  }
 }

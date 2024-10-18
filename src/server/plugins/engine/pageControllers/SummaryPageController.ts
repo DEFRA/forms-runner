@@ -8,7 +8,6 @@ import {
 import { addDays, format } from 'date-fns'
 
 import { config } from '~/src/config/index.js'
-import { DataType } from '~/src/server/plugins/engine/components/types.js'
 import {
   checkFormStatus,
   redirectTo,
@@ -18,11 +17,7 @@ import {
   SummaryViewModel,
   type FormModel
 } from '~/src/server/plugins/engine/models/index.js'
-import {
-  type Detail,
-  type DetailItem,
-  type FormStatus
-} from '~/src/server/plugins/engine/models/types.js'
+import { type Detail } from '~/src/server/plugins/engine/models/types.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { persistFiles } from '~/src/server/plugins/engine/services/formSubmissionService.js'
@@ -32,15 +27,14 @@ import {
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import {
+  FormStatus,
   type FormRequest,
   type FormRequestPayload,
   type FormRequestPayloadRefs,
   type FormRequestRefs
 } from '~/src/server/routes/types.js'
-import { type Field } from '~/src/server/schemas/types.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
 
-const designerUrl = config.get('designerUrl')
 const templateId = config.get('notifyTemplateId')
 
 export class SummaryPageController extends PageController {
@@ -286,16 +280,9 @@ async function sendEmail(
 ) {
   request.logger.info(['submit', 'email'], 'Preparing email')
 
-  const { path } = request
-
-  const formStatus = checkFormStatus(path)
-
   // Get submission email personalisation
-  const personalisation = getPersonalisation(
-    summaryViewModel,
-    model,
-    formStatus
-  )
+  const { isPreview } = checkFormStatus(request.path)
+  const personalisation = getPersonalisation(summaryViewModel, model, isPreview)
 
   request.logger.info(['submit', 'email'], 'Sending email')
 
@@ -318,7 +305,7 @@ async function sendEmail(
 export function getPersonalisation(
   summaryViewModel: SummaryViewModel,
   model: FormModel,
-  formStatus: FormStatus
+  isPreview: boolean
 ) {
   /**
    * @todo Refactor this below but the code to
@@ -327,21 +314,24 @@ export function getPersonalisation(
   const { relevantPages, details } = summaryViewModel
 
   const now = new Date()
+  const formattedNow = `${format(now, 'h:mmaaa')} on ${format(now, 'd MMMM yyyy')}`
+
   const fileExpiryDate = addDays(now, 30)
   const formattedExpiryDate = `${format(fileExpiryDate, 'h:mmaaa')} on ${format(fileExpiryDate, 'eeee d MMMM yyyy')}`
+
   const formSubmissionData = getFormSubmissionData(
     relevantPages,
     details,
     model
   )
 
-  const subject = formStatus.isPreview
+  const subject = isPreview
     ? `TEST FORM SUBMISSION: ${model.name}`
     : `Form received: ${model.name}`
 
   const lines: string[] = []
   const files = formSubmissionData.questions.flatMap((question) =>
-    question.fields.filter((field) => field.type === DataType.File)
+    question.fields.filter(({ type }) => type === ComponentType.FileUploadField)
   )
 
   if (files.length) {
@@ -350,47 +340,18 @@ export function getPersonalisation(
     )
   }
 
-  if (formStatus.isPreview) {
+  if (isPreview) {
     lines.push(
-      `This is a test of the ${formSubmissionData.name} ${formStatus.state} form.`
+      `This is a test of the ${formSubmissionData.name} ${FormStatus.Draft} form.`
     )
   }
 
-  lines.push(
-    `Form received at ${format(now, 'h:mmaaa')} on ${format(now, 'd MMMM yyyy')}.`
-  )
+  lines.push(`Form received at ${formattedNow}.\n`)
 
   formSubmissionData.questions.forEach((question) => {
-    question.fields.forEach((field) => {
-      const { title, answer, type } = field
-      let value = ''
-
-      if (typeof answer === 'string') {
-        value = literal(answer)
-      } else if (typeof answer === 'number') {
-        value = literal(answer.toString())
-      } else if (typeof answer === 'boolean') {
-        value = literal(answer ? 'yes' : 'no')
-      } else if (Array.isArray(answer)) {
-        const uploads = answer
-
-        if (type === DataType.File) {
-          const files = uploads.map((upload) => upload.status.form.file)
-          const bullets = files
-            .map(
-              (file) =>
-                `* [${file.filename}](${designerUrl}/file-download/${file.fileId})`
-            )
-            .join('\n')
-
-          value = `${files.length} file${files.length !== 1 ? 's' : ''} uploaded (links expire ${formattedExpiryDate}):\n\n${bullets}`
-        } else {
-          value = literal(answer.toString())
-        }
-      }
-
-      lines.push(`## ${title}`)
-      lines.push(value)
+    question.fields.forEach((item) => {
+      lines.push(`## ${item.title}`)
+      lines.push(item.markdownValue ?? item.value)
       lines.push('\n')
     })
   })
@@ -401,22 +362,14 @@ export function getPersonalisation(
   }
 }
 
-function literal(str: string) {
-  return `\`\`\`\n${str}\n\`\`\``
-}
-
 function getFormSubmissionData(
   relevantPages: PageControllerClass[],
   details: Detail[],
   model: FormModel
 ) {
   const questions = relevantPages.map((page) => {
-    const itemsForPage = details.flatMap((detail) =>
-      detail.items.filter((item) => item.path === page.path)
-    )
-
-    const fields = itemsForPage.flatMap((item) => {
-      return [detailItemToField(item)]
+    const fields = details.flatMap((detail) => {
+      return detail.items.filter((item) => item.page.path === page.path)
     })
 
     return {
@@ -430,47 +383,5 @@ function getFormSubmissionData(
     metadata: model.def.metadata,
     name: model.name,
     questions
-  }
-}
-
-export function answerFromDetailItem(item: DetailItem) {
-  let value: DetailItem['rawValue'] = ''
-
-  if (item.rawValue === null) {
-    return value
-  }
-
-  switch (item.dataType) {
-    case DataType.List:
-      value = item.rawValue
-      break
-
-    case DataType.File:
-      value = item.rawValue
-      break
-
-    case DataType.Date:
-      value = format(new Date(item.rawValue), 'yyyy-MM-dd')
-      break
-
-    case DataType.MonthYear: {
-      const [month, year] = Object.values(item.rawValue)
-      value = format(new Date(`${year}-${month}-1`), 'yyyy-MM')
-      break
-    }
-
-    default:
-      value = item.value
-  }
-
-  return value
-}
-
-function detailItemToField(item: DetailItem): Field {
-  return {
-    key: item.name,
-    title: item.title,
-    type: item.dataType,
-    answer: answerFromDetailItem(item)
   }
 }

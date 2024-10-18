@@ -5,8 +5,6 @@ import {
 } from '@defra/forms-model'
 import { format } from 'date-fns'
 
-import { FormState } from '../models/types.js'
-
 import {
   FormModel,
   SummaryViewModel
@@ -50,17 +48,8 @@ describe('SummaryPageController', () => {
       {} as FormRequest
     )
 
-    const formStatus = (previewStatus: boolean) => ({
-      state: FormState.DRAFT,
-      isPreview: previewStatus
-    })
-
     it('should generate personalisation with form results and form name - Live form', () => {
-      const result = getPersonalisation(
-        summaryViewModel,
-        model,
-        formStatus(false)
-      )
+      const result = getPersonalisation(summaryViewModel, model, false)
       const now = new Date()
       const formattedNow = format(now, 'h:mmaaa')
       const formattedDate = format(now, 'd MMMM yyyy')
@@ -72,11 +61,7 @@ describe('SummaryPageController', () => {
     })
 
     it('should generate personalisation with form results and form name - Preview form', () => {
-      const result = getPersonalisation(
-        summaryViewModel,
-        model,
-        formStatus(true)
-      )
+      const result = getPersonalisation(summaryViewModel, model, true)
 
       expect(result.subject).toBe('TEST FORM SUBMISSION: New')
       expect(result.body).toContain('This is a test of the New draft form')
