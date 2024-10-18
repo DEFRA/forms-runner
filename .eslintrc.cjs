@@ -86,6 +86,19 @@ module.exports = {
           }
         ],
 
+        // Check relative import paths are used
+        'no-restricted-imports': [
+          'error',
+          {
+            patterns: [
+              {
+                group: ['../'],
+                message: 'Relative imports are not allowed.'
+              }
+            ]
+          }
+        ],
+
         // Check for valid formatting
         'jsdoc/check-line-alignment': [
           'warn',
