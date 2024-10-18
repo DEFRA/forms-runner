@@ -113,7 +113,9 @@ describe('Date parts field', () => {
 
     const conditonEvaluationStateValue =
       underTest.getConditionEvaluationStateValue({
-        myComponent: '2024-12-31T01:02:03.004Z'
+        myComponent__day: 31,
+        myComponent__month: 12,
+        myComponent__year: 2024
       })
 
     expect(conditonEvaluationStateValue).toBe('2024-12-31')
@@ -209,10 +211,29 @@ describe('Date parts field', () => {
 
   describe('State', () => {
     const now = new Date()
+
     const OneDayInPast = addDays(now, -1)
     const TwoDaysInPast = addDays(now, -2)
     const OneDayInFuture = addDays(now, 1)
     const TwoDaysInFuture = addDays(now, 2)
+
+    function getFormData(date: Date) {
+      const formState = getFormState(date)
+
+      return {
+        myComponent__day: `${formState.myComponent__day}`,
+        myComponent__month: `${formState.myComponent__month}`,
+        myComponent__year: `${formState.myComponent__year}`
+      }
+    }
+
+    function getFormState(date: Date) {
+      return {
+        myComponent__day: date.getDate(),
+        myComponent__month: date.getMonth() + 1,
+        myComponent__year: date.getFullYear()
+      }
+    }
 
     describe.each([
       {
@@ -227,18 +248,18 @@ describe('Date parts field', () => {
         } satisfies DatePartsFieldComponent,
         assertions: [
           {
-            input: TwoDaysInPast,
+            input: getFormData(TwoDaysInPast),
             output: {
-              value: TwoDaysInPast,
+              value: getFormState(TwoDaysInPast),
               error: new Error(
-                `example date parts field must be the same as or after ${startOfDay(OneDayInPast).toISOString()}`
+                `Example date parts field must be the same as or after ${startOfDay(OneDayInPast).toISOString()}`
               )
             }
           },
           {
-            input: now,
+            input: getFormData(now),
             output: {
-              value: now
+              value: getFormState(now)
             }
           }
         ]
@@ -255,18 +276,18 @@ describe('Date parts field', () => {
         } satisfies DatePartsFieldComponent,
         assertions: [
           {
-            input: TwoDaysInFuture,
+            input: getFormData(TwoDaysInFuture),
             output: {
-              value: TwoDaysInFuture,
+              value: getFormState(TwoDaysInFuture),
               error: new Error(
-                `example date parts field must be the same as or before ${startOfDay(OneDayInFuture).toISOString()}`
+                `Example date parts field must be the same as or before ${startOfDay(OneDayInFuture).toISOString()}`
               )
             }
           },
           {
-            input: now,
+            input: getFormData(now),
             output: {
-              value: now
+              value: getFormState(now)
             }
           }
         ]
@@ -281,8 +302,7 @@ describe('Date parts field', () => {
       it.each([...assertions])(
         'validates custom example',
         ({ input, output }) => {
-          const keys = component.getStateSchemaKeys()
-          const schema = keys[component.name]
+          const schema = component.formSchema
 
           const result = schema.validate(input, opts)
           expect(result).toEqual(output)
