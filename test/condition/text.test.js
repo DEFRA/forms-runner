@@ -33,7 +33,7 @@ describe('TextField based conditions', () => {
     const { container } = await renderResponse(server, options)
 
     const $input = container.getByRole('textbox', {
-      name: 'First page'
+      name: 'First page (optional)'
     })
 
     expect($input).toBeInTheDocument()
