@@ -58,6 +58,12 @@ Multiline text field
 \`\`\`
 
 
+## Month year field
+\`\`\`
+2012-12
+\`\`\`
+
+
 ## Yes/No field
 \`\`\`
 yes
@@ -91,6 +97,12 @@ privateLimitedCompany
 ## Select field
 \`\`\`
 910400000
+\`\`\`
+
+
+## Autocomplete field
+\`\`\`
+910400044
 \`\`\`
 
 
@@ -239,6 +251,8 @@ describe('Submission journey test', () => {
       datePartsField__day: '12',
       datePartsField__month: '12',
       datePartsField__year: '2012',
+      monthYearField__month: '12',
+      monthYearField__year: '2012',
       yesNoField: 'true',
       emailAddressField: 'user@email.com',
       telephoneNumberField: '+447900000000',
@@ -248,6 +262,7 @@ describe('Submission journey test', () => {
       addressField__postcode: 'CW1 1AB',
       radiosField: 'privateLimitedCompany',
       selectField: '910400000',
+      autocompleteField: '910400044',
       checkboxesSingle: 'Shetland',
       checkboxesMultiple: ['Arabian', 'Shire', 'Race'],
       checkboxesSingleNumber: 1,
