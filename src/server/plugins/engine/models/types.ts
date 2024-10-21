@@ -17,6 +17,7 @@ import { type FeedbackContextInfo } from '~/src/server/plugins/engine/feedback/i
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
   type FileState,
+  type FormData,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import { type Field } from '~/src/server/schemas/types.js'
@@ -85,11 +86,6 @@ export interface DetailItemBase {
   path: PageControllerClass['path']
 
   /**
-   * Path to page including base path
-   */
-  pageId: string
-
-  /**
    * String and/or display value of a field. For example, a Date will be displayed as 25 December 2022
    */
   value: string
@@ -102,12 +98,13 @@ export interface DetailItemBase {
   /**
    * Raw value of a field. For example, a Date will be displayed as 2022-12-25
    */
-  rawValue: string | number | boolean | FileState[] | [] | null
+  rawValue: string | number | boolean | FileState[] | FormData[] | null
 
   url: string
   type?: ComponentBase['type']
   title: ComponentBase['title']
   dataType?: ComponentBase['dataType']
+  subItems?: DetailItem[][]
 }
 
 export interface DetailItemDate extends DetailItemBase {
@@ -151,7 +148,7 @@ export interface DetailItemFileUpload extends DetailItemBase {
 }
 
 export interface DetailItemRepeat extends DetailItemBase {
-  rawValue: [] | null
+  rawValue: FormData[] | null
 }
 
 export type DetailItem =

@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { within } from '@testing-library/dom'
 
 import { createServer } from '~/src/server/index.js'
+import { submit } from '~/src/server/plugins/engine/services/formSubmissionService.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
@@ -13,6 +14,7 @@ const testDir = dirname(fileURLToPath(import.meta.url))
 
 jest.mock('~/src/server/utils/notify.ts')
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
+jest.mock('~/src/server/plugins/engine/services/formSubmissionService.js')
 
 describe('Form journey', () => {
   const journey = [
@@ -345,6 +347,16 @@ describe('Form journey', () => {
     })
 
     it('should redirect to the complete page on submit', async () => {
+      jest.mocked(submit).mockResolvedValueOnce({
+        message: 'Submit completed',
+        result: {
+          files: {
+            main: '00000000-0000-0000-0000-000000000000',
+            repeaters: {}
+          }
+        }
+      })
+
       const response = await server.inject({
         url: '/basic/summary',
         headers,

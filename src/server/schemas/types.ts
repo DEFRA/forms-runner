@@ -5,6 +5,7 @@ export interface Field {
   type: DetailItem['dataType']
   title: DetailItem['title']
   answer: DetailItem['rawValue']
+  item: DetailItem
 }
 
 export interface Question {

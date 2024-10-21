@@ -17,4 +17,10 @@
       margin-bottom: 0;
     }
   }
+
+  .govuk-summary-list.govuk-summary-list--long-actions {
+    .govuk-summary-list__actions {
+      width: auto;
+    }
+  }
 }

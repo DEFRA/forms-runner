@@ -147,7 +147,7 @@ export class RepeatPageController extends PageController {
     return this.getListFromState(state)
   }
 
-  private getListFromState(state: FormSubmissionState) {
+  getListFromState(state: FormSubmissionState) {
     const listState = state[this.repeat.options.name]
 
     return Array.isArray(listState) ? listState : []

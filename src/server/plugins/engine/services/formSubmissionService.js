@@ -22,3 +22,25 @@ export async function persistFiles(files, persistedRetrievalKey) {
 
   return result
 }
+
+/**
+ * Submit form
+ * @param {SubmitPayload} data - submission data
+ */
+export async function submit(data) {
+  const postJsonByType = /** @type {typeof postJson<SubmitResponsePayload>} */ (
+    postJson
+  )
+
+  const payload = data
+
+  const result = await postJsonByType(`${submissionUrl}/submit`, {
+    payload
+  })
+
+  return result.payload
+}
+
+/**
+ * @import { SubmitPayload, SubmitResponsePayload } from '@defra/forms-model'
+ */

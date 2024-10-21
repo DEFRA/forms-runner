@@ -1,5 +1,9 @@
-import { ComponentType } from '@defra/forms-model'
-import { internal, type Boom } from '@hapi/boom'
+import {
+  ComponentType,
+  type SubmitPayload,
+  type SubmitResponsePayload
+} from '@defra/forms-model'
+import { badRequest, internal, type Boom } from '@hapi/boom'
 import {
   type Request,
   type ResponseObject,
@@ -32,7 +36,10 @@ import {
 } from '~/src/server/plugins/engine/models/types.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
-import { persistFiles } from '~/src/server/plugins/engine/services/formSubmissionService.js'
+import {
+  persistFiles,
+  submit
+} from '~/src/server/plugins/engine/services/formSubmissionService.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
   type FileState,
@@ -43,6 +50,12 @@ import { sendNotification } from '~/src/server/utils/notify.js'
 
 const designerUrl = config.get('designerUrl')
 const templateId = config.get('notifyTemplateId')
+
+interface QuestionRecord {
+  title: string
+  value: string
+  field: Field
+}
 
 export class SummaryPageController extends PageController {
   /**
@@ -281,26 +294,76 @@ async function extendFileRetention(
   }
 }
 
+function submitData(
+  records: QuestionRecord[],
+  retrievalKey: string,
+  sessionId: string
+) {
+  const main = records.filter((record) => record.field.type)
+  const repeaters = records.filter((record) => record.field.item.subItems)
+
+  const payload: SubmitPayload = {
+    sessionId,
+    retrievalKey,
+    main: main.map((record) => ({
+      name: record.field.key,
+      title: record.title,
+      value: record.value
+    })),
+    repeaters: repeaters.map((record) => ({
+      name: record.field.key,
+      title: record.title,
+      value: (record.field.item.subItems ?? []).map((detailItem) =>
+        detailItem.map((item) => ({
+          name: item.name,
+          title: item.title,
+          value: item.value
+        }))
+      )
+    }))
+  }
+
+  return submit(payload)
+}
+
 async function sendEmail(
   request: Request,
   summaryViewModel: SummaryViewModel,
   model: FormModel,
   emailAddress: string
 ) {
-  request.logger.info(['submit', 'email'], 'Preparing email')
-
   const { path } = request
-
   const formStatus: FormStatus = checkFormStatus(path)
+  const logTags = ['submit', 'email']
+
+  request.logger.info(logTags, 'Preparing email', formStatus)
+
+  // Get questions and submit data
+  const questions = getQuestions(summaryViewModel, model)
+
+  request.logger.info(logTags, 'Submitting data')
+
+  const submitResponse = await submitData(
+    questions,
+    emailAddress,
+    request.yar.id
+  )
+
+  if (submitResponse === undefined) {
+    throw badRequest('Unexpected empty response from submit api')
+  }
 
   // Get submission email personalisation
+  request.logger.info(logTags, 'Getting personalisation data')
+
   const personalisation = getPersonalisation(
-    summaryViewModel,
+    questions,
     model,
+    submitResponse,
     formStatus
   )
 
-  request.logger.info(['submit', 'email'], 'Sending email')
+  request.logger.info(logTags, 'Sending email')
 
   try {
     // Send submission email
@@ -310,58 +373,25 @@ async function sendEmail(
       personalisation
     })
 
-    request.logger.info(['submit', 'email'], 'Email sent successfully')
+    request.logger.info(logTags, 'Email sent successfully')
   } catch (err) {
-    request.logger.error(['submit', 'email'], 'Error sending email', err)
+    request.logger.error(logTags, 'Error sending email', err)
 
     throw err
   }
 }
 
-export function getPersonalisation(
+export function getQuestions(
   summaryViewModel: SummaryViewModel,
-  model: FormModel,
-  formStatus: FormStatus
+  model: FormModel
 ) {
-  /**
-   * @todo Refactor this below but the code to
-   * generate the question and answers works for now
-   */
   const { relevantPages, details } = summaryViewModel
-
-  const now = new Date()
-  const fileExpiryDate = addDays(now, 30)
-  const formattedExpiryDate = `${format(fileExpiryDate, 'h:mmaaa')} on ${format(fileExpiryDate, 'eeee d MMMM yyyy')}`
   const formSubmissionData = getFormSubmissionData(
     relevantPages,
     details,
     model
   )
-
-  const subject = formStatus.isPreview
-    ? `TEST FORM SUBMISSION: ${model.name}`
-    : `Form received: ${model.name}`
-
-  const lines: string[] = []
-  const files = formSubmissionData.questions.flatMap((question) =>
-    question.fields.filter((field) => field.type === DataType.File)
-  )
-
-  if (files.length) {
-    lines.push(
-      `^ For security reasons, the links in this email expire at ${formattedExpiryDate}\n`
-    )
-  }
-
-  if (formStatus.isPreview) {
-    lines.push(
-      `This is a test of the ${formSubmissionData.name} ${formStatus.state} form.`
-    )
-  }
-
-  lines.push(
-    `Form received at ${format(now, 'h:mmaaa')} on ${format(now, 'd MMMM yyyy')}.`
-  )
+  const questions: QuestionRecord[] = []
 
   formSubmissionData.questions.forEach((question) => {
     question.fields.forEach((field) => {
@@ -369,34 +399,91 @@ export function getPersonalisation(
       let value = ''
 
       if (typeof answer === 'string') {
-        value = literal(answer)
+        value = answer
       } else if (typeof answer === 'number') {
-        value = literal(answer.toString())
+        value = answer.toString()
       } else if (typeof answer === 'boolean') {
-        value = literal(answer ? 'yes' : 'no')
+        value = answer ? 'yes' : 'no'
       } else if (Array.isArray(answer)) {
-        const uploads = answer
-
         if (type === DataType.File) {
+          const uploads = answer
           const files = uploads.map((upload) => upload.status.form.file)
-          const bullets = files
-            .map(
-              (file) =>
-                `* [${file.filename}](${designerUrl}/file-download/${file.fileId})`
-            )
-            .join('\n')
 
-          value = `${files.length} file${files.length !== 1 ? 's' : ''} uploaded (links expire ${formattedExpiryDate}):\n\n${bullets}`
+          value = files.map((file) => file.fileId).toString()
         } else {
-          value = literal(answer.toString())
+          value = answer.toString()
         }
       }
 
-      lines.push(`## ${title}`)
-      lines.push(value)
-      lines.push('\n')
+      questions.push({ title, value, field })
     })
   })
+
+  return questions
+}
+
+export function getPersonalisation(
+  questions: QuestionRecord[],
+  model: FormModel,
+  submitResponse: SubmitResponsePayload,
+  formStatus: FormStatus
+) {
+  /**
+   * @todo Refactor this below but the code to
+   * generate the question and answers works for now
+   */
+  const now = new Date()
+  const fileExpiryDate = addDays(now, 30)
+  const formattedExpiryDate = `${format(fileExpiryDate, 'h:mmaaa')} on ${format(fileExpiryDate, 'eeee d MMMM yyyy')}`
+  const subject = formStatus.isPreview
+    ? `TEST FORM SUBMISSION: ${model.name}`
+    : `Form received: ${model.name}`
+
+  const lines: string[] = []
+
+  lines.push(
+    `^ For security reasons, the links in this email expire at ${formattedExpiryDate}\n`
+  )
+
+  if (formStatus.isPreview) {
+    lines.push(`This is a test of the ${model.name} ${formStatus.state} form.`)
+  }
+
+  lines.push(
+    `Form received at ${format(now, 'h:mmaaa')} on ${format(now, 'd MMMM yyyy')}.`
+  )
+
+  questions.forEach((question) => {
+    const { title, value, field } = question
+    const { answer, type, item } = field
+
+    let line = ''
+
+    if (Array.isArray(answer) && type === DataType.File) {
+      const uploads = answer
+      const files = uploads.map((upload) => upload.status.form.file)
+      const bullets = files
+        .map(
+          (file) =>
+            `* [${file.filename}](${designerUrl}/file-download/${file.fileId})`
+        )
+        .join('\n')
+
+      line = `${files.length} file${files.length !== 1 ? 's' : ''} uploaded (links expire ${formattedExpiryDate}):\n\n${bullets}`
+    } else if (Array.isArray(item.subItems)) {
+      line = `[Download file](${designerUrl}/file-download/${submitResponse.result.files.repeaters[item.name]})`
+    } else {
+      line = literal(value)
+    }
+
+    lines.push(`## ${title}`)
+    lines.push(line)
+    lines.push('\n')
+  })
+
+  lines.push(
+    `[Download all](${designerUrl}/file-download/${submitResponse.result.files.main})`
+  )
 
   return {
     body: lines.join('\n'),
@@ -474,6 +561,7 @@ function detailItemToField(item: DetailItem): Field {
     key: item.name,
     title: item.title,
     type: item.dataType,
-    answer: answerFromDetailItem(item)
+    answer: answerFromDetailItem(item),
+    item
   }
 }
