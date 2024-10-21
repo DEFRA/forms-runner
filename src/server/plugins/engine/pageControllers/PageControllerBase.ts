@@ -475,22 +475,10 @@ export class PageControllerBase {
 
       viewModel.backLink = this.getBackLink(progress)
 
-      let missingEmailWarning
-
-      if (isStartPage) {
-        const { params } = request
-        const { slug } = params as { slug: string }
-        const { notificationEmail } = await getFormMetadata(slug)
-
-        if (!notificationEmail) {
-          missingEmailWarning = {
-            notificationEmail,
-            slug,
-            designerUrl,
-            isStartPage
-          }
-        }
-      }
+      const missingEmailWarning = await this.buildMissingEmailWarningModel(
+        request,
+        isStartPage
+      )
 
       if (missingEmailWarning) {
         return h.view(this.viewName, { ...viewModel, ...missingEmailWarning })
@@ -498,6 +486,23 @@ export class PageControllerBase {
 
       return h.view(this.viewName, viewModel)
     }
+  }
+
+  async buildMissingEmailWarningModel(request: Request, isStartPage?: boolean) {
+    const { params } = request
+    const { slug } = params as { slug: string }
+    const { notificationEmail } = await getFormMetadata(slug)
+
+    if (!notificationEmail) {
+      return {
+        notificationEmail,
+        slug,
+        designerUrl,
+        isStartPage
+      }
+    }
+
+    return undefined
   }
 
   /**

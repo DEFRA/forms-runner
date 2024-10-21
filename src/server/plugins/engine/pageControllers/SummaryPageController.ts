@@ -119,22 +119,20 @@ export class SummaryPageController extends PageController {
         }
       }
 
-      const { params } = request
-      const { slug } = params as { slug: string }
-      const { notificationEmail } = await getFormMetadata(slug)
-
       const progress = state.progress ?? []
 
       await this.updateProgress(progress, request, cacheService)
 
       viewModel.backLink = this.getBackLink(progress)
 
-      return h.view('summary', {
-        ...viewModel,
-        notificationEmail,
-        slug,
-        designerUrl
-      })
+      const missingEmailWarning =
+        await this.buildMissingEmailWarningModel(request)
+
+      if (missingEmailWarning) {
+        return h.view('summary', { ...viewModel, ...missingEmailWarning })
+      }
+
+      return h.view('summary', viewModel)
     }
   }
 
