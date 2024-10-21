@@ -154,6 +154,13 @@ export class SummaryPageController extends PageController {
 
       viewModel.backLink = this.getBackLink(progress)
 
+      const missingEmailWarning =
+        await this.buildMissingEmailWarningModel(request)
+
+      if (missingEmailWarning) {
+        return h.view('summary', { ...viewModel, ...missingEmailWarning })
+      }
+
       return h.view('summary', viewModel)
     }
   }

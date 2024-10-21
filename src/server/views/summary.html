@@ -1,6 +1,9 @@
 {% extends 'layout.html' %}
 
 {% from "partials/summary-detail.html" import summaryDetail %}
+
+{% from "common/warn-missing-notification-email.html" import warnMissingNotificationEmail %}
+
 {% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
@@ -17,6 +20,8 @@
           errorList: [{ text: "Complete all unanswered questions before submitting the form." }]
         }) }}
       {% endif %}
+
+      {{ warnMissingNotificationEmail(designerUrl, slug) }}
 
       <h1 class="govuk-heading-l">
         {{ pageTitle }}
