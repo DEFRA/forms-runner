@@ -6,12 +6,12 @@ import {
   encodeUrl,
   proceed,
   redirectTo,
-  redirectUrl,
-  type RequestWithQuery
+  redirectUrl
 } from '~/src/server/plugins/engine/helpers.js'
+import { type FormRequest } from '~/src/server/routes/types.js'
 
 describe('Helpers', () => {
-  let request: Pick<RequestWithQuery, 'query'>
+  let request: Pick<FormRequest, 'query'>
   let h: Pick<ResponseToolkit, 'redirect'>
 
   beforeEach(() => {

@@ -2,7 +2,6 @@ import { slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type Plugin,
-  type Request,
   type ResponseToolkit,
   type RouteOptions
 } from '@hapi/hapi'
@@ -22,6 +21,12 @@ import {
   getFormDefinition,
   getFormMetadata
 } from '~/src/server/plugins/engine/services/formsService.js'
+import {
+  type FormRequest,
+  type FormRequestPayload,
+  type FormRequestPayloadRefs,
+  type FormRequestRefs
+} from '~/src/server/routes/types.js'
 
 function normalisePath(path: string) {
   return path.replace(/^\//, '').replace(/\/$/, '')
@@ -33,7 +38,10 @@ function getPage(model: FormModel | undefined, path: string) {
   )
 }
 
-function getStartPageRedirect(h: ResponseToolkit, model?: FormModel) {
+function getStartPageRedirect(
+  h: ResponseToolkit<FormRequestRefs>,
+  model?: FormModel
+) {
   const startPage = normalisePath(model?.def.startPage ?? '')
 
   if (startPage.startsWith('http') || !model?.basePath) {
@@ -70,13 +78,10 @@ export const plugin = {
     server.app.models = itemCache
 
     const loadFormPreHandler = async (
-      request: Request<{
-        Params: {
-          slug: string
-          state?: 'draft' | 'live'
-        }
-      }>,
-      h: ResponseToolkit
+      request: FormRequest | FormRequestPayload,
+      h:
+        | ResponseToolkit<FormRequestRefs>
+        | ResponseToolkit<FormRequestPayloadRefs>
     ) => {
       if (server.app.model) {
         request.app.model = server.app.model
@@ -160,27 +165,16 @@ export const plugin = {
     }
 
     const dispatchHandler = (
-      request: Request<{
-        Params: {
-          slug: string
-          state?: 'draft' | 'live'
-        }
-      }>,
-      h: ResponseToolkit
+      request: FormRequest,
+      h: ResponseToolkit<FormRequestRefs>
     ) => {
       const { model } = request.app
       return getStartPageRedirect(h, model)
     }
 
     const getHandler = (
-      request: Request<{
-        Params: {
-          path: string
-          slug: string
-          state: 'draft' | 'live'
-        }
-      }>,
-      h: ResponseToolkit
+      request: FormRequest,
+      h: ResponseToolkit<FormRequestRefs>
     ) => {
       const { model } = request.app
       const { path } = request.params
@@ -197,7 +191,10 @@ export const plugin = {
       throw Boom.notFound('No form or page found')
     }
 
-    const postHandler = (request: Request, h: ResponseToolkit) => {
+    const postHandler = (
+      request: FormRequestPayload,
+      h: ResponseToolkit<FormRequestPayloadRefs>
+    ) => {
       const { path } = request.params
       const model = request.app.model
       const page = model?.pages.find(
@@ -209,7 +206,7 @@ export const plugin = {
       }
     }
 
-    const dispatchRouteOptions: RouteOptions = {
+    const dispatchRouteOptions: RouteOptions<FormRequestRefs> = {
       pre: [
         {
           method: loadFormPreHandler
@@ -246,7 +243,7 @@ export const plugin = {
       }
     })
 
-    const getRouteOptions: RouteOptions = {
+    const getRouteOptions: RouteOptions<FormRequestRefs> = {
       pre: [
         {
           method: loadFormPreHandler
@@ -287,7 +284,7 @@ export const plugin = {
       }
     })
 
-    const postRouteOptions: RouteOptions = {
+    const postRouteOptions: RouteOptions<FormRequestPayloadRefs> = {
       payload: {
         parse: true,
         failAction: (request, h) => {
@@ -337,14 +334,8 @@ export const plugin = {
 
     // List summary GET route
     const getListSummaryHandler = (
-      request: Request<{
-        Params: {
-          state?: 'draft' | 'live'
-          slug: string
-          path: string
-        }
-      }>,
-      h: ResponseToolkit
+      request: FormRequest,
+      h: ResponseToolkit<FormRequestRefs>
     ) => {
       const { model } = request.app
       const { path } = request.params
@@ -390,15 +381,8 @@ export const plugin = {
 
     // List summary POST route
     const postListSummaryHandler = (
-      request: Request<{
-        Params: {
-          state: 'draft' | 'live'
-          slug: string
-          path: string
-        }
-        Payload: { action: string }
-      }>,
-      h: ResponseToolkit
+      request: FormRequestPayload,
+      h: ResponseToolkit<FormRequestPayloadRefs>
     ) => {
       const { model } = request.app
       const { path } = request.params
@@ -456,15 +440,8 @@ export const plugin = {
 
     // List delete GET route
     const getListDeleteHandler = (
-      request: Request<{
-        Params: {
-          state?: 'draft' | 'live'
-          slug: string
-          path: string
-          itemId: string
-        }
-      }>,
-      h: ResponseToolkit
+      request: FormRequest,
+      h: ResponseToolkit<FormRequestRefs>
     ) => {
       const { model } = request.app
       const { path } = request.params
@@ -512,15 +489,8 @@ export const plugin = {
 
     // List delete POST route
     const postListDeleteHandler = (
-      request: Request<{
-        Params: {
-          state: 'draft' | 'live'
-          slug: string
-          path: string
-        }
-        Payload: { confirm?: boolean }
-      }>,
-      h: ResponseToolkit
+      request: FormRequestPayload,
+      h: ResponseToolkit<FormRequestPayloadRefs>
     ) => {
       const { model } = request.app
       const { path } = request.params

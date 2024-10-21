@@ -1,4 +1,3 @@
-import { type Request } from '@hapi/hapi'
 import { type ValidationResult } from 'joi'
 
 import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
@@ -11,6 +10,10 @@ import {
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+import {
+  type FormRequest,
+  type FormRequestPayload
+} from '~/src/server/routes/types.js'
 
 export class SummaryViewModel {
   /**
@@ -44,7 +47,7 @@ export class SummaryViewModel {
     model: FormModel,
     state: FormSubmissionState,
     relevantState: FormSubmissionState,
-    request: Request
+    request: FormRequest | FormRequestPayload
   ) {
     this.pageTitle = pageTitle
     this.serviceUrl = `/${model.basePath}`
@@ -105,7 +108,7 @@ export class SummaryViewModel {
   }
 
   private summaryDetails(
-    request: Request,
+    request: FormRequest | FormRequestPayload,
     model: FormModel,
     state: FormSubmissionState,
     relevantPages: PageControllerClass[]
@@ -162,7 +165,7 @@ export class SummaryViewModel {
 
 function addRepeaterItem(
   page: RepeatPageController,
-  request: Request,
+  request: FormRequest | FormRequestPayload,
   model: FormModel,
   state: FormSubmissionState,
   items: DetailItem[]

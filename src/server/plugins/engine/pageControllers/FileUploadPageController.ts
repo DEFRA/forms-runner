@@ -5,7 +5,7 @@ import {
   type Page
 } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import { type Request, type ResponseToolkit } from '@hapi/hapi'
+import { type ResponseToolkit } from '@hapi/hapi'
 import { type ValidationResult } from 'joi'
 
 import {
@@ -31,6 +31,12 @@ import {
   type UploadState,
   type UploadStatusResponse
 } from '~/src/server/plugins/engine/types.js'
+import {
+  type FormRequest,
+  type FormRequestPayload,
+  type FormRequestPayloadRefs,
+  type FormRequestRefs
+} from '~/src/server/routes/types.js'
 import { type CacheService } from '~/src/server/services/cacheService.js'
 
 const MAX_UPLOADS = 25
@@ -86,7 +92,7 @@ export class FileUploadPageController extends PageController {
     this.fileUploadComponent = fileUploadComponents[0]
   }
 
-  async getState(request: Request) {
+  async getState(request: FormRequest) {
     // Get the actual state
     const state = await super.getState(request)
     const name = this.getComponentName()
@@ -99,7 +105,10 @@ export class FileUploadPageController extends PageController {
   }
 
   makeGetRouteHandler() {
-    return async (request: Request, h: ResponseToolkit) => {
+    return async (
+      request: FormRequest,
+      h: ResponseToolkit<FormRequestRefs>
+    ) => {
       const { cacheService } = request.services([])
       const state = await cacheService.getUploadState(request)
 
@@ -110,7 +119,10 @@ export class FileUploadPageController extends PageController {
   }
 
   makePostRouteHandler() {
-    return async (request: Request, h: ResponseToolkit) => {
+    return async (
+      request: FormRequestPayload,
+      h: ResponseToolkit<FormRequestPayloadRefs>
+    ) => {
       const { cacheService } = request.services([])
       const state = await cacheService.getUploadState(request)
 
@@ -127,7 +139,7 @@ export class FileUploadPageController extends PageController {
     }
   }
 
-  protected getPayload(request: Request) {
+  protected getPayload(request: FormRequestPayload) {
     const payload = super.getPayload(request)
     const name = this.getComponentName()
     const files = request.app.files ?? []
@@ -182,7 +194,7 @@ export class FileUploadPageController extends PageController {
   }
 
   getViewModel(
-    request: Request,
+    request: FormRequest | FormRequestPayload,
     payload: FormPayload,
     errors?: FormSubmissionErrors
   ): FileUploadPageViewModel {
@@ -223,7 +235,7 @@ export class FileUploadPageController extends PageController {
    * @param cacheService - the cache service
    */
   private async refreshUpload(
-    request: Request,
+    request: FormRequest | FormRequestPayload,
     state: TempFileState,
     cacheService: CacheService
   ) {
@@ -246,7 +258,7 @@ export class FileUploadPageController extends PageController {
    * @param cacheService - the cache service
    */
   private async checkUploadStatus(
-    request: Request,
+    request: FormRequest | FormRequestPayload,
     state: TempFileState,
     cacheService: CacheService
   ) {
@@ -300,7 +312,7 @@ export class FileUploadPageController extends PageController {
    * @param cacheService - the cache service
    */
   private async refreshPendingFiles(
-    request: Request,
+    request: FormRequest | FormRequestPayload,
     state: TempFileState,
     cacheService: CacheService
   ) {
@@ -350,7 +362,7 @@ export class FileUploadPageController extends PageController {
    * @returns true if any files have been removed otherwise false
    */
   private async checkRemovedFiles(
-    request: Request,
+    request: FormRequestPayload,
     state: TempFileState,
     cacheService: CacheService
   ) {
@@ -381,7 +393,7 @@ export class FileUploadPageController extends PageController {
    * @param cacheService - the cache service
    */
   private async initiateAndStoreNewUpload(
-    request: Request,
+    request: FormRequest | FormRequestPayload,
     state: TempFileState,
     cacheService: CacheService
   ) {

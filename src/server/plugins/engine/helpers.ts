@@ -1,4 +1,4 @@
-import { type Request, type ResponseToolkit } from '@hapi/hapi'
+import { type ResponseToolkit } from '@hapi/hapi'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
@@ -7,6 +7,11 @@ import {
   FormState,
   type FormStatus
 } from '~/src/server/plugins/engine/models/types.js'
+import {
+  type FormQuery,
+  type FormRequest,
+  type FormRequestPayload
+} from '~/src/server/routes/types.js'
 
 const logger = createLogger()
 
@@ -14,7 +19,7 @@ export const ADD_ANOTHER = 'add-another'
 export const CONTINUE = 'continue'
 
 export function proceed(
-  request: Pick<RequestWithQuery, 'query'>,
+  request: Pick<FormRequest | FormRequestPayload, 'query'>,
   h: Pick<ResponseToolkit, 'redirect'>,
   nextUrl: string
 ) {
@@ -41,7 +46,7 @@ export function encodeUrl(link?: string) {
   }
 }
 
-export function redirectUrl(targetUrl: string, params?: Params) {
+export function redirectUrl(targetUrl: string, params?: FormQuery) {
   const relativeUrl = new RelativeUrl(targetUrl)
 
   Object.entries(params ?? {}).forEach(([name, value]) => {
@@ -54,7 +59,7 @@ export function redirectUrl(targetUrl: string, params?: Params) {
 export function redirectTo(
   h: Pick<ResponseToolkit, 'redirect'>,
   targetUrl: string,
-  params?: Params
+  params?: FormQuery
 ) {
   if (targetUrl.startsWith('http')) {
     return h.redirect(targetUrl)
@@ -101,11 +106,3 @@ export function checkFormStatus(path: string): FormStatus {
     state
   }
 }
-
-export interface Params extends Partial<Record<string, string>> {
-  returnUrl?: string
-}
-
-export type RequestWithQuery = Request<{
-  Query: Params
-}>
