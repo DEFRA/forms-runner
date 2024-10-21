@@ -1,9 +1,11 @@
 {% extends 'layout.html' %}
 
 {% from "partials/summary-detail.html" import summaryDetail %}
+
+{% from "common/warn-missing-notification-email.html" import warnMissingNotificationEmail %}
+
 {% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
-{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
 
 {% block content %}
   <div class="govuk-grid-row">
@@ -19,12 +21,7 @@
         }) }}
       {% endif %}
 
-      {% if not notificationEmail | length %} 
-        {{ govukWarningText({
-          html: 'If you want to receive a test email, <a target="_blank" class="govuk-link" href=' + designerUrl + '/library/' + slug + '/edit/notification-email>enter the email address (opens in new tab)</a> you want form submissions to go to.',
-          iconFallbackText: "Warning"
-        }) }}
-      {% endif %}
+      {{ warnMissingNotificationEmail(notificationEmail, designerUrl, slug) }}
 
       <h1 class="govuk-heading-l">
         {{ pageTitle }}

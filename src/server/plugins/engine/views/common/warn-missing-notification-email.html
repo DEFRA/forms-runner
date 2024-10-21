@@ -1,0 +1,11 @@
+{% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
+
+{% macro warnMissingNotificationEmail(notificationEmail, designerUrl, slug) %}
+  {% if not notificationEmail | length %} 
+    {{ govukWarningText({
+        html: 'If you want to receive a test email, <a target="_blank" class="govuk-link" href=' + designerUrl + '/library/' + slug + '/edit/notification-email>enter the email address (opens in new tab)</a> you want form submissions to go to.',
+        iconFallbackText: "Warning"
+    }) }}
+  {% endif %}
+{% endmacro %}
+ 
