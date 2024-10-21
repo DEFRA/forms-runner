@@ -132,7 +132,15 @@ describe('Form journey', () => {
         }))
       })
 
-      if (paths.previous) {
+      if (paths.current.endsWith('/summary')) {
+        it('should not render the back link', () => {
+          const $backLink = container.queryByRole('link', {
+            name: 'Back'
+          })
+
+          expect($backLink).not.toBeInTheDocument()
+        })
+      } else if (paths.previous) {
         it('should render the back link', () => {
           const $backLink = container.getByRole('link', {
             name: 'Back'

@@ -82,13 +82,11 @@ export class SummaryPageController extends PageController {
         return this.makePostRouteHandler()(request, h)
       }
       const state = await cacheService.getState(request)
-      const relevantState = this.getConditionEvaluationContext(model, state)
 
-      const viewModel = new SummaryViewModel(
+      const viewModel = this.getSummaryViewModel(
         this.title,
         model,
         state,
-        relevantState,
         request
       )
 
@@ -141,10 +139,6 @@ export class SummaryPageController extends PageController {
 
       await this.updateProgress(progress, request, cacheService)
 
-      viewModel.backLink = this.getBackLink(progress)
-      viewModel.feedbackLink = this.getFeedbackLink()
-      viewModel.phaseTag = this.getPhaseTag()
-
       return h.view('summary', viewModel)
     }
   }
@@ -161,20 +155,13 @@ export class SummaryPageController extends PageController {
       const { cacheService } = request.services([])
       const model = this.model
       const state = await cacheService.getState(request)
-      const relevantState = this.getConditionEvaluationContext(
-        this.model,
-        state
-      )
-      const summaryViewModel = new SummaryViewModel(
+
+      const summaryViewModel = this.getSummaryViewModel(
         this.title,
         model,
         state,
-        relevantState,
         request
       )
-
-      summaryViewModel.feedbackLink = this.getFeedbackLink()
-      summaryViewModel.phaseTag = this.getPhaseTag()
 
       // Display error summary on the summary
       // page if there are incomplete form errors
