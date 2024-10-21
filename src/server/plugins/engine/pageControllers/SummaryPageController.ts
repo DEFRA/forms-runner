@@ -518,9 +518,11 @@ export function answerFromDetailItem(item: DetailItem) {
       value = item.rawValue
       break
 
-    case DataType.Date:
-      value = format(new Date(item.rawValue), 'yyyy-MM-dd')
+    case DataType.Date: {
+      const [day, month, year] = Object.values(item.rawValue)
+      value = format(new Date(`${year}-${month}-${day}`), 'yyyy-MM-dd')
       break
+    }
 
     case DataType.MonthYear: {
       const [month, year] = Object.values(item.rawValue)
