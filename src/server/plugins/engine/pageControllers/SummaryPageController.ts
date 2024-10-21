@@ -1,5 +1,5 @@
 import { ComponentType } from '@defra/forms-model'
-import { type Boom } from '@hapi/boom'
+import { internal, type Boom } from '@hapi/boom'
 import {
   type Request,
   type ResponseObject,
