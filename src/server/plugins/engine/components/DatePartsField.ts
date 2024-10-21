@@ -1,5 +1,5 @@
 import { ComponentType, type DatePartsFieldComponent } from '@defra/forms-model'
-import { format, parseISO } from 'date-fns'
+import { format } from 'date-fns'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
@@ -72,58 +72,34 @@ export class DatePartsField extends FormComponent {
     )
 
     this.options = options
-    this.formSchema = this.children.formSchema.label(title)
-    this.stateSchema = this.children.stateSchema.label(title)
-  }
 
-  getFormSchemaKeys() {
-    return this.children.getFormSchemaKeys()
-  }
+    this.formSchema = this.children.formSchema
+      .custom(getCustomDateValidator(this))
+      .label(title)
 
-  getStateSchemaKeys() {
-    const { options } = this
-    const { maxDaysInPast, maxDaysInFuture } = options
-    let schema = this.stateSchema
-
-    schema = schema.custom(
-      getCustomDateValidator(maxDaysInPast, maxDaysInFuture)
-    )
-
-    return { [this.name]: schema }
-  }
-
-  getFormDataFromState(state: FormSubmissionState) {
-    const name = this.name
-    const value = state[name]
-    const dateValue = new Date(value)
-
-    return {
-      [`${name}__day`]: value && dateValue.getDate(),
-      [`${name}__month`]: value && dateValue.getMonth() + 1,
-      [`${name}__year`]: value && dateValue.getFullYear()
-    }
-  }
-
-  getStateValueFromValidForm(payload: FormPayload) {
-    const name = this.name
-
-    return payload[`${name}__year`]
-      ? new Date(
-          payload[`${name}__year`],
-          payload[`${name}__month`] - 1,
-          payload[`${name}__day`]
-        )
-      : null
+    this.stateSchema = this.children.stateSchema
+      .custom(getCustomDateValidator(this))
+      .label(title)
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
-    const value = state[this.name]
-    return value ? format(parseISO(value), 'd MMMM yyyy') : ''
+    const { day, month, year } = this.getFormValueFromState(state) ?? {}
+
+    if (!day || !month || !year) {
+      return ''
+    }
+
+    return format(`${year}-${month}-${day}`, 'd MMMM yyyy')
   }
 
-  getConditionEvaluationStateValue(state: FormSubmissionState): string {
-    const value = state[this.name]
-    return value ? format(parseISO(value), 'yyyy-MM-dd') : '' // strip the time as it interferes with equals/not equals
+  getConditionEvaluationStateValue(state: FormSubmissionState) {
+    const { day, month, year } = this.getFormValueFromState(state) ?? {}
+
+    if (!day || !month || !year) {
+      return null
+    }
+
+    return format(`${year}-${month}-${day}`, 'yyyy-MM-dd')
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {

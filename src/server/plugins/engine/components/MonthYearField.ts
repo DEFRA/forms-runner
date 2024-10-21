@@ -57,36 +57,17 @@ export class MonthYearField extends FormComponent {
     this.stateSchema = this.children.stateSchema.label(title)
   }
 
-  getFormSchemaKeys() {
-    return this.children.getFormSchemaKeys()
-  }
-
-  getStateSchemaKeys() {
-    return {
-      [this.name]: this.children.getStateSchemaKeys()
-    }
-  }
-
-  getFormDataFromState(state: FormSubmissionState) {
-    return this.children.getFormDataFromState(state)
-  }
-
-  getStateValueFromValidForm(payload: FormPayload) {
-    return this.children.getStateFromValidForm(payload)
-  }
-
   getDisplayStringFromState(state: FormSubmissionState) {
-    const values = state[this.name]
-    const year = values?.[`${this.name}__year`] ?? 'Not supplied'
+    const { month, year } = this.getFormValueFromState(state) ?? {}
 
-    let monthString = 'Not supplied'
-    const monthValue = values?.[`${this.name}__month`]
-    if (monthValue) {
-      const date = new Date()
-      date.setMonth(monthValue - 1)
-      monthString = date.toLocaleString('default', { month: 'long' })
+    if (!month || !year) {
+      return ''
     }
 
+    const date = new Date()
+    date.setMonth(month - 1)
+
+    const monthString = date.toLocaleString('default', { month: 'long' })
     return `${monthString} ${year}`
   }
 
