@@ -14,7 +14,7 @@ import { ProxyAgent } from 'proxy-agent'
 
 import { config } from '~/src/config/index.js'
 import { buildRedisClient } from '~/src/server/common/helpers/redis-client.js'
-import { configureBlankiePlugin } from '~/src/server/plugins/blankie.js'
+import pluginBlankie from '~/src/server/plugins/blankie.js'
 import { configureCrumbPlugin } from '~/src/server/plugins/crumb.js'
 import { configureEnginePlugin } from '~/src/server/plugins/engine/index.js'
 import pluginErrorPages from '~/src/server/plugins/errorPages.js'
@@ -88,7 +88,7 @@ export async function createServer(routeConfig: RouteConfig = {}) {
   await server.register(pluginPulse)
   await server.register(inert)
   await server.register(Scooter)
-  await server.register(configureBlankiePlugin())
+  await server.register(pluginBlankie)
   await server.register(configureCrumbPlugin(routeConfig))
   await server.register(Schmervice)
 
