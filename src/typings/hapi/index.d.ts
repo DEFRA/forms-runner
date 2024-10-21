@@ -7,7 +7,7 @@ import { type Logger } from 'pino'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FileState,
-  type FormData
+  type RepeatState
 } from '~/src/server/plugins/engine/types.js'
 import { type CacheService } from '~/src/server/services/index.js'
 
@@ -30,9 +30,9 @@ declare module '@hapi/hapi' {
     files?: FileState[]
     formAction?: string
     repeat?: {
-      list: FormData[]
+      list: RepeatState[]
       item?: {
-        value: FormData
+        value: RepeatState
         index: number
       }
     }

@@ -22,6 +22,8 @@ export interface FormRequestPayloadRefs extends FormRequestRefs {
   Payload: {
     action?: string
     confirm?: boolean
+    itemId?: string
+    crumb?: string
   } & FormPayload
 }
 
