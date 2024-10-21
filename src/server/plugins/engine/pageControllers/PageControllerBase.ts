@@ -497,7 +497,6 @@ export class PageControllerBase {
 
       if (!notificationEmail) {
         return {
-          notificationEmail,
           slug,
           designerUrl,
           isStartPage
