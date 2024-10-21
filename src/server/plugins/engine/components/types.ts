@@ -39,6 +39,12 @@ export interface ViewModel {
     id?: string
     text: string
   }
+  prefix?: {
+    text: string
+  }
+  suffix?: {
+    text: string
+  }
   classes?: string
   condition?: string
   errorMessage?: {
