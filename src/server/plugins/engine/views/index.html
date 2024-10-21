@@ -17,7 +17,9 @@
         {{ govukErrorSummary(errors) }}
       {% endif %}
 
-      {{ warnMissingNotificationEmail(notificationEmail, designerUrl, slug) }}
+      {% if isStartPage %}
+        {{ warnMissingNotificationEmail(notificationEmail, designerUrl, slug) }}
+      {% endif %}
 
       {% include "partials/heading.html" %}
 

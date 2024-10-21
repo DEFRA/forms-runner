@@ -41,6 +41,7 @@ import {
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { validationOptions } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
   type FormData,
   type FormPayload,
@@ -50,8 +51,6 @@ import {
   type PageViewModel
 } from '~/src/server/plugins/engine/types.js'
 import { type CacheService } from '~/src/server/services/index.js'
-import { getFormMetadata } from '../services/formsService.js'
-import { vi } from 'date-fns/locale'
 
 const FORM_SCHEMA = Symbol('FORM_SCHEMA')
 const STATE_SCHEMA = Symbol('STATE_SCHEMA')
@@ -476,17 +475,23 @@ export class PageControllerBase {
 
       viewModel.backLink = this.getBackLink(progress)
 
-      if (progress[0]) {
+      if (isStartPage) {
         const { params } = request
         const { slug } = params as { slug: string }
         const { notificationEmail } = await getFormMetadata(slug)
-        const missingEmailWarning = {
-          notificationEmail,
-          slug,
-          designerUrl
+
+        if (!notificationEmail) {
+          const missingEmailWarning = {
+            notificationEmail,
+            slug,
+            designerUrl,
+            isStartPage
+          }
+
+          return h.view(this.viewName, { ...viewModel, ...missingEmailWarning })
         }
 
-        return h.view(this.viewName, { ...viewModel, ...missingEmailWarning })
+        return h.view(this.viewName, viewModel)
       }
       return h.view(this.viewName, viewModel)
     }
