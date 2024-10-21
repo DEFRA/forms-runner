@@ -29,12 +29,17 @@ const okStatusCode = 200
 const redirectStatusCode = 302
 const htmlContentType = 'text/html'
 
-const FILE_EXPIRY_DAYS = 30
-const now = new Date()
-const fileExpiryDate = addDays(now, FILE_EXPIRY_DAYS)
+const dateNow = new Date()
+const dateNowFormatted = `${format(dateNow, 'h:mmaaa')} on ${format(dateNow, 'd MMMM yyyy')}`
+
+const fileExpiryDate = addDays(dateNow, 30)
 const formattedExpiryDate = `${format(fileExpiryDate, 'h:mmaaa')} on ${format(fileExpiryDate, 'eeee d MMMM yyyy')}`
 
-const formResults = `## Text field
+const formResults = `^ For security reasons, the links in this email expire at ${formattedExpiryDate}
+
+Form received at ${dateNowFormatted}.
+
+## Text field
 \`\`\`
 Text field
 \`\`\`
@@ -232,7 +237,7 @@ describe('Submission journey test', () => {
       emailAddress: 'enrique.chase@defra.gov.uk',
       personalisation: {
         subject: 'Form received: All components',
-        body: expect.stringContaining(formResults)
+        body: formResults
       }
     })
 
