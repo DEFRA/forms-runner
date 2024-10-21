@@ -455,7 +455,7 @@ export function getPersonalisation(
   })
 
   lines.push(
-    `[Download all](${designerUrl}/file-download/${submitResponse.result.files.main})`
+    `[Download all](${designerUrl}/file-download/${submitResponse.result.files.main})\n`
   )
 
   return {
