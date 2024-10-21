@@ -1,5 +1,6 @@
 import { type Request, type ResponseToolkit } from '@hapi/hapi'
 
+import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { RelativeUrl } from '~/src/server/plugins/engine/feedback/index.js'
 import {
@@ -7,12 +8,10 @@ import {
   type FormStatus
 } from '~/src/server/plugins/engine/models/types.js'
 
-export const feedbackReturnInfoKey = 'f_t'
+const logger = createLogger()
 
 export const ADD_ANOTHER = 'add-another'
 export const CONTINUE = 'continue'
-
-const paramsToCopy = [feedbackReturnInfoKey] as const
 
 export function proceed(
   request: Pick<RequestWithQuery, 'query'>,
@@ -28,14 +27,19 @@ export function proceed(
   }
 }
 
-interface Params extends Partial<Record<string, string>> {
-  returnUrl?: string
-  [feedbackReturnInfoKey]?: string
+/**
+ * Encodes a URL, returning undefined if the process fails.
+ */
+export function encodeUrl(link?: string) {
+  if (link) {
+    try {
+      return new URL(link).toString() // escape the search params without breaking the ? and & reserved characters in rfc2368
+    } catch (err) {
+      logger.error(err, `Failed to encode ${link}`)
+      throw err
+    }
+  }
 }
-
-type RequestWithQuery = Request<{
-  Query: Params
-}>
 
 export function redirectUrl(
   request: Pick<RequestWithQuery, 'query'>,
@@ -45,13 +49,6 @@ export function redirectUrl(
   const relativeUrl = new RelativeUrl(targetUrl)
   Object.entries(params ?? {}).forEach(([name, value]) => {
     relativeUrl.setParam(name, `${value}`)
-  })
-
-  paramsToCopy.forEach((key) => {
-    const value = request.query[key]
-    if (typeof value === 'string' && !relativeUrl.getParam(key)) {
-      relativeUrl.setParam(key, value)
-    }
   })
 
   return relativeUrl.toString()
@@ -108,3 +105,11 @@ export function checkFormStatus(path: string): FormStatus {
     state
   }
 }
+
+export interface Params extends Partial<Record<string, string>> {
+  returnUrl?: string
+}
+
+export type RequestWithQuery = Request<{
+  Query: Params
+}>
