@@ -4,10 +4,7 @@ import { ComponentCollection } from '~/src/server/plugins/engine/components/Comp
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
-import {
-  DataType,
-  type DateInputItem
-} from '~/src/server/plugins/engine/components/types.js'
+import { type DateInputItem } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
@@ -20,7 +17,6 @@ import {
 export class MonthYearField extends FormComponent {
   declare options: MonthYearFieldComponent['options']
   children: ComponentCollection
-  dataType: DataType = DataType.MonthYear
 
   constructor(def: MonthYearFieldComponent, model: FormModel) {
     super(def, model)

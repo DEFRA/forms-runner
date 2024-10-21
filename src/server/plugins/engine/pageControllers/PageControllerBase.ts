@@ -202,6 +202,10 @@ export class PageControllerBase {
       .filter((v) => !!v)
   }
 
+  getSummaryPath() {
+    return this.defaultNextPath
+  }
+
   /**
    * @param state - the values currently stored in a users session
    */
@@ -233,7 +237,7 @@ export class PageControllerBase {
       return `/${this.model.basePath || ''}${nextPage.path}`
     }
 
-    return this.defaultNextPath
+    return this.getSummaryPath()
   }
 
   /**

@@ -1,8 +1,8 @@
 import { type FileUploadFieldComponent } from '@defra/forms-model'
 import joi, { type ArraySchema } from 'joi'
 
+import { config } from '~/src/config/index.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { DataType } from '~/src/server/plugins/engine/components/types.js'
 import { filesize } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
@@ -15,6 +15,8 @@ import {
   type FormSubmissionErrors,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+
+const designerUrl = config.get('designerUrl')
 
 export const uploadIdSchema = joi.string().uuid().required()
 
@@ -85,7 +87,6 @@ export const formItemSchema = itemSchema.append({
 export class FileUploadField extends FormComponent {
   declare options: FileUploadFieldComponent['options']
   declare schema: FileUploadFieldComponent['schema']
-  dataType: DataType = DataType.File
 
   declare formSchema: ArraySchema<object>
   declare stateSchema: ArraySchema<object>
@@ -133,6 +134,20 @@ export class FileUploadField extends FormComponent {
     }
 
     return `You uploaded ${count} file${count !== 1 ? 's' : ''}`
+  }
+
+  getMarkdownStringFromState(state: FormSubmissionState) {
+    const values = this.getFormValueFromState(state)
+    const count = values?.length
+
+    const bullets = (values ?? [])
+      .map(({ status }) => {
+        const { filename, fileId } = status.form.file
+        return `* [${filename}](${designerUrl}/file-download/${fileId})`
+      })
+      .join('\n')
+
+    return `${count} file${count !== 1 ? 's' : ''} uploaded:\n\n${bullets}`
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {

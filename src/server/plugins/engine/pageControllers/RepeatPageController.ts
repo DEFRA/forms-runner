@@ -408,7 +408,10 @@ export class RepeatPageController extends PageController {
     }
   }
 
-  getSummaryPath(request: FormRequest | FormRequestPayload) {
-    return `/${this.model.basePath}${this.path}/summary${request.url.search}`
+  getSummaryPath(request?: FormRequest | FormRequestPayload) {
+    const { model, path } = this
+
+    const search = request?.url.search ?? ''
+    return `/${model.basePath}${path}/summary${search}`
   }
 }
