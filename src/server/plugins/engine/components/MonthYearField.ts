@@ -22,7 +22,7 @@ export class MonthYearField extends FormComponent {
   constructor(def: MonthYearFieldComponent, model: FormModel) {
     super(def, model)
 
-    const { name, options } = def
+    const { name, options, title } = def
     const isRequired = options.required !== false
 
     this.children = new ComponentCollection(
@@ -53,6 +53,8 @@ export class MonthYearField extends FormComponent {
     )
 
     this.options = options
+    this.formSchema = this.children.formSchema.label(title)
+    this.stateSchema = this.children.stateSchema.label(title)
   }
 
   getFormSchemaKeys() {

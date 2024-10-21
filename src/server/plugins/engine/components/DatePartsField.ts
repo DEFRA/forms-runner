@@ -1,6 +1,5 @@
 import { ComponentType, type DatePartsFieldComponent } from '@defra/forms-model'
 import { format, parseISO } from 'date-fns'
-import joi from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
@@ -29,12 +28,6 @@ export class DatePartsField extends FormComponent {
 
     const isRequired = options.required !== false
     const hideOptional = options.optionalText
-
-    let stateSchema = joi.date().label(title.toLowerCase()).required()
-
-    if (options.required === false) {
-      stateSchema = stateSchema.allow(null)
-    }
 
     this.children = new ComponentCollection(
       [
@@ -79,7 +72,8 @@ export class DatePartsField extends FormComponent {
     )
 
     this.options = options
-    this.stateSchema = stateSchema
+    this.formSchema = this.children.formSchema.label(title)
+    this.stateSchema = this.children.stateSchema.label(title)
   }
 
   getFormSchemaKeys() {
