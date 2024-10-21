@@ -205,7 +205,6 @@ function addRepeaterItem(
     value: `You added ${value} ${title}${value === '1' ? '' : 's'}`,
     rawValue,
     url,
-    pageId: path,
     title,
     subItems
   })
@@ -231,7 +230,6 @@ function Item(
     value: component.getDisplayStringFromState(state),
     rawValue: state[component.name],
     url: redirectUrl(request, `/${model.basePath}${page.path}`, params),
-    pageId: `/${model.basePath}${page.path}`,
     type: component.type,
     title: component.title,
     dataType: component.dataType

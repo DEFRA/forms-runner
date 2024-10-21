@@ -86,11 +86,6 @@ export interface DetailItemBase {
   path: PageControllerClass['path']
 
   /**
-   * Path to page including base path
-   */
-  pageId: string
-
-  /**
    * String and/or display value of a field. For example, a Date will be displayed as 25 December 2022
    */
   value: string
