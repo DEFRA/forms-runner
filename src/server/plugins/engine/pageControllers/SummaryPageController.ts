@@ -251,7 +251,7 @@ async function extendFileRetention(
   model.pages.forEach((page) => {
     page.components.formItems.forEach((item) => {
       if (item.type === ComponentType.FileUploadField) {
-        const componentState = state[item.name]
+        const componentState = component.getFormValueFromState(state)
 
         if (Array.isArray(componentState)) {
           files.push(
