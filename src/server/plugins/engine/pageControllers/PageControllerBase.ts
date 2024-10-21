@@ -475,24 +475,27 @@ export class PageControllerBase {
 
       viewModel.backLink = this.getBackLink(progress)
 
+      let missingEmailWarning
+
       if (isStartPage) {
         const { params } = request
         const { slug } = params as { slug: string }
         const { notificationEmail } = await getFormMetadata(slug)
 
         if (!notificationEmail) {
-          const missingEmailWarning = {
+          missingEmailWarning = {
             notificationEmail,
             slug,
             designerUrl,
             isStartPage
           }
-
-          return h.view(this.viewName, { ...viewModel, ...missingEmailWarning })
         }
-
-        return h.view(this.viewName, viewModel)
       }
+
+      if (missingEmailWarning) {
+        return h.view(this.viewName, { ...viewModel, ...missingEmailWarning })
+      }
+
       return h.view(this.viewName, viewModel)
     }
   }
