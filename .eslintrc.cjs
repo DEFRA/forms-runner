@@ -86,6 +86,19 @@ module.exports = {
           }
         ],
 
+        // Check relative import paths use aliases
+        'no-restricted-imports': [
+          'error',
+          {
+            patterns: [
+              {
+                group: ['./', '../'],
+                message: "Please use '~/*' import alias instead."
+              }
+            ]
+          }
+        ],
+
         // Check for valid formatting
         'jsdoc/check-line-alignment': [
           'warn',

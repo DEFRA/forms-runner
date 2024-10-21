@@ -6,12 +6,11 @@ import {
 import { type Request } from '@hapi/hapi'
 import { format } from 'date-fns'
 
-import { FormState } from '../models/types.js'
-
 import {
   FormModel,
   SummaryViewModel
 } from '~/src/server/plugins/engine/models/index.js'
+import { FormState } from '~/src/server/plugins/engine/models/types.js'
 import { getPersonalisation } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 
 describe('SummaryPageController', () => {
