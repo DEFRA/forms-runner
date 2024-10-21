@@ -21,7 +21,7 @@
 
       {% if not notificationEmail | length %} 
         {{ govukWarningText({
-          html: 'If you want to receive a test email, <a href="' + designerUrl + '"/library/"' + slug + '"/edit/notification-email" target="_blank" class="govuk-link"> enter the email address (opens in new tab)</a>" you want form submissions to go to.',
+          html: 'If you want to receive a test email, <a target="_blank" class="govuk-link" href=' + designerUrl + '/library/' + slug + '/edit/notification-email>enter the email address (opens in new tab)</a> you want form submissions to go to.',
           iconFallbackText: "Warning"
         }) }}
       {% endif %}
