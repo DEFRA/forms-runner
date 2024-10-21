@@ -50,9 +50,13 @@ import {
   type PageViewModel
 } from '~/src/server/plugins/engine/types.js'
 import { type CacheService } from '~/src/server/services/index.js'
+import { getFormMetadata } from '../services/formsService.js'
+import { vi } from 'date-fns/locale'
 
 const FORM_SCHEMA = Symbol('FORM_SCHEMA')
 const STATE_SCHEMA = Symbol('STATE_SCHEMA')
+
+const designerUrl = config.get('designerUrl')
 
 const logger = createLogger()
 
@@ -472,6 +476,18 @@ export class PageControllerBase {
 
       viewModel.backLink = this.getBackLink(progress)
 
+      if (progress[0]) {
+        const { params } = request
+        const { slug } = params as { slug: string }
+        const { notificationEmail } = await getFormMetadata(slug)
+        const missingEmailWarning = {
+          notificationEmail,
+          slug,
+          designerUrl
+        }
+
+        return h.view(this.viewName, { ...viewModel, ...missingEmailWarning })
+      }
       return h.view(this.viewName, viewModel)
     }
   }

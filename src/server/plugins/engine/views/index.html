@@ -1,7 +1,10 @@
 {% extends 'layout.html' %}
 
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
 {% from "partials/components.html" import componentList with context %}
+
+{% from "common/warn-missing-notification-email.html" import warnMissingNotificationEmail %}
 
 {% block content %}
   <div class="govuk-grid-row">
@@ -13,6 +16,8 @@
       {% if errors %}
         {{ govukErrorSummary(errors) }}
       {% endif %}
+
+      {{ warnMissingNotificationEmail(notificationEmail, designerUrl, slug) }}
 
       {% include "partials/heading.html" %}
 
