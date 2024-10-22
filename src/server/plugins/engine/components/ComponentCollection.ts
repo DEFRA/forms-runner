@@ -114,8 +114,10 @@ export class ComponentCollection {
     payload: FormPayload,
     errors?: FormSubmissionErrors,
     conditions?: FormModel['conditions']
-  ): ComponentCollectionViewModel {
-    const result = this.items.map((item) => {
+  ) {
+    const { items } = this
+
+    const result: ComponentViewModel[] = items.map((item) => {
       return {
         type: item.type,
         isFormComponent: item.isFormComponent,
