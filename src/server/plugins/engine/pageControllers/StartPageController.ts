@@ -1,10 +1,9 @@
-import { type Request } from '@hapi/hapi'
-
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
   type FormPayload,
   type FormSubmissionErrors
 } from '~/src/server/plugins/engine/types.js'
+import { type FormRequest } from '~/src/server/routes/types.js'
 
 export class StartPageController extends PageController {
   /**
@@ -14,7 +13,7 @@ export class StartPageController extends PageController {
    */
 
   getViewModel(
-    request: Request,
+    request: FormRequest,
     payload: FormPayload,
     errors?: FormSubmissionErrors
   ) {

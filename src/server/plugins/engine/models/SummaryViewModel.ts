@@ -1,4 +1,3 @@
-import { type Request } from '@hapi/hapi'
 import { type ValidationResult } from 'joi'
 
 import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
@@ -11,6 +10,10 @@ import {
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+import {
+  type FormRequest,
+  type FormRequestPayload
+} from '~/src/server/routes/types.js'
 
 export class SummaryViewModel {
   /**
@@ -44,7 +47,7 @@ export class SummaryViewModel {
     model: FormModel,
     state: FormSubmissionState,
     relevantState: FormSubmissionState,
-    request: Request
+    request: FormRequest | FormRequestPayload
   ) {
     this.pageTitle = pageTitle
     this.serviceUrl = `/${model.basePath}`
@@ -55,7 +58,7 @@ export class SummaryViewModel {
     this.declaration = def.declaration
     this.skipSummary = def.skipSummary
 
-    const schema = model.makeFilteredSchema(state, relevantPages)
+    const schema = model.makeFilteredSchema(relevantPages)
     const result = schema.validate(state, {
       abortEarly: false,
       stripUnknown: true
@@ -105,7 +108,7 @@ export class SummaryViewModel {
   }
 
   private summaryDetails(
-    request: Request,
+    request: FormRequest | FormRequestPayload,
     model: FormModel,
     state: FormSubmissionState,
     relevantPages: PageControllerClass[]
@@ -124,7 +127,7 @@ export class SummaryViewModel {
           addRepeaterItem(page, request, model, state, items)
         } else {
           for (const component of page.components.formItems) {
-            const item = Item(request, component, state, page, model)
+            const item = Item(component, state, page, model)
             if (items.find((cbItem) => cbItem.name === item.name)) return
             items.push(item)
           }
@@ -162,7 +165,7 @@ export class SummaryViewModel {
 
 function addRepeaterItem(
   page: RepeatPageController,
-  request: Request,
+  request: FormRequest | FormRequestPayload,
   model: FormModel,
   state: FormSubmissionState,
   items: DetailItem[]
@@ -174,8 +177,8 @@ function addRepeaterItem(
   const rawValue = page.getListFromState(state)
   const hasItems = rawValue.length > 0
   const value = hasItems ? rawValue.length.toString() : '0'
-  const url = redirectUrl(request, hasItems ? repeatSummaryPath : path, {
-    returnUrl: redirectUrl(request, `/${model.basePath}/summary`)
+  const url = redirectUrl(hasItems ? repeatSummaryPath : path, {
+    returnUrl: redirectUrl(`/${model.basePath}/summary`)
   })
 
   const subItems: DetailItem[][] = []
@@ -183,7 +186,7 @@ function addRepeaterItem(
   rawValue.forEach((itemState) => {
     const sub: DetailItem[] = []
     for (const component of page.components.formItems) {
-      const item = Item(request, component, itemState, page, model)
+      const item = Item(component, itemState, page, model)
       if (sub.find((cbItem) => cbItem.name === item.name)) return
       sub.push(item)
     }
@@ -206,13 +209,12 @@ function addRepeaterItem(
  * Creates an Item object for Details
  */
 function Item(
-  request: Request,
   component: FormComponentFieldClass,
   state: FormSubmissionState,
   page: PageControllerClass,
   model: FormModel,
   params: { returnUrl: string } = {
-    returnUrl: redirectUrl(request, `/${model.basePath}/summary`)
+    returnUrl: redirectUrl(`/${model.basePath}/summary`)
   }
 ): DetailItem {
   return {
@@ -221,7 +223,7 @@ function Item(
     label: component.title,
     value: component.getDisplayStringFromState(state),
     rawValue: state[component.name],
-    url: redirectUrl(request, `/${model.basePath}${page.path}`, params),
+    url: redirectUrl(`/${model.basePath}${page.path}`, params),
     type: component.type,
     title: component.title,
     dataType: component.dataType
