@@ -197,5 +197,6 @@
     }
   ],
   "phaseBanner": {},
-  "conditions": []
+  "conditions": [],
+  "outputEmail": "defraforms@defra.gov.uk"
 }

@@ -85,5 +85,6 @@
       }
     }
   ],
-  "skipSummary": false
+  "skipSummary": false,
+  "outputEmail": "defraforms@defra.gov.uk"
 }

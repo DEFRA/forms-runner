@@ -6,6 +6,8 @@ import { within } from '@testing-library/dom'
 
 import { createServer } from '~/src/server/index.js'
 import { ADD_ANOTHER, CONTINUE } from '~/src/server/plugins/engine/helpers.js'
+import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
+import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
@@ -63,6 +65,8 @@ async function createRepeatItem(
   }
 }
 
+jest.mock('~/src/server/plugins/engine/services/formsService.js')
+
 describe('Repeat GET tests', () => {
   /** @type {Server} */
   let server
@@ -87,6 +91,10 @@ describe('Repeat GET tests', () => {
     repeatPage = page
 
     await server.initialize()
+  })
+
+  beforeEach(() => {
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
   })
 
   afterAll(async () => {
@@ -201,6 +209,10 @@ describe('Repeat POST tests', () => {
     repeatPage = page
 
     await server.initialize()
+  })
+
+  beforeEach(() => {
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
   })
 
   afterAll(async () => {

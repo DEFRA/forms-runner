@@ -2,10 +2,14 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { createServer } from '~/src/server/index.js'
+import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
+import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
+
+jest.mock('~/src/server/plugins/engine/services/formsService.js')
 
 describe('Title and section title', () => {
   /** @type {Server} */
@@ -30,6 +34,10 @@ describe('Title and section title', () => {
       }),
       'session'
     )
+  })
+
+  beforeEach(() => {
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
   })
 
   afterAll(async () => {

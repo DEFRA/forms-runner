@@ -30,6 +30,7 @@ describe('Model cache', () => {
   })
 
   beforeEach(() => {
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
     server.app.models.clear()
   })
 
