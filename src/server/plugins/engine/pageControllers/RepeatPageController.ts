@@ -155,9 +155,16 @@ export class RepeatPageController extends PageController {
   }
 
   getListFromState(state: FormSubmissionState) {
-    const listState = state[this.repeat.options.name]
+    const { name } = this.repeat.options
+    const values = state[name]
 
-    return Array.isArray(listState) ? listState : []
+    if (!Array.isArray(values)) {
+      return []
+    }
+
+    return values.filter(
+      (value) => typeof value === 'object' && 'itemId' in value
+    )
   }
 
   makeGetRouteHandler() {
