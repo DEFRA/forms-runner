@@ -29,12 +29,17 @@ const okStatusCode = 200
 const redirectStatusCode = 302
 const htmlContentType = 'text/html'
 
-const FILE_EXPIRY_DAYS = 30
-const now = new Date()
-const fileExpiryDate = addDays(now, FILE_EXPIRY_DAYS)
+const dateNow = new Date()
+const dateNowFormatted = `${format(dateNow, 'h:mmaaa')} on ${format(dateNow, 'd MMMM yyyy')}`
+
+const fileExpiryDate = addDays(dateNow, 30)
 const formattedExpiryDate = `${format(fileExpiryDate, 'h:mmaaa')} on ${format(fileExpiryDate, 'eeee d MMMM yyyy')}`
 
-const formResults = `## Text field
+const formResults = `^ For security reasons, the links in this email expire at ${formattedExpiryDate}
+
+Form received at ${dateNowFormatted}.
+
+## Text field
 \`\`\`
 Text field
 \`\`\`
@@ -55,6 +60,12 @@ Multiline text field
 ## Date parts field
 \`\`\`
 2012-12-12
+\`\`\`
+
+
+## Month year field
+\`\`\`
+2012-12
 \`\`\`
 
 
@@ -94,6 +105,12 @@ privateLimitedCompany
 \`\`\`
 
 
+## Autocomplete field
+\`\`\`
+910400044
+\`\`\`
+
+
 ## Checkboxes field 1
 \`\`\`
 Shetland
@@ -123,6 +140,8 @@ Arabian,Shire,Race
 
 * [test.pdf](https://test-designer.cdp-int.defra.cloud/file-download/5a76a1a3-bc8a-4bc0-859a-116d775c7f15)
 
+
+[Download all](https://test-designer.cdp-int.defra.cloud/file-download/00000000-0000-0000-0000-000000000000)
 `
 
 const componentsPath = '/components/all-components'
@@ -220,7 +239,7 @@ describe('Submission journey test', () => {
       emailAddress: 'enrique.chase@defra.gov.uk',
       personalisation: {
         subject: 'Form received: All components',
-        body: expect.stringContaining(formResults)
+        body: formResults
       }
     })
 
@@ -239,6 +258,8 @@ describe('Submission journey test', () => {
       datePartsField__day: '12',
       datePartsField__month: '12',
       datePartsField__year: '2012',
+      monthYearField__month: '12',
+      monthYearField__year: '2012',
       yesNoField: 'true',
       emailAddressField: 'user@email.com',
       telephoneNumberField: '+447900000000',
@@ -248,6 +269,7 @@ describe('Submission journey test', () => {
       addressField__postcode: 'CW1 1AB',
       radiosField: 'privateLimitedCompany',
       selectField: '910400000',
+      autocompleteField: '910400044',
       checkboxesSingle: 'Shetland',
       checkboxesMultiple: ['Arabian', 'Shire', 'Race'],
       checkboxesSingleNumber: 1,

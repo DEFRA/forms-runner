@@ -38,6 +38,13 @@
           "schema": {}
         },
         {
+          "type": "MonthYearField",
+          "name": "monthYearField",
+          "title": "Month year field",
+          "options": {},
+          "schema": {}
+        },
+        {
           "type": "YesNoField",
           "name": "yesNoField",
           "title": "Yes/No field",
@@ -77,6 +84,14 @@
           "type": "SelectField",
           "name": "selectField",
           "title": "Select field",
+          "list": "country",
+          "options": {},
+          "schema": {}
+        },
+        {
+          "type": "AutocompleteField",
+          "name": "autocompleteField",
+          "title": "Autocomplete field",
           "list": "country",
           "options": {},
           "schema": {}

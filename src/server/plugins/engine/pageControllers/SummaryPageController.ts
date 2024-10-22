@@ -405,8 +405,11 @@ export function getPersonalisation(
    * generate the question and answers works for now
    */
   const now = new Date()
+  const formattedNow = `${format(now, 'h:mmaaa')} on ${format(now, 'd MMMM yyyy')}`
+
   const fileExpiryDate = addDays(now, 30)
   const formattedExpiryDate = `${format(fileExpiryDate, 'h:mmaaa')} on ${format(fileExpiryDate, 'eeee d MMMM yyyy')}`
+
   const subject = formStatus.isPreview
     ? `TEST FORM SUBMISSION: ${model.name}`
     : `Form received: ${model.name}`
@@ -421,9 +424,7 @@ export function getPersonalisation(
     lines.push(`This is a test of the ${model.name} ${formStatus.state} form.`)
   }
 
-  lines.push(
-    `Form received at ${format(now, 'h:mmaaa')} on ${format(now, 'd MMMM yyyy')}.`
-  )
+  lines.push(`Form received at ${formattedNow}.\n`)
 
   questions.forEach((question) => {
     const { title, value, field } = question
@@ -454,7 +455,7 @@ export function getPersonalisation(
   })
 
   lines.push(
-    `[Download all](${designerUrl}/file-download/${submitResponse.result.files.main})`
+    `[Download all](${designerUrl}/file-download/${submitResponse.result.files.main})\n`
   )
 
   return {
