@@ -2,10 +2,13 @@ import { ComponentType, type UkAddressFieldComponent } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
 import {
   type FormPayload,
+  type FormState,
+  type FormStateValue,
   type FormSubmissionErrors,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
@@ -81,6 +84,11 @@ export class UkAddressField extends FormComponent {
     this.stateSchema = this.children.stateSchema.label(title)
   }
 
+  getFormValueFromState(state: FormSubmissionState) {
+    const value = super.getFormValueFromState(state)
+    return UkAddressField.isValues(value) ? value : undefined
+  }
+
   getDisplayStringFromState(state: FormSubmissionState) {
     return Object.values(this.getFormValueFromState(state) ?? {})
       .filter(Boolean)
@@ -122,4 +130,17 @@ export class UkAddressField extends FormComponent {
       children
     }
   }
+
+  static isValues(value?: FormStateValue | FormState): value is UkAddressState {
+    return !!value && typeof value === 'object' && !Array.isArray(value)
+      ? Object.values(value).every(TextField.isValue)
+      : false
+  }
+}
+
+interface UkAddressState extends Record<string, string> {
+  addressLine1: string
+  addressLine2: string
+  town: string
+  postcode: string
 }

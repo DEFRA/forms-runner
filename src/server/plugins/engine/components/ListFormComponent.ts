@@ -20,6 +20,8 @@ import {
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
+  type FormState,
+  type FormStateValue,
   type FormSubmissionErrors,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
@@ -85,7 +87,7 @@ export class ListFormComponent extends FormComponent {
     const { values: listValues } = this
 
     const value = super.getFormValueFromState(state)
-    const values = [value ?? []].flat()
+    const values = ListFormComponent.isValue(value) ? [value].flat() : []
 
     const selected = listValues.filter((listValue) =>
       values.includes(listValue)
@@ -116,12 +118,12 @@ export class ListFormComponent extends FormComponent {
     const { items: listItems } = this
 
     const viewModel = super.getViewModel(payload, errors)
-    let { items, value } = viewModel
+    const { value } = viewModel
 
     // Support multiple values for checkboxes
-    const values = [value ?? []].flat()
+    const values = ListFormComponent.isValue(value) ? [value].flat() : []
 
-    items = listItems.map((item) => {
+    const items = listItems.map((item) => {
       const selected = values.includes(item.value)
       const itemModel: ListItem = { ...item, selected }
 
@@ -138,5 +140,23 @@ export class ListFormComponent extends FormComponent {
       ...viewModel,
       items
     }
+  }
+
+  static isValue(
+    value?: FormStateValue | FormState
+  ): value is Item['value'] | Item['value'][] {
+    const values = [value ?? []].flat()
+
+    // Skip checks when empty
+    if (!values.length) {
+      return true
+    }
+
+    return values.every(
+      (value) =>
+        typeof value === 'string' ||
+        typeof value === 'number' ||
+        typeof value === 'boolean'
+    )
   }
 }

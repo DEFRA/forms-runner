@@ -40,8 +40,14 @@ export class FormComponent extends ComponentBase {
       return children.getFormDataFromState(state)
     }
 
+    const value = this.getFormValueFromState(state)
+
+    if (!FormComponent.isValue(value)) {
+      return
+    }
+
     return {
-      [name]: this.getFormValueFromState(state)
+      [name]: value
     }
   }
 
@@ -134,23 +140,24 @@ export class FormComponent extends ComponentBase {
     }
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
+  getDisplayStringFromState(state: FormSubmissionState): string {
     const value = this.getFormValueFromState(state)
-
-    if (
-      typeof value === 'string' ||
-      typeof value === 'number' ||
-      typeof value === 'boolean'
-    ) {
-      return value.toString()
-    }
-
-    return ''
+    return FormComponent.isValue(value) ? value.toString() : ''
   }
 
   getConditionEvaluationStateValue(
     state: FormSubmissionState
   ): FormStateValue | FormState {
     return this.getFormValueFromState(state) ?? null
+  }
+
+  static isValue(
+    value?: FormStateValue | FormState
+  ): value is NonNullable<FormStateValue> {
+    return (
+      typeof value === 'string' ||
+      typeof value === 'number' ||
+      typeof value === 'boolean'
+    )
   }
 }

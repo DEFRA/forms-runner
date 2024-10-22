@@ -3,6 +3,7 @@ import { format } from 'date-fns'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import { getCustomDateValidator } from '~/src/server/plugins/engine/components/helpers.js'
 import {
@@ -12,6 +13,8 @@ import {
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
+  type FormState,
+  type FormStateValue,
   type FormSubmissionErrors,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
@@ -79,6 +82,11 @@ export class DatePartsField extends FormComponent {
       .label(title)
   }
 
+  getFormValueFromState(state: FormSubmissionState) {
+    const value = super.getFormValueFromState(state)
+    return DatePartsField.isValues(value) ? value : undefined
+  }
+
   getDisplayStringFromState(state: FormSubmissionState) {
     const { day, month, year } = this.getFormValueFromState(state) ?? {}
 
@@ -120,7 +128,7 @@ export class DatePartsField extends FormComponent {
           classes = `${classes} govuk-input--error`.trim()
         }
 
-        if (typeof value !== 'number') {
+        if (!NumberField.isValue(value)) {
           value = undefined
         }
 
@@ -157,4 +165,16 @@ export class DatePartsField extends FormComponent {
       items
     }
   }
+
+  static isValues(value?: FormStateValue | FormState): value is DatePartsState {
+    return !!value && typeof value === 'object' && !Array.isArray(value)
+      ? Object.values(value).every(NumberField.isValue)
+      : false
+  }
+}
+
+interface DatePartsState extends Record<string, number> {
+  day: number
+  month: number
+  year: number
 }

@@ -19,7 +19,6 @@ import { type PageControllerClass } from '~/src/server/plugins/engine/pageContro
 import {
   type FileState,
   type FormState,
-  type FormData,
   type FormStateValue,
   type FormSubmissionState,
   type RepeatState
@@ -75,7 +74,7 @@ export interface DetailItemBase {
 export interface DetailItemDate extends DetailItemBase {
   type: DatePartsFieldComponent['type']
   dataType: DataType.Date
-  rawValue: string | null
+  rawValue: FormState | null
 }
 
 export interface DetailItemMonthYear extends DetailItemBase {

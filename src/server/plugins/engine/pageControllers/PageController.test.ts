@@ -4,6 +4,7 @@ import dateFormConditionJson from '~/src/server/forms/date-branching.json' with 
 import formJson from '~/src/server/forms/get-condition-evaluation-context.json' with { type: 'json' }
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/index.js'
+import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 
 describe('Condition Evaluation Context', () => {
   it('correctly includes/filters state values', () => {
@@ -24,7 +25,7 @@ describe('Condition Evaluation Context', () => {
     const page = new PageController(formModel, testConditionsPage.pageDef)
 
     // The state below shows we said we had a UKPassport and entered details for an applicant
-    const completeState = {
+    const completeState: FormSubmissionState = {
       progress: [
         '/csds/uk-passport',
         '/csds/how-many-people',
@@ -37,21 +38,17 @@ describe('Condition Evaluation Context', () => {
       applicantOneFirstName: 'Enrique',
       applicantOneMiddleName: null,
       applicantOneLastName: 'Chase',
-      applicantOneAddress: {
-        addressLine1: 'AddressLine1',
-        addressLine2: 'AddressLine2',
-        town: 'Town',
-        postcode: 'Postcode'
-      },
+      applicantOneAddress__addressLine1: 'AddressLine1',
+      applicantOneAddress__addressLine2: 'AddressLine2',
+      applicantOneAddress__town: 'Town',
+      applicantOneAddress__postcode: 'Postcode',
       applicantTwoFirstName: 'John',
       applicantTwoMiddleName: null,
       applicantTwoLastName: 'Doe',
-      applicantTwoAddress: {
-        addressLine1: 'AddressLine1',
-        addressLine2: 'AddressLine2',
-        town: 'Town',
-        postcode: 'Postcode'
-      }
+      applicantTwoAddress__addressLine1: 'AddressLine1',
+      applicantTwoAddress__addressLine2: 'AddressLine2',
+      applicantTwoAddress__town: 'Town',
+      applicantTwoAddress__postcode: 'Postcode'
     }
 
     // Calculate our relevantState based on the page we're attempting to load and the above state we provide
@@ -107,9 +104,11 @@ describe('Condition Evaluation Context', () => {
 
       const page = new PageController(formModel, testConditionsPage.pageDef)
 
-      const completeState = {
+      const completeState: FormSubmissionState = {
         progress: [],
-        BWvMaM: '2024-01-05T01:02:03.004Z'
+        BWvMaM__day: 5,
+        BWvMaM__month: 1,
+        BWvMaM__year: 2024
       }
 
       // get the state including our DatePartsField

@@ -10,6 +10,8 @@ import {
   UploadStatus,
   type FileState,
   type FormPayload,
+  type FormState,
+  type FormStateValue,
   type FormSubmissionErrors,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
@@ -119,12 +121,12 @@ export class FileUploadField extends FormComponent {
 
   getFormValueFromState(state: FormSubmissionState) {
     const value = super.getFormValueFromState(state)
-    return Array.isArray(value) ? value : []
+    return FileUploadField.isValue(value) ? value : undefined
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
-    const value = this.getFormValueFromState(state)
-    const count = Array.isArray(value) ? value.length : 0
+    const files = this.getFormValueFromState(state) ?? []
+    const count = files.length
 
     if (!count) {
       return super.getDisplayStringFromState(state)
@@ -139,7 +141,7 @@ export class FileUploadField extends FormComponent {
     const viewModel = super.getViewModel(payload, errors)
     const { attributes, value } = viewModel
 
-    const files = (value ?? []) as FileState[]
+    const files = FileUploadField.isValue(value) ? value : []
     const count = files.length
 
     let pendingCount = 0
@@ -192,5 +194,20 @@ export class FileUploadField extends FormComponent {
         summary
       }
     }
+  }
+
+  static isValue(value?: FormStateValue | FormState): value is FileState[] {
+    if (!Array.isArray(value)) {
+      return false
+    }
+
+    // Skip checks when empty
+    if (!value.length) {
+      return true
+    }
+
+    return value.every(
+      (value) => typeof value === 'object' && 'uploadId' in value
+    )
   }
 }

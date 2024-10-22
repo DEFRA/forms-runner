@@ -7,7 +7,7 @@ import {
   type ComponentFieldClass,
   type FormComponentFieldClass
 } from '~/src/server/plugins/engine/components/helpers.js'
-import { type ComponentCollectionViewModel } from '~/src/server/plugins/engine/components/types.js'
+import { type ComponentViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
@@ -78,6 +78,24 @@ export class ComponentCollection {
     this.formItems.forEach((item) => {
       Object.assign(payload, item.getFormDataFromState(state))
     })
+
+    return payload
+  }
+
+  getFormValueFromState(state: FormSubmissionState) {
+    const payload: FormPayload = {}
+
+    // Remove name prefix for formatted value
+    for (const [name, value] of Object.entries(
+      this.getFormDataFromState(state)
+    )) {
+      const key = name.split('__').pop()
+      if (!key) {
+        continue
+      }
+
+      payload[key] = value
+    }
 
     return payload
   }

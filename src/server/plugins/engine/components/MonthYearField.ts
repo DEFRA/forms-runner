@@ -2,6 +2,7 @@ import { ComponentType, type MonthYearFieldComponent } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import {
   DataType,
@@ -10,6 +11,8 @@ import {
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
+  type FormState,
+  type FormStateValue,
   type FormSubmissionErrors,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
@@ -61,6 +64,11 @@ export class MonthYearField extends FormComponent {
     this.stateSchema = this.children.stateSchema.label(title)
   }
 
+  getFormValueFromState(state: FormSubmissionState) {
+    const value = super.getFormValueFromState(state)
+    return MonthYearField.isValues(value) ? value : undefined
+  }
+
   getDisplayStringFromState(state: FormSubmissionState) {
     const { month, year } = this.getFormValueFromState(state) ?? {}
 
@@ -96,7 +104,7 @@ export class MonthYearField extends FormComponent {
           classes = `${classes} govuk-input--error`.trim()
         }
 
-        if (typeof value !== 'number') {
+        if (!NumberField.isValue(value)) {
           value = undefined
         }
 
@@ -133,4 +141,15 @@ export class MonthYearField extends FormComponent {
       items
     }
   }
+
+  static isValues(value?: FormStateValue | FormState): value is MonthYearState {
+    return !!value && typeof value === 'object' && !Array.isArray(value)
+      ? Object.values(value).every(NumberField.isValue)
+      : false
+  }
+}
+
+interface MonthYearState extends Record<string, number> {
+  month: number
+  year: number
 }

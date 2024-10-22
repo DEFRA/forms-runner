@@ -6,6 +6,11 @@ import joi, { type StringSchema } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import {
+  type FormState,
+  type FormStateValue,
+  type FormSubmissionState
+} from '~/src/server/plugins/engine/types.js'
 
 export class TextField extends FormComponent {
   declare options:
@@ -65,5 +70,14 @@ export class TextField extends FormComponent {
     this.stateSchema = formSchema.default(null).allow(null)
     this.options = options
     this.schema = schema
+  }
+
+  getFormValueFromState(state: FormSubmissionState) {
+    const value = super.getFormValueFromState(state)
+    return TextField.isValue(value) ? value : undefined
+  }
+
+  static isValue(value?: FormStateValue | FormState): value is string {
+    return typeof value === 'string'
   }
 }
