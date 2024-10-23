@@ -38,7 +38,7 @@ export class SelectField extends ListFormComponent {
     const { options } = this
 
     const viewModel = super.getViewModel(payload, errors)
-    viewModel.items = [{ value: '' }, ...(viewModel.items ?? [])]
+    viewModel.items = [{ value: '' }, ...viewModel.items]
 
     if ('autocomplete' in options) {
       viewModel.attributes.autocomplete = options.autocomplete
