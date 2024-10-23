@@ -44,6 +44,11 @@ describe('TextField based conditions', () => {
       name: 'First page (optional)'
     })
 
+    const $warning = container.getByRole('link', {
+      name: 'enter the email address (opens in new tab)'
+    })
+
+    expect($warning).toBeInTheDocument()
     expect($input).toBeInTheDocument()
     expect($input).toHaveAttribute('id', key)
     expect($input).toHaveAttribute('name', key)
