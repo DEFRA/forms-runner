@@ -10,7 +10,6 @@ import {
 } from '@defra/forms-model'
 import { type Boom } from '@hapi/boom'
 import {
-  type Request,
   type ResponseObject,
   type ResponseToolkit,
   type RouteOptions,
@@ -44,6 +43,12 @@ import {
   type FormValidationResult,
   type PageViewModel
 } from '~/src/server/plugins/engine/types.js'
+import {
+  type FormRequest,
+  type FormRequestPayload,
+  type FormRequestPayloadRefs,
+  type FormRequestRefs
+} from '~/src/server/routes/types.js'
 import { type CacheService } from '~/src/server/services/index.js'
 
 const FORM_SCHEMA = Symbol('FORM_SCHEMA')
@@ -103,7 +108,7 @@ export class PageControllerBase {
    * @param [errors] - validation errors that may have occurred
    */
   getViewModel(
-    request: Request,
+    request: FormRequest | FormRequestPayload,
     payload: FormPayload,
     errors?: FormSubmissionErrors
   ): PageViewModel {
@@ -242,7 +247,10 @@ export class PageControllerBase {
     }
   }
 
-  getStateFromValidForm(request: Request, payload: FormPayload) {
+  getStateFromValidForm(
+    request: FormRequest | FormRequestPayload,
+    payload: FormPayload
+  ) {
     return this.components.getStateFromValidForm(payload)
   }
 
@@ -375,22 +383,24 @@ export class PageControllerBase {
     return relevantState
   }
 
-  async getState(request: Request) {
+  async getState(request: FormRequest | FormRequestPayload) {
     const { cacheService } = request.services([])
     const state = await cacheService.getState(request)
 
     return state
   }
 
-  async setState(request: Request, state: FormSubmissionState) {
+  async setState(
+    request: FormRequest | FormRequestPayload,
+    state: FormSubmissionState
+  ) {
     const { cacheService } = request.services([])
-
     return cacheService.mergeState(request, state)
   }
 
   makeGetRouteHandler(): (
-    request: Request,
-    h: ResponseToolkit
+    request: FormRequest,
+    h: ResponseToolkit<FormRequestRefs>
   ) => Promise<ResponseObject | Boom> {
     return async (request, h) => {
       const { cacheService } = request.services([])
@@ -403,15 +413,15 @@ export class PageControllerBase {
 
       if (shouldRedirectToStartPage) {
         return startPage?.startsWith('http')
-          ? redirectTo(request, h, startPage)
-          : redirectTo(request, h, `/${this.model.basePath}${startPage}`)
+          ? redirectTo(h, startPage)
+          : redirectTo(h, `/${this.model.basePath}${startPage}`)
       }
 
       const viewModel = this.getViewModel(request, payload)
 
       viewModel.startPage = startPage?.startsWith('http')
-        ? redirectTo(request, h, startPage)
-        : redirectTo(request, h, `/${this.model.basePath}${startPage}`)
+        ? redirectTo(h, startPage)
+        : redirectTo(h, `/${this.model.basePath}${startPage}`)
 
       /**
        * Content components can be hidden based on a condition. If the condition evaluates to true, it is safe to be kept, otherwise discard it
@@ -503,7 +513,7 @@ export class PageControllerBase {
    */
   protected async updateProgress(
     progress: string[],
-    request: Request,
+    request: FormRequest,
     cacheService: CacheService
   ) {
     const lastVisited = progress.at(-1)
@@ -535,13 +545,13 @@ export class PageControllerBase {
     return progress.at(-2)
   }
 
-  protected getPayload(request: Request) {
-    return (request.payload || {}) as FormPayload
+  protected getPayload(request: FormRequestPayload) {
+    return request.payload
   }
 
   makePostRouteHandler(): (
-    request: Request,
-    h: ResponseToolkit
+    request: FormRequestPayload,
+    h: ResponseToolkit<FormRequestPayloadRefs>
   ) => Promise<ResponseObject | Boom> {
     return async (request, h) => {
       const formPayload = this.getPayload(request)
@@ -621,7 +631,7 @@ export class PageControllerBase {
       path: this.path,
       options: this.getRouteOptions,
       handler: this.makeGetRouteHandler()
-    } satisfies ServerRoute
+    } satisfies ServerRoute<FormRequestRefs>
   }
 
   makePostRoute() {
@@ -630,7 +640,7 @@ export class PageControllerBase {
       path: this.path,
       options: this.postRouteOptions,
       handler: this.makePostRouteHandler()
-    } satisfies ServerRoute
+    } satisfies ServerRoute<FormRequestPayloadRefs>
   }
 
   findPageByPath(path: string) {
@@ -640,7 +650,13 @@ export class PageControllerBase {
   /**
    * TODO:- proceed is interfering with subclasses
    */
-  proceed(request: Request, h: ResponseToolkit, state: FormSubmissionState) {
+  proceed(
+    request: FormRequest | FormRequestPayload,
+    h:
+      | ResponseToolkit<FormRequestRefs>
+      | ResponseToolkit<FormRequestPayloadRefs>,
+    state: FormSubmissionState
+  ) {
     return proceed(request, h, this.getNext(state))
   }
 
@@ -659,14 +675,14 @@ export class PageControllerBase {
   /**
    * {@link https://hapi.dev/api/?v=20.1.2#route-options}
    */
-  get getRouteOptions(): RouteOptions {
+  get getRouteOptions(): RouteOptions<FormRequestRefs> {
     return {}
   }
 
   /**
    * {@link https://hapi.dev/api/?v=20.1.2#route-options}
    */
-  get postRouteOptions(): RouteOptions {
+  get postRouteOptions(): RouteOptions<FormRequestPayloadRefs> {
     return {}
   }
 
@@ -687,8 +703,10 @@ export class PageControllerBase {
   }
 
   protected renderWithErrors(
-    request: Request,
-    h: ResponseToolkit,
+    request: FormRequest | FormRequestPayload,
+    h:
+      | ResponseToolkit<FormRequestRefs>
+      | ResponseToolkit<FormRequestPayloadRefs>,
     payload: FormPayload,
     progress: string[],
     errors?: FormSubmissionErrors

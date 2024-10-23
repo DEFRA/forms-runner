@@ -219,7 +219,8 @@ describe('File upload POST tests', () => {
     const { container, response } = await renderResponse(server, {
       method: 'POST',
       url,
-      headers
+      headers,
+      payload: {}
     })
 
     expect(response.statusCode).toBe(okStatusCode)
@@ -272,7 +273,8 @@ describe('File upload POST tests', () => {
     const res3 = await server.inject({
       method: 'POST',
       url,
-      headers
+      headers,
+      payload: {}
     })
 
     expect(res3.statusCode).toBe(redirectStatusCode)
