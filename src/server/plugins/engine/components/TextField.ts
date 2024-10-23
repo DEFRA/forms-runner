@@ -6,10 +6,6 @@ import joi, { type StringSchema } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import {
-  type FormPayload,
-  type FormSubmissionErrors
-} from '~/src/server/plugins/engine/types.js'
 
 export class TextField extends FormComponent {
   declare options:
@@ -69,16 +65,5 @@ export class TextField extends FormComponent {
     this.stateSchema = formSchema.default(null).allow(null)
     this.options = options
     this.schema = schema
-  }
-
-  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
-    const options = this.options
-    const viewModel = super.getViewModel(payload, errors)
-
-    if ('autocomplete' in options) {
-      viewModel.autocomplete = options.autocomplete
-    }
-
-    return viewModel
   }
 }

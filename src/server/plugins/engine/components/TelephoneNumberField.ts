@@ -49,11 +49,10 @@ export class TelephoneNumberField extends FormComponent {
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
-    const viewModel = {
-      ...super.getViewModel(payload, errors),
-      type: 'tel',
-      autocomplete: 'tel'
-    }
+    const viewModel = super.getViewModel(payload, errors)
+
+    viewModel.type = 'tel'
+    viewModel.attributes.autocomplete = 'tel'
 
     return viewModel
   }
