@@ -39,10 +39,6 @@ export class List extends ComponentBase {
       viewModel.type = options.type
     }
 
-    if (options.classes) {
-      viewModel.classes = options.classes
-    }
-
     if (options.bold) {
       viewModel.classes ??= ''
       viewModel.classes = `${viewModel.classes} govuk-!-font-weight-bold`.trim()

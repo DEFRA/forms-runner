@@ -1,4 +1,4 @@
-import { type ComponentDef } from '@defra/forms-model'
+import { isConditionalType, type ComponentDef } from '@defra/forms-model'
 import joi, {
   type ArraySchema,
   type BooleanSchema,
@@ -63,10 +63,30 @@ export class ComponentBase {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     errors?: FormSubmissionErrors
-  ): ViewModel {
-    return {
+  ) {
+    const { options, type } = this
+
+    const viewModel: ViewModel = {
       attributes: {}
     }
+
+    if (!options) {
+      return viewModel
+    }
+
+    if ('autocomplete' in options) {
+      viewModel.attributes.autocomplete = options.autocomplete
+    }
+
+    if ('classes' in options) {
+      viewModel.classes = options.classes
+    }
+
+    if ('condition' in options && isConditionalType(type)) {
+      viewModel.condition = options.condition
+    }
+
+    return viewModel
   }
 }
 
