@@ -6,10 +6,7 @@ import { FormComponent } from '~/src/server/plugins/engine/components/FormCompon
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import { getCustomDateValidator } from '~/src/server/plugins/engine/components/helpers.js'
-import {
-  DataType,
-  type DateInputItem
-} from '~/src/server/plugins/engine/components/types.js'
+import { type DateInputItem } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
@@ -22,7 +19,6 @@ import {
 export class DatePartsField extends FormComponent {
   declare options: DatePartsFieldComponent['options']
   children: ComponentCollection
-  dataType: DataType = DataType.Date
 
   constructor(def: DatePartsFieldComponent, model: FormModel) {
     super(def, model)

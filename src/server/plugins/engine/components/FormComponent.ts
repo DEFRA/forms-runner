@@ -160,4 +160,9 @@ export class FormComponent extends ComponentBase {
       typeof value === 'boolean'
     )
   }
+
+  getMarkdownStringFromState(state: FormSubmissionState) {
+    const formatted = this.getDisplayStringFromState(state)
+    return `\`\`\`\n${formatted}\n\`\`\``
+  }
 }

@@ -11,9 +11,11 @@ import { RepeatPageController } from '~/src/server/plugins/engine/pageController
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
   type FormState,
-  type FormSubmissionState
+  type FormSubmissionState,
+  type RepeatState
 } from '~/src/server/plugins/engine/types.js'
 import {
+  type FormQuery,
   type FormRequest,
   type FormRequestPayload
 } from '~/src/server/routes/types.js'
@@ -126,11 +128,13 @@ export class SummaryViewModel {
       )
 
       sectionPages.forEach((page) => {
+        const { formItems } = page.components
+
         if (page instanceof RepeatPageController) {
           addRepeaterItem(page, request, model, state, items)
         } else {
-          for (const component of page.components.formItems) {
-            const item = Item(component, state, page, model)
+          for (const component of formItems) {
+            const item = Item(page, model, state, component)
             if (items.find((cbItem) => cbItem.name === item.name)) return
             items.push(item)
           }
@@ -173,37 +177,45 @@ function addRepeaterItem(
   state: FormSubmissionState,
   items: DetailItem[]
 ) {
+  const { basePath } = model
+  const { formItems } = page.components
   const { options } = page.repeat
-  const { name, title } = options
-  const repeatSummaryPath = page.getSummaryPath(request)
-  const path = `/${model.basePath}${page.path}`
+
   const rawValue = page.getListFromState(state)
   const hasItems = rawValue.length > 0
   const value = hasItems ? rawValue.length.toString() : '0'
-  const url = redirectUrl(hasItems ? repeatSummaryPath : path, {
-    returnUrl: redirectUrl(`/${model.basePath}/summary`)
+
+  const pagePath = hasItems
+    ? page.getSummaryPath(request)
+    : `/${basePath}${page.path}`
+
+  // Path to change link
+  const url = redirectUrl(pagePath, {
+    returnUrl: redirectUrl(page.defaultNextPath)
   })
 
   const subItems: DetailItem[][] = []
 
   rawValue.forEach((itemState) => {
     const sub: DetailItem[] = []
-    for (const component of page.components.formItems) {
-      const item = Item(component, itemState, page, model)
+
+    for (const component of formItems) {
+      const item = Item(page, model, itemState, component)
       if (sub.find((cbItem) => cbItem.name === item.name)) return
       sub.push(item)
     }
+
     subItems.push(sub)
   })
 
   items.push({
-    name,
-    path: page.path,
-    label: hasItems ? `${title}s added` : title,
-    value: `You added ${value} ${title}${value === '1' ? '' : 's'}`,
+    name: options.name,
+    title: options.title,
+    label: hasItems ? `${options.title}s added` : options.title,
+    value: `You added ${value} ${options.title}${value === '1' ? '' : 's'}`,
     rawValue,
+    page,
     url,
-    title,
     subItems
   })
 }
@@ -212,23 +224,29 @@ function addRepeaterItem(
  * Creates an Item object for Details
  */
 function Item(
-  component: FormComponentFieldClass,
-  state: FormState,
   page: PageControllerClass,
   model: FormModel,
-  params: { returnUrl: string } = {
-    returnUrl: redirectUrl(`/${model.basePath}/summary`)
-  }
-): DetailItem {
+  state: FormState | RepeatState,
+  component: FormComponentFieldClass,
+  params?: FormQuery
+) {
+  const { basePath } = model
+
+  const pagePath = `/${basePath}${page.path}`
+  const returnUrl = redirectUrl(page.getSummaryPath())
+
+  // Path to change link
+  const url = redirectUrl(pagePath, { returnUrl, ...params })
+
   return {
     name: component.name,
-    path: page.path,
+    title: component.title,
     label: component.title,
     value: component.getDisplayStringFromState(state),
+    markdownValue: component.getMarkdownStringFromState(state),
     rawValue: component.getFormValueFromState(state),
-    url: redirectUrl(`/${model.basePath}${page.path}`, params),
     type: component.type,
-    title: component.title,
-    dataType: component.dataType
-  }
+    page,
+    url
+  } satisfies DetailItem
 }
