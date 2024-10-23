@@ -32,32 +32,43 @@ export class List extends ComponentBase {
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
-    const { items, options } = this
+    const { items: listItems, options } = this
+
     const viewModel = super.getViewModel(payload, errors)
+    let { classes, content, items, type } = viewModel
 
     if (options.type) {
-      viewModel.type = options.type
+      type = options.type
     }
 
     if (options.bold) {
-      viewModel.classes ??= ''
-      viewModel.classes = `${viewModel.classes} govuk-!-font-weight-bold`.trim()
+      classes ??= ''
+      classes = `${classes} govuk-!-font-weight-bold`.trim()
     }
 
-    viewModel.content = {
+    content = {
       title: !options.hideTitle ? this.title : undefined,
       text: this.hint ?? ''
     }
 
-    viewModel.items = items.map(
-      ({ text, description = '', condition }) =>
-        ({
-          text,
-          hint: { text: description },
-          condition: condition ?? undefined
-        }) satisfies ListItem
-    )
+    items = listItems.map((item) => {
+      const itemModel: ListItem = { ...item }
 
-    return viewModel
+      if (item.description) {
+        itemModel.hint = {
+          text: item.description
+        }
+      }
+
+      return itemModel
+    })
+
+    return {
+      ...viewModel,
+      type,
+      classes,
+      content,
+      items
+    }
   }
 }

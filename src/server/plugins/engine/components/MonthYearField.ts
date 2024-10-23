@@ -92,11 +92,12 @@ export class MonthYearField extends FormComponent {
     const { children, name } = this
 
     const viewModel = super.getViewModel(payload, errors)
+    let { fieldset, label } = viewModel
 
     // Use the component collection to generate the subitems
-    const componentViewModels = children
+    const items: DateInputItem[] = children
       .getViewModel(payload, errors)
-      .map(({ model }): DateInputItem => {
+      .map(({ model }) => {
         let { label, type, value, classes, errorMessage } = model
 
         if (label) {
@@ -131,8 +132,6 @@ export class MonthYearField extends FormComponent {
       text: componentErrors[0].text
     }
 
-    let { fieldset, label } = viewModel
-
     fieldset ??= {
       legend: {
         text: label.text,
@@ -144,7 +143,7 @@ export class MonthYearField extends FormComponent {
       ...viewModel,
       errorMessage,
       fieldset,
-      items: componentViewModels
+      items
     }
   }
 }

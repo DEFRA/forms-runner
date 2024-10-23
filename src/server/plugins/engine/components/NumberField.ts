@@ -5,8 +5,7 @@ import { FormComponent } from '~/src/server/plugins/engine/components/FormCompon
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
-  type FormSubmissionErrors,
-  type FormSubmissionState
+  type FormSubmissionErrors
 } from '~/src/server/plugins/engine/types.js'
 
 export class NumberField extends FormComponent {
@@ -51,34 +50,33 @@ export class NumberField extends FormComponent {
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
-    const schema = this.schema
-    const options = this.options
+    const { options, schema } = this
 
-    const { suffix, prefix } = options
-
-    const viewModelPrefix = { prefix: { text: prefix } }
-    const viewModelSuffix = { suffix: { text: suffix } }
-
-    const viewModel = {
-      ...super.getViewModel(payload, errors),
-      type: 'number',
-
-      // ...False returns nothing, so only adds content when
-      // the given options are present.
-      ...(options.prefix && viewModelPrefix),
-      ...(options.suffix && viewModelSuffix)
-    }
+    const viewModel = super.getViewModel(payload, errors)
+    let { attributes, prefix, suffix } = viewModel
 
     if (schema.precision) {
-      viewModel.attributes.step = '0.' + '1'.padStart(schema.precision, '0')
+      attributes.step = '0.' + '1'.padStart(schema.precision, '0')
     }
 
-    return viewModel
-  }
+    if (options.prefix) {
+      prefix = {
+        text: options.prefix
+      }
+    }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
-    return state[this.name] || state[this.name] === 0
-      ? state[this.name].toString()
-      : ''
+    if (options.suffix) {
+      suffix = {
+        text: options.suffix
+      }
+    }
+
+    return {
+      ...viewModel,
+      attributes,
+      prefix,
+      suffix,
+      type: 'number'
+    }
   }
 }

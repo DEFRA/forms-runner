@@ -19,9 +19,13 @@ export class InsetText extends ComponentBase {
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+    const { content } = this
+
+    const viewModel = super.getViewModel(payload, errors)
+
     return {
-      ...super.getViewModel(payload, errors),
-      content: this.content
+      ...viewModel,
+      content
     }
   }
 }

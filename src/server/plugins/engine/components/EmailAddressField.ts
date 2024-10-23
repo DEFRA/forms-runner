@@ -44,10 +44,13 @@ export class EmailAddressField extends FormComponent {
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     const viewModel = super.getViewModel(payload, errors)
+    const { attributes } = viewModel
 
-    viewModel.type = 'email'
-    viewModel.attributes.autocomplete = 'email'
+    attributes.autocomplete = 'email'
 
-    return viewModel
+    return {
+      ...viewModel,
+      type: 'email'
+    }
   }
 }
