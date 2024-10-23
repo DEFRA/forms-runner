@@ -76,6 +76,8 @@ export interface ViewModel extends Record<string, unknown> {
     step?: string
   }
   content?: Content | Content[] | string
+  maxlength?: number
+  maxwords?: number
   rows?: number
   items?: ListItem[] | DateInputItem[]
   fieldset?: {

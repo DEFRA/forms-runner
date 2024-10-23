@@ -137,15 +137,18 @@ export class FileUploadField extends FormComponent {
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
-    const viewModel = super.getViewModel(payload, errors)
+    const { options } = this
 
-    const files = (payload[this.name] ?? []) as FileState[]
+    const viewModel = super.getViewModel(payload, errors)
+    const { attributes, value } = viewModel
+
+    const files = (value ?? []) as FileState[]
     const count = files.length
 
     let pendingCount = 0
     let successfulCount = 0
 
-    const summary = files.map((item: FileState) => {
+    const summary = files.map((item) => {
       const { status } = item
       const { form } = status
       const { file } = form
@@ -171,24 +174,26 @@ export class FileUploadField extends FormComponent {
       }
     })
 
-    // File input can't have a initial value
-    viewModel.value = ''
-
-    // Override the component name we send to CDP
-    viewModel.name = 'file'
-
     // Set up the `accept` attribute
-    if ('accept' in this.options) {
-      viewModel.attributes.accept = this.options.accept
+    if ('accept' in options) {
+      attributes.accept = options.accept
     }
 
-    viewModel.upload = {
-      count,
-      pendingCount,
-      successfulCount,
-      summary
-    }
+    return {
+      ...viewModel,
 
-    return viewModel
+      // File input can't have a initial value
+      value: '',
+
+      // Override the component name we send to CDP
+      name: 'file',
+
+      upload: {
+        count,
+        pendingCount,
+        successfulCount,
+        summary
+      }
+    }
   }
 }

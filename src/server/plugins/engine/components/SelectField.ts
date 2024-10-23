@@ -36,8 +36,13 @@ export class SelectField extends ListFormComponent {
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     const viewModel = super.getViewModel(payload, errors)
-    viewModel.items = [{ value: '' }, ...viewModel.items]
+    let { items } = viewModel
 
-    return viewModel
+    items = [{ value: '' }, ...items]
+
+    return {
+      ...viewModel,
+      items
+    }
   }
 }
