@@ -1,7 +1,7 @@
 {% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
 
 {% set html %}
-    If you want to receive a test email, <a target="_blank" rel="noopener noreferrer" class="govuk-link" href="{{designerUrl}}/library/{{slug}}/edit/notification-email">enter the email address (opens in new tab)</a> you want form submissions to go to.
+    If you want to receive a test email, <a target="_blank" rel="noopener noreferrer" class="govuk-link" href="{{notificationEmailWarning.designerUrl}}/library/{{notificationEmailWarning.slug}}/edit/notification-email">enter the email address (opens in new tab)</a> you want form submissions to go to.
 {% endset %}
 
 {{ govukWarningText({

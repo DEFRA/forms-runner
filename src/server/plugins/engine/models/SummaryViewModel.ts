@@ -42,6 +42,11 @@ export class SummaryViewModel {
 
   serviceUrl: string
   showErrorSummary?: boolean
+  notificationEmailWarning?: {
+    slug: string
+    designerUrl: string
+  }
+
   constructor(
     pageTitle: string,
     model: FormModel,

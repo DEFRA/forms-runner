@@ -476,14 +476,12 @@ export class PageControllerBase {
 
       viewModel.backLink = this.getBackLink(progress)
 
-      const missingEmailWarning = await this.buildMissingEmailWarningModel(
+      const notificationEmailWarning = await this.buildMissingEmailWarningModel(
         request,
         isStartPage
       )
 
-      if (missingEmailWarning) {
-        return h.view(this.viewName, { ...viewModel, ...missingEmailWarning })
-      }
+      viewModel.notificationEmailWarning = notificationEmailWarning
 
       return h.view(this.viewName, viewModel)
     }
@@ -492,7 +490,7 @@ export class PageControllerBase {
   async buildMissingEmailWarningModel(
     request: FormRequest,
     isStartPage?: boolean
-  ) {
+  ): Promise<PageViewModel['notificationEmailWarning']> {
     const { params } = request
     // Warn the user if the form has no notification email set only on start page and summary page
     if (isStartPage || params.path === 'summary') {
@@ -502,8 +500,7 @@ export class PageControllerBase {
       if (!notificationEmail) {
         return {
           slug,
-          designerUrl,
-          isStartPage
+          designerUrl
         }
       }
     }

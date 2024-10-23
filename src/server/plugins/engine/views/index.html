@@ -15,7 +15,7 @@
         {{ govukErrorSummary(errors) }}
       {% endif %}
 
-      {% if isStartPage %}
+      {% if notificationEmailWarning %}
         {% include "partials/warn-missing-notification-email.html" %}
       {% endif %}
 
