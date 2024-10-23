@@ -46,9 +46,11 @@ export class FormComponent extends ComponentBase {
   getFormValueFromState(state: FormSubmissionState): FormValue {
     const name = this.name
 
-    if (name in state) {
-      return state[name] === null ? '' : state[name].toString()
+    if (!(name in state)) {
+      return
     }
+
+    return state[name] ?? undefined
   }
 
   getStateFromValidForm(payload: FormPayload): FormState {
