@@ -21,12 +21,14 @@ export class Details extends ComponentBase {
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
-    const viewModel = {
-      ...super.getViewModel(payload, errors),
-      summaryHtml: this.title,
-      html: this.content
-    }
+    const { content, title } = this
 
-    return viewModel
+    const viewModel = super.getViewModel(payload, errors)
+
+    return {
+      ...viewModel,
+      html: content,
+      summaryHtml: title
+    }
   }
 }

@@ -100,14 +100,28 @@ export class MultilineTextField extends FormComponent {
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     const { schema, options, isCharacterOrWordCount } = this
+
     const viewModel = super.getViewModel(payload, errors)
+    let { maxlength, maxwords, rows } = viewModel
+
+    if (schema.max) {
+      maxlength = schema.max
+    }
+
+    if (options.maxWords) {
+      maxwords = options.maxWords
+    }
+
+    if (options.rows) {
+      maxwords = options.rows
+    }
 
     return {
       ...viewModel,
       isCharacterOrWordCount,
-      maxlength: schema.max,
-      maxwords: options.maxWords,
-      rows: options.rows
+      maxlength,
+      maxwords,
+      rows
     }
   }
 }
