@@ -489,11 +489,14 @@ export class PageControllerBase {
     }
   }
 
-  async buildMissingEmailWarningModel(request: Request, isStartPage?: boolean) {
+  async buildMissingEmailWarningModel(
+    request: FormRequest,
+    isStartPage?: boolean
+  ) {
     const { params } = request
     // Warn the user if the form has no notification email set only on start page and summary page
     if (isStartPage || params.path === 'summary') {
-      const { slug } = params as { slug: string }
+      const { slug } = params
       const { notificationEmail } = await getFormMetadata(slug)
 
       if (!notificationEmail) {
