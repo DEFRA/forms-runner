@@ -46,9 +46,11 @@ export class FormComponent extends ComponentBase {
   getFormValueFromState(state: FormSubmissionState): FormValue {
     const name = this.name
 
-    if (name in state) {
-      return state[name] === null ? '' : state[name].toString()
+    if (!(name in state)) {
+      return
     }
+
+    return state[name] ?? undefined
   }
 
   getStateFromValidForm(payload: FormPayload): FormState {
@@ -128,6 +130,16 @@ export class FormComponent extends ComponentBase {
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
-    return state[this.name] ?? ''
+    const value = state[this.name]
+
+    if (
+      typeof value === 'string' ||
+      typeof value === 'number' ||
+      typeof value === 'boolean'
+    ) {
+      return value.toString()
+    }
+
+    return ''
   }
 }

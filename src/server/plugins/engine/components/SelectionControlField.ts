@@ -22,8 +22,8 @@ export class SelectionControlField extends ListFormComponent {
       }
     }
 
-    items = items?.map((item) => {
-      const checked = 'selected' in item && item.selected
+    items = items.map((item) => {
+      const { selected: checked } = item
       const itemModel = { ...item, checked } satisfies ListItem
 
       if ('bold' in options && options.bold) {
