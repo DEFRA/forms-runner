@@ -1,9 +1,9 @@
 import { ComponentType, type DatePartsFieldComponent } from '@defra/forms-model'
-import { format, parseISO } from 'date-fns'
-import joi from 'joi'
+import { format } from 'date-fns'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import { getCustomDateValidator } from '~/src/server/plugins/engine/components/helpers.js'
 import {
@@ -13,6 +13,8 @@ import {
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
+  type FormState,
+  type FormStateValue,
   type FormSubmissionErrors,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
@@ -30,12 +32,6 @@ export class DatePartsField extends FormComponent {
     const isRequired = options.required !== false
     const hideOptional = options.optionalText
 
-    let stateSchema = joi.date().label(title.toLowerCase()).required()
-
-    if (options.required === false) {
-      stateSchema = stateSchema.allow(null)
-    }
-
     this.children = new ComponentCollection(
       [
         {
@@ -47,8 +43,7 @@ export class DatePartsField extends FormComponent {
             required: isRequired,
             optionalText: !isRequired && hideOptional,
             classes: 'govuk-input--width-2'
-          },
-          hint: ''
+          }
         },
         {
           type: ComponentType.NumberField,
@@ -59,8 +54,7 @@ export class DatePartsField extends FormComponent {
             required: isRequired,
             optionalText: !isRequired && hideOptional,
             classes: 'govuk-input--width-2'
-          },
-          hint: ''
+          }
         },
         {
           type: ComponentType.NumberField,
@@ -71,65 +65,46 @@ export class DatePartsField extends FormComponent {
             required: isRequired,
             optionalText: !isRequired && hideOptional,
             classes: 'govuk-input--width-4'
-          },
-          hint: ''
+          }
         }
       ],
       model
     )
 
     this.options = options
-    this.stateSchema = stateSchema
+
+    this.formSchema = this.children.formSchema
+      .custom(getCustomDateValidator(this))
+      .label(title)
+
+    this.stateSchema = this.children.stateSchema
+      .custom(getCustomDateValidator(this))
+      .label(title)
   }
 
-  getFormSchemaKeys() {
-    return this.children.getFormSchemaKeys()
-  }
-
-  getStateSchemaKeys() {
-    const { options } = this
-    const { maxDaysInPast, maxDaysInFuture } = options
-    let schema = this.stateSchema
-
-    schema = schema.custom(
-      getCustomDateValidator(maxDaysInPast, maxDaysInFuture)
-    )
-
-    return { [this.name]: schema }
-  }
-
-  getFormDataFromState(state: FormSubmissionState) {
-    const name = this.name
-    const value = state[name]
-    const dateValue = new Date(value)
-
-    return {
-      [`${name}__day`]: value && dateValue.getDate(),
-      [`${name}__month`]: value && dateValue.getMonth() + 1,
-      [`${name}__year`]: value && dateValue.getFullYear()
-    }
-  }
-
-  getStateValueFromValidForm(payload: FormPayload) {
-    const name = this.name
-
-    return payload[`${name}__year`]
-      ? new Date(
-          payload[`${name}__year`],
-          payload[`${name}__month`] - 1,
-          payload[`${name}__day`]
-        )
-      : null
+  getFormValueFromState(state: FormSubmissionState) {
+    const value = super.getFormValueFromState(state)
+    return DatePartsField.isValues(value) ? value : undefined
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
-    const value = state[this.name]
-    return value ? format(parseISO(value), 'd MMMM yyyy') : ''
+    const { day, month, year } = this.getFormValueFromState(state) ?? {}
+
+    if (!day || !month || !year) {
+      return ''
+    }
+
+    return format(`${year}-${month}-${day}`, 'd MMMM yyyy')
   }
 
-  getConditionEvaluationStateValue(state: FormSubmissionState): string {
-    const value = state[this.name]
-    return value ? format(parseISO(value), 'yyyy-MM-dd') : '' // strip the time as it interferes with equals/not equals
+  getConditionEvaluationStateValue(state: FormSubmissionState) {
+    const { day, month, year } = this.getFormValueFromState(state) ?? {}
+
+    if (!day || !month || !year) {
+      return null
+    }
+
+    return format(`${year}-${month}-${day}`, 'yyyy-MM-dd')
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
@@ -153,7 +128,7 @@ export class DatePartsField extends FormComponent {
           classes = `${classes} govuk-input--error`.trim()
         }
 
-        if (typeof value !== 'number') {
+        if (!NumberField.isValue(value)) {
           value = undefined
         }
 
@@ -190,4 +165,16 @@ export class DatePartsField extends FormComponent {
       items
     }
   }
+
+  static isValues(value?: FormStateValue | FormState): value is DatePartsState {
+    return !!value && typeof value === 'object' && !Array.isArray(value)
+      ? Object.values(value).every(NumberField.isValue)
+      : false
+  }
+}
+
+interface DatePartsState extends Record<string, number> {
+  day: number
+  month: number
+  year: number
 }

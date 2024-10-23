@@ -61,6 +61,14 @@ module.exports = {
           }
         ],
 
+        // Skip warnings for `this` in static methods
+        '@typescript-eslint/unbound-method': [
+          'warn',
+          {
+            ignoreStatic: true
+          }
+        ],
+
         // Skip rules handled by TypeScript compiler
         'import/default': 'off',
         'import/extensions': 'off',

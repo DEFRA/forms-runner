@@ -1,5 +1,4 @@
 import {
-  ComponentType,
   type SubmitPayload,
   type SubmitResponsePayload
 } from '@defra/forms-model'
@@ -12,6 +11,7 @@ import {
 import { addDays, format } from 'date-fns'
 
 import { config } from '~/src/config/index.js'
+import { FileUploadField } from '~/src/server/plugins/engine/components/FileUploadField.js'
 import { DataType } from '~/src/server/plugins/engine/components/types.js'
 import {
   checkFormStatus,
@@ -24,8 +24,7 @@ import {
 } from '~/src/server/plugins/engine/models/index.js'
 import {
   type Detail,
-  type DetailItem,
-  type FormStatus
+  type DetailItem
 } from '~/src/server/plugins/engine/models/types.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
@@ -34,10 +33,7 @@ import {
   submit
 } from '~/src/server/plugins/engine/services/formSubmissionService.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
-import {
-  type FileState,
-  type FormSubmissionState
-} from '~/src/server/plugins/engine/types.js'
+import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
   type FormRequestPayload,
@@ -247,21 +243,22 @@ async function extendFileRetention(
   // For each file upload component with files in
   // state, add the files to the batch getting persisted
   model.pages.forEach((page) => {
-    page.components.formItems.forEach((item) => {
-      if (item.type === ComponentType.FileUploadField) {
-        const componentState = state[item.name]
+    const fileUploadComponents = page.components.formItems.filter(
+      (component) => component instanceof FileUploadField
+    )
 
-        if (Array.isArray(componentState)) {
-          files.push(
-            ...componentState.map((fileState: FileState) => {
-              const { fileId } = fileState.status.form.file
-              const { retrievalKey } = fileState.status.metadata
-
-              return { fileId, initiatedRetrievalKey: retrievalKey }
-            })
-          )
-        }
+    fileUploadComponents.forEach((component) => {
+      const values = component.getFormValueFromState(state)
+      if (!values?.length) {
+        return
       }
+
+      files.push(
+        ...values.map(({ status }) => ({
+          fileId: status.form.file.fileId,
+          initiatedRetrievalKey: status.metadata.retrievalKey
+        }))
+      )
     })
   })
 
@@ -382,10 +379,11 @@ export function getQuestions(
         value = answer ? 'yes' : 'no'
       } else if (Array.isArray(answer)) {
         if (type === DataType.File) {
-          const uploads = answer
-          const files = uploads.map((upload) => upload.status.form.file)
+          const uploads = FileUploadField.isValue(answer) ? answer : []
 
-          value = files.map((file) => file.fileId).toString()
+          value = uploads
+            .map(({ status }) => status.form.file.fileId)
+            .toString()
         } else {
           value = answer.toString()
         }
@@ -402,7 +400,7 @@ export function getPersonalisation(
   questions: QuestionRecord[],
   model: FormModel,
   submitResponse: SubmitResponsePayload,
-  formStatus: FormStatus
+  formStatus: ReturnType<typeof checkFormStatus>
 ) {
   /**
    * @todo Refactor this below but the code to
@@ -437,7 +435,7 @@ export function getPersonalisation(
     let line = ''
 
     if (Array.isArray(answer) && type === DataType.File) {
-      const uploads = answer
+      const uploads = FileUploadField.isValue(answer) ? answer : []
       const files = uploads.map((upload) => upload.status.form.file)
       const bullets = files
         .map(
@@ -516,9 +514,11 @@ export function answerFromDetailItem(item: DetailItem) {
       value = item.rawValue
       break
 
-    case DataType.Date:
-      value = format(new Date(item.rawValue), 'yyyy-MM-dd')
+    case DataType.Date: {
+      const [day, month, year] = Object.values(item.rawValue)
+      value = format(new Date(`${year}-${month}-${day}`), 'yyyy-MM-dd')
       break
+    }
 
     case DataType.MonthYear: {
       const [month, year] = Object.values(item.rawValue)

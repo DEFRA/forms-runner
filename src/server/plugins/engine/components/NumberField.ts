@@ -5,7 +5,10 @@ import { FormComponent } from '~/src/server/plugins/engine/components/FormCompon
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
-  type FormSubmissionErrors
+  type FormState,
+  type FormStateValue,
+  type FormSubmissionErrors,
+  type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 
 export class NumberField extends FormComponent {
@@ -49,6 +52,11 @@ export class NumberField extends FormComponent {
     this.schema = schema
   }
 
+  getFormValueFromState(state: FormSubmissionState) {
+    const value = super.getFormValueFromState(state)
+    return NumberField.isValue(value) ? value : undefined
+  }
+
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     const { options, schema } = this
 
@@ -78,5 +86,9 @@ export class NumberField extends FormComponent {
       suffix,
       type: 'number'
     }
+  }
+
+  static isValue(value?: FormStateValue | FormState): value is number {
+    return typeof value === 'number'
   }
 }

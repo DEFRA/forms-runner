@@ -18,6 +18,7 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class FormComponent extends ComponentBase {
+  type: FormComponentsDef['type']
   hint: FormComponentsDef['hint']
   children: ComponentCollection | undefined
 
@@ -26,43 +27,47 @@ export class FormComponent extends ComponentBase {
   constructor(def: FormComponentsDef, model: FormModel) {
     super(def, model)
 
-    const { hint } = def
+    const { hint, type } = def
 
+    this.type = type
     this.hint = hint
   }
 
-  getFormDataFromState(state: FormSubmissionState): FormPayload {
-    const name = this.name
+  getFormDataFromState(state: FormSubmissionState): FormPayload | undefined {
+    const { children, name } = this
 
-    if (!(name in state)) {
-      return {}
+    if (children) {
+      return children.getFormDataFromState(state)
+    }
+
+    const value = this.getFormValueFromState(state)
+
+    if (!FormComponent.isValue(value)) {
+      return
     }
 
     return {
-      [name]: this.getFormValueFromState(state)
+      [name]: value
     }
   }
 
-  getFormValueFromState(state: FormSubmissionState): FormValue {
-    const name = this.name
+  getFormValueFromState(state: FormSubmissionState): FormValue | FormPayload {
+    const { children, name } = this
 
-    if (!(name in state)) {
-      return
+    if (children) {
+      return children.getFormValueFromState(state)
     }
 
     return state[name] ?? undefined
   }
 
   getStateFromValidForm(payload: FormPayload): FormState {
-    const name = this.name
+    const { children, name } = this
 
-    return {
-      [name]: this.getStateValueFromValidForm(payload)
+    if (children) {
+      return children.getStateFromValidForm(payload)
     }
-  }
 
-  getStateValueFromValidForm(payload: FormPayload): FormStateValue {
-    const name = this.name
     const value = payload[name]
 
     // Check for empty fields
@@ -70,11 +75,9 @@ export class FormComponent extends ComponentBase {
     const isEmpty = value === '' || (Array.isArray(value) && !value.length)
 
     // Default to null in state
-    if (isMissing || isEmpty) {
-      return null
+    return {
+      [name]: isMissing || isEmpty ? null : value
     }
-
-    return value
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
@@ -114,24 +117,47 @@ export class FormComponent extends ComponentBase {
   }
 
   getFormSchemaKeys(): ComponentSchemaKeys {
-    return { [this.name]: this.formSchema }
+    const { children, name, formSchema } = this
+
+    if (children) {
+      return children.getFormSchemaKeys()
+    }
+
+    return {
+      [name]: formSchema
+    }
   }
 
   getStateSchemaKeys(): ComponentSchemaKeys {
-    return { [this.name]: this.stateSchema }
+    const { children, name, stateSchema } = this
+
+    if (children) {
+      return children.getStateSchemaKeys()
+    }
+
+    return {
+      [name]: stateSchema
+    }
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
-    const value = state[this.name]
+  getDisplayStringFromState(state: FormSubmissionState): string {
+    const value = this.getFormValueFromState(state)
+    return FormComponent.isValue(value) ? value.toString() : ''
+  }
 
-    if (
+  getConditionEvaluationStateValue(
+    state: FormSubmissionState
+  ): FormStateValue | FormState {
+    return this.getFormValueFromState(state) ?? null
+  }
+
+  static isValue(
+    value?: FormStateValue | FormState
+  ): value is NonNullable<FormStateValue> {
+    return (
       typeof value === 'string' ||
       typeof value === 'number' ||
       typeof value === 'boolean'
-    ) {
-      return value.toString()
-    }
-
-    return ''
+    )
   }
 }

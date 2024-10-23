@@ -2,6 +2,7 @@ import { ComponentType, type MonthYearFieldComponent } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import {
   DataType,
@@ -10,6 +11,8 @@ import {
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
+  type FormState,
+  type FormStateValue,
   type FormSubmissionErrors,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
@@ -22,8 +25,10 @@ export class MonthYearField extends FormComponent {
   constructor(def: MonthYearFieldComponent, model: FormModel) {
     super(def, model)
 
-    const { name, options } = def
+    const { name, options, title } = def
+
     const isRequired = options.required !== false
+    const hideOptional = options.optionalText
 
     this.children = new ComponentCollection(
       [
@@ -34,6 +39,7 @@ export class MonthYearField extends FormComponent {
           schema: { min: 1, max: 12 },
           options: {
             required: isRequired,
+            optionalText: !isRequired && hideOptional,
             classes: 'govuk-input--width-2',
             customValidationMessage: '{{#label}} must be between 1 and 12'
           }
@@ -45,6 +51,7 @@ export class MonthYearField extends FormComponent {
           schema: { min: 1000, max: 3000 },
           options: {
             required: isRequired,
+            optionalText: !isRequired && hideOptional,
             classes: 'govuk-input--width-4'
           }
         }
@@ -53,38 +60,26 @@ export class MonthYearField extends FormComponent {
     )
 
     this.options = options
+    this.formSchema = this.children.formSchema.label(title)
+    this.stateSchema = this.children.stateSchema.label(title)
   }
 
-  getFormSchemaKeys() {
-    return this.children.getFormSchemaKeys()
-  }
-
-  getStateSchemaKeys() {
-    return {
-      [this.name]: this.children.getStateSchemaKeys()
-    }
-  }
-
-  getFormDataFromState(state: FormSubmissionState) {
-    return this.children.getFormDataFromState(state)
-  }
-
-  getStateValueFromValidForm(payload: FormPayload) {
-    return this.children.getStateFromValidForm(payload)
+  getFormValueFromState(state: FormSubmissionState) {
+    const value = super.getFormValueFromState(state)
+    return MonthYearField.isValues(value) ? value : undefined
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
-    const values = state[this.name]
-    const year = values?.[`${this.name}__year`] ?? 'Not supplied'
+    const { month, year } = this.getFormValueFromState(state) ?? {}
 
-    let monthString = 'Not supplied'
-    const monthValue = values?.[`${this.name}__month`]
-    if (monthValue) {
-      const date = new Date()
-      date.setMonth(monthValue - 1)
-      monthString = date.toLocaleString('default', { month: 'long' })
+    if (!month || !year) {
+      return ''
     }
 
+    const date = new Date()
+    date.setMonth(month - 1)
+
+    const monthString = date.toLocaleString('default', { month: 'long' })
     return `${monthString} ${year}`
   }
 
@@ -109,7 +104,7 @@ export class MonthYearField extends FormComponent {
           classes = `${classes} govuk-input--error`.trim()
         }
 
-        if (typeof value !== 'number') {
+        if (!NumberField.isValue(value)) {
           value = undefined
         }
 
@@ -146,4 +141,15 @@ export class MonthYearField extends FormComponent {
       items
     }
   }
+
+  static isValues(value?: FormStateValue | FormState): value is MonthYearState {
+    return !!value && typeof value === 'object' && !Array.isArray(value)
+      ? Object.values(value).every(NumberField.isValue)
+      : false
+  }
+}
+
+interface MonthYearState extends Record<string, number> {
+  month: number
+  year: number
 }
