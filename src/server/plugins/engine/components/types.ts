@@ -87,7 +87,6 @@ export interface ViewModel extends Record<string, unknown> {
     attributes?: string | Record<string, string>
   }
   children?: ComponentCollectionViewModel
-  autocomplete?: string
   upload?: {
     count: number
     pendingCount: number

@@ -134,7 +134,7 @@ describe('EmailAddressField', () => {
             id: 'myComponent',
             value: 'Text field',
             type: 'email',
-            autocomplete: 'email'
+            attributes: { autocomplete: 'email' }
           })
         )
       })

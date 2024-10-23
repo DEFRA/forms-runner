@@ -46,7 +46,7 @@ export class EmailAddressField extends FormComponent {
     const viewModel = super.getViewModel(payload, errors)
 
     viewModel.type = 'email'
-    viewModel.autocomplete = 'email'
+    viewModel.attributes.autocomplete = 'email'
 
     return viewModel
   }

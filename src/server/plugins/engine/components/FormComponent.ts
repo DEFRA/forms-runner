@@ -92,14 +92,6 @@ export class FormComponent extends ComponentBase {
       }
     }
 
-    if ('classes' in options) {
-      viewModel.classes = options.classes
-    }
-
-    if ('condition' in options) {
-      viewModel.condition = options.condition
-    }
-
     errors?.errorList.forEach((err) => {
       if (err.name === name) {
         err.text = upperFirst(err.text)

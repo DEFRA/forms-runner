@@ -83,7 +83,7 @@ describe('Telephone number field', () => {
     const telephoneNumberField = new TelephoneNumberField(def, {})
     expect(telephoneNumberField.getViewModel({})).toEqual(
       expect.objectContaining({
-        autocomplete: 'tel'
+        attributes: { autocomplete: 'tel' }
       })
     )
   })
