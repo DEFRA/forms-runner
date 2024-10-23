@@ -4,8 +4,6 @@
 
 {% from "partials/components.html" import componentList with context %}
 
-{% from "common/warn-missing-notification-email.html" import warnMissingNotificationEmail %}
-
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
@@ -18,7 +16,7 @@
       {% endif %}
 
       {% if isStartPage %}
-        {{ warnMissingNotificationEmail(designerUrl, slug) }}
+        {% include "common/warn-missing-notification-email.html" %}
       {% endif %}
 
       {% include "partials/heading.html" %}

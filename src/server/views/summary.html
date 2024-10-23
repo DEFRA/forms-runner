@@ -2,8 +2,6 @@
 
 {% from "partials/summary-detail.html" import summaryDetail %}
 
-{% from "common/warn-missing-notification-email.html" import warnMissingNotificationEmail %}
-
 {% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
@@ -21,7 +19,7 @@
         }) }}
       {% endif %}
 
-      {{ warnMissingNotificationEmail(designerUrl, slug) }}
+      {% include "common/warn-missing-notification-email.html" %}
 
       <h1 class="govuk-heading-l">
         {{ pageTitle }}
