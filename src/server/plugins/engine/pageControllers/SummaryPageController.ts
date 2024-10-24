@@ -3,7 +3,7 @@ import {
   type SubmitPayload,
   type SubmitResponsePayload
 } from '@defra/forms-model'
-import { badRequest, internal, type Boom } from '@hapi/boom'
+import { badRequest, type Boom } from '@hapi/boom'
 import {
   type ResponseObject,
   type ResponseToolkit,
@@ -14,6 +14,7 @@ import { addDays, format } from 'date-fns'
 import { config } from '~/src/config/index.js'
 import { DataType } from '~/src/server/plugins/engine/components/types.js'
 import {
+  checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
   redirectTo,
   redirectUrl
@@ -158,6 +159,9 @@ export class SummaryPageController extends PageController {
 
       viewModel.backLink = this.getBackLink(progress)
 
+      viewModel.notificationEmailWarning =
+        await this.buildMissingEmailWarningModel(request)
+
       return h.view('summary', viewModel)
     }
   }
@@ -193,16 +197,15 @@ export class SummaryPageController extends PageController {
 
       // Get the form metadata using the `slug` param
       const { notificationEmail } = await getFormMetadata(params.slug)
+      const { isPreview } = checkFormStatus(request.path)
       const emailAddress = notificationEmail ?? this.model.def.outputEmail
 
-      if (!emailAddress) {
-        return internal(
-          'An email address is required to complete the form submission'
-        )
-      }
+      checkEmailAddressForLiveFormSubmission(emailAddress, isPreview)
 
       // Send submission email
-      await submitForm(request, summaryViewModel, model, state, emailAddress)
+      if (emailAddress) {
+        await submitForm(request, summaryViewModel, model, state, emailAddress)
+      }
 
       await cacheService.setConfirmationState(request, { confirmed: true })
 

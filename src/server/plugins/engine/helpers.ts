@@ -1,3 +1,4 @@
+import Boom from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
@@ -104,5 +105,16 @@ export function checkFormStatus(path: string): FormStatus {
   return {
     isPreview,
     state
+  }
+}
+
+export function checkEmailAddressForLiveFormSubmission(
+  emailAddress: string | undefined,
+  isPreview: boolean
+) {
+  if (!emailAddress && !isPreview) {
+    throw Boom.internal(
+      'An email address is required to complete the form submission'
+    )
   }
 }

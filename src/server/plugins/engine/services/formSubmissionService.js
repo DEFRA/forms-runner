@@ -6,7 +6,7 @@ const submissionUrl = config.get('submissionUrl')
 /**
  * Persist files by extending the time-to-live to 30 days
  * @param {{fileId: string, initiatedRetrievalKey: string}[]} files - batch of files to persist
- * @param {string} persistedRetrievalKey - final retrieval key when submitting
+ * @param {string | undefined} persistedRetrievalKey - final retrieval key when submitting
  */
 export async function persistFiles(files, persistedRetrievalKey) {
   const postJsonByType = /** @type {typeof postJson} */ (postJson)

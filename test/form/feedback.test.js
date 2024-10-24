@@ -2,10 +2,14 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { createServer } from '~/src/server/index.js'
+import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
+import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 const { FEEDBACK_LINK } = process.env
 const testDir = dirname(fileURLToPath(import.meta.url))
+
+jest.mock('~/src/server/plugins/engine/services/formsService.js')
 
 describe('Feedback link', () => {
   /** @type {Server} */
@@ -18,6 +22,10 @@ describe('Feedback link', () => {
       formFilePath: join(testDir, 'definitions')
     })
     await server.initialize()
+  })
+
+  beforeEach(() => {
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
   })
 
   afterAll(async () => {

@@ -1,6 +1,7 @@
 {% extends 'layout.html' %}
 
 {% from "partials/summary-detail.html" import summaryDetail %}
+
 {% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 
@@ -16,6 +17,10 @@
           titleText: "There is a problem",
           errorList: [{ text: "Complete all unanswered questions before submitting the form." }]
         }) }}
+      {% endif %}
+
+      {% if notificationEmailWarning %}
+        {% include "partials/warn-missing-notification-email.html" %}
       {% endif %}
 
       <h1 class="govuk-heading-l">

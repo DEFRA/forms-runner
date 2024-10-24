@@ -1,7 +1,9 @@
+import Boom from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
 
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
+  checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
   encodeUrl,
   proceed,
@@ -158,11 +160,41 @@ describe('Helpers', () => {
       })
     })
 
-    it('throws an error for invalid form state', () => {
+    it('should throw an error for invalid form state', () => {
       const path = `${PREVIEW_PATH_PREFIX}/invalid-state`
       expect(() => checkFormStatus(path)).toThrow(
         'Invalid form state: invalid-state'
       )
+    })
+  })
+
+  describe('checkEmailAddressForLiveFormSubmission', () => {
+    it('should throw an error if emailAddress is undefined and isPreview is false', () => {
+      expect(() =>
+        checkEmailAddressForLiveFormSubmission(undefined, false)
+      ).toThrow(
+        Boom.internal(
+          'An email address is required to complete the form submission'
+        )
+      )
+    })
+
+    it('should not throw an error if emailAddress is defined and isPreview is false', () => {
+      expect(() =>
+        checkEmailAddressForLiveFormSubmission('test@example.com', false)
+      ).not.toThrow()
+    })
+
+    it('should not throw an error if emailAddress is undefined and isPreview is true', () => {
+      expect(() =>
+        checkEmailAddressForLiveFormSubmission(undefined, true)
+      ).not.toThrow()
+    })
+
+    it('should not throw an error if emailAddress is defined and isPreview is true', () => {
+      expect(() =>
+        checkEmailAddressForLiveFormSubmission('test@example.com', true)
+      ).not.toThrow()
     })
   })
 })

@@ -2,10 +2,14 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { createServer } from '~/src/server/index.js'
+import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
+import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 const key = 'wqJmSf'
+
+jest.mock('~/src/server/plugins/engine/services/formsService.js')
 
 describe('TextField based conditions', () => {
   /** @type {Server} */
@@ -18,6 +22,10 @@ describe('TextField based conditions', () => {
       formFilePath: resolve(testDir, '../form/definitions')
     })
     await server.initialize()
+  })
+
+  beforeEach(() => {
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
   })
 
   afterAll(async () => {
@@ -36,6 +44,11 @@ describe('TextField based conditions', () => {
       name: 'First page (optional)'
     })
 
+    const $warning = container.getByRole('link', {
+      name: 'enter the email address (opens in new tab)'
+    })
+
+    expect($warning).toBeInTheDocument()
     expect($input).toBeInTheDocument()
     expect($input).toHaveAttribute('id', key)
     expect($input).toHaveAttribute('name', key)

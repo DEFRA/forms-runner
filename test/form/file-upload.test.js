@@ -4,17 +4,20 @@ import { fileURLToPath } from 'node:url'
 import { within } from '@testing-library/dom'
 
 import { createServer } from '~/src/server/index.js'
+import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
   getUploadStatus,
   initiateUpload
 } from '~/src/server/plugins/engine/services/uploadService.js'
 import { FileStatus, UploadStatus } from '~/src/server/plugins/engine/types.js'
+import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
 jest.mock('~/src/server/plugins/engine/services/uploadService.js')
+jest.mock('~/src/server/plugins/engine/services/formsService.js')
 
 const okStatusCode = 200
 const redirectStatusCode = 302
@@ -90,6 +93,10 @@ describe('File upload GET tests', () => {
       formFilePath: resolve(testDir, '../form/definitions')
     })
     await server.initialize()
+  })
+
+  beforeEach(() => {
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
   })
 
   afterAll(async () => {
@@ -183,6 +190,10 @@ describe('File upload POST tests', () => {
       formFilePath: resolve(testDir, '../form/definitions')
     })
     await server.initialize()
+  })
+
+  beforeEach(() => {
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
   })
 
   afterAll(async () => {

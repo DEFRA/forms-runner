@@ -1,6 +1,7 @@
 {% extends 'layout.html' %}
 
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
 {% from "partials/components.html" import componentList with context %}
 
 {% block content %}
@@ -12,6 +13,10 @@
 
       {% if errors %}
         {{ govukErrorSummary(errors) }}
+      {% endif %}
+
+      {% if notificationEmailWarning %}
+        {% include "partials/warn-missing-notification-email.html" %}
       {% endif %}
 
       {% include "partials/heading.html" %}

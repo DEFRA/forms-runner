@@ -147,6 +147,10 @@ export interface PageViewModel {
   feedbackLink?: string
   serviceUrl: string
   phaseTag?: string
+  notificationEmailWarning?: {
+    slug: string
+    designerUrl: string
+  }
 }
 
 export type FileUploadPageViewModel = {

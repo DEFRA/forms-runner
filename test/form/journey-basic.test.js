@@ -250,12 +250,16 @@ describe('Form journey', () => {
         )
     })
 
-    it('should render the page heading', () => {
+    it('should render the page heading with email notification warning', () => {
       const $heading = container.getByRole('heading', {
         name: 'Summary',
         level: 1
       })
+      const $warning = container.getByRole('link', {
+        name: 'enter the email address (opens in new tab)'
+      })
 
+      expect($warning).toBeInTheDocument()
       expect($heading).toBeInTheDocument()
     })
 
