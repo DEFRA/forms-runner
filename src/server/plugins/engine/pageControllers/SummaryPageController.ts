@@ -3,7 +3,7 @@ import {
   type SubmitPayload,
   type SubmitResponsePayload
 } from '@defra/forms-model'
-import { badRequest, internal, type Boom } from '@hapi/boom'
+import { badRequest, type Boom } from '@hapi/boom'
 import {
   type ResponseObject,
   type ResponseToolkit,
@@ -14,6 +14,7 @@ import { addDays, format } from 'date-fns'
 import { config } from '~/src/config/index.js'
 import { DataType } from '~/src/server/plugins/engine/components/types.js'
 import {
+  checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
   redirectTo,
   redirectUrl
@@ -196,13 +197,10 @@ export class SummaryPageController extends PageController {
 
       // Get the form metadata using the `slug` param
       const { notificationEmail } = await getFormMetadata(params.slug)
+      const { isPreview } = checkFormStatus(request.path)
       const emailAddress = notificationEmail ?? this.model.def.outputEmail
 
-      if (!emailAddress) {
-        return internal(
-          'An email address is required to complete the form submission'
-        )
-      }
+      checkEmailAddressForLiveFormSubmission(emailAddress, isPreview)
 
       // Send submission email
       await submitForm(request, summaryViewModel, model, state, emailAddress)
@@ -234,16 +232,19 @@ async function submitForm(
   summaryViewModel: SummaryViewModel,
   model: FormModel,
   state: FormSubmissionState,
-  emailAddress: string
+  emailAddress: string | undefined
 ) {
   await extendFileRetention(model, state, emailAddress)
-  await sendEmail(request, summaryViewModel, model, emailAddress)
+
+  if (emailAddress) {
+    await sendEmail(request, summaryViewModel, model, emailAddress)
+  }
 }
 
 async function extendFileRetention(
   model: FormModel,
   state: FormSubmissionState,
-  updatedRetrievalKey: string
+  updatedRetrievalKey: string | undefined
 ) {
   const files: { fileId: string; initiatedRetrievalKey: string }[] = []
 
