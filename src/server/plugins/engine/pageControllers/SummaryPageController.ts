@@ -203,7 +203,9 @@ export class SummaryPageController extends PageController {
       checkEmailAddressForLiveFormSubmission(emailAddress, isPreview)
 
       // Send submission email
-      await submitForm(request, summaryViewModel, model, state, emailAddress)
+      if (emailAddress) {
+        await submitForm(request, summaryViewModel, model, state, emailAddress)
+      }
 
       await cacheService.setConfirmationState(request, { confirmed: true })
 
@@ -232,19 +234,16 @@ async function submitForm(
   summaryViewModel: SummaryViewModel,
   model: FormModel,
   state: FormSubmissionState,
-  emailAddress: string | undefined
+  emailAddress: string
 ) {
   await extendFileRetention(model, state, emailAddress)
-
-  if (emailAddress) {
-    await sendEmail(request, summaryViewModel, model, emailAddress)
-  }
+  await sendEmail(request, summaryViewModel, model, emailAddress)
 }
 
 async function extendFileRetention(
   model: FormModel,
   state: FormSubmissionState,
-  updatedRetrievalKey: string | undefined
+  updatedRetrievalKey: string
 ) {
   const files: { fileId: string; initiatedRetrievalKey: string }[] = []
 
