@@ -23,11 +23,11 @@ export class SummaryViewModel {
   pageTitle: string
   declaration?: string
   skipSummary?: boolean
-  result: any
+  result: ValidationResult<FormSubmissionState>
   details: Detail[]
   relevantPages: PageControllerClass[]
-  state: any
-  value: any
+  state: FormSubmissionState
+  value: FormSubmissionState
   name: string | undefined
   backLink?: string
   feedbackLink?: string

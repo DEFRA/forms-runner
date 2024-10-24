@@ -4,9 +4,8 @@ import { SelectField } from '~/src/server/plugins/engine/components/SelectField.
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
-  type FormData,
-  type FormSubmissionErrors,
-  type FormSubmissionState
+  type FormPayload,
+  type FormSubmissionErrors
 } from '~/src/server/plugins/engine/types.js'
 
 export class AutocompleteField extends SelectField {
@@ -29,27 +28,18 @@ export class AutocompleteField extends SelectField {
     this.formSchema = formSchema
   }
 
-  getDisplayStringFromState(state: FormSubmissionState): string {
-    const { name, items } = this
-    const value = state[name]
-    if (Array.isArray(value)) {
-      return items
-        .filter((item) => value.includes(item.value))
-        .map((item) => item.text)
-        .join(', ')
-    }
-    const item = items.find((item) => String(item.value) === String(value))
-    return item?.text ?? ''
-  }
+  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+    const viewModel = super.getViewModel(payload, errors)
+    let { formGroup } = viewModel
 
-  getViewModel(formData: FormData, errors?: FormSubmissionErrors) {
-    const viewModel = super.getViewModel(formData, errors)
-
-    viewModel.formGroup ??= {}
-    viewModel.formGroup.attributes = {
+    formGroup ??= {}
+    formGroup.attributes = {
       'data-module': 'govuk-accessible-autocomplete'
     }
 
-    return viewModel
+    return {
+      ...viewModel,
+      formGroup
+    }
   }
 }

@@ -10,8 +10,8 @@ import {
 import { type ComponentCollectionViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
-  type FormData,
   type FormPayload,
+  type FormState,
   type FormSubmissionErrors,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
@@ -72,8 +72,8 @@ export class ComponentCollection {
     return keys
   }
 
-  getFormDataFromState(state: FormSubmissionState): FormData {
-    const payload = {}
+  getFormDataFromState(state: FormSubmissionState) {
+    const payload: FormPayload = {}
 
     this.formItems.forEach((item) => {
       Object.assign(payload, item.getFormDataFromState(state))
@@ -83,7 +83,7 @@ export class ComponentCollection {
   }
 
   getStateFromValidForm(payload: FormPayload) {
-    const state = {}
+    const state: FormState = {}
 
     this.formItems.forEach((item) => {
       Object.assign(state, item.getStateFromValidForm(payload))
@@ -107,7 +107,7 @@ export class ComponentCollection {
 
     if (conditions) {
       return result.filter((item) =>
-        'condition' in item.model
+        item.model.condition
           ? conditions[item.model.condition]?.fn(payload)
           : true
       )

@@ -3,7 +3,10 @@ import { ComponentType, type MonthYearFieldComponent } from '@defra/forms-model'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
-import { DataType } from '~/src/server/plugins/engine/components/types.js'
+import {
+  DataType,
+  type DateInputItem
+} from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
@@ -89,24 +92,36 @@ export class MonthYearField extends FormComponent {
     const { children, name } = this
 
     const viewModel = super.getViewModel(payload, errors)
+    let { fieldset, label } = viewModel
 
     // Use the component collection to generate the subitems
-    const componentViewModels = children
+    const items: DateInputItem[] = children
       .getViewModel(payload, errors)
-      .map((vm) => vm.model)
+      .map(({ model }) => {
+        let { label, type, value, classes, errorMessage } = model
 
-    componentViewModels.forEach((componentViewModel) => {
-      const { classes, label, errorMessage } = componentViewModel
+        if (label) {
+          label.text = label.text.replace(optionalText, '')
+          label.toString = () => label.text // Date component uses string labels
+        }
 
-      if (label) {
-        label.text = label.text.replace(optionalText, '')
-        label.toString = () => label.text // Date component uses string labels
-      }
+        if (errorMessage) {
+          classes = `${classes} govuk-input--error`.trim()
+        }
 
-      if (errorMessage) {
-        componentViewModel.classes = `${classes} govuk-input--error`.trim()
-      }
-    })
+        if (typeof value !== 'number') {
+          value = undefined
+        }
+
+        return {
+          label,
+          id: model.id,
+          name: model.name,
+          type,
+          value,
+          classes
+        }
+      })
 
     // Filter errors for this component only
     const componentErrors = errors?.errorList.filter(
@@ -116,8 +131,6 @@ export class MonthYearField extends FormComponent {
     const errorMessage = componentErrors?.[0] && {
       text: componentErrors[0].text
     }
-
-    let { fieldset, label } = viewModel
 
     fieldset ??= {
       legend: {
@@ -130,7 +143,7 @@ export class MonthYearField extends FormComponent {
       ...viewModel,
       errorMessage,
       fieldset,
-      items: componentViewModels
+      items
     }
   }
 }

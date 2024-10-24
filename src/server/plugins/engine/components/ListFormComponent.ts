@@ -52,8 +52,8 @@ export class ListFormComponent extends FormComponent {
     return this.list?.items ?? []
   }
 
-  get values(): (string | number | boolean)[] {
-    return this.items.map((item) => item.value)
+  get values(): Item['value'][] {
+    return this.items.map(({ value }) => value)
   }
 
   constructor(
@@ -81,29 +81,68 @@ export class ListFormComponent extends FormComponent {
     this.options = options
   }
 
-  getDisplayStringFromState(state: FormSubmissionState): string | string[] {
-    const { name, items } = this
+  getFormValueFromState(state: FormSubmissionState) {
+    const { values: listValues, name } = this
+
     const value = state[name]
-    const item = items.find((item) => String(item.value) === String(value))
-    return item?.text ?? ''
+    const values = [value ?? []].flat().map(String)
+
+    const selected = listValues.filter((listValue) =>
+      values.includes(`${listValue}`)
+    )
+
+    if (!selected.length) {
+      return
+    }
+
+    // Support multiple values for checkboxes
+    return Array.isArray(value) ? selected : selected[0]
+  }
+
+  getDisplayStringFromState(state: FormSubmissionState) {
+    const { items: listItems, name } = this
+
+    // Support multiple values for checkboxes
+    const value = state[name]
+    const values = [value ?? []].flat()
+
+    return listItems
+      .filter((item) => values.includes(item.value))
+      .map((item) => item.text)
+      .join(', ')
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
-    const { name, items } = this
+    const { items: listItems } = this
+
     const viewModel = super.getViewModel(payload, errors)
-    const viewModelItems = items.map(
-      ({ text, value, description = '', condition }) =>
-        ({
-          text,
-          value: `${value}`,
-          hint: { text: description },
-          selected: `${value}` === `${payload[name]}`,
-          condition: condition ?? undefined
-        }) satisfies ListItem
-    )
+    let { items, value } = viewModel
 
-    viewModel.items = viewModelItems
+    // Support multiple values for checkboxes
+    const values = [value ?? []].flat().map(String)
 
-    return viewModel
+    items = listItems.map((item) => {
+      const value = `${item.value}`
+      const selected = values.includes(value)
+
+      const itemModel: ListItem = {
+        ...item,
+        selected,
+        value
+      }
+
+      if (item.description) {
+        itemModel.hint = {
+          text: item.description
+        }
+      }
+
+      return itemModel
+    })
+
+    return {
+      ...viewModel,
+      items
+    }
   }
 }

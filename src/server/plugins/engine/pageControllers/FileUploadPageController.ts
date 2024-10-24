@@ -145,7 +145,7 @@ export class FileUploadPageController extends PageController {
     const files = request.app.files ?? []
 
     // Append the files to the payload
-    payload[name] = files.length ? files : null
+    payload[name] = files.length ? files : undefined
 
     return payload
   }
@@ -197,24 +197,28 @@ export class FileUploadPageController extends PageController {
     request: FormRequest | FormRequestPayload,
     payload: FormPayload,
     errors?: FormSubmissionErrors
-  ): FileUploadPageViewModel {
-    const viewModel = super.getViewModel(
-      request,
-      payload,
-      errors
-    ) as FileUploadPageViewModel
+  ) {
+    const viewModel = super.getViewModel(request, payload, errors)
 
     const name = this.fileUploadComponent.name
     const components = viewModel.components
-    const id = components.findIndex((component) => component.model.id === name)
 
-    viewModel.path = request.path
-    viewModel.formAction = request.app.formAction
-    viewModel.fileUploadComponent = components[id] as FormComponentViewModel
-    viewModel.preUploadComponents = components.slice(0, id)
+    const [fileUploadComponent] = components.filter(
+      (component): component is FormComponentViewModel =>
+        component.model.id === name
+    )
+
+    const id = components.indexOf(fileUploadComponent)
     viewModel.components = components.slice(id)
 
-    return viewModel
+    return {
+      ...viewModel,
+      page: this,
+      path: request.path,
+      formAction: request.app.formAction,
+      fileUploadComponent,
+      preUploadComponents: components.slice(0, id)
+    } satisfies FileUploadPageViewModel
   }
 
   private getComponentName() {

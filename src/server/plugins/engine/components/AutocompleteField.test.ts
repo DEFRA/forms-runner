@@ -151,7 +151,7 @@ describe.each([
     describe('State', () => {
       it.each([...options.examples])("returns '$text' from state", (item) => {
         const text = component.getDisplayStringFromState({
-          [def.name]: item.value
+          [def.name]: item.state
         })
 
         expect(text).toBe(item.text)
@@ -183,7 +183,7 @@ describe.each([
             [def.name]: item.value
           })
 
-          expect(viewModel.items?.[0]).toMatchObject({
+          expect(viewModel.items[0]).toMatchObject({
             value: '' // First item is always empty
           })
 

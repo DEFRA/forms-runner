@@ -163,7 +163,7 @@ describe('YesNoField', () => {
         [def.name]: item.value
       })
 
-      expect(viewModel.items?.[0]).not.toMatchObject({
+      expect(viewModel.items[0]).not.toMatchObject({
         value: '' // First item is never empty
       })
 

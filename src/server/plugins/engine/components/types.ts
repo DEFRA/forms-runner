@@ -1,4 +1,10 @@
-import { type FormComponentsDef } from '@defra/forms-model'
+import {
+  type ContentComponentsDef,
+  type FormComponentsDef,
+  type Item
+} from '@defra/forms-model'
+
+import { type FormValue } from '~/src/server/plugins/engine/types.js'
 
 export interface Label {
   text: string
@@ -17,7 +23,7 @@ export type ListItemLabel = Omit<Label, 'text' | 'isPageHeading'>
 
 export interface ListItem {
   text?: string
-  value?: string | boolean | number
+  value?: Item['value']
   hint?: {
     id?: string
     text: string
@@ -28,15 +34,31 @@ export interface ListItem {
   condition?: string
 }
 
-// TODO: Break this down for each component (Same as model/Component).
-export interface ViewModel {
+export interface DateInputItem {
   label?: Label
   type?: string
   id?: string
   name?: string
-  value?: any // TODO
+  value?: number
+  classes?: string
+  condition?: undefined
+}
+
+// TODO: Break this down for each component (Same as model/Component).
+export interface ViewModel extends Record<string, unknown> {
+  label?: Label
+  type?: string
+  id?: string
+  name?: string
+  value?: FormValue
   hint?: {
     id?: string
+    text: string
+  }
+  prefix?: {
+    text: string
+  }
+  suffix?: {
     text: string
   }
   classes?: string
@@ -54,8 +76,10 @@ export interface ViewModel {
     step?: string
   }
   content?: Content | Content[] | string
+  maxlength?: number
+  maxwords?: number
   rows?: number
-  items?: ListItem[]
+  items?: ListItem[] | DateInputItem[]
   fieldset?: {
     attributes?: string | Record<string, string>
     legend?: Label
@@ -65,14 +89,13 @@ export interface ViewModel {
     attributes?: string | Record<string, string>
   }
   children?: ComponentCollectionViewModel
-  autocomplete?: string
+  upload?: {
+    count: number
+    pendingCount: number
+    successfulCount: number
+    summary: FileUploadSummaryRow[]
+  }
 }
-
-export type MultilineTextFieldViewModel = {
-  maxlength?: number
-  isCharacterOrWordCount: boolean
-  maxwords?: number
-} & ViewModel
 
 export interface FileUploadSummaryRow {
   name: string
@@ -82,15 +105,6 @@ export interface FileUploadSummaryRow {
   uploadId: string
 }
 
-export type FileUploadFieldViewModel = {
-  upload: {
-    count: number
-    pendingCount: number
-    successfulCount: number
-    summary: FileUploadSummaryRow[]
-  }
-} & ViewModel
-
 export interface FormComponentViewModel {
   type: FormComponentsDef['type']
   isFormComponent: true
@@ -98,7 +112,7 @@ export interface FormComponentViewModel {
 }
 
 export interface ContentComponentViewModel {
-  type: undefined
+  type: ContentComponentsDef['type']
   isFormComponent: false
   model: ViewModel
 }
