@@ -34,7 +34,6 @@ import {
   persistFiles,
   submit
 } from '~/src/server/plugins/engine/services/formSubmissionService.js'
-import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
   type FileState,
   type FormSubmissionState
@@ -160,7 +159,7 @@ export class SummaryPageController extends PageController {
       viewModel.backLink = this.getBackLink(progress)
 
       viewModel.notificationEmailWarning =
-        await this.buildMissingEmailWarningModel(request)
+        this.buildMissingEmailWarningModel(request)
 
       return h.view('summary', viewModel)
     }
@@ -190,13 +189,14 @@ export class SummaryPageController extends PageController {
       if (summaryViewModel.result.error) {
         summaryViewModel.showErrorSummary = true
 
+        summaryViewModel.notificationEmailWarning =
+          this.buildMissingEmailWarningModel(request)
+
         return h.view('summary', summaryViewModel)
       }
 
-      const { params } = request
-
-      // Get the form metadata using the `slug` param
-      const { notificationEmail } = await getFormMetadata(params.slug)
+      // Get the email from the form metadata
+      const { notificationEmail } = this.getFormMetadata(request)
       const { isPreview } = checkFormStatus(request.path)
       const emailAddress = notificationEmail ?? this.model.def.outputEmail
 

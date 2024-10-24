@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/unified-signatures */
 
+import { type FormMetadata } from '@defra/forms-model'
 import { type Plugin } from '@hapi/hapi'
 import { type ServerYar, type Yar } from '@hapi/yar'
 import { type Logger } from 'pino'
@@ -26,6 +27,7 @@ declare module '@hapi/hapi' {
   }
 
   interface RequestApplicationState {
+    metadata?: FormMetadata
     model?: FormModel
     files?: FileState[]
     formAction?: string

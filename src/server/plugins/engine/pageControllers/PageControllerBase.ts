@@ -8,7 +8,7 @@ import {
   type Page,
   type Section
 } from '@defra/forms-model'
-import { type Boom } from '@hapi/boom'
+import { internal, type Boom } from '@hapi/boom'
 import {
   type ResponseObject,
   type ResponseToolkit,
@@ -34,7 +34,6 @@ import {
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { validationOptions } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
-import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
   type FormData,
   type FormPayload,
@@ -476,28 +475,26 @@ export class PageControllerBase {
 
       viewModel.backLink = this.getBackLink(progress)
 
-      viewModel.notificationEmailWarning =
-        await this.buildMissingEmailWarningModel(request, isStartPage)
+      if (isStartPage) {
+        viewModel.notificationEmailWarning =
+          this.buildMissingEmailWarningModel(request)
+      }
 
       return h.view(this.viewName, viewModel)
     }
   }
 
-  async buildMissingEmailWarningModel(
-    request: FormRequest,
-    isStartPage?: boolean
-  ): Promise<PageViewModel['notificationEmailWarning']> {
+  buildMissingEmailWarningModel(
+    request: FormRequest | FormRequestPayload
+  ): PageViewModel['notificationEmailWarning'] {
     const { params } = request
-    // Warn the user if the form has no notification email set only on start page and summary page
-    if (isStartPage || params.path === 'summary') {
-      const { slug } = params
-      const { notificationEmail } = await getFormMetadata(slug)
+    const { slug } = params
+    const { notificationEmail } = this.getFormMetadata(request)
 
-      if (!notificationEmail) {
-        return {
-          slug,
-          designerUrl
-        }
+    if (!notificationEmail) {
+      return {
+        slug,
+        designerUrl
       }
     }
   }
@@ -712,6 +709,16 @@ export class PageControllerBase {
     viewModel.backLink = progress[progress.length - 2]
 
     return h.view(this.viewName, viewModel)
+  }
+
+  protected getFormMetadata(request: FormRequest | FormRequestPayload) {
+    const metadata = request.app.metadata
+
+    if (!metadata) {
+      throw internal('Expected to find the metadata on the request app data')
+    }
+
+    return metadata
   }
 }
 

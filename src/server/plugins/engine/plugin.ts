@@ -157,9 +157,10 @@ export const plugin = {
         itemCache.set(key, item)
       }
 
-      // Assign the model to the request data
-      // for use in the downstream handler
+      // Assign the model and metadata to the
+      // request data for use in the downstream handler
       request.app.model = item.model
+      request.app.metadata = metadata
 
       return h.continue
     }
