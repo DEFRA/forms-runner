@@ -476,12 +476,8 @@ export class PageControllerBase {
 
       viewModel.backLink = this.getBackLink(progress)
 
-      const notificationEmailWarning = await this.buildMissingEmailWarningModel(
-        request,
-        isStartPage
-      )
-
-      viewModel.notificationEmailWarning = notificationEmailWarning
+      viewModel.notificationEmailWarning =
+        await this.buildMissingEmailWarningModel(request, isStartPage)
 
       return h.view(this.viewName, viewModel)
     }
