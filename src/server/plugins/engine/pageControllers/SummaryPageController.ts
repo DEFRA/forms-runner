@@ -158,10 +158,8 @@ export class SummaryPageController extends PageController {
 
       viewModel.backLink = this.getBackLink(progress)
 
-      const notificationEmailWarning =
+      viewModel.notificationEmailWarning =
         await this.buildMissingEmailWarningModel(request)
-
-      viewModel.notificationEmailWarning = notificationEmailWarning
 
       return h.view('summary', viewModel)
     }
