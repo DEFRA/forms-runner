@@ -372,14 +372,16 @@ export class RepeatPageController extends PageController {
           })
         }
 
+        const itemDisplayText: string = firstQuestion
+          ? firstQuestion.getDisplayStringFromState(item)
+          : ''
+
         rows.push({
           key: {
             text: `${title} ${index + 1}`
           },
           value: {
-            text: firstQuestion
-              ? firstQuestion.getDisplayStringFromState(item)
-              : ''
+            text: itemDisplayText || 'Not supplied'
           },
           actions: {
             items
