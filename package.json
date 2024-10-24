@@ -48,7 +48,7 @@
     "@hapi/catbox-redis": "^7.0.2",
     "@hapi/crumb": "^9.0.1",
     "@hapi/hapi": "^21.3.10",
-    "@hapi/hoek": "^11.0.4",
+    "@hapi/hoek": "^11.0.5",
     "@hapi/inert": "^7.1.0",
     "@hapi/jwt": "^3.2.0",
     "@hapi/scooter": "^7.0.0",
