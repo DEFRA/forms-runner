@@ -13,6 +13,7 @@ import {
   tempStatusSchema
 } from '~/src/server/plugins/engine/components/FileUploadField.js'
 import { type FormComponentViewModel } from '~/src/server/plugins/engine/components/types.js'
+import { getPageError } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
@@ -163,8 +164,8 @@ export class FileUploadPageController extends PageController {
 
         if (!isUploadError || isUploadRootError) {
           // The error is for the root of the upload or another
-          // field on the page so defer to the standard getError
-          errorList.push(this.getError(err))
+          // field on the page so defer to the getError helper
+          errorList.push(getPageError(err))
         } else {
           const type = err.type
           const path = err.path.join('.')
