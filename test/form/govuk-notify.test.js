@@ -141,7 +141,7 @@ Arabian,Shire,Race
 * [test.pdf](https://test-designer.cdp-int.defra.cloud/file-download/5a76a1a3-bc8a-4bc0-859a-116d775c7f15)
 
 
-[Download all](https://test-designer.cdp-int.defra.cloud/file-download/00000000-0000-0000-0000-000000000000)
+[Download main form (CSV)](https://test-designer.cdp-int.defra.cloud/file-download/00000000-0000-0000-0000-000000000000)
 `
 
 const componentsPath = '/components/all-components'

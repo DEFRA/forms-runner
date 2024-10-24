@@ -448,7 +448,7 @@ export function getPersonalisation(
 
       line = `${files.length} file${files.length !== 1 ? 's' : ''} uploaded (links expire ${formattedExpiryDate}):\n\n${bullets}`
     } else if (Array.isArray(item.subItems)) {
-      line = `[Download file](${designerUrl}/file-download/${submitResponse.result.files.repeaters[item.name]})`
+      line = `[Download ${item.title} (CSV)](${designerUrl}/file-download/${submitResponse.result.files.repeaters[item.name]})`
     } else {
       line = literal(value)
     }
@@ -459,7 +459,7 @@ export function getPersonalisation(
   })
 
   lines.push(
-    `[Download all](${designerUrl}/file-download/${submitResponse.result.files.main})\n`
+    `[Download main form (CSV)](${designerUrl}/file-download/${submitResponse.result.files.main})\n`
   )
 
   return {
