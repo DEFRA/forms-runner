@@ -112,7 +112,7 @@ describe('EmailAddressField', () => {
     })
 
     describe('State', () => {
-      it('Returns text from state value', () => {
+      it('returns text from state value', () => {
         const text = component.getDisplayStringFromState({
           [def.name]: 'Text field'
         })
