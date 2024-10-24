@@ -36,10 +36,6 @@ describe('Title and section title', () => {
     )
   })
 
-  beforeEach(() => {
-    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
-  })
-
   afterAll(async () => {
     await server.stop()
   })
@@ -49,6 +45,8 @@ describe('Title and section title', () => {
       method: 'GET',
       url: '/titles/applicant-one'
     }
+
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
 
     const { container } = await renderResponse(server, options)
 
@@ -61,6 +59,43 @@ describe('Title and section title', () => {
     expect($section).toBeNull()
     expect($heading).toBeInTheDocument()
     expect($heading).toHaveClass('govuk-heading-l')
+  })
+
+  it('render warning when notification email is not set', async () => {
+    const options = {
+      method: 'GET',
+      url: '/titles/applicant-one'
+    }
+
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+
+    const { container } = await renderResponse(server, options)
+
+    const $warning = container.queryByRole('link', {
+      name: 'enter the email address (opens in new tab)'
+    })
+
+    expect($warning).toBeInTheDocument()
+  })
+
+  it('does not render the warning when notification email is set', async () => {
+    const options = {
+      method: 'GET',
+      url: '/titles/applicant-one'
+    }
+
+    jest.mocked(getFormMetadata).mockResolvedValue({
+      ...fixtures.form.metadata,
+      notificationEmail: 'defra@gov.uk'
+    })
+
+    const { container } = await renderResponse(server, options)
+
+    const $warning = container.queryByRole('link', {
+      name: 'enter the email address (opens in new tab)'
+    })
+
+    expect($warning).not.toBeInTheDocument()
   })
 
   it('does render the section title if it is not the same as the title', async () => {
