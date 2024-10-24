@@ -43,8 +43,11 @@ export class CheckboxesField extends SelectionControlField {
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
-    return state[this.name]
-      ?.map(
+    const value = state[this.name]
+    const values = [value ?? []].flat()
+
+    return values
+      .map(
         (value) =>
           this.items.find((item) => `${item.value}` === `${value}`)?.text ?? ''
       )
