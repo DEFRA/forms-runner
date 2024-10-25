@@ -176,11 +176,10 @@ describe('MonthYearField', () => {
         expect(text).toBe('December 2024')
       })
 
-      it.skip('returns payload from state', () => {
+      it('returns payload from state', () => {
         const state = getFormState(startOfDay(date))
         const payload = component.getFormDataFromState(state)
 
-        // TODO: Fix empty form data
         expect(payload).toEqual(getFormData(date))
       })
 
