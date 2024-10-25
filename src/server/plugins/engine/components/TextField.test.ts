@@ -250,6 +250,45 @@ describe('TextField', () => {
             output: { value: 'SW1P 4DF' }
           }
         ]
+      },
+      {
+        description: 'Custom validation',
+        component: {
+          title: 'Example text field',
+          name: 'myComponent',
+          type: ComponentType.TextField,
+          options: {
+            customValidationMessage: 'This is a custom error'
+          },
+          schema: {}
+        } satisfies TextFieldComponent,
+        assertions: [
+          {
+            input: '',
+            output: {
+              value: '',
+              error: new Error('This is a custom error')
+            }
+          }
+        ]
+      },
+      {
+        description: 'Optional field',
+        component: {
+          title: 'Example text field',
+          name: 'myComponent',
+          type: ComponentType.TextField,
+          options: {
+            required: false
+          },
+          schema: {}
+        } satisfies TextFieldComponent,
+        assertions: [
+          {
+            input: '',
+            output: { value: '' }
+          }
+        ]
       }
     ])('$description', ({ component: def, assertions }) => {
       let component: TextField

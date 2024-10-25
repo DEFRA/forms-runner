@@ -264,6 +264,45 @@ describe('NumberField', () => {
             }
           }
         ]
+      },
+      {
+        description: 'Custom validation',
+        component: {
+          title: 'Example number field',
+          name: 'myComponent',
+          type: ComponentType.NumberField,
+          options: {
+            customValidationMessage: 'This is a custom error'
+          },
+          schema: {}
+        } satisfies NumberFieldComponent,
+        assertions: [
+          {
+            input: 'invalid',
+            output: {
+              value: 'invalid',
+              error: new Error('This is a custom error')
+            }
+          }
+        ]
+      },
+      {
+        description: 'Optional field',
+        component: {
+          title: 'Example number field',
+          name: 'myComponent',
+          type: ComponentType.NumberField,
+          options: {
+            required: false
+          },
+          schema: {}
+        } satisfies NumberFieldComponent,
+        assertions: [
+          {
+            input: '',
+            output: { value: '' }
+          }
+        ]
       }
     ])('$description', ({ component: def, assertions }) => {
       let component: NumberField
