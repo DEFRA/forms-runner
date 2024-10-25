@@ -198,6 +198,43 @@ describe('EmailAddressField', () => {
             output: { value: 'defra.helpline@defra.gov.uk' }
           }
         ]
+      },
+      {
+        description: 'Custom validation',
+        component: {
+          title: 'Example email address field',
+          name: 'myComponent',
+          type: ComponentType.EmailAddressField,
+          options: {
+            customValidationMessage: 'This is a custom error'
+          }
+        } satisfies EmailAddressFieldComponent,
+        assertions: [
+          {
+            input: 'invalid',
+            output: {
+              value: 'invalid',
+              error: new Error('This is a custom error')
+            }
+          }
+        ]
+      },
+      {
+        description: 'Optional field',
+        component: {
+          title: 'Example email address field',
+          name: 'myComponent',
+          type: ComponentType.EmailAddressField,
+          options: {
+            required: false
+          }
+        } satisfies EmailAddressFieldComponent,
+        assertions: [
+          {
+            input: '',
+            output: { value: '' }
+          }
+        ]
       }
     ])('$description', ({ component: def, assertions }) => {
       let component: EmailAddressField
