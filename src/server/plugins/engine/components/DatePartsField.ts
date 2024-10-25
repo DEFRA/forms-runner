@@ -78,24 +78,22 @@ export class DatePartsField extends FormComponent {
       model
     )
 
+    let { formSchema } = this.children
+
+    // Update child schema
+    formSchema = formSchema
+      .custom(getCustomDateValidator(this))
+      .label(title.toLowerCase())
+
     this.options = options
+    this.formSchema = formSchema
     this.stateSchema = stateSchema
+
+    this.children.formSchema = formSchema
   }
 
   getFormSchemaKeys() {
     return this.children.getFormSchemaKeys()
-  }
-
-  getStateSchemaKeys() {
-    const { options } = this
-    const { maxDaysInPast, maxDaysInFuture } = options
-    let schema = this.stateSchema
-
-    schema = schema.custom(
-      getCustomDateValidator(maxDaysInPast, maxDaysInFuture)
-    )
-
-    return { [this.name]: schema }
   }
 
   getFormDataFromState(state: FormSubmissionState) {
