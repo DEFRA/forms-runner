@@ -1,132 +1,300 @@
 import {
   ComponentType,
-  type ComponentDef,
   type DatePartsFieldComponent,
   type FormDefinition
 } from '@defra/forms-model'
 import { addDays, startOfDay } from 'date-fns'
 
 import { DatePartsField } from '~/src/server/plugins/engine/components/DatePartsField.js'
+import { type DateInputItem } from '~/src/server/plugins/engine/components/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import {
+  type FormData,
+  type FormState
+} from '~/src/server/plugins/engine/types.js'
 
-describe('Date parts field', () => {
+describe('DatePartsField', () => {
+  const definition = {
+    pages: [],
+    lists: [],
+    sections: [],
+    conditions: []
+  } satisfies FormDefinition
+
   let formModel: FormModel
 
   beforeEach(() => {
-    const definition: FormDefinition = {
-      pages: [],
-      lists: [],
-      sections: [],
-      conditions: []
-    }
-
     formModel = new FormModel(definition, {
       basePath: 'test'
     })
   })
 
-  test('Should construct appropriate children when required', () => {
-    const def: ComponentDef = {
-      name: 'myComponent',
-      title: 'My component',
-      type: ComponentType.DatePartsField,
-      options: {}
-    }
+  describe('Defaults', () => {
+    let def: DatePartsFieldComponent
+    let component: DatePartsField
 
-    const underTest = new DatePartsField(def, formModel)
-    const returned = underTest.getViewModel({})
+    beforeEach(() => {
+      def = {
+        title: 'Example date parts field',
+        name: 'myComponent',
+        type: ComponentType.DatePartsField,
+        options: {}
+      } satisfies DatePartsFieldComponent
 
-    expect(returned.fieldset).toEqual({
-      legend: {
-        text: def.title,
-        classes: 'govuk-fieldset__legend--m'
-      }
+      component = new DatePartsField(def, formModel)
     })
-    expect(returned.items).toEqual([
-      dateComponent('Day', 2),
-      dateComponent('Month', 2),
-      dateComponent('Year', 4)
-    ])
-  })
 
-  test('Should construct appropriate children when not required', () => {
-    const def: ComponentDef = {
-      name: 'myComponent',
-      title: 'My component',
-      type: ComponentType.DatePartsField,
-      options: { required: false }
-    }
+    describe('Schema', () => {
+      it('uses collection titles as labels', () => {
+        const { formSchema } = component.children
 
-    const underTest = new DatePartsField(def, formModel)
-    const returned = underTest.getViewModel({})
-
-    expect(returned.fieldset).toEqual({
-      legend: {
-        text: `${def.title} (optional)`,
-        classes: 'govuk-fieldset__legend--m'
-      }
-    })
-    expect(returned.items).toEqual([
-      dateComponent('Day', 2),
-      dateComponent('Month', 2),
-      dateComponent('Year', 4)
-    ])
-  })
-
-  test('Error is displayed correctly', () => {
-    const def: ComponentDef = {
-      name: 'myComponent',
-      title: 'My component',
-      hint: 'a hint',
-      type: ComponentType.DatePartsField,
-      options: { required: false }
-    }
-
-    const errors = {
-      titleText: 'There is a problem',
-      errorList: [
-        {
-          path: 'myComponent__day',
-          href: '#myComponent__day',
-          name: 'myComponent__day',
-          text: 'Day must be a number'
-        }
-      ]
-    }
-
-    const underTest = new DatePartsField(def, formModel)
-    const returned = underTest.getViewModel({}, errors)
-    expect(returned.errorMessage?.text).toBe('Day must be a number')
-    expect(underTest.getViewModel({}).errorMessage).toBeUndefined()
-  })
-
-  test('Condition evaluation used yyyy-MM-dd format', () => {
-    const datePartsFieldComponent: ComponentDef = {
-      title: 'Example checkboxes',
-      name: 'myComponent',
-      type: ComponentType.DatePartsField,
-      options: {}
-    }
-
-    const underTest = new DatePartsField(datePartsFieldComponent, formModel)
-
-    const conditonEvaluationStateValue =
-      underTest.getConditionEvaluationStateValue({
-        myComponent: '2024-12-31T01:02:03.004Z'
+        expect(formSchema.describe().keys).toEqual(
+          expect.objectContaining({
+            myComponent__day: expect.objectContaining({
+              flags: expect.objectContaining({ label: 'day' })
+            }),
+            myComponent__month: expect.objectContaining({
+              flags: expect.objectContaining({ label: 'month' })
+            }),
+            myComponent__year: expect.objectContaining({
+              flags: expect.objectContaining({ label: 'year' })
+            })
+          })
+        )
       })
 
-    expect(conditonEvaluationStateValue).toBe('2024-12-31')
+      it('is required by default', () => {
+        const { formSchema } = component.children
+
+        expect(formSchema.describe().flags).toEqual(
+          expect.objectContaining({
+            presence: 'required'
+          })
+        )
+      })
+
+      it('is optional when configured', () => {
+        const componentOptional = new DatePartsField(
+          {
+            title: 'Example date parts field',
+            name: 'myComponent',
+            type: ComponentType.DatePartsField,
+            options: { required: false }
+          },
+          formModel
+        )
+
+        const { formSchema } = componentOptional.children
+
+        expect(formSchema.describe().keys).toEqual(
+          expect.objectContaining({
+            myComponent__day: expect.objectContaining({
+              allow: ['']
+            }),
+            myComponent__month: expect.objectContaining({
+              allow: ['']
+            }),
+            myComponent__year: expect.objectContaining({
+              allow: ['']
+            })
+          })
+        )
+
+        const result = formSchema.validate(
+          getFormData({
+            day: '',
+            month: '',
+            year: ''
+          }),
+          opts
+        )
+
+        expect(result.error).toBeUndefined()
+      })
+
+      it('accepts valid values', () => {
+        const { formSchema } = component.children
+
+        const result1 = formSchema.validate(
+          getFormData({
+            day: '31',
+            month: '12',
+            year: '2024'
+          }),
+          opts
+        )
+
+        const result2 = formSchema.validate(
+          getFormData({
+            day: '1',
+            month: '2',
+            year: '2024'
+          }),
+          opts
+        )
+
+        // Leap year in 2024
+        const result3 = formSchema.validate(
+          getFormData({
+            day: '29',
+            month: '2',
+            year: '2024'
+          }),
+          opts
+        )
+
+        expect(result1.error).toBeUndefined()
+        expect(result2.error).toBeUndefined()
+        expect(result3.error).toBeUndefined()
+      })
+
+      it('adds errors for empty value', () => {
+        const { formSchema } = component.children
+
+        const result = formSchema.validate(
+          getFormData({
+            day: '',
+            month: '',
+            year: ''
+          }),
+          opts
+        )
+
+        expect(result.error).toEqual(
+          expect.objectContaining({
+            message: [
+              'day must be a number',
+              'month must be a number',
+              'year must be a number'
+            ].join('. ')
+          })
+        )
+      })
+
+      it('adds errors for invalid values', () => {
+        const { formSchema } = component.children
+
+        const result1 = formSchema.validate(['invalid'], opts)
+        const result2 = formSchema.validate({ unknown: 'invalid' }, opts)
+        const result3 = formSchema.validate(
+          getFormData({
+            day: 'invalid',
+            month: 'invalid',
+            year: 'invalid'
+          }),
+          opts
+        )
+
+        expect(result1.error).toBeTruthy()
+        expect(result2.error).toBeTruthy()
+        expect(result3.error).toBeTruthy()
+      })
+    })
+
+    describe('State', () => {
+      const date = new Date('2024-12-31')
+
+      it('returns text from state', () => {
+        const state = getFormState(date)
+        const text = component.getDisplayStringFromState(state)
+
+        expect(text).toBe('31 December 2024')
+      })
+
+      it('returns payload from state', () => {
+        const state = getFormState(startOfDay(date))
+        const payload = component.getFormDataFromState(state)
+
+        expect(payload).toEqual(getFormData(date))
+      })
+
+      it('returns state from payload (object)', () => {
+        const payload = getFormData(date)
+        const value = component.getStateFromValidForm(payload)
+
+        expect(value).toEqual(getFormState(date))
+      })
+
+      it('returns state from payload (value)', () => {
+        const payload = getFormData(date)
+        const value = component.getStateValueFromValidForm(payload)
+
+        expect(value).toEqual(startOfDay(date).toISOString())
+      })
+
+      it('returns formatted value for conditions', () => {
+        const state = getFormState(date)
+        const value = component.getConditionEvaluationStateValue(state)
+
+        expect(value).toBe('2024-12-31')
+      })
+    })
+
+    describe('View model', () => {
+      const date = new Date('2024-12-31')
+
+      it('sets Nunjucks component defaults', () => {
+        const payload = getFormData(date)
+        const viewModel = component.getViewModel(payload)
+
+        expect(viewModel).toEqual(
+          expect.objectContaining({
+            label: { text: def.title },
+            name: 'myComponent',
+            id: 'myComponent',
+            value: undefined,
+            items: [
+              expect.objectContaining(
+                getViewModel(date, 'day', {
+                  label: { text: 'Day' },
+                  classes: 'govuk-input--width-2',
+                  value: 31
+                })
+              ),
+
+              expect.objectContaining(
+                getViewModel(date, 'month', {
+                  label: { text: 'Month' },
+                  classes: 'govuk-input--width-2',
+                  value: 12
+                })
+              ),
+
+              expect.objectContaining(
+                getViewModel(date, 'year', {
+                  label: { text: 'Year' },
+                  classes: 'govuk-input--width-4',
+                  value: 2024
+                })
+              )
+            ]
+          })
+        )
+      })
+
+      it('sets Nunjucks component fieldset', () => {
+        const payload = getFormData(date)
+        const viewModel = component.getViewModel(payload)
+
+        expect(viewModel.fieldset).toEqual({
+          legend: {
+            text: def.title,
+            classes: 'govuk-fieldset__legend--m'
+          }
+        })
+      })
+    })
   })
 
   describe('Validation', () => {
-    const output = {
-      value: {
-        myComponent__day: 1,
-        myComponent__month: 1,
-        myComponent__year: 2001
-      }
-    }
+    const today = startOfDay(new Date())
+    const date = new Date('2001-01-01')
+
+    const OneDayInPast = addDays(today, -1)
+    const TwoDaysInPast = addDays(today, -2)
+    const OneDayInFuture = addDays(today, 1)
+    const TwoDaysInFuture = addDays(today, 2)
 
     describe.each([
       {
@@ -139,28 +307,252 @@ describe('Date parts field', () => {
         } satisfies DatePartsFieldComponent,
         assertions: [
           {
-            input: {
-              myComponent__day: ' 01',
-              myComponent__month: ' 01',
-              myComponent__year: ' 2001'
-            },
-            output
+            input: getFormData({
+              day: ' 01',
+              month: ' 01',
+              year: ' 2001'
+            }),
+            output: {
+              value: getFormData(date)
+            }
           },
           {
-            input: {
-              myComponent__day: '01 ',
-              myComponent__month: '01 ',
-              myComponent__year: '2001 '
-            },
-            output
+            input: getFormData({
+              day: '01 ',
+              month: '01 ',
+              year: '2001 '
+            }),
+            output: {
+              value: getFormData(date)
+            }
           },
           {
-            input: {
-              myComponent__day: ' 01 \n\n',
-              myComponent__month: ' 01 \n\n',
-              myComponent__year: ' 2001 \n\n'
-            },
-            output
+            input: getFormData({
+              day: ' 01 \n\n',
+              month: ' 01 \n\n',
+              year: ' 2001 \n\n'
+            }),
+            output: {
+              value: getFormData(date)
+            }
+          }
+        ]
+      },
+      {
+        description: 'Leap years',
+        component: {
+          title: 'Example date parts field',
+          name: 'myComponent',
+          type: ComponentType.DatePartsField,
+          options: {}
+        } satisfies DatePartsFieldComponent,
+        assertions: [
+          {
+            // Leap year in 2024
+            input: getFormData({
+              day: '29',
+              month: '2',
+              year: '2024'
+            }),
+            output: {
+              value: getFormData({
+                day: 29,
+                month: 2,
+                year: 2024
+              })
+            }
+          },
+          {
+            // Not a leap year in 2023
+            input: getFormData({
+              day: '29',
+              month: '2',
+              year: '2023'
+            }),
+            output: {
+              value: getFormData({
+                day: 29,
+                month: 2,
+                year: 2023
+              }),
+              error: new Error('example date parts field must be a real date')
+            }
+          }
+        ]
+      },
+      {
+        description: 'Out of range values',
+        component: {
+          title: 'Example date parts field',
+          name: 'myComponent',
+          type: ComponentType.DatePartsField,
+          options: {}
+        } satisfies DatePartsFieldComponent,
+        assertions: [
+          {
+            input: getFormData({
+              day: '32',
+              month: '1',
+              year: '2024'
+            }),
+            output: {
+              value: getFormData({
+                day: 32,
+                month: 1,
+                year: 2024
+              }),
+              error: new Error('day must be 31 or lower')
+            }
+          },
+          {
+            input: getFormData({
+              day: '1',
+              month: '13',
+              year: '2024'
+            }),
+            output: {
+              value: getFormData({
+                day: 1,
+                month: 13,
+                year: 2024
+              }),
+              error: new Error('month must be 12 or lower')
+            }
+          },
+          {
+            input: getFormData({
+              day: '1',
+              month: '1',
+              year: '999'
+            }),
+            output: {
+              value: getFormData({
+                day: 1,
+                month: 1,
+                year: 999
+              }),
+              error: new Error('year must be 1000 or higher')
+            }
+          }
+        ]
+      },
+      {
+        description: 'Impossible dates',
+        component: {
+          title: 'Example date parts field',
+          name: 'myComponent',
+          type: ComponentType.DatePartsField,
+          options: {}
+        } satisfies DatePartsFieldComponent,
+        assertions: [
+          {
+            input: getFormData({
+              day: '31',
+              month: '4',
+              year: '2024'
+            }),
+            output: {
+              value: getFormData({
+                day: 31,
+                month: 4,
+                year: 2024
+              }),
+              error: new Error('example date parts field must be a real date')
+            }
+          },
+          {
+            input: getFormData({
+              day: '31',
+              month: '6',
+              year: '2024'
+            }),
+            output: {
+              value: getFormData({
+                day: 31,
+                month: 6,
+                year: 2024
+              }),
+              error: new Error('example date parts field must be a real date')
+            }
+          }
+        ]
+      },
+      {
+        description: 'Max days in the past option',
+        component: {
+          title: 'Example date parts field',
+          name: 'myComponent',
+          type: ComponentType.DatePartsField,
+          options: {
+            maxDaysInPast: 1
+          }
+        } satisfies DatePartsFieldComponent,
+        assertions: [
+          {
+            input: getFormData(TwoDaysInPast),
+            output: {
+              value: getFormData(TwoDaysInPast),
+              error: new Error(
+                `example date parts field must be the same as or after ${OneDayInPast.toISOString()}`
+              )
+            }
+          },
+          {
+            input: getFormData(today),
+            output: { value: getFormData(today) }
+          }
+        ]
+      },
+      {
+        description: 'Max days in the future option',
+        component: {
+          title: 'Example date parts field',
+          name: 'myComponent',
+          type: ComponentType.DatePartsField,
+          options: {
+            maxDaysInFuture: 1
+          }
+        } satisfies DatePartsFieldComponent,
+        assertions: [
+          {
+            input: getFormData(TwoDaysInFuture),
+            output: {
+              value: getFormData(TwoDaysInFuture),
+              error: new Error(
+                `example date parts field must be the same as or before ${OneDayInFuture.toISOString()}`
+              )
+            }
+          },
+          {
+            input: getFormData(today),
+            output: { value: getFormData(today) }
+          }
+        ]
+      },
+      {
+        description: 'Optional fields',
+        component: {
+          title: 'Example date parts field',
+          name: 'myComponent',
+          type: ComponentType.DatePartsField,
+          options: {
+            required: false
+          }
+        } satisfies DatePartsFieldComponent,
+        assertions: [
+          {
+            input: getFormData({
+              day: '',
+              month: '',
+              year: ''
+            }),
+            output: {
+              value: getFormData({
+                day: '',
+                month: '',
+                year: ''
+              })
+            }
           }
         ]
       }
@@ -169,30 +561,6 @@ describe('Date parts field', () => {
 
       beforeEach(() => {
         component = new DatePartsField(def, formModel)
-      })
-
-      it('validates empty value', () => {
-        const { formSchema } = component.children
-
-        const input = {
-          myComponent__day: '',
-          myComponent__month: '',
-          myComponent__year: ''
-        }
-
-        const output = {
-          value: {
-            myComponent__day: '',
-            myComponent__month: '',
-            myComponent__year: ''
-          },
-          error: new Error(
-            'day must be a number. month must be a number. year must be a number'
-          )
-        }
-
-        const result = formSchema.validate(input, opts)
-        expect(result).toEqual(output)
       })
 
       it.each([...assertions])(
@@ -206,101 +574,58 @@ describe('Date parts field', () => {
       )
     })
   })
-
-  describe('State', () => {
-    const now = new Date()
-    const OneDayInPast = addDays(now, -1)
-    const TwoDaysInPast = addDays(now, -2)
-    const OneDayInFuture = addDays(now, 1)
-    const TwoDaysInFuture = addDays(now, 2)
-
-    describe.each([
-      {
-        description: 'Options maxDaysInPast',
-        component: {
-          title: 'Example date parts field',
-          name: 'myComponent',
-          type: ComponentType.DatePartsField,
-          options: {
-            maxDaysInPast: 1
-          }
-        } satisfies DatePartsFieldComponent,
-        assertions: [
-          {
-            input: TwoDaysInPast,
-            output: {
-              value: TwoDaysInPast,
-              error: new Error(
-                `example date parts field must be the same as or after ${startOfDay(OneDayInPast).toISOString()}`
-              )
-            }
-          },
-          {
-            input: now,
-            output: {
-              value: now
-            }
-          }
-        ]
-      },
-      {
-        description: 'Options maxDaysInFuture',
-        component: {
-          title: 'Example date parts field',
-          name: 'myComponent',
-          type: ComponentType.DatePartsField,
-          options: {
-            maxDaysInFuture: 1
-          }
-        } satisfies DatePartsFieldComponent,
-        assertions: [
-          {
-            input: TwoDaysInFuture,
-            output: {
-              value: TwoDaysInFuture,
-              error: new Error(
-                `example date parts field must be the same as or before ${startOfDay(OneDayInFuture).toISOString()}`
-              )
-            }
-          },
-          {
-            input: now,
-            output: {
-              value: now
-            }
-          }
-        ]
-      }
-    ])('$description', ({ component: def, assertions }) => {
-      let component: DatePartsField
-
-      beforeEach(() => {
-        component = new DatePartsField(def, formModel)
-      })
-
-      it.each([...assertions])(
-        'validates custom example',
-        ({ input, output }) => {
-          const keys = component.getStateSchemaKeys()
-          const schema = keys[component.name]
-
-          const result = schema.validate(input, opts)
-          expect(result).toEqual(output)
-        }
-      )
-    })
-  })
 })
 
-function dateComponent(name: string, width: number) {
+/**
+ * Date field view model
+ */
+function getViewModel(
+  date: Date,
+  name: string,
+  overrides?: Partial<DateInputItem>
+): DateInputItem {
+  const payload = getFormData(date)
+  const fieldName = `myComponent__${name}`
+  const fieldClasses = overrides?.classes ?? expect.any(String)
+
   return {
-    label: expect.objectContaining({
-      text: name
-    }),
-    id: `myComponent__${name.toLowerCase()}`,
-    name: `myComponent__${name.toLowerCase()}`,
-    value: undefined,
-    classes: `govuk-input--width-${width}`,
+    label: expect.objectContaining(
+      overrides?.label ?? {
+        text: expect.any(String)
+      }
+    ),
+    name: fieldName,
+    id: fieldName,
+    value: payload[fieldName] as number,
+    classes: fieldClasses,
     type: 'number'
+  }
+}
+
+/**
+ * Date form data
+ */
+function getFormData(date: Date | FormData): FormData {
+  if (date instanceof Date) {
+    date = {
+      day: date.getDate(),
+      month: date.getMonth() + 1,
+      year: date.getFullYear()
+    }
+  }
+
+  return {
+    myComponent__day: date.day,
+    myComponent__month: date.month,
+    myComponent__year: date.year
+  }
+}
+
+/**
+ * Date session state
+ */
+function getFormState(date: Date): FormState {
+  return {
+    myComponent: date.toISOString()
   }
 }
