@@ -105,6 +105,16 @@ export class MonthYearField extends FormComponent {
     const viewModel = super.getViewModel(payload, errors)
     let { fieldset, label } = viewModel
 
+    // Filter component and children errors only
+    const componentErrors = errors?.errorList.filter(
+      (error) =>
+        error.name === name || // Errors for parent component only
+        error.name.startsWith(`${name}__`) // Plus `${name}__year` etc fields
+    )
+
+    // Check for component errors only
+    const hasError = componentErrors?.some((error) => error.name === name)
+
     // Use the component collection to generate the subitems
     const items: DateInputItem[] = children
       .getViewModel(payload, errors)
@@ -116,7 +126,7 @@ export class MonthYearField extends FormComponent {
           label.toString = () => label.text // Date component uses string labels
         }
 
-        if (errorMessage) {
+        if (hasError || errorMessage) {
           classes = `${classes} govuk-input--error`.trim()
         }
 
@@ -133,11 +143,6 @@ export class MonthYearField extends FormComponent {
           classes
         }
       })
-
-    // Filter errors for this component only
-    const componentErrors = errors?.errorList.filter(
-      (error) => error.name.startsWith(`${name}__`) // E.g. `${name}__year`
-    )
 
     const errorMessage = componentErrors?.[0] && {
       text: componentErrors[0].text
