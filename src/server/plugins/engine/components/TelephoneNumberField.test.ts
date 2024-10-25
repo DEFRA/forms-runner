@@ -1,90 +1,214 @@
-import { ComponentType, type ComponentDef } from '@defra/forms-model'
+import {
+  ComponentType,
+  type FormDefinition,
+  type TelephoneNumberFieldComponent
+} from '@defra/forms-model'
 
 import { TelephoneNumberField } from '~/src/server/plugins/engine/components/TelephoneNumberField.js'
+import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 
-describe('Telephone number field', () => {
-  test('Should supply custom validation message if defined', () => {
-    const def: ComponentDef = {
-      name: 'myComponent',
-      title: 'Telephone number',
-      hint: 'a hint',
-      type: ComponentType.TelephoneNumberField,
-      options: {
-        customValidationMessage: 'This is a custom error',
-        required: false
-      }
-    }
-    const telephoneNumberField = new TelephoneNumberField(def, {})
-    const { formSchema: schema } = telephoneNumberField
+describe('TelephoneNumberField', () => {
+  const definition = {
+    pages: [],
+    lists: [],
+    sections: [],
+    conditions: []
+  } satisfies FormDefinition
 
-    expect(schema.validate('not a phone', opts).error?.message).toBe(
-      'This is a custom error'
-    )
-    expect(schema.validate('', opts).error).toBeUndefined()
-    expect(schema.validate('+111-111-11', opts).error?.message).toBeUndefined()
-    expect(schema.validate('+111 111 11', opts).error?.message).toBeUndefined()
-    expect(schema.validate('+11111111', opts).error?.message).toBeUndefined()
-    expect(schema.validate('+44 7930 111 222', opts).error).toBeUndefined()
-    expect(schema.validate('07930 111 222', opts).error).toBeUndefined()
-    expect(schema.validate('01606 76543', opts).error).toBeUndefined()
-    expect(schema.validate('01606 765432', opts).error).toBeUndefined()
-    expect(schema.validate('0203 765 443', opts).error).toBeUndefined()
-    expect(schema.validate('0800 123 321', opts).error).toBeUndefined()
-    expect(schema.validate('(01606) 765432', opts).error).toBeUndefined()
-    expect(schema.validate('(01606) 765-432', opts).error).toBeUndefined()
-    expect(schema.validate('01606 765-432', opts).error).toBeUndefined()
-    expect(schema.validate('+44203-765-443', opts).error).toBeUndefined()
-    expect(schema.validate('0800123-321', opts).error).toBeUndefined()
-    expect(schema.validate('0800-123-321', opts).error).toBeUndefined()
+  let formModel: FormModel
+
+  beforeEach(() => {
+    formModel = new FormModel(definition, {
+      basePath: 'test'
+    })
   })
 
-  test('Should validate when schema options are supplied', () => {
-    const def: ComponentDef = {
-      name: 'myComponent',
-      title: 'Telephone number',
-      hint: 'a hint',
-      type: ComponentType.TelephoneNumberField,
-      options: {}
-    }
-    const telephoneNumberField = new TelephoneNumberField(def, {})
-    const { formSchema: schema } = telephoneNumberField
+  describe('Defaults', () => {
+    let def: TelephoneNumberFieldComponent
+    let component: TelephoneNumberField
+    let label: string
 
-    expect(schema.validate('1234', opts).error?.message).toBeUndefined()
-    expect(schema.validate('12345', opts).error?.message).toBeUndefined()
-    expect(schema.validate('1', opts).error?.message).toBeUndefined()
-    expect(schema.validate('12-3', opts).error?.message).toBeUndefined()
-    expect(schema.validate('1  1', opts).error?.message).toBeUndefined()
-  })
+    beforeEach(() => {
+      def = {
+        title: 'Example telephone number field',
+        name: 'myComponent',
+        type: ComponentType.TelephoneNumberField,
+        options: {}
+      } satisfies TelephoneNumberFieldComponent
 
-  test('Should apply default schema if no options are passed', () => {
-    const def: ComponentDef = {
-      name: 'myComponent',
-      title: 'Telephone number',
-      hint: 'a hint',
-      type: ComponentType.TelephoneNumberField,
-      options: {}
-    }
-    const telephoneNumberField = new TelephoneNumberField(def, {})
-    const { formSchema: schema } = telephoneNumberField
+      component = new TelephoneNumberField(def, formModel)
+      label = def.title.toLowerCase()
+    })
 
-    expect(schema.validate('not a phone', opts).error?.message).toBe(
-      'Enter a valid telephone number'
-    )
-  })
-  test("Should add 'tel' to the autocomplete attribute", () => {
-    const def: ComponentDef = {
-      name: 'myComponent',
-      title: 'My component',
-      hint: 'a hint',
-      type: ComponentType.TelephoneNumberField,
-      options: {}
-    }
-    const telephoneNumberField = new TelephoneNumberField(def, {})
-    expect(telephoneNumberField.getViewModel({})).toEqual(
-      expect.objectContaining({
-        attributes: { autocomplete: 'tel' }
+    describe('Schema', () => {
+      it('uses component title as label', () => {
+        const { formSchema } = component
+
+        expect(formSchema.describe().flags).toEqual(
+          expect.objectContaining({ label })
+        )
       })
-    )
+
+      it('is required by default', () => {
+        const { formSchema } = component
+
+        expect(formSchema.describe().flags).toEqual(
+          expect.objectContaining({
+            presence: 'required'
+          })
+        )
+      })
+
+      it('is optional when configured', () => {
+        const componentOptional = new TelephoneNumberField(
+          { ...def, options: { required: false } },
+          formModel
+        )
+
+        const { formSchema } = componentOptional
+
+        expect(formSchema.describe()).toEqual(
+          expect.objectContaining({
+            allow: ['']
+          })
+        )
+
+        const result = formSchema.validate('', opts)
+        expect(result.error).toBeUndefined()
+      })
+
+      it.each([
+        '+111-111-11',
+        '+111 111 11',
+        '+11111111',
+        '+44 7930 111 222',
+        '07930 111 222',
+        '01606 76543',
+        '01606 765432',
+        '0203 765 443',
+        '0800 123 321',
+        '(01606) 765432',
+        '(01606) 765-432',
+        '01606 765-432',
+        '+44203-765-443',
+        '0800123-321',
+        '0800-123-321'
+      ])("accepts valid value '%s'", (value) => {
+        const { formSchema } = component
+
+        const result = formSchema.validate(value, opts)
+        expect(result.error).toBeUndefined()
+      })
+
+      it('adds errors for empty value', () => {
+        const { formSchema } = component
+
+        const result = formSchema.validate('', opts)
+
+        expect(result.error).toEqual(
+          expect.objectContaining({
+            message: `Enter ${label}`
+          })
+        )
+      })
+
+      it('adds errors for invalid values', () => {
+        const { formSchema } = component
+
+        const result1 = formSchema.validate(['invalid'], opts)
+        const result2 = formSchema.validate({ unknown: 'invalid' }, opts)
+
+        expect(result1.error).toBeTruthy()
+        expect(result2.error).toBeTruthy()
+      })
+    })
+
+    describe('State', () => {
+      it('returns text from state value', () => {
+        const text = component.getDisplayStringFromState({
+          [def.name]: 'Telephone number field'
+        })
+
+        expect(text).toBe('Telephone number field')
+      })
+    })
+
+    describe('View model', () => {
+      it('sets Nunjucks component defaults', () => {
+        const viewModel = component.getViewModel({
+          [def.name]: 'Telephone number field'
+        })
+
+        expect(viewModel).toEqual(
+          expect.objectContaining({
+            label: { text: def.title },
+            name: 'myComponent',
+            id: 'myComponent',
+            value: 'Telephone number field',
+            attributes: { autocomplete: 'tel' },
+            type: 'tel'
+          })
+        )
+      })
+    })
+  })
+
+  describe('Validation', () => {
+    describe.each([
+      {
+        description: 'Custom validation',
+        component: {
+          title: 'Example telephone number field',
+          name: 'myComponent',
+          type: ComponentType.TelephoneNumberField,
+          options: {
+            customValidationMessage: 'This is a custom error'
+          }
+        } satisfies TelephoneNumberFieldComponent,
+        assertions: [
+          {
+            input: '',
+            output: {
+              value: '',
+              error: new Error('This is a custom error')
+            }
+          }
+        ]
+      },
+      {
+        description: 'Optional field',
+        component: {
+          title: 'Example telephone number field',
+          name: 'myComponent',
+          type: ComponentType.TelephoneNumberField,
+          options: {
+            required: false
+          }
+        } satisfies TelephoneNumberFieldComponent,
+        assertions: [
+          {
+            input: '',
+            output: { value: '' }
+          }
+        ]
+      }
+    ])('$description', ({ component: def, assertions }) => {
+      let component: TelephoneNumberField
+
+      beforeEach(() => {
+        component = new TelephoneNumberField(def, formModel)
+      })
+
+      it.each([...assertions])(
+        'validates custom example',
+        ({ input, output }) => {
+          const { formSchema } = component
+
+          const result = formSchema.validate(input, opts)
+          expect(result).toEqual(output)
+        }
+      )
+    })
   })
 })
