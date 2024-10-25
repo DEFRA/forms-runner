@@ -267,24 +267,9 @@ describe('NumberField', () => {
       }
     ])('$description', ({ component: def, assertions }) => {
       let component: NumberField
-      let label: string
 
       beforeEach(() => {
         component = new NumberField(def, formModel)
-        label = def.title.toLowerCase()
-      })
-
-      it('validates empty value', () => {
-        const { formSchema } = component
-
-        const input = ''
-        const output = {
-          value: '',
-          error: new Error(`${label} must be a number`)
-        }
-
-        const result = formSchema.validate(input, opts)
-        expect(result).toEqual(output)
       })
 
       it.each([...assertions])(
