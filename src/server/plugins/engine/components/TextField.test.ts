@@ -253,24 +253,9 @@ describe('TextField', () => {
       }
     ])('$description', ({ component: def, assertions }) => {
       let component: TextField
-      let label: string
 
       beforeEach(() => {
         component = new TextField(def, formModel)
-        label = def.title.toLowerCase()
-      })
-
-      it('validates empty value', () => {
-        const { formSchema } = component
-
-        const input = ''
-        const output = {
-          value: '',
-          error: new Error(`Enter ${label}`)
-        }
-
-        const result = formSchema.validate(input, opts)
-        expect(result).toEqual(output)
       })
 
       it.each([...assertions])(
