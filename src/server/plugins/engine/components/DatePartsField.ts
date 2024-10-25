@@ -1,5 +1,5 @@
 import { ComponentType, type DatePartsFieldComponent } from '@defra/forms-model'
-import { format, parseISO } from 'date-fns'
+import { format, isValid, parse, parseISO } from 'date-fns'
 import joi from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
@@ -97,27 +97,40 @@ export class DatePartsField extends FormComponent {
   }
 
   getFormDataFromState(state: FormSubmissionState) {
-    const name = this.name
-    const value = state[name]
-    const dateValue = new Date(value)
+    const { name } = this
+
+    let day: number | undefined
+    let month: number | undefined
+    let year: number | undefined
+
+    if (typeof state[name] === 'string') {
+      const value = new Date(state[name])
+
+      if (isValid(value)) {
+        day = value.getDate()
+        month = value.getMonth() + 1
+        year = value.getFullYear()
+      }
+    }
 
     return {
-      [`${name}__day`]: value && dateValue.getDate(),
-      [`${name}__month`]: value && dateValue.getMonth() + 1,
-      [`${name}__year`]: value && dateValue.getFullYear()
+      [`${name}__day`]: day,
+      [`${name}__month`]: month,
+      [`${name}__year`]: year
     }
   }
 
   getStateValueFromValidForm(payload: FormPayload) {
-    const name = this.name
+    const { name } = this
 
-    return payload[`${name}__year`]
-      ? new Date(
-          payload[`${name}__year`],
-          payload[`${name}__month`] - 1,
-          payload[`${name}__day`]
-        )
-      : null
+    const {
+      [`${name}__day`]: day,
+      [`${name}__month`]: month,
+      [`${name}__year`]: year
+    } = payload
+
+    const value = parse(`${year}-${month}-${day}`, 'yyyy-MM-dd', new Date())
+    return isValid(value) ? value.toISOString() : null
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
