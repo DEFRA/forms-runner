@@ -122,7 +122,17 @@ export class FormComponent extends ComponentBase {
     return { [this.name]: this.stateSchema }
   }
 
-  getDisplayStringFromState(state) {
-    return state[this.name] ?? ''
+  getDisplayStringFromState(state: FormSubmissionState) {
+    const value = state[this.name]
+
+    if (
+      typeof value === 'string' ||
+      typeof value === 'number' ||
+      typeof value === 'boolean'
+    ) {
+      return value.toString()
+    }
+
+    return ''
   }
 }
