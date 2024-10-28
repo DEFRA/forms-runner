@@ -243,7 +243,7 @@ describe('FileUploadField', () => {
     })
 
     describe('State', () => {
-      it('Returns text from state value', () => {
+      it('returns text from state value', () => {
         const text = component.getDisplayStringFromState({
           [def.name]: [{}, {}]
         })
@@ -588,28 +588,16 @@ describe('FileUploadField', () => {
       }
     ])('$description', ({ component: def, assertions }) => {
       let component: FileUploadField
-      let label: string
+
       beforeEach(() => {
         component = new FileUploadField(def, formModel)
-        label = def.title.toLowerCase()
       })
-      it('validates empty value', () => {
-        const { formSchema } = component
-        const input = null
-        const output = {
-          value: undefined,
-          error:
-            component.options.required === false
-              ? undefined
-              : new Error(`Select ${label}`)
-        }
-        const result = formSchema.validate(input, opts)
-        expect(result).toEqual(output)
-      })
+
       it.each([...assertions])(
         'validates custom example',
         ({ input, output }) => {
           const { formSchema } = component
+
           const result = formSchema.validate(input, opts)
           expect(result).toEqual(output)
         }

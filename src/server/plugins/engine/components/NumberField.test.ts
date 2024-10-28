@@ -117,7 +117,7 @@ describe('NumberField', () => {
     })
 
     describe('State', () => {
-      it('Returns text from state value', () => {
+      it('returns text from state value', () => {
         const text = component.getDisplayStringFromState({
           [def.name]: 2024
         })
@@ -264,27 +264,51 @@ describe('NumberField', () => {
             }
           }
         ]
+      },
+      {
+        description: 'Custom validation',
+        component: {
+          title: 'Example number field',
+          name: 'myComponent',
+          type: ComponentType.NumberField,
+          options: {
+            customValidationMessage: 'This is a custom error'
+          },
+          schema: {}
+        } satisfies NumberFieldComponent,
+        assertions: [
+          {
+            input: 'invalid',
+            output: {
+              value: 'invalid',
+              error: new Error('This is a custom error')
+            }
+          }
+        ]
+      },
+      {
+        description: 'Optional field',
+        component: {
+          title: 'Example number field',
+          name: 'myComponent',
+          type: ComponentType.NumberField,
+          options: {
+            required: false
+          },
+          schema: {}
+        } satisfies NumberFieldComponent,
+        assertions: [
+          {
+            input: '',
+            output: { value: '' }
+          }
+        ]
       }
     ])('$description', ({ component: def, assertions }) => {
       let component: NumberField
-      let label: string
 
       beforeEach(() => {
         component = new NumberField(def, formModel)
-        label = def.title.toLowerCase()
-      })
-
-      it('validates empty value', () => {
-        const { formSchema } = component
-
-        const input = ''
-        const output = {
-          value: '',
-          error: new Error(`${label} must be a number`)
-        }
-
-        const result = formSchema.validate(input, opts)
-        expect(result).toEqual(output)
       })
 
       it.each([...assertions])(

@@ -1,5 +1,5 @@
 import { ComponentType, type DatePartsFieldComponent } from '@defra/forms-model'
-import { format, parseISO } from 'date-fns'
+import { format, isValid, parse, parseISO } from 'date-fns'
 import joi from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
@@ -78,48 +78,59 @@ export class DatePartsField extends FormComponent {
       model
     )
 
+    let { formSchema } = this.children
+
+    // Update child schema
+    formSchema = formSchema
+      .custom(getCustomDateValidator(this))
+      .label(title.toLowerCase())
+
     this.options = options
+    this.formSchema = formSchema
     this.stateSchema = stateSchema
+
+    this.children.formSchema = formSchema
   }
 
   getFormSchemaKeys() {
     return this.children.getFormSchemaKeys()
   }
 
-  getStateSchemaKeys() {
-    const { options } = this
-    const { maxDaysInPast, maxDaysInFuture } = options
-    let schema = this.stateSchema
-
-    schema = schema.custom(
-      getCustomDateValidator(maxDaysInPast, maxDaysInFuture)
-    )
-
-    return { [this.name]: schema }
-  }
-
   getFormDataFromState(state: FormSubmissionState) {
-    const name = this.name
-    const value = state[name]
-    const dateValue = new Date(value)
+    const { name } = this
+
+    let day: number | undefined
+    let month: number | undefined
+    let year: number | undefined
+
+    if (typeof state[name] === 'string') {
+      const value = new Date(state[name])
+
+      if (isValid(value)) {
+        day = value.getDate()
+        month = value.getMonth() + 1
+        year = value.getFullYear()
+      }
+    }
 
     return {
-      [`${name}__day`]: value && dateValue.getDate(),
-      [`${name}__month`]: value && dateValue.getMonth() + 1,
-      [`${name}__year`]: value && dateValue.getFullYear()
+      [`${name}__day`]: day,
+      [`${name}__month`]: month,
+      [`${name}__year`]: year
     }
   }
 
   getStateValueFromValidForm(payload: FormPayload) {
-    const name = this.name
+    const { name } = this
 
-    return payload[`${name}__year`]
-      ? new Date(
-          payload[`${name}__year`],
-          payload[`${name}__month`] - 1,
-          payload[`${name}__day`]
-        )
-      : null
+    const {
+      [`${name}__day`]: day,
+      [`${name}__month`]: month,
+      [`${name}__year`]: year
+    } = payload
+
+    const value = parse(`${year}-${month}-${day}`, 'yyyy-MM-dd', new Date())
+    return isValid(value) ? value.toISOString() : null
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
@@ -138,6 +149,16 @@ export class DatePartsField extends FormComponent {
     const viewModel = super.getViewModel(payload, errors)
     let { fieldset, label } = viewModel
 
+    // Filter component and children errors only
+    const componentErrors = errors?.errorList.filter(
+      (error) =>
+        error.name === name || // Errors for parent component only
+        error.name.startsWith(`${name}__`) // Plus `${name}__year` etc fields
+    )
+
+    // Check for component errors only
+    const hasError = componentErrors?.some((error) => error.name === name)
+
     // Use the component collection to generate the subitems
     const items: DateInputItem[] = children
       .getViewModel(payload, errors)
@@ -149,7 +170,7 @@ export class DatePartsField extends FormComponent {
           label.toString = () => label.text // Date component uses string labels
         }
 
-        if (errorMessage) {
+        if (hasError || errorMessage) {
           classes = `${classes} govuk-input--error`.trim()
         }
 
@@ -166,11 +187,6 @@ export class DatePartsField extends FormComponent {
           classes
         }
       })
-
-    // Filter errors for this component only
-    const componentErrors = errors?.errorList.filter(
-      (error) => error.name.startsWith(`${name}__`) // E.g. `${name}__year`
-    )
 
     const errorMessage = componentErrors?.[0] && {
       text: componentErrors[0].text

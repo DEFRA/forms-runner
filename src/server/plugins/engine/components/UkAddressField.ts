@@ -86,18 +86,24 @@ export class UkAddressField extends FormComponent {
       }
     ] satisfies ComponentDef[]
 
-    const stateChildren = new ComponentCollection(childrenList, model)
+    this.stateChildren = new ComponentCollection(childrenList, model)
 
     // Modify the name to add a prefix and reuse
     // the children to create the formComponents
     childrenList.forEach((child) => (child.name = `${name}__${child.name}`))
 
-    const formChildren = new ComponentCollection(childrenList, model)
+    this.children = new ComponentCollection(childrenList, model)
+
+    let { formSchema } = this.children
+
+    // Update child schema
+    formSchema = formSchema.label(title.toLowerCase())
 
     this.options = options
-    this.children = formChildren
-    this.stateChildren = stateChildren
+    this.formSchema = formSchema
     this.stateSchema = stateSchema
+
+    this.children.formSchema = formSchema
   }
 
   getFormSchemaKeys() {

@@ -112,7 +112,7 @@ describe('EmailAddressField', () => {
     })
 
     describe('State', () => {
-      it('Returns text from state value', () => {
+      it('returns text from state value', () => {
         const text = component.getDisplayStringFromState({
           [def.name]: 'Text field'
         })
@@ -198,27 +198,49 @@ describe('EmailAddressField', () => {
             output: { value: 'defra.helpline@defra.gov.uk' }
           }
         ]
+      },
+      {
+        description: 'Custom validation',
+        component: {
+          title: 'Example email address field',
+          name: 'myComponent',
+          type: ComponentType.EmailAddressField,
+          options: {
+            customValidationMessage: 'This is a custom error'
+          }
+        } satisfies EmailAddressFieldComponent,
+        assertions: [
+          {
+            input: 'invalid',
+            output: {
+              value: 'invalid',
+              error: new Error('This is a custom error')
+            }
+          }
+        ]
+      },
+      {
+        description: 'Optional field',
+        component: {
+          title: 'Example email address field',
+          name: 'myComponent',
+          type: ComponentType.EmailAddressField,
+          options: {
+            required: false
+          }
+        } satisfies EmailAddressFieldComponent,
+        assertions: [
+          {
+            input: '',
+            output: { value: '' }
+          }
+        ]
       }
     ])('$description', ({ component: def, assertions }) => {
       let component: EmailAddressField
-      let label: string
 
       beforeEach(() => {
         component = new EmailAddressField(def, formModel)
-        label = def.title.toLowerCase()
-      })
-
-      it('validates empty value', () => {
-        const { formSchema } = component
-
-        const input = ''
-        const output = {
-          value: '',
-          error: new Error(`Enter ${label}`)
-        }
-
-        const result = formSchema.validate(input, opts)
-        expect(result).toEqual(output)
       })
 
       it.each([...assertions])(

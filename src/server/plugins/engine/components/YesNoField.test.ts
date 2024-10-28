@@ -124,7 +124,7 @@ describe('YesNoField', () => {
   })
 
   describe('State', () => {
-    it('Returns text from state value', () => {
+    it('returns text from state value', () => {
       const textYes = component.getDisplayStringFromState({
         [def.name]: true
       })
