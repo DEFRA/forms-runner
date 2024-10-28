@@ -71,16 +71,6 @@ export class MonthYearField extends FormComponent {
     this.children.stateSchema = stateSchema
   }
 
-  getFormSchemaKeys() {
-    return this.children.getFormSchemaKeys()
-  }
-
-  getStateSchemaKeys() {
-    return {
-      [this.name]: this.children.getStateSchemaKeys()
-    }
-  }
-
   getFormDataFromState(state: FormSubmissionState) {
     return this.children.getFormDataFromState(state[this.name] ?? {})
   }

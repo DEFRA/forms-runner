@@ -1,9 +1,4 @@
-import {
-  ComponentType,
-  type ComponentDef,
-  type UkAddressFieldComponent
-} from '@defra/forms-model'
-import joi from 'joi'
+import { ComponentType, type UkAddressFieldComponent } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
@@ -18,7 +13,6 @@ import {
 export class UkAddressField extends FormComponent {
   declare options: UkAddressFieldComponent['options']
   children: ComponentCollection
-  stateChildren: ComponentCollection
 
   constructor(def: UkAddressFieldComponent, model: FormModel) {
     super(def, model)
@@ -28,103 +22,72 @@ export class UkAddressField extends FormComponent {
     const isRequired = options.required !== false
     const hideOptional = options.optionalText
 
-    let stateSchema = joi.object().label(title).required()
-
-    if (options.required === false) {
-      stateSchema = stateSchema.allow(null)
-    }
-
-    const childrenList = [
-      {
-        type: ComponentType.TextField,
-        name: 'addressLine1',
-        title: 'Address line 1',
-        schema: { max: 100 },
-        options: {
-          autocomplete: 'address-line1',
-          required: isRequired,
-          optionalText: !isRequired && hideOptional
-        }
-      },
-      {
-        type: ComponentType.TextField,
-        name: 'addressLine2',
-        title: 'Address line 2',
-        schema: { max: 100 },
-        options: {
-          autocomplete: 'address-line2',
-          required: false,
-          optionalText: !isRequired && hideOptional
-        }
-      },
-      {
-        type: ComponentType.TextField,
-        name: 'town',
-        title: 'Town or city',
-        schema: { max: 100 },
-        options: {
-          autocomplete: 'address-level2',
-          classes: 'govuk-!-width-two-thirds',
-          required: isRequired,
-          optionalText: !isRequired && hideOptional
-        }
-      },
-      {
-        type: ComponentType.TextField,
-        name: 'postcode',
-        title: 'Postcode',
-        schema: {
-          regex: '^[a-zA-Z]{1,2}\\d[a-zA-Z\\d]?\\s?\\d[a-zA-Z]{2}$'
+    this.children = new ComponentCollection(
+      [
+        {
+          type: ComponentType.TextField,
+          name: `${name}__addressLine1`,
+          title: 'Address line 1',
+          schema: { max: 100 },
+          options: {
+            autocomplete: 'address-line1',
+            required: isRequired,
+            optionalText: !isRequired && hideOptional
+          }
         },
-        options: {
-          autocomplete: 'postal-code',
-          classes: 'govuk-input--width-10',
-          required: isRequired,
-          optionalText: !isRequired && hideOptional
+        {
+          type: ComponentType.TextField,
+          name: `${name}__addressLine2`,
+          title: 'Address line 2',
+          schema: { max: 100 },
+          options: {
+            autocomplete: 'address-line2',
+            required: false,
+            optionalText: !isRequired && hideOptional
+          }
+        },
+        {
+          type: ComponentType.TextField,
+          name: `${name}__town`,
+          title: 'Town or city',
+          schema: { max: 100 },
+          options: {
+            autocomplete: 'address-level2',
+            classes: 'govuk-!-width-two-thirds',
+            required: isRequired,
+            optionalText: !isRequired && hideOptional
+          }
+        },
+        {
+          type: ComponentType.TextField,
+          name: `${name}__postcode`,
+          title: 'Postcode',
+          schema: {
+            regex: '^[a-zA-Z]{1,2}\\d[a-zA-Z\\d]?\\s?\\d[a-zA-Z]{2}$'
+          },
+          options: {
+            autocomplete: 'postal-code',
+            classes: 'govuk-input--width-10',
+            required: isRequired,
+            optionalText: !isRequired && hideOptional
+          }
         }
-      }
-    ] satisfies ComponentDef[]
+      ],
+      model
+    )
 
-    this.stateChildren = new ComponentCollection(childrenList, model)
-
-    // Modify the name to add a prefix and reuse
-    // the children to create the formComponents
-    childrenList.forEach((child) => (child.name = `${name}__${child.name}`))
-
-    this.children = new ComponentCollection(childrenList, model)
-
-    let { formSchema } = this.children
+    let { formSchema, stateSchema } = this.children
 
     // Update child schema
     formSchema = formSchema.label(title.toLowerCase())
+    stateSchema = stateSchema.label(title.toLowerCase())
 
     this.options = options
     this.formSchema = formSchema
     this.stateSchema = stateSchema
 
     this.children.formSchema = formSchema
-  }
-
-  getFormSchemaKeys() {
-    return this.children.getFormSchemaKeys()
-  }
-
-  getStateSchemaKeys() {
-    const { name } = this
-    const options = this.options
-
-    return {
-      [name]:
-        options.required === false
-          ? joi
-              .object()
-              .keys(this.stateChildren.getStateSchemaKeys())
-              .allow(null)
-          : joi
-              .object()
-              .keys(this.stateChildren.getStateSchemaKeys())
-              .required()
-    }
+    this.children.stateSchema = stateSchema
   }
 
   getFormDataFromState(state: FormSubmissionState) {

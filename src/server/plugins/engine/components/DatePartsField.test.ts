@@ -47,7 +47,7 @@ describe('DatePartsField', () => {
 
     describe('Schema', () => {
       it('uses collection titles as labels', () => {
-        const { formSchema } = component.children
+        const { formSchema } = component
 
         expect(formSchema.describe().keys).toEqual(
           expect.objectContaining({
@@ -65,7 +65,7 @@ describe('DatePartsField', () => {
       })
 
       it('is required by default', () => {
-        const { formSchema } = component.children
+        const { formSchema } = component
 
         expect(formSchema.describe().flags).toEqual(
           expect.objectContaining({
@@ -85,7 +85,7 @@ describe('DatePartsField', () => {
           formModel
         )
 
-        const { formSchema } = componentOptional.children
+        const { formSchema } = componentOptional
 
         expect(formSchema.describe().keys).toEqual(
           expect.objectContaining({
@@ -114,7 +114,7 @@ describe('DatePartsField', () => {
       })
 
       it('accepts valid values', () => {
-        const { formSchema } = component.children
+        const { formSchema } = component
 
         const result1 = formSchema.validate(
           getFormData({
@@ -150,7 +150,7 @@ describe('DatePartsField', () => {
       })
 
       it('adds errors for empty value', () => {
-        const { formSchema } = component.children
+        const { formSchema } = component
 
         const result = formSchema.validate(
           getFormData({
@@ -173,7 +173,7 @@ describe('DatePartsField', () => {
       })
 
       it('adds errors for invalid values', () => {
-        const { formSchema } = component.children
+        const { formSchema } = component
 
         const result1 = formSchema.validate(['invalid'], opts)
         const result2 = formSchema.validate({ unknown: 'invalid' }, opts)
@@ -587,7 +587,7 @@ describe('DatePartsField', () => {
       it.each([...assertions])(
         'validates custom example',
         ({ input, output }) => {
-          const { formSchema } = component.children
+          const { formSchema } = component
 
           const result = formSchema.validate(input, opts)
           expect(result).toEqual(output)

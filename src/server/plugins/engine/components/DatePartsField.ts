@@ -8,7 +8,7 @@ import {
   startOfToday,
   sub
 } from 'date-fns'
-import joi, { type CustomValidator } from 'joi'
+import { type CustomValidator } from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
@@ -36,12 +36,6 @@ export class DatePartsField extends FormComponent {
 
     const isRequired = options.required !== false
     const hideOptional = options.optionalText
-
-    let stateSchema = joi.date().label(title.toLowerCase()).required()
-
-    if (options.required === false) {
-      stateSchema = stateSchema.allow(null)
-    }
 
     this.children = new ComponentCollection(
       [
@@ -85,10 +79,14 @@ export class DatePartsField extends FormComponent {
       model
     )
 
-    let { formSchema } = this.children
+    let { formSchema, stateSchema } = this.children
 
     // Update child schema
     formSchema = formSchema
+      .custom(getValidatorDate(this), 'date validation')
+      .label(title.toLowerCase())
+
+    stateSchema = stateSchema
       .custom(getValidatorDate(this), 'date validation')
       .label(title.toLowerCase())
 
@@ -97,10 +95,7 @@ export class DatePartsField extends FormComponent {
     this.stateSchema = stateSchema
 
     this.children.formSchema = formSchema
-  }
-
-  getFormSchemaKeys() {
-    return this.children.getFormSchemaKeys()
+    this.children.stateSchema = stateSchema
   }
 
   getFormDataFromState(state: FormSubmissionState) {
