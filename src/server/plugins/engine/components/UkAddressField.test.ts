@@ -190,33 +190,50 @@ describe('UkAddressField', () => {
       }
 
       it('returns text from state', () => {
-        const state = getFormState(address)
-        const text = component.getDisplayStringFromState(state)
+        const state1 = getFormState(address)
+        const state2 = getFormState({})
 
-        expect(text).toBe(
+        const text1 = component.getDisplayStringFromState(state1)
+        const text2 = component.getDisplayStringFromState(state2)
+
+        expect(text1).toBe(
           'Richard Fairclough House, Knutsford Road, Warrington, WA4 1HT'
         )
+
+        expect(text2).toBe('')
       })
 
-      it('returns payload from state (object)', () => {
-        const state = getFormState(address)
-        const payload = component.getFormDataFromState(state)
+      it('returns payload from state', () => {
+        const state1 = getFormState(address)
+        const state2 = getFormState({})
 
-        expect(payload).toEqual(getFormData(address))
+        const payload1 = component.getFormDataFromState(state1)
+        const payload2 = component.getFormDataFromState(state2)
+
+        expect(payload1).toEqual(getFormData(address))
+        expect(payload2).toEqual(getFormData({}))
       })
 
-      it('returns payload from state (value)', () => {
-        const state = getFormState(address)
-        const payload = component.getFormValueFromState(state)
+      it('returns value from state', () => {
+        const state1 = getFormState(address)
+        const state2 = getFormState({})
 
-        expect(payload).toEqual(address.myComponent)
+        const value1 = component.getFormValueFromState(state1)
+        const value2 = component.getFormValueFromState(state2)
+
+        expect(value1).toEqual(address)
+        expect(value2).toBeUndefined()
       })
 
-      it('returns state from payload (object)', () => {
-        const payload = getFormData(address)
-        const value = component.getStateFromValidForm(payload)
+      it('returns state from payload', () => {
+        const payload1 = getFormData(address)
+        const payload2 = getFormData({})
 
-        expect(value).toEqual(getFormState(address))
+        const value1 = component.getStateFromValidForm(payload1)
+        const value2 = component.getStateFromValidForm(payload2)
+
+        expect(value1).toEqual(getFormState(address))
+        expect(value2).toEqual(getFormState({}))
       })
     })
 
@@ -496,12 +513,14 @@ function getFormData(address: FormPayload): FormPayload {
  * UK address session state
  */
 function getFormState(address: FormPayload): FormState {
+  const [addressLine1, addressLine2, town, postcode] = Object.values(
+    getFormData(address)
+  )
+
   return {
-    myComponent: {
-      addressLine1: address.addressLine1,
-      addressLine2: address.addressLine2,
-      town: address.town,
-      postcode: address.postcode
-    }
+    myComponent__addressLine1: addressLine1 ?? null,
+    myComponent__addressLine2: addressLine2 ?? null,
+    myComponent__town: town ?? null,
+    myComponent__postcode: postcode ?? null
   }
 }

@@ -33,15 +33,17 @@ export class FormComponent extends ComponentBase {
     this.hint = hint
   }
 
-  getFormDataFromState(state: FormSubmissionState): FormPayload | undefined {
+  getFormDataFromState(state: FormSubmissionState): FormPayload {
     const { children, name } = this
 
     if (children) {
       return children.getFormDataFromState(state)
     }
 
+    const value = state[name]
+
     return {
-      [name]: this.getFormValueFromState(state)
+      [name]: this.isValue(value) ? value : undefined
     }
   }
 
@@ -52,7 +54,8 @@ export class FormComponent extends ComponentBase {
       return children.getFormValueFromState(state)
     }
 
-    return state[name] ?? undefined
+    const value = state[name]
+    return this.isValue(value) ? value : undefined
   }
 
   getStateFromValidForm(payload: FormPayload): FormState {
@@ -64,13 +67,8 @@ export class FormComponent extends ComponentBase {
 
     const value = payload[name]
 
-    // Check for empty fields
-    const isMissing = !(name in payload) || value === undefined
-    const isEmpty = value === '' || (Array.isArray(value) && !value.length)
-
-    // Default to null in state
     return {
-      [name]: isMissing || isEmpty ? null : value
+      [name]: this.isValue(value) ? value : null
     }
   }
 
@@ -134,18 +132,9 @@ export class FormComponent extends ComponentBase {
     }
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
+  getDisplayStringFromState(state: FormSubmissionState): string {
     const value = this.getFormValueFromState(state)
-
-    if (
-      typeof value === 'string' ||
-      typeof value === 'number' ||
-      typeof value === 'boolean'
-    ) {
-      return value.toString()
-    }
-
-    return ''
+    return this.isValue(value) ? value.toString() : ''
   }
 
   getConditionEvaluationStateValue(
@@ -153,4 +142,39 @@ export class FormComponent extends ComponentBase {
   ): FormStateValue | FormState {
     return this.getFormValueFromState(state) ?? null
   }
+
+  isValue(
+    value?: FormStateValue | FormState
+  ): value is NonNullable<FormStateValue> {
+    return isFormValue(value)
+  }
+
+  isState(value?: FormStateValue | FormState): value is FormState {
+    return isFormState(value)
+  }
+}
+
+/**
+ * Check for form value
+ */
+export function isFormValue(
+  value?: unknown
+): value is string | number | boolean {
+  return (
+    (typeof value === 'string' && value.length > 0) ||
+    typeof value === 'number' ||
+    typeof value === 'boolean'
+  )
+}
+
+/**
+ * Check for form state with nested values
+ */
+export function isFormState(value?: unknown): value is FormState {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    return false
+  }
+
+  // Skip empty objects
+  return !!Object.values(value).length
 }

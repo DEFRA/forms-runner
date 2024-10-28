@@ -74,7 +74,7 @@ export interface DetailItemBase {
 export interface DetailItemDate extends DetailItemBase {
   type: DatePartsFieldComponent['type']
   dataType: DataType.Date
-  rawValue: string | null
+  rawValue: FormState | null
 }
 
 export interface DetailItemMonthYear extends DetailItemBase {

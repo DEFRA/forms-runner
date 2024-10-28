@@ -12,6 +12,7 @@ export class MultilineTextField extends FormComponent {
   declare options: MultilineTextFieldComponent['options']
   declare schema: MultilineTextFieldComponent['schema']
   declare formSchema: StringSchema
+  declare stateSchema: StringSchema
 
   isCharacterOrWordCount = false
 

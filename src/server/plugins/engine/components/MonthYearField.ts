@@ -1,7 +1,12 @@
 import { ComponentType, type MonthYearFieldComponent } from '@defra/forms-model'
+import { type ObjectSchema } from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import {
+  FormComponent,
+  isFormState
+} from '~/src/server/plugins/engine/components/FormComponent.js'
+import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import {
   DataType,
@@ -10,12 +15,17 @@ import {
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
+  type FormState,
+  type FormStateValue,
   type FormSubmissionErrors,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 
 export class MonthYearField extends FormComponent {
   declare options: MonthYearFieldComponent['options']
+  declare formSchema: ObjectSchema<FormPayload>
+  declare stateSchema: ObjectSchema<FormState>
+
   children: ComponentCollection
   dataType: DataType = DataType.MonthYear
 
@@ -71,18 +81,23 @@ export class MonthYearField extends FormComponent {
     this.children.stateSchema = stateSchema
   }
 
-  getDisplayStringFromState(state: FormSubmissionState) {
-    const { month, year } = this.getFormValueFromState(state) ?? {}
+  getFormValueFromState(state: FormSubmissionState) {
+    const value = super.getFormValueFromState(state)
+    return MonthYearField.isMonthYear(value) ? value : undefined
+  }
 
-    if (!month || !year) {
+  getDisplayStringFromState(state: FormSubmissionState) {
+    const value = this.getFormValueFromState(state)
+
+    if (!value) {
       return ''
     }
 
     const date = new Date()
-    date.setMonth(month - 1)
+    date.setMonth(value.month - 1)
 
     const monthString = date.toLocaleString('default', { month: 'long' })
-    return `${monthString} ${year}`
+    return `${monthString} ${value.year}`
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
@@ -116,7 +131,7 @@ export class MonthYearField extends FormComponent {
           classes = `${classes} govuk-input--error`.trim()
         }
 
-        if (typeof value !== 'number') {
+        if (!NumberField.isNumber(value)) {
           value = undefined
         }
 
@@ -148,4 +163,23 @@ export class MonthYearField extends FormComponent {
       items
     }
   }
+
+  isState(value?: FormStateValue | FormState) {
+    return MonthYearField.isMonthYear(value)
+  }
+
+  static isMonthYear(
+    value?: FormStateValue | FormState
+  ): value is MonthYearState {
+    return (
+      isFormState(value) &&
+      NumberField.isNumber(value.month) &&
+      NumberField.isNumber(value.year)
+    )
+  }
+}
+
+interface MonthYearState extends Record<string, number> {
+  month: number
+  year: number
 }

@@ -14,6 +14,7 @@ const PATTERN = /^[0-9\\\s+()-]*$/
 export class TelephoneNumberField extends FormComponent {
   declare options: TelephoneNumberFieldComponent['options']
   declare formSchema: StringSchema
+  declare stateSchema: StringSchema
 
   constructor(def: TelephoneNumberFieldComponent, model: FormModel) {
     super(def, model)

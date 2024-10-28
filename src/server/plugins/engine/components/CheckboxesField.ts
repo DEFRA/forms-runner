@@ -1,8 +1,13 @@
-import { type CheckboxesFieldComponent } from '@defra/forms-model'
+import { type CheckboxesFieldComponent, type Item } from '@defra/forms-model'
 import joi, { type ArraySchema } from 'joi'
 
+import { isFormValue } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { SelectionControlField } from '~/src/server/plugins/engine/components/SelectionControlField.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import {
+  type FormState,
+  type FormStateValue
+} from '~/src/server/plugins/engine/types.js'
 
 export class CheckboxesField extends SelectionControlField {
   declare options: CheckboxesFieldComponent['options']
@@ -35,5 +40,18 @@ export class CheckboxesField extends SelectionControlField {
     this.formSchema = formSchema.default([])
     this.stateSchema = formSchema.default(null).allow(null)
     this.options = options
+  }
+
+  isValue(value?: FormStateValue | FormState): value is Item['value'][] {
+    if (!Array.isArray(value)) {
+      return false
+    }
+
+    // Skip checks when empty
+    if (!value.length) {
+      return true
+    }
+
+    return value.every(isFormValue)
   }
 }

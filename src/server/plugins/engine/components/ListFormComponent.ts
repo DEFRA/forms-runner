@@ -82,10 +82,10 @@ export class ListFormComponent extends FormComponent {
   }
 
   getFormValueFromState(state: FormSubmissionState) {
-    const { values: listValues } = this
+    const { name, values: listValues } = this
 
-    const value = super.getFormValueFromState(state)
-    const values = [value ?? []].flat()
+    const value = state[name]
+    const values = this.isValue(value) ? [value].flat() : []
 
     const selected = listValues.filter((listValue) =>
       values.includes(listValue)
@@ -116,12 +116,12 @@ export class ListFormComponent extends FormComponent {
     const { items: listItems } = this
 
     const viewModel = super.getViewModel(payload, errors)
-    let { items, value } = viewModel
+    const { value } = viewModel
 
     // Support multiple values for checkboxes
-    const values = [value ?? []].flat()
+    const values = this.isValue(value) ? [value].flat() : []
 
-    items = listItems.map((item) => {
+    const items = listItems.map((item) => {
       const selected = values.includes(item.value)
       const itemModel: ListItem = { ...item, selected }
 

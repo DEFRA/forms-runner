@@ -4,8 +4,16 @@ import {
 } from '@defra/forms-model'
 import joi, { type StringSchema } from 'joi'
 
-import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import {
+  FormComponent,
+  isFormValue
+} from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import {
+  type FormState,
+  type FormStateValue,
+  type FormSubmissionState
+} from '~/src/server/plugins/engine/types.js'
 
 export class TextField extends FormComponent {
   declare options:
@@ -15,6 +23,7 @@ export class TextField extends FormComponent {
   declare schema: TextFieldComponent['schema']
 
   declare formSchema: StringSchema
+  declare stateSchema: StringSchema
 
   constructor(
     def: TextFieldComponent | EmailAddressFieldComponent,
@@ -65,5 +74,18 @@ export class TextField extends FormComponent {
     this.stateSchema = formSchema.default(null).allow(null)
     this.options = options
     this.schema = schema
+  }
+
+  getFormValueFromState(state: FormSubmissionState) {
+    const value = super.getFormValueFromState(state)
+    return this.isValue(value) ? value : undefined
+  }
+
+  isValue(value?: FormStateValue | FormState): value is string {
+    return TextField.isText(value)
+  }
+
+  static isText(value?: FormStateValue | FormState): value is string {
+    return isFormValue(value) && typeof value === 'string'
   }
 }

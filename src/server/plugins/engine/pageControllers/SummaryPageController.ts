@@ -12,6 +12,8 @@ import {
 import { addDays, format } from 'date-fns'
 
 import { config } from '~/src/config/index.js'
+import { DatePartsField } from '~/src/server/plugins/engine/components/DatePartsField.js'
+import { MonthYearField } from '~/src/server/plugins/engine/components/MonthYearField.js'
 import { DataType } from '~/src/server/plugins/engine/components/types.js'
 import {
   checkEmailAddressForLiveFormSubmission,
@@ -519,14 +521,20 @@ export function answerFromDetailItem(item: DetailItem) {
       break
 
     case DataType.Date: {
-      const [day, month, year] = Object.values(item.rawValue)
-      value = format(new Date(`${year}-${month}-${day}`), 'yyyy-MM-dd')
+      if (DatePartsField.isValues(item.rawValue)) {
+        const [day, month, year] = Object.values(item.rawValue)
+        value = format(new Date(`${year}-${month}-${day}`), 'yyyy-MM-dd')
+      }
+
       break
     }
 
     case DataType.MonthYear: {
-      const [month, year] = Object.values(item.rawValue)
-      value = format(new Date(`${year}-${month}-1`), 'yyyy-MM')
+      if (MonthYearField.isValues(item.rawValue)) {
+        const [month, year] = Object.values(item.rawValue)
+        value = format(new Date(`${year}-${month}-1`), 'yyyy-MM')
+      }
+
       break
     }
 

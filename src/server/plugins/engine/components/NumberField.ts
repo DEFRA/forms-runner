@@ -6,13 +6,17 @@ import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormPayload,
-  type FormSubmissionErrors
+  type FormState,
+  type FormStateValue,
+  type FormSubmissionErrors,
+  type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 
 export class NumberField extends FormComponent {
   declare options: NumberFieldComponent['options']
   declare schema: NumberFieldComponent['schema']
   declare formSchema: NumberSchema
+  declare stateSchema: NumberSchema
 
   constructor(def: NumberFieldComponent, model: FormModel) {
     super(def, model)
@@ -58,11 +62,16 @@ export class NumberField extends FormComponent {
     this.schema = schema
   }
 
+  getFormValueFromState(state: FormSubmissionState) {
+    const value = super.getFormValueFromState(state)
+    return this.isValue(value) ? value : undefined
+  }
+
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
     const { options, schema } = this
 
     const viewModel = super.getViewModel(payload, errors)
-    let { attributes, prefix, suffix } = viewModel
+    let { attributes, prefix, suffix, value } = viewModel
 
     if (schema.precision) {
       attributes.step = '0.' + '1'.padStart(schema.precision, '0')
@@ -80,12 +89,25 @@ export class NumberField extends FormComponent {
       }
     }
 
+    if (!this.isValue(value)) {
+      value = undefined
+    }
+
     return {
       ...viewModel,
       attributes,
       prefix,
       suffix,
-      type: 'number'
+      type: 'number',
+      value
     }
+  }
+
+  isValue(value?: FormStateValue | FormState) {
+    return NumberField.isNumber(value)
+  }
+
+  static isNumber(value?: FormStateValue | FormState): value is number {
+    return typeof value === 'number'
   }
 }

@@ -1,11 +1,18 @@
 import { ComponentType, type UkAddressFieldComponent } from '@defra/forms-model'
+import { type ObjectSchema } from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import {
+  FormComponent,
+  isFormState
+} from '~/src/server/plugins/engine/components/FormComponent.js'
+import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
 import {
   type FormPayload,
+  type FormState,
+  type FormStateValue,
   type FormSubmissionErrors,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
@@ -13,6 +20,9 @@ import {
 export class UkAddressField extends FormComponent {
   declare options: UkAddressFieldComponent['options']
   children: ComponentCollection
+
+  declare formSchema: ObjectSchema<FormPayload>
+  declare stateSchema: ObjectSchema<FormState>
 
   constructor(def: UkAddressFieldComponent, model: FormModel) {
     super(def, model)
@@ -90,6 +100,11 @@ export class UkAddressField extends FormComponent {
     this.children.stateSchema = stateSchema
   }
 
+  getFormValueFromState(state: FormSubmissionState) {
+    const value = super.getFormValueFromState(state)
+    return this.isState(value) ? value : undefined
+  }
+
   getDisplayStringFromState(state: FormSubmissionState) {
     return Object.values(this.getFormValueFromState(state) ?? {})
       .filter(Boolean)
@@ -131,4 +146,26 @@ export class UkAddressField extends FormComponent {
       children
     }
   }
+
+  isState(value?: FormStateValue | FormState): value is UkAddressState {
+    return UkAddressField.isUkAddress(value)
+  }
+
+  static isUkAddress(
+    value?: FormStateValue | FormState
+  ): value is UkAddressState {
+    return (
+      isFormState(value) &&
+      TextField.isText(value.addressLine1) &&
+      TextField.isText(value.town) &&
+      TextField.isText(value.postcode)
+    )
+  }
+}
+
+interface UkAddressState extends Record<string, string> {
+  addressLine1: string
+  addressLine2: string
+  town: string
+  postcode: string
 }

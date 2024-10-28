@@ -196,42 +196,63 @@ describe('DatePartsField', () => {
       const date = new Date('2024-12-31')
 
       it('returns text from state', () => {
-        const state = getFormState(date)
-        const text = component.getDisplayStringFromState(state)
+        const state1 = getFormState(date)
+        const state2 = getFormState({})
 
-        expect(text).toBe('31 December 2024')
+        const text1 = component.getDisplayStringFromState(state1)
+        const text2 = component.getDisplayStringFromState(state2)
+
+        expect(text1).toBe('31 December 2024')
+        expect(text2).toBe('')
       })
 
-      it('returns payload from state (object)', () => {
-        const state = getFormState(startOfDay(date))
-        const payload = component.getFormDataFromState(state)
+      it('returns payload from state', () => {
+        const state1 = getFormState(startOfDay(date))
+        const state2 = getFormState({})
 
-        expect(payload).toEqual(getFormData(date))
+        const payload1 = component.getFormDataFromState(state1)
+        const payload2 = component.getFormDataFromState(state2)
+
+        expect(payload1).toEqual(getFormData(date))
+        expect(payload2).toEqual(getFormData({}))
       })
 
-      it('returns payload from state (value)', () => {
-        const state = getFormState(startOfDay(date))
-        const payload = component.getFormValueFromState(state)
+      it('returns value from state', () => {
+        const state1 = getFormState(startOfDay(date))
+        const state2 = getFormState({})
 
-        expect(payload).toEqual({
+        const value1 = component.getFormValueFromState(state1)
+        const value2 = component.getFormValueFromState(state2)
+
+        expect(value1).toEqual({
           day: 31,
           month: 12,
           year: 2024
         })
+
+        expect(value2).toBeUndefined()
       })
 
       it('returns state from payload', () => {
-        const payload = getFormData(date)
-        const value = component.getStateFromValidForm(payload)
+        const payload1 = getFormData(date)
+        const payload2 = getFormData({})
 
-        expect(value).toEqual(getFormState(date))
+        const value1 = component.getStateFromValidForm(payload1)
+        const value2 = component.getStateFromValidForm(payload2)
+
+        expect(value1).toEqual(getFormState(date))
+        expect(value2).toEqual(getFormState({}))
       })
 
       it('returns formatted value for conditions', () => {
-        const state = getFormState(date)
-        const value = component.getConditionEvaluationStateValue(state)
+        const state1 = getFormState(date)
+        const state2 = getFormState({})
 
-        expect(value).toBe('2024-12-31')
+        const value1 = component.getConditionEvaluationStateValue(state1)
+        const value2 = component.getConditionEvaluationStateValue(state2)
+
+        expect(value1).toBe('2024-12-31')
+        expect(value2).toBeNull()
       })
     })
 
@@ -649,8 +670,12 @@ function getFormData(date: Date | FormPayload): FormPayload {
 /**
  * Date session state
  */
-function getFormState(date: Date): FormState {
+function getFormState(date: Date | FormPayload): FormState {
+  const [day, month, year] = Object.values(getFormData(date))
+
   return {
-    myComponent: date.toISOString()
+    myComponent__day: day ?? null,
+    myComponent__month: month ?? null,
+    myComponent__year: year ?? null
   }
 }
