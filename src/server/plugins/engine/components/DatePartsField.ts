@@ -1,11 +1,18 @@
 import { ComponentType, type DatePartsFieldComponent } from '@defra/forms-model'
-import { format, isValid, parse, parseISO } from 'date-fns'
-import joi from 'joi'
+import {
+  add,
+  format,
+  isValid,
+  parse,
+  parseISO,
+  startOfToday,
+  sub
+} from 'date-fns'
+import joi, { type CustomValidator } from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
-import { getCustomDateValidator } from '~/src/server/plugins/engine/components/helpers.js'
 import {
   DataType,
   type DateInputItem
@@ -82,7 +89,7 @@ export class DatePartsField extends FormComponent {
 
     // Update child schema
     formSchema = formSchema
-      .custom(getCustomDateValidator(this))
+      .custom(getValidatorDate(this), 'date validation')
       .label(title.toLowerCase())
 
     this.options = options
@@ -206,4 +213,47 @@ export class DatePartsField extends FormComponent {
       items
     }
   }
+}
+
+export function getValidatorDate(component: DatePartsField) {
+  const { options } = component
+
+  const validator: CustomValidator = (payload: FormPayload, helpers) => {
+    const value = component.getStateValueFromValidForm(payload)
+    const date = value ? new Date(value) : undefined
+
+    if (!date) {
+      return options.required !== false
+        ? helpers.error('date.base') // Date required
+        : payload
+    }
+
+    // Minimum date from today
+    const dateMin = options.maxDaysInPast
+      ? sub(startOfToday(), { days: options.maxDaysInPast })
+      : undefined
+
+    // Maximum date from today
+    const dateMax = options.maxDaysInFuture
+      ? add(startOfToday(), { days: options.maxDaysInFuture })
+      : undefined
+
+    if (dateMin && date < dateMin) {
+      return helpers.error('date.min', {
+        label: helpers.state.key,
+        limit: dateMin
+      })
+    }
+
+    if (dateMax && date > dateMax) {
+      return helpers.error('date.max', {
+        label: helpers.state.key,
+        limit: dateMax
+      })
+    }
+
+    return payload
+  }
+
+  return validator
 }

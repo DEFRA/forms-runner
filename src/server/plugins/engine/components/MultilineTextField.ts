@@ -1,5 +1,5 @@
 import { type MultilineTextFieldComponent } from '@defra/forms-model'
-import Joi, { type StringSchema } from 'joi'
+import Joi, { type CustomValidator, type StringSchema } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
@@ -7,15 +7,6 @@ import {
   type FormPayload,
   type FormSubmissionErrors
 } from '~/src/server/plugins/engine/types.js'
-
-/**
- * Check if the input is over the word count
- * @see GOV.UK Frontend {@link https://github.com/alphagov/govuk-frontend/blob/v5.4.0/packages/govuk-frontend/src/govuk/components/character-count/character-count.mjs#L343 | Character count `maxwords` implementation}
- */
-function inputIsOverWordCount(input: string, maxWords: number) {
-  const tokens = input.match(/\S+/g) ?? []
-  return maxWords < tokens.length
-}
 
 export class MultilineTextField extends FormComponent {
   declare options: MultilineTextFieldComponent['options']
@@ -49,26 +40,10 @@ export class MultilineTextField extends FormComponent {
     }
 
     if (typeof options.maxWords === 'number') {
-      const { maxWords } = options
-
-      formSchema = formSchema.custom((value: string, helpers) => {
-        if (inputIsOverWordCount(value, maxWords)) {
-          const local = { limit: maxWords }
-          const message = options.customValidationMessage
-
-          if (message) {
-            return helpers.message(
-              {
-                custom: message
-              },
-              local
-            )
-          }
-
-          return helpers.error('string.maxWords', local)
-        }
-        return value
-      }, 'max words validation')
+      formSchema = formSchema.custom(
+        getValidatorMaxWords(this),
+        'max words validation'
+      )
 
       this.isCharacterOrWordCount = true
     }
@@ -124,4 +99,34 @@ export class MultilineTextField extends FormComponent {
       rows
     }
   }
+}
+
+function getValidatorMaxWords(component: MultilineTextField) {
+  const { options } = component
+
+  /**
+   * Count the number of words in the given text
+   * @see GOV.UK Frontend {@link https://github.com/alphagov/govuk-frontend/blob/v5.4.0/packages/govuk-frontend/src/govuk/components/character-count/character-count.mjs#L343 | Character count `maxwords` implementation}
+   */
+  function count(text: string) {
+    const tokens = text.match(/\S+/g) ?? []
+    return tokens.length
+  }
+
+  const validator: CustomValidator = (value: string, helpers) => {
+    const {
+      customValidationMessage: custom,
+      maxWords: limit // See {{#limit}} variable
+    } = options
+
+    if (!limit || count(value) <= limit) {
+      return value
+    }
+
+    return custom
+      ? helpers.message({ custom }, { limit })
+      : helpers.error('string.maxWords', { limit })
+  }
+
+  return validator
 }
