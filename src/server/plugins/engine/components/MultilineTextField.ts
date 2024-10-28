@@ -2,7 +2,6 @@ import { type MultilineTextFieldComponent } from '@defra/forms-model'
 import Joi, { type StringSchema } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { type MultilineTextFieldViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
@@ -99,29 +98,30 @@ export class MultilineTextField extends FormComponent {
     this.schema = schema
   }
 
-  getViewModel(
-    payload: FormPayload,
-    errors?: FormSubmissionErrors
-  ): MultilineTextFieldViewModel {
-    const schema = this.schema
-    const options = this.options
-    const viewModel = super.getViewModel(
-      payload,
-      errors
-    ) as MultilineTextFieldViewModel
-    viewModel.isCharacterOrWordCount = this.isCharacterOrWordCount
+  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+    const { schema, options, isCharacterOrWordCount } = this
 
-    if (schema.max ?? false) {
-      viewModel.maxlength = schema.max
+    const viewModel = super.getViewModel(payload, errors)
+    let { maxlength, maxwords, rows } = viewModel
+
+    if (schema.max) {
+      maxlength = schema.max
     }
 
-    if (options.rows ?? false) {
-      viewModel.rows = options.rows
+    if (options.maxWords) {
+      maxwords = options.maxWords
     }
 
-    if (options.maxWords ?? false) {
-      viewModel.maxwords = options.maxWords
+    if (options.rows) {
+      maxwords = options.rows
     }
-    return viewModel
+
+    return {
+      ...viewModel,
+      isCharacterOrWordCount,
+      maxlength,
+      maxwords,
+      rows
+    }
   }
 }

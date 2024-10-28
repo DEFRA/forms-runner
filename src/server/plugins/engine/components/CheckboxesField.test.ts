@@ -213,7 +213,7 @@ describe.each([
     describe('State', () => {
       it.each([...options.examples])("returns '$text' from state", (item) => {
         const text = component.getDisplayStringFromState({
-          [def.name]: [item.value]
+          [def.name]: [item.state]
         })
 
         expect(text).toBe(item.text)
@@ -249,24 +249,6 @@ describe.each([
         )
       })
 
-      it('handles Nunjucks component value when schema validation is skipped', () => {
-        const value = `${options.examples[0].value}`
-
-        // Value as single string (not an array)
-        const viewModel1 = component.getViewModel({
-          [def.name]: value
-        })
-
-        // Value as undefined (not an array)
-        const viewModel2 = component.getViewModel({
-          [def.name]: undefined
-        })
-
-        // Both values should be returned as arrays
-        expect(viewModel1.value).toEqual([value])
-        expect(viewModel2.value).toEqual([])
-      })
-
       it.each([...options.examples])(
         'sets Nunjucks component checkbox items',
         (item) => {
@@ -274,7 +256,7 @@ describe.each([
             [def.name]: [item.value]
           })
 
-          expect(viewModel.items?.[0]).not.toMatchObject({
+          expect(viewModel.items[0]).not.toMatchObject({
             value: '' // First item is never empty
           })
 

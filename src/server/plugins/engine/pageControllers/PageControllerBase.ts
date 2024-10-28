@@ -36,8 +36,8 @@ import { type PageControllerClass } from '~/src/server/plugins/engine/pageContro
 import { validationOptions } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
-  type FormData,
   type FormPayload,
+  type FormState,
   type FormSubmissionErrors,
   type FormSubmissionState,
   type FormValidationResult,
@@ -241,7 +241,7 @@ export class PageControllerBase {
   /**
    * gets the state for the values that can be entered on just this page
    */
-  getFormDataFromState(state: FormSubmissionState): FormData {
+  getFormDataFromState(state: FormSubmissionState): FormPayload {
     return {
       ...this.components.getFormDataFromState(state)
     }
@@ -296,7 +296,7 @@ export class PageControllerBase {
    * @param value - user's answers
    * @param schema - which schema to validate against
    */
-  validate<ValueType extends object>(
+  validate<ValueType extends FormPayload | FormSubmissionState>(
     value: ValueType,
     schema: ObjectSchema<ValueType>
   ): FormValidationResult<ValueType> {
@@ -326,14 +326,14 @@ export class PageControllerBase {
    * Returns an async function. This is called in plugin.ts when there is a GET request at `/{id}/{path*}`
    */
   getConditionEvaluationContext(model: FormModel, state: FormSubmissionState) {
-    let relevantState: FormSubmissionState = {}
+    let relevantState: FormState = {}
     // Start at our startPage
     let nextPage = model.startPage
 
     // While the current page isn't null
     while (nextPage != null) {
       // Either get the current state or the current state of the section if this page belongs to a section
-      const newValue = {}
+      const newValue: Record<string, unknown> = {}
 
       if (!hasRepeater(nextPage.pageDef)) {
         // Iterate all components on this page and pull out the saved values from the state

@@ -2,14 +2,12 @@ import { type FileUploadFieldComponent } from '@defra/forms-model'
 import joi, { type ArraySchema } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import {
-  DataType,
-  type FileUploadFieldViewModel
-} from '~/src/server/plugins/engine/components/types.js'
+import { DataType } from '~/src/server/plugins/engine/components/types.js'
 import { filesize } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   FileStatus,
+  UploadStatus,
   type FileState,
   type FormPayload,
   type FormSubmissionErrors,
@@ -27,12 +25,15 @@ export const fileSchema = joi
   .required()
 
 export const tempFileSchema = fileSchema.append({
-  fileStatus: joi.string().valid('complete', 'rejected', 'pending').required(),
+  fileStatus: joi
+    .string()
+    .valid(FileStatus.complete, FileStatus.rejected, FileStatus.pending)
+    .required(),
   errorMessage: joi.string().optional()
 })
 
 export const formFileSchema = fileSchema.append({
-  fileStatus: joi.string().valid('complete').required()
+  fileStatus: joi.string().valid(FileStatus.complete).required()
 })
 
 export const metadataSchema = joi
@@ -44,7 +45,10 @@ export const metadataSchema = joi
 
 export const tempStatusSchema = joi
   .object({
-    uploadStatus: joi.string().valid('ready', 'pending').required(),
+    uploadStatus: joi
+      .string()
+      .valid(UploadStatus.ready, UploadStatus.pending)
+      .required(),
     metadata: metadataSchema,
     form: joi.object().required().keys({
       file: tempFileSchema
@@ -55,7 +59,7 @@ export const tempStatusSchema = joi
 
 export const formStatusSchema = joi
   .object({
-    uploadStatus: joi.string().valid('ready').required(),
+    uploadStatus: joi.string().valid(UploadStatus.ready).required(),
     metadata: metadataSchema,
     form: joi.object().required().keys({
       file: formFileSchema
@@ -132,20 +136,19 @@ export class FileUploadField extends FormComponent {
     return `You uploaded ${count} file${count !== 1 ? 's' : ''}`
   }
 
-  getViewModel(
-    payload: FormPayload,
-    errors?: FormSubmissionErrors
-  ): FileUploadFieldViewModel {
-    const viewModel = super.getViewModel(
-      payload,
-      errors
-    ) as FileUploadFieldViewModel
-    const files = (payload[this.name] ?? []) as FileState[]
+  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+    const { options } = this
+
+    const viewModel = super.getViewModel(payload, errors)
+    const { attributes, value } = viewModel
+
+    const files = (value ?? []) as FileState[]
     const count = files.length
+
     let pendingCount = 0
     let successfulCount = 0
 
-    const summary = files.map((item: FileState) => {
+    const summary = files.map((item) => {
       const { status } = item
       const { form } = status
       const { file } = form
@@ -171,24 +174,26 @@ export class FileUploadField extends FormComponent {
       }
     })
 
-    // File input can't have a initial value
-    viewModel.value = ''
-
-    // Override the component name we send to CDP
-    viewModel.name = 'file'
-
     // Set up the `accept` attribute
-    if ('accept' in this.options) {
-      viewModel.attributes.accept = this.options.accept
+    if ('accept' in options) {
+      attributes.accept = options.accept
     }
 
-    viewModel.upload = {
-      count,
-      pendingCount,
-      successfulCount,
-      summary
-    }
+    return {
+      ...viewModel,
 
-    return viewModel
+      // File input can't have a initial value
+      value: '',
+
+      // Override the component name we send to CDP
+      name: 'file',
+
+      upload: {
+        count,
+        pendingCount,
+        successfulCount,
+        summary
+      }
+    }
   }
 }

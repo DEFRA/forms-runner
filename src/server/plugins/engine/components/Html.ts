@@ -21,17 +21,13 @@ export class Html extends ComponentBase {
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
-    const { options } = this
+    const { content } = this
 
-    const viewModel = {
-      ...super.getViewModel(payload, errors),
-      content: this.content
+    const viewModel = super.getViewModel(payload, errors)
+
+    return {
+      ...viewModel,
+      content
     }
-
-    if (options.condition) {
-      viewModel.condition = options.condition
-    }
-
-    return viewModel
   }
 }
