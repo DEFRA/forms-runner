@@ -2,6 +2,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { addDays, format } from 'date-fns'
+import { outdent } from 'outdent'
 
 import { createServer } from '~/src/server/index.js'
 import {
@@ -28,121 +29,6 @@ jest.mock('~/src/server/plugins/engine/services/formsService.js')
 const okStatusCode = 200
 const redirectStatusCode = 302
 const htmlContentType = 'text/html'
-
-const dateNow = new Date()
-const dateNowFormatted = `${format(dateNow, 'h:mmaaa')} on ${format(dateNow, 'd MMMM yyyy')}`
-
-const fileExpiryDate = addDays(dateNow, 30)
-const formattedExpiryDate = `${format(fileExpiryDate, 'h:mmaaa')} on ${format(fileExpiryDate, 'eeee d MMMM yyyy')}`
-
-const formResults = `^ For security reasons, the links in this email expire at ${formattedExpiryDate}
-
-Form received at ${dateNowFormatted}.
-
-## Text field
-\`\`\`
-Text field
-\`\`\`
-
-
-## Multiline text field
-\`\`\`
-Multiline text field
-\`\`\`
-
-
-## Number field
-\`\`\`
-1
-\`\`\`
-
-
-## Date parts field
-\`\`\`
-2012-12-12
-\`\`\`
-
-
-## Month year field
-\`\`\`
-2012-12
-\`\`\`
-
-
-## Yes/No field
-\`\`\`
-yes
-\`\`\`
-
-
-## Email address field
-\`\`\`
-user@email.com
-\`\`\`
-
-
-## Telephone number field
-\`\`\`
-+447900000000
-\`\`\`
-
-
-## Telephone number field
-\`\`\`
-Address line 1, Address line 2, Town or city, CW1 1AB
-\`\`\`
-
-
-## Radios field
-\`\`\`
-privateLimitedCompany
-\`\`\`
-
-
-## Select field
-\`\`\`
-910400000
-\`\`\`
-
-
-## Autocomplete field
-\`\`\`
-910400044
-\`\`\`
-
-
-## Checkboxes field 1
-\`\`\`
-Shetland
-\`\`\`
-
-
-## Checkboxes field 2
-\`\`\`
-Arabian,Shire,Race
-\`\`\`
-
-
-## Checkboxes field 3 (number)
-\`\`\`
-1
-\`\`\`
-
-
-## Checkboxes field 4 (number)
-\`\`\`
-0,1
-\`\`\`
-
-
-## Upload your methodology statement
-1 file uploaded (links expire ${formattedExpiryDate}):
-
-* [test.pdf](https://test-designer.cdp-int.defra.cloud/file-download/5a76a1a3-bc8a-4bc0-859a-116d775c7f15)
-
-
-[Download main form (CSV)](https://test-designer.cdp-int.defra.cloud/file-download/00000000-0000-0000-0000-000000000000)
-`
 
 const componentsPath = '/components/all-components'
 const fileUploadPath = '/components/methodology-statement'
@@ -225,6 +111,12 @@ describe('Submission journey test', () => {
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
     jest.mocked(submit).mockResolvedValue(submitResponse)
 
+    const dateNow = new Date()
+    const dateNowFormatted = `${format(dateNow, 'h:mmaaa')} on ${format(dateNow, 'd MMMM yyyy')}`
+
+    const fileExpiryDate = addDays(dateNow, 30)
+    const formattedExpiryDate = `${format(fileExpiryDate, 'h:mmaaa')} on ${format(fileExpiryDate, 'eeee d MMMM yyyy')}`
+
     // Components page
     const res = await componentsPage()
 
@@ -243,7 +135,115 @@ describe('Submission journey test', () => {
       emailAddress: 'enrique.chase@defra.gov.uk',
       personalisation: {
         subject: 'Form received: All components',
-        body: formResults
+        body: expect.stringContaining(outdent`
+          ^ For security reasons, the links in this email expire at ${formattedExpiryDate}
+
+          Form received at ${dateNowFormatted}.
+
+          ## Text field
+          \`\`\`
+          Text field
+          \`\`\`
+
+
+          ## Multiline text field
+          \`\`\`
+          Multiline text field
+          \`\`\`
+
+
+          ## Number field
+          \`\`\`
+          1
+          \`\`\`
+
+
+          ## Date parts field
+          \`\`\`
+          2012-12-12
+          \`\`\`
+
+
+          ## Month year field
+          \`\`\`
+          2012-12
+          \`\`\`
+
+
+          ## Yes/No field
+          \`\`\`
+          yes
+          \`\`\`
+
+
+          ## Email address field
+          \`\`\`
+          user@email.com
+          \`\`\`
+
+
+          ## Telephone number field
+          \`\`\`
+          +447900000000
+          \`\`\`
+
+
+          ## Telephone number field
+          \`\`\`
+          Address line 1, Address line 2, Town or city, CW1 1AB
+          \`\`\`
+
+
+          ## Radios field
+          \`\`\`
+          privateLimitedCompany
+          \`\`\`
+
+
+          ## Select field
+          \`\`\`
+          910400000
+          \`\`\`
+
+
+          ## Autocomplete field
+          \`\`\`
+          910400044
+          \`\`\`
+
+
+          ## Checkboxes field 1
+          \`\`\`
+          Shetland
+          \`\`\`
+
+
+          ## Checkboxes field 2
+          \`\`\`
+          Arabian,Shire,Race
+          \`\`\`
+
+
+          ## Checkboxes field 3 (number)
+          \`\`\`
+          1
+          \`\`\`
+
+
+          ## Checkboxes field 4 (number)
+          \`\`\`
+          0,1
+          \`\`\`
+
+
+          ## Upload your methodology statement
+          1 file uploaded (links expire ${formattedExpiryDate}):
+
+          * [test.pdf](https://test-designer.cdp-int.defra.cloud/file-download/5a76a1a3-bc8a-4bc0-859a-116d775c7f15)
+
+
+          [Download main form (CSV)](https://test-designer.cdp-int.defra.cloud/file-download/00000000-0000-0000-0000-000000000000)
+          `)
       }
     })
 
