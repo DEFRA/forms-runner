@@ -73,9 +73,16 @@ export class RepeatPageController extends PageController {
     return payload
   }
 
-  getStateFromValidForm(request: FormRequest, payload: FormPayload) {
+  getStateFromValidForm(
+    request: FormRequestPayload,
+    payload: FormRequestPayload['payload']
+  ) {
     const { item, list } = this.getRepeatAppData(request)
     const state = super.getStateFromValidForm(request, payload)
+
+    if (!payload.itemId) {
+      throw badRequest('No item ID found in the payload')
+    }
 
     const updated: RepeatState = { ...state, itemId: payload.itemId }
     const newList = [...list]
@@ -155,9 +162,16 @@ export class RepeatPageController extends PageController {
   }
 
   getListFromState(state: FormSubmissionState) {
-    const listState = state[this.repeat.options.name]
+    const { name } = this.repeat.options
+    const values = state[name]
 
-    return Array.isArray(listState) ? listState : []
+    if (!Array.isArray(values)) {
+      return []
+    }
+
+    return values.filter(
+      (value) => typeof value === 'object' && 'itemId' in value
+    )
   }
 
   makeGetRouteHandler() {

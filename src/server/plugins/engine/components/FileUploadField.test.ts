@@ -245,9 +245,10 @@ describe('FileUploadField', () => {
     describe('State', () => {
       it('returns text from state value', () => {
         const text = component.getDisplayStringFromState({
-          [def.name]: [{}, {}]
+          [def.name]: validState
         })
-        expect(text).toBe('You uploaded 2 files')
+
+        expect(text).toBe('You uploaded 3 files')
       })
     })
 

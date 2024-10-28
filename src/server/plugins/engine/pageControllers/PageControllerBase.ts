@@ -249,8 +249,8 @@ export class PageControllerBase {
   }
 
   getStateFromValidForm(
-    request: FormRequest | FormRequestPayload,
-    payload: FormPayload
+    request: FormRequestPayload,
+    payload: FormRequestPayload['payload']
   ) {
     return this.components.getStateFromValidForm(payload)
   }
