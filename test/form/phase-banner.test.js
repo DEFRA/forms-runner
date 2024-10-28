@@ -4,9 +4,13 @@ import { fileURLToPath } from 'node:url'
 import { within } from '@testing-library/dom'
 
 import { createServer } from '~/src/server/index.js'
+import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
+import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
+
+jest.mock('~/src/server/plugins/engine/services/formsService.js')
 
 describe(`Phase banner`, () => {
   /** @type {Server} */
@@ -14,6 +18,10 @@ describe(`Phase banner`, () => {
 
   afterEach(async () => {
     await server.stop()
+  })
+
+  beforeEach(() => {
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
   })
 
   test('shows the server phase tag by default', async () => {

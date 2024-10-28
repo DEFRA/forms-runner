@@ -34,6 +34,7 @@ import {
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { validationOptions } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
   type FormData,
   type FormPayload,
@@ -52,6 +53,8 @@ import { type CacheService } from '~/src/server/services/index.js'
 
 const FORM_SCHEMA = Symbol('FORM_SCHEMA')
 const STATE_SCHEMA = Symbol('STATE_SCHEMA')
+
+const designerUrl = config.get('designerUrl')
 
 export class PageControllerBase {
   declare [FORM_SCHEMA]: ObjectSchema<FormPayload>;
@@ -473,7 +476,29 @@ export class PageControllerBase {
 
       viewModel.backLink = this.getBackLink(progress)
 
+      viewModel.notificationEmailWarning =
+        await this.buildMissingEmailWarningModel(request, isStartPage)
+
       return h.view(this.viewName, viewModel)
+    }
+  }
+
+  async buildMissingEmailWarningModel(
+    request: FormRequest,
+    isStartPage?: boolean
+  ): Promise<PageViewModel['notificationEmailWarning']> {
+    const { params } = request
+    // Warn the user if the form has no notification email set only on start page and summary page
+    if (isStartPage || params.path === 'summary') {
+      const { slug } = params
+      const { notificationEmail } = await getFormMetadata(slug)
+
+      if (!notificationEmail) {
+        return {
+          slug,
+          designerUrl
+        }
+      }
     }
   }
 

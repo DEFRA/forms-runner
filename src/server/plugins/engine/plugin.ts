@@ -12,6 +12,7 @@ import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
   ADD_ANOTHER,
   CONTINUE,
+  checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
   redirectTo
 } from '~/src/server/plugins/engine/helpers.js'
@@ -133,11 +134,7 @@ export const plugin = {
         const emailAddress =
           metadata.notificationEmail ?? definition.outputEmail
 
-        if (!emailAddress && !isPreview) {
-          return Boom.internal(
-            'An email address is required to complete the form submission'
-          )
-        }
+        checkEmailAddressForLiveFormSubmission(emailAddress, isPreview)
 
         // Build the form model
         server.logger.info(

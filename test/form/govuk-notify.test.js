@@ -200,6 +200,10 @@ describe('Submission journey test', () => {
     await server.initialize()
   })
 
+  beforeEach(() => {
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+  })
+
   afterAll(async () => {
     await server.stop()
   })
