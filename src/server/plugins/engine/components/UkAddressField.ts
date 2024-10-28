@@ -90,41 +90,10 @@ export class UkAddressField extends FormComponent {
     this.children.stateSchema = stateSchema
   }
 
-  getFormDataFromState(state: FormSubmissionState) {
-    const name = this.name
-    const value = state[name]
-
-    return {
-      [`${name}__addressLine1`]: value?.addressLine1,
-      [`${name}__addressLine2`]: value?.addressLine2,
-      [`${name}__town`]: value?.town,
-      [`${name}__postcode`]: value?.postcode
-    } satisfies FormPayload
-  }
-
-  getStateValueFromValidForm(payload: FormPayload) {
-    const name = this.name
-    return payload[`${name}__addressLine1`]
-      ? ({
-          addressLine1: payload[`${name}__addressLine1`],
-          addressLine2: payload[`${name}__addressLine2`],
-          town: payload[`${name}__town`],
-          postcode: payload[`${name}__postcode`]
-        } satisfies FormPayload)
-      : null
-  }
-
   getDisplayStringFromState(state: FormSubmissionState) {
-    const name = this.name
-    const value = state[name]
-
-    return value
-      ? [value.addressLine1, value.addressLine2, value.town, value.postcode]
-          .filter((p) => {
-            return !!p
-          })
-          .join(', ')
-      : ''
+    return Object.values(this.getFormValueFromState(state) ?? {})
+      .filter(Boolean)
+      .join(', ')
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {

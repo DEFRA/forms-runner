@@ -82,9 +82,9 @@ export class ListFormComponent extends FormComponent {
   }
 
   getFormValueFromState(state: FormSubmissionState) {
-    const { values: listValues, name } = this
+    const { values: listValues } = this
 
-    const value = state[name]
+    const value = super.getFormValueFromState(state)
     const values = [value ?? []].flat()
 
     const selected = listValues.filter((listValue) =>
@@ -100,10 +100,10 @@ export class ListFormComponent extends FormComponent {
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
-    const { items: listItems, name } = this
+    const { items: listItems } = this
 
     // Support multiple values for checkboxes
-    const value = state[name]
+    const value = this.getFormValueFromState(state)
     const values = [value ?? []].flat()
 
     return listItems

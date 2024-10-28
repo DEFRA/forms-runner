@@ -198,11 +198,18 @@ describe('UkAddressField', () => {
         )
       })
 
-      it('returns payload from state', () => {
+      it('returns payload from state (object)', () => {
         const state = getFormState(address)
         const payload = component.getFormDataFromState(state)
 
         expect(payload).toEqual(getFormData(address))
+      })
+
+      it('returns payload from state (value)', () => {
+        const state = getFormState(address)
+        const payload = component.getFormValueFromState(state)
+
+        expect(payload).toEqual(address.myComponent)
       })
 
       it('returns state from payload (object)', () => {
@@ -210,13 +217,6 @@ describe('UkAddressField', () => {
         const value = component.getStateFromValidForm(payload)
 
         expect(value).toEqual(getFormState(address))
-      })
-
-      it('returns state from payload (value)', () => {
-        const payload = getFormData(address)
-        const value = component.getStateValueFromValidForm(payload)
-
-        expect(value).toEqual(address)
       })
     })
 

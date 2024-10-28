@@ -82,6 +82,24 @@ export class ComponentCollection {
     return payload
   }
 
+  getFormValueFromState(state: FormSubmissionState) {
+    const payload: FormPayload = {}
+
+    // Remove name prefix for formatted value
+    for (const [name, value] of Object.entries(
+      this.getFormDataFromState(state)
+    )) {
+      const key = name.split('__').pop()
+      if (!key) {
+        continue
+      }
+
+      payload[key] = value
+    }
+
+    return payload
+  }
+
   getStateFromValidForm(payload: FormPayload) {
     const state: FormState = {}
 

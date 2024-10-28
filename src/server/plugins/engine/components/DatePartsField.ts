@@ -1,13 +1,5 @@
 import { ComponentType, type DatePartsFieldComponent } from '@defra/forms-model'
-import {
-  add,
-  format,
-  isValid,
-  parse,
-  parseISO,
-  startOfToday,
-  sub
-} from 'date-fns'
+import { add, format, isValid, parse, startOfToday, sub } from 'date-fns'
 import { type CustomValidator } from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
@@ -122,27 +114,24 @@ export class DatePartsField extends FormComponent {
     }
   }
 
-  getStateValueFromValidForm(payload: FormPayload) {
-    const { name } = this
-
-    const {
-      [`${name}__day`]: day,
-      [`${name}__month`]: month,
-      [`${name}__year`]: year
-    } = payload
-
-    const value = parse(`${year}-${month}-${day}`, 'yyyy-MM-dd', new Date())
-    return isValid(value) ? value.toISOString() : null
-  }
-
   getDisplayStringFromState(state: FormSubmissionState) {
-    const value = state[this.name]
-    return value ? format(parseISO(value), 'd MMMM yyyy') : ''
+    const { day, month, year } = this.getFormValueFromState(state) ?? {}
+
+    if (!day || !month || !year) {
+      return ''
+    }
+
+    return format(`${year}-${month}-${day}`, 'd MMMM yyyy')
   }
 
-  getConditionEvaluationStateValue(state: FormSubmissionState): string {
-    const value = state[this.name]
-    return value ? format(parseISO(value), 'yyyy-MM-dd') : '' // strip the time as it interferes with equals/not equals
+  getConditionEvaluationStateValue(state: FormSubmissionState) {
+    const { day, month, year } = this.getFormValueFromState(state) ?? {}
+
+    if (!day || !month || !year) {
+      return null
+    }
+
+    return format(`${year}-${month}-${day}`, 'yyyy-MM-dd')
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
@@ -211,16 +200,24 @@ export class DatePartsField extends FormComponent {
 }
 
 export function getValidatorDate(component: DatePartsField) {
-  const { options } = component
+  const { name, options } = component
 
   const validator: CustomValidator = (payload: FormPayload, helpers) => {
-    const value = component.getStateValueFromValidForm(payload)
-    const date = value ? new Date(value) : undefined
+    const {
+      [`${name}__day`]: day,
+      [`${name}__month`]: month,
+      [`${name}__year`]: year
+    } = payload
 
-    if (!date) {
+    if (!day || !month || !year) {
       return options.required !== false
         ? helpers.error('date.base') // Date required
         : payload
+    }
+
+    const date = parse(`${year}-${month}-${day}`, 'yyyy-MM-dd', new Date())
+    if (!isValid(date)) {
+      return helpers.error('date.format')
     }
 
     // Minimum date from today

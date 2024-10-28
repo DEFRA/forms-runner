@@ -118,11 +118,8 @@ export class FileUploadField extends FormComponent {
   }
 
   getFormValueFromState(state: FormSubmissionState) {
-    const { name } = this
-
-    if (Array.isArray(state[name])) {
-      return state[name]
-    }
+    const value = super.getFormValueFromState(state)
+    return Array.isArray(value) ? value : []
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {

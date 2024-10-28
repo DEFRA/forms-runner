@@ -202,25 +202,29 @@ describe('DatePartsField', () => {
         expect(text).toBe('31 December 2024')
       })
 
-      it('returns payload from state', () => {
+      it('returns payload from state (object)', () => {
         const state = getFormState(startOfDay(date))
         const payload = component.getFormDataFromState(state)
 
         expect(payload).toEqual(getFormData(date))
       })
 
-      it('returns state from payload (object)', () => {
+      it('returns payload from state (value)', () => {
+        const state = getFormState(startOfDay(date))
+        const payload = component.getFormValueFromState(state)
+
+        expect(payload).toEqual({
+          day: 31,
+          month: 12,
+          year: 2024
+        })
+      })
+
+      it('returns state from payload', () => {
         const payload = getFormData(date)
         const value = component.getStateFromValidForm(payload)
 
         expect(value).toEqual(getFormState(date))
-      })
-
-      it('returns state from payload (value)', () => {
-        const payload = getFormData(date)
-        const value = component.getStateValueFromValidForm(payload)
-
-        expect(value).toEqual(startOfDay(date).toISOString())
       })
 
       it('returns formatted value for conditions', () => {
