@@ -9,7 +9,7 @@ export interface FormQuery extends Partial<Record<string, string>> {
 export interface FormParams extends Partial<Record<string, string>> {
   path: string
   slug: string
-  state?: 'draft' | 'live'
+  state?: FormStatus
 }
 
 export interface FormRequestRefs

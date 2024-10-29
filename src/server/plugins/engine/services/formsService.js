@@ -1,6 +1,7 @@
 import { formMetadataSchema } from '@defra/forms-model'
 
 import { config } from '~/src/config/index.js'
+import { FormStatus } from '~/src/server/routes/types.js'
 import { getJson } from '~/src/server/services/httpService.js'
 
 /**
@@ -27,12 +28,12 @@ export async function getFormMetadata(slug) {
 /**
  * Retrieves a form definition from the form manager for a given id
  * @param {string} id - the id of the form
- * @param {'draft'|'live'} state - the state of the form
+ * @param {FormStatus} state - the state of the form
  */
 export async function getFormDefinition(id, state) {
   const getJsonByType = /** @type {typeof getJson<FormDefinition>} */ (getJson)
 
-  const suffix = state === 'draft' ? '/draft' : ''
+  const suffix = state === FormStatus.Draft ? `/${state}` : ''
   const { payload: definition } = await getJsonByType(
     `${config.get('managerUrl')}/forms/${id}/definition${suffix}`
   )

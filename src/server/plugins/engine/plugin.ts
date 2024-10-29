@@ -22,6 +22,7 @@ import {
   getFormDefinition,
   getFormMetadata
 } from '~/src/server/plugins/engine/services/formsService.js'
+import { FormStatus } from '~/src/server/routes/types.js'
 import {
   type FormRequest,
   type FormRequestPayload,
@@ -60,7 +61,9 @@ export interface PluginOptions {
   modelOptions?: ConstructorParameters<typeof FormModel>[1]
 }
 
-const stateSchema = Joi.string().valid('draft', 'live').required()
+const stateSchema = Joi.string()
+  .valid(FormStatus.Draft, FormStatus.Live)
+  .required()
 const pathSchema = Joi.string().required()
 const itemIdSchema = Joi.string().uuid().required()
 const crumbSchema = Joi.string().optional().allow('')
@@ -95,8 +98,7 @@ export const plugin = {
 
       const { params, path } = request
       const { slug } = params
-      const { isPreview } = checkFormStatus(path)
-      const formState = isPreview && params.state ? params.state : 'live'
+      const { isPreview, state: formState } = checkFormStatus(path)
 
       // Get the form metadata using the `slug` param
       const metadata = await getFormMetadata(slug)

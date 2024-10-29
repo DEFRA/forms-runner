@@ -5,6 +5,7 @@ import {
   getFormDefinition,
   getFormMetadata
 } from '~/src/server/plugins/engine/services/formsService.js'
+import { FormStatus } from '~/src/server/routes/types.js'
 import * as fixtures from '~/test/fixtures/index.js'
 
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
@@ -238,7 +239,7 @@ describe('Model cache', () => {
       // Expect `getFormDefinition` to be called as the updatedAt has moved on
       expect(getFormDefinition).toHaveBeenLastCalledWith(
         fixtures.form.metadata.id,
-        'live'
+        FormStatus.Live
       )
 
       // Assert the live/live cache item has the correct updatedAt timestamp
