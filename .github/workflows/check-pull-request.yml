@@ -116,7 +116,6 @@ jobs:
         uses: actions/cache@v4
         with:
           enableCrossOsArchive: true
-          save-always: true
           key: ${{ matrix.task.name }}-${{ runner.os }}
           path: ${{ matrix.task.cache }}
 
@@ -178,7 +177,6 @@ jobs:
         uses: actions/cache@v4
         with:
           enableCrossOsArchive: true
-          save-always: true
           key: ${{ matrix.task.name }}-${{ runner.os }}-${{ github.sha }}
           path: ${{ matrix.task.cache }}
 
