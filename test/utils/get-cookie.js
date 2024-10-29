@@ -1,4 +1,4 @@
-import cookie from 'cookie'
+import { parse } from 'cookie'
 
 /**
  * @param {ServerInjectResponse<string | object>} response
@@ -8,7 +8,7 @@ export function getCookie(response, name) {
   const headers = [response.headers['set-cookie']].flat()
   const header = headers.find((header) => header?.includes(`${name}=`)) ?? ''
 
-  const value = cookie.parse(header)[name]
+  const value = parse(header)[name]
 
   if (!value) {
     throw new Error(`Cookie ${name} not found`)
