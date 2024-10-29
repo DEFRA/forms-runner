@@ -4,10 +4,7 @@ import { type ResponseToolkit } from '@hapi/hapi'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { RelativeUrl } from '~/src/server/plugins/engine/feedback/index.js'
-import {
-  FormState,
-  type FormStatus
-} from '~/src/server/plugins/engine/models/types.js'
+import { FormStatus } from '~/src/server/routes/types.js'
 import {
   type FormQuery,
   type FormRequest,
@@ -85,15 +82,15 @@ export const filesize = (bytes: number) => {
   return Math.max(bytes, 0.1).toFixed(1) + byteUnits[i]
 }
 
-export function checkFormStatus(path: string): FormStatus {
+export function checkFormStatus(path: string) {
   const isPreview = path.toLowerCase().startsWith(PREVIEW_PATH_PREFIX)
 
-  let state: FormState | undefined
+  let state: FormStatus | undefined
 
   if (isPreview) {
     const previewState = path.split('/')[2]
 
-    for (const formState of Object.values(FormState)) {
+    for (const formState of Object.values(FormStatus)) {
       if (previewState === formState.toString()) {
         state = formState
         break
@@ -107,7 +104,7 @@ export function checkFormStatus(path: string): FormStatus {
 
   return {
     isPreview,
-    state: state ?? FormState.LIVE
+    state: state ?? FormStatus.Live
   }
 }
 

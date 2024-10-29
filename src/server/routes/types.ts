@@ -27,3 +27,8 @@ export interface FormRequestPayloadRefs extends FormRequestRefs {
 
 export type FormRequest = Request<FormRequestRefs>
 export type FormRequestPayload = Request<FormRequestPayloadRefs>
+
+export enum FormStatus {
+  Draft = 'draft',
+  Live = 'live'
+}
