@@ -10,6 +10,7 @@ import {
   redirectTo,
   redirectUrl
 } from '~/src/server/plugins/engine/helpers.js'
+import { FormStatus } from '~/src/server/routes/types.js'
 import { type FormRequest } from '~/src/server/routes/types.js'
 
 describe('Helpers', () => {
@@ -139,7 +140,7 @@ describe('Helpers', () => {
     it('should return true/live for paths starting with PREVIEW_PATH_PREFIX and form is live', () => {
       const path = `${PREVIEW_PATH_PREFIX}/live/another/segment`
       expect(checkFormStatus(path)).toStrictEqual({
-        state: 'live',
+        state: FormStatus.Live,
         isPreview: true
       })
     })
@@ -147,7 +148,7 @@ describe('Helpers', () => {
     it('should return false for paths not starting with PREVIEW_PATH_PREFIX', () => {
       const path = '/some/other/path'
       expect(checkFormStatus(path)).toStrictEqual({
-        state: 'live',
+        state: FormStatus.Live,
         isPreview: false
       })
     })
@@ -155,7 +156,7 @@ describe('Helpers', () => {
     it('should be case insensitive and return draft when form is draft', () => {
       const path = `${PREVIEW_PATH_PREFIX.toUpperCase()}/draft/path`
       expect(checkFormStatus(path)).toStrictEqual({
-        state: 'draft',
+        state: FormStatus.Draft,
         isPreview: true
       })
     })
