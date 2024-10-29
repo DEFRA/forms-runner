@@ -116,7 +116,6 @@ jobs:
         uses: actions/cache@v4
         with:
           enableCrossOsArchive: true
-          save-always: true
           key: ${{ matrix.task.name }}-${{ runner.os }}
           path: ${{ matrix.task.cache }}
 
@@ -178,7 +177,6 @@ jobs:
         uses: actions/cache@v4
         with:
           enableCrossOsArchive: true
-          save-always: true
           key: ${{ matrix.task.name }}-${{ runner.os }}-${{ github.sha }}
           path: ${{ matrix.task.cache }}
 
@@ -187,7 +185,7 @@ jobs:
 
       - name: Save test coverage
         if: ${{ always() }}
-        uses: actions/upload-artifact@v4.4.0
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.task.description }} coverage (${{ matrix.runner }})
           path: coverage
