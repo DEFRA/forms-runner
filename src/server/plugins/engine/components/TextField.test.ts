@@ -7,6 +7,7 @@ import {
 import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
 describe('TextField', () => {
   const definition = {
@@ -113,20 +114,54 @@ describe('TextField', () => {
     })
 
     describe('State', () => {
-      it('returns text from state value', () => {
-        const text = component.getDisplayStringFromState({
-          [def.name]: 'Text field'
-        })
+      it('returns text from state', () => {
+        const state1 = getFormState('Text field')
+        const state2 = getFormState(null)
 
-        expect(text).toBe('Text field')
+        const text1 = component.getDisplayStringFromState(state1)
+        const text2 = component.getDisplayStringFromState(state2)
+
+        expect(text1).toBe('Text field')
+        expect(text2).toBe('')
+      })
+
+      it('returns payload from state', () => {
+        const state1 = getFormState('Text field')
+        const state2 = getFormState(null)
+
+        const payload1 = component.getFormDataFromState(state1)
+        const payload2 = component.getFormDataFromState(state2)
+
+        expect(payload1).toEqual(getFormData('Text field'))
+        expect(payload2).toEqual(getFormData())
+      })
+
+      it('returns value from state', () => {
+        const state1 = getFormState('Text field')
+        const state2 = getFormState(null)
+
+        const value1 = component.getFormValueFromState(state1)
+        const value2 = component.getFormValueFromState(state2)
+
+        expect(value1).toBe('Text field')
+        expect(value2).toBeUndefined()
+      })
+
+      it('returns state from payload', () => {
+        const payload1 = getFormData('Text field')
+        const payload2 = getFormData()
+
+        const value1 = component.getStateFromValidForm(payload1)
+        const value2 = component.getStateFromValidForm(payload2)
+
+        expect(value1).toEqual(getFormState('Text field'))
+        expect(value2).toEqual(getFormState(null))
       })
     })
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = component.getViewModel({
-          [def.name]: 'Text field'
-        })
+        const viewModel = component.getViewModel(getFormData('Text field'))
 
         expect(viewModel).toEqual(
           expect.objectContaining({

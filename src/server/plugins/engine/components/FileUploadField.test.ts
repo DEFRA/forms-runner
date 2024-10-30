@@ -15,6 +15,7 @@ import {
   UploadStatus,
   type FileState
 } from '~/src/server/plugins/engine/types.js'
+import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
 describe('FileUploadField', () => {
   const definition = {
@@ -243,20 +244,55 @@ describe('FileUploadField', () => {
     })
 
     describe('State', () => {
-      it('returns text from state value', () => {
-        const text = component.getDisplayStringFromState({
-          [def.name]: validState
-        })
+      it('returns text from state', () => {
+        const state1 = getFormState(validState)
+        const state2 = getFormState(null)
 
-        expect(text).toBe('You uploaded 3 files')
+        const text1 = component.getDisplayStringFromState(state1)
+        const text2 = component.getDisplayStringFromState(state2)
+
+        expect(text1).toBe('You uploaded 3 files')
+        expect(text2).toBe('')
+      })
+
+      it('returns payload from state', () => {
+        const state1 = getFormState(validState)
+        const state2 = getFormState(null)
+
+        const payload1 = component.getFormDataFromState(state1)
+        const payload2 = component.getFormDataFromState(state2)
+
+        expect(payload1).toEqual(getFormData(validState))
+        expect(payload2).toEqual(getFormData())
+      })
+
+      it('returns value from state', () => {
+        const state1 = getFormState(validState)
+        const state2 = getFormState(null)
+
+        const value1 = component.getFormValueFromState(state1)
+        const value2 = component.getFormValueFromState(state2)
+
+        expect(value1).toBe(validState)
+        expect(value2).toBeUndefined()
+      })
+
+      it('returns state from payload', () => {
+        const payload1 = getFormData(validState)
+        const payload2 = getFormData()
+
+        const value1 = component.getStateFromValidForm(payload1)
+        const value2 = component.getStateFromValidForm(payload2)
+
+        expect(value1).toEqual(getFormState(validState))
+        expect(value2).toEqual(getFormState(null))
       })
     })
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = component.getViewModel({
-          [def.name]: validState
-        })
+        const viewModel = component.getViewModel(getFormData(validState))
+
         expect(viewModel).toEqual(
           expect.objectContaining({
             label: { text: def.title },
@@ -302,9 +338,8 @@ describe('FileUploadField', () => {
       })
 
       it('sets Nunjucks component defaults with temp valid state', () => {
-        const viewModel = component.getViewModel({
-          [def.name]: validTempState
-        })
+        const viewModel = component.getViewModel(getFormData(validTempState))
+
         expect(viewModel).toEqual(
           expect.objectContaining({
             label: { text: def.title },
@@ -350,15 +385,11 @@ describe('FileUploadField', () => {
       })
 
       it('sets Nunjucks component defaults with temp valid state with errors (on POST)', () => {
-        const viewModel = component.getViewModel(
-          {
-            [def.name]: validTempState
-          },
-          {
-            titleText: 'There is a problem',
-            errorList: []
-          }
-        )
+        const viewModel = component.getViewModel(getFormData(validTempState), {
+          titleText: 'There is a problem',
+          errorList: []
+        })
+
         expect(viewModel).toEqual(
           expect.objectContaining({
             label: { text: def.title },

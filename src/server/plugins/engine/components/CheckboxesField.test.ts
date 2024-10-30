@@ -13,6 +13,7 @@ import {
   listString,
   listStringExamples
 } from '~/test/fixtures/list.js'
+import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
 describe.each([
   {
@@ -211,23 +212,61 @@ describe.each([
     })
 
     describe('State', () => {
-      it.each([...options.examples])("returns '$text' from state", (item) => {
-        const text = component.getDisplayStringFromState({
-          [def.name]: [item.state]
-        })
+      it.each([...options.examples])(
+        'returns text from state (single)',
+        (item) => {
+          const state1 = getFormState([item.state])
+          const state2 = getFormState(null)
 
-        expect(text).toBe(item.text)
-      })
+          const text1 = component.getDisplayStringFromState(state1)
+          const text2 = component.getDisplayStringFromState(state2)
 
-      it('returns text from multiple state values', () => {
+          expect(text1).toBe(item.text)
+          expect(text2).toBe('')
+        }
+      )
+
+      it('returns text from state (multiple)', () => {
         const item1 = options.examples[0]
         const item2 = options.examples[2]
 
-        const text = component.getDisplayStringFromState({
-          [def.name]: [item1.state, item2.state]
-        })
+        const state = getFormState([item1.state, item2.state])
+        const text = component.getDisplayStringFromState(state)
 
         expect(text).toBe(`${item1.text}, ${item2.text}`)
+      })
+
+      it.each([...options.examples])('returns payload from state', (item) => {
+        const state1 = getFormState([item.state])
+        const state2 = getFormState(null)
+
+        const payload1 = component.getFormDataFromState(state1)
+        const payload2 = component.getFormDataFromState(state2)
+
+        expect(payload1).toEqual(getFormData([item.value]))
+        expect(payload2).toEqual(getFormData())
+      })
+
+      it.each([...options.examples])('returns value from state', (item) => {
+        const state1 = getFormState([item.state])
+        const state2 = getFormState(null)
+
+        const value1 = component.getFormValueFromState(state1)
+        const value2 = component.getFormValueFromState(state2)
+
+        expect(value1).toEqual([item.value])
+        expect(value2).toBeUndefined()
+      })
+
+      it.each([...options.examples])('returns state from payload', (item) => {
+        const payload1 = getFormData([item.value])
+        const payload2 = getFormData()
+
+        const value1 = component.getStateFromValidForm(payload1)
+        const value2 = component.getStateFromValidForm(payload2)
+
+        expect(value1).toEqual(getFormState([item.state]))
+        expect(value2).toEqual(getFormState(null))
       })
     })
 
@@ -235,9 +274,7 @@ describe.each([
       it('sets Nunjucks component defaults', () => {
         const item = options.examples[0]
 
-        const viewModel = component.getViewModel({
-          [def.name]: [item.value]
-        })
+        const viewModel = component.getViewModel(getFormData([item.value]))
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -252,9 +289,7 @@ describe.each([
       it.each([...options.examples])(
         'sets Nunjucks component checkbox items',
         (item) => {
-          const viewModel = component.getViewModel({
-            [def.name]: [item.value]
-          })
+          const viewModel = component.getViewModel(getFormData([item.value]))
 
           expect(viewModel.items[0]).not.toMatchObject({
             value: '' // First item is never empty

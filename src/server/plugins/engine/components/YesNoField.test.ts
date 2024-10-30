@@ -8,6 +8,7 @@ import { YesNoField } from '~/src/server/plugins/engine/components/YesNoField.js
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import { listYesNoExamples } from '~/test/fixtures/list.js'
+import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
 describe('YesNoField', () => {
   const definition = {
@@ -124,17 +125,60 @@ describe('YesNoField', () => {
   })
 
   describe('State', () => {
-    it('returns text from state value', () => {
-      const textYes = component.getDisplayStringFromState({
-        [def.name]: true
-      })
+    it('returns text from state', () => {
+      const state1 = getFormState(true)
+      const state2 = getFormState(false)
+      const state3 = getFormState(null)
 
-      const textNo = component.getDisplayStringFromState({
-        [def.name]: false
-      })
+      const text1 = component.getDisplayStringFromState(state1)
+      const text2 = component.getDisplayStringFromState(state2)
+      const text3 = component.getDisplayStringFromState(state3)
 
-      expect(textYes).toBe('Yes')
-      expect(textNo).toBe('No')
+      expect(text1).toBe('Yes')
+      expect(text2).toBe('No')
+      expect(text3).toBe('')
+    })
+
+    it('returns payload from state', () => {
+      const state1 = getFormState(true)
+      const state2 = getFormState(false)
+      const state3 = getFormState(null)
+
+      const payload1 = component.getFormDataFromState(state1)
+      const payload2 = component.getFormDataFromState(state2)
+      const payload3 = component.getFormDataFromState(state3)
+
+      expect(payload1).toEqual(getFormData(true))
+      expect(payload2).toEqual(getFormData(false))
+      expect(payload3).toEqual(getFormData())
+    })
+
+    it('returns value from state', () => {
+      const state1 = getFormState(true)
+      const state2 = getFormState(false)
+      const state3 = getFormState(null)
+
+      const value1 = component.getFormValueFromState(state1)
+      const value2 = component.getFormValueFromState(state2)
+      const value3 = component.getFormValueFromState(state3)
+
+      expect(value1).toBe(true)
+      expect(value2).toBe(false)
+      expect(value3).toBeUndefined()
+    })
+
+    it('returns state from payload', () => {
+      const payload1 = getFormData(true)
+      const payload2 = getFormData(false)
+      const payload3 = getFormData()
+
+      const value1 = component.getStateFromValidForm(payload1)
+      const value2 = component.getStateFromValidForm(payload2)
+      const value3 = component.getStateFromValidForm(payload3)
+
+      expect(value1).toEqual(getFormState(true))
+      expect(value2).toEqual(getFormState(false))
+      expect(value3).toEqual(getFormState(null))
     })
   })
 
@@ -144,9 +188,7 @@ describe('YesNoField', () => {
     it('sets Nunjucks component defaults', () => {
       const item = items[0]
 
-      const viewModel = component.getViewModel({
-        [def.name]: item.value
-      })
+      const viewModel = component.getViewModel(getFormData(item.value))
 
       expect(viewModel).toEqual(
         expect.objectContaining({
@@ -159,9 +201,7 @@ describe('YesNoField', () => {
     })
 
     it.each([...items])('sets Nunjucks component radio items', (item) => {
-      const viewModel = component.getViewModel({
-        [def.name]: item.value
-      })
+      const viewModel = component.getViewModel(getFormData(item.value))
 
       expect(viewModel.items[0]).not.toMatchObject({
         value: '' // First item is never empty
