@@ -1,8 +1,4 @@
-import {
-  type ContentComponentsDef,
-  type FormComponentsDef,
-  type Item
-} from '@defra/forms-model'
+import { type ComponentType, type Item } from '@defra/forms-model'
 
 import { type FormValue } from '~/src/server/plugins/engine/types.js'
 
@@ -88,7 +84,7 @@ export interface ViewModel extends Record<string, unknown> {
     classes?: string
     attributes?: string | Record<string, string>
   }
-  children?: ComponentCollectionViewModel
+  children?: ComponentViewModel[]
   upload?: {
     count: number
     pendingCount: number
@@ -105,22 +101,11 @@ export interface FileUploadSummaryRow {
   uploadId: string
 }
 
-export interface FormComponentViewModel {
-  type: FormComponentsDef['type']
-  isFormComponent: true
+export interface ComponentViewModel {
+  type: ComponentType
+  isFormComponent: boolean
   model: ViewModel
 }
-
-export interface ContentComponentViewModel {
-  type: ContentComponentsDef['type']
-  isFormComponent: false
-  model: ViewModel
-}
-
-export type ComponentCollectionViewModel = (
-  | FormComponentViewModel
-  | ContentComponentViewModel
-)[]
 
 export enum DataType {
   List = 'list',

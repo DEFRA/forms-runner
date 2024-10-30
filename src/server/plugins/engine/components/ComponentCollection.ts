@@ -3,11 +3,11 @@ import joi, { type ObjectSchema } from 'joi'
 
 import { type ComponentSchemaNested } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import {
-  getComponentField,
+  createComponentField,
   type ComponentFieldClass,
   type FormComponentFieldClass
 } from '~/src/server/plugins/engine/components/helpers.js'
-import { type ComponentCollectionViewModel } from '~/src/server/plugins/engine/components/types.js'
+import { type ComponentViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
@@ -24,13 +24,13 @@ export class ComponentCollection {
 
   constructor(componentDefs: ComponentDef[] = [], model: FormModel) {
     const components = componentDefs.map((def) => {
-      const Component = getComponentField(def)
+      const component = createComponentField(def, model)
 
-      if (!Component) {
+      if (!component) {
         throw new Error(`Component type ${def.type} doesn't exist`)
       }
 
-      return new Component(def, model)
+      return component
     })
 
     const formComponents = components.filter(
@@ -114,8 +114,10 @@ export class ComponentCollection {
     payload: FormPayload,
     errors?: FormSubmissionErrors,
     conditions?: FormModel['conditions']
-  ): ComponentCollectionViewModel {
-    const result = this.items.map((item) => {
+  ) {
+    const { items } = this
+
+    const result: ComponentViewModel[] = items.map((item) => {
       return {
         type: item.type,
         isFormComponent: item.isFormComponent,

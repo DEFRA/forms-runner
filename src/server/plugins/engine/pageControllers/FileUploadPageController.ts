@@ -12,7 +12,6 @@ import {
   tempItemSchema,
   tempStatusSchema
 } from '~/src/server/plugins/engine/components/FileUploadField.js'
-import { type FormComponentViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
@@ -204,8 +203,7 @@ export class FileUploadPageController extends PageController {
     const components = viewModel.components
 
     const [fileUploadComponent] = components.filter(
-      (component): component is FormComponentViewModel =>
-        component.model.id === name
+      (component) => component.model.id === name
     )
 
     const id = components.indexOf(fileUploadComponent)

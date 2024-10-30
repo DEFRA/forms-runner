@@ -1,10 +1,7 @@
 import { type Item } from '@defra/forms-model'
 import { type ResponseObject } from '@hapi/hapi'
 
-import {
-  type ComponentCollectionViewModel,
-  type FormComponentViewModel
-} from '~/src/server/plugins/engine/components/types.js'
+import { type ComponentViewModel } from '~/src/server/plugins/engine/components/types.js'
 import {
   type FileUploadPageController,
   type PageController
@@ -177,7 +174,7 @@ export interface PageViewModelBase {
   pageTitle: string
   sectionTitle?: string
   showTitle: boolean
-  components: ComponentCollectionViewModel
+  components: ComponentViewModel[]
   errors?: FormSubmissionErrors
   isStartPage: boolean
   startPage?: ResponseObject
@@ -195,8 +192,8 @@ export interface FileUploadPageViewModel extends PageViewModelBase {
   page: FileUploadPageController
   path: string
   formAction?: string
-  fileUploadComponent: FormComponentViewModel
-  preUploadComponents: ComponentCollectionViewModel
+  fileUploadComponent: ComponentViewModel
+  preUploadComponents: ComponentViewModel[]
 }
 
 export type PageViewModel = PageViewModelBase | FileUploadPageViewModel

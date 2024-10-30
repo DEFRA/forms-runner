@@ -1,6 +1,7 @@
-import { type ComponentDef } from '@defra/forms-model'
+import { ComponentType, type ComponentDef } from '@defra/forms-model'
 
 import * as Components from '~/src/server/plugins/engine/components/index.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 
 export type ComponentFieldClass = InstanceType<ComponentFieldType>
 export type ComponentFieldType = (typeof Components)[keyof typeof Components]
@@ -20,23 +21,90 @@ export type FormComponentFieldType =
   | typeof Components.UkAddressField
   | typeof Components.FileUploadField
 
-export function hasComponentField(
-  componentType: string
-): componentType is keyof typeof Components {
-  return componentType in Components
-}
-
 /**
- * Gets the field class for each {@link ComponentDef} type
+ * Create field instance for each {@link ComponentDef} type
  */
-export function getComponentField(component: ComponentDef) {
-  const { type } = component
+export function createComponentField(
+  def: ComponentDef,
+  model: FormModel
+): ComponentFieldClass | undefined {
+  let component: ComponentFieldClass | undefined
 
-  if (!hasComponentField(type)) {
-    return
+  switch (def.type) {
+    case ComponentType.AutocompleteField:
+      component = new Components.AutocompleteField(def, model)
+      break
+
+    case ComponentType.CheckboxesField:
+      component = new Components.CheckboxesField(def, model)
+      break
+
+    case ComponentType.DatePartsField:
+      component = new Components.DatePartsField(def, model)
+      break
+
+    case ComponentType.Details:
+      component = new Components.Details(def, model)
+      break
+
+    case ComponentType.EmailAddressField:
+      component = new Components.EmailAddressField(def, model)
+      break
+
+    case ComponentType.Html:
+      component = new Components.Html(def, model)
+      break
+
+    case ComponentType.InsetText:
+      component = new Components.InsetText(def, model)
+      break
+
+    case ComponentType.List:
+      component = new Components.List(def, model)
+      break
+
+    case ComponentType.MultilineTextField:
+      component = new Components.MultilineTextField(def, model)
+      break
+
+    case ComponentType.NumberField:
+      component = new Components.NumberField(def, model)
+      break
+
+    case ComponentType.RadiosField:
+      component = new Components.RadiosField(def, model)
+      break
+
+    case ComponentType.SelectField:
+      component = new Components.SelectField(def, model)
+      break
+
+    case ComponentType.TelephoneNumberField:
+      component = new Components.TelephoneNumberField(def, model)
+      break
+
+    case ComponentType.TextField:
+      component = new Components.TextField(def, model)
+      break
+
+    case ComponentType.UkAddressField:
+      component = new Components.UkAddressField(def, model)
+      break
+
+    case ComponentType.YesNoField:
+      component = new Components.YesNoField(def, model)
+      break
+
+    case ComponentType.MonthYearField:
+      component = new Components.MonthYearField(def, model)
+      break
+
+    case ComponentType.FileUploadField:
+      component = new Components.FileUploadField(def, model)
+      break
   }
 
-  return Components[type]
+  return component
 }
 
 export const addClassOptionIfNone = (
