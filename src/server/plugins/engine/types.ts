@@ -1,3 +1,4 @@
+import { type Item } from '@defra/forms-model'
 import { type ResponseObject } from '@hapi/hapi'
 
 import {
@@ -79,18 +80,16 @@ export interface FormSubmissionErrors {
  * Form POST for question pages
  * (after Joi has converted value types)
  */
-export type FormPayload = {
-  /**
-   * Crumb plugin (CSRF protection) generated ID from hidden form input
-   */
-  crumb?: string
-} & FormData
-
-export type FormData = Partial<Record<string, FormValue>>
-export type FormValue = NonNullable<unknown> | undefined
+export type FormPayload = Partial<Record<string, FormValue>>
+export type FormValue =
+  | Item['value']
+  | Item['value'][]
+  | FileState[]
+  | RepeatState[]
+  | undefined
 
 export type FormState = Partial<Record<string, FormStateValue>>
-export type FormStateValue = FormValue | null
+export type FormStateValue = Exclude<FormValue, undefined> | null
 
 export interface FormValidationResult<ValueType extends object = FormPayload> {
   value?: ValueType
@@ -166,6 +165,10 @@ export interface FileState {
 export interface TempFileState {
   upload?: UploadInitiateResponse
   files: FileState[]
+}
+
+export interface RepeatState extends FormPayload {
+  itemId: string
 }
 
 export interface PageViewModelBase {

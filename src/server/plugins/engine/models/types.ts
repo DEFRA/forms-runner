@@ -2,12 +2,14 @@ import {
   type ConditionWrapper,
   type DatePartsFieldComponent,
   type FileUploadFieldComponent,
+  type FormComponentsDef,
   type FormDefinition,
   type InputFieldsComponentsDef,
-  type ListComponentsDef,
+  type Item,
   type MonthYearFieldComponent,
   type NumberFieldComponent,
-  type Section
+  type Section,
+  type SelectionComponentsDef
 } from '@defra/forms-model'
 import { type Expression } from 'expr-eval'
 
@@ -16,8 +18,10 @@ import { type DataType } from '~/src/server/plugins/engine/components/types.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
   type FileState,
-  type FormData,
-  type FormSubmissionState
+  type FormState,
+  type FormStateValue,
+  type FormSubmissionState,
+  type RepeatState
 } from '~/src/server/plugins/engine/types.js'
 
 export type ExecutableCondition = ConditionWrapper & {
@@ -58,12 +62,12 @@ export interface DetailItemBase {
   /**
    * Raw value of a field. For example, a Date will be displayed as 2022-12-25
    */
-  rawValue: string | number | boolean | FileState[] | FormData[] | null
+  rawValue: FormState | FormStateValue
 
   url: string
-  type?: ComponentBase['type']
-  title: ComponentBase['title']
-  dataType?: ComponentBase['dataType']
+  type?: FormComponentsDef['type']
+  title: string
+  dataType?: DataType
   subItems?: DetailItem[][]
 }
 
@@ -76,14 +80,14 @@ export interface DetailItemDate extends DetailItemBase {
 export interface DetailItemMonthYear extends DetailItemBase {
   type: MonthYearFieldComponent['type']
   dataType: DataType.MonthYear
-  rawValue: string | null
+  rawValue: FormState | null
 }
 
-export interface DetailItemList extends DetailItemBase {
-  type: ListComponentsDef['type']
+export interface DetailItemSelection extends DetailItemBase {
+  type: SelectionComponentsDef['type']
   dataType: DataType.List
   items: DetailItem[]
-  rawValue: string | number | boolean | null
+  rawValue: Item['value'] | Item['value'][] | null
 }
 
 export interface DetailItemNumber extends DetailItemBase {
@@ -98,7 +102,7 @@ export interface DetailItemText extends DetailItemBase {
     NumberFieldComponent | FileUploadFieldComponent
   >['type']
   dataType: DataType.Text
-  rawValue: FileState[] | null
+  rawValue: string | null
 }
 
 export interface DetailItemFileUpload extends DetailItemBase {
@@ -108,13 +112,13 @@ export interface DetailItemFileUpload extends DetailItemBase {
 }
 
 export interface DetailItemRepeat extends DetailItemBase {
-  rawValue: FormData[] | null
+  rawValue: RepeatState[] | null
 }
 
 export type DetailItem =
   | DetailItemDate
   | DetailItemMonthYear
-  | DetailItemList
+  | DetailItemSelection
   | DetailItemNumber
   | DetailItemText
   | DetailItemFileUpload

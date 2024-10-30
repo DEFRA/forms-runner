@@ -10,7 +10,7 @@ import { type DateInputItem } from '~/src/server/plugins/engine/components/types
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
-  type FormData,
+  type FormPayload,
   type FormState
 } from '~/src/server/plugins/engine/types.js'
 
@@ -626,7 +626,7 @@ function getViewModel(
 /**
  * Date form data
  */
-function getFormData(date: Date | FormData): FormData {
+function getFormData(date: Date | FormPayload): FormPayload {
   if (date instanceof Date) {
     date = {
       day: date.getDate(),

@@ -9,7 +9,7 @@ import { type ViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
-  type FormData,
+  type FormPayload,
   type FormState
 } from '~/src/server/plugins/engine/types.js'
 
@@ -182,7 +182,7 @@ describe('UkAddressField', () => {
     })
 
     describe('State', () => {
-      const address: FormData = {
+      const address: FormPayload = {
         addressLine1: 'Richard Fairclough House',
         addressLine2: 'Knutsford Road',
         town: 'Warrington',
@@ -221,7 +221,7 @@ describe('UkAddressField', () => {
     })
 
     describe('View model', () => {
-      const address: FormData = {
+      const address: FormPayload = {
         addressLine1: 'Richard Fairclough House',
         addressLine2: 'Knutsford Road',
         town: 'Warrington',
@@ -291,7 +291,7 @@ describe('UkAddressField', () => {
   })
 
   describe('Validation', () => {
-    const address: FormData = {
+    const address: FormPayload = {
       addressLine1: 'Richard Fairclough House',
       addressLine2: 'Knutsford Road',
       town: 'Warrington',
@@ -457,7 +457,7 @@ describe('UkAddressField', () => {
  * UK address field view model
  */
 function getViewModel(
-  address: FormData,
+  address: FormPayload,
   name: string,
   overrides?: Partial<ViewModel>
 ): Partial<ViewModel> {
@@ -483,7 +483,7 @@ function getViewModel(
 /**
  * UK address form data
  */
-function getFormData(address: FormData): FormData {
+function getFormData(address: FormPayload): FormPayload {
   return {
     myComponent__addressLine1: address.addressLine1,
     myComponent__addressLine2: address.addressLine2,
@@ -495,7 +495,7 @@ function getFormData(address: FormData): FormData {
 /**
  * UK address session state
  */
-function getFormState(address: FormData): FormState {
+function getFormState(address: FormPayload): FormState {
   return {
     myComponent: {
       addressLine1: address.addressLine1,

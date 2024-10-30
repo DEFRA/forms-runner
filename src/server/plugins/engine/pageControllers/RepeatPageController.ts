@@ -9,11 +9,11 @@ import { ADD_ANOTHER, CONTINUE } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
-  type FormData,
   type FormPayload,
   type FormSubmissionErrors,
   type FormSubmissionState,
-  type PageViewModel
+  type PageViewModel,
+  type RepeatState
 } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
@@ -53,7 +53,7 @@ export class RepeatPageController extends PageController {
     const itemId = Joi.string().uuid().required()
 
     this.formSchema = this.formSchema.append({ itemId })
-    this.stateSchema = Joi.object<FormData>().keys({
+    this.stateSchema = Joi.object<RepeatState>().keys({
       [options.name]: Joi.array()
         .items(this.stateSchema.append({ itemId }))
         .min(schema.min)
@@ -77,7 +77,7 @@ export class RepeatPageController extends PageController {
     const { item, list } = this.getRepeatAppData(request)
     const state = super.getStateFromValidForm(request, payload)
 
-    const updated: FormData = { ...state, itemId: payload.itemId }
+    const updated: RepeatState = { ...state, itemId: payload.itemId }
     const newList = [...list]
 
     if (!item) {
@@ -330,7 +330,7 @@ export class RepeatPageController extends PageController {
 
   getListSummaryViewModel(
     request: FormRequest | FormRequestPayload,
-    state: FormData[],
+    state: RepeatState[],
     errors?: FormSubmissionErrors
   ): {
     name: string | undefined

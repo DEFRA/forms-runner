@@ -10,7 +10,6 @@ import { FormComponent } from '~/src/server/plugins/engine/components/FormCompon
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
 import {
-  type FormData,
   type FormPayload,
   type FormSubmissionErrors,
   type FormSubmissionState
@@ -137,7 +136,7 @@ export class UkAddressField extends FormComponent {
       [`${name}__addressLine2`]: value?.addressLine2,
       [`${name}__town`]: value?.town,
       [`${name}__postcode`]: value?.postcode
-    } satisfies FormData
+    } satisfies FormPayload
   }
 
   getStateValueFromValidForm(payload: FormPayload) {
@@ -148,7 +147,7 @@ export class UkAddressField extends FormComponent {
           addressLine2: payload[`${name}__addressLine2`],
           town: payload[`${name}__town`],
           postcode: payload[`${name}__postcode`]
-        } satisfies FormData)
+        } satisfies FormPayload)
       : null
   }
 

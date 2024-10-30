@@ -10,7 +10,7 @@ import { type DateInputItem } from '~/src/server/plugins/engine/components/types
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
-  type FormData,
+  type FormPayload,
   type FormState
 } from '~/src/server/plugins/engine/types.js'
 
@@ -422,7 +422,7 @@ function getViewModel(
 /**
  * Month & year form data
  */
-function getFormData(date: Date | FormData): FormData {
+function getFormData(date: Date | FormPayload): FormPayload {
   if (date instanceof Date) {
     date = {
       month: date.getMonth() + 1,
@@ -439,7 +439,7 @@ function getFormData(date: Date | FormData): FormData {
 /**
  * Month & year session state
  */
-function getFormState(date: Date | FormData): FormState {
+function getFormState(date: Date | FormPayload): FormState {
   const payload = getFormData(date)
 
   return {
