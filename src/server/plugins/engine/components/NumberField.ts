@@ -37,6 +37,10 @@ export class NumberField extends FormComponent {
       formSchema = formSchema.max(schema.max)
     }
 
+    if (typeof schema.precision === 'number') {
+      formSchema = formSchema.precision(schema.precision)
+    }
+
     if (options.customValidationMessage) {
       const message = options.customValidationMessage
 
