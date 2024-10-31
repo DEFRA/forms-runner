@@ -100,7 +100,7 @@ describe('NumberField', () => {
 
         expect(result.error).toEqual(
           expect.objectContaining({
-            message: `${label} must be a number`
+            message: `Enter ${label}`
           })
         )
       })
