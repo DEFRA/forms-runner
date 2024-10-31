@@ -32,10 +32,12 @@ describe('Form journey', () => {
 
       fields: [
         {
-          name: 'licenceLength',
           title: 'Which fishing licence do you want to get?',
           text: '1 day',
-          value: '1',
+          payload: {
+            empty: { licenceLength: '' },
+            valid: { licenceLength: '1' }
+          },
 
           errors: {
             empty: 'Select which fishing licence do you want to get?'
@@ -59,10 +61,12 @@ describe('Form journey', () => {
 
       fields: [
         {
-          name: 'fullName',
           title: "What's your name?",
           text: 'Firstname Lastname',
-          value: 'Firstname Lastname',
+          payload: {
+            empty: { fullName: '' },
+            valid: { fullName: 'Firstname Lastname' }
+          },
 
           errors: {
             empty: "Enter what's your name?"
@@ -167,9 +171,11 @@ describe('Form journey', () => {
 
       if (paths.next) {
         it('should show errors when invalid on submit', async () => {
-          const payload = Object.fromEntries(
-            fields.map(({ name }) => [name, ''])
-          )
+          const payload = {}
+
+          for (const field of fields) {
+            Object.assign(payload, field.payload.empty)
+          }
 
           // Submit form with empty values
           const { container, response } = await renderResponse(server, {
@@ -198,9 +204,11 @@ describe('Form journey', () => {
         })
 
         it('should redirect to the next page on submit', async () => {
-          const payload = Object.fromEntries(
-            fields.map(({ name, value }) => [name, value])
-          )
+          const payload = {}
+
+          for (const field of fields) {
+            Object.assign(payload, field.payload.valid)
+          }
 
           // Submit form with populated values
           const response = await server.inject({
@@ -287,7 +295,7 @@ describe('Form journey', () => {
 
           // Check for field title and value
           expect($titles[index]).toHaveTextContent(detail.title)
-          expect($values[index]).toHaveTextContent(detail.value)
+          expect($values[index]).toHaveTextContent(detail.text)
         }
       }
     })
@@ -321,9 +329,11 @@ describe('Form journey', () => {
 
           expect(response1.statusCode).toBe(200)
 
-          const payload = Object.fromEntries(
-            fields.map(({ name, value }) => [name, value])
-          )
+          const payload = {}
+
+          for (const field of fields) {
+            Object.assign(payload, field.payload.valid)
+          }
 
           // Submit and redirect back to summary page
           const response2 = await server.inject({
