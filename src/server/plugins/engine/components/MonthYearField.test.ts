@@ -142,7 +142,10 @@ describe('MonthYearField', () => {
 
         expect(result.error).toEqual(
           expect.objectContaining({
-            message: 'month must be between 1 and 12. year must be a number'
+            message: [
+              'Example month/year field must include a month',
+              'Example month/year field must include a year'
+            ].join('. ')
           })
         )
       })
@@ -307,7 +310,7 @@ describe('MonthYearField', () => {
                 month: 13,
                 year: 2024
               }),
-              error: new Error('month must be between 1 and 12')
+              error: new Error('Example month/year field must include a month')
             }
           },
           {
@@ -320,7 +323,7 @@ describe('MonthYearField', () => {
                 month: 1,
                 year: 999
               }),
-              error: new Error('year must be 1000 or higher')
+              error: new Error('Example month/year field must include a year')
             }
           }
         ]

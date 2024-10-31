@@ -46,9 +46,9 @@ export class DatePartsField extends FormComponent {
           options: {
             required: isRequired,
             optionalText: !isRequired && hideOptional,
-            classes: 'govuk-input--width-2'
-          },
-          hint: ''
+            classes: 'govuk-input--width-2',
+            customValidationMessage: `${title} must include a {{#label}}`
+          }
         },
         {
           type: ComponentType.NumberField,
@@ -58,9 +58,9 @@ export class DatePartsField extends FormComponent {
           options: {
             required: isRequired,
             optionalText: !isRequired && hideOptional,
-            classes: 'govuk-input--width-2'
-          },
-          hint: ''
+            classes: 'govuk-input--width-2',
+            customValidationMessage: `${title} must include a {{#label}}`
+          }
         },
         {
           type: ComponentType.NumberField,
@@ -70,9 +70,9 @@ export class DatePartsField extends FormComponent {
           options: {
             required: isRequired,
             optionalText: !isRequired && hideOptional,
-            classes: 'govuk-input--width-4'
-          },
-          hint: ''
+            classes: 'govuk-input--width-4',
+            customValidationMessage: `${title} must include a {{#label}}`
+          }
         }
       ],
       model

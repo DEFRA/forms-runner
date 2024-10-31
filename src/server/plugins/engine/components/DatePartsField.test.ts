@@ -164,9 +164,9 @@ describe('DatePartsField', () => {
         expect(result.error).toEqual(
           expect.objectContaining({
             message: [
-              'day must be a number',
-              'month must be a number',
-              'year must be a number'
+              'Example date parts field must include a day',
+              'Example date parts field must include a month',
+              'Example date parts field must include a year'
             ].join('. ')
           })
         )
@@ -401,7 +401,7 @@ describe('DatePartsField', () => {
                 month: 1,
                 year: 2024
               }),
-              error: new Error('day must be 31 or lower')
+              error: new Error('Example date parts field must include a day')
             }
           },
           {
@@ -416,7 +416,7 @@ describe('DatePartsField', () => {
                 month: 13,
                 year: 2024
               }),
-              error: new Error('month must be 12 or lower')
+              error: new Error('Example date parts field must include a month')
             }
           },
           {
@@ -431,7 +431,7 @@ describe('DatePartsField', () => {
                 month: 1,
                 year: 999
               }),
-              error: new Error('year must be 1000 or higher')
+              error: new Error('Example date parts field must include a year')
             }
           }
         ]
