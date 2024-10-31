@@ -292,6 +292,26 @@ describe('MonthYearField', () => {
         ]
       },
       {
+        description: 'Trim decimals',
+        component: {
+          title: 'Example month/year field',
+          name: 'myComponent',
+          type: ComponentType.MonthYearField,
+          options: {}
+        } satisfies MonthYearFieldComponent,
+        assertions: [
+          {
+            input: getFormData({
+              month: '1.2',
+              year: '2001.3'
+            }),
+            output: {
+              value: getFormData(date)
+            }
+          }
+        ]
+      },
+      {
         description: 'Out of range values',
         component: {
           title: 'Example month/year field',

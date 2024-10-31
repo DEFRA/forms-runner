@@ -339,6 +339,27 @@ describe('DatePartsField', () => {
         ]
       },
       {
+        description: 'Trim decimals',
+        component: {
+          title: 'Example date parts field',
+          name: 'myComponent',
+          type: ComponentType.DatePartsField,
+          options: {}
+        } satisfies DatePartsFieldComponent,
+        assertions: [
+          {
+            input: getFormData({
+              day: '1.1',
+              month: '1.2',
+              year: '2001.3'
+            }),
+            output: {
+              value: getFormData(date)
+            }
+          }
+        ]
+      },
+      {
         description: 'Leap years',
         component: {
           title: 'Example date parts field',

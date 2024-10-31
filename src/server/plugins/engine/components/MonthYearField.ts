@@ -33,7 +33,7 @@ export class MonthYearField extends FormComponent {
           type: ComponentType.NumberField,
           name: `${name}__month`,
           title: 'Month',
-          schema: { min: 1, max: 12 },
+          schema: { min: 1, max: 12, precision: 0 },
           options: {
             required: isRequired,
             optionalText: !isRequired && hideOptional,
@@ -45,7 +45,7 @@ export class MonthYearField extends FormComponent {
           type: ComponentType.NumberField,
           name: `${name}__year`,
           title: 'Year',
-          schema: { min: 1000, max: 3000 },
+          schema: { min: 1000, max: 3000, precision: 0 },
           options: {
             required: isRequired,
             optionalText: !isRequired && hideOptional,
