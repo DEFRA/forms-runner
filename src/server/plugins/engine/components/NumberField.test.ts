@@ -100,7 +100,7 @@ describe('NumberField', () => {
 
         expect(result.error).toEqual(
           expect.objectContaining({
-            message: `${label} must be a number`
+            message: `Enter ${label}`
           })
         )
       })
@@ -233,6 +233,72 @@ describe('NumberField', () => {
           {
             input: '3.14159',
             output: { value: 3.14159 }
+          }
+        ]
+      },
+      {
+        description: 'Schema precision (integers only)',
+        component: {
+          title: 'Example number field',
+          name: 'myComponent',
+          type: ComponentType.NumberField,
+          options: {},
+          schema: {
+            precision: 0
+          }
+        } satisfies NumberFieldComponent,
+        assertions: [
+          {
+            input: '100.55',
+            output: { value: 101 }
+          },
+          {
+            input: '3.14159',
+            output: { value: 3 }
+          }
+        ]
+      },
+      {
+        description: 'Schema precision (1 decimal place)',
+        component: {
+          title: 'Example number field',
+          name: 'myComponent',
+          type: ComponentType.NumberField,
+          options: {},
+          schema: {
+            precision: 1
+          }
+        } satisfies NumberFieldComponent,
+        assertions: [
+          {
+            input: '100.555',
+            output: { value: 100.6 }
+          },
+          {
+            input: '3.14159',
+            output: { value: 3.1 }
+          }
+        ]
+      },
+      {
+        description: 'Schema precision (2 decimal places)',
+        component: {
+          title: 'Example number field',
+          name: 'myComponent',
+          type: ComponentType.NumberField,
+          options: {},
+          schema: {
+            precision: 2
+          }
+        } satisfies NumberFieldComponent,
+        assertions: [
+          {
+            input: '100.555',
+            output: { value: 100.56 }
+          },
+          {
+            input: '3.14159',
+            output: { value: 3.14 }
           }
         ]
       },

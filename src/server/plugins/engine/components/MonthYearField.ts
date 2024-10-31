@@ -23,7 +23,9 @@ export class MonthYearField extends FormComponent {
     super(def, model)
 
     const { name, options, title } = def
+
     const isRequired = options.required !== false
+    const hideOptional = options.optionalText
 
     this.children = new ComponentCollection(
       [
@@ -31,21 +33,24 @@ export class MonthYearField extends FormComponent {
           type: ComponentType.NumberField,
           name: `${name}__month`,
           title: 'Month',
-          schema: { min: 1, max: 12 },
+          schema: { min: 1, max: 12, precision: 0 },
           options: {
             required: isRequired,
+            optionalText: !isRequired && hideOptional,
             classes: 'govuk-input--width-2',
-            customValidationMessage: '{{#label}} must be between 1 and 12'
+            customValidationMessage: `${title} must include a {{#label}}`
           }
         },
         {
           type: ComponentType.NumberField,
           name: `${name}__year`,
           title: 'Year',
-          schema: { min: 1000, max: 3000 },
+          schema: { min: 1000, max: 3000, precision: 0 },
           options: {
             required: isRequired,
-            classes: 'govuk-input--width-4'
+            optionalText: !isRequired && hideOptional,
+            classes: 'govuk-input--width-4',
+            customValidationMessage: `${title} must include a {{#label}}`
           }
         }
       ],

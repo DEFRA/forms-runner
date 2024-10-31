@@ -91,7 +91,7 @@ describe('RepeatPageController', () => {
               path: 'quantity',
               href: '#quantity',
               name: 'quantity',
-              text: 'Select quantity'
+              text: 'Enter quantity'
             },
             {
               href: '#itemId',

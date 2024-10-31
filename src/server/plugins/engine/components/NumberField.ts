@@ -3,6 +3,7 @@ import joi, { type NumberSchema } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormPayload,
   type FormSubmissionErrors
@@ -22,6 +23,10 @@ export class NumberField extends FormComponent {
 
     if (options.required === false) {
       formSchema = formSchema.allow('')
+    } else {
+      formSchema = formSchema.empty('').messages({
+        'any.required': messageTemplate.required
+      })
     }
 
     if (typeof schema.min === 'number') {
@@ -30,6 +35,10 @@ export class NumberField extends FormComponent {
 
     if (typeof schema.max === 'number') {
       formSchema = formSchema.max(schema.max)
+    }
+
+    if (typeof schema.precision === 'number') {
+      formSchema = formSchema.precision(schema.precision)
     }
 
     if (options.customValidationMessage) {
