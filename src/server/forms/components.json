@@ -60,7 +60,7 @@
         {
           "type": "UkAddressField",
           "name": "addressField",
-          "title": "Telephone number field",
+          "title": "UK address field",
           "options": {},
           "schema": {}
         },

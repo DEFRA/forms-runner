@@ -68,7 +68,7 @@
         {
           "type": "UkAddressField",
           "name": "addressField",
-          "title": "Telephone number field",
+          "title": "Address field",
           "options": {},
           "schema": {}
         },

@@ -188,7 +188,7 @@ describe('Submission journey test', () => {
           \`\`\`
 
 
-          ## Telephone number field
+          ## Address field
           \`\`\`
           Address line 1, Address line 2, Town or city, CW1 1AB
           \`\`\`
