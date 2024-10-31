@@ -1,18 +1,18 @@
 {
-  "name": "All components",
+  "name": "Fields optional",
   "conditions": [],
-  "startPage": "/all-components",
+  "startPage": "/components",
   "pages": [
     {
-      "path": "/all-components",
-      "title": "All Components",
+      "path": "/components",
+      "title": "Fields optional",
       "components": [
         {
           "type": "TextField",
           "name": "textField",
           "title": "Text field",
           "hint": "Help text",
-          "options": {},
+          "options": { "required": false },
           "schema": {}
         },
         {
@@ -20,56 +20,56 @@
           "name": "multilineTextField",
           "title": "Multiline text field",
           "hint": "Help text",
-          "options": {},
+          "options": { "required": false },
           "schema": {}
         },
         {
           "type": "NumberField",
           "name": "numberField",
           "title": "Number field",
-          "options": {},
+          "options": { "required": false },
           "schema": {}
         },
         {
           "type": "DatePartsField",
           "name": "datePartsField",
           "title": "Date parts field",
-          "options": {},
+          "options": { "required": false },
           "schema": {}
         },
         {
           "type": "MonthYearField",
           "name": "monthYearField",
           "title": "Month year field",
-          "options": {},
+          "options": { "required": false },
           "schema": {}
         },
         {
           "type": "YesNoField",
           "name": "yesNoField",
           "title": "Yes/No field",
-          "options": {},
+          "options": { "required": false },
           "schema": {}
         },
         {
           "type": "EmailAddressField",
           "name": "emailAddressField",
           "title": "Email address field",
-          "options": {},
+          "options": { "required": false },
           "schema": {}
         },
         {
           "type": "TelephoneNumberField",
           "name": "telephoneNumberField",
           "title": "Telephone number field",
-          "options": {},
+          "options": { "required": false },
           "schema": {}
         },
         {
           "type": "UkAddressField",
           "name": "addressField",
           "title": "Address field",
-          "options": {},
+          "options": { "required": false },
           "schema": {}
         },
         {
@@ -77,7 +77,7 @@
           "name": "radiosField",
           "title": "Radios field",
           "list": "companyType",
-          "options": {},
+          "options": { "required": false },
           "schema": {}
         },
         {
@@ -85,7 +85,7 @@
           "name": "selectField",
           "title": "Select field",
           "list": "country",
-          "options": {},
+          "options": { "required": false },
           "schema": {}
         },
         {
@@ -93,11 +93,11 @@
           "name": "autocompleteField",
           "title": "Autocomplete field",
           "list": "country",
-          "options": {},
+          "options": { "required": false },
           "schema": {}
         },
         {
-          "options": {},
+          "options": { "required": false },
           "list": "horseBreed",
           "type": "CheckboxesField",
           "name": "checkboxesSingle",
@@ -106,7 +106,7 @@
           "schema": {}
         },
         {
-          "options": {},
+          "options": { "required": false },
           "list": "horseBreed",
           "type": "CheckboxesField",
           "name": "checkboxesMultiple",
@@ -115,7 +115,7 @@
           "schema": {}
         },
         {
-          "options": {},
+          "options": { "required": false },
           "list": "points",
           "type": "CheckboxesField",
           "name": "checkboxesSingleNumber",
@@ -124,7 +124,7 @@
           "schema": {}
         },
         {
-          "options": {},
+          "options": { "required": false },
           "list": "points",
           "type": "CheckboxesField",
           "name": "checkboxesMultipleNumber",
@@ -137,30 +137,8 @@
           "name": "details",
           "title": "Title",
           "content": "Content",
-          "options": {},
+          "options": { "required": false },
           "schema": {}
-        }
-      ],
-      "next": [{ "path": "/methodology-statement" }]
-    },
-    {
-      "path": "/methodology-statement",
-      "title": "Upload your methodology statement",
-      "section": "section",
-      "controller": "FileUploadPageController",
-      "components": [
-        {
-          "name": "fileUpload",
-          "type": "FileUploadField",
-          "hint": "Upload 2 copies of your methodology statement in Word, PDF or JPEG. The maximum file size for each file is 100MB",
-          "title": "Upload your methodology statement",
-          "options": {
-            "accept": "application/pdf,image/jpeg,image/png"
-          },
-          "schema": {
-            "min": 1,
-            "max": 2
-          }
         }
       ],
       "next": [
@@ -177,30 +155,8 @@
       "controller": "SummaryPageController"
     }
   ],
-  "sections": [
-    {
-      "name": "checkBeforeStart",
-      "title": "Check before you start",
-      "hideTitle": false
-    },
-    {
-      "name": "personalDetails",
-      "title": "Personal details",
-      "hideTitle": false
-    },
-    { "name": "companyDetails", "title": "Company details", "hideTitle": false }
-  ],
+  "sections": [],
   "lists": [
-    {
-      "name": "yesNoUnsure",
-      "title": "Yes/No/Not sure",
-      "type": "string",
-      "items": [
-        { "text": "Yes", "value": "yes" },
-        { "text": "No", "value": "no" },
-        { "text": "Not sure", "value": "unsure" }
-      ]
-    },
     {
       "name": "companyType",
       "title": "Company type",

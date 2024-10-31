@@ -13,8 +13,9 @@ export interface FormParams extends Partial<Record<string, string>> {
 }
 
 export interface FormRequestRefs
-  extends Omit<ReqRefDefaults, 'Params' | 'Query'> {
+  extends Omit<ReqRefDefaults, 'Params' | 'Payload' | 'Query'> {
   Params: FormParams
+  Payload: object
   Query: FormQuery
 }
 
@@ -22,6 +23,8 @@ export interface FormRequestPayloadRefs extends FormRequestRefs {
   Payload: {
     action?: string
     confirm?: boolean
+    itemId?: string
+    crumb?: string
   } & FormPayload
 }
 

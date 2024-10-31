@@ -38,6 +38,7 @@ import { getFormMetadata } from '~/src/server/plugins/engine/services/formsServi
 import {
   type FormPayload,
   type FormState,
+  type FormStateValue,
   type FormSubmissionErrors,
   type FormSubmissionState,
   type FormValidationResult,
@@ -248,8 +249,8 @@ export class PageControllerBase {
   }
 
   getStateFromValidForm(
-    request: FormRequest | FormRequestPayload,
-    payload: FormPayload
+    request: FormRequestPayload,
+    payload: FormRequestPayload['payload']
   ) {
     return this.components.getStateFromValidForm(payload)
   }
@@ -333,12 +334,14 @@ export class PageControllerBase {
     // While the current page isn't null
     while (nextPage != null) {
       // Either get the current state or the current state of the section if this page belongs to a section
-      const newValue: Record<string, unknown> = {}
+      const newValue: Record<string, FormState | FormStateValue> = {}
 
       if (!hasRepeater(nextPage.pageDef)) {
         // Iterate all components on this page and pull out the saved values from the state
-        for (const component of nextPage.components.items) {
-          let componentState = state[component.name]
+        for (const component of nextPage.components.formItems) {
+          const { name, options } = component
+
+          const value = component.getFormValueFromState(state)
 
           /**
            * For evaluation context purposes, optional {@link CheckboxesField}
@@ -353,22 +356,22 @@ export class PageControllerBase {
            * Similarly for optional {@link RadiosField}, the evaluation context should default to null.
            */
           if (
-            (componentState === null || componentState === undefined) &&
+            value === undefined &&
             component instanceof CheckboxesField &&
-            !component.options.required
+            !options.required
           ) {
-            componentState = []
+            newValue[name] = []
           } else if (
-            componentState === undefined &&
+            value === undefined &&
             component instanceof RadiosField &&
-            !component.options.required
+            !options.required
           ) {
-            componentState = null
+            newValue[name] = null
           } else if (component instanceof DatePartsField) {
-            componentState = component.getConditionEvaluationStateValue(state)
+            newValue[name] = component.getConditionEvaluationStateValue(state)
           }
 
-          newValue[component.name] = componentState
+          newValue[name] ??= value ?? null
         }
 
         // Combine our stored values with the existing relevantState that we've been building up

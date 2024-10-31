@@ -1,9 +1,7 @@
+import { type Item } from '@defra/forms-model'
 import { type ResponseObject } from '@hapi/hapi'
 
-import {
-  type ComponentCollectionViewModel,
-  type FormComponentViewModel
-} from '~/src/server/plugins/engine/components/types.js'
+import { type ComponentViewModel } from '~/src/server/plugins/engine/components/types.js'
 import {
   type FileUploadPageController,
   type PageController
@@ -79,18 +77,16 @@ export interface FormSubmissionErrors {
  * Form POST for question pages
  * (after Joi has converted value types)
  */
-export type FormPayload = {
-  /**
-   * Crumb plugin (CSRF protection) generated ID from hidden form input
-   */
-  crumb?: string
-} & FormData
-
-export type FormData = Partial<Record<string, FormValue>>
-export type FormValue = NonNullable<unknown> | undefined
+export type FormPayload = Partial<Record<string, FormValue>>
+export type FormValue =
+  | Item['value']
+  | Item['value'][]
+  | FileState[]
+  | RepeatState[]
+  | undefined
 
 export type FormState = Partial<Record<string, FormStateValue>>
-export type FormStateValue = FormValue | null
+export type FormStateValue = Exclude<FormValue, undefined> | null
 
 export interface FormValidationResult<ValueType extends object = FormPayload> {
   value?: ValueType
@@ -168,13 +164,17 @@ export interface TempFileState {
   files: FileState[]
 }
 
+export interface RepeatState extends FormPayload {
+  itemId: string
+}
+
 export interface PageViewModelBase {
   page: PageController
   name?: string
   pageTitle: string
   sectionTitle?: string
   showTitle: boolean
-  components: ComponentCollectionViewModel
+  components: ComponentViewModel[]
   errors?: FormSubmissionErrors
   isStartPage: boolean
   startPage?: ResponseObject
@@ -192,8 +192,8 @@ export interface FileUploadPageViewModel extends PageViewModelBase {
   page: FileUploadPageController
   path: string
   formAction?: string
-  fileUploadComponent: FormComponentViewModel
-  preUploadComponents: ComponentCollectionViewModel
+  fileUploadComponent: ComponentViewModel
+  preUploadComponents: ComponentViewModel[]
 }
 
 export type PageViewModel = PageViewModelBase | FileUploadPageViewModel

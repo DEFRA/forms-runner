@@ -1,11 +1,14 @@
 import { ComponentType, type DatePartsFieldComponent } from '@defra/forms-model'
-import { format, isValid, parse, parseISO } from 'date-fns'
-import joi from 'joi'
+import { add, format, isValid, parse, startOfToday, sub } from 'date-fns'
+import { type CustomValidator, type ObjectSchema } from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import {
+  FormComponent,
+  isFormState
+} from '~/src/server/plugins/engine/components/FormComponent.js'
+import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
-import { getCustomDateValidator } from '~/src/server/plugins/engine/components/helpers.js'
 import {
   DataType,
   type DateInputItem
@@ -13,12 +16,17 @@ import {
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
+  type FormState,
+  type FormStateValue,
   type FormSubmissionErrors,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 
 export class DatePartsField extends FormComponent {
   declare options: DatePartsFieldComponent['options']
+  declare formSchema: ObjectSchema<FormPayload>
+  declare stateSchema: ObjectSchema<FormState>
+
   children: ComponentCollection
   dataType: DataType = DataType.Date
 
@@ -29,12 +37,6 @@ export class DatePartsField extends FormComponent {
 
     const isRequired = options.required !== false
     const hideOptional = options.optionalText
-
-    let stateSchema = joi.date().label(title.toLowerCase()).required()
-
-    if (options.required === false) {
-      stateSchema = stateSchema.allow(null)
-    }
 
     this.children = new ComponentCollection(
       [
@@ -78,11 +80,15 @@ export class DatePartsField extends FormComponent {
       model
     )
 
-    let { formSchema } = this.children
+    let { formSchema, stateSchema } = this.children
 
     // Update child schema
     formSchema = formSchema
-      .custom(getCustomDateValidator(this))
+      .custom(getValidatorDate(this), 'date validation')
+      .label(title.toLowerCase())
+
+    stateSchema = stateSchema
+      .custom(getValidatorDate(this), 'date validation')
       .label(title.toLowerCase())
 
     this.options = options
@@ -90,57 +96,32 @@ export class DatePartsField extends FormComponent {
     this.stateSchema = stateSchema
 
     this.children.formSchema = formSchema
+    this.children.stateSchema = stateSchema
   }
 
-  getFormSchemaKeys() {
-    return this.children.getFormSchemaKeys()
-  }
-
-  getFormDataFromState(state: FormSubmissionState) {
-    const { name } = this
-
-    let day: number | undefined
-    let month: number | undefined
-    let year: number | undefined
-
-    if (typeof state[name] === 'string') {
-      const value = new Date(state[name])
-
-      if (isValid(value)) {
-        day = value.getDate()
-        month = value.getMonth() + 1
-        year = value.getFullYear()
-      }
-    }
-
-    return {
-      [`${name}__day`]: day,
-      [`${name}__month`]: month,
-      [`${name}__year`]: year
-    }
-  }
-
-  getStateValueFromValidForm(payload: FormPayload) {
-    const { name } = this
-
-    const {
-      [`${name}__day`]: day,
-      [`${name}__month`]: month,
-      [`${name}__year`]: year
-    } = payload
-
-    const value = parse(`${year}-${month}-${day}`, 'yyyy-MM-dd', new Date())
-    return isValid(value) ? value.toISOString() : null
+  getFormValueFromState(state: FormSubmissionState) {
+    const value = super.getFormValueFromState(state)
+    return this.isState(value) ? value : undefined
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
-    const value = state[this.name]
-    return value ? format(parseISO(value), 'd MMMM yyyy') : ''
+    const value = this.getFormValueFromState(state)
+
+    if (!value) {
+      return ''
+    }
+
+    return format(`${value.year}-${value.month}-${value.day}`, 'd MMMM yyyy')
   }
 
-  getConditionEvaluationStateValue(state: FormSubmissionState): string {
-    const value = state[this.name]
-    return value ? format(parseISO(value), 'yyyy-MM-dd') : '' // strip the time as it interferes with equals/not equals
+  getConditionEvaluationStateValue(state: FormSubmissionState) {
+    const value = this.getFormValueFromState(state)
+
+    if (!value) {
+      return null
+    }
+
+    return format(`${value.year}-${value.month}-${value.day}`, 'yyyy-MM-dd')
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
@@ -174,7 +155,7 @@ export class DatePartsField extends FormComponent {
           classes = `${classes} govuk-input--error`.trim()
         }
 
-        if (typeof value !== 'number') {
+        if (!NumberField.isNumber(value)) {
           value = undefined
         }
 
@@ -206,4 +187,79 @@ export class DatePartsField extends FormComponent {
       items
     }
   }
+
+  isState(value?: FormStateValue | FormState) {
+    return DatePartsField.isDateParts(value)
+  }
+
+  static isDateParts(
+    value?: FormStateValue | FormState
+  ): value is DatePartsState {
+    return (
+      isFormState(value) &&
+      NumberField.isNumber(value.day) &&
+      NumberField.isNumber(value.month) &&
+      NumberField.isNumber(value.year)
+    )
+  }
+}
+
+interface DatePartsState extends Record<string, number> {
+  day: number
+  month: number
+  year: number
+}
+
+export function getValidatorDate(component: DatePartsField) {
+  const { options } = component
+
+  const validator: CustomValidator = (payload: FormPayload, helpers) => {
+    const values = component.getFormValueFromState(
+      component.getStateFromValidForm(payload)
+    )
+
+    if (!DatePartsField.isDateParts(values)) {
+      return options.required !== false
+        ? helpers.error('date.base') // Date required
+        : payload
+    }
+
+    const date = parse(
+      `${values.year}-${values.month}-${values.day}`,
+      'yyyy-MM-dd',
+      new Date()
+    )
+
+    if (!isValid(date)) {
+      return helpers.error('date.format')
+    }
+
+    // Minimum date from today
+    const dateMin = options.maxDaysInPast
+      ? sub(startOfToday(), { days: options.maxDaysInPast })
+      : undefined
+
+    // Maximum date from today
+    const dateMax = options.maxDaysInFuture
+      ? add(startOfToday(), { days: options.maxDaysInFuture })
+      : undefined
+
+    if (dateMin && date < dateMin) {
+      return helpers.error('date.min', {
+        label: helpers.state.key,
+        limit: dateMin
+      })
+    }
+
+    if (dateMax && date > dateMax) {
+      return helpers.error('date.max', {
+        label: helpers.state.key,
+        limit: dateMax
+      })
+    }
+
+    return payload
+  }
+
+  return validator
 }

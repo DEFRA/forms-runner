@@ -10,7 +10,7 @@ import { type DateInputItem } from '~/src/server/plugins/engine/components/types
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
-  type FormData,
+  type FormPayload,
   type FormState
 } from '~/src/server/plugins/engine/types.js'
 
@@ -47,7 +47,7 @@ describe('MonthYearField', () => {
 
     describe('Schema', () => {
       it('uses collection titles as labels', () => {
-        const { formSchema } = component.children
+        const { formSchema } = component
 
         expect(formSchema.describe().keys).toEqual(
           expect.objectContaining({
@@ -62,7 +62,7 @@ describe('MonthYearField', () => {
       })
 
       it('is required by default', () => {
-        const { formSchema } = component.children
+        const { formSchema } = component
 
         expect(formSchema.describe().flags).toEqual(
           expect.objectContaining({
@@ -82,7 +82,7 @@ describe('MonthYearField', () => {
           formModel
         )
 
-        const { formSchema } = componentOptional.children
+        const { formSchema } = componentOptional
 
         expect(formSchema.describe().keys).toEqual(
           expect.objectContaining({
@@ -107,7 +107,7 @@ describe('MonthYearField', () => {
       })
 
       it('accepts valid values', () => {
-        const { formSchema } = component.children
+        const { formSchema } = component
 
         const result1 = formSchema.validate(
           getFormData({
@@ -130,7 +130,7 @@ describe('MonthYearField', () => {
       })
 
       it('adds errors for empty value', () => {
-        const { formSchema } = component.children
+        const { formSchema } = component
 
         const result = formSchema.validate(
           getFormData({
@@ -151,7 +151,7 @@ describe('MonthYearField', () => {
       })
 
       it('adds errors for invalid values', () => {
-        const { formSchema } = component.children
+        const { formSchema } = component
 
         const result1 = formSchema.validate(['invalid'], opts)
         const result2 = formSchema.validate({ unknown: 'invalid' }, opts)
@@ -173,31 +173,51 @@ describe('MonthYearField', () => {
       const date = new Date('2024-12-31')
 
       it('returns text from state', () => {
-        const state = getFormState(date)
-        const text = component.getDisplayStringFromState(state)
+        const state1 = getFormState(date)
+        const state2 = getFormState({})
 
-        expect(text).toBe('December 2024')
+        const text1 = component.getDisplayStringFromState(state1)
+        const text2 = component.getDisplayStringFromState(state2)
+
+        expect(text1).toBe('December 2024')
+        expect(text2).toBe('')
       })
 
       it('returns payload from state', () => {
-        const state = getFormState(startOfDay(date))
-        const payload = component.getFormDataFromState(state)
+        const state1 = getFormState(startOfDay(date))
+        const state2 = getFormState({})
 
-        expect(payload).toEqual(getFormData(date))
+        const payload1 = component.getFormDataFromState(state1)
+        const payload2 = component.getFormDataFromState(state2)
+
+        expect(payload1).toEqual(getFormData(date))
+        expect(payload2).toEqual({})
       })
 
-      it('returns state from payload (object)', () => {
-        const payload = getFormData(date)
-        const value = component.getStateFromValidForm(payload)
+      it('returns value from state', () => {
+        const state1 = getFormState(startOfDay(date))
+        const state2 = getFormState({})
 
-        expect(value).toEqual(getFormState(date))
+        const value1 = component.getFormValueFromState(state1)
+        const value2 = component.getFormValueFromState(state2)
+
+        expect(value1).toEqual({
+          month: 12,
+          year: 2024
+        })
+
+        expect(value2).toBeUndefined()
       })
 
-      it('returns state from payload (value)', () => {
-        const payload = getFormData(date)
-        const value = component.getStateValueFromValidForm(payload)
+      it('returns state from payload', () => {
+        const payload1 = getFormData(date)
+        const payload2 = {}
 
-        expect(value).toEqual(getFormState(date).myComponent)
+        const state1 = component.getStateFromValidForm(payload1)
+        const state2 = component.getStateFromValidForm(payload2)
+
+        expect(state1).toEqual(getFormState(date))
+        expect(state2).toEqual(getFormState({}))
       })
     })
 
@@ -383,7 +403,7 @@ describe('MonthYearField', () => {
       it.each([...assertions])(
         'validates custom example',
         ({ input, output }) => {
-          const { formSchema } = component.children
+          const { formSchema } = component
 
           const result = formSchema.validate(input, opts)
           expect(result).toEqual(output)
@@ -422,7 +442,7 @@ function getViewModel(
 /**
  * Month & year form data
  */
-function getFormData(date: Date | FormData): FormData {
+function getFormData(date: Date | FormPayload): FormPayload {
   if (date instanceof Date) {
     date = {
       month: date.getMonth() + 1,
@@ -439,10 +459,11 @@ function getFormData(date: Date | FormData): FormData {
 /**
  * Month & year session state
  */
-function getFormState(date: Date | FormData): FormState {
-  const payload = getFormData(date)
+function getFormState(date: Date | FormPayload): FormState {
+  const [month, year] = Object.values(getFormData(date))
 
   return {
-    myComponent: payload
+    myComponent__month: month ?? null,
+    myComponent__year: year ?? null
   }
 }

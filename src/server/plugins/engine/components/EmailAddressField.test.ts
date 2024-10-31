@@ -7,6 +7,7 @@ import {
 import { EmailAddressField } from '~/src/server/plugins/engine/components/EmailAddressField.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
 describe('EmailAddressField', () => {
   const definition = {
@@ -112,27 +113,63 @@ describe('EmailAddressField', () => {
     })
 
     describe('State', () => {
-      it('returns text from state value', () => {
-        const text = component.getDisplayStringFromState({
-          [def.name]: 'Text field'
-        })
+      it('returns text from state', () => {
+        const state1 = getFormState('defra.helpline@defra.gov.uk')
+        const state2 = getFormState(null)
 
-        expect(text).toBe('Text field')
+        const text1 = component.getDisplayStringFromState(state1)
+        const text2 = component.getDisplayStringFromState(state2)
+
+        expect(text1).toBe('defra.helpline@defra.gov.uk')
+        expect(text2).toBe('')
+      })
+
+      it('returns payload from state', () => {
+        const state1 = getFormState('defra.helpline@defra.gov.uk')
+        const state2 = getFormState(null)
+
+        const payload1 = component.getFormDataFromState(state1)
+        const payload2 = component.getFormDataFromState(state2)
+
+        expect(payload1).toEqual(getFormData('defra.helpline@defra.gov.uk'))
+        expect(payload2).toEqual(getFormData())
+      })
+
+      it('returns value from state', () => {
+        const state1 = getFormState('defra.helpline@defra.gov.uk')
+        const state2 = getFormState(null)
+
+        const value1 = component.getFormValueFromState(state1)
+        const value2 = component.getFormValueFromState(state2)
+
+        expect(value1).toBe('defra.helpline@defra.gov.uk')
+        expect(value2).toBeUndefined()
+      })
+
+      it('returns state from payload', () => {
+        const payload1 = getFormData('defra.helpline@defra.gov.uk')
+        const payload2 = getFormData()
+
+        const value1 = component.getStateFromValidForm(payload1)
+        const value2 = component.getStateFromValidForm(payload2)
+
+        expect(value1).toEqual(getFormState('defra.helpline@defra.gov.uk'))
+        expect(value2).toEqual(getFormState(null))
       })
     })
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = component.getViewModel({
-          [def.name]: 'Text field'
-        })
+        const viewModel = component.getViewModel(
+          getFormData('defra.helpline@defra.gov.uk')
+        )
 
         expect(viewModel).toEqual(
           expect.objectContaining({
             label: { text: def.title },
             name: 'myComponent',
             id: 'myComponent',
-            value: 'Text field',
+            value: 'defra.helpline@defra.gov.uk',
             type: 'email',
             attributes: { autocomplete: 'email' }
           })

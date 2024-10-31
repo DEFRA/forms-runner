@@ -9,7 +9,10 @@ import {
 } from '~/src/server/plugins/engine/models/types.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
-import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+import {
+  type FormState,
+  type FormSubmissionState
+} from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
   type FormRequestPayload
@@ -215,22 +218,22 @@ function addRepeaterItem(
  */
 function Item(
   component: FormComponentFieldClass,
-  state: FormSubmissionState,
+  state: FormState,
   page: PageControllerClass,
   model: FormModel,
   params: { returnUrl: string } = {
     returnUrl: redirectUrl(`/${model.basePath}/summary`)
   }
-): DetailItem {
+) {
   return {
     name: component.name,
     path: page.path,
     label: component.title,
     value: component.getDisplayStringFromState(state),
-    rawValue: state[component.name],
+    rawValue: component.getFormValueFromState(state),
     url: redirectUrl(`/${model.basePath}${page.path}`, params),
     type: component.type,
     title: component.title,
     dataType: component.dataType
-  }
+  } as DetailItem
 }

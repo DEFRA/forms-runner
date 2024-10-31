@@ -7,6 +7,7 @@ import {
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
 describe('NumberField', () => {
   const definition = {
@@ -117,27 +118,61 @@ describe('NumberField', () => {
     })
 
     describe('State', () => {
-      it('returns text from state value', () => {
-        const text = component.getDisplayStringFromState({
-          [def.name]: 2024
-        })
+      it('returns text from state', () => {
+        const state1 = getFormState(2024)
+        const state2 = getFormState(null)
 
-        expect(text).toBe('2024')
+        const text1 = component.getDisplayStringFromState(state1)
+        const text2 = component.getDisplayStringFromState(state2)
+
+        expect(text1).toBe('2024')
+        expect(text2).toBe('')
+      })
+
+      it('returns payload from state', () => {
+        const state1 = getFormState(2024)
+        const state2 = getFormState(null)
+
+        const payload1 = component.getFormDataFromState(state1)
+        const payload2 = component.getFormDataFromState(state2)
+
+        expect(payload1).toEqual(getFormData(2024))
+        expect(payload2).toEqual(getFormData())
+      })
+
+      it('returns value from state', () => {
+        const state1 = getFormState(2024)
+        const state2 = getFormState(null)
+
+        const value1 = component.getFormValueFromState(state1)
+        const value2 = component.getFormValueFromState(state2)
+
+        expect(value1).toBe(2024)
+        expect(value2).toBeUndefined()
+      })
+
+      it('returns state from payload', () => {
+        const payload1 = getFormData(2024)
+        const payload2 = getFormData()
+
+        const value1 = component.getStateFromValidForm(payload1)
+        const value2 = component.getStateFromValidForm(payload2)
+
+        expect(value1).toEqual(getFormState(2024))
+        expect(value2).toEqual(getFormState(null))
       })
     })
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = component.getViewModel({
-          [def.name]: '2024'
-        })
+        const viewModel = component.getViewModel(getFormData(2024))
 
         expect(viewModel).toEqual(
           expect.objectContaining({
             label: { text: def.title },
             name: 'myComponent',
             id: 'myComponent',
-            value: '2024',
+            value: 2024,
             type: 'number'
           })
         )
@@ -149,9 +184,7 @@ describe('NumberField', () => {
           formModel
         )
 
-        const viewModel = componentCustom.getViewModel({
-          [def.name]: '99.99'
-        })
+        const viewModel = componentCustom.getViewModel(getFormData(99.99))
 
         expect(viewModel.prefix).toEqual({ text: '£' })
         expect(viewModel.suffix).toEqual({ text: 'per item' })
@@ -163,9 +196,7 @@ describe('NumberField', () => {
           formModel
         )
 
-        const viewModel = componentCustom.getViewModel({
-          [def.name]: '99.99'
-        })
+        const viewModel = componentCustom.getViewModel(getFormData(99.99))
 
         expect(viewModel.attributes).toEqual(
           expect.objectContaining({

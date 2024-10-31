@@ -82,13 +82,13 @@ export class ListFormComponent extends FormComponent {
   }
 
   getFormValueFromState(state: FormSubmissionState) {
-    const { values: listValues, name } = this
+    const { name, values: listValues } = this
 
     const value = state[name]
-    const values = [value ?? []].flat().map(String)
+    const values = this.isValue(value) ? [value].flat() : []
 
     const selected = listValues.filter((listValue) =>
-      values.includes(`${listValue}`)
+      values.includes(listValue)
     )
 
     if (!selected.length) {
@@ -100,10 +100,10 @@ export class ListFormComponent extends FormComponent {
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
-    const { items: listItems, name } = this
+    const { items: listItems } = this
 
     // Support multiple values for checkboxes
-    const value = state[name]
+    const value = this.getFormValueFromState(state)
     const values = [value ?? []].flat()
 
     return listItems
@@ -116,20 +116,14 @@ export class ListFormComponent extends FormComponent {
     const { items: listItems } = this
 
     const viewModel = super.getViewModel(payload, errors)
-    let { items, value } = viewModel
+    const { value } = viewModel
 
     // Support multiple values for checkboxes
-    const values = [value ?? []].flat().map(String)
+    const values = this.isValue(value) ? [value].flat() : []
 
-    items = listItems.map((item) => {
-      const value = `${item.value}`
-      const selected = values.includes(value)
-
-      const itemModel: ListItem = {
-        ...item,
-        selected,
-        value
-      }
+    const items = listItems.map((item) => {
+      const selected = values.includes(item.value)
+      const itemModel: ListItem = { ...item, selected }
 
       if (item.description) {
         itemModel.hint = {

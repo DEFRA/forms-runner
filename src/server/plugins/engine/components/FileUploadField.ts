@@ -9,15 +9,21 @@ import {
   FileStatus,
   UploadStatus,
   type FileState,
+  type FileUpload,
+  type FileUploadMetadata,
   type FormPayload,
+  type FormState,
+  type FormStateValue,
   type FormSubmissionErrors,
-  type FormSubmissionState
+  type FormSubmissionState,
+  type UploadState,
+  type UploadStatusResponse
 } from '~/src/server/plugins/engine/types.js'
 
 export const uploadIdSchema = joi.string().uuid().required()
 
 export const fileSchema = joi
-  .object({
+  .object<FileUpload>({
     fileId: joi.string().uuid().required(),
     filename: joi.string().required(),
     contentLength: joi.number().required()
@@ -37,14 +43,14 @@ export const formFileSchema = fileSchema.append({
 })
 
 export const metadataSchema = joi
-  .object()
+  .object<FileUploadMetadata>()
   .keys({
     retrievalKey: joi.string().email().required()
   })
   .required()
 
 export const tempStatusSchema = joi
-  .object({
+  .object<UploadState>({
     uploadStatus: joi
       .string()
       .valid(UploadStatus.ready, UploadStatus.pending)
@@ -58,7 +64,7 @@ export const tempStatusSchema = joi
   .required()
 
 export const formStatusSchema = joi
-  .object({
+  .object<UploadStatusResponse>({
     uploadStatus: joi.string().valid(UploadStatus.ready).required(),
     metadata: metadataSchema,
     form: joi.object().required().keys({
@@ -68,7 +74,7 @@ export const formStatusSchema = joi
   })
   .required()
 
-export const itemSchema = joi.object({
+export const itemSchema = joi.object<FileState>({
   uploadId: uploadIdSchema
 })
 
@@ -83,17 +89,21 @@ export const formItemSchema = itemSchema.append({
 export class FileUploadField extends FormComponent {
   declare options: FileUploadFieldComponent['options']
   declare schema: FileUploadFieldComponent['schema']
-  dataType: DataType = DataType.File
+  declare formSchema: ArraySchema<FileState>
+  declare stateSchema: ArraySchema<FileState>
 
-  declare formSchema: ArraySchema<object>
-  declare stateSchema: ArraySchema<object>
+  dataType: DataType = DataType.File
 
   constructor(def: FileUploadFieldComponent, model: FormModel) {
     super(def, model)
 
     const { options, schema, title } = def
 
-    let formSchema = joi.array().label(title.toLowerCase()).single().required()
+    let formSchema = joi
+      .array<FileState>()
+      .label(title.toLowerCase())
+      .single()
+      .required()
 
     if (options.required === false) {
       formSchema = formSchema.optional().allow(null)
@@ -118,16 +128,13 @@ export class FileUploadField extends FormComponent {
   }
 
   getFormValueFromState(state: FormSubmissionState) {
-    const { name } = this
-
-    if (Array.isArray(state[name])) {
-      return state[name]
-    }
+    const value = super.getFormValueFromState(state)
+    return this.isValue(value) ? value : undefined
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
-    const value = this.getFormValueFromState(state)
-    const count = Array.isArray(value) ? value.length : 0
+    const files = this.getFormValueFromState(state) ?? []
+    const count = files.length
 
     if (!count) {
       return super.getDisplayStringFromState(state)
@@ -142,7 +149,7 @@ export class FileUploadField extends FormComponent {
     const viewModel = super.getViewModel(payload, errors)
     const { attributes, value } = viewModel
 
-    const files = (value ?? []) as FileState[]
+    const files = this.isValue(value) ? value : []
     const count = files.length
 
     let pendingCount = 0
@@ -195,5 +202,26 @@ export class FileUploadField extends FormComponent {
         summary
       }
     }
+  }
+
+  isValue(value?: FormStateValue | FormState): value is FileState[] {
+    return FileUploadField.isFileUploads(value)
+  }
+
+  static isFileUploads(
+    value?: FormStateValue | FormState
+  ): value is FileState[] {
+    if (!Array.isArray(value)) {
+      return false
+    }
+
+    // Skip checks when empty
+    if (!value.length) {
+      return true
+    }
+
+    return value.every(
+      (value) => typeof value === 'object' && 'uploadId' in value
+    )
   }
 }

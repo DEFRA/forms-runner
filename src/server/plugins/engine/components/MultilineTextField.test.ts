@@ -7,6 +7,7 @@ import {
 import { MultilineTextField } from '~/src/server/plugins/engine/components/MultilineTextField.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
 describe('MultilineTextField', () => {
   const definition = {
@@ -113,20 +114,54 @@ describe('MultilineTextField', () => {
     })
 
     describe('State', () => {
-      it('returns text from state value', () => {
-        const text = component.getDisplayStringFromState({
-          [def.name]: 'Textarea'
-        })
+      it('returns text from state', () => {
+        const state1 = getFormState('Textarea')
+        const state2 = getFormState(null)
 
-        expect(text).toBe('Textarea')
+        const text1 = component.getDisplayStringFromState(state1)
+        const text2 = component.getDisplayStringFromState(state2)
+
+        expect(text1).toBe('Textarea')
+        expect(text2).toBe('')
+      })
+
+      it('returns payload from state', () => {
+        const state1 = getFormState('Textarea')
+        const state2 = getFormState(null)
+
+        const payload1 = component.getFormDataFromState(state1)
+        const payload2 = component.getFormDataFromState(state2)
+
+        expect(payload1).toEqual(getFormData('Textarea'))
+        expect(payload2).toEqual(getFormData())
+      })
+
+      it('returns value from state', () => {
+        const state1 = getFormState('Textarea')
+        const state2 = getFormState(null)
+
+        const value1 = component.getFormValueFromState(state1)
+        const value2 = component.getFormValueFromState(state2)
+
+        expect(value1).toBe('Textarea')
+        expect(value2).toBeUndefined()
+      })
+
+      it('returns state from payload', () => {
+        const payload1 = getFormData('Textarea')
+        const payload2 = getFormData()
+
+        const value1 = component.getStateFromValidForm(payload1)
+        const value2 = component.getStateFromValidForm(payload2)
+
+        expect(value1).toEqual(getFormState('Textarea'))
+        expect(value2).toEqual(getFormState(null))
       })
     })
 
     describe('View model', () => {
       it('sets Nunjucks component defaults', () => {
-        const viewModel = component.getViewModel({
-          [def.name]: 'Textarea'
-        })
+        const viewModel = component.getViewModel(getFormData('Textarea'))
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -149,17 +184,15 @@ describe('MultilineTextField', () => {
           formModel
         )
 
-        const viewModel = component.getViewModel({
-          [def.name]: 'Textarea'
-        })
+        const viewModel = component.getViewModel(getFormData('Textarea'))
 
-        const viewModel1 = componentCustom1.getViewModel({
-          [def.name]: 'Textarea custom #1'
-        })
+        const viewModel1 = componentCustom1.getViewModel(
+          getFormData('Textarea custom #1')
+        )
 
-        const viewModel2 = componentCustom2.getViewModel({
-          [def.name]: 'Textarea custom #2'
-        })
+        const viewModel2 = componentCustom2.getViewModel(
+          getFormData('Textarea custom #2')
+        )
 
         expect(viewModel).toEqual(
           expect.objectContaining({ isCharacterOrWordCount: false })

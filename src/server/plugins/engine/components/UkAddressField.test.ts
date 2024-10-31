@@ -9,7 +9,7 @@ import { type ViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
-  type FormData,
+  type FormPayload,
   type FormState
 } from '~/src/server/plugins/engine/types.js'
 
@@ -182,7 +182,7 @@ describe('UkAddressField', () => {
     })
 
     describe('State', () => {
-      const address: FormData = {
+      const address: FormPayload = {
         addressLine1: 'Richard Fairclough House',
         addressLine2: 'Knutsford Road',
         town: 'Warrington',
@@ -190,38 +190,55 @@ describe('UkAddressField', () => {
       }
 
       it('returns text from state', () => {
-        const state = getFormState(address)
-        const text = component.getDisplayStringFromState(state)
+        const state1 = getFormState(address)
+        const state2 = getFormState({})
 
-        expect(text).toBe(
+        const text1 = component.getDisplayStringFromState(state1)
+        const text2 = component.getDisplayStringFromState(state2)
+
+        expect(text1).toBe(
           'Richard Fairclough House, Knutsford Road, Warrington, WA4 1HT'
         )
+
+        expect(text2).toBe('')
       })
 
       it('returns payload from state', () => {
-        const state = getFormState(address)
-        const payload = component.getFormDataFromState(state)
+        const state1 = getFormState(address)
+        const state2 = getFormState({})
 
-        expect(payload).toEqual(getFormData(address))
+        const payload1 = component.getFormDataFromState(state1)
+        const payload2 = component.getFormDataFromState(state2)
+
+        expect(payload1).toEqual(getFormData(address))
+        expect(payload2).toEqual(getFormData({}))
       })
 
-      it('returns state from payload (object)', () => {
-        const payload = getFormData(address)
-        const value = component.getStateFromValidForm(payload)
+      it('returns value from state', () => {
+        const state1 = getFormState(address)
+        const state2 = getFormState({})
 
-        expect(value).toEqual(getFormState(address))
+        const value1 = component.getFormValueFromState(state1)
+        const value2 = component.getFormValueFromState(state2)
+
+        expect(value1).toEqual(address)
+        expect(value2).toBeUndefined()
       })
 
-      it('returns state from payload (value)', () => {
-        const payload = getFormData(address)
-        const value = component.getStateValueFromValidForm(payload)
+      it('returns state from payload', () => {
+        const payload1 = getFormData(address)
+        const payload2 = getFormData({})
 
-        expect(value).toEqual(address)
+        const value1 = component.getStateFromValidForm(payload1)
+        const value2 = component.getStateFromValidForm(payload2)
+
+        expect(value1).toEqual(getFormState(address))
+        expect(value2).toEqual(getFormState({}))
       })
     })
 
     describe('View model', () => {
-      const address: FormData = {
+      const address: FormPayload = {
         addressLine1: 'Richard Fairclough House',
         addressLine2: 'Knutsford Road',
         town: 'Warrington',
@@ -291,7 +308,7 @@ describe('UkAddressField', () => {
   })
 
   describe('Validation', () => {
-    const address: FormData = {
+    const address: FormPayload = {
       addressLine1: 'Richard Fairclough House',
       addressLine2: 'Knutsford Road',
       town: 'Warrington',
@@ -457,7 +474,7 @@ describe('UkAddressField', () => {
  * UK address field view model
  */
 function getViewModel(
-  address: FormData,
+  address: FormPayload,
   name: string,
   overrides?: Partial<ViewModel>
 ): Partial<ViewModel> {
@@ -483,7 +500,7 @@ function getViewModel(
 /**
  * UK address form data
  */
-function getFormData(address: FormData): FormData {
+function getFormData(address: FormPayload): FormPayload {
   return {
     myComponent__addressLine1: address.addressLine1,
     myComponent__addressLine2: address.addressLine2,
@@ -495,13 +512,15 @@ function getFormData(address: FormData): FormData {
 /**
  * UK address session state
  */
-function getFormState(address: FormData): FormState {
+function getFormState(address: FormPayload): FormState {
+  const [addressLine1, addressLine2, town, postcode] = Object.values(
+    getFormData(address)
+  )
+
   return {
-    myComponent: {
-      addressLine1: address.addressLine1,
-      addressLine2: address.addressLine2,
-      town: address.town,
-      postcode: address.postcode
-    }
+    myComponent__addressLine1: addressLine1 ?? null,
+    myComponent__addressLine2: addressLine2 ?? null,
+    myComponent__town: town ?? null,
+    myComponent__postcode: postcode ?? null
   }
 }

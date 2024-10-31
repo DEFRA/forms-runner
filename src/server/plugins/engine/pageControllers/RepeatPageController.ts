@@ -9,11 +9,11 @@ import { ADD_ANOTHER, CONTINUE } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
-  type FormData,
   type FormPayload,
   type FormSubmissionErrors,
   type FormSubmissionState,
-  type PageViewModel
+  type PageViewModel,
+  type RepeatState
 } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
@@ -53,7 +53,7 @@ export class RepeatPageController extends PageController {
     const itemId = Joi.string().uuid().required()
 
     this.formSchema = this.formSchema.append({ itemId })
-    this.stateSchema = Joi.object<FormData>().keys({
+    this.stateSchema = Joi.object<RepeatState>().keys({
       [options.name]: Joi.array()
         .items(this.stateSchema.append({ itemId }))
         .min(schema.min)
@@ -73,11 +73,18 @@ export class RepeatPageController extends PageController {
     return payload
   }
 
-  getStateFromValidForm(request: FormRequest, payload: FormPayload) {
+  getStateFromValidForm(
+    request: FormRequestPayload,
+    payload: FormRequestPayload['payload']
+  ) {
     const { item, list } = this.getRepeatAppData(request)
     const state = super.getStateFromValidForm(request, payload)
 
-    const updated: FormData = { ...state, itemId: payload.itemId }
+    if (!payload.itemId) {
+      throw badRequest('No item ID found in the payload')
+    }
+
+    const updated: RepeatState = { ...state, itemId: payload.itemId }
     const newList = [...list]
 
     if (!item) {
@@ -155,9 +162,16 @@ export class RepeatPageController extends PageController {
   }
 
   getListFromState(state: FormSubmissionState) {
-    const listState = state[this.repeat.options.name]
+    const { name } = this.repeat.options
+    const values = state[name]
 
-    return Array.isArray(listState) ? listState : []
+    if (!Array.isArray(values)) {
+      return []
+    }
+
+    return values.filter(
+      (value) => typeof value === 'object' && 'itemId' in value
+    )
   }
 
   makeGetRouteHandler() {
@@ -330,7 +344,7 @@ export class RepeatPageController extends PageController {
 
   getListSummaryViewModel(
     request: FormRequest | FormRequestPayload,
-    state: FormData[],
+    state: RepeatState[],
     errors?: FormSubmissionErrors
   ): {
     name: string | undefined

@@ -1,11 +1,11 @@
 {
-  "name": "All components",
+  "name": "Fields required",
   "conditions": [],
-  "startPage": "/all-components",
+  "startPage": "/components",
   "pages": [
     {
-      "path": "/all-components",
-      "title": "All Components",
+      "path": "/components",
+      "title": "Fields required",
       "components": [
         {
           "type": "TextField",
@@ -141,28 +141,6 @@
           "schema": {}
         }
       ],
-      "next": [{ "path": "/methodology-statement" }]
-    },
-    {
-      "path": "/methodology-statement",
-      "title": "Upload your methodology statement",
-      "section": "section",
-      "controller": "FileUploadPageController",
-      "components": [
-        {
-          "name": "fileUpload",
-          "type": "FileUploadField",
-          "hint": "Upload 2 copies of your methodology statement in Word, PDF or JPEG. The maximum file size for each file is 100MB",
-          "title": "Upload your methodology statement",
-          "options": {
-            "accept": "application/pdf,image/jpeg,image/png"
-          },
-          "schema": {
-            "min": 1,
-            "max": 2
-          }
-        }
-      ],
       "next": [
         {
           "path": "/summary"
@@ -177,30 +155,8 @@
       "controller": "SummaryPageController"
     }
   ],
-  "sections": [
-    {
-      "name": "checkBeforeStart",
-      "title": "Check before you start",
-      "hideTitle": false
-    },
-    {
-      "name": "personalDetails",
-      "title": "Personal details",
-      "hideTitle": false
-    },
-    { "name": "companyDetails", "title": "Company details", "hideTitle": false }
-  ],
+  "sections": [],
   "lists": [
-    {
-      "name": "yesNoUnsure",
-      "title": "Yes/No/Not sure",
-      "type": "string",
-      "items": [
-        { "text": "Yes", "value": "yes" },
-        { "text": "No", "value": "no" },
-        { "text": "Not sure", "value": "unsure" }
-      ]
-    },
     {
       "name": "companyType",
       "title": "Company type",

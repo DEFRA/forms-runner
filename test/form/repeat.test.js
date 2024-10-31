@@ -59,8 +59,16 @@ async function createRepeatItem(
     throw new Error('Unexpected list state')
   }
 
+  const item = listState
+    .filter((value) => typeof value === 'object' && 'itemId' in value)
+    .at(-1)
+
+  if (!item) {
+    throw new Error('No item state found')
+  }
+
   return {
-    item: listState[listState.length - 1],
+    item,
     headers: headers ?? getCookieHeader(res1, 'session')
   }
 }
