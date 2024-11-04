@@ -75,7 +75,7 @@ export class DatePartsField extends FormComponent {
           }
         }
       ],
-      { model },
+      { model, parent: this },
       { custom: getValidatorDate(this) }
     )
 

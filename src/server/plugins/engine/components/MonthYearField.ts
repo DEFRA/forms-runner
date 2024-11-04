@@ -62,7 +62,7 @@ export class MonthYearField extends FormComponent {
           }
         }
       ],
-      { model }
+      { model, parent: this }
     )
 
     this.options = options

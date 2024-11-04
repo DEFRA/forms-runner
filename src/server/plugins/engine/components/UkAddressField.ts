@@ -84,7 +84,7 @@ export class UkAddressField extends FormComponent {
           }
         }
       ],
-      { model }
+      { model, parent: this }
     )
 
     this.options = options

@@ -16,6 +16,8 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class ComponentCollection {
+  parent?: ComponentFieldClass
+
   items: ComponentFieldClass[]
   formItems: FormComponentFieldClass[]
   formSchema: ObjectSchema<FormPayload>
@@ -23,8 +25,13 @@ export class ComponentCollection {
 
   constructor(
     componentDefs: ComponentDef[],
-    options: { model: FormModel },
-    schema?: { custom?: CustomValidator }
+    options: {
+      parent?: ComponentFieldClass
+      model: FormModel
+    },
+    schema?: {
+      custom?: CustomValidator
+    }
   ) {
     const items = componentDefs.map((def) => {
       const component = createComponentField(def, options.model)
@@ -59,6 +66,8 @@ export class ComponentCollection {
     if (schema?.custom) {
       formSchema = formSchema.custom(schema.custom)
     }
+
+    this.parent = options.parent
 
     this.items = items
     this.formItems = formItems
