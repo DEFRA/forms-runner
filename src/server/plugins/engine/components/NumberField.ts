@@ -1,5 +1,5 @@
 import { type NumberFieldComponent } from '@defra/forms-model'
-import joi, { type NumberSchema } from 'joi'
+import joi, { type CustomValidator, type NumberSchema } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
@@ -23,7 +23,11 @@ export class NumberField extends FormComponent {
 
     const { options, schema, title } = def
 
-    let formSchema = joi.number().label(title.toLowerCase()).required()
+    let formSchema = joi
+      .number()
+      .custom(getValidatorPrecision(this))
+      .label(title.toLowerCase())
+      .required()
 
     if (options.required === false) {
       formSchema = formSchema.allow('')
@@ -41,11 +45,8 @@ export class NumberField extends FormComponent {
       formSchema = formSchema.max(schema.max)
     }
 
-    if (typeof schema.precision === 'number') {
-      formSchema =
-        schema.precision > 0
-          ? formSchema.precision(schema.precision)
-          : formSchema.integer()
+    if (typeof schema.precision === 'number' && schema.precision <= 0) {
+      formSchema = formSchema.integer()
     }
 
     if (options.customValidationMessage) {
@@ -54,6 +55,7 @@ export class NumberField extends FormComponent {
       formSchema = formSchema.messages({
         'any.required': message,
         'number.base': message,
+        'number.precision': message,
         'number.integer': message,
         'number.min': message,
         'number.max': message
@@ -114,4 +116,32 @@ export class NumberField extends FormComponent {
   static isNumber(value?: FormStateValue | FormState): value is number {
     return typeof value === 'number'
   }
+}
+
+export function getValidatorPrecision(component: NumberField) {
+  const validator: CustomValidator = (value: number, helpers) => {
+    const { options, schema } = component
+
+    const { customValidationMessage: custom } = options
+    const { precision: limit } = schema
+
+    if (!limit || limit <= 0) {
+      return value
+    }
+
+    const validationSchema = joi
+      .number()
+      .precision(limit)
+      .prefs({ convert: false })
+
+    try {
+      return joi.attempt(value, validationSchema)
+    } catch {
+      return custom
+        ? helpers.message({ custom }, { limit })
+        : helpers.error('number.precision', { limit })
+    }
+  }
+
+  return validator
 }

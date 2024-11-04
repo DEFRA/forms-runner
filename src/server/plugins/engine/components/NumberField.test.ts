@@ -330,11 +330,16 @@ describe('NumberField', () => {
         } satisfies NumberFieldComponent,
         assertions: [
           {
-            input: '100.555',
-            output: { value: 100.6 }
+            input: '3.14159',
+            output: {
+              value: 3.14159,
+              error: new Error(
+                'example number field must have 1 or fewer decimal places'
+              )
+            }
           },
           {
-            input: '3.14159',
+            input: '3.1',
             output: { value: 3.1 }
           }
         ]
@@ -352,11 +357,20 @@ describe('NumberField', () => {
         } satisfies NumberFieldComponent,
         assertions: [
           {
-            input: '100.555',
-            output: { value: 100.56 }
+            input: '3.14159',
+            output: {
+              value: 3.14159,
+              error: new Error(
+                'example number field must have 2 or fewer decimal places'
+              )
+            }
           },
           {
-            input: '3.14159',
+            input: '3.1',
+            output: { value: 3.1 }
+          },
+          {
+            input: '3.14',
             output: { value: 3.14 }
           }
         ]
@@ -406,6 +420,29 @@ describe('NumberField', () => {
             input: 'invalid',
             output: {
               value: 'invalid',
+              error: new Error('This is a custom error')
+            }
+          }
+        ]
+      },
+      {
+        description: 'Custom validation overrides schema precision message',
+        component: {
+          title: 'Example number field',
+          name: 'myComponent',
+          type: ComponentType.NumberField,
+          options: {
+            customValidationMessage: 'This is a custom error'
+          },
+          schema: {
+            precision: 2
+          }
+        } satisfies NumberFieldComponent,
+        assertions: [
+          {
+            input: '3.14159',
+            output: {
+              value: 3.14159,
               error: new Error('This is a custom error')
             }
           }
