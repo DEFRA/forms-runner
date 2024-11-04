@@ -17,8 +17,12 @@ import {
 } from '@hapi/hapi'
 import { merge } from '@hapi/hoek'
 import { format, parseISO } from 'date-fns'
-import type joi from 'joi'
-import { type ObjectSchema, type ValidationResult } from 'joi'
+import {
+  type ObjectSchema,
+  type Schema,
+  type ValidationErrorItem,
+  type ValidationResult
+} from 'joi'
 
 import { config } from '~/src/config/index.js'
 import { CheckboxesField } from '~/src/server/plugins/engine/components/CheckboxesField.js'
@@ -256,8 +260,8 @@ export class PageControllerBase {
   }
 
   /**
-   * Parses the errors from joi.validate so they can be rendered by govuk-frontend templates
-   * @param validationResult - provided by joi.validate
+   * Parses the errors from {@link Schema.validate} so they can be rendered by govuk-frontend templates
+   * @param validationResult - provided by {@link Schema.validate}
    */
   getErrors(
     validationResult?: Pick<ValidationResult, 'error'>
@@ -274,7 +278,7 @@ export class PageControllerBase {
     return undefined
   }
 
-  protected getError(err: joi.ValidationErrorItem) {
+  protected getError(err: ValidationErrorItem) {
     const isoRegex =
       /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/
 
@@ -293,7 +297,7 @@ export class PageControllerBase {
   }
 
   /**
-   * Runs {@link joi.validate}
+   * Runs {@link Schema.validate}
    * @param value - user's answers
    * @param schema - which schema to validate against
    */
