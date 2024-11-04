@@ -76,14 +76,21 @@ describe('PageControllerBase', () => {
           [
             {
               message:
-                '"Date of marriage" must be on or before 2021-12-25T00:00:00.000Z',
+                'Date of marriage must be on or before 2021-12-25T00:00:00.000Z',
               path: ['dateField'],
-              type: 'date.max'
+              type: 'date.max',
+              context: {
+                key: 'dateField',
+                title: 'date of marriage'
+              }
             },
             {
               message: 'something invalid',
               path: ['yesNoField'],
-              type: 'string.pattern.base'
+              type: 'string.pattern.base',
+              context: {
+                key: 'yesNoField'
+              }
             }
           ],
           undefined
@@ -93,16 +100,23 @@ describe('PageControllerBase', () => {
       expect(errors?.errorList).toEqual(
         expect.arrayContaining([
           {
-            path: 'dateField',
+            path: ['dateField'],
             href: '#dateField',
             name: 'dateField',
-            text: `"Date of marriage" must be on or before 25 December 2021`
+            text: 'Date of marriage must be on or before 25 December 2021',
+            context: {
+              key: 'dateField',
+              title: 'date of marriage'
+            }
           },
           {
-            path: 'yesNoField',
+            path: ['yesNoField'],
             href: '#yesNoField',
             name: 'yesNoField',
-            text: 'something invalid'
+            text: 'something invalid',
+            context: {
+              key: 'yesNoField'
+            }
           }
         ])
       )

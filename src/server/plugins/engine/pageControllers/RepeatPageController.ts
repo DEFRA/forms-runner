@@ -230,17 +230,18 @@ export class RepeatPageController extends PageController {
 
         // Show error if repeat max limit reached
         if (list.length >= schema.max) {
-          const errors = {
+          const errors: FormSubmissionErrors = {
             titleText: this.errorSummaryTitle,
             errorList: [
               {
-                path: '',
+                path: [],
                 href: '',
                 name: '',
                 text: `You can only add up to ${schema.max} ${options.title}${schema.max === 1 ? '' : 's'}`
               }
             ]
           }
+
           const viewModel = this.getListSummaryViewModel(request, list, errors)
 
           return h.view(this.listSummaryViewName, viewModel)

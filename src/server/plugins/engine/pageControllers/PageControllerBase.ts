@@ -43,6 +43,7 @@ import {
   type FormPayload,
   type FormState,
   type FormStateValue,
+  type FormSubmissionError,
   type FormSubmissionErrors,
   type FormSubmissionState,
   type FormValidationResult,
@@ -278,21 +279,20 @@ export class PageControllerBase {
     return undefined
   }
 
-  protected getError(err: ValidationErrorItem) {
+  protected getError(err: ValidationErrorItem): FormSubmissionError {
+    const name = err.context?.key ?? ''
+
     const isoRegex =
       /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/
 
-    const name = err.path
-      .map((name, index) => (index > 0 ? `__${name}` : name))
-      .join('')
-
     return {
-      path: err.path.join('.'),
+      path: err.path,
       href: `#${name}`,
       name,
       text: err.message.replace(isoRegex, (text) => {
         return format(parseISO(text), 'd MMMM yyyy')
-      })
+      }),
+      context: err.context
     }
   }
 

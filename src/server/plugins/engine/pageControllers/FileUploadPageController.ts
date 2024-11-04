@@ -165,19 +165,18 @@ export class FileUploadPageController extends PageController {
           // field on the page so defer to the standard getError
           errorList.push(this.getError(err))
         } else {
-          const type = err.type
-          const path = err.path.join('.')
+          const { context, path, type } = err
+
           const formatter = (name: string | number, index: number) =>
             index > 0 ? `__${name}` : name
-          const name = err.path.map(formatter).join('')
-          const lastPath = err.path[err.path.length - 1]
 
-          if (type === 'object.unknown' && lastPath === 'errorMessage') {
-            const value = err.context?.value
+          if (type === 'object.unknown' && path.at(-1) === 'errorMessage') {
+            const name = path.map(formatter).join('')
+            const value = context?.value
 
             if (value) {
               const text = typeof value === 'string' ? value : 'Unknown error'
-              const href = `#${err.path.slice(0, 2).map(formatter).join('')}`
+              const href = `#${path.slice(0, 2).map(formatter).join('')}`
 
               errorList.push({ path, href, name, text })
             }
