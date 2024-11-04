@@ -193,6 +193,13 @@ export const config = convict({
     format: String,
     default: 'staging',
     env: 'STAGING_PREFIX'
+  },
+
+  announcementContent: {
+    doc: 'A user-visible global announcement to inform the the user. Set no empty to hide.',
+    format: String,
+    default: '',
+    env: 'ANNOUNCEMENT_CONTENT'
   }
 })
 

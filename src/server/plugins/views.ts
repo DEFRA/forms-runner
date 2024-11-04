@@ -67,6 +67,7 @@ function nunjucksContext(request: FormRequest | FormRequestPayload | null) {
     phaseTag: config.get('phaseTag'),
     previewMode: isPreviewMode ? params?.state : undefined,
     slug: params?.slug,
+    announcementContent: config.get('announcementContent'),
 
     getAssetPath(asset: string) {
       const webpackAssetPath = webpackManifest?.[asset] ?? asset

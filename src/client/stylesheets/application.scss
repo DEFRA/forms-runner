@@ -9,3 +9,13 @@
 .autocomplete__option {
   @include govuk-typography-common;
 }
+
+.dxt-announcement-bar {
+  background: #ffcc00;
+  text-align: center;
+  padding: 0.5rem;
+
+  p {
+    margin: 0;
+  }
+}
