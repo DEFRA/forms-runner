@@ -10,6 +10,7 @@ export const messageTemplate = {
   pattern: 'Enter a valid {{#label}}',
   email: 'Enter {{#label}} in the correct format',
   number: '{{#label}} must be a number',
+  numberInteger: '{{#label}} must be a whole number',
   numberMin: '{{#label}} must be {{#limit}} or higher',
   numberMax: '{{#label}} must be {{#limit}} or lower',
   maxWords: '{{#label}} must be {{#limit}} words or fewer',
@@ -29,6 +30,7 @@ export const messages: LanguageMessages = {
   'string.maxWords': messageTemplate.maxWords,
 
   'number.base': messageTemplate.number,
+  'number.integer': messageTemplate.numberInteger,
   'number.min': messageTemplate.numberMin,
   'number.max': messageTemplate.numberMax,
 

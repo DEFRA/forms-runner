@@ -42,7 +42,10 @@ export class NumberField extends FormComponent {
     }
 
     if (typeof schema.precision === 'number') {
-      formSchema = formSchema.precision(schema.precision)
+      formSchema =
+        schema.precision > 0
+          ? formSchema.precision(schema.precision)
+          : formSchema.integer()
     }
 
     if (options.customValidationMessage) {
@@ -51,6 +54,7 @@ export class NumberField extends FormComponent {
       formSchema = formSchema.messages({
         'any.required': message,
         'number.base': message,
+        'number.integer': message,
         'number.min': message,
         'number.max': message
       })

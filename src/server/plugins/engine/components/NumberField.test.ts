@@ -280,11 +280,39 @@ describe('NumberField', () => {
         } satisfies NumberFieldComponent,
         assertions: [
           {
-            input: '100.55',
-            output: { value: 101 }
+            input: '3.14159',
+            output: {
+              value: 3.14159,
+              error: new Error('example number field must be a whole number')
+            }
           },
           {
+            input: '3',
+            output: { value: 3 }
+          }
+        ]
+      },
+      {
+        description: 'Schema precision (integers only when negative)',
+        component: {
+          title: 'Example number field',
+          name: 'myComponent',
+          type: ComponentType.NumberField,
+          options: {},
+          schema: {
+            precision: -1
+          }
+        } satisfies NumberFieldComponent,
+        assertions: [
+          {
             input: '3.14159',
+            output: {
+              value: 3.14159,
+              error: new Error('example number field must be a whole number')
+            }
+          },
+          {
+            input: '3',
             output: { value: 3 }
           }
         ]
