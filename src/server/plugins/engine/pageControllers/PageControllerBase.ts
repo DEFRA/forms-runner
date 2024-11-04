@@ -17,7 +17,7 @@ import {
 } from '@hapi/hapi'
 import { merge } from '@hapi/hoek'
 import { format, parseISO } from 'date-fns'
-import {
+import joi, {
   type ObjectSchema,
   type Schema,
   type ValidationErrorItem,
@@ -100,10 +100,13 @@ export class PageControllerBase {
     // Components collection
     const components = hasComponents(pageDef) ? pageDef.components : []
 
-    this.components = new ComponentCollection(components, model)
+    this.components = new ComponentCollection(components, { model })
     this.hasFormComponents = !!this.components.formItems.length
 
-    this[FORM_SCHEMA] = this.components.formSchema
+    this[FORM_SCHEMA] = this.components.formSchema.keys({
+      crumb: joi.string().optional().allow('')
+    })
+
     this[STATE_SCHEMA] = this.components.stateSchema
   }
 

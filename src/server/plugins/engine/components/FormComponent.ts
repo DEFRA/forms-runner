@@ -1,10 +1,7 @@
 import { type FormComponentsDef } from '@defra/forms-model'
 import upperFirst from 'lodash/upperFirst.js'
 
-import {
-  ComponentBase,
-  type ComponentSchemaKeys
-} from '~/src/server/plugins/engine/components/ComponentBase.js'
+import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { type ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
@@ -105,30 +102,6 @@ export class FormComponent extends ComponentBase {
       id: name,
       name,
       value: payload[name]
-    }
-  }
-
-  getFormSchemaKeys(): ComponentSchemaKeys {
-    const { children, name, formSchema } = this
-
-    if (children) {
-      return children.getFormSchemaKeys()
-    }
-
-    return {
-      [name]: formSchema
-    }
-  }
-
-  getStateSchemaKeys(): ComponentSchemaKeys {
-    const { children, name, stateSchema } = this
-
-    if (children) {
-      return children.getStateSchemaKeys()
-    }
-
-    return {
-      [name]: stateSchema
     }
   }
 

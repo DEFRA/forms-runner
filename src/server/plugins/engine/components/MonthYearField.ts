@@ -62,21 +62,12 @@ export class MonthYearField extends FormComponent {
           }
         }
       ],
-      model
+      { model }
     )
 
-    let { formSchema, stateSchema } = this.children
-
-    // Update child schema
-    formSchema = formSchema.label(title.toLowerCase())
-    stateSchema = stateSchema.label(title.toLowerCase())
-
     this.options = options
-    this.formSchema = formSchema
-    this.stateSchema = stateSchema
-
-    this.children.formSchema = formSchema
-    this.children.stateSchema = stateSchema
+    this.formSchema = this.children.formSchema
+    this.stateSchema = this.children.stateSchema
   }
 
   getFormValueFromState(state: FormSubmissionState) {

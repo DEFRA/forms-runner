@@ -1,7 +1,6 @@
 import { type ComponentDef } from '@defra/forms-model'
-import joi, { type ObjectSchema } from 'joi'
+import joi, { type CustomValidator, type ObjectSchema } from 'joi'
 
-import { type ComponentSchemaNested } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import {
   createComponentField,
   type ComponentFieldClass,
@@ -22,9 +21,13 @@ export class ComponentCollection {
   formSchema: ObjectSchema<FormPayload>
   stateSchema: ObjectSchema<FormSubmissionState>
 
-  constructor(componentDefs: ComponentDef[] = [], model: FormModel) {
-    const components = componentDefs.map((def) => {
-      const component = createComponentField(def, model)
+  constructor(
+    componentDefs: ComponentDef[],
+    options: { model: FormModel },
+    schema?: { custom?: CustomValidator }
+  ) {
+    const items = componentDefs.map((def) => {
+      const component = createComponentField(def, options.model)
 
       if (!component) {
         throw new Error(`Component type ${def.type} doesn't exist`)
@@ -33,43 +36,34 @@ export class ComponentCollection {
       return component
     })
 
-    const formComponents = components.filter(
-      (component): component is FormComponentFieldClass =>
-        component.isFormComponent
+    const formItems = items.filter(
+      (item): item is FormComponentFieldClass => item.isFormComponent
     )
 
-    this.items = components
-    this.formItems = formComponents
-    this.formSchema = joi
-      .object<FormPayload>()
-      .keys(this.getFormSchemaKeys())
-      .required()
-      .keys({ crumb: joi.string().optional().allow('') })
+    let formSchema = joi.object<FormPayload>().required()
+    let stateSchema = joi.object<FormSubmissionState>().required()
 
-    this.stateSchema = joi
-      .object<FormSubmissionState>()
-      .keys(this.getStateSchemaKeys())
-      .required()
-  }
+    // Add each field or concat collection
+    for (const field of formItems) {
+      const { children, name } = field
 
-  getFormSchemaKeys() {
-    const keys: ComponentSchemaNested = {}
+      formSchema = children
+        ? formSchema.concat(children.formSchema)
+        : formSchema.keys({ [name]: field.formSchema })
 
-    this.formItems.forEach((item) => {
-      Object.assign(keys, item.getFormSchemaKeys())
-    })
+      stateSchema = children
+        ? stateSchema.concat(children.stateSchema)
+        : stateSchema.keys({ [name]: field.stateSchema })
+    }
 
-    return keys
-  }
+    if (schema?.custom) {
+      formSchema = formSchema.custom(schema.custom)
+    }
 
-  getStateSchemaKeys() {
-    const keys: ComponentSchemaNested = {}
-
-    this.formItems.forEach((item) => {
-      Object.assign(keys, item.getStateSchemaKeys())
-    })
-
-    return keys
+    this.items = items
+    this.formItems = formItems
+    this.formSchema = formSchema
+    this.stateSchema = stateSchema
   }
 
   getFormDataFromState(state: FormSubmissionState) {

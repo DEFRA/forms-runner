@@ -75,26 +75,13 @@ export class DatePartsField extends FormComponent {
           }
         }
       ],
-      model
+      { model },
+      { custom: getValidatorDate(this) }
     )
 
-    let { formSchema, stateSchema } = this.children
-
-    // Update child schema
-    formSchema = formSchema
-      .custom(getValidatorDate(this), 'date validation')
-      .label(title.toLowerCase())
-
-    stateSchema = stateSchema
-      .custom(getValidatorDate(this), 'date validation')
-      .label(title.toLowerCase())
-
     this.options = options
-    this.formSchema = formSchema
-    this.stateSchema = stateSchema
-
-    this.children.formSchema = formSchema
-    this.children.stateSchema = stateSchema
+    this.formSchema = this.children.formSchema
+    this.stateSchema = this.children.stateSchema
   }
 
   getFormValueFromState(state: FormSubmissionState) {
