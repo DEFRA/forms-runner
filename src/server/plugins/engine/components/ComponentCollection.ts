@@ -1,5 +1,11 @@
 import { type ComponentDef } from '@defra/forms-model'
-import joi, { type CustomValidator, type ObjectSchema } from 'joi'
+import joi, {
+  type Context,
+  type CustomHelpers,
+  type CustomValidator,
+  type ObjectSchema,
+  type State
+} from 'joi'
 
 import {
   createComponentField,
@@ -137,5 +143,31 @@ export class ComponentCollection {
     }
 
     return result
+  }
+
+  /**
+   * Return error by code for collection fields
+   * For example, 'date.min', 'date.max'
+   */
+  error(helpers: CustomHelpers, code: string, context?: Context) {
+    const { formItems, parent } = this
+    const [field] = formItems
+
+    // Use collection parent name/title when available
+    const key = parent?.name ?? field.name
+    const title = parent?.title ?? field.title
+
+    // Support collection parent {{#title}} in messages
+    const local: Context = {
+      title: title.toLowerCase(),
+      ...context
+    }
+
+    // Error summary links to first collection field
+    const localState: State = parent
+      ? { key, path: [parent.name, field.name] } // For example, `#dateField__day`
+      : { key, path: [field.name] } // Otherwise `#dateField` for single fields
+
+    return helpers.error(code, local, localState)
   }
 }

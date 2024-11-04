@@ -1,4 +1,5 @@
 import { type LanguageMessages, type ValidationOptions } from 'joi'
+
 /**
  * see @link https://joi.dev/api/?v=17.4.2#template-syntax for template syntax
  */
@@ -15,10 +16,12 @@ export const messageTemplate = {
   numberMin: '{{#label}} must be {{#limit}} or higher',
   numberMax: '{{#label}} must be {{#limit}} or lower',
   maxWords: '{{#label}} must be {{#limit}} words or fewer',
-  dateRequired: '{{#label}} must be a real date',
-  dateFormat: '{{#label}} must be a real date',
-  dateMin: '{{#label}} must be the same as or after {{#limit}}',
-  dateMax: '{{#label}} must be the same as or before {{#limit}}'
+
+  // Nested fields use component title
+  dateRequired: '{{#title}} must be a real date',
+  dateFormat: '{{#title}} must be a real date',
+  dateMin: '{{#title}} must be the same as or after {{#limit}}',
+  dateMax: '{{#title}} must be the same as or before {{#limit}}'
 }
 
 export const messages: LanguageMessages = {
