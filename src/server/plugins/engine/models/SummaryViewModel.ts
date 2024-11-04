@@ -25,7 +25,6 @@ export class SummaryViewModel {
 
   pageTitle: string
   declaration?: string
-  skipSummary?: boolean
   result: ValidationResult<FormSubmissionState>
   details: Detail[]
   relevantPages: PageControllerClass[]
@@ -64,7 +63,6 @@ export class SummaryViewModel {
     const details = this.summaryDetails(request, model, state, relevantPages)
     const { def } = model
     this.declaration = def.declaration
-    this.skipSummary = def.skipSummary
 
     const schema = model.makeFilteredSchema(relevantPages)
     const result = schema.validate(state, {
