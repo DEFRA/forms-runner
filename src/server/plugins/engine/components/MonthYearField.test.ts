@@ -312,7 +312,7 @@ describe('MonthYearField', () => {
         ]
       },
       {
-        description: 'Trim decimals',
+        description: 'Decimals',
         component: {
           title: 'Example month/year field',
           name: 'myComponent',
@@ -326,7 +326,16 @@ describe('MonthYearField', () => {
               year: '2001.3'
             }),
             output: {
-              value: getFormData(date)
+              value: getFormData({
+                month: 1.2,
+                year: 2001.3
+              }),
+              error: new Error(
+                [
+                  'Example month/year field must include a month',
+                  'Example month/year field must include a year'
+                ].join('. ')
+              )
             }
           }
         ]
