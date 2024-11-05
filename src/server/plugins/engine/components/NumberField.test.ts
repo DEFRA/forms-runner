@@ -376,6 +376,37 @@ describe('NumberField', () => {
         ]
       },
       {
+        description: 'Schema precision with unsafe numbers',
+        component: {
+          title: 'Example number field',
+          name: 'myComponent',
+          type: ComponentType.NumberField,
+          options: {},
+          schema: {
+            precision: 2
+          }
+        } satisfies NumberFieldComponent,
+        assertions: [
+          {
+            input: '64811494532973582',
+            output: {
+              value: 64811494532973580,
+              error: new Error(
+                'Enter example number field in the correct format'
+              )
+            }
+          },
+          {
+            input: '3.1',
+            output: { value: 3.1 }
+          },
+          {
+            input: '3.14',
+            output: { value: 3.14 }
+          }
+        ]
+      },
+      {
         description: 'Schema min and max',
         component: {
           title: 'Example number field',
