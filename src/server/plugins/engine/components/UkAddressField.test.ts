@@ -4,7 +4,8 @@ import {
   type UkAddressFieldComponent
 } from '@defra/forms-model'
 
-import { UkAddressField } from '~/src/server/plugins/engine/components/UkAddressField.js'
+import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
 import { type ViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -31,7 +32,8 @@ describe('UkAddressField', () => {
 
   describe('Defaults', () => {
     let def: UkAddressFieldComponent
-    let component: UkAddressField
+    let collection: ComponentCollection
+    let component: FormComponentFieldClass
 
     beforeEach(() => {
       def = {
@@ -41,12 +43,13 @@ describe('UkAddressField', () => {
         options: {}
       } satisfies UkAddressFieldComponent
 
-      component = new UkAddressField(def, formModel)
+      collection = new ComponentCollection([def], { model: formModel })
+      component = collection.formItems[0]
     })
 
     describe('Schema', () => {
       it('uses collection titles as labels', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
         expect(formSchema.describe().keys).toEqual(
           expect.objectContaining({
@@ -67,7 +70,7 @@ describe('UkAddressField', () => {
       })
 
       it('is required by default', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
         expect(formSchema.describe().flags).toEqual(
           expect.objectContaining({
@@ -77,17 +80,19 @@ describe('UkAddressField', () => {
       })
 
       it('is optional when configured', () => {
-        const componentOptional = new UkAddressField(
-          {
-            title: 'Example UK address',
-            name: 'myComponent',
-            type: ComponentType.UkAddressField,
-            options: { required: false }
-          },
-          formModel
+        const collectionOptional = new ComponentCollection(
+          [
+            {
+              title: 'Example UK address',
+              name: 'myComponent',
+              type: ComponentType.UkAddressField,
+              options: { required: false }
+            }
+          ],
+          { model: formModel }
         )
 
-        const { formSchema } = componentOptional
+        const { formSchema } = collectionOptional
 
         expect(formSchema.describe().keys).toEqual(
           expect.objectContaining({
@@ -120,7 +125,7 @@ describe('UkAddressField', () => {
       })
 
       it('accepts valid values', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
         const result1 = formSchema.validate(
           getFormData({
@@ -147,7 +152,7 @@ describe('UkAddressField', () => {
       })
 
       it('adds errors for empty value', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
         const result = formSchema.validate(
           getFormData({
@@ -171,7 +176,7 @@ describe('UkAddressField', () => {
       })
 
       it('adds errors for invalid values', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
         const result1 = formSchema.validate(['invalid'], opts)
         const result2 = formSchema.validate({ unknown: 'invalid' }, opts)
@@ -451,16 +456,16 @@ describe('UkAddressField', () => {
         ]
       }
     ])('$description', ({ component: def, assertions }) => {
-      let component: UkAddressField
+      let collection: ComponentCollection
 
       beforeEach(() => {
-        component = new UkAddressField(def, formModel)
+        collection = new ComponentCollection([def], { model: formModel })
       })
 
       it.each([...assertions])(
         'validates custom example',
         ({ input, output }) => {
-          const { formSchema } = component
+          const { formSchema } = collection
 
           const result = formSchema.validate(input, opts)
           expect(result).toEqual(output)

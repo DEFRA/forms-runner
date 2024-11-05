@@ -5,7 +5,8 @@ import {
 } from '@defra/forms-model'
 import { startOfDay } from 'date-fns'
 
-import { MonthYearField } from '~/src/server/plugins/engine/components/MonthYearField.js'
+import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
 import { type DateInputItem } from '~/src/server/plugins/engine/components/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -32,7 +33,8 @@ describe('MonthYearField', () => {
 
   describe('Defaults', () => {
     let def: MonthYearFieldComponent
-    let component: MonthYearField
+    let collection: ComponentCollection
+    let component: FormComponentFieldClass
 
     beforeEach(() => {
       def = {
@@ -42,12 +44,13 @@ describe('MonthYearField', () => {
         options: {}
       } satisfies MonthYearFieldComponent
 
-      component = new MonthYearField(def, formModel)
+      collection = new ComponentCollection([def], { model: formModel })
+      component = collection.formItems[0]
     })
 
     describe('Schema', () => {
       it('uses collection titles as labels', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
         expect(formSchema.describe().keys).toEqual(
           expect.objectContaining({
@@ -62,7 +65,7 @@ describe('MonthYearField', () => {
       })
 
       it('is required by default', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
         expect(formSchema.describe().flags).toEqual(
           expect.objectContaining({
@@ -72,17 +75,19 @@ describe('MonthYearField', () => {
       })
 
       it('is optional when configured', () => {
-        const componentOptional = new MonthYearField(
-          {
-            title: 'Example month/year field',
-            name: 'myComponent',
-            type: ComponentType.MonthYearField,
-            options: { required: false }
-          },
-          formModel
+        const collectionOptional = new ComponentCollection(
+          [
+            {
+              title: 'Example month/year field',
+              name: 'myComponent',
+              type: ComponentType.MonthYearField,
+              options: { required: false }
+            }
+          ],
+          { model: formModel }
         )
 
-        const { formSchema } = componentOptional
+        const { formSchema } = collectionOptional
 
         expect(formSchema.describe().keys).toEqual(
           expect.objectContaining({
@@ -95,7 +100,8 @@ describe('MonthYearField', () => {
           })
         )
 
-        const result = formSchema.validate(
+        // Empty optional payload (valid)
+        const result1 = formSchema.validate(
           getFormData({
             month: '',
             year: ''
@@ -103,11 +109,25 @@ describe('MonthYearField', () => {
           opts
         )
 
-        expect(result.error).toBeUndefined()
+        // Partial optional payload (invalid)
+        const result2 = formSchema.validate(
+          getFormData({
+            month: 12,
+            year: ''
+          }),
+          opts
+        )
+
+        expect(result1.error).toBeUndefined()
+        expect(result2.error).toEqual(
+          expect.objectContaining({
+            message: 'Example month/year field must include a year'
+          })
+        )
       })
 
       it('accepts valid values', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
         const result1 = formSchema.validate(
           getFormData({
@@ -130,7 +150,7 @@ describe('MonthYearField', () => {
       })
 
       it('adds errors for empty value', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
         const result = formSchema.validate(
           getFormData({
@@ -151,7 +171,7 @@ describe('MonthYearField', () => {
       })
 
       it('adds errors for invalid values', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
         const result1 = formSchema.validate(['invalid'], opts)
         const result2 = formSchema.validate({ unknown: 'invalid' }, opts)
@@ -403,16 +423,16 @@ describe('MonthYearField', () => {
         ]
       }
     ])('$description', ({ component: def, assertions }) => {
-      let component: MonthYearField
+      let collection: ComponentCollection
 
       beforeEach(() => {
-        component = new MonthYearField(def, formModel)
+        collection = new ComponentCollection([def], { model: formModel })
       })
 
       it.each([...assertions])(
         'validates custom example',
         ({ input, output }) => {
-          const { formSchema } = component
+          const { formSchema } = collection
 
           const result = formSchema.validate(input, opts)
           expect(result).toEqual(output)

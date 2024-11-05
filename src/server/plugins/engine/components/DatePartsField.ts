@@ -13,6 +13,7 @@ import {
   type DateInputItem
 } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormPayload,
   type FormState,
@@ -47,7 +48,9 @@ export class DatePartsField extends FormComponent {
             required: isRequired,
             optionalText: true,
             classes: 'govuk-input--width-2',
-            customValidationMessage: `${title} must include a {{#label}}`
+            customValidationMessage: messageTemplate.objectMissing
+              .replace('{{#title}}', title)
+              .replace('{{#missingWithLabels}}', 'day')
           }
         },
         {
@@ -59,7 +62,9 @@ export class DatePartsField extends FormComponent {
             required: isRequired,
             optionalText: true,
             classes: 'govuk-input--width-2',
-            customValidationMessage: `${title} must include a {{#label}}`
+            customValidationMessage: messageTemplate.objectMissing
+              .replace('{{#title}}', title)
+              .replace('{{#missingWithLabels}}', 'month')
           }
         },
         {
@@ -71,12 +76,17 @@ export class DatePartsField extends FormComponent {
             required: isRequired,
             optionalText: true,
             classes: 'govuk-input--width-4',
-            customValidationMessage: `${title} must include a {{#label}}`
+            customValidationMessage: messageTemplate.objectMissing
+              .replace('{{#title}}', title)
+              .replace('{{#missingWithLabels}}', 'year')
           }
         }
       ],
       { model, parent: this },
-      { custom: getValidatorDate(this) }
+      {
+        peers: [`${name}__day`, `${name}__month`, `${name}__year`],
+        custom: getValidatorDate(this)
+      }
     )
 
     this.options = options
@@ -202,9 +212,9 @@ export function getValidatorDate(component: DatePartsField) {
       component.getStateFromValidForm(payload)
     )
 
-    if (!DatePartsField.isDateParts(values)) {
+    if (!component.isState(values)) {
       return options.required !== false
-        ? children.error(helpers, 'date.base') // Date required
+        ? children.error(helpers, 'object.required')
         : payload
     }
 

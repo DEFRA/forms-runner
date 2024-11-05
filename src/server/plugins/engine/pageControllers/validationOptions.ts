@@ -18,7 +18,8 @@ export const messageTemplate = {
   maxWords: '{{#label}} must be {{#limit}} words or fewer',
 
   // Nested fields use component title
-  dateRequired: '{{#title}} must be a real date',
+  objectRequired: 'Enter {{#title}}',
+  objectMissing: '{{#title}} must include a {{#missingWithLabels}}',
   dateFormat: '{{#title}} must be a real date',
   dateMin: '{{#title}} must be the same as or after {{#limit}}',
   dateMax: '{{#title}} must be the same as or before {{#limit}}'
@@ -40,11 +41,14 @@ export const messages: LanguageMessages = {
   'number.min': messageTemplate.numberMin,
   'number.max': messageTemplate.numberMax,
 
+  'object.required': messageTemplate.objectRequired,
+  'object.and': messageTemplate.objectMissing,
+
   'any.only': messageTemplate.selectRequired,
   'any.required': messageTemplate.selectRequired,
   'any.empty': messageTemplate.required,
 
-  'date.base': messageTemplate.dateRequired,
+  'date.base': messageTemplate.dateFormat,
   'date.format': messageTemplate.dateFormat,
   'date.min': messageTemplate.dateMin,
   'date.max': messageTemplate.dateMax
@@ -56,6 +60,7 @@ export const validationOptions: ValidationOptions = {
   dateFormat: 'iso',
   errors: {
     wrap: {
+      array: false,
       label: false
     }
   }

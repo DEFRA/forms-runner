@@ -1,5 +1,5 @@
 import { ComponentType, type MonthYearFieldComponent } from '@defra/forms-model'
-import { type ObjectSchema } from 'joi'
+import { type CustomValidator, type ObjectSchema } from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
@@ -12,6 +12,7 @@ import {
   type DateInputItem
 } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormPayload,
   type FormState,
@@ -46,7 +47,9 @@ export class MonthYearField extends FormComponent {
             required: isRequired,
             optionalText: true,
             classes: 'govuk-input--width-2',
-            customValidationMessage: `${title} must include a {{#label}}`
+            customValidationMessage: messageTemplate.objectMissing
+              .replace('{{#title}}', title)
+              .replace('{{#missingWithLabels}}', 'month')
           }
         },
         {
@@ -58,11 +61,17 @@ export class MonthYearField extends FormComponent {
             required: isRequired,
             optionalText: true,
             classes: 'govuk-input--width-4',
-            customValidationMessage: `${title} must include a {{#label}}`
+            customValidationMessage: messageTemplate.objectMissing
+              .replace('{{#title}}', title)
+              .replace('{{#missingWithLabels}}', 'year')
           }
         }
       ],
-      { model, parent: this }
+      { model, parent: this },
+      {
+        peers: [`${name}__month`, `${name}__year`],
+        custom: getValidatorMonthYear(this)
+      }
     )
 
     this.options = options
@@ -170,4 +179,24 @@ export class MonthYearField extends FormComponent {
 interface MonthYearState extends Record<string, number> {
   month: number
   year: number
+}
+
+export function getValidatorMonthYear(component: MonthYearField) {
+  const validator: CustomValidator = (payload: FormPayload, helpers) => {
+    const { children, options } = component
+
+    const values = component.getFormValueFromState(
+      component.getStateFromValidForm(payload)
+    )
+
+    if (!component.isState(values)) {
+      return options.required !== false
+        ? children.error(helpers, 'object.required')
+        : payload
+    }
+
+    return payload
+  }
+
+  return validator
 }

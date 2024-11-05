@@ -85,7 +85,7 @@ export class FormComponent extends ComponentBase {
     }
 
     errors?.errorList.forEach((err) => {
-      if (err.name === name) {
+      if (err.name === name || err.path.includes(name)) {
         err.text = upperFirst(err.text)
 
         viewModel.errorMessage = {
