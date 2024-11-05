@@ -30,7 +30,8 @@ export class UkAddressField extends FormComponent {
     const { name, options, title } = def
 
     const isRequired = options.required !== false
-    const hideOptional = options.optionalText
+    const hideOptional = !!options.optionalText
+    const hideTitle = !!options.hideTitle
 
     this.children = new ComponentCollection(
       [
@@ -42,7 +43,7 @@ export class UkAddressField extends FormComponent {
           options: {
             autocomplete: 'address-line1',
             required: isRequired,
-            optionalText: !isRequired && hideOptional
+            optionalText: !isRequired && (hideOptional || !hideTitle)
           }
         },
         {
@@ -53,7 +54,7 @@ export class UkAddressField extends FormComponent {
           options: {
             autocomplete: 'address-line2',
             required: false,
-            optionalText: !isRequired && hideOptional
+            optionalText: !isRequired && (hideOptional || !hideTitle)
           }
         },
         {
@@ -65,7 +66,7 @@ export class UkAddressField extends FormComponent {
             autocomplete: 'address-level2',
             classes: 'govuk-!-width-two-thirds',
             required: isRequired,
-            optionalText: !isRequired && hideOptional
+            optionalText: !isRequired && (hideOptional || !hideTitle)
           }
         },
         {
@@ -79,7 +80,7 @@ export class UkAddressField extends FormComponent {
             autocomplete: 'postal-code',
             classes: 'govuk-input--width-10',
             required: isRequired,
-            optionalText: !isRequired && hideOptional
+            optionalText: !isRequired && (hideOptional || !hideTitle)
           }
         }
       ],

@@ -8,7 +8,6 @@ import {
   isFormState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
-import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import {
   DataType,
   type DateInputItem
@@ -36,7 +35,6 @@ export class DatePartsField extends FormComponent {
     const { name, options, title } = def
 
     const isRequired = options.required !== false
-    const hideOptional = options.optionalText
 
     this.children = new ComponentCollection(
       [
@@ -47,7 +45,7 @@ export class DatePartsField extends FormComponent {
           schema: { min: 1, max: 31, precision: 0 },
           options: {
             required: isRequired,
-            optionalText: !isRequired && hideOptional,
+            optionalText: true,
             classes: 'govuk-input--width-2',
             customValidationMessage: `${title} must include a {{#label}}`
           }
@@ -59,7 +57,7 @@ export class DatePartsField extends FormComponent {
           schema: { min: 1, max: 12, precision: 0 },
           options: {
             required: isRequired,
-            optionalText: !isRequired && hideOptional,
+            optionalText: true,
             classes: 'govuk-input--width-2',
             customValidationMessage: `${title} must include a {{#label}}`
           }
@@ -71,7 +69,7 @@ export class DatePartsField extends FormComponent {
           schema: { min: 1000, max: 3000, precision: 0 },
           options: {
             required: isRequired,
-            optionalText: !isRequired && hideOptional,
+            optionalText: true,
             classes: 'govuk-input--width-4',
             customValidationMessage: `${title} must include a {{#label}}`
           }
@@ -147,7 +145,6 @@ export class DatePartsField extends FormComponent {
         let { label, type, value, classes, errorMessage } = model
 
         if (label) {
-          label.text = label.text.replace(optionalText, '')
           label.toString = () => label.text // Date component uses string labels
         }
 
