@@ -84,7 +84,7 @@
     "@babel/preset-env": "^7.26.0",
     "@babel/preset-typescript": "^7.26.0",
     "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^6.6.2",
+    "@testing-library/jest-dom": "^6.6.3",
     "@types/atob": "^2.1.4",
     "@types/btoa": "^1.2.5",
     "@types/convict": "^6.1.6",
