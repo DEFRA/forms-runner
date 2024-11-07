@@ -5,6 +5,7 @@
 {% from "govuk/components/phase-banner/macro.njk" import govukPhaseBanner %}
 {% from "govuk/components/skip-link/macro.njk" import govukSkipLink -%}
 {% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
+{% from "components/service-banner/macro.njk" import appServiceBanner -%}
 
 {% block head %}
   <link rel="preload" as="font" href="{{ assetPath }}/fonts/bold-b542beb274-v2.woff2" type="font/woff2" crossorigin="anonymous">
@@ -26,9 +27,10 @@
 
 {% block header %}
   {% if announcementContent %}
-    <section class="dxt-announcement-bar" aria-live="polite" aria-label="Announcement">
-      <p class="govuk-body">{{ announcementContent | safe }}</p>
-    </section>
+    {{ appServiceBanner({
+      title: "Service status",
+      text: announcementContent
+    }) }}
   {% endif %}
 
   {{ govukHeader({
@@ -37,7 +39,6 @@
     serviceName: name if name else serviceName,
     serviceUrl: serviceUrl
   }) }}
-
 {% endblock %}
 
 {% block beforeContent %}
