@@ -364,7 +364,7 @@ describe('DatePartsField', () => {
         ]
       },
       {
-        description: 'Trim decimals',
+        description: 'Decimals',
         component: {
           title: 'Example date parts field',
           name: 'myComponent',
@@ -379,7 +379,18 @@ describe('DatePartsField', () => {
               year: '2001.3'
             }),
             output: {
-              value: getFormData(date)
+              value: getFormData({
+                day: 1.1,
+                month: 1.2,
+                year: 2001.3
+              }),
+              error: new Error(
+                [
+                  'Example date parts field must include a day',
+                  'Example date parts field must include a month',
+                  'Example date parts field must include a year'
+                ].join('. ')
+              )
             }
           }
         ]
