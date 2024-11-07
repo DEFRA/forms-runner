@@ -26,10 +26,10 @@
 
 
 {% block header %}
-  {% if announcementContent %}
+  {% if serviceBannerText | length %}
     {{ appServiceBanner({
       title: "Service status",
-      text: announcementContent
+      text: serviceBannerText
     }) }}
   {% endif %}
 

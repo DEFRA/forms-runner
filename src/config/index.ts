@@ -195,11 +195,11 @@ export const config = convict({
     env: 'STAGING_PREFIX'
   },
 
-  announcementContent: {
-    doc: 'A user-visible global announcement to inform the the user. Set no empty to hide.',
+  serviceBannerText: {
+    doc: 'Service banner text used to show a maintenance message on all pages when set',
     format: String,
     default: '',
-    env: 'ANNOUNCEMENT_CONTENT'
+    env: 'SERVICE_BANNER_TEXT'
   }
 })
 
