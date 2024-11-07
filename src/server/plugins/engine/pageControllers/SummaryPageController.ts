@@ -93,11 +93,8 @@ export class SummaryPageController extends PageController {
   ) => Promise<ResponseObject | Boom> {
     return async (request, h) => {
       const { cacheService } = request.services([])
-      const model = this.model
 
-      if (this.model.def.skipSummary) {
-        return this.makePostRouteHandler()(request, h)
-      }
+      const model = this.model
       const state = await cacheService.getState(request)
 
       const viewModel = this.getSummaryViewModel(

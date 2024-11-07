@@ -37,5 +37,14 @@ module.exports = {
       }
     ]
   },
-  transformIgnorePatterns: ['<rootDir>/node_modules/(?!@defra/forms-model/)']
+
+  // Enable Babel transforms for node_modules
+  // See: https://jestjs.io/docs/ecmascript-modules
+  transformIgnorePatterns: [
+    `node_modules/(?!${[
+      '@defra/forms-model/.*',
+      'nanoid', // Supports ESM only
+      'slug' // Supports ESM only
+    ].join('|')}/)`
+  ]
 }
