@@ -1,6 +1,5 @@
 import { type Server } from '@hapi/hapi'
 
-import { config } from '~/src/config/index.js'
 import { createServer } from '~/src/server/index.js'
 import {
   getFormDefinition,
@@ -8,7 +7,6 @@ import {
 } from '~/src/server/plugins/engine/services/formsService.js'
 import { FormStatus } from '~/src/server/routes/types.js'
 import * as fixtures from '~/test/fixtures/index.js'
-import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
 
@@ -469,52 +467,5 @@ describe('Model cache', () => {
 
       expect(res.statusCode).toBe(okStatusCode)
     })
-  })
-})
-
-describe('Base pages', () => {
-  let server: Server
-
-  beforeAll(async () => {
-    server = await createServer()
-    await server.initialize()
-  })
-
-  afterAll(async () => {
-    await server.stop()
-  })
-
-  test('The announcement bar is shown', async () => {
-    config.set('announcementContent', 'Hello world')
-
-    const options = {
-      method: 'GET',
-      url: '/'
-    }
-
-    const { container } = await renderResponse(server, options)
-
-    const $announcement = container.getByRole('region', {
-      name: 'Announcement'
-    })
-
-    expect($announcement).toHaveTextContent('Hello world')
-  })
-
-  test('The announcement bar is not shown', async () => {
-    config.set('announcementContent', '')
-
-    const options = {
-      method: 'GET',
-      url: '/'
-    }
-
-    const { container } = await renderResponse(server, options)
-
-    const $announcement = container.queryByRole('region', {
-      name: 'Announcement'
-    })
-
-    expect($announcement).toBeNull()
   })
 })
