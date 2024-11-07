@@ -26,9 +26,9 @@
 
 {% block header %}
   {% if announcementContent %}
-    <div class="dxt-announcement-bar" role="region" aria-live="polite" aria-label="Announcement">
+    <section class="dxt-announcement-bar" aria-live="polite" aria-label="Announcement">
       <p class="govuk-body">{{ announcementContent | safe }}</p>
-    </div>
+    </section>
   {% endif %}
 
   {{ govukHeader({
