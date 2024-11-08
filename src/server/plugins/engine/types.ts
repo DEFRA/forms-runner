@@ -1,5 +1,6 @@
 import { type Item } from '@defra/forms-model'
 import { type ResponseObject } from '@hapi/hapi'
+import { type ValidationErrorItem } from 'joi'
 
 import { type ComponentViewModel } from '~/src/server/plugins/engine/components/types.js'
 import {
@@ -61,11 +62,11 @@ export type FormSubmissionState = {
   upload?: Record<string, TempFileState>
 } & FormState
 
-export interface FormSubmissionError {
-  path: string // e.g: "firstName"
-  href: string // e.g: "#firstName"
-  name: string // e.g: "firstName"
-  text: string // e.g: '"First name" is not allowed to be empty'
+export interface FormSubmissionError
+  extends Pick<ValidationErrorItem, 'context' | 'path'> {
+  href: string // e.g: '#dateField__day'
+  name: string // e.g: 'dateField__day'
+  text: string // e.g: 'Date field must be a real date'
 }
 
 export interface FormSubmissionErrors {

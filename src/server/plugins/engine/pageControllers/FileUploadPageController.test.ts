@@ -7,6 +7,7 @@ import {
 
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { FileUploadPageController } from '~/src/server/plugins/engine/pageControllers/FileUploadPageController.js'
+import { type FormSubmissionErrors } from '~/src/server/plugins/engine/types.js'
 
 describe('FileUploadPageController', () => {
   const component1: ComponentDef = {
@@ -100,14 +101,18 @@ describe('FileUploadPageController', () => {
       const result = controller.validateForm({})
 
       expect(result.errors).toEqual(
-        expect.objectContaining({
+        expect.objectContaining<FormSubmissionErrors>({
           titleText: 'There is a problem',
           errorList: [
             {
-              path: 'fileUpload',
+              path: ['fileUpload'],
               href: '#fileUpload',
               name: 'fileUpload',
-              text: 'Select methodology statement'
+              text: 'Select methodology statement',
+              context: {
+                key: 'fileUpload',
+                label: 'methodology statement'
+              }
             }
           ]
         })

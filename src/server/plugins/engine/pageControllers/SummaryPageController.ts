@@ -110,8 +110,7 @@ export class SummaryPageController extends PageController {
        */
       if (viewModel.errors) {
         const errorToFix = viewModel.errors[0]
-        const { path } = errorToFix
-        const parts = path.split('.')
+        const { path: parts } = errorToFix
         const section = parts[0]
         const property = parts.length > 1 ? parts[parts.length - 1] : null
         const pageWithError = model.pages.find((page) => {

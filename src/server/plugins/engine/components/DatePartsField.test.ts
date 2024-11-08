@@ -5,7 +5,8 @@ import {
 } from '@defra/forms-model'
 import { addDays, startOfDay } from 'date-fns'
 
-import { DatePartsField } from '~/src/server/plugins/engine/components/DatePartsField.js'
+import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
 import { type DateInputItem } from '~/src/server/plugins/engine/components/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -32,7 +33,8 @@ describe('DatePartsField', () => {
 
   describe('Defaults', () => {
     let def: DatePartsFieldComponent
-    let component: DatePartsField
+    let collection: ComponentCollection
+    let component: FormComponentFieldClass
 
     beforeEach(() => {
       def = {
@@ -42,12 +44,13 @@ describe('DatePartsField', () => {
         options: {}
       } satisfies DatePartsFieldComponent
 
-      component = new DatePartsField(def, formModel)
+      collection = new ComponentCollection([def], { model: formModel })
+      component = collection.formItems[0]
     })
 
     describe('Schema', () => {
       it('uses collection titles as labels', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
         expect(formSchema.describe().keys).toEqual(
           expect.objectContaining({
@@ -65,7 +68,7 @@ describe('DatePartsField', () => {
       })
 
       it('is required by default', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
         expect(formSchema.describe().flags).toEqual(
           expect.objectContaining({
@@ -75,17 +78,19 @@ describe('DatePartsField', () => {
       })
 
       it('is optional when configured', () => {
-        const componentOptional = new DatePartsField(
-          {
-            title: 'Example date parts field',
-            name: 'myComponent',
-            type: ComponentType.DatePartsField,
-            options: { required: false }
-          },
-          formModel
+        const collectionOptional = new ComponentCollection(
+          [
+            {
+              title: 'Example date parts field',
+              name: 'myComponent',
+              type: ComponentType.DatePartsField,
+              options: { required: false }
+            }
+          ],
+          { model: formModel }
         )
 
-        const { formSchema } = componentOptional
+        const { formSchema } = collectionOptional
 
         expect(formSchema.describe().keys).toEqual(
           expect.objectContaining({
@@ -101,7 +106,8 @@ describe('DatePartsField', () => {
           })
         )
 
-        const result = formSchema.validate(
+        // Empty optional payload (valid)
+        const result1 = formSchema.validate(
           getFormData({
             day: '',
             month: '',
@@ -110,11 +116,26 @@ describe('DatePartsField', () => {
           opts
         )
 
-        expect(result.error).toBeUndefined()
+        // Partial optional payload (invalid)
+        const result2 = formSchema.validate(
+          getFormData({
+            day: 31,
+            month: '',
+            year: ''
+          }),
+          opts
+        )
+
+        expect(result1.error).toBeUndefined()
+        expect(result2.error).toEqual(
+          expect.objectContaining({
+            message: 'Example date parts field must include a month, year'
+          })
+        )
       })
 
       it('accepts valid values', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
         const result1 = formSchema.validate(
           getFormData({
@@ -150,7 +171,7 @@ describe('DatePartsField', () => {
       })
 
       it('adds errors for empty value', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
         const result = formSchema.validate(
           getFormData({
@@ -173,7 +194,7 @@ describe('DatePartsField', () => {
       })
 
       it('adds errors for invalid values', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
         const result1 = formSchema.validate(['invalid'], opts)
         const result2 = formSchema.validate({ unknown: 'invalid' }, opts)
@@ -614,16 +635,16 @@ describe('DatePartsField', () => {
         ]
       }
     ])('$description', ({ component: def, assertions }) => {
-      let component: DatePartsField
+      let collection: ComponentCollection
 
       beforeEach(() => {
-        component = new DatePartsField(def, formModel)
+        collection = new ComponentCollection([def], { model: formModel })
       })
 
       it.each([...assertions])(
         'validates custom example',
         ({ input, output }) => {
-          const { formSchema } = component
+          const { formSchema } = collection
 
           const result = formSchema.validate(input, opts)
           expect(result).toEqual(output)

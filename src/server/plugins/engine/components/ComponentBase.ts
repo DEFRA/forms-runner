@@ -101,10 +101,3 @@ export type ComponentSchema =
   | NumberSchema
   | ObjectSchema
   | StringSchema
-
-export type ComponentSchemaNested = Record<string, ComponentSchema | undefined>
-
-export type ComponentSchemaKeys = Record<
-  string,
-  ComponentSchema | ComponentSchemaNested | undefined
->

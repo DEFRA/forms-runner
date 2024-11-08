@@ -11,6 +11,7 @@ import { RepeatPageController } from '~/src/server/plugins/engine/pageController
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
   type FormState,
+  type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import {
@@ -34,13 +35,7 @@ export class SummaryViewModel {
   backLink?: string
   feedbackLink?: string
   phaseTag?: string
-  errors:
-    | {
-        path: string
-        name: string
-        message: string
-      }[]
-    | undefined
+  errors: FormSubmissionError[] | undefined
 
   serviceUrl: string
   showErrorSummary?: boolean
@@ -83,17 +78,19 @@ export class SummaryViewModel {
 
   private processErrors(result: ValidationResult, details: Detail[]) {
     this.errors = result.error?.details.map((err) => {
-      const name = err.path[err.path.length - 1] ?? ''
+      const name = err.context?.key ?? ''
 
       return {
-        path: err.path.join('.'),
-        name: name.toString(),
-        message: err.message
+        path: err.path,
+        href: `#${name}`,
+        name,
+        text: err.message,
+        context: err.context
       }
     })
 
     details.forEach((detail) => {
-      const sectionErr = this.errors?.find((err) => err.path === detail.name)
+      const sectionErr = this.errors?.find(({ name }) => name === detail.name)
 
       detail.items.forEach((item) => {
         if (sectionErr) {
@@ -101,11 +98,12 @@ export class SummaryViewModel {
           return
         }
 
-        const err = this.errors?.find(
-          (err) =>
-            err.path ===
-            (detail.name ? detail.name + '.' + item.name : item.name)
-        )
+        const err = this.errors?.find(({ name }) => {
+          return (
+            name === (detail.name ? `${detail.name}.${item.name}` : item.name)
+          )
+        })
+
         if (err) {
           item.inError = true
         }

@@ -13,6 +13,7 @@ import {
   type DateInputItem
 } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormPayload,
   type FormState,
@@ -47,7 +48,9 @@ export class DatePartsField extends FormComponent {
             required: isRequired,
             optionalText: true,
             classes: 'govuk-input--width-2',
-            customValidationMessage: `${title} must include a {{#label}}`
+            customValidationMessage: messageTemplate.objectMissing
+              .replace('{{#title}}', title)
+              .replace('{{#missingWithLabels}}', 'day')
           }
         },
         {
@@ -59,7 +62,9 @@ export class DatePartsField extends FormComponent {
             required: isRequired,
             optionalText: true,
             classes: 'govuk-input--width-2',
-            customValidationMessage: `${title} must include a {{#label}}`
+            customValidationMessage: messageTemplate.objectMissing
+              .replace('{{#title}}', title)
+              .replace('{{#missingWithLabels}}', 'month')
           }
         },
         {
@@ -71,30 +76,22 @@ export class DatePartsField extends FormComponent {
             required: isRequired,
             optionalText: true,
             classes: 'govuk-input--width-4',
-            customValidationMessage: `${title} must include a {{#label}}`
+            customValidationMessage: messageTemplate.objectMissing
+              .replace('{{#title}}', title)
+              .replace('{{#missingWithLabels}}', 'year')
           }
         }
       ],
-      model
+      { model, parent: this },
+      {
+        peers: [`${name}__day`, `${name}__month`, `${name}__year`],
+        custom: getValidatorDate(this)
+      }
     )
 
-    let { formSchema, stateSchema } = this.children
-
-    // Update child schema
-    formSchema = formSchema
-      .custom(getValidatorDate(this), 'date validation')
-      .label(title.toLowerCase())
-
-    stateSchema = stateSchema
-      .custom(getValidatorDate(this), 'date validation')
-      .label(title.toLowerCase())
-
     this.options = options
-    this.formSchema = formSchema
-    this.stateSchema = stateSchema
-
-    this.children.formSchema = formSchema
-    this.children.stateSchema = stateSchema
+    this.formSchema = this.children.formSchema
+    this.stateSchema = this.children.stateSchema
   }
 
   getFormValueFromState(state: FormSubmissionState) {
@@ -128,15 +125,15 @@ export class DatePartsField extends FormComponent {
     const viewModel = super.getViewModel(payload, errors)
     let { fieldset, label } = viewModel
 
-    // Filter component and children errors only
+    // Filter component and child errors only
     const componentErrors = errors?.errorList.filter(
       (error) =>
-        error.name === name || // Errors for parent component only
+        error.path.includes(name) || // Errors for parent component
         error.name.startsWith(`${name}__`) // Plus `${name}__year` etc fields
     )
 
     // Check for component errors only
-    const hasError = componentErrors?.some((error) => error.name === name)
+    const hasError = componentErrors?.some((error) => error.path.includes(name))
 
     // Use the component collection to generate the subitems
     const items: DateInputItem[] = children
@@ -208,16 +205,16 @@ interface DatePartsState extends Record<string, number> {
 }
 
 export function getValidatorDate(component: DatePartsField) {
-  const { options } = component
-
   const validator: CustomValidator = (payload: FormPayload, helpers) => {
+    const { children, options } = component
+
     const values = component.getFormValueFromState(
       component.getStateFromValidForm(payload)
     )
 
-    if (!DatePartsField.isDateParts(values)) {
+    if (!component.isState(values)) {
       return options.required !== false
-        ? helpers.error('date.base') // Date required
+        ? children.error(helpers, 'object.required')
         : payload
     }
 
@@ -228,7 +225,7 @@ export function getValidatorDate(component: DatePartsField) {
     )
 
     if (!isValid(date)) {
-      return helpers.error('date.format')
+      return children.error(helpers, 'date.format')
     }
 
     // Minimum date from today
@@ -242,17 +239,11 @@ export function getValidatorDate(component: DatePartsField) {
       : undefined
 
     if (dateMin && date < dateMin) {
-      return helpers.error('date.min', {
-        label: helpers.state.key,
-        limit: dateMin
-      })
+      return children.error(helpers, 'date.min', { limit: dateMin })
     }
 
     if (dateMax && date > dateMax) {
-      return helpers.error('date.max', {
-        label: helpers.state.key,
-        limit: dateMax
-      })
+      return children.error(helpers, 'date.max', { limit: dateMax })
     }
 
     return payload

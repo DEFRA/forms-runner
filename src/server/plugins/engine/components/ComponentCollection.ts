@@ -1,7 +1,17 @@
 import { type ComponentDef } from '@defra/forms-model'
-import joi, { type ObjectSchema } from 'joi'
+import joi, {
+  type Context,
+  type CustomHelpers,
+  type CustomValidator,
+  type ErrorReportCollection,
+  type ObjectSchema,
+  type State
+} from 'joi'
 
-import { type ComponentSchemaNested } from '~/src/server/plugins/engine/components/ComponentBase.js'
+import {
+  isFormState,
+  isFormValue
+} from '~/src/server/plugins/engine/components/FormComponent.js'
 import {
   createComponentField,
   type ComponentFieldClass,
@@ -17,14 +27,34 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class ComponentCollection {
+  parent?: ComponentFieldClass
+
   items: ComponentFieldClass[]
   formItems: FormComponentFieldClass[]
   formSchema: ObjectSchema<FormPayload>
   stateSchema: ObjectSchema<FormSubmissionState>
 
-  constructor(componentDefs: ComponentDef[] = [], model: FormModel) {
-    const components = componentDefs.map((def) => {
-      const component = createComponentField(def, model)
+  constructor(
+    componentDefs: ComponentDef[],
+    options: {
+      parent?: ComponentFieldClass
+      model: FormModel
+    },
+    schema?: {
+      /**
+       * Defines an all-or-nothing relationship between keys where if one
+       * of the peers is present, all of them are required as well
+       */
+      peers?: string[]
+
+      /**
+       * Defines a custom validation rule for the object schema
+       */
+      custom?: CustomValidator
+    }
+  ) {
+    const items = componentDefs.map((def) => {
+      const component = createComponentField(def, options.model)
 
       if (!component) {
         throw new Error(`Component type ${def.type} doesn't exist`)
@@ -33,43 +63,74 @@ export class ComponentCollection {
       return component
     })
 
-    const formComponents = components.filter(
-      (component): component is FormComponentFieldClass =>
-        component.isFormComponent
+    const formItems = items.filter(
+      (item): item is FormComponentFieldClass => item.isFormComponent
     )
 
-    this.items = components
-    this.formItems = formComponents
-    this.formSchema = joi
-      .object<FormPayload>()
-      .keys(this.getFormSchemaKeys())
-      .required()
-      .keys({ crumb: joi.string().optional().allow('') })
+    let formSchema = joi.object<FormPayload>().required()
+    let stateSchema = joi.object<FormSubmissionState>().required()
 
-    this.stateSchema = joi
-      .object<FormSubmissionState>()
-      .keys(this.getStateSchemaKeys())
-      .required()
-  }
+    // Add each field or concat collection
+    for (const field of formItems) {
+      const { children, name } = field
 
-  getFormSchemaKeys() {
-    const keys: ComponentSchemaNested = {}
+      formSchema = children
+        ? formSchema.concat(children.formSchema)
+        : formSchema.keys({ [name]: field.formSchema })
 
-    this.formItems.forEach((item) => {
-      Object.assign(keys, item.getFormSchemaKeys())
-    })
+      stateSchema = children
+        ? stateSchema.concat(children.stateSchema)
+        : stateSchema.keys({ [name]: field.stateSchema })
+    }
 
-    return keys
-  }
+    // Add parent field title to collection field errors
+    if (!options.parent) {
+      formSchema = formSchema.error((errors) =>
+        errors.map((error) => {
+          if (
+            !isCollectionContext(error.local) ||
+            !error.local.missing?.length ||
+            !error.local.present?.length
+          ) {
+            return error
+          }
 
-  getStateSchemaKeys() {
-    const keys: ComponentSchemaNested = {}
+          const { missing, present } = error.local
 
-    this.formItems.forEach((item) => {
-      Object.assign(keys, item.getStateSchemaKeys())
-    })
+          // Find the parent field
+          const name = present[0].split('__').shift()
+          const parent = formItems.find((item) => item.name === name)
+          const child = parent?.children?.formItems[0]
 
-    return keys
+          // Update error with parent title etc
+          if (parent && child) {
+            error.path = missing
+            error.local.key = missing[0]
+            error.local.title = parent.title
+            error.local.label = child.title.toLowerCase()
+          }
+
+          return error
+        })
+      )
+    }
+
+    if (schema?.peers) {
+      formSchema = formSchema.and(...schema.peers, {
+        isPresent: isFormValue
+      })
+    }
+
+    if (schema?.custom) {
+      formSchema = formSchema.custom(schema.custom)
+    }
+
+    this.parent = options.parent
+
+    this.items = items
+    this.formItems = formItems
+    this.formSchema = formSchema
+    this.stateSchema = stateSchema
   }
 
   getFormDataFromState(state: FormSubmissionState) {
@@ -135,4 +196,39 @@ export class ComponentCollection {
 
     return result
   }
+
+  /**
+   * Return error by code for collection fields
+   * For example, 'date.min', 'date.max'
+   */
+  error(helpers: CustomHelpers, code: string, context?: Context) {
+    const { formItems, parent } = this
+    const [field] = formItems
+
+    // Use collection parent name/title when available
+    const key = parent?.name ?? field.name
+    const title = parent?.title ?? field.title
+
+    // Support collection parent {{#title}} in messages
+    const local: Context = {
+      title: title.toLowerCase(),
+      ...context
+    }
+
+    // Error summary links to first collection field
+    const localState: State = parent
+      ? { key, path: [parent.name, field.name] } // For example, `#dateField__day`
+      : { key, path: [field.name] } // Otherwise `#dateField` for single fields
+
+    return helpers.error(code, local, localState)
+  }
+}
+
+/**
+ * Check for nested field local state with unknown label
+ */
+export function isCollectionContext(
+  value?: unknown
+): value is ErrorReportCollection['local'] {
+  return isFormState(value) && value.label === 'value'
 }

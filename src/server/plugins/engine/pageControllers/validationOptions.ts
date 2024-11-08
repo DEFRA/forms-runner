@@ -1,4 +1,5 @@
 import { type LanguageMessages, type ValidationOptions } from 'joi'
+
 /**
  * see @link https://joi.dev/api/?v=17.4.2#template-syntax for template syntax
  */
@@ -15,10 +16,13 @@ export const messageTemplate = {
   numberMin: '{{#label}} must be {{#limit}} or higher',
   numberMax: '{{#label}} must be {{#limit}} or lower',
   maxWords: '{{#label}} must be {{#limit}} words or fewer',
-  dateRequired: '{{#label}} must be a real date',
-  dateFormat: '{{#label}} must be a real date',
-  dateMin: '{{#label}} must be the same as or after {{#limit}}',
-  dateMax: '{{#label}} must be the same as or before {{#limit}}'
+
+  // Nested fields use component title
+  objectRequired: 'Enter {{#title}}',
+  objectMissing: '{{#title}} must include a {{#missingWithLabels}}',
+  dateFormat: '{{#title}} must be a real date',
+  dateMin: '{{#title}} must be the same as or after {{#limit}}',
+  dateMax: '{{#title}} must be the same as or before {{#limit}}'
 }
 
 export const messages: LanguageMessages = {
@@ -37,11 +41,14 @@ export const messages: LanguageMessages = {
   'number.min': messageTemplate.numberMin,
   'number.max': messageTemplate.numberMax,
 
+  'object.required': messageTemplate.objectRequired,
+  'object.and': messageTemplate.objectMissing,
+
   'any.only': messageTemplate.selectRequired,
   'any.required': messageTemplate.selectRequired,
   'any.empty': messageTemplate.required,
 
-  'date.base': messageTemplate.dateRequired,
+  'date.base': messageTemplate.dateFormat,
   'date.format': messageTemplate.dateFormat,
   'date.min': messageTemplate.dateMin,
   'date.max': messageTemplate.dateMax
@@ -53,6 +60,7 @@ export const validationOptions: ValidationOptions = {
   dateFormat: 'iso',
   errors: {
     wrap: {
+      array: false,
       label: false
     }
   }

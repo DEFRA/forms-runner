@@ -17,8 +17,12 @@ import {
 } from '@hapi/hapi'
 import { merge } from '@hapi/hoek'
 import { format, parseISO } from 'date-fns'
-import type joi from 'joi'
-import { type ObjectSchema, type ValidationResult } from 'joi'
+import joi, {
+  type ObjectSchema,
+  type Schema,
+  type ValidationErrorItem,
+  type ValidationResult
+} from 'joi'
 
 import { config } from '~/src/config/index.js'
 import { CheckboxesField } from '~/src/server/plugins/engine/components/CheckboxesField.js'
@@ -39,6 +43,7 @@ import {
   type FormPayload,
   type FormState,
   type FormStateValue,
+  type FormSubmissionError,
   type FormSubmissionErrors,
   type FormSubmissionState,
   type FormValidationResult,
@@ -95,10 +100,13 @@ export class PageControllerBase {
     // Components collection
     const components = hasComponents(pageDef) ? pageDef.components : []
 
-    this.components = new ComponentCollection(components, model)
+    this.components = new ComponentCollection(components, { model })
     this.hasFormComponents = !!this.components.formItems.length
 
-    this[FORM_SCHEMA] = this.components.formSchema
+    this[FORM_SCHEMA] = this.components.formSchema.keys({
+      crumb: joi.string().optional().allow('')
+    })
+
     this[STATE_SCHEMA] = this.components.stateSchema
   }
 
@@ -256,8 +264,8 @@ export class PageControllerBase {
   }
 
   /**
-   * Parses the errors from joi.validate so they can be rendered by govuk-frontend templates
-   * @param validationResult - provided by joi.validate
+   * Parses the errors from {@link Schema.validate} so they can be rendered by govuk-frontend templates
+   * @param validationResult - provided by {@link Schema.validate}
    */
   getErrors(
     validationResult?: Pick<ValidationResult, 'error'>
@@ -274,26 +282,25 @@ export class PageControllerBase {
     return undefined
   }
 
-  protected getError(err: joi.ValidationErrorItem) {
+  protected getError(err: ValidationErrorItem): FormSubmissionError {
+    const name = err.context?.key ?? ''
+
     const isoRegex =
       /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/
 
-    const name = err.path
-      .map((name, index) => (index > 0 ? `__${name}` : name))
-      .join('')
-
     return {
-      path: err.path.join('.'),
+      path: err.path,
       href: `#${name}`,
       name,
       text: err.message.replace(isoRegex, (text) => {
         return format(parseISO(text), 'd MMMM yyyy')
-      })
+      }),
+      context: err.context
     }
   }
 
   /**
-   * Runs {@link joi.validate}
+   * Runs {@link Schema.validate}
    * @param value - user's answers
    * @param schema - which schema to validate against
    */

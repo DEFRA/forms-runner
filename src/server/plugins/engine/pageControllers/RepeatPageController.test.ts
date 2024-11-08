@@ -8,6 +8,7 @@ import {
 
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
+import { type FormSubmissionErrors } from '~/src/server/plugins/engine/types.js'
 
 describe('RepeatPageController', () => {
   const component1: ComponentDef = {
@@ -78,26 +79,38 @@ describe('RepeatPageController', () => {
       const result = controller.validateForm({})
 
       expect(result.errors).toEqual(
-        expect.objectContaining({
+        expect.objectContaining<FormSubmissionErrors>({
           titleText: 'There is a problem',
           errorList: [
             {
-              path: 'toppings',
+              path: ['toppings'],
               href: '#toppings',
               name: 'toppings',
-              text: 'Select toppings'
+              text: 'Select toppings',
+              context: {
+                key: 'toppings',
+                label: 'toppings'
+              }
             },
             {
-              path: 'quantity',
+              path: ['quantity'],
               href: '#quantity',
               name: 'quantity',
-              text: 'Enter quantity'
+              text: 'Enter quantity',
+              context: {
+                key: 'quantity',
+                label: 'quantity'
+              }
             },
             {
+              path: ['itemId'],
               href: '#itemId',
               name: 'itemId',
-              path: 'itemId',
-              text: 'Select itemId'
+              text: 'Select itemId',
+              context: {
+                key: 'itemId',
+                label: 'itemId'
+              }
             }
           ]
         })

@@ -103,18 +103,9 @@ export class MultilineTextField extends FormComponent {
 }
 
 function getValidatorMaxWords(component: MultilineTextField) {
-  const { options } = component
-
-  /**
-   * Count the number of words in the given text
-   * @see GOV.UK Frontend {@link https://github.com/alphagov/govuk-frontend/blob/v5.4.0/packages/govuk-frontend/src/govuk/components/character-count/character-count.mjs#L343 | Character count `maxwords` implementation}
-   */
-  function count(text: string) {
-    const tokens = text.match(/\S+/g) ?? []
-    return tokens.length
-  }
-
   const validator: CustomValidator = (value: string, helpers) => {
+    const { options } = component
+
     const {
       customValidationMessage: custom,
       maxWords: limit // See {{#limit}} variable
@@ -127,6 +118,15 @@ function getValidatorMaxWords(component: MultilineTextField) {
     return custom
       ? helpers.message({ custom }, { limit })
       : helpers.error('string.maxWords', { limit })
+  }
+
+  /**
+   * Count the number of words in the given text
+   * @see GOV.UK Frontend {@link https://github.com/alphagov/govuk-frontend/blob/v5.4.0/packages/govuk-frontend/src/govuk/components/character-count/character-count.mjs#L343 | Character count `maxwords` implementation}
+   */
+  function count(text: string) {
+    const tokens = text.match(/\S+/g) ?? []
+    return tokens.length
   }
 
   return validator
