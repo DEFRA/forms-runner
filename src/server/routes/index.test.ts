@@ -1,5 +1,6 @@
 import { type Server } from '@hapi/hapi'
 
+import { config } from '~/src/config/index.js'
 import { createServer } from '~/src/server/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
@@ -58,5 +59,48 @@ describe('Routes', () => {
     const res = await server.inject(options)
 
     expect(res.statusCode).toBe(200)
+  })
+
+  test('Service banner is not shown by default', async () => {
+    const { container } = await renderResponse(server, {
+      method: 'GET',
+      url: '/'
+    })
+
+    const $banner = container.queryByRole('complementary', {
+      name: 'Service status'
+    })
+
+    expect($banner).not.toBeInTheDocument()
+  })
+
+  test('Service banner is not shown when empty', async () => {
+    config.set('serviceBannerText', '')
+
+    const { container } = await renderResponse(server, {
+      method: 'GET',
+      url: '/'
+    })
+
+    const $banner = container.queryByRole('complementary', {
+      name: 'Service status'
+    })
+
+    expect($banner).not.toBeInTheDocument()
+  })
+
+  test('Service banner is shown when configured', async () => {
+    config.set('serviceBannerText', 'Hello world')
+
+    const { container } = await renderResponse(server, {
+      method: 'GET',
+      url: '/'
+    })
+
+    const $banner = container.getByRole('complementary', {
+      name: 'Service status'
+    })
+
+    expect($banner).toHaveTextContent('Hello world')
   })
 })

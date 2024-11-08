@@ -193,6 +193,13 @@ export const config = convict({
     format: String,
     default: 'staging',
     env: 'STAGING_PREFIX'
+  },
+
+  serviceBannerText: {
+    doc: 'Service banner text used to show a maintenance message on all pages when set',
+    format: String,
+    default: '',
+    env: 'SERVICE_BANNER_TEXT'
   }
 })
 
