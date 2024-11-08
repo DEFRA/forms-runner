@@ -205,6 +205,11 @@ describe('NumberField', () => {
         )
       })
     })
+
+    it('sets Nunjucks component value when invalid', () => {
+      const viewModel = component.getViewModel(getFormData('AA'))
+      expect(viewModel).toEqual(expect.objectContaining({ value: 'AA' }))
+    })
   })
 
   describe('Validation', () => {

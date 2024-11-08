@@ -1,7 +1,10 @@
 import { type NumberFieldComponent } from '@defra/forms-model'
 import joi, { type CustomValidator, type NumberSchema } from 'joi'
 
-import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import {
+  FormComponent,
+  isFormValue
+} from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
@@ -95,7 +98,9 @@ export class NumberField extends FormComponent {
       }
     }
 
-    if (!this.isValue(value)) {
+    // Allow any `toString()`-able value so non-numeric
+    // values are shown alongside their error messages
+    if (!isFormValue(value)) {
       value = undefined
     }
 
