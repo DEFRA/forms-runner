@@ -35,7 +35,7 @@ export interface DateInputItem {
   type?: string
   id?: string
   name?: string
-  value?: number
+  value?: Item['value']
   classes?: string
   condition?: undefined
 }

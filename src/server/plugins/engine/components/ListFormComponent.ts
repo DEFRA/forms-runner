@@ -35,6 +35,7 @@ export class ListFormComponent extends FormComponent {
     | ArraySchema<number>
     | BooleanSchema<string>
     | NumberSchema<string>
+    | NumberSchema
     | StringSchema
 
   declare stateSchema:
@@ -42,6 +43,7 @@ export class ListFormComponent extends FormComponent {
     | ArraySchema<number>
     | BooleanSchema<string>
     | NumberSchema<string>
+    | NumberSchema
     | StringSchema
 
   list?: List

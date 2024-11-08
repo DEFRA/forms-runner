@@ -275,6 +275,29 @@ describe('MonthYearField', () => {
         )
       })
 
+      it('sets Nunjucks component value when invalid', () => {
+        const payload = getFormData({
+          month: 'MM',
+          year: 'YYYY'
+        })
+
+        const viewModel = component.getViewModel(payload)
+
+        expect(viewModel).toEqual(
+          expect.objectContaining({
+            items: [
+              expect.objectContaining(
+                getViewModel(date, 'month', { value: 'MM' })
+              ),
+
+              expect.objectContaining(
+                getViewModel(date, 'year', { value: 'YYYY' })
+              )
+            ]
+          })
+        )
+      })
+
       it('sets Nunjucks component fieldset', () => {
         const payload = getFormData(date)
         const viewModel = component.getViewModel(payload)
@@ -451,7 +474,9 @@ function getViewModel(
   overrides?: Partial<DateInputItem>
 ): DateInputItem {
   const payload = getFormData(date)
+
   const fieldName = `myComponent__${name}`
+  const fieldValue = overrides?.value ?? payload[fieldName]
   const fieldClasses = overrides?.classes ?? expect.any(String)
 
   return {
@@ -462,7 +487,7 @@ function getViewModel(
     ),
     name: fieldName,
     id: fieldName,
-    value: payload[fieldName] as number,
+    value: fieldValue as DateInputItem['value'],
     classes: fieldClasses,
     type: 'number'
   }

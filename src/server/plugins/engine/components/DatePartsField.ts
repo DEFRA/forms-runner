@@ -5,7 +5,8 @@ import { type CustomValidator, type ObjectSchema } from 'joi'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
   FormComponent,
-  isFormState
+  isFormState,
+  isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
 import {
@@ -149,7 +150,9 @@ export class DatePartsField extends FormComponent {
           classes = `${classes} govuk-input--error`.trim()
         }
 
-        if (!NumberField.isNumber(value)) {
+        // Allow any `toString()`-able value so non-numeric
+        // values are shown alongside their error messages
+        if (!isFormValue(value)) {
           value = undefined
         }
 
