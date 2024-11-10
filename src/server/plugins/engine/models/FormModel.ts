@@ -193,10 +193,6 @@ export class FormModel {
     return parser.parse(conditions.toExpression())
   }
 
-  get conditionOptions() {
-    return { allowUnknown: true, presence: 'required' }
-  }
-
   getList(name: string): List | undefined {
     return this.lists.find((list) => list.name === name)
   }

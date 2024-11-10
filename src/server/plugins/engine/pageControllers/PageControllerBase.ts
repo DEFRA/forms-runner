@@ -644,10 +644,6 @@ export class PageControllerBase {
     return validationOptions
   }
 
-  get conditionOptions() {
-    return this.model.conditionOptions
-  }
-
   /**
    * {@link https://hapi.dev/api/?v=20.1.2#route-options}
    */
