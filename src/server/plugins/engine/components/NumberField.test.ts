@@ -47,18 +47,15 @@ describe('NumberField', () => {
       it('uses component title as label', () => {
         const { formSchema } = component
 
-        expect(formSchema.describe().flags).toEqual(
-          expect.objectContaining({ label })
-        )
+        expect(formSchema.describe().flags).toHaveProperty('label', label)
       })
 
       it('is required by default', () => {
         const { formSchema } = component
 
-        expect(formSchema.describe().flags).toEqual(
-          expect.objectContaining({
-            presence: 'required'
-          })
+        expect(formSchema.describe().flags).toHaveProperty(
+          'presence',
+          'required'
         )
       })
 
@@ -70,11 +67,7 @@ describe('NumberField', () => {
 
         const { formSchema } = componentOptional
 
-        expect(formSchema.describe()).toEqual(
-          expect.objectContaining({
-            allow: ['']
-          })
-        )
+        expect(formSchema.describe()).toHaveProperty('allow', [''])
 
         const result = formSchema.validate('', opts)
         expect(result.error).toBeUndefined()
@@ -99,11 +92,7 @@ describe('NumberField', () => {
 
         const result = formSchema.validate('', opts)
 
-        expect(result.error).toEqual(
-          expect.objectContaining({
-            message: `Enter ${label}`
-          })
-        )
+        expect(result.error).toHaveProperty('message', `Enter ${label}`)
       })
 
       it('adds errors for invalid values', () => {
@@ -197,11 +186,7 @@ describe('NumberField', () => {
 
         const viewModel = componentCustom.getViewModel(getFormData(99))
 
-        expect(viewModel.attributes).toEqual(
-          expect.objectContaining({
-            inputmode: 'numeric'
-          })
-        )
+        expect(viewModel.attributes).toHaveProperty('inputmode', 'numeric')
       })
 
       it('sets Nunjucks component inputmode attribute when precision is 0', () => {
@@ -212,11 +197,7 @@ describe('NumberField', () => {
 
         const viewModel = componentCustom.getViewModel(getFormData(99))
 
-        expect(viewModel.attributes).toEqual(
-          expect.objectContaining({
-            inputmode: 'numeric'
-          })
-        )
+        expect(viewModel.attributes).toHaveProperty('inputmode', 'numeric')
       })
 
       it('does not set Nunjucks component inputmode attribute when precision is positive', () => {
@@ -227,17 +208,14 @@ describe('NumberField', () => {
 
         const viewModel = componentCustom.getViewModel(getFormData(99.99))
 
-        expect(viewModel.attributes).toEqual(
-          expect.not.objectContaining({
-            inputmode: 'numeric'
-          })
-        )
+        expect(viewModel.attributes).not.toHaveProperty('inputmode', 'numeric')
       })
     })
 
     it('sets Nunjucks component value when invalid', () => {
       const viewModel = component.getViewModel(getFormData('AA'))
-      expect(viewModel).toEqual(expect.objectContaining({ value: 'AA' }))
+
+      expect(viewModel).toHaveProperty('value', 'AA')
     })
   })
 
