@@ -195,7 +195,7 @@ describe('NumberField', () => {
           formModel
         )
 
-        const viewModel = componentCustom.getViewModel(getFormData(99.99))
+        const viewModel = componentCustom.getViewModel(getFormData(99))
 
         expect(viewModel.attributes).toEqual(
           expect.objectContaining({
@@ -210,10 +210,25 @@ describe('NumberField', () => {
           formModel
         )
 
-        const viewModel = componentCustom.getViewModel(getFormData(99.99))
+        const viewModel = componentCustom.getViewModel(getFormData(99))
 
         expect(viewModel.attributes).toEqual(
           expect.objectContaining({
+            inputmode: 'numeric'
+          })
+        )
+      })
+
+      it("Doesn't set Nunjucks component inputmode attribute when precision is positive", () => {
+        const componentCustom = new NumberField(
+          { ...def, schema: { precision: 2 } },
+          formModel
+        )
+
+        const viewModel = componentCustom.getViewModel(getFormData(99.99))
+
+        expect(viewModel.attributes).toEqual(
+          expect.not.objectContaining({
             inputmode: 'numeric'
           })
         )

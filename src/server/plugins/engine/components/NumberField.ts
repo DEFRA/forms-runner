@@ -82,7 +82,12 @@ export class NumberField extends FormComponent {
     const viewModel = super.getViewModel(payload, errors)
     let { attributes, prefix, suffix, value } = viewModel
 
-    if (!schema.precision) {
+    if (
+      !schema.precision ||
+      (NumberField.isNumber(schema.precision) && schema.precision <= 0)
+    ) {
+      // If precision isn't provided or provided and
+      // less than or equal to 0, use numeric inputmode
       attributes.inputmode = 'numeric'
     }
 
