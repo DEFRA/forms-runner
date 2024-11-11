@@ -488,8 +488,7 @@ function getViewModel(
     name: fieldName,
     id: fieldName,
     value: fieldValue as DateInputItem['value'],
-    classes: fieldClasses,
-    type: 'number'
+    classes: fieldClasses
   }
 }
 
