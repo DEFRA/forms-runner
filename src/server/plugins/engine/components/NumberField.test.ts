@@ -219,7 +219,7 @@ describe('NumberField', () => {
         )
       })
 
-      it("Doesn't set Nunjucks component inputmode attribute when precision is positive", () => {
+      it('does not set Nunjucks component inputmode attribute when precision is positive', () => {
         const componentCustom = new NumberField(
           { ...def, schema: { precision: 2 } },
           formModel
