@@ -82,8 +82,8 @@ export class NumberField extends FormComponent {
     const viewModel = super.getViewModel(payload, errors)
     let { attributes, prefix, suffix, value } = viewModel
 
-    if (schema.precision) {
-      attributes.step = '0.' + '1'.padStart(schema.precision, '0')
+    if (!schema.precision) {
+      attributes.inputmode = 'numeric'
     }
 
     if (options.prefix) {
@@ -109,7 +109,6 @@ export class NumberField extends FormComponent {
       attributes,
       prefix,
       suffix,
-      type: 'number',
       value
     }
   }

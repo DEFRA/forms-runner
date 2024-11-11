@@ -69,7 +69,7 @@ export interface ViewModel extends Record<string, unknown> {
     maxlength?: number
     multiple?: string
     accept?: string
-    step?: string
+    inputmode?: string
   }
   content?: Content | Content[] | string
   maxlength?: number

@@ -172,8 +172,7 @@ describe('NumberField', () => {
             label: { text: def.title },
             name: 'myComponent',
             id: 'myComponent',
-            value: 2024,
-            type: 'number'
+            value: 2024
           })
         )
       })
@@ -190,9 +189,9 @@ describe('NumberField', () => {
         expect(viewModel.suffix).toEqual({ text: 'per item' })
       })
 
-      it('sets Nunjucks component step attribute', () => {
+      it('sets Nunjucks component inputmode attribute when precision is not defined', () => {
         const componentCustom = new NumberField(
-          { ...def, schema: { precision: 2 } },
+          { ...def, schema: { precision: undefined } },
           formModel
         )
 
@@ -200,7 +199,22 @@ describe('NumberField', () => {
 
         expect(viewModel.attributes).toEqual(
           expect.objectContaining({
-            step: '0.01'
+            inputmode: 'numeric'
+          })
+        )
+      })
+
+      it('sets Nunjucks component inputmode attribute when precision is 0', () => {
+        const componentCustom = new NumberField(
+          { ...def, schema: { precision: 0 } },
+          formModel
+        )
+
+        const viewModel = componentCustom.getViewModel(getFormData(99.99))
+
+        expect(viewModel.attributes).toEqual(
+          expect.objectContaining({
+            inputmode: 'numeric'
           })
         )
       })
