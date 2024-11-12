@@ -186,7 +186,7 @@ interface MonthYearState extends Record<string, number> {
 
 export function getValidatorMonthYear(component: MonthYearField) {
   const validator: CustomValidator = (payload: FormPayload, helpers) => {
-    const { children, options } = component
+    const { name, options } = component
 
     const values = component.getFormValueFromState(
       component.getStateFromValidForm(payload)
@@ -194,7 +194,7 @@ export function getValidatorMonthYear(component: MonthYearField) {
 
     if (!component.isState(values)) {
       return options.required !== false
-        ? children.error(helpers, 'object.required')
+        ? helpers.error('object.required', { key: name })
         : payload
     }
 
