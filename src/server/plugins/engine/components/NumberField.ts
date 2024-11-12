@@ -63,6 +63,8 @@ export class NumberField extends FormComponent {
         'number.min': message,
         'number.max': message
       })
+    } else if (options.customValidationMessages) {
+      formSchema = formSchema.messages(options.customValidationMessages)
     }
 
     this.formSchema = formSchema.default('')

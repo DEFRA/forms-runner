@@ -66,6 +66,8 @@ export class MultilineTextField extends FormComponent {
         'string.pattern.base': message,
         'string.maxWords': message
       })
+    } else if (options.customValidationMessages) {
+      formSchema = formSchema.messages(options.customValidationMessages)
     }
 
     this.formSchema = formSchema.default('')

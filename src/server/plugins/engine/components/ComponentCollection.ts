@@ -2,6 +2,7 @@ import { type ComponentDef } from '@defra/forms-model'
 import joi, {
   type CustomValidator,
   type ErrorReportCollection,
+  type LanguageMessages,
   type ObjectSchema
 } from 'joi'
 
@@ -54,6 +55,11 @@ export class ComponentCollection {
        * Defines a custom validation rule for the object schema
        */
       custom?: CustomValidator
+
+      /**
+       * Defines custom validation messages for the object schema
+       */
+      messages?: LanguageMessages
     }
   ) {
     const items = componentDefs.map((def) => {
@@ -84,6 +90,10 @@ export class ComponentCollection {
       stateSchema = children
         ? stateSchema.concat(children.stateSchema)
         : stateSchema.keys({ [name]: field.stateSchema })
+    }
+
+    if (schema?.messages) {
+      formSchema = formSchema.messages(schema.messages)
     }
 
     // Add parent field title to collection field errors

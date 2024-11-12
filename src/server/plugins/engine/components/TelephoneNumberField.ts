@@ -40,6 +40,8 @@ export class TelephoneNumberField extends FormComponent {
         'string.empty': message,
         'string.pattern.base': message
       })
+    } else if (options.customValidationMessages) {
+      formSchema = formSchema.messages(options.customValidationMessages)
     }
 
     addClassOptionIfNone(options, 'govuk-input--width-20')
