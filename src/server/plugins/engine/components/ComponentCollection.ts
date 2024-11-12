@@ -1,11 +1,8 @@
 import { type ComponentDef } from '@defra/forms-model'
 import joi, {
-  type Context,
-  type CustomHelpers,
   type CustomValidator,
   type ErrorReportCollection,
-  type ObjectSchema,
-  type State
+  type ObjectSchema
 } from 'joi'
 
 import {
@@ -90,36 +87,47 @@ export class ComponentCollection {
     }
 
     // Add parent field title to collection field errors
-    if (!options.parent) {
-      formSchema = formSchema.error((errors) =>
-        errors.map((error) => {
-          if (
-            !isCollectionContext(error.local) ||
-            !error.local.missing?.length ||
-            !error.local.present?.length
-          ) {
-            return error
-          }
-
-          const { missing, present } = error.local
-
-          // Find the parent field
-          const name = present[0].split('__').shift()
-          const parent = formItems.find((item) => item.name === name)
-          const child = parent?.children?.formItems[0]
-
-          // Update error with parent title etc
-          if (parent && child) {
-            error.path = missing
-            error.local.key = missing[0]
-            error.local.title = parent.title
-            error.local.label = child.title.toLowerCase()
-          }
-
+    formSchema = formSchema.error((errors) => {
+      return errors.flatMap((error) => {
+        if (!isErrorContext(error.local) || error.local.title) {
           return error
-        })
-      )
-    }
+        }
+
+        // Use field key or first missing child field
+        let { missing, key = missing?.[0] } = error.local
+
+        // But avoid numeric key used by array payloads
+        if (typeof key === 'number') {
+          key = error.path[0]
+        }
+
+        // Find the parent field
+        const parent = formItems.find(
+          (item) => item.name === key?.split('__').shift()
+        )
+
+        // Find the child field
+        const child = (parent?.children?.formItems ?? formItems).find(
+          (item) => item.name === key
+        )
+
+        // Update error with child label
+        if (child && (!error.local.label || error.local.label === 'value')) {
+          error.local.label = child.title.toLowerCase()
+        }
+
+        // Fix error summary links for missing fields
+        if (missing?.length) {
+          error.path = missing
+          error.local.key = missing[0]
+        }
+
+        // Update error with parent title
+        error.local.title ??= parent?.title
+
+        return error
+      })
+    })
 
     if (schema?.peers) {
       formSchema = formSchema.and(...schema.peers, {
@@ -233,39 +241,13 @@ export class ComponentCollection {
       errors: this.page?.getErrors(details) ?? getErrors(details)
     }
   }
-
-  /**
-   * Return error by code for collection fields
-   * For example, 'date.min', 'date.max'
-   */
-  error(helpers: CustomHelpers, code: string, context?: Context) {
-    const { formItems, parent } = this
-    const [field] = formItems
-
-    // Use collection parent name/title when available
-    const key = parent?.name ?? field.name
-    const title = parent?.title ?? field.title
-
-    // Support collection parent {{#title}} in messages
-    const local: Context = {
-      title: title.toLowerCase(),
-      ...context
-    }
-
-    // Error summary links to first collection field
-    const localState: State = parent
-      ? { key, path: [parent.name, field.name] } // For example, `#dateField__day`
-      : { key, path: [field.name] } // Otherwise `#dateField` for single fields
-
-    return helpers.error(code, local, localState)
-  }
 }
 
 /**
- * Check for nested field local state with unknown label
+ * Check for field local state
  */
-export function isCollectionContext(
+export function isErrorContext(
   value?: unknown
 ): value is ErrorReportCollection['local'] {
-  return isFormState(value) && value.label === 'value'
+  return isFormState(value) && typeof value.label === 'string'
 }

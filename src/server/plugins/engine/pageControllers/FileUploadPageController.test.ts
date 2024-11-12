@@ -107,7 +107,8 @@ describe('FileUploadPageController', () => {
           text: 'Select methodology statement',
           context: {
             key: 'fileUpload',
-            label: 'methodology statement'
+            label: 'methodology statement',
+            title: 'Methodology statement'
           }
         }
       ])

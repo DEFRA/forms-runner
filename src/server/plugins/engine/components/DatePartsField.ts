@@ -209,7 +209,7 @@ interface DatePartsState extends Record<string, number> {
 
 export function getValidatorDate(component: DatePartsField) {
   const validator: CustomValidator = (payload: FormPayload, helpers) => {
-    const { children, options } = component
+    const { name, options } = component
 
     const values = component.getFormValueFromState(
       component.getStateFromValidForm(payload)
@@ -217,7 +217,7 @@ export function getValidatorDate(component: DatePartsField) {
 
     if (!component.isState(values)) {
       return options.required !== false
-        ? children.error(helpers, 'object.required')
+        ? helpers.error('object.required', { key: name })
         : payload
     }
 
@@ -228,7 +228,7 @@ export function getValidatorDate(component: DatePartsField) {
     )
 
     if (!isValid(date)) {
-      return children.error(helpers, 'date.format')
+      return helpers.error('date.format', { key: name })
     }
 
     // Minimum date from today
@@ -242,11 +242,11 @@ export function getValidatorDate(component: DatePartsField) {
       : undefined
 
     if (dateMin && date < dateMin) {
-      return children.error(helpers, 'date.min', { limit: dateMin })
+      return helpers.error('date.min', { key: name, limit: dateMin })
     }
 
     if (dateMax && date > dateMax) {
-      return children.error(helpers, 'date.max', { limit: dateMax })
+      return helpers.error('date.max', { key: name, limit: dateMax })
     }
 
     return payload
