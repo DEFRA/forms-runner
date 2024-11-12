@@ -25,10 +25,10 @@ const graphClient = Client.initWithMiddleware({ authProvider })
  * @param {string} listId - id of the list
  * @param {Map<string, string>} fields - record of field names and values
  */
-async function addItemsByFieldName(siteId, listId, fields) {
+export async function addItemsByFieldName(siteId, listId, fields) {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return -- TODO why are MS graph types not working?
   return graphClient.api(`/sites/${siteId}/lists/${listId}/items`).post({
-    fields
+    fields: Object.fromEntries(fields)
   })
 }
 
@@ -40,15 +40,16 @@ async function addItemsByFieldName(siteId, listId, fields) {
  */
 export async function addItemsByFieldId(siteId, listId, fields) {
   const fieldIds = await getFieldIds(siteId, listId)
+
   const mappedFields = new Map(
-    Object.entries(fields).map(([key, value]) => {
+    Array.from(fields.entries()).map(([key, value]) => {
       const newKey = fieldIds.get(key)
 
       if (!newKey) {
         throw Error(`Field with name "${key}" doesn't exist on the list`)
       }
 
-      return [newKey, /** @type {string} */ (value)]
+      return /** @type {[string, string]} */ ([newKey, value])
     })
   )
 
@@ -65,24 +66,16 @@ export async function addItemsByFieldId(siteId, listId, fields) {
 async function getFieldIds(siteId, listId) {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- TODO why are MS graph types not working?
   const listResponse = /** @type {List} */ (
-    await graphClient.api(`/sites/${siteId}/lists/${listId}`).get()
+    await graphClient
+      .api(`/sites/${siteId}/lists/${listId}?expand=columns`)
+      .get()
   )
 
-  const columns = listResponse.columns ?? []
+  const columns = (listResponse.columns ?? []).map((item) => {
+    return /** @type {[string, string]} */ ([item.id, item.name])
+  })
 
-  const columnIds = /** @type {[string, string][]} */ (
-    columns
-      .map((item) => {
-        if (item.id && item.displayName) {
-          return [item.id.toString(), item.displayName.toString()]
-        }
-
-        return undefined
-      })
-      .filter((val) => val !== undefined)
-  )
-
-  return new Map(columnIds)
+  return new Map(columns)
 }
 
 /** @import { List } from '@microsoft/microsoft-graph-types' */

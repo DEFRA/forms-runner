@@ -46,7 +46,10 @@ import {
 } from '~/src/server/routes/types.js'
 import { type Field } from '~/src/server/schemas/types.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
-import { addItemsByFieldId } from '~/src/server/utils/sharepoint.js'
+import {
+  addItemsByFieldId,
+  addItemsByFieldName
+} from '~/src/server/utils/sharepoint.js'
 
 const designerUrl = config.get('designerUrl')
 const templateId = config.get('notifyTemplateId')
@@ -199,9 +202,7 @@ export class SummaryPageController extends PageController {
       checkEmailAddressForLiveFormSubmission(emailAddress, isPreview)
 
       // Send submission email
-      if (emailAddress) {
-        await submitForm(request, summaryViewModel, model, state, emailAddress)
-      }
+      await submitForm(request, summaryViewModel, model, state, emailAddress)
 
       await cacheService.setConfirmationState(request, { confirmed: true })
 
@@ -232,9 +233,12 @@ async function submitForm(
   state: FormSubmissionState,
   emailAddress: string
 ) {
-  await extendFileRetention(model, state, emailAddress)
+  if (emailAddress) {
+    await extendFileRetention(model, state, emailAddress)
+    await sendEmail(request, summaryViewModel, model, emailAddress)
+  }
+
   await sendSharepoint(model, state)
-  await sendEmail(request, summaryViewModel, model, emailAddress)
 }
 
 async function extendFileRetention(
@@ -336,6 +340,11 @@ async function sendSharepoint(model: FormModel, state: FormSubmissionState) {
     model.def.outputSharepointList.listId,
     outputComponents
   )
+  // return addItemsByFieldName(
+  //   model.def.outputSharepointList.siteId,
+  //   model.def.outputSharepointList.listId,
+  //   outputComponents
+  // )
 }
 
 async function sendEmail(
