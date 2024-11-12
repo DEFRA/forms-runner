@@ -1,5 +1,10 @@
 import { ComponentType, type MonthYearFieldComponent } from '@defra/forms-model'
-import { type Context, type CustomValidator, type ObjectSchema } from 'joi'
+import {
+  type Context,
+  type CustomValidator,
+  type LanguageMessages,
+  type ObjectSchema
+} from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
@@ -33,9 +38,19 @@ export class MonthYearField extends FormComponent {
   constructor(def: MonthYearFieldComponent, model: FormModel) {
     super(def, model)
 
-    const { name, options, title } = def
+    const { name, options } = def
 
     const isRequired = options.required !== false
+
+    const customValidationMessages: LanguageMessages = {
+      'any.required': messageTemplate.objectMissing,
+      'number.base': messageTemplate.objectMissing,
+      'number.precision': messageTemplate.dateFormat,
+      'number.integer': messageTemplate.dateFormat,
+      'number.unsafe': messageTemplate.dateFormat,
+      'number.min': messageTemplate.dateFormat,
+      'number.max': messageTemplate.dateFormat
+    }
 
     this.children = new ComponentCollection(
       [
@@ -48,9 +63,7 @@ export class MonthYearField extends FormComponent {
             required: isRequired,
             optionalText: true,
             classes: 'govuk-input--width-2',
-            customValidationMessage: messageTemplate.objectMissing
-              .replace('{{#title}}', title)
-              .replace('{{#missingWithLabels}}', 'month')
+            customValidationMessages
           }
         },
         {
@@ -62,16 +75,15 @@ export class MonthYearField extends FormComponent {
             required: isRequired,
             optionalText: true,
             classes: 'govuk-input--width-4',
-            customValidationMessage: messageTemplate.objectMissing
-              .replace('{{#title}}', title)
-              .replace('{{#missingWithLabels}}', 'year')
+            customValidationMessages
           }
         }
       ],
       { model, parent: this },
       {
-        peers: [`${name}__month`, `${name}__year`],
-        custom: getValidatorMonthYear(this)
+        custom: getValidatorMonthYear(this),
+        messages: customValidationMessages,
+        peers: [`${name}__month`, `${name}__year`]
       }
     )
 

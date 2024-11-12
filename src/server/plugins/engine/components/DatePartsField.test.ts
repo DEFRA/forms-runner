@@ -170,7 +170,7 @@ describe('DatePartsField', () => {
         expect(result1.errors).toBeUndefined()
         expect(result2.errors).toEqual([
           expect.objectContaining({
-            text: 'Example date parts field must include a month, year'
+            text: 'Example date parts field must include a month'
           })
         ])
       })
@@ -475,13 +475,13 @@ describe('DatePartsField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'Example date parts field must include a day'
+                  text: 'Example date parts field must be a real date'
                 }),
                 expect.objectContaining({
-                  text: 'Example date parts field must include a month'
+                  text: 'Example date parts field must be a real date'
                 }),
                 expect.objectContaining({
-                  text: 'Example date parts field must include a year'
+                  text: 'Example date parts field must be a real date'
                 })
               ]
             }
@@ -557,7 +557,7 @@ describe('DatePartsField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'Example date parts field must include a day'
+                  text: 'Example date parts field must be a real date'
                 })
               ]
             }
@@ -576,7 +576,7 @@ describe('DatePartsField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'Example date parts field must include a month'
+                  text: 'Example date parts field must be a real date'
                 })
               ]
             }
@@ -595,7 +595,7 @@ describe('DatePartsField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'Example date parts field must include a year'
+                  text: 'Example date parts field must be a real date'
                 })
               ]
             }
