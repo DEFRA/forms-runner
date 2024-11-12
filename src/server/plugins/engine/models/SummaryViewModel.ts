@@ -54,12 +54,11 @@ export class SummaryViewModel {
     this.pageTitle = pageTitle
     this.serviceUrl = `/${model.basePath}`
     this.name = model.def.name
-    const relevantPages = this.getRelevantPages(model, relevantState)
-    const details = this.summaryDetails(request, model, state, relevantPages)
+    const details = this.summaryDetails(request, model, state)
     const { def } = model
     this.declaration = def.declaration
 
-    const schema = model.makeFilteredSchema(relevantPages)
+    const schema = model.makeFilteredSchema(state)
     const result = schema.validate(state, {
       abortEarly: false,
       stripUnknown: true
@@ -71,7 +70,6 @@ export class SummaryViewModel {
 
     this.result = result
     this.details = details
-    this.relevantPages = relevantPages
     this.state = state
     this.value = result.value
   }
@@ -114,17 +112,16 @@ export class SummaryViewModel {
   private summaryDetails(
     request: FormRequest | FormRequestPayload,
     model: FormModel,
-    state: FormSubmissionState,
-    relevantPages: PageControllerClass[]
+    state: FormSubmissionState
   ) {
     const details: Detail[] = []
 
     ;[undefined, ...model.sections].forEach((section) => {
       const items: DetailItem[] = []
 
-      const sectionPages = relevantPages.filter(
-        (page) => page.section === section
-      )
+      const sectionPages = model
+        .getRelevantPages(state)
+        .filter((page) => page.section === section)
 
       sectionPages.forEach((page) => {
         if (page instanceof RepeatPageController) {
@@ -148,22 +145,6 @@ export class SummaryViewModel {
     })
 
     return details
-  }
-
-  private getRelevantPages(model: FormModel, state: FormSubmissionState) {
-    let nextPage = model.startPage
-
-    const relevantPages: PageControllerClass[] = []
-
-    while (nextPage != null) {
-      if (nextPage.hasFormComponents) {
-        relevantPages.push(nextPage)
-      }
-
-      nextPage = nextPage.getNextPage(state)
-    }
-
-    return relevantPages
   }
 }
 

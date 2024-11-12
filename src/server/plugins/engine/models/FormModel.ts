@@ -106,19 +106,27 @@ export class FormModel {
    * build the entire model schema from individual pages/sections
    */
   makeSchema() {
-    return this.makeFilteredSchema(this.pages)
+    // Build the entire model schema
+    // from the individual pages/sections
+    let schema = joi.object<FormSubmissionState>().required()
+
+    this.pages.forEach((page) => {
+      schema = schema.concat(page.stateSchema)
+    })
+
+    return schema
   }
 
   /**
    * build the entire model schema from individual pages/sections and filter out answers
    * for pages which are no longer accessible due to an answer that has been changed
    */
-  makeFilteredSchema(relevantPages: PageControllerClass[]) {
+  makeFilteredSchema(state: FormSubmissionState) {
     // Build the entire model schema
     // from the individual pages/sections
     let schema = joi.object<FormSubmissionState>().required()
 
-    relevantPages.forEach((page) => {
+    this.getRelevantPages(state).forEach((page) => {
       schema = schema.concat(page.stateSchema)
     })
 
@@ -199,5 +207,21 @@ export class FormModel {
 
   getList(name: string): List | undefined {
     return this.lists.find((list) => list.name === name)
+  }
+
+  public getRelevantPages(state: FormSubmissionState) {
+    let nextPage = this.startPage
+
+    const relevantPages: PageControllerClass[] = []
+
+    while (nextPage != null) {
+      if (nextPage.hasFormComponents) {
+        relevantPages.push(nextPage)
+      }
+
+      nextPage = nextPage.getNextPage(state)
+    }
+
+    return relevantPages
   }
 }

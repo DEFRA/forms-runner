@@ -14,6 +14,7 @@ import { config } from '~/src/config/index.js'
 import { DatePartsField } from '~/src/server/plugins/engine/components/DatePartsField.js'
 import { FileUploadField } from '~/src/server/plugins/engine/components/FileUploadField.js'
 import { MonthYearField } from '~/src/server/plugins/engine/components/MonthYearField.js'
+import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
 import { DataType } from '~/src/server/plugins/engine/components/types.js'
 import {
   checkEmailAddressForLiveFormSubmission,
@@ -45,6 +46,7 @@ import {
 } from '~/src/server/routes/types.js'
 import { type Field } from '~/src/server/schemas/types.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
+import { addItemsByFieldId } from '~/src/server/utils/sharepoint.js'
 
 const designerUrl = config.get('designerUrl')
 const templateId = config.get('notifyTemplateId')
@@ -231,6 +233,7 @@ async function submitForm(
   emailAddress: string
 ) {
   await extendFileRetention(model, state, emailAddress)
+  await sendSharepoint(model, state)
   await sendEmail(request, summaryViewModel, model, emailAddress)
 }
 
@@ -298,6 +301,41 @@ function submitData(
   }
 
   return submit(payload)
+}
+
+async function sendSharepoint(model: FormModel, state: FormSubmissionState) {
+  if (!model.def.outputSharepointList) {
+    return
+  }
+
+  // Get all the output components that are marked for sharepoint with the ID.
+  // convert them to a map of column ID to value.
+  const outputComponents = new Map(
+    model.getRelevantPages(state).flatMap((page) =>
+      page.components.formItems
+        .filter(
+          (
+            component
+          ): component is FormComponentFieldClass & {
+            options: { sharepointListColumnId: string }
+          } => component.options.sharepointListColumnId !== undefined
+        )
+        .map(
+          (component) =>
+            [
+              component.options.sharepointListColumnId,
+              component.getDisplayStringFromState(state)
+            ] satisfies [string, string]
+        )
+    )
+  )
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return -- TODO figure out problem with graph types from MS SDK
+  return addItemsByFieldId(
+    model.def.outputSharepointList.siteId,
+    model.def.outputSharepointList.listId,
+    outputComponents
+  )
 }
 
 async function sendEmail(
