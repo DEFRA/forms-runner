@@ -16,14 +16,11 @@ import {
   type ServerRoute
 } from '@hapi/hapi'
 import { merge } from '@hapi/hoek'
-import { format, parseISO } from 'date-fns'
 import joi, {
   type ObjectSchema,
   type Schema,
-  type ValidationErrorItem,
-  type ValidationResult
+  type ValidationErrorItem
 } from 'joi'
-import upperFirst from 'lodash/upperFirst.js'
 
 import { config } from '~/src/config/index.js'
 import { CheckboxesField } from '~/src/server/plugins/engine/components/CheckboxesField.js'
@@ -33,6 +30,7 @@ import { RadiosField } from '~/src/server/plugins/engine/components/RadiosField.
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import {
   encodeUrl,
+  getErrors,
   proceed,
   redirectTo
 } from '~/src/server/plugins/engine/helpers.js'
@@ -44,7 +42,6 @@ import {
   type FormPayload,
   type FormState,
   type FormStateValue,
-  type FormSubmissionError,
   type FormSubmissionErrors,
   type FormSubmissionState,
   type FormValidationResult,
@@ -266,40 +263,10 @@ export class PageControllerBase {
 
   /**
    * Parses the errors from {@link Schema.validate} so they can be rendered by govuk-frontend templates
-   * @param validationResult - provided by {@link Schema.validate}
+   * @param [details] - provided by {@link Schema.validate}
    */
-  getErrors(
-    validationResult?: Pick<ValidationResult, 'error'>
-  ): FormSubmissionErrors | undefined {
-    if (validationResult?.error) {
-      return {
-        titleText: this.errorSummaryTitle,
-        errorList: validationResult.error.details.map((err) =>
-          this.getError(err)
-        )
-      }
-    }
-
-    return undefined
-  }
-
-  protected getError(err: ValidationErrorItem): FormSubmissionError {
-    const name = err.context?.key ?? ''
-
-    const isoRegex =
-      /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/
-
-    return {
-      path: err.path,
-      href: `#${name}`,
-      name,
-      text: upperFirst(
-        err.message.replace(isoRegex, (text) =>
-          format(parseISO(text), 'd MMMM yyyy')
-        )
-      ),
-      context: err.context
-    }
+  getErrors(details?: ValidationErrorItem[]) {
+    return getErrors(details, this.errorSummaryTitle)
   }
 
   /**
@@ -316,7 +283,7 @@ export class PageControllerBase {
     if (result.error) {
       return {
         value: result.value,
-        errors: this.getErrors(result)
+        errors: this.getErrors(result.error.details)
       }
     }
 

@@ -1,11 +1,13 @@
 import Boom from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
+import { ValidationError } from 'joi'
 
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
   encodeUrl,
+  getErrors,
   proceed,
   redirectTo,
   redirectUrl
@@ -196,6 +198,69 @@ describe('Helpers', () => {
       expect(() =>
         checkEmailAddressForLiveFormSubmission('test@example.com', true)
       ).not.toThrow()
+    })
+  })
+
+  describe('getErrors', () => {
+    it('formats dates with ISO strings', () => {
+      const { details } = new ValidationError(
+        'Date of marriage example',
+        [
+          {
+            message:
+              'Date of marriage must be on or before 2021-12-25T00:00:00.000Z',
+            path: ['dateField'],
+            type: 'date.max',
+            context: {
+              key: 'dateField',
+              title: 'date of marriage'
+            }
+          }
+        ],
+        undefined
+      )
+
+      expect(getErrors(details)?.errorList).toEqual([
+        {
+          path: ['dateField'],
+          href: '#dateField',
+          name: 'dateField',
+          text: 'Date of marriage must be on or before 25 December 2021',
+          context: {
+            key: 'dateField',
+            title: 'date of marriage'
+          }
+        }
+      ])
+    })
+
+    it('formats first letter to uppercase', () => {
+      const { details } = new ValidationError(
+        'Date of marriage example',
+        [
+          {
+            message: 'something invalid',
+            path: ['yesNoField'],
+            type: 'string.pattern.base',
+            context: {
+              key: 'yesNoField'
+            }
+          }
+        ],
+        undefined
+      )
+
+      expect(getErrors(details)?.errorList).toEqual([
+        {
+          path: ['yesNoField'],
+          href: '#yesNoField',
+          name: 'yesNoField',
+          text: 'Something invalid',
+          context: {
+            key: 'yesNoField'
+          }
+        }
+      ])
     })
   })
 })
