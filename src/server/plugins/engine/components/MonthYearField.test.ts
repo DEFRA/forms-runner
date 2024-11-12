@@ -377,10 +377,10 @@ describe('MonthYearField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'Example month/year field must include a month'
+                  text: 'Example month/year field must be a real date'
                 }),
                 expect.objectContaining({
-                  text: 'Example month/year field must include a year'
+                  text: 'Example month/year field must be a real date'
                 })
               ]
             }
@@ -408,7 +408,7 @@ describe('MonthYearField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'Example month/year field must include a month'
+                  text: 'Example month/year field must be a real date'
                 })
               ]
             }
@@ -425,7 +425,7 @@ describe('MonthYearField', () => {
               }),
               errors: [
                 expect.objectContaining({
-                  text: 'Example month/year field must include a year'
+                  text: 'Example month/year field must be a real date'
                 })
               ]
             }
