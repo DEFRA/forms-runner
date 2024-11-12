@@ -6,12 +6,13 @@ import {
 } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
-import { type ValidationResult } from 'joi'
+import { type ValidationErrorItem, type ValidationResult } from 'joi'
 
 import {
   tempItemSchema,
   tempStatusSchema
 } from '~/src/server/plugins/engine/components/FileUploadField.js'
+import { getError } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
@@ -149,21 +150,19 @@ export class FileUploadPageController extends PageController {
     return payload
   }
 
-  getErrors(
-    validationResult?: Pick<ValidationResult, 'error'>
-  ): FormSubmissionErrors | undefined {
-    if (validationResult?.error) {
+  getErrors(details?: ValidationErrorItem[]) {
+    if (details?.length) {
       const errorList: FormSubmissionError[] = []
       const componentName = this.getComponentName()
 
-      validationResult.error.details.forEach((err) => {
+      details.forEach((err) => {
         const isUploadError = err.path[0] === componentName
         const isUploadRootError = isUploadError && err.path.length === 1
 
         if (!isUploadError || isUploadRootError) {
           // The error is for the root of the upload or another
-          // field on the page so defer to the standard getError
-          errorList.push(this.getError(err))
+          // field on the page so defer to the getError helper
+          errorList.push(getError(err))
         } else {
           const { context, path, type } = err
 
