@@ -139,6 +139,24 @@ export const config = convict({
     env: 'NOTIFY_API_KEY'
   } as SchemaObj<string>,
 
+  sharepoint: {
+    tenantId: {
+      format: String,
+      default: null,
+      env: 'SHAREPOINT_TENANT_ID'
+    } as SchemaObj<string>,
+    clientId: {
+      format: String,
+      default: null,
+      env: 'SHAREPOINT_CLIENT_ID'
+    } as SchemaObj<string>,
+    clientSecret: {
+      format: String,
+      default: null,
+      env: 'SHAREPOINT_CLIENT_SECRET'
+    } as SchemaObj<string>
+  },
+
   /**
    * API integrations
    */
