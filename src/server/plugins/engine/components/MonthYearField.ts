@@ -1,5 +1,5 @@
 import { ComponentType, type MonthYearFieldComponent } from '@defra/forms-model'
-import { type CustomValidator, type ObjectSchema } from 'joi'
+import { type Context, type CustomValidator, type ObjectSchema } from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
@@ -105,15 +105,8 @@ export class MonthYearField extends FormComponent {
     const viewModel = super.getViewModel(payload, errors)
     let { fieldset, label } = viewModel
 
-    // Filter component and child errors only
-    const componentErrors = errors?.filter(
-      (error) =>
-        error.path.includes(name) || // Errors for parent component
-        error.name.startsWith(`${name}__`) // Plus `${name}__year` etc fields
-    )
-
     // Check for component errors only
-    const hasError = componentErrors?.some((error) => error.path.includes(name))
+    const hasError = errors?.some((error) => error.name === name)
 
     // Use the component collection to generate the subitems
     const items: DateInputItem[] = children
@@ -145,10 +138,6 @@ export class MonthYearField extends FormComponent {
         }
       })
 
-    const errorMessage = componentErrors?.[0] && {
-      text: componentErrors[0].text
-    }
-
     fieldset ??= {
       legend: {
         text: label.text,
@@ -158,7 +147,6 @@ export class MonthYearField extends FormComponent {
 
     return {
       ...viewModel,
-      errorMessage,
       fieldset,
       items
     }
@@ -186,15 +174,20 @@ interface MonthYearState extends Record<string, number> {
 
 export function getValidatorMonthYear(component: MonthYearField) {
   const validator: CustomValidator = (payload: FormPayload, helpers) => {
-    const { name, options } = component
+    const { children, name, options } = component
 
     const values = component.getFormValueFromState(
       component.getStateFromValidForm(payload)
     )
 
+    const context: Context = {
+      missing: children.keys,
+      key: name
+    }
+
     if (!component.isState(values)) {
       return options.required !== false
-        ? helpers.error('object.required', { key: name })
+        ? helpers.error('object.required', context)
         : payload
     }
 

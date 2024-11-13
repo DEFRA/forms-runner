@@ -54,6 +54,18 @@ describe('YesNoField', () => {
       )
     })
 
+    it('uses component name as keys', () => {
+      const { formSchema } = collection
+      const { keys } = formSchema.describe()
+
+      expect(component.keys).toEqual(['myComponent'])
+      expect(component.children).toBeUndefined()
+
+      for (const key of component.keys) {
+        expect(keys).toHaveProperty(key)
+      }
+    })
+
     it('is required by default', () => {
       const { formSchema } = collection
       const { keys } = formSchema.describe()

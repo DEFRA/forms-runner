@@ -1,6 +1,9 @@
 import { type ComponentType, type Item } from '@defra/forms-model'
 
-import { type FormValue } from '~/src/server/plugins/engine/types.js'
+import {
+  type FormSubmissionError,
+  type FormValue
+} from '~/src/server/plugins/engine/types.js'
 
 export interface Label {
   text: string
@@ -59,6 +62,7 @@ export interface ViewModel extends Record<string, unknown> {
   }
   classes?: string
   condition?: string
+  errors?: FormSubmissionError[]
   errorMessage?: {
     text: string
   }

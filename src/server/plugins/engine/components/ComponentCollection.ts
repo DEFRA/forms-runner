@@ -148,6 +148,10 @@ export class ComponentCollection {
     this.stateSchema = stateSchema
   }
 
+  get keys() {
+    return this.formItems.map(({ name }) => name)
+  }
+
   getFormDataFromState(state: FormSubmissionState) {
     const payload: FormPayload = {}
 
@@ -184,6 +188,27 @@ export class ComponentCollection {
     })
 
     return state
+  }
+
+  getErrors(errors?: FormSubmissionError[]): FormSubmissionError[] | undefined {
+    const { formItems } = this
+
+    const list: FormSubmissionError[] = []
+
+    // Add only one error per field
+    for (const field of formItems) {
+      const error = field.getError(errors)
+
+      if (error) {
+        list.push(error)
+      }
+    }
+
+    if (!list.length) {
+      return
+    }
+
+    return list
   }
 
   getViewModel(
