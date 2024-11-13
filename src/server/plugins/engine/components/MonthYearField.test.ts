@@ -64,6 +64,23 @@ describe('MonthYearField', () => {
         )
       })
 
+      it('uses collection names as keys', () => {
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
+
+        expect(component.keys).toEqual([
+          'myComponent',
+          'myComponent__month',
+          'myComponent__year'
+        ])
+
+        expect(component.children?.keys).not.toHaveProperty('myComponent')
+
+        for (const key of component.children?.keys ?? []) {
+          expect(keys).toHaveProperty(key)
+        }
+      })
+
       it('is required by default', () => {
         const { formSchema } = collection
         const { keys } = formSchema.describe()

@@ -617,6 +617,7 @@ export class PageControllerBase {
   ) {
     const viewModel = this.getViewModel(request, payload, errors)
 
+    viewModel.errors = this.components.getErrors(viewModel.errors)
     viewModel.backLink = progress[progress.length - 2]
 
     return h.view(this.viewName, viewModel)

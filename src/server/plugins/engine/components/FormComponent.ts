@@ -29,6 +29,16 @@ export class FormComponent extends ComponentBase {
     this.hint = hint
   }
 
+  get keys() {
+    const { children, name } = this
+
+    if (children) {
+      return [name, ...children.keys]
+    }
+
+    return [name]
+  }
+
   getFormDataFromState(state: FormSubmissionState): FormPayload {
     const { children, name } = this
 
@@ -68,6 +78,28 @@ export class FormComponent extends ComponentBase {
     }
   }
 
+  getErrors(errors?: FormSubmissionError[]): FormSubmissionError[] | undefined {
+    const { name } = this
+
+    // Filter component and child errors only
+    const list = errors?.filter(
+      (error) =>
+        error.name === name ||
+        error.path.includes(name) ||
+        this.keys.includes(error.name)
+    )
+
+    if (!list?.length) {
+      return
+    }
+
+    return list
+  }
+
+  getError(errors?: FormSubmissionError[]): FormSubmissionError | undefined {
+    return this.getErrors(errors)?.[0]
+  }
+
   getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
     const { hint, name, options = {}, title } = this
 
@@ -83,13 +115,19 @@ export class FormComponent extends ComponentBase {
       }
     }
 
-    errors?.forEach((error) => {
-      if (error.name === name || error.path.includes(name)) {
-        viewModel.errorMessage = {
-          text: error.text
-        }
+    // Filter component errors only
+    const componentErrors = this.getErrors(errors)
+    const componentError = this.getError(componentErrors)
+
+    if (componentErrors) {
+      viewModel.errors = componentErrors
+    }
+
+    if (componentError) {
+      viewModel.errorMessage = {
+        text: componentError.text
       }
-    })
+    }
 
     return {
       ...viewModel,
