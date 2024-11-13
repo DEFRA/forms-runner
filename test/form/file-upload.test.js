@@ -225,10 +225,17 @@ describe('File upload POST tests', () => {
 
     expect(response.statusCode).toBe(okStatusCode)
 
-    const $lists = container.getAllByRole('list')
-    const $links = within($lists[0]).getAllByRole('link')
+    const $errorSummary = container.getByRole('alert')
+    const $errorItems = within($errorSummary).getAllByRole('listitem')
 
-    expect($links[0]).toHaveTextContent(
+    const $heading = within($errorSummary).getByRole('heading', {
+      name: 'There is a problem',
+      level: 2
+    })
+
+    expect($heading).toBeInTheDocument()
+
+    expect($errorItems[0]).toHaveTextContent(
       'The selected file has not fully uploaded'
     )
 
