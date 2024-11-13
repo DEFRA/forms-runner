@@ -51,8 +51,9 @@ describe('MonthYearField', () => {
     describe('Schema', () => {
       it('uses collection titles as labels', () => {
         const { formSchema } = collection
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe().keys).toEqual(
+        expect(keys).toEqual(
           expect.objectContaining({
             myComponent__month: expect.objectContaining({
               flags: expect.objectContaining({ label: 'month' })
@@ -66,10 +67,16 @@ describe('MonthYearField', () => {
 
       it('is required by default', () => {
         const { formSchema } = collection
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe().flags).toEqual(
+        expect(keys).toEqual(
           expect.objectContaining({
-            presence: 'required'
+            myComponent__month: expect.objectContaining({
+              flags: expect.objectContaining({ presence: 'required' })
+            }),
+            myComponent__year: expect.objectContaining({
+              flags: expect.objectContaining({ presence: 'required' })
+            })
           })
         )
       })
@@ -88,8 +95,9 @@ describe('MonthYearField', () => {
         )
 
         const { formSchema } = collectionOptional
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe().keys).toEqual(
+        expect(keys).toEqual(
           expect.objectContaining({
             myComponent__month: expect.objectContaining({
               allow: ['']
@@ -112,7 +120,7 @@ describe('MonthYearField', () => {
         // Partial optional payload (invalid)
         const result2 = formSchema.validate(
           getFormData({
-            month: 12,
+            month: '12',
             year: ''
           }),
           opts

@@ -4,7 +4,9 @@ import {
   type NumberFieldComponent
 } from '@defra/forms-model'
 
+import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
+import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
@@ -27,8 +29,8 @@ describe('NumberField', () => {
 
   describe('Defaults', () => {
     let def: NumberFieldComponent
-    let component: NumberField
-    let label: string
+    let collection: ComponentCollection
+    let component: FormComponentFieldClass
 
     beforeEach(() => {
       def = {
@@ -39,47 +41,64 @@ describe('NumberField', () => {
         schema: {}
       } satisfies NumberFieldComponent
 
-      component = new NumberField(def, formModel)
-      label = def.title.toLowerCase()
+      collection = new ComponentCollection([def], { model: formModel })
+      component = collection.formItems[0]
     })
 
     describe('Schema', () => {
       it('uses component title as label', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe().flags).toHaveProperty('label', label)
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({
+            flags: expect.objectContaining({
+              label: 'example number field'
+            })
+          })
+        )
       })
 
       it('is required by default', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe().flags).toHaveProperty(
-          'presence',
-          'required'
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({
+            flags: expect.objectContaining({
+              presence: 'required'
+            })
+          })
         )
       })
 
       it('is optional when configured', () => {
-        const componentOptional = new NumberField(
-          { ...def, options: { required: false } },
-          formModel
+        const collectionOptional = new ComponentCollection(
+          [{ ...def, options: { required: false } }],
+          { model: formModel }
         )
 
-        const { formSchema } = componentOptional
+        const { formSchema } = collectionOptional
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe()).toHaveProperty('allow', [''])
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({ allow: [''] })
+        )
 
-        const result = formSchema.validate('', opts)
+        const result = formSchema.validate(getFormData(''), opts)
         expect(result.error).toBeUndefined()
       })
 
       it('accepts valid values', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
-        const result1 = formSchema.validate('1', opts)
-        const result2 = formSchema.validate('10', opts)
-        const result3 = formSchema.validate('2024', opts)
-        const result4 = formSchema.validate(' 2020 ', opts)
+        const result1 = formSchema.validate(getFormData('1'), opts)
+        const result2 = formSchema.validate(getFormData('10'), opts)
+        const result3 = formSchema.validate(getFormData('2024'), opts)
+        const result4 = formSchema.validate(getFormData(' 2020'), opts)
 
         expect(result1.error).toBeUndefined()
         expect(result2.error).toBeUndefined()
@@ -88,18 +107,26 @@ describe('NumberField', () => {
       })
 
       it('adds errors for empty value', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
-        const result = formSchema.validate('', opts)
+        const result = formSchema.validate(getFormData(''), opts)
 
-        expect(result.error).toHaveProperty('message', `Enter ${label}`)
+        expect(result.error).toEqual(
+          expect.objectContaining({
+            message: 'Enter example number field'
+          })
+        )
       })
 
       it('adds errors for invalid values', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
-        const result1 = formSchema.validate(['invalid'], opts)
-        const result2 = formSchema.validate({ unknown: 'invalid' }, opts)
+        const result1 = formSchema.validate(getFormData(['invalid']), opts)
+        const result2 = formSchema.validate(
+          // @ts-expect-error - Allow invalid param for test
+          getFormData({ unknown: 'invalid' }),
+          opts
+        )
 
         expect(result1.error).toBeTruthy()
         expect(result2.error).toBeTruthy()
@@ -232,16 +259,16 @@ describe('NumberField', () => {
         } satisfies NumberFieldComponent,
         assertions: [
           {
-            input: '  2024',
-            output: { value: 2024 }
+            input: getFormData('  2024'),
+            output: { value: getFormData(2024) }
           },
           {
-            input: '2024  ',
-            output: { value: 2024 }
+            input: getFormData('2024  '),
+            output: { value: getFormData(2024) }
           },
           {
-            input: '  2024 \n\n',
-            output: { value: 2024 }
+            input: getFormData('  2024 \n\n'),
+            output: { value: getFormData(2024) }
           }
         ]
       },
@@ -256,26 +283,26 @@ describe('NumberField', () => {
         } satisfies NumberFieldComponent,
         assertions: [
           {
-            input: 'Not a number',
+            input: getFormData('Not a number'),
             output: {
-              value: 'Not a number',
+              value: getFormData('Not a number'),
               error: new Error('example number field must be a number')
             }
           },
           {
-            input: '£99.99',
+            input: getFormData('£99.99'),
             output: {
-              value: '£99.99',
+              value: getFormData('£99.99'),
               error: new Error('example number field must be a number')
             }
           },
           {
-            input: '100.55',
-            output: { value: 100.55 }
+            input: getFormData('100.55'),
+            output: { value: getFormData(100.55) }
           },
           {
-            input: '3.14159',
-            output: { value: 3.14159 }
+            input: getFormData('3.14159'),
+            output: { value: getFormData(3.14159) }
           }
         ]
       },
@@ -292,15 +319,15 @@ describe('NumberField', () => {
         } satisfies NumberFieldComponent,
         assertions: [
           {
-            input: '3.14159',
+            input: getFormData('3.14159'),
             output: {
-              value: 3.14159,
+              value: getFormData(3.14159),
               error: new Error('example number field must be a whole number')
             }
           },
           {
-            input: '3',
-            output: { value: 3 }
+            input: getFormData('3'),
+            output: { value: getFormData(3) }
           }
         ]
       },
@@ -317,15 +344,15 @@ describe('NumberField', () => {
         } satisfies NumberFieldComponent,
         assertions: [
           {
-            input: '3.14159',
+            input: getFormData('3.14159'),
             output: {
-              value: 3.14159,
+              value: getFormData(3.14159),
               error: new Error('example number field must be a whole number')
             }
           },
           {
-            input: '3',
-            output: { value: 3 }
+            input: getFormData('3'),
+            output: { value: getFormData(3) }
           }
         ]
       },
@@ -342,17 +369,17 @@ describe('NumberField', () => {
         } satisfies NumberFieldComponent,
         assertions: [
           {
-            input: '3.14159',
+            input: getFormData('3.14159'),
             output: {
-              value: 3.14159,
+              value: getFormData(3.14159),
               error: new Error(
                 'example number field must have 1 or fewer decimal places'
               )
             }
           },
           {
-            input: '3.1',
-            output: { value: 3.1 }
+            input: getFormData('3.1'),
+            output: { value: getFormData(3.1) }
           }
         ]
       },
@@ -369,21 +396,21 @@ describe('NumberField', () => {
         } satisfies NumberFieldComponent,
         assertions: [
           {
-            input: '3.14159',
+            input: getFormData('3.14159'),
             output: {
-              value: 3.14159,
+              value: getFormData(3.14159),
               error: new Error(
                 'example number field must have 2 or fewer decimal places'
               )
             }
           },
           {
-            input: '3.1',
-            output: { value: 3.1 }
+            input: getFormData('3.1'),
+            output: { value: getFormData(3.1) }
           },
           {
-            input: '3.14',
-            output: { value: 3.14 }
+            input: getFormData('3.14'),
+            output: { value: getFormData(3.14) }
           }
         ]
       },
@@ -400,21 +427,21 @@ describe('NumberField', () => {
         } satisfies NumberFieldComponent,
         assertions: [
           {
-            input: '64811494532973582',
+            input: getFormData('64811494532973582'),
             output: {
-              value: 64811494532973580,
+              value: getFormData(64811494532973580),
               error: new Error(
                 'Enter example number field in the correct format'
               )
             }
           },
           {
-            input: '3.1',
-            output: { value: 3.1 }
+            input: getFormData('3.1'),
+            output: { value: getFormData(3.1) }
           },
           {
-            input: '3.14',
-            output: { value: 3.14 }
+            input: getFormData('3.14'),
+            output: { value: getFormData(3.14) }
           }
         ]
       },
@@ -432,16 +459,16 @@ describe('NumberField', () => {
         } satisfies NumberFieldComponent,
         assertions: [
           {
-            input: '4',
+            input: getFormData('4'),
             output: {
-              value: 4,
+              value: getFormData(4),
               error: new Error('example number field must be 5 or higher')
             }
           },
           {
-            input: '10',
+            input: getFormData('10'),
             output: {
-              value: 10,
+              value: getFormData(10),
               error: new Error('example number field must be 8 or lower')
             }
           }
@@ -460,9 +487,9 @@ describe('NumberField', () => {
         } satisfies NumberFieldComponent,
         assertions: [
           {
-            input: 'invalid',
+            input: getFormData('invalid'),
             output: {
-              value: 'invalid',
+              value: getFormData('invalid'),
               error: new Error('This is a custom error')
             }
           }
@@ -483,9 +510,9 @@ describe('NumberField', () => {
         } satisfies NumberFieldComponent,
         assertions: [
           {
-            input: '3.14159',
+            input: getFormData('3.14159'),
             output: {
-              value: 3.14159,
+              value: getFormData(3.14159),
               error: new Error('This is a custom error')
             }
           }
@@ -504,22 +531,22 @@ describe('NumberField', () => {
         } satisfies NumberFieldComponent,
         assertions: [
           {
-            input: '',
-            output: { value: '' }
+            input: getFormData(''),
+            output: { value: getFormData('') }
           }
         ]
       }
     ])('$description', ({ component: def, assertions }) => {
-      let component: NumberField
+      let collection: ComponentCollection
 
       beforeEach(() => {
-        component = new NumberField(def, formModel)
+        collection = new ComponentCollection([def], { model: formModel })
       })
 
       it.each([...assertions])(
         'validates custom example',
         ({ input, output }) => {
-          const { formSchema } = component
+          const { formSchema } = collection
 
           const result = formSchema.validate(input, opts)
           expect(result).toEqual(output)

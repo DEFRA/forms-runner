@@ -4,7 +4,9 @@ import {
   type SelectFieldComponent
 } from '@defra/forms-model'
 
+import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { SelectField } from '~/src/server/plugins/engine/components/SelectField.js'
+import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
@@ -55,60 +57,74 @@ describe.each([
   } satisfies FormDefinition
 
   let formModel: FormModel
-  let component: SelectField
-  let label: string
+  let collection: ComponentCollection
+  let component: FormComponentFieldClass
 
   beforeEach(() => {
     formModel = new FormModel(definition, {
       basePath: 'test'
     })
 
-    component = new SelectField(def, formModel)
-    label = def.title.toLowerCase()
+    collection = new ComponentCollection([def], { model: formModel })
+    component = collection.formItems[0]
   })
 
   describe('Defaults', () => {
     describe('Schema', () => {
       it('uses component title as label', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe().flags).toEqual(
-          expect.objectContaining({ label })
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({
+            flags: expect.objectContaining({
+              label: def.title.toLowerCase()
+            })
+          })
         )
       })
 
       it('is required by default', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe().flags).toEqual(
+        expect(keys).toHaveProperty(
+          'myComponent',
           expect.objectContaining({
-            presence: 'required'
+            flags: expect.objectContaining({
+              presence: 'required'
+            })
           })
         )
       })
 
       it('is optional when configured', () => {
-        const componentOptional = new SelectField(
-          { ...def, options: { required: false } },
-          formModel
+        const collectionOptional = new ComponentCollection(
+          [{ ...def, options: { required: false } }],
+          { model: formModel }
         )
 
-        const { formSchema } = componentOptional
+        const { formSchema } = collectionOptional
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe()).toEqual(
+        expect(keys).toHaveProperty(
+          'myComponent',
           expect.objectContaining({
             allow: expect.arrayContaining([''])
           })
         )
 
-        const result = formSchema.validate('', opts)
+        const result = formSchema.validate(getFormData(''), opts)
         expect(result.error).toBeUndefined()
       })
 
       it('is configured with select options', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe()).toEqual(
+        expect(keys).toHaveProperty(
+          'myComponent',
           expect.objectContaining({
             allow: options.allow,
             type: options.list.type
@@ -119,30 +135,34 @@ describe.each([
       it.each([...options.allow])(
         'accepts valid list item (value: %s)',
         (value) => {
-          const { formSchema } = component
+          const { formSchema } = collection
 
-          const result = formSchema.validate(value, opts)
+          const result = formSchema.validate(getFormData(value), opts)
           expect(result.error).toBeUndefined()
         }
       )
 
       it('adds errors for empty value', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
-        const result = formSchema.validate('', opts)
+        const result = formSchema.validate(getFormData(), opts)
 
         expect(result.error).toEqual(
           expect.objectContaining({
-            message: `Select ${label}`
+            message: `Select ${def.title.toLowerCase()}`
           })
         )
       })
 
       it('adds errors for invalid values', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
-        const result1 = formSchema.validate('invalid', opts)
-        const result2 = formSchema.validate({ unknown: 'invalid' }, opts)
+        const result1 = formSchema.validate(getFormData('invalid'), opts)
+        const result2 = formSchema.validate(
+          // @ts-expect-error - Allow invalid param for test
+          getFormData({ unknown: 'invalid' }),
+          opts
+        )
 
         expect(result1.error).toBeTruthy()
         expect(result2.error).toBeTruthy()
@@ -203,8 +223,8 @@ describe.each([
         expect(viewModel).toEqual(
           expect.objectContaining({
             label: { text: def.title },
-            name: def.name,
-            id: def.name,
+            name: 'myComponent',
+            id: 'myComponent',
             value: item.value
           })
         )
@@ -215,7 +235,7 @@ describe.each([
         (item) => {
           const viewModel = component.getViewModel(getFormData(item.value))
 
-          expect(viewModel.items[0]).toMatchObject({
+          expect(viewModel.items?.[0]).toMatchObject({
             value: '' // First item is always empty
           })
 
@@ -234,13 +254,11 @@ describe.each([
 
     describe('Select options', () => {
       it('returns select options', () => {
-        const { items } = component
-        expect(items).toEqual(options.list.items)
+        expect(component).toHaveProperty('items', options.list.items)
       })
 
       it('returns select options matching type', () => {
-        const { values } = component
-        expect(values).toEqual(expect.arrayContaining([]))
+        expect(component).toHaveProperty('values', expect.arrayContaining([]))
       })
 
       it('returns empty items when missing', () => {

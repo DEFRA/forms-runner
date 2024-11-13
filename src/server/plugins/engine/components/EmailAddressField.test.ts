@@ -4,7 +4,8 @@ import {
   type FormDefinition
 } from '@defra/forms-model'
 
-import { EmailAddressField } from '~/src/server/plugins/engine/components/EmailAddressField.js'
+import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
@@ -27,8 +28,8 @@ describe('EmailAddressField', () => {
 
   describe('Defaults', () => {
     let def: EmailAddressFieldComponent
-    let component: EmailAddressField
-    let label: string
+    let collection: ComponentCollection
+    let component: FormComponentFieldClass
 
     beforeEach(() => {
       def = {
@@ -38,74 +39,95 @@ describe('EmailAddressField', () => {
         options: {}
       } satisfies EmailAddressFieldComponent
 
-      component = new EmailAddressField(def, formModel)
-      label = def.title.toLowerCase()
+      collection = new ComponentCollection([def], { model: formModel })
+      component = collection.formItems[0]
     })
 
     describe('Schema', () => {
       it('uses component title as label', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe().flags).toEqual(
-          expect.objectContaining({ label })
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({
+            flags: expect.objectContaining({
+              label: 'example email address field'
+            })
+          })
         )
       })
 
       it('is required by default', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe().flags).toEqual(
+        expect(keys).toHaveProperty(
+          'myComponent',
           expect.objectContaining({
-            presence: 'required'
+            flags: expect.objectContaining({
+              presence: 'required'
+            })
           })
         )
       })
 
       it('is optional when configured', () => {
-        const componentOptional = new EmailAddressField(
-          { ...def, options: { required: false } },
-          formModel
+        const collectionOptional = new ComponentCollection(
+          [{ ...def, options: { required: false } }],
+          { model: formModel }
         )
 
-        const { formSchema } = componentOptional
+        const { formSchema } = collectionOptional
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe()).toEqual(
-          expect.objectContaining({
-            allow: ['']
-          })
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({ allow: [''] })
         )
 
-        const result = formSchema.validate('', opts)
+        const result = formSchema.validate(getFormData(''), opts)
         expect(result.error).toBeUndefined()
       })
 
       it('accepts valid values', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
-        const result1 = formSchema.validate('defra.helpline@defra.gov.uk', opts)
-        const result2 = formSchema.validate('helpline@food.gov.uk', opts)
+        const result1 = formSchema.validate(
+          getFormData('defra.helpline@defra.gov.uk'),
+          opts
+        )
+
+        const result2 = formSchema.validate(
+          getFormData('helpline@food.gov.uk'),
+          opts
+        )
 
         expect(result1.error).toBeUndefined()
         expect(result2.error).toBeUndefined()
       })
 
       it('adds errors for empty value', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
-        const result = formSchema.validate('', opts)
+        const result = formSchema.validate(getFormData(''), opts)
 
         expect(result.error).toEqual(
           expect.objectContaining({
-            message: `Enter ${label}`
+            message: 'Enter example email address field'
           })
         )
       })
 
       it('adds errors for invalid values', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
-        const result1 = formSchema.validate(['invalid'], opts)
-        const result2 = formSchema.validate({ unknown: 'invalid' }, opts)
+        const result1 = formSchema.validate(getFormData('invalid'), opts)
+        const result2 = formSchema.validate(
+          // @ts-expect-error - Allow invalid param for test
+          getFormData({ unknown: 'invalid' }),
+          opts
+        )
 
         expect(result1.error).toBeTruthy()
         expect(result2.error).toBeTruthy()
@@ -190,16 +212,16 @@ describe('EmailAddressField', () => {
         } satisfies EmailAddressFieldComponent,
         assertions: [
           {
-            input: '  defra.helpline@defra.gov.uk',
-            output: { value: 'defra.helpline@defra.gov.uk' }
+            input: getFormData('  defra.helpline@defra.gov.uk'),
+            output: { value: getFormData('defra.helpline@defra.gov.uk') }
           },
           {
-            input: 'defra.helpline@defra.gov.uk  ',
-            output: { value: 'defra.helpline@defra.gov.uk' }
+            input: getFormData('defra.helpline@defra.gov.uk  '),
+            output: { value: getFormData('defra.helpline@defra.gov.uk') }
           },
           {
-            input: '  defra.helpline@defra.gov.uk \n\n',
-            output: { value: 'defra.helpline@defra.gov.uk' }
+            input: getFormData('  defra.helpline@defra.gov.uk \n\n'),
+            output: { value: getFormData('defra.helpline@defra.gov.uk') }
           }
         ]
       },
@@ -213,26 +235,26 @@ describe('EmailAddressField', () => {
         } satisfies EmailAddressFieldComponent,
         assertions: [
           {
-            input: 'defra.helpline',
+            input: getFormData('defra.helpline'),
             output: {
-              value: 'defra.helpline',
+              value: getFormData('defra.helpline'),
               error: new Error(
                 'Enter example email address field in the correct format'
               )
             }
           },
           {
-            input: 'defra.helpline@defra',
+            input: getFormData('defra.helpline@defra'),
             output: {
-              value: 'defra.helpline@defra',
+              value: getFormData('defra.helpline@defra'),
               error: new Error(
                 'Enter example email address field in the correct format'
               )
             }
           },
           {
-            input: 'defra.helpline@defra.gov.uk',
-            output: { value: 'defra.helpline@defra.gov.uk' }
+            input: getFormData('defra.helpline@defra.gov.uk'),
+            output: { value: getFormData('defra.helpline@defra.gov.uk') }
           }
         ]
       },
@@ -248,9 +270,9 @@ describe('EmailAddressField', () => {
         } satisfies EmailAddressFieldComponent,
         assertions: [
           {
-            input: 'invalid',
+            input: getFormData('invalid'),
             output: {
-              value: 'invalid',
+              value: getFormData('invalid'),
               error: new Error('This is a custom error')
             }
           }
@@ -268,22 +290,22 @@ describe('EmailAddressField', () => {
         } satisfies EmailAddressFieldComponent,
         assertions: [
           {
-            input: '',
-            output: { value: '' }
+            input: getFormData(''),
+            output: { value: getFormData('') }
           }
         ]
       }
     ])('$description', ({ component: def, assertions }) => {
-      let component: EmailAddressField
+      let collection: ComponentCollection
 
       beforeEach(() => {
-        component = new EmailAddressField(def, formModel)
+        collection = new ComponentCollection([def], { model: formModel })
       })
 
       it.each([...assertions])(
         'validates custom example',
         ({ input, output }) => {
-          const { formSchema } = component
+          const { formSchema } = collection
 
           const result = formSchema.validate(input, opts)
           expect(result).toEqual(output)

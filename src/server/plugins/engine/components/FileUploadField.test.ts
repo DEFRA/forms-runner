@@ -4,10 +4,9 @@ import {
   type FormDefinition
 } from '@defra/forms-model'
 
-import {
-  FileUploadField,
-  tempItemSchema
-} from '~/src/server/plugins/engine/components/FileUploadField.js'
+import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { tempItemSchema } from '~/src/server/plugins/engine/components/FileUploadField.js'
+import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
@@ -151,8 +150,8 @@ describe('FileUploadField', () => {
 
   describe('Defaults', () => {
     let def: FileUploadFieldComponent
-    let component: FileUploadField
-    let label: string
+    let collection: ComponentCollection
+    let component: FormComponentFieldClass
 
     beforeEach(() => {
       def = {
@@ -163,52 +162,66 @@ describe('FileUploadField', () => {
         schema: {}
       } satisfies FileUploadFieldComponent
 
-      component = new FileUploadField(def, formModel)
-      label = def.title.toLowerCase()
+      collection = new ComponentCollection([def], { model: formModel })
+      component = collection.formItems[0]
     })
 
     describe('Schema', () => {
       it('uses component title as label', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe().flags).toEqual(
-          expect.objectContaining({ label })
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({
+            flags: expect.objectContaining({
+              label: 'example file upload field'
+            })
+          })
         )
       })
 
       it('is required by default', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe().flags).toEqual(
+        expect(keys).toHaveProperty(
+          'myComponent',
           expect.objectContaining({
-            presence: 'required'
+            flags: expect.objectContaining({
+              presence: 'required'
+            })
           })
         )
       })
 
       it('is optional when configured', () => {
-        const componentOptional = new FileUploadField(
-          { ...def, options: { required: false } },
-          formModel
+        const collectionOptional = new ComponentCollection(
+          [{ ...def, options: { required: false } }],
+          { model: formModel }
         )
 
-        const { formSchema } = componentOptional
+        const { formSchema } = collectionOptional
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe().flags).toEqual(
+        expect(keys).toHaveProperty(
+          'myComponent',
           expect.objectContaining({
-            presence: 'optional'
+            flags: expect.objectContaining({
+              presence: 'optional'
+            })
           })
         )
 
-        const result = formSchema.validate(undefined, opts)
+        const result = formSchema.validate(getFormData(), opts)
         expect(result.error).toBeUndefined()
       })
 
       it('accepts valid values', () => {
-        const { formSchema, stateSchema } = component
+        const { formSchema, stateSchema } = collection
 
-        const result1 = formSchema.validate(validState, opts)
-        const result2 = stateSchema.validate(validState, opts)
+        const result1 = formSchema.validate(getFormData(validState), opts)
+        const result2 = stateSchema.validate(getFormState(validState), opts)
         const result3 = tempItemSchema.validate(validTempState[0], opts)
         const result4 = tempItemSchema.validate(validTempState[1], opts)
         const result5 = tempItemSchema.validate(validTempState[2], opts)
@@ -221,22 +234,26 @@ describe('FileUploadField', () => {
       })
 
       it('adds errors for empty value', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
-        const result = formSchema.validate(null, opts)
+        const result = formSchema.validate(getFormData(), opts)
 
         expect(result.error).toEqual(
           expect.objectContaining({
-            message: `Select ${label}`
+            message: 'Select example file upload field'
           })
         )
       })
 
       it('adds errors for invalid values', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
-        const result1 = formSchema.validate(['invalid'], opts)
-        const result2 = formSchema.validate({ unknown: 'invalid' }, opts)
+        const result1 = formSchema.validate(getFormData(['invalid']), opts)
+        const result2 = formSchema.validate(
+          // @ts-expect-error - Allow invalid param for test
+          getFormData({ unknown: 'invalid' }),
+          opts
+        )
 
         expect(result1.error).toBeTruthy()
         expect(result2.error).toBeTruthy()
@@ -454,18 +471,18 @@ describe('FileUploadField', () => {
         } satisfies FileUploadFieldComponent,
         assertions: [
           {
-            input: [],
+            input: getFormData([]),
             output: {
-              value: [],
+              value: getFormData([]),
               error: new Error(
                 'example file upload field must contain at least 1 items'
               )
             }
           },
           {
-            input: validState,
+            input: getFormData(validState),
             output: {
-              value: validState,
+              value: getFormData(validState),
               error: new Error(
                 'example file upload field must contain less than or equal to 2 items'
               )
@@ -486,23 +503,23 @@ describe('FileUploadField', () => {
         } satisfies FileUploadFieldComponent,
         assertions: [
           {
-            input: [],
+            input: getFormData([]),
             output: {
-              value: [],
+              value: getFormData([]),
               error: new Error('example file upload field must contain 4 items')
             }
           },
           {
-            input: validState,
+            input: getFormData(validState),
             output: {
-              value: validState,
+              value: getFormData(validState),
               error: new Error('example file upload field must contain 4 items')
             }
           },
           {
-            input: [...validState, ...validState],
+            input: getFormData([...validState, ...validState]),
             output: {
-              value: [...validState, ...validState],
+              value: getFormData([...validState, ...validState]),
               error: new Error('example file upload field must contain 4 items')
             }
           }
@@ -521,15 +538,15 @@ describe('FileUploadField', () => {
         } satisfies FileUploadFieldComponent,
         assertions: [
           {
-            input: [],
+            input: getFormData([]),
             output: {
-              value: []
+              value: getFormData([])
             }
           },
           {
-            input: null,
+            input: getFormData(),
             output: {
-              value: undefined
+              value: getFormData()
             }
           }
         ]
@@ -550,24 +567,24 @@ describe('FileUploadField', () => {
         } satisfies FileUploadFieldComponent,
         assertions: [
           {
-            input: null,
+            input: getFormData(),
             output: {
-              value: undefined
+              value: getFormData()
             }
           },
           {
-            input: [],
+            input: getFormData([]),
             output: {
-              value: [],
+              value: getFormData([]),
               error: new Error(
                 'example file upload field must contain at least 1 items'
               )
             }
           },
           {
-            input: validState,
+            input: getFormData(validState),
             output: {
-              value: validState,
+              value: getFormData(validState),
               error: new Error(
                 'example file upload field must contain less than or equal to 2 items'
               )
@@ -590,45 +607,45 @@ describe('FileUploadField', () => {
         } satisfies FileUploadFieldComponent,
         assertions: [
           {
-            input: null,
+            input: getFormData(),
             output: {
-              value: undefined
+              value: getFormData()
             }
           },
           {
-            input: [],
+            input: getFormData([]),
             output: {
-              value: [],
+              value: getFormData([]),
               error: new Error('example file upload field must contain 4 items')
             }
           },
           {
-            input: validState,
+            input: getFormData(validState),
             output: {
-              value: validState,
+              value: getFormData(validState),
               error: new Error('example file upload field must contain 4 items')
             }
           },
           {
-            input: [...validState, ...validState],
+            input: getFormData([...validState, ...validState]),
             output: {
-              value: [...validState, ...validState],
+              value: getFormData([...validState, ...validState]),
               error: new Error('example file upload field must contain 4 items')
             }
           }
         ]
       }
     ])('$description', ({ component: def, assertions }) => {
-      let component: FileUploadField
+      let collection: ComponentCollection
 
       beforeEach(() => {
-        component = new FileUploadField(def, formModel)
+        collection = new ComponentCollection([def], { model: formModel })
       })
 
       it.each([...assertions])(
         'validates custom example',
         ({ input, output }) => {
-          const { formSchema } = component
+          const { formSchema } = collection
 
           const result = formSchema.validate(input, opts)
           expect(result).toEqual(output)
