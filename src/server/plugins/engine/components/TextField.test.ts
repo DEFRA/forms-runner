@@ -4,7 +4,8 @@ import {
   type TextFieldComponent
 } from '@defra/forms-model'
 
-import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
+import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
@@ -27,8 +28,8 @@ describe('TextField', () => {
 
   describe('Defaults', () => {
     let def: TextFieldComponent
-    let component: TextField
-    let label: string
+    let collection: ComponentCollection
+    let component: FormComponentFieldClass
 
     beforeEach(() => {
       def = {
@@ -39,74 +40,88 @@ describe('TextField', () => {
         schema: {}
       } satisfies TextFieldComponent
 
-      component = new TextField(def, formModel)
-      label = def.title.toLowerCase()
+      collection = new ComponentCollection([def], { model: formModel })
+      component = collection.formItems[0]
     })
 
     describe('Schema', () => {
       it('uses component title as label', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe().flags).toEqual(
-          expect.objectContaining({ label })
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({
+            flags: expect.objectContaining({
+              label: 'example text field'
+            })
+          })
         )
       })
 
       it('is required by default', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe().flags).toEqual(
+        expect(keys).toHaveProperty(
+          'myComponent',
           expect.objectContaining({
-            presence: 'required'
+            flags: expect.objectContaining({
+              presence: 'required'
+            })
           })
         )
       })
 
       it('is optional when configured', () => {
-        const componentOptional = new TextField(
-          { ...def, options: { required: false } },
-          formModel
+        const collectionOptional = new ComponentCollection(
+          [{ ...def, options: { required: false } }],
+          { model: formModel }
         )
 
-        const { formSchema } = componentOptional
+        const { formSchema } = collectionOptional
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe()).toEqual(
-          expect.objectContaining({
-            allow: ['']
-          })
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({ allow: [''] })
         )
 
-        const result = formSchema.validate('', opts)
+        const result = formSchema.validate(getFormData(''), opts)
         expect(result.error).toBeUndefined()
       })
 
       it('accepts valid values', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
-        const result1 = formSchema.validate('Text', opts)
-        const result2 = formSchema.validate('Text field', opts)
+        const result1 = formSchema.validate(getFormData('Text'), opts)
+        const result2 = formSchema.validate(getFormData('Text field'), opts)
 
         expect(result1.error).toBeUndefined()
         expect(result2.error).toBeUndefined()
       })
 
       it('adds errors for empty value', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
-        const result = formSchema.validate('', opts)
+        const result = formSchema.validate(getFormData(''), opts)
 
         expect(result.error).toEqual(
           expect.objectContaining({
-            message: `Enter ${label}`
+            message: 'Enter example text field'
           })
         )
       })
 
       it('adds errors for invalid values', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
-        const result1 = formSchema.validate(['invalid'], opts)
-        const result2 = formSchema.validate({ unknown: 'invalid' }, opts)
+        const result1 = formSchema.validate(getFormData(['invalid']), opts)
+        const result2 = formSchema.validate(
+          // @ts-expect-error - Allow invalid param for test
+          getFormData({ unknown: 'invalid' }),
+          opts
+        )
 
         expect(result1.error).toBeTruthy()
         expect(result2.error).toBeTruthy()
@@ -188,16 +203,16 @@ describe('TextField', () => {
         } satisfies TextFieldComponent,
         assertions: [
           {
-            input: '  Leading spaces',
-            output: { value: 'Leading spaces' }
+            input: getFormData('  Leading spaces'),
+            output: { value: getFormData('Leading spaces') }
           },
           {
-            input: 'Trailing spaces  ',
-            output: { value: 'Trailing spaces' }
+            input: getFormData('Trailing spaces  '),
+            output: { value: getFormData('Trailing spaces') }
           },
           {
-            input: '  Mixed spaces and new lines \n\n',
-            output: { value: 'Mixed spaces and new lines' }
+            input: getFormData('  Mixed spaces and new lines \n\n'),
+            output: { value: getFormData('Mixed spaces and new lines') }
           }
         ]
       },
@@ -215,18 +230,18 @@ describe('TextField', () => {
         } satisfies TextFieldComponent,
         assertions: [
           {
-            input: 'Text',
+            input: getFormData('Text'),
             output: {
-              value: 'Text',
+              value: getFormData('Text'),
               error: new Error(
                 'example text field must be 5 characters or more'
               )
             }
           },
           {
-            input: 'Text field',
+            input: getFormData('Text field'),
             output: {
-              value: 'Text field',
+              value: getFormData('Text field'),
               error: new Error(
                 'example text field must be 8 characters or less'
               )
@@ -247,13 +262,13 @@ describe('TextField', () => {
         } satisfies TextFieldComponent,
         assertions: [
           {
-            input: 'Text',
-            output: { value: 'Text' }
+            input: getFormData('Text'),
+            output: { value: getFormData('Text') }
           },
           {
-            input: 'Text field',
+            input: getFormData('Text field'),
             output: {
-              value: 'Text field',
+              value: getFormData('Text field'),
               error: new Error(
                 'example text field length must be 4 characters long'
               )
@@ -274,15 +289,15 @@ describe('TextField', () => {
         } satisfies TextFieldComponent,
         assertions: [
           {
-            input: 'SW1P',
+            input: getFormData('SW1P'),
             output: {
-              value: 'SW1P',
+              value: getFormData('SW1P'),
               error: new Error('Enter a valid example text field')
             }
           },
           {
-            input: 'SW1P 4DF',
-            output: { value: 'SW1P 4DF' }
+            input: getFormData('SW1P 4DF'),
+            output: { value: getFormData('SW1P 4DF') }
           }
         ]
       },
@@ -299,9 +314,9 @@ describe('TextField', () => {
         } satisfies TextFieldComponent,
         assertions: [
           {
-            input: '',
+            input: getFormData(''),
             output: {
-              value: '',
+              value: getFormData(''),
               error: new Error('This is a custom error')
             }
           }
@@ -320,22 +335,22 @@ describe('TextField', () => {
         } satisfies TextFieldComponent,
         assertions: [
           {
-            input: '',
-            output: { value: '' }
+            input: getFormData(''),
+            output: { value: getFormData('') }
           }
         ]
       }
     ])('$description', ({ component: def, assertions }) => {
-      let component: TextField
+      let collection: ComponentCollection
 
       beforeEach(() => {
-        component = new TextField(def, formModel)
+        collection = new ComponentCollection([def], { model: formModel })
       })
 
       it.each([...assertions])(
         'validates custom example',
         ({ input, output }) => {
-          const { formSchema } = component
+          const { formSchema } = collection
 
           const result = formSchema.validate(input, opts)
           expect(result).toEqual(output)

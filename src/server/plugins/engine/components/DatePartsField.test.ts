@@ -51,28 +51,52 @@ describe('DatePartsField', () => {
     describe('Schema', () => {
       it('uses collection titles as labels', () => {
         const { formSchema } = collection
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe().keys).toEqual(
+        expect(keys).toHaveProperty(
+          'myComponent__day',
           expect.objectContaining({
-            myComponent__day: expect.objectContaining({
-              flags: expect.objectContaining({ label: 'day' })
-            }),
-            myComponent__month: expect.objectContaining({
-              flags: expect.objectContaining({ label: 'month' })
-            }),
-            myComponent__year: expect.objectContaining({
-              flags: expect.objectContaining({ label: 'year' })
-            })
+            flags: expect.objectContaining({ label: 'day' })
+          })
+        )
+
+        expect(keys).toHaveProperty(
+          'myComponent__month',
+          expect.objectContaining({
+            flags: expect.objectContaining({ label: 'month' })
+          })
+        )
+
+        expect(keys).toHaveProperty(
+          'myComponent__year',
+          expect.objectContaining({
+            flags: expect.objectContaining({ label: 'year' })
           })
         )
       })
 
       it('is required by default', () => {
         const { formSchema } = collection
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe().flags).toEqual(
+        expect(keys).toHaveProperty(
+          'myComponent__day',
           expect.objectContaining({
-            presence: 'required'
+            flags: expect.objectContaining({ presence: 'required' })
+          })
+        )
+
+        expect(keys).toHaveProperty(
+          'myComponent__month',
+          expect.objectContaining({
+            flags: expect.objectContaining({ presence: 'required' })
+          })
+        )
+
+        expect(keys).toHaveProperty(
+          'myComponent__year',
+          expect.objectContaining({
+            flags: expect.objectContaining({ presence: 'required' })
           })
         )
       })
@@ -91,19 +115,21 @@ describe('DatePartsField', () => {
         )
 
         const { formSchema } = collectionOptional
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe().keys).toEqual(
-          expect.objectContaining({
-            myComponent__day: expect.objectContaining({
-              allow: ['']
-            }),
-            myComponent__month: expect.objectContaining({
-              allow: ['']
-            }),
-            myComponent__year: expect.objectContaining({
-              allow: ['']
-            })
-          })
+        expect(keys).toHaveProperty(
+          'myComponent__day',
+          expect.objectContaining({ allow: [''] })
+        )
+
+        expect(keys).toHaveProperty(
+          'myComponent__month',
+          expect.objectContaining({ allow: [''] })
+        )
+
+        expect(keys).toHaveProperty(
+          'myComponent__year',
+          expect.objectContaining({ allow: [''] })
         )
 
         // Empty optional payload (valid)
@@ -119,7 +145,7 @@ describe('DatePartsField', () => {
         // Partial optional payload (invalid)
         const result2 = formSchema.validate(
           getFormData({
-            day: 31,
+            day: '31',
             month: '',
             year: ''
           }),
@@ -196,8 +222,20 @@ describe('DatePartsField', () => {
       it('adds errors for invalid values', () => {
         const { formSchema } = collection
 
-        const result1 = formSchema.validate(['invalid'], opts)
-        const result2 = formSchema.validate({ unknown: 'invalid' }, opts)
+        const result1 = formSchema.validate(
+          getFormData({ unknown: 'invalid' }),
+          opts
+        )
+
+        const result2 = formSchema.validate(
+          getFormData({
+            day: ['invalid'],
+            month: ['invalid'],
+            year: ['invalid']
+          }),
+          opts
+        )
+
         const result3 = formSchema.validate(
           getFormData({
             day: 'invalid',

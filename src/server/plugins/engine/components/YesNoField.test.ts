@@ -4,7 +4,8 @@ import {
   type YesNoFieldComponent
 } from '@defra/forms-model'
 
-import { YesNoField } from '~/src/server/plugins/engine/components/YesNoField.js'
+import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import { listYesNoExamples } from '~/test/fixtures/list.js'
@@ -20,9 +21,8 @@ describe('YesNoField', () => {
 
   let def: YesNoFieldComponent
   let formModel: FormModel
-  let component: YesNoField
-  let label: string
-  let allow: boolean[]
+  let collection: ComponentCollection
+  let component: FormComponentFieldClass
 
   beforeEach(() => {
     def = {
@@ -36,87 +36,102 @@ describe('YesNoField', () => {
       basePath: 'test'
     })
 
-    component = new YesNoField(def, formModel)
-    label = def.title.toLowerCase()
-    allow = [true, false]
+    collection = new ComponentCollection([def], { model: formModel })
+    component = collection.formItems[0]
   })
 
   describe('Schema', () => {
     it('uses component title as label', () => {
-      const { formSchema } = component
+      const { formSchema } = collection
+      const { keys } = formSchema.describe()
 
-      expect(formSchema.describe().flags).toEqual(
-        expect.objectContaining({ label })
+      expect(keys).toHaveProperty(
+        'myComponent',
+        expect.objectContaining({
+          flags: expect.objectContaining({
+            label: 'example yes/no'
+          })
+        })
       )
     })
 
     it('is required by default', () => {
-      const { formSchema } = component
+      const { formSchema } = collection
+      const { keys } = formSchema.describe()
 
-      expect(formSchema.describe().flags).toEqual(
+      expect(keys).toHaveProperty(
+        'myComponent',
         expect.objectContaining({
-          presence: 'required'
+          flags: expect.objectContaining({
+            presence: 'required'
+          })
         })
       )
     })
 
     it('is optional when configured', () => {
-      const componentOptional = new YesNoField(
-        { ...def, options: { required: false } },
-        formModel
+      const collectionOptional = new ComponentCollection(
+        [{ ...def, options: { required: false } }],
+        { model: formModel }
       )
 
-      const { formSchema } = componentOptional
+      const { formSchema } = collectionOptional
+      const { keys } = formSchema.describe()
 
-      expect(formSchema.describe().flags).toEqual(
+      expect(keys).toHaveProperty(
+        'myComponent',
         expect.objectContaining({
-          presence: 'optional'
+          flags: expect.objectContaining({
+            presence: 'optional'
+          })
         })
       )
 
-      const result = formSchema.validate(undefined, opts)
+      const result = formSchema.validate(getFormData(), opts)
       expect(result.error).toBeUndefined()
     })
 
     it('is configured with radio items', () => {
-      const { formSchema } = component
+      const { formSchema } = collection
+      const { keys } = formSchema.describe()
 
-      expect(formSchema.describe()).toEqual(
+      expect(keys).toHaveProperty(
+        'myComponent',
         expect.objectContaining({
-          allow,
+          allow: [true, false],
           type: 'boolean'
         })
       )
     })
 
     it('accepts valid values', () => {
-      const { formSchema } = component
+      const { formSchema } = collection
 
-      const result1 = formSchema.validate('true', opts)
-      const result2 = formSchema.validate('false', opts)
+      const result1 = formSchema.validate(getFormData('true'), opts)
+      const result2 = formSchema.validate(getFormData('false'), opts)
 
       expect(result1.error).toBeUndefined()
       expect(result2.error).toBeUndefined()
     })
 
     it('adds errors for empty value', () => {
-      const { formSchema } = component
+      const { formSchema } = collection
 
-      const result = formSchema.validate(undefined, opts)
+      const result = formSchema.validate(getFormData(), opts)
 
       expect(result.error).toEqual(
         expect.objectContaining({
-          message: `Select ${label}`
+          message: 'Select example yes/no'
         })
       )
     })
 
     it('adds errors for invalid values', () => {
-      const { formSchema } = component
+      const { formSchema } = collection
 
-      const result1 = formSchema.validate('invalid', opts)
-      const result2 = formSchema.validate(['true'], opts)
-      const result3 = formSchema.validate(['true', 'false'], opts)
+      const result1 = formSchema.validate(getFormData('invalid'), opts)
+      const result2 = formSchema.validate(getFormData(['true']), opts)
+      const result3 = formSchema.validate(getFormData(['true', 'false']), opts)
 
       expect(result1.error).toBeTruthy()
       expect(result2.error).toBeTruthy()
@@ -203,7 +218,7 @@ describe('YesNoField', () => {
     it.each([...items])('sets Nunjucks component radio items', (item) => {
       const viewModel = component.getViewModel(getFormData(item.value))
 
-      expect(viewModel.items[0]).not.toMatchObject({
+      expect(viewModel.items?.[0]).not.toMatchObject({
         value: '' // First item is never empty
       })
 

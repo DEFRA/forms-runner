@@ -4,7 +4,8 @@ import {
   type TelephoneNumberFieldComponent
 } from '@defra/forms-model'
 
-import { TelephoneNumberField } from '~/src/server/plugins/engine/components/TelephoneNumberField.js'
+import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
@@ -27,8 +28,8 @@ describe('TelephoneNumberField', () => {
 
   describe('Defaults', () => {
     let def: TelephoneNumberFieldComponent
-    let component: TelephoneNumberField
-    let label: string
+    let collection: ComponentCollection
+    let component: FormComponentFieldClass
 
     beforeEach(() => {
       def = {
@@ -38,44 +39,54 @@ describe('TelephoneNumberField', () => {
         options: {}
       } satisfies TelephoneNumberFieldComponent
 
-      component = new TelephoneNumberField(def, formModel)
-      label = def.title.toLowerCase()
+      collection = new ComponentCollection([def], { model: formModel })
+      component = collection.formItems[0]
     })
 
     describe('Schema', () => {
       it('uses component title as label', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe().flags).toEqual(
-          expect.objectContaining({ label })
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({
+            flags: expect.objectContaining({
+              label: 'example telephone number field'
+            })
+          })
         )
       })
 
       it('is required by default', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe().flags).toEqual(
+        expect(keys).toHaveProperty(
+          'myComponent',
           expect.objectContaining({
-            presence: 'required'
+            flags: expect.objectContaining({
+              presence: 'required'
+            })
           })
         )
       })
 
       it('is optional when configured', () => {
-        const componentOptional = new TelephoneNumberField(
-          { ...def, options: { required: false } },
-          formModel
+        const collectionOptional = new ComponentCollection(
+          [{ ...def, options: { required: false } }],
+          { model: formModel }
         )
 
-        const { formSchema } = componentOptional
+        const { formSchema } = collectionOptional
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe()).toEqual(
-          expect.objectContaining({
-            allow: ['']
-          })
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({ allow: [''] })
         )
 
-        const result = formSchema.validate('', opts)
+        const result = formSchema.validate(getFormData(''), opts)
         expect(result.error).toBeUndefined()
       })
 
@@ -96,29 +107,33 @@ describe('TelephoneNumberField', () => {
         '0800123-321',
         '0800-123-321'
       ])("accepts valid value '%s'", (value) => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
-        const result = formSchema.validate(value, opts)
+        const result = formSchema.validate(getFormData(value), opts)
         expect(result.error).toBeUndefined()
       })
 
       it('adds errors for empty value', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
-        const result = formSchema.validate('', opts)
+        const result = formSchema.validate(getFormData(''), opts)
 
         expect(result.error).toEqual(
           expect.objectContaining({
-            message: `Enter ${label}`
+            message: 'Enter example telephone number field'
           })
         )
       })
 
       it('adds errors for invalid values', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
-        const result1 = formSchema.validate(['invalid'], opts)
-        const result2 = formSchema.validate({ unknown: 'invalid' }, opts)
+        const result1 = formSchema.validate(getFormData('invalid'), opts)
+        const result2 = formSchema.validate(
+          // @ts-expect-error - Allow invalid param for test
+          getFormData({ unknown: 'invalid' }),
+          opts
+        )
 
         expect(result1.error).toBeTruthy()
         expect(result2.error).toBeTruthy()
@@ -205,9 +220,9 @@ describe('TelephoneNumberField', () => {
         } satisfies TelephoneNumberFieldComponent,
         assertions: [
           {
-            input: '',
+            input: getFormData(''),
             output: {
-              value: '',
+              value: getFormData(''),
               error: new Error('This is a custom error')
             }
           }
@@ -225,22 +240,22 @@ describe('TelephoneNumberField', () => {
         } satisfies TelephoneNumberFieldComponent,
         assertions: [
           {
-            input: '',
-            output: { value: '' }
+            input: getFormData(''),
+            output: { value: getFormData('') }
           }
         ]
       }
     ])('$description', ({ component: def, assertions }) => {
-      let component: TelephoneNumberField
+      let collection: ComponentCollection
 
       beforeEach(() => {
-        component = new TelephoneNumberField(def, formModel)
+        collection = new ComponentCollection([def], { model: formModel })
       })
 
       it.each([...assertions])(
         'validates custom example',
         ({ input, output }) => {
-          const { formSchema } = component
+          const { formSchema } = collection
 
           const result = formSchema.validate(input, opts)
           expect(result).toEqual(output)

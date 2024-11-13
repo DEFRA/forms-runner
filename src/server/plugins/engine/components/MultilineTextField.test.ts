@@ -4,7 +4,9 @@ import {
   type MultilineTextFieldComponent
 } from '@defra/forms-model'
 
+import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { MultilineTextField } from '~/src/server/plugins/engine/components/MultilineTextField.js'
+import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
@@ -27,8 +29,8 @@ describe('MultilineTextField', () => {
 
   describe('Defaults', () => {
     let def: MultilineTextFieldComponent
-    let component: MultilineTextField
-    let label: string
+    let collection: ComponentCollection
+    let component: FormComponentFieldClass
 
     beforeEach(() => {
       def = {
@@ -39,74 +41,88 @@ describe('MultilineTextField', () => {
         schema: {}
       } satisfies MultilineTextFieldComponent
 
-      component = new MultilineTextField(def, formModel)
-      label = def.title.toLowerCase()
+      collection = new ComponentCollection([def], { model: formModel })
+      component = collection.formItems[0]
     })
 
     describe('Schema', () => {
       it('uses component title as label', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe().flags).toEqual(
-          expect.objectContaining({ label })
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({
+            flags: expect.objectContaining({
+              label: 'example textarea'
+            })
+          })
         )
       })
 
       it('is required by default', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe().flags).toEqual(
+        expect(keys).toHaveProperty(
+          'myComponent',
           expect.objectContaining({
-            presence: 'required'
+            flags: expect.objectContaining({
+              presence: 'required'
+            })
           })
         )
       })
 
       it('is optional when configured', () => {
-        const componentOptional = new MultilineTextField(
-          { ...def, options: { required: false } },
-          formModel
+        const collectionOptional = new ComponentCollection(
+          [{ ...def, options: { required: false } }],
+          { model: formModel }
         )
 
-        const { formSchema } = componentOptional
+        const { formSchema } = collectionOptional
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe()).toEqual(
-          expect.objectContaining({
-            allow: ['']
-          })
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({ allow: [''] })
         )
 
-        const result = formSchema.validate('', opts)
+        const result = formSchema.validate(getFormData(''), opts)
         expect(result.error).toBeUndefined()
       })
 
       it('accepts valid values', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
-        const result1 = formSchema.validate('Text', opts)
-        const result2 = formSchema.validate('Textarea', opts)
+        const result1 = formSchema.validate(getFormData('Text'), opts)
+        const result2 = formSchema.validate(getFormData('Textarea'), opts)
 
         expect(result1.error).toBeUndefined()
         expect(result2.error).toBeUndefined()
       })
 
       it('adds errors for empty value', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
-        const result = formSchema.validate('', opts)
+        const result = formSchema.validate(getFormData(''), opts)
 
         expect(result.error).toEqual(
           expect.objectContaining({
-            message: `Enter ${label}`
+            message: 'Enter example textarea'
           })
         )
       })
 
       it('adds errors for invalid values', () => {
-        const { formSchema } = component
+        const { formSchema } = collection
 
-        const result1 = formSchema.validate(['invalid'], opts)
-        const result2 = formSchema.validate({ unknown: 'invalid' }, opts)
+        const result1 = formSchema.validate(getFormData(['invalid']), opts)
+        const result2 = formSchema.validate(
+          // @ts-expect-error - Allow invalid param for test
+          getFormData({ unknown: 'invalid' }),
+          opts
+        )
 
         expect(result1.error).toBeTruthy()
         expect(result2.error).toBeTruthy()
@@ -222,16 +238,16 @@ describe('MultilineTextField', () => {
         } satisfies MultilineTextFieldComponent,
         assertions: [
           {
-            input: '  Leading spaces',
-            output: { value: 'Leading spaces' }
+            input: getFormData('  Leading spaces'),
+            output: { value: getFormData('Leading spaces') }
           },
           {
-            input: 'Trailing spaces  ',
-            output: { value: 'Trailing spaces' }
+            input: getFormData('Trailing spaces  '),
+            output: { value: getFormData('Trailing spaces') }
           },
           {
-            input: '  Mixed spaces and new lines \n\n',
-            output: { value: 'Mixed spaces and new lines' }
+            input: getFormData('  Mixed spaces and new lines \n\n'),
+            output: { value: getFormData('Mixed spaces and new lines') }
           }
         ]
       },
@@ -248,15 +264,15 @@ describe('MultilineTextField', () => {
         } satisfies MultilineTextFieldComponent,
         assertions: [
           {
-            input: 'Textarea words',
+            input: getFormData('Textarea words'),
             output: {
-              value: 'Textarea words'
+              value: getFormData('Textarea words')
             }
           },
           {
-            input: 'Textarea too many words',
+            input: getFormData('Textarea too many words'),
             output: {
-              value: 'Textarea too many words',
+              value: getFormData('Textarea too many words'),
               error: new Error('example textarea must be 2 words or fewer')
             }
           }
@@ -276,16 +292,16 @@ describe('MultilineTextField', () => {
         } satisfies MultilineTextFieldComponent,
         assertions: [
           {
-            input: 'Text',
+            input: getFormData('Text'),
             output: {
-              value: 'Text',
+              value: getFormData('Text'),
               error: new Error('example textarea must be 5 characters or more')
             }
           },
           {
-            input: 'Textarea too long',
+            input: getFormData('Textarea too long'),
             output: {
-              value: 'Textarea too long',
+              value: getFormData('Textarea too long'),
               error: new Error('example textarea must be 8 characters or less')
             }
           }
@@ -304,13 +320,13 @@ describe('MultilineTextField', () => {
         } satisfies MultilineTextFieldComponent,
         assertions: [
           {
-            input: 'Text',
-            output: { value: 'Text' }
+            input: getFormData('Text'),
+            output: { value: getFormData('Text') }
           },
           {
-            input: 'Textarea',
+            input: getFormData('Textarea'),
             output: {
-              value: 'Textarea',
+              value: getFormData('Textarea'),
               error: new Error(
                 'example textarea length must be 4 characters long'
               )
@@ -331,15 +347,15 @@ describe('MultilineTextField', () => {
         } satisfies MultilineTextFieldComponent,
         assertions: [
           {
-            input: 'SW1P',
+            input: getFormData('SW1P'),
             output: {
-              value: 'SW1P',
+              value: getFormData('SW1P'),
               error: new Error('Enter a valid example textarea')
             }
           },
           {
-            input: 'SW1P 4DF',
-            output: { value: 'SW1P 4DF' }
+            input: getFormData('SW1P 4DF'),
+            output: { value: getFormData('SW1P 4DF') }
           }
         ]
       },
@@ -356,9 +372,9 @@ describe('MultilineTextField', () => {
         } satisfies MultilineTextFieldComponent,
         assertions: [
           {
-            input: '',
+            input: getFormData(''),
             output: {
-              value: '',
+              value: getFormData(''),
               error: new Error('This is a custom error')
             }
           }
@@ -377,22 +393,22 @@ describe('MultilineTextField', () => {
         } satisfies MultilineTextFieldComponent,
         assertions: [
           {
-            input: '',
-            output: { value: '' }
+            input: getFormData(''),
+            output: { value: getFormData('') }
           }
         ]
       }
     ])('$description', ({ component: def, assertions }) => {
-      let component: MultilineTextField
+      let collection: ComponentCollection
 
       beforeEach(() => {
-        component = new MultilineTextField(def, formModel)
+        collection = new ComponentCollection([def], { model: formModel })
       })
 
       it.each([...assertions])(
         'validates custom example',
         ({ input, output }) => {
-          const { formSchema } = component
+          const { formSchema } = collection
 
           const result = formSchema.validate(input, opts)
           expect(result).toEqual(output)
