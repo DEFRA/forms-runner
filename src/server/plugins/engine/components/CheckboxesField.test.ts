@@ -8,7 +8,6 @@ import { CheckboxesField } from '~/src/server/plugins/engine/components/Checkbox
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   listNumber,
   listNumberExamples,
@@ -117,8 +116,8 @@ describe.each([
           })
         )
 
-        const result = formSchema.validate(getFormData(), opts)
-        expect(result.error).toBeUndefined()
+        const result = collectionOptional.validate(getFormData())
+        expect(result.errors).toBeUndefined()
       })
 
       it('is configured for single values', () => {
@@ -157,85 +156,71 @@ describe.each([
       })
 
       it('adds errors for empty value', () => {
-        const { formSchema } = collection
+        const result = collection.validate(getFormData())
 
-        const result = formSchema.validate(getFormData(), opts)
-
-        expect(result.error).toEqual(
+        expect(result.errors).toEqual([
           expect.objectContaining({
-            message: `Select ${def.title.toLowerCase()}`
+            text: `Select ${def.title.toLowerCase()}`
           })
-        )
+        ])
       })
 
       it.each([...options.allow])(
         'accepts valid checkbox single item',
         (value) => {
-          const { formSchema } = collection
-
-          const result = formSchema.validate(getFormData(value), opts)
-          expect(result.error).toBeUndefined()
+          const result = collection.validate(getFormData(value))
+          expect(result.errors).toBeUndefined()
         }
       )
 
       it.each([...options.allow])(
         'accepts valid checkbox array item',
         (value) => {
-          const { formSchema } = collection
-
-          const result = formSchema.validate(getFormData([value]), opts)
-          expect(result.error).toBeUndefined()
+          const result = collection.validate(getFormData([value]))
+          expect(result.errors).toBeUndefined()
         }
       )
 
       it.each([...options.deny])(
         'rejects invalid checkbox single item',
         (value) => {
-          const { formSchema } = collection
+          const result = collection.validate(getFormData(value))
 
-          const result = formSchema.validate(getFormData(value), opts)
-
-          expect(result.error).toEqual(
+          expect(result.errors).toEqual([
             expect.objectContaining({
-              message: `Select ${def.title.toLowerCase()}`
+              text: `Select ${def.title.toLowerCase()}`
             })
-          )
+          ])
         }
       )
 
       it.each([...options.deny])(
         'rejects invalid checkbox array item',
         (value) => {
-          const { formSchema } = collection
+          const result = collection.validate(getFormData([value]))
 
-          const result = formSchema.validate(getFormData([value]), opts)
-
-          expect(result.error).toEqual(
+          expect(result.errors).toEqual([
             expect.objectContaining({
-              message: `Select ${def.title.toLowerCase()}`
+              text: `Select ${def.title.toLowerCase()}`
             })
-          )
+          ])
         }
       )
 
       it('adds errors for invalid values', () => {
-        const { formSchema } = collection
-
-        const result1 = formSchema.validate(getFormData('invalid'), opts)
-        const result2 = formSchema.validate(
-          getFormData(['invalid1', 'invalid2']),
-          opts
+        const result1 = collection.validate(getFormData('invalid'))
+        const result2 = collection.validate(
+          getFormData(['invalid1', 'invalid2'])
         )
 
-        const result3 = formSchema.validate(
+        const result3 = collection.validate(
           // @ts-expect-error - Allow invalid param for test
-          getFormData({ unknown: 'invalid' }),
-          opts
+          getFormData({ unknown: 'invalid' })
         )
 
-        expect(result1.error).toBeTruthy()
-        expect(result2.error).toBeTruthy()
-        expect(result3.error).toBeTruthy()
+        expect(result1.errors).toBeTruthy()
+        expect(result2.errors).toBeTruthy()
+        expect(result3.errors).toBeTruthy()
       })
     })
 

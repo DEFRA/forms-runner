@@ -220,7 +220,7 @@ describe('Helpers', () => {
         undefined
       )
 
-      expect(getErrors(details)?.errorList).toEqual([
+      expect(getErrors(details)).toEqual([
         {
           path: ['dateField'],
           href: '#dateField',
@@ -250,7 +250,7 @@ describe('Helpers', () => {
         undefined
       )
 
-      expect(getErrors(details)?.errorList).toEqual([
+      expect(getErrors(details)).toEqual([
         {
           path: ['yesNoField'],
           href: '#yesNoField',

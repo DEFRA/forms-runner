@@ -19,7 +19,7 @@ import {
   type FormPayload,
   type FormState,
   type FormStateValue,
-  type FormSubmissionErrors,
+  type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 
@@ -120,14 +120,14 @@ export class DatePartsField extends FormComponent {
     return format(`${value.year}-${value.month}-${value.day}`, 'yyyy-MM-dd')
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
     const { children, name } = this
 
     const viewModel = super.getViewModel(payload, errors)
     let { fieldset, label } = viewModel
 
     // Filter component and child errors only
-    const componentErrors = errors?.errorList.filter(
+    const componentErrors = errors?.filter(
       (error) =>
         error.path.includes(name) || // Errors for parent component
         error.name.startsWith(`${name}__`) // Plus `${name}__year` etc fields

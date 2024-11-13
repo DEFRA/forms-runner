@@ -76,10 +76,15 @@ export class SummaryViewModel {
   }
 
   private processErrors(result: ValidationResult, details: Detail[]) {
-    this.errors = result.error?.details.map(getError)
+    const errors = result.error?.details.map(getError) ?? []
+
+    if (!errors.length) {
+      this.errors = undefined
+      return
+    }
 
     details.forEach((detail) => {
-      const sectionErr = this.errors?.find(({ name }) => name === detail.name)
+      const sectionErr = errors.find(({ name }) => name === detail.name)
 
       detail.items.forEach((item) => {
         if (sectionErr) {
@@ -87,7 +92,7 @@ export class SummaryViewModel {
           return
         }
 
-        const err = this.errors?.find(({ name }) => {
+        const err = errors.find(({ name }) => {
           return (
             name === (detail.name ? `${detail.name}.${item.name}` : item.name)
           )
@@ -98,6 +103,8 @@ export class SummaryViewModel {
         }
       })
     })
+
+    this.errors = errors
   }
 
   private summaryDetails(

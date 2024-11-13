@@ -14,7 +14,7 @@ import {
   type FormPayload,
   type FormState,
   type FormStateValue,
-  type FormSubmissionErrors,
+  type FormSubmissionError,
   type FormSubmissionState,
   type UploadState,
   type UploadStatusResponse
@@ -106,7 +106,7 @@ export class FileUploadField extends FormComponent {
       .required()
 
     if (options.required === false) {
-      formSchema = formSchema.optional().allow(null)
+      formSchema = formSchema.optional()
     }
 
     if (typeof schema.length !== 'number') {
@@ -121,8 +121,12 @@ export class FileUploadField extends FormComponent {
       formSchema = formSchema.length(schema.length)
     }
 
-    this.formSchema = formSchema.items(formItemSchema).empty(null)
-    this.stateSchema = formSchema.items(formItemSchema)
+    this.formSchema = formSchema.items(formItemSchema)
+    this.stateSchema = formSchema
+      .items(formItemSchema)
+      .default(null)
+      .allow(null)
+
     this.options = options
     this.schema = schema
   }
@@ -143,7 +147,7 @@ export class FileUploadField extends FormComponent {
     return `You uploaded ${count} file${count !== 1 ? 's' : ''}`
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
     const { options } = this
 
     const viewModel = super.getViewModel(payload, errors)

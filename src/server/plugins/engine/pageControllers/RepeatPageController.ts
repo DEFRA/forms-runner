@@ -10,7 +10,7 @@ import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
   type FormPayload,
-  type FormSubmissionErrors,
+  type FormSubmissionError,
   type FormSubmissionState,
   type PageViewModel,
   type RepeatState
@@ -52,10 +52,10 @@ export class RepeatPageController extends PageController {
     const { options, schema } = this.repeat
     const itemId = Joi.string().uuid().required()
 
-    this.formSchema = this.formSchema.append({ itemId })
-    this.stateSchema = Joi.object<RepeatState>().keys({
+    this.components.formSchema = this.components.formSchema.append({ itemId })
+    this.components.stateSchema = Joi.object<RepeatState>().keys({
       [options.name]: Joi.array()
-        .items(this.stateSchema.append({ itemId }))
+        .items(this.components.stateSchema.append({ itemId }))
         .min(schema.min)
         .max(schema.max)
         .label(`${options.title} list`)
@@ -230,17 +230,14 @@ export class RepeatPageController extends PageController {
 
         // Show error if repeat max limit reached
         if (list.length >= schema.max) {
-          const errors: FormSubmissionErrors = {
-            titleText: this.errorSummaryTitle,
-            errorList: [
-              {
-                path: [],
-                href: '',
-                name: '',
-                text: `You can only add up to ${schema.max} ${options.title}${schema.max === 1 ? '' : 's'}`
-              }
-            ]
-          }
+          const errors: FormSubmissionError[] = [
+            {
+              path: [],
+              href: '',
+              name: '',
+              text: `You can only add up to ${schema.max} ${options.title}${schema.max === 1 ? '' : 's'}`
+            }
+          ]
 
           const viewModel = this.getListSummaryViewModel(request, list, errors)
 
@@ -329,7 +326,7 @@ export class RepeatPageController extends PageController {
   getViewModel(
     request: FormRequest | FormRequestPayload,
     payload: FormPayload,
-    errors?: FormSubmissionErrors
+    errors?: FormSubmissionError[]
   ): PageViewModel {
     const viewModel = super.getViewModel(request, payload, errors)
     const { list, item } = this.getRepeatAppData(request)
@@ -346,14 +343,14 @@ export class RepeatPageController extends PageController {
   getListSummaryViewModel(
     request: FormRequest | FormRequestPayload,
     state: RepeatState[],
-    errors?: FormSubmissionErrors
+    errors?: FormSubmissionError[]
   ): {
     name: string | undefined
     pageTitle: string
     sectionTitle: string | undefined
     showTitle: boolean
     serviceUrl: string
-    errors?: FormSubmissionErrors
+    errors?: FormSubmissionError[]
     rows: Row[]
     repeatTitle: string
     backLink?: string
