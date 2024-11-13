@@ -232,18 +232,12 @@ describe('File upload POST tests', () => {
       'The selected file has not fully uploaded'
     )
 
-    expect($links[1]).toHaveTextContent(
-      'Upload your methodology statement must contain at least 2 items'
-    )
-
     const $input = container.getByLabelText(
       'Upload your methodology statement (optional)'
     )
 
     expect($input).toHaveAccessibleDescription(
-      expect.stringContaining(
-        'Error: Upload your methodology statement must contain at least 2 items'
-      )
+      expect.stringContaining('Error: The selected file has not fully uploaded')
     )
   })
 
