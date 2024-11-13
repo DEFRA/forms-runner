@@ -51,19 +51,9 @@ describe('PageControllerBase', () => {
   })
 
   describe('Form validation', () => {
-    it('includes title text', () => {
-      const result = controller.validateForm({})
-
-      expect(result.errors).toEqual(
-        expect.objectContaining({
-          titleText: 'There is a problem'
-        })
-      )
-    })
-
     it('includes all field errors', () => {
-      const result = controller.validateForm({})
-      expect(result.errors?.errorList).toHaveLength(4)
+      const result = controller.components.validate()
+      expect(result.errors).toHaveLength(4)
     })
   })
 })

@@ -5,7 +5,7 @@ import { FormComponent } from '~/src/server/plugins/engine/components/FormCompon
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
-  type FormSubmissionErrors
+  type FormSubmissionError
 } from '~/src/server/plugins/engine/types.js'
 
 export class EmailAddressField extends FormComponent {
@@ -42,7 +42,7 @@ export class EmailAddressField extends FormComponent {
     this.options = options
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
     const viewModel = super.getViewModel(payload, errors)
     const { attributes } = viewModel
 

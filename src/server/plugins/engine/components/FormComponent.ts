@@ -8,7 +8,7 @@ import {
   type FormPayload,
   type FormState,
   type FormStateValue,
-  type FormSubmissionErrors,
+  type FormSubmissionError,
   type FormSubmissionState,
   type FormValue
 } from '~/src/server/plugins/engine/types.js'
@@ -68,7 +68,7 @@ export class FormComponent extends ComponentBase {
     }
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
     const { hint, name, options = {}, title } = this
 
     const viewModel = super.getViewModel(payload, errors)
@@ -83,10 +83,10 @@ export class FormComponent extends ComponentBase {
       }
     }
 
-    errors?.errorList.forEach((err) => {
-      if (err.name === name || err.path.includes(name)) {
+    errors?.forEach((error) => {
+      if (error.name === name || error.path.includes(name)) {
         viewModel.errorMessage = {
-          text: err.text
+          text: error.text
         }
       }
     })

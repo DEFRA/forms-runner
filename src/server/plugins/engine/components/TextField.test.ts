@@ -7,7 +7,6 @@ import {
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
 describe('TextField', () => {
@@ -87,44 +86,37 @@ describe('TextField', () => {
           expect.objectContaining({ allow: [''] })
         )
 
-        const result = formSchema.validate(getFormData(''), opts)
-        expect(result.error).toBeUndefined()
+        const result = collectionOptional.validate(getFormData(''))
+        expect(result.errors).toBeUndefined()
       })
 
       it('accepts valid values', () => {
-        const { formSchema } = collection
+        const result1 = collection.validate(getFormData('Text'))
+        const result2 = collection.validate(getFormData('Text field'))
 
-        const result1 = formSchema.validate(getFormData('Text'), opts)
-        const result2 = formSchema.validate(getFormData('Text field'), opts)
-
-        expect(result1.error).toBeUndefined()
-        expect(result2.error).toBeUndefined()
+        expect(result1.errors).toBeUndefined()
+        expect(result2.errors).toBeUndefined()
       })
 
       it('adds errors for empty value', () => {
-        const { formSchema } = collection
+        const result = collection.validate(getFormData(''))
 
-        const result = formSchema.validate(getFormData(''), opts)
-
-        expect(result.error).toEqual(
+        expect(result.errors).toEqual([
           expect.objectContaining({
-            message: 'Enter example text field'
+            text: 'Enter example text field'
           })
-        )
+        ])
       })
 
       it('adds errors for invalid values', () => {
-        const { formSchema } = collection
-
-        const result1 = formSchema.validate(getFormData(['invalid']), opts)
-        const result2 = formSchema.validate(
+        const result1 = collection.validate(getFormData(['invalid']))
+        const result2 = collection.validate(
           // @ts-expect-error - Allow invalid param for test
-          getFormData({ unknown: 'invalid' }),
-          opts
+          getFormData({ unknown: 'invalid' })
         )
 
-        expect(result1.error).toBeTruthy()
-        expect(result2.error).toBeTruthy()
+        expect(result1.errors).toBeTruthy()
+        expect(result2.errors).toBeTruthy()
       })
     })
 
@@ -233,18 +225,22 @@ describe('TextField', () => {
             input: getFormData('Text'),
             output: {
               value: getFormData('Text'),
-              error: new Error(
-                'example text field must be 5 characters or more'
-              )
+              errors: [
+                expect.objectContaining({
+                  text: 'Example text field must be 5 characters or more'
+                })
+              ]
             }
           },
           {
             input: getFormData('Text field'),
             output: {
               value: getFormData('Text field'),
-              error: new Error(
-                'example text field must be 8 characters or less'
-              )
+              errors: [
+                expect.objectContaining({
+                  text: 'Example text field must be 8 characters or less'
+                })
+              ]
             }
           }
         ]
@@ -269,9 +265,11 @@ describe('TextField', () => {
             input: getFormData('Text field'),
             output: {
               value: getFormData('Text field'),
-              error: new Error(
-                'example text field length must be 4 characters long'
-              )
+              errors: [
+                expect.objectContaining({
+                  text: 'Example text field length must be 4 characters long'
+                })
+              ]
             }
           }
         ]
@@ -292,7 +290,11 @@ describe('TextField', () => {
             input: getFormData('SW1P'),
             output: {
               value: getFormData('SW1P'),
-              error: new Error('Enter a valid example text field')
+              errors: [
+                expect.objectContaining({
+                  text: 'Enter a valid example text field'
+                })
+              ]
             }
           },
           {
@@ -317,7 +319,11 @@ describe('TextField', () => {
             input: getFormData(''),
             output: {
               value: getFormData(''),
-              error: new Error('This is a custom error')
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom error'
+                })
+              ]
             }
           }
         ]
@@ -350,9 +356,7 @@ describe('TextField', () => {
       it.each([...assertions])(
         'validates custom example',
         ({ input, output }) => {
-          const { formSchema } = collection
-
-          const result = formSchema.validate(input, opts)
+          const result = collection.validate(input)
           expect(result).toEqual(output)
         }
       )

@@ -119,7 +119,7 @@ export class FormModel {
     let schema = joi.object<FormSubmissionState>().required()
 
     relevantPages.forEach((page) => {
-      schema = schema.concat(page.stateSchema)
+      schema = schema.concat(page.components.stateSchema)
     })
 
     return schema

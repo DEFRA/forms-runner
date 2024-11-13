@@ -26,7 +26,6 @@ import {
   type FileUploadPageViewModel,
   type FormPayload,
   type FormSubmissionError,
-  type FormSubmissionErrors,
   type TempFileState,
   type UploadState,
   type UploadStatusResponse
@@ -151,20 +150,20 @@ export class FileUploadPageController extends PageController {
   }
 
   getErrors(details?: ValidationErrorItem[]) {
-    if (details?.length) {
-      const errorList: FormSubmissionError[] = []
+    if (details) {
+      const errors: FormSubmissionError[] = []
       const componentName = this.getComponentName()
 
-      details.forEach((err) => {
-        const isUploadError = err.path[0] === componentName
-        const isUploadRootError = isUploadError && err.path.length === 1
+      details.forEach((error) => {
+        const isUploadError = error.path[0] === componentName
+        const isUploadRootError = isUploadError && error.path.length === 1
 
         if (!isUploadError || isUploadRootError) {
           // The error is for the root of the upload or another
           // field on the page so defer to the getError helper
-          errorList.push(getError(err))
+          errors.push(getError(error))
         } else {
-          const { context, path, type } = err
+          const { context, path, type } = error
 
           const formatter = (name: string | number, index: number) =>
             index > 0 ? `__${name}` : name
@@ -177,23 +176,20 @@ export class FileUploadPageController extends PageController {
               const text = typeof value === 'string' ? value : 'Unknown error'
               const href = `#${path.slice(0, 2).map(formatter).join('')}`
 
-              errorList.push({ path, href, name, text })
+              errors.push({ path, href, name, text })
             }
           }
         }
       })
 
-      return {
-        titleText: this.errorSummaryTitle,
-        errorList
-      }
+      return errors
     }
   }
 
   getViewModel(
     request: FormRequest | FormRequestPayload,
     payload: FormPayload,
-    errors?: FormSubmissionErrors
+    errors?: FormSubmissionError[]
   ) {
     const viewModel = super.getViewModel(request, payload, errors)
 

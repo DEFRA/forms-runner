@@ -9,7 +9,6 @@ import { ComponentCollection } from '~/src/server/plugins/engine/components/Comp
 import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
 import { type DateInputItem } from '~/src/server/plugins/engine/components/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormPayload,
   type FormState
@@ -109,91 +108,86 @@ describe('MonthYearField', () => {
         )
 
         // Empty optional payload (valid)
-        const result1 = formSchema.validate(
+        const result1 = collectionOptional.validate(
           getFormData({
             month: '',
             year: ''
-          }),
-          opts
+          })
         )
 
         // Partial optional payload (invalid)
-        const result2 = formSchema.validate(
+        const result2 = collectionOptional.validate(
           getFormData({
             month: '12',
             year: ''
-          }),
-          opts
-        )
-
-        expect(result1.error).toBeUndefined()
-        expect(result2.error).toEqual(
-          expect.objectContaining({
-            message: 'Example month/year field must include a year'
           })
         )
+
+        expect(result1.errors).toBeUndefined()
+        expect(result2.errors).toEqual([
+          expect.objectContaining({
+            text: 'Example month/year field must include a year'
+          })
+        ])
       })
 
       it('accepts valid values', () => {
-        const { formSchema } = collection
-
-        const result1 = formSchema.validate(
+        const result1 = collection.validate(
           getFormData({
             month: '12',
             year: '2024'
-          }),
-          opts
+          })
         )
 
-        const result2 = formSchema.validate(
+        const result2 = collection.validate(
           getFormData({
             month: '2',
             year: '2024'
-          }),
-          opts
+          })
         )
 
-        expect(result1.error).toBeUndefined()
-        expect(result2.error).toBeUndefined()
+        expect(result1.errors).toBeUndefined()
+        expect(result2.errors).toBeUndefined()
       })
 
       it('adds errors for empty value', () => {
-        const { formSchema } = collection
-
-        const result = formSchema.validate(
+        const result = collection.validate(
           getFormData({
             month: '',
             year: ''
-          }),
-          opts
-        )
-
-        expect(result.error).toEqual(
-          expect.objectContaining({
-            message: [
-              'Example month/year field must include a month',
-              'Example month/year field must include a year'
-            ].join('. ')
           })
         )
+
+        expect(result.errors).toEqual([
+          expect.objectContaining({
+            text: 'Example month/year field must include a month'
+          }),
+          expect.objectContaining({
+            text: 'Example month/year field must include a year'
+          })
+        ])
       })
 
       it('adds errors for invalid values', () => {
-        const { formSchema } = collection
+        const result1 = collection.validate(getFormData({ unknown: 'invalid' }))
 
-        const result1 = formSchema.validate(['invalid'], opts)
-        const result2 = formSchema.validate({ unknown: 'invalid' }, opts)
-        const result3 = formSchema.validate(
+        const result2 = collection.validate(
+          getFormData({
+            month: ['invalid'],
+            year: ['invalid']
+          })
+        )
+
+        const result3 = collection.validate(
           getFormData({
             month: 'invalid',
             year: 'invalid'
-          }),
-          opts
+          })
         )
 
-        expect(result1.error).toBeTruthy()
-        expect(result2.error).toBeTruthy()
-        expect(result3.error).toBeTruthy()
+        expect(result1.errors).toBeTruthy()
+        expect(result2.errors).toBeTruthy()
+        expect(result3.errors).toBeTruthy()
       })
     })
 
@@ -381,12 +375,14 @@ describe('MonthYearField', () => {
                 month: 1.2,
                 year: 2001.3
               }),
-              error: new Error(
-                [
-                  'Example month/year field must include a month',
-                  'Example month/year field must include a year'
-                ].join('. ')
-              )
+              errors: [
+                expect.objectContaining({
+                  text: 'Example month/year field must include a month'
+                }),
+                expect.objectContaining({
+                  text: 'Example month/year field must include a year'
+                })
+              ]
             }
           }
         ]
@@ -410,7 +406,11 @@ describe('MonthYearField', () => {
                 month: 13,
                 year: 2024
               }),
-              error: new Error('Example month/year field must include a month')
+              errors: [
+                expect.objectContaining({
+                  text: 'Example month/year field must include a month'
+                })
+              ]
             }
           },
           {
@@ -423,7 +423,11 @@ describe('MonthYearField', () => {
                 month: 1,
                 year: 999
               }),
-              error: new Error('Example month/year field must include a year')
+              errors: [
+                expect.objectContaining({
+                  text: 'Example month/year field must include a year'
+                })
+              ]
             }
           }
         ]
@@ -463,9 +467,7 @@ describe('MonthYearField', () => {
       it.each([...assertions])(
         'validates custom example',
         ({ input, output }) => {
-          const { formSchema } = collection
-
-          const result = formSchema.validate(input, opts)
+          const result = collection.validate(input)
           expect(result).toEqual(output)
         }
       )

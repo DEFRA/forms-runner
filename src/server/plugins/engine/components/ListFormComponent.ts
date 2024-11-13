@@ -20,7 +20,7 @@ import {
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
-  type FormSubmissionErrors,
+  type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 
@@ -114,7 +114,7 @@ export class ListFormComponent extends FormComponent {
       .join(', ')
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
     const { items: listItems } = this
 
     const viewModel = super.getViewModel(payload, errors)

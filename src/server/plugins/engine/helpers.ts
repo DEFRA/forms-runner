@@ -7,10 +7,7 @@ import upperFirst from 'lodash/upperFirst.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { RelativeUrl } from '~/src/server/plugins/engine/feedback/index.js'
-import {
-  type FormSubmissionError,
-  type FormSubmissionErrors
-} from '~/src/server/plugins/engine/types.js'
+import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
 import {
   type FormQuery,
@@ -131,17 +128,13 @@ export function checkEmailAddressForLiveFormSubmission(
  * @param [details] - provided by {@link Schema.validate}
  */
 export function getErrors(
-  details?: ValidationErrorItem[],
-  titleText?: string
-): FormSubmissionErrors | undefined {
+  details?: ValidationErrorItem[]
+): FormSubmissionError[] | undefined {
   if (!details?.length) {
     return
   }
 
-  return {
-    titleText: titleText ?? 'There is a problem',
-    errorList: details.map(getError)
-  }
+  return details.map(getError)
 }
 
 export function getError(detail: ValidationErrorItem): FormSubmissionError {

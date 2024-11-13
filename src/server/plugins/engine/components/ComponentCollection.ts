@@ -18,15 +18,20 @@ import {
   type FormComponentFieldClass
 } from '~/src/server/plugins/engine/components/helpers.js'
 import { type ComponentViewModel } from '~/src/server/plugins/engine/components/types.js'
+import { getErrors } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
+import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormPayload,
   type FormState,
-  type FormSubmissionErrors,
-  type FormSubmissionState
+  type FormSubmissionError,
+  type FormSubmissionState,
+  type FormValidationResult
 } from '~/src/server/plugins/engine/types.js'
 
 export class ComponentCollection {
+  page?: PageControllerClass
   parent?: ComponentFieldClass
 
   items: ComponentFieldClass[]
@@ -37,6 +42,7 @@ export class ComponentCollection {
   constructor(
     componentDefs: ComponentDef[],
     options: {
+      page?: PageControllerClass
       parent?: ComponentFieldClass
       model: FormModel
     },
@@ -125,6 +131,7 @@ export class ComponentCollection {
       formSchema = formSchema.custom(schema.custom)
     }
 
+    this.page = options.page
     this.parent = options.parent
 
     this.items = items
@@ -173,7 +180,7 @@ export class ComponentCollection {
 
   getViewModel(
     payload: FormPayload,
-    errors?: FormSubmissionErrors,
+    errors?: FormSubmissionError[],
     conditions?: FormModel['conditions']
   ) {
     const { items } = this
@@ -195,6 +202,36 @@ export class ComponentCollection {
     }
 
     return result
+  }
+
+  /**
+   * Validate form state only
+   * @param value - answers via POST payload
+   * @param value - answers via Redis state
+   */
+  validate(payload?: FormPayload): FormValidationResult<FormPayload>
+
+  /**
+   * Validate form payload only
+   * @param value - answers via Redis state
+   * @param schema - field name for state schema
+   */
+  validate(
+    state: FormSubmissionState,
+    schema: 'stateSchema'
+  ): FormValidationResult<FormSubmissionState>
+
+  validate(
+    value: FormPayload | FormSubmissionState = {},
+    schema: 'formSchema' | 'stateSchema' = 'formSchema'
+  ): FormValidationResult<typeof value> {
+    const result = this[schema].validate(value, opts)
+    const details = result.error?.details
+
+    return {
+      value: (result.value ?? {}) as typeof value,
+      errors: this.page?.getErrors(details) ?? getErrors(details)
+    }
   }
 
   /**

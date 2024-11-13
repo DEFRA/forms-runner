@@ -8,7 +8,6 @@ import { ComponentCollection } from '~/src/server/plugins/engine/components/Comp
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
 import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
 describe('NumberField', () => {
@@ -88,48 +87,47 @@ describe('NumberField', () => {
           expect.objectContaining({ allow: [''] })
         )
 
-        const result = formSchema.validate(getFormData(''), opts)
-        expect(result.error).toBeUndefined()
+        const result = collectionOptional.validate(getFormData(''))
+        expect(result.errors).toBeUndefined()
       })
 
       it('accepts valid values', () => {
-        const { formSchema } = collection
+        const result1 = collection.validate(getFormData('1'))
+        const result2 = collection.validate(getFormData('10'))
+        const result3 = collection.validate(getFormData('2024'))
+        const result4 = collection.validate(getFormData(' 2020'))
 
-        const result1 = formSchema.validate(getFormData('1'), opts)
-        const result2 = formSchema.validate(getFormData('10'), opts)
-        const result3 = formSchema.validate(getFormData('2024'), opts)
-        const result4 = formSchema.validate(getFormData(' 2020'), opts)
-
-        expect(result1.error).toBeUndefined()
-        expect(result2.error).toBeUndefined()
-        expect(result3.error).toBeUndefined()
-        expect(result4.error).toBeUndefined()
+        expect(result1.errors).toBeUndefined()
+        expect(result2.errors).toBeUndefined()
+        expect(result3.errors).toBeUndefined()
+        expect(result4.errors).toBeUndefined()
       })
 
       it('adds errors for empty value', () => {
-        const { formSchema } = collection
+        const result = collection.validate(getFormData(''))
 
-        const result = formSchema.validate(getFormData(''), opts)
-
-        expect(result.error).toEqual(
+        expect(result.errors).toEqual([
           expect.objectContaining({
-            message: 'Enter example number field'
+            text: 'Enter example number field'
           })
-        )
+        ])
+
+        expect(result.errors).toEqual([
+          expect.objectContaining({
+            text: 'Enter example number field'
+          })
+        ])
       })
 
       it('adds errors for invalid values', () => {
-        const { formSchema } = collection
-
-        const result1 = formSchema.validate(getFormData(['invalid']), opts)
-        const result2 = formSchema.validate(
+        const result1 = collection.validate(getFormData(['invalid']))
+        const result2 = collection.validate(
           // @ts-expect-error - Allow invalid param for test
-          getFormData({ unknown: 'invalid' }),
-          opts
+          getFormData({ unknown: 'invalid' })
         )
 
-        expect(result1.error).toBeTruthy()
-        expect(result2.error).toBeTruthy()
+        expect(result1.errors).toBeTruthy()
+        expect(result2.errors).toBeTruthy()
       })
     })
 
@@ -286,14 +284,22 @@ describe('NumberField', () => {
             input: getFormData('Not a number'),
             output: {
               value: getFormData('Not a number'),
-              error: new Error('example number field must be a number')
+              errors: [
+                expect.objectContaining({
+                  text: 'Example number field must be a number'
+                })
+              ]
             }
           },
           {
             input: getFormData('£99.99'),
             output: {
               value: getFormData('£99.99'),
-              error: new Error('example number field must be a number')
+              errors: [
+                expect.objectContaining({
+                  text: 'Example number field must be a number'
+                })
+              ]
             }
           },
           {
@@ -322,7 +328,11 @@ describe('NumberField', () => {
             input: getFormData('3.14159'),
             output: {
               value: getFormData(3.14159),
-              error: new Error('example number field must be a whole number')
+              errors: [
+                expect.objectContaining({
+                  text: 'Example number field must be a whole number'
+                })
+              ]
             }
           },
           {
@@ -347,7 +357,11 @@ describe('NumberField', () => {
             input: getFormData('3.14159'),
             output: {
               value: getFormData(3.14159),
-              error: new Error('example number field must be a whole number')
+              errors: [
+                expect.objectContaining({
+                  text: 'Example number field must be a whole number'
+                })
+              ]
             }
           },
           {
@@ -372,9 +386,11 @@ describe('NumberField', () => {
             input: getFormData('3.14159'),
             output: {
               value: getFormData(3.14159),
-              error: new Error(
-                'example number field must have 1 or fewer decimal places'
-              )
+              errors: [
+                expect.objectContaining({
+                  text: 'Example number field must have 1 or fewer decimal places'
+                })
+              ]
             }
           },
           {
@@ -399,9 +415,11 @@ describe('NumberField', () => {
             input: getFormData('3.14159'),
             output: {
               value: getFormData(3.14159),
-              error: new Error(
-                'example number field must have 2 or fewer decimal places'
-              )
+              errors: [
+                expect.objectContaining({
+                  text: 'Example number field must have 2 or fewer decimal places'
+                })
+              ]
             }
           },
           {
@@ -430,9 +448,11 @@ describe('NumberField', () => {
             input: getFormData('64811494532973582'),
             output: {
               value: getFormData(64811494532973580),
-              error: new Error(
-                'Enter example number field in the correct format'
-              )
+              errors: [
+                expect.objectContaining({
+                  text: 'Enter example number field in the correct format'
+                })
+              ]
             }
           },
           {
@@ -462,14 +482,22 @@ describe('NumberField', () => {
             input: getFormData('4'),
             output: {
               value: getFormData(4),
-              error: new Error('example number field must be 5 or higher')
+              errors: [
+                expect.objectContaining({
+                  text: 'Example number field must be 5 or higher'
+                })
+              ]
             }
           },
           {
             input: getFormData('10'),
             output: {
               value: getFormData(10),
-              error: new Error('example number field must be 8 or lower')
+              errors: [
+                expect.objectContaining({
+                  text: 'Example number field must be 8 or lower'
+                })
+              ]
             }
           }
         ]
@@ -490,7 +518,9 @@ describe('NumberField', () => {
             input: getFormData('invalid'),
             output: {
               value: getFormData('invalid'),
-              error: new Error('This is a custom error')
+              errors: [
+                expect.objectContaining({ text: 'This is a custom error' })
+              ]
             }
           }
         ]
@@ -513,7 +543,9 @@ describe('NumberField', () => {
             input: getFormData('3.14159'),
             output: {
               value: getFormData(3.14159),
-              error: new Error('This is a custom error')
+              errors: [
+                expect.objectContaining({ text: 'This is a custom error' })
+              ]
             }
           }
         ]
@@ -546,9 +578,7 @@ describe('NumberField', () => {
       it.each([...assertions])(
         'validates custom example',
         ({ input, output }) => {
-          const { formSchema } = collection
-
-          const result = formSchema.validate(input, opts)
+          const result = collection.validate(input)
           expect(result).toEqual(output)
         }
       )

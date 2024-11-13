@@ -11,7 +11,7 @@ import {
   type FormPayload,
   type FormState,
   type FormStateValue,
-  type FormSubmissionErrors,
+  type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 
@@ -76,7 +76,7 @@ export class NumberField extends FormComponent {
     return this.isValue(value) ? value : undefined
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
     const { options, schema } = this
 
     const viewModel = super.getViewModel(payload, errors)

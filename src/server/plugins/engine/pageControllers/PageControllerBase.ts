@@ -16,11 +16,7 @@ import {
   type ServerRoute
 } from '@hapi/hapi'
 import { merge } from '@hapi/hoek'
-import joi, {
-  type ObjectSchema,
-  type Schema,
-  type ValidationErrorItem
-} from 'joi'
+import joi, { type ValidationErrorItem } from 'joi'
 
 import { config } from '~/src/config/index.js'
 import { CheckboxesField } from '~/src/server/plugins/engine/components/CheckboxesField.js'
@@ -36,15 +32,13 @@ import {
 } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
-import { validationOptions } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
   type FormPayload,
   type FormState,
   type FormStateValue,
-  type FormSubmissionErrors,
+  type FormSubmissionError,
   type FormSubmissionState,
-  type FormValidationResult,
   type PageViewModel
 } from '~/src/server/plugins/engine/types.js'
 import {
@@ -55,15 +49,9 @@ import {
 } from '~/src/server/routes/types.js'
 import { type CacheService } from '~/src/server/services/index.js'
 
-const FORM_SCHEMA = Symbol('FORM_SCHEMA')
-const STATE_SCHEMA = Symbol('STATE_SCHEMA')
-
 const designerUrl = config.get('designerUrl')
 
 export class PageControllerBase {
-  declare [FORM_SCHEMA]: ObjectSchema<FormPayload>;
-  declare [STATE_SCHEMA]: ObjectSchema<FormSubmissionState>
-
   /**
    * The base class for all page controllers. Page controllers are responsible for generating the get and post route handlers when a user navigates to `/{id}/{path*}`.
    */
@@ -77,7 +65,6 @@ export class PageControllerBase {
   section?: Section
   components: ComponentCollection
   hasFormComponents: boolean
-  errorSummaryTitle = 'There is a problem'
   viewName = 'index'
 
   constructor(model: FormModel, pageDef: Page) {
@@ -96,16 +83,16 @@ export class PageControllerBase {
     )
 
     // Components collection
-    const components = hasComponents(pageDef) ? pageDef.components : []
+    this.components = new ComponentCollection(
+      hasComponents(pageDef) ? pageDef.components : [],
+      { model, page: this }
+    )
 
-    this.components = new ComponentCollection(components, { model })
-    this.hasFormComponents = !!this.components.formItems.length
-
-    this[FORM_SCHEMA] = this.components.formSchema.keys({
+    this.components.formSchema = this.components.formSchema.keys({
       crumb: joi.string().optional().allow('')
     })
 
-    this[STATE_SCHEMA] = this.components.stateSchema
+    this.hasFormComponents = !!this.components.formItems.length
   }
 
   /**
@@ -117,7 +104,7 @@ export class PageControllerBase {
   getViewModel(
     request: FormRequest | FormRequestPayload,
     payload: FormPayload,
-    errors?: FormSubmissionErrors
+    errors?: FormSubmissionError[]
   ): PageViewModel {
     let showTitle = true
 
@@ -261,43 +248,8 @@ export class PageControllerBase {
     return this.components.getStateFromValidForm(payload)
   }
 
-  /**
-   * Parses the errors from {@link Schema.validate} so they can be rendered by govuk-frontend templates
-   * @param [details] - provided by {@link Schema.validate}
-   */
   getErrors(details?: ValidationErrorItem[]) {
-    return getErrors(details, this.errorSummaryTitle)
-  }
-
-  /**
-   * Runs {@link Schema.validate}
-   * @param value - user's answers
-   * @param schema - which schema to validate against
-   */
-  validate<ValueType extends FormPayload | FormSubmissionState>(
-    value: ValueType,
-    schema: ObjectSchema<ValueType>
-  ): FormValidationResult<ValueType> {
-    const result = schema.validate(value, this.validationOptions)
-
-    if (result.error) {
-      return {
-        value: result.value,
-        errors: this.getErrors(result.error.details)
-      }
-    }
-
-    return {
-      value: result.value
-    }
-  }
-
-  validateForm(payload: FormPayload) {
-    return this.validate(payload, this.formSchema)
-  }
-
-  validateState(newState: FormSubmissionState) {
-    return this.validate(newState, this.stateSchema)
+    return getErrors(details)
   }
 
   /**
@@ -531,13 +483,13 @@ export class PageControllerBase {
   ) => Promise<ResponseObject | Boom> {
     return async (request, h) => {
       const formPayload = this.getPayload(request)
-      const formResult = this.validateForm(formPayload)
+      const formResult = this.components.validate(formPayload)
 
       let state = await this.getState(request)
       const progress = state.progress ?? []
 
       // Sanitised payload after validation
-      const payload = formResult.value ?? {}
+      const payload = formResult.value
 
       /**
        * If there are any errors, render the page with the parsed errors
@@ -553,8 +505,10 @@ export class PageControllerBase {
         )
       }
 
-      const newState = this.getStateFromValidForm(request, payload)
-      const stateResult = this.validateState(newState)
+      const stateResult = this.components.validate(
+        this.getStateFromValidForm(request, payload),
+        'stateSchema'
+      )
 
       if (stateResult.errors) {
         return this.renderWithErrors(
@@ -566,9 +520,7 @@ export class PageControllerBase {
         )
       }
 
-      if (stateResult.value) {
-        state = await this.setState(request, stateResult.value)
-      }
+      state = await this.setState(request, stateResult.value)
 
       // This is required to ensure we don't navigate
       // to an incorrect page based on stale state values
@@ -640,10 +592,6 @@ export class PageControllerBase {
     return `/${this.model.basePath || ''}/summary`
   }
 
-  get validationOptions() {
-    return validationOptions
-  }
-
   /**
    * {@link https://hapi.dev/api/?v=20.1.2#route-options}
    */
@@ -658,22 +606,6 @@ export class PageControllerBase {
     return {}
   }
 
-  get formSchema() {
-    return this[FORM_SCHEMA]
-  }
-
-  set formSchema(value) {
-    this[FORM_SCHEMA] = value
-  }
-
-  get stateSchema() {
-    return this[STATE_SCHEMA]
-  }
-
-  set stateSchema(value) {
-    this[STATE_SCHEMA] = value
-  }
-
   protected renderWithErrors(
     request: FormRequest | FormRequestPayload,
     h:
@@ -681,7 +613,7 @@ export class PageControllerBase {
       | ResponseToolkit<FormRequestPayloadRefs>,
     payload: FormPayload,
     progress: string[],
-    errors?: FormSubmissionErrors
+    errors?: FormSubmissionError[]
   ) {
     const viewModel = this.getViewModel(request, payload, errors)
 

@@ -14,7 +14,7 @@ import {
   type FormPayload,
   type FormState,
   type FormStateValue,
-  type FormSubmissionErrors,
+  type FormSubmissionError,
   type FormSubmissionState,
   type UploadState,
   type UploadStatusResponse
@@ -147,7 +147,7 @@ export class FileUploadField extends FormComponent {
     return `You uploaded ${count} file${count !== 1 ? 's' : ''}`
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
     const { options } = this
 
     const viewModel = super.getViewModel(payload, errors)

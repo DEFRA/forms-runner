@@ -7,7 +7,6 @@ import {
 
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { FileUploadPageController } from '~/src/server/plugins/engine/pageControllers/FileUploadPageController.js'
-import { type FormSubmissionErrors } from '~/src/server/plugins/engine/types.js'
 
 describe('FileUploadPageController', () => {
   const component1: ComponentDef = {
@@ -98,30 +97,25 @@ describe('FileUploadPageController', () => {
 
   describe('Form validation', () => {
     it('includes title text and error', () => {
-      const result = controller.validateForm({})
+      const result = controller.components.validate()
 
-      expect(result.errors).toEqual(
-        expect.objectContaining<FormSubmissionErrors>({
-          titleText: 'There is a problem',
-          errorList: [
-            {
-              path: ['fileUpload'],
-              href: '#fileUpload',
-              name: 'fileUpload',
-              text: 'Select methodology statement',
-              context: {
-                key: 'fileUpload',
-                label: 'methodology statement'
-              }
-            }
-          ]
-        })
-      )
+      expect(result.errors).toEqual([
+        {
+          path: ['fileUpload'],
+          href: '#fileUpload',
+          name: 'fileUpload',
+          text: 'Select methodology statement',
+          context: {
+            key: 'fileUpload',
+            label: 'methodology statement'
+          }
+        }
+      ])
     })
 
     it('includes all field errors', () => {
-      const result = controller.validateForm({})
-      expect(result.errors?.errorList).toHaveLength(1)
+      const result = controller.components.validate()
+      expect(result.errors).toHaveLength(1)
     })
   })
 })
