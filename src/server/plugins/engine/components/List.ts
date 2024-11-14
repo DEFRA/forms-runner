@@ -6,7 +6,6 @@ import {
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { type ListItem } from '~/src/server/plugins/engine/components/types.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
   type FormSubmissionError
@@ -21,10 +20,14 @@ export class List extends ComponentBase {
     return this.list?.items ?? []
   }
 
-  constructor(def: ListComponent, model: FormModel) {
-    super(def, model)
+  constructor(
+    def: ListComponent,
+    props: ConstructorParameters<typeof ComponentBase>[1]
+  ) {
+    super(def, props)
 
     const { hint, list, options } = def
+    const { model } = props
 
     this.hint = hint
     this.list = model.getList(list)

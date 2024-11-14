@@ -1,7 +1,6 @@
 import { type HtmlComponent } from '@defra/forms-model'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   type FormPayload,
   type FormSubmissionError
@@ -11,8 +10,11 @@ export class Html extends ComponentBase {
   declare options: HtmlComponent['options']
   content: HtmlComponent['content']
 
-  constructor(def: HtmlComponent, model: FormModel) {
-    super(def, model)
+  constructor(
+    def: HtmlComponent,
+    props: ConstructorParameters<typeof ComponentBase>[1]
+  ) {
+    super(def, props)
 
     const { content, options } = def
 

@@ -7,7 +7,6 @@ import {
   isFormState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
 import {
   type FormPayload,
@@ -19,13 +18,15 @@ import {
 
 export class UkAddressField extends FormComponent {
   declare options: UkAddressFieldComponent['options']
-  children: ComponentCollection
-
   declare formSchema: ObjectSchema<FormPayload>
   declare stateSchema: ObjectSchema<FormState>
+  declare collection: ComponentCollection
 
-  constructor(def: UkAddressFieldComponent, model: FormModel) {
-    super(def, model)
+  constructor(
+    def: UkAddressFieldComponent,
+    props: ConstructorParameters<typeof FormComponent>[1]
+  ) {
+    super(def, props)
 
     const { name, options } = def
 
@@ -33,7 +34,7 @@ export class UkAddressField extends FormComponent {
     const hideOptional = !!options.optionalText
     const hideTitle = !!options.hideTitle
 
-    this.children = new ComponentCollection(
+    this.collection = new ComponentCollection(
       [
         {
           type: ComponentType.TextField,
@@ -84,12 +85,12 @@ export class UkAddressField extends FormComponent {
           }
         }
       ],
-      { model, parent: this }
+      { ...props, parent: this }
     )
 
     this.options = options
-    this.formSchema = this.children.formSchema
-    this.stateSchema = this.children.stateSchema
+    this.formSchema = this.collection.formSchema
+    this.stateSchema = this.collection.stateSchema
   }
 
   getFormValueFromState(state: FormSubmissionState) {
@@ -104,10 +105,10 @@ export class UkAddressField extends FormComponent {
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
-    const { children: formChildren, name, options } = this
+    const { collection, name, options } = this
 
     const viewModel = super.getViewModel(payload, errors)
-    let { children, fieldset, hint, label } = viewModel
+    let { components, fieldset, hint, label } = viewModel
 
     fieldset ??= {
       legend: {
@@ -130,12 +131,12 @@ export class UkAddressField extends FormComponent {
       }
     }
 
-    children = formChildren.getViewModel(payload, errors)
+    components = collection.getViewModel(payload, errors)
 
     return {
       ...viewModel,
       fieldset,
-      children
+      components
     }
   }
 

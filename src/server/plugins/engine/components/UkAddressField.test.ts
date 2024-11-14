@@ -21,10 +21,10 @@ describe('UkAddressField', () => {
     conditions: []
   } satisfies FormDefinition
 
-  let formModel: FormModel
+  let model: FormModel
 
   beforeEach(() => {
-    formModel = new FormModel(definition, {
+    model = new FormModel(definition, {
       basePath: 'test'
     })
   })
@@ -42,8 +42,8 @@ describe('UkAddressField', () => {
         options: {}
       } satisfies UkAddressFieldComponent
 
-      collection = new ComponentCollection([def], { model: formModel })
-      component = collection.formItems[0]
+      collection = new ComponentCollection([def], { model })
+      component = collection.questions[0]
     })
 
     describe('Schema', () => {
@@ -92,9 +92,9 @@ describe('UkAddressField', () => {
           'myComponent__postcode'
         ])
 
-        expect(component.children?.keys).not.toHaveProperty('myComponent')
+        expect(component.collection?.keys).not.toHaveProperty('myComponent')
 
-        for (const key of component.children?.keys ?? []) {
+        for (const key of component.collection?.keys ?? []) {
           expect(keys).toHaveProperty(key)
         }
       })
@@ -143,7 +143,7 @@ describe('UkAddressField', () => {
               options: { required: false }
             }
           ],
-          { model: formModel }
+          { model }
         )
 
         const { formSchema } = collectionOptional
@@ -328,7 +328,7 @@ describe('UkAddressField', () => {
             name: 'myComponent',
             id: 'myComponent',
             value: undefined,
-            children: expect.arrayContaining([
+            components: expect.arrayContaining([
               expect.objectContaining({
                 model: getViewModel(address, 'addressLine1', {
                   label: { text: 'Address line 1' },
@@ -543,7 +543,7 @@ describe('UkAddressField', () => {
       let collection: ComponentCollection
 
       beforeEach(() => {
-        collection = new ComponentCollection([def], { model: formModel })
+        collection = new ComponentCollection([def], { model })
       })
 
       it.each([...assertions])(

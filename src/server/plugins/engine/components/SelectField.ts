@@ -4,7 +4,6 @@ import {
 } from '@defra/forms-model'
 
 import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   type FormPayload,
   type FormSubmissionError
@@ -17,9 +16,9 @@ export class SelectField extends ListFormComponent {
 
   constructor(
     def: SelectFieldComponent | AutocompleteFieldComponent,
-    model: FormModel
+    props: ConstructorParameters<typeof ListFormComponent>[1]
   ) {
-    super(def, model)
+    super(def, props)
 
     const { options } = def
     let { formSchema } = this

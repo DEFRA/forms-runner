@@ -17,10 +17,10 @@ describe('TextField', () => {
     conditions: []
   } satisfies FormDefinition
 
-  let formModel: FormModel
+  let model: FormModel
 
   beforeEach(() => {
-    formModel = new FormModel(definition, {
+    model = new FormModel(definition, {
       basePath: 'test'
     })
   })
@@ -39,8 +39,8 @@ describe('TextField', () => {
         schema: {}
       } satisfies TextFieldComponent
 
-      collection = new ComponentCollection([def], { model: formModel })
-      component = collection.formItems[0]
+      collection = new ComponentCollection([def], { model })
+      component = collection.questions[0]
     })
 
     describe('Schema', () => {
@@ -63,7 +63,7 @@ describe('TextField', () => {
         const { keys } = formSchema.describe()
 
         expect(component.keys).toEqual(['myComponent'])
-        expect(component.children).toBeUndefined()
+        expect(component.collection).toBeUndefined()
 
         for (const key of component.keys) {
           expect(keys).toHaveProperty(key)
@@ -87,7 +87,7 @@ describe('TextField', () => {
       it('is optional when configured', () => {
         const collectionOptional = new ComponentCollection(
           [{ ...def, options: { required: false } }],
-          { model: formModel }
+          { model }
         )
 
         const { formSchema } = collectionOptional
@@ -470,7 +470,7 @@ describe('TextField', () => {
       let collection: ComponentCollection
 
       beforeEach(() => {
-        collection = new ComponentCollection([def], { model: formModel })
+        collection = new ComponentCollection([def], { model })
       })
 
       it.each([...assertions])(

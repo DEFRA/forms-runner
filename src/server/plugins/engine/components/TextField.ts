@@ -8,7 +8,6 @@ import {
   FormComponent,
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormState,
   type FormStateValue,
@@ -27,9 +26,9 @@ export class TextField extends FormComponent {
 
   constructor(
     def: TextFieldComponent | EmailAddressFieldComponent,
-    model: FormModel
+    props: ConstructorParameters<typeof FormComponent>[1]
   ) {
-    super(def, model)
+    super(def, props)
 
     const { options, title } = def
     const schema = 'schema' in def ? def.schema : {}

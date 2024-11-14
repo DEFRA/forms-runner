@@ -18,10 +18,10 @@ describe('MultilineTextField', () => {
     conditions: []
   } satisfies FormDefinition
 
-  let formModel: FormModel
+  let model: FormModel
 
   beforeEach(() => {
-    formModel = new FormModel(definition, {
+    model = new FormModel(definition, {
       basePath: 'test'
     })
   })
@@ -40,8 +40,8 @@ describe('MultilineTextField', () => {
         schema: {}
       } satisfies MultilineTextFieldComponent
 
-      collection = new ComponentCollection([def], { model: formModel })
-      component = collection.formItems[0]
+      collection = new ComponentCollection([def], { model })
+      component = collection.questions[0]
     })
 
     describe('Schema', () => {
@@ -64,7 +64,7 @@ describe('MultilineTextField', () => {
         const { keys } = formSchema.describe()
 
         expect(component.keys).toEqual(['myComponent'])
-        expect(component.children).toBeUndefined()
+        expect(component.collection).toBeUndefined()
 
         for (const key of component.keys) {
           expect(keys).toHaveProperty(key)
@@ -88,7 +88,7 @@ describe('MultilineTextField', () => {
       it('is optional when configured', () => {
         const collectionOptional = new ComponentCollection(
           [{ ...def, options: { required: false } }],
-          { model: formModel }
+          { model }
         )
 
         const { formSchema } = collectionOptional
@@ -196,12 +196,12 @@ describe('MultilineTextField', () => {
       it('sets Nunjucks component isCharacterOrWordCount: true', () => {
         const componentCustom1 = new MultilineTextField(
           { ...def, options: { maxWords: 10 } },
-          formModel
+          { model }
         )
 
         const componentCustom2 = new MultilineTextField(
           { ...def, schema: { max: 10 } },
-          formModel
+          { model }
         )
 
         const viewModel = component.getViewModel(getFormData('Textarea'))
@@ -536,7 +536,7 @@ describe('MultilineTextField', () => {
       let collection: ComponentCollection
 
       beforeEach(() => {
-        collection = new ComponentCollection([def], { model: formModel })
+        collection = new ComponentCollection([def], { model })
       })
 
       it.each([...assertions])(

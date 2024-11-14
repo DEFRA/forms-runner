@@ -32,14 +32,15 @@ export class ComponentCollection {
   page?: PageControllerClass
   parent?: ComponentFieldClass
 
-  items: ComponentFieldClass[]
-  formItems: FormComponentFieldClass[]
+  components: ComponentFieldClass[]
+  questions: FormComponentFieldClass[]
+
   formSchema: ObjectSchema<FormPayload>
   stateSchema: ObjectSchema<FormSubmissionState>
 
   constructor(
-    componentDefs: ComponentDef[],
-    options: {
+    defs: ComponentDef[],
+    props: {
       page?: PageControllerClass
       parent?: ComponentFieldClass
       model: FormModel
@@ -62,33 +63,26 @@ export class ComponentCollection {
       messages?: LanguageMessages
     }
   ) {
-    const items = componentDefs.map((def) => {
-      const component = createComponentField(def, options.model)
+    const components = defs.map((def) => createComponentField(def, props))
 
-      if (!component) {
-        throw new Error(`Component type ${def.type} doesn't exist`)
-      }
-
-      return component
-    })
-
-    const formItems = items.filter(
-      (item): item is FormComponentFieldClass => item.isFormComponent
+    const questions = components.filter(
+      (component): component is FormComponentFieldClass =>
+        component.isFormComponent
     )
 
     let formSchema = joi.object<FormPayload>().required()
     let stateSchema = joi.object<FormSubmissionState>().required()
 
     // Add each field or concat collection
-    for (const field of formItems) {
-      const { children, name } = field
+    for (const field of questions) {
+      const { collection, name } = field
 
-      formSchema = children
-        ? formSchema.concat(children.formSchema)
+      formSchema = collection
+        ? formSchema.concat(collection.formSchema)
         : formSchema.keys({ [name]: field.formSchema })
 
-      stateSchema = children
-        ? stateSchema.concat(children.stateSchema)
+      stateSchema = collection
+        ? stateSchema.concat(collection.stateSchema)
         : stateSchema.keys({ [name]: field.stateSchema })
     }
 
@@ -112,12 +106,12 @@ export class ComponentCollection {
         }
 
         // Find the parent field
-        const parent = formItems.find(
+        const parent = questions.find(
           (item) => item.name === key?.split('__').shift()
         )
 
         // Find the child field
-        const child = (parent?.children?.formItems ?? formItems).find(
+        const child = (parent?.collection?.questions ?? questions).find(
           (item) => item.name === key
         )
 
@@ -149,24 +143,24 @@ export class ComponentCollection {
       formSchema = formSchema.custom(schema.custom)
     }
 
-    this.page = options.page
-    this.parent = options.parent
+    this.page = props.page
+    this.parent = props.parent
 
-    this.items = items
-    this.formItems = formItems
+    this.components = components
+    this.questions = questions
     this.formSchema = formSchema
     this.stateSchema = stateSchema
   }
 
   get keys() {
-    return this.formItems.map(({ name }) => name)
+    return this.questions.map(({ name }) => name)
   }
 
   getFormDataFromState(state: FormSubmissionState) {
     const payload: FormPayload = {}
 
-    this.formItems.forEach((item) => {
-      Object.assign(payload, item.getFormDataFromState(state))
+    this.questions.forEach((component) => {
+      Object.assign(payload, component.getFormDataFromState(state))
     })
 
     return payload
@@ -193,20 +187,20 @@ export class ComponentCollection {
   getStateFromValidForm(payload: FormPayload) {
     const state: FormState = {}
 
-    this.formItems.forEach((item) => {
-      Object.assign(state, item.getStateFromValidForm(payload))
+    this.questions.forEach((component) => {
+      Object.assign(state, component.getStateFromValidForm(payload))
     })
 
     return state
   }
 
   getErrors(errors?: FormSubmissionError[]): FormSubmissionError[] | undefined {
-    const { formItems } = this
+    const { questions } = this
 
     const list: FormSubmissionError[] = []
 
     // Add only one error per field
-    for (const field of formItems) {
+    for (const field of questions) {
       const error = field.getError(errors)
 
       if (error) {
@@ -226,13 +220,13 @@ export class ComponentCollection {
     errors?: FormSubmissionError[],
     conditions?: FormModel['conditions']
   ) {
-    const { items } = this
+    const { components } = this
 
-    const result: ComponentViewModel[] = items.map((item) => {
+    const result: ComponentViewModel[] = components.map((component) => {
       return {
-        type: item.type,
-        isFormComponent: item.isFormComponent,
-        model: item.getViewModel(payload, errors)
+        type: component.type,
+        isFormComponent: component.isFormComponent,
+        model: component.getViewModel(payload, errors)
       }
     })
 

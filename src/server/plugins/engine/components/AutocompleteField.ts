@@ -1,7 +1,6 @@
 import { type AutocompleteFieldComponent } from '@defra/forms-model'
 
 import { SelectField } from '~/src/server/plugins/engine/components/SelectField.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormPayload,
@@ -11,8 +10,11 @@ import {
 export class AutocompleteField extends SelectField {
   declare options: AutocompleteFieldComponent['options']
 
-  constructor(def: AutocompleteFieldComponent, model: FormModel) {
-    super(def, model)
+  constructor(
+    def: AutocompleteFieldComponent,
+    props: ConstructorParameters<typeof SelectField>[1]
+  ) {
+    super(def, props)
 
     const { options } = def
     let { formSchema } = this

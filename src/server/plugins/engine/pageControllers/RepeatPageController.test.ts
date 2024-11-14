@@ -29,7 +29,7 @@ describe('RepeatPageController', () => {
 
   let page: PageRepeat
   let definition: FormDefinition
-  let formModel: FormModel
+  let model: FormModel
   let controller: RepeatPageController
 
   beforeEach(() => {
@@ -52,17 +52,17 @@ describe('RepeatPageController', () => {
       conditions: []
     }
 
-    formModel = new FormModel(definition, {
+    model = new FormModel(definition, {
       basePath: 'test'
     })
 
-    controller = new RepeatPageController(formModel, page)
+    controller = new RepeatPageController(model, page)
   })
 
   describe('Constructor', () => {
     it('throws if page controller is not ControllerType.Repeat', () => {
       expect(() => {
-        const repeatController = new RepeatPageController(formModel, {
+        const repeatController = new RepeatPageController(model, {
           path: '/first-page',
           title: 'Pizza',
           components: [component1],
@@ -76,7 +76,7 @@ describe('RepeatPageController', () => {
 
   describe('Form validation', () => {
     it('includes title text and errors', () => {
-      const result = controller.components.validate()
+      const result = controller.collection.validate()
 
       expect(result.errors).toEqual<FormSubmissionError[]>([
         {
@@ -115,7 +115,7 @@ describe('RepeatPageController', () => {
     })
 
     it('includes all field errors', () => {
-      const result = controller.components.validate()
+      const result = controller.collection.validate()
       expect(result.errors).toHaveLength(3)
     })
   })

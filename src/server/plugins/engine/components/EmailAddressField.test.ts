@@ -17,10 +17,10 @@ describe('EmailAddressField', () => {
     conditions: []
   } satisfies FormDefinition
 
-  let formModel: FormModel
+  let model: FormModel
 
   beforeEach(() => {
-    formModel = new FormModel(definition, {
+    model = new FormModel(definition, {
       basePath: 'test'
     })
   })
@@ -38,8 +38,8 @@ describe('EmailAddressField', () => {
         options: {}
       } satisfies EmailAddressFieldComponent
 
-      collection = new ComponentCollection([def], { model: formModel })
-      component = collection.formItems[0]
+      collection = new ComponentCollection([def], { model })
+      component = collection.questions[0]
     })
 
     describe('Schema', () => {
@@ -62,7 +62,7 @@ describe('EmailAddressField', () => {
         const { keys } = formSchema.describe()
 
         expect(component.keys).toEqual(['myComponent'])
-        expect(component.children).toBeUndefined()
+        expect(component.collection).toBeUndefined()
 
         for (const key of component.keys) {
           expect(keys).toHaveProperty(key)
@@ -86,7 +86,7 @@ describe('EmailAddressField', () => {
       it('is optional when configured', () => {
         const collectionOptional = new ComponentCollection(
           [{ ...def, options: { required: false } }],
-          { model: formModel }
+          { model }
         )
 
         const { formSchema } = collectionOptional
@@ -373,7 +373,7 @@ describe('EmailAddressField', () => {
       let collection: ComponentCollection
 
       beforeEach(() => {
-        collection = new ComponentCollection([def], { model: formModel })
+        collection = new ComponentCollection([def], { model })
       })
 
       it.each([...assertions])(

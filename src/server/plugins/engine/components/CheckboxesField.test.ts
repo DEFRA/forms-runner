@@ -57,17 +57,17 @@ describe.each([
     conditions: []
   } satisfies FormDefinition
 
-  let formModel: FormModel
+  let model: FormModel
   let collection: ComponentCollection
   let component: FormComponentFieldClass
 
   beforeEach(() => {
-    formModel = new FormModel(definition, {
+    model = new FormModel(definition, {
       basePath: 'test'
     })
 
-    collection = new ComponentCollection([def], { model: formModel })
-    component = collection.formItems[0]
+    collection = new ComponentCollection([def], { model })
+    component = collection.questions[0]
   })
 
   describe('Defaults', () => {
@@ -89,7 +89,7 @@ describe.each([
         const { keys } = formSchema.describe()
 
         expect(component.keys).toEqual(['myComponent'])
-        expect(component.children).toBeUndefined()
+        expect(component.collection).toBeUndefined()
 
         for (const key of component.keys) {
           expect(keys).toHaveProperty(key)
@@ -113,7 +113,7 @@ describe.each([
       it('is optional when configured', () => {
         const collectionOptional = new ComponentCollection(
           [{ ...def, options: { required: false } }],
-          { model: formModel }
+          { model }
         )
 
         const { formSchema } = collectionOptional
@@ -350,11 +350,11 @@ describe.each([
           conditions: []
         } satisfies FormDefinition
 
-        const formModel = new FormModel(definitionNoList, {
+        const model = new FormModel(definitionNoList, {
           basePath: 'test'
         })
 
-        const { items } = new CheckboxesField(def, formModel)
+        const { items } = new CheckboxesField(def, { model })
         expect(items).toEqual([])
       })
     })

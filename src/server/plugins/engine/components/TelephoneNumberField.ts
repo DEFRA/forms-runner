@@ -3,7 +3,6 @@ import joi, { type StringSchema } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
   type FormSubmissionError
@@ -16,8 +15,11 @@ export class TelephoneNumberField extends FormComponent {
   declare formSchema: StringSchema
   declare stateSchema: StringSchema
 
-  constructor(def: TelephoneNumberFieldComponent, model: FormModel) {
-    super(def, model)
+  constructor(
+    def: TelephoneNumberFieldComponent,
+    props: ConstructorParameters<typeof FormComponent>[1]
+  ) {
+    super(def, props)
 
     const { options, title } = def
 

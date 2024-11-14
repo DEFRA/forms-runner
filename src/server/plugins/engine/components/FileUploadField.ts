@@ -4,7 +4,6 @@ import joi, { type ArraySchema } from 'joi'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { DataType } from '~/src/server/plugins/engine/components/types.js'
 import { filesize } from '~/src/server/plugins/engine/helpers.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   FileStatus,
   UploadStatus,
@@ -94,8 +93,11 @@ export class FileUploadField extends FormComponent {
 
   dataType: DataType = DataType.File
 
-  constructor(def: FileUploadFieldComponent, model: FormModel) {
-    super(def, model)
+  constructor(
+    def: FileUploadFieldComponent,
+    props: ConstructorParameters<typeof FormComponent>[1]
+  ) {
+    super(def, props)
 
     const { options, schema, title } = def
 

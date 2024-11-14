@@ -22,10 +22,10 @@ describe('DatePartsField', () => {
     conditions: []
   } satisfies FormDefinition
 
-  let formModel: FormModel
+  let model: FormModel
 
   beforeEach(() => {
-    formModel = new FormModel(definition, {
+    model = new FormModel(definition, {
       basePath: 'test'
     })
   })
@@ -43,8 +43,8 @@ describe('DatePartsField', () => {
         options: {}
       } satisfies DatePartsFieldComponent
 
-      collection = new ComponentCollection([def], { model: formModel })
-      component = collection.formItems[0]
+      collection = new ComponentCollection([def], { model })
+      component = collection.questions[0]
     })
 
     describe('Schema', () => {
@@ -85,9 +85,9 @@ describe('DatePartsField', () => {
           'myComponent__year'
         ])
 
-        expect(component.children?.keys).not.toHaveProperty('myComponent')
+        expect(component.collection?.keys).not.toHaveProperty('myComponent')
 
-        for (const key of component.children?.keys ?? []) {
+        for (const key of component.collection?.keys ?? []) {
           expect(keys).toHaveProperty(key)
         }
       })
@@ -128,7 +128,7 @@ describe('DatePartsField', () => {
               options: { required: false }
             }
           ],
-          { model: formModel }
+          { model }
         )
 
         const { formSchema } = collectionOptional
@@ -738,7 +738,7 @@ describe('DatePartsField', () => {
       let collection: ComponentCollection
 
       beforeEach(() => {
-        collection = new ComponentCollection([def], { model: formModel })
+        collection = new ComponentCollection([def], { model })
       })
 
       it.each([...assertions])(

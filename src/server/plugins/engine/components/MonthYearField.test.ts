@@ -22,10 +22,10 @@ describe('MonthYearField', () => {
     conditions: []
   } satisfies FormDefinition
 
-  let formModel: FormModel
+  let model: FormModel
 
   beforeEach(() => {
-    formModel = new FormModel(definition, {
+    model = new FormModel(definition, {
       basePath: 'test'
     })
   })
@@ -43,8 +43,8 @@ describe('MonthYearField', () => {
         options: {}
       } satisfies MonthYearFieldComponent
 
-      collection = new ComponentCollection([def], { model: formModel })
-      component = collection.formItems[0]
+      collection = new ComponentCollection([def], { model })
+      component = collection.questions[0]
     })
 
     describe('Schema', () => {
@@ -74,9 +74,9 @@ describe('MonthYearField', () => {
           'myComponent__year'
         ])
 
-        expect(component.children?.keys).not.toHaveProperty('myComponent')
+        expect(component.collection?.keys).not.toHaveProperty('myComponent')
 
-        for (const key of component.children?.keys ?? []) {
+        for (const key of component.collection?.keys ?? []) {
           expect(keys).toHaveProperty(key)
         }
       })
@@ -107,7 +107,7 @@ describe('MonthYearField', () => {
               options: { required: false }
             }
           ],
-          { model: formModel }
+          { model }
         )
 
         const { formSchema } = collectionOptional
@@ -478,7 +478,7 @@ describe('MonthYearField', () => {
       let collection: ComponentCollection
 
       beforeEach(() => {
-        collection = new ComponentCollection([def], { model: formModel })
+        collection = new ComponentCollection([def], { model })
       })
 
       it.each([...assertions])(

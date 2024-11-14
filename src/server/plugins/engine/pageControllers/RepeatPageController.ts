@@ -53,10 +53,10 @@ export class RepeatPageController extends PageController {
     const { options, schema } = this.repeat
     const itemId = Joi.string().uuid().required()
 
-    this.components.formSchema = this.components.formSchema.append({ itemId })
-    this.components.stateSchema = Joi.object<RepeatState>().keys({
+    this.collection.formSchema = this.collection.formSchema.append({ itemId })
+    this.collection.stateSchema = Joi.object<RepeatState>().keys({
       [options.name]: Joi.array()
-        .items(this.components.stateSchema.append({ itemId }))
+        .items(this.collection.stateSchema.append({ itemId }))
         .min(schema.min)
         .max(schema.max)
         .label(`${options.title} list`)
@@ -363,7 +363,7 @@ export class RepeatPageController extends PageController {
     const { title } = this.repeat.options
     const sectionTitle = section?.hideTitle !== true ? section?.title : ''
     const serviceUrl = `/${model.basePath}`
-    const firstQuestion = this.components.formItems.at(0)
+    const firstQuestion = this.collection.questions.at(0)
     const rows: Row[] = []
     let count = 0
 
