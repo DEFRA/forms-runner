@@ -45,7 +45,7 @@ env:
 jobs:
   notify:
     name: Slack notify
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: ${{ !contains(github.event.pull_request.head.ref || github.head_ref || github.ref, 'dependabot/') }}
 
     steps:

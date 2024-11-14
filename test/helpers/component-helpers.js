@@ -1,5 +1,4 @@
 import { within } from '@testing-library/dom'
-import JSDOM from 'global-jsdom'
 
 /**
  * Get component form data
@@ -39,10 +38,14 @@ export async function renderResponse(server, options) {
 
 /**
  * Render DOM
- * @param {string | Buffer} [html]
+ * @param {string} [html]
  */
-export function renderDOM(html) {
-  JSDOM(html?.toString())
+export function renderDOM(html = '') {
+  const { window } = globalThis.$jsdom
+
+  // Update the document body
+  window.document.body.innerHTML = html
+
   return window
 }
 

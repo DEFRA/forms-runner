@@ -16,14 +16,10 @@ concurrency:
 jobs:
   build:
     name: Build
-    runs-on: ${{ matrix.runner }}
+    runs-on: ubuntu-24.04
 
     strategy:
       fail-fast: false
-
-      matrix:
-        runner:
-          - ubuntu-latest
 
     steps:
       - name: Check out code
@@ -59,8 +55,8 @@ jobs:
         run: npm run build
 
   lint:
-    name: ${{ matrix.task.description }} (${{ matrix.runner }})
-    runs-on: ${{ matrix.runner }}
+    name: ${{ matrix.task.description }}
+    runs-on: ubuntu-24.04
     needs: [build]
 
     env:
@@ -72,9 +68,6 @@ jobs:
       fail-fast: false
 
       matrix:
-        runner:
-          - ubuntu-latest
-
         task:
           - description: Prettier
             name: lint-prettier
@@ -128,17 +121,14 @@ jobs:
         run: ${{ matrix.task.run }}
 
   tasks:
-    name: ${{ matrix.task.description }} (${{ matrix.runner }})
-    runs-on: ${{ matrix.runner }}
+    name: ${{ matrix.task.description }}
+    runs-on: ubuntu-24.04
     needs: [build]
 
     strategy:
       fail-fast: false
 
       matrix:
-        runner:
-          - ubuntu-latest
-
         task:
           - description: Unit tests
             name: test-unit
@@ -187,14 +177,14 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.task.description }} coverage (${{ matrix.runner }})
+          name: ${{ matrix.task.description }} coverage
           path: coverage
           if-no-files-found: ignore
 
   analysis:
     name: Analysis
     if: ${{ always() }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [build, tasks]
 
     steps:
