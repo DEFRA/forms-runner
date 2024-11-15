@@ -127,6 +127,7 @@ export class PageControllerBase {
     const sectionTitle = section?.hideTitle !== true ? section?.title : ''
 
     const serviceUrl = `/${this.model.basePath}`
+    const envTag = config.get('env')
 
     const components = this.components.getViewModel(payload, errors)
     const formComponents = components.filter(
@@ -184,7 +185,8 @@ export class PageControllerBase {
       isStartPage: false,
       serviceUrl,
       feedbackLink: this.getFeedbackLink(),
-      phaseTag: this.getPhaseTag()
+      phaseTag: this.getPhaseTag(),
+      envTag
     }
   }
 

@@ -8,6 +8,8 @@ const dirname = path.dirname(fileURLToPath(import.meta.url))
 const oneMinute = 1000 * 60
 const oneHour = oneMinute * 60
 
+const { NODE_ENV, DEPLOYMENT_ENV } = process.env
+
 export const config = convict({
   appDir: {
     format: String,
@@ -27,13 +29,18 @@ export const config = convict({
     env: 'PORT'
   },
   env: {
+    format: ['local', 'dev', 'test', 'perf-test', 'prod'],
+    default: 'local',
+    env: 'DEPLOYMENT_ENV'
+  },
+  nodeEnv: {
     format: ['development', 'test', 'production'],
     default: 'development',
     env: 'NODE_ENV'
   },
   enforceCsrf: {
     format: Boolean,
-    default: process.env.NODE_ENV === 'production',
+    default: NODE_ENV === 'production',
     env: 'ENFORCE_CSRF'
   },
 
@@ -43,17 +50,17 @@ export const config = convict({
   isProduction: {
     doc: 'If this application running in the production environment',
     format: Boolean,
-    default: process.env.NODE_ENV === 'production'
+    default: DEPLOYMENT_ENV === 'prod'
   },
   isDevelopment: {
     doc: 'If this application running in the development environment',
     format: Boolean,
-    default: process.env.NODE_ENV !== 'production'
+    default: DEPLOYMENT_ENV !== 'prod'
   },
   isTest: {
     doc: 'If this application running in the test environment',
     format: Boolean,
-    default: process.env.NODE_ENV === 'test'
+    default: NODE_ENV === 'test'
   },
 
   /**
@@ -178,7 +185,7 @@ export const config = convict({
   logLevel: {
     doc: 'Logging level',
     format: ['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'],
-    default: process.env.NODE_ENV === 'development' ? 'error' : 'info',
+    default: NODE_ENV === 'development' ? 'error' : 'info',
     env: 'LOG_LEVEL'
   },
 

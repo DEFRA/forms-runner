@@ -187,6 +187,7 @@ export interface PageViewModelBase {
     slug: string
     designerUrl: string
   }
+  envTag: string
 }
 
 export interface FileUploadPageViewModel extends PageViewModelBase {

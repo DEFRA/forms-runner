@@ -80,6 +80,7 @@ export class SummaryPageController extends PageController {
     // This is a stop-gap until we can add proper inheritance in place.
     viewModel.feedbackLink = this.getFeedbackLink()
     viewModel.phaseTag = this.getPhaseTag()
+    viewModel.envTag = config.get('env')
 
     return viewModel
   }
