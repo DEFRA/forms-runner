@@ -50,31 +50,67 @@ describe('UkAddressField', () => {
     describe('Schema', () => {
       it('uses collection titles as labels', () => {
         const { formSchema } = collection
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe().keys).toEqual(
+        expect(keys).toHaveProperty(
+          'myComponent__addressLine1',
           expect.objectContaining({
-            myComponent__addressLine1: expect.objectContaining({
-              flags: expect.objectContaining({ label: 'address line 1' })
-            }),
-            myComponent__addressLine2: expect.objectContaining({
-              flags: expect.objectContaining({ label: 'address line 2' })
-            }),
-            myComponent__town: expect.objectContaining({
-              flags: expect.objectContaining({ label: 'town or city' })
-            }),
-            myComponent__postcode: expect.objectContaining({
-              flags: expect.objectContaining({ label: 'postcode' })
-            })
+            flags: expect.objectContaining({ label: 'address line 1' })
+          })
+        )
+
+        expect(keys).toHaveProperty(
+          'myComponent__addressLine2',
+          expect.objectContaining({
+            flags: expect.objectContaining({ label: 'address line 2' })
+          })
+        )
+
+        expect(keys).toHaveProperty(
+          'myComponent__town',
+          expect.objectContaining({
+            flags: expect.objectContaining({ label: 'town or city' })
+          })
+        )
+
+        expect(keys).toHaveProperty(
+          `myComponent__postcode`,
+          expect.objectContaining({
+            flags: expect.objectContaining({ label: 'postcode' })
           })
         )
       })
 
       it('is required by default', () => {
         const { formSchema } = collection
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe().flags).toEqual(
+        expect(keys).toHaveProperty(
+          'myComponent__addressLine1',
           expect.objectContaining({
-            presence: 'required'
+            flags: expect.objectContaining({ presence: 'required' })
+          })
+        )
+
+        expect(keys).toHaveProperty(
+          'myComponent__addressLine2',
+          expect.objectContaining({
+            allow: [''], // Required but empty string is allowed
+            flags: expect.objectContaining({ presence: 'required' })
+          })
+        )
+
+        expect(keys).toHaveProperty(
+          'myComponent__town',
+          expect.objectContaining({
+            flags: expect.objectContaining({ presence: 'required' })
+          })
+        )
+
+        expect(keys).toHaveProperty(
+          `myComponent__postcode`,
+          expect.objectContaining({
+            flags: expect.objectContaining({ presence: 'required' })
           })
         )
       })
@@ -93,22 +129,26 @@ describe('UkAddressField', () => {
         )
 
         const { formSchema } = collectionOptional
+        const { keys } = formSchema.describe()
 
-        expect(formSchema.describe().keys).toEqual(
-          expect.objectContaining({
-            myComponent__addressLine1: expect.objectContaining({
-              allow: ['']
-            }),
-            myComponent__addressLine2: expect.objectContaining({
-              allow: ['']
-            }),
-            myComponent__town: expect.objectContaining({
-              allow: ['']
-            }),
-            myComponent__postcode: expect.objectContaining({
-              allow: ['']
-            })
-          })
+        expect(keys).toHaveProperty(
+          'myComponent__addressLine1',
+          expect.objectContaining({ allow: [''] })
+        )
+
+        expect(keys).toHaveProperty(
+          'myComponent__addressLine2',
+          expect.objectContaining({ allow: [''] })
+        )
+
+        expect(keys).toHaveProperty(
+          'myComponent__town',
+          expect.objectContaining({ allow: [''] })
+        )
+
+        expect(keys).toHaveProperty(
+          `myComponent__postcode`,
+          expect.objectContaining({ allow: [''] })
         )
 
         const result = formSchema.validate(
@@ -178,11 +218,34 @@ describe('UkAddressField', () => {
       it('adds errors for invalid values', () => {
         const { formSchema } = collection
 
-        const result1 = formSchema.validate(['invalid'], opts)
-        const result2 = formSchema.validate({ unknown: 'invalid' }, opts)
+        const result1 = formSchema.validate(
+          getFormData({ unknown: 'invalid' }),
+          opts
+        )
+
+        const result2 = formSchema.validate(
+          getFormData({
+            addressLine1: ['invalid'],
+            addressLine2: ['invalid'],
+            town: ['invalid'],
+            postcode: ['invalid']
+          }),
+          opts
+        )
+
+        const result3 = formSchema.validate(
+          getFormData({
+            addressLine1: 'invalid',
+            addressLine2: 'invalid',
+            town: 'invalid',
+            postcode: 'invalid'
+          }),
+          opts
+        )
 
         expect(result1.error).toBeTruthy()
         expect(result2.error).toBeTruthy()
+        expect(result3.error).toBeTruthy()
       })
     })
 
