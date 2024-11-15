@@ -382,17 +382,37 @@ describe('MultilineTextField', () => {
         ]
       },
       {
-        description: 'Custom validation',
+        description: 'Custom validation message',
         component: {
           title: 'Example textarea',
           name: 'myComponent',
           type: ComponentType.MultilineTextField,
           options: {
-            customValidationMessage: 'This is a custom error'
+            customValidationMessage: 'This is a custom error',
+            customValidationMessages: {
+              'any.required': 'This is not used',
+              'string.empty': 'This is not used',
+              'string.max': 'This is not used',
+              'string.min': 'This is not used'
+            }
           },
-          schema: {}
+          schema: {
+            min: 5,
+            max: 8
+          }
         } satisfies MultilineTextFieldComponent,
         assertions: [
+          {
+            input: getFormData(),
+            output: {
+              value: getFormData(''),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom error'
+                })
+              ]
+            }
+          },
           {
             input: getFormData(''),
             output: {
@@ -400,6 +420,94 @@ describe('MultilineTextField', () => {
               errors: [
                 expect.objectContaining({
                   text: 'This is a custom error'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData('Text'),
+            output: {
+              value: getFormData('Text'),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom error'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData('Textarea too long'),
+            output: {
+              value: getFormData('Textarea too long'),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom error'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Custom validation messages (multiple)',
+        component: {
+          title: 'Example textarea',
+          name: 'myComponent',
+          type: ComponentType.MultilineTextField,
+          options: {
+            customValidationMessages: {
+              'any.required': 'This is a custom required error',
+              'string.empty': 'This is a custom empty string error',
+              'string.max': 'This is a custom max length error',
+              'string.min': 'This is a custom min length error'
+            }
+          },
+          schema: {
+            min: 5,
+            max: 8
+          }
+        } satisfies MultilineTextFieldComponent,
+        assertions: [
+          {
+            input: getFormData(),
+            output: {
+              value: getFormData(''),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom required error'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData(''),
+            output: {
+              value: getFormData(''),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom empty string error'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData('Text'),
+            output: {
+              value: getFormData('Text'),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom min length error'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData('Textarea too long'),
+            output: {
+              value: getFormData('Textarea too long'),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom max length error'
                 })
               ]
             }

@@ -515,23 +515,119 @@ describe('NumberField', () => {
         ]
       },
       {
-        description: 'Custom validation',
+        description: 'Custom validation message',
         component: {
           title: 'Example number field',
           name: 'myComponent',
           type: ComponentType.NumberField,
           options: {
-            customValidationMessage: 'This is a custom error'
+            customValidationMessage: 'This is a custom error',
+            customValidationMessages: {
+              'any.required': 'This is not used',
+              'number.base': 'This is not used',
+              'number.min': 'This is not used',
+              'number.max': 'This is not used'
+            }
           },
           schema: {}
         } satisfies NumberFieldComponent,
         assertions: [
           {
+            input: getFormData(''),
+            output: {
+              value: getFormData(''),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom error'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData('AA'),
+            output: {
+              value: getFormData('AA'),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom error'
+                })
+              ]
+            }
+          },
+          {
             input: getFormData('invalid'),
             output: {
               value: getFormData('invalid'),
               errors: [
-                expect.objectContaining({ text: 'This is a custom error' })
+                expect.objectContaining({
+                  text: 'This is a custom error'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Custom validation messages (multiple)',
+        component: {
+          title: 'Example number field',
+          name: 'myComponent',
+          type: ComponentType.NumberField,
+          options: {
+            customValidationMessages: {
+              'any.required': 'This is a custom required error',
+              'number.base': 'This is a custom number error',
+              'number.max': 'This is a custom max number error',
+              'number.min': 'This is a custom min number error'
+            }
+          },
+          schema: {
+            min: 5,
+            max: 8
+          }
+        } satisfies NumberFieldComponent,
+        assertions: [
+          {
+            input: getFormData(''),
+            output: {
+              value: getFormData(''),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom required error'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData('AA'),
+            output: {
+              value: getFormData('AA'),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom number error'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData('4'),
+            output: {
+              value: getFormData(4),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom min number error'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData('10'),
+            output: {
+              value: getFormData(10),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom max number error'
+                })
               ]
             }
           }
@@ -556,7 +652,9 @@ describe('NumberField', () => {
             output: {
               value: getFormData(3.14159),
               errors: [
-                expect.objectContaining({ text: 'This is a custom error' })
+                expect.objectContaining({
+                  text: 'This is a custom error'
+                })
               ]
             }
           }

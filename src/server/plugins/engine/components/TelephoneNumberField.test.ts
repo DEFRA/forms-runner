@@ -213,16 +213,32 @@ describe('TelephoneNumberField', () => {
   describe('Validation', () => {
     describe.each([
       {
-        description: 'Custom validation',
+        description: 'Custom validation message',
         component: {
           title: 'Example telephone number field',
           name: 'myComponent',
           type: ComponentType.TelephoneNumberField,
           options: {
-            customValidationMessage: 'This is a custom error'
+            customValidationMessage: 'This is a custom error',
+            customValidationMessages: {
+              'any.required': 'This is not used',
+              'string.empty': 'This is not used',
+              'string.pattern.base': 'This is not used'
+            }
           }
         } satisfies TelephoneNumberFieldComponent,
         assertions: [
+          {
+            input: getFormData(),
+            output: {
+              value: getFormData(''),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom error'
+                })
+              ]
+            }
+          },
           {
             input: getFormData(''),
             output: {
@@ -230,6 +246,67 @@ describe('TelephoneNumberField', () => {
               errors: [
                 expect.objectContaining({
                   text: 'This is a custom error'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData('AA'),
+            output: {
+              value: getFormData('AA'),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom error'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Custom validation messages (multiple)',
+        component: {
+          title: 'Example telephone number field',
+          name: 'myComponent',
+          type: ComponentType.TelephoneNumberField,
+          options: {
+            customValidationMessages: {
+              'any.required': 'This is a custom required error',
+              'string.empty': 'This is a custom empty string error',
+              'string.pattern.base': 'This is a custom pattern error'
+            }
+          }
+        } satisfies TelephoneNumberFieldComponent,
+        assertions: [
+          {
+            input: getFormData(),
+            output: {
+              value: getFormData(''),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom required error'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData(''),
+            output: {
+              value: getFormData(''),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom empty string error'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData('AA'),
+            output: {
+              value: getFormData('AA'),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom pattern error'
                 })
               ]
             }

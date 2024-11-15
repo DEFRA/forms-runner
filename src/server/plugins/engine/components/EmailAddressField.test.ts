@@ -263,16 +263,32 @@ describe('EmailAddressField', () => {
         ]
       },
       {
-        description: 'Custom validation',
+        description: 'Custom validation message',
         component: {
           title: 'Example email address field',
           name: 'myComponent',
           type: ComponentType.EmailAddressField,
           options: {
-            customValidationMessage: 'This is a custom error'
+            customValidationMessage: 'This is a custom error',
+            customValidationMessages: {
+              'any.required': 'This is not used',
+              'string.empty': 'This is not used',
+              'string.email': 'This is not used'
+            }
           }
         } satisfies EmailAddressFieldComponent,
         assertions: [
+          {
+            input: getFormData(''),
+            output: {
+              value: getFormData(''),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom error'
+                })
+              ]
+            }
+          },
           {
             input: getFormData('invalid'),
             output: {
@@ -280,6 +296,56 @@ describe('EmailAddressField', () => {
               errors: [
                 expect.objectContaining({
                   text: 'This is a custom error'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Custom validation messages (multiple)',
+        component: {
+          title: 'Example email address field',
+          name: 'myComponent',
+          type: ComponentType.EmailAddressField,
+          options: {
+            customValidationMessages: {
+              'any.required': 'This is a custom required error',
+              'string.empty': 'This is a custom empty string error',
+              'string.email': 'This is a custom invalid email error'
+            }
+          }
+        } satisfies EmailAddressFieldComponent,
+        assertions: [
+          {
+            input: getFormData(),
+            output: {
+              value: getFormData(''),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom required error'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData(''),
+            output: {
+              value: getFormData(''),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom empty string error'
+                })
+              ]
+            }
+          },
+          {
+            input: getFormData('invalid'),
+            output: {
+              value: getFormData('invalid'),
+              errors: [
+                expect.objectContaining({
+                  text: 'This is a custom invalid email error'
                 })
               ]
             }
