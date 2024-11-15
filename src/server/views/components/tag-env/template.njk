@@ -1,6 +1,6 @@
 {%- from "govuk/components/tag/macro.njk" import govukTag -%}
 
-{%- switch env %}
+{%- switch params.env %}
   {% case "local" %}
     {% set text = "Local" %}
     {% set classes = "govuk-tag--green" %}
