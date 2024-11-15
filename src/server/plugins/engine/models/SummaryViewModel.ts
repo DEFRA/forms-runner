@@ -1,7 +1,7 @@
 import { type ValidationResult } from 'joi'
 
 import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
-import { redirectUrl } from '~/src/server/plugins/engine/helpers.js'
+import { getError, redirectUrl } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   type Detail,
@@ -35,8 +35,7 @@ export class SummaryViewModel {
   backLink?: string
   feedbackLink?: string
   phaseTag?: string
-  errors: FormSubmissionError[] | undefined
-
+  errors?: FormSubmissionError[]
   serviceUrl: string
   showErrorSummary?: boolean
   notificationEmailWarning?: {
@@ -77,20 +76,15 @@ export class SummaryViewModel {
   }
 
   private processErrors(result: ValidationResult, details: Detail[]) {
-    this.errors = result.error?.details.map((err) => {
-      const name = err.context?.key ?? ''
+    const errors = result.error?.details.map(getError) ?? []
 
-      return {
-        path: err.path,
-        href: `#${name}`,
-        name,
-        text: err.message,
-        context: err.context
-      }
-    })
+    if (!errors.length) {
+      this.errors = undefined
+      return
+    }
 
     details.forEach((detail) => {
-      const sectionErr = this.errors?.find(({ name }) => name === detail.name)
+      const sectionErr = errors.find(({ name }) => name === detail.name)
 
       detail.items.forEach((item) => {
         if (sectionErr) {
@@ -98,7 +92,7 @@ export class SummaryViewModel {
           return
         }
 
-        const err = this.errors?.find(({ name }) => {
+        const err = errors.find(({ name }) => {
           return (
             name === (detail.name ? `${detail.name}.${item.name}` : item.name)
           )
@@ -109,6 +103,8 @@ export class SummaryViewModel {
         }
       })
     })
+
+    this.errors = errors
   }
 
   private summaryDetails(

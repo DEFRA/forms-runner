@@ -16,7 +16,7 @@ import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { answerFromDetailItem } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 import {
   type FormPayload,
-  type FormSubmissionErrors
+  type FormSubmissionError
 } from '~/src/server/plugins/engine/types.js'
 
 export class ComponentBase {
@@ -62,7 +62,7 @@ export class ComponentBase {
     payload: FormPayload,
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    errors?: FormSubmissionErrors
+    errors?: FormSubmissionError[]
   ) {
     const { options, type } = this
 

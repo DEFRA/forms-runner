@@ -8,7 +8,6 @@ import { ComponentCollection } from '~/src/server/plugins/engine/components/Comp
 import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
 import { type ViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormPayload,
   type FormState
@@ -81,6 +80,25 @@ describe('UkAddressField', () => {
         )
       })
 
+      it('uses collection names as keys', () => {
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
+
+        expect(component.keys).toEqual([
+          'myComponent',
+          'myComponent__addressLine1',
+          'myComponent__addressLine2',
+          'myComponent__town',
+          'myComponent__postcode'
+        ])
+
+        expect(component.children?.keys).not.toHaveProperty('myComponent')
+
+        for (const key of component.children?.keys ?? []) {
+          expect(keys).toHaveProperty(key)
+        }
+      })
+
       it('is required by default', () => {
         const { formSchema } = collection
         const { keys } = formSchema.describe()
@@ -151,101 +169,88 @@ describe('UkAddressField', () => {
           expect.objectContaining({ allow: [''] })
         )
 
-        const result = formSchema.validate(
+        const result = collectionOptional.validate(
           getFormData({
             addressLine1: '',
             addressLine2: '',
             town: '',
             postcode: ''
-          }),
-          opts
+          })
         )
 
-        expect(result.error).toBeUndefined()
+        expect(result.errors).toBeUndefined()
       })
 
       it('accepts valid values', () => {
-        const { formSchema } = collection
-
-        const result1 = formSchema.validate(
+        const result1 = collection.validate(
           getFormData({
             addressLine1: 'Richard Fairclough House',
             addressLine2: 'Knutsford Road',
             town: 'Warrington',
             postcode: 'WA4 1HT'
-          }),
-          opts
+          })
         )
 
-        const result2 = formSchema.validate(
+        const result2 = collection.validate(
           getFormData({
             addressLine1: 'Richard Fairclough House',
             addressLine2: '', // Optional field
             town: 'Warrington',
             postcode: 'WA4 1HT'
-          }),
-          opts
+          })
         )
 
-        expect(result1.error).toBeUndefined()
-        expect(result2.error).toBeUndefined()
+        expect(result1.errors).toBeUndefined()
+        expect(result2.errors).toBeUndefined()
       })
 
       it('adds errors for empty value', () => {
-        const { formSchema } = collection
-
-        const result = formSchema.validate(
+        const result = collection.validate(
           getFormData({
             addressLine1: '',
             addressLine2: '',
             town: '',
             postcode: ''
-          }),
-          opts
-        )
-
-        expect(result.error).toEqual(
-          expect.objectContaining({
-            message: [
-              'Enter address line 1',
-              'Enter town or city',
-              'Enter postcode'
-            ].join('. ')
           })
         )
+
+        expect(result.errors).toEqual([
+          expect.objectContaining({
+            text: 'Enter address line 1'
+          }),
+          expect.objectContaining({
+            text: 'Enter town or city'
+          }),
+          expect.objectContaining({
+            text: 'Enter postcode'
+          })
+        ])
       })
 
       it('adds errors for invalid values', () => {
-        const { formSchema } = collection
+        const result1 = collection.validate(getFormData({ unknown: 'invalid' }))
 
-        const result1 = formSchema.validate(
-          getFormData({ unknown: 'invalid' }),
-          opts
-        )
-
-        const result2 = formSchema.validate(
+        const result2 = collection.validate(
           getFormData({
             addressLine1: ['invalid'],
             addressLine2: ['invalid'],
             town: ['invalid'],
             postcode: ['invalid']
-          }),
-          opts
+          })
         )
 
-        const result3 = formSchema.validate(
+        const result3 = collection.validate(
           getFormData({
             addressLine1: 'invalid',
             addressLine2: 'invalid',
             town: 'invalid',
             postcode: 'invalid'
-          }),
-          opts
+          })
         )
 
-        expect(result1.error).toBeTruthy()
-        expect(result2.error).toBeTruthy()
-        expect(result3.error).toBeTruthy()
+        expect(result1.errors).toBeTruthy()
+        expect(result2.errors).toBeTruthy()
+        expect(result3.errors).toBeTruthy()
       })
     })
 
@@ -462,7 +467,11 @@ describe('UkAddressField', () => {
                 town: 'Warrington',
                 postcode: 'WA4 1HT'
               }),
-              error: new Error('address line 1 must be 100 characters or less')
+              errors: [
+                expect.objectContaining({
+                  text: 'Address line 1 must be 100 characters or less'
+                })
+              ]
             }
           },
           {
@@ -479,7 +488,11 @@ describe('UkAddressField', () => {
                 town: 'Warrington',
                 postcode: 'WA4 1HT'
               }),
-              error: new Error('address line 2 must be 100 characters or less')
+              errors: [
+                expect.objectContaining({
+                  text: 'Address line 2 must be 100 characters or less'
+                })
+              ]
             }
           },
           {
@@ -496,7 +509,11 @@ describe('UkAddressField', () => {
                 town: townInvalid,
                 postcode: 'WA4 1HT'
               }),
-              error: new Error('town or city must be 100 characters or less')
+              errors: [
+                expect.objectContaining({
+                  text: 'Town or city must be 100 characters or less'
+                })
+              ]
             }
           },
           {
@@ -513,7 +530,11 @@ describe('UkAddressField', () => {
                 town: 'Warrington',
                 postcode: postcodeInvalid
               }),
-              error: new Error('Enter a valid postcode')
+              errors: [
+                expect.objectContaining({
+                  text: 'Enter a valid postcode'
+                })
+              ]
             }
           }
         ]
@@ -528,9 +549,7 @@ describe('UkAddressField', () => {
       it.each([...assertions])(
         'validates custom example',
         ({ input, output }) => {
-          const { formSchema } = collection
-
-          const result = formSchema.validate(input, opts)
+          const result = collection.validate(input)
           expect(result).toEqual(output)
         }
       )

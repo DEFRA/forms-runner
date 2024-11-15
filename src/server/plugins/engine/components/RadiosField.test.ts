@@ -8,7 +8,6 @@ import { ComponentCollection } from '~/src/server/plugins/engine/components/Comp
 import { RadiosField } from '~/src/server/plugins/engine/components/RadiosField.js'
 import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   listNumber,
   listNumberExamples,
@@ -85,6 +84,18 @@ describe.each([
         )
       })
 
+      it('uses component name as keys', () => {
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
+
+        expect(component.keys).toEqual(['myComponent'])
+        expect(component.children).toBeUndefined()
+
+        for (const key of component.keys) {
+          expect(keys).toHaveProperty(key)
+        }
+      })
+
       it('is required by default', () => {
         const { formSchema } = collection
         const { keys } = formSchema.describe()
@@ -117,8 +128,8 @@ describe.each([
           })
         )
 
-        const result = formSchema.validate(getFormData(), opts)
-        expect(result.error).toBeUndefined()
+        const result = collectionOptional.validate(getFormData())
+        expect(result.errors).toBeUndefined()
       })
 
       it('is configured with radio items', () => {
@@ -135,36 +146,29 @@ describe.each([
       })
 
       it.each([...options.allow])('accepts valid radio item', (value) => {
-        const { formSchema } = collection
-
-        const result = formSchema.validate(getFormData(value), opts)
-        expect(result.error).toBeUndefined()
+        const result = collection.validate(getFormData(value))
+        expect(result.errors).toBeUndefined()
       })
 
       it('adds errors for empty value', () => {
-        const { formSchema } = collection
+        const result = collection.validate(getFormData())
 
-        const result = formSchema.validate(getFormData(), opts)
-
-        expect(result.error).toEqual(
+        expect(result.errors).toEqual([
           expect.objectContaining({
-            message: `Select ${def.title.toLowerCase()}`
+            text: `Select ${def.title.toLowerCase()}`
           })
-        )
+        ])
       })
 
       it('adds errors for invalid values', () => {
-        const { formSchema } = collection
-
-        const result1 = formSchema.validate(getFormData('invalid'), opts)
-        const result2 = formSchema.validate(
+        const result1 = collection.validate(getFormData('invalid'))
+        const result2 = collection.validate(
           // @ts-expect-error - Allow invalid param for test
-          getFormData({ unknown: 'invalid' }),
-          opts
+          getFormData({ unknown: 'invalid' })
         )
 
-        expect(result1.error).toBeTruthy()
-        expect(result2.error).toBeTruthy()
+        expect(result1.errors).toBeTruthy()
+        expect(result2.errors).toBeTruthy()
       })
     })
 

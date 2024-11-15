@@ -5,7 +5,7 @@ import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormPayload,
-  type FormSubmissionErrors
+  type FormSubmissionError
 } from '~/src/server/plugins/engine/types.js'
 
 export class AutocompleteField extends SelectField {
@@ -28,7 +28,7 @@ export class AutocompleteField extends SelectField {
     this.formSchema = formSchema
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
     const viewModel = super.getViewModel(payload, errors)
     let { formGroup } = viewModel
 

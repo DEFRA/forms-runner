@@ -8,7 +8,7 @@ import {
 
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
-import { type FormSubmissionErrors } from '~/src/server/plugins/engine/types.js'
+import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
 
 describe('RepeatPageController', () => {
   const component1: ComponentDef = {
@@ -76,50 +76,47 @@ describe('RepeatPageController', () => {
 
   describe('Form validation', () => {
     it('includes title text and errors', () => {
-      const result = controller.validateForm({})
+      const result = controller.components.validate()
 
-      expect(result.errors).toEqual(
-        expect.objectContaining<FormSubmissionErrors>({
-          titleText: 'There is a problem',
-          errorList: [
-            {
-              path: ['toppings'],
-              href: '#toppings',
-              name: 'toppings',
-              text: 'Select toppings',
-              context: {
-                key: 'toppings',
-                label: 'toppings'
-              }
-            },
-            {
-              path: ['quantity'],
-              href: '#quantity',
-              name: 'quantity',
-              text: 'Enter quantity',
-              context: {
-                key: 'quantity',
-                label: 'quantity'
-              }
-            },
-            {
-              path: ['itemId'],
-              href: '#itemId',
-              name: 'itemId',
-              text: 'Select itemId',
-              context: {
-                key: 'itemId',
-                label: 'itemId'
-              }
-            }
-          ]
-        })
-      )
+      expect(result.errors).toEqual<FormSubmissionError[]>([
+        {
+          path: ['toppings'],
+          href: '#toppings',
+          name: 'toppings',
+          text: 'Select toppings',
+          context: {
+            key: 'toppings',
+            label: 'toppings',
+            title: 'Toppings'
+          }
+        },
+        {
+          path: ['quantity'],
+          href: '#quantity',
+          name: 'quantity',
+          text: 'Enter quantity',
+          context: {
+            key: 'quantity',
+            label: 'quantity',
+            title: 'Quantity'
+          }
+        },
+        {
+          path: ['itemId'],
+          href: '#itemId',
+          name: 'itemId',
+          text: 'Select itemId',
+          context: {
+            key: 'itemId',
+            label: 'itemId'
+          }
+        }
+      ])
     })
 
     it('includes all field errors', () => {
-      const result = controller.validateForm({})
-      expect(result.errors?.errorList).toHaveLength(3)
+      const result = controller.components.validate()
+      expect(result.errors).toHaveLength(3)
     })
   })
 })

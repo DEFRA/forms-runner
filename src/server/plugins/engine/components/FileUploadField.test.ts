@@ -181,6 +181,18 @@ describe('FileUploadField', () => {
         )
       })
 
+      it('uses component name as keys', () => {
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
+
+        expect(component.keys).toEqual(['myComponent'])
+        expect(component.children).toBeUndefined()
+
+        for (const key of component.keys) {
+          expect(keys).toHaveProperty(key)
+        }
+      })
+
       it('is required by default', () => {
         const { formSchema } = collection
         const { keys } = formSchema.describe()
@@ -213,50 +225,48 @@ describe('FileUploadField', () => {
           })
         )
 
-        const result = formSchema.validate(getFormData(), opts)
-        expect(result.error).toBeUndefined()
+        const result = collectionOptional.validate(getFormData())
+        expect(result.errors).toBeUndefined()
       })
 
       it('accepts valid values', () => {
-        const { formSchema, stateSchema } = collection
+        const result1 = collection.validate(getFormData(validState))
+        const result2 = collection.validate(
+          getFormState(validState),
+          'stateSchema'
+        )
 
-        const result1 = formSchema.validate(getFormData(validState), opts)
-        const result2 = stateSchema.validate(getFormState(validState), opts)
         const result3 = tempItemSchema.validate(validTempState[0], opts)
         const result4 = tempItemSchema.validate(validTempState[1], opts)
         const result5 = tempItemSchema.validate(validTempState[2], opts)
 
-        expect(result1.error).toBeUndefined()
-        expect(result2.error).toBeUndefined()
+        expect(result1.errors).toBeUndefined()
+        expect(result2.errors).toBeUndefined()
+
         expect(result3.error).toBeUndefined()
         expect(result4.error).toBeUndefined()
         expect(result5.error).toBeUndefined()
       })
 
       it('adds errors for empty value', () => {
-        const { formSchema } = collection
+        const result = collection.validate(getFormData())
 
-        const result = formSchema.validate(getFormData(), opts)
-
-        expect(result.error).toEqual(
+        expect(result.errors).toEqual([
           expect.objectContaining({
-            message: 'Select example file upload field'
+            text: 'Select example file upload field'
           })
-        )
+        ])
       })
 
       it('adds errors for invalid values', () => {
-        const { formSchema } = collection
-
-        const result1 = formSchema.validate(getFormData(['invalid']), opts)
-        const result2 = formSchema.validate(
+        const result1 = collection.validate(getFormData(['invalid']))
+        const result2 = collection.validate(
           // @ts-expect-error - Allow invalid param for test
-          getFormData({ unknown: 'invalid' }),
-          opts
+          getFormData({ unknown: 'invalid' })
         )
 
-        expect(result1.error).toBeTruthy()
-        expect(result2.error).toBeTruthy()
+        expect(result1.errors).toBeTruthy()
+        expect(result2.errors).toBeTruthy()
       })
     })
 
@@ -402,10 +412,10 @@ describe('FileUploadField', () => {
       })
 
       it('sets Nunjucks component defaults with temp valid state with errors (on POST)', () => {
-        const viewModel = component.getViewModel(getFormData(validTempState), {
-          titleText: 'There is a problem',
-          errorList: []
-        })
+        const viewModel = component.getViewModel(
+          getFormData(validTempState),
+          []
+        )
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -474,18 +484,22 @@ describe('FileUploadField', () => {
             input: getFormData([]),
             output: {
               value: getFormData([]),
-              error: new Error(
-                'example file upload field must contain at least 1 items'
-              )
+              errors: [
+                expect.objectContaining({
+                  text: 'Example file upload field must contain at least 1 items'
+                })
+              ]
             }
           },
           {
             input: getFormData(validState),
             output: {
               value: getFormData(validState),
-              error: new Error(
-                'example file upload field must contain less than or equal to 2 items'
-              )
+              errors: [
+                expect.objectContaining({
+                  text: 'Example file upload field must contain less than or equal to 2 items'
+                })
+              ]
             }
           }
         ]
@@ -506,21 +520,33 @@ describe('FileUploadField', () => {
             input: getFormData([]),
             output: {
               value: getFormData([]),
-              error: new Error('example file upload field must contain 4 items')
+              errors: [
+                expect.objectContaining({
+                  text: 'Example file upload field must contain 4 items'
+                })
+              ]
             }
           },
           {
             input: getFormData(validState),
             output: {
               value: getFormData(validState),
-              error: new Error('example file upload field must contain 4 items')
+              errors: [
+                expect.objectContaining({
+                  text: 'Example file upload field must contain 4 items'
+                })
+              ]
             }
           },
           {
             input: getFormData([...validState, ...validState]),
             output: {
               value: getFormData([...validState, ...validState]),
-              error: new Error('example file upload field must contain 4 items')
+              errors: [
+                expect.objectContaining({
+                  text: 'Example file upload field must contain 4 items'
+                })
+              ]
             }
           }
         ]
@@ -576,18 +602,22 @@ describe('FileUploadField', () => {
             input: getFormData([]),
             output: {
               value: getFormData([]),
-              error: new Error(
-                'example file upload field must contain at least 1 items'
-              )
+              errors: [
+                expect.objectContaining({
+                  text: 'Example file upload field must contain at least 1 items'
+                })
+              ]
             }
           },
           {
             input: getFormData(validState),
             output: {
               value: getFormData(validState),
-              error: new Error(
-                'example file upload field must contain less than or equal to 2 items'
-              )
+              errors: [
+                expect.objectContaining({
+                  text: 'Example file upload field must contain less than or equal to 2 items'
+                })
+              ]
             }
           }
         ]
@@ -616,21 +646,33 @@ describe('FileUploadField', () => {
             input: getFormData([]),
             output: {
               value: getFormData([]),
-              error: new Error('example file upload field must contain 4 items')
+              errors: [
+                expect.objectContaining({
+                  text: 'Example file upload field must contain 4 items'
+                })
+              ]
             }
           },
           {
             input: getFormData(validState),
             output: {
               value: getFormData(validState),
-              error: new Error('example file upload field must contain 4 items')
+              errors: [
+                expect.objectContaining({
+                  text: 'Example file upload field must contain 4 items'
+                })
+              ]
             }
           },
           {
             input: getFormData([...validState, ...validState]),
             output: {
               value: getFormData([...validState, ...validState]),
-              error: new Error('example file upload field must contain 4 items')
+              errors: [
+                expect.objectContaining({
+                  text: 'Example file upload field must contain 4 items'
+                })
+              ]
             }
           }
         ]
@@ -645,9 +687,7 @@ describe('FileUploadField', () => {
       it.each([...assertions])(
         'validates custom example',
         ({ input, output }) => {
-          const { formSchema } = collection
-
-          const result = formSchema.validate(input, opts)
+          const result = collection.validate(input)
           expect(result).toEqual(output)
         }
       )

@@ -119,7 +119,7 @@ export class FormModel {
     let schema = joi.object<FormSubmissionState>().required()
 
     relevantPages.forEach((page) => {
-      schema = schema.concat(page.stateSchema)
+      schema = schema.concat(page.components.stateSchema)
     })
 
     return schema
@@ -191,10 +191,6 @@ export class FormModel {
   toConditionExpression(value: ConditionsModelData, parser: Parser) {
     const conditions = ConditionsModel.from(value)
     return parser.parse(conditions.toExpression())
-  }
-
-  get conditionOptions() {
-    return { allowUnknown: true, presence: 'required' }
   }
 
   getList(name: string): List | undefined {

@@ -7,7 +7,7 @@ import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFo
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   type FormPayload,
-  type FormSubmissionErrors
+  type FormSubmissionError
 } from '~/src/server/plugins/engine/types.js'
 
 export class SelectField extends ListFormComponent {
@@ -34,7 +34,7 @@ export class SelectField extends ListFormComponent {
     this.options = options
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
     const viewModel = super.getViewModel(payload, errors)
     let { items } = viewModel
 

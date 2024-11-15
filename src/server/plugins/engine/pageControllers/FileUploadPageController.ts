@@ -6,12 +6,13 @@ import {
 } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
-import { type ValidationResult } from 'joi'
+import { type ValidationErrorItem, type ValidationResult } from 'joi'
 
 import {
   tempItemSchema,
   tempStatusSchema
 } from '~/src/server/plugins/engine/components/FileUploadField.js'
+import { getError } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
@@ -25,7 +26,6 @@ import {
   type FileUploadPageViewModel,
   type FormPayload,
   type FormSubmissionError,
-  type FormSubmissionErrors,
   type TempFileState,
   type UploadState,
   type UploadStatusResponse
@@ -149,23 +149,21 @@ export class FileUploadPageController extends PageController {
     return payload
   }
 
-  getErrors(
-    validationResult?: Pick<ValidationResult, 'error'>
-  ): FormSubmissionErrors | undefined {
-    if (validationResult?.error) {
-      const errorList: FormSubmissionError[] = []
+  getErrors(details?: ValidationErrorItem[]) {
+    if (details) {
+      const errors: FormSubmissionError[] = []
       const componentName = this.getComponentName()
 
-      validationResult.error.details.forEach((err) => {
-        const isUploadError = err.path[0] === componentName
-        const isUploadRootError = isUploadError && err.path.length === 1
+      details.forEach((error) => {
+        const isUploadError = error.path[0] === componentName
+        const isUploadRootError = isUploadError && error.path.length === 1
 
         if (!isUploadError || isUploadRootError) {
           // The error is for the root of the upload or another
-          // field on the page so defer to the standard getError
-          errorList.push(this.getError(err))
+          // field on the page so defer to the getError helper
+          errors.push(getError(error))
         } else {
-          const { context, path, type } = err
+          const { context, path, type } = error
 
           const formatter = (name: string | number, index: number) =>
             index > 0 ? `__${name}` : name
@@ -178,23 +176,20 @@ export class FileUploadPageController extends PageController {
               const text = typeof value === 'string' ? value : 'Unknown error'
               const href = `#${path.slice(0, 2).map(formatter).join('')}`
 
-              errorList.push({ path, href, name, text })
+              errors.push({ path, href, name, text })
             }
           }
         }
       })
 
-      return {
-        titleText: this.errorSummaryTitle,
-        errorList
-      }
+      return errors
     }
   }
 
   getViewModel(
     request: FormRequest | FormRequestPayload,
     payload: FormPayload,
-    errors?: FormSubmissionErrors
+    errors?: FormSubmissionError[]
   ) {
     const viewModel = super.getViewModel(request, payload, errors)
 

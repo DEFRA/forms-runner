@@ -1,7 +1,6 @@
 {% extends 'layout.html' %}
 
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
-
 {% from "partials/components.html" import componentList with context %}
 
 {% block content %}
@@ -12,7 +11,10 @@
       {% endif %}
 
       {% if errors %}
-        {{ govukErrorSummary(errors) }}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: errors
+        }) }}
       {% endif %}
 
       {% if notificationEmailWarning %}

@@ -13,7 +13,7 @@ import {
   type FormPayload,
   type FormState,
   type FormStateValue,
-  type FormSubmissionErrors,
+  type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 
@@ -103,7 +103,7 @@ export class UkAddressField extends FormComponent {
       .join(', ')
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
     const { children: formChildren, name, options } = this
 
     const viewModel = super.getViewModel(payload, errors)

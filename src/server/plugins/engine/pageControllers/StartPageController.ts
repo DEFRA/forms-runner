@@ -1,7 +1,7 @@
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
   type FormPayload,
-  type FormSubmissionErrors
+  type FormSubmissionError
 } from '~/src/server/plugins/engine/types.js'
 import { type FormRequest } from '~/src/server/routes/types.js'
 
@@ -15,7 +15,7 @@ export class StartPageController extends PageController {
   getViewModel(
     request: FormRequest,
     payload: FormPayload,
-    errors?: FormSubmissionErrors
+    errors?: FormSubmissionError[]
   ) {
     return {
       ...super.getViewModel(request, payload, errors),

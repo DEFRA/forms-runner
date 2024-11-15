@@ -1,5 +1,4 @@
 import { type FormComponentsDef } from '@defra/forms-model'
-import upperFirst from 'lodash/upperFirst.js'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { type ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
@@ -9,7 +8,7 @@ import {
   type FormPayload,
   type FormState,
   type FormStateValue,
-  type FormSubmissionErrors,
+  type FormSubmissionError,
   type FormSubmissionState,
   type FormValue
 } from '~/src/server/plugins/engine/types.js'
@@ -28,6 +27,16 @@ export class FormComponent extends ComponentBase {
 
     this.type = type
     this.hint = hint
+  }
+
+  get keys() {
+    const { children, name } = this
+
+    if (children) {
+      return [name, ...children.keys]
+    }
+
+    return [name]
   }
 
   getFormDataFromState(state: FormSubmissionState): FormPayload {
@@ -69,7 +78,29 @@ export class FormComponent extends ComponentBase {
     }
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionErrors) {
+  getErrors(errors?: FormSubmissionError[]): FormSubmissionError[] | undefined {
+    const { name } = this
+
+    // Filter component and child errors only
+    const list = errors?.filter(
+      (error) =>
+        error.name === name ||
+        error.path.includes(name) ||
+        this.keys.includes(error.name)
+    )
+
+    if (!list?.length) {
+      return
+    }
+
+    return list
+  }
+
+  getError(errors?: FormSubmissionError[]): FormSubmissionError | undefined {
+    return this.getErrors(errors)?.[0]
+  }
+
+  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
     const { hint, name, options = {}, title } = this
 
     const viewModel = super.getViewModel(payload, errors)
@@ -84,15 +115,19 @@ export class FormComponent extends ComponentBase {
       }
     }
 
-    errors?.errorList.forEach((err) => {
-      if (err.name === name || err.path.includes(name)) {
-        err.text = upperFirst(err.text)
+    // Filter component errors only
+    const componentErrors = this.getErrors(errors)
+    const componentError = this.getError(componentErrors)
 
-        viewModel.errorMessage = {
-          text: err.text
-        }
+    if (componentErrors) {
+      viewModel.errors = componentErrors
+    }
+
+    if (componentError) {
+      viewModel.errorMessage = {
+        text: componentError.text
       }
-    })
+    }
 
     return {
       ...viewModel,

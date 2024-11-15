@@ -1,9 +1,13 @@
 import Boom from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
+import { format, parseISO } from 'date-fns'
+import { type Schema, type ValidationErrorItem } from 'joi'
+import upperFirst from 'lodash/upperFirst.js'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { RelativeUrl } from '~/src/server/plugins/engine/feedback/index.js'
+import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
 import {
   type FormQuery,
@@ -116,5 +120,41 @@ export function checkEmailAddressForLiveFormSubmission(
     throw Boom.internal(
       'An email address is required to complete the form submission'
     )
+  }
+}
+
+/**
+ * Parses the errors from {@link Schema.validate} so they can be rendered by govuk-frontend templates
+ * @param [details] - provided by {@link Schema.validate}
+ */
+export function getErrors(
+  details?: ValidationErrorItem[]
+): FormSubmissionError[] | undefined {
+  if (!details?.length) {
+    return
+  }
+
+  return details.map(getError)
+}
+
+export function getError(detail: ValidationErrorItem): FormSubmissionError {
+  const { context, message, path } = detail
+
+  const name = context?.key ?? ''
+  const href = `#${name}`
+
+  const text = upperFirst(
+    message.replace(
+      /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/,
+      (text) => format(parseISO(text), 'd MMMM yyyy')
+    )
+  )
+
+  return {
+    path,
+    href,
+    name,
+    text,
+    context
   }
 }

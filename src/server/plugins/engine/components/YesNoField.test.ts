@@ -7,7 +7,6 @@ import {
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import { listYesNoExamples } from '~/test/fixtures/list.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
@@ -55,6 +54,18 @@ describe('YesNoField', () => {
       )
     })
 
+    it('uses component name as keys', () => {
+      const { formSchema } = collection
+      const { keys } = formSchema.describe()
+
+      expect(component.keys).toEqual(['myComponent'])
+      expect(component.children).toBeUndefined()
+
+      for (const key of component.keys) {
+        expect(keys).toHaveProperty(key)
+      }
+    })
+
     it('is required by default', () => {
       const { formSchema } = collection
       const { keys } = formSchema.describe()
@@ -87,8 +98,8 @@ describe('YesNoField', () => {
         })
       )
 
-      const result = formSchema.validate(getFormData(), opts)
-      expect(result.error).toBeUndefined()
+      const result = collectionOptional.validate(getFormData())
+      expect(result.errors).toBeUndefined()
     })
 
     it('is configured with radio items', () => {
@@ -105,37 +116,31 @@ describe('YesNoField', () => {
     })
 
     it('accepts valid values', () => {
-      const { formSchema } = collection
+      const result1 = collection.validate(getFormData('true'))
+      const result2 = collection.validate(getFormData('false'))
 
-      const result1 = formSchema.validate(getFormData('true'), opts)
-      const result2 = formSchema.validate(getFormData('false'), opts)
-
-      expect(result1.error).toBeUndefined()
-      expect(result2.error).toBeUndefined()
+      expect(result1.errors).toBeUndefined()
+      expect(result2.errors).toBeUndefined()
     })
 
     it('adds errors for empty value', () => {
-      const { formSchema } = collection
+      const result = collection.validate(getFormData())
 
-      const result = formSchema.validate(getFormData(), opts)
-
-      expect(result.error).toEqual(
+      expect(result.errors).toEqual([
         expect.objectContaining({
-          message: 'Select example yes/no'
+          text: 'Select example yes/no'
         })
-      )
+      ])
     })
 
     it('adds errors for invalid values', () => {
-      const { formSchema } = collection
+      const result1 = collection.validate(getFormData('invalid'))
+      const result2 = collection.validate(getFormData(['true']))
+      const result3 = collection.validate(getFormData(['true', 'false']))
 
-      const result1 = formSchema.validate(getFormData('invalid'), opts)
-      const result2 = formSchema.validate(getFormData(['true']), opts)
-      const result3 = formSchema.validate(getFormData(['true', 'false']), opts)
-
-      expect(result1.error).toBeTruthy()
-      expect(result2.error).toBeTruthy()
-      expect(result3.error).toBeTruthy()
+      expect(result1.errors).toBeTruthy()
+      expect(result2.errors).toBeTruthy()
+      expect(result3.errors).toBeTruthy()
     })
   })
 

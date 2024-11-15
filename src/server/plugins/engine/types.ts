@@ -69,11 +69,6 @@ export interface FormSubmissionError
   text: string // e.g: 'Date field must be a real date'
 }
 
-export interface FormSubmissionErrors {
-  titleText: string // e.b: "There is a problem"
-  errorList: FormSubmissionError[]
-}
-
 /**
  * Form POST for question pages
  * (after Joi has converted value types)
@@ -89,9 +84,11 @@ export type FormValue =
 export type FormState = Partial<Record<string, FormStateValue>>
 export type FormStateValue = Exclude<FormValue, undefined> | null
 
-export interface FormValidationResult<ValueType extends object = FormPayload> {
-  value?: ValueType
-  errors?: FormSubmissionErrors | null
+export interface FormValidationResult<
+  ValueType extends FormPayload | FormSubmissionState
+> {
+  value: ValueType
+  errors: FormSubmissionError[] | undefined
 }
 
 export interface UploadInitiateResponse {
@@ -176,7 +173,7 @@ export interface PageViewModelBase {
   sectionTitle?: string
   showTitle: boolean
   components: ComponentViewModel[]
-  errors?: FormSubmissionErrors
+  errors?: FormSubmissionError[]
   isStartPage: boolean
   startPage?: ResponseObject
   backLink?: string

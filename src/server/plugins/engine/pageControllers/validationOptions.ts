@@ -57,7 +57,6 @@ export const messages: LanguageMessages = {
 export const validationOptions: ValidationOptions = {
   abortEarly: false,
   messages,
-  dateFormat: 'iso',
   errors: {
     wrap: {
       array: false,
