@@ -38,6 +38,21 @@ export const config = convict({
     default: 'development',
     env: 'NODE_ENV'
   },
+  cdpEnvironment: {
+    doc: 'The CDP environment the app is currently in, with the addition of "local"',
+    format: [
+      'local',
+      'infra-dev',
+      'management',
+      'dev',
+      'test',
+      'perf-test',
+      'ext-test',
+      'prod'
+    ],
+    default: 'local',
+    env: 'ENVIRONMENT'
+  },
   enforceCsrf: {
     format: Boolean,
     default: NODE_ENV === 'production',
