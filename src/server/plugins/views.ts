@@ -68,6 +68,7 @@ function nunjucksContext(request: FormRequest | FormRequestPayload | null) {
     previewMode: isPreviewMode ? params?.state : undefined,
     serviceBannerText: config.get('serviceBannerText'),
     serviceName: capitalize(config.get('serviceName')),
+    serviceVersion: config.get('serviceVersion'),
     slug: params?.slug,
 
     getAssetPath(asset: string) {
