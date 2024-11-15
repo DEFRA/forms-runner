@@ -68,6 +68,8 @@ export class TextField extends FormComponent {
         'string.length': message,
         'string.pattern.base': message
       })
+    } else if (options.customValidationMessages) {
+      formSchema = formSchema.messages(options.customValidationMessages)
     }
 
     this.formSchema = formSchema.default('')

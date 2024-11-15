@@ -35,8 +35,10 @@ export class NumberField extends FormComponent {
     if (options.required === false) {
       formSchema = formSchema.allow('')
     } else {
+      const messages = options.customValidationMessages
+
       formSchema = formSchema.empty('').messages({
-        'any.required': messageTemplate.required
+        'any.required': messages?.['any.required'] ?? messageTemplate.required
       })
     }
 
@@ -63,6 +65,8 @@ export class NumberField extends FormComponent {
         'number.min': message,
         'number.max': message
       })
+    } else if (options.customValidationMessages) {
+      formSchema = formSchema.messages(options.customValidationMessages)
     }
 
     this.formSchema = formSchema.default('')

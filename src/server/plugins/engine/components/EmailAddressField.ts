@@ -35,6 +35,8 @@ export class EmailAddressField extends FormComponent {
         'string.empty': message,
         'string.email': message
       })
+    } else if (options.customValidationMessages) {
+      formSchema = formSchema.messages(options.customValidationMessages)
     }
 
     this.formSchema = formSchema.default('')

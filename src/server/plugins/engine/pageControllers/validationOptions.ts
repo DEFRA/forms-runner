@@ -18,8 +18,8 @@ export const messageTemplate = {
   maxWords: '{{#label}} must be {{#limit}} words or fewer',
 
   // Nested fields use component title
-  objectRequired: 'Enter {{#title}}',
-  objectMissing: '{{#title}} must include a {{#missingWithLabels}}',
+  objectRequired: 'Enter {{#label}}',
+  objectMissing: '{{#title}} must include a {{#label}}',
   dateFormat: '{{#title}} must be a real date',
   dateMin: '{{#title}} must be the same as or after {{#limit}}',
   dateMax: '{{#title}} must be the same as or before {{#limit}}'

@@ -1,6 +1,11 @@
 import { ComponentType, type DatePartsFieldComponent } from '@defra/forms-model'
 import { add, format, isValid, parse, startOfToday, sub } from 'date-fns'
-import { type Context, type CustomValidator, type ObjectSchema } from 'joi'
+import {
+  type Context,
+  type CustomValidator,
+  type LanguageMessages,
+  type ObjectSchema
+} from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
@@ -34,9 +39,19 @@ export class DatePartsField extends FormComponent {
   constructor(def: DatePartsFieldComponent, model: FormModel) {
     super(def, model)
 
-    const { name, options, title } = def
+    const { name, options } = def
 
     const isRequired = options.required !== false
+
+    const customValidationMessages: LanguageMessages = {
+      'any.required': messageTemplate.objectMissing,
+      'number.base': messageTemplate.objectMissing,
+      'number.precision': messageTemplate.dateFormat,
+      'number.integer': messageTemplate.dateFormat,
+      'number.unsafe': messageTemplate.dateFormat,
+      'number.min': messageTemplate.dateFormat,
+      'number.max': messageTemplate.dateFormat
+    }
 
     this.children = new ComponentCollection(
       [
@@ -49,9 +64,7 @@ export class DatePartsField extends FormComponent {
             required: isRequired,
             optionalText: true,
             classes: 'govuk-input--width-2',
-            customValidationMessage: messageTemplate.objectMissing
-              .replace('{{#title}}', title)
-              .replace('{{#missingWithLabels}}', 'day')
+            customValidationMessages
           }
         },
         {
@@ -63,9 +76,7 @@ export class DatePartsField extends FormComponent {
             required: isRequired,
             optionalText: true,
             classes: 'govuk-input--width-2',
-            customValidationMessage: messageTemplate.objectMissing
-              .replace('{{#title}}', title)
-              .replace('{{#missingWithLabels}}', 'month')
+            customValidationMessages
           }
         },
         {
@@ -77,16 +88,15 @@ export class DatePartsField extends FormComponent {
             required: isRequired,
             optionalText: true,
             classes: 'govuk-input--width-4',
-            customValidationMessage: messageTemplate.objectMissing
-              .replace('{{#title}}', title)
-              .replace('{{#missingWithLabels}}', 'year')
+            customValidationMessages
           }
         }
       ],
       { model, parent: this },
       {
-        peers: [`${name}__day`, `${name}__month`, `${name}__year`],
-        custom: getValidatorDate(this)
+        custom: getValidatorDate(this),
+        messages: customValidationMessages,
+        peers: [`${name}__day`, `${name}__month`, `${name}__year`]
       }
     )
 
