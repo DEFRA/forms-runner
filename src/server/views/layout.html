@@ -52,8 +52,8 @@
           </svg>
         </a>
 
-        {% if envTag !== "prod" %}
-          {{ appTagEnv(envTag) }}
+        {% if cdpEnvironment !== "prod" %}
+          {{ appTagEnv(cdpEnvironment) }}
         {% endif %}
       </div>
 

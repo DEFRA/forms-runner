@@ -1,6 +1,5 @@
 import { type ValidationResult } from 'joi'
 
-import { config } from '~/src/config/index.js'
 import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
 import { redirectUrl } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
@@ -45,8 +44,6 @@ export class SummaryViewModel {
     designerUrl: string
   }
 
-  envTag: string
-
   constructor(
     pageTitle: string,
     model: FormModel,
@@ -77,7 +74,6 @@ export class SummaryViewModel {
     this.relevantPages = relevantPages
     this.state = state
     this.value = result.value
-    this.envTag = config.get('env')
   }
 
   private processErrors(result: ValidationResult, details: Detail[]) {
