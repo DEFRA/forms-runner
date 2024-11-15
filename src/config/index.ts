@@ -27,9 +27,25 @@ export const config = convict({
     env: 'PORT'
   },
   env: {
-    format: ['development', 'test', 'production'],
+    doc: 'The application environment.',
+    format: ['production', 'development', 'test'],
     default: 'development',
     env: 'NODE_ENV'
+  },
+  cdpEnvironment: {
+    doc: 'The CDP environment the app is currently in, with the addition of "local"',
+    format: [
+      'local',
+      'infra-dev',
+      'management',
+      'dev',
+      'test',
+      'perf-test',
+      'ext-test',
+      'prod'
+    ],
+    default: 'local',
+    env: 'ENVIRONMENT'
   },
   enforceCsrf: {
     format: Boolean,
@@ -64,6 +80,13 @@ export const config = convict({
     format: String,
     default: 'Submit a form to Defra'
   },
+  serviceVersion: {
+    doc: 'The service version, this variable is injected into your docker container in CDP environments',
+    format: String,
+    nullable: true,
+    default: null,
+    env: 'SERVICE_VERSION'
+  } as SchemaObj<string>,
   feedbackLink: {
     doc: 'Used in your phase banner. Can be a URL or more commonly mailto mailto:feedback@department.gov.uk',
     format: String,

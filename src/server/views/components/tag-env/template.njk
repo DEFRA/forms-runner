@@ -1,0 +1,30 @@
+{%- from "govuk/components/tag/macro.njk" import govukTag -%}
+
+{%- switch params.env %}
+  {% case "local" %}
+    {% set text = "Local" %}
+    {% set classes = "govuk-tag--green" %}
+  {% case "dev" %}
+    {% set text = "Development" %}
+    {% set classes = "govuk-tag--grey" %}
+  {% case "test" %}
+    {% set text = "Test" %}
+    {% set classes = "govuk-tag--yellow" %}
+  {% case "ext-test" %}
+    {% set text = "External test" %}
+    {% set classes = "govuk-tag--yellow" %}
+  {% case "perf-test" %}
+    {% set text = "Performance test" %}
+    {% set classes = "govuk-tag--yellow" %}
+  {% case "prod" %}
+    {% set text = "Production" %}
+    {% set classes = "govuk-tag--red" %}
+  {% default %}
+    {% set text = env | replace("-", " ") | capitalize %}
+    {% set classes = "govuk-tag--grey" %}
+{% endswitch -%}
+
+{{ govukTag({
+  text: text,
+  classes: classes + " app-tag--env"
+}) }}
