@@ -1,0 +1,24 @@
+@use "govuk-frontend" as *;
+
+.app-tag--env {
+  margin: -6px 0 0;
+  vertical-align: top;
+
+  // Override product name font size
+  @include govuk-font-size($size: 16);
+
+  // Align with product name
+  @include govuk-media-query($from: tablet) {
+    margin: -3px 0 0;
+  }
+
+  // Override service header alignment
+  .cross-service-header & {
+    margin: -2px 0 0 govuk-spacing(1);
+
+    // Align with product name
+    @include govuk-media-query($from: tablet) {
+      margin: 0 0 0 govuk-spacing(2);
+    }
+  }
+}
