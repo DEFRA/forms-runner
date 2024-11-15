@@ -18,9 +18,11 @@ export class AutocompleteField extends SelectField {
     let { formSchema } = this
 
     if (options.required !== false) {
+      const messages = options.customValidationMessages
+
       formSchema = formSchema.messages({
-        'any.only': messageTemplate.required,
-        'any.required': messageTemplate.required
+        'any.only': messages?.['any.only'] ?? messageTemplate.required,
+        'any.required': messages?.['any.required'] ?? messageTemplate.required
       })
     }
 

@@ -35,8 +35,10 @@ export class NumberField extends FormComponent {
     if (options.required === false) {
       formSchema = formSchema.allow('')
     } else {
+      const messages = options.customValidationMessages
+
       formSchema = formSchema.empty('').messages({
-        'any.required': messageTemplate.required
+        'any.required': messages?.['any.required'] ?? messageTemplate.required
       })
     }
 
