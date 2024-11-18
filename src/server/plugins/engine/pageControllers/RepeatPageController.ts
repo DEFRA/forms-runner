@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto'
 import { ControllerType, type Page, type Repeat } from '@defra/forms-model'
 import { badImplementation, badRequest, notFound } from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
+import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
 import { ADD_ANOTHER, CONTINUE } from '~/src/server/plugins/engine/helpers.js'
@@ -65,10 +66,9 @@ export class RepeatPageController extends PageController {
 
   protected getPayload(request: FormRequestPayload) {
     const payload = super.getPayload(request)
-    const { item } = this.getRepeatAppData(request)
 
     // Apply an itemId to the form payload
-    payload.itemId = item ? item.value.itemId : randomUUID()
+    payload.itemId = request.params.itemId ?? randomUUID()
 
     return payload
   }
@@ -139,9 +139,7 @@ export class RepeatPageController extends PageController {
   private async setRepeatAppData(request: FormRequest | FormRequestPayload) {
     const list = await this.getList(request)
     const { itemId } = request.params
-    const itemIndex = itemId
-      ? list.findIndex((item) => item.itemId === itemId)
-      : -1
+    const itemIndex = list.findIndex((item) => item.itemId === itemId)
 
     request.app.repeat = {
       list,
@@ -179,6 +177,12 @@ export class RepeatPageController extends PageController {
       request: FormRequest,
       h: ResponseToolkit<FormRequestRefs>
     ) => {
+      if (!request.params.itemId) {
+        return h
+          .redirect(`${request.path}/${randomUUID()}${request.url.search}`)
+          .code(StatusCodes.SEE_OTHER)
+      }
+
       await this.setRepeatAppData(request)
 
       return super.makeGetRouteHandler()(request, h)
@@ -416,6 +420,15 @@ export class RepeatPageController extends PageController {
   }
 
   getSummaryPath(request: FormRequest | FormRequestPayload) {
-    return `/${this.model.basePath}${this.path}/summary${request.url.search}`
+    const url = request.url
+    const newUrl = new URL(url)
+
+    if (request.params.itemId) {
+      newUrl.searchParams.set('itemId', request.params.itemId)
+    } else {
+      newUrl.searchParams.delete('itemId')
+    }
+
+    return `/${this.model.basePath}${this.path}/summary${newUrl.search}`
   }
 }

@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url'
 
 import { hasRepeater } from '@defra/forms-model'
 import { within } from '@testing-library/dom'
+import { StatusCodes } from 'http-status-codes'
 
 import { createServer } from '~/src/server/index.js'
 import { ADD_ANOTHER, CONTINUE } from '~/src/server/plugins/engine/helpers.js'
@@ -109,13 +110,37 @@ describe('Repeat GET tests', () => {
     await server.stop()
   })
 
-  test('GET /repeat/pizza-order returns 200', async () => {
+  test('GET /repeat/pizza-order returns 303', async () => {
     const options = {
       method: 'GET',
       url
     }
 
+    const res = await server.inject(options)
+
+    expect(res.statusCode).toBe(StatusCodes.SEE_OTHER)
+  })
+
+  test('GET /repeat/pizza-order/summary returns 200', async () => {
+    const options = {
+      method: 'GET',
+      url: `${url}/summary`
+    }
+
+    const res = await server.inject(options)
+
+    expect(res.statusCode).toBe(okStatusCode)
+  })
+
+  test('GET /repeat/pizza-order/{id} returns 200', async () => {
+    const { item, headers } = await createRepeatItem(server, repeatPage)
+    const options = {
+      method: 'GET',
+      url: `${url}/${item.itemId}`,
+      headers
+    }
     const { container, response } = await renderResponse(server, options)
+
     expect(response.statusCode).toBe(okStatusCode)
 
     const $heading1 = container.getByRole('heading', {
@@ -133,28 +158,6 @@ describe('Repeat GET tests', () => {
 
     expect($heading2).toBeInTheDocument()
     expect($heading2).toHaveClass('govuk-caption-l')
-  })
-
-  test('GET /repeat/pizza-order/summary returns 200', async () => {
-    const options = {
-      method: 'GET',
-      url: `${url}/summary`
-    }
-
-    const res = await server.inject(options)
-
-    expect(res.statusCode).toBe(okStatusCode)
-  })
-
-  test('GET /repeat/pizza-order/{id} returns 200', async () => {
-    const { item, headers } = await createRepeatItem(server, repeatPage)
-    const res = await server.inject({
-      method: 'GET',
-      url: `${url}/${item.itemId}`,
-      headers
-    })
-
-    expect(res.statusCode).toBe(okStatusCode)
   })
 
   test('GET /repeat/pizza-order/{id}/confirm-delete returns 200', async () => {
@@ -240,7 +243,7 @@ describe('Repeat POST tests', () => {
     })
 
     expect(res.statusCode).toBe(redirectStatusCode)
-    expect(res.headers.location).toBe('/repeat/pizza-order/summary')
+    expect(res.headers.location).toMatch(/^\/repeat\/pizza-order\/summary?/)
   })
 
   test('POST /repeat/pizza-order/{id}/confirm-delete returns 302', async () => {
@@ -255,7 +258,7 @@ describe('Repeat POST tests', () => {
     })
 
     expect(res.statusCode).toBe(redirectStatusCode)
-    expect(res.headers.location).toBe('/repeat/pizza-order/summary')
+    expect(res.headers.location).toMatch(/^\/repeat\/pizza-order\/summary/)
   })
 
   test('POST /repeat/pizza-order/summary ADD_ANOTHER returns 302', async () => {
