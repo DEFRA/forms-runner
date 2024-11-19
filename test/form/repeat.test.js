@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -31,11 +32,22 @@ async function createRepeatItem(
   server,
   repeatPage,
   expectedItemCount = 1,
-  headers
+  headers,
+  itemId = randomUUID()
 ) {
+  const itemUrl = `${url}/${itemId}`
+
+  // Issue a GET request to the item
+  // page to add to the progress stack
+  await server.inject({
+    method: 'GET',
+    url: itemUrl,
+    headers
+  })
+
   const options = {
     method: 'POST',
-    url,
+    url: itemUrl,
     headers,
     payload: {
       sQsXKK: 'Ham',
@@ -46,7 +58,9 @@ async function createRepeatItem(
   const res1 = await server.inject(options)
 
   expect(res1.statusCode).toBe(redirectStatusCode)
-  expect(res1.headers.location).toBe('/repeat/pizza-order/summary')
+  expect(res1.headers.location).toBe(
+    `/repeat/pizza-order/summary?itemId=${itemId}`
+  )
 
   const repeatName = repeatPage.repeat.options.name
 
@@ -70,7 +84,8 @@ async function createRepeatItem(
 
   return {
     item,
-    headers: headers ?? getCookieHeader(res1, 'session')
+    headers: headers ?? getCookieHeader(res1, 'session'),
+    redirectLocation: res1.headers.location
   }
 }
 
@@ -158,6 +173,60 @@ describe('Repeat GET tests', () => {
 
     expect($heading2).toBeInTheDocument()
     expect($heading2).toHaveClass('govuk-caption-l')
+  })
+
+  test('GET /repeat/pizza-order/{id} returns 200 with back link', async () => {
+    const { item, headers, redirectLocation } = await createRepeatItem(
+      server,
+      repeatPage
+    )
+
+    if (!redirectLocation) {
+      throw new Error('Unexpected empty redirectLocation')
+    }
+
+    // Visit the summary page to append to the progress stack to
+    // ensure the back link is rendered on the next page request
+    await server.inject({
+      method: 'GET',
+      url: redirectLocation,
+      headers
+    })
+
+    const options = {
+      method: 'GET',
+      url: `${url}/${item.itemId}`,
+      headers
+    }
+    const { container, response } = await renderResponse(server, options)
+
+    expect(response.statusCode).toBe(okStatusCode)
+
+    const $heading1 = container.getByRole('heading', {
+      name: 'Pizza order',
+      level: 1
+    })
+
+    const $heading2 = container.getByRole('heading', {
+      name: 'Pizza 1',
+      level: 2
+    })
+
+    expect($heading1).toBeInTheDocument()
+    expect($heading1).toHaveClass('govuk-heading-l')
+
+    expect($heading2).toBeInTheDocument()
+    expect($heading2).toHaveClass('govuk-caption-l')
+
+    const $backLink = container.getByRole('link', {
+      name: 'Back'
+    })
+
+    expect($backLink).toBeInTheDocument()
+    expect($backLink).toHaveAttribute(
+      'href',
+      `/repeat/pizza-order/summary?itemId=${item.itemId}`
+    )
   })
 
   test('GET /repeat/pizza-order/{id}/confirm-delete returns 200', async () => {
