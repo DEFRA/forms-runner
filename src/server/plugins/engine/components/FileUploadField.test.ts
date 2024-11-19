@@ -163,7 +163,7 @@ describe('FileUploadField', () => {
       } satisfies FileUploadFieldComponent
 
       collection = new ComponentCollection([def], { model })
-      component = collection.questions[0]
+      component = collection.fields[0]
     })
 
     describe('Schema', () => {

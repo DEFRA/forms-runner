@@ -359,11 +359,11 @@ export class RepeatPageController extends PageController {
     repeatTitle: string
     backLink?: string
   } {
-    const { section, model } = this
-    const { title } = this.repeat.options
+    const { collection, model, repeat, section } = this
+
+    const { title } = repeat.options
     const sectionTitle = section?.hideTitle !== true ? section?.title : ''
     const serviceUrl = `/${model.basePath}`
-    const firstQuestion = this.collection.questions.at(0)
     const rows: Row[] = []
     let count = 0
 
@@ -389,8 +389,8 @@ export class RepeatPageController extends PageController {
           })
         }
 
-        const itemDisplayText: string = firstQuestion
-          ? firstQuestion.getDisplayStringFromState(item)
+        const itemDisplayText = collection.fields.length
+          ? collection.fields[0].getDisplayStringFromState(item)
           : ''
 
         rows.push({

@@ -33,7 +33,7 @@ export class ComponentCollection {
   parent?: ComponentFieldClass
 
   components: ComponentFieldClass[]
-  questions: FormComponentFieldClass[]
+  fields: FormComponentFieldClass[]
 
   formSchema: ObjectSchema<FormPayload>
   stateSchema: ObjectSchema<FormSubmissionState>
@@ -65,7 +65,7 @@ export class ComponentCollection {
   ) {
     const components = defs.map((def) => createComponentField(def, props))
 
-    const questions = components.filter(
+    const fields = components.filter(
       (component): component is FormComponentFieldClass =>
         component.isFormComponent
     )
@@ -74,7 +74,7 @@ export class ComponentCollection {
     let stateSchema = joi.object<FormSubmissionState>().required()
 
     // Add each field or concat collection
-    for (const field of questions) {
+    for (const field of fields) {
       const { collection, name } = field
 
       formSchema = collection
@@ -106,12 +106,12 @@ export class ComponentCollection {
         }
 
         // Find the parent field
-        const parent = questions.find(
+        const parent = fields.find(
           (item) => item.name === key?.split('__').shift()
         )
 
         // Find the child field
-        const child = (parent?.collection?.questions ?? questions).find(
+        const child = (parent?.collection?.fields ?? fields).find(
           (item) => item.name === key
         )
 
@@ -147,19 +147,19 @@ export class ComponentCollection {
     this.parent = props.parent
 
     this.components = components
-    this.questions = questions
+    this.fields = fields
     this.formSchema = formSchema
     this.stateSchema = stateSchema
   }
 
   get keys() {
-    return this.questions.map(({ name }) => name)
+    return this.fields.map(({ name }) => name)
   }
 
   getFormDataFromState(state: FormSubmissionState) {
     const payload: FormPayload = {}
 
-    this.questions.forEach((component) => {
+    this.fields.forEach((component) => {
       Object.assign(payload, component.getFormDataFromState(state))
     })
 
@@ -187,7 +187,7 @@ export class ComponentCollection {
   getStateFromValidForm(payload: FormPayload) {
     const state: FormState = {}
 
-    this.questions.forEach((component) => {
+    this.fields.forEach((component) => {
       Object.assign(state, component.getStateFromValidForm(payload))
     })
 
@@ -195,12 +195,12 @@ export class ComponentCollection {
   }
 
   getErrors(errors?: FormSubmissionError[]): FormSubmissionError[] | undefined {
-    const { questions } = this
+    const { fields } = this
 
     const list: FormSubmissionError[] = []
 
     // Add only one error per field
-    for (const field of questions) {
+    for (const field of fields) {
       const error = field.getError(errors)
 
       if (error) {

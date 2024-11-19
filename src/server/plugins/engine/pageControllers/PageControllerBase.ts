@@ -141,7 +141,7 @@ export class PageControllerBase {
 
           // Check for optional in label
           const isOptional =
-            this.collection.questions.at(0)?.options.required === false
+            this.collection.fields.at(0)?.options.required === false
 
           if (pageTitle) {
             labelOrLegend.text = isOptional
@@ -265,7 +265,7 @@ export class PageControllerBase {
 
       if (!hasRepeater(nextPage.pageDef)) {
         // Iterate all components on this page and pull out the saved values from the state
-        for (const component of nextPage.collection.questions) {
+        for (const component of nextPage.collection.fields) {
           const { name, options } = component
 
           const value = component.getFormValueFromState(state)

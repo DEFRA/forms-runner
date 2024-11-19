@@ -68,12 +68,12 @@ describe('PageControllerBase', () => {
       expect(components[2].name).toBe('detailsField')
     })
 
-    it('returns the questions for the page', () => {
-      const { questions } = controller.collection
+    it('returns the fields for the page', () => {
+      const { fields } = controller.collection
 
-      expect(questions).toHaveLength(2)
-      expect(questions[0].name).toBe('dateField')
-      expect(questions[1].name).toBe('yesNoField')
+      expect(fields).toHaveLength(2)
+      expect(fields[0].name).toBe('dateField')
+      expect(fields[1].name).toBe('yesNoField')
     })
   })
 

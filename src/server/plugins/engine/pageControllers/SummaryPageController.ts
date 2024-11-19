@@ -119,7 +119,7 @@ export class SummaryPageController extends PageController {
             let conditionMatches = true
             if (property) {
               propertyMatches =
-                page.collection.questions.filter(
+                page.collection.fields.filter(
                   (component) => component.name === property
                 ).length > 0
             }
@@ -244,7 +244,7 @@ async function extendFileRetention(
   // For each file upload component with files in
   // state, add the files to the batch getting persisted
   model.pages.forEach((page) => {
-    const fileUploadComponents = page.collection.questions.filter(
+    const fileUploadComponents = page.collection.fields.filter(
       (component) => component instanceof FileUploadField
     )
 

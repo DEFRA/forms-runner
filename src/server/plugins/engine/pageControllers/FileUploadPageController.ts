@@ -81,7 +81,7 @@ export class FileUploadPageController extends PageController {
     const fileUploadComponent = fileUploadComponents[0]
 
     // Assert the file upload component is the first form component
-    if (this.collection.questions[0].name !== fileUploadComponent.name) {
+    if (this.collection.fields[0].name !== fileUploadComponent.name) {
       throw Boom.badImplementation(
         `Expected '${fileUploadComponent.name}' to be the first form component in FileUploadPageController '${pageDef.path}'`
       )
