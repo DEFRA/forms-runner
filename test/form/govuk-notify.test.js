@@ -138,12 +138,15 @@ describe('Submission journey test', () => {
         body: expect.stringContaining(outdent`
           ^ For security reasons, the links in this email expire at ${formattedExpiryDate}
 
+
           Form received at ${dateNowFormatted}.
+
 
           ## Text field
           \`\`\`
           Text field
           \`\`\`
+
 
 
           ## Multiline text field
@@ -152,10 +155,12 @@ describe('Submission journey test', () => {
           \`\`\`
 
 
+
           ## Number field
           \`\`\`
           1
           \`\`\`
+
 
 
           ## Date parts field
@@ -164,10 +169,12 @@ describe('Submission journey test', () => {
           \`\`\`
 
 
+
           ## Month year field
           \`\`\`
           2012-12
           \`\`\`
+
 
 
           ## Yes/No field
@@ -176,10 +183,12 @@ describe('Submission journey test', () => {
           \`\`\`
 
 
+
           ## Email address field
           \`\`\`
           user@email.com
           \`\`\`
+
 
 
           ## Telephone number field
@@ -188,10 +197,12 @@ describe('Submission journey test', () => {
           \`\`\`
 
 
+
           ## Address field
           \`\`\`
           Address line 1, Address line 2, Town or city, CW1 1AB
           \`\`\`
+
 
 
           ## Radios field
@@ -200,10 +211,12 @@ describe('Submission journey test', () => {
           \`\`\`
 
 
+
           ## Select field
           \`\`\`
           910400000
           \`\`\`
+
 
 
           ## Autocomplete field
@@ -212,10 +225,12 @@ describe('Submission journey test', () => {
           \`\`\`
 
 
+
           ## Checkboxes field 1
           \`\`\`
           Shetland
           \`\`\`
+
 
 
           ## Checkboxes field 2
@@ -224,10 +239,12 @@ describe('Submission journey test', () => {
           \`\`\`
 
 
+
           ## Checkboxes field 3 (number)
           \`\`\`
           1
           \`\`\`
+
 
 
           ## Checkboxes field 4 (number)
@@ -236,13 +253,16 @@ describe('Submission journey test', () => {
           \`\`\`
 
 
+
           ## Upload your methodology statement
           1 file uploaded (links expire ${formattedExpiryDate}):
 
           * [test.pdf](https://test-designer.cdp-int.defra.cloud/file-download/5a76a1a3-bc8a-4bc0-859a-116d775c7f15)
 
 
+
           [Download main form (CSV)](https://test-designer.cdp-int.defra.cloud/file-download/00000000-0000-0000-0000-000000000000)
+
           `)
       }
     })
