@@ -1,7 +1,7 @@
 import Wreck from '@hapi/wreck'
 
-type Method = keyof Pick<typeof Wreck, 'get' | 'post' | 'put' | 'delete'>
-type RequestOptions = Parameters<typeof Wreck.defaults>[0]
+export type Method = keyof Pick<typeof Wreck, 'get' | 'post' | 'put' | 'delete'>
+export type RequestOptions = Parameters<typeof Wreck.defaults>[0]
 
 export const request = async <BodyType = Buffer>(
   method: Method,
