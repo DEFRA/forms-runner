@@ -420,14 +420,16 @@ export function getPersonalisation(
   const lines: string[] = []
 
   lines.push(
-    `^ For security reasons, the links in this email expire at ${formattedExpiryDate}\n`
+    `^ For security reasons, the links in this email expire at ${formattedExpiryDate}\n\n`
   )
 
   if (formStatus.isPreview) {
-    lines.push(`This is a test of the ${model.name} ${formStatus.state} form.`)
+    lines.push(
+      `This is a test of the ${model.name} ${formStatus.state} form.\n\n`
+    )
   }
 
-  lines.push(`Form received at ${formattedNow}.\n`)
+  lines.push(`Form received at ${formattedNow}.\n\n`)
 
   questions.forEach((question) => {
     const { title, value, field } = question
@@ -445,9 +447,9 @@ export function getPersonalisation(
         )
         .join('\n')
 
-      line = `${files.length} file${files.length !== 1 ? 's' : ''} uploaded (links expire ${formattedExpiryDate}):\n\n${bullets}`
+      line = `${files.length} file${files.length !== 1 ? 's' : ''} uploaded (links expire ${formattedExpiryDate}):\n\n${bullets}\n`
     } else if (Array.isArray(item.subItems)) {
-      line = `[Download ${item.title} (CSV)](${designerUrl}/file-download/${submitResponse.result.files.repeaters[item.name]})`
+      line = `[Download ${item.title} (CSV)](${designerUrl}/file-download/${submitResponse.result.files.repeaters[item.name]})\n`
     } else {
       line = literal(value)
     }
@@ -468,7 +470,7 @@ export function getPersonalisation(
 }
 
 function literal(str: string) {
-  return `\`\`\`\n${str}\n\`\`\``
+  return `\`\`\`\n${str}\n\`\`\`\n`
 }
 
 function getFormSubmissionData(
