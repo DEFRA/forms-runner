@@ -36,7 +36,7 @@ export async function sendNotification(args: SendNotificationArgs) {
   const { templateId, emailAddress, personalisation } = args
 
   return postJson(
-    `https://api.notifications.service.gov.uk/v2/notifications/email`,
+    'https://api.notifications.service.gov.uk/v2/notifications/email',
     {
       payload: {
         template_id: templateId,
