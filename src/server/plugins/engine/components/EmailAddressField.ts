@@ -2,7 +2,6 @@ import { type EmailAddressFieldComponent } from '@defra/forms-model'
 import joi from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
   type FormSubmissionError
@@ -11,8 +10,11 @@ import {
 export class EmailAddressField extends FormComponent {
   declare options: EmailAddressFieldComponent['options']
 
-  constructor(def: EmailAddressFieldComponent, model: FormModel) {
-    super(def, model)
+  constructor(
+    def: EmailAddressFieldComponent,
+    props: ConstructorParameters<typeof FormComponent>[1]
+  ) {
+    super(def, props)
 
     const { options, title } = def
 

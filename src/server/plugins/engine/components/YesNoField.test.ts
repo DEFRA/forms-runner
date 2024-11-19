@@ -5,7 +5,7 @@ import {
 } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
+import { type Field } from '~/src/server/plugins/engine/components/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { listYesNoExamples } from '~/test/fixtures/list.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
@@ -19,9 +19,9 @@ describe('YesNoField', () => {
   } satisfies FormDefinition
 
   let def: YesNoFieldComponent
-  let formModel: FormModel
+  let model: FormModel
   let collection: ComponentCollection
-  let component: FormComponentFieldClass
+  let field: Field
 
   beforeEach(() => {
     def = {
@@ -31,12 +31,12 @@ describe('YesNoField', () => {
       options: {}
     } satisfies YesNoFieldComponent
 
-    formModel = new FormModel(definition, {
+    model = new FormModel(definition, {
       basePath: 'test'
     })
 
-    collection = new ComponentCollection([def], { model: formModel })
-    component = collection.formItems[0]
+    collection = new ComponentCollection([def], { model })
+    field = collection.fields[0]
   })
 
   describe('Schema', () => {
@@ -58,10 +58,10 @@ describe('YesNoField', () => {
       const { formSchema } = collection
       const { keys } = formSchema.describe()
 
-      expect(component.keys).toEqual(['myComponent'])
-      expect(component.children).toBeUndefined()
+      expect(field.keys).toEqual(['myComponent'])
+      expect(field.collection).toBeUndefined()
 
-      for (const key of component.keys) {
+      for (const key of field.keys) {
         expect(keys).toHaveProperty(key)
       }
     })
@@ -83,7 +83,7 @@ describe('YesNoField', () => {
     it('is optional when configured', () => {
       const collectionOptional = new ComponentCollection(
         [{ ...def, options: { required: false } }],
-        { model: formModel }
+        { model }
       )
 
       const { formSchema } = collectionOptional
@@ -150,9 +150,9 @@ describe('YesNoField', () => {
       const state2 = getFormState(false)
       const state3 = getFormState(null)
 
-      const text1 = component.getDisplayStringFromState(state1)
-      const text2 = component.getDisplayStringFromState(state2)
-      const text3 = component.getDisplayStringFromState(state3)
+      const text1 = field.getDisplayStringFromState(state1)
+      const text2 = field.getDisplayStringFromState(state2)
+      const text3 = field.getDisplayStringFromState(state3)
 
       expect(text1).toBe('Yes')
       expect(text2).toBe('No')
@@ -164,9 +164,9 @@ describe('YesNoField', () => {
       const state2 = getFormState(false)
       const state3 = getFormState(null)
 
-      const payload1 = component.getFormDataFromState(state1)
-      const payload2 = component.getFormDataFromState(state2)
-      const payload3 = component.getFormDataFromState(state3)
+      const payload1 = field.getFormDataFromState(state1)
+      const payload2 = field.getFormDataFromState(state2)
+      const payload3 = field.getFormDataFromState(state3)
 
       expect(payload1).toEqual(getFormData(true))
       expect(payload2).toEqual(getFormData(false))
@@ -178,9 +178,9 @@ describe('YesNoField', () => {
       const state2 = getFormState(false)
       const state3 = getFormState(null)
 
-      const value1 = component.getFormValueFromState(state1)
-      const value2 = component.getFormValueFromState(state2)
-      const value3 = component.getFormValueFromState(state3)
+      const value1 = field.getFormValueFromState(state1)
+      const value2 = field.getFormValueFromState(state2)
+      const value3 = field.getFormValueFromState(state3)
 
       expect(value1).toBe(true)
       expect(value2).toBe(false)
@@ -192,9 +192,9 @@ describe('YesNoField', () => {
       const payload2 = getFormData(false)
       const payload3 = getFormData()
 
-      const value1 = component.getStateFromValidForm(payload1)
-      const value2 = component.getStateFromValidForm(payload2)
-      const value3 = component.getStateFromValidForm(payload3)
+      const value1 = field.getStateFromValidForm(payload1)
+      const value2 = field.getStateFromValidForm(payload2)
+      const value3 = field.getStateFromValidForm(payload3)
 
       expect(value1).toEqual(getFormState(true))
       expect(value2).toEqual(getFormState(false))
@@ -208,7 +208,7 @@ describe('YesNoField', () => {
     it('sets Nunjucks component defaults', () => {
       const item = items[0]
 
-      const viewModel = component.getViewModel(getFormData(item.value))
+      const viewModel = field.getViewModel(getFormData(item.value))
 
       expect(viewModel).toEqual(
         expect.objectContaining({
@@ -221,7 +221,7 @@ describe('YesNoField', () => {
     })
 
     it.each([...items])('sets Nunjucks component radio items', (item) => {
-      const viewModel = component.getViewModel(getFormData(item.value))
+      const viewModel = field.getViewModel(getFormData(item.value))
 
       expect(viewModel.items?.[0]).not.toMatchObject({
         value: '' // First item is never empty

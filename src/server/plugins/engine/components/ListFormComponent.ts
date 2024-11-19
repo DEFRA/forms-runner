@@ -17,7 +17,6 @@ import {
   DataType,
   type ListItem
 } from '~/src/server/plugins/engine/components/types.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
   type FormSubmissionError,
@@ -62,11 +61,12 @@ export class ListFormComponent extends FormComponent {
     def:
       | SelectionComponentsDef // Allow for Yes/No field custom list
       | (YesNoFieldComponent & Pick<ListComponentsDef, 'list'>),
-    model: FormModel
+    props: ConstructorParameters<typeof FormComponent>[1]
   ) {
-    super(def, model)
+    super(def, props)
 
     const { options, title } = def
+    const { model } = props
 
     if ('list' in def) {
       this.list = model.getList(def.list)

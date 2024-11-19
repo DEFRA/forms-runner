@@ -18,7 +18,6 @@ import {
   DataType,
   type DateInputItem
 } from '~/src/server/plugins/engine/components/types.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormPayload,
@@ -32,12 +31,15 @@ export class DatePartsField extends FormComponent {
   declare options: DatePartsFieldComponent['options']
   declare formSchema: ObjectSchema<FormPayload>
   declare stateSchema: ObjectSchema<FormState>
+  declare collection: ComponentCollection
 
-  children: ComponentCollection
   dataType: DataType = DataType.Date
 
-  constructor(def: DatePartsFieldComponent, model: FormModel) {
-    super(def, model)
+  constructor(
+    def: DatePartsFieldComponent,
+    props: ConstructorParameters<typeof FormComponent>[1]
+  ) {
+    super(def, props)
 
     const { name, options } = def
 
@@ -53,7 +55,7 @@ export class DatePartsField extends FormComponent {
       'number.max': messageTemplate.dateFormat
     }
 
-    this.children = new ComponentCollection(
+    this.collection = new ComponentCollection(
       [
         {
           type: ComponentType.NumberField,
@@ -92,7 +94,7 @@ export class DatePartsField extends FormComponent {
           }
         }
       ],
-      { model, parent: this },
+      { ...props, parent: this },
       {
         custom: getValidatorDate(this),
         messages: customValidationMessages,
@@ -101,8 +103,8 @@ export class DatePartsField extends FormComponent {
     )
 
     this.options = options
-    this.formSchema = this.children.formSchema
-    this.stateSchema = this.children.stateSchema
+    this.formSchema = this.collection.formSchema
+    this.stateSchema = this.collection.stateSchema
   }
 
   getFormValueFromState(state: FormSubmissionState) {
@@ -131,7 +133,7 @@ export class DatePartsField extends FormComponent {
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
-    const { children, name } = this
+    const { collection, name } = this
 
     const viewModel = super.getViewModel(payload, errors)
     let { fieldset, label } = viewModel
@@ -140,7 +142,7 @@ export class DatePartsField extends FormComponent {
     const hasError = errors?.some((error) => error.name === name)
 
     // Use the component collection to generate the subitems
-    const items: DateInputItem[] = children
+    const items: DateInputItem[] = collection
       .getViewModel(payload, errors)
       .map(({ model }) => {
         let { label, type, value, classes, errorMessage } = model
@@ -207,14 +209,14 @@ interface DatePartsState extends Record<string, number> {
 
 export function getValidatorDate(component: DatePartsField) {
   const validator: CustomValidator = (payload: FormPayload, helpers) => {
-    const { children, name, options } = component
+    const { collection, name, options } = component
 
     const values = component.getFormValueFromState(
       component.getStateFromValidForm(payload)
     )
 
     const context: Context = {
-      missing: children.keys,
+      missing: collection.keys,
       key: name
     }
 

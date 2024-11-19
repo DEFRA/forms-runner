@@ -6,7 +6,7 @@ import {
 import { addDays, format, startOfDay } from 'date-fns'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
+import { type Field } from '~/src/server/plugins/engine/components/helpers.js'
 import { type DateInputItem } from '~/src/server/plugins/engine/components/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
@@ -22,10 +22,10 @@ describe('DatePartsField', () => {
     conditions: []
   } satisfies FormDefinition
 
-  let formModel: FormModel
+  let model: FormModel
 
   beforeEach(() => {
-    formModel = new FormModel(definition, {
+    model = new FormModel(definition, {
       basePath: 'test'
     })
   })
@@ -33,7 +33,7 @@ describe('DatePartsField', () => {
   describe('Defaults', () => {
     let def: DatePartsFieldComponent
     let collection: ComponentCollection
-    let component: FormComponentFieldClass
+    let field: Field
 
     beforeEach(() => {
       def = {
@@ -43,8 +43,8 @@ describe('DatePartsField', () => {
         options: {}
       } satisfies DatePartsFieldComponent
 
-      collection = new ComponentCollection([def], { model: formModel })
-      component = collection.formItems[0]
+      collection = new ComponentCollection([def], { model })
+      field = collection.fields[0]
     })
 
     describe('Schema', () => {
@@ -78,16 +78,16 @@ describe('DatePartsField', () => {
         const { formSchema } = collection
         const { keys } = formSchema.describe()
 
-        expect(component.keys).toEqual([
+        expect(field.keys).toEqual([
           'myComponent',
           'myComponent__day',
           'myComponent__month',
           'myComponent__year'
         ])
 
-        expect(component.children?.keys).not.toHaveProperty('myComponent')
+        expect(field.collection?.keys).not.toHaveProperty('myComponent')
 
-        for (const key of component.children?.keys ?? []) {
+        for (const key of field.collection?.keys ?? []) {
           expect(keys).toHaveProperty(key)
         }
       })
@@ -128,7 +128,7 @@ describe('DatePartsField', () => {
               options: { required: false }
             }
           ],
-          { model: formModel }
+          { model }
         )
 
         const { formSchema } = collectionOptional
@@ -260,8 +260,8 @@ describe('DatePartsField', () => {
         const state1 = getFormState(date)
         const state2 = getFormState({})
 
-        const text1 = component.getDisplayStringFromState(state1)
-        const text2 = component.getDisplayStringFromState(state2)
+        const text1 = field.getDisplayStringFromState(state1)
+        const text2 = field.getDisplayStringFromState(state2)
 
         expect(text1).toBe('31 December 2024')
         expect(text2).toBe('')
@@ -271,8 +271,8 @@ describe('DatePartsField', () => {
         const state1 = getFormState(startOfDay(date))
         const state2 = getFormState({})
 
-        const payload1 = component.getFormDataFromState(state1)
-        const payload2 = component.getFormDataFromState(state2)
+        const payload1 = field.getFormDataFromState(state1)
+        const payload2 = field.getFormDataFromState(state2)
 
         expect(payload1).toEqual(getFormData(date))
         expect(payload2).toEqual(getFormData({}))
@@ -282,8 +282,8 @@ describe('DatePartsField', () => {
         const state1 = getFormState(startOfDay(date))
         const state2 = getFormState({})
 
-        const value1 = component.getFormValueFromState(state1)
-        const value2 = component.getFormValueFromState(state2)
+        const value1 = field.getFormValueFromState(state1)
+        const value2 = field.getFormValueFromState(state2)
 
         expect(value1).toEqual({
           day: 31,
@@ -298,8 +298,8 @@ describe('DatePartsField', () => {
         const payload1 = getFormData(date)
         const payload2 = getFormData({})
 
-        const value1 = component.getStateFromValidForm(payload1)
-        const value2 = component.getStateFromValidForm(payload2)
+        const value1 = field.getStateFromValidForm(payload1)
+        const value2 = field.getStateFromValidForm(payload2)
 
         expect(value1).toEqual(getFormState(date))
         expect(value2).toEqual(getFormState({}))
@@ -309,8 +309,8 @@ describe('DatePartsField', () => {
         const state1 = getFormState(date)
         const state2 = getFormState({})
 
-        const value1 = component.getConditionEvaluationStateValue(state1)
-        const value2 = component.getConditionEvaluationStateValue(state2)
+        const value1 = field.getConditionEvaluationStateValue(state1)
+        const value2 = field.getConditionEvaluationStateValue(state2)
 
         expect(value1).toBe('2024-12-31')
         expect(value2).toBeNull()
@@ -322,7 +322,7 @@ describe('DatePartsField', () => {
 
       it('sets Nunjucks component defaults', () => {
         const payload = getFormData(date)
-        const viewModel = component.getViewModel(payload)
+        const viewModel = field.getViewModel(payload)
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -366,7 +366,7 @@ describe('DatePartsField', () => {
           year: 'YYYY'
         })
 
-        const viewModel = component.getViewModel(payload)
+        const viewModel = field.getViewModel(payload)
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -389,7 +389,7 @@ describe('DatePartsField', () => {
 
       it('sets Nunjucks component fieldset', () => {
         const payload = getFormData(date)
-        const viewModel = component.getViewModel(payload)
+        const viewModel = field.getViewModel(payload)
 
         expect(viewModel.fieldset).toEqual({
           legend: {
@@ -738,7 +738,7 @@ describe('DatePartsField', () => {
       let collection: ComponentCollection
 
       beforeEach(() => {
-        collection = new ComponentCollection([def], { model: formModel })
+        collection = new ComponentCollection([def], { model })
       })
 
       it.each([...assertions])(

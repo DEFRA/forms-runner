@@ -88,7 +88,7 @@ export interface ViewModel extends Record<string, unknown> {
     classes?: string
     attributes?: string | Record<string, string>
   }
-  children?: ComponentViewModel[]
+  components?: ComponentViewModel[]
   upload?: {
     count: number
     pendingCount: number

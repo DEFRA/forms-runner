@@ -8,6 +8,8 @@ import joi, {
   type StringSchema
 } from 'joi'
 
+import { type ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import { type Component } from '~/src/server/plugins/engine/components/helpers.js'
 import {
   DataType,
   type ViewModel
@@ -20,6 +22,9 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class ComponentBase {
+  parent: Component | undefined
+  collection: ComponentCollection | undefined
+
   type: ComponentDef['type']
   name: ComponentDef['name']
   title: ComponentDef['title']
@@ -38,7 +43,13 @@ export class ComponentBase {
   formSchema: ComponentSchema = joi.string()
   stateSchema: ComponentSchema = joi.string()
 
-  constructor(def: ComponentDef, model: FormModel) {
+  constructor(
+    def: ComponentDef,
+    props: {
+      parent?: Component
+      model: FormModel
+    }
+  ) {
     this.type = def.type
     this.name = def.name
     this.title = def.title
@@ -51,7 +62,8 @@ export class ComponentBase {
       this.options = def.options
     }
 
-    this.model = model
+    this.parent = props.parent
+    this.model = props.model
   }
 
   /**

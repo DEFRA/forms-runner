@@ -63,8 +63,8 @@ export class PageControllerBase {
   title: string
   condition?: string
   section?: Section
-  components: ComponentCollection
-  hasFormComponents: boolean
+  collection: ComponentCollection
+  errorSummaryTitle = 'There is a problem'
   viewName = 'index'
 
   constructor(model: FormModel, pageDef: Page) {
@@ -83,16 +83,14 @@ export class PageControllerBase {
     )
 
     // Components collection
-    this.components = new ComponentCollection(
+    this.collection = new ComponentCollection(
       hasComponents(pageDef) ? pageDef.components : [],
       { model, page: this }
     )
 
-    this.components.formSchema = this.components.formSchema.keys({
+    this.collection.formSchema = this.collection.formSchema.keys({
       crumb: joi.string().optional().allow('')
     })
-
-    this.hasFormComponents = !!this.components.formItems.length
   }
 
   /**
@@ -113,7 +111,7 @@ export class PageControllerBase {
 
     const serviceUrl = `/${this.model.basePath}`
 
-    const components = this.components.getViewModel(payload, errors)
+    const components = this.collection.getViewModel(payload, errors)
     const formComponents = components.filter(
       ({ isFormComponent }) => isFormComponent
     )
@@ -143,7 +141,7 @@ export class PageControllerBase {
 
           // Check for optional in label
           const isOptional =
-            this.components.formItems.at(0)?.options.required === false
+            this.collection.fields.at(0)?.options.required === false
 
           if (pageTitle) {
             labelOrLegend.text = isOptional
@@ -237,7 +235,7 @@ export class PageControllerBase {
    */
   getFormDataFromState(state: FormSubmissionState): FormPayload {
     return {
-      ...this.components.getFormDataFromState(state)
+      ...this.collection.getFormDataFromState(state)
     }
   }
 
@@ -245,7 +243,7 @@ export class PageControllerBase {
     request: FormRequestPayload,
     payload: FormRequestPayload['payload']
   ) {
-    return this.components.getStateFromValidForm(payload)
+    return this.collection.getStateFromValidForm(payload)
   }
 
   getErrors(details?: ValidationErrorItem[]) {
@@ -267,7 +265,7 @@ export class PageControllerBase {
 
       if (!hasRepeater(nextPage.pageDef)) {
         // Iterate all components on this page and pull out the saved values from the state
-        for (const component of nextPage.components.formItems) {
+        for (const component of nextPage.collection.fields) {
           const { name, options } = component
 
           const value = component.getFormValueFromState(state)
@@ -483,7 +481,7 @@ export class PageControllerBase {
   ) => Promise<ResponseObject | Boom> {
     return async (request, h) => {
       const formPayload = this.getPayload(request)
-      const formResult = this.components.validate(formPayload)
+      const formResult = this.collection.validate(formPayload)
 
       let state = await this.getState(request)
       const progress = state.progress ?? []
@@ -505,7 +503,7 @@ export class PageControllerBase {
         )
       }
 
-      const stateResult = this.components.validate(
+      const stateResult = this.collection.validate(
         this.getStateFromValidForm(request, payload),
         'stateSchema'
       )
@@ -617,7 +615,7 @@ export class PageControllerBase {
   ) {
     const viewModel = this.getViewModel(request, payload, errors)
 
-    viewModel.errors = this.components.getErrors(viewModel.errors)
+    viewModel.errors = this.collection.getErrors(viewModel.errors)
     viewModel.backLink = progress[progress.length - 2]
 
     return h.view(this.viewName, viewModel)

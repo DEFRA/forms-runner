@@ -1,6 +1,6 @@
 import { type DetailItem } from '~/src/server/plugins/engine/models/types.js'
 
-export interface Field {
+export interface FieldSummary {
   key: string
   type: DetailItem['dataType']
   title: DetailItem['title']

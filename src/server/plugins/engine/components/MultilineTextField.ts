@@ -1,8 +1,8 @@
 import { type MultilineTextFieldComponent } from '@defra/forms-model'
 import Joi, { type CustomValidator, type StringSchema } from 'joi'
 
+import { type ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormPayload,
   type FormSubmissionError
@@ -16,8 +16,11 @@ export class MultilineTextField extends FormComponent {
 
   isCharacterOrWordCount = false
 
-  constructor(def: MultilineTextFieldComponent, model: FormModel) {
-    super(def, model)
+  constructor(
+    def: MultilineTextFieldComponent,
+    props: ConstructorParameters<typeof ComponentBase>[1]
+  ) {
+    super(def, props)
 
     const { schema, options, title } = def
 

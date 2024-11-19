@@ -1,7 +1,6 @@
 import { type InsetTextComponent } from '@defra/forms-model'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   type FormPayload,
   type FormSubmissionError
@@ -10,8 +9,11 @@ import {
 export class InsetText extends ComponentBase {
   content: InsetTextComponent['content']
 
-  constructor(def: InsetTextComponent, model: FormModel) {
-    super(def, model)
+  constructor(
+    def: InsetTextComponent,
+    props: ConstructorParameters<typeof ComponentBase>[1]
+  ) {
+    super(def, props)
 
     const { content } = def
 

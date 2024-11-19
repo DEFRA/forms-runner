@@ -1,6 +1,6 @@
 import { type ValidationResult } from 'joi'
 
-import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
+import { type Field } from '~/src/server/plugins/engine/components/helpers.js'
 import { getError, redirectUrl } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
@@ -126,7 +126,7 @@ export class SummaryViewModel {
         if (page instanceof RepeatPageController) {
           addRepeaterItem(page, request, model, state, items)
         } else {
-          for (const component of page.components.formItems) {
+          for (const component of page.collection.fields) {
             const item = Item(component, state, page, model)
             if (items.find((cbItem) => cbItem.name === item.name)) return
             items.push(item)
@@ -152,7 +152,7 @@ export class SummaryViewModel {
     const relevantPages: PageControllerClass[] = []
 
     while (nextPage != null) {
-      if (nextPage.hasFormComponents) {
+      if (nextPage.collection.fields.length) {
         relevantPages.push(nextPage)
       }
 
@@ -185,7 +185,7 @@ function addRepeaterItem(
 
   rawValue.forEach((itemState) => {
     const sub: DetailItem[] = []
-    for (const component of page.components.formItems) {
+    for (const component of page.collection.fields) {
       const item = Item(component, itemState, page, model)
       if (sub.find((cbItem) => cbItem.name === item.name)) return
       sub.push(item)
@@ -209,7 +209,7 @@ function addRepeaterItem(
  * Creates an Item object for Details
  */
 function Item(
-  component: FormComponentFieldClass,
+  component: Field,
   state: FormState,
   page: PageControllerClass,
   model: FormModel,

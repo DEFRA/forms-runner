@@ -6,7 +6,7 @@ import {
 
 import { AutocompleteField } from '~/src/server/plugins/engine/components/AutocompleteField.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
+import { type Field } from '~/src/server/plugins/engine/components/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   listNumber,
@@ -55,17 +55,17 @@ describe.each([
     conditions: []
   } satisfies FormDefinition
 
-  let formModel: FormModel
+  let model: FormModel
   let collection: ComponentCollection
-  let component: FormComponentFieldClass
+  let field: Field
 
   beforeEach(() => {
-    formModel = new FormModel(definition, {
+    model = new FormModel(definition, {
       basePath: 'test'
     })
 
-    collection = new ComponentCollection([def], { model: formModel })
-    component = collection.formItems[0]
+    collection = new ComponentCollection([def], { model })
+    field = collection.fields[0]
   })
 
   describe('Defaults', () => {
@@ -86,10 +86,10 @@ describe.each([
         const { formSchema } = collection
         const { keys } = formSchema.describe()
 
-        expect(component.keys).toEqual(['myComponent'])
-        expect(component.children).toBeUndefined()
+        expect(field.keys).toEqual(['myComponent'])
+        expect(field.collection).toBeUndefined()
 
-        for (const key of component.keys) {
+        for (const key of field.keys) {
           expect(keys).toHaveProperty(key)
         }
       })
@@ -111,7 +111,7 @@ describe.each([
       it('is optional when configured', () => {
         const collectionOptional = new ComponentCollection(
           [{ ...def, options: { required: false } }],
-          { model: formModel }
+          { model }
         )
 
         const { formSchema } = collectionOptional
@@ -176,8 +176,8 @@ describe.each([
         const state1 = getFormState(item.state)
         const state2 = getFormState(null)
 
-        const text1 = component.getDisplayStringFromState(state1)
-        const text2 = component.getDisplayStringFromState(state2)
+        const text1 = field.getDisplayStringFromState(state1)
+        const text2 = field.getDisplayStringFromState(state2)
 
         expect(text1).toBe(item.text)
         expect(text2).toBe('')
@@ -187,8 +187,8 @@ describe.each([
         const state1 = getFormState(item.state)
         const state2 = getFormState(null)
 
-        const payload1 = component.getFormDataFromState(state1)
-        const payload2 = component.getFormDataFromState(state2)
+        const payload1 = field.getFormDataFromState(state1)
+        const payload2 = field.getFormDataFromState(state2)
 
         expect(payload1).toEqual(getFormData(item.value))
         expect(payload2).toEqual(getFormData())
@@ -198,8 +198,8 @@ describe.each([
         const state1 = getFormState(item.state)
         const state2 = getFormState(null)
 
-        const value1 = component.getFormValueFromState(state1)
-        const value2 = component.getFormValueFromState(state2)
+        const value1 = field.getFormValueFromState(state1)
+        const value2 = field.getFormValueFromState(state2)
 
         expect(value1).toBe(item.value)
         expect(value2).toBeUndefined()
@@ -209,8 +209,8 @@ describe.each([
         const payload1 = getFormData(item.value)
         const payload2 = getFormData()
 
-        const value1 = component.getStateFromValidForm(payload1)
-        const value2 = component.getStateFromValidForm(payload2)
+        const value1 = field.getStateFromValidForm(payload1)
+        const value2 = field.getStateFromValidForm(payload2)
 
         expect(value1).toEqual(getFormState(item.state))
         expect(value2).toEqual(getFormState(null))
@@ -221,7 +221,7 @@ describe.each([
       it('sets Nunjucks component defaults', () => {
         const item = options.examples[0]
 
-        const viewModel = component.getViewModel(getFormData(item.value))
+        const viewModel = field.getViewModel(getFormData(item.value))
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -236,7 +236,7 @@ describe.each([
       it.each([...options.examples])(
         'sets Nunjucks component autocomplete suggestions',
         (item) => {
-          const viewModel = component.getViewModel(getFormData(item.value))
+          const viewModel = field.getViewModel(getFormData(item.value))
 
           expect(viewModel.items?.[0]).toMatchObject({
             value: '' // First item is always empty
@@ -257,13 +257,13 @@ describe.each([
 
     describe('Autocomplete suggestions', () => {
       it('returns autocomplete suggestions', () => {
-        expect(component).toMatchObject({
+        expect(field).toMatchObject({
           items: options.list.items
         })
       })
 
       it('returns autocomplete suggestions matching type', () => {
-        expect(component).toMatchObject({
+        expect(field).toMatchObject({
           values: expect.arrayContaining([])
         })
       })
@@ -276,11 +276,11 @@ describe.each([
           conditions: []
         } satisfies FormDefinition
 
-        const formModel = new FormModel(definitionNoList, {
+        const model = new FormModel(definitionNoList, {
           basePath: 'test'
         })
 
-        const { items } = new AutocompleteField(def, formModel)
+        const { items } = new AutocompleteField(def, { model })
         expect(items).toEqual([])
       })
     })

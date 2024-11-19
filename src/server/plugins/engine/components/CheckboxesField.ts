@@ -3,7 +3,6 @@ import joi, { type ArraySchema } from 'joi'
 
 import { isFormValue } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { SelectionControlField } from '~/src/server/plugins/engine/components/SelectionControlField.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormState,
   type FormStateValue
@@ -14,8 +13,11 @@ export class CheckboxesField extends SelectionControlField {
   declare formSchema: ArraySchema<string> | ArraySchema<number>
   declare stateSchema: ArraySchema<string> | ArraySchema<number>
 
-  constructor(def: CheckboxesFieldComponent, model: FormModel) {
-    super(def, model)
+  constructor(
+    def: CheckboxesFieldComponent,
+    props: ConstructorParameters<typeof SelectionControlField>[1]
+  ) {
+    super(def, props)
 
     const { listType: type } = this
     const { options, title } = def

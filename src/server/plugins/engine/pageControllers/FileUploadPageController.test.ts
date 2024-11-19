@@ -30,7 +30,7 @@ describe('FileUploadPageController', () => {
 
   let page: Page
   let definition: FormDefinition
-  let formModel: FormModel
+  let model: FormModel
   let controller: FileUploadPageController
 
   beforeEach(() => {
@@ -48,17 +48,17 @@ describe('FileUploadPageController', () => {
       conditions: []
     }
 
-    formModel = new FormModel(definition, {
+    model = new FormModel(definition, {
       basePath: 'test'
     })
 
-    controller = new FileUploadPageController(formModel, page)
+    controller = new FileUploadPageController(model, page)
   })
 
   describe('Constructor', () => {
     it('throws unless there is exactly 1 file upload component', () => {
       expect(() => {
-        const fileUploadController = new FileUploadPageController(formModel, {
+        const fileUploadController = new FileUploadPageController(model, {
           path: '/first-page',
           title: 'Upload files',
           components: [component1],
@@ -81,7 +81,7 @@ describe('FileUploadPageController', () => {
       }
 
       expect(() => {
-        const fileUploadController = new FileUploadPageController(formModel, {
+        const fileUploadController = new FileUploadPageController(model, {
           path: '/first-page',
           title: 'Upload files',
           components: [textComponent, component2],
@@ -97,7 +97,7 @@ describe('FileUploadPageController', () => {
 
   describe('Form validation', () => {
     it('includes title text and error', () => {
-      const result = controller.components.validate()
+      const result = controller.collection.validate()
 
       expect(result.errors).toEqual([
         {
@@ -115,7 +115,7 @@ describe('FileUploadPageController', () => {
     })
 
     it('includes all field errors', () => {
-      const result = controller.components.validate()
+      const result = controller.collection.validate()
       expect(result.errors).toHaveLength(1)
     })
   })

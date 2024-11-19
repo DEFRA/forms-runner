@@ -8,13 +8,13 @@ import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 
 describe('Condition Evaluation Context', () => {
   it('correctly includes/filters state values', () => {
-    const formModel = new FormModel(formJson as FormDefinition, {
+    const model = new FormModel(formJson as FormDefinition, {
       basePath: 'test'
     })
 
     // Selected page appears after convergence and contains a conditional field
     // This is the page we're theoretically browsing to
-    const testConditionsPage = formModel.pages.find(
+    const testConditionsPage = model.pages.find(
       (page) => page.path === '/testconditions'
     )
 
@@ -22,7 +22,7 @@ describe('Condition Evaluation Context', () => {
       throw new Error('Test conditions page not found')
     }
 
-    const page = new PageController(formModel, testConditionsPage.pageDef)
+    const page = new PageController(model, testConditionsPage.pageDef)
 
     // The state below shows we said we had a UKPassport and entered details for an applicant
     const completeState: FormSubmissionState = {
@@ -52,10 +52,7 @@ describe('Condition Evaluation Context', () => {
     }
 
     // Calculate our relevantState based on the page we're attempting to load and the above state we provide
-    let relevantState = page.getConditionEvaluationContext(
-      formModel,
-      completeState
-    )
+    let relevantState = page.getConditionEvaluationContext(model, completeState)
 
     // Our relevantState should know our first applicant
     expect(relevantState).toEqual(
@@ -75,7 +72,7 @@ describe('Condition Evaluation Context', () => {
     completeState.ukPassport = false
 
     // And recalculate our relevantState
-    relevantState = page.getConditionEvaluationContext(formModel, completeState)
+    relevantState = page.getConditionEvaluationContext(model, completeState)
 
     // Our relevantState should no longer know anything about our applicant
     expect(relevantState.applicantOneFirstName).toBeUndefined()
@@ -90,11 +87,11 @@ describe('Condition Evaluation Context', () => {
 
   describe('DatePartsField', () => {
     it('correctly transforms DateTimeParts components', () => {
-      const formModel = new FormModel(dateFormConditionJson as FormDefinition, {
+      const model = new FormModel(dateFormConditionJson as FormDefinition, {
         basePath: 'test'
       })
 
-      const testConditionsPage = formModel.pages.find(
+      const testConditionsPage = model.pages.find(
         (page) => page.path === '/page-one'
       )
 
@@ -102,7 +99,7 @@ describe('Condition Evaluation Context', () => {
         throw new Error('Test conditions page not found')
       }
 
-      const page = new PageController(formModel, testConditionsPage.pageDef)
+      const page = new PageController(model, testConditionsPage.pageDef)
 
       const completeState: FormSubmissionState = {
         progress: [],
@@ -113,7 +110,7 @@ describe('Condition Evaluation Context', () => {
 
       // get the state including our DatePartsField
       const relevantState = page.getConditionEvaluationContext(
-        formModel,
+        model,
         completeState
       )
 

@@ -1,9 +1,7 @@
 import { type FormComponentsDef } from '@defra/forms-model'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
-import { type ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   type FormPayload,
   type FormState,
@@ -16,12 +14,14 @@ import {
 export class FormComponent extends ComponentBase {
   type: FormComponentsDef['type']
   hint: FormComponentsDef['hint']
-  children: ComponentCollection | undefined
 
   isFormComponent = true
 
-  constructor(def: FormComponentsDef, model: FormModel) {
-    super(def, model)
+  constructor(
+    def: FormComponentsDef,
+    props: ConstructorParameters<typeof ComponentBase>[1]
+  ) {
+    super(def, props)
 
     const { hint, type } = def
 
@@ -30,20 +30,20 @@ export class FormComponent extends ComponentBase {
   }
 
   get keys() {
-    const { children, name } = this
+    const { collection, name } = this
 
-    if (children) {
-      return [name, ...children.keys]
+    if (collection) {
+      return [name, ...collection.keys]
     }
 
     return [name]
   }
 
   getFormDataFromState(state: FormSubmissionState): FormPayload {
-    const { children, name } = this
+    const { collection, name } = this
 
-    if (children) {
-      return children.getFormDataFromState(state)
+    if (collection) {
+      return collection.getFormDataFromState(state)
     }
 
     const value = state[name]
@@ -54,10 +54,10 @@ export class FormComponent extends ComponentBase {
   }
 
   getFormValueFromState(state: FormSubmissionState): FormValue | FormPayload {
-    const { children, name } = this
+    const { collection, name } = this
 
-    if (children) {
-      return children.getFormValueFromState(state)
+    if (collection) {
+      return collection.getFormValueFromState(state)
     }
 
     const value = state[name]
@@ -65,10 +65,10 @@ export class FormComponent extends ComponentBase {
   }
 
   getStateFromValidForm(payload: FormPayload): FormState {
-    const { children, name } = this
+    const { collection, name } = this
 
-    if (children) {
-      return children.getStateFromValidForm(payload)
+    if (collection) {
+      return collection.getStateFromValidForm(payload)
     }
 
     const value = payload[name]

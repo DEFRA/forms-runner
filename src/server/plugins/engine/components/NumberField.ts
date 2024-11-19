@@ -5,7 +5,6 @@ import {
   FormComponent,
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormPayload,
@@ -21,8 +20,11 @@ export class NumberField extends FormComponent {
   declare formSchema: NumberSchema
   declare stateSchema: NumberSchema
 
-  constructor(def: NumberFieldComponent, model: FormModel) {
-    super(def, model)
+  constructor(
+    def: NumberFieldComponent,
+    props: ConstructorParameters<typeof FormComponent>[1]
+  ) {
+    super(def, props)
 
     const { options, schema, title } = def
 
