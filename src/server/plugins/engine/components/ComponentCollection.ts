@@ -11,9 +11,9 @@ import {
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import {
-  createComponentField,
-  type ComponentFieldClass,
-  type FormComponentFieldClass
+  createComponent,
+  type Component,
+  type Field
 } from '~/src/server/plugins/engine/components/helpers.js'
 import { type ComponentViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { getErrors } from '~/src/server/plugins/engine/helpers.js'
@@ -30,10 +30,10 @@ import {
 
 export class ComponentCollection {
   page?: PageControllerClass
-  parent?: ComponentFieldClass
+  parent?: Component
 
-  components: ComponentFieldClass[]
-  fields: FormComponentFieldClass[]
+  components: Component[]
+  fields: Field[]
 
   formSchema: ObjectSchema<FormPayload>
   stateSchema: ObjectSchema<FormSubmissionState>
@@ -42,7 +42,7 @@ export class ComponentCollection {
     defs: ComponentDef[],
     props: {
       page?: PageControllerClass
-      parent?: ComponentFieldClass
+      parent?: Component
       model: FormModel
     },
     schema?: {
@@ -63,11 +63,10 @@ export class ComponentCollection {
       messages?: LanguageMessages
     }
   ) {
-    const components = defs.map((def) => createComponentField(def, props))
+    const components = defs.map((def) => createComponent(def, props))
 
     const fields = components.filter(
-      (component): component is FormComponentFieldClass =>
-        component.isFormComponent
+      (component): component is Field => component.isFormComponent
     )
 
     let formSchema = joi.object<FormPayload>().required()

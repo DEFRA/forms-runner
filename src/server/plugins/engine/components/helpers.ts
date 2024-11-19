@@ -3,11 +3,13 @@ import { ComponentType, type ComponentDef } from '@defra/forms-model'
 import { type ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import * as Components from '~/src/server/plugins/engine/components/index.js'
 
-export type ComponentFieldClass = InstanceType<ComponentFieldType>
-export type ComponentFieldType = (typeof Components)[keyof typeof Components]
+// All component instances
+export type Component = InstanceType<
+  (typeof Components)[keyof typeof Components]
+>
 
-export type FormComponentFieldClass = InstanceType<FormComponentFieldType>
-export type FormComponentFieldType =
+// Field component instances only
+export type Field = InstanceType<
   | typeof Components.AutocompleteField
   | typeof Components.CheckboxesField
   | typeof Components.DatePartsField
@@ -20,15 +22,16 @@ export type FormComponentFieldType =
   | typeof Components.TextField
   | typeof Components.UkAddressField
   | typeof Components.FileUploadField
+>
 
 /**
  * Create field instance for each {@link ComponentDef} type
  */
-export function createComponentField(
+export function createComponent(
   def: ComponentDef,
   options: ConstructorParameters<typeof ComponentBase>[1]
-): ComponentFieldClass {
-  let component: ComponentFieldClass | undefined
+): Component {
+  let component: Component | undefined
 
   switch (def.type) {
     case ComponentType.AutocompleteField:

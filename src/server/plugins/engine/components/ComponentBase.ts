@@ -9,7 +9,7 @@ import joi, {
 } from 'joi'
 
 import { type ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { type ComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
+import { type Component } from '~/src/server/plugins/engine/components/helpers.js'
 import {
   DataType,
   type ViewModel
@@ -22,7 +22,7 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 
 export class ComponentBase {
-  parent: ComponentFieldClass | undefined
+  parent: Component | undefined
   collection: ComponentCollection | undefined
 
   type: ComponentDef['type']
@@ -46,7 +46,7 @@ export class ComponentBase {
   constructor(
     def: ComponentDef,
     props: {
-      parent?: ComponentFieldClass
+      parent?: Component
       model: FormModel
     }
   ) {

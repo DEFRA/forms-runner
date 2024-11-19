@@ -43,7 +43,7 @@ import {
   type FormRequestPayloadRefs,
   type FormRequestRefs
 } from '~/src/server/routes/types.js'
-import { type Field } from '~/src/server/schemas/types.js'
+import { type FieldSummary } from '~/src/server/schemas/types.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
 
 const designerUrl = config.get('designerUrl')
@@ -52,7 +52,7 @@ const templateId = config.get('notifyTemplateId')
 interface QuestionRecord {
   title: string
   value: string
-  field: Field
+  field: FieldSummary
 }
 
 export class SummaryPageController extends PageController {
@@ -482,7 +482,7 @@ function getFormSubmissionData(
     )
 
     const fields = itemsForPage.flatMap((item) => {
-      return [detailItemToField(item)]
+      return [toFieldSummary(item)]
     })
 
     return {
@@ -540,7 +540,7 @@ export function answerFromDetailItem(item: DetailItem) {
   return value
 }
 
-function detailItemToField(item: DetailItem): Field {
+function toFieldSummary(item: DetailItem): FieldSummary {
   return {
     key: item.name,
     title: item.title,

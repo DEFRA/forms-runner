@@ -1,6 +1,6 @@
 import { type ValidationResult } from 'joi'
 
-import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
+import { type Field } from '~/src/server/plugins/engine/components/helpers.js'
 import { getError, redirectUrl } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
@@ -209,7 +209,7 @@ function addRepeaterItem(
  * Creates an Item object for Details
  */
 function Item(
-  component: FormComponentFieldClass,
+  component: Field,
   state: FormState,
   page: PageControllerClass,
   model: FormModel,

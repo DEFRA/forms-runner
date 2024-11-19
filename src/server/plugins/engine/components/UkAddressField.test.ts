@@ -5,7 +5,7 @@ import {
 } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { type FormComponentFieldClass } from '~/src/server/plugins/engine/components/helpers.js'
+import { type Field } from '~/src/server/plugins/engine/components/helpers.js'
 import { type ViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
@@ -32,7 +32,7 @@ describe('UkAddressField', () => {
   describe('Defaults', () => {
     let def: UkAddressFieldComponent
     let collection: ComponentCollection
-    let component: FormComponentFieldClass
+    let field: Field
 
     beforeEach(() => {
       def = {
@@ -43,7 +43,7 @@ describe('UkAddressField', () => {
       } satisfies UkAddressFieldComponent
 
       collection = new ComponentCollection([def], { model })
-      component = collection.fields[0]
+      field = collection.fields[0]
     })
 
     describe('Schema', () => {
@@ -84,7 +84,7 @@ describe('UkAddressField', () => {
         const { formSchema } = collection
         const { keys } = formSchema.describe()
 
-        expect(component.keys).toEqual([
+        expect(field.keys).toEqual([
           'myComponent',
           'myComponent__addressLine1',
           'myComponent__addressLine2',
@@ -92,9 +92,9 @@ describe('UkAddressField', () => {
           'myComponent__postcode'
         ])
 
-        expect(component.collection?.keys).not.toHaveProperty('myComponent')
+        expect(field.collection?.keys).not.toHaveProperty('myComponent')
 
-        for (const key of component.collection?.keys ?? []) {
+        for (const key of field.collection?.keys ?? []) {
           expect(keys).toHaveProperty(key)
         }
       })
@@ -266,8 +266,8 @@ describe('UkAddressField', () => {
         const state1 = getFormState(address)
         const state2 = getFormState({})
 
-        const text1 = component.getDisplayStringFromState(state1)
-        const text2 = component.getDisplayStringFromState(state2)
+        const text1 = field.getDisplayStringFromState(state1)
+        const text2 = field.getDisplayStringFromState(state2)
 
         expect(text1).toBe(
           'Richard Fairclough House, Knutsford Road, Warrington, WA4 1HT'
@@ -280,8 +280,8 @@ describe('UkAddressField', () => {
         const state1 = getFormState(address)
         const state2 = getFormState({})
 
-        const payload1 = component.getFormDataFromState(state1)
-        const payload2 = component.getFormDataFromState(state2)
+        const payload1 = field.getFormDataFromState(state1)
+        const payload2 = field.getFormDataFromState(state2)
 
         expect(payload1).toEqual(getFormData(address))
         expect(payload2).toEqual(getFormData({}))
@@ -291,8 +291,8 @@ describe('UkAddressField', () => {
         const state1 = getFormState(address)
         const state2 = getFormState({})
 
-        const value1 = component.getFormValueFromState(state1)
-        const value2 = component.getFormValueFromState(state2)
+        const value1 = field.getFormValueFromState(state1)
+        const value2 = field.getFormValueFromState(state2)
 
         expect(value1).toEqual(address)
         expect(value2).toBeUndefined()
@@ -302,8 +302,8 @@ describe('UkAddressField', () => {
         const payload1 = getFormData(address)
         const payload2 = getFormData({})
 
-        const value1 = component.getStateFromValidForm(payload1)
-        const value2 = component.getStateFromValidForm(payload2)
+        const value1 = field.getStateFromValidForm(payload1)
+        const value2 = field.getStateFromValidForm(payload2)
 
         expect(value1).toEqual(getFormState(address))
         expect(value2).toEqual(getFormState({}))
@@ -320,7 +320,7 @@ describe('UkAddressField', () => {
 
       it('sets Nunjucks component defaults', () => {
         const payload = getFormData(address)
-        const viewModel = component.getViewModel(payload)
+        const viewModel = field.getViewModel(payload)
 
         expect(viewModel).toEqual(
           expect.objectContaining({
@@ -368,7 +368,7 @@ describe('UkAddressField', () => {
 
       it('sets Nunjucks component fieldset', () => {
         const payload = getFormData(address)
-        const viewModel = component.getViewModel(payload)
+        const viewModel = field.getViewModel(payload)
 
         expect(viewModel.fieldset).toEqual({
           legend: {
