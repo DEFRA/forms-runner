@@ -58,7 +58,6 @@ function getStartPageRedirect(
 
 export interface PluginOptions {
   model?: FormModel
-  modelOptions?: ConstructorParameters<typeof FormModel>[1]
 }
 
 const stateSchema = Joi.string()
@@ -75,7 +74,7 @@ export const plugin = {
   dependencies: '@hapi/vision',
   multiple: true,
   register(server, options) {
-    const { model, modelOptions } = options
+    const { model } = options
 
     server.app.model = model
 
@@ -149,10 +148,7 @@ export const plugin = {
           : slug
 
         // Construct the form model
-        const model = new FormModel(definition, {
-          basePath,
-          ...modelOptions
-        })
+        const model = new FormModel(definition, { basePath })
 
         // Create new item and add it to the item cache
         item = { model, updatedAt: state.updatedAt }
