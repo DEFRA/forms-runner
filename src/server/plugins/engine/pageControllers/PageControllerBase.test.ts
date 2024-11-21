@@ -120,5 +120,12 @@ describe('PageControllerBase', () => {
         expect(controller2.getNext(stateYes)).toBe('/test/summary')
       })
     })
+
+    describe('Summary', () => {
+      it('returns the summary path', () => {
+        expect(controller1.getSummaryPath()).toBe('/test/summary')
+        expect(controller2.getSummaryPath()).toBe('/test/summary')
+      })
+    })
   })
 })

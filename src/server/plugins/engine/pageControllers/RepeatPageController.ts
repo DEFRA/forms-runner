@@ -419,16 +419,24 @@ export class RepeatPageController extends PageController {
     }
   }
 
-  getSummaryPath(request: FormRequest | FormRequestPayload) {
-    const url = request.url
+  getSummaryPath(
+    request?: Pick<FormRequest | FormRequestPayload, 'url' | 'params'>
+  ) {
+    const { model, path } = this
+
+    if (!request) {
+      return super.getSummaryPath()
+    }
+
+    const { params, url } = request
     const newUrl = new URL(url)
 
-    if (request.params.itemId) {
-      newUrl.searchParams.set('itemId', request.params.itemId)
+    if (params.itemId) {
+      newUrl.searchParams.set('itemId', params.itemId)
     } else {
       newUrl.searchParams.delete('itemId')
     }
 
-    return `/${this.model.basePath}${this.path}/summary${newUrl.search}`
+    return `/${model.basePath}${path}/summary${newUrl.search}`
   }
 }
