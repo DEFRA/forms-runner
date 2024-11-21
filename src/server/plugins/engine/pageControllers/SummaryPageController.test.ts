@@ -1,8 +1,3 @@
-import {
-  ComponentType,
-  type ComponentDef,
-  type FormDefinition
-} from '@defra/forms-model'
 import { format } from 'date-fns'
 
 import {
@@ -14,36 +9,15 @@ import {
   getQuestions
 } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 import { FormStatus, type FormRequest } from '~/src/server/routes/types.js'
+import definition from '~/test/form/definitions/conditions-basic.js'
 
 describe('SummaryPageController', () => {
   describe('getPersonalisation', () => {
-    const component1: ComponentDef = {
-      name: 'dateField',
-      title: 'Date of marriage',
-      type: ComponentType.DatePartsField,
-      options: {}
-    }
-
-    const page = {
-      path: '/first-page',
-      title: 'When will you get married?',
-      components: [component1],
-      next: []
-    }
-
-    const definition: FormDefinition = {
-      name: 'New',
-      pages: [page],
-      lists: [],
-      sections: [],
-      conditions: []
-    }
-
     const model: FormModel = new FormModel(definition, {
       basePath: 'test'
     })
 
-    const summaryViewModel: SummaryViewModel = new SummaryViewModel(
+    const summaryViewModel = new SummaryViewModel(
       'Summary',
       model,
       {},
@@ -78,7 +52,7 @@ describe('SummaryPageController', () => {
       const formattedNow = format(now, 'h:mmaaa')
       const formattedDate = format(now, 'd MMMM yyyy')
 
-      expect(result.subject).toBe('Form received: New')
+      expect(result.subject).toBe('Form received: Conditions')
       expect(result.body).toContain(
         `Form received at ${formattedNow} on ${formattedDate}`
       )
@@ -93,8 +67,10 @@ describe('SummaryPageController', () => {
         formStatus(true)
       )
 
-      expect(result.subject).toBe('TEST FORM SUBMISSION: New')
-      expect(result.body).toContain('This is a test of the New draft form')
+      expect(result.subject).toBe('TEST FORM SUBMISSION: Conditions')
+      expect(result.body).toContain(
+        'This is a test of the Conditions draft form'
+      )
     })
   })
 })

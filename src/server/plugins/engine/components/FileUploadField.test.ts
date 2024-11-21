@@ -1,7 +1,6 @@
 import {
   ComponentType,
-  type FileUploadFieldComponent,
-  type FormDefinition
+  type FileUploadFieldComponent
 } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
@@ -14,16 +13,10 @@ import {
   UploadStatus,
   type FileState
 } from '~/src/server/plugins/engine/types.js'
+import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
 describe('FileUploadField', () => {
-  const definition = {
-    pages: [],
-    lists: [],
-    sections: [],
-    conditions: []
-  } satisfies FormDefinition
-
   let model: FormModel
 
   const validTempState: FileState[] = [

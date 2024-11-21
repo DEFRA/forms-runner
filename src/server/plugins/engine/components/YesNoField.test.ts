@@ -1,23 +1,13 @@
-import {
-  ComponentType,
-  type FormDefinition,
-  type YesNoFieldComponent
-} from '@defra/forms-model'
+import { ComponentType, type YesNoFieldComponent } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { type Field } from '~/src/server/plugins/engine/components/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { listYesNoExamples } from '~/test/fixtures/list.js'
+import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
 describe('YesNoField', () => {
-  const definition = {
-    pages: [],
-    lists: [],
-    sections: [],
-    conditions: []
-  } satisfies FormDefinition
-
   let def: YesNoFieldComponent
   let model: FormModel
   let collection: ComponentCollection

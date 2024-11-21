@@ -1,7 +1,6 @@
 import {
   ComponentType,
-  type AutocompleteFieldComponent,
-  type FormDefinition
+  type AutocompleteFieldComponent
 } from '@defra/forms-model'
 
 import { AutocompleteField } from '~/src/server/plugins/engine/components/AutocompleteField.js'
@@ -14,6 +13,7 @@ import {
   listString,
   listStringExamples
 } from '~/test/fixtures/list.js'
+import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
 describe.each([
@@ -48,19 +48,15 @@ describe.each([
     }
   }
 ])('AutocompleteField: $component.title', ({ component: def, options }) => {
-  const definition = {
-    pages: [],
-    lists: [options.list],
-    sections: [],
-    conditions: []
-  } satisfies FormDefinition
-
   let model: FormModel
   let collection: ComponentCollection
   let field: Field
 
   beforeEach(() => {
-    model = new FormModel(definition, {
+    const updated = structuredClone(definition)
+    updated.lists = [options.list]
+
+    model = new FormModel(updated, {
       basePath: 'test'
     })
 
@@ -269,14 +265,7 @@ describe.each([
       })
 
       it('returns empty items when missing', () => {
-        const definitionNoList = {
-          pages: [],
-          lists: [],
-          sections: [],
-          conditions: []
-        } satisfies FormDefinition
-
-        const model = new FormModel(definitionNoList, {
+        const model = new FormModel(definition, {
           basePath: 'test'
         })
 
