@@ -1,38 +1,45 @@
-import fs from 'node:fs'
-import { join } from 'node:path'
+import { join, parse } from 'node:path'
 
 import { type FormDefinition } from '@defra/forms-model'
 import { type ServerRegisterPluginObject } from '@hapi/hapi'
 
-import { idFromFilename } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   plugin,
   type PluginOptions
 } from '~/src/server/plugins/engine/plugin.js'
+import { type RouteConfig } from '~/src/server/types.js'
 
-export const configureEnginePlugin = (
-  formFileName?: string,
-  formFilePath?: string
-): ServerRegisterPluginObject<PluginOptions> => {
+export const configureEnginePlugin = async ({
+  formFileName,
+  formFilePath
+}: RouteConfig = {}): Promise<ServerRegisterPluginObject<PluginOptions>> => {
   let model: FormModel | undefined
 
   if (formFileName && formFilePath) {
-    const formConfigPath = join(formFilePath, formFileName)
+    const definition = await getForm(join(formFilePath, formFileName))
+    const { name } = parse(formFileName)
 
-    const definition = JSON.parse(
-      fs.readFileSync(formConfigPath, 'utf8')
-    ) as FormDefinition
-
-    const id = idFromFilename(formFileName)
-
-    model = new FormModel(definition, {
-      basePath: id
-    })
+    model = new FormModel(definition, { basePath: name })
   }
 
   return {
     plugin,
     options: { model }
   }
+}
+
+export async function getForm(importPath: string) {
+  const { ext } = parse(importPath)
+
+  const attributes: ImportAttributes = {
+    type: ext === '.json' ? 'json' : 'module'
+  }
+
+  const formImport = import(importPath, { with: attributes }) as Promise<{
+    default: FormDefinition
+  }>
+
+  const { default: definition } = await formImport
+  return definition
 }

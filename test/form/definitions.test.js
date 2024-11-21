@@ -3,7 +3,8 @@ import { fileURLToPath } from 'node:url'
 
 import { formDefinitionSchema } from '@defra/forms-model'
 
-import { getForm, getForms } from '~/test/utils/get-form-definitions.js'
+import { getForm } from '~/src/server/plugins/engine/configureEnginePlugin.js'
+import { getForms } from '~/test/utils/get-form-definitions.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
@@ -27,7 +28,7 @@ describe('Form definition JSON', () => {
 
     it('passes schema validation', async () => {
       for (const filename of filenames) {
-        const definition = await getForm(filename, directory)
+        const definition = await getForm(join(directory, filename))
 
         // Validate form definition
         const result = formDefinitionSchema.validate(definition, {
