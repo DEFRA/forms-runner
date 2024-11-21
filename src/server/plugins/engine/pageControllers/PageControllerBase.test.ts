@@ -1,5 +1,6 @@
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
+import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/conditions-basic.js'
 
 describe('PageControllerBase', () => {
@@ -49,6 +50,75 @@ describe('PageControllerBase', () => {
 
       expect(result1.errors).toHaveLength(1)
       expect(result2.errors).toHaveLength(3)
+    })
+  })
+
+  describe('Form journey', () => {
+    let state: FormSubmissionState
+    let stateNo: FormSubmissionState
+    let stateYes: FormSubmissionState
+
+    beforeEach(() => {
+      state = {}
+
+      stateNo = {
+        yesNoField: false
+      }
+
+      stateYes = {
+        yesNoField: true
+      }
+    })
+
+    describe('Next getter', () => {
+      it('returns the next page links', () => {
+        expect(controller1).toHaveProperty('next', [
+          { path: '/second-page' },
+          { path: '/summary', condition: 'isPreviouslyMarried' }
+        ])
+
+        expect(controller2).toHaveProperty('next', [{ path: '/summary' }])
+      })
+    })
+
+    describe('Next page', () => {
+      it('returns the next page', () => {
+        expect(controller1.getNextPage(state)).toMatchObject({
+          path: '/second-page'
+        })
+
+        expect(controller1.getNextPage(stateNo)).toMatchObject({
+          path: '/second-page'
+        })
+
+        expect(controller1.getNextPage(stateYes)).toMatchObject({
+          path: '/summary'
+        })
+
+        expect(controller2.getNextPage(state)).toMatchObject({
+          path: '/summary'
+        })
+
+        expect(controller2.getNextPage(stateNo)).toMatchObject({
+          path: '/summary'
+        })
+
+        expect(controller2.getNextPage(stateYes)).toMatchObject({
+          path: '/summary'
+        })
+      })
+    })
+
+    describe('Next', () => {
+      it('returns the next page path', () => {
+        expect(controller1.getNext(state)).toBe('/test/second-page')
+        expect(controller1.getNext(stateNo)).toBe('/test/second-page')
+        expect(controller1.getNext(stateYes)).toBe('/test/summary')
+
+        expect(controller2.getNext(state)).toBe('/test/summary')
+        expect(controller2.getNext(stateNo)).toBe('/test/summary')
+        expect(controller2.getNext(stateYes)).toBe('/test/summary')
+      })
     })
   })
 })
