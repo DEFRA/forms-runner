@@ -103,7 +103,7 @@ describe('Form journey', () => {
   // Create server before each test
   beforeAll(async () => {
     server = await createServer({
-      formFileName: 'basic.json',
+      formFileName: 'basic.js',
       formFilePath: join(testDir, 'definitions'),
       enforceCsrf: true
     })

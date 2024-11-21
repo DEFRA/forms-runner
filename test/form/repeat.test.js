@@ -50,8 +50,8 @@ async function createRepeatItem(
     url: itemUrl,
     headers,
     payload: {
-      sQsXKK: 'Ham',
-      VcmoiL: 2
+      toppings: 'Ham',
+      quantity: 2
     }
   }
 
@@ -101,7 +101,7 @@ describe('Repeat GET tests', () => {
   // Create server before each test
   beforeAll(async () => {
     server = await createServer({
-      formFileName: 'repeat.json',
+      formFileName: 'repeat.js',
       formFilePath: resolve(testDir, '../form/definitions')
     })
 
@@ -275,7 +275,7 @@ describe('Repeat POST tests', () => {
   // Create server before each test
   beforeAll(async () => {
     server = await createServer({
-      formFileName: 'repeat.json',
+      formFileName: 'repeat.js',
       formFilePath: resolve(testDir, '../form/definitions')
     })
 
@@ -306,8 +306,8 @@ describe('Repeat POST tests', () => {
       url: `${url}/${item.itemId}`,
       headers,
       payload: {
-        sQsXKK: 'Ham',
-        VcmoiL: 3
+        toppings: 'Ham',
+        quantity: 3
       }
     })
 

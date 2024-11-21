@@ -75,7 +75,7 @@ describe('Submission journey test', () => {
   // Create server before each test
   beforeAll(async () => {
     server = await createServer({
-      formFileName: 'file-upload-2.json',
+      formFileName: 'file-upload-basic.js',
       formFilePath: join(testDir, 'definitions')
     })
     await server.initialize()
@@ -103,7 +103,7 @@ describe('Submission journey test', () => {
 
     const res = await server.inject({
       method: 'GET',
-      url: '/file-upload-2/file-upload-component'
+      url: '/file-upload-basic/file-upload-component'
     })
 
     expect(res.statusCode).toEqual(okStatusCode)
@@ -152,12 +152,12 @@ describe('Submission journey test', () => {
     // POST the form data to set the state
     const res = await server.inject({
       method: 'POST',
-      url: '/file-upload-2/file-upload-component',
+      url: '/file-upload-basic/file-upload-component',
       payload: form
     })
 
     expect(res.statusCode).toEqual(redirectStatusCode)
-    expect(res.headers.location).toBe('/file-upload-2/summary')
+    expect(res.headers.location).toBe('/file-upload-basic/summary')
 
     // Extract the session cookie
     const headers = getCookieHeader(res, 'session')
@@ -165,7 +165,7 @@ describe('Submission journey test', () => {
     // GET the summary page
     await server.inject({
       method: 'GET',
-      url: '/file-upload-2/summary',
+      url: '/file-upload-basic/summary',
       headers
     })
 
@@ -174,7 +174,7 @@ describe('Submission journey test', () => {
     // the correct personalisation data
     const submitRes = await server.inject({
       method: 'POST',
-      url: '/file-upload-2/summary',
+      url: '/file-upload-basic/summary',
       headers,
       payload: { form }
     })
@@ -182,12 +182,12 @@ describe('Submission journey test', () => {
     expect(persistFiles).toHaveBeenCalledTimes(1)
     expect(submit).toHaveBeenCalledTimes(1)
     expect(submitRes.statusCode).toBe(redirectStatusCode)
-    expect(submitRes.headers.location).toBe('/file-upload-2/status')
+    expect(submitRes.headers.location).toBe('/file-upload-basic/status')
 
     // Finally GET the /{slug}/status page
     const statusRes = await server.inject({
       method: 'GET',
-      url: '/file-upload-2/status',
+      url: '/file-upload-basic/status',
       headers
     })
 
