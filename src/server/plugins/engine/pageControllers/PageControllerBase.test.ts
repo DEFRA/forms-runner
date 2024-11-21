@@ -1,16 +1,18 @@
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
-import definition from '~/test/form/definitions/conditions-basic.js'
+import definitionConditionsBasic from '~/test/form/definitions/conditions-basic.js'
+import definitionConditionsComplex from '~/test/form/definitions/conditions-complex.js'
+import definitionConditionsDates from '~/test/form/definitions/conditions-dates.js'
 
 describe('PageControllerBase', () => {
   let controller1: PageControllerBase
   let controller2: PageControllerBase
 
   beforeEach(() => {
-    const { pages } = definition
+    const { pages } = definitionConditionsBasic
 
-    const model = new FormModel(definition, {
+    const model = new FormModel(definitionConditionsBasic, {
       basePath: 'test'
     })
 
@@ -40,6 +42,101 @@ describe('PageControllerBase', () => {
 
       expect(fields2).toHaveLength(1)
       expect(fields2[0].name).toBe('dateField')
+    })
+  })
+
+  describe('Condition evaluation context', () => {
+    it('filters state by journey pages', () => {
+      const { pages } = definitionConditionsComplex
+
+      const model = new FormModel(definitionConditionsComplex, {
+        basePath: 'test'
+      })
+
+      // Selected page appears after convergence and contains a conditional field
+      // This is the page we're theoretically browsing to
+      const controller = new PageControllerBase(model, pages[7])
+
+      // The state below shows we said we had a UKPassport and entered details for an applicant
+      const state: FormSubmissionState = {
+        progress: [
+          '/csds/uk-passport',
+          '/csds/how-many-people',
+          '/csds/applicant-one',
+          '/csds/applicant-one-address',
+          '/csds/contact-details'
+        ],
+        ukPassport: true,
+        numberOfApplicants: 2,
+        applicantOneFirstName: 'Enrique',
+        applicantOneMiddleName: null,
+        applicantOneLastName: 'Chase',
+        applicantOneAddress__addressLine1: 'AddressLine1',
+        applicantOneAddress__addressLine2: 'AddressLine2',
+        applicantOneAddress__town: 'Town',
+        applicantOneAddress__postcode: 'Postcode',
+        applicantTwoFirstName: 'John',
+        applicantTwoMiddleName: null,
+        applicantTwoLastName: 'Doe',
+        applicantTwoAddress__addressLine1: 'AddressLine1',
+        applicantTwoAddress__addressLine2: 'AddressLine2',
+        applicantTwoAddress__town: 'Town',
+        applicantTwoAddress__postcode: 'Postcode'
+      }
+
+      // Calculate our context based on the page we're attempting to load and the above state we provide
+      let context = controller.getConditionEvaluationContext(model, state)
+
+      // Our context should know our first applicant
+      expect(context).toEqual({
+        numberOfApplicants: 2,
+        ukPassport: true,
+        applicantOneFirstName: 'Enrique',
+        applicantOneMiddleName: null,
+        applicantOneLastName: 'Chase',
+        applicantOneAddress: {
+          addressLine1: 'AddressLine1',
+          addressLine2: 'AddressLine2',
+          town: 'Town',
+          postcode: 'Postcode'
+        }
+      })
+
+      // Now mark that we don't have a UK Passport
+      state.ukPassport = false
+
+      // And recalculate our context
+      context = controller.getConditionEvaluationContext(model, state)
+
+      // Our context should no longer know anything about our applicant
+      expect(context).not.toHaveProperty('numberOfApplicants')
+      expect(context).not.toHaveProperty('applicantOneFirstName')
+      expect(context).not.toHaveProperty('applicantOneMiddleName')
+      expect(context).not.toHaveProperty('applicantOneLastName')
+      expect(context).not.toHaveProperty('applicantOneAddress')
+
+      expect(context).toEqual({
+        ukPassport: false
+      })
+    })
+
+    it('combines state values for date fields', () => {
+      const { pages } = definitionConditionsDates
+
+      const model = new FormModel(definitionConditionsDates, {
+        basePath: 'test'
+      })
+
+      const controller = new PageControllerBase(model, pages[0])
+      const context = controller.getConditionEvaluationContext(model, {
+        progress: [],
+        dateField__day: 5,
+        dateField__month: 1,
+        dateField__year: 2024
+      })
+
+      // Ensure dates are transformed to yyyy-MM-dd format
+      expect(context).toHaveProperty('dateField', '2024-01-05')
     })
   })
 
