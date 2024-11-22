@@ -3,6 +3,7 @@ import { ControllerType } from '@defra/forms-model'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
+import { type FormRequest } from '~/src/server/routes/types.js'
 import definition from '~/test/form/definitions/repeat.js'
 
 describe('RepeatPageController', () => {
@@ -76,6 +77,75 @@ describe('RepeatPageController', () => {
     it('includes all field errors', () => {
       const result = controller.collection.validate()
       expect(result.errors).toHaveLength(3)
+    })
+  })
+
+  describe('Form journey', () => {
+    describe('Summary', () => {
+      let request: Pick<FormRequest, 'url' | 'params' | 'query'>
+
+      const itemId1 = 'abc-123'
+      const itemId2 = 'xyz-987'
+
+      it('returns the summary path', () => {
+        expect(controller.getSummaryPath()).toBe('/test/summary')
+      })
+
+      it('returns the repeater summary path', () => {
+        request = {
+          url: new URL('http://example.com/repeat/pizza-order'),
+          params: {
+            path: 'pizza-order',
+            slug: 'repeat'
+          },
+          query: {}
+        }
+
+        expect(controller.getSummaryPath(request)).toBe(
+          '/test/pizza-order/summary'
+        )
+      })
+
+      it('adds item ID query when in params', () => {
+        request = {
+          url: new URL(
+            `/repeat/pizza-order/${itemId1}?itemId=${itemId2}`,
+            'http://example.com'
+          ),
+          params: {
+            path: 'pizza-order',
+            slug: 'repeat',
+            itemId: itemId1
+          },
+          query: {
+            itemId: itemId2
+          }
+        }
+
+        expect(controller.getSummaryPath(request)).toBe(
+          `/test/pizza-order/summary?itemId=${itemId1}`
+        )
+      })
+
+      it('removes item ID query when not in params', () => {
+        request = {
+          url: new URL(
+            `/repeat/pizza-order?itemId=${itemId2}`,
+            'http://example.com'
+          ),
+          params: {
+            path: 'pizza-order',
+            slug: 'repeat'
+          },
+          query: {
+            itemId: itemId2
+          }
+        }
+
+        expect(controller.getSummaryPath(request)).toBe(
+          '/test/pizza-order/summary'
+        )
+      })
     })
   })
 })

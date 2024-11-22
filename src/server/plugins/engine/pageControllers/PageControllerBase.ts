@@ -171,29 +171,21 @@ export class PageControllerBase {
     }
   }
 
-  get next(): PageLink[] {
-    if (!hasNext(this.pageDef)) {
+  get next(): Link[] {
+    const { def, pageDef } = this
+
+    if (!hasNext(pageDef)) {
       return []
     }
 
-    return this.pageDef.next
-      .map((next) => {
-        const { path } = next
+    // Remove stale links
+    return pageDef.next.filter(({ path }) =>
+      def.pages.some((page) => path === page.path)
+    )
+  }
 
-        const page = this.model.pages.find((page) => {
-          return path === page.path
-        })
-
-        if (!page) {
-          return undefined
-        }
-
-        return {
-          ...next,
-          page
-        }
-      })
-      .filter((v) => !!v)
+  getSummaryPath() {
+    return this.defaultNextPath
   }
 
   /**
@@ -202,7 +194,7 @@ export class PageControllerBase {
   getNextPage(state: FormSubmissionState): PageControllerClass | undefined {
     const { conditions } = this.model
 
-    let defaultLink: PageLink | undefined
+    let defaultLink: Link | undefined
     const nextLink = this.next.find((link) => {
       const { condition } = link
 
@@ -214,7 +206,8 @@ export class PageControllerBase {
       return false
     })
 
-    return nextLink?.page ?? defaultLink?.page
+    const link = nextLink ?? defaultLink
+    return this.findPageByPath(link?.path)
   }
 
   /**
@@ -227,7 +220,7 @@ export class PageControllerBase {
       return `/${this.model.basePath || ''}${nextPage.path}`
     }
 
-    return this.defaultNextPath
+    return this.getSummaryPath()
   }
 
   /**
@@ -569,7 +562,7 @@ export class PageControllerBase {
     } satisfies ServerRoute<FormRequestPayloadRefs>
   }
 
-  findPageByPath(path: string) {
+  findPageByPath(path?: string) {
     return this.model.pages.find((page) => page.path === path)
   }
 
@@ -620,8 +613,4 @@ export class PageControllerBase {
 
     return h.view(this.viewName, viewModel)
   }
-}
-
-export interface PageLink extends Link {
-  page: PageControllerClass
 }
