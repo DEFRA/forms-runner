@@ -1,8 +1,4 @@
-import {
-  ComponentType,
-  type FormDefinition,
-  type UkAddressFieldComponent
-} from '@defra/forms-model'
+import { ComponentType, type UkAddressFieldComponent } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { type Field } from '~/src/server/plugins/engine/components/helpers.js'
@@ -12,15 +8,9 @@ import {
   type FormPayload,
   type FormState
 } from '~/src/server/plugins/engine/types.js'
+import definition from '~/test/form/definitions/blank.js'
 
 describe('UkAddressField', () => {
-  const definition = {
-    pages: [],
-    lists: [],
-    sections: [],
-    conditions: []
-  } satisfies FormDefinition
-
   let model: FormModel
 
   beforeEach(() => {

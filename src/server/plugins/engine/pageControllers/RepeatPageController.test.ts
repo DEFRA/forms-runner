@@ -1,76 +1,35 @@
-import {
-  ComponentType,
-  ControllerType,
-  type ComponentDef,
-  type FormDefinition,
-  type PageRepeat
-} from '@defra/forms-model'
+import { ControllerType } from '@defra/forms-model'
 
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
+import definition from '~/test/form/definitions/repeat.js'
 
 describe('RepeatPageController', () => {
-  const component1: ComponentDef = {
-    name: 'toppings',
-    title: 'Toppings',
-    type: ComponentType.TextField,
-    options: {},
-    schema: {}
-  }
-
-  const component2: ComponentDef = {
-    name: 'quantity',
-    title: 'Quantity',
-    type: ComponentType.NumberField,
-    options: {},
-    schema: {}
-  }
-
-  let page: PageRepeat
-  let definition: FormDefinition
   let model: FormModel
   let controller: RepeatPageController
 
   beforeEach(() => {
-    page = {
-      path: '/first-page',
-      title: 'Add pizza',
-      components: [component1, component2],
-      controller: ControllerType.Repeat,
-      repeat: {
-        schema: { min: 1, max: 25 },
-        options: { name: 'pizza', title: 'Pizza' }
-      },
-      next: []
-    }
-
-    definition = {
-      pages: [page],
-      lists: [],
-      sections: [],
-      conditions: []
-    }
+    const { pages } = definition
 
     model = new FormModel(definition, {
       basePath: 'test'
     })
 
-    controller = new RepeatPageController(model, page)
+    controller = new RepeatPageController(model, pages[0])
   })
 
   describe('Constructor', () => {
     it('throws if page controller is not ControllerType.Repeat', () => {
-      expect(() => {
-        const repeatController = new RepeatPageController(model, {
-          path: '/first-page',
-          title: 'Pizza',
-          components: [component1],
-          next: []
-        })
+      const { pages } = structuredClone(definition)
 
-        return repeatController
-      }).toThrow('Invalid controller for Repeat page')
+      // Change the controller type
+      pages[0].controller = ControllerType.Summary
+      delete pages[0].repeat
+
+      expect(() => new RepeatPageController(model, pages[0])).toThrow(
+        'Invalid controller for Repeat page'
+      )
     })
   })
 

@@ -71,10 +71,6 @@ export function redirectTo(
   return h.redirect(url)
 }
 
-export const idFromFilename = (filename: string) => {
-  return filename.replace(/govsite\.|\.json|/gi, '')
-}
-
 export const filesize = (bytes: number) => {
   let i = -1
   const byteUnits = [' kB', ' MB', ' GB', ' TB', 'PB', 'EB', 'ZB', 'YB']

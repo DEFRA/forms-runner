@@ -69,7 +69,6 @@ export const definition = {
       controller: ControllerType.Summary
     }
   ],
-  conditions: [],
   sections: [
     {
       name: 'section',
@@ -77,6 +76,7 @@ export const definition = {
       hideTitle: false
     }
   ],
+  conditions: [],
   lists: [],
   outputEmail: 'enrique.chase@defra.gov.uk'
 }

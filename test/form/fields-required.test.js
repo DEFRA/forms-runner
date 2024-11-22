@@ -194,7 +194,7 @@ describe('Form fields (required)', () => {
   // Create server before each test
   beforeAll(async () => {
     server = await createServer({
-      formFileName: 'fields-required.json',
+      formFileName: 'fields-required.js',
       formFilePath: join(testDir, 'definitions'),
       enforceCsrf: true
     })

@@ -1,8 +1,4 @@
-import {
-  ComponentType,
-  type FormDefinition,
-  type SelectFieldComponent
-} from '@defra/forms-model'
+import { ComponentType, type SelectFieldComponent } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { SelectField } from '~/src/server/plugins/engine/components/SelectField.js'
@@ -14,6 +10,7 @@ import {
   listString,
   listStringExamples
 } from '~/test/fixtures/list.js'
+import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
 describe.each([
@@ -48,19 +45,15 @@ describe.each([
     }
   }
 ])('SelectField: $component.title', ({ component: def, options }) => {
-  const definition = {
-    pages: [],
-    lists: [options.list],
-    sections: [],
-    conditions: []
-  } satisfies FormDefinition
+  const updated = structuredClone(definition)
+  updated.lists = [options.list]
 
   let model: FormModel
   let collection: ComponentCollection
   let field: Field
 
   beforeEach(() => {
-    model = new FormModel(definition, {
+    model = new FormModel(updated, {
       basePath: 'test'
     })
 
@@ -266,14 +259,7 @@ describe.each([
       })
 
       it('returns empty items when missing', () => {
-        const definitionNoList = {
-          pages: [],
-          lists: [],
-          sections: [],
-          conditions: []
-        } satisfies FormDefinition
-
-        const model = new FormModel(definitionNoList, {
+        const model = new FormModel(definition, {
           basePath: 'test'
         })
 

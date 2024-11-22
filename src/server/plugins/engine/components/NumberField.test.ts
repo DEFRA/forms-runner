@@ -1,23 +1,13 @@
-import {
-  ComponentType,
-  type FormDefinition,
-  type NumberFieldComponent
-} from '@defra/forms-model'
+import { ComponentType, type NumberFieldComponent } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
 import { type Field } from '~/src/server/plugins/engine/components/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
 describe('NumberField', () => {
-  const definition = {
-    pages: [],
-    lists: [],
-    sections: [],
-    conditions: []
-  } satisfies FormDefinition
-
   let model: FormModel
 
   beforeEach(() => {

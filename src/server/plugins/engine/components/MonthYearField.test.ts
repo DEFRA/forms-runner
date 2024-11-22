@@ -1,8 +1,4 @@
-import {
-  ComponentType,
-  type FormDefinition,
-  type MonthYearFieldComponent
-} from '@defra/forms-model'
+import { ComponentType, type MonthYearFieldComponent } from '@defra/forms-model'
 import { startOfDay } from 'date-fns'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
@@ -13,15 +9,9 @@ import {
   type FormPayload,
   type FormState
 } from '~/src/server/plugins/engine/types.js'
+import definition from '~/test/form/definitions/blank.js'
 
 describe('MonthYearField', () => {
-  const definition = {
-    pages: [],
-    lists: [],
-    sections: [],
-    conditions: []
-  } satisfies FormDefinition
-
   let model: FormModel
 
   beforeEach(() => {

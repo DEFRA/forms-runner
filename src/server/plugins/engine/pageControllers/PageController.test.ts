@@ -1,14 +1,12 @@
-import { type FormDefinition } from '@defra/forms-model'
-
-import dateFormConditionJson from '~/src/server/forms/date-branching.json' with { type: 'json' }
-import formJson from '~/src/server/forms/get-condition-evaluation-context.json' with { type: 'json' }
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/index.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+import definitionConditionsComplex from '~/test/form/definitions/conditions-complex.js'
+import definitionConditionsDates from '~/test/form/definitions/conditions-dates.js'
 
 describe('Condition Evaluation Context', () => {
   it('correctly includes/filters state values', () => {
-    const model = new FormModel(formJson as FormDefinition, {
+    const model = new FormModel(definitionConditionsComplex, {
       basePath: 'test'
     })
 
@@ -87,7 +85,7 @@ describe('Condition Evaluation Context', () => {
 
   describe('DatePartsField', () => {
     it('correctly transforms DateTimeParts components', () => {
-      const model = new FormModel(dateFormConditionJson as FormDefinition, {
+      const model = new FormModel(definitionConditionsDates, {
         basePath: 'test'
       })
 
@@ -103,9 +101,9 @@ describe('Condition Evaluation Context', () => {
 
       const completeState: FormSubmissionState = {
         progress: [],
-        BWvMaM__day: 5,
-        BWvMaM__month: 1,
-        BWvMaM__year: 2024
+        dateField__day: 5,
+        dateField__month: 1,
+        dateField__year: 2024
       }
 
       // get the state including our DatePartsField
@@ -117,7 +115,7 @@ describe('Condition Evaluation Context', () => {
       // Ensure dates are transformed to yyyy-MM-dd format
       expect(relevantState).toEqual(
         expect.objectContaining({
-          BWvMaM: '2024-01-05'
+          dateField: '2024-01-05'
         })
       )
     })

@@ -89,7 +89,7 @@ describe('File upload GET tests', () => {
   // Create server before each test
   beforeAll(async () => {
     server = await createServer({
-      formFileName: 'file-upload.json',
+      formFileName: 'file-upload.js',
       formFilePath: resolve(testDir, '../form/definitions')
     })
     await server.initialize()
@@ -186,7 +186,7 @@ describe('File upload POST tests', () => {
   // Create server before each test
   beforeAll(async () => {
     server = await createServer({
-      formFileName: 'file-upload.json',
+      formFileName: 'file-upload.js',
       formFilePath: resolve(testDir, '../form/definitions')
     })
     await server.initialize()

@@ -1,86 +1,54 @@
-import {
-  ComponentType,
-  type ComponentDef,
-  type FormDefinition,
-  type Page
-} from '@defra/forms-model'
-
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
+import definition from '~/test/form/definitions/conditions-basic.js'
 
 describe('PageControllerBase', () => {
-  const component1: ComponentDef = {
-    name: 'dateField',
-    title: 'Date of marriage',
-    type: ComponentType.DatePartsField,
-    options: {}
-  }
-
-  const component2: ComponentDef = {
-    name: 'yesNoField',
-    title: 'Have you previously been married?',
-    type: ComponentType.YesNoField,
-    options: {}
-  }
-
-  const component3: ComponentDef = {
-    name: 'detailsField',
-    title: 'Find out more',
-    type: ComponentType.Details,
-    content: 'Some content goes here',
-    options: {}
-  }
-
-  let page: Page
-  let definition: FormDefinition
-  let model: FormModel
-  let controller: PageControllerBase
+  let controller1: PageControllerBase
+  let controller2: PageControllerBase
 
   beforeEach(() => {
-    page = {
-      path: '/first-page',
-      title: 'When will you get married?',
-      components: [component1, component2, component3],
-      next: []
-    }
+    const { pages } = definition
 
-    definition = {
-      pages: [page],
-      lists: [],
-      sections: [],
-      conditions: []
-    }
-
-    model = new FormModel(definition, {
+    const model = new FormModel(definition, {
       basePath: 'test'
     })
 
-    controller = new PageControllerBase(model, page)
+    controller1 = new PageControllerBase(model, pages[0])
+    controller2 = new PageControllerBase(model, pages[1])
   })
 
   describe('Component collection', () => {
     it('returns the components for the page', () => {
-      const { components } = controller.collection
+      const { components: components1 } = controller1.collection
+      const { components: components2 } = controller2.collection
 
-      expect(components).toHaveLength(3)
-      expect(components[0].name).toBe('dateField')
-      expect(components[1].name).toBe('yesNoField')
-      expect(components[2].name).toBe('detailsField')
+      expect(components1).toHaveLength(1)
+      expect(components1[0].name).toBe('yesNoField')
+
+      expect(components2).toHaveLength(2)
+      expect(components2[0].name).toBe('dateField')
+      expect(components2[1].name).toBe('detailsField')
     })
 
     it('returns the fields for the page', () => {
-      const { fields } = controller.collection
+      const { fields: fields1 } = controller1.collection
+      const { fields: fields2 } = controller2.collection
 
-      expect(fields).toHaveLength(2)
-      expect(fields[0].name).toBe('dateField')
-      expect(fields[1].name).toBe('yesNoField')
+      expect(fields1).toHaveLength(1)
+      expect(fields1[0].name).toBe('yesNoField')
+
+      expect(fields2).toHaveLength(1)
+      expect(fields2[0].name).toBe('dateField')
     })
   })
 
   describe('Form validation', () => {
     it('includes all field errors', () => {
-      const result = controller.collection.validate()
-      expect(result.errors).toHaveLength(4)
+      const result1 = controller1.collection.validate()
+      const result2 = controller2.collection.validate()
+
+      expect(result1.errors).toHaveLength(1)
+      expect(result2.errors).toHaveLength(3)
     })
   })
 })
