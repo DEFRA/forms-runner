@@ -400,16 +400,20 @@ describe('Form journey', () => {
       expect($heading2).toBeInTheDocument()
     })
 
-    it("should render fields as 'Not supplied' (after submit)", () => {
+    it("should render fields as 'Enter XXXX' (after submit)", () => {
       for (const { fields = [] } of journey) {
         for (const detail of fields) {
           const index = $titles.findIndex(
             ({ textContent }) => textContent?.trim() === detail.title
           )
 
+          const label = detail.title.toLowerCase()
+
           expect($titles[index]).toHaveTextContent(detail.title)
-          expect($values[index]).toHaveTextContent('Not supplied')
-          expect($actions[index]).toHaveTextContent(`Change ${detail.title}`)
+          expect($values[index]).toHaveTextContent(`Enter ${label}`)
+          expect($actions[index]).not.toHaveTextContent(
+            `Change ${detail.title}`
+          )
         }
       }
     })

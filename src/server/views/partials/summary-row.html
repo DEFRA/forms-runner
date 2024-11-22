@@ -4,14 +4,14 @@
       {{item.label}}
     </dt>
     <dd class="govuk-summary-list__value">
-      {% if item.inError %}
+      {% if item.error %}
         <a class="govuk-link" href="{{item.url}}">Enter {{item.label | lower}}</a>
       {% else %}
         {{ item.value | default("Not supplied", true) }}
       {% endif %}
     </dd>
     <dd class="govuk-summary-list__actions">
-      {% if not item.inError %}
+      {% if not item.error %}
         <a class="govuk-link" href="{{item.url}}">
           Change<span class="govuk-visually-hidden"> {{item.label}}</span>
         </a>
