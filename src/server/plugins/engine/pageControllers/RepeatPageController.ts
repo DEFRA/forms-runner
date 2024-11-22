@@ -420,7 +420,7 @@ export class RepeatPageController extends PageController {
   }
 
   getSummaryPath(
-    request?: Pick<FormRequest | FormRequestPayload, 'url' | 'params'>
+    request?: Pick<FormRequest | FormRequestPayload, 'url' | 'params' | 'query'>
   ) {
     const { model, path } = this
 
