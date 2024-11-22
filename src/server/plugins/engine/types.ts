@@ -2,7 +2,10 @@ import { type Item } from '@defra/forms-model'
 import { type ResponseObject } from '@hapi/hapi'
 import { type ValidationErrorItem } from 'joi'
 
-import { type ComponentViewModel } from '~/src/server/plugins/engine/components/types.js'
+import {
+  type ComponentText,
+  type ComponentViewModel
+} from '~/src/server/plugins/engine/components/types.js'
 import {
   type FileUploadPageController,
   type PageController
@@ -164,6 +167,27 @@ export interface TempFileState {
 
 export interface RepeatState extends FormPayload {
   itemId: string
+}
+
+export interface CheckAnswers {
+  title?: ComponentText
+  summaryList: SummaryList
+}
+
+export interface SummaryList {
+  classes?: string
+  rows: SummaryListRow[]
+}
+
+export interface SummaryListRow {
+  key: ComponentText
+  value: ComponentText
+  actions?: { items: SummaryListAction[] }
+}
+
+export type SummaryListAction = ComponentText & {
+  href: string
+  visuallyHiddenText: string
 }
 
 export interface PageViewModelBase {

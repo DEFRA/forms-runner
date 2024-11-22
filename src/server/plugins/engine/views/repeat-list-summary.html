@@ -20,7 +20,9 @@
 
       {% include "partials/heading.html" %}
 
-      {{ govukSummaryList({ classes: 'govuk-summary-list--long-actions', rows: rows }) }}
+      {% for section in checkAnswers %}
+        {{ govukSummaryList(section.summaryList) }}
+      {% endfor %}
 
       <div class="govuk-button-group">
         <form method="post" novalidate>
