@@ -1,8 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { basename, join } from 'node:path'
 
-import capitalize from 'lodash/capitalize.js'
-
 import pkg from '~/package.json' with { type: 'json' }
 import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
@@ -40,7 +38,7 @@ export function context(request) {
     phaseTag: config.get('phaseTag'),
     previewMode: isPreviewMode ? params?.state : undefined,
     serviceBannerText: config.get('serviceBannerText'),
-    serviceName: capitalize(config.get('serviceName')),
+    serviceName: config.get('serviceName'),
     serviceVersion: config.get('serviceVersion'),
     slug: params?.slug,
 
