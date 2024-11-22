@@ -12,7 +12,7 @@
 <aside class="app-service-banner" aria-labelledby="app-service-banner-description" aria-live="polite">
   <div class="govuk-width-container">
     {{ govukWarningText({
-      html: _message(params) | trim | indent(2, true),
+      html: _message(params) | trim | indent(2),
       iconFallbackText: _iconFallback(params) | safe | trim,
       classes: "app-service-banner__content"
     }) | trim | indent(4) }}

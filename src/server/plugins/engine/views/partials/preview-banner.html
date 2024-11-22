@@ -1,11 +1,7 @@
 {% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner -%}
 
-{% set html %}
-<p class="govuk-notification-banner__heading">
-  This is a preview of a {{previewMode}} form. Do not enter personal information.
-</p>
-{% endset -%}
-
-{{ govukNotificationBanner({
-  html: html
-}) }}
+{% call govukNotificationBanner() %}
+  <p class="govuk-notification-banner__heading">
+    This is a preview of a {{previewMode}} form. Do not enter personal information.
+  </p>
+{% endcall %}
