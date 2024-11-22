@@ -1,5 +1,7 @@
 import { within } from '@testing-library/dom'
 
+import { render } from '~/src/server/plugins/nunjucks/index.js'
+
 /**
  * Get component form data
  * @param {FormValue} [value]
@@ -21,6 +23,22 @@ export function getFormState(value, name = 'myComponent') {
 }
 
 /**
+ * Render Nunjucks macro into DOM
+ * @param {Parameters<typeof render.macro>} args
+ */
+export function renderMacro(...args) {
+  return renderDOM(render.macro(...args))
+}
+
+/**
+ * Render Nunjucks view into DOM
+ * @param {Parameters<typeof render.view>} args
+ */
+export function renderView(...args) {
+  return renderDOM(render.view(...args))
+}
+
+/**
  * Render HTTP response
  * @param {Server} server
  * @param {ServerInjectOptions} options
@@ -30,10 +48,8 @@ export async function renderResponse(server, options) {
     await server.inject(options)
   )
 
-  const { document } = renderDOM(response.result)
-  const container = within(document.body)
-
-  return { container, response }
+  const result = renderDOM(response.result)
+  return { ...result, response }
 }
 
 /**
@@ -46,7 +62,10 @@ export function renderDOM(html = '') {
   // Update the document body
   window.document.body.innerHTML = html
 
-  return window
+  const document = window.document
+  const container = within(document.body)
+
+  return { container, document }
 }
 
 /**
