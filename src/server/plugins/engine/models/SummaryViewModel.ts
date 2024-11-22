@@ -9,6 +9,7 @@ import {
 } from '~/src/server/plugins/engine/models/types.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
+import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormState,
   type FormSubmissionError,
@@ -59,13 +60,16 @@ export class SummaryViewModel {
     this.declaration = def.declaration
 
     const schema = model.makeFilteredSchema(relevantPages)
-    const result = schema.validate(state, {
-      abortEarly: false,
-      stripUnknown: true
-    })
+    const result = schema.validate(state, { ...opts, stripUnknown: true })
 
-    if (result.error) {
-      this.processErrors(result, details)
+    // Format errors
+    const errors = result.error?.details.map(getError)
+
+    // Flag unanswered questions
+    for (const { items } of details) {
+      for (const item of items) {
+        item.error = item.field?.getError(errors)
+      }
     }
 
     this.result = result
@@ -73,37 +77,6 @@ export class SummaryViewModel {
     this.relevantPages = relevantPages
     this.state = state
     this.value = result.value
-  }
-
-  private processErrors(result: ValidationResult, details: Detail[]) {
-    const errors = result.error?.details.map(getError) ?? []
-
-    if (!errors.length) {
-      this.errors = undefined
-      return
-    }
-
-    details.forEach((detail) => {
-      const sectionErr = errors.find(({ name }) => name === detail.name)
-
-      detail.items.forEach((item) => {
-        if (sectionErr) {
-          item.inError = true
-          return
-        }
-
-        const err = errors.find(({ name }) => {
-          return (
-            name === (detail.name ? `${detail.name}.${item.name}` : item.name)
-          )
-        })
-
-        if (err) {
-          item.inError = true
-        }
-      })
-    })
-
     this.errors = errors
   }
 
@@ -223,6 +196,7 @@ function Item(
     label: component.title,
     value: component.getDisplayStringFromState(state),
     rawValue: component.getFormValueFromState(state),
+    field: component,
     url: redirectUrl(`/${model.basePath}${page.path}`, params),
     type: component.type,
     title: component.title,

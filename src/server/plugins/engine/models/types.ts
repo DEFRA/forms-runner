@@ -14,12 +14,14 @@ import {
 import { type Expression } from 'expr-eval'
 
 import { type ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
+import { type Field } from '~/src/server/plugins/engine/components/helpers.js'
 import { type DataType } from '~/src/server/plugins/engine/components/types.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
   type FileState,
   type FormState,
   type FormStateValue,
+  type FormSubmissionError,
   type FormSubmissionState,
   type RepeatState
 } from '~/src/server/plugins/engine/types.js'
@@ -55,14 +57,20 @@ export interface DetailItemBase {
   value: string
 
   /**
-   * Flag to indicate if field is in error and should be changed
+   * Field submission state error, used to flag unanswered questions
+   * Shown as 'Complete all unanswered questions before submitting the form'
    */
-  inError?: boolean
+  error?: FormSubmissionError
 
   /**
    * Raw value of a field. For example, a Date will be displayed as 2022-12-25
    */
   rawValue: FormState | FormStateValue
+
+  /**
+   * Field component instance
+   */
+  field?: Field
 
   url: string
   type?: FormComponentsDef['type']
