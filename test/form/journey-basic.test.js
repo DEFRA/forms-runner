@@ -411,9 +411,7 @@ describe('Form journey', () => {
 
           expect($titles[index]).toHaveTextContent(detail.title)
           expect($values[index]).toHaveTextContent(`Enter ${label}`)
-          expect($actions[index]).not.toHaveTextContent(
-            `Change ${detail.title}`
-          )
+          expect($actions[index]).toBeUndefined()
         }
       }
     })
