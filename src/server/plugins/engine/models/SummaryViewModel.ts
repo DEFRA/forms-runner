@@ -55,14 +55,14 @@ export class SummaryViewModel {
     relevantState: FormState,
     request: FormRequest | FormRequestPayload
   ) {
+    const { basePath, def } = model
+
     this.pageTitle = pageTitle
-    this.serviceUrl = `/${model.basePath}`
-    this.name = model.def.name
+    this.serviceUrl = `/${basePath}`
+    this.name = def.name
 
     const relevantPages = this.getRelevantPages(model, relevantState)
     const details = this.summaryDetails(request, model, state, relevantPages)
-
-    const { def } = model
 
     this.declaration = def.declaration
 
@@ -83,7 +83,15 @@ export class SummaryViewModel {
       const { items, title } = detail
 
       const rows = items.map((item): SummaryListRow => {
-        const href = item.url
+        const returnUrl = redirectUrl(item.page.getSummaryPath())
+
+        // Change link href
+        const href = redirectUrl(
+          'subItems' in item && item.subItems.length
+            ? item.page.getSummaryPath(request)
+            : `/${basePath}${item.page.path}`,
+          { returnUrl }
+        )
 
         const value = render.macro(
           'summaryValue',
@@ -155,10 +163,10 @@ export class SummaryViewModel {
 
       sectionPages.forEach((page) => {
         if (page instanceof RepeatPageController) {
-          addRepeaterItem(page, request, model, state, items)
+          addRepeaterItem(page, state, items)
         } else {
           for (const component of page.collection.fields) {
-            const item = Item(component, state, page, model)
+            const item = Item(component, state, page)
             if (items.find((cbItem) => cbItem.name === item.name)) return
             items.push(item)
           }
@@ -196,27 +204,21 @@ export class SummaryViewModel {
 
 function addRepeaterItem(
   page: RepeatPageController,
-  request: FormRequest | FormRequestPayload,
-  model: FormModel,
   state: FormSubmissionState,
   items: DetailItem[]
 ) {
   const { options } = page.repeat
   const { name, title } = options
-  const repeatSummaryPath = page.getSummaryPath(request)
-  const path = `/${model.basePath}${page.path}`
+
   const values = page.getListFromState(state)
   const unit = values.length === 1 ? title : `${title}s`
-  const url = redirectUrl(values.length ? repeatSummaryPath : path, {
-    returnUrl: redirectUrl(`/${model.basePath}/summary`)
-  })
 
   const subItems: DetailItem[][] = []
 
   values.forEach((itemState) => {
     const sub: DetailItem[] = []
     for (const component of page.collection.fields) {
-      const item = Item(component, itemState, page, model)
+      const item = Item(component, itemState, page)
       if (sub.find((cbItem) => cbItem.name === item.name)) return
       sub.push(item)
     }
@@ -225,12 +227,11 @@ function addRepeaterItem(
 
   items.push({
     name,
-    path: page.path,
     label: title,
     title: values.length ? `${unit} added` : unit,
     value: `You added ${values.length} ${unit}`,
     rawValue: values,
-    url,
+    page,
     subItems
   })
 }
@@ -238,25 +239,16 @@ function addRepeaterItem(
 /**
  * Creates an Item object for Details
  */
-function Item(
-  component: Field,
-  state: FormState,
-  page: PageControllerClass,
-  model: FormModel,
-  params: { returnUrl: string } = {
-    returnUrl: redirectUrl(`/${model.basePath}/summary`)
-  }
-) {
+function Item(component: Field, state: FormState, page: PageControllerClass) {
   return {
     name: component.name,
-    path: page.path,
     label: component.title,
+    title: component.title,
     value: component.getDisplayStringFromState(state),
     rawValue: component.getFormValueFromState(state),
+    page,
     field: component,
-    url: redirectUrl(`/${model.basePath}${page.path}`, params),
     type: component.type,
-    title: component.title,
     dataType: component.dataType
   } as DetailItem
 }

@@ -27,7 +27,10 @@ import {
 } from '~/src/server/plugins/engine/models/index.js'
 import {
   type Detail,
-  type DetailItem
+  type DetailItem,
+  type DetailItemBase,
+  type DetailItemField,
+  type DetailItemRepeat
 } from '~/src/server/plugins/engine/models/types.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
@@ -49,10 +52,12 @@ import { sendNotification } from '~/src/server/utils/notify.js'
 const designerUrl = config.get('designerUrl')
 const templateId = config.get('notifyTemplateId')
 
-export interface QuestionRecord {
+export interface QuestionRecord<
+  DetailItemType extends DetailItemBase = DetailItemField | DetailItemRepeat
+> {
   title: string
   value: string
-  field: FieldSummary
+  field: FieldSummary<DetailItemType>
 }
 
 export class SummaryPageController extends PageController {
@@ -273,8 +278,15 @@ function submitData(
   retrievalKey: string,
   sessionId: string
 ) {
-  const main = records.filter((record) => record.field.type)
-  const repeaters = records.filter((record) => record.field.item.subItems)
+  const main = records.filter(
+    (record): record is QuestionRecord<DetailItemField> =>
+      'field' in record.field.item
+  )
+
+  const repeaters = records.filter(
+    (record): record is QuestionRecord<DetailItemRepeat> =>
+      'subItems' in record.field.item
+  )
 
   const payload: SubmitPayload = {
     sessionId,
@@ -287,7 +299,7 @@ function submitData(
     repeaters: repeaters.map((record) => ({
       name: record.field.key,
       title: record.title,
-      value: (record.field.item.subItems ?? []).map((detailItem) =>
+      value: record.field.item.subItems.map((detailItem) =>
         detailItem.map((item) => ({
           name: item.name,
           title: item.label,
@@ -448,7 +460,7 @@ export function getPersonalisation(
         .join('\n')
 
       line = `${files.length} file${files.length !== 1 ? 's' : ''} uploaded (links expire ${formattedExpiryDate}):\n\n${bullets}\n`
-    } else if (Array.isArray(item.subItems)) {
+    } else if ('subItems' in item) {
       line = `[Download ${item.label} (CSV)](${designerUrl}/file-download/${submitResponse.result.files.repeaters[item.name]})\n`
     } else {
       line = literal(value)
@@ -480,7 +492,7 @@ function getFormSubmissionData(
 ) {
   const questions = relevantPages.map((page) => {
     const itemsForPage = details.flatMap((detail) =>
-      detail.items.filter((item) => item.path === page.path)
+      detail.items.filter((item) => item.page.path === page.path)
     )
 
     const fields = itemsForPage.flatMap((item) => {

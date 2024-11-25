@@ -3,7 +3,6 @@ import {
   type DatePartsFieldComponent,
   type FileUploadFieldComponent,
   type FormComponentsDef,
-  type FormDefinition,
   type InputFieldsComponentsDef,
   type Item,
   type MonthYearFieldComponent,
@@ -13,9 +12,9 @@ import {
 } from '@defra/forms-model'
 import { type Expression } from 'expr-eval'
 
-import { type ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { type Field } from '~/src/server/plugins/engine/components/helpers.js'
 import { type DataType } from '~/src/server/plugins/engine/components/types.js'
+import { type RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
   type FileState,
@@ -36,25 +35,16 @@ export type ExecutableCondition = ConditionWrapper & {
  */
 export interface DetailItemBase {
   /**
-   * Name of the component defined in the JSON {@link FormDefinition}
+   * Name of the component defined in the JSON
+   * @see {@link FormComponentsDef.name}
    */
-  name: ComponentBase['name']
+  name: string
 
   /**
-   * Title of the component defined in the JSON {@link FormDefinition}
-   * Used as a human readable form of {@link ComponentBase.name} and HTML content for HTML Label tag
+   * Field label, used for change link visually hidden text
+   * @see {@link FormComponentsDef.title}
    */
-  label: ComponentBase['title']
-
-  /**
-   * Path to page excluding base path
-   */
-  path: PageControllerClass['path']
-
-  /**
-   * String and/or display value of a field. For example, a Date will be displayed as 25 December 2022
-   */
-  value: string
+  label: string
 
   /**
    * Field submission state error, used to flag unanswered questions
@@ -72,39 +62,36 @@ export interface DetailItemBase {
    */
   field?: Field
 
-  url: string
   type?: FormComponentsDef['type']
-  title: string
   dataType?: DataType
-  subItems?: DetailItem[][]
 }
 
-export interface DetailItemDate extends DetailItemBase {
+export interface DetailItemDate extends DetailItemField {
   type: DatePartsFieldComponent['type']
   dataType: DataType.Date
   rawValue: FormState | null
 }
 
-export interface DetailItemMonthYear extends DetailItemBase {
+export interface DetailItemMonthYear extends DetailItemField {
   type: MonthYearFieldComponent['type']
   dataType: DataType.MonthYear
   rawValue: FormState | null
 }
 
-export interface DetailItemSelection extends DetailItemBase {
+export interface DetailItemSelection extends DetailItemField {
   type: SelectionComponentsDef['type']
   dataType: DataType.List
   items: DetailItem[]
   rawValue: Item['value'] | Item['value'][] | null
 }
 
-export interface DetailItemNumber extends DetailItemBase {
+export interface DetailItemNumber extends DetailItemField {
   type: NumberFieldComponent['type']
   dataType: DataType.Number
   rawValue: number | null
 }
 
-export interface DetailItemText extends DetailItemBase {
+export interface DetailItemText extends DetailItemField {
   type: Exclude<
     InputFieldsComponentsDef,
     NumberFieldComponent | FileUploadFieldComponent
@@ -113,14 +100,55 @@ export interface DetailItemText extends DetailItemBase {
   rawValue: string | null
 }
 
-export interface DetailItemFileUpload extends DetailItemBase {
+export interface DetailItemFileUpload extends DetailItemField {
   type: FileUploadFieldComponent['type']
   dataType: DataType.File
   rawValue: FileState[] | null
 }
 
+export interface DetailItemField extends DetailItemBase {
+  /**
+   * Field page controller instance
+   */
+  page: Exclude<PageControllerClass, RepeatPageController>
+
+  /**
+   * Check answers summary list key
+   * For example, 'Date of birth'
+   */
+  title: string
+
+  /**
+   * Check answers summary list value
+   * For example, date fields formatted as '25 December 2022'
+   */
+  value: string
+
+  /**
+   * Field component instance
+   */
+  field: Field
+}
+
 export interface DetailItemRepeat extends DetailItemBase {
+  /**
+   * Repeat page controller instance
+   */
+  page: RepeatPageController
+
+  /**
+   * Check answers summary list key
+   * For example, 'Pizza' or 'Pizza added'
+   */
+  title: string
+
+  /**
+   * Check answers summary list value
+   * For example, 'You added 2 Pizzas'
+   */
+  value: string
   rawValue: RepeatState[] | null
+  subItems: DetailItem[][]
 }
 
 export type DetailItem =
