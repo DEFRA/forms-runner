@@ -1,5 +1,3 @@
-import { type ValidationResult } from 'joi'
-
 import {
   getAnswer,
   type Field
@@ -76,33 +74,17 @@ export class SummaryViewModel {
     this.errors = result.error?.details.map(getError)
     this.details = this.summaryDetails(request, model, state)
 
-    // Flag unanswered questions
-    for (const { items } of this.details) {
-      for (const item of items) {
-        item.error = item.field?.getError(this.errors)
-      }
-    }
-
+    // Format check answers
     this.checkAnswers = this.details.map((detail): CheckAnswers => {
       const { items, title } = detail
 
       const rows = items.map((item): SummaryListRow => {
-        const returnUrl = redirectUrl(item.page.getSummaryPath())
-
-        // Change link href
-        const href = redirectUrl(
-          'subItems' in item && item.subItems.length
-            ? item.page.getSummaryPath(request)
-            : `/${basePath}${item.page.path}`,
-          { returnUrl }
-        )
-
         const value = render.macro(
           'summaryValue',
           'partials/summary-value.html',
           {
             params: {
-              href,
+              href: item.href,
               label: item.label,
               value: item.value,
               error: item.error
@@ -123,7 +105,7 @@ export class SummaryViewModel {
           row.actions = {
             items: [
               {
-                href,
+                href: item.href,
                 text: 'Change',
                 classes: 'govuk-link--no-visited-state',
                 visuallyHiddenText: item.label
@@ -147,8 +129,8 @@ export class SummaryViewModel {
     model: FormModel,
     state: FormSubmissionState
   ) {
-    const { relevantPages } = this
-    const { sections } = model
+    const { errors, relevantPages } = this
+    const { basePath, sections } = model
 
     const details: Detail[] = []
 
@@ -160,13 +142,19 @@ export class SummaryViewModel {
       )
 
       sectionPages.forEach((page) => {
-        const { collection } = page
+        const { collection, path } = page
+        const href = `/${basePath}${path}`
 
         if (page instanceof RepeatPageController) {
-          items.push(ItemRepeat(page, state))
+          items.push(
+            ItemRepeat(page, state, {
+              href: page.getSummaryPath(request),
+              errors
+            })
+          )
         } else {
           for (const field of collection.fields) {
-            items.push(ItemField(page, state, field))
+            items.push(ItemField(page, state, field, { href, errors }))
           }
         }
       })
@@ -206,7 +194,11 @@ export class SummaryViewModel {
  */
 function ItemRepeat(
   page: RepeatPageController,
-  state: FormState
+  state: FormState,
+  options: {
+    href: string
+    errors?: FormSubmissionError[]
+  }
 ): DetailItemRepeat {
   const { collection, repeat } = page
   const { name, title } = repeat.options
@@ -219,12 +211,17 @@ function ItemRepeat(
     label: title,
     title: values.length ? `${unit} added` : unit,
     value: `You added ${values.length} ${unit}`,
+    href: redirectUrl(options.href, {
+      returnUrl: redirectUrl(page.getSummaryPath())
+    }),
     state,
     page,
 
     // Repeater field detail items
     subItems: values.map((repeatState) =>
-      collection.fields.map((field) => ItemField(page, repeatState, field))
+      collection.fields.map((field) =>
+        ItemField(page, repeatState, field, options)
+      )
     )
   }
 }
@@ -236,13 +233,21 @@ function ItemRepeat(
 function ItemField(
   page: PageControllerClass,
   state: FormState,
-  field: Field
+  field: Field,
+  options: {
+    href: string
+    errors?: FormSubmissionError[]
+  }
 ): DetailItemField {
   return {
     name: field.name,
     label: field.title,
     title: field.title,
+    error: field.getError(options.errors),
     value: getAnswer(field, state),
+    href: redirectUrl(options.href, {
+      returnUrl: redirectUrl(page.getSummaryPath())
+    }),
     state,
     page,
     field

@@ -39,6 +39,11 @@ export interface DetailItemBase {
   label: string
 
   /**
+   * Field change link
+   */
+  href: string
+
+  /**
    * Form submission state (or repeat state for sub items)
    */
   state: FormState
