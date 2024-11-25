@@ -371,7 +371,7 @@ export class RepeatPageController extends PageController {
             href: `/${model.basePath}${this.path}/${item.itemId}${request.url.search}`,
             text: 'Change',
             classes: 'govuk-link--no-visited-state',
-            visuallyHiddenText: `edit item ${index + 1}`
+            visuallyHiddenText: `item ${index + 1}`
           }
         ]
 
@@ -380,7 +380,7 @@ export class RepeatPageController extends PageController {
             href: `/${model.basePath}${this.path}/${item.itemId}/confirm-delete${request.url.search}`,
             text: 'Remove',
             classes: 'govuk-link--no-visited-state',
-            visuallyHiddenText: `remove item ${index + 1}`
+            visuallyHiddenText: `item ${index + 1}`
           })
         }
 
