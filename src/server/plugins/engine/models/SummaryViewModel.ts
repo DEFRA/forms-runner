@@ -33,12 +33,9 @@ export class SummaryViewModel {
 
   pageTitle: string
   declaration?: string
-  result: ValidationResult<FormSubmissionState>
   details: Detail[]
   checkAnswers: CheckAnswers[]
   relevantPages: PageControllerClass[]
-  state: FormSubmissionState
-  value: FormSubmissionState
   name: string | undefined
   backLink?: string
   feedbackLink?: string

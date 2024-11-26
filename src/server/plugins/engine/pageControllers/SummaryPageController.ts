@@ -172,7 +172,7 @@ export class SummaryPageController extends PageController {
 
       // Display error summary on the summary
       // page if there are incomplete form errors
-      if (summaryViewModel.result.error) {
+      if (summaryViewModel.errors) {
         summaryViewModel.showErrorSummary = true
 
         return h.view('summary', summaryViewModel)
