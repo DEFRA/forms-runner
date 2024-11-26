@@ -49,7 +49,7 @@ import { sendNotification } from '~/src/server/utils/notify.js'
 const designerUrl = config.get('designerUrl')
 const templateId = config.get('notifyTemplateId')
 
-interface QuestionRecord {
+export interface QuestionRecord {
   title: string
   value: string
   field: FieldSummary
