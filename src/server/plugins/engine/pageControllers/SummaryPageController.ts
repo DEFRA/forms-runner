@@ -126,14 +126,6 @@ export class SummaryPageController extends PageController {
       const state = await this.getState(request)
       const summaryViewModel = this.getSummaryViewModel(state, request)
 
-      // Display error summary on the summary
-      // page if there are incomplete form errors
-      if (summaryViewModel.errors) {
-        summaryViewModel.showErrorSummary = true
-
-        return h.view('summary', summaryViewModel)
-      }
-
       const { params } = request
 
       // Get the form metadata using the `slug` param

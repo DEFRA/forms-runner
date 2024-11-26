@@ -10,13 +10,6 @@
         {% include "partials/preview-banner.html" %}
       {% endif %}
 
-      {% if showErrorSummary %}
-        {{ govukErrorSummary({
-          titleText: "There is a problem",
-          errorList: [{ text: "Complete all unanswered questions before submitting the form." }]
-        }) }}
-      {% endif %}
-
       {% if notificationEmailWarning %}
         {% include "partials/warn-missing-notification-email.html" %}
       {% endif %}
