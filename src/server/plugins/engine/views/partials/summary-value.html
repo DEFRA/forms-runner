@@ -1,7 +1,0 @@
-{% macro summaryValue(params) -%}
-  {% if params.error -%}
-    <a class="govuk-link" href="{{ params.href }}">Enter {{ params.label | lower }}</a>
-  {%- else %}
-    {{- params.value | default("Not supplied", true) -}}
-  {% endif %}
-{%- endmacro %}
