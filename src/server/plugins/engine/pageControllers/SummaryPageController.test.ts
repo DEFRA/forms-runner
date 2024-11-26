@@ -1,4 +1,6 @@
-import { format } from 'date-fns'
+import { type SubmitResponsePayload } from '@defra/forms-model'
+import { addDays, format } from 'date-fns'
+import { outdent } from 'outdent'
 
 import {
   FormModel,
@@ -6,70 +8,170 @@ import {
 } from '~/src/server/plugins/engine/models/index.js'
 import {
   getPersonalisation,
-  getQuestions
+  getQuestions,
+  type QuestionRecord
 } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
+import {
+  type FormState,
+  type FormSubmissionState
+} from '~/src/server/plugins/engine/types.js'
 import { FormStatus, type FormRequest } from '~/src/server/routes/types.js'
-import definition from '~/test/form/definitions/conditions-basic.js'
+import definition from '~/test/form/definitions/repeat-mixed.js'
 
 describe('SummaryPageController', () => {
-  describe('getPersonalisation', () => {
-    const model: FormModel = new FormModel(definition, {
+  const itemId1 = 'abc-123'
+  const itemId2 = 'xyz-987'
+
+  let model: FormModel
+  let submissionState: FormSubmissionState
+  let relevantState: FormState
+  let summaryViewModel: SummaryViewModel
+  let submitResponse: SubmitResponsePayload
+  let questions: QuestionRecord[]
+
+  beforeEach(() => {
+    model = new FormModel(definition, {
       basePath: 'test'
     })
 
-    const summaryViewModel = new SummaryViewModel(
+    relevantState = {
+      orderType: 'delivery',
+      pizza: [
+        {
+          toppings: 'Ham',
+          quantity: 2,
+          itemId: itemId1
+        },
+        {
+          toppings: 'Pepperoni',
+          quantity: 1,
+          itemId: itemId2
+        }
+      ]
+    }
+
+    submissionState = {
+      progress: [
+        'repeat/delivery-or-collection',
+        `repeat/pizza-order/${itemId1}`,
+        `repeat/pizza-order/${itemId2}`,
+        'repeat/summary'
+      ],
+      ...relevantState
+    }
+
+    const request = {
+      url: new URL('http://example.com/repeat/pizza-order/summary'),
+      params: {
+        path: 'pizza-order',
+        slug: 'repeat'
+      },
+      query: {}
+    } as FormRequest
+
+    summaryViewModel = new SummaryViewModel(
       'Summary',
       model,
-      {},
-      {},
-      {} as FormRequest
+      submissionState,
+      relevantState,
+      request
     )
 
-    const formStatus = (previewStatus: boolean) => ({
-      state: FormStatus.Draft,
-      isPreview: previewStatus
-    })
-
-    const submitResponse = {
+    submitResponse = {
       message: 'Submit completed',
       result: {
         files: {
           main: '00000000-0000-0000-0000-000000000000',
-          repeaters: {}
+          repeaters: {
+            pizza: '11111111-1111-1111-1111-111111111111'
+          }
         }
       }
     }
 
-    it('should generate personalisation with form results and form name - Live form', () => {
-      const questions = getQuestions(summaryViewModel, model)
+    questions = getQuestions(summaryViewModel, model)
+  })
+
+  describe('getPersonalisation', () => {
+    it.each([
+      {
+        state: FormStatus.Live,
+        isPreview: false
+      },
+      {
+        state: FormStatus.Draft,
+        isPreview: true
+      }
+    ])('should personalise $state email', (formStatus) => {
       const result = getPersonalisation(
         questions,
         model,
         submitResponse,
-        formStatus(false)
+        formStatus
       )
-      const now = new Date()
-      const formattedNow = format(now, 'h:mmaaa')
-      const formattedDate = format(now, 'd MMMM yyyy')
 
-      expect(result.subject).toBe('Form received: Conditions')
-      expect(result.body).toContain(
-        `Form received at ${formattedNow} on ${formattedDate}`
+      const dateNow = new Date()
+      const dateExpiry = addDays(dateNow, 30)
+
+      // Check for link expiry message
+      expect(result).toHaveProperty(
+        'body',
+        expect.stringContaining(
+          `^ For security reasons, the links in this email expire at ${format(dateExpiry, 'h:mmaaa')} on ${format(dateExpiry, 'eeee d MMMM yyyy')}`
+        )
+      )
+
+      // Check for form answers
+      expect(result).toHaveProperty(
+        'body',
+        expect.stringContaining(
+          outdent`
+            Form received at ${format(dateNow, 'h:mmaaa')} on ${format(dateNow, 'd MMMM yyyy')}.
+
+
+            ## How would you like to receive your pizza?
+            \`\`\`
+            delivery
+            \`\`\`
+
+
+
+            ## Pizza
+            [Download Pizza (CSV)](https://test-designer.cdp-int.defra.cloud/file-download/11111111-1111-1111-1111-111111111111)
+
+
+
+            [Download main form (CSV)](https://test-designer.cdp-int.defra.cloud/file-download/00000000-0000-0000-0000-000000000000)
+          `
+        )
       )
     })
 
-    it('should generate personalisation with form results and form name - Preview form', () => {
-      const questions = getQuestions(summaryViewModel, model)
-      const result = getPersonalisation(
-        questions,
-        model,
-        submitResponse,
-        formStatus(true)
+    it('should add test warnings to preview email only', () => {
+      const formStatus = {
+        state: FormStatus.Draft,
+        isPreview: true
+      }
+
+      const result1 = getPersonalisation(questions, model, submitResponse, {
+        state: FormStatus.Live,
+        isPreview: false
+      })
+
+      const result2 = getPersonalisation(questions, model, submitResponse, {
+        state: FormStatus.Draft,
+        isPreview: true
+      })
+
+      expect(result1.subject).toBe(`Form received: ${definition.name}`)
+      expect(result2.subject).toBe(`TEST FORM SUBMISSION: ${definition.name}`)
+
+      expect(result1.body).not.toContain(
+        `This is a test of the ${definition.name} ${formStatus.state} form`
       )
 
-      expect(result.subject).toBe('TEST FORM SUBMISSION: Conditions')
-      expect(result.body).toContain(
-        'This is a test of the Conditions draft form'
+      expect(result2.body).toContain(
+        `This is a test of the ${definition.name} ${formStatus.state} form`
       )
     })
   })

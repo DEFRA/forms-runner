@@ -164,7 +164,7 @@ describe('Repeat GET tests', () => {
     })
 
     const $heading2 = container.getByRole('heading', {
-      name: 'Pizza 1',
+      name: 'Food: Pizza 1',
       level: 2
     })
 
@@ -208,7 +208,7 @@ describe('Repeat GET tests', () => {
     })
 
     const $heading2 = container.getByRole('heading', {
-      name: 'Pizza 1',
+      name: 'Food: Pizza 1',
       level: 2
     })
 

@@ -55,8 +55,8 @@ export default /** @satisfies {FormDefinition} */ ({
   ],
   sections: [
     {
-      name: 'section',
-      title: 'Section title',
+      name: 'food',
+      title: 'Food',
       hideTitle: false
     }
   ],
