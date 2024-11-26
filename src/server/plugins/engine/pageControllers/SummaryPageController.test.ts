@@ -8,8 +8,8 @@ import {
 } from '~/src/server/plugins/engine/models/index.js'
 import { type DetailItem } from '~/src/server/plugins/engine/models/types.js'
 import {
-  getPersonalisation,
-  getQuestions
+  getFormSubmissionData,
+  getPersonalisation
 } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 import {
   type FormState,
@@ -89,7 +89,10 @@ describe('SummaryPageController', () => {
       }
     }
 
-    items = getQuestions(summaryViewModel, model)
+    items = getFormSubmissionData(
+      summaryViewModel.relevantPages,
+      summaryViewModel.details
+    )
   })
 
   describe('getPersonalisation', () => {

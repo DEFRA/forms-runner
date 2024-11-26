@@ -310,8 +310,11 @@ async function sendEmail(
 
   request.logger.info(logTags, 'Preparing email', formStatus)
 
-  // Get questions
-  const items = getQuestions(summaryViewModel, model)
+  // Get detail items
+  const items = getFormSubmissionData(
+    summaryViewModel.relevantPages,
+    summaryViewModel.details
+  )
 
   // Submit data
   request.logger.info(logTags, 'Submitting data')
@@ -347,17 +350,6 @@ async function sendEmail(
 
     throw err
   }
-}
-
-export function getQuestions(
-  summaryViewModel: SummaryViewModel,
-  model: FormModel
-) {
-  return getFormSubmissionData(
-    summaryViewModel.relevantPages,
-    summaryViewModel.details,
-    model
-  ).questions.flatMap(({ fields }) => fields)
 }
 
 export function getPersonalisation(
@@ -424,26 +416,15 @@ export function getPersonalisation(
   }
 }
 
-function getFormSubmissionData(
+export function getFormSubmissionData(
   relevantPages: PageControllerClass[],
-  details: Detail[],
-  model: FormModel
+  details: Detail[]
 ) {
-  const questions = relevantPages.map((page) => {
-    const fields = details.flatMap((detail) =>
-      detail.items.filter((item) => item.page.path === page.path)
+  return relevantPages
+    .map(({ path }) =>
+      details.flatMap(({ items }) =>
+        items.filter(({ page }) => page.path === path)
+      )
     )
-
-    return {
-      category: page.section?.name,
-      question: page.title,
-      fields
-    }
-  })
-
-  return {
-    metadata: model.def.metadata,
-    name: model.name,
-    questions
-  }
+    .flat()
 }
