@@ -15,7 +15,10 @@ export const config = convict({
   },
   publicDir: {
     format: String,
-    default: path.resolve(dirname, '../../.public')
+    default:
+      process.env.NODE_ENV === 'test'
+        ? path.resolve(dirname, '../../test/fixtures')
+        : path.resolve(dirname, '../../.public')
   },
 
   /**
