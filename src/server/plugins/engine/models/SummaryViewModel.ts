@@ -52,7 +52,7 @@ export class SummaryViewModel {
     pageTitle: string,
     model: FormModel,
     state: FormSubmissionState,
-    relevantState: FormSubmissionState,
+    relevantState: FormState,
     request: FormRequest | FormRequestPayload
   ) {
     this.pageTitle = pageTitle

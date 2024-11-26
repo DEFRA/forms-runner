@@ -246,7 +246,10 @@ export class PageControllerBase {
   /**
    * Returns an async function. This is called in plugin.ts when there is a GET request at `/{id}/{path*}`
    */
-  getConditionEvaluationContext(model: FormModel, state: FormSubmissionState) {
+  getConditionEvaluationContext(
+    model: FormModel,
+    state: FormSubmissionState
+  ): FormState {
     let relevantState: FormState = {}
     // Start at our startPage
     let nextPage = model.startPage
