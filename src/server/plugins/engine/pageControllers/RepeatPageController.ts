@@ -10,11 +10,14 @@ import { ADD_ANOTHER, CONTINUE } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
+  type CheckAnswers,
   type FormPayload,
   type FormSubmissionError,
   type FormSubmissionState,
   type PageViewModel,
-  type RepeatState
+  type RepeatState,
+  type SummaryList,
+  type SummaryListAction
 } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
@@ -22,19 +25,6 @@ import {
   type FormRequestPayloadRefs,
   type FormRequestRefs
 } from '~/src/server/routes/types.js'
-
-interface RowAction {
-  href: string
-  text: string
-  classes: string
-  visuallyHiddenText: string
-}
-
-interface Row {
-  key: { text: string }
-  value: { text: string }
-  actions: { items: RowAction[] }
-}
 
 export class RepeatPageController extends PageController {
   listSummaryViewName = 'repeat-list-summary'
@@ -355,7 +345,7 @@ export class RepeatPageController extends PageController {
     showTitle: boolean
     serviceUrl: string
     errors?: FormSubmissionError[]
-    rows: Row[]
+    checkAnswers: CheckAnswers[]
     repeatTitle: string
     backLink?: string
   } {
@@ -364,19 +354,24 @@ export class RepeatPageController extends PageController {
     const { title } = repeat.options
     const sectionTitle = section?.hideTitle !== true ? section?.title : ''
     const serviceUrl = `/${model.basePath}`
-    const rows: Row[] = []
+
+    const summaryList: SummaryList = {
+      classes: 'govuk-summary-list--long-actions',
+      rows: []
+    }
+
     let count = 0
 
     if (Array.isArray(state)) {
       count = state.length
 
       state.forEach((item, index) => {
-        const items: RowAction[] = [
+        const items: SummaryListAction[] = [
           {
             href: `/${model.basePath}${this.path}/${item.itemId}${request.url.search}`,
             text: 'Change',
             classes: 'govuk-link--no-visited-state',
-            visuallyHiddenText: `edit item ${index + 1}`
+            visuallyHiddenText: `item ${index + 1}`
           }
         ]
 
@@ -385,7 +380,7 @@ export class RepeatPageController extends PageController {
             href: `/${model.basePath}${this.path}/${item.itemId}/confirm-delete${request.url.search}`,
             text: 'Remove',
             classes: 'govuk-link--no-visited-state',
-            visuallyHiddenText: `remove item ${index + 1}`
+            visuallyHiddenText: `item ${index + 1}`
           })
         }
 
@@ -393,7 +388,7 @@ export class RepeatPageController extends PageController {
           ? collection.fields[0].getDisplayStringFromState(item)
           : ''
 
-        rows.push({
+        summaryList.rows.push({
           key: {
             text: `${title} ${index + 1}`
           },
@@ -414,7 +409,7 @@ export class RepeatPageController extends PageController {
       showTitle: true,
       errors,
       serviceUrl,
-      rows,
+      checkAnswers: [{ summaryList }],
       repeatTitle: title
     }
   }

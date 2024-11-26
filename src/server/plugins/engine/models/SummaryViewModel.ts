@@ -11,10 +11,13 @@ import { RepeatPageController } from '~/src/server/plugins/engine/pageController
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
+  type CheckAnswers,
   type FormState,
   type FormSubmissionError,
-  type FormSubmissionState
+  type FormSubmissionState,
+  type SummaryListRow
 } from '~/src/server/plugins/engine/types.js'
+import { render } from '~/src/server/plugins/nunjucks/index.js'
 import {
   type FormRequest,
   type FormRequestPayload
@@ -29,6 +32,7 @@ export class SummaryViewModel {
   declaration?: string
   result: ValidationResult<FormSubmissionState>
   details: Detail[]
+  checkAnswers: CheckAnswers[]
   relevantPages: PageControllerClass[]
   state: FormSubmissionState
   value: FormSubmissionState
@@ -54,9 +58,12 @@ export class SummaryViewModel {
     this.pageTitle = pageTitle
     this.serviceUrl = `/${model.basePath}`
     this.name = model.def.name
+
     const relevantPages = this.getRelevantPages(model, relevantState)
     const details = this.summaryDetails(request, model, state, relevantPages)
+
     const { def } = model
+
     this.declaration = def.declaration
 
     const schema = model.makeFilteredSchema(relevantPages)
@@ -72,8 +79,59 @@ export class SummaryViewModel {
       }
     }
 
+    const checkAnswers: CheckAnswers[] = details.map((detail): CheckAnswers => {
+      const { items, title } = detail
+
+      const rows = items.map((item): SummaryListRow => {
+        const href = item.url
+
+        const value = render.macro(
+          'summaryValue',
+          'partials/summary-value.html',
+          {
+            params: {
+              href,
+              label: item.label,
+              value: item.value,
+              error: item.error
+            }
+          }
+        )
+
+        const row: SummaryListRow = {
+          key: {
+            text: item.label
+          },
+          value: {
+            html: value
+          }
+        }
+
+        if (!item.error) {
+          row.actions = {
+            items: [
+              {
+                href,
+                text: 'Change',
+                classes: 'govuk-link--no-visited-state',
+                visuallyHiddenText: item.label
+              }
+            ]
+          }
+        }
+
+        return row
+      })
+
+      return {
+        title: title ? { text: title } : undefined,
+        summaryList: { rows }
+      }
+    })
+
     this.result = result
     this.details = details
+    this.checkAnswers = checkAnswers
     this.relevantPages = relevantPages
     this.state = state
     this.value = result.value

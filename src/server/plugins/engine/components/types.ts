@@ -5,6 +5,20 @@ import {
   type FormValue
 } from '~/src/server/plugins/engine/types.js'
 
+export type ComponentText = {
+  classes?: string
+  attributes?: string | Record<string, string>
+} & (
+  | {
+      text: string
+      html?: string
+    }
+  | {
+      text?: string
+      html: string
+    }
+)
+
 export interface Label {
   text: string
   classes?: string
@@ -54,12 +68,8 @@ export interface ViewModel extends Record<string, unknown> {
     id?: string
     text: string
   }
-  prefix?: {
-    text: string
-  }
-  suffix?: {
-    text: string
-  }
+  prefix?: ComponentText
+  suffix?: ComponentText
   classes?: string
   condition?: string
   errors?: FormSubmissionError[]
