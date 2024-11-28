@@ -15,14 +15,10 @@ import {
   type RouteOptions,
   type ServerRoute
 } from '@hapi/hapi'
-import { merge } from '@hapi/hoek'
 import joi, { type ValidationErrorItem } from 'joi'
 
 import { config } from '~/src/config/index.js'
-import { CheckboxesField } from '~/src/server/plugins/engine/components/CheckboxesField.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { DatePartsField } from '~/src/server/plugins/engine/components/DatePartsField.js'
-import { RadiosField } from '~/src/server/plugins/engine/components/RadiosField.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import {
   encodeUrl,
@@ -35,8 +31,6 @@ import { type PageControllerClass } from '~/src/server/plugins/engine/pageContro
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
   type FormPayload,
-  type FormState,
-  type FormStateValue,
   type FormSubmissionError,
   type FormSubmissionState,
   type PageViewModel
@@ -250,55 +244,18 @@ export class PageControllerBase {
     model: FormModel,
     state: FormSubmissionState
   ): FormState {
-    let relevantState: FormState = {}
+    const relevantState: FormState = {}
     // Start at our startPage
     let nextPage = model.startPage
 
     // While the current page isn't null
     while (nextPage != null) {
-      // Either get the current state or the current state of the section if this page belongs to a section
-      const newValue: Record<string, FormState | FormStateValue> = {}
-
       if (!hasRepeater(nextPage.pageDef)) {
         // Iterate all components on this page and pull out the saved values from the state
         for (const component of nextPage.collection.fields) {
-          const { name, options } = component
-
-          const value = component.getFormValueFromState(state)
-
-          /**
-           * For evaluation context purposes, optional {@link CheckboxesField}
-           * with an undefined value (i.e. nothing selected) should default to [].
-           * This way conditions are not evaluated against `undefined` which throws errors.
-           * Currently these errors are caught and the evaluation returns default `false`.
-           * @see {@link PageControllerBase.getNextPage} for `undefined` return value
-           * @see {@link FormModel.makeCondition} for try/catch block with default `false`
-           * For negative conditions this is a problem because E.g.
-           * The condition: 'selectedchecks' does not contain 'someval'
-           * should return true IF 'selectedchecks' is undefined, not throw and return false.
-           * Similarly for optional {@link RadiosField}, the evaluation context should default to null.
-           */
-          if (
-            value === undefined &&
-            component instanceof CheckboxesField &&
-            !options.required
-          ) {
-            newValue[name] = []
-          } else if (
-            value === undefined &&
-            component instanceof RadiosField &&
-            !options.required
-          ) {
-            newValue[name] = null
-          } else if (component instanceof DatePartsField) {
-            newValue[name] = component.getConditionEvaluationStateValue(state)
-          }
-
-          newValue[name] ??= value ?? null
+          relevantState[component.name] =
+            component.getContextValueFromState(state)
         }
-
-        // Combine our stored values with the existing relevantState that we've been building up
-        relevantState = merge(relevantState, newValue)
       }
 
       // By passing our current relevantState to getNextPage, we will check if we can navigate to this next page (including doing any condition checks if applicable)

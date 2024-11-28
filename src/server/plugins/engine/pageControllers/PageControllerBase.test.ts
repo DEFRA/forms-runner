@@ -94,12 +94,12 @@ describe('PageControllerBase', () => {
         applicantOneFirstName: 'Enrique',
         applicantOneMiddleName: null,
         applicantOneLastName: 'Chase',
-        applicantOneAddress: {
-          addressLine1: 'AddressLine1',
-          addressLine2: 'AddressLine2',
-          town: 'Town',
-          postcode: 'Postcode'
-        }
+        applicantOneAddress: [
+          'AddressLine1',
+          'AddressLine2',
+          'Town',
+          'Postcode'
+        ]
       })
 
       // Now mark that we don't have a UK Passport

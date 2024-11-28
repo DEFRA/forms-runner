@@ -170,6 +170,17 @@ describe('NumberField', () => {
         expect(value2).toBeUndefined()
       })
 
+      it('returns context for conditions and form submission', () => {
+        const state1 = getFormState(2024)
+        const state2 = getFormState(null)
+
+        const value1 = field.getContextValueFromState(state1)
+        const value2 = field.getContextValueFromState(state2)
+
+        expect(value1).toBe(2024)
+        expect(value2).toBeNull()
+      })
+
       it('returns state from payload', () => {
         const payload1 = getFormData(2024)
         const payload2 = getFormData()

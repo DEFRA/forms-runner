@@ -282,6 +282,20 @@ describe.each([
         expect(value2).toBeUndefined()
       })
 
+      it.each([...options.examples])(
+        'returns context for conditions and form submission',
+        (item) => {
+          const state1 = getFormState([item.state])
+          const state2 = getFormState(null)
+
+          const value1 = field.getContextValueFromState(state1)
+          const value2 = field.getContextValueFromState(state2)
+
+          expect(value1).toEqual([item.state])
+          expect(value2).toEqual([])
+        }
+      )
+
       it.each([...options.examples])('returns state from payload', (item) => {
         const payload1 = getFormData([item.value])
         const payload2 = getFormData()

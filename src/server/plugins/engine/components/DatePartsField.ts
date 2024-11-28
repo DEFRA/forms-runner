@@ -117,7 +117,7 @@ export class DatePartsField extends FormComponent {
     return format(`${value.year}-${value.month}-${value.day}`, 'd MMMM yyyy')
   }
 
-  getConditionEvaluationStateValue(state: FormSubmissionState) {
+  getContextValueFromState(state: FormSubmissionState) {
     const value = this.getFormValueFromState(state)
 
     if (!value) {

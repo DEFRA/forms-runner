@@ -174,6 +174,17 @@ describe('TelephoneNumberField', () => {
         expect(value2).toBeUndefined()
       })
 
+      it('returns context for conditions and form submission', () => {
+        const state1 = getFormState('+447900000000')
+        const state2 = getFormState(null)
+
+        const value1 = field.getContextValueFromState(state1)
+        const value2 = field.getContextValueFromState(state2)
+
+        expect(value1).toBe('+447900000000')
+        expect(value2).toBeNull()
+      })
+
       it('returns state from payload', () => {
         const payload1 = getFormData('+447900000000')
         const payload2 = getFormData()

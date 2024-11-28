@@ -300,6 +300,21 @@ describe('FileUploadField', () => {
         expect(value2).toBeUndefined()
       })
 
+      it('returns context for conditions and form submission', () => {
+        const state1 = getFormState(validState)
+        const state2 = getFormState(null)
+
+        const value1 = field.getContextValueFromState(state1)
+        const value2 = field.getContextValueFromState(state2)
+
+        const { file: file1 } = validState[0].status.form
+        const { file: file2 } = validState[1].status.form
+        const { file: file3 } = validState[2].status.form
+
+        expect(value1).toEqual([file1.fileId, file2.fileId, file3.fileId])
+        expect(value2).toBeNull()
+      })
+
       it('returns state from payload', () => {
         const payload1 = getFormData(validState)
         const payload2 = getFormData()

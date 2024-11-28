@@ -180,6 +180,20 @@ describe('YesNoField', () => {
       expect(value3).toBeUndefined()
     })
 
+    it('returns context for conditions and form submission', () => {
+      const state1 = getFormState(true)
+      const state2 = getFormState(false)
+      const state3 = getFormState(null)
+
+      const value1 = field.getContextValueFromState(state1)
+      const value2 = field.getContextValueFromState(state2)
+      const value3 = field.getContextValueFromState(state3)
+
+      expect(value1).toBe(true)
+      expect(value2).toBe(false)
+      expect(value3).toBeNull()
+    })
+
     it('returns state from payload', () => {
       const payload1 = getFormData(true)
       const payload2 = getFormData(false)

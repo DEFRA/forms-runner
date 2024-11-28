@@ -145,6 +145,11 @@ export class FileUploadField extends FormComponent {
     return `Uploaded ${files.length} ${unit}`
   }
 
+  getContextValueFromState(state: FormSubmissionState) {
+    const files = this.getFormValueFromState(state)
+    return files?.map(({ status }) => status.form.file.fileId) ?? null
+  }
+
   getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
     const { options } = this
 

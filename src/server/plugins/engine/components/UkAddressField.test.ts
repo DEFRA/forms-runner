@@ -291,6 +291,23 @@ describe('UkAddressField', () => {
         expect(value2).toBeUndefined()
       })
 
+      it('returns context for conditions and form submission', () => {
+        const state1 = getFormState(address)
+        const state2 = getFormState({})
+
+        const value1 = field.getContextValueFromState(state1)
+        const value2 = field.getContextValueFromState(state2)
+
+        expect(value1).toEqual([
+          'Richard Fairclough House',
+          'Knutsford Road',
+          'Warrington',
+          'WA4 1HT'
+        ])
+
+        expect(value2).toBeNull()
+      })
+
       it('returns state from payload', () => {
         const payload1 = getFormData(address)
         const payload2 = getFormData({})

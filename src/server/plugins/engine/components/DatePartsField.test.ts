@@ -287,6 +287,17 @@ describe('DatePartsField', () => {
         expect(value2).toBeUndefined()
       })
 
+      it('returns context for conditions and form submission', () => {
+        const state1 = getFormState(startOfDay(date))
+        const state2 = getFormState({})
+
+        const value1 = field.getContextValueFromState(state1)
+        const value2 = field.getContextValueFromState(state2)
+
+        expect(value1).toBe('2024-12-31')
+        expect(value2).toBeNull()
+      })
+
       it('returns state from payload', () => {
         const payload1 = getFormData(date)
         const payload2 = getFormData({})
@@ -296,17 +307,6 @@ describe('DatePartsField', () => {
 
         expect(value1).toEqual(getFormState(date))
         expect(value2).toEqual(getFormState({}))
-      })
-
-      it('returns formatted value for conditions', () => {
-        const state1 = getFormState(date)
-        const state2 = getFormState({})
-
-        const value1 = field.getConditionEvaluationStateValue(state1)
-        const value2 = field.getConditionEvaluationStateValue(state2)
-
-        expect(value1).toBe('2024-12-31')
-        expect(value2).toBeNull()
       })
     })
 

@@ -1,4 +1,4 @@
-import { type FormComponentsDef } from '@defra/forms-model'
+import { type FormComponentsDef, type Item } from '@defra/forms-model'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
@@ -145,10 +145,23 @@ export class FormComponent extends ComponentBase {
     return this.isValue(value) ? value.toString() : ''
   }
 
-  getConditionEvaluationStateValue(
+  getContextValueFromState(
     state: FormSubmissionState
-  ): FormStateValue | FormState {
-    return this.getFormValueFromState(state) ?? null
+  ): Item['value'] | Item['value'][] | null {
+    const value = this.getFormValueFromState(state)
+
+    // Filter object field values
+    if (this.isState(value)) {
+      const values = Object.values(value).filter(isFormValue)
+      return values.length ? values : null
+    }
+
+    // Filter array field values
+    if (this.isValue(value) && Array.isArray(value)) {
+      return value.filter(isFormValue)
+    }
+
+    return this.isValue(value) ? value : null
   }
 
   isValue(
