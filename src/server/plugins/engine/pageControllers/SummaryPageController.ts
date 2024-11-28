@@ -256,7 +256,7 @@ function submitData(
       .map((item) => ({
         name: item.name,
         title: item.label,
-        value: item.value
+        value: getAnswer(item.field, item.state, { format: 'data' })
       })),
 
     // Repeater form answers
@@ -271,7 +271,7 @@ function submitData(
           detailItems.map((subItem) => ({
             name: subItem.name,
             title: subItem.label,
-            value: subItem.value
+            value: getAnswer(subItem.field, subItem.state, { format: 'data' })
           }))
         )
       }))

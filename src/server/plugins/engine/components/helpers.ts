@@ -126,14 +126,23 @@ export function getAnswer(
   state: FormState,
   options: {
     format:
+      | 'data' // Submission data
       | 'markdown' // GOV.UK Notify emails
       | 'summary' // Check answers summary
   } = { format: 'summary' }
 ) {
+  // Use escaped display text for GOV.UK Notify emails
   if (options.format === 'markdown') {
     return getAnswerMarkdown(field, state)
   }
 
+  // Use context value for submission data
+  if (options.format === 'data') {
+    const context = field.getContextValueFromState(state)
+    return context?.toString() ?? ''
+  }
+
+  // Use display text for check answers summary
   return field.getDisplayStringFromState(state)
 }
 

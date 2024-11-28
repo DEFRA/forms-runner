@@ -297,7 +297,7 @@ describe('Submission journey test', () => {
         {
           name: 'yesNoField',
           title: 'Yes/No field',
-          value: 'yes'
+          value: 'true'
         },
         {
           name: 'emailAddressField',
@@ -312,7 +312,7 @@ describe('Submission journey test', () => {
         {
           name: 'addressField',
           title: 'Address field',
-          value: 'Address line 1, Address line 2, Town or city, CW1 1AB'
+          value: 'Address line 1,Address line 2,Town or city,CW1 1AB'
         },
         {
           name: 'radiosField',
