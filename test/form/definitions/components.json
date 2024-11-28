@@ -39,6 +39,15 @@
           }
         },
         {
+          "type": "NumberField",
+          "name": "numberFieldPrefixSuffix",
+          "title": "Number field 3",
+          "options": {
+            "prefix": "Limited to",
+            "suffix": "kg"
+          }
+        },
+        {
           "type": "DatePartsField",
           "name": "datePartsField",
           "title": "Date parts field",

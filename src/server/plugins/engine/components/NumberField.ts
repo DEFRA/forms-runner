@@ -88,17 +88,29 @@ export class NumberField extends FormComponent {
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
+    const { options } = this
+
     const value = this.getFormValueFromState(state)
     if (!this.isValue(value)) {
       return ''
     }
 
-    return new Intl.NumberFormat('en-GB', {
+    let formatted = new Intl.NumberFormat('en-GB', {
       minimumFractionDigits: this.precision,
       maximumFractionDigits: this.precision,
       style: 'decimal',
       useGrouping: false
     }).format(value)
+
+    if (options.prefix) {
+      formatted = `${options.prefix} ${formatted}`
+    }
+
+    if (options.suffix) {
+      formatted = `${formatted} ${options.suffix}`
+    }
+
+    return formatted
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
