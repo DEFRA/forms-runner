@@ -359,33 +359,34 @@ export function getPersonalisation(
   const lines: string[] = []
 
   lines.push(
-    `^ For security reasons, the links in this email expire at ${formattedExpiryDate}\n\n`
+    `^ For security reasons, the links in this email expire at ${formattedExpiryDate}\n`
   )
 
   if (formStatus.isPreview) {
     lines.push(
-      `This is a test of the ${model.name} ${formStatus.state} form.\n\n`
+      `This is a test of the ${model.name} ${formStatus.state} form.\n`
     )
   }
 
-  lines.push(`Form received at ${formattedNow}.\n\n`)
+  lines.push(`Form received at ${formattedNow}.\n`)
+  lines.push('---')
 
   items.forEach((item) => {
     lines.push(`## ${item.label}`)
 
     if ('subItems' in item) {
       lines.push(
-        `[Download ${item.label} (CSV)](${designerUrl}/file-download/${files.repeaters[item.name]})\n`
+        `[Download ${item.label} (CSV)](${designerUrl}/file-download/${files.repeaters[item.name]})\n`,
+        '---'
       )
     } else {
       lines.push(
         getAnswer(item.field, item.state, {
           format: 'markdown'
-        })
+        }),
+        '---'
       )
     }
-
-    lines.push('\n')
   })
 
   lines.push(
