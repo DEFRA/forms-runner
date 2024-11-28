@@ -143,17 +143,25 @@ describe('NumberField', () => {
           { model }
         )
 
+        const fieldCustom2 = new NumberField(
+          { ...def, options: { prefix: 'Limited to', suffix: 'kg' } },
+          { model }
+        )
+
         const state1 = getFormState(2024)
         const state2 = getFormState(null)
         const state3 = getFormState(99)
+        const state4 = getFormState(1234)
 
         const answer1 = getAnswer(field, state1)
         const answer2 = getAnswer(field, state2)
         const answer3 = getAnswer(fieldCustom1, state3)
+        const answer4 = getAnswer(fieldCustom2, state4)
 
         expect(answer1).toBe('2024')
         expect(answer2).toBe('')
         expect(answer3).toBe('99.00')
+        expect(answer4).toBe('Limited to 1234 kg')
       })
 
       it('returns payload from state', () => {
