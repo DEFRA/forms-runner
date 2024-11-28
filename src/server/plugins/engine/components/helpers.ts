@@ -2,6 +2,7 @@ import { ComponentType, type ComponentDef } from '@defra/forms-model'
 
 import { type ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import * as Components from '~/src/server/plugins/engine/components/index.js'
+import { type FormState } from '~/src/server/plugins/engine/types.js'
 
 // All component instances
 export type Component = InstanceType<
@@ -112,6 +113,23 @@ export function createComponent(
   }
 
   return component
+}
+
+/**
+ * Get formatted answer for a field
+ */
+export function getAnswer(
+  field: Field,
+  state: FormState,
+  options?: { format: 'markdown' }
+) {
+  let answer = field.getDisplayStringFromState(state)
+
+  if (options?.format === 'markdown') {
+    answer = `\`\`\`\n${answer}\n\`\`\`\n`
+  }
+
+  return answer
 }
 
 export const addClassOptionIfNone = (
