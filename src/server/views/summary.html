@@ -43,7 +43,9 @@
           {{ declaration | safe }}
         {% endif %}
 
-        <button data-prevent-double-click="true" class="govuk-button" data-module="govuk-button">{{ "Accept and Send" if declaration else "Send" }}</button>
+        <button data-prevent-double-click="true" class="govuk-button" data-module="govuk-button">
+          {{ "Accept and send" if declaration else "Send" }}
+        </button>
       </form>
     </div>
   </div>
