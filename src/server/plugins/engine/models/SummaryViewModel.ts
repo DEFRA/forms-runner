@@ -8,7 +8,9 @@ import { getError, redirectUrl } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   type Detail,
-  type DetailItem
+  type DetailItem,
+  type DetailItemField,
+  type DetailItemRepeat
 } from '~/src/server/plugins/engine/models/types.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
@@ -63,26 +65,25 @@ export class SummaryViewModel {
     this.pageTitle = pageTitle
     this.serviceUrl = `/${basePath}`
     this.name = def.name
-
-    const relevantPages = this.getRelevantPages(model, relevantState)
-    const details = this.summaryDetails(request, model, state, relevantPages)
-
     this.declaration = def.declaration
+    this.relevantPages = this.getRelevantPages(model, relevantState)
 
-    const schema = model.makeFilteredSchema(relevantPages)
-    const result = schema.validate(state, { ...opts, stripUnknown: true })
+    const result = model
+      .makeFilteredSchema(this.relevantPages)
+      .validate(state, { ...opts, stripUnknown: true })
 
     // Format errors
-    const errors = result.error?.details.map(getError)
+    this.errors = result.error?.details.map(getError)
+    this.details = this.summaryDetails(request, model, state)
 
     // Flag unanswered questions
-    for (const { items } of details) {
+    for (const { items } of this.details) {
       for (const item of items) {
-        item.error = item.field?.getError(errors)
+        item.error = item.field?.getError(this.errors)
       }
     }
 
-    const checkAnswers: CheckAnswers[] = details.map((detail): CheckAnswers => {
+    this.checkAnswers = this.details.map((detail): CheckAnswers => {
       const { items, title } = detail
 
       const rows = items.map((item): SummaryListRow => {
@@ -139,25 +140,19 @@ export class SummaryViewModel {
         summaryList: { rows }
       }
     })
-
-    this.result = result
-    this.details = details
-    this.checkAnswers = checkAnswers
-    this.relevantPages = relevantPages
-    this.state = state
-    this.value = result.value
-    this.errors = errors
   }
 
   private summaryDetails(
     request: FormRequest | FormRequestPayload,
     model: FormModel,
-    state: FormSubmissionState,
-    relevantPages: PageControllerClass[]
+    state: FormSubmissionState
   ) {
+    const { relevantPages } = this
+    const { sections } = model
+
     const details: Detail[] = []
 
-    ;[undefined, ...model.sections].forEach((section) => {
+    ;[undefined, ...sections].forEach((section) => {
       const items: DetailItem[] = []
 
       const sectionPages = relevantPages.filter(
@@ -165,13 +160,13 @@ export class SummaryViewModel {
       )
 
       sectionPages.forEach((page) => {
+        const { collection } = page
+
         if (page instanceof RepeatPageController) {
-          addRepeaterItem(page, state, items)
+          items.push(ItemRepeat(page, state))
         } else {
-          for (const component of page.collection.fields) {
-            const item = Item(component, state, page)
-            if (items.find((cbItem) => cbItem.name === item.name)) return
-            items.push(item)
+          for (const field of collection.fields) {
+            items.push(ItemField(page, state, field))
           }
         }
       })
@@ -205,51 +200,51 @@ export class SummaryViewModel {
   }
 }
 
-function addRepeaterItem(
+/**
+ * Creates a repeater detail item
+ * @see {@link DetailItemField}
+ */
+function ItemRepeat(
   page: RepeatPageController,
-  state: FormSubmissionState,
-  items: DetailItem[]
-) {
-  const { options } = page.repeat
-  const { name, title } = options
+  state: FormState
+): DetailItemRepeat {
+  const { collection, repeat } = page
+  const { name, title } = repeat.options
 
   const values = page.getListFromState(state)
   const unit = values.length === 1 ? title : `${title}s`
 
-  const subItems: DetailItem[][] = []
-
-  values.forEach((itemState) => {
-    const sub: DetailItem[] = []
-    for (const component of page.collection.fields) {
-      const item = Item(component, itemState, page)
-      if (sub.find((cbItem) => cbItem.name === item.name)) return
-      sub.push(item)
-    }
-    subItems.push(sub)
-  })
-
-  items.push({
+  return {
     name,
     label: title,
     title: values.length ? `${unit} added` : unit,
     value: `You added ${values.length} ${unit}`,
     state,
     page,
-    subItems
-  })
+
+    // Repeater field detail items
+    subItems: values.map((repeatState) =>
+      collection.fields.map((field) => ItemField(page, repeatState, field))
+    )
+  }
 }
 
 /**
- * Creates an Item object for Details
+ * Creates a form field detail item
+ * @see {@link DetailItemField}
  */
-function Item(component: Field, state: FormState, page: PageControllerClass) {
+function ItemField(
+  page: PageControllerClass,
+  state: FormState,
+  field: Field
+): DetailItemField {
   return {
-    name: component.name,
-    label: component.title,
-    title: component.title,
-    value: getAnswer(component, state),
+    name: field.name,
+    label: field.title,
+    title: field.title,
+    value: getAnswer(field, state),
     state,
     page,
-    field: component
-  } satisfies DetailItem
+    field
+  }
 }
