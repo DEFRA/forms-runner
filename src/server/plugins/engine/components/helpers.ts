@@ -2,6 +2,7 @@ import { ComponentType, type ComponentDef } from '@defra/forms-model'
 
 import { config } from '~/src/config/index.js'
 import { type ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
+import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
 import * as Components from '~/src/server/plugins/engine/components/index.js'
 import { type FormState } from '~/src/server/plugins/engine/types.js'
 
@@ -168,6 +169,15 @@ export function getAnswerMarkdown(field: Field, state: FormState) {
     // Append bullet points
     for (const { status } of files) {
       answerEscaped += `* [${status.form.file.filename}](${designerUrl}/file-download/${status.form.file.fileId})\n`
+    }
+  } else if (field instanceof ListFormComponent) {
+    const value = field.getContextValueFromState(state) ?? []
+    const values = [value].flat().join(', ')
+
+    // Append raw values in parentheses
+    // e.g. `Afghanistan (910400000)`
+    if (values.toLowerCase() !== answer.toLowerCase()) {
+      answerEscaped = escapeAnswer(`${answer} (${values})`)
     }
   }
 
