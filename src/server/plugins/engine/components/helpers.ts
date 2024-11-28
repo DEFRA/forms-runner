@@ -167,9 +167,12 @@ export function getAnswerMarkdown(field: Field, state: FormState) {
     answerEscaped = `${answer}:\n\n`
 
     // Append bullet points
-    for (const { status } of files) {
-      answerEscaped += `* [${status.form.file.filename}](${designerUrl}/file-download/${status.form.file.fileId})\n`
-    }
+    answerEscaped += files
+      .map(
+        ({ status }) =>
+          `* [${status.form.file.filename}](${designerUrl}/file-download/${status.form.file.fileId})\n`
+      )
+      .join('')
   } else if (field instanceof ListFormComponent) {
     const values = [field.getContextValueFromState(state)].flat()
     const items = field.items.filter(({ value }) => values.includes(value))
@@ -182,14 +185,15 @@ export function getAnswerMarkdown(field: Field, state: FormState) {
     answerEscaped = '\n'
 
     // Append bullet points
-    for (const { text, value } of items) {
-      answerEscaped +=
+    answerEscaped += items
+      .map(({ text, value }) =>
         // Append raw values in parentheses
         // e.g. `* None of the above (false)`
         `${value}`.toLowerCase() !== text.toLowerCase()
           ? `* ${text} (${value})\n`
           : `* ${text}\n`
-    }
+      )
+      .join('')
   }
 
   return answerEscaped

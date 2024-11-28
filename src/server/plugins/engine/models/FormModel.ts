@@ -223,10 +223,6 @@ export class FormModel {
       paths: []
     }
 
-    if (!currentPath || !summaryPath) {
-      return context
-    }
-
     // Walk form pages from start
     while (nextPage) {
       const { collection, pageDef } = nextPage
