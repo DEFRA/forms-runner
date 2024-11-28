@@ -138,14 +138,22 @@ describe('NumberField', () => {
 
     describe('State', () => {
       it('returns text from state', () => {
+        const fieldCustom1 = new NumberField(
+          { ...def, schema: { precision: 2 } },
+          { model }
+        )
+
         const state1 = getFormState(2024)
         const state2 = getFormState(null)
+        const state3 = getFormState(99)
 
         const answer1 = getAnswer(field, state1)
         const answer2 = getAnswer(field, state2)
+        const answer3 = getAnswer(fieldCustom1, state3)
 
         expect(answer1).toBe('2024')
         expect(answer2).toBe('')
+        expect(answer3).toBe('99.00')
       })
 
       it('returns payload from state', () => {

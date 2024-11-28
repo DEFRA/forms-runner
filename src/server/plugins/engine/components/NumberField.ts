@@ -87,6 +87,20 @@ export class NumberField extends FormComponent {
     return this.isValue(value) ? value : undefined
   }
 
+  getDisplayStringFromState(state: FormSubmissionState) {
+    const value = this.getFormValueFromState(state)
+    if (!this.isValue(value)) {
+      return ''
+    }
+
+    return new Intl.NumberFormat('en-GB', {
+      minimumFractionDigits: this.precision,
+      maximumFractionDigits: this.precision,
+      style: 'decimal',
+      useGrouping: false
+    }).format(value)
+  }
+
   getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
     const { options, schema } = this
 
