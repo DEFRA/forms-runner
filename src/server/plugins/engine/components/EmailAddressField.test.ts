@@ -4,7 +4,10 @@ import {
 } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { type Field } from '~/src/server/plugins/engine/components/helpers.js'
+import {
+  getAnswer,
+  type Field
+} from '~/src/server/plugins/engine/components/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
@@ -132,11 +135,11 @@ describe('EmailAddressField', () => {
         const state1 = getFormState('defra.helpline@defra.gov.uk')
         const state2 = getFormState(null)
 
-        const text1 = field.getDisplayStringFromState(state1)
-        const text2 = field.getDisplayStringFromState(state2)
+        const answer1 = getAnswer(field, state1)
+        const answer2 = getAnswer(field, state2)
 
-        expect(text1).toBe('defra.helpline@defra.gov.uk')
-        expect(text2).toBe('')
+        expect(answer1).toBe('defra.helpline@defra.gov.uk')
+        expect(answer2).toBe('')
       })
 
       it('returns payload from state', () => {

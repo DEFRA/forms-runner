@@ -4,7 +4,6 @@ import {
   type FileUploadFieldComponent,
   type FormComponentsDef,
   type InputFieldsComponentsDef,
-  type Item,
   type MonthYearFieldComponent,
   type NumberFieldComponent,
   type Section,
@@ -12,17 +11,17 @@ import {
 } from '@defra/forms-model'
 import { type Expression } from 'expr-eval'
 
-import { type Field } from '~/src/server/plugins/engine/components/helpers.js'
+import {
+  type Field,
+  type getAnswer
+} from '~/src/server/plugins/engine/components/helpers.js'
 import { type DataType } from '~/src/server/plugins/engine/components/types.js'
 import { type RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
-  type FileState,
   type FormState,
-  type FormStateValue,
   type FormSubmissionError,
-  type FormSubmissionState,
-  type RepeatState
+  type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 
 export type ExecutableCondition = ConditionWrapper & {
@@ -47,15 +46,15 @@ export interface DetailItemBase {
   label: string
 
   /**
+   * Form submission state (or repeat state for sub items)
+   */
+  state: FormState
+
+  /**
    * Field submission state error, used to flag unanswered questions
    * Shown as 'Complete all unanswered questions before submitting the form'
    */
   error?: FormSubmissionError
-
-  /**
-   * Raw value of a field. For example, a Date will be displayed as 2022-12-25
-   */
-  rawValue: FormState | FormStateValue
 
   /**
    * Field component instance
@@ -69,26 +68,22 @@ export interface DetailItemBase {
 export interface DetailItemDate extends DetailItemField {
   type: DatePartsFieldComponent['type']
   dataType: DataType.Date
-  rawValue: FormState | null
 }
 
 export interface DetailItemMonthYear extends DetailItemField {
   type: MonthYearFieldComponent['type']
   dataType: DataType.MonthYear
-  rawValue: FormState | null
 }
 
 export interface DetailItemSelection extends DetailItemField {
   type: SelectionComponentsDef['type']
   dataType: DataType.List
   items: DetailItem[]
-  rawValue: Item['value'] | Item['value'][] | null
 }
 
 export interface DetailItemNumber extends DetailItemField {
   type: NumberFieldComponent['type']
   dataType: DataType.Number
-  rawValue: number | null
 }
 
 export interface DetailItemText extends DetailItemField {
@@ -97,13 +92,11 @@ export interface DetailItemText extends DetailItemField {
     NumberFieldComponent | FileUploadFieldComponent
   >['type']
   dataType: DataType.Text
-  rawValue: string | null
 }
 
 export interface DetailItemFileUpload extends DetailItemField {
   type: FileUploadFieldComponent['type']
   dataType: DataType.File
-  rawValue: FileState[] | null
 }
 
 export interface DetailItemField extends DetailItemBase {
@@ -119,7 +112,7 @@ export interface DetailItemField extends DetailItemBase {
   title: string
 
   /**
-   * Check answers summary list value
+   * Check answers summary list value, formatted by {@link getAnswer}
    * For example, date fields formatted as '25 December 2022'
    */
   value: string
@@ -147,7 +140,10 @@ export interface DetailItemRepeat extends DetailItemBase {
    * For example, 'You added 2 Pizzas'
    */
   value: string
-  rawValue: RepeatState[] | null
+
+  /**
+   * Repeater field detail items
+   */
   subItems: DetailItem[][]
 }
 

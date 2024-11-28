@@ -1,7 +1,10 @@
 import { ComponentType, type YesNoFieldComponent } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { type Field } from '~/src/server/plugins/engine/components/helpers.js'
+import {
+  getAnswer,
+  type Field
+} from '~/src/server/plugins/engine/components/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { listYesNoExamples } from '~/test/fixtures/list.js'
 import definition from '~/test/form/definitions/blank.js'
@@ -140,13 +143,13 @@ describe('YesNoField', () => {
       const state2 = getFormState(false)
       const state3 = getFormState(null)
 
-      const text1 = field.getDisplayStringFromState(state1)
-      const text2 = field.getDisplayStringFromState(state2)
-      const text3 = field.getDisplayStringFromState(state3)
+      const answer1 = getAnswer(field, state1)
+      const answer2 = getAnswer(field, state2)
+      const answer3 = getAnswer(field, state3)
 
-      expect(text1).toBe('Yes')
-      expect(text2).toBe('No')
-      expect(text3).toBe('')
+      expect(answer1).toBe('Yes')
+      expect(answer2).toBe('No')
+      expect(answer3).toBe('')
     })
 
     it('returns payload from state', () => {

@@ -1,8 +1,11 @@
 import { ComponentType, type ComponentDef } from '@defra/forms-model'
 
+import { config } from '~/src/config/index.js'
 import { type ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import * as Components from '~/src/server/plugins/engine/components/index.js'
 import { type FormState } from '~/src/server/plugins/engine/types.js'
+
+const designerUrl = config.get('designerUrl')
 
 // All component instances
 export type Component = InstanceType<
@@ -121,15 +124,52 @@ export function createComponent(
 export function getAnswer(
   field: Field,
   state: FormState,
-  options?: { format: 'markdown' }
+  options: {
+    format:
+      | 'markdown' // GOV.UK Notify emails
+      | 'summary' // Check answers summary
+  } = { format: 'summary' }
 ) {
-  let answer = field.getDisplayStringFromState(state)
-
-  if (options?.format === 'markdown') {
-    answer = `\`\`\`\n${answer}\n\`\`\`\n`
+  if (options.format === 'markdown') {
+    return getAnswerMarkdown(field, state)
   }
 
-  return answer
+  return field.getDisplayStringFromState(state)
+}
+
+/**
+ * Get formatted answer for a field (Markdown only)
+ */
+export function getAnswerMarkdown(field: Field, state: FormState) {
+  const answer = field.getDisplayStringFromState(state)
+
+  // Use escaped display text
+  let answerEscaped = escapeAnswer(answer)
+
+  if (field instanceof Components.FileUploadField) {
+    const files = field.getFormValueFromState(state)
+
+    // Skip empty files
+    if (!files?.length) {
+      return answerEscaped
+    }
+
+    answerEscaped = `${answer}:\n\n`
+
+    // Append bullet points
+    for (const { status } of files) {
+      answerEscaped += `* [${status.form.file.filename}](${designerUrl}/file-download/${status.form.file.fileId})\n`
+    }
+  }
+
+  return answerEscaped
+}
+
+/**
+ * Prevent Markdown formatting
+ */
+export function escapeAnswer(answer: string) {
+  return `\`\`\`\n${answer}\n\`\`\`\n`
 }
 
 export const addClassOptionIfNone = (

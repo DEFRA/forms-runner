@@ -15,7 +15,6 @@ import {
   type ViewModel
 } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { answerFromDetailItem } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 import {
   type FormPayload,
   type FormSubmissionError
@@ -33,9 +32,6 @@ export class ComponentBase {
 
   isFormComponent = false
 
-  /**
-   * This is passed onto webhooks, see {@link answerFromDetailItem}
-   */
   dataType: DataType = DataType.Text
   model: FormModel
 

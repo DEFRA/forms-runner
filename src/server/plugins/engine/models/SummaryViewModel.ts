@@ -1,6 +1,9 @@
 import { type ValidationResult } from 'joi'
 
-import { type Field } from '~/src/server/plugins/engine/components/helpers.js'
+import {
+  getAnswer,
+  type Field
+} from '~/src/server/plugins/engine/components/helpers.js'
 import { getError, redirectUrl } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
@@ -230,7 +233,7 @@ function addRepeaterItem(
     label: title,
     title: values.length ? `${unit} added` : unit,
     value: `You added ${values.length} ${unit}`,
-    rawValue: values,
+    state,
     page,
     subItems
   })
@@ -244,8 +247,8 @@ function Item(component: Field, state: FormState, page: PageControllerClass) {
     name: component.name,
     label: component.title,
     title: component.title,
-    value: component.getDisplayStringFromState(state),
-    rawValue: component.getFormValueFromState(state),
+    value: getAnswer(component, state),
+    state,
     page,
     field: component,
     type: component.type,

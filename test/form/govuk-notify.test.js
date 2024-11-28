@@ -165,21 +165,21 @@ describe('Submission journey test', () => {
 
           ## Date parts field
           \`\`\`
-          2012-12-12
+          12 December 2012
           \`\`\`
 
 
 
           ## Month year field
           \`\`\`
-          2012-12
+          December 2012
           \`\`\`
 
 
 
           ## Yes/No field
           \`\`\`
-          yes
+          Yes
           \`\`\`
 
 
@@ -207,21 +207,21 @@ describe('Submission journey test', () => {
 
           ## Radios field
           \`\`\`
-          privateLimitedCompany
+          Private Limited Company
           \`\`\`
 
 
 
           ## Select field
           \`\`\`
-          910400000
+          Afghanistan
           \`\`\`
 
 
 
           ## Autocomplete field
           \`\`\`
-          910400044
+          Czech Republic
           \`\`\`
 
 
@@ -235,27 +235,27 @@ describe('Submission journey test', () => {
 
           ## Checkboxes field 2
           \`\`\`
-          Arabian,Shire,Race
+          Arabian, Shire, Race
           \`\`\`
 
 
 
           ## Checkboxes field 3 (number)
           \`\`\`
-          1
+          1 point
           \`\`\`
 
 
 
           ## Checkboxes field 4 (number)
           \`\`\`
-          0,1
+          None, 1 point
           \`\`\`
 
 
 
           ## Upload your methodology statement
-          1 file uploaded (links expire ${formattedExpiryDate}):
+          Uploaded 1 file:
 
           * [test.pdf](https://test-designer.cdp-int.defra.cloud/file-download/5a76a1a3-bc8a-4bc0-859a-116d775c7f15)
 
