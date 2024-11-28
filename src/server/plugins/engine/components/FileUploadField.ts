@@ -2,7 +2,6 @@ import { type FileUploadFieldComponent } from '@defra/forms-model'
 import joi, { type ArraySchema } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { DataType } from '~/src/server/plugins/engine/components/types.js'
 import { filesize } from '~/src/server/plugins/engine/helpers.js'
 import {
   FileStatus,
@@ -90,8 +89,6 @@ export class FileUploadField extends FormComponent {
   declare schema: FileUploadFieldComponent['schema']
   declare formSchema: ArraySchema<FileState>
   declare stateSchema: ArraySchema<FileState>
-
-  dataType: DataType = DataType.File
 
   constructor(
     def: FileUploadFieldComponent,

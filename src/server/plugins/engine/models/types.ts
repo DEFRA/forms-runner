@@ -1,13 +1,7 @@
 import {
   type ConditionWrapper,
-  type DatePartsFieldComponent,
-  type FileUploadFieldComponent,
   type FormComponentsDef,
-  type InputFieldsComponentsDef,
-  type MonthYearFieldComponent,
-  type NumberFieldComponent,
-  type Section,
-  type SelectionComponentsDef
+  type Section
 } from '@defra/forms-model'
 import { type Expression } from 'expr-eval'
 
@@ -15,7 +9,6 @@ import {
   type Field,
   type getAnswer
 } from '~/src/server/plugins/engine/components/helpers.js'
-import { type DataType } from '~/src/server/plugins/engine/components/types.js'
 import { type RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
@@ -55,48 +48,6 @@ export interface DetailItemBase {
    * Shown as 'Complete all unanswered questions before submitting the form'
    */
   error?: FormSubmissionError
-
-  /**
-   * Field component instance
-   */
-  field?: Field
-
-  type?: FormComponentsDef['type']
-  dataType?: DataType
-}
-
-export interface DetailItemDate extends DetailItemField {
-  type: DatePartsFieldComponent['type']
-  dataType: DataType.Date
-}
-
-export interface DetailItemMonthYear extends DetailItemField {
-  type: MonthYearFieldComponent['type']
-  dataType: DataType.MonthYear
-}
-
-export interface DetailItemSelection extends DetailItemField {
-  type: SelectionComponentsDef['type']
-  dataType: DataType.List
-  items: DetailItem[]
-}
-
-export interface DetailItemNumber extends DetailItemField {
-  type: NumberFieldComponent['type']
-  dataType: DataType.Number
-}
-
-export interface DetailItemText extends DetailItemField {
-  type: Exclude<
-    InputFieldsComponentsDef,
-    NumberFieldComponent | FileUploadFieldComponent
-  >['type']
-  dataType: DataType.Text
-}
-
-export interface DetailItemFileUpload extends DetailItemField {
-  type: FileUploadFieldComponent['type']
-  dataType: DataType.File
 }
 
 export interface DetailItemField extends DetailItemBase {
@@ -144,17 +95,10 @@ export interface DetailItemRepeat extends DetailItemBase {
   /**
    * Repeater field detail items
    */
-  subItems: DetailItem[][]
+  subItems: DetailItemField[][]
 }
 
-export type DetailItem =
-  | DetailItemDate
-  | DetailItemMonthYear
-  | DetailItemSelection
-  | DetailItemNumber
-  | DetailItemText
-  | DetailItemFileUpload
-  | DetailItemRepeat
+export type DetailItem = DetailItemField | DetailItemRepeat
 
 /**
  * Used to render a row on a Summary List (check your answers)

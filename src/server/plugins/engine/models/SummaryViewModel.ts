@@ -250,8 +250,6 @@ function Item(component: Field, state: FormState, page: PageControllerClass) {
     value: getAnswer(component, state),
     state,
     page,
-    field: component,
-    type: component.type,
-    dataType: component.dataType
-  } as DetailItem
+    field: component
+  } satisfies DetailItem
 }
