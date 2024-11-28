@@ -47,8 +47,36 @@ export class CheckboxesField extends SelectionControlField {
     this.options = options
   }
 
+  getFormValueFromState(state: FormSubmissionState) {
+    const { items, name } = this
+
+    // State checkbox values
+    const value = state[name]
+    const values = this.isValue(value) ? value : []
+
+    // Map (or discard) state values to item values
+    const selected = items
+      .filter((item) => values.includes(item.value))
+      .map((item) => item.value)
+
+    return selected.length ? selected : undefined
+  }
+
+  getDisplayStringFromState(state: FormSubmissionState) {
+    const { items } = this
+
+    // Selected checkbox values
+    const selected = this.getFormValueFromState(state) ?? []
+
+    // Map selected values to text
+    return items
+      .filter((item) => selected.includes(item.value))
+      .map((item) => item.text)
+      .join(', ')
+  }
+
   getContextValueFromState(state: FormSubmissionState) {
-    const context = super.getContextValueFromState(state)
+    const values = this.getFormValueFromState(state)
 
     /**
      * For evaluation context purposes, optional {@link CheckboxesField}
@@ -61,7 +89,7 @@ export class CheckboxesField extends SelectionControlField {
      * The condition: 'selectedchecks' does not contain 'someval'
      * should return true IF 'selectedchecks' is undefined, not throw and return false.
      */
-    return context ?? []
+    return values ?? []
   }
 
   isValue(value?: FormStateValue | FormState): value is Item['value'][] {
