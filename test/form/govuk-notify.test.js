@@ -153,9 +153,15 @@ describe('Submission journey test', () => {
           \`\`\`
 
           ---
-          ## Number field
+          ## Number field 1
           \`\`\`
           1
+          \`\`\`
+
+          ---
+          ## Number field 2
+          \`\`\`
+          99.00
           \`\`\`
 
           ---
@@ -257,8 +263,13 @@ describe('Submission journey test', () => {
         },
         {
           name: 'numberField',
-          title: 'Number field',
+          title: 'Number field 1',
           value: '1'
+        },
+        {
+          name: 'numberFieldPrecision',
+          title: 'Number field 2',
+          value: '99'
         },
         {
           name: 'datePartsField',
@@ -348,6 +359,7 @@ describe('Submission journey test', () => {
       textField: 'Text field',
       multilineTextField: 'Multiline text field',
       numberField: '1',
+      numberFieldPrecision: '99',
       datePartsField__day: '12',
       datePartsField__month: '12',
       datePartsField__year: '2012',
