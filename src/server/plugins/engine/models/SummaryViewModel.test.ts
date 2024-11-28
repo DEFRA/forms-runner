@@ -16,7 +16,13 @@ describe('SummaryViewModel', () => {
       basePath: 'test'
     })
 
-    const relevantState = {
+    const state = {
+      progress: [
+        'repeat/delivery-or-collection',
+        `repeat/pizza-order/${itemId1}`,
+        `repeat/pizza-order/${itemId2}`,
+        'repeat/summary'
+      ],
       orderType: 'delivery',
       pizza: [
         {
@@ -32,32 +38,19 @@ describe('SummaryViewModel', () => {
       ]
     }
 
-    const submissionState = {
-      progress: [
-        'repeat/delivery-or-collection',
-        `repeat/pizza-order/${itemId1}`,
-        `repeat/pizza-order/${itemId2}`,
-        'repeat/summary'
-      ],
-      ...relevantState
-    }
-
     const request = {
       url: new URL('http://example.com/repeat/pizza-order/summary'),
+      path: '/repeat/pizza-order/summary',
       params: {
         path: 'pizza-order',
         slug: 'repeat'
       },
-      query: {}
+      query: {},
+      app: { model }
     } as FormRequest
 
-    summaryViewModel = new SummaryViewModel(
-      'Summary',
-      model,
-      submissionState,
-      relevantState,
-      request
-    )
+    const pageDef = definition.pages[2]
+    summaryViewModel = new SummaryViewModel(model, pageDef, state, request)
   })
 
   describe('Check answers', () => {

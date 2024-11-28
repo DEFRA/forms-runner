@@ -1,3 +1,5 @@
+import { type Page } from '@defra/forms-model'
+
 import {
   getAnswer,
   type Field
@@ -15,6 +17,7 @@ import { type PageControllerClass } from '~/src/server/plugins/engine/pageContro
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type CheckAnswers,
+  type FormContext,
   type FormState,
   type FormSubmissionError,
   type FormSubmissionState,
@@ -35,7 +38,7 @@ export class SummaryViewModel {
   declaration?: string
   details: Detail[]
   checkAnswers: CheckAnswers[]
-  relevantPages: PageControllerClass[]
+  context: FormContext
   name: string | undefined
   backLink?: string
   feedbackLink?: string
@@ -49,23 +52,22 @@ export class SummaryViewModel {
   }
 
   constructor(
-    pageTitle: string,
     model: FormModel,
+    pageDef: Page,
     state: FormSubmissionState,
-    relevantState: FormState,
     request: FormRequest | FormRequestPayload
   ) {
     const { basePath, def } = model
 
-    this.pageTitle = pageTitle
+    this.pageTitle = pageDef.title
     this.serviceUrl = `/${basePath}`
     this.name = def.name
     this.declaration = def.declaration
-    this.relevantPages = this.getRelevantPages(model, relevantState)
+    this.context = model.getFormContext(state, request)
 
     const result = model
-      .makeFilteredSchema(this.relevantPages)
-      .validate(state, { ...opts, stripUnknown: true })
+      .makeFilteredSchema(this.context.relevantPages)
+      .validate(this.context.relevantState, { ...opts, stripUnknown: true })
 
     // Format errors
     this.errors = result.error?.details.map(getError)
@@ -126,7 +128,7 @@ export class SummaryViewModel {
     model: FormModel,
     state: FormSubmissionState
   ) {
-    const { errors, relevantPages } = this
+    const { errors, context } = this
     const { basePath, sections } = model
 
     const details: Detail[] = []
@@ -134,7 +136,7 @@ export class SummaryViewModel {
     ;[undefined, ...sections].forEach((section) => {
       const items: DetailItem[] = []
 
-      const sectionPages = relevantPages.filter(
+      const sectionPages = context.relevantPages.filter(
         (page) => page.section === section
       )
 
@@ -166,22 +168,6 @@ export class SummaryViewModel {
     })
 
     return details
-  }
-
-  private getRelevantPages(model: FormModel, state: FormSubmissionState) {
-    let nextPage = model.startPage
-
-    const relevantPages: PageControllerClass[] = []
-
-    while (nextPage != null) {
-      if (nextPage.collection.fields.length) {
-        relevantPages.push(nextPage)
-      }
-
-      nextPage = nextPage.getNextPage(state)
-    }
-
-    return relevantPages
   }
 }
 

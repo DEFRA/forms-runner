@@ -3,6 +3,7 @@ import {
   ControllerPath,
   ControllerType,
   formDefinitionSchema,
+  hasRepeater,
   type ConditionWrapper,
   type ConditionsModelData,
   type DateUnits,
@@ -19,7 +20,16 @@ import {
   getPageController,
   type PageControllerClass
 } from '~/src/server/plugins/engine/pageControllers/helpers.js'
-import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+import { getPage } from '~/src/server/plugins/engine/plugin.js'
+import {
+  type FormContext,
+  type FormState,
+  type FormSubmissionState
+} from '~/src/server/plugins/engine/types.js'
+import {
+  type FormRequest,
+  type FormRequestPayload
+} from '~/src/server/routes/types.js'
 
 export class FormModel {
   /**
@@ -153,8 +163,8 @@ export class FormModel {
     const { name, displayName, value } = condition
     const expr = this.toConditionExpression(value, parser)
 
-    const fn = (value: FormSubmissionState) => {
-      const ctx = this.toConditionContext(value, this.conditions)
+    const fn = (evaluationState: FormState) => {
+      const ctx = this.toConditionContext(evaluationState, this.conditions)
       try {
         return expr.evaluate(ctx) as boolean
       } catch {
@@ -172,15 +182,15 @@ export class FormModel {
   }
 
   toConditionContext(
-    value: FormSubmissionState,
+    evaluationState: FormState,
     conditions: Partial<Record<string, ExecutableCondition>>
   ) {
-    const context = { ...value }
+    const context = { ...evaluationState }
 
     for (const key in conditions) {
       Object.defineProperty(context, key, {
         get() {
-          return conditions[key]?.fn(value)
+          return conditions[key]?.fn(evaluationState)
         }
       })
     }
@@ -195,5 +205,72 @@ export class FormModel {
 
   getList(name: string): List | undefined {
     return this.lists.find((list) => list.name === name)
+  }
+
+  getFormContext(
+    state: FormSubmissionState,
+    request: FormRequest | FormRequestPayload
+  ) {
+    let { basePath, startPage: nextPage } = this
+
+    const currentPath = getPage(request)?.path
+    const summaryPath = nextPage?.getSummaryPath()
+
+    const context: FormContext = {
+      evaluationState: {},
+      relevantState: {},
+      relevantPages: [],
+      paths: []
+    }
+
+    if (!currentPath || !summaryPath) {
+      return context
+    }
+
+    // Walk form pages from start
+    while (nextPage) {
+      const { collection, pageDef } = nextPage
+      const isRepeater = hasRepeater(pageDef)
+
+      // Add page to context
+      context.relevantPages.push(nextPage)
+
+      // Skip evaluation state for repeater pages
+      if (!isRepeater) {
+        Object.assign(
+          context.evaluationState,
+          collection.getContextValueFromState(state)
+        )
+      }
+
+      // Copy relevant state by expected keys
+      for (const key of nextPage.keys) {
+        if (typeof state[key] !== 'undefined') {
+          context.relevantState[key] = state[key]
+        }
+      }
+
+      // Stop at current or summary page
+      if (nextPage.path === currentPath || nextPage.path === summaryPath) {
+        break
+      }
+
+      // Apply conditions to determine next page
+      nextPage = nextPage.getNextPage(context.evaluationState)
+    }
+
+    // Check if current page is in context
+    const isFormPath = context.relevantPages.some(
+      ({ path }) => path === currentPath
+    )
+
+    // Add paths for navigation
+    if (isFormPath) {
+      context.paths = context.relevantPages.map(
+        ({ path }) => `${basePath}${path}`
+      )
+    }
+
+    return context
   }
 }

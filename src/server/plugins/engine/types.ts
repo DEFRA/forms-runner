@@ -2,10 +2,12 @@ import { type Item } from '@defra/forms-model'
 import { type ResponseObject } from '@hapi/hapi'
 import { type ValidationErrorItem } from 'joi'
 
+import { type FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import {
   type ComponentText,
   type ComponentViewModel
 } from '~/src/server/plugins/engine/components/types.js'
+import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
   type FileUploadPageController,
   type PageController
@@ -92,6 +94,30 @@ export interface FormValidationResult<
 > {
   value: ValueType
   errors: FormSubmissionError[] | undefined
+}
+
+export interface FormContext {
+  /**
+   * Evaluation form state only (filtered by visited paths),
+   * with values formatted for condition evaluation using
+   * {@link FormComponent.getContextValueFromState}
+   */
+  evaluationState: FormState
+
+  /**
+   * Relevant form state only (filtered by visited paths)
+   */
+  relevantState: FormState
+
+  /**
+   * Relevant pages only (filtered by visited paths)
+   */
+  relevantPages: PageControllerClass[]
+
+  /**
+   * Visited paths calculated from form state
+   */
+  paths: string[]
 }
 
 export interface UploadInitiateResponse {

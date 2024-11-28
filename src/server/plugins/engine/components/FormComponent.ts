@@ -33,7 +33,8 @@ export class FormComponent extends ComponentBase {
     const { collection, name } = this
 
     if (collection) {
-      return [name, ...collection.keys]
+      const { fields } = collection
+      return [name, ...fields.map(({ name }) => name)]
     }
 
     return [name]

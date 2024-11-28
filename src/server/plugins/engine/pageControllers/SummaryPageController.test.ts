@@ -4,17 +4,15 @@ import { outdent } from 'outdent'
 
 import {
   FormModel,
-  SummaryViewModel
+  type SummaryViewModel
 } from '~/src/server/plugins/engine/models/index.js'
 import { type DetailItem } from '~/src/server/plugins/engine/models/types.js'
 import {
+  SummaryPageController,
   getFormSubmissionData,
   getPersonalisation
 } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
-import {
-  type FormState,
-  type FormSubmissionState
-} from '~/src/server/plugins/engine/types.js'
+import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 import { FormStatus, type FormRequest } from '~/src/server/routes/types.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
 
@@ -23,8 +21,7 @@ describe('SummaryPageController', () => {
   const itemId2 = 'xyz-987'
 
   let model: FormModel
-  let submissionState: FormSubmissionState
-  let relevantState: FormState
+  let state: FormSubmissionState
   let summaryViewModel: SummaryViewModel
   let submitResponse: SubmitResponsePayload
   let items: DetailItem[]
@@ -34,7 +31,13 @@ describe('SummaryPageController', () => {
       basePath: 'test'
     })
 
-    relevantState = {
+    state = {
+      progress: [
+        'repeat/delivery-or-collection',
+        `repeat/pizza-order/${itemId1}`,
+        `repeat/pizza-order/${itemId2}`,
+        'repeat/summary'
+      ],
       orderType: 'delivery',
       pizza: [
         {
@@ -50,32 +53,21 @@ describe('SummaryPageController', () => {
       ]
     }
 
-    submissionState = {
-      progress: [
-        'repeat/delivery-or-collection',
-        `repeat/pizza-order/${itemId1}`,
-        `repeat/pizza-order/${itemId2}`,
-        'repeat/summary'
-      ],
-      ...relevantState
-    }
+    const pageDef = definition.pages[2]
+    const controller = new SummaryPageController(model, pageDef)
 
     const request = {
       url: new URL('http://example.com/repeat/pizza-order/summary'),
+      path: '/repeat/pizza-order/summary',
       params: {
         path: 'pizza-order',
         slug: 'repeat'
       },
-      query: {}
+      query: {},
+      app: { model }
     } as FormRequest
 
-    summaryViewModel = new SummaryViewModel(
-      'Summary',
-      model,
-      submissionState,
-      relevantState,
-      request
-    )
+    summaryViewModel = controller.getSummaryViewModel(model, state, request)
 
     submitResponse = {
       message: 'Submit completed',
@@ -90,7 +82,7 @@ describe('SummaryPageController', () => {
     }
 
     items = getFormSubmissionData(
-      summaryViewModel.relevantPages,
+      summaryViewModel.context,
       summaryViewModel.details
     )
   })

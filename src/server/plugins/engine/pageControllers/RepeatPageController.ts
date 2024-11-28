@@ -54,6 +54,10 @@ export class RepeatPageController extends PageController {
     })
   }
 
+  get keys() {
+    return [this.repeat.options.name]
+  }
+
   protected getPayload(request: FormRequestPayload) {
     const payload = super.getPayload(request)
 
@@ -242,12 +246,7 @@ export class RepeatPageController extends PageController {
           `/${this.model.basePath}${this.path}${request.url.search}`
         )
       } else if (action === CONTINUE) {
-        const relevantState = this.getConditionEvaluationContext(
-          this.model,
-          state
-        )
-
-        return super.proceed(request, h, relevantState)
+        return super.proceed(request, h, state)
       }
     }
   }

@@ -13,13 +13,12 @@ import { type RepeatPageController } from '~/src/server/plugins/engine/pageContr
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
   type FormState,
-  type FormSubmissionError,
-  type FormSubmissionState
+  type FormSubmissionError
 } from '~/src/server/plugins/engine/types.js'
 
 export type ExecutableCondition = ConditionWrapper & {
   expr: Expression
-  fn: (state: FormSubmissionState) => boolean
+  fn: (evaluationState: FormState) => boolean
 }
 
 /**

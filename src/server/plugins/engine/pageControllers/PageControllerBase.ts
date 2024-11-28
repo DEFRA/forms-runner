@@ -2,7 +2,6 @@ import {
   ComponentType,
   hasComponents,
   hasNext,
-  hasRepeater,
   type FormDefinition,
   type Link,
   type Page,
@@ -31,6 +30,7 @@ import { type PageControllerClass } from '~/src/server/plugins/engine/pageContro
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
   type FormPayload,
+  type FormState,
   type FormSubmissionError,
   type FormSubmissionState,
   type PageViewModel
@@ -85,6 +85,10 @@ export class PageControllerBase {
     this.collection.formSchema = this.collection.formSchema.keys({
       crumb: joi.string().optional().allow('')
     })
+  }
+
+  get keys() {
+    return this.collection.keys
   }
 
   /**
@@ -183,9 +187,9 @@ export class PageControllerBase {
   }
 
   /**
-   * @param state - the values currently stored in a users session
+   * Apply conditions to evaluation state to determine next page
    */
-  getNextPage(state: FormSubmissionState): PageControllerClass | undefined {
+  getNextPage(evaluationState: FormState): PageControllerClass | undefined {
     const { conditions } = this.model
 
     let defaultLink: Link | undefined
@@ -193,7 +197,7 @@ export class PageControllerBase {
       const { condition } = link
 
       if (condition && condition in conditions) {
-        return conditions[condition]?.fn(state) ?? false
+        return conditions[condition]?.fn(evaluationState) ?? false
       }
 
       defaultLink = link
@@ -205,10 +209,10 @@ export class PageControllerBase {
   }
 
   /**
-   * returns the path to the next page
+   * Apply conditions to evaluation state to determine next page path
    */
-  getNext(state: FormSubmissionState) {
-    const nextPage = this.getNextPage(state)
+  getNext(evaluationState: FormState) {
+    const nextPage = this.getNextPage(evaluationState)
 
     if (nextPage) {
       return `/${this.model.basePath || ''}${nextPage.path}`
@@ -235,35 +239,6 @@ export class PageControllerBase {
 
   getErrors(details?: ValidationErrorItem[]) {
     return getErrors(details)
-  }
-
-  /**
-   * Returns an async function. This is called in plugin.ts when there is a GET request at `/{id}/{path*}`
-   */
-  getConditionEvaluationContext(
-    model: FormModel,
-    state: FormSubmissionState
-  ): FormState {
-    const relevantState: FormState = {}
-    // Start at our startPage
-    let nextPage = model.startPage
-
-    // While the current page isn't null
-    while (nextPage != null) {
-      if (!hasRepeater(nextPage.pageDef)) {
-        // Iterate all components on this page and pull out the saved values from the state
-        for (const component of nextPage.collection.fields) {
-          relevantState[component.name] =
-            component.getContextValueFromState(state)
-        }
-      }
-
-      // By passing our current relevantState to getNextPage, we will check if we can navigate to this next page (including doing any condition checks if applicable)
-      nextPage = nextPage.getNextPage(relevantState)
-      // If a nextPage is returned, we must have taken that route through the form so continue our iteration with the new page
-    }
-
-    return relevantState
   }
 
   async getState(request: FormRequest | FormRequestPayload) {
@@ -309,11 +284,9 @@ export class PageControllerBase {
       /**
        * Content components can be hidden based on a condition. If the condition evaluates to true, it is safe to be kept, otherwise discard it
        */
-      // Calculate our relevantState, which will filter out previously input answers that are no longer relevant to this user journey
-      const relevantState = this.getConditionEvaluationContext(
-        this.model,
-        state
-      )
+
+      // Calculate our relevant context, which will filter out previously input answers that are no longer relevant to this user journey
+      const { evaluationState } = this.model.getFormContext(state, request)
 
       // Filter our components based on their conditions using our calculated state
       viewModel.components = viewModel.components.filter((component) => {
@@ -323,7 +296,7 @@ export class PageControllerBase {
           component.model.condition
         ) {
           const condition = this.model.conditions[component.model.condition]
-          return condition?.fn(relevantState)
+          return condition?.fn(evaluationState)
         }
         return true
       })
@@ -337,7 +310,7 @@ export class PageControllerBase {
         if (content instanceof Array) {
           evaluatedComponent.model.content = content.filter((item) =>
             item.condition
-              ? this.model.conditions[item.condition]?.fn(relevantState)
+              ? this.model.conditions[item.condition]?.fn(evaluationState)
               : true
           )
         }
@@ -347,7 +320,7 @@ export class PageControllerBase {
         if (items instanceof Array) {
           evaluatedComponent.model.items = items.filter((item) =>
             item.condition
-              ? this.model.conditions[item.condition]?.fn(relevantState)
+              ? this.model.conditions[item.condition]?.fn(evaluationState)
               : true
           )
         }
@@ -473,14 +446,7 @@ export class PageControllerBase {
 
       state = await this.setState(request, stateResult.value)
 
-      // This is required to ensure we don't navigate
-      // to an incorrect page based on stale state values
-      const relevantState = this.getConditionEvaluationContext(
-        this.model,
-        state
-      )
-
-      return this.proceed(request, h, relevantState)
+      return this.proceed(request, h, state)
     }
   }
 
@@ -536,7 +502,11 @@ export class PageControllerBase {
       | ResponseToolkit<FormRequestPayloadRefs>,
     state: FormSubmissionState
   ) {
-    return proceed(request, h, this.getNext(state))
+    // This is required to ensure we don't navigate
+    // to an incorrect page based on stale state values
+    const { evaluationState } = this.model.getFormContext(state, request)
+
+    return proceed(request, h, this.getNext(evaluationState))
   }
 
   get defaultNextPath() {

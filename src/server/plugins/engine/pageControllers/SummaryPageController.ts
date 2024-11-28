@@ -28,13 +28,15 @@ import {
   type DetailItem
 } from '~/src/server/plugins/engine/models/types.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
-import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
   persistFiles,
   submit
 } from '~/src/server/plugins/engine/services/formSubmissionService.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
-import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+import {
+  type FormContext,
+  type FormSubmissionState
+} from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
   type FormRequestPayload,
@@ -52,20 +54,11 @@ export class SummaryPageController extends PageController {
    */
 
   getSummaryViewModel(
-    title: string,
     model: FormModel,
     state: FormSubmissionState,
     request: FormRequest | FormRequestPayload
   ): SummaryViewModel {
-    const relevantState = this.getConditionEvaluationContext(model, state)
-
-    const viewModel = new SummaryViewModel(
-      title,
-      model,
-      state,
-      relevantState,
-      request
-    )
+    const viewModel = new SummaryViewModel(model, this.pageDef, state, request)
 
     // We already figure these out in the base page controller. Take them and apply them to our page-specific model.
     // This is a stop-gap until we can add proper inheritance in place.
@@ -87,13 +80,7 @@ export class SummaryPageController extends PageController {
 
       const model = this.model
       const state = await cacheService.getState(request)
-
-      const viewModel = this.getSummaryViewModel(
-        this.title,
-        model,
-        state,
-        request
-      )
+      const viewModel = this.getSummaryViewModel(model, state, request)
 
       /**
        * iterates through the errors. If there are errors, a user will be redirected to the page
@@ -163,12 +150,7 @@ export class SummaryPageController extends PageController {
       const { cacheService } = request.services([])
       const model = this.model
       const state = await cacheService.getState(request)
-      const summaryViewModel = this.getSummaryViewModel(
-        this.title,
-        model,
-        state,
-        request
-      )
+      const summaryViewModel = this.getSummaryViewModel(model, state, request)
 
       // Display error summary on the summary
       // page if there are incomplete form errors
@@ -312,7 +294,7 @@ async function sendEmail(
 
   // Get detail items
   const items = getFormSubmissionData(
-    summaryViewModel.relevantPages,
+    summaryViewModel.context,
     summaryViewModel.details
   )
 
@@ -416,11 +398,8 @@ export function getPersonalisation(
   }
 }
 
-export function getFormSubmissionData(
-  relevantPages: PageControllerClass[],
-  details: Detail[]
-) {
-  return relevantPages
+export function getFormSubmissionData(context: FormContext, details: Detail[]) {
+  return context.relevantPages
     .map(({ path }) =>
       details.flatMap(({ items }) =>
         items.filter(({ page }) => page.path === path)
