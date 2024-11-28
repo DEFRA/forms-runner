@@ -26,9 +26,17 @@
         {
           "type": "NumberField",
           "name": "numberField",
-          "title": "Number field",
+          "title": "Number field 1",
           "options": {},
           "schema": {}
+        },
+        {
+          "type": "NumberField",
+          "name": "numberFieldPrecision",
+          "title": "Number field 2",
+          "schema": {
+            "precision": 2
+          }
         },
         {
           "type": "DatePartsField",
