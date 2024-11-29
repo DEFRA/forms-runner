@@ -28,6 +28,8 @@ export function context(request) {
   }
 
   const { params, path } = request ?? {}
+
+  const cookieConsent = request?.yar.get('cookieConsent') ?? false
   const isPreviewMode = path?.startsWith(PREVIEW_PATH_PREFIX)
 
   return {
@@ -41,6 +43,7 @@ export function context(request) {
     serviceName: config.get('serviceName'),
     serviceVersion: config.get('serviceVersion'),
     slug: params?.slug,
+    cookieConsent,
 
     getAssetPath: (asset = '') => {
       return `/${webpackManifest?.[asset] ?? asset}`

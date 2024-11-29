@@ -61,6 +61,22 @@ export default {
       })
 
       server.route({
+        method: 'post',
+        path: '/help/cookies',
+        handler(request, h) {
+          const decision = request.payload['cookies[additional]']
+
+          if (decision === 'yes') {
+            request.yar.set('cookieConsent', 'true')
+          } else {
+            request.yar.set('cookieConsent', 'false')
+          }
+
+          return h.redirect(request.info.referrer)
+        }
+      })
+
+      server.route({
         method: 'get',
         path: '/help/accessibility-statement',
         handler(_request, h) {
