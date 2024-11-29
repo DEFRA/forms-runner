@@ -178,9 +178,8 @@ describe('Submission journey test', () => {
 
 
           ## Yes/No field
-          \`\`\`
-          Yes (true)
-          \`\`\`
+
+          * Yes (true)
 
 
 
@@ -206,51 +205,47 @@ describe('Submission journey test', () => {
 
 
           ## Radios field
-          \`\`\`
-          Private Limited Company (privateLimitedCompany)
-          \`\`\`
+
+          * Private Limited Company (privateLimitedCompany)
 
 
 
           ## Select field
-          \`\`\`
-          Afghanistan (910400000)
-          \`\`\`
+
+          * Afghanistan (910400000)
 
 
 
           ## Autocomplete field
-          \`\`\`
-          Czech Republic (910400044)
-          \`\`\`
+
+          * Czech Republic (910400044)
 
 
 
           ## Checkboxes field 1
-          \`\`\`
-          Shetland
-          \`\`\`
+
+          * Shetland
 
 
 
           ## Checkboxes field 2
-          \`\`\`
-          Arabian, Shire, Race
-          \`\`\`
+
+          * Arabian
+          * Shire
+          * Race
 
 
 
           ## Checkboxes field 3 (number)
-          \`\`\`
-          1 point (1)
-          \`\`\`
+
+          * 1 point (1)
 
 
 
           ## Checkboxes field 4 (number)
-          \`\`\`
-          None, 1 point (0, 1)
-          \`\`\`
+
+          * None (0)
+          * 1 point (1)
 
 
 

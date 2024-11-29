@@ -171,13 +171,24 @@ export function getAnswerMarkdown(field: Field, state: FormState) {
       answerEscaped += `* [${status.form.file.filename}](${designerUrl}/file-download/${status.form.file.fileId})\n`
     }
   } else if (field instanceof ListFormComponent) {
-    const value = field.getContextValueFromState(state) ?? []
-    const values = [value].flat().join(', ')
+    const values = [field.getContextValueFromState(state)].flat()
+    const items = field.items.filter(({ value }) => values.includes(value))
 
-    // Append raw values in parentheses
-    // e.g. `Afghanistan (910400000)`
-    if (values.toLowerCase() !== answer.toLowerCase()) {
-      answerEscaped = escapeAnswer(`${answer} (${values})`)
+    // Skip empty values
+    if (!items.length) {
+      return answerEscaped
+    }
+
+    answerEscaped = '\n'
+
+    // Append bullet points
+    for (const { text, value } of items) {
+      answerEscaped +=
+        // Append raw values in parentheses
+        // e.g. `* None of the above (false)`
+        `${value}`.toLowerCase() !== text.toLowerCase()
+          ? `* ${text} (${value})\n`
+          : `* ${text}\n`
     }
   }
 
