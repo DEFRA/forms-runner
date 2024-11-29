@@ -290,7 +290,7 @@ function submitData(
       value: (record.field.item.subItems ?? []).map((detailItem) =>
         detailItem.map((item) => ({
           name: item.name,
-          title: item.title,
+          title: item.label,
           value: item.value
         }))
       )
@@ -449,7 +449,7 @@ export function getPersonalisation(
 
       line = `${files.length} file${files.length !== 1 ? 's' : ''} uploaded (links expire ${formattedExpiryDate}):\n\n${bullets}\n`
     } else if (Array.isArray(item.subItems)) {
-      line = `[Download ${item.title} (CSV)](${designerUrl}/file-download/${submitResponse.result.files.repeaters[item.name]})\n`
+      line = `[Download ${item.label} (CSV)](${designerUrl}/file-download/${submitResponse.result.files.repeaters[item.name]})\n`
     } else {
       line = literal(value)
     }
@@ -545,7 +545,7 @@ export function answerFromDetailItem(item: DetailItem) {
 function toFieldSummary(item: DetailItem): FieldSummary {
   return {
     key: item.name,
-    title: item.title,
+    title: item.label,
     type: item.dataType,
     answer: answerFromDetailItem(item),
     item
