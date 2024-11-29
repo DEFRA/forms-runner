@@ -9,6 +9,10 @@ import {
   type FileState,
   type RepeatState
 } from '~/src/server/plugins/engine/types.js'
+import {
+  type FormRequest,
+  type FormRequestPayload
+} from '~/src/server/routes/types.js'
 import { type CacheService } from '~/src/server/services/index.js'
 
 declare module '@hapi/hapi' {
@@ -16,7 +20,16 @@ declare module '@hapi/hapi' {
   // props from plugins which doesn't export @types
   interface PluginProperties {
     crumb: {
-      generate?: (request: Request, h: ResponseToolkit) => void
+      generate?: (request: Request | FormRequest | FormRequestPayload) => void
+    }
+  }
+
+  interface PluginsStates {
+    blankie?: {
+      nonces?: {
+        script?: string
+        style?: string
+      }
     }
   }
 
@@ -70,7 +83,7 @@ declare module '@hapi/scooter' {
 
 declare module 'blankie' {
   declare const blankie: {
-    plugin: Plugin<Record<string, boolean | string[]>>
+    plugin: Plugin<Record<string, boolean | string | string[]>>
   }
 
   export = blankie

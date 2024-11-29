@@ -15,7 +15,7 @@ import { ProxyAgent } from 'proxy-agent'
 import { config } from '~/src/config/index.js'
 import { requestLogger } from '~/src/server/common/helpers/logging/request-logger.js'
 import { buildRedisClient } from '~/src/server/common/helpers/redis-client.js'
-import pluginBlankie from '~/src/server/plugins/blankie.js'
+import { configureBlankiePlugin } from '~/src/server/plugins/blankie.js'
 import { configureCrumbPlugin } from '~/src/server/plugins/crumb.js'
 import { configureEnginePlugin } from '~/src/server/plugins/engine/index.js'
 import pluginErrorPages from '~/src/server/plugins/errorPages.js'
@@ -85,6 +85,7 @@ export async function createServer(routeConfig?: RouteConfig) {
 
   const pluginEngine = await configureEnginePlugin(routeConfig)
   const pluginCrumb = configureCrumbPlugin(routeConfig)
+  const pluginBlankie = configureBlankiePlugin()
 
   await server.register(pluginSession)
   await server.register(pluginPulse)
@@ -123,6 +124,15 @@ export async function createServer(routeConfig?: RouteConfig) {
   await server.register(pluginRouter)
   await server.register(pluginErrorPages)
   await server.register(blipp)
+
+  server.state('cookieConsent', {
+    ttl: 365 * 24 * 60 * 60 * 1000, // 1 year in ms
+    clearInvalid: true,
+    isHttpOnly: false,
+    isSecure: config.get('isProduction'),
+    path: '/',
+    encoding: 'none' // handle this inside the application so we can share frontend/backend cookie modification
+  })
 
   return server
 }
