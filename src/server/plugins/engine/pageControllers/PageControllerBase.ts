@@ -285,10 +285,10 @@ export class PageControllerBase {
        * Content components can be hidden based on a condition. If the condition evaluates to true, it is safe to be kept, otherwise discard it
        */
 
-      // Calculate our relevant context, which will filter out previously input answers that are no longer relevant to this user journey
+      // Calculate our evaluation form state only (filtered by visited paths)
       const { evaluationState } = this.model.getFormContext(state, request)
 
-      // Filter our components based on their conditions using our calculated state
+      // Filter our components based on their conditions using our evaluated state
       viewModel.components = viewModel.components.filter((component) => {
         if (
           (!!component.model.content ||

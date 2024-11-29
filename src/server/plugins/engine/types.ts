@@ -115,7 +115,7 @@ export interface FormContext {
   relevantPages: PageControllerClass[]
 
   /**
-   * Visited paths calculated from form state
+   * Visited paths evaluated from form state
    */
   paths: string[]
 }
