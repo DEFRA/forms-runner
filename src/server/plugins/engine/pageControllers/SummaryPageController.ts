@@ -354,7 +354,7 @@ export function getPersonalisation(
 
   const subject = formStatus.isPreview
     ? `TEST FORM SUBMISSION: ${model.name}`
-    : `Form received: ${model.name}`
+    : `Form submission: ${model.name}`
 
   const lines: string[] = []
 
@@ -368,7 +368,7 @@ export function getPersonalisation(
     )
   }
 
-  lines.push(`Form received at ${formattedNow}.\n`)
+  lines.push(`Form submitted at ${formattedNow}.\n`)
   lines.push('---')
 
   items.forEach((item) => {

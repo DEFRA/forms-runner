@@ -134,11 +134,11 @@ describe('Submission journey test', () => {
       templateId: process.env.NOTIFY_TEMPLATE_ID,
       emailAddress: 'enrique.chase@defra.gov.uk',
       personalisation: {
-        subject: 'Form received: All components',
+        subject: 'Form submission: All components',
         body: expect.stringContaining(outdent`
           ^ For security reasons, the links in this email expire at ${formattedExpiryDate}
 
-          Form received at ${dateNowFormatted}.
+          Form submitted at ${dateNowFormatted}.
 
           ---
           ## Text field

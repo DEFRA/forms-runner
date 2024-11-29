@@ -121,7 +121,7 @@ describe('SummaryPageController', () => {
         'body',
         expect.stringContaining(
           outdent`
-            Form received at ${format(dateNow, 'h:mmaaa')} on ${format(dateNow, 'd MMMM yyyy')}.
+            Form submitted at ${format(dateNow, 'h:mmaaa')} on ${format(dateNow, 'd MMMM yyyy')}.
 
             ---
             ## How would you like to receive your pizza?
@@ -155,7 +155,7 @@ describe('SummaryPageController', () => {
         isPreview: true
       })
 
-      expect(result1.subject).toBe(`Form received: ${definition.name}`)
+      expect(result1.subject).toBe(`Form submission: ${definition.name}`)
       expect(result2.subject).toBe(`TEST FORM SUBMISSION: ${definition.name}`)
 
       expect(result1.body).not.toContain(
