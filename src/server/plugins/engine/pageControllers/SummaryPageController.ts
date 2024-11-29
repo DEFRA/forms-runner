@@ -56,10 +56,6 @@ export interface QuestionRecord {
 }
 
 export class SummaryPageController extends PageController {
-  /**
-   * The controller which is used when Page["controller"] is defined as "./pages/summary.js"
-   */
-
   getSummaryViewModel(
     title: string,
     model: FormModel,
