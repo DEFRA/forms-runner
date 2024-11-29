@@ -15,10 +15,10 @@ import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
-jest.mock('~/src/server/plugins/engine/services/formSubmissionService.js')
-jest.mock('~/src/server/plugins/engine/services/uploadService.js')
 jest.mock('~/src/server/utils/notify.ts')
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
+jest.mock('~/src/server/plugins/engine/services/formSubmissionService.js')
+jest.mock('~/src/server/plugins/engine/services/uploadService.js')
 
 const okStatusCode = 200
 const redirectStatusCode = 302
@@ -180,7 +180,22 @@ describe('Submission journey test', () => {
     })
 
     expect(persistFiles).toHaveBeenCalledTimes(1)
-    expect(submit).toHaveBeenCalledTimes(1)
+    expect(submit).toHaveBeenCalledWith({
+      main: [
+        {
+          name: 'fileUpload',
+          title: 'Upload something',
+          value: [
+            'a9e7470b-86a5-4826-a908-360a36aac71d',
+            'a9e7470b-86a5-4826-a908-360a36aac72a'
+          ].join(',')
+        }
+      ],
+      repeaters: [],
+      retrievalKey: 'enrique.chase@defra.gov.uk',
+      sessionId: expect.any(String)
+    })
+
     expect(submitRes.statusCode).toBe(redirectStatusCode)
     expect(submitRes.headers.location).toBe('/file-upload-basic/status')
 

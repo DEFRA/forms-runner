@@ -378,6 +378,24 @@ describe('Form journey', () => {
         payload: { crumb: csrfToken }
       })
 
+      expect(submit).toHaveBeenCalledWith({
+        main: [
+          {
+            name: 'licenceLength',
+            title: 'Which fishing licence do you want to get?',
+            value: '1'
+          },
+          {
+            name: 'fullName',
+            title: "What's your name?",
+            value: 'Firstname Lastname'
+          }
+        ],
+        repeaters: [],
+        retrievalKey: 'enrique.chase@defra.gov.uk',
+        sessionId: expect.any(String)
+      })
+
       expect(response.statusCode).toBe(302)
       expect(response.headers.location).toBe('/basic/status')
 

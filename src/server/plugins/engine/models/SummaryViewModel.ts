@@ -100,7 +100,7 @@ export class SummaryViewModel {
 
         const row: SummaryListRow = {
           key: {
-            text: item.label
+            text: item.title
           },
           value: {
             html: value
@@ -205,16 +205,15 @@ function addRepeaterItem(
   const { name, title } = options
   const repeatSummaryPath = page.getSummaryPath(request)
   const path = `/${model.basePath}${page.path}`
-  const rawValue = page.getListFromState(state)
-  const hasItems = rawValue.length > 0
-  const value = hasItems ? rawValue.length.toString() : '0'
-  const url = redirectUrl(hasItems ? repeatSummaryPath : path, {
+  const values = page.getListFromState(state)
+  const unit = values.length === 1 ? title : `${title}s`
+  const url = redirectUrl(values.length ? repeatSummaryPath : path, {
     returnUrl: redirectUrl(`/${model.basePath}/summary`)
   })
 
   const subItems: DetailItem[][] = []
 
-  rawValue.forEach((itemState) => {
+  values.forEach((itemState) => {
     const sub: DetailItem[] = []
     for (const component of page.collection.fields) {
       const item = Item(component, itemState, page, model)
@@ -227,11 +226,11 @@ function addRepeaterItem(
   items.push({
     name,
     path: page.path,
-    label: hasItems ? `${title}s added` : title,
-    value: `You added ${value} ${title}${value === '1' ? '' : 's'}`,
-    rawValue,
+    label: title,
+    title: values.length ? `${unit} added` : unit,
+    value: `You added ${values.length} ${unit}`,
+    rawValue: values,
     url,
-    title,
     subItems
   })
 }

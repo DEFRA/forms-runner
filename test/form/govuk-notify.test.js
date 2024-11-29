@@ -267,6 +267,99 @@ describe('Submission journey test', () => {
       }
     })
 
+    expect(submit).toHaveBeenCalledWith({
+      main: [
+        {
+          name: 'textField',
+          title: 'Text field',
+          value: 'Text field'
+        },
+        {
+          name: 'multilineTextField',
+          title: 'Multiline text field',
+          value: 'Multiline text field'
+        },
+        {
+          name: 'numberField',
+          title: 'Number field',
+          value: '1'
+        },
+        {
+          name: 'datePartsField',
+          title: 'Date parts field',
+          value: '2012-12-12'
+        },
+        {
+          name: 'monthYearField',
+          title: 'Month year field',
+          value: '2012-12'
+        },
+        {
+          name: 'yesNoField',
+          title: 'Yes/No field',
+          value: 'yes'
+        },
+        {
+          name: 'emailAddressField',
+          title: 'Email address field',
+          value: 'user@email.com'
+        },
+        {
+          name: 'telephoneNumberField',
+          title: 'Telephone number field',
+          value: '+447900000000'
+        },
+        {
+          name: 'addressField',
+          title: 'Address field',
+          value: 'Address line 1, Address line 2, Town or city, CW1 1AB'
+        },
+        {
+          name: 'radiosField',
+          title: 'Radios field',
+          value: 'privateLimitedCompany'
+        },
+        {
+          name: 'selectField',
+          title: 'Select field',
+          value: '910400000'
+        },
+        {
+          name: 'autocompleteField',
+          title: 'Autocomplete field',
+          value: '910400044'
+        },
+        {
+          name: 'checkboxesSingle',
+          title: 'Checkboxes field 1',
+          value: 'Shetland'
+        },
+        {
+          name: 'checkboxesMultiple',
+          title: 'Checkboxes field 2',
+          value: 'Arabian,Shire,Race'
+        },
+        {
+          name: 'checkboxesSingleNumber',
+          title: 'Checkboxes field 3 (number)',
+          value: '1'
+        },
+        {
+          name: 'checkboxesMultipleNumber',
+          title: 'Checkboxes field 4 (number)',
+          value: '0,1'
+        },
+        {
+          name: 'fileUpload',
+          title: 'Upload your methodology statement',
+          value: '5a76a1a3-bc8a-4bc0-859a-116d775c7f15'
+        }
+      ],
+      repeaters: [],
+      retrievalKey: 'enrique.chase@defra.gov.uk',
+      sessionId: expect.any(String)
+    })
+
     // Status page
     await statusPage(headers)
   })
