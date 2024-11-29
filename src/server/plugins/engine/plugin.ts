@@ -34,7 +34,7 @@ function normalisePath(path: string) {
   return path.replace(/^\//, '').replace(/\/$/, '')
 }
 
-function getPage(request: FormRequest | FormRequestPayload) {
+export function getPage(request: FormRequest | FormRequestPayload) {
   const { model } = request.app
   const { path } = request.params
 

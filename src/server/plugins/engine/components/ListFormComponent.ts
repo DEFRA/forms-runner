@@ -13,10 +13,7 @@ import joi, {
 } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import {
-  DataType,
-  type ListItem
-} from '~/src/server/plugins/engine/components/types.js'
+import { type ListItem } from '~/src/server/plugins/engine/components/types.js'
 import {
   type FormPayload,
   type FormSubmissionError,
@@ -47,7 +44,6 @@ export class ListFormComponent extends FormComponent {
 
   list?: List
   listType: List['type'] = 'string'
-  dataType: DataType = DataType.List
 
   get items(): Item[] {
     return this.list?.items ?? []
@@ -87,32 +83,28 @@ export class ListFormComponent extends FormComponent {
     this.options = options
   }
 
-  getFormValueFromState(state: FormSubmissionState) {
-    const { name, values: listValues } = this
+  getFormValueFromState(
+    state: FormSubmissionState
+  ): Item['value'] | Item['value'][] | undefined {
+    const { name, items } = this
 
     const value = state[name]
+
+    // Allow for array values via subclass
     const values = this.isValue(value) ? [value].flat() : []
+    const selected = items.filter((item) => values.includes(item.value))
 
-    const selected = listValues.filter((listValue) =>
-      values.includes(listValue)
-    )
-
-    if (!selected.length) {
-      return
-    }
-
-    // Support multiple values for checkboxes
-    return Array.isArray(value) ? selected : selected[0]
+    return selected.at(0)?.value
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
-    const { items: listItems } = this
+    const { items } = this
 
-    // Support multiple values for checkboxes
+    // Allow for array values via subclass
     const value = this.getFormValueFromState(state)
     const values = [value ?? []].flat()
 
-    return listItems
+    return items
       .filter((item) => values.includes(item.value))
       .map((item) => item.text)
       .join(', ')

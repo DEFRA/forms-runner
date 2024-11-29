@@ -1,34 +1,24 @@
 import {
   type ConditionWrapper,
-  type DatePartsFieldComponent,
-  type FileUploadFieldComponent,
   type FormComponentsDef,
-  type FormDefinition,
-  type InputFieldsComponentsDef,
-  type Item,
-  type MonthYearFieldComponent,
-  type NumberFieldComponent,
-  type Section,
-  type SelectionComponentsDef
+  type Section
 } from '@defra/forms-model'
 import { type Expression } from 'expr-eval'
 
-import { type ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
-import { type Field } from '~/src/server/plugins/engine/components/helpers.js'
-import { type DataType } from '~/src/server/plugins/engine/components/types.js'
+import {
+  type Field,
+  type getAnswer
+} from '~/src/server/plugins/engine/components/helpers.js'
+import { type RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
-  type FileState,
   type FormState,
-  type FormStateValue,
-  type FormSubmissionError,
-  type FormSubmissionState,
-  type RepeatState
+  type FormSubmissionError
 } from '~/src/server/plugins/engine/types.js'
 
 export type ExecutableCondition = ConditionWrapper & {
   expr: Expression
-  fn: (state: FormSubmissionState) => boolean
+  fn: (evaluationState: FormState) => boolean
 }
 
 /**
@@ -36,101 +26,83 @@ export type ExecutableCondition = ConditionWrapper & {
  */
 export interface DetailItemBase {
   /**
-   * Name of the component defined in the JSON {@link FormDefinition}
+   * Name of the component defined in the JSON
+   * @see {@link FormComponentsDef.name}
    */
-  name: ComponentBase['name']
+  name: string
 
   /**
-   * Title of the component defined in the JSON {@link FormDefinition}
-   * Used as a human readable form of {@link ComponentBase.name} and HTML content for HTML Label tag
+   * Field label, used for change link visually hidden text
+   * @see {@link FormComponentsDef.title}
    */
-  label: ComponentBase['title']
+  label: string
 
   /**
-   * Path to page excluding base path
+   * Field change link
    */
-  path: PageControllerClass['path']
+  href: string
 
   /**
-   * String and/or display value of a field. For example, a Date will be displayed as 25 December 2022
+   * Form submission state (or repeat state for sub items)
    */
-  value: string
+  state: FormState
 
   /**
    * Field submission state error, used to flag unanswered questions
    * Shown as 'Complete all unanswered questions before submitting the form'
    */
   error?: FormSubmissionError
+}
+
+export interface DetailItemField extends DetailItemBase {
+  /**
+   * Field page controller instance
+   */
+  page: Exclude<PageControllerClass, RepeatPageController>
 
   /**
-   * Raw value of a field. For example, a Date will be displayed as 2022-12-25
+   * Check answers summary list key
+   * For example, 'Date of birth'
    */
-  rawValue: FormState | FormStateValue
+  title: string
+
+  /**
+   * Check answers summary list value, formatted by {@link getAnswer}
+   * For example, date fields formatted as '25 December 2022'
+   */
+  value: string
 
   /**
    * Field component instance
    */
-  field?: Field
-
-  url: string
-  type?: FormComponentsDef['type']
-  title: string
-  dataType?: DataType
-  subItems?: DetailItem[][]
-}
-
-export interface DetailItemDate extends DetailItemBase {
-  type: DatePartsFieldComponent['type']
-  dataType: DataType.Date
-  rawValue: FormState | null
-}
-
-export interface DetailItemMonthYear extends DetailItemBase {
-  type: MonthYearFieldComponent['type']
-  dataType: DataType.MonthYear
-  rawValue: FormState | null
-}
-
-export interface DetailItemSelection extends DetailItemBase {
-  type: SelectionComponentsDef['type']
-  dataType: DataType.List
-  items: DetailItem[]
-  rawValue: Item['value'] | Item['value'][] | null
-}
-
-export interface DetailItemNumber extends DetailItemBase {
-  type: NumberFieldComponent['type']
-  dataType: DataType.Number
-  rawValue: number | null
-}
-
-export interface DetailItemText extends DetailItemBase {
-  type: Exclude<
-    InputFieldsComponentsDef,
-    NumberFieldComponent | FileUploadFieldComponent
-  >['type']
-  dataType: DataType.Text
-  rawValue: string | null
-}
-
-export interface DetailItemFileUpload extends DetailItemBase {
-  type: FileUploadFieldComponent['type']
-  dataType: DataType.File
-  rawValue: FileState[] | null
+  field: Field
 }
 
 export interface DetailItemRepeat extends DetailItemBase {
-  rawValue: RepeatState[] | null
+  /**
+   * Repeat page controller instance
+   */
+  page: RepeatPageController
+
+  /**
+   * Check answers summary list key
+   * For example, 'Pizza' or 'Pizza added'
+   */
+  title: string
+
+  /**
+   * Check answers summary list value
+   * For example, 'You added 2 Pizzas'
+   */
+  value: string
+
+  /**
+   * Repeater field detail items
+   */
+  subItems: DetailItemField[][]
 }
 
-export type DetailItem =
-  | DetailItemDate
-  | DetailItemMonthYear
-  | DetailItemSelection
-  | DetailItemNumber
-  | DetailItemText
-  | DetailItemFileUpload
-  | DetailItemRepeat
+export type DetailItem = DetailItemField | DetailItemRepeat
 
 /**
  * Used to render a row on a Summary List (check your answers)

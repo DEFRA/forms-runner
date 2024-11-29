@@ -3,9 +3,12 @@ import joi, { type ArraySchema } from 'joi'
 
 import { isFormValue } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { SelectionControlField } from '~/src/server/plugins/engine/components/SelectionControlField.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { type PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
 import {
   type FormState,
-  type FormStateValue
+  type FormStateValue,
+  type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 
 export class CheckboxesField extends SelectionControlField {
@@ -42,6 +45,51 @@ export class CheckboxesField extends SelectionControlField {
     this.formSchema = formSchema.default([])
     this.stateSchema = formSchema.default(null).allow(null)
     this.options = options
+  }
+
+  getFormValueFromState(state: FormSubmissionState) {
+    const { items, name } = this
+
+    // State checkbox values
+    const value = state[name]
+    const values = this.isValue(value) ? value : []
+
+    // Map (or discard) state values to item values
+    const selected = items
+      .filter((item) => values.includes(item.value))
+      .map((item) => item.value)
+
+    return selected.length ? selected : undefined
+  }
+
+  getDisplayStringFromState(state: FormSubmissionState) {
+    const { items } = this
+
+    // Selected checkbox values
+    const selected = this.getFormValueFromState(state) ?? []
+
+    // Map selected values to text
+    return items
+      .filter((item) => selected.includes(item.value))
+      .map((item) => item.text)
+      .join(', ')
+  }
+
+  getContextValueFromState(state: FormSubmissionState) {
+    const values = this.getFormValueFromState(state)
+
+    /**
+     * For evaluation context purposes, optional {@link CheckboxesField}
+     * with an undefined value (i.e. nothing selected) should default to [].
+     * This way conditions are not evaluated against `undefined` which throws errors.
+     * Currently these errors are caught and the evaluation returns default `false`.
+     * @see {@link PageControllerBase.getNextPage} for `undefined` return value
+     * @see {@link FormModel.makeCondition} for try/catch block with default `false`
+     * For negative conditions this is a problem because E.g.
+     * The condition: 'selectedchecks' does not contain 'someval'
+     * should return true IF 'selectedchecks' is undefined, not throw and return false.
+     */
+    return values ?? []
   }
 
   isValue(value?: FormStateValue | FormState): value is Item['value'][] {

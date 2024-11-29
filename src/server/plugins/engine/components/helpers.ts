@@ -1,7 +1,12 @@
 import { ComponentType, type ComponentDef } from '@defra/forms-model'
 
+import { config } from '~/src/config/index.js'
 import { type ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
+import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
 import * as Components from '~/src/server/plugins/engine/components/index.js'
+import { type FormState } from '~/src/server/plugins/engine/types.js'
+
+const designerUrl = config.get('designerUrl')
 
 // All component instances
 export type Component = InstanceType<
@@ -112,6 +117,93 @@ export function createComponent(
   }
 
   return component
+}
+
+/**
+ * Get formatted answer for a field
+ */
+export function getAnswer(
+  field: Field,
+  state: FormState,
+  options: {
+    format:
+      | 'data' // Submission data
+      | 'markdown' // GOV.UK Notify emails
+      | 'summary' // Check answers summary
+  } = { format: 'summary' }
+) {
+  // Use escaped display text for GOV.UK Notify emails
+  if (options.format === 'markdown') {
+    return getAnswerMarkdown(field, state)
+  }
+
+  // Use context value for submission data
+  if (options.format === 'data') {
+    const context = field.getContextValueFromState(state)
+    return context?.toString() ?? ''
+  }
+
+  // Use display text for check answers summary
+  return field.getDisplayStringFromState(state)
+}
+
+/**
+ * Get formatted answer for a field (Markdown only)
+ */
+export function getAnswerMarkdown(field: Field, state: FormState) {
+  const answer = field.getDisplayStringFromState(state)
+
+  // Use escaped display text
+  let answerEscaped = escapeAnswer(answer)
+
+  if (field instanceof Components.FileUploadField) {
+    const files = field.getFormValueFromState(state)
+
+    // Skip empty files
+    if (!files?.length) {
+      return answerEscaped
+    }
+
+    answerEscaped = `${answer}:\n\n`
+
+    // Append bullet points
+    answerEscaped += files
+      .map(
+        ({ status }) =>
+          `* [${status.form.file.filename}](${designerUrl}/file-download/${status.form.file.fileId})\n`
+      )
+      .join('')
+  } else if (field instanceof ListFormComponent) {
+    const values = [field.getContextValueFromState(state)].flat()
+    const items = field.items.filter(({ value }) => values.includes(value))
+
+    // Skip empty values
+    if (!items.length) {
+      return answerEscaped
+    }
+
+    answerEscaped = '\n'
+
+    // Append bullet points
+    answerEscaped += items
+      .map(({ text, value }) =>
+        // Append raw values in parentheses
+        // e.g. `* None of the above (false)`
+        `${value}`.toLowerCase() !== text.toLowerCase()
+          ? `* ${text} (${value})\n`
+          : `* ${text}\n`
+      )
+      .join('')
+  }
+
+  return answerEscaped
+}
+
+/**
+ * Prevent Markdown formatting
+ */
+export function escapeAnswer(answer: string) {
+  return `\`\`\`\n${answer}\n\`\`\`\n`
 }
 
 export const addClassOptionIfNone = (

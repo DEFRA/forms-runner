@@ -2,7 +2,10 @@ import { ComponentType, type RadiosFieldComponent } from '@defra/forms-model'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { RadiosField } from '~/src/server/plugins/engine/components/RadiosField.js'
-import { type Field } from '~/src/server/plugins/engine/components/helpers.js'
+import {
+  getAnswer,
+  type Field
+} from '~/src/server/plugins/engine/components/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   listNumber,
@@ -170,11 +173,11 @@ describe.each([
         const state1 = getFormState(item.state)
         const state2 = getFormState(null)
 
-        const text1 = field.getDisplayStringFromState(state1)
-        const text2 = field.getDisplayStringFromState(state2)
+        const answer1 = getAnswer(field, state1)
+        const answer2 = getAnswer(field, state2)
 
-        expect(text1).toBe(item.text)
-        expect(text2).toBe('')
+        expect(answer1).toBe(item.text)
+        expect(answer2).toBe('')
       })
 
       it.each([...options.examples])('returns payload from state', (item) => {
@@ -198,6 +201,20 @@ describe.each([
         expect(value1).toEqual(item.value)
         expect(value2).toBeUndefined()
       })
+
+      it.each([...options.examples])(
+        'returns context for conditions and form submission',
+        (item) => {
+          const state1 = getFormState(item.state)
+          const state2 = getFormState(null)
+
+          const value1 = field.getContextValueFromState(state1)
+          const value2 = field.getContextValueFromState(state2)
+
+          expect(value1).toEqual(item.value)
+          expect(value2).toBeNull()
+        }
+      )
 
       it.each([...options.examples])('returns state from payload', (item) => {
         const payload1 = getFormData(item.value)

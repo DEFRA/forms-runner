@@ -1,17 +1,23 @@
-import { type ValidationResult } from 'joi'
+import { type Page } from '@defra/forms-model'
 
-import { type Field } from '~/src/server/plugins/engine/components/helpers.js'
+import {
+  getAnswer,
+  type Field
+} from '~/src/server/plugins/engine/components/helpers.js'
 import { getError, redirectUrl } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   type Detail,
-  type DetailItem
+  type DetailItem,
+  type DetailItemField,
+  type DetailItemRepeat
 } from '~/src/server/plugins/engine/models/types.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type CheckAnswers,
+  type FormContext,
   type FormState,
   type FormSubmissionError,
   type FormSubmissionState,
@@ -30,12 +36,9 @@ export class SummaryViewModel {
 
   pageTitle: string
   declaration?: string
-  result: ValidationResult<FormSubmissionState>
   details: Detail[]
   checkAnswers: CheckAnswers[]
-  relevantPages: PageControllerClass[]
-  state: FormSubmissionState
-  value: FormSubmissionState
+  context: FormContext
   name: string | undefined
   backLink?: string
   feedbackLink?: string
@@ -49,48 +52,38 @@ export class SummaryViewModel {
   }
 
   constructor(
-    pageTitle: string,
     model: FormModel,
+    pageDef: Page,
     state: FormSubmissionState,
-    relevantState: FormState,
     request: FormRequest | FormRequestPayload
   ) {
-    this.pageTitle = pageTitle
-    this.serviceUrl = `/${model.basePath}`
-    this.name = model.def.name
+    const { basePath, def } = model
 
-    const relevantPages = this.getRelevantPages(model, relevantState)
-    const details = this.summaryDetails(request, model, state, relevantPages)
-
-    const { def } = model
-
+    this.pageTitle = pageDef.title
+    this.serviceUrl = `/${basePath}`
+    this.name = def.name
     this.declaration = def.declaration
+    this.context = model.getFormContext(state, request)
 
-    const schema = model.makeFilteredSchema(relevantPages)
-    const result = schema.validate(state, { ...opts, stripUnknown: true })
+    const result = model
+      .makeFilteredSchema(this.context.relevantPages)
+      .validate(this.context.relevantState, { ...opts, stripUnknown: true })
 
     // Format errors
-    const errors = result.error?.details.map(getError)
+    this.errors = result.error?.details.map(getError)
+    this.details = this.summaryDetails(request, model, state)
 
-    // Flag unanswered questions
-    for (const { items } of details) {
-      for (const item of items) {
-        item.error = item.field?.getError(errors)
-      }
-    }
-
-    const checkAnswers: CheckAnswers[] = details.map((detail): CheckAnswers => {
+    // Format check answers
+    this.checkAnswers = this.details.map((detail): CheckAnswers => {
       const { items, title } = detail
 
       const rows = items.map((item): SummaryListRow => {
-        const href = item.url
-
         const value = render.macro(
           'summaryValue',
           'partials/summary-value.html',
           {
             params: {
-              href,
+              href: item.href,
               label: item.label,
               value: item.value,
               error: item.error
@@ -111,7 +104,7 @@ export class SummaryViewModel {
           row.actions = {
             items: [
               {
-                href,
+                href: item.href,
                 text: 'Change',
                 classes: 'govuk-link--no-visited-state',
                 visuallyHiddenText: item.label
@@ -128,39 +121,39 @@ export class SummaryViewModel {
         summaryList: { rows }
       }
     })
-
-    this.result = result
-    this.details = details
-    this.checkAnswers = checkAnswers
-    this.relevantPages = relevantPages
-    this.state = state
-    this.value = result.value
-    this.errors = errors
   }
 
   private summaryDetails(
     request: FormRequest | FormRequestPayload,
     model: FormModel,
-    state: FormSubmissionState,
-    relevantPages: PageControllerClass[]
+    state: FormSubmissionState
   ) {
+    const { errors, context } = this
+    const { basePath, sections } = model
+
     const details: Detail[] = []
 
-    ;[undefined, ...model.sections].forEach((section) => {
+    ;[undefined, ...sections].forEach((section) => {
       const items: DetailItem[] = []
 
-      const sectionPages = relevantPages.filter(
+      const sectionPages = context.relevantPages.filter(
         (page) => page.section === section
       )
 
       sectionPages.forEach((page) => {
+        const { collection, path } = page
+        const href = `/${basePath}${path}`
+
         if (page instanceof RepeatPageController) {
-          addRepeaterItem(page, request, model, state, items)
+          items.push(
+            ItemRepeat(page, state, {
+              href: page.getSummaryPath(request),
+              errors
+            })
+          )
         } else {
-          for (const component of page.collection.fields) {
-            const item = Item(component, state, page, model)
-            if (items.find((cbItem) => cbItem.name === item.name)) return
-            items.push(item)
+          for (const field of collection.fields) {
+            items.push(ItemField(page, state, field, { href, errors }))
           }
         }
       })
@@ -176,87 +169,70 @@ export class SummaryViewModel {
 
     return details
   }
-
-  private getRelevantPages(model: FormModel, state: FormSubmissionState) {
-    let nextPage = model.startPage
-
-    const relevantPages: PageControllerClass[] = []
-
-    while (nextPage != null) {
-      if (nextPage.collection.fields.length) {
-        relevantPages.push(nextPage)
-      }
-
-      nextPage = nextPage.getNextPage(state)
-    }
-
-    return relevantPages
-  }
-}
-
-function addRepeaterItem(
-  page: RepeatPageController,
-  request: FormRequest | FormRequestPayload,
-  model: FormModel,
-  state: FormSubmissionState,
-  items: DetailItem[]
-) {
-  const { options } = page.repeat
-  const { name, title } = options
-  const repeatSummaryPath = page.getSummaryPath(request)
-  const path = `/${model.basePath}${page.path}`
-  const values = page.getListFromState(state)
-  const unit = values.length === 1 ? title : `${title}s`
-  const url = redirectUrl(values.length ? repeatSummaryPath : path, {
-    returnUrl: redirectUrl(`/${model.basePath}/summary`)
-  })
-
-  const subItems: DetailItem[][] = []
-
-  values.forEach((itemState) => {
-    const sub: DetailItem[] = []
-    for (const component of page.collection.fields) {
-      const item = Item(component, itemState, page, model)
-      if (sub.find((cbItem) => cbItem.name === item.name)) return
-      sub.push(item)
-    }
-    subItems.push(sub)
-  })
-
-  items.push({
-    name,
-    path: page.path,
-    label: title,
-    title: values.length ? `${unit} added` : unit,
-    value: `You added ${values.length} ${unit}`,
-    rawValue: values,
-    url,
-    subItems
-  })
 }
 
 /**
- * Creates an Item object for Details
+ * Creates a repeater detail item
+ * @see {@link DetailItemField}
  */
-function Item(
-  component: Field,
+function ItemRepeat(
+  page: RepeatPageController,
   state: FormState,
-  page: PageControllerClass,
-  model: FormModel,
-  params: { returnUrl: string } = {
-    returnUrl: redirectUrl(`/${model.basePath}/summary`)
+  options: {
+    href: string
+    errors?: FormSubmissionError[]
   }
-) {
+): DetailItemRepeat {
+  const { collection, repeat } = page
+  const { name, title } = repeat.options
+
+  const values = page.getListFromState(state)
+  const unit = values.length === 1 ? title : `${title}s`
+
   return {
-    name: component.name,
-    path: page.path,
-    label: component.title,
-    value: component.getDisplayStringFromState(state),
-    rawValue: component.getFormValueFromState(state),
-    field: component,
-    url: redirectUrl(`/${model.basePath}${page.path}`, params),
-    type: component.type,
-    title: component.title,
-    dataType: component.dataType
-  } as DetailItem
+    name,
+    label: title,
+    title: values.length ? `${unit} added` : unit,
+    value: `You added ${values.length} ${unit}`,
+    href: redirectUrl(options.href, {
+      returnUrl: redirectUrl(page.getSummaryPath())
+    }),
+    state,
+    page,
+
+    // Repeater field detail items
+    subItems: values.map((repeatState) =>
+      collection.fields.map((field) =>
+        ItemField(page, repeatState, field, options)
+      )
+    )
+  }
+}
+
+/**
+ * Creates a form field detail item
+ * @see {@link DetailItemField}
+ */
+function ItemField(
+  page: PageControllerClass,
+  state: FormState,
+  field: Field,
+  options: {
+    href: string
+    errors?: FormSubmissionError[]
+  }
+): DetailItemField {
+  return {
+    name: field.name,
+    label: field.title,
+    title: field.title,
+    error: field.getError(options.errors),
+    value: getAnswer(field, state),
+    href: redirectUrl(options.href, {
+      returnUrl: redirectUrl(page.getSummaryPath())
+    }),
+    state,
+    page,
+    field
+  }
 }

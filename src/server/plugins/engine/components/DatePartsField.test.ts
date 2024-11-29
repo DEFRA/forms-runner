@@ -2,7 +2,10 @@ import { ComponentType, type DatePartsFieldComponent } from '@defra/forms-model'
 import { addDays, format, startOfDay } from 'date-fns'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
-import { type Field } from '~/src/server/plugins/engine/components/helpers.js'
+import {
+  getAnswer,
+  type Field
+} from '~/src/server/plugins/engine/components/helpers.js'
 import { type DateInputItem } from '~/src/server/plugins/engine/components/types.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
@@ -250,11 +253,11 @@ describe('DatePartsField', () => {
         const state1 = getFormState(date)
         const state2 = getFormState({})
 
-        const text1 = field.getDisplayStringFromState(state1)
-        const text2 = field.getDisplayStringFromState(state2)
+        const answer1 = getAnswer(field, state1)
+        const answer2 = getAnswer(field, state2)
 
-        expect(text1).toBe('31 December 2024')
-        expect(text2).toBe('')
+        expect(answer1).toBe('31 December 2024')
+        expect(answer2).toBe('')
       })
 
       it('returns payload from state', () => {
@@ -284,6 +287,17 @@ describe('DatePartsField', () => {
         expect(value2).toBeUndefined()
       })
 
+      it('returns context for conditions and form submission', () => {
+        const state1 = getFormState(startOfDay(date))
+        const state2 = getFormState({})
+
+        const value1 = field.getContextValueFromState(state1)
+        const value2 = field.getContextValueFromState(state2)
+
+        expect(value1).toBe('2024-12-31')
+        expect(value2).toBeNull()
+      })
+
       it('returns state from payload', () => {
         const payload1 = getFormData(date)
         const payload2 = getFormData({})
@@ -293,17 +307,6 @@ describe('DatePartsField', () => {
 
         expect(value1).toEqual(getFormState(date))
         expect(value2).toEqual(getFormState({}))
-      })
-
-      it('returns formatted value for conditions', () => {
-        const state1 = getFormState(date)
-        const state2 = getFormState({})
-
-        const value1 = field.getConditionEvaluationStateValue(state1)
-        const value2 = field.getConditionEvaluationStateValue(state2)
-
-        expect(value1).toBe('2024-12-31')
-        expect(value2).toBeNull()
       })
     })
 

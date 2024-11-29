@@ -11,10 +11,8 @@ import {
 import { addDays, format } from 'date-fns'
 
 import { config } from '~/src/config/index.js'
-import { DatePartsField } from '~/src/server/plugins/engine/components/DatePartsField.js'
 import { FileUploadField } from '~/src/server/plugins/engine/components/FileUploadField.js'
-import { MonthYearField } from '~/src/server/plugins/engine/components/MonthYearField.js'
-import { DataType } from '~/src/server/plugins/engine/components/types.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers.js'
 import {
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
@@ -30,30 +28,25 @@ import {
   type DetailItem
 } from '~/src/server/plugins/engine/models/types.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
-import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
   persistFiles,
   submit
 } from '~/src/server/plugins/engine/services/formSubmissionService.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
-import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+import {
+  type FormContext,
+  type FormSubmissionState
+} from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
   type FormRequestPayload,
   type FormRequestPayloadRefs,
   type FormRequestRefs
 } from '~/src/server/routes/types.js'
-import { type FieldSummary } from '~/src/server/schemas/types.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
 
 const designerUrl = config.get('designerUrl')
 const templateId = config.get('notifyTemplateId')
-
-export interface QuestionRecord {
-  title: string
-  value: string
-  field: FieldSummary
-}
 
 export class SummaryPageController extends PageController {
   /**
@@ -61,20 +54,11 @@ export class SummaryPageController extends PageController {
    */
 
   getSummaryViewModel(
-    title: string,
     model: FormModel,
     state: FormSubmissionState,
     request: FormRequest | FormRequestPayload
   ): SummaryViewModel {
-    const relevantState = this.getConditionEvaluationContext(model, state)
-
-    const viewModel = new SummaryViewModel(
-      title,
-      model,
-      state,
-      relevantState,
-      request
-    )
+    const viewModel = new SummaryViewModel(model, this.pageDef, state, request)
 
     // We already figure these out in the base page controller. Take them and apply them to our page-specific model.
     // This is a stop-gap until we can add proper inheritance in place.
@@ -96,13 +80,7 @@ export class SummaryPageController extends PageController {
 
       const model = this.model
       const state = await cacheService.getState(request)
-
-      const viewModel = this.getSummaryViewModel(
-        this.title,
-        model,
-        state,
-        request
-      )
+      const viewModel = this.getSummaryViewModel(model, state, request)
 
       /**
        * iterates through the errors. If there are errors, a user will be redirected to the page
@@ -172,16 +150,11 @@ export class SummaryPageController extends PageController {
       const { cacheService } = request.services([])
       const model = this.model
       const state = await cacheService.getState(request)
-      const summaryViewModel = this.getSummaryViewModel(
-        this.title,
-        model,
-        state,
-        request
-      )
+      const summaryViewModel = this.getSummaryViewModel(model, state, request)
 
       // Display error summary on the summary
       // page if there are incomplete form errors
-      if (summaryViewModel.result.error) {
+      if (summaryViewModel.errors) {
         summaryViewModel.showErrorSummary = true
 
         return h.view('summary', summaryViewModel)
@@ -269,32 +242,39 @@ async function extendFileRetention(
 }
 
 function submitData(
-  records: QuestionRecord[],
+  items: DetailItem[],
   retrievalKey: string,
   sessionId: string
 ) {
-  const main = records.filter((record) => record.field.type)
-  const repeaters = records.filter((record) => record.field.item.subItems)
-
   const payload: SubmitPayload = {
     sessionId,
     retrievalKey,
-    main: main.map((record) => ({
-      name: record.field.key,
-      title: record.title,
-      value: record.value
-    })),
-    repeaters: repeaters.map((record) => ({
-      name: record.field.key,
-      title: record.title,
-      value: (record.field.item.subItems ?? []).map((detailItem) =>
-        detailItem.map((item) => ({
-          name: item.name,
-          title: item.label,
-          value: item.value
-        }))
-      )
-    }))
+
+    // Main form answers
+    main: items
+      .filter((item) => 'field' in item)
+      .map((item) => ({
+        name: item.name,
+        title: item.label,
+        value: getAnswer(item.field, item.state, { format: 'data' })
+      })),
+
+    // Repeater form answers
+    repeaters: items
+      .filter((item) => 'subItems' in item)
+      .map((item) => ({
+        name: item.name,
+        title: item.label,
+
+        // Repeater item values
+        value: item.subItems.map((detailItems) =>
+          detailItems.map((subItem) => ({
+            name: subItem.name,
+            title: subItem.label,
+            value: getAnswer(subItem.field, subItem.state, { format: 'data' })
+          }))
+        )
+      }))
   }
 
   return submit(payload)
@@ -312,16 +292,15 @@ async function sendEmail(
 
   request.logger.info(logTags, 'Preparing email', formStatus)
 
-  // Get questions and submit data
-  const questions = getQuestions(summaryViewModel, model)
-
-  request.logger.info(logTags, 'Submitting data')
-
-  const submitResponse = await submitData(
-    questions,
-    emailAddress,
-    request.yar.id
+  // Get detail items
+  const items = getFormSubmissionData(
+    summaryViewModel.context,
+    summaryViewModel.details
   )
+
+  // Submit data
+  request.logger.info(logTags, 'Submitting data')
+  const submitResponse = await submitData(items, emailAddress, request.yar.id)
 
   if (submitResponse === undefined) {
     throw badRequest('Unexpected empty response from submit api')
@@ -331,7 +310,7 @@ async function sendEmail(
   request.logger.info(logTags, 'Getting personalisation data')
 
   const personalisation = getPersonalisation(
-    questions,
+    items,
     model,
     submitResponse,
     formStatus
@@ -355,54 +334,14 @@ async function sendEmail(
   }
 }
 
-export function getQuestions(
-  summaryViewModel: SummaryViewModel,
-  model: FormModel
-) {
-  const { relevantPages, details } = summaryViewModel
-  const formSubmissionData = getFormSubmissionData(
-    relevantPages,
-    details,
-    model
-  )
-  const questions: QuestionRecord[] = []
-
-  formSubmissionData.questions.forEach((question) => {
-    question.fields.forEach((field) => {
-      const { title, answer, type } = field
-      let value = ''
-
-      if (typeof answer === 'string') {
-        value = answer
-      } else if (typeof answer === 'number') {
-        value = answer.toString()
-      } else if (typeof answer === 'boolean') {
-        value = answer ? 'yes' : 'no'
-      } else if (Array.isArray(answer)) {
-        if (type === DataType.File) {
-          const uploads = FileUploadField.isFileUploads(answer) ? answer : []
-
-          value = uploads
-            .map(({ status }) => status.form.file.fileId)
-            .toString()
-        } else {
-          value = answer.toString()
-        }
-      }
-
-      questions.push({ title, value, field })
-    })
-  })
-
-  return questions
-}
-
 export function getPersonalisation(
-  questions: QuestionRecord[],
+  items: DetailItem[],
   model: FormModel,
   submitResponse: SubmitResponsePayload,
   formStatus: ReturnType<typeof checkFormStatus>
 ) {
+  const { files } = submitResponse.result
+
   /**
    * @todo Refactor this below but the code to
    * generate the question and answers works for now
@@ -431,36 +370,26 @@ export function getPersonalisation(
 
   lines.push(`Form received at ${formattedNow}.\n\n`)
 
-  questions.forEach((question) => {
-    const { title, value, field } = question
-    const { answer, type, item } = field
+  items.forEach((item) => {
+    lines.push(`## ${item.label}`)
 
-    let line = ''
-
-    if (Array.isArray(answer) && type === DataType.File) {
-      const uploads = FileUploadField.isFileUploads(answer) ? answer : []
-      const files = uploads.map((upload) => upload.status.form.file)
-      const bullets = files
-        .map(
-          (file) =>
-            `* [${file.filename}](${designerUrl}/file-download/${file.fileId})`
-        )
-        .join('\n')
-
-      line = `${files.length} file${files.length !== 1 ? 's' : ''} uploaded (links expire ${formattedExpiryDate}):\n\n${bullets}\n`
-    } else if (Array.isArray(item.subItems)) {
-      line = `[Download ${item.label} (CSV)](${designerUrl}/file-download/${submitResponse.result.files.repeaters[item.name]})\n`
+    if ('subItems' in item) {
+      lines.push(
+        `[Download ${item.label} (CSV)](${designerUrl}/file-download/${files.repeaters[item.name]})\n`
+      )
     } else {
-      line = literal(value)
+      lines.push(
+        getAnswer(item.field, item.state, {
+          format: 'markdown'
+        })
+      )
     }
 
-    lines.push(`## ${title}`)
-    lines.push(line)
     lines.push('\n')
   })
 
   lines.push(
-    `[Download main form (CSV)](${designerUrl}/file-download/${submitResponse.result.files.main})\n`
+    `[Download main form (CSV)](${designerUrl}/file-download/${files.main})\n`
   )
 
   return {
@@ -469,85 +398,12 @@ export function getPersonalisation(
   }
 }
 
-function literal(str: string) {
-  return `\`\`\`\n${str}\n\`\`\`\n`
-}
-
-function getFormSubmissionData(
-  relevantPages: PageControllerClass[],
-  details: Detail[],
-  model: FormModel
-) {
-  const questions = relevantPages.map((page) => {
-    const itemsForPage = details.flatMap((detail) =>
-      detail.items.filter((item) => item.path === page.path)
+export function getFormSubmissionData(context: FormContext, details: Detail[]) {
+  return context.relevantPages
+    .map(({ path }) =>
+      details.flatMap(({ items }) =>
+        items.filter(({ page }) => page.path === path)
+      )
     )
-
-    const fields = itemsForPage.flatMap((item) => {
-      return [toFieldSummary(item)]
-    })
-
-    return {
-      category: page.section?.name,
-      question: page.title,
-      fields
-    }
-  })
-
-  return {
-    metadata: model.def.metadata,
-    name: model.name,
-    questions
-  }
-}
-
-export function answerFromDetailItem(item: DetailItem) {
-  let value: DetailItem['rawValue'] = ''
-
-  if (item.rawValue === null) {
-    return value
-  }
-
-  switch (item.dataType) {
-    case DataType.List:
-      value = item.rawValue
-      break
-
-    case DataType.File:
-      value = item.rawValue
-      break
-
-    case DataType.Date: {
-      if (DatePartsField.isDateParts(item.rawValue)) {
-        const [day, month, year] = Object.values(item.rawValue)
-        value = format(new Date(`${year}-${month}-${day}`), 'yyyy-MM-dd')
-      }
-
-      break
-    }
-
-    case DataType.MonthYear: {
-      if (MonthYearField.isMonthYear(item.rawValue)) {
-        const [month, year] = Object.values(item.rawValue)
-        value = format(new Date(`${year}-${month}-1`), 'yyyy-MM')
-      }
-
-      break
-    }
-
-    default:
-      value = item.value
-  }
-
-  return value
-}
-
-function toFieldSummary(item: DetailItem): FieldSummary {
-  return {
-    key: item.name,
-    title: item.label,
-    type: item.dataType,
-    answer: answerFromDetailItem(item),
-    item
-  }
+    .flat()
 }

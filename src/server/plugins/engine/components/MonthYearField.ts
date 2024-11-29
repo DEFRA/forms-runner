@@ -1,4 +1,5 @@
 import { ComponentType, type MonthYearFieldComponent } from '@defra/forms-model'
+import { format } from 'date-fns'
 import {
   type Context,
   type CustomValidator,
@@ -13,10 +14,7 @@ import {
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
-import {
-  DataType,
-  type DateInputItem
-} from '~/src/server/plugins/engine/components/types.js'
+import { type DateInputItem } from '~/src/server/plugins/engine/components/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormPayload,
@@ -31,8 +29,6 @@ export class MonthYearField extends FormComponent {
   declare formSchema: ObjectSchema<FormPayload>
   declare stateSchema: ObjectSchema<FormState>
   declare collection: ComponentCollection
-
-  dataType: DataType = DataType.MonthYear
 
   constructor(
     def: MonthYearFieldComponent,
@@ -111,6 +107,16 @@ export class MonthYearField extends FormComponent {
 
     const monthString = date.toLocaleString('default', { month: 'long' })
     return `${monthString} ${value.year}`
+  }
+
+  getContextValueFromState(state: FormSubmissionState) {
+    const value = this.getFormValueFromState(state)
+
+    if (!value) {
+      return null
+    }
+
+    return format(`${value.year}-${value.month}-01`, 'yyyy-MM')
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {

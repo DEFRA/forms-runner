@@ -1,6 +1,7 @@
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+import { type FormRequest } from '~/src/server/routes/types.js'
 import definitionConditionsBasic from '~/test/form/definitions/conditions-basic.js'
 import definitionConditionsComplex from '~/test/form/definitions/conditions-complex.js'
 import definitionConditionsDates from '~/test/form/definitions/conditions-dates.js'
@@ -60,11 +61,10 @@ describe('PageControllerBase', () => {
       // The state below shows we said we had a UKPassport and entered details for an applicant
       const state: FormSubmissionState = {
         progress: [
-          '/csds/uk-passport',
-          '/csds/how-many-people',
-          '/csds/applicant-one',
-          '/csds/applicant-one-address',
-          '/csds/contact-details'
+          'test/uk-passport',
+          'test/how-many-people',
+          'test/applicant-one-name',
+          'test/applicant-one-address'
         ],
         ukPassport: true,
         numberOfApplicants: 2,
@@ -84,38 +84,77 @@ describe('PageControllerBase', () => {
         applicantTwoAddress__postcode: 'Postcode'
       }
 
+      let request = {
+        url: new URL('http://example.com/test/applicant-one-address'),
+        path: '/test/applicant-one-address',
+        params: {
+          path: 'applicant-one-address',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      } as FormRequest
+
       // Calculate our context based on the page we're attempting to load and the above state we provide
-      let context = controller.getConditionEvaluationContext(model, state)
+      let context = controller.model.getFormContext(state, request)
+      const { evaluationState: stateBefore } = context
 
       // Our context should know our first applicant
-      expect(context).toEqual({
+      expect(stateBefore).toEqual({
         numberOfApplicants: 2,
         ukPassport: true,
         applicantOneFirstName: 'Enrique',
         applicantOneMiddleName: null,
         applicantOneLastName: 'Chase',
-        applicantOneAddress: {
-          addressLine1: 'AddressLine1',
-          addressLine2: 'AddressLine2',
-          town: 'Town',
-          postcode: 'Postcode'
-        }
+        applicantOneAddress: [
+          'AddressLine1',
+          'AddressLine2',
+          'Town',
+          'Postcode'
+        ]
       })
+
+      // Our context should know which pages are relevant
+      expect(context.paths).toEqual([
+        'test/uk-passport',
+        'test/how-many-people',
+        'test/applicant-one-name',
+        'test/applicant-one-address'
+      ])
 
       // Now mark that we don't have a UK Passport
       state.ukPassport = false
 
+      request = {
+        url: new URL('http://example.com/test/summary'),
+        path: '/test/summary',
+        params: {
+          path: 'summary',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      } as FormRequest
+
       // And recalculate our context
-      context = controller.getConditionEvaluationContext(model, state)
+      context = controller.model.getFormContext(state, request)
+      const { evaluationState: stateAfter } = context
+
+      // Our context should no longer list pages about our applicant
+      expect(context.paths).toEqual([
+        'test/uk-passport',
+        'test/testconditions',
+        'test/summary'
+      ])
 
       // Our context should no longer know anything about our applicant
-      expect(context).not.toHaveProperty('numberOfApplicants')
-      expect(context).not.toHaveProperty('applicantOneFirstName')
-      expect(context).not.toHaveProperty('applicantOneMiddleName')
-      expect(context).not.toHaveProperty('applicantOneLastName')
-      expect(context).not.toHaveProperty('applicantOneAddress')
+      expect(stateAfter).not.toHaveProperty('numberOfApplicants')
+      expect(stateAfter).not.toHaveProperty('applicantOneFirstName')
+      expect(stateAfter).not.toHaveProperty('applicantOneMiddleName')
+      expect(stateAfter).not.toHaveProperty('applicantOneLastName')
+      expect(stateAfter).not.toHaveProperty('applicantOneAddress')
 
-      expect(context).toEqual({
+      expect(stateAfter).toEqual({
         ukPassport: false
       })
     })
@@ -128,15 +167,38 @@ describe('PageControllerBase', () => {
       })
 
       const controller = new PageControllerBase(model, pages[0])
-      const context = controller.getConditionEvaluationContext(model, {
-        progress: [],
+
+      const request = {
+        url: new URL('http://example.com/test/page-one'),
+        path: '/test/page-one',
+        params: {
+          path: 'page-one',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      } as FormRequest
+
+      const context = controller.model.getFormContext(
+        {
+          progress: [],
+          dateField__day: 5,
+          dateField__month: 1,
+          dateField__year: 2024
+        },
+        request
+      )
+
+      // Ensure dates are transformed to yyyy-MM-dd format
+      expect(context.evaluationState).toHaveProperty('dateField', '2024-01-05')
+
+      // Unlike relevant state which has the individual date parts
+      expect(context.relevantState).not.toHaveProperty('dateField')
+      expect(context.relevantState).toMatchObject({
         dateField__day: 5,
         dateField__month: 1,
         dateField__year: 2024
       })
-
-      // Ensure dates are transformed to yyyy-MM-dd format
-      expect(context).toHaveProperty('dateField', '2024-01-05')
     })
   })
 

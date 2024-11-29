@@ -14,10 +14,7 @@ import {
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
-import {
-  DataType,
-  type DateInputItem
-} from '~/src/server/plugins/engine/components/types.js'
+import { type DateInputItem } from '~/src/server/plugins/engine/components/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormPayload,
@@ -32,8 +29,6 @@ export class DatePartsField extends FormComponent {
   declare formSchema: ObjectSchema<FormPayload>
   declare stateSchema: ObjectSchema<FormState>
   declare collection: ComponentCollection
-
-  dataType: DataType = DataType.Date
 
   constructor(
     def: DatePartsFieldComponent,
@@ -122,7 +117,7 @@ export class DatePartsField extends FormComponent {
     return format(`${value.year}-${value.month}-${value.day}`, 'd MMMM yyyy')
   }
 
-  getConditionEvaluationStateValue(state: FormSubmissionState) {
+  getContextValueFromState(state: FormSubmissionState) {
     const value = this.getFormValueFromState(state)
 
     if (!value) {

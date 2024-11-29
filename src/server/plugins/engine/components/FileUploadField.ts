@@ -2,7 +2,6 @@ import { type FileUploadFieldComponent } from '@defra/forms-model'
 import joi, { type ArraySchema } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { DataType } from '~/src/server/plugins/engine/components/types.js'
 import { filesize } from '~/src/server/plugins/engine/helpers.js'
 import {
   FileStatus,
@@ -91,8 +90,6 @@ export class FileUploadField extends FormComponent {
   declare formSchema: ArraySchema<FileState>
   declare stateSchema: ArraySchema<FileState>
 
-  dataType: DataType = DataType.File
-
   constructor(
     def: FileUploadFieldComponent,
     props: ConstructorParameters<typeof FormComponent>[1]
@@ -139,14 +136,18 @@ export class FileUploadField extends FormComponent {
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
-    const files = this.getFormValueFromState(state) ?? []
-    const count = files.length
-
-    if (!count) {
-      return super.getDisplayStringFromState(state)
+    const files = this.getFormValueFromState(state)
+    if (!files?.length) {
+      return ''
     }
 
-    return `You uploaded ${count} file${count !== 1 ? 's' : ''}`
+    const unit = files.length === 1 ? 'file' : 'files'
+    return `Uploaded ${files.length} ${unit}`
+  }
+
+  getContextValueFromState(state: FormSubmissionState) {
+    const files = this.getFormValueFromState(state)
+    return files?.map(({ status }) => status.form.file.fileId) ?? null
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {

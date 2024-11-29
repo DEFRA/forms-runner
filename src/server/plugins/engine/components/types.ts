@@ -120,12 +120,3 @@ export interface ComponentViewModel {
   isFormComponent: boolean
   model: ViewModel
 }
-
-export enum DataType {
-  List = 'list',
-  Text = 'text',
-  Date = 'date',
-  MonthYear = 'monthYear',
-  Number = 'number',
-  File = 'file'
-}

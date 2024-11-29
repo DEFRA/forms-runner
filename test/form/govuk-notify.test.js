@@ -165,22 +165,21 @@ describe('Submission journey test', () => {
 
           ## Date parts field
           \`\`\`
-          2012-12-12
+          12 December 2012
           \`\`\`
 
 
 
           ## Month year field
           \`\`\`
-          2012-12
+          December 2012
           \`\`\`
 
 
 
           ## Yes/No field
-          \`\`\`
-          yes
-          \`\`\`
+
+          * Yes (true)
 
 
 
@@ -206,56 +205,52 @@ describe('Submission journey test', () => {
 
 
           ## Radios field
-          \`\`\`
-          privateLimitedCompany
-          \`\`\`
+
+          * Private Limited Company (privateLimitedCompany)
 
 
 
           ## Select field
-          \`\`\`
-          910400000
-          \`\`\`
+
+          * Afghanistan (910400000)
 
 
 
           ## Autocomplete field
-          \`\`\`
-          910400044
-          \`\`\`
+
+          * Czech Republic (910400044)
 
 
 
           ## Checkboxes field 1
-          \`\`\`
-          Shetland
-          \`\`\`
+
+          * Shetland
 
 
 
           ## Checkboxes field 2
-          \`\`\`
-          Arabian,Shire,Race
-          \`\`\`
+
+          * Arabian
+          * Shire
+          * Race
 
 
 
           ## Checkboxes field 3 (number)
-          \`\`\`
-          1
-          \`\`\`
+
+          * 1 point (1)
 
 
 
           ## Checkboxes field 4 (number)
-          \`\`\`
-          0,1
-          \`\`\`
+
+          * None (0)
+          * 1 point (1)
 
 
 
           ## Upload your methodology statement
-          1 file uploaded (links expire ${formattedExpiryDate}):
+          Uploaded 1 file:
 
           * [test.pdf](https://test-designer.cdp-int.defra.cloud/file-download/5a76a1a3-bc8a-4bc0-859a-116d775c7f15)
 
@@ -297,7 +292,7 @@ describe('Submission journey test', () => {
         {
           name: 'yesNoField',
           title: 'Yes/No field',
-          value: 'yes'
+          value: 'true'
         },
         {
           name: 'emailAddressField',
@@ -312,7 +307,7 @@ describe('Submission journey test', () => {
         {
           name: 'addressField',
           title: 'Address field',
-          value: 'Address line 1, Address line 2, Town or city, CW1 1AB'
+          value: 'Address line 1,Address line 2,Town or city,CW1 1AB'
         },
         {
           name: 'radiosField',

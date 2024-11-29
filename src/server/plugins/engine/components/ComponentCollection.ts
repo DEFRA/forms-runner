@@ -152,7 +152,16 @@ export class ComponentCollection {
   }
 
   get keys() {
-    return this.fields.map(({ name }) => name)
+    return this.fields.flatMap((field) => {
+      const { name, collection } = field
+
+      if (collection) {
+        const { fields } = collection
+        return [name, ...fields.map(({ name }) => name)]
+      }
+
+      return [name]
+    })
   }
 
   getFormDataFromState(state: FormSubmissionState) {
@@ -191,6 +200,16 @@ export class ComponentCollection {
     })
 
     return state
+  }
+
+  getContextValueFromState(state: FormSubmissionState) {
+    const context: FormState = {}
+
+    for (const component of this.fields) {
+      context[component.name] = component.getContextValueFromState(state)
+    }
+
+    return context
   }
 
   getErrors(errors?: FormSubmissionError[]): FormSubmissionError[] | undefined {
