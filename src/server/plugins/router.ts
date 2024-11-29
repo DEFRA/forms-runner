@@ -62,17 +62,34 @@ export default {
 
       server.route({
         method: 'post',
-        path: '/help/cookies',
+        path: '/help/cookie-preferences',
         handler(request, h) {
           const decision = request.payload['cookies[additional]']
 
           if (decision === 'yes') {
-            request.yar.set('cookieConsent', 'true')
+            request.yar.set('cookieConsent', true)
           } else {
-            request.yar.set('cookieConsent', 'false')
+            request.yar.set('cookieConsent', false)
           }
 
+          request.yar.flash('cookieConsentUpdated', true)
+
           return h.redirect(request.info.referrer)
+        }
+      })
+
+      server.route({
+        method: 'get',
+        path: '/help/cookie-preferences',
+        handler(request, h) {
+          const cookieConsentUpdated =
+            request.yar.flash('cookieConsentUpdated').at(0) ?? false
+          const cookieConsent = request.yar.get('cookieConsent') ?? false
+
+          return h.view('help/cookie-preferences', {
+            cookieConsent,
+            cookieConsentUpdated
+          })
         }
       })
 
