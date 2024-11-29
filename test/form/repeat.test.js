@@ -8,10 +8,15 @@ import { StatusCodes } from 'http-status-codes'
 
 import { createServer } from '~/src/server/index.js'
 import { ADD_ANOTHER, CONTINUE } from '~/src/server/plugins/engine/helpers.js'
+import { submit } from '~/src/server/plugins/engine/services/formSubmissionService.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
+
+jest.mock('~/src/server/utils/notify.ts')
+jest.mock('~/src/server/plugins/engine/services/formsService.js')
+jest.mock('~/src/server/plugins/engine/services/formSubmissionService.js')
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
@@ -88,8 +93,6 @@ async function createRepeatItem(
     redirectLocation: res1.headers.location
   }
 }
-
-jest.mock('~/src/server/plugins/engine/services/formsService.js')
 
 describe('Repeat GET tests', () => {
   /** @type {Server} */
@@ -425,7 +428,7 @@ describe('Repeat POST tests', () => {
     const { headers } = await createRepeatItem(server, repeatPage)
     await createRepeatItem(server, repeatPage, 2, headers)
 
-    const res = await server.inject({
+    const res1 = await server.inject({
       method: 'POST',
       url: `${url}/summary`,
       headers,
@@ -434,10 +437,10 @@ describe('Repeat POST tests', () => {
       }
     })
 
-    expect(res.statusCode).toBe(redirectStatusCode)
-    expect(res.headers.location).toBe('/repeat/summary')
+    expect(res1.statusCode).toBe(redirectStatusCode)
+    expect(res1.headers.location).toBe('/repeat/summary')
 
-    const { container, response } = await renderResponse(server, {
+    const { container, response: res2 } = await renderResponse(server, {
       method: 'GET',
       url: '/repeat/summary',
       headers,
@@ -446,7 +449,7 @@ describe('Repeat POST tests', () => {
       }
     })
 
-    expect(response.statusCode).toBe(okStatusCode)
+    expect(res2.statusCode).toBe(okStatusCode)
 
     const $values = container
       .getAllByRole('definition')
@@ -455,6 +458,51 @@ describe('Repeat POST tests', () => {
       )
 
     expect($values[0]).toHaveTextContent('You added 2 Pizzas')
+
+    // POST the summary page
+    await server.inject({
+      method: 'POST',
+      url: '/repeat/summary',
+      headers
+    })
+
+    expect(submit).toHaveBeenCalledWith({
+      main: [],
+      repeaters: [
+        {
+          name: 'pizza',
+          title: 'Pizza',
+          value: [
+            [
+              {
+                name: 'toppings',
+                title: 'Toppings',
+                value: 'Ham'
+              },
+              {
+                name: 'quantity',
+                title: 'Quantity',
+                value: '2'
+              }
+            ],
+            [
+              {
+                name: 'toppings',
+                title: 'Toppings',
+                value: 'Ham'
+              },
+              {
+                name: 'quantity',
+                title: 'Quantity',
+                value: '2'
+              }
+            ]
+          ]
+        }
+      ],
+      retrievalKey: 'enrique.chase@defra.gov.uk',
+      sessionId: expect.any(String)
+    })
   })
 })
 
