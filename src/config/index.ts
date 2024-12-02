@@ -2,9 +2,16 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import convict, { type SchemaObj } from 'convict'
+import { type LevelWithSilent } from 'pino'
+
 import 'dotenv/config'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
+
+const isProduction = process.env.NODE_ENV === 'production'
+const isDev = process.env.NODE_ENV !== 'production'
+const isTest = process.env.NODE_ENV === 'test'
+
 const oneMinute = 1000 * 60
 const oneHour = oneMinute * 60
 
@@ -15,10 +22,9 @@ export const config = convict({
   },
   publicDir: {
     format: String,
-    default:
-      process.env.NODE_ENV === 'test'
-        ? path.resolve(dirname, '../../test/fixtures')
-        : path.resolve(dirname, '../../.public')
+    default: isTest
+      ? path.resolve(dirname, '../../test/fixtures')
+      : path.resolve(dirname, '../../.public')
   },
 
   /**
@@ -52,7 +58,7 @@ export const config = convict({
   },
   enforceCsrf: {
     format: Boolean,
-    default: process.env.NODE_ENV === 'production',
+    default: isProduction,
     env: 'ENFORCE_CSRF'
   },
 
@@ -62,17 +68,17 @@ export const config = convict({
   isProduction: {
     doc: 'If this application running in the production environment',
     format: Boolean,
-    default: process.env.NODE_ENV === 'production'
+    default: isProduction
   },
   isDevelopment: {
     doc: 'If this application running in the development environment',
     format: Boolean,
-    default: process.env.NODE_ENV !== 'production'
+    default: isDev
   },
   isTest: {
     doc: 'If this application running in the test environment',
     format: Boolean,
-    default: process.env.NODE_ENV === 'test'
+    default: isTest
   },
 
   /**
@@ -201,11 +207,32 @@ export const config = convict({
   /**
    * Logging
    */
-  logLevel: {
-    doc: 'Logging level',
-    format: ['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'],
-    default: process.env.NODE_ENV === 'development' ? 'error' : 'info',
-    env: 'LOG_LEVEL'
+  log: {
+    enabled: {
+      doc: 'Is logging enabled',
+      format: Boolean,
+      default: !isTest,
+      env: 'LOG_ENABLED'
+    },
+    level: {
+      doc: 'Logging level',
+      format: ['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'],
+      default: 'info',
+      env: 'LOG_LEVEL'
+    } as SchemaObj<LevelWithSilent>,
+    format: {
+      doc: 'Format to output logs in.',
+      format: ['ecs', 'pino-pretty'],
+      default: isProduction ? 'ecs' : 'pino-pretty',
+      env: 'LOG_FORMAT'
+    } as SchemaObj<'ecs' | 'pino-pretty'>,
+    redact: {
+      doc: 'Log paths to redact',
+      format: Array,
+      default: isProduction
+        ? ['req.headers.authorization', 'req.headers.cookie', 'res.headers']
+        : ['req', 'res', 'responseTime']
+    }
   },
 
   safelist: {
