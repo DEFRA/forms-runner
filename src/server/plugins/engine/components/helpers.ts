@@ -186,13 +186,20 @@ export function getAnswerMarkdown(field: Field, state: FormState) {
 
     // Append bullet points
     answerEscaped += items
-      .map(({ text, value }) =>
+      .map(({ text: label, value }) => {
+        let line = label
+
+        // Prepend bullet points for checkboxes only
+        if (field instanceof Components.CheckboxesField) {
+          line = `* ${line}`
+        }
+
         // Append raw values in parentheses
         // e.g. `* None of the above (false)`
-        `${value}`.toLowerCase() !== text.toLowerCase()
-          ? `* ${text} (${value})\n`
-          : `* ${text}\n`
-      )
+        return `${value}`.toLowerCase() !== label.toLowerCase()
+          ? `${line} (${value})\n`
+          : `${line}\n`
+      })
       .join('')
   }
 

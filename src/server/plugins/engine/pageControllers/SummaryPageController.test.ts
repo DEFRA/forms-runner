@@ -126,7 +126,7 @@ describe('SummaryPageController', () => {
             ---
             ## How would you like to receive your pizza?
 
-            * Delivery
+            Delivery
 
             ---
             ## Pizza
