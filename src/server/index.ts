@@ -13,12 +13,12 @@ import blipp from 'blipp'
 import { ProxyAgent } from 'proxy-agent'
 
 import { config } from '~/src/config/index.js'
+import { requestLogger } from '~/src/server/common/helpers/logging/request-logger.js'
 import { buildRedisClient } from '~/src/server/common/helpers/redis-client.js'
 import pluginBlankie from '~/src/server/plugins/blankie.js'
 import { configureCrumbPlugin } from '~/src/server/plugins/crumb.js'
 import { configureEnginePlugin } from '~/src/server/plugins/engine/index.js'
 import pluginErrorPages from '~/src/server/plugins/errorPages.js'
-import pluginLogging from '~/src/server/plugins/logging.js'
 import { plugin as pluginViews } from '~/src/server/plugins/nunjucks/index.js'
 import pluginPulse from '~/src/server/plugins/pulse.js'
 import pluginRouter from '~/src/server/plugins/router.js'
@@ -77,7 +77,7 @@ const serverOptions = (): ServerOptions => {
 export async function createServer(routeConfig?: RouteConfig) {
   const server = hapi.server(serverOptions())
 
-  await server.register(pluginLogging)
+  await server.register(requestLogger)
 
   if (config.get('isProduction')) {
     prepareSecureContext(server)
