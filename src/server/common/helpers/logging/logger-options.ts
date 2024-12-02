@@ -12,12 +12,7 @@ const loggerOptions = {
   level: config.get('logLevel'),
   ...(config.get('isDevelopment')
     ? { transport: { target: 'pino-pretty', options: { colorize: true } } }
-    : (ecsFormat() as LoggerFormat))
+    : (ecsFormat() as Omit<LoggerOptions, 'mixin' | 'transport'>))
 }
 
 export { loggerOptions }
-
-type LoggerFormat = Pick<
-  LoggerOptions,
-  'messageKey' | 'timestamp' | 'formatters'
->
