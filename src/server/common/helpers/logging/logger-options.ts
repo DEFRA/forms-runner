@@ -1,5 +1,5 @@
 import { ecsFormat } from '@elastic/ecs-pino-format'
-import { type LoggerOptions, type TransportSingleOptions } from 'pino'
+import { type LoggerOptions } from 'pino'
 
 import { config } from '~/src/config/index.js'
 
@@ -11,7 +11,7 @@ const loggerOptions = {
   },
   level: config.get('logLevel'),
   ...(config.get('isDevelopment')
-    ? { transport: { target: 'pino-pretty' } as TransportSingleOptions }
+    ? { transport: { target: 'pino-pretty', options: { colorize: true } } }
     : (ecsFormat() as LoggerFormat))
 }
 
