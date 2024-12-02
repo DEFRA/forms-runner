@@ -173,7 +173,7 @@ describe('Submission journey test', () => {
           ---
           ## Yes/No field
 
-          * Yes (true)
+          Yes (true)
 
           ---
           ## Email address field
@@ -196,17 +196,17 @@ describe('Submission journey test', () => {
           ---
           ## Radios field
 
-          * Private Limited Company (privateLimitedCompany)
+          Private Limited Company (privateLimitedCompany)
 
           ---
           ## Select field
 
-          * Afghanistan (910400000)
+          Afghanistan (910400000)
 
           ---
           ## Autocomplete field
 
-          * Czech Republic (910400044)
+          Czech Republic (910400044)
 
           ---
           ## Checkboxes field 1
