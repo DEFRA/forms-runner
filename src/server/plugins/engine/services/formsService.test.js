@@ -1,3 +1,5 @@
+import { StatusCodes } from 'http-status-codes'
+
 import {
   getFormDefinition,
   getFormMetadata
@@ -16,7 +18,9 @@ describe('Forms service', () => {
   describe('getFormMetadata', () => {
     beforeEach(() => {
       jest.mocked(getJson).mockResolvedValue({
-        res: /** @type {IncomingMessage} */ ({ statusCode: 200 }),
+        res: /** @type {IncomingMessage} */ ({
+          statusCode: StatusCodes.OK
+        }),
         payload: metadata
       })
     })
@@ -39,7 +43,9 @@ describe('Forms service', () => {
       }
 
       jest.mocked(getJson).mockResolvedValue({
-        res: /** @type {IncomingMessage} */ ({ statusCode: 200 }),
+        res: /** @type {IncomingMessage} */ ({
+          statusCode: StatusCodes.OK
+        }),
         payload
       })
 
@@ -54,7 +60,9 @@ describe('Forms service', () => {
   describe('getFormDefinition', () => {
     beforeEach(() => {
       jest.mocked(getJson).mockResolvedValue({
-        res: /** @type {IncomingMessage} */ ({ statusCode: 200 }),
+        res: /** @type {IncomingMessage} */ ({
+          statusCode: StatusCodes.OK
+        }),
         payload: definition
       })
     })

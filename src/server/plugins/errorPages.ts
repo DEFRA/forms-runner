@@ -3,6 +3,7 @@ import {
   type ResponseToolkit,
   type ServerRegisterPluginObject
 } from '@hapi/hapi'
+import { StatusCodes } from 'http-status-codes'
 
 /*
  * Add an `onPreResponse` listener to return error pages
@@ -34,7 +35,7 @@ export default {
 
           // In the event of 404
           // return the `404` view
-          if (statusCode === 404) {
+          if (statusCode === StatusCodes.NOT_FOUND.valueOf()) {
             return h.view('404', viewModel).code(statusCode)
           }
 

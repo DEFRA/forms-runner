@@ -1,4 +1,5 @@
 import { type Server } from '@hapi/hapi'
+import { StatusCodes } from 'http-status-codes'
 
 import { config } from '~/src/config/index.js'
 import { createServer } from '~/src/server/index.js'
@@ -58,7 +59,7 @@ describe('Routes', () => {
 
     const res = await server.inject(options)
 
-    expect(res.statusCode).toBe(200)
+    expect(res.statusCode).toBe(StatusCodes.OK)
   })
 
   test('Service banner is not shown by default', async () => {

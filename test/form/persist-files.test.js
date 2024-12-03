@@ -1,6 +1,8 @@
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { StatusCodes } from 'http-status-codes'
+
 import { createServer } from '~/src/server/index.js'
 import {
   persistFiles,
@@ -103,7 +105,7 @@ describe('Submission journey test', () => {
       url: `${basePath}/file-upload-component`
     })
 
-    expect(res.statusCode).toBe(200)
+    expect(res.statusCode).toBe(StatusCodes.OK)
     expect(res.headers['content-type']).toContain('text/html')
   })
 
@@ -153,7 +155,7 @@ describe('Submission journey test', () => {
       payload: form
     })
 
-    expect(res.statusCode).toBe(302)
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
     expect(res.headers.location).toBe(`${basePath}/summary`)
 
     // Extract the session cookie
@@ -192,7 +194,7 @@ describe('Submission journey test', () => {
       sessionId: expect.any(String)
     })
 
-    expect(submitRes.statusCode).toBe(302)
+    expect(submitRes.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
     expect(submitRes.headers.location).toBe(`${basePath}/status`)
 
     // Finally GET the /{slug}/status page
@@ -201,7 +203,7 @@ describe('Submission journey test', () => {
       headers
     })
 
-    expect(statusRes.statusCode).toBe(200)
+    expect(statusRes.statusCode).toBe(StatusCodes.OK)
     expect(statusRes.headers['content-type']).toContain('text/html')
     expect(persistFiles).toHaveBeenCalledWith(
       [

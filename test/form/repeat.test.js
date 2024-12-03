@@ -52,7 +52,7 @@ async function createRepeatItem(
     }
   })
 
-  expect(res1.statusCode).toBe(302)
+  expect(res1.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
   expect(res1.headers.location).toBe(
     `${basePath}/pizza-order/summary?itemId=${itemId}`
   )
@@ -131,7 +131,7 @@ describe('Repeat GET tests', () => {
       url: `${basePath}/pizza-order/summary`
     })
 
-    expect(res.statusCode).toBe(200)
+    expect(res.statusCode).toBe(StatusCodes.OK)
   })
 
   test('GET /pizza-order/{id} returns 200', async () => {
@@ -142,7 +142,7 @@ describe('Repeat GET tests', () => {
       headers
     })
 
-    expect(response.statusCode).toBe(200)
+    expect(response.statusCode).toBe(StatusCodes.OK)
 
     const $heading1 = container.getByRole('heading', {
       name: 'Pizza order',
@@ -183,7 +183,7 @@ describe('Repeat GET tests', () => {
       headers
     })
 
-    expect(response.statusCode).toBe(200)
+    expect(response.statusCode).toBe(StatusCodes.OK)
 
     const $heading1 = container.getByRole('heading', {
       name: 'Pizza order',
@@ -220,7 +220,7 @@ describe('Repeat GET tests', () => {
       headers
     })
 
-    expect(res.statusCode).toBe(200)
+    expect(res.statusCode).toBe(StatusCodes.OK)
   })
 
   test('GET /pizza-order/{id}/confirm-delete with unknown itemId returns 404', async () => {
@@ -228,7 +228,7 @@ describe('Repeat GET tests', () => {
       url: `${basePath}/pizza-order/00000000-0000-0000-0000-000000000000/confirm-delete`
     })
 
-    expect(res.statusCode).toBe(404)
+    expect(res.statusCode).toBe(StatusCodes.NOT_FOUND)
   })
 
   test('GET /pizza-order/summary with items returns 200', async () => {
@@ -240,7 +240,7 @@ describe('Repeat GET tests', () => {
       headers
     })
 
-    expect(res.statusCode).toBe(200)
+    expect(res.statusCode).toBe(StatusCodes.OK)
   })
 })
 
@@ -291,7 +291,7 @@ describe('Repeat POST tests', () => {
       }
     })
 
-    expect(res.statusCode).toBe(302)
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
     expect(res.headers.location).toMatch(/^\/repeat\/pizza-order\/summary?/)
   })
 
@@ -307,7 +307,7 @@ describe('Repeat POST tests', () => {
       }
     })
 
-    expect(res.statusCode).toBe(302)
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
     expect(res.headers.location).toMatch(/^\/repeat\/pizza-order\/summary/)
   })
 
@@ -320,7 +320,7 @@ describe('Repeat POST tests', () => {
       }
     })
 
-    expect(res.statusCode).toBe(302)
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
     expect(res.headers.location).toBe(`${basePath}/pizza-order`)
   })
 
@@ -336,7 +336,7 @@ describe('Repeat POST tests', () => {
       }
     })
 
-    expect(res.statusCode).toBe(302)
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
     expect(res.headers.location).toBe(`${basePath}/summary`)
   })
 
@@ -354,7 +354,7 @@ describe('Repeat POST tests', () => {
       }
     })
 
-    expect(response.statusCode).toBe(200)
+    expect(response.statusCode).toBe(StatusCodes.OK)
 
     const $errorSummary = container.getByRole('alert')
     const $errorItems = within($errorSummary).getAllByRole('listitem')
@@ -380,7 +380,7 @@ describe('Repeat POST tests', () => {
       }
     })
 
-    expect(res.statusCode).toBe(302)
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
     expect(res.headers.location).toBe(`${basePath}/summary`)
 
     const { container, response } = await renderResponse(server, {
@@ -391,7 +391,7 @@ describe('Repeat POST tests', () => {
       }
     })
 
-    expect(response.statusCode).toBe(200)
+    expect(response.statusCode).toBe(StatusCodes.OK)
 
     const $values = container
       .getAllByRole('definition')
@@ -416,7 +416,7 @@ describe('Repeat POST tests', () => {
       }
     })
 
-    expect(res1.statusCode).toBe(302)
+    expect(res1.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
     expect(res1.headers.location).toBe(`${basePath}/summary`)
 
     const { container, response: res2 } = await renderResponse(server, {
@@ -427,7 +427,7 @@ describe('Repeat POST tests', () => {
       }
     })
 
-    expect(res2.statusCode).toBe(200)
+    expect(res2.statusCode).toBe(StatusCodes.OK)
 
     const $values = container
       .getAllByRole('definition')

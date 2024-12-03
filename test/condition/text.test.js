@@ -1,6 +1,8 @@
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { StatusCodes } from 'http-status-codes'
+
 import { createServer } from '~/src/server/index.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
@@ -64,7 +66,7 @@ describe('TextField based conditions', () => {
       payload: form
     })
 
-    expect(res.statusCode).toBe(200)
+    expect(res.statusCode).toBe(StatusCodes.OK)
   })
 
   test('Testing POST /first-page with an empty string redirects correctly', async () => {
@@ -78,7 +80,7 @@ describe('TextField based conditions', () => {
       payload: form
     })
 
-    expect(res.statusCode).toBe(302)
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
     expect(res.headers.location).toBe(`${basePath}/second-page`)
   })
 
@@ -93,7 +95,7 @@ describe('TextField based conditions', () => {
       payload: form
     })
 
-    expect(res.statusCode).toBe(302)
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
     expect(res.headers.location).toBe(`${basePath}/third-page`)
   })
 })

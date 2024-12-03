@@ -1,5 +1,6 @@
 import Boom from '@hapi/boom'
 import Wreck from '@hapi/wreck'
+import { StatusCodes } from 'http-status-codes'
 
 import {
   get,
@@ -20,14 +21,16 @@ describe('HTTP service', () => {
   describe('GET', () => {
     beforeEach(() => {
       jest.spyOn(Wreck, 'get').mockResolvedValue({
-        res: /** @type {IncomingMessage} */ ({ statusCode: 200 }),
+        res: /** @type {IncomingMessage} */ ({
+          statusCode: StatusCodes.OK
+        }),
         payload: undefined
       })
     })
 
     it('sends request', async () => {
       await expect(get('/test', options)).resolves.toEqual({
-        res: { statusCode: 200 }
+        res: { statusCode: StatusCodes.OK }
       })
 
       expect(Wreck.get).toHaveBeenCalledWith('/test', {})
@@ -35,7 +38,7 @@ describe('HTTP service', () => {
 
     it('sends request as JSON', async () => {
       await expect(getJson('/test')).resolves.toEqual({
-        res: { statusCode: 200 }
+        res: { statusCode: StatusCodes.OK }
       })
 
       expect(Wreck.get).toHaveBeenCalledWith('/test', { json: true })
@@ -47,14 +50,16 @@ describe('HTTP service', () => {
 
     beforeEach(() => {
       jest.spyOn(Wreck, 'get').mockResolvedValue({
-        res: /** @type {IncomingMessage} */ ({ statusCode: 404 }),
+        res: /** @type {IncomingMessage} */ ({
+          statusCode: StatusCodes.NOT_FOUND
+        }),
         payload: error
       })
     })
 
     it('sends request (with error)', async () => {
       await expect(get('/error', options)).resolves.toEqual({
-        res: { statusCode: 404 },
+        res: { statusCode: StatusCodes.NOT_FOUND },
         error
       })
 
@@ -63,7 +68,7 @@ describe('HTTP service', () => {
 
     it('sends request as JSON (with error)', async () => {
       await expect(getJson('/error')).resolves.toEqual({
-        res: { statusCode: 404 },
+        res: { statusCode: StatusCodes.NOT_FOUND },
         error
       })
 
@@ -72,12 +77,14 @@ describe('HTTP service', () => {
 
     it('sends request (unknown error)', async () => {
       jest.spyOn(Wreck, 'get').mockResolvedValue({
-        res: /** @type {IncomingMessage} */ ({ statusCode: 404 }),
+        res: /** @type {IncomingMessage} */ ({
+          statusCode: StatusCodes.NOT_FOUND
+        }),
         payload: undefined
       })
 
       await expect(get('/error', options)).resolves.toEqual({
-        res: { statusCode: 404 },
+        res: { statusCode: StatusCodes.NOT_FOUND },
         error: new Error('Unknown error')
       })
 
@@ -88,14 +95,16 @@ describe('HTTP service', () => {
   describe('POST', () => {
     beforeEach(() => {
       jest.spyOn(Wreck, 'post').mockResolvedValue({
-        res: /** @type {IncomingMessage} */ ({ statusCode: 200 }),
+        res: /** @type {IncomingMessage} */ ({
+          statusCode: StatusCodes.OK
+        }),
         payload: { reference: '1234' }
       })
     })
 
     it('sends request', async () => {
       await expect(post('/test', options)).resolves.toEqual({
-        res: { statusCode: 200 },
+        res: { statusCode: StatusCodes.OK },
         payload: { reference: '1234' }
       })
 
@@ -104,7 +113,7 @@ describe('HTTP service', () => {
 
     it('sends request as JSON', async () => {
       await expect(postJson('/test', options)).resolves.toEqual({
-        res: { statusCode: 200 },
+        res: { statusCode: StatusCodes.OK },
         payload: { reference: '1234' }
       })
 
@@ -117,14 +126,16 @@ describe('HTTP service', () => {
 
     beforeEach(() => {
       jest.spyOn(Wreck, 'post').mockResolvedValue({
-        res: /** @type {IncomingMessage} */ ({ statusCode: 404 }),
+        res: /** @type {IncomingMessage} */ ({
+          statusCode: StatusCodes.NOT_FOUND
+        }),
         payload: error
       })
     })
 
     it('sends request (with error)', async () => {
       await expect(post('/error', options)).resolves.toEqual({
-        res: { statusCode: 404 },
+        res: { statusCode: StatusCodes.NOT_FOUND },
         error
       })
 
@@ -133,7 +144,7 @@ describe('HTTP service', () => {
 
     it('sends request as JSON (with error)', async () => {
       await expect(postJson('/error', options)).resolves.toEqual({
-        res: { statusCode: 404 },
+        res: { statusCode: StatusCodes.NOT_FOUND },
         error
       })
 
@@ -142,12 +153,14 @@ describe('HTTP service', () => {
 
     it('sends request (unknown error)', async () => {
       jest.spyOn(Wreck, 'post').mockResolvedValue({
-        res: /** @type {IncomingMessage} */ ({ statusCode: 404 }),
+        res: /** @type {IncomingMessage} */ ({
+          statusCode: StatusCodes.NOT_FOUND
+        }),
         payload: undefined
       })
 
       await expect(post('/error', options)).resolves.toEqual({
-        res: { statusCode: 404 },
+        res: { statusCode: StatusCodes.NOT_FOUND },
         error: new Error('Unknown error')
       })
 
@@ -158,14 +171,16 @@ describe('HTTP service', () => {
   describe('PUT', () => {
     beforeEach(() => {
       jest.spyOn(Wreck, 'put').mockResolvedValue({
-        res: /** @type {IncomingMessage} */ ({ statusCode: 200 }),
+        res: /** @type {IncomingMessage} */ ({
+          statusCode: StatusCodes.OK
+        }),
         payload: undefined
       })
     })
 
     it('sends request', async () => {
       await expect(put('/test', options)).resolves.toEqual({
-        res: { statusCode: 200 }
+        res: { statusCode: StatusCodes.OK }
       })
 
       expect(Wreck.put).toHaveBeenCalledWith('/test', {})
@@ -177,14 +192,16 @@ describe('HTTP service', () => {
 
     beforeEach(() => {
       jest.spyOn(Wreck, 'put').mockResolvedValue({
-        res: /** @type {IncomingMessage} */ ({ statusCode: 404 }),
+        res: /** @type {IncomingMessage} */ ({
+          statusCode: StatusCodes.NOT_FOUND
+        }),
         payload: error
       })
     })
 
     it('sends request (with error)', async () => {
       await expect(put('/error', options)).resolves.toEqual({
-        res: { statusCode: 404 },
+        res: { statusCode: StatusCodes.NOT_FOUND },
         error
       })
 
@@ -193,12 +210,14 @@ describe('HTTP service', () => {
 
     it('sends request (unknown error)', async () => {
       jest.spyOn(Wreck, 'put').mockResolvedValue({
-        res: /** @type {IncomingMessage} */ ({ statusCode: 404 }),
+        res: /** @type {IncomingMessage} */ ({
+          statusCode: StatusCodes.NOT_FOUND
+        }),
         payload: undefined
       })
 
       await expect(put('/error', options)).resolves.toEqual({
-        res: { statusCode: 404 },
+        res: { statusCode: StatusCodes.NOT_FOUND },
         error: new Error('Unknown error')
       })
 

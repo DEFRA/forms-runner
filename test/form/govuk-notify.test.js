@@ -2,6 +2,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { addDays, format } from 'date-fns'
+import { StatusCodes } from 'http-status-codes'
 import { outdent } from 'outdent'
 
 import { createServer } from '~/src/server/index.js'
@@ -93,7 +94,7 @@ describe('Submission journey test', () => {
       url: `${basePath}/all-components`
     })
 
-    expect(res.statusCode).toBe(200)
+    expect(res.statusCode).toBe(StatusCodes.OK)
     expect(res.headers['content-type']).toContain('text/html')
   })
 
@@ -369,7 +370,7 @@ describe('Submission journey test', () => {
       payload: form
     })
 
-    expect(res.statusCode).toBe(302)
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
     expect(res.headers.location).toBe(`${basePath}/methodology-statement`)
 
     return res
@@ -393,7 +394,7 @@ describe('Submission journey test', () => {
       payload: {}
     })
 
-    expect(res.statusCode).toBe(302)
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
     expect(res.headers.location).toBe(`${basePath}/summary`)
 
     return res
@@ -416,7 +417,7 @@ describe('Submission journey test', () => {
       payload: {}
     })
 
-    expect(res.statusCode).toBe(302)
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
     expect(res.headers.location).toBe(`${basePath}/status`)
 
     return res
@@ -433,7 +434,7 @@ describe('Submission journey test', () => {
       headers
     })
 
-    expect(statusRes.statusCode).toBe(200)
+    expect(statusRes.statusCode).toBe(StatusCodes.OK)
     expect(statusRes.headers['content-type']).toContain('text/html')
   }
 })

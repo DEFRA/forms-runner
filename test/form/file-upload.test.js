@@ -2,6 +2,7 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { within } from '@testing-library/dom'
+import { StatusCodes } from 'http-status-codes'
 
 import { createServer } from '~/src/server/index.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
@@ -107,7 +108,7 @@ describe('File upload GET tests', () => {
       url: `${basePath}/methodology-statement`
     })
 
-    expect(response.statusCode).toBe(200)
+    expect(response.statusCode).toBe(StatusCodes.OK)
 
     const $heading1 = container.getByRole('heading', {
       name: 'Upload your methodology statement',
@@ -133,7 +134,7 @@ describe('File upload GET tests', () => {
       url: `${basePath}/methodology-statement`
     })
 
-    expect(res1.statusCode).toBe(200)
+    expect(res1.statusCode).toBe(StatusCodes.OK)
 
     // Extract the session cookie
     const headers = getCookieHeader(res1, 'session')
@@ -145,7 +146,7 @@ describe('File upload GET tests', () => {
       headers
     })
 
-    expect(res2.statusCode).toBe(200)
+    expect(res2.statusCode).toBe(StatusCodes.OK)
 
     // Assert invalid status response from CDP throws
     jest.mocked(getUploadStatus).mockResolvedValueOnce(undefined)
@@ -155,7 +156,7 @@ describe('File upload GET tests', () => {
       headers
     })
 
-    expect(res3.statusCode).toBe(400)
+    expect(res3.statusCode).toBe(StatusCodes.BAD_REQUEST)
   })
 
   test('GET /methodology-statement returns handles consumed upload', async () => {
@@ -165,7 +166,7 @@ describe('File upload GET tests', () => {
       url: `${basePath}/methodology-statement`
     })
 
-    expect(res1.statusCode).toBe(200)
+    expect(res1.statusCode).toBe(StatusCodes.OK)
 
     // Extract the session cookie
     const headers = getCookieHeader(res1, 'session')
@@ -178,7 +179,7 @@ describe('File upload GET tests', () => {
       headers
     })
 
-    expect(res2.statusCode).toBe(200)
+    expect(res2.statusCode).toBe(StatusCodes.OK)
   })
 })
 
@@ -211,7 +212,7 @@ describe('File upload POST tests', () => {
       url: `${basePath}/methodology-statement`
     })
 
-    expect(res1.statusCode).toBe(200)
+    expect(res1.statusCode).toBe(StatusCodes.OK)
 
     // Extract the session cookie
     const headers = getCookieHeader(res1, 'session')
@@ -225,7 +226,7 @@ describe('File upload POST tests', () => {
       payload: {}
     })
 
-    expect(response.statusCode).toBe(200)
+    expect(response.statusCode).toBe(StatusCodes.OK)
 
     const $errorSummary = container.getByRole('alert')
     const $errorItems = within($errorSummary).getAllByRole('listitem')
@@ -258,7 +259,7 @@ describe('File upload POST tests', () => {
       url: `${basePath}/methodology-statement`
     })
 
-    expect(res1.statusCode).toBe(200)
+    expect(res1.statusCode).toBe(StatusCodes.OK)
 
     // Extract the session cookie
     const headers = getCookieHeader(res1, 'session')
@@ -268,7 +269,7 @@ describe('File upload POST tests', () => {
       headers
     })
 
-    expect(res2.statusCode).toBe(200)
+    expect(res2.statusCode).toBe(StatusCodes.OK)
 
     const res3 = await server.inject({
       url: `${basePath}/methodology-statement`,
@@ -277,7 +278,7 @@ describe('File upload POST tests', () => {
       payload: {}
     })
 
-    expect(res3.statusCode).toBe(302)
+    expect(res3.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
     expect(res3.headers.location).toBe(`${basePath}/summary`)
   })
 
@@ -289,7 +290,7 @@ describe('File upload POST tests', () => {
       url: `${basePath}/methodology-statement`
     })
 
-    expect(res1.statusCode).toBe(200)
+    expect(res1.statusCode).toBe(StatusCodes.OK)
 
     // Extract the session cookie
     const headers = getCookieHeader(res1, 'session')
@@ -299,7 +300,7 @@ describe('File upload POST tests', () => {
       headers
     })
 
-    expect(res2.statusCode).toBe(200)
+    expect(res2.statusCode).toBe(StatusCodes.OK)
 
     const res3 = await server.inject({
       url: `${basePath}/methodology-statement`,
@@ -310,7 +311,7 @@ describe('File upload POST tests', () => {
       }
     })
 
-    expect(res3.statusCode).toBe(302)
+    expect(res3.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
   })
 })
 

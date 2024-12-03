@@ -1,6 +1,8 @@
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { StatusCodes } from 'http-status-codes'
+
 import { createServer } from '~/src/server/index.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
@@ -224,7 +226,7 @@ describe('Form fields (optional)', () => {
           payload: { ...payload, crumb: csrfToken }
         })
 
-        expect(response.statusCode).toBe(302)
+        expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
         expect(response.headers.location).toBe(`${basePath}${paths.next}`)
       })
     }

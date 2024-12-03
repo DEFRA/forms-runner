@@ -1,6 +1,8 @@
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { StatusCodes } from 'http-status-codes'
+
 import { createServer } from '~/src/server/index.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
@@ -40,7 +42,7 @@ describe('CSRF', () => {
       url: `${basePath}/start`
     })
 
-    expect(response.statusCode).toBe(200)
+    expect(response.statusCode).toBe(StatusCodes.OK)
 
     const csrfToken = getCookie(response, 'crumb')
     expect(csrfToken).toBeTruthy()
@@ -60,7 +62,7 @@ describe('CSRF', () => {
       }
     })
 
-    expect(response.statusCode).toBe(403)
+    expect(response.statusCode).toBe(StatusCodes.FORBIDDEN)
   })
 
   test('post request with CSRF token returns 302 redirect', async () => {
@@ -78,7 +80,7 @@ describe('CSRF', () => {
       }
     })
 
-    expect(response.statusCode).toBe(302)
+    expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
   })
 })
 

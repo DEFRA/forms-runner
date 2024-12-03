@@ -2,6 +2,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { within } from '@testing-library/dom'
+import { StatusCodes } from 'http-status-codes'
 
 import { createServer } from '~/src/server/index.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
@@ -254,7 +255,7 @@ describe('Form fields (required)', () => {
           payload: { ...payload, crumb: csrfToken }
         })
 
-        expect(response.statusCode).toBe(200)
+        expect(response.statusCode).toBe(StatusCodes.OK)
         expect(response.headers.location).toBeUndefined()
 
         const $errorSummary = container.getByRole('alert')
@@ -282,7 +283,7 @@ describe('Form fields (required)', () => {
           payload: { ...payload, crumb: csrfToken }
         })
 
-        expect(response.statusCode).toBe(302)
+        expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
         expect(response.headers.location).toBe(`${basePath}${paths.next}`)
       })
     }

@@ -1,4 +1,5 @@
 import { type Server } from '@hapi/hapi'
+import { StatusCodes } from 'http-status-codes'
 
 import { createServer } from '~/src/server/index.js'
 import {
@@ -51,7 +52,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(302)
+      expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
       expect(res.headers.location).toBe('/slug/page-one')
       expect(getCacheSize()).toBe(1)
     })
@@ -71,7 +72,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(302)
+      expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
       expect(res.headers.location).toBe('/preview/live/slug/page-one')
       expect(getCacheSize()).toBe(1)
     })
@@ -91,7 +92,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(302)
+      expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
       expect(res.headers.location).toBe('/preview/draft/slug/page-one')
       expect(getCacheSize()).toBe(1)
     })
@@ -111,7 +112,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(200)
+      expect(res.statusCode).toBe(StatusCodes.OK)
       expect(getCacheSize()).toBe(1)
     })
 
@@ -130,7 +131,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(200)
+      expect(res.statusCode).toBe(StatusCodes.OK)
       expect(getCacheSize()).toBe(1)
     })
 
@@ -149,7 +150,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(200)
+      expect(res.statusCode).toBe(StatusCodes.OK)
       expect(getCacheSize()).toBe(1)
     })
 
@@ -168,7 +169,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(200)
+      expect(res.statusCode).toBe(StatusCodes.OK)
       expect(getCacheSize()).toBe(1)
     })
 
@@ -189,7 +190,7 @@ describe('Model cache', () => {
 
       const res1 = await server.inject(options1)
 
-      expect(res1.statusCode).toBe(200)
+      expect(res1.statusCode).toBe(StatusCodes.OK)
       expect(getCacheSize()).toBe(1)
 
       // Populate live/preview cache item
@@ -200,7 +201,7 @@ describe('Model cache', () => {
 
       const res2 = await server.inject(options2)
 
-      expect(res2.statusCode).toBe(200)
+      expect(res2.statusCode).toBe(StatusCodes.OK)
       expect(getCacheSize()).toBe(2)
 
       // Populate draft/preview cache item
@@ -211,7 +212,7 @@ describe('Model cache', () => {
 
       const res3 = await server.inject(options3)
 
-      expect(res3.statusCode).toBe(200)
+      expect(res3.statusCode).toBe(StatusCodes.OK)
       expect(getCacheSize()).toBe(3)
 
       // Execute each request again and
@@ -263,7 +264,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(404)
+      expect(res.statusCode).toBe(StatusCodes.NOT_FOUND)
       expect(getCacheSize()).toBe(0)
     })
 
@@ -277,7 +278,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(404)
+      expect(res.statusCode).toBe(StatusCodes.NOT_FOUND)
       expect(getCacheSize()).toBe(0)
     })
 
@@ -291,7 +292,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(404)
+      expect(res.statusCode).toBe(StatusCodes.NOT_FOUND)
       expect(getCacheSize()).toBe(0)
     })
 
@@ -309,7 +310,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(404)
+      expect(res.statusCode).toBe(StatusCodes.NOT_FOUND)
       expect(getCacheSize()).toBe(0)
     })
 
@@ -327,7 +328,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(404)
+      expect(res.statusCode).toBe(StatusCodes.NOT_FOUND)
       expect(getCacheSize()).toBe(0)
     })
 
@@ -345,7 +346,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(404)
+      expect(res.statusCode).toBe(StatusCodes.NOT_FOUND)
       expect(getCacheSize()).toBe(0)
     })
 
@@ -359,7 +360,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(404)
+      expect(res.statusCode).toBe(StatusCodes.NOT_FOUND)
       expect(getCacheSize()).toBe(0)
     })
 
@@ -373,7 +374,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(404)
+      expect(res.statusCode).toBe(StatusCodes.NOT_FOUND)
       expect(getCacheSize()).toBe(0)
     })
 
@@ -387,7 +388,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(404)
+      expect(res.statusCode).toBe(StatusCodes.NOT_FOUND)
       expect(getCacheSize()).toBe(0)
     })
 
@@ -405,7 +406,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(404)
+      expect(res.statusCode).toBe(StatusCodes.NOT_FOUND)
       expect(getCacheSize()).toBe(0)
     })
 
@@ -423,7 +424,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(404)
+      expect(res.statusCode).toBe(StatusCodes.NOT_FOUND)
       expect(getCacheSize()).toBe(0)
     })
 
@@ -441,7 +442,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(404)
+      expect(res.statusCode).toBe(StatusCodes.NOT_FOUND)
       expect(getCacheSize()).toBe(0)
     })
   })
@@ -461,7 +462,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(200)
+      expect(res.statusCode).toBe(StatusCodes.OK)
     })
   })
 })

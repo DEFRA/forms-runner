@@ -1,6 +1,8 @@
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { StatusCodes } from 'http-status-codes'
+
 import { createServer } from '~/src/server/index.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
@@ -87,7 +89,7 @@ describe('Radio based conditions', () => {
       payload: form
     })
 
-    expect(res.statusCode).toBe(302)
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
     expect(res.headers.location).toBe(`${basePath}/second-page`)
   })
 
@@ -102,7 +104,7 @@ describe('Radio based conditions', () => {
       payload: form
     })
 
-    expect(res.statusCode).toBe(302)
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
     expect(res.headers.location).toBe(`${basePath}/third-page`)
   })
 })

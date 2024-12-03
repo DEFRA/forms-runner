@@ -2,6 +2,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { within } from '@testing-library/dom'
+import { StatusCodes } from 'http-status-codes'
 
 import { createServer } from '~/src/server/index.js'
 import { submit } from '~/src/server/plugins/engine/services/formSubmissionService.js'
@@ -189,7 +190,7 @@ describe('Form journey', () => {
             payload: { ...payload, crumb: csrfToken }
           })
 
-          expect(response.statusCode).toBe(200)
+          expect(response.statusCode).toBe(StatusCodes.OK)
           expect(response.headers.location).toBeUndefined()
 
           const $errorSummary = container.getByRole('alert')
@@ -222,7 +223,7 @@ describe('Form journey', () => {
             payload: { ...payload, crumb: csrfToken }
           })
 
-          expect(response.statusCode).toBe(302)
+          expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
           expect(response.headers.location).toBe(`${basePath}${paths.next}`)
         })
       }
@@ -331,7 +332,7 @@ describe('Form journey', () => {
             headers
           })
 
-          expect(response1.statusCode).toBe(200)
+          expect(response1.statusCode).toBe(StatusCodes.OK)
 
           const payload = {}
 
@@ -347,7 +348,7 @@ describe('Form journey', () => {
             payload: { ...payload, crumb: csrfToken }
           })
 
-          expect(response2.statusCode).toBe(302)
+          expect(response2.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
           expect(response2.headers.location).toBe(returnUrl)
         }
       }
@@ -360,7 +361,7 @@ describe('Form journey', () => {
       })
 
       // Redirect to base path
-      expect(response.statusCode).toBe(302)
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
       expect(response.headers.location).toBe(basePath)
     })
 
@@ -400,7 +401,7 @@ describe('Form journey', () => {
         sessionId: expect.any(String)
       })
 
-      expect(response.statusCode).toBe(302)
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
       expect(response.headers.location).toBe(`${basePath}/status`)
 
       const { container } = await renderResponse(server, {
