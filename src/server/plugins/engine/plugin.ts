@@ -13,7 +13,10 @@ import {
   ADD_ANOTHER,
   CONTINUE,
   checkEmailAddressForLiveFormSubmission,
-  checkFormStatus
+  checkFormStatus,
+  getPage,
+  getStartPath,
+  normalisePath
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
@@ -28,32 +31,6 @@ import {
   type FormRequestPayloadRefs,
   type FormRequestRefs
 } from '~/src/server/routes/types.js'
-
-function normalisePath(path: string) {
-  return path.replace(/^\//, '').replace(/\/$/, '')
-}
-
-export function getPage(request: FormRequest | FormRequestPayload) {
-  const { model } = request.app
-  const { path } = request.params
-
-  return model?.pages.find(
-    (page) => normalisePath(page.path) === normalisePath(path)
-  )
-}
-
-function getStartPageRedirect(
-  h: ResponseToolkit<FormRequestRefs>,
-  model?: FormModel
-) {
-  const startPage = normalisePath(model?.def.startPage ?? '')
-
-  if (startPage.startsWith('http') || !model?.basePath) {
-    return h.redirect(startPage)
-  }
-
-  return h.redirect(`/${model.basePath}/${startPage}`)
-}
 
 export interface PluginOptions {
   model?: FormModel
@@ -166,7 +143,7 @@ export const plugin = {
       h: ResponseToolkit<FormRequestRefs>
     ) => {
       const { model } = request.app
-      return getStartPageRedirect(h, model)
+      return h.redirect(getStartPath(model))
     }
 
     const getHandler = (
@@ -182,7 +159,7 @@ export const plugin = {
       }
 
       if (normalisePath(path) === '') {
-        return getStartPageRedirect(h, model)
+        return h.redirect(getStartPath(model))
       }
 
       throw Boom.notFound('No form or page found')

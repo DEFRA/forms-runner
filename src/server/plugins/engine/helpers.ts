@@ -1,3 +1,4 @@
+import { ControllerPath } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
 import { format, parseISO } from 'date-fns'
@@ -7,9 +8,10 @@ import upperFirst from 'lodash/upperFirst.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { RelativeUrl } from '~/src/server/plugins/engine/feedback/index.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
-import { FormStatus } from '~/src/server/routes/types.js'
 import {
+  FormStatus,
   type FormQuery,
   type FormRequest,
   type FormRequestPayload
@@ -56,6 +58,27 @@ export function redirectUrl(targetUrl: string, params?: FormQuery) {
   })
 
   return relativeUrl.toString()
+}
+
+export function normalisePath(path: string) {
+  return path.replace(/^\//, '').replace(/\/$/, '')
+}
+
+export function getPage(request: FormRequest | FormRequestPayload) {
+  const { model } = request.app
+  const { path } = request.params
+
+  return model?.pages.find(
+    (page) => normalisePath(page.path) === normalisePath(path)
+  )
+}
+
+export function getStartPath(model?: FormModel) {
+  const startPage = normalisePath(model?.def.startPage ?? ControllerPath.Start)
+
+  return !startPage.startsWith('http') && model?.basePath
+    ? `/${model.basePath}/${startPage}`
+    : startPage
 }
 
 export const filesize = (bytes: number) => {
