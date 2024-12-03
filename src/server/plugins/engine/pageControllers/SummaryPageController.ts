@@ -15,8 +15,7 @@ import { FileUploadField } from '~/src/server/plugins/engine/components/FileUplo
 import { getAnswer } from '~/src/server/plugins/engine/components/helpers.js'
 import {
   checkEmailAddressForLiveFormSubmission,
-  checkFormStatus,
-  redirectUrl
+  checkFormStatus
 } from '~/src/server/plugins/engine/helpers.js'
 import {
   SummaryViewModel,
@@ -79,49 +78,19 @@ export class SummaryPageController extends PageController {
     h: ResponseToolkit<FormRequestRefs>
   ) => Promise<ResponseObject | Boom> {
     return async (request, h) => {
-      const { model } = this
-
       const state = await this.getState(request)
       const viewModel = this.getSummaryViewModel(state, request)
 
       /**
-       * iterates through the errors. If there are errors, a user will be redirected to the page
-       * with the error with returnUrl=`/${model.basePath}/summary` in the URL query parameter.
+       * Redirect back to pages with field errors
        */
       if (viewModel.errors) {
-        const errorToFix = viewModel.errors[0]
-        const { path: parts } = errorToFix
-        const section = parts[0]
-        const property = parts.length > 1 ? parts[parts.length - 1] : null
-        const pageWithError = model.pages.find((page) => {
-          if (page.section && page.section.name === section) {
-            let propertyMatches = true
-            let conditionMatches = true
-            if (property) {
-              propertyMatches =
-                page.collection.fields.filter(
-                  (component) => component.name === property
-                ).length > 0
-            }
-            if (
-              propertyMatches &&
-              page.condition &&
-              model.conditions[page.condition]
-            ) {
-              conditionMatches =
-                model.conditions[page.condition]?.fn(state) ?? false
-            }
-            return propertyMatches && conditionMatches
-          }
-          return false
-        })
+        const errorField = viewModel.details
+          .flatMap(({ items }) => items.find(({ error }) => error) ?? [])
+          .at(0)
 
-        if (pageWithError) {
-          return h.redirect(
-            redirectUrl(pageWithError.href, {
-              returnUrl: redirectUrl(pageWithError.getSummaryPath())
-            })
-          )
+        if (errorField) {
+          return h.redirect(errorField.href)
         }
       }
 
