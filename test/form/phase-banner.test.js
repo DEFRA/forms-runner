@@ -25,18 +25,18 @@ describe(`Phase banner`, () => {
   })
 
   test('shows the server phase tag by default', async () => {
+    const basePath = '/phase-default'
+
     server = await createServer({
       formFileName: 'phase-default.json',
       formFilePath: join(testDir, 'definitions')
     })
+
     await server.initialize()
 
-    const options = {
-      method: 'GET',
-      url: '/phase-default/first-page'
-    }
-
-    await renderResponse(server, options)
+    await renderResponse(server, {
+      url: `${basePath}/first-page`
+    })
 
     const $phaseBanner = /** @type {HTMLElement} */ (
       document.querySelector('.govuk-phase-banner')
@@ -47,18 +47,18 @@ describe(`Phase banner`, () => {
   })
 
   test('shows the form phase tag if provided', async () => {
+    const basePath = '/phase-alpha'
+
     server = await createServer({
       formFileName: 'phase-alpha.json',
       formFilePath: join(testDir, 'definitions')
     })
+
     await server.initialize()
 
-    const options = {
-      method: 'GET',
-      url: '/phase-alpha/first-page'
-    }
-
-    await renderResponse(server, options)
+    await renderResponse(server, {
+      url: `${basePath}/first-page`
+    })
 
     const $phaseBanner = /** @type {HTMLElement} */ (
       document.querySelector('.govuk-phase-banner')

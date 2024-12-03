@@ -11,6 +11,7 @@ import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookie, getCookieHeader } from '~/test/utils/get-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
+const basePath = '/basic'
 
 jest.mock('~/src/server/utils/notify.ts')
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
@@ -26,8 +27,8 @@ describe('Form journey', () => {
       heading2: 'Licence details',
 
       paths: {
-        current: '/basic/start',
-        next: '/basic/full-name'
+        current: '/start',
+        next: '/full-name'
       },
 
       fields: [
@@ -54,9 +55,9 @@ describe('Form journey', () => {
       heading2: 'Personal details',
 
       paths: {
-        current: '/basic/full-name',
-        previous: '/basic/start',
-        next: '/basic/summary'
+        current: '/full-name',
+        previous: '/start',
+        next: '/summary'
       },
 
       fields: [
@@ -82,8 +83,8 @@ describe('Form journey', () => {
       heading1: 'Summary',
 
       paths: {
-        current: '/basic/summary',
-        previous: '/basic/full-name'
+        current: '/summary',
+        previous: '/full-name'
       }
     }
   ]
@@ -112,7 +113,7 @@ describe('Form journey', () => {
 
     // Navigate to start
     const response = await server.inject({
-      url: '/basic/start'
+      url: `${basePath}${journey[0].paths.current}`
     })
 
     // Extract the session cookie
@@ -133,7 +134,7 @@ describe('Form journey', () => {
     ({ heading1, heading2, paths, fields = [] }) => {
       beforeEach(async () => {
         ;({ container } = await renderResponse(server, {
-          url: paths.current,
+          url: `${basePath}${paths.current}`,
           headers
         }))
       })
@@ -145,7 +146,10 @@ describe('Form journey', () => {
           })
 
           expect($backLink).toBeInTheDocument()
-          expect($backLink).toHaveAttribute('href', paths.previous)
+          expect($backLink).toHaveAttribute(
+            'href',
+            `${basePath}${paths.previous}`
+          )
         })
       }
 
@@ -179,9 +183,9 @@ describe('Form journey', () => {
 
           // Submit form with empty values
           const { container, response } = await renderResponse(server, {
-            url: paths.current,
-            headers,
+            url: `${basePath}${paths.current}`,
             method: 'POST',
+            headers,
             payload: { ...payload, crumb: csrfToken }
           })
 
@@ -212,20 +216,20 @@ describe('Form journey', () => {
 
           // Submit form with populated values
           const response = await server.inject({
-            url: paths.current,
-            headers,
+            url: `${basePath}${paths.current}`,
             method: 'POST',
+            headers,
             payload: { ...payload, crumb: csrfToken }
           })
 
           expect(response.statusCode).toBe(302)
-          expect(response.headers.location).toBe(paths.next)
+          expect(response.headers.location).toBe(`${basePath}${paths.next}`)
         })
       }
     }
   )
 
-  describe('Page: /basic/summary', () => {
+  describe('Page: /summary', () => {
     /** @type {HTMLElement[]} */
     let $titles
 
@@ -237,7 +241,7 @@ describe('Form journey', () => {
 
     beforeEach(async () => {
       ;({ container } = await renderResponse(server, {
-        url: '/basic/summary',
+        url: `${basePath}/summary`,
         headers
       }))
 
@@ -312,13 +316,13 @@ describe('Form journey', () => {
             name: `Change ${detail.title}`
           })
 
-          const returnUrl = '/basic/summary'
+          const returnUrl = `${basePath}/summary`
 
           // Check for change link
           expect($changeLink).toBeInTheDocument()
           expect($changeLink).toHaveAttribute(
             'href',
-            `${paths.current}?returnUrl=${encodeURIComponent(returnUrl)}`
+            `${basePath}${paths.current}?returnUrl=${encodeURIComponent(returnUrl)}`
           )
 
           // Follow change link
@@ -338,8 +342,8 @@ describe('Form journey', () => {
           // Submit and redirect back to summary page
           const response2 = await server.inject({
             url: $changeLink.href,
-            headers,
             method: 'POST',
+            headers,
             payload: { ...payload, crumb: csrfToken }
           })
 
@@ -351,13 +355,13 @@ describe('Form journey', () => {
 
     it('should prevent access to the complete page before submit', async () => {
       const response = await server.inject({
-        url: '/basic/status',
+        url: `${basePath}/status`,
         headers
       })
 
       // Redirect to base path
       expect(response.statusCode).toBe(302)
-      expect(response.headers.location).toBe('/basic')
+      expect(response.headers.location).toBe(basePath)
     })
 
     it('should redirect to the complete page on submit', async () => {
@@ -372,9 +376,9 @@ describe('Form journey', () => {
       })
 
       const response = await server.inject({
-        url: '/basic/summary',
-        headers,
+        url: `${basePath}/summary`,
         method: 'POST',
+        headers,
         payload: { crumb: csrfToken }
       })
 
@@ -397,10 +401,10 @@ describe('Form journey', () => {
       })
 
       expect(response.statusCode).toBe(302)
-      expect(response.headers.location).toBe('/basic/status')
+      expect(response.headers.location).toBe(`${basePath}/status`)
 
       const { container } = await renderResponse(server, {
-        url: '/basic/status',
+        url: `${basePath}/status`,
         headers
       })
 

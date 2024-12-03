@@ -8,6 +8,7 @@ import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookie, getCookieHeader } from '~/test/utils/get-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
+const basePath = '/fields-optional'
 
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
 
@@ -17,8 +18,8 @@ describe('Form fields (optional)', () => {
       heading1: 'Fields optional',
 
       paths: {
-        current: '/fields-optional/components',
-        next: '/fields-optional/summary'
+        current: '/components',
+        next: '/summary'
       },
 
       fields: [
@@ -173,7 +174,7 @@ describe('Form fields (optional)', () => {
 
     // Navigate to start
     const response = await server.inject({
-      url: '/fields-optional/components'
+      url: `${basePath}${journey[0].paths.current}`
     })
 
     // Extract the session cookie
@@ -194,7 +195,7 @@ describe('Form fields (optional)', () => {
     ({ heading1, paths, fields = [] }) => {
       beforeEach(async () => {
         ;({ container } = await renderResponse(server, {
-          url: paths.current,
+          url: `${basePath}${paths.current}`,
           headers
         }))
       })
@@ -217,14 +218,14 @@ describe('Form fields (optional)', () => {
 
         // Submit form with populated values
         const response = await server.inject({
-          url: paths.current,
-          headers,
+          url: `${basePath}${paths.current}`,
           method: 'POST',
+          headers,
           payload: { ...payload, crumb: csrfToken }
         })
 
         expect(response.statusCode).toBe(302)
-        expect(response.headers.location).toBe(paths.next)
+        expect(response.headers.location).toBe(`${basePath}${paths.next}`)
       })
     }
   )

@@ -7,6 +7,7 @@ import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
+const basePath = '/checkboxes'
 const key = 'wqJmSf'
 
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
@@ -21,6 +22,7 @@ describe('Checkboxes based conditions', () => {
       formFileName: 'checkboxes.json',
       formFilePath: resolve(testDir, '../form/definitions')
     })
+
     await server.initialize()
   })
 
@@ -33,12 +35,9 @@ describe('Checkboxes based conditions', () => {
   })
 
   test('Checkboxes are rendered', async () => {
-    const options = {
-      method: 'GET',
-      url: '/checkboxes/first-page'
-    }
-
-    const { container } = await renderResponse(server, options)
+    const { container } = await renderResponse(server, {
+      url: `${basePath}/first-page`
+    })
 
     for (const example of [
       {
@@ -79,32 +78,32 @@ describe('Checkboxes based conditions', () => {
     }
   })
 
-  test('Testing POST /checkboxes/first-page with nothing checked redirects correctly', async () => {
+  test('Testing POST /first-page with nothing checked redirects correctly', async () => {
     const form = {}
 
     const res = await server.inject({
+      url: `${basePath}/first-page`,
       method: 'POST',
-      url: '/checkboxes/first-page',
       payload: form
     })
 
     expect(res.statusCode).toBe(302)
-    expect(res.headers.location).toBe('/checkboxes/second-page')
+    expect(res.headers.location).toBe(`${basePath}/second-page`)
   })
 
-  test('Testing POST /checkboxes/first-page with "other" checked redirects correctly', async () => {
+  test('Testing POST /first-page with "other" checked redirects correctly', async () => {
     const form = {
       [key]: 'other'
     }
 
     const res = await server.inject({
+      url: `${basePath}/first-page`,
       method: 'POST',
-      url: '/checkboxes/first-page',
       payload: form
     })
 
     expect(res.statusCode).toBe(302)
-    expect(res.headers.location).toBe('/checkboxes/third-page')
+    expect(res.headers.location).toBe(`${basePath}/third-page`)
   })
 })
 

@@ -10,10 +10,6 @@ import * as fixtures from '~/test/fixtures/index.js'
 
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
 
-const okStatusCode = 200
-const redirectStatusCode = 302
-const notFoundStatusCode = 404
-
 describe('Model cache', () => {
   let server: Server
 
@@ -55,7 +51,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(redirectStatusCode)
+      expect(res.statusCode).toBe(302)
       expect(res.headers.location).toBe('/slug/page-one')
       expect(getCacheSize()).toBe(1)
     })
@@ -75,7 +71,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(redirectStatusCode)
+      expect(res.statusCode).toBe(302)
       expect(res.headers.location).toBe('/preview/live/slug/page-one')
       expect(getCacheSize()).toBe(1)
     })
@@ -95,7 +91,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(redirectStatusCode)
+      expect(res.statusCode).toBe(302)
       expect(res.headers.location).toBe('/preview/draft/slug/page-one')
       expect(getCacheSize()).toBe(1)
     })
@@ -115,7 +111,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(okStatusCode)
+      expect(res.statusCode).toBe(200)
       expect(getCacheSize()).toBe(1)
     })
 
@@ -134,7 +130,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(okStatusCode)
+      expect(res.statusCode).toBe(200)
       expect(getCacheSize()).toBe(1)
     })
 
@@ -153,7 +149,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(okStatusCode)
+      expect(res.statusCode).toBe(200)
       expect(getCacheSize()).toBe(1)
     })
 
@@ -172,7 +168,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(okStatusCode)
+      expect(res.statusCode).toBe(200)
       expect(getCacheSize()).toBe(1)
     })
 
@@ -193,7 +189,7 @@ describe('Model cache', () => {
 
       const res1 = await server.inject(options1)
 
-      expect(res1.statusCode).toBe(okStatusCode)
+      expect(res1.statusCode).toBe(200)
       expect(getCacheSize()).toBe(1)
 
       // Populate live/preview cache item
@@ -204,7 +200,7 @@ describe('Model cache', () => {
 
       const res2 = await server.inject(options2)
 
-      expect(res2.statusCode).toBe(okStatusCode)
+      expect(res2.statusCode).toBe(200)
       expect(getCacheSize()).toBe(2)
 
       // Populate draft/preview cache item
@@ -215,7 +211,7 @@ describe('Model cache', () => {
 
       const res3 = await server.inject(options3)
 
-      expect(res3.statusCode).toBe(okStatusCode)
+      expect(res3.statusCode).toBe(200)
       expect(getCacheSize()).toBe(3)
 
       // Execute each request again and
@@ -267,7 +263,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(notFoundStatusCode)
+      expect(res.statusCode).toBe(404)
       expect(getCacheSize()).toBe(0)
     })
 
@@ -281,7 +277,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(notFoundStatusCode)
+      expect(res.statusCode).toBe(404)
       expect(getCacheSize()).toBe(0)
     })
 
@@ -295,7 +291,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(notFoundStatusCode)
+      expect(res.statusCode).toBe(404)
       expect(getCacheSize()).toBe(0)
     })
 
@@ -313,7 +309,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(notFoundStatusCode)
+      expect(res.statusCode).toBe(404)
       expect(getCacheSize()).toBe(0)
     })
 
@@ -331,7 +327,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(notFoundStatusCode)
+      expect(res.statusCode).toBe(404)
       expect(getCacheSize()).toBe(0)
     })
 
@@ -349,7 +345,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(notFoundStatusCode)
+      expect(res.statusCode).toBe(404)
       expect(getCacheSize()).toBe(0)
     })
 
@@ -363,7 +359,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(notFoundStatusCode)
+      expect(res.statusCode).toBe(404)
       expect(getCacheSize()).toBe(0)
     })
 
@@ -377,7 +373,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(notFoundStatusCode)
+      expect(res.statusCode).toBe(404)
       expect(getCacheSize()).toBe(0)
     })
 
@@ -391,7 +387,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(notFoundStatusCode)
+      expect(res.statusCode).toBe(404)
       expect(getCacheSize()).toBe(0)
     })
 
@@ -409,7 +405,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(notFoundStatusCode)
+      expect(res.statusCode).toBe(404)
       expect(getCacheSize()).toBe(0)
     })
 
@@ -427,7 +423,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(notFoundStatusCode)
+      expect(res.statusCode).toBe(404)
       expect(getCacheSize()).toBe(0)
     })
 
@@ -445,7 +441,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(notFoundStatusCode)
+      expect(res.statusCode).toBe(404)
       expect(getCacheSize()).toBe(0)
     })
   })
@@ -465,7 +461,7 @@ describe('Model cache', () => {
 
       const res = await server.inject(options)
 
-      expect(res.statusCode).toBe(okStatusCode)
+      expect(res.statusCode).toBe(200)
     })
   })
 })
