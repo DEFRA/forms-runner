@@ -1,5 +1,6 @@
 import {
   ComponentType,
+  ControllerPath,
   hasComponents,
   hasNext,
   type FormDefinition,
@@ -168,6 +169,11 @@ export class PageControllerBase {
     }
   }
 
+  get href() {
+    const { model, path } = this
+    return `/${model.basePath}${path}`
+  }
+
   get next(): Link[] {
     const { def, pageDef } = this
 
@@ -182,7 +188,8 @@ export class PageControllerBase {
   }
 
   getSummaryPath() {
-    return this.defaultNextPath
+    const { model } = this
+    return `/${model.basePath}${ControllerPath.Summary}`
   }
 
   /**
@@ -214,7 +221,7 @@ export class PageControllerBase {
     const nextPage = this.getNextPage(evaluationState)
 
     if (nextPage) {
-      return `/${this.model.basePath || ''}${nextPage.path}`
+      return nextPage.href
     }
 
     return this.getSummaryPath()
@@ -502,10 +509,6 @@ export class PageControllerBase {
     const { evaluationState } = this.model.getFormContext(state, request)
 
     return proceed(request, h, this.getNext(evaluationState))
-  }
-
-  get defaultNextPath() {
-    return `/${this.model.basePath || ''}/summary`
   }
 
   /**

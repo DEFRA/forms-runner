@@ -218,8 +218,10 @@ export class RepeatPageController extends PageController {
       request: FormRequestPayload,
       h: ResponseToolkit<FormRequestPayloadRefs>
     ) => {
+      const { href } = this
       const { payload } = request
       const { action } = payload
+
       const state = await super.getState(request)
 
       if (action === ADD_ANOTHER) {
@@ -242,9 +244,7 @@ export class RepeatPageController extends PageController {
           return h.view(this.listSummaryViewName, viewModel)
         }
 
-        return h.redirect(
-          `/${this.model.basePath}${this.path}${request.url.search}`
-        )
+        return h.redirect(`${href}${request.url.search}`)
       } else if (action === CONTINUE) {
         return super.proceed(request, h, state)
       }
@@ -348,7 +348,7 @@ export class RepeatPageController extends PageController {
     repeatTitle: string
     backLink?: string
   } {
-    const { collection, model, repeat, section } = this
+    const { collection, href, model, repeat, section } = this
 
     const { title } = repeat.options
     const sectionTitle = section?.hideTitle !== true ? section?.title : ''
@@ -367,7 +367,7 @@ export class RepeatPageController extends PageController {
       state.forEach((item, index) => {
         const items: SummaryListAction[] = [
           {
-            href: `/${model.basePath}${this.path}/${item.itemId}${request.url.search}`,
+            href: `${href}/${item.itemId}${request.url.search}`,
             text: 'Change',
             classes: 'govuk-link--no-visited-state',
             visuallyHiddenText: `item ${index + 1}`
@@ -376,7 +376,7 @@ export class RepeatPageController extends PageController {
 
         if (count > 1) {
           items.push({
-            href: `/${model.basePath}${this.path}/${item.itemId}/confirm-delete${request.url.search}`,
+            href: `${href}/${item.itemId}/confirm-delete${request.url.search}`,
             text: 'Remove',
             classes: 'govuk-link--no-visited-state',
             visuallyHiddenText: `item ${index + 1}`
@@ -416,7 +416,7 @@ export class RepeatPageController extends PageController {
   getSummaryPath(
     request?: Pick<FormRequest | FormRequestPayload, 'url' | 'params' | 'query'>
   ) {
-    const { model, path } = this
+    const { href } = this
 
     if (!request) {
       return super.getSummaryPath()
@@ -431,6 +431,6 @@ export class RepeatPageController extends PageController {
       newUrl.searchParams.delete('itemId')
     }
 
-    return `/${model.basePath}${path}/summary${newUrl.search}`
+    return `${href}/summary${newUrl.search}`
   }
 }
