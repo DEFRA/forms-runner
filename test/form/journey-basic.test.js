@@ -246,18 +246,18 @@ describe('Form journey', () => {
         headers
       }))
 
-      $titles = container.getAllByRole('term')
+      $titles = container.queryAllByRole('term')
 
       // Field values
       $values = container
-        .getAllByRole('definition')
+        .queryAllByRole('definition')
         .filter(({ classList }) =>
           classList.contains('govuk-summary-list__value')
         )
 
       // Change links
       $actions = container
-        .getAllByRole('definition')
+        .queryAllByRole('definition')
         .filter(({ classList }) =>
           classList.contains('govuk-summary-list__actions')
         )
@@ -423,20 +423,17 @@ describe('Form journey', () => {
       expect($heading2).toBeInTheDocument()
     })
 
-    it("should render fields as 'Enter XXXX' (after submit)", () => {
-      for (const { fields = [] } of journey) {
-        for (const detail of fields) {
-          const index = $titles.findIndex(
-            ({ textContent }) => textContent?.trim() === detail.title
-          )
+    it('should redirect back to start (after submit)', async () => {
+      const response = await server.inject({
+        url: `${basePath}/summary`,
+        headers
+      })
 
-          const label = detail.title.toLowerCase()
-
-          expect($titles[index]).toHaveTextContent(detail.title)
-          expect($values[index]).toHaveTextContent(`Enter ${label}`)
-          expect($actions[index]).toBeUndefined()
-        }
-      }
+      // Redirect back to start
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe(
+        `${basePath}/start?returnUrl=%2Fbasic%2Fsummary`
+      )
     })
   })
 })
