@@ -30,7 +30,7 @@ export function proceed(
   if (returnUrl?.startsWith('/')) {
     return h.redirect(returnUrl)
   } else {
-    return redirectTo(h, nextUrl)
+    return h.redirect(nextUrl)
   }
 }
 
@@ -56,19 +56,6 @@ export function redirectUrl(targetUrl: string, params?: FormQuery) {
   })
 
   return relativeUrl.toString()
-}
-
-export function redirectTo(
-  h: Pick<ResponseToolkit, 'redirect'>,
-  targetUrl: string,
-  params?: FormQuery
-) {
-  if (targetUrl.startsWith('http')) {
-    return h.redirect(targetUrl)
-  }
-
-  const url = redirectUrl(targetUrl, params)
-  return h.redirect(url)
 }
 
 export const filesize = (bytes: number) => {

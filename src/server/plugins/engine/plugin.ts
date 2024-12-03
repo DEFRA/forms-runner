@@ -13,8 +13,7 @@ import {
   ADD_ANOTHER,
   CONTINUE,
   checkEmailAddressForLiveFormSubmission,
-  checkFormStatus,
-  redirectTo
+  checkFormStatus
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
@@ -50,10 +49,10 @@ function getStartPageRedirect(
   const startPage = normalisePath(model?.def.startPage ?? '')
 
   if (startPage.startsWith('http') || !model?.basePath) {
-    return redirectTo(h, startPage)
+    return h.redirect(startPage)
   }
 
-  return redirectTo(h, `/${model.basePath}/${startPage}`)
+  return h.redirect(`/${model.basePath}/${startPage}`)
 }
 
 export interface PluginOptions {

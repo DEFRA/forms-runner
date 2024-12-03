@@ -22,8 +22,7 @@ import { optionalText } from '~/src/server/plugins/engine/components/constants.j
 import {
   encodeUrl,
   getErrors,
-  proceed,
-  redirectTo
+  proceed
 } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
@@ -271,15 +270,11 @@ export class PageControllerBase {
 
       if (shouldRedirectToStartPage) {
         return startPage?.startsWith('http')
-          ? redirectTo(h, startPage)
-          : redirectTo(h, `/${this.model.basePath}${startPage}`)
+          ? h.redirect(startPage)
+          : h.redirect(`/${this.model.basePath}${startPage}`)
       }
 
       const viewModel = this.getViewModel(request, payload)
-
-      viewModel.startPage = startPage?.startsWith('http')
-        ? redirectTo(h, startPage)
-        : redirectTo(h, `/${this.model.basePath}${startPage}`)
 
       /**
        * Content components can be hidden based on a condition. If the condition evaluates to true, it is safe to be kept, otherwise discard it

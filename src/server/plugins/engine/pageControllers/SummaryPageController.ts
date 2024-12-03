@@ -16,7 +16,6 @@ import { getAnswer } from '~/src/server/plugins/engine/components/helpers.js'
 import {
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
-  redirectTo,
   redirectUrl
 } from '~/src/server/plugins/engine/helpers.js'
 import {
@@ -113,14 +112,12 @@ export class SummaryPageController extends PageController {
           }
           return false
         })
+
         if (pageWithError) {
-          const params = {
-            returnUrl: redirectUrl(`/${model.basePath}/summary`)
-          }
-          return redirectTo(
-            h,
-            `/${model.basePath}${pageWithError.path}`,
-            params
+          return h.redirect(
+            redirectUrl(`/${model.basePath}${pageWithError.path}`, {
+              returnUrl: redirectUrl(`/${model.basePath}/summary`)
+            })
           )
         }
       }
@@ -179,7 +176,7 @@ export class SummaryPageController extends PageController {
       // Clear all form data
       await cacheService.clearState(request)
 
-      return redirectTo(h, `/${model.basePath}/status`)
+      return h.redirect(`/${model.basePath}/status`)
     }
   }
 
