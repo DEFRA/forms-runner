@@ -199,12 +199,11 @@ export class RepeatPageController extends PageController {
       request: FormRequest,
       h: ResponseToolkit<FormRequestRefs>
     ) => {
-      const { cacheService } = request.services([])
       const state = await super.getState(request)
       const list = this.getListFromState(state)
       const progress = state.progress ?? []
 
-      await this.updateProgress(progress, request, cacheService)
+      await this.updateProgress(progress, request)
 
       const viewModel = this.getListSummaryViewModel(request, list)
       viewModel.backLink = this.getBackLink(progress)

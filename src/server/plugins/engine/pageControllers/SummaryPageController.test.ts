@@ -67,7 +67,7 @@ describe('SummaryPageController', () => {
       app: { model }
     } as FormRequest
 
-    summaryViewModel = controller.getSummaryViewModel(model, state, request)
+    summaryViewModel = controller.getSummaryViewModel(state, request)
 
     submitResponse = {
       message: 'Submit completed',

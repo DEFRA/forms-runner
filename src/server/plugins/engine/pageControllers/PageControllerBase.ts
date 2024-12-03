@@ -41,7 +41,6 @@ import {
   type FormRequestPayloadRefs,
   type FormRequestRefs
 } from '~/src/server/routes/types.js'
-import { type CacheService } from '~/src/server/services/index.js'
 
 const designerUrl = config.get('designerUrl')
 
@@ -249,9 +248,7 @@ export class PageControllerBase {
 
   async getState(request: FormRequest | FormRequestPayload) {
     const { cacheService } = request.services([])
-    const state = await cacheService.getState(request)
-
-    return state
+    return cacheService.getState(request)
   }
 
   async setState(
@@ -267,20 +264,21 @@ export class PageControllerBase {
     h: ResponseToolkit<FormRequestRefs>
   ) => Promise<ResponseObject | Boom> {
     return async (request, h) => {
-      const { cacheService } = request.services([])
+      const { model, path, viewName } = this
+
+      const { startPage } = model.def
+
       const state = await this.getState(request)
       const progress = state.progress ?? []
-      const startPage = this.model.def.startPage
-      const payload = this.getFormDataFromState(state)
-      const isStartPage = this.path === `${startPage}`
-      const shouldRedirectToStartPage = !progress.length && !isStartPage
+      const isStartPage = path === startPage
 
-      if (shouldRedirectToStartPage) {
+      if (!progress.length && !isStartPage) {
         return startPage?.startsWith('http')
           ? h.redirect(startPage)
           : h.redirect(`/${this.model.basePath}${startPage}`)
       }
 
+      const payload = this.getFormDataFromState(state)
       const viewModel = this.getViewModel(request, payload)
 
       /**
@@ -297,7 +295,7 @@ export class PageControllerBase {
             component.type === ComponentType.Details) &&
           component.model.condition
         ) {
-          const condition = this.model.conditions[component.model.condition]
+          const condition = model.conditions[component.model.condition]
           return condition?.fn(evaluationState)
         }
         return true
@@ -312,7 +310,7 @@ export class PageControllerBase {
         if (content instanceof Array) {
           evaluatedComponent.model.content = content.filter((item) =>
             item.condition
-              ? this.model.conditions[item.condition]?.fn(evaluationState)
+              ? model.conditions[item.condition]?.fn(evaluationState)
               : true
           )
         }
@@ -322,7 +320,7 @@ export class PageControllerBase {
         if (items instanceof Array) {
           evaluatedComponent.model.items = items.filter((item) =>
             item.condition
-              ? this.model.conditions[item.condition]?.fn(evaluationState)
+              ? model.conditions[item.condition]?.fn(evaluationState)
               : true
           )
         }
@@ -330,14 +328,14 @@ export class PageControllerBase {
         return evaluatedComponent
       })
 
-      await this.updateProgress(progress, request, cacheService)
+      await this.updateProgress(progress, request)
 
       viewModel.backLink = this.getBackLink(progress)
 
       viewModel.notificationEmailWarning =
         await this.buildMissingEmailWarningModel(request, isStartPage)
 
-      return h.view(this.viewName, viewModel)
+      return h.view(viewName, viewModel)
     }
   }
 
@@ -365,11 +363,9 @@ export class PageControllerBase {
    * Used for when a user clicks the "back" link.
    * Progress is stored in the state.
    */
-  protected async updateProgress(
-    progress: string[],
-    request: FormRequest,
-    cacheService: CacheService
-  ) {
+  protected async updateProgress(progress: string[], request: FormRequest) {
+    const { cacheService } = request.services([])
+
     const lastVisited = progress.at(-1)
     const currentPath = `${request.path.substring(1)}${request.url.search}`
 
@@ -534,11 +530,13 @@ export class PageControllerBase {
     progress: string[],
     errors?: FormSubmissionError[]
   ) {
+    const { viewName } = this
+
     const viewModel = this.getViewModel(request, payload, errors)
 
     viewModel.errors = this.collection.getErrors(viewModel.errors)
-    viewModel.backLink = progress[progress.length - 2]
+    viewModel.backLink = this.getBackLink(progress)
 
-    return h.view(this.viewName, viewModel)
+    return h.view(viewName, viewModel)
   }
 }

@@ -53,11 +53,15 @@ export class SummaryPageController extends PageController {
    */
 
   getSummaryViewModel(
-    model: FormModel,
     state: FormSubmissionState,
     request: FormRequest | FormRequestPayload
   ): SummaryViewModel {
-    const viewModel = new SummaryViewModel(model, this.pageDef, state, request)
+    const viewModel = new SummaryViewModel(
+      this.model,
+      this.pageDef,
+      state,
+      request
+    )
 
     // We already figure these out in the base page controller. Take them and apply them to our page-specific model.
     // This is a stop-gap until we can add proper inheritance in place.
@@ -75,11 +79,10 @@ export class SummaryPageController extends PageController {
     h: ResponseToolkit<FormRequestRefs>
   ) => Promise<ResponseObject | Boom> {
     return async (request, h) => {
-      const { cacheService } = request.services([])
+      const { model } = this
 
-      const model = this.model
-      const state = await cacheService.getState(request)
-      const viewModel = this.getSummaryViewModel(model, state, request)
+      const state = await this.getState(request)
+      const viewModel = this.getSummaryViewModel(state, request)
 
       /**
        * iterates through the errors. If there are errors, a user will be redirected to the page
@@ -124,7 +127,7 @@ export class SummaryPageController extends PageController {
 
       const progress = state.progress ?? []
 
-      await this.updateProgress(progress, request, cacheService)
+      await this.updateProgress(progress, request)
 
       viewModel.backLink = this.getBackLink(progress)
 
@@ -144,10 +147,12 @@ export class SummaryPageController extends PageController {
     h: ResponseToolkit<FormRequestPayloadRefs>
   ) => Promise<ResponseObject | Boom> {
     return async (request, h) => {
+      const { model } = this
+
       const { cacheService } = request.services([])
-      const model = this.model
-      const state = await cacheService.getState(request)
-      const summaryViewModel = this.getSummaryViewModel(model, state, request)
+
+      const state = await this.getState(request)
+      const summaryViewModel = this.getSummaryViewModel(state, request)
 
       // Display error summary on the summary
       // page if there are incomplete form errors
