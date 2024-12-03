@@ -5,7 +5,7 @@ import { createServer } from '~/src/server/index.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
-import { getCookieHeader } from '~/test/utils/get-cookie.js'
+import { getCookie, getCookieHeader } from '~/test/utils/get-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 const basePath = '/titles'
@@ -16,25 +16,79 @@ describe('Title and section title', () => {
   /** @type {Server} */
   let server
 
-  /** @type {OutgoingHttpHeaders} */
+  /** @type {string} */
+  let csrfToken
+
+  /** @type {ReturnType<typeof getCookieHeader>} */
   let headers
 
   beforeAll(async () => {
     server = await createServer({
       formFileName: 'titles.json',
-      formFilePath: join(testDir, 'definitions')
+      formFilePath: join(testDir, 'definitions'),
+      enforceCsrf: true
     })
 
     await server.initialize()
 
+    // Navigate to start
+    const response = await server.inject({
+      url: `${basePath}/start`,
+      headers
+    })
+
     // Extract the session cookie
-    headers = getCookieHeader(
+    csrfToken = getCookie(response, 'crumb')
+    headers = getCookieHeader(response, ['session', 'crumb'])
+
+    // Submit answers for all pages
+    for (const { path, payload } of [
+      {
+        path: '/applicant-one',
+        payload: {
+          crumb: csrfToken,
+          firstName1: 'Firstname',
+          middleName1: '',
+          lastName1: 'Lastname'
+        }
+      },
+      {
+        path: '/applicant-one-address',
+        payload: {
+          crumb: csrfToken,
+          address1__addressLine1: 'Richard Fairclough House',
+          address1__addressLine2: 'Knutsford Road',
+          address1__town: 'Warrington',
+          address1__postcode: 'WA4 1HT'
+        }
+      },
+      {
+        path: '/applicant-two',
+        payload: {
+          crumb: csrfToken,
+          firstName2: 'Firstname',
+          middleName2: '',
+          lastName2: 'Lastname'
+        }
+      },
+      {
+        path: '/applicant-two-address-optional',
+        payload: {
+          crumb: csrfToken,
+          address2__addressLine1: '',
+          address2__addressLine2: '',
+          address2__town: '',
+          address2__postcode: ''
+        }
+      }
+    ]) {
       await server.inject({
-        method: 'GET',
-        url: `${basePath}/applicant-one`
-      }),
-      'session'
-    )
+        url: `${basePath}${path}`,
+        method: 'POST',
+        headers,
+        payload
+      })
+    }
   })
 
   afterAll(async () => {
@@ -132,7 +186,7 @@ describe('Title and section title', () => {
 
   it('render title with optional when there is single component in page and is selected as optional', async () => {
     const { container } = await renderResponse(server, {
-      url: '/titles/applicant-one-address-optional',
+      url: `${basePath}/applicant-two-address-optional`,
       headers
     })
 
