@@ -19,12 +19,7 @@ jest.mock('~/src/server/plugins/engine/services/formsService.js')
 jest.mock('~/src/server/plugins/engine/services/formSubmissionService.js')
 
 const testDir = dirname(fileURLToPath(import.meta.url))
-
-const okStatusCode = 200
-const redirectStatusCode = 302
-const notFoundStatusCode = 404
-
-const url = '/repeat/pizza-order'
+const basePath = '/repeat'
 
 /**
  * POST a new repeat item
@@ -40,31 +35,26 @@ async function createRepeatItem(
   headers,
   itemId = randomUUID()
 ) {
-  const itemUrl = `${url}/${itemId}`
-
   // Issue a GET request to the item
   // page to add to the progress stack
   await server.inject({
-    method: 'GET',
-    url: itemUrl,
+    url: `${basePath}/pizza-order/${itemId}`,
     headers
   })
 
-  const options = {
+  const res1 = await server.inject({
+    url: `${basePath}/pizza-order/${itemId}`,
     method: 'POST',
-    url: itemUrl,
     headers,
     payload: {
       toppings: 'Ham',
       quantity: 2
     }
-  }
+  })
 
-  const res1 = await server.inject(options)
-
-  expect(res1.statusCode).toBe(redirectStatusCode)
+  expect(res1.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
   expect(res1.headers.location).toBe(
-    `/repeat/pizza-order/summary?itemId=${itemId}`
+    `${basePath}/pizza-order/summary?itemId=${itemId}`
   )
 
   const repeatName = repeatPage.repeat.options.name
@@ -128,38 +118,31 @@ describe('Repeat GET tests', () => {
     await server.stop()
   })
 
-  test('GET /repeat/pizza-order returns 303', async () => {
-    const options = {
-      method: 'GET',
-      url
-    }
-
-    const res = await server.inject(options)
+  test('GET /pizza-order returns 303', async () => {
+    const res = await server.inject({
+      url: `${basePath}/pizza-order`
+    })
 
     expect(res.statusCode).toBe(StatusCodes.SEE_OTHER)
   })
 
-  test('GET /repeat/pizza-order/summary returns 200', async () => {
-    const options = {
-      method: 'GET',
-      url: `${url}/summary`
-    }
+  test('GET /pizza-order/summary returns 200', async () => {
+    const res = await server.inject({
+      url: `${basePath}/pizza-order/summary`
+    })
 
-    const res = await server.inject(options)
-
-    expect(res.statusCode).toBe(okStatusCode)
+    expect(res.statusCode).toBe(StatusCodes.OK)
   })
 
-  test('GET /repeat/pizza-order/{id} returns 200', async () => {
+  test('GET /pizza-order/{id} returns 200', async () => {
     const { item, headers } = await createRepeatItem(server, repeatPage)
-    const options = {
-      method: 'GET',
-      url: `${url}/${item.itemId}`,
-      headers
-    }
-    const { container, response } = await renderResponse(server, options)
 
-    expect(response.statusCode).toBe(okStatusCode)
+    const { container, response } = await renderResponse(server, {
+      url: `${basePath}/pizza-order/${item.itemId}`,
+      headers
+    })
+
+    expect(response.statusCode).toBe(StatusCodes.OK)
 
     const $heading1 = container.getByRole('heading', {
       name: 'Pizza order',
@@ -178,7 +161,7 @@ describe('Repeat GET tests', () => {
     expect($heading2).toHaveClass('govuk-caption-l')
   })
 
-  test('GET /repeat/pizza-order/{id} returns 200 with back link', async () => {
+  test('GET /pizza-order/{id} returns 200 with back link', async () => {
     const { item, headers, redirectLocation } = await createRepeatItem(
       server,
       repeatPage
@@ -191,19 +174,16 @@ describe('Repeat GET tests', () => {
     // Visit the summary page to append to the progress stack to
     // ensure the back link is rendered on the next page request
     await server.inject({
-      method: 'GET',
       url: redirectLocation,
       headers
     })
 
-    const options = {
-      method: 'GET',
-      url: `${url}/${item.itemId}`,
+    const { container, response } = await renderResponse(server, {
+      url: `${basePath}/pizza-order/${item.itemId}`,
       headers
-    }
-    const { container, response } = await renderResponse(server, options)
+    })
 
-    expect(response.statusCode).toBe(okStatusCode)
+    expect(response.statusCode).toBe(StatusCodes.OK)
 
     const $heading1 = container.getByRole('heading', {
       name: 'Pizza order',
@@ -228,43 +208,39 @@ describe('Repeat GET tests', () => {
     expect($backLink).toBeInTheDocument()
     expect($backLink).toHaveAttribute(
       'href',
-      `/repeat/pizza-order/summary?itemId=${item.itemId}`
+      `${basePath}/pizza-order/summary?itemId=${item.itemId}`
     )
   })
 
-  test('GET /repeat/pizza-order/{id}/confirm-delete returns 200', async () => {
+  test('GET /pizza-order/{id}/confirm-delete returns 200', async () => {
     const { item, headers } = await createRepeatItem(server, repeatPage)
+
     const res = await server.inject({
-      method: 'GET',
-      url: `${url}/${item.itemId}/confirm-delete`,
+      url: `${basePath}/pizza-order/${item.itemId}/confirm-delete`,
       headers
     })
 
-    expect(res.statusCode).toBe(okStatusCode)
+    expect(res.statusCode).toBe(StatusCodes.OK)
   })
 
-  test('GET /repeat/pizza-order/{id}/confirm-delete with unknown itemId returns 404', async () => {
+  test('GET /pizza-order/{id}/confirm-delete with unknown itemId returns 404', async () => {
     const res = await server.inject({
-      method: 'GET',
-      url: `${url}/00000000-0000-0000-0000-000000000000/confirm-delete`
+      url: `${basePath}/pizza-order/00000000-0000-0000-0000-000000000000/confirm-delete`
     })
 
-    expect(res.statusCode).toBe(notFoundStatusCode)
+    expect(res.statusCode).toBe(StatusCodes.NOT_FOUND)
   })
 
-  test('GET /repeat/pizza-order/summary with items returns 200', async () => {
+  test('GET /pizza-order/summary with items returns 200', async () => {
     const { headers } = await createRepeatItem(server, repeatPage)
     await createRepeatItem(server, repeatPage, 2, headers)
 
-    const options = {
-      method: 'GET',
-      url: `${url}/summary`,
+    const res = await server.inject({
+      url: `${basePath}/pizza-order/summary`,
       headers
-    }
+    })
 
-    const res = await server.inject(options)
-
-    expect(res.statusCode).toBe(okStatusCode)
+    expect(res.statusCode).toBe(StatusCodes.OK)
   })
 })
 
@@ -302,11 +278,12 @@ describe('Repeat POST tests', () => {
     await server.stop()
   })
 
-  test('POST /repeat/pizza-order/{id} returns 302', async () => {
+  test('POST /pizza-order/{id} returns 302', async () => {
     const { item, headers } = await createRepeatItem(server, repeatPage)
+
     const res = await server.inject({
+      url: `${basePath}/pizza-order/${item.itemId}`,
       method: 'POST',
-      url: `${url}/${item.itemId}`,
       headers,
       payload: {
         toppings: 'Ham',
@@ -314,68 +291,70 @@ describe('Repeat POST tests', () => {
       }
     })
 
-    expect(res.statusCode).toBe(redirectStatusCode)
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
     expect(res.headers.location).toMatch(/^\/repeat\/pizza-order\/summary?/)
   })
 
-  test('POST /repeat/pizza-order/{id}/confirm-delete returns 302', async () => {
+  test('POST /pizza-order/{id}/confirm-delete returns 302', async () => {
     const { item, headers } = await createRepeatItem(server, repeatPage)
+
     const res = await server.inject({
+      url: `${basePath}/pizza-order/${item.itemId}/confirm-delete`,
       method: 'POST',
-      url: `${url}/${item.itemId}/confirm-delete`,
       headers,
       payload: {
         confirm: true
       }
     })
 
-    expect(res.statusCode).toBe(redirectStatusCode)
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
     expect(res.headers.location).toMatch(/^\/repeat\/pizza-order\/summary/)
   })
 
-  test('POST /repeat/pizza-order/summary ADD_ANOTHER returns 302', async () => {
+  test('POST /pizza-order/summary ADD_ANOTHER returns 302', async () => {
     const res = await server.inject({
       method: 'POST',
-      url: `${url}/summary`,
+      url: `${basePath}/pizza-order/summary`,
       payload: {
         action: ADD_ANOTHER
       }
     })
 
-    expect(res.statusCode).toBe(redirectStatusCode)
-    expect(res.headers.location).toBe('/repeat/pizza-order')
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.headers.location).toBe(`${basePath}/pizza-order`)
   })
 
-  test('POST /repeat/pizza-order/summary CONTINUE returns 302', async () => {
+  test('POST /pizza-order/summary CONTINUE returns 302', async () => {
     const { headers } = await createRepeatItem(server, repeatPage)
 
     const res = await server.inject({
+      url: `${basePath}/pizza-order/summary`,
       method: 'POST',
-      url: `${url}/summary`,
       headers,
       payload: {
         action: CONTINUE
       }
     })
 
-    expect(res.statusCode).toBe(redirectStatusCode)
-    expect(res.headers.location).toBe('/repeat/summary')
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.headers.location).toBe(`${basePath}/summary`)
   })
 
-  test('POST /repeat/pizza-order/summary ADD_ANOTHER returns 200 with errors over schema.max', async () => {
+  test('POST /pizza-order/summary ADD_ANOTHER returns 200 with errors over schema.max', async () => {
     const { headers } = await createRepeatItem(server, repeatPage)
+
     await createRepeatItem(server, repeatPage, 2, headers)
 
     const { container, response } = await renderResponse(server, {
+      url: `${basePath}/pizza-order/summary`,
       method: 'POST',
-      url: `${url}/summary`,
       headers,
       payload: {
         action: ADD_ANOTHER
       }
     })
 
-    expect(response.statusCode).toBe(okStatusCode)
+    expect(response.statusCode).toBe(StatusCodes.OK)
 
     const $errorSummary = container.getByRole('alert')
     const $errorItems = within($errorSummary).getAllByRole('listitem')
@@ -389,31 +368,30 @@ describe('Repeat POST tests', () => {
     expect($errorItems[0]).toHaveTextContent('You can only add up to 2 Pizzas')
   })
 
-  test('POST /repeat/pizza-order/summary CONTINUE returns 302 to /summary', async () => {
+  test('POST /pizza-order/summary CONTINUE returns 302 to /summary', async () => {
     const { headers } = await createRepeatItem(server, repeatPage)
 
     const res = await server.inject({
+      url: `${basePath}/pizza-order/summary`,
       method: 'POST',
-      url: `${url}/summary`,
       headers,
       payload: {
         action: CONTINUE
       }
     })
 
-    expect(res.statusCode).toBe(redirectStatusCode)
-    expect(res.headers.location).toBe('/repeat/summary')
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.headers.location).toBe(`${basePath}/summary`)
 
     const { container, response } = await renderResponse(server, {
-      method: 'GET',
-      url: '/repeat/summary',
+      url: `${basePath}/summary`,
       headers,
       payload: {
         action: CONTINUE
       }
     })
 
-    expect(response.statusCode).toBe(okStatusCode)
+    expect(response.statusCode).toBe(StatusCodes.OK)
 
     const $values = container
       .getAllByRole('definition')
@@ -424,32 +402,32 @@ describe('Repeat POST tests', () => {
     expect($values[0]).toHaveTextContent('You added 1 Pizza')
   })
 
-  test('POST /repeat/pizza-order/summary with 2 items CONTINUE returns 302 to /summary', async () => {
+  test('POST /pizza-order/summary with 2 items CONTINUE returns 302 to /summary', async () => {
     const { headers } = await createRepeatItem(server, repeatPage)
+
     await createRepeatItem(server, repeatPage, 2, headers)
 
     const res1 = await server.inject({
+      url: `${basePath}/pizza-order/summary`,
       method: 'POST',
-      url: `${url}/summary`,
       headers,
       payload: {
         action: CONTINUE
       }
     })
 
-    expect(res1.statusCode).toBe(redirectStatusCode)
-    expect(res1.headers.location).toBe('/repeat/summary')
+    expect(res1.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res1.headers.location).toBe(`${basePath}/summary`)
 
     const { container, response: res2 } = await renderResponse(server, {
-      method: 'GET',
-      url: '/repeat/summary',
+      url: `${basePath}/summary`,
       headers,
       payload: {
         action: CONTINUE
       }
     })
 
-    expect(res2.statusCode).toBe(okStatusCode)
+    expect(res2.statusCode).toBe(StatusCodes.OK)
 
     const $values = container
       .getAllByRole('definition')
@@ -462,7 +440,7 @@ describe('Repeat POST tests', () => {
     // POST the summary page
     await server.inject({
       method: 'POST',
-      url: '/repeat/summary',
+      url: `${basePath}/summary`,
       headers
     })
 

@@ -1,12 +1,15 @@
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { StatusCodes } from 'http-status-codes'
+
 import { createServer } from '~/src/server/index.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
+const basePath = '/radios'
 const key = 'wqJmSf'
 
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
@@ -21,6 +24,7 @@ describe('Radio based conditions', () => {
       formFileName: 'radios.json',
       formFilePath: resolve(testDir, '../form/definitions')
     })
+
     await server.initialize()
   })
 
@@ -33,12 +37,9 @@ describe('Radio based conditions', () => {
   })
 
   test('Radio are rendered', async () => {
-    const options = {
-      method: 'GET',
-      url: '/radios/first-page'
-    }
-
-    const { container } = await renderResponse(server, options)
+    const { container } = await renderResponse(server, {
+      url: `${basePath}/first-page`
+    })
 
     for (const example of [
       {
@@ -79,32 +80,32 @@ describe('Radio based conditions', () => {
     }
   })
 
-  test('Testing POST /radios/first-page with nothing checked redirects correctly', async () => {
+  test('Testing POST /first-page with nothing checked redirects correctly', async () => {
     const form = {}
 
     const res = await server.inject({
+      url: `${basePath}/first-page`,
       method: 'POST',
-      url: '/radios/first-page',
       payload: form
     })
 
-    expect(res.statusCode).toBe(302)
-    expect(res.headers.location).toBe('/radios/second-page')
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.headers.location).toBe(`${basePath}/second-page`)
   })
 
-  test('Testing POST /radios/first-page with "other" checked redirects correctly', async () => {
+  test('Testing POST /first-page with "other" checked redirects correctly', async () => {
     const form = {
       [key]: 'other'
     }
 
     const res = await server.inject({
+      url: `${basePath}/first-page`,
       method: 'POST',
-      url: '/radios/first-page',
       payload: form
     })
 
-    expect(res.statusCode).toBe(302)
-    expect(res.headers.location).toBe('/radios/third-page')
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.headers.location).toBe(`${basePath}/third-page`)
   })
 })
 

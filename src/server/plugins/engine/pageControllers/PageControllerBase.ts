@@ -1,5 +1,6 @@
 import {
   ComponentType,
+  ControllerPath,
   hasComponents,
   hasNext,
   type FormDefinition,
@@ -22,8 +23,9 @@ import { optionalText } from '~/src/server/plugins/engine/components/constants.j
 import {
   encodeUrl,
   getErrors,
-  proceed,
-  redirectTo
+  getStartPath,
+  normalisePath,
+  proceed
 } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
@@ -41,9 +43,6 @@ import {
   type FormRequestPayloadRefs,
   type FormRequestRefs
 } from '~/src/server/routes/types.js'
-import { type CacheService } from '~/src/server/services/index.js'
-
-const designerUrl = config.get('designerUrl')
 
 export class PageControllerBase {
   /**
@@ -104,10 +103,8 @@ export class PageControllerBase {
   ): PageViewModel {
     let showTitle = true
 
-    let { title: pageTitle, section } = this
+    let { model, title: pageTitle, section } = this
     const sectionTitle = section?.hideTitle !== true ? section?.title : ''
-
-    const serviceUrl = `/${this.model.basePath}`
 
     const components = this.collection.getViewModel(payload, errors)
     const formComponents = components.filter(
@@ -163,10 +160,15 @@ export class PageControllerBase {
       components,
       errors,
       isStartPage: false,
-      serviceUrl,
+      serviceUrl: `/${model.basePath}`,
       feedbackLink: this.getFeedbackLink(),
       phaseTag: this.getPhaseTag()
     }
+  }
+
+  get href() {
+    const { model, path } = this
+    return `/${model.basePath}/${normalisePath(path)}`
   }
 
   get next(): Link[] {
@@ -178,12 +180,17 @@ export class PageControllerBase {
 
     // Remove stale links
     return pageDef.next.filter(({ path }) =>
-      def.pages.some((page) => path === page.path)
+      def.pages.some((page) => normalisePath(path) === normalisePath(page.path))
     )
   }
 
+  getStartPath() {
+    return getStartPath(this.model)
+  }
+
   getSummaryPath() {
-    return this.defaultNextPath
+    const { model } = this
+    return `/${model.basePath}${ControllerPath.Summary}`
   }
 
   /**
@@ -215,7 +222,7 @@ export class PageControllerBase {
     const nextPage = this.getNextPage(evaluationState)
 
     if (nextPage) {
-      return `/${this.model.basePath || ''}${nextPage.path}`
+      return nextPage.href
     }
 
     return this.getSummaryPath()
@@ -243,9 +250,7 @@ export class PageControllerBase {
 
   async getState(request: FormRequest | FormRequestPayload) {
     const { cacheService } = request.services([])
-    const state = await cacheService.getState(request)
-
-    return state
+    return cacheService.getState(request)
   }
 
   async setState(
@@ -261,25 +266,20 @@ export class PageControllerBase {
     h: ResponseToolkit<FormRequestRefs>
   ) => Promise<ResponseObject | Boom> {
     return async (request, h) => {
-      const { cacheService } = request.services([])
+      const { model, path, viewName } = this
+
+      const { startPage } = model.def
+
       const state = await this.getState(request)
       const progress = state.progress ?? []
-      const startPage = this.model.def.startPage
-      const payload = this.getFormDataFromState(state)
-      const isStartPage = this.path === `${startPage}`
-      const shouldRedirectToStartPage = !progress.length && !isStartPage
+      const isStartPage = path === startPage
 
-      if (shouldRedirectToStartPage) {
-        return startPage?.startsWith('http')
-          ? redirectTo(h, startPage)
-          : redirectTo(h, `/${this.model.basePath}${startPage}`)
+      if (!progress.length && !isStartPage) {
+        h.redirect(this.getStartPath())
       }
 
+      const payload = this.getFormDataFromState(state)
       const viewModel = this.getViewModel(request, payload)
-
-      viewModel.startPage = startPage?.startsWith('http')
-        ? redirectTo(h, startPage)
-        : redirectTo(h, `/${this.model.basePath}${startPage}`)
 
       /**
        * Content components can be hidden based on a condition. If the condition evaluates to true, it is safe to be kept, otherwise discard it
@@ -295,7 +295,7 @@ export class PageControllerBase {
             component.type === ComponentType.Details) &&
           component.model.condition
         ) {
-          const condition = this.model.conditions[component.model.condition]
+          const condition = model.conditions[component.model.condition]
           return condition?.fn(evaluationState)
         }
         return true
@@ -310,7 +310,7 @@ export class PageControllerBase {
         if (content instanceof Array) {
           evaluatedComponent.model.content = content.filter((item) =>
             item.condition
-              ? this.model.conditions[item.condition]?.fn(evaluationState)
+              ? model.conditions[item.condition]?.fn(evaluationState)
               : true
           )
         }
@@ -320,7 +320,7 @@ export class PageControllerBase {
         if (items instanceof Array) {
           evaluatedComponent.model.items = items.filter((item) =>
             item.condition
-              ? this.model.conditions[item.condition]?.fn(evaluationState)
+              ? model.conditions[item.condition]?.fn(evaluationState)
               : true
           )
         }
@@ -328,31 +328,34 @@ export class PageControllerBase {
         return evaluatedComponent
       })
 
-      await this.updateProgress(progress, request, cacheService)
+      await this.updateProgress(progress, request)
 
       viewModel.backLink = this.getBackLink(progress)
 
       viewModel.notificationEmailWarning =
-        await this.buildMissingEmailWarningModel(request, isStartPage)
+        await this.buildMissingEmailWarningModel(request)
 
-      return h.view(this.viewName, viewModel)
+      return h.view(viewName, viewModel)
     }
   }
 
   async buildMissingEmailWarningModel(
-    request: FormRequest,
-    isStartPage?: boolean
+    request: FormRequest
   ): Promise<PageViewModel['notificationEmailWarning']> {
+    const { href } = this
     const { params } = request
+
+    const startPath = this.getStartPath()
+    const summaryPath = this.getSummaryPath()
+
     // Warn the user if the form has no notification email set only on start page and summary page
-    if (isStartPage || params.path === 'summary') {
-      const { slug } = params
-      const { notificationEmail } = await getFormMetadata(slug)
+    if ([startPath, summaryPath].includes(href)) {
+      const { notificationEmail } = await getFormMetadata(params.slug)
 
       if (!notificationEmail) {
         return {
-          slug,
-          designerUrl
+          slug: params.slug,
+          designerUrl: config.get('designerUrl')
         }
       }
     }
@@ -363,11 +366,9 @@ export class PageControllerBase {
    * Used for when a user clicks the "back" link.
    * Progress is stored in the state.
    */
-  protected async updateProgress(
-    progress: string[],
-    request: FormRequest,
-    cacheService: CacheService
-  ) {
+  protected async updateProgress(progress: string[], request: FormRequest) {
+    const { cacheService } = request.services([])
+
     const lastVisited = progress.at(-1)
     const currentPath = `${request.path.substring(1)}${request.url.search}`
 
@@ -489,7 +490,9 @@ export class PageControllerBase {
   }
 
   findPageByPath(path?: string) {
-    return this.model.pages.find((page) => page.path === path)
+    return this.model.pages.find(
+      (page) => normalisePath(page.path) === normalisePath(path)
+    )
   }
 
   /**
@@ -507,10 +510,6 @@ export class PageControllerBase {
     const { evaluationState } = this.model.getFormContext(state, request)
 
     return proceed(request, h, this.getNext(evaluationState))
-  }
-
-  get defaultNextPath() {
-    return `/${this.model.basePath || ''}/summary`
   }
 
   /**
@@ -536,11 +535,13 @@ export class PageControllerBase {
     progress: string[],
     errors?: FormSubmissionError[]
   ) {
+    const { viewName } = this
+
     const viewModel = this.getViewModel(request, payload, errors)
 
     viewModel.errors = this.collection.getErrors(viewModel.errors)
-    viewModel.backLink = progress[progress.length - 2]
+    viewModel.backLink = this.getBackLink(progress)
 
-    return h.view(this.viewName, viewModel)
+    return h.view(viewName, viewModel)
   }
 }

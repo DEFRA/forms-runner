@@ -8,6 +8,7 @@ import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
+const basePath = '/titles'
 
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
 
@@ -30,7 +31,7 @@ describe('Title and section title', () => {
     headers = getCookieHeader(
       await server.inject({
         method: 'GET',
-        url: '/titles/applicant-one'
+        url: `${basePath}/applicant-one`
       }),
       'session'
     )
@@ -41,14 +42,11 @@ describe('Title and section title', () => {
   })
 
   it('does not render the section title if it is the same as the title', async () => {
-    const options = {
-      method: 'GET',
-      url: '/titles/applicant-one'
-    }
-
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
 
-    const { container } = await renderResponse(server, options)
+    const { container } = await renderResponse(server, {
+      url: `${basePath}/applicant-one`
+    })
 
     const $section = document.getElementById('section-title')
     const $heading = container.getByRole('heading', {
@@ -62,14 +60,11 @@ describe('Title and section title', () => {
   })
 
   it('render warning when notification email is not set', async () => {
-    const options = {
-      method: 'GET',
-      url: '/titles/applicant-one'
-    }
-
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
 
-    const { container } = await renderResponse(server, options)
+    const { container } = await renderResponse(server, {
+      url: `${basePath}/applicant-one`
+    })
 
     const $warning = container.queryByRole('link', {
       name: 'enter the email address (opens in new tab)'
@@ -79,17 +74,14 @@ describe('Title and section title', () => {
   })
 
   it('does not render the warning when notification email is set', async () => {
-    const options = {
-      method: 'GET',
-      url: '/titles/applicant-one'
-    }
-
     jest.mocked(getFormMetadata).mockResolvedValue({
       ...fixtures.form.metadata,
       notificationEmail: 'defra@gov.uk'
     })
 
-    const { container } = await renderResponse(server, options)
+    const { container } = await renderResponse(server, {
+      url: `${basePath}/applicant-one`
+    })
 
     const $warning = container.queryByRole('link', {
       name: 'enter the email address (opens in new tab)'
@@ -99,13 +91,10 @@ describe('Title and section title', () => {
   })
 
   it('does render the section title if it is not the same as the title', async () => {
-    const options = {
-      method: 'GET',
-      url: '/titles/applicant-one-address',
+    const { container } = await renderResponse(server, {
+      url: `${basePath}/applicant-one-address`,
       headers
-    }
-
-    const { container } = await renderResponse(server, options)
+    })
 
     const $section = container.getByRole('heading', {
       name: 'Applicant 1',
@@ -124,14 +113,11 @@ describe('Title and section title', () => {
     expect($heading).toHaveClass('govuk-fieldset__heading')
   })
 
-  it('Does not render the section title if hideTitle is set to true', async () => {
-    const options = {
-      method: 'GET',
-      url: '/titles/applicant-two',
+  it('does not render the section title if hideTitle is set to true', async () => {
+    const { container } = await renderResponse(server, {
+      url: `${basePath}/applicant-two`,
       headers
-    }
-
-    const { container } = await renderResponse(server, options)
+    })
 
     const $section = document.getElementById('section-title')
     const $heading = container.getByRole('heading', {
@@ -145,13 +131,10 @@ describe('Title and section title', () => {
   })
 
   it('render title with optional when there is single component in page and is selected as optional', async () => {
-    const options = {
-      method: 'GET',
+    const { container } = await renderResponse(server, {
       url: '/titles/applicant-one-address-optional',
       headers
-    }
-
-    const { container } = await renderResponse(server, options)
+    })
 
     const $heading = container.getByRole('heading', {
       name: 'Address (optional)',

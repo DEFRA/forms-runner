@@ -2,6 +2,7 @@ import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { within } from '@testing-library/dom'
+import { StatusCodes } from 'http-status-codes'
 
 import { createServer } from '~/src/server/index.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
@@ -15,18 +16,14 @@ import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
+const basePath = '/file-upload'
 
 jest.mock('~/src/server/plugins/engine/services/uploadService.js')
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
 
-const okStatusCode = 200
-const redirectStatusCode = 302
-const badRequestStatusCode = 400
-
-const url = '/file-upload/methodology-statement'
 const metadata = {
   formId: '66c304662ad3b5fe57210e7c',
-  path: url,
+  path: `${basePath}/methodology-statement`,
   retrievalKey: 'enrique.chase@defra.gov.uk'
 }
 
@@ -92,6 +89,7 @@ describe('File upload GET tests', () => {
       formFileName: 'file-upload.js',
       formFilePath: resolve(testDir, '../form/definitions')
     })
+
     await server.initialize()
   })
 
@@ -103,16 +101,14 @@ describe('File upload GET tests', () => {
     await server.stop()
   })
 
-  test('GET /file-upload returns 200', async () => {
+  test('GET /methodology-statement returns 200', async () => {
     jest.mocked(initiateUpload).mockResolvedValueOnce(uploadInitiateResponse)
 
-    const options = {
-      method: 'GET',
-      url
-    }
+    const { container, response } = await renderResponse(server, {
+      url: `${basePath}/methodology-statement`
+    })
 
-    const { container, response } = await renderResponse(server, options)
-    expect(response.statusCode).toBe(okStatusCode)
+    expect(response.statusCode).toBe(StatusCodes.OK)
 
     const $heading1 = container.getByRole('heading', {
       name: 'Upload your methodology statement',
@@ -131,42 +127,46 @@ describe('File upload GET tests', () => {
     expect($heading2).toHaveClass('govuk-heading-m')
   })
 
-  test('GET /file-upload returns uses cached initiated upload', async () => {
+  test('GET /methodology-statement returns uses cached initiated upload', async () => {
     jest.mocked(initiateUpload).mockResolvedValueOnce(uploadInitiateResponse)
 
-    const options = {
-      method: 'GET',
-      url
-    }
+    const res1 = await server.inject({
+      url: `${basePath}/methodology-statement`
+    })
 
-    const res1 = await server.inject(options)
-    expect(res1.statusCode).toBe(okStatusCode)
+    expect(res1.statusCode).toBe(StatusCodes.OK)
 
     // Extract the session cookie
     const headers = getCookieHeader(res1, 'session')
 
     jest.mocked(getUploadStatus).mockResolvedValueOnce(initiatedStatusResponse)
 
-    const res2 = await server.inject({ ...options, headers })
-    expect(res2.statusCode).toBe(okStatusCode)
+    const res2 = await server.inject({
+      url: `${basePath}/methodology-statement`,
+      headers
+    })
+
+    expect(res2.statusCode).toBe(StatusCodes.OK)
 
     // Assert invalid status response from CDP throws
     jest.mocked(getUploadStatus).mockResolvedValueOnce(undefined)
 
-    const res3 = await server.inject({ ...options, headers })
-    expect(res3.statusCode).toBe(badRequestStatusCode)
+    const res3 = await server.inject({
+      url: `${basePath}/methodology-statement`,
+      headers
+    })
+
+    expect(res3.statusCode).toBe(StatusCodes.BAD_REQUEST)
   })
 
-  test('GET /file-upload returns handles consumed upload', async () => {
+  test('GET /methodology-statement returns handles consumed upload', async () => {
     jest.mocked(initiateUpload).mockResolvedValueOnce(uploadInitiateResponse)
 
-    const options = {
-      method: 'GET',
-      url
-    }
+    const res1 = await server.inject({
+      url: `${basePath}/methodology-statement`
+    })
 
-    const res1 = await server.inject(options)
-    expect(res1.statusCode).toBe(okStatusCode)
+    expect(res1.statusCode).toBe(StatusCodes.OK)
 
     // Extract the session cookie
     const headers = getCookieHeader(res1, 'session')
@@ -174,8 +174,12 @@ describe('File upload GET tests', () => {
     jest.mocked(getUploadStatus).mockResolvedValue(pendingStatusResponse)
     jest.mocked(initiateUpload).mockResolvedValueOnce(uploadInitiateResponse)
 
-    const res2 = await server.inject({ ...options, headers })
-    expect(res2.statusCode).toBe(okStatusCode)
+    const res2 = await server.inject({
+      url: `${basePath}/methodology-statement`,
+      headers
+    })
+
+    expect(res2.statusCode).toBe(StatusCodes.OK)
   })
 })
 
@@ -189,6 +193,7 @@ describe('File upload POST tests', () => {
       formFileName: 'file-upload.js',
       formFilePath: resolve(testDir, '../form/definitions')
     })
+
     await server.initialize()
   })
 
@@ -200,16 +205,14 @@ describe('File upload POST tests', () => {
     await server.stop()
   })
 
-  test('POST /file-upload with pending file returns 200 with errors', async () => {
+  test('POST /methodology-statement with pending file returns 200 with errors', async () => {
     jest.mocked(initiateUpload).mockResolvedValue(uploadInitiateResponse)
 
-    const options = {
-      method: 'GET',
-      url
-    }
+    const res1 = await server.inject({
+      url: `${basePath}/methodology-statement`
+    })
 
-    const res1 = await server.inject(options)
-    expect(res1.statusCode).toBe(okStatusCode)
+    expect(res1.statusCode).toBe(StatusCodes.OK)
 
     // Extract the session cookie
     const headers = getCookieHeader(res1, 'session')
@@ -217,13 +220,13 @@ describe('File upload POST tests', () => {
     jest.mocked(getUploadStatus).mockResolvedValue(pendingStatusResponse)
 
     const { container, response } = await renderResponse(server, {
+      url: `${basePath}/methodology-statement`,
       method: 'POST',
-      url,
       headers,
       payload: {}
     })
 
-    expect(response.statusCode).toBe(okStatusCode)
+    expect(response.statusCode).toBe(StatusCodes.OK)
 
     const $errorSummary = container.getByRole('alert')
     const $errorItems = within($errorSummary).getAllByRole('listitem')
@@ -248,73 +251,67 @@ describe('File upload POST tests', () => {
     )
   })
 
-  test('POST /file-upload with 2 valid files returns 302 to /summary', async () => {
+  test('POST /methodology-statement with 2 valid files returns 302 to /summary', async () => {
     jest.mocked(initiateUpload).mockResolvedValue(uploadInitiateResponse)
     jest.mocked(getUploadStatus).mockResolvedValue(readyStatusResponse)
 
-    const options = {
-      method: 'GET',
-      url
-    }
+    const res1 = await server.inject({
+      url: `${basePath}/methodology-statement`
+    })
 
-    const res1 = await server.inject(options)
-    expect(res1.statusCode).toBe(okStatusCode)
+    expect(res1.statusCode).toBe(StatusCodes.OK)
 
     // Extract the session cookie
     const headers = getCookieHeader(res1, 'session')
 
     const res2 = await server.inject({
-      method: 'GET',
-      url,
+      url: `${basePath}/methodology-statement`,
       headers
     })
 
-    expect(res2.statusCode).toBe(okStatusCode)
+    expect(res2.statusCode).toBe(StatusCodes.OK)
 
     const res3 = await server.inject({
+      url: `${basePath}/methodology-statement`,
       method: 'POST',
-      url,
       headers,
       payload: {}
     })
 
-    expect(res3.statusCode).toBe(redirectStatusCode)
-    expect(res3.headers.location).toBe('/file-upload/summary')
+    expect(res3.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res3.headers.location).toBe(`${basePath}/summary`)
   })
 
-  test('POST /file-upload with remove deletes the file', async () => {
+  test('POST /methodology-statement with remove deletes the file', async () => {
     jest.mocked(initiateUpload).mockResolvedValue(uploadInitiateResponse)
     jest.mocked(getUploadStatus).mockResolvedValue(readyStatusResponse)
 
-    const options = {
-      method: 'GET',
-      url
-    }
+    const res1 = await server.inject({
+      url: `${basePath}/methodology-statement`
+    })
 
-    const res1 = await server.inject(options)
-    expect(res1.statusCode).toBe(okStatusCode)
+    expect(res1.statusCode).toBe(StatusCodes.OK)
 
     // Extract the session cookie
     const headers = getCookieHeader(res1, 'session')
 
     const res2 = await server.inject({
-      method: 'GET',
-      url,
+      url: `${basePath}/methodology-statement`,
       headers
     })
 
-    expect(res2.statusCode).toBe(okStatusCode)
+    expect(res2.statusCode).toBe(StatusCodes.OK)
 
     const res3 = await server.inject({
+      url: `${basePath}/methodology-statement`,
       method: 'POST',
-      url,
       headers,
       payload: {
         __remove: '15b2303c-9965-4632-acb6-0776081e0399'
       }
     })
 
-    expect(res3.statusCode).toBe(redirectStatusCode)
+    expect(res3.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
   })
 })
 

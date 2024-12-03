@@ -1,6 +1,8 @@
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { StatusCodes } from 'http-status-codes'
+
 import { createServer } from '~/src/server/index.js'
 import {
   persistFiles,
@@ -14,15 +16,12 @@ import * as fixtures from '~/test/fixtures/index.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
+const basePath = '/file-upload-basic'
 
 jest.mock('~/src/server/utils/notify.ts')
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
 jest.mock('~/src/server/plugins/engine/services/formSubmissionService.js')
 jest.mock('~/src/server/plugins/engine/services/uploadService.js')
-
-const okStatusCode = 200
-const redirectStatusCode = 302
-const htmlContentType = 'text/html'
 
 /**
  * @satisfies {FileState}
@@ -78,6 +77,7 @@ describe('Submission journey test', () => {
       formFileName: 'file-upload-basic.js',
       formFilePath: join(testDir, 'definitions')
     })
+
     await server.initialize()
   })
 
@@ -102,12 +102,11 @@ describe('Submission journey test', () => {
     })
 
     const res = await server.inject({
-      method: 'GET',
-      url: '/file-upload-basic/file-upload-component'
+      url: `${basePath}/file-upload-component`
     })
 
-    expect(res.statusCode).toEqual(okStatusCode)
-    expect(res.headers['content-type']).toContain(htmlContentType)
+    expect(res.statusCode).toBe(StatusCodes.OK)
+    expect(res.headers['content-type']).toContain('text/html')
   })
 
   test('POST /file-upload-component returns 302', async () => {
@@ -151,21 +150,20 @@ describe('Submission journey test', () => {
 
     // POST the form data to set the state
     const res = await server.inject({
+      url: `${basePath}/file-upload-component`,
       method: 'POST',
-      url: '/file-upload-basic/file-upload-component',
       payload: form
     })
 
-    expect(res.statusCode).toEqual(redirectStatusCode)
-    expect(res.headers.location).toBe('/file-upload-basic/summary')
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.headers.location).toBe(`${basePath}/summary`)
 
     // Extract the session cookie
     const headers = getCookieHeader(res, 'session')
 
     // GET the summary page
     await server.inject({
-      method: 'GET',
-      url: '/file-upload-basic/summary',
+      url: `${basePath}/summary`,
       headers
     })
 
@@ -173,8 +171,8 @@ describe('Submission journey test', () => {
     // the mock sendNotification contains
     // the correct personalisation data
     const submitRes = await server.inject({
+      url: `${basePath}/summary`,
       method: 'POST',
-      url: '/file-upload-basic/summary',
       headers,
       payload: { form }
     })
@@ -196,18 +194,17 @@ describe('Submission journey test', () => {
       sessionId: expect.any(String)
     })
 
-    expect(submitRes.statusCode).toBe(redirectStatusCode)
-    expect(submitRes.headers.location).toBe('/file-upload-basic/status')
+    expect(submitRes.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(submitRes.headers.location).toBe(`${basePath}/status`)
 
     // Finally GET the /{slug}/status page
     const statusRes = await server.inject({
-      method: 'GET',
-      url: '/file-upload-basic/status',
+      url: `${basePath}/status`,
       headers
     })
 
-    expect(statusRes.statusCode).toBe(okStatusCode)
-    expect(statusRes.headers['content-type']).toContain(htmlContentType)
+    expect(statusRes.statusCode).toBe(StatusCodes.OK)
+    expect(statusRes.headers['content-type']).toContain('text/html')
     expect(persistFiles).toHaveBeenCalledWith(
       [
         {

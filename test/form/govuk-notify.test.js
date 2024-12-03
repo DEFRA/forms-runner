@@ -2,6 +2,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { addDays, format } from 'date-fns'
+import { StatusCodes } from 'http-status-codes'
 import { outdent } from 'outdent'
 
 import { createServer } from '~/src/server/index.js'
@@ -20,19 +21,12 @@ import * as fixtures from '~/test/fixtures/index.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
+const basePath = '/components'
 
 jest.mock('~/src/server/utils/notify.ts')
 jest.mock('~/src/server/plugins/engine/services/uploadService.js')
 jest.mock('~/src/server/plugins/engine/services/formSubmissionService.js')
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
-
-const okStatusCode = 200
-const redirectStatusCode = 302
-const htmlContentType = 'text/html'
-
-const componentsPath = '/components/all-components'
-const fileUploadPath = '/components/methodology-statement'
-const summaryPath = '/components/summary'
 
 /**
  * @satisfies {UploadInitiateResponse}
@@ -83,6 +77,7 @@ describe('Submission journey test', () => {
       formFileName: 'components.json',
       formFilePath: join(testDir, 'definitions')
     })
+
     await server.initialize()
   })
 
@@ -96,12 +91,11 @@ describe('Submission journey test', () => {
 
   test('GET /all-components returns 200', async () => {
     const res = await server.inject({
-      method: 'GET',
-      url: componentsPath
+      url: `${basePath}/all-components`
     })
 
-    expect(res.statusCode).toEqual(okStatusCode)
-    expect(res.headers['content-type']).toContain(htmlContentType)
+    expect(res.statusCode).toBe(StatusCodes.OK)
+    expect(res.headers['content-type']).toContain('text/html')
   })
 
   test('POST /summary returns 302', async () => {
@@ -371,13 +365,13 @@ describe('Submission journey test', () => {
 
     // POST the form data to set the state
     const res = await server.inject({
+      url: `${basePath}/all-components`,
       method: 'POST',
-      url: componentsPath,
       payload: form
     })
 
-    expect(res.statusCode).toEqual(redirectStatusCode)
-    expect(res.headers.location).toBe(fileUploadPath)
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.headers.location).toBe(`${basePath}/methodology-statement`)
 
     return res
   }
@@ -389,20 +383,19 @@ describe('Submission journey test', () => {
    */
   async function fileUploadPage(headers) {
     await server.inject({
-      method: 'GET',
-      url: fileUploadPath,
+      url: `${basePath}/methodology-statement`,
       headers
     })
 
     const res = await server.inject({
+      url: `${basePath}/methodology-statement`,
       method: 'POST',
-      url: fileUploadPath,
       headers,
       payload: {}
     })
 
-    expect(res.statusCode).toEqual(redirectStatusCode)
-    expect(res.headers.location).toBe(summaryPath)
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.headers.location).toBe(`${basePath}/summary`)
 
     return res
   }
@@ -413,20 +406,19 @@ describe('Submission journey test', () => {
    */
   async function summaryPage(headers) {
     await server.inject({
-      method: 'GET',
-      url: summaryPath,
+      url: `${basePath}/summary`,
       headers
     })
 
     const res = await server.inject({
+      url: `${basePath}/summary`,
       method: 'POST',
-      url: summaryPath,
       headers,
       payload: {}
     })
 
-    expect(res.statusCode).toBe(redirectStatusCode)
-    expect(res.headers.location).toBe('/components/status')
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.headers.location).toBe(`${basePath}/status`)
 
     return res
   }
@@ -438,13 +430,12 @@ describe('Submission journey test', () => {
   async function statusPage(headers) {
     // Finally GET the /{slug}/status page
     const statusRes = await server.inject({
-      method: 'GET',
-      url: '/components/status',
+      url: `${basePath}/status`,
       headers
     })
 
-    expect(statusRes.statusCode).toBe(okStatusCode)
-    expect(statusRes.headers['content-type']).toContain(htmlContentType)
+    expect(statusRes.statusCode).toBe(StatusCodes.OK)
+    expect(statusRes.headers['content-type']).toContain('text/html')
   }
 })
 

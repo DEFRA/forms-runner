@@ -15,12 +15,12 @@ import { add } from 'date-fns'
 import { Parser, type Value } from 'expr-eval'
 import joi from 'joi'
 
+import { getPage, normalisePath } from '~/src/server/plugins/engine/helpers.js'
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
 import {
   getPageController,
   type PageControllerClass
 } from '~/src/server/plugins/engine/pageControllers/helpers.js'
-import { getPage } from '~/src/server/plugins/engine/plugin.js'
 import {
   type FormContext,
   type FormState,
@@ -41,15 +41,13 @@ export class FormModel {
 
   lists: FormDefinition['lists']
   sections: FormDefinition['sections'] = []
-  options: { basePath: string }
   name: string
   values: FormDefinition
   basePath: string
   conditions: Partial<Record<string, ExecutableCondition>>
   pages: PageControllerClass[]
-  startPage?: PageControllerClass
 
-  constructor(def: typeof this.def, options: typeof this.options) {
+  constructor(def: typeof this.def, options: { basePath: string }) {
     const result = formDefinitionSchema.validate(def, { abortEarly: false })
 
     if (result.error) {
@@ -80,10 +78,9 @@ export class FormModel {
     this.def = def
     this.lists = def.lists
     this.sections = def.sections
-    this.options = options
     this.name = def.name ?? ''
     this.values = result.value
-    this.basePath = options.basePath
+    this.basePath = normalisePath(options.basePath)
     this.conditions = {}
 
     def.conditions.forEach((conditionDef) => {
@@ -108,8 +105,6 @@ export class FormModel {
         })
       )
     }
-
-    this.startPage = this.pages.find((page) => page.path === def.startPage)
   }
 
   /**
@@ -211,10 +206,15 @@ export class FormModel {
     state: FormSubmissionState,
     request: FormRequest | FormRequestPayload
   ) {
-    let { basePath, startPage: nextPage } = this
+    const { pages } = this
 
-    const currentPath = getPage(request)?.path
-    const summaryPath = nextPage?.getSummaryPath()
+    // Current page
+    const page = getPage(request)
+
+    // Determine form paths
+    const currentPath = page?.href
+    const startPath = page?.getStartPath()
+    const summaryPath = page?.getSummaryPath()
 
     const context: FormContext = {
       evaluationState: {},
@@ -223,16 +223,18 @@ export class FormModel {
       paths: []
     }
 
+    // Find start page
+    let nextPage = pages.find(({ href }) => href === startPath)
+
     // Walk form pages from start
     while (nextPage) {
       const { collection, pageDef } = nextPage
-      const isRepeater = hasRepeater(pageDef)
 
       // Add page to context
       context.relevantPages.push(nextPage)
 
       // Skip evaluation state for repeater pages
-      if (!isRepeater) {
+      if (!hasRepeater(pageDef)) {
         Object.assign(
           context.evaluationState,
           collection.getContextValueFromState(state)
@@ -247,7 +249,7 @@ export class FormModel {
       }
 
       // Stop at current or summary page
-      if (nextPage.path === currentPath || nextPage.path === summaryPath) {
+      if (nextPage.href === currentPath || nextPage.href === summaryPath) {
         break
       }
 
@@ -257,14 +259,12 @@ export class FormModel {
 
     // Check if current page is in context
     const isFormPath = context.relevantPages.some(
-      ({ path }) => path === currentPath
+      ({ href }) => href === currentPath
     )
 
     // Add paths for navigation
     if (isFormPath) {
-      context.paths = context.relevantPages.map(
-        ({ path }) => `${basePath}${path}`
-      )
+      context.paths = context.relevantPages.map(({ href }) => href)
     }
 
     return context

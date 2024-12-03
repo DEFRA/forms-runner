@@ -129,7 +129,7 @@ export class SummaryViewModel {
     state: FormSubmissionState
   ) {
     const { errors, context } = this
-    const { basePath, sections } = model
+    const { sections } = model
 
     const details: Detail[] = []
 
@@ -141,8 +141,7 @@ export class SummaryViewModel {
       )
 
       sectionPages.forEach((page) => {
-        const { collection, path } = page
-        const href = `/${basePath}${path}`
+        const { collection, href } = page
 
         if (page instanceof RepeatPageController) {
           items.push(

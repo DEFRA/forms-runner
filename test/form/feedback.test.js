@@ -8,6 +8,7 @@ import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 const { FEEDBACK_LINK } = process.env
 const testDir = dirname(fileURLToPath(import.meta.url))
+const basePath = '/feedback'
 
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
 
@@ -21,6 +22,7 @@ describe('Feedback link', () => {
       formFileName: 'feedback.json',
       formFilePath: join(testDir, 'definitions')
     })
+
     await server.initialize()
   })
 
@@ -41,7 +43,7 @@ describe('Feedback link', () => {
     },
     {
       // Email address from feedback.json
-      url: '/feedback/uk-passport',
+      url: `${basePath}/uk-passport`,
       name: 'give your feedback by email',
       href: 'mailto:test@feedback.cat'
     }

@@ -9,7 +9,6 @@ import {
   encodeUrl,
   getErrors,
   proceed,
-  redirectTo,
   redirectUrl
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormStatus } from '~/src/server/routes/types.js'
@@ -54,27 +53,6 @@ describe('Helpers', () => {
 
       const nextUrl = 'badgers/monkeys'
       proceed(request, h, nextUrl)
-
-      expect(h.redirect).toHaveBeenCalledTimes(1)
-      expect(h.redirect).toHaveBeenCalledWith(nextUrl)
-    })
-  })
-
-  describe('redirectTo', () => {
-    it('should redirect to next url when no query params in the request', () => {
-      const nextUrl = 'badgers/monkeys'
-      redirectTo(h, nextUrl)
-
-      expect(h.redirect).toHaveBeenCalledTimes(1)
-      expect(h.redirect).toHaveBeenCalledWith(nextUrl)
-    })
-
-    it('should redirect to next url ignoring most params from original request', () => {
-      request.query.myParam = 'myValue'
-      request.query.myParam2 = 'myValue2'
-
-      const nextUrl = 'badgers/monkeys'
-      redirectTo(h, nextUrl)
 
       expect(h.redirect).toHaveBeenCalledTimes(1)
       expect(h.redirect).toHaveBeenCalledWith(nextUrl)

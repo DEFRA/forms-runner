@@ -1,6 +1,8 @@
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { StatusCodes } from 'http-status-codes'
+
 import { createServer } from '~/src/server/index.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
@@ -8,27 +10,13 @@ import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookie } from '~/test/utils/get-cookie.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
+const basePath = '/basic'
 
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
 
 describe('CSRF', () => {
   /** @type {Server} */
   let server
-
-  /**
-   * @param {Partial<ServerInjectOptions>} [opts]
-   * @returns {ServerInjectOptions}
-   */
-  const options = (opts) => {
-    return {
-      method: 'POST',
-      url: '/basic/start',
-      payload: {
-        licenceLength: '1'
-      },
-      ...opts
-    }
-  }
 
   // Create server before each test
   beforeAll(async () => {
@@ -37,6 +25,7 @@ describe('CSRF', () => {
       formFilePath: join(testDir, 'definitions'),
       enforceCsrf: true
     })
+
     await server.initialize()
   })
 
@@ -49,15 +38,11 @@ describe('CSRF', () => {
   })
 
   test('get request returns CSRF header', async () => {
-    const { response } = await renderResponse(
-      server,
-      options({
-        method: 'GET',
-        payload: undefined
-      })
-    )
+    const { response } = await renderResponse(server, {
+      url: `${basePath}/start`
+    })
 
-    expect(response.statusCode).toBe(200)
+    expect(response.statusCode).toBe(StatusCodes.OK)
 
     const csrfToken = getCookie(response, 'crumb')
     expect(csrfToken).toBeTruthy()
@@ -69,26 +54,33 @@ describe('CSRF', () => {
   })
 
   test('post request without CSRF token returns 403 forbidden', async () => {
-    const response = await server.inject(options())
-    expect(response.statusCode).toBe(403)
+    const response = await server.inject({
+      url: `${basePath}/start`,
+      method: 'POST',
+      payload: {
+        licenceLength: '1'
+      }
+    })
+
+    expect(response.statusCode).toBe(StatusCodes.FORBIDDEN)
   })
 
   test('post request with CSRF token returns 302 redirect', async () => {
     const csrfToken = 'dummy-token'
 
-    const response = await server.inject(
-      options({
-        headers: {
-          cookie: `crumb=${csrfToken}`
-        },
-        payload: {
-          crumb: csrfToken,
-          licenceLength: '1'
-        }
-      })
-    )
+    const response = await server.inject({
+      url: `${basePath}/start`,
+      method: 'POST',
+      headers: {
+        cookie: `crumb=${csrfToken}`
+      },
+      payload: {
+        crumb: csrfToken,
+        licenceLength: '1'
+      }
+    })
 
-    expect(response.statusCode).toBe(302)
+    expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
   })
 })
 

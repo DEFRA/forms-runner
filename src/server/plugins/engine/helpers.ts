@@ -1,3 +1,4 @@
+import { ControllerPath } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
 import { format, parseISO } from 'date-fns'
@@ -7,9 +8,10 @@ import upperFirst from 'lodash/upperFirst.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { RelativeUrl } from '~/src/server/plugins/engine/feedback/index.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
-import { FormStatus } from '~/src/server/routes/types.js'
 import {
+  FormStatus,
   type FormQuery,
   type FormRequest,
   type FormRequestPayload
@@ -30,7 +32,7 @@ export function proceed(
   if (returnUrl?.startsWith('/')) {
     return h.redirect(returnUrl)
   } else {
-    return redirectTo(h, nextUrl)
+    return h.redirect(nextUrl)
   }
 }
 
@@ -58,17 +60,32 @@ export function redirectUrl(targetUrl: string, params?: FormQuery) {
   return relativeUrl.toString()
 }
 
-export function redirectTo(
-  h: Pick<ResponseToolkit, 'redirect'>,
-  targetUrl: string,
-  params?: FormQuery
-) {
-  if (targetUrl.startsWith('http')) {
-    return h.redirect(targetUrl)
+export function normalisePath(path = '') {
+  return path
+    .trim() // Trim empty spaces
+    .replace(/^\//, '') // Remove leading slash
+    .replace(/\/$/, '') // Remove trailing slash
+}
+
+export function getPage(request: FormRequest | FormRequestPayload) {
+  const { model } = request.app
+  const { path } = request.params
+
+  return model?.pages.find(
+    (page) => normalisePath(page.path) === normalisePath(path)
+  )
+}
+
+export function getStartPath(model?: FormModel) {
+  const basePath = model?.basePath ?? ''
+  const startPage = model?.def.startPage
+
+  if (startPage?.startsWith('http')) {
+    return startPage
   }
 
-  const url = redirectUrl(targetUrl, params)
-  return h.redirect(url)
+  const startPath = normalisePath(startPage)
+  return `/${basePath}/${startPath || ControllerPath.Start}`
 }
 
 export const filesize = (bytes: number) => {

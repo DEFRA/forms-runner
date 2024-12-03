@@ -7,11 +7,12 @@ import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
+const basePath = '/minimal'
 
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
 jest.mock('~/src/server/plugins/engine/services/formSubmissionService.js')
 
-describe('Page: /basic/summary', () => {
+describe('Page: /summary', () => {
   /** @type {Server} */
   let server
 
@@ -26,14 +27,11 @@ describe('Page: /basic/summary', () => {
   })
 
   it('should render the page with email notification warning', async () => {
-    const options = {
-      method: 'GET',
-      url: '/basic/summary'
-    }
-
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
 
-    const { container } = await renderResponse(server, options)
+    const { container } = await renderResponse(server, {
+      url: `${basePath}/summary`
+    })
 
     const $warning = container.getByRole('link', {
       name: 'enter the email address (opens in new tab)'
@@ -43,16 +41,14 @@ describe('Page: /basic/summary', () => {
   })
 
   it('should render the page with no email notification warning', async () => {
-    const options = {
-      method: 'GET',
-      url: '/basic/summary'
-    }
-
     jest.mocked(getFormMetadata).mockResolvedValue({
       ...fixtures.form.metadata,
       notificationEmail: 'defra@gov.uk'
     })
-    const { container } = await renderResponse(server, options)
+
+    const { container } = await renderResponse(server, {
+      url: `${basePath}/summary`
+    })
 
     const $warning = container.queryByRole('link', {
       name: 'enter the email address (opens in new tab)'
