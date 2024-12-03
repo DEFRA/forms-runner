@@ -23,6 +23,7 @@ import { optionalText } from '~/src/server/plugins/engine/components/constants.j
 import {
   encodeUrl,
   getErrors,
+  getStartPath,
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
@@ -41,8 +42,6 @@ import {
   type FormRequestPayloadRefs,
   type FormRequestRefs
 } from '~/src/server/routes/types.js'
-
-const designerUrl = config.get('designerUrl')
 
 export class PageControllerBase {
   /**
@@ -186,6 +185,10 @@ export class PageControllerBase {
     )
   }
 
+  getStartPath() {
+    return getStartPath(this.model)
+  }
+
   getSummaryPath() {
     const { model } = this
     return `/${model.basePath}${ControllerPath.Summary}`
@@ -273,9 +276,7 @@ export class PageControllerBase {
       const isStartPage = path === startPage
 
       if (!progress.length && !isStartPage) {
-        return startPage?.startsWith('http')
-          ? h.redirect(startPage)
-          : h.redirect(`/${this.model.basePath}${startPage}`)
+        h.redirect(this.getStartPath())
       }
 
       const payload = this.getFormDataFromState(state)
@@ -333,26 +334,29 @@ export class PageControllerBase {
       viewModel.backLink = this.getBackLink(progress)
 
       viewModel.notificationEmailWarning =
-        await this.buildMissingEmailWarningModel(request, isStartPage)
+        await this.buildMissingEmailWarningModel(request)
 
       return h.view(viewName, viewModel)
     }
   }
 
   async buildMissingEmailWarningModel(
-    request: FormRequest,
-    isStartPage?: boolean
+    request: FormRequest
   ): Promise<PageViewModel['notificationEmailWarning']> {
+    const { href } = this
     const { params } = request
+
+    const startPath = this.getStartPath()
+    const summaryPath = this.getSummaryPath()
+
     // Warn the user if the form has no notification email set only on start page and summary page
-    if (isStartPage || params.path === 'summary') {
-      const { slug } = params
-      const { notificationEmail } = await getFormMetadata(slug)
+    if ([startPath, summaryPath].includes(href)) {
+      const { notificationEmail } = await getFormMetadata(params.slug)
 
       if (!notificationEmail) {
         return {
-          slug,
-          designerUrl
+          slug: params.slug,
+          designerUrl: config.get('designerUrl')
         }
       }
     }
