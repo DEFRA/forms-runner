@@ -118,8 +118,8 @@ export class SummaryPageController extends PageController {
 
         if (pageWithError) {
           return h.redirect(
-            redirectUrl(`/${model.basePath}${pageWithError.path}`, {
-              returnUrl: redirectUrl(`/${model.basePath}/summary`)
+            redirectUrl(pageWithError.href, {
+              returnUrl: redirectUrl(pageWithError.getSummaryPath())
             })
           )
         }
@@ -403,9 +403,9 @@ export function getPersonalisation(
 
 export function getFormSubmissionData(context: FormContext, details: Detail[]) {
   return context.relevantPages
-    .map(({ path }) =>
+    .map(({ href }) =>
       details.flatMap(({ items }) =>
-        items.filter(({ page }) => page.path === path)
+        items.filter(({ page }) => page.href === href)
       )
     )
     .flat()

@@ -61,10 +61,10 @@ describe('PageControllerBase', () => {
       // The state below shows we said we had a UKPassport and entered details for an applicant
       const state: FormSubmissionState = {
         progress: [
-          'test/uk-passport',
-          'test/how-many-people',
-          'test/applicant-one-name',
-          'test/applicant-one-address'
+          '/test/uk-passport',
+          '/test/how-many-people',
+          '/test/applicant-one-name',
+          '/test/applicant-one-address'
         ],
         ukPassport: true,
         numberOfApplicants: 2,
@@ -116,10 +116,10 @@ describe('PageControllerBase', () => {
 
       // Our context should know which pages are relevant
       expect(context.paths).toEqual([
-        'test/uk-passport',
-        'test/how-many-people',
-        'test/applicant-one-name',
-        'test/applicant-one-address'
+        '/test/uk-passport',
+        '/test/how-many-people',
+        '/test/applicant-one-name',
+        '/test/applicant-one-address'
       ])
 
       // Now mark that we don't have a UK Passport
@@ -142,9 +142,9 @@ describe('PageControllerBase', () => {
 
       // Our context should no longer list pages about our applicant
       expect(context.paths).toEqual([
-        'test/uk-passport',
-        'test/testconditions',
-        'test/summary'
+        '/test/uk-passport',
+        '/test/testconditions',
+        '/test/summary'
       ])
 
       // Our context should no longer know anything about our applicant

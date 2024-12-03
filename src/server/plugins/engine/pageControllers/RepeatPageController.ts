@@ -351,7 +351,6 @@ export class RepeatPageController extends PageController {
 
     const { title } = repeat.options
     const sectionTitle = section?.hideTitle !== true ? section?.title : ''
-    const serviceUrl = `/${model.basePath}`
 
     const summaryList: SummaryList = {
       classes: 'govuk-summary-list--long-actions',
@@ -406,7 +405,7 @@ export class RepeatPageController extends PageController {
       sectionTitle,
       showTitle: true,
       errors,
-      serviceUrl,
+      serviceUrl: `/${model.basePath}`,
       checkAnswers: [{ summaryList }],
       repeatTitle: title
     }

@@ -60,8 +60,11 @@ export function redirectUrl(targetUrl: string, params?: FormQuery) {
   return relativeUrl.toString()
 }
 
-export function normalisePath(path: string) {
-  return path.replace(/^\//, '').replace(/\/$/, '')
+export function normalisePath(path = '') {
+  return path
+    .trim() // Trim empty spaces
+    .replace(/^\//, '') // Remove leading slash
+    .replace(/\/$/, '') // Remove trailing slash
 }
 
 export function getPage(request: FormRequest | FormRequestPayload) {
@@ -74,11 +77,15 @@ export function getPage(request: FormRequest | FormRequestPayload) {
 }
 
 export function getStartPath(model?: FormModel) {
-  const startPage = normalisePath(model?.def.startPage ?? ControllerPath.Start)
+  const basePath = model?.basePath ?? ''
+  const startPage = model?.def.startPage
 
-  return !startPage.startsWith('http') && model?.basePath
-    ? `/${model.basePath}/${startPage}`
-    : startPage
+  if (startPage?.startsWith('http')) {
+    return startPage
+  }
+
+  const startPath = normalisePath(startPage)
+  return `/${basePath}/${startPath || ControllerPath.Start}`
 }
 
 export const filesize = (bytes: number) => {

@@ -24,6 +24,7 @@ import {
   encodeUrl,
   getErrors,
   getStartPath,
+  normalisePath,
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
@@ -102,10 +103,8 @@ export class PageControllerBase {
   ): PageViewModel {
     let showTitle = true
 
-    let { title: pageTitle, section } = this
+    let { model, title: pageTitle, section } = this
     const sectionTitle = section?.hideTitle !== true ? section?.title : ''
-
-    const serviceUrl = `/${this.model.basePath}`
 
     const components = this.collection.getViewModel(payload, errors)
     const formComponents = components.filter(
@@ -161,7 +160,7 @@ export class PageControllerBase {
       components,
       errors,
       isStartPage: false,
-      serviceUrl,
+      serviceUrl: `/${model.basePath}`,
       feedbackLink: this.getFeedbackLink(),
       phaseTag: this.getPhaseTag()
     }
@@ -169,7 +168,7 @@ export class PageControllerBase {
 
   get href() {
     const { model, path } = this
-    return `/${model.basePath}${path}`
+    return `/${model.basePath}/${normalisePath(path)}`
   }
 
   get next(): Link[] {
@@ -181,7 +180,7 @@ export class PageControllerBase {
 
     // Remove stale links
     return pageDef.next.filter(({ path }) =>
-      def.pages.some((page) => path === page.path)
+      def.pages.some((page) => normalisePath(path) === normalisePath(page.path))
     )
   }
 
@@ -491,7 +490,9 @@ export class PageControllerBase {
   }
 
   findPageByPath(path?: string) {
-    return this.model.pages.find((page) => page.path === path)
+    return this.model.pages.find(
+      (page) => normalisePath(page.path) === normalisePath(path)
+    )
   }
 
   /**
