@@ -92,7 +92,6 @@ export class DatePartsField extends FormComponent {
       { ...props, parent: this },
       {
         custom: getValidatorDate(this),
-        messages: customValidationMessages,
         peers: [`${name}__day`, `${name}__month`, `${name}__year`]
       }
     )

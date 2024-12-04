@@ -80,7 +80,6 @@ export class MonthYearField extends FormComponent {
       { ...props, parent: this },
       {
         custom: getValidatorMonthYear(this),
-        messages: customValidationMessages,
         peers: [`${name}__month`, `${name}__year`]
       }
     )
