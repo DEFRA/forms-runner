@@ -15,12 +15,17 @@ import { add } from 'date-fns'
 import { Parser, type Value } from 'expr-eval'
 import joi from 'joi'
 
-import { getPage, normalisePath } from '~/src/server/plugins/engine/helpers.js'
+import {
+  getError,
+  getPage,
+  normalisePath
+} from '~/src/server/plugins/engine/helpers.js'
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
 import {
   getPageController,
   type PageControllerClass
 } from '~/src/server/plugins/engine/pageControllers/helpers.js'
+import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormContext,
   type FormContextRequest,
@@ -251,8 +256,23 @@ export class FormModel {
       nextPage = nextPage.getNextPage(context)
     }
 
+    // Validate relevant state
+    const { error } = page.model
+      .makeFilteredSchema(context.relevantPages)
+      .validate(context.relevantState, { ...opts, stripUnknown: true })
+
+    // Add relevant state errors
+    context.errors = error?.details.map(getError)
+
     // Add paths for navigation
-    context.paths = context.relevantPages.map(({ href }) => href)
+    for (const { collection, href } of context.relevantPages) {
+      context.paths.push(href)
+
+      // Stop at current page or with errors
+      if (href === currentPath || collection.getErrors(context.errors)) {
+        break
+      }
+    }
 
     return context
   }
