@@ -1,7 +1,7 @@
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
 import {
-  type FormContext,
+  type FormContextProgress,
   type FormContextRequest,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
@@ -213,9 +213,9 @@ describe('PageControllerBase', () => {
   })
 
   describe('Form journey', () => {
-    let context: FormContext
-    let contextNo: FormContext
-    let contextYes: FormContext
+    let context: FormContextProgress
+    let contextNo: FormContextProgress
+    let contextYes: FormContextProgress
 
     beforeEach(() => {
       const request = {

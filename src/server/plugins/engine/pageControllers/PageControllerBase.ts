@@ -31,6 +31,7 @@ import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
   type FormContext,
+  type FormContextProgress,
   type FormPayload,
   type FormSubmissionError,
   type FormSubmissionState,
@@ -198,7 +199,7 @@ export class PageControllerBase {
     return getStartPath(this.model)
   }
 
-  getRelevantPath(context: FormContext) {
+  getRelevantPath(context: FormContextProgress) {
     const { paths } = context
 
     const startPath = this.getStartPath()
@@ -421,7 +422,9 @@ export class PageControllerBase {
       const { model } = this
 
       const state = await this.getState(request)
-      const context = model.getFormContext(request, state)
+      const context = model.getFormContext(request, state, {
+        validate: false
+      })
 
       // Sanitised payload after validation
       const { value: payload, errors } = this.validate(request)

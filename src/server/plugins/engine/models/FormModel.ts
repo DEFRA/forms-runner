@@ -28,6 +28,7 @@ import {
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormContext,
+  type FormContextProgress,
   type FormContextRequest,
   type FormState,
   type FormSubmissionState
@@ -204,7 +205,30 @@ export class FormModel {
     return this.lists.find((list) => list.name === name)
   }
 
-  getFormContext(request: FormContextRequest, state: FormState) {
+  /**
+   * Form context for the current page
+   * (with progress validation)
+   */
+  getFormContext(
+    request: FormContextRequest,
+    state: FormState
+  ): FormContextProgress
+
+  /**
+   * Form context for the current page
+   * (without progress validation)
+   */
+  getFormContext(
+    request: FormContextRequest,
+    state: FormState,
+    options: { validate: false }
+  ): FormContext
+
+  getFormContext(
+    request: FormContextRequest,
+    state: FormState,
+    options?: { validate: false }
+  ): FormContext | FormContextProgress {
     const page = getPage(this, request)
 
     // Determine form paths
@@ -215,8 +239,7 @@ export class FormModel {
       evaluationState: {},
       relevantState: {},
       relevantPages: [],
-      state,
-      paths: []
+      state
     }
 
     // Find start page
@@ -253,24 +276,34 @@ export class FormModel {
       nextPage = findPage(this, nextPage.getNextPath(context))
     }
 
+    // Skip validation (optional)
+    if (options?.validate === false) {
+      return context
+    }
+
     // Validate relevant state
     const { error } = page.model
       .makeFilteredSchema(context.relevantPages)
       .validate(context.relevantState, { ...opts, stripUnknown: true })
 
-    // Add relevant state errors
-    context.errors = error?.details.map(getError)
+    // Format relevant state errors
+    const errors = error?.details.map(getError)
+    const paths: string[] = []
 
     // Add paths for navigation
     for (const { collection, path } of context.relevantPages) {
-      context.paths.push(path)
+      paths.push(path)
 
       // Stop at current page or with errors
-      if (path === currentPath || collection.getErrors(context.errors)) {
+      if (path === currentPath || collection.getErrors(errors)) {
         break
       }
     }
 
-    return context
+    return {
+      ...context,
+      errors,
+      paths
+    }
   }
 }
