@@ -98,8 +98,7 @@ export class PageController {
       isStartPage: false,
       serviceUrl: this.getHref('/'),
       feedbackLink: this.feedbackLink,
-      phaseTag: this.phaseTag,
-      googleAnalyticsTrackingId: '12345' // this.model.def.googleAnalyticsTrackingId
+      phaseTag: this.phaseTag
     }
   }
 
