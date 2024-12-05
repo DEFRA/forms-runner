@@ -78,7 +78,16 @@ export class SummaryPageController extends PageController {
     h: ResponseToolkit<FormRequestRefs>
   ) => Promise<ResponseObject | Boom> {
     return async (request, h) => {
+      const { href, model } = this
+
       const state = await this.getState(request)
+      const context = model.getFormContext(state, request)
+
+      // Redirect back to last relevant page
+      if (!context.paths.includes(href)) {
+        return h.redirect(this.getRelevantPath(context))
+      }
+
       const viewModel = this.getSummaryViewModel(state, request)
 
       /**
