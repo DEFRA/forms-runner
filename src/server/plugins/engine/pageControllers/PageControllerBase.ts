@@ -448,7 +448,11 @@ export class PageControllerBase {
 
         // This is required to ensure we don't navigate
         // to an incorrect page based on stale state values
-        this.getNextPath(model.getFormContext(request, formState))
+        this.getNextPath(
+          model.getFormContext(request, formState, {
+            validate: false
+          })
+        )
       )
     }
   }

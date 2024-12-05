@@ -262,7 +262,11 @@ export class RepeatPageController extends PageController {
 
           // This is required to ensure we don't navigate
           // to an incorrect page based on stale state values
-          this.getNextPath(model.getFormContext(request, state))
+          this.getNextPath(
+            model.getFormContext(request, state, {
+              validate: false
+            })
+          )
         )
       }
     }
