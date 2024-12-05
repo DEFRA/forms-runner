@@ -9,7 +9,10 @@ import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { RelativeUrl } from '~/src/server/plugins/engine/feedback/index.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
+import {
+  type FormContextRequest,
+  type FormSubmissionError
+} from '~/src/server/plugins/engine/types.js'
 import {
   FormStatus,
   type FormQuery,
@@ -69,7 +72,7 @@ export function normalisePath(path = '') {
 
 export function getPage(
   model: FormModel | undefined,
-  request: FormRequest | FormRequestPayload
+  request: FormContextRequest
 ) {
   const { params } = request
 

@@ -23,13 +23,10 @@ import {
 } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
   type FormContext,
+  type FormContextRequest,
   type FormState,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
-import {
-  type FormRequest,
-  type FormRequestPayload
-} from '~/src/server/routes/types.js'
 
 export class FormModel {
   /**
@@ -202,10 +199,7 @@ export class FormModel {
     return this.lists.find((list) => list.name === name)
   }
 
-  getFormContext(
-    state: FormSubmissionState,
-    request: FormRequest | FormRequestPayload
-  ) {
+  getFormContext(state: FormState, request: FormContextRequest) {
     const { pages } = this
 
     // Current page

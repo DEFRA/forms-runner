@@ -33,6 +33,7 @@ import {
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
   type FormContext,
+  type FormContextRequest,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import {
@@ -53,7 +54,7 @@ export class SummaryPageController extends PageController {
 
   getSummaryViewModel(
     state: FormSubmissionState,
-    request: FormRequest | FormRequestPayload
+    request: FormContextRequest
   ): SummaryViewModel {
     const viewModel = new SummaryViewModel(
       this.model,
