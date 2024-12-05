@@ -250,27 +250,10 @@ export class ComponentCollection {
   }
 
   /**
-   * Validate form state only
-   * @param value - answers via POST payload
-   * @param value - answers via Redis state
+   * Validate form payload
    */
-  validate(payload?: FormPayload): FormValidationResult<FormPayload>
-
-  /**
-   * Validate form payload only
-   * @param value - answers via Redis state
-   * @param schema - field name for state schema
-   */
-  validate(
-    state: FormSubmissionState,
-    schema: 'stateSchema'
-  ): FormValidationResult<FormSubmissionState>
-
-  validate(
-    value: FormPayload | FormSubmissionState = {},
-    schema: 'formSchema' | 'stateSchema' = 'formSchema'
-  ): FormValidationResult<typeof value> {
-    const result = this[schema].validate(value, opts)
+  validate(value: FormPayload = {}): FormValidationResult<FormPayload> {
+    const result = this.formSchema.validate(value, opts)
     const details = result.error?.details
 
     return {

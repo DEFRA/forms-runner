@@ -12,7 +12,7 @@ import {
   tempItemSchema,
   tempStatusSchema
 } from '~/src/server/plugins/engine/components/FileUploadField.js'
-import { getError } from '~/src/server/plugins/engine/helpers.js'
+import { getError, proceed } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
@@ -129,7 +129,7 @@ export class FileUploadPageController extends PageController {
       const removed = await this.checkRemovedFiles(request, state, cacheService)
 
       if (removed) {
-        return h.redirect(request.path)
+        return proceed(request, h, request.path)
       }
 
       await this.refreshUpload(request, state, cacheService)
@@ -138,15 +138,16 @@ export class FileUploadPageController extends PageController {
     }
   }
 
-  protected getPayload(request: FormRequestPayload) {
-    const payload = super.getPayload(request)
+  validate(request: FormRequestPayload) {
+    const { payload } = request
+
     const name = this.getComponentName()
     const files = request.app.files ?? []
 
     // Append the files to the payload
     payload[name] = files.length ? files : undefined
 
-    return payload
+    return super.validate(request)
   }
 
   getErrors(details?: ValidationErrorItem[]) {
@@ -362,7 +363,7 @@ export class FileUploadPageController extends PageController {
     state: TempFileState,
     cacheService: CacheService
   ) {
-    const payload = super.getPayload(request)
+    const { payload } = request
     const removeId = payload.__remove
 
     if (removeId) {

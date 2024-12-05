@@ -9,7 +9,10 @@ import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { RelativeUrl } from '~/src/server/plugins/engine/feedback/index.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
+import {
+  type FormContextRequest,
+  type FormSubmissionError
+} from '~/src/server/plugins/engine/types.js'
 import {
   FormStatus,
   type FormQuery,
@@ -67,25 +70,29 @@ export function normalisePath(path = '') {
     .replace(/\/$/, '') // Remove trailing slash
 }
 
-export function getPage(request: FormRequest | FormRequestPayload) {
-  const { model } = request.app
-  const { path } = request.params
+export function getPage(
+  model: FormModel | undefined,
+  request: FormContextRequest
+) {
+  const { params } = request
 
-  return model?.pages.find(
-    (page) => normalisePath(page.path) === normalisePath(path)
-  )
+  const page = findPage(model, `/${params.path}`)
+
+  if (!page) {
+    throw Boom.notFound(`No page found for /${params.path}`)
+  }
+
+  return page
+}
+
+export function findPage(model: FormModel | undefined, path?: string) {
+  const findPath = `/${normalisePath(path)}`
+  return model?.pages.find(({ path }) => path === findPath)
 }
 
 export function getStartPath(model?: FormModel) {
-  const basePath = model?.basePath ?? ''
-  const startPage = model?.def.startPage
-
-  if (startPage?.startsWith('http')) {
-    return startPage
-  }
-
-  const startPath = normalisePath(startPage)
-  return `/${basePath}/${startPath || ControllerPath.Start}`
+  const startPath = normalisePath(model?.def.startPage)
+  return startPath ? `/${startPath}` : ControllerPath.Start
 }
 
 export const filesize = (bytes: number) => {
