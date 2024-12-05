@@ -214,7 +214,6 @@ export class FormModel {
     // Determine form paths
     const currentPath = page?.href
     const startPath = page?.getStartPath()
-    const summaryPath = page?.getSummaryPath()
 
     const context: FormContext = {
       evaluationState: {},
@@ -248,8 +247,8 @@ export class FormModel {
         }
       }
 
-      // Stop at current or summary page
-      if (nextPage.href === currentPath || nextPage.href === summaryPath) {
+      // Stop at current page
+      if (nextPage.href === currentPath) {
         break
       }
 
@@ -257,15 +256,8 @@ export class FormModel {
       nextPage = nextPage.getNextPage(context.evaluationState)
     }
 
-    // Check if current page is in context
-    const isFormPath = context.relevantPages.some(
-      ({ href }) => href === currentPath
-    )
-
     // Add paths for navigation
-    if (isFormPath) {
-      context.paths = context.relevantPages.map(({ href }) => href)
-    }
+    context.paths = context.relevantPages.map(({ href }) => href)
 
     return context
   }

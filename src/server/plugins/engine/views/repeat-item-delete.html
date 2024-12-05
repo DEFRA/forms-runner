@@ -12,7 +12,10 @@
       {% endif %}
 
       {% if errors %}
-        {{ govukErrorSummary(errors) }}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: errors
+        }) }}
       {% endif %}
 
       {% include "partials/heading.html" %}

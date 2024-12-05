@@ -360,9 +360,9 @@ describe('Form journey', () => {
         headers
       })
 
-      // Redirect to base path
+      // Redirect back to start
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-      expect(response.headers.location).toBe(basePath)
+      expect(response.headers.location).toBe(`${basePath}/start`)
     })
 
     it('should redirect to the complete page on submit', async () => {

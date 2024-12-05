@@ -21,7 +21,7 @@ export class StatusPageController extends PageController {
       // If there's no confirmation state, then
       // redirect the user back to the start of the form
       if (!confirmationState.confirmed) {
-        return h.redirect(`/${model.basePath}`).temporary()
+        return h.redirect(this.getStartPath())
       }
 
       const slug = request.params.slug
