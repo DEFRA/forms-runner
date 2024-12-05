@@ -29,7 +29,7 @@ export function context(request) {
 
   const { params, path } = request ?? {}
 
-  const cookieConsent = request?.yar.get('cookieConsent') ?? false
+  const cookieConsent = request?.yar.get('cookieConsent') ?? undefined
   const isPreviewMode = path?.startsWith(PREVIEW_PATH_PREFIX)
 
   return {
