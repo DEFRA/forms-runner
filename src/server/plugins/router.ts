@@ -60,7 +60,7 @@ export default {
         }
       })
 
-      server.route({
+      server.route<{ Payload: { 'cookies[additional]': string } }>({
         method: 'post',
         path: '/help/cookie-preferences',
         handler(request, h) {
