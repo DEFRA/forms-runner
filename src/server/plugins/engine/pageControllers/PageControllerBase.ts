@@ -31,6 +31,7 @@ import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
+  type FormContext,
   type FormPayload,
   type FormState,
   type FormSubmissionError,
@@ -188,6 +189,14 @@ export class PageControllerBase {
     return getStartPath(this.model)
   }
 
+  getRelevantPath(context: FormContext) {
+    const { paths } = context
+
+    return !paths.length
+      ? this.getStartPath() // First relevant path
+      : paths.at(-1) // Last relevant path
+  }
+
   getSummaryPath() {
     const { model } = this
     return `/${model.basePath}${ControllerPath.Summary}`
@@ -266,27 +275,26 @@ export class PageControllerBase {
     h: ResponseToolkit<FormRequestRefs>
   ) => Promise<ResponseObject | Boom> {
     return async (request, h) => {
-      const { model, path, viewName } = this
-
-      const { startPage } = model.def
+      const { href, model, viewName } = this
 
       const state = await this.getState(request)
-      const progress = state.progress ?? []
-      const isStartPage = path === startPage
+      const context = model.getFormContext(state, request)
 
-      if (!progress.length && !isStartPage) {
-        h.redirect(this.getStartPath())
+      // Redirect back to last relevant page
+      if (!context.paths.includes(href)) {
+        return h.redirect(this.getRelevantPath(context))
       }
 
       const payload = this.getFormDataFromState(state)
       const viewModel = this.getViewModel(request, payload)
+      const progress = state.progress ?? []
 
       /**
        * Content components can be hidden based on a condition. If the condition evaluates to true, it is safe to be kept, otherwise discard it
        */
 
-      // Calculate our evaluation form state only (filtered by visited paths)
-      const { evaluationState } = this.model.getFormContext(state, request)
+      // Evaluation form state only (filtered by visited paths)
+      const { evaluationState } = context
 
       // Filter our components based on their conditions using our evaluated state
       viewModel.components = viewModel.components.filter((component) => {
