@@ -1,7 +1,10 @@
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
-import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
-import { type FormRequest } from '~/src/server/routes/types.js'
+import {
+  type FormContext,
+  type FormContextRequest,
+  type FormSubmissionState
+} from '~/src/server/plugins/engine/types.js'
 import definitionConditionsBasic from '~/test/form/definitions/conditions-basic.js'
 import definitionConditionsComplex from '~/test/form/definitions/conditions-complex.js'
 import definitionConditionsDates from '~/test/form/definitions/conditions-dates.js'
@@ -85,15 +88,15 @@ describe('PageControllerBase', () => {
       }
 
       let request = {
+        method: 'get',
         url: new URL('http://example.com/test/applicant-one-address'),
         path: '/test/applicant-one-address',
         params: {
           path: 'applicant-one-address',
           slug: 'test'
         },
-        query: {},
-        app: { model }
-      } as FormRequest
+        query: {}
+      } satisfies FormContextRequest
 
       // Calculate our context based on the page we're attempting to load and the above state we provide
       let context = controller.model.getFormContext(state, request)
@@ -126,15 +129,15 @@ describe('PageControllerBase', () => {
       state.ukPassport = false
 
       request = {
+        method: 'get',
         url: new URL('http://example.com/test/summary'),
         path: '/test/summary',
         params: {
           path: 'summary',
           slug: 'test'
         },
-        query: {},
-        app: { model }
-      } as FormRequest
+        query: {}
+      } satisfies FormContextRequest
 
       // And recalculate our context
       context = controller.model.getFormContext(state, request)
@@ -169,15 +172,15 @@ describe('PageControllerBase', () => {
       const controller = new PageControllerBase(model, pages[0])
 
       const request = {
+        method: 'get',
         url: new URL('http://example.com/test/page-one'),
         path: '/test/page-one',
         params: {
           path: 'page-one',
           slug: 'test'
         },
-        query: {},
-        app: { model }
-      } as FormRequest
+        query: {}
+      } satisfies FormContextRequest
 
       const context = controller.model.getFormContext(
         {
@@ -213,20 +216,36 @@ describe('PageControllerBase', () => {
   })
 
   describe('Form journey', () => {
-    let state: FormSubmissionState
-    let stateNo: FormSubmissionState
-    let stateYes: FormSubmissionState
+    let context: FormContext
+    let contextNo: FormContext
+    let contextYes: FormContext
 
     beforeEach(() => {
-      state = {}
+      const request = {
+        method: 'get',
+        url: new URL('http://example.com/test/first-page'),
+        path: '/test/first-page',
+        params: {
+          path: 'first-page',
+          slug: 'test'
+        },
+        query: {}
+      } satisfies FormContextRequest
 
-      stateNo = {
-        yesNoField: false
-      }
+      // Empty state
+      context = controller1.model.getFormContext({}, request)
 
-      stateYes = {
-        yesNoField: true
-      }
+      // Question 1: Selected 'No'
+      contextNo = controller1.model.getFormContext(
+        { yesNoField: false },
+        request
+      )
+
+      // Question 1: Selected 'Yes'
+      contextYes = controller1.model.getFormContext(
+        { yesNoField: true },
+        request
+      )
     })
 
     describe('Next getter', () => {
@@ -242,27 +261,27 @@ describe('PageControllerBase', () => {
 
     describe('Next page', () => {
       it('returns the next page', () => {
-        expect(controller1.getNextPage(state)).toMatchObject({
+        expect(controller1.getNextPage(context)).toMatchObject({
           path: '/second-page'
         })
 
-        expect(controller1.getNextPage(stateNo)).toMatchObject({
+        expect(controller1.getNextPage(contextNo)).toMatchObject({
           path: '/second-page'
         })
 
-        expect(controller1.getNextPage(stateYes)).toMatchObject({
+        expect(controller1.getNextPage(contextYes)).toMatchObject({
           path: '/summary'
         })
 
-        expect(controller2.getNextPage(state)).toMatchObject({
+        expect(controller2.getNextPage(context)).toMatchObject({
           path: '/summary'
         })
 
-        expect(controller2.getNextPage(stateNo)).toMatchObject({
+        expect(controller2.getNextPage(contextNo)).toMatchObject({
           path: '/summary'
         })
 
-        expect(controller2.getNextPage(stateYes)).toMatchObject({
+        expect(controller2.getNextPage(contextYes)).toMatchObject({
           path: '/summary'
         })
       })
@@ -270,13 +289,13 @@ describe('PageControllerBase', () => {
 
     describe('Next', () => {
       it('returns the next page path', () => {
-        expect(controller1.getNext(state)).toBe('/test/second-page')
-        expect(controller1.getNext(stateNo)).toBe('/test/second-page')
-        expect(controller1.getNext(stateYes)).toBe('/test/summary')
+        expect(controller1.getNext(context)).toBe('/test/second-page')
+        expect(controller1.getNext(contextNo)).toBe('/test/second-page')
+        expect(controller1.getNext(contextYes)).toBe('/test/summary')
 
-        expect(controller2.getNext(state)).toBe('/test/summary')
-        expect(controller2.getNext(stateNo)).toBe('/test/summary')
-        expect(controller2.getNext(stateYes)).toBe('/test/summary')
+        expect(controller2.getNext(context)).toBe('/test/summary')
+        expect(controller2.getNext(contextNo)).toBe('/test/summary')
+        expect(controller2.getNext(contextYes)).toBe('/test/summary')
       })
     })
 

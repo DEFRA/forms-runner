@@ -33,7 +33,6 @@ import { getFormMetadata } from '~/src/server/plugins/engine/services/formsServi
 import {
   type FormContext,
   type FormPayload,
-  type FormState,
   type FormSubmissionError,
   type FormSubmissionState,
   type PageViewModel
@@ -205,9 +204,11 @@ export class PageControllerBase {
   /**
    * Apply conditions to evaluation state to determine next page
    */
-  getNextPage(evaluationState: FormState): PageControllerClass | undefined {
+  getNextPage(context: FormContext): PageControllerClass | undefined {
     const { conditions } = this.model
     const { path } = this.pageDef
+
+    const { evaluationState } = context
 
     const summaryPath = ControllerPath.Summary.valueOf()
     const statusPath = ControllerPath.Status.valueOf()
@@ -233,8 +234,8 @@ export class PageControllerBase {
   /**
    * Apply conditions to evaluation state to determine next page path
    */
-  getNext(evaluationState: FormState) {
-    const nextPage = this.getNextPage(evaluationState)
+  getNext(context: FormContext) {
+    const nextPage = this.getNextPage(context)
 
     if (nextPage) {
       return nextPage.href
@@ -521,9 +522,9 @@ export class PageControllerBase {
   ) {
     // This is required to ensure we don't navigate
     // to an incorrect page based on stale state values
-    const { evaluationState } = this.model.getFormContext(state, request)
+    const context = this.model.getFormContext(state, request)
 
-    return proceed(request, h, this.getNext(evaluationState))
+    return proceed(request, h, this.getNext(context))
   }
 
   /**

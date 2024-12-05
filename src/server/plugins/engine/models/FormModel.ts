@@ -247,7 +247,7 @@ export class FormModel {
       }
 
       // Apply conditions to determine next page
-      nextPage = nextPage.getNextPage(context.evaluationState)
+      nextPage = nextPage.getNextPage(context)
     }
 
     // Add paths for navigation
