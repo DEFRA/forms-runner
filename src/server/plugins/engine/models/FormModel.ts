@@ -209,11 +209,11 @@ export class FormModel {
     const { pages } = this
 
     // Current page
-    const page = getPage(request)
+    const page = getPage(this, request)
 
     // Determine form paths
-    const currentPath = page?.href
-    const startPath = page?.getStartPath()
+    const currentPath = page.href
+    const startPath = page.getStartPath()
 
     const context: FormContext = {
       evaluationState: {},
