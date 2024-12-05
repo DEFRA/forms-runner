@@ -12,6 +12,7 @@ import {
   type FileUploadPageController,
   type PageController
 } from '~/src/server/plugins/engine/pageControllers/index.js'
+import { type FormRequest } from '~/src/server/routes/types.js'
 
 /**
  * Form submission state stores the following in Redis:
@@ -78,6 +79,13 @@ export interface FormSubmissionError
  * Form POST for question pages
  * (after Joi has converted value types)
  */
+export type FormSubmissionPayload = {
+  action?: string
+  confirm?: boolean
+  itemId?: string
+  crumb?: string
+} & FormPayload
+
 export type FormPayload = Partial<Record<string, FormValue>>
 export type FormValue =
   | Item['value']
@@ -119,6 +127,11 @@ export interface FormContext {
    */
   paths: string[]
 }
+
+export type FormContextRequest = Pick<
+  FormRequest,
+  'method' | 'params' | 'path' | 'query' | 'url'
+>
 
 export interface UploadInitiateResponse {
   uploadId: string

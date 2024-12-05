@@ -12,8 +12,11 @@ import {
   getFormSubmissionData,
   getPersonalisation
 } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
-import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
-import { FormStatus, type FormRequest } from '~/src/server/routes/types.js'
+import {
+  type FormContextRequest,
+  type FormSubmissionState
+} from '~/src/server/plugins/engine/types.js'
+import { FormStatus } from '~/src/server/routes/types.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
 
 describe('SummaryPageController', () => {
@@ -54,18 +57,20 @@ describe('SummaryPageController', () => {
     }
 
     const pageDef = definition.pages[2]
+    const pageUrl = new URL('http://example.com/repeat/pizza-order/summary')
+
     const controller = new SummaryPageController(model, pageDef)
 
     const request = {
-      url: new URL('http://example.com/repeat/pizza-order/summary'),
-      path: '/repeat/pizza-order/summary',
+      method: 'get',
+      url: pageUrl,
+      path: pageUrl.pathname,
       params: {
         path: 'pizza-order',
         slug: 'repeat'
       },
-      query: {},
-      app: { model }
-    } as FormRequest
+      query: {}
+    } satisfies FormContextRequest
 
     summaryViewModel = controller.getSummaryViewModel(state, request)
 

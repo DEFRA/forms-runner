@@ -11,6 +11,7 @@ import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
   type CheckAnswers,
+  type FormContextRequest,
   type FormPayload,
   type FormSubmissionError,
   type FormSubmissionState,
@@ -411,9 +412,7 @@ export class RepeatPageController extends PageController {
     }
   }
 
-  getSummaryPath(
-    request?: Pick<FormRequest | FormRequestPayload, 'url' | 'params' | 'query'>
-  ) {
+  getSummaryPath(request?: FormContextRequest) {
     const { href } = this
 
     if (!request) {

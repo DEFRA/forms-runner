@@ -18,15 +18,12 @@ import { validationOptions as opts } from '~/src/server/plugins/engine/pageContr
 import {
   type CheckAnswers,
   type FormContext,
+  type FormContextRequest,
   type FormState,
   type FormSubmissionError,
   type FormSubmissionState,
   type SummaryListRow
 } from '~/src/server/plugins/engine/types.js'
-import {
-  type FormRequest,
-  type FormRequestPayload
-} from '~/src/server/routes/types.js'
 
 export class SummaryViewModel {
   /**
@@ -53,7 +50,7 @@ export class SummaryViewModel {
     model: FormModel,
     pageDef: Page,
     state: FormSubmissionState,
-    request: FormRequest | FormRequestPayload
+    request: FormContextRequest
   ) {
     const { basePath, def } = model
 
@@ -105,7 +102,7 @@ export class SummaryViewModel {
   }
 
   private summaryDetails(
-    request: FormRequest | FormRequestPayload,
+    request: FormContextRequest,
     model: FormModel,
     state: FormSubmissionState
   ) {
