@@ -6,7 +6,11 @@ import { type ResponseToolkit } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
-import { ADD_ANOTHER, CONTINUE } from '~/src/server/plugins/engine/helpers.js'
+import {
+  ADD_ANOTHER,
+  CONTINUE,
+  proceed
+} from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
@@ -108,8 +112,14 @@ export class RepeatPageController extends PageController {
     return state
   }
 
-  proceed(request: FormRequest, h: ResponseToolkit<FormRequestRefs>) {
-    return h.redirect(this.getSummaryPath(request))
+  proceed(
+    request: FormRequest,
+    h:
+      | ResponseToolkit<FormRequestRefs>
+      | ResponseToolkit<FormRequestPayloadRefs>
+  ) {
+    const nextPath = this.getSummaryPath(request)
+    return super.proceed(request, h, nextPath)
   }
 
   /**
@@ -218,7 +228,7 @@ export class RepeatPageController extends PageController {
       request: FormRequestPayload,
       h: ResponseToolkit<FormRequestPayloadRefs>
     ) => {
-      const { href } = this
+      const { href, model, repeat } = this
       const { payload } = request
       const { action } = payload
 
@@ -226,7 +236,7 @@ export class RepeatPageController extends PageController {
 
       if (action === ADD_ANOTHER) {
         const list = this.getListFromState(state)
-        const { schema, options } = this.repeat
+        const { schema, options } = repeat
 
         // Show error if repeat max limit reached
         if (list.length >= schema.max) {
@@ -244,9 +254,16 @@ export class RepeatPageController extends PageController {
           return h.view(this.listSummaryViewName, viewModel)
         }
 
-        return h.redirect(`${href}${request.url.search}`)
+        return proceed(request, h, `${href}${request.url.search}`)
       } else if (action === CONTINUE) {
-        return super.proceed(request, h, state)
+        return super.proceed(
+          request,
+          h,
+
+          // This is required to ensure we don't navigate
+          // to an incorrect page based on stale state values
+          this.getNextPath(model.getFormContext(request, state))
+        )
       }
     }
   }
@@ -312,7 +329,7 @@ export class RepeatPageController extends PageController {
         }
       }
 
-      return h.redirect(this.getSummaryPath(request))
+      return this.proceed(request, h)
     }
   }
 
@@ -348,7 +365,7 @@ export class RepeatPageController extends PageController {
     repeatTitle: string
     backLink?: string
   } {
-    const { collection, href, model, repeat, section } = this
+    const { collection, href, repeat, section } = this
 
     const { title } = repeat.options
     const sectionTitle = section?.hideTitle !== true ? section?.title : ''
@@ -406,17 +423,19 @@ export class RepeatPageController extends PageController {
       sectionTitle,
       showTitle: true,
       errors,
-      serviceUrl: `/${model.basePath}`,
+      serviceUrl: this.getHref('/'),
       checkAnswers: [{ summaryList }],
       repeatTitle: title
     }
   }
 
   getSummaryPath(request?: FormContextRequest) {
-    const { href } = this
+    const { path } = this
+
+    const summaryPath = super.getSummaryPath()
 
     if (!request) {
-      return super.getSummaryPath()
+      return summaryPath
     }
 
     const { params, url } = request
@@ -428,6 +447,6 @@ export class RepeatPageController extends PageController {
       newUrl.searchParams.delete('itemId')
     }
 
-    return `${href}/summary${newUrl.search}`
+    return `${path}${summaryPath}${newUrl.search}`
   }
 }

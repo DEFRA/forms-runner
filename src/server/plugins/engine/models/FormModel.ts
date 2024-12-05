@@ -16,9 +16,9 @@ import { Parser, type Value } from 'expr-eval'
 import joi from 'joi'
 
 import {
+  findPage,
   getError,
-  getPage,
-  normalisePath
+  getPage
 } from '~/src/server/plugins/engine/helpers.js'
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
 import {
@@ -82,7 +82,7 @@ export class FormModel {
     this.sections = def.sections
     this.name = def.name ?? ''
     this.values = result.value
-    this.basePath = normalisePath(options.basePath)
+    this.basePath = options.basePath
     this.conditions = {}
 
     def.conditions.forEach((conditionDef) => {
@@ -205,13 +205,10 @@ export class FormModel {
   }
 
   getFormContext(request: FormContextRequest, state: FormState) {
-    const { pages } = this
-
-    // Current page
     const page = getPage(this, request)
 
     // Determine form paths
-    const currentPath = page.href
+    const currentPath = page.path
     const startPath = page.getStartPath()
 
     const context: FormContext = {
@@ -223,7 +220,7 @@ export class FormModel {
     }
 
     // Find start page
-    let nextPage = pages.find(({ href }) => href === startPath)
+    let nextPage = findPage(this, startPath)
 
     // Walk form pages from start
     while (nextPage) {
@@ -248,12 +245,12 @@ export class FormModel {
       }
 
       // Stop at current page
-      if (nextPage.href === currentPath) {
+      if (nextPage.path === currentPath) {
         break
       }
 
       // Apply conditions to determine next page
-      nextPage = nextPage.getNextPage(context)
+      nextPage = findPage(this, nextPage.getNextPath(context))
     }
 
     // Validate relevant state
@@ -265,11 +262,11 @@ export class FormModel {
     context.errors = error?.details.map(getError)
 
     // Add paths for navigation
-    for (const { collection, href } of context.relevantPages) {
-      context.paths.push(href)
+    for (const { collection, path } of context.relevantPages) {
+      context.paths.push(path)
 
       // Stop at current page or with errors
-      if (href === currentPath || collection.getErrors(context.errors)) {
+      if (path === currentPath || collection.getErrors(context.errors)) {
         break
       }
     }

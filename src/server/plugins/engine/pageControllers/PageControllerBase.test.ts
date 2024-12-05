@@ -64,10 +64,10 @@ describe('PageControllerBase', () => {
       // The state below shows we said we had a UKPassport and entered details for an applicant
       const state: FormSubmissionState = {
         progress: [
-          '/test/uk-passport',
-          '/test/how-many-people',
-          '/test/applicant-one-name',
-          '/test/applicant-one-address'
+          'test/uk-passport',
+          'test/how-many-people',
+          'test/applicant-one-name',
+          'test/applicant-one-address'
         ],
         ukPassport: true,
         numberOfApplicants: 2,
@@ -119,10 +119,10 @@ describe('PageControllerBase', () => {
 
       // Our context should know which pages are relevant
       expect(context.paths).toEqual([
-        '/test/uk-passport',
-        '/test/how-many-people',
-        '/test/applicant-one-name',
-        '/test/applicant-one-address'
+        '/uk-passport',
+        '/how-many-people',
+        '/applicant-one-name',
+        '/applicant-one-address'
       ])
 
       // Now mark that we don't have a UK Passport
@@ -145,9 +145,9 @@ describe('PageControllerBase', () => {
 
       // Our context should no longer list pages about our applicant
       expect(context.paths).toEqual([
-        '/test/uk-passport',
-        '/test/testconditions',
-        '/test/summary'
+        '/uk-passport',
+        '/testconditions',
+        '/summary'
       ])
 
       // Our context should no longer know anything about our applicant
@@ -254,50 +254,22 @@ describe('PageControllerBase', () => {
       })
     })
 
-    describe('Next page', () => {
-      it('returns the next page', () => {
-        expect(controller1.getNextPage(context)).toMatchObject({
-          path: '/second-page'
-        })
-
-        expect(controller1.getNextPage(contextNo)).toMatchObject({
-          path: '/second-page'
-        })
-
-        expect(controller1.getNextPage(contextYes)).toMatchObject({
-          path: '/summary'
-        })
-
-        expect(controller2.getNextPage(context)).toMatchObject({
-          path: '/summary'
-        })
-
-        expect(controller2.getNextPage(contextNo)).toMatchObject({
-          path: '/summary'
-        })
-
-        expect(controller2.getNextPage(contextYes)).toMatchObject({
-          path: '/summary'
-        })
-      })
-    })
-
     describe('Next', () => {
       it('returns the next page path', () => {
-        expect(controller1.getNext(context)).toBe('/test/second-page')
-        expect(controller1.getNext(contextNo)).toBe('/test/second-page')
-        expect(controller1.getNext(contextYes)).toBe('/test/summary')
+        expect(controller1.getNextPath(context)).toBe('/second-page')
+        expect(controller1.getNextPath(contextNo)).toBe('/second-page')
+        expect(controller1.getNextPath(contextYes)).toBe('/summary')
 
-        expect(controller2.getNext(context)).toBe('/test/summary')
-        expect(controller2.getNext(contextNo)).toBe('/test/summary')
-        expect(controller2.getNext(contextYes)).toBe('/test/summary')
+        expect(controller2.getNextPath(context)).toBe('/summary')
+        expect(controller2.getNextPath(contextNo)).toBe('/summary')
+        expect(controller2.getNextPath(contextYes)).toBe('/summary')
       })
     })
 
     describe('Summary', () => {
       it('returns the summary path', () => {
-        expect(controller1.getSummaryPath()).toBe('/test/summary')
-        expect(controller2.getSummaryPath()).toBe('/test/summary')
+        expect(controller1.getSummaryPath()).toBe('/summary')
+        expect(controller2.getSummaryPath()).toBe('/summary')
       })
     })
   })
