@@ -123,6 +123,11 @@ export interface FormContext {
   relevantPages: PageControllerClass[]
 
   /**
+   * Form submission state (entire form)
+   */
+  state: FormSubmissionState
+
+  /**
    * Visited paths evaluated from form state
    */
   paths: string[]

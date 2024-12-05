@@ -213,6 +213,7 @@ export class FormModel {
       evaluationState: {},
       relevantState: {},
       relevantPages: [],
+      state,
       paths: []
     }
 

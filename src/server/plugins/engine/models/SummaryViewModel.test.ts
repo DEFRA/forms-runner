@@ -2,13 +2,17 @@ import {
   FormModel,
   SummaryViewModel
 } from '~/src/server/plugins/engine/models/index.js'
-import { type FormContextRequest } from '~/src/server/plugins/engine/types.js'
+import {
+  type FormContext,
+  type FormContextRequest
+} from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
 
 describe('SummaryViewModel', () => {
   const itemId1 = 'abc-123'
   const itemId2 = 'xyz-987'
 
+  let context: FormContext
   let summaryViewModel: SummaryViewModel
 
   beforeEach(() => {
@@ -52,7 +56,8 @@ describe('SummaryViewModel', () => {
       query: {}
     } satisfies FormContextRequest
 
-    summaryViewModel = new SummaryViewModel(model, pageDef, state, request)
+    context = model.getFormContext(request, state)
+    summaryViewModel = new SummaryViewModel(model, pageDef, request, context)
   })
 
   describe('Check answers', () => {
