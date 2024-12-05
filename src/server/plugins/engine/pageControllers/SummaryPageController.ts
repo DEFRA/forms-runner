@@ -36,6 +36,7 @@ import {
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
   type FormContext,
+  type FormContextProgress,
   type FormContextRequest,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
@@ -57,7 +58,7 @@ export class SummaryPageController extends PageController {
 
   getSummaryViewModel(
     request: FormContextRequest,
-    context: FormContext
+    context: FormContext | FormContextProgress
   ): SummaryViewModel {
     const viewModel = new SummaryViewModel(
       this.model,
@@ -120,7 +121,9 @@ export class SummaryPageController extends PageController {
       const { cacheService } = request.services([])
 
       const state = await this.getState(request)
-      const context = model.getFormContext(request, state)
+      const context = model.getFormContext(request, state, {
+        validate: false
+      })
 
       const { params } = request
 
