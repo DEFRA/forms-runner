@@ -292,9 +292,8 @@ export class PageControllerBase {
         return h.redirect(this.getRelevantPath(context))
       }
 
-      const payload = this.getFormDataFromState(state)
+      const payload = this.getFormDataFromState(context.state)
       const viewModel = this.getViewModel(request, payload)
-      const progress = state.progress ?? []
 
       /**
        * Content components can be hidden based on a condition. If the condition evaluates to true, it is safe to be kept, otherwise discard it
@@ -343,6 +342,7 @@ export class PageControllerBase {
         return evaluatedComponent
       })
 
+      const { progress = [] } = context.state
       await this.updateProgress(progress, request)
 
       viewModel.backLink = this.getBackLink(progress)
@@ -413,56 +413,33 @@ export class PageControllerBase {
     return progress.at(-2)
   }
 
-  protected getPayload(request: FormRequestPayload) {
-    return request.payload
-  }
-
   makePostRouteHandler(): (
     request: FormRequestPayload,
     h: ResponseToolkit<FormRequestPayloadRefs>
   ) => Promise<ResponseObject | Boom> {
     return async (request, h) => {
-      const formPayload = this.getPayload(request)
-      const formResult = this.collection.validate(formPayload)
+      const { model } = this
 
-      let state = await this.getState(request)
-      const progress = state.progress ?? []
+      const state = await this.getState(request)
+      const context = model.getFormContext(request, state)
 
       // Sanitised payload after validation
-      const payload = formResult.value
+      const { value: payload, errors } = this.validate(request)
 
       /**
        * If there are any errors, render the page with the parsed errors
+       * @todo Refactor to match POST REDIRECT GET pattern
        */
-      if (formResult.errors) {
-        // TODO:- refactor to match POST REDIRECT GET pattern.
-        return this.renderWithErrors(
-          request,
-          h,
-          payload,
-          progress,
-          formResult.errors
-        )
+      if (errors) {
+        const { progress = [] } = context.state
+        return this.renderWithErrors(request, h, payload, progress, errors)
       }
 
-      const stateResult = this.collection.validate(
-        this.getStateFromValidForm(request, payload),
-        'stateSchema'
-      )
+      // Convert and save sanitised payload to state
+      const pageState = this.getStateFromValidForm(request, payload)
+      const formState = await this.setState(request, pageState)
 
-      if (stateResult.errors) {
-        return this.renderWithErrors(
-          request,
-          h,
-          payload,
-          progress,
-          stateResult.errors
-        )
-      }
-
-      state = await this.setState(request, stateResult.value)
-
-      return this.proceed(request, h, state)
+      return this.proceed(request, h, formState)
     }
   }
 
@@ -508,6 +485,10 @@ export class PageControllerBase {
     return this.model.pages.find(
       (page) => normalisePath(page.path) === normalisePath(path)
     )
+  }
+
+  validate(request: FormRequestPayload) {
+    return this.collection.validate(request.payload)
   }
 
   /**

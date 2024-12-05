@@ -59,13 +59,13 @@ export class RepeatPageController extends PageController {
     return [this.repeat.options.name]
   }
 
-  protected getPayload(request: FormRequestPayload) {
-    const payload = super.getPayload(request)
+  validate(request: FormRequestPayload) {
+    const { payload } = request
 
     // Apply an itemId to the form payload
     payload.itemId = request.params.itemId ?? randomUUID()
 
-    return payload
+    return super.validate(request)
   }
 
   getStateFromValidForm(
@@ -202,8 +202,8 @@ export class RepeatPageController extends PageController {
     ) => {
       const state = await super.getState(request)
       const list = this.getListFromState(state)
-      const progress = state.progress ?? []
 
+      const { progress = [] } = state
       await this.updateProgress(progress, request)
 
       const viewModel = this.getListSummaryViewModel(request, list)

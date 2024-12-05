@@ -227,21 +227,14 @@ describe('FileUploadField', () => {
 
       it('accepts valid values', () => {
         const result1 = collection.validate(getFormData(validState))
-        const result2 = collection.validate(
-          getFormState(validState),
-          'stateSchema'
-        )
-
-        const result3 = tempItemSchema.validate(validTempState[0], opts)
-        const result4 = tempItemSchema.validate(validTempState[1], opts)
-        const result5 = tempItemSchema.validate(validTempState[2], opts)
+        const result2 = tempItemSchema.validate(validTempState[0], opts)
+        const result3 = tempItemSchema.validate(validTempState[1], opts)
+        const result4 = tempItemSchema.validate(validTempState[2], opts)
 
         expect(result1.errors).toBeUndefined()
-        expect(result2.errors).toBeUndefined()
-
+        expect(result2.error).toBeUndefined()
         expect(result3.error).toBeUndefined()
         expect(result4.error).toBeUndefined()
-        expect(result5.error).toBeUndefined()
       })
 
       it('adds errors for empty value', () => {

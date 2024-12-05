@@ -91,21 +91,7 @@ export class SummaryPageController extends PageController {
 
       const viewModel = this.getSummaryViewModel(request, context)
 
-      /**
-       * Redirect back to pages with field errors
-       */
-      if (viewModel.errors) {
-        const errorField = viewModel.details
-          .flatMap(({ items }) => items.find(({ error }) => error) ?? [])
-          .at(0)
-
-        if (errorField) {
-          return h.redirect(errorField.href)
-        }
-      }
-
-      const progress = state.progress ?? []
-
+      const { progress = [] } = context.state
       await this.updateProgress(progress, request)
 
       viewModel.backLink = this.getBackLink(progress)

@@ -138,15 +138,16 @@ export class FileUploadPageController extends PageController {
     }
   }
 
-  protected getPayload(request: FormRequestPayload) {
-    const payload = super.getPayload(request)
+  validate(request: FormRequestPayload) {
+    const { payload } = request
+
     const name = this.getComponentName()
     const files = request.app.files ?? []
 
     // Append the files to the payload
     payload[name] = files.length ? files : undefined
 
-    return payload
+    return super.validate(request)
   }
 
   getErrors(details?: ValidationErrorItem[]) {
@@ -362,7 +363,7 @@ export class FileUploadPageController extends PageController {
     state: TempFileState,
     cacheService: CacheService
   ) {
-    const payload = super.getPayload(request)
+    const { payload } = request
     const removeId = payload.__remove
 
     if (removeId) {

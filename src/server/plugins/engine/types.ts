@@ -128,6 +128,11 @@ export interface FormContext {
   state: FormSubmissionState
 
   /**
+   * Validation errors (entire form)
+   */
+  errors?: FormSubmissionError[]
+
+  /**
    * Visited paths evaluated from form state
    */
   paths: string[]
