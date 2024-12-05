@@ -44,6 +44,7 @@ export function context(request) {
     serviceVersion: config.get('serviceVersion'),
     slug: params?.slug,
     cookieConsent,
+    googleAnalyticsTrackingId: config.get('googleAnalyticsTrackingId'),
 
     getAssetPath: (asset = '') => {
       return `/${webpackManifest?.[asset] ?? asset}`
