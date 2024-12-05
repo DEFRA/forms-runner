@@ -208,7 +208,6 @@ export interface PageViewModelBase {
     slug: string
     designerUrl: string
   }
-  googleAnalyticsTrackingId?: string
 }
 
 export interface FileUploadPageViewModel extends PageViewModelBase {

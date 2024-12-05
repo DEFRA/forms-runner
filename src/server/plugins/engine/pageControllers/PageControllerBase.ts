@@ -167,8 +167,7 @@ export class PageControllerBase {
       isStartPage: false,
       serviceUrl,
       feedbackLink: this.getFeedbackLink(),
-      phaseTag: this.getPhaseTag(),
-      googleAnalyticsTrackingId: '12345' // this.model.def.googleAnalyticsTrackingId
+      phaseTag: this.getPhaseTag()
     }
   }
 

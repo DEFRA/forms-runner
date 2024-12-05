@@ -226,6 +226,13 @@ export const config = convict({
     format: String,
     default: '',
     env: 'SERVICE_BANNER_TEXT'
+  },
+
+  googleAnalyticsTrackingId: {
+    doc: 'Google analytics tracking ID to be used when a user has opted in to additional cookies',
+    format: String,
+    default: '',
+    env: 'GOOGLE_ANALYTICS_TRACKING_ID'
   }
 })
 
