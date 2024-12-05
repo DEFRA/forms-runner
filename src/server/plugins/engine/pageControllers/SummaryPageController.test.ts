@@ -13,6 +13,7 @@ import {
   getPersonalisation
 } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 import {
+  type FormContext,
   type FormContextRequest,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
@@ -25,6 +26,7 @@ describe('SummaryPageController', () => {
 
   let model: FormModel
   let state: FormSubmissionState
+  let context: FormContext
   let summaryViewModel: SummaryViewModel
   let submitResponse: SubmitResponsePayload
   let items: DetailItem[]
@@ -72,7 +74,8 @@ describe('SummaryPageController', () => {
       query: {}
     } satisfies FormContextRequest
 
-    summaryViewModel = controller.getSummaryViewModel(state, request)
+    context = model.getFormContext(request, state)
+    summaryViewModel = controller.getSummaryViewModel(request, context)
 
     submitResponse = {
       message: 'Submit completed',

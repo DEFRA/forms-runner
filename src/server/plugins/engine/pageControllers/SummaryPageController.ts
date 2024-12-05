@@ -53,14 +53,14 @@ export class SummaryPageController extends PageController {
    */
 
   getSummaryViewModel(
-    state: FormSubmissionState,
-    request: FormContextRequest
+    request: FormContextRequest,
+    context: FormContext
   ): SummaryViewModel {
     const viewModel = new SummaryViewModel(
       this.model,
       this.pageDef,
-      state,
-      request
+      request,
+      context
     )
 
     // We already figure these out in the base page controller. Take them and apply them to our page-specific model.
@@ -89,7 +89,7 @@ export class SummaryPageController extends PageController {
         return h.redirect(this.getRelevantPath(context))
       }
 
-      const viewModel = this.getSummaryViewModel(state, request)
+      const viewModel = this.getSummaryViewModel(request, context)
 
       /**
        * Redirect back to pages with field errors
@@ -131,7 +131,7 @@ export class SummaryPageController extends PageController {
       const { cacheService } = request.services([])
 
       const state = await this.getState(request)
-      const summaryViewModel = this.getSummaryViewModel(state, request)
+      const context = model.getFormContext(request, state)
 
       const { params } = request
 
@@ -144,7 +144,8 @@ export class SummaryPageController extends PageController {
 
       // Send submission email
       if (emailAddress) {
-        await submitForm(request, summaryViewModel, model, state, emailAddress)
+        const viewModel = this.getSummaryViewModel(request, context)
+        await submitForm(request, viewModel, model, context.state, emailAddress)
       }
 
       await cacheService.setConfirmationState(request, { confirmed: true })

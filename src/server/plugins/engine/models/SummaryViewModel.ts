@@ -1,4 +1,4 @@
-import { type Page } from '@defra/forms-model'
+import { type Page, type Section } from '@defra/forms-model'
 
 import {
   getAnswer,
@@ -21,7 +21,6 @@ import {
   type FormContextRequest,
   type FormState,
   type FormSubmissionError,
-  type FormSubmissionState,
   type SummaryListRow
 } from '~/src/server/plugins/engine/types.js'
 
@@ -49,16 +48,16 @@ export class SummaryViewModel {
   constructor(
     model: FormModel,
     pageDef: Page,
-    state: FormSubmissionState,
-    request: FormContextRequest
+    request: FormContextRequest,
+    context: FormContext
   ) {
-    const { basePath, def } = model
+    const { basePath, def, sections } = model
 
     this.pageTitle = pageDef.title
     this.serviceUrl = `/${basePath}`
     this.name = def.name
     this.declaration = def.declaration
-    this.context = model.getFormContext(request, state)
+    this.context = context
 
     const result = model
       .makeFilteredSchema(this.context.relevantPages)
@@ -66,7 +65,7 @@ export class SummaryViewModel {
 
     // Format errors
     this.errors = result.error?.details.map(getError)
-    this.details = this.summaryDetails(request, model, state)
+    this.details = this.summaryDetails(request, sections)
 
     // Format check answers
     this.checkAnswers = this.details.map((detail): CheckAnswers => {
@@ -100,20 +99,16 @@ export class SummaryViewModel {
     })
   }
 
-  private summaryDetails(
-    request: FormContextRequest,
-    model: FormModel,
-    state: FormSubmissionState
-  ) {
-    const { errors, context } = this
-    const { sections } = model
+  private summaryDetails(request: FormContextRequest, sections: Section[]) {
+    const { context, errors } = this
+    const { relevantPages, state } = context
 
     const details: Detail[] = []
 
     ;[undefined, ...sections].forEach((section) => {
       const items: DetailItem[] = []
 
-      const sectionPages = context.relevantPages.filter(
+      const sectionPages = relevantPages.filter(
         (page) => page.section === section
       )
 
