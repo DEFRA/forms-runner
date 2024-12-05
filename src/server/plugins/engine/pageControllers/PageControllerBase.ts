@@ -207,8 +207,14 @@ export class PageControllerBase {
    */
   getNextPage(evaluationState: FormState): PageControllerClass | undefined {
     const { conditions } = this.model
+    const { path } = this.pageDef
 
-    let defaultLink: Link | undefined
+    const summaryPath = ControllerPath.Summary.valueOf()
+    const statusPath = ControllerPath.Status.valueOf()
+
+    // Walk from summary page (no next links) to status page
+    let defaultPath = path === summaryPath ? statusPath : undefined
+
     const nextLink = this.next.find((link) => {
       const { condition } = link
 
@@ -216,12 +222,12 @@ export class PageControllerBase {
         return conditions[condition]?.fn(evaluationState) ?? false
       }
 
-      defaultLink = link
+      defaultPath = link.path
       return false
     })
 
-    const link = nextLink ?? defaultLink
-    return this.findPageByPath(link?.path)
+    const nextPath = nextLink?.path ?? defaultPath
+    return this.findPageByPath(nextPath)
   }
 
   /**
