@@ -90,7 +90,7 @@ describe('RepeatPageController', () => {
       const itemId2 = 'xyz-987'
 
       it('returns the summary path', () => {
-        expect(controller.getSummaryPath()).toBe('/test/summary')
+        expect(controller.getSummaryPath()).toBe('/summary')
       })
 
       it('returns the repeater summary path', () => {
@@ -107,9 +107,7 @@ describe('RepeatPageController', () => {
           query: {}
         }
 
-        expect(controller.getSummaryPath(request)).toBe(
-          '/test/pizza-order/summary'
-        )
+        expect(controller.getSummaryPath(request)).toBe('/pizza-order/summary')
       })
 
       it('adds item ID query when in params', () => {
@@ -133,7 +131,7 @@ describe('RepeatPageController', () => {
         }
 
         expect(controller.getSummaryPath(request)).toBe(
-          `/test/pizza-order/summary?itemId=${itemId1}`
+          `/pizza-order/summary?itemId=${itemId1}`
         )
       })
 
@@ -156,9 +154,7 @@ describe('RepeatPageController', () => {
           }
         }
 
-        expect(controller.getSummaryPath(request)).toBe(
-          '/test/pizza-order/summary'
-        )
+        expect(controller.getSummaryPath(request)).toBe('/pizza-order/summary')
       })
     })
   })

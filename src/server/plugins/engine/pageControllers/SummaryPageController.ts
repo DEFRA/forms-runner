@@ -79,14 +79,14 @@ export class SummaryPageController extends PageController {
     h: ResponseToolkit<FormRequestRefs>
   ) => Promise<ResponseObject | Boom> {
     return async (request, h) => {
-      const { href, model } = this
+      const { model, path } = this
 
       const state = await this.getState(request)
       const context = model.getFormContext(request, state)
 
       // Redirect back to last relevant page
-      if (!context.paths.includes(href)) {
-        return h.redirect(this.getRelevantPath(context))
+      if (!context.paths.includes(path)) {
+        return this.proceed(request, h, this.getRelevantPath(context))
       }
 
       const viewModel = this.getSummaryViewModel(request, context)
@@ -139,7 +139,7 @@ export class SummaryPageController extends PageController {
       // Clear all form data
       await cacheService.clearState(request)
 
-      return h.redirect(`/${model.basePath}/status`)
+      return this.proceed(request, h, this.getStatusPath())
     }
   }
 

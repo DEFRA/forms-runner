@@ -76,9 +76,7 @@ export function getPage(
 ) {
   const { params } = request
 
-  const page = model?.pages.find(
-    (page) => normalisePath(page.path) === normalisePath(params.path)
-  )
+  const page = findPage(model, `/${params.path}`)
 
   if (!page) {
     throw Boom.notFound(`No page found for /${params.path}`)
@@ -87,16 +85,14 @@ export function getPage(
   return page
 }
 
+export function findPage(model: FormModel | undefined, path?: string) {
+  const findPath = `/${normalisePath(path)}`
+  return model?.pages.find(({ path }) => path === findPath)
+}
+
 export function getStartPath(model?: FormModel) {
-  const basePath = model?.basePath ?? ''
-  const startPage = model?.def.startPage
-
-  if (startPage?.startsWith('http')) {
-    return startPage
-  }
-
-  const startPath = normalisePath(startPage)
-  return `/${basePath}/${startPath || ControllerPath.Start}`
+  const startPath = normalisePath(model?.def.startPage)
+  return startPath ? `/${startPath}` : ControllerPath.Start
 }
 
 export const filesize = (bytes: number) => {

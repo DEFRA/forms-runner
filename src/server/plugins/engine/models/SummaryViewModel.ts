@@ -118,7 +118,7 @@ export class SummaryViewModel {
         if (page instanceof RepeatPageController) {
           items.push(
             ItemRepeat(page, state, {
-              href: page.getSummaryPath(request),
+              href: page.getHref(page.getSummaryPath(request)),
               errors
             })
           )
@@ -166,7 +166,7 @@ function ItemRepeat(
     title: values.length ? `${unit} added` : unit,
     value: `You added ${values.length} ${unit}`,
     href: redirectUrl(options.href, {
-      returnUrl: redirectUrl(page.getSummaryPath())
+      returnUrl: redirectUrl(page.getHref(page.getSummaryPath()))
     }),
     state,
     page,
@@ -200,7 +200,7 @@ function ItemField(
     error: field.getError(options.errors),
     value: getAnswer(field, state),
     href: redirectUrl(options.href, {
-      returnUrl: redirectUrl(page.getSummaryPath())
+      returnUrl: redirectUrl(page.getHref(page.getSummaryPath()))
     }),
     state,
     page,

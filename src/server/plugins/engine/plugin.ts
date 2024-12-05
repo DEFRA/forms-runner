@@ -16,7 +16,8 @@ import {
   checkFormStatus,
   getPage,
   getStartPath,
-  normalisePath
+  normalisePath,
+  proceed
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
@@ -143,7 +144,9 @@ export const plugin = {
       h: ResponseToolkit<FormRequestRefs>
     ) => {
       const { model } = request.app
-      return h.redirect(getStartPath(model))
+
+      const servicePath = model ? `/${model.basePath}` : ''
+      return proceed(request, h, `${servicePath}${getStartPath(model)}`)
     }
 
     const getHandler = (
@@ -154,7 +157,7 @@ export const plugin = {
       const { path } = request.params
 
       if (normalisePath(path) === '') {
-        return h.redirect(getStartPath(model))
+        return dispatchHandler(request, h)
       }
 
       const page = getPage(model, request)

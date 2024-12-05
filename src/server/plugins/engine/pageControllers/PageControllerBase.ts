@@ -28,7 +28,6 @@ import {
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
   type FormContext,
@@ -52,7 +51,6 @@ export class PageControllerBase {
   name?: string
   model: FormModel
   pageDef: Page
-  path: string
   title: string
   condition?: string
   section?: Section
@@ -67,7 +65,6 @@ export class PageControllerBase {
     this.name = def.name
     this.model = model
     this.pageDef = pageDef
-    this.path = pageDef.path
     this.title = pageDef.title
 
     // Resolve section
@@ -86,8 +83,34 @@ export class PageControllerBase {
     })
   }
 
+  get path() {
+    return this.pageDef.path
+  }
+
+  get href() {
+    return this.getHref(this.path)
+  }
+
   get keys() {
     return this.collection.keys
+  }
+
+  get next(): Link[] {
+    const { def, pageDef } = this
+
+    if (!hasNext(pageDef)) {
+      return []
+    }
+
+    // Remove stale links
+    return pageDef.next.filter(({ path }) => {
+      const linkPath = normalisePath(path)
+
+      return def.pages.some((page) => {
+        const pagePath = normalisePath(page.path)
+        return pagePath === linkPath
+      })
+    })
   }
 
   /**
@@ -103,7 +126,7 @@ export class PageControllerBase {
   ): PageViewModel {
     let showTitle = true
 
-    let { model, title: pageTitle, section } = this
+    let { title: pageTitle, section } = this
     const sectionTitle = section?.hideTitle !== true ? section?.title : ''
 
     const components = this.collection.getViewModel(payload, errors)
@@ -160,28 +183,15 @@ export class PageControllerBase {
       components,
       errors,
       isStartPage: false,
-      serviceUrl: `/${model.basePath}`,
+      serviceUrl: this.getHref('/'),
       feedbackLink: this.getFeedbackLink(),
       phaseTag: this.getPhaseTag()
     }
   }
 
-  get href() {
-    const { model, path } = this
-    return `/${model.basePath}/${normalisePath(path)}`
-  }
-
-  get next(): Link[] {
-    const { def, pageDef } = this
-
-    if (!hasNext(pageDef)) {
-      return []
-    }
-
-    // Remove stale links
-    return pageDef.next.filter(({ path }) =>
-      def.pages.some((page) => normalisePath(path) === normalisePath(page.path))
-    )
+  getHref(path: string) {
+    const { model } = this
+    return `/${model.basePath}${path}`
   }
 
   getStartPath() {
@@ -191,57 +201,47 @@ export class PageControllerBase {
   getRelevantPath(context: FormContext) {
     const { paths } = context
 
+    const startPath = this.getStartPath()
+    const relevantPath = paths.at(-1) ?? startPath
+
     return !paths.length
-      ? this.getStartPath() // First relevant path
-      : paths.at(-1) // Last relevant path
+      ? startPath // First possible path
+      : relevantPath // Last possible path
   }
 
   getSummaryPath() {
-    const { model } = this
-    return `/${model.basePath}${ControllerPath.Summary}`
+    return ControllerPath.Summary.valueOf()
+  }
+
+  getStatusPath() {
+    return ControllerPath.Status.valueOf()
   }
 
   /**
-   * Apply conditions to evaluation state to determine next page
+   * Apply conditions to evaluation state to determine next page path
    */
-  getNextPage(context: FormContext): PageControllerClass | undefined {
-    const { conditions } = this.model
-    const { path } = this.pageDef
-
+  getNextPath(context: FormContext) {
+    const { model, next, path } = this
     const { evaluationState } = context
 
-    const summaryPath = ControllerPath.Summary.valueOf()
-    const statusPath = ControllerPath.Status.valueOf()
+    const summaryPath = this.getSummaryPath()
+    const statusPath = this.getStatusPath()
 
     // Walk from summary page (no next links) to status page
     let defaultPath = path === summaryPath ? statusPath : undefined
 
-    const nextLink = this.next.find((link) => {
+    const nextLink = next.find((link) => {
       const { condition } = link
 
-      if (condition && condition in conditions) {
-        return conditions[condition]?.fn(evaluationState) ?? false
+      if (condition) {
+        return model.conditions[condition]?.fn(evaluationState) ?? false
       }
 
       defaultPath = link.path
       return false
     })
 
-    const nextPath = nextLink?.path ?? defaultPath
-    return this.findPageByPath(nextPath)
-  }
-
-  /**
-   * Apply conditions to evaluation state to determine next page path
-   */
-  getNext(context: FormContext) {
-    const nextPage = this.getNextPage(context)
-
-    if (nextPage) {
-      return nextPage.href
-    }
-
-    return this.getSummaryPath()
+    return nextLink?.path ?? defaultPath
   }
 
   /**
@@ -282,14 +282,14 @@ export class PageControllerBase {
     h: ResponseToolkit<FormRequestRefs>
   ) => Promise<ResponseObject | Boom> {
     return async (request, h) => {
-      const { href, model, viewName } = this
+      const { model, path, viewName } = this
 
       const state = await this.getState(request)
       const context = model.getFormContext(request, state)
 
       // Redirect back to last relevant page
-      if (!context.paths.includes(href)) {
-        return h.redirect(this.getRelevantPath(context))
+      if (!context.paths.includes(path)) {
+        return this.proceed(request, h, this.getRelevantPath(context))
       }
 
       const payload = this.getFormDataFromState(context.state)
@@ -357,14 +357,14 @@ export class PageControllerBase {
   async buildMissingEmailWarningModel(
     request: FormRequest
   ): Promise<PageViewModel['notificationEmailWarning']> {
-    const { href } = this
+    const { path } = this
     const { params } = request
 
     const startPath = this.getStartPath()
     const summaryPath = this.getSummaryPath()
 
     // Warn the user if the form has no notification email set only on start page and summary page
-    if ([startPath, summaryPath].includes(href)) {
+    if ([startPath, summaryPath].includes(path)) {
       const { notificationEmail } = await getFormMetadata(params.slug)
 
       if (!notificationEmail) {
@@ -439,7 +439,14 @@ export class PageControllerBase {
       const pageState = this.getStateFromValidForm(request, payload)
       const formState = await this.setState(request, pageState)
 
-      return this.proceed(request, h, formState)
+      return this.proceed(
+        request,
+        h,
+
+        // This is required to ensure we don't navigate
+        // to an incorrect page based on stale state values
+        this.getNextPath(model.getFormContext(request, formState))
+      )
     }
   }
 
@@ -466,7 +473,7 @@ export class PageControllerBase {
   makeGetRoute() {
     return {
       method: 'get',
-      path: this.path,
+      path: this.pageDef.path,
       options: this.getRouteOptions,
       handler: this.makeGetRouteHandler()
     } satisfies ServerRoute<FormRequestRefs>
@@ -475,37 +482,30 @@ export class PageControllerBase {
   makePostRoute() {
     return {
       method: 'post',
-      path: this.path,
+      path: this.pageDef.path,
       options: this.postRouteOptions,
       handler: this.makePostRouteHandler()
     } satisfies ServerRoute<FormRequestPayloadRefs>
-  }
-
-  findPageByPath(path?: string) {
-    return this.model.pages.find(
-      (page) => normalisePath(page.path) === normalisePath(path)
-    )
   }
 
   validate(request: FormRequestPayload) {
     return this.collection.validate(request.payload)
   }
 
-  /**
-   * TODO:- proceed is interfering with subclasses
-   */
   proceed(
     request: FormRequest | FormRequestPayload,
     h:
       | ResponseToolkit<FormRequestRefs>
       | ResponseToolkit<FormRequestPayloadRefs>,
-    state: FormSubmissionState
+    nextPath?: string
   ) {
-    // This is required to ensure we don't navigate
-    // to an incorrect page based on stale state values
-    const context = this.model.getFormContext(request, state)
+    // Continue to same page
+    if (!nextPath) {
+      return proceed(request, h, request.path)
+    }
 
-    return proceed(request, h, this.getNext(context))
+    // Continue to next page
+    return proceed(request, h, this.getHref(nextPath))
   }
 
   /**
