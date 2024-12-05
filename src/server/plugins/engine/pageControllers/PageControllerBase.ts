@@ -285,7 +285,7 @@ export class PageControllerBase {
       const { href, model, viewName } = this
 
       const state = await this.getState(request)
-      const context = model.getFormContext(state, request)
+      const context = model.getFormContext(request, state)
 
       // Redirect back to last relevant page
       if (!context.paths.includes(href)) {
@@ -522,7 +522,7 @@ export class PageControllerBase {
   ) {
     // This is required to ensure we don't navigate
     // to an incorrect page based on stale state values
-    const context = this.model.getFormContext(state, request)
+    const context = this.model.getFormContext(request, state)
 
     return proceed(request, h, this.getNext(context))
   }

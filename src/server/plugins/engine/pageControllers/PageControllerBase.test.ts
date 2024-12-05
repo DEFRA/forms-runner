@@ -99,7 +99,7 @@ describe('PageControllerBase', () => {
       } satisfies FormContextRequest
 
       // Calculate our context based on the page we're attempting to load and the above state we provide
-      let context = controller.model.getFormContext(state, request)
+      let context = controller.model.getFormContext(request, state)
       const { evaluationState: stateBefore } = context
 
       // Our context should know our first applicant
@@ -140,7 +140,7 @@ describe('PageControllerBase', () => {
       } satisfies FormContextRequest
 
       // And recalculate our context
-      context = controller.model.getFormContext(state, request)
+      context = controller.model.getFormContext(request, state)
       const { evaluationState: stateAfter } = context
 
       // Our context should no longer list pages about our applicant
@@ -182,15 +182,12 @@ describe('PageControllerBase', () => {
         query: {}
       } satisfies FormContextRequest
 
-      const context = controller.model.getFormContext(
-        {
-          progress: [],
-          dateField__day: 5,
-          dateField__month: 1,
-          dateField__year: 2024
-        },
-        request
-      )
+      const context = controller.model.getFormContext(request, {
+        progress: [],
+        dateField__day: 5,
+        dateField__month: 1,
+        dateField__year: 2024
+      })
 
       // Ensure dates are transformed to yyyy-MM-dd format
       expect(context.evaluationState).toHaveProperty('dateField', '2024-01-05')
@@ -233,19 +230,17 @@ describe('PageControllerBase', () => {
       } satisfies FormContextRequest
 
       // Empty state
-      context = controller1.model.getFormContext({}, request)
+      context = controller1.model.getFormContext(request, {})
 
       // Question 1: Selected 'No'
-      contextNo = controller1.model.getFormContext(
-        { yesNoField: false },
-        request
-      )
+      contextNo = controller1.model.getFormContext(request, {
+        yesNoField: false
+      })
 
       // Question 1: Selected 'Yes'
-      contextYes = controller1.model.getFormContext(
-        { yesNoField: true },
-        request
-      )
+      contextYes = controller1.model.getFormContext(request, {
+        yesNoField: true
+      })
     })
 
     describe('Next getter', () => {

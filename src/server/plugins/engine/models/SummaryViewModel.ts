@@ -58,7 +58,7 @@ export class SummaryViewModel {
     this.serviceUrl = `/${basePath}`
     this.name = def.name
     this.declaration = def.declaration
-    this.context = model.getFormContext(state, request)
+    this.context = model.getFormContext(request, state)
 
     const result = model
       .makeFilteredSchema(this.context.relevantPages)

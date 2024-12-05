@@ -82,7 +82,7 @@ export class SummaryPageController extends PageController {
       const { href, model } = this
 
       const state = await this.getState(request)
-      const context = model.getFormContext(state, request)
+      const context = model.getFormContext(request, state)
 
       // Redirect back to last relevant page
       if (!context.paths.includes(href)) {

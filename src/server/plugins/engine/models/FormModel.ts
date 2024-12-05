@@ -199,7 +199,7 @@ export class FormModel {
     return this.lists.find((list) => list.name === name)
   }
 
-  getFormContext(state: FormState, request: FormContextRequest) {
+  getFormContext(request: FormContextRequest, state: FormState) {
     const { pages } = this
 
     // Current page
