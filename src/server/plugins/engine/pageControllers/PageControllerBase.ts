@@ -506,13 +506,11 @@ export class PageControllerBase {
       | ResponseToolkit<FormRequestPayloadRefs>,
     nextPath?: string
   ) {
-    // Continue to same page
-    if (!nextPath) {
-      return proceed(request, h, request.path)
-    }
+    const nextUrl = nextPath
+      ? this.getHref(nextPath) // Redirect to next page
+      : this.href // Redirect to current page (refresh)
 
-    // Continue to next page
-    return proceed(request, h, this.getHref(nextPath))
+    return proceed(request, h, nextUrl)
   }
 
   /**

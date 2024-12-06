@@ -12,7 +12,7 @@ import {
   tempItemSchema,
   tempStatusSchema
 } from '~/src/server/plugins/engine/components/FileUploadField.js'
-import { getError, proceed } from '~/src/server/plugins/engine/helpers.js'
+import { getError } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
@@ -129,7 +129,7 @@ export class FileUploadPageController extends PageController {
       const removed = await this.checkRemovedFiles(request, state, cacheService)
 
       if (removed) {
-        return proceed(request, h, request.path)
+        return this.proceed(request, h, this.path)
       }
 
       await this.refreshUpload(request, state, cacheService)
