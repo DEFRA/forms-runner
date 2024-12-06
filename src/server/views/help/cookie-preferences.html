@@ -23,6 +23,7 @@
     {% endif %}
 
     <h2 class="govuk-heading-l">Change your cookie settings</h2>
+
     <form action="/help/cookie-preferences" method="post" novalidate>
         {{ govukRadios({
           name: "cookies[additional]",
@@ -36,12 +37,12 @@
             {
               value: "yes",
               text: "Yes",
-              checked: cookieConsent
+              checked: cookieConsent === true
             },
             {
               value: "no",
               text: "No",
-              checked: not cookieConsent
+              checked: cookieConsent === false
             }
           ]
         }) }}

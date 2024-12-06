@@ -81,15 +81,8 @@ export default {
       server.route({
         method: 'get',
         path: '/help/cookie-preferences',
-        handler(request, h) {
-          const cookieConsentUpdated =
-            request.yar.flash('cookieConsentUpdated').at(0) ?? false
-          const cookieConsent = request.yar.get('cookieConsent') ?? false
-
-          return h.view('help/cookie-preferences', {
-            cookieConsent,
-            cookieConsentUpdated
-          })
+        handler(_request, h) {
+          return h.view('help/cookie-preferences')
         }
       })
 
