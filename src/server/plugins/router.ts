@@ -68,11 +68,13 @@ export default {
 
           if (decision === 'yes') {
             request.yar.set('cookieConsent', true)
-          } else {
+          } else if (decision === 'no') {
             request.yar.set('cookieConsent', false)
+          } else {
+            throw Boom.badRequest('Unknown cookie preference')
           }
 
-          request.yar.flash('cookieConsentUpdated', true)
+          request.yar.flash('cookieConsentUpdated', true, true)
 
           return h.redirect(request.info.referrer)
         }

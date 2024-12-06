@@ -16,7 +16,10 @@ describe(`Cookie banner and analytics`, () => {
     await server.stop()
   })
 
-  test('shows the cookie banner by default', async () => {
+  test.each([
+    '/basic/start', // form pages
+    '/' // non-form pages
+  ])('shows the cookie banner by default', async (path) => {
     server = await createServer({
       formFileName: 'basic.js',
       formFilePath: join(testDir, 'definitions')
@@ -25,7 +28,7 @@ describe(`Cookie banner and analytics`, () => {
 
     const options = {
       method: 'GET',
-      url: '/basic/start'
+      url: path
     }
 
     const { container } = await renderResponse(server, options)
@@ -43,17 +46,31 @@ describe(`Cookie banner and analytics`, () => {
   })
 
   test.each([
+    // form pages
     {
       answer: 'yes',
-      isGaEnabled: true
+      isGaEnabled: true,
+      path: '/basic/start'
     },
     {
       answer: 'no',
-      isGaEnabled: false
+      isGaEnabled: false,
+      path: '/basic/start'
+    },
+    // non-form pages
+    {
+      answer: 'yes',
+      isGaEnabled: true,
+      path: '/'
+    },
+    {
+      answer: 'no',
+      isGaEnabled: false,
+      path: '/'
     }
   ])(
     'hides the cookie banner when the user has made a decision',
-    async ({ answer, isGaEnabled }) => {
+    async ({ answer, isGaEnabled, path }) => {
       server = await createServer({
         formFileName: 'basic.js',
         formFilePath: join(testDir, 'definitions')
@@ -77,7 +94,7 @@ describe(`Cookie banner and analytics`, () => {
 
       const { container } = await renderResponse(server, {
         method: 'GET',
-        url: '/basic/start',
+        url: path,
         headers
       })
 
