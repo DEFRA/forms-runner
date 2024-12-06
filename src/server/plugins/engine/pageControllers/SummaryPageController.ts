@@ -371,24 +371,24 @@ export function getPersonalisation(
   }
 
   lines.push(`Form submitted at ${formattedNow}.\n`)
-  lines.push('---')
+  lines.push('---\n')
 
   items.forEach((item) => {
-    lines.push(`## ${item.label}`)
+    lines.push(`## ${item.label}\n`)
 
     if ('subItems' in item) {
       lines.push(
-        `[Download ${item.label} (CSV)](${designerUrl}/file-download/${files.repeaters[item.name]})\n`,
-        '---'
+        `[Download ${item.label} (CSV)](${designerUrl}/file-download/${files.repeaters[item.name]})\n`
       )
     } else {
       lines.push(
         getAnswer(item.field, item.state, {
           format: 'markdown'
-        }),
-        '---'
+        })
       )
     }
+
+    lines.push('---\n')
   })
 
   lines.push(

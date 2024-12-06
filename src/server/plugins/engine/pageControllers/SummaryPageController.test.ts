@@ -124,15 +124,19 @@ describe('SummaryPageController', () => {
             Form submitted at ${format(dateNow, 'h:mmaaa')} on ${format(dateNow, 'd MMMM yyyy')}.
 
             ---
+
             ## How would you like to receive your pizza?
 
             Delivery
 
             ---
+
             ## Pizza
+
             [Download Pizza (CSV)](https://test-designer.cdp-int.defra.cloud/file-download/11111111-1111-1111-1111-111111111111)
 
             ---
+
             [Download main form (CSV)](https://test-designer.cdp-int.defra.cloud/file-download/00000000-0000-0000-0000-000000000000)
           `
         )
