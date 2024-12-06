@@ -28,6 +28,9 @@ export function context(request) {
   }
 
   const { params, path } = request ?? {}
+
+  const cookieConsent = request?.yar.get('cookieConsent')
+  const cookieConsentUpdated = request?.yar.flash('cookieConsentUpdated').at(0)
   const isPreviewMode = path?.startsWith(PREVIEW_PATH_PREFIX)
 
   return {
@@ -41,6 +44,9 @@ export function context(request) {
     serviceName: config.get('serviceName'),
     serviceVersion: config.get('serviceVersion'),
     slug: params?.slug,
+    cookieConsent,
+    cookieConsentUpdated,
+    googleAnalyticsTrackingId: config.get('googleAnalyticsTrackingId'),
 
     getAssetPath: (asset = '') => {
       return `/${webpackManifest?.[asset] ?? asset}`

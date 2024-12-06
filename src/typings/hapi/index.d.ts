@@ -23,6 +23,7 @@ declare module '@hapi/hapi' {
   interface Request {
     logger: Logger
     yar: Yar
+    state: object
   }
 
   interface RequestApplicationState {

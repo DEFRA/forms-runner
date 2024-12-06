@@ -60,6 +60,34 @@ export default {
         }
       })
 
+      server.route<{ Payload: { 'cookies[additional]': string } }>({
+        method: 'post',
+        path: '/help/cookie-preferences',
+        handler(request, h) {
+          const decision = request.payload['cookies[additional]']
+
+          if (decision === 'yes') {
+            request.yar.set('cookieConsent', true)
+          } else if (decision === 'no') {
+            request.yar.set('cookieConsent', false)
+          } else {
+            throw Boom.badRequest('Unknown cookie preference')
+          }
+
+          request.yar.flash('cookieConsentUpdated', true, true)
+
+          return h.redirect(request.info.referrer)
+        }
+      })
+
+      server.route({
+        method: 'get',
+        path: '/help/cookie-preferences',
+        handler(_request, h) {
+          return h.view('help/cookie-preferences')
+        }
+      })
+
       server.route({
         method: 'get',
         path: '/help/accessibility-statement',
