@@ -98,7 +98,7 @@ describe('Submission journey test', () => {
     expect(res.headers['content-type']).toContain('text/html')
   })
 
-  test('POST /summary returns 302', async () => {
+  test('POST /summary returns 303', async () => {
     const sender = jest.mocked(sendNotification)
     jest.mocked(initiateUpload).mockResolvedValue(uploadInitiateResponse)
     jest.mocked(getUploadStatus).mockResolvedValue(readyStatusResponse)
@@ -370,7 +370,7 @@ describe('Submission journey test', () => {
       payload: form
     })
 
-    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.statusCode).toBe(StatusCodes.SEE_OTHER)
     expect(res.headers.location).toBe(`${basePath}/methodology-statement`)
 
     return res
@@ -394,7 +394,7 @@ describe('Submission journey test', () => {
       payload: {}
     })
 
-    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.statusCode).toBe(StatusCodes.SEE_OTHER)
     expect(res.headers.location).toBe(`${basePath}/summary`)
 
     return res
@@ -417,7 +417,7 @@ describe('Submission journey test', () => {
       payload: {}
     })
 
-    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.statusCode).toBe(StatusCodes.SEE_OTHER)
     expect(res.headers.location).toBe(`${basePath}/status`)
 
     return res

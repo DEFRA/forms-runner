@@ -283,7 +283,7 @@ describe('Form fields (required)', () => {
           payload: { ...payload, crumb: csrfToken }
         })
 
-        expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+        expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
         expect(response.headers.location).toBe(`${basePath}${paths.next}`)
       })
     }

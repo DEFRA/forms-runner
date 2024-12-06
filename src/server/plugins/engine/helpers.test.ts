@@ -1,5 +1,6 @@
 import Boom from '@hapi/boom'
-import { type ResponseToolkit } from '@hapi/hapi'
+import { type ResponseObject, type ResponseToolkit } from '@hapi/hapi'
+import { StatusCodes } from 'http-status-codes'
 import { ValidationError } from 'joi'
 
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
@@ -11,52 +12,162 @@ import {
   proceed,
   redirectUrl
 } from '~/src/server/plugins/engine/helpers.js'
+import { type FormContextRequest } from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
-import { type FormRequest } from '~/src/server/routes/types.js'
 
 describe('Helpers', () => {
-  let request: Pick<FormRequest, 'query'>
+  let request: FormContextRequest
   let h: Pick<ResponseToolkit, 'redirect'>
 
   beforeEach(() => {
+    const pageUrl = new URL('http://example.com/test/page-one')
+
     request = {
+      method: 'get',
+      url: pageUrl,
+      path: pageUrl.pathname,
+      params: {
+        path: 'page-one',
+        slug: 'test'
+      },
       query: {}
     }
 
+    const response = {
+      code: jest.fn().mockImplementation(() => response)
+    }
+
     h = {
-      redirect: jest.fn()
+      redirect: jest.fn().mockImplementation(() => response)
     }
   })
 
   describe('proceed', () => {
-    it('should redirect to the returnUrl if one is provided', () => {
-      request.query.returnUrl = '/my-return-url'
+    it.each([
+      {
+        href: 'https://www.gov.uk/help/privacy-notice',
 
-      const nextUrl = 'badgers/monkeys'
-      proceed(request, h, nextUrl)
+        request: {
+          method: 'get'
+        } satisfies Partial<FormContextRequest>,
 
-      expect(h.redirect).toHaveBeenCalledTimes(1)
-      expect(h.redirect).toHaveBeenCalledWith(request.query.returnUrl)
-    })
+        redirect: {
+          statusCode: StatusCodes.MOVED_TEMPORARILY
+        } satisfies Partial<ResponseObject>
+      },
+      {
+        href: '/test/page-two',
 
-    it('should redirect to next url when no query params', () => {
-      const nextUrl = 'badgers/monkeys'
-      proceed(request, h, nextUrl)
+        request: {
+          method: 'get'
+        } satisfies Partial<FormContextRequest>,
 
-      expect(h.redirect).toHaveBeenCalledTimes(1)
-      expect(h.redirect).toHaveBeenCalledWith(nextUrl)
-    })
+        redirect: {
+          statusCode: StatusCodes.MOVED_TEMPORARILY
+        } satisfies Partial<ResponseObject>
+      },
+      {
+        href: '/test/page-two',
 
-    it('should redirect to next url ignoring most params from original request', () => {
-      request.query.myParam = 'myValue'
-      request.query.myParam2 = 'myValue2'
+        request: {
+          method: 'post'
+        } satisfies Partial<FormContextRequest>,
 
-      const nextUrl = 'badgers/monkeys'
-      proceed(request, h, nextUrl)
+        redirect: {
+          statusCode: StatusCodes.SEE_OTHER
+        } satisfies Partial<ResponseObject>
+      }
+    ])(
+      'should redirect to the path provided',
+      ({ href, redirect, ...options }) => {
+        request = { ...request, ...options.request }
 
-      expect(h.redirect).toHaveBeenCalledTimes(1)
-      expect(h.redirect).toHaveBeenCalledWith(nextUrl)
-    })
+        const response = proceed(request, h, href)
+
+        expect(h.redirect).toHaveBeenCalledWith(href)
+        expect(response.code).toHaveBeenCalledWith(redirect.statusCode)
+      }
+    )
+
+    it.each([
+      {
+        href: '/test/page-two',
+
+        request: {
+          method: 'get',
+          query: {
+            myParam1: 'myValue1',
+            myParam2: 'myValue2',
+            returnUrl: '/test/summary'
+          }
+        } satisfies Partial<FormContextRequest>,
+
+        redirect: {
+          statusCode: StatusCodes.MOVED_TEMPORARILY
+        } satisfies Partial<ResponseObject>
+      },
+      {
+        href: '/test/page-two',
+
+        request: {
+          method: 'post',
+          query: {
+            myParam1: 'myValue1',
+            myParam2: 'myValue2',
+            returnUrl: '/test/summary'
+          }
+        } satisfies Partial<FormContextRequest>,
+
+        redirect: {
+          statusCode: StatusCodes.SEE_OTHER
+        } satisfies Partial<ResponseObject>
+      }
+    ])(
+      "should redirect to the 'returnUrl' query param provided (relative paths)",
+      ({ href, redirect, ...options }) => {
+        request = { ...request, ...options.request }
+
+        const response = proceed(request, h, href)
+
+        expect(h.redirect).toHaveBeenCalledWith(request.query.returnUrl)
+        expect(response.code).toHaveBeenCalledWith(redirect.statusCode)
+      }
+    )
+
+    it.each([
+      {
+        href: '/test/page-two',
+
+        request: {
+          method: 'get',
+          query: { returnUrl: 'slash-missing' }
+        } satisfies Partial<FormContextRequest>,
+
+        redirect: {
+          statusCode: StatusCodes.MOVED_TEMPORARILY
+        } satisfies Partial<ResponseObject>
+      },
+      {
+        href: '/test/page-two',
+
+        request: {
+          method: 'post',
+          query: { returnUrl: 'https://www.gov.uk/help/privacy-notice' }
+        } satisfies Partial<FormContextRequest>,
+
+        redirect: {
+          statusCode: StatusCodes.SEE_OTHER
+        } satisfies Partial<ResponseObject>
+      }
+    ])(
+      "should not redirect to the 'returnUrl' query param provided (other paths)",
+      ({ href, ...options }) => {
+        request = { ...request, ...options.request }
+
+        proceed(request, h, href)
+        expect(h.redirect).not.toHaveBeenCalledWith(request.query.returnUrl)
+      }
+    )
   })
 
   describe('encodeUrl', () => {

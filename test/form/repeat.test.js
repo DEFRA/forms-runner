@@ -52,7 +52,7 @@ async function createRepeatItem(
     }
   })
 
-  expect(res1.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+  expect(res1.statusCode).toBe(StatusCodes.SEE_OTHER)
   expect(res1.headers.location).toBe(
     `${basePath}/pizza-order/summary?itemId=${itemId}`
   )
@@ -118,12 +118,12 @@ describe('Repeat GET tests', () => {
     await server.stop()
   })
 
-  test('GET /pizza-order returns 303', async () => {
+  test('GET /pizza-order returns 302', async () => {
     const res = await server.inject({
       url: `${basePath}/pizza-order`
     })
 
-    expect(res.statusCode).toBe(StatusCodes.SEE_OTHER)
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
   })
 
   test('GET /pizza-order/summary returns 200', async () => {
@@ -278,7 +278,7 @@ describe('Repeat POST tests', () => {
     await server.stop()
   })
 
-  test('POST /pizza-order/{id} returns 302', async () => {
+  test('POST /pizza-order/{id} returns 303', async () => {
     const { item, headers } = await createRepeatItem(server, repeatPage)
 
     const res = await server.inject({
@@ -291,11 +291,11 @@ describe('Repeat POST tests', () => {
       }
     })
 
-    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.statusCode).toBe(StatusCodes.SEE_OTHER)
     expect(res.headers.location).toMatch(/^\/repeat\/pizza-order\/summary?/)
   })
 
-  test('POST /pizza-order/{id}/confirm-delete returns 302', async () => {
+  test('POST /pizza-order/{id}/confirm-delete returns 303', async () => {
     const { item, headers } = await createRepeatItem(server, repeatPage)
 
     const res = await server.inject({
@@ -307,11 +307,11 @@ describe('Repeat POST tests', () => {
       }
     })
 
-    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.statusCode).toBe(StatusCodes.SEE_OTHER)
     expect(res.headers.location).toMatch(/^\/repeat\/pizza-order\/summary/)
   })
 
-  test('POST /pizza-order/summary ADD_ANOTHER returns 302', async () => {
+  test('POST /pizza-order/summary ADD_ANOTHER returns 303', async () => {
     const res = await server.inject({
       method: 'POST',
       url: `${basePath}/pizza-order/summary`,
@@ -320,11 +320,11 @@ describe('Repeat POST tests', () => {
       }
     })
 
-    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.statusCode).toBe(StatusCodes.SEE_OTHER)
     expect(res.headers.location).toBe(`${basePath}/pizza-order`)
   })
 
-  test('POST /pizza-order/summary CONTINUE returns 302', async () => {
+  test('POST /pizza-order/summary CONTINUE returns 303', async () => {
     const { headers } = await createRepeatItem(server, repeatPage)
 
     const res = await server.inject({
@@ -336,7 +336,7 @@ describe('Repeat POST tests', () => {
       }
     })
 
-    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.statusCode).toBe(StatusCodes.SEE_OTHER)
     expect(res.headers.location).toBe(`${basePath}/summary`)
   })
 
@@ -368,7 +368,7 @@ describe('Repeat POST tests', () => {
     expect($errorItems[0]).toHaveTextContent('You can only add up to 2 Pizzas')
   })
 
-  test('POST /pizza-order/summary CONTINUE returns 302 to /summary', async () => {
+  test('POST /pizza-order/summary CONTINUE returns 303 to /summary', async () => {
     const { headers } = await createRepeatItem(server, repeatPage)
 
     const res = await server.inject({
@@ -380,7 +380,7 @@ describe('Repeat POST tests', () => {
       }
     })
 
-    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.statusCode).toBe(StatusCodes.SEE_OTHER)
     expect(res.headers.location).toBe(`${basePath}/summary`)
 
     const { container, response } = await renderResponse(server, {
@@ -402,7 +402,7 @@ describe('Repeat POST tests', () => {
     expect($values[0]).toHaveTextContent('You added 1 Pizza')
   })
 
-  test('POST /pizza-order/summary with 2 items CONTINUE returns 302 to /summary', async () => {
+  test('POST /pizza-order/summary with 2 items CONTINUE returns 303 to /summary', async () => {
     const { headers } = await createRepeatItem(server, repeatPage)
 
     await createRepeatItem(server, repeatPage, 2, headers)
@@ -416,7 +416,7 @@ describe('Repeat POST tests', () => {
       }
     })
 
-    expect(res1.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res1.statusCode).toBe(StatusCodes.SEE_OTHER)
     expect(res1.headers.location).toBe(`${basePath}/summary`)
 
     const { container, response: res2 } = await renderResponse(server, {
