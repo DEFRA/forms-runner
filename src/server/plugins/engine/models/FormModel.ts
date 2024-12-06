@@ -16,6 +16,7 @@ import { Parser, type Value } from 'expr-eval'
 import joi from 'joi'
 
 import {
+  checkFormStatus,
   findPage,
   getError,
   getPage
@@ -289,13 +290,17 @@ export class FormModel {
     // Format relevant state errors
     const errors = error?.details.map(getError)
     const paths: string[] = []
+    const { isPreview } = checkFormStatus(request.path)
 
     // Add paths for navigation
     for (const { collection, path } of context.relevantPages) {
       paths.push(path)
 
       // Stop at current page or with errors
-      if (path === currentPath || collection.getErrors(errors)) {
+      if (
+        !isPreview &&
+        (path === currentPath || collection.getErrors(errors))
+      ) {
         break
       }
     }
