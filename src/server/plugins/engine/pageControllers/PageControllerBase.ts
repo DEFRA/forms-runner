@@ -508,7 +508,7 @@ export class PageControllerBase {
   ) {
     // Continue to same page
     if (!nextPath) {
-      return proceed(request, h, request.path)
+      return proceed(request, h, `${request.path}${request.url.search}`)
     }
 
     // Continue to next page
