@@ -182,7 +182,7 @@ export function getAnswerMarkdown(field: Field, state: FormState) {
       return answerEscaped
     }
 
-    answerEscaped = '\n'
+    answerEscaped = ''
 
     // Append bullet points
     answerEscaped += items
@@ -201,6 +201,14 @@ export function getAnswerMarkdown(field: Field, state: FormState) {
           : `${line}\n`
       })
       .join('')
+  } else if (field instanceof Components.MultilineTextField) {
+    // Preserve Multiline text new lines
+    answerEscaped = `${answer}\n`
+  } else if (field instanceof Components.UkAddressField) {
+    // Format UK addresses into new lines
+    answerEscaped = (field.getContextValueFromState(state) ?? [])
+      .join('\n')
+      .concat('\n')
   }
 
   return answerEscaped
@@ -210,7 +218,7 @@ export function getAnswerMarkdown(field: Field, state: FormState) {
  * Prevent Markdown formatting
  */
 export function escapeAnswer(answer: string) {
-  return `\`\`\`\n${answer}\n\`\`\`\n`
+  return `\`\`\`\n${answer}\n\`\`\`\n\n`
 }
 
 export const addClassOptionIfNone = (

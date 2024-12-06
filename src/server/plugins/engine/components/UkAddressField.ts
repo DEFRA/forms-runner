@@ -99,9 +99,17 @@ export class UkAddressField extends FormComponent {
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {
-    return Object.values(this.getFormValueFromState(state) ?? {})
-      .filter(Boolean)
-      .join(', ')
+    return this.getContextValueFromState(state)?.join(', ') ?? ''
+  }
+
+  getContextValueFromState(state: FormSubmissionState) {
+    const value = this.getFormValueFromState(state)
+
+    if (!value) {
+      return null
+    }
+
+    return Object.values(value).filter(Boolean)
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
