@@ -223,7 +223,7 @@ describe('Form journey', () => {
             payload: { ...payload, crumb: csrfToken }
           })
 
-          expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+          expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
           expect(response.headers.location).toBe(`${basePath}${paths.next}`)
         })
       }
@@ -348,7 +348,7 @@ describe('Form journey', () => {
             payload: { ...payload, crumb: csrfToken }
           })
 
-          expect(response2.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+          expect(response2.statusCode).toBe(StatusCodes.SEE_OTHER)
           expect(response2.headers.location).toBe(returnUrl)
         }
       }
@@ -401,7 +401,7 @@ describe('Form journey', () => {
         sessionId: expect.any(String)
       })
 
-      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
       expect(response.headers.location).toBe(`${basePath}/status`)
 
       const { container } = await renderResponse(server, {

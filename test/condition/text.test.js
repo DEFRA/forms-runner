@@ -80,7 +80,7 @@ describe('TextField based conditions', () => {
       payload: form
     })
 
-    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.statusCode).toBe(StatusCodes.SEE_OTHER)
     expect(res.headers.location).toBe(`${basePath}/second-page`)
   })
 
@@ -95,7 +95,7 @@ describe('TextField based conditions', () => {
       payload: form
     })
 
-    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.statusCode).toBe(StatusCodes.SEE_OTHER)
     expect(res.headers.location).toBe(`${basePath}/third-page`)
   })
 })

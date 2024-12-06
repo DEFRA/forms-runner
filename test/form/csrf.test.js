@@ -65,7 +65,7 @@ describe('CSRF', () => {
     expect(response.statusCode).toBe(StatusCodes.FORBIDDEN)
   })
 
-  test('post request with CSRF token returns 302 redirect', async () => {
+  test('post request with CSRF token returns 303 redirect', async () => {
     const csrfToken = 'dummy-token'
 
     const response = await server.inject({
@@ -80,7 +80,7 @@ describe('CSRF', () => {
       }
     })
 
-    expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
   })
 })
 

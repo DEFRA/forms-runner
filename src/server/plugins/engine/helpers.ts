@@ -2,6 +2,7 @@ import { ControllerPath } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
 import { format, parseISO } from 'date-fns'
+import { StatusCodes } from 'http-status-codes'
 import { type Schema, type ValidationErrorItem } from 'joi'
 import upperFirst from 'lodash/upperFirst.js'
 
@@ -13,12 +14,7 @@ import {
   type FormContextRequest,
   type FormSubmissionError
 } from '~/src/server/plugins/engine/types.js'
-import {
-  FormStatus,
-  type FormQuery,
-  type FormRequest,
-  type FormRequestPayload
-} from '~/src/server/routes/types.js'
+import { FormStatus, type FormQuery } from '~/src/server/routes/types.js'
 
 const logger = createLogger()
 
@@ -26,17 +22,21 @@ export const ADD_ANOTHER = 'add-another'
 export const CONTINUE = 'continue'
 
 export function proceed(
-  request: Pick<FormRequest | FormRequestPayload, 'query'>,
+  request: Pick<FormContextRequest, 'method' | 'query'>,
   h: Pick<ResponseToolkit, 'redirect'>,
   nextUrl: string
 ) {
   const { returnUrl } = request.query
 
-  if (returnUrl?.startsWith('/')) {
-    return h.redirect(returnUrl)
-  } else {
-    return h.redirect(nextUrl)
-  }
+  // Redirect to return location (optional)
+  const response = returnUrl?.startsWith('/')
+    ? h.redirect(returnUrl)
+    : h.redirect(nextUrl)
+
+  // Redirect POST to GET to avoid resubmission
+  return request.method === 'post'
+    ? response.code(StatusCodes.SEE_OTHER)
+    : response.code(StatusCodes.MOVED_TEMPORARILY)
 }
 
 /**
