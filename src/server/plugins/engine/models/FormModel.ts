@@ -229,6 +229,8 @@ export class FormModel {
     state: FormState,
     options?: { validate: false }
   ): FormContext | FormContextProgress {
+    const { query } = request
+    const { force = false } = query
     const page = getPage(this, request)
 
     // Determine form paths
@@ -239,7 +241,8 @@ export class FormModel {
       evaluationState: {},
       relevantState: {},
       relevantPages: [],
-      state
+      state,
+      force
     }
 
     // Find start page

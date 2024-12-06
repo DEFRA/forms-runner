@@ -2,8 +2,9 @@ import { type ReqRefDefaults, type Request } from '@hapi/hapi'
 
 import { type FormSubmissionPayload } from '~/src/server/plugins/engine/types.js'
 
-export interface FormQuery extends Partial<Record<string, string>> {
+export interface FormQuery extends Partial<Record<string, string | boolean>> {
   returnUrl?: string
+  force?: boolean
 }
 
 export interface FormParams extends Partial<Record<string, string>> {
