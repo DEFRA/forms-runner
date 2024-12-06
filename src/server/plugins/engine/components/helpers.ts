@@ -182,18 +182,33 @@ export function getAnswerMarkdown(field: Field, state: FormState) {
       return answerEscaped
     }
 
-    answerEscaped = '\n'
+    answerEscaped = ''
 
     // Append bullet points
     answerEscaped += items
-      .map(({ text, value }) =>
+      .map(({ text: label, value }) => {
+        let line = label
+
+        // Prepend bullet points for checkboxes only
+        if (field instanceof Components.CheckboxesField) {
+          line = `* ${line}`
+        }
+
         // Append raw values in parentheses
         // e.g. `* None of the above (false)`
-        `${value}`.toLowerCase() !== text.toLowerCase()
-          ? `* ${text} (${value})\n`
-          : `* ${text}\n`
-      )
+        return `${value}`.toLowerCase() !== label.toLowerCase()
+          ? `${line} (${value})\n`
+          : `${line}\n`
+      })
       .join('')
+  } else if (field instanceof Components.MultilineTextField) {
+    // Preserve Multiline text new lines
+    answerEscaped = `${answer}\n`
+  } else if (field instanceof Components.UkAddressField) {
+    // Format UK addresses into new lines
+    answerEscaped = (field.getContextValueFromState(state) ?? [])
+      .join('\n')
+      .concat('\n')
   }
 
   return answerEscaped
@@ -203,7 +218,7 @@ export function getAnswerMarkdown(field: Field, state: FormState) {
  * Prevent Markdown formatting
  */
 export function escapeAnswer(answer: string) {
-  return `\`\`\`\n${answer}\n\`\`\`\n`
+  return `\`\`\`\n${answer}\n\`\`\`\n\n`
 }
 
 export const addClassOptionIfNone = (
