@@ -3,14 +3,9 @@ import { randomUUID } from 'crypto'
 import { ControllerType, type Page, type Repeat } from '@defra/forms-model'
 import { badImplementation, badRequest, notFound } from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
-import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
-import {
-  ADD_ANOTHER,
-  CONTINUE,
-  proceed
-} from '~/src/server/plugins/engine/helpers.js'
+import { ADD_ANOTHER, CONTINUE } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
@@ -182,10 +177,11 @@ export class RepeatPageController extends PageController {
       request: FormRequest,
       h: ResponseToolkit<FormRequestRefs>
     ) => {
+      const { path } = this
+
       if (!request.params.itemId) {
-        return h
-          .redirect(`${request.path}/${randomUUID()}${request.url.search}`)
-          .code(StatusCodes.SEE_OTHER)
+        const nextPath = `${path}/${randomUUID()}${request.url.search}`
+        return super.proceed(request, h, nextPath)
       }
 
       await this.setRepeatAppData(request)
@@ -228,7 +224,7 @@ export class RepeatPageController extends PageController {
       request: FormRequestPayload,
       h: ResponseToolkit<FormRequestPayloadRefs>
     ) => {
-      const { href, model, repeat } = this
+      const { model, path, repeat } = this
       const { payload } = request
       const { action } = payload
 
@@ -254,7 +250,7 @@ export class RepeatPageController extends PageController {
           return h.view(this.listSummaryViewName, viewModel)
         }
 
-        return proceed(request, h, `${href}${request.url.search}`)
+        return super.proceed(request, h, `${path}${request.url.search}`)
       } else if (action === CONTINUE) {
         return super.proceed(
           request,
