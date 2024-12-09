@@ -297,10 +297,7 @@ export class FormModel {
       paths.push(path)
 
       // Stop at current page or with errors
-      if (
-        !isPreview &&
-        (path === currentPath || collection.getErrors(errors))
-      ) {
+      if (!isPreview && collection.getErrors(errors)) {
         break
       }
     }
