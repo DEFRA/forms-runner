@@ -41,10 +41,13 @@ const stateSchema = Joi.string()
   .valid(FormStatus.Draft, FormStatus.Live)
   .required()
 const pathSchema = Joi.string().required()
-const itemIdSchema = Joi.string().uuid().required()
+const itemIdSchema = Joi.string().uuid()
 const crumbSchema = Joi.string().optional().allow('')
 const actionSchema = Joi.string().valid(ADD_ANOTHER, CONTINUE).required()
 const confirmSchema = Joi.boolean().default(false)
+const itemIdQuerySchema = Joi.object().keys({
+  itemId: itemIdSchema
+})
 
 export const plugin = {
   name: '@defra/forms-runner/engine',
@@ -229,7 +232,7 @@ export const plugin = {
           params: Joi.object().keys({
             slug: slugSchema,
             path: pathSchema,
-            itemId: Joi.string().uuid()
+            itemId: itemIdSchema
           })
         }
       }
@@ -246,8 +249,9 @@ export const plugin = {
             state: stateSchema,
             slug: slugSchema,
             path: pathSchema,
-            itemId: Joi.string().uuid()
-          })
+            itemId: itemIdSchema
+          }),
+          query: itemIdQuerySchema
         }
       }
     })
@@ -273,7 +277,7 @@ export const plugin = {
           params: Joi.object().keys({
             slug: slugSchema,
             path: pathSchema,
-            itemId: Joi.string().uuid()
+            itemId: itemIdSchema
           })
         }
       }
@@ -290,8 +294,9 @@ export const plugin = {
             state: stateSchema,
             slug: slugSchema,
             path: pathSchema,
-            itemId: Joi.string().uuid()
-          })
+            itemId: itemIdSchema
+          }),
+          query: itemIdQuerySchema
         }
       }
     })
@@ -341,7 +346,8 @@ export const plugin = {
             state: stateSchema,
             slug: slugSchema,
             path: pathSchema
-          })
+          }),
+          query: itemIdQuerySchema
         }
       }
     })
@@ -399,7 +405,8 @@ export const plugin = {
               crumb: crumbSchema,
               action: actionSchema
             })
-            .required()
+            .required(),
+          query: itemIdQuerySchema
         }
       }
     })
@@ -429,7 +436,7 @@ export const plugin = {
           params: Joi.object().keys({
             slug: slugSchema,
             path: pathSchema,
-            itemId: itemIdSchema
+            itemId: itemIdSchema.required()
           })
         }
       }
@@ -446,8 +453,9 @@ export const plugin = {
             state: stateSchema,
             slug: slugSchema,
             path: pathSchema,
-            itemId: itemIdSchema
-          })
+            itemId: itemIdSchema.required()
+          }),
+          query: itemIdQuerySchema
         }
       }
     })
@@ -477,7 +485,7 @@ export const plugin = {
           params: Joi.object().keys({
             slug: slugSchema,
             path: pathSchema,
-            itemId: itemIdSchema
+            itemId: itemIdSchema.required()
           }),
           payload: Joi.object()
             .keys({
@@ -500,14 +508,15 @@ export const plugin = {
             state: stateSchema,
             slug: slugSchema,
             path: pathSchema,
-            itemId: itemIdSchema
+            itemId: itemIdSchema.required()
           }),
           payload: Joi.object()
             .keys({
               crumb: crumbSchema,
               confirm: confirmSchema
             })
-            .required()
+            .required(),
+          query: itemIdQuerySchema
         }
       }
     })
