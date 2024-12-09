@@ -24,6 +24,7 @@ declare module '@hapi/hapi' {
     logger: Logger
     yar: Yar
     state: object
+    cookieConsent: 'true' | 'false'
   }
 
   interface RequestApplicationState {
