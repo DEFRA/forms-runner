@@ -126,11 +126,6 @@ export interface FormContext {
    * Form submission state (entire form)
    */
   state: FormSubmissionState
-
-  /**
-   * Page override redirect flag
-   */
-  force: boolean
 }
 
 export interface FormContextProgress extends FormContext {

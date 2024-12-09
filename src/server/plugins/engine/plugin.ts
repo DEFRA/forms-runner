@@ -45,12 +45,7 @@ const itemIdSchema = Joi.string().uuid()
 const crumbSchema = Joi.string().optional().allow('')
 const actionSchema = Joi.string().valid(ADD_ANOTHER, CONTINUE).required()
 const confirmSchema = Joi.boolean().default(false)
-const forceSchema = Joi.boolean().default(false)
-const forceQuery = Joi.object().keys({
-  force: forceSchema
-})
-const itemIdWithForceQuery = Joi.object().keys({
-  force: forceSchema,
+const itemIdQuerySchema = Joi.object().keys({
   itemId: itemIdSchema
 })
 
@@ -214,8 +209,7 @@ export const plugin = {
           params: Joi.object().keys({
             state: stateSchema,
             slug: slugSchema
-          }),
-          query: forceQuery
+          })
         }
       }
     })
@@ -257,7 +251,7 @@ export const plugin = {
             path: pathSchema,
             itemId: itemIdSchema
           }),
-          query: itemIdWithForceQuery
+          query: itemIdQuerySchema
         }
       }
     })
@@ -302,7 +296,7 @@ export const plugin = {
             path: pathSchema,
             itemId: itemIdSchema
           }),
-          query: itemIdWithForceQuery
+          query: itemIdQuerySchema
         }
       }
     })
@@ -353,7 +347,7 @@ export const plugin = {
             slug: slugSchema,
             path: pathSchema
           }),
-          query: itemIdWithForceQuery
+          query: itemIdQuerySchema
         }
       }
     })
@@ -412,7 +406,7 @@ export const plugin = {
               action: actionSchema
             })
             .required(),
-          query: itemIdWithForceQuery
+          query: itemIdQuerySchema
         }
       }
     })
@@ -461,7 +455,7 @@ export const plugin = {
             path: pathSchema,
             itemId: itemIdSchema.required()
           }),
-          query: itemIdWithForceQuery
+          query: itemIdQuerySchema
         }
       }
     })
@@ -522,7 +516,7 @@ export const plugin = {
               confirm: confirmSchema
             })
             .required(),
-          query: itemIdWithForceQuery
+          query: itemIdQuerySchema
         }
       }
     })
