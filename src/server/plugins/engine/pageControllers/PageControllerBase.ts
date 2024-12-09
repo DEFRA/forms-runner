@@ -289,7 +289,7 @@ export class PageControllerBase {
       const context = model.getFormContext(request, state)
 
       // Redirect back to last relevant page
-      if (!context.force && !context.paths.includes(path)) {
+      if (!context.paths.includes(path)) {
         return this.proceed(request, h, this.getRelevantPath(context))
       }
 
@@ -508,11 +508,11 @@ export class PageControllerBase {
   ) {
     // Continue to same page
     if (!nextPath) {
-      return proceed(request, h, `${request.path}${request.url.search}`)
+      return proceed(request, h, request.path)
     }
 
     // Continue to next page
-    return proceed(request, h, this.getHref(`${nextPath}${request.url.search}`))
+    return proceed(request, h, this.getHref(nextPath))
   }
 
   /**
