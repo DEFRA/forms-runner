@@ -48,10 +48,6 @@ const designerUrl = config.get('designerUrl')
 const templateId = config.get('notifyTemplateId')
 
 export class SummaryPageController extends PageController {
-  /**
-   * The controller which is used when Page["controller"] is defined as "./pages/summary.js"
-   */
-
   getSummaryViewModel(
     state: FormSubmissionState,
     request: FormRequest | FormRequestPayload
