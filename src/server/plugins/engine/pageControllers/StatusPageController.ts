@@ -14,24 +14,25 @@ export class StatusPageController extends PageController {
     h: ResponseToolkit<FormRequestRefs>
   ) => Promise<ResponseObject | Boom> {
     return async (request, h) => {
-      const model = this.model
+      const { model, title } = this
+
       const { cacheService } = request.services([])
       const confirmationState = await cacheService.getConfirmationState(request)
 
       // If there's no confirmation state, then
       // redirect the user back to the start of the form
       if (!confirmationState.confirmed) {
-        return h.redirect(this.getStartPath())
+        return this.proceed(request, h, this.getStartPath())
       }
 
       const slug = request.params.slug
       const { submissionGuidance } = await getFormMetadata(slug)
 
       return h.view('confirmation', {
-        pageTitle: this.title,
+        pageTitle: title,
         name: model.name,
         submissionGuidance,
-        serviceUrl: `/${model.basePath}`
+        serviceUrl: this.getHref('/')
       })
     }
   }

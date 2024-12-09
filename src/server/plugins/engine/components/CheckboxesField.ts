@@ -83,7 +83,7 @@ export class CheckboxesField extends SelectionControlField {
      * with an undefined value (i.e. nothing selected) should default to [].
      * This way conditions are not evaluated against `undefined` which throws errors.
      * Currently these errors are caught and the evaluation returns default `false`.
-     * @see {@link PageControllerBase.getNextPage} for `undefined` return value
+     * @see {@link PageControllerBase.getNextPath} for `undefined` return value
      * @see {@link FormModel.makeCondition} for try/catch block with default `false`
      * For negative conditions this is a problem because E.g.
      * The condition: 'selectedchecks' does not contain 'someval'

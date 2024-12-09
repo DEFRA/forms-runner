@@ -2,6 +2,7 @@ import { ControllerPath } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
 import { format, parseISO } from 'date-fns'
+import { StatusCodes } from 'http-status-codes'
 import { type Schema, type ValidationErrorItem } from 'joi'
 import upperFirst from 'lodash/upperFirst.js'
 
@@ -9,13 +10,11 @@ import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { RelativeUrl } from '~/src/server/plugins/engine/feedback/index.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { type FormSubmissionError } from '~/src/server/plugins/engine/types.js'
 import {
-  FormStatus,
-  type FormQuery,
-  type FormRequest,
-  type FormRequestPayload
-} from '~/src/server/routes/types.js'
+  type FormContextRequest,
+  type FormSubmissionError
+} from '~/src/server/plugins/engine/types.js'
+import { FormStatus, type FormQuery } from '~/src/server/routes/types.js'
 
 const logger = createLogger()
 
@@ -23,17 +22,21 @@ export const ADD_ANOTHER = 'add-another'
 export const CONTINUE = 'continue'
 
 export function proceed(
-  request: Pick<FormRequest | FormRequestPayload, 'query'>,
+  request: Pick<FormContextRequest, 'method' | 'query'>,
   h: Pick<ResponseToolkit, 'redirect'>,
   nextUrl: string
 ) {
   const { returnUrl } = request.query
 
-  if (returnUrl?.startsWith('/')) {
-    return h.redirect(returnUrl)
-  } else {
-    return h.redirect(nextUrl)
-  }
+  // Redirect to return location (optional)
+  const response = returnUrl?.startsWith('/')
+    ? h.redirect(returnUrl)
+    : h.redirect(nextUrl)
+
+  // Redirect POST to GET to avoid resubmission
+  return request.method === 'post'
+    ? response.code(StatusCodes.SEE_OTHER)
+    : response.code(StatusCodes.MOVED_TEMPORARILY)
 }
 
 /**
@@ -67,25 +70,29 @@ export function normalisePath(path = '') {
     .replace(/\/$/, '') // Remove trailing slash
 }
 
-export function getPage(request: FormRequest | FormRequestPayload) {
-  const { model } = request.app
-  const { path } = request.params
+export function getPage(
+  model: FormModel | undefined,
+  request: FormContextRequest
+) {
+  const { params } = request
 
-  return model?.pages.find(
-    (page) => normalisePath(page.path) === normalisePath(path)
-  )
+  const page = findPage(model, `/${params.path}`)
+
+  if (!page) {
+    throw Boom.notFound(`No page found for /${params.path}`)
+  }
+
+  return page
+}
+
+export function findPage(model: FormModel | undefined, path?: string) {
+  const findPath = `/${normalisePath(path)}`
+  return model?.pages.find(({ path }) => path === findPath)
 }
 
 export function getStartPath(model?: FormModel) {
-  const basePath = model?.basePath ?? ''
-  const startPage = model?.def.startPage
-
-  if (startPage?.startsWith('http')) {
-    return startPage
-  }
-
-  const startPath = normalisePath(startPage)
-  return `/${basePath}/${startPath || ControllerPath.Start}`
+  const startPath = normalisePath(model?.def.startPage)
+  return startPath ? `/${startPath}` : ControllerPath.Start
 }
 
 export const filesize = (bytes: number) => {

@@ -251,7 +251,7 @@ describe('File upload POST tests', () => {
     )
   })
 
-  test('POST /methodology-statement with 2 valid files returns 302 to /summary', async () => {
+  test('POST /methodology-statement with 2 valid files returns 303 to /summary', async () => {
     jest.mocked(initiateUpload).mockResolvedValue(uploadInitiateResponse)
     jest.mocked(getUploadStatus).mockResolvedValue(readyStatusResponse)
 
@@ -278,7 +278,7 @@ describe('File upload POST tests', () => {
       payload: {}
     })
 
-    expect(res3.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res3.statusCode).toBe(StatusCodes.SEE_OTHER)
     expect(res3.headers.location).toBe(`${basePath}/summary`)
   })
 
@@ -311,7 +311,7 @@ describe('File upload POST tests', () => {
       }
     })
 
-    expect(res3.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res3.statusCode).toBe(StatusCodes.SEE_OTHER)
   })
 })
 
