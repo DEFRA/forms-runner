@@ -1,5 +1,6 @@
 import Boom from '@hapi/boom'
 import { type ServerRegisterPluginObject } from '@hapi/hapi'
+import Joi from 'joi'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
@@ -57,6 +58,38 @@ export default {
         path: '/help/cookies',
         handler(_request, h) {
           return h.view('help/cookies')
+        }
+      })
+
+      server.route<{ Payload: { 'cookies[additional]': string } }>({
+        method: 'post',
+        path: '/help/cookie-preferences',
+        handler(request, h) {
+          const decision = request.payload['cookies[additional]'].toLowerCase()
+
+          if (!['yes', 'no'].includes(decision)) {
+            throw Boom.badRequest('Unknown cookie preference')
+          }
+
+          h.state('cookie_consent', decision)
+          request.yar.flash('cookieConsentUpdated', true, true)
+
+          return h.redirect(request.info.referrer)
+        },
+        options: {
+          validate: {
+            payload: Joi.object({
+              'cookies[additional]': Joi.string().valid('yes', 'no').required()
+            })
+          }
+        }
+      })
+
+      server.route({
+        method: 'get',
+        path: '/help/cookie-preferences',
+        handler(_request, h) {
+          return h.view('help/cookie-preferences')
         }
       })
 
