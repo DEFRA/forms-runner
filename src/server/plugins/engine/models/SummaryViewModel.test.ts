@@ -80,6 +80,7 @@ describe('SummaryViewModel', () => {
             text: 'How would you like to receive your pizza?'
           },
           value: {
+            classes: 'app-prose-scope',
             html: 'Delivery'
           },
           actions: {
@@ -101,6 +102,7 @@ describe('SummaryViewModel', () => {
             text: 'Pizzas added'
           },
           value: {
+            classes: 'app-prose-scope',
             html: 'You added 2 Pizzas'
           },
           actions: {

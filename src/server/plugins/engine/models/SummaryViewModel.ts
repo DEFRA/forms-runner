@@ -96,6 +96,7 @@ export class SummaryViewModel {
             text: item.title
           },
           value: {
+            classes: 'app-prose-scope',
             html: value
           }
         }
