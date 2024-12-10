@@ -40,10 +40,6 @@ export function createPage(model: FormModel, pageDef: Page) {
       controller = new PageControllers.StartPageController(model, pageDef)
       break
 
-    case ControllerType.Home:
-      controller = new PageControllers.HomePageController(model, pageDef)
-      break
-
     case ControllerType.Page:
       controller = new PageControllers.QuestionPageController(model, pageDef)
       break

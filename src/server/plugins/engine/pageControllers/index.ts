@@ -1,4 +1,3 @@
-export { HomePageController } from '~/src/server/plugins/engine/pageControllers/HomePageController.js'
 export { StartPageController } from '~/src/server/plugins/engine/pageControllers/StartPageController.js'
 export {
   QuestionPageController, // Export alongside alias

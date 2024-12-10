@@ -14,7 +14,6 @@ import {
 } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
   FileUploadPageController,
-  HomePageController,
   QuestionPageController,
   RepeatPageController,
   StartPageController,
@@ -32,10 +31,6 @@ describe('Page controller helpers', () => {
     switch (pageDef.controller) {
       case ControllerType.Start:
         controller = StartPageController
-        break
-
-      case ControllerType.Home:
-        controller = HomePageController
         break
 
       case ControllerType.Page:
@@ -100,18 +95,6 @@ describe('Page controller helpers', () => {
         expect(createPage(model, pageDef2)).toBeInstanceOf(controller)
       }
     )
-
-    it('create page for home page controller (unused)', () => {
-      const pageDef: Page = {
-        title: 'Home',
-        path: '/home',
-        controller: ControllerType.Home,
-        next: [],
-        components: []
-      }
-
-      expect(createPage(model, pageDef)).toBeInstanceOf(HomePageController)
-    })
 
     it('throws if page controller is unknown', () => {
       const pageDef: Page = {
