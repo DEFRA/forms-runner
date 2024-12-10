@@ -1,7 +1,6 @@
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { addDays, format } from 'date-fns'
 import { StatusCodes } from 'http-status-codes'
 import { outdent } from 'outdent'
 
@@ -105,12 +104,6 @@ describe('Submission journey test', () => {
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
     jest.mocked(submit).mockResolvedValue(submitResponse)
 
-    const dateNow = new Date()
-    const dateNowFormatted = `${format(dateNow, 'h:mmaaa')} on ${format(dateNow, 'd MMMM yyyy')}`
-
-    const fileExpiryDate = addDays(dateNow, 30)
-    const formattedExpiryDate = `${format(fileExpiryDate, 'h:mmaaa')} on ${format(fileExpiryDate, 'eeee d MMMM yyyy')}`
-
     // Components page
     const res = await componentsPage()
 
@@ -130,10 +123,6 @@ describe('Submission journey test', () => {
       personalisation: {
         subject: 'Form submission: All components',
         body: expect.stringContaining(outdent`
-          ^ For security reasons, the links in this email expire at ${formattedExpiryDate}
-
-          Form submitted at ${dateNowFormatted}.
-
           ---
 
           ## Text field
