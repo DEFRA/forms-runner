@@ -12,7 +12,10 @@ import { addDays, format } from 'date-fns'
 
 import { config } from '~/src/config/index.js'
 import { FileUploadField } from '~/src/server/plugins/engine/components/FileUploadField.js'
-import { getAnswer } from '~/src/server/plugins/engine/components/helpers.js'
+import {
+  escapeMarkdown,
+  getAnswer
+} from '~/src/server/plugins/engine/components/helpers.js'
 import {
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
@@ -354,46 +357,47 @@ export function getPersonalisation(
   const fileExpiryDate = addDays(now, 30)
   const formattedExpiryDate = `${format(fileExpiryDate, 'h:mmaaa')} on ${format(fileExpiryDate, 'eeee d MMMM yyyy')}`
 
+  const formName = escapeMarkdown(model.name)
   const subject = formStatus.isPreview
-    ? `TEST FORM SUBMISSION: ${model.name}`
-    : `Form submission: ${model.name}`
+    ? `TEST FORM SUBMISSION: ${formName}`
+    : `Form submission: ${formName}`
 
   const lines: string[] = []
 
   lines.push(
-    `^ For security reasons, the links in this email expire at ${formattedExpiryDate}\n`
+    `^ For security reasons, the links in this email expire at ${escapeMarkdown(formattedExpiryDate)}\n`
   )
 
   if (formStatus.isPreview) {
-    lines.push(
-      `This is a test of the ${model.name} ${formStatus.state} form.\n`
-    )
+    lines.push(`This is a test of the ${formName} ${formStatus.state} form.\n`)
   }
 
-  lines.push(`Form submitted at ${formattedNow}.\n`)
-  lines.push('---')
+  lines.push(`Form submitted at ${escapeMarkdown(formattedNow)}.\n`)
+  lines.push('---\n')
 
   items.forEach((item) => {
-    lines.push(`## ${item.label}`)
+    const label = escapeMarkdown(item.label)
+
+    lines.push(`## ${label}\n`)
 
     if ('subItems' in item) {
-      lines.push(
-        `[Download ${item.label} (CSV)](${designerUrl}/file-download/${files.repeaters[item.name]})\n`,
-        '---'
-      )
+      const filename = escapeMarkdown(`Download ${label} (CSV)`)
+      const fileId = files.repeaters[item.name]
+
+      lines.push(`[${filename}](${designerUrl}/file-download/${fileId})\n`)
     } else {
       lines.push(
         getAnswer(item.field, item.state, {
-          format: 'markdown'
-        }),
-        '---'
+          format: 'email'
+        })
       )
     }
+
+    lines.push('---\n')
   })
 
-  lines.push(
-    `[Download main form (CSV)](${designerUrl}/file-download/${files.main})\n`
-  )
+  const filename = escapeMarkdown('Download main form (CSV)')
+  lines.push(`[${filename}](${designerUrl}/file-download/${files.main})\n`)
 
   return {
     body: lines.join('\n'),
