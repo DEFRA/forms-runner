@@ -7,7 +7,7 @@ export default /** @satisfies {FormDefinition} */ ({
 
   name: 'Repeat form mixed',
   startPage: '/delivery-or-collection',
-  pages: [
+  pages: /** @type {const} */ ([
     {
       title: 'Delivery or collection',
       path: '/delivery-or-collection',
@@ -29,7 +29,7 @@ export default /** @satisfies {FormDefinition} */ ({
 
     // Combine with repeat form pages
     ...definition.pages
-  ],
+  ]),
   lists: [
     {
       name: 'orderTypeOption',
@@ -50,5 +50,5 @@ export default /** @satisfies {FormDefinition} */ ({
 })
 
 /**
- * @import { FormDefinition, Page } from '@defra/forms-model'
+ * @import { FormDefinition } from '@defra/forms-model'
  */

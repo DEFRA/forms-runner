@@ -9,7 +9,7 @@ import {
 export default /** @satisfies {FormDefinition} */ ({
   name: 'Conditions',
   startPage: '/first-page',
-  pages: [
+  pages: /** @type {const} */ ([
     {
       title: 'Have you previously been married?',
       path: '/first-page',
@@ -51,7 +51,7 @@ export default /** @satisfies {FormDefinition} */ ({
       path: ControllerPath.Summary,
       controller: ControllerType.Summary
     }
-  ],
+  ]),
   lists: [],
   sections: [],
   conditions: [

@@ -9,7 +9,7 @@ import {
 export default /** @satisfies {FormDefinition} */ ({
   name: 'Conditions dates',
   startPage: '/page-one',
-  pages: [
+  pages: /** @type {const} */ ([
     {
       path: '/page-one',
       title: 'Page one',
@@ -43,7 +43,7 @@ export default /** @satisfies {FormDefinition} */ ({
       components: [],
       next: []
     }
-  ],
+  ]),
   lists: [],
   sections: [],
   conditions: [

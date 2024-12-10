@@ -7,7 +7,7 @@ import {
 export default /** @satisfies {FormDefinition} */ ({
   name: 'Repeat form',
   startPage: '/pizza-order',
-  pages: [
+  pages: /** @type {const} */ ([
     {
       title: 'Pizza order',
       path: '/pizza-order',
@@ -52,7 +52,7 @@ export default /** @satisfies {FormDefinition} */ ({
       controller: ControllerType.Summary,
       title: 'Summary'
     }
-  ],
+  ]),
   sections: [
     {
       name: 'food',

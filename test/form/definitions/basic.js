@@ -7,7 +7,7 @@ import {
 export default /** @satisfies {FormDefinition} */ ({
   name: 'Basic',
   startPage: '/start',
-  pages: [
+  pages: /** @type {const} */ ([
     {
       title: 'Buy a rod fishing licence',
       path: '/start',
@@ -55,7 +55,7 @@ export default /** @satisfies {FormDefinition} */ ({
       controller: ControllerType.Summary,
       title: 'Summary'
     }
-  ],
+  ]),
   sections: [
     {
       name: 'licenceDetails',
