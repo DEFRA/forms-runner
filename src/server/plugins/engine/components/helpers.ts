@@ -1,4 +1,5 @@
 import { ComponentType, type ComponentDef } from '@defra/forms-model'
+import { marked, type Token } from 'marked'
 
 import { config } from '~/src/config/index.js'
 import { type ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
@@ -7,6 +8,39 @@ import * as Components from '~/src/server/plugins/engine/components/index.js'
 import { type FormState } from '~/src/server/plugins/engine/types.js'
 
 const designerUrl = config.get('designerUrl')
+
+const markdown = marked.use({
+  extensions: [
+    {
+      name: 'paragraph',
+
+      /**
+       * Render paragraphs without `<p>` wrappers
+       * for check answers summary list `<dd>`
+       */
+      renderer({ tokens = [] }) {
+        const text = this.parser.parseInline(tokens)
+        return tokens.length > 1 ? `${text}<br>` : text
+      }
+    }
+  ],
+
+  walkTokens(token) {
+    const tokens: Token['type'][] = [
+      'br',
+      'escape',
+      'list',
+      'list_item',
+      'paragraph',
+      'space',
+      'text'
+    ]
+
+    if (!tokens.includes(token.type)) {
+      token.type = 'text'
+    }
+  }
+})
 
 // All component instances
 export type Component = InstanceType<
@@ -143,7 +177,22 @@ export function getAnswer(
     return context?.toString() ?? ''
   }
 
-  // Use display text for check answers summary
+  // Use display HTML for check answers summary (multi line)
+  if (
+    field instanceof ListFormComponent ||
+    field instanceof Components.MultilineTextField ||
+    field instanceof Components.UkAddressField
+  ) {
+    return markdown
+      .parse(getAnswerMarkdown(field, state), {
+        async: false,
+        breaks: true,
+        gfm: true
+      })
+      .trim()
+  }
+
+  // Use display text for check answers summary (single line)
   return field.getDisplayStringFromState(state)
 }
 

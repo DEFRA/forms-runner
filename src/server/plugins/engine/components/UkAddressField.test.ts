@@ -263,7 +263,7 @@ describe('UkAddressField', () => {
         const answer2 = getAnswer(field, state2)
 
         expect(answer1).toBe(
-          'Richard Fairclough House, Knutsford Road, Warrington, WA4 1HT'
+          'Richard Fairclough House<br>Knutsford Road<br>Warrington<br>WA4 1HT<br>'
         )
 
         expect(answer2).toBe('')
