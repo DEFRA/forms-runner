@@ -33,7 +33,7 @@ describe('Page controller helpers', () => {
         controller = StartPageController
         break
 
-      case ControllerType.Page:
+      case ControllerType.Question:
         controller = QuestionPageController
         break
 
