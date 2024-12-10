@@ -1,41 +1,31 @@
 import {
   ComponentType,
-  ControllerPath,
   hasComponents,
   hasNext,
-  type FormDefinition,
   type Link,
-  type Page,
-  type Section
+  type Page
 } from '@defra/forms-model'
-import { type Boom } from '@hapi/boom'
-import {
-  type ResponseObject,
-  type ResponseToolkit,
-  type RouteOptions,
-  type ServerRoute
-} from '@hapi/hapi'
+import { type ResponseToolkit, type RouteOptions } from '@hapi/hapi'
 import joi, { type ValidationErrorItem } from 'joi'
 
 import { config } from '~/src/config/index.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import {
-  encodeUrl,
   getErrors,
-  getStartPath,
   normalisePath,
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
+  type FormPageViewModel,
   type FormPayload,
   type FormState,
   type FormSubmissionError,
-  type FormSubmissionState,
-  type PageViewModel
+  type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
@@ -44,36 +34,12 @@ import {
   type FormRequestRefs
 } from '~/src/server/routes/types.js'
 
-export class PageControllerBase {
-  /**
-   * The base class for all page controllers. Page controllers are responsible for generating the get and post route handlers when a user navigates to `/{id}/{path*}`.
-   */
-  def: FormDefinition
-  name?: string
-  model: FormModel
-  pageDef: Page
-  path: string
-  title: string
-  condition?: string
-  section?: Section
+export class QuestionPageController extends PageController {
   collection: ComponentCollection
   errorSummaryTitle = 'There is a problem'
-  viewName = 'index'
 
   constructor(model: FormModel, pageDef: Page) {
-    const { def } = model
-
-    this.def = def
-    this.name = def.name
-    this.model = model
-    this.pageDef = pageDef
-    this.path = pageDef.path
-    this.title = pageDef.title
-
-    // Resolve section
-    this.section = model.sections.find(
-      (section) => section.name === pageDef.section
-    )
+    super(model, pageDef)
 
     // Components collection
     this.collection = new ComponentCollection(
@@ -86,8 +52,17 @@ export class PageControllerBase {
     })
   }
 
-  get keys() {
-    return this.collection.keys
+  get next(): Link[] {
+    const { def, pageDef } = this
+
+    if (!hasNext(pageDef)) {
+      return []
+    }
+
+    // Remove stale links
+    return pageDef.next.filter(({ path }) =>
+      def.pages.some((page) => normalisePath(path) === normalisePath(page.path))
+    )
   }
 
   /**
@@ -100,13 +75,13 @@ export class PageControllerBase {
     request: FormRequest | FormRequestPayload,
     payload: FormPayload,
     errors?: FormSubmissionError[]
-  ): PageViewModel {
-    let showTitle = true
+  ): FormPageViewModel {
+    const { collection } = this
 
-    let { model, title: pageTitle, section } = this
-    const sectionTitle = section?.hideTitle !== true ? section?.title : ''
+    const viewModel = super.getViewModel(request, payload, errors)
+    let { pageTitle, showTitle } = viewModel
 
-    const components = this.collection.getViewModel(payload, errors)
+    const components = collection.getViewModel(payload, errors)
     const formComponents = components.filter(
       ({ isFormComponent }) => isFormComponent
     )
@@ -152,55 +127,22 @@ export class PageControllerBase {
     }
 
     return {
-      page: this,
-      name: this.name,
-      pageTitle,
-      sectionTitle,
+      ...viewModel,
       showTitle,
       components,
-      errors,
-      isStartPage: false,
-      serviceUrl: `/${model.basePath}`,
-      feedbackLink: this.getFeedbackLink(),
-      phaseTag: this.getPhaseTag()
+      errors
     }
-  }
-
-  get href() {
-    const { model, path } = this
-    return `/${model.basePath}/${normalisePath(path)}`
-  }
-
-  get next(): Link[] {
-    const { def, pageDef } = this
-
-    if (!hasNext(pageDef)) {
-      return []
-    }
-
-    // Remove stale links
-    return pageDef.next.filter(({ path }) =>
-      def.pages.some((page) => normalisePath(path) === normalisePath(page.path))
-    )
-  }
-
-  getStartPath() {
-    return getStartPath(this.model)
-  }
-
-  getSummaryPath() {
-    const { model } = this
-    return `/${model.basePath}${ControllerPath.Summary}`
   }
 
   /**
    * Apply conditions to evaluation state to determine next page
    */
   getNextPage(evaluationState: FormState): PageControllerClass | undefined {
-    const { conditions } = this.model
+    const { model, next } = this
+    const { conditions } = model
 
     let defaultLink: Link | undefined
-    const nextLink = this.next.find((link) => {
+    const nextLink = next.find((link) => {
       const { condition } = link
 
       if (condition && condition in conditions) {
@@ -212,7 +154,10 @@ export class PageControllerBase {
     })
 
     const link = nextLink ?? defaultLink
-    return this.findPageByPath(link?.path)
+
+    return model.pages
+      .filter((page) => page instanceof QuestionPageController)
+      .find((page) => normalisePath(page.path) === normalisePath(link?.path))
   }
 
   /**
@@ -261,11 +206,11 @@ export class PageControllerBase {
     return cacheService.mergeState(request, state)
   }
 
-  makeGetRouteHandler(): (
-    request: FormRequest,
-    h: ResponseToolkit<FormRequestRefs>
-  ) => Promise<ResponseObject | Boom> {
-    return async (request, h) => {
+  makeGetRouteHandler() {
+    return async (
+      request: FormRequest,
+      h: ResponseToolkit<FormRequestRefs>
+    ) => {
       const { model, path, viewName } = this
 
       const { startPage } = model.def
@@ -341,7 +286,7 @@ export class PageControllerBase {
 
   async buildMissingEmailWarningModel(
     request: FormRequest
-  ): Promise<PageViewModel['notificationEmailWarning']> {
+  ): Promise<FormPageViewModel['notificationEmailWarning']> {
     const { href } = this
     const { params } = request
 
@@ -402,11 +347,11 @@ export class PageControllerBase {
     return request.payload
   }
 
-  makePostRouteHandler(): (
-    request: FormRequestPayload,
-    h: ResponseToolkit<FormRequestPayloadRefs>
-  ) => Promise<ResponseObject | Boom> {
-    return async (request, h) => {
+  makePostRouteHandler() {
+    return async (
+      request: FormRequest,
+      h: ResponseToolkit<FormRequestRefs>
+    ) => {
       const formPayload = this.getPayload(request)
       const formResult = this.collection.validate(formPayload)
 
@@ -451,50 +396,6 @@ export class PageControllerBase {
     }
   }
 
-  protected getFeedbackLink() {
-    const { feedback } = this.def
-
-    // setting the feedbackLink to undefined here for feedback forms prevents the feedback link from being shown
-    let feedbackLink = feedback?.emailAddress
-      ? `mailto:${feedback.emailAddress}`
-      : feedback?.url
-
-    if (!feedbackLink) {
-      feedbackLink = config.get('feedbackLink')
-    }
-
-    return encodeUrl(feedbackLink)
-  }
-
-  protected getPhaseTag() {
-    const { phaseBanner } = this.def
-    return phaseBanner?.phase ?? config.get('phaseTag')
-  }
-
-  makeGetRoute() {
-    return {
-      method: 'get',
-      path: this.path,
-      options: this.getRouteOptions,
-      handler: this.makeGetRouteHandler()
-    } satisfies ServerRoute<FormRequestRefs>
-  }
-
-  makePostRoute() {
-    return {
-      method: 'post',
-      path: this.path,
-      options: this.postRouteOptions,
-      handler: this.makePostRouteHandler()
-    } satisfies ServerRoute<FormRequestPayloadRefs>
-  }
-
-  findPageByPath(path?: string) {
-    return this.model.pages.find(
-      (page) => normalisePath(page.path) === normalisePath(path)
-    )
-  }
-
   /**
    * TODO:- proceed is interfering with subclasses
    */
@@ -516,14 +417,35 @@ export class PageControllerBase {
    * {@link https://hapi.dev/api/?v=20.1.2#route-options}
    */
   get getRouteOptions(): RouteOptions<FormRequestRefs> {
-    return {}
+    return {
+      ext: {
+        onPostHandler: {
+          method(_request, h) {
+            return h.continue
+          }
+        }
+      }
+    }
   }
 
   /**
    * {@link https://hapi.dev/api/?v=20.1.2#route-options}
    */
   get postRouteOptions(): RouteOptions<FormRequestPayloadRefs> {
-    return {}
+    return {
+      payload: {
+        parse: true,
+        maxBytes: Number.MAX_SAFE_INTEGER,
+        failAction: 'ignore'
+      },
+      ext: {
+        onPostHandler: {
+          method(_request, h) {
+            return h.continue
+          }
+        }
+      }
+    }
   }
 
   protected renderWithErrors(

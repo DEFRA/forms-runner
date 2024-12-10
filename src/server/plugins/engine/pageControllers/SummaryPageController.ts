@@ -1,13 +1,10 @@
 import {
+  type PageSummary,
   type SubmitPayload,
   type SubmitResponsePayload
 } from '@defra/forms-model'
-import { badRequest, type Boom } from '@hapi/boom'
-import {
-  type ResponseObject,
-  type ResponseToolkit,
-  type RouteOptions
-} from '@hapi/hapi'
+import { badRequest } from '@hapi/boom'
+import { type ResponseToolkit, type RouteOptions } from '@hapi/hapi'
 import { addDays, format } from 'date-fns'
 
 import { config } from '~/src/config/index.js'
@@ -15,8 +12,7 @@ import { FileUploadField } from '~/src/server/plugins/engine/components/FileUplo
 import { getAnswer } from '~/src/server/plugins/engine/components/helpers.js'
 import {
   checkEmailAddressForLiveFormSubmission,
-  checkFormStatus,
-  redirectUrl
+  checkFormStatus
 } from '~/src/server/plugins/engine/helpers.js'
 import {
   SummaryViewModel,
@@ -26,7 +22,7 @@ import {
   type Detail,
   type DetailItem
 } from '~/src/server/plugins/engine/models/types.js'
-import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
+import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
   persistFiles,
   submit
@@ -47,10 +43,17 @@ import { sendNotification } from '~/src/server/utils/notify.js'
 const designerUrl = config.get('designerUrl')
 const templateId = config.get('notifyTemplateId')
 
-export class SummaryPageController extends PageController {
+export class SummaryPageController extends QuestionPageController {
+  declare pageDef: PageSummary
+
   /**
    * The controller which is used when Page["controller"] is defined as "./pages/summary.js"
    */
+
+  constructor(model: FormModel, pageDef: PageSummary) {
+    super(model, pageDef)
+    this.viewName = 'summary'
+  }
 
   getSummaryViewModel(
     state: FormSubmissionState,
@@ -65,8 +68,8 @@ export class SummaryPageController extends PageController {
 
     // We already figure these out in the base page controller. Take them and apply them to our page-specific model.
     // This is a stop-gap until we can add proper inheritance in place.
-    viewModel.feedbackLink = this.getFeedbackLink()
-    viewModel.phaseTag = this.getPhaseTag()
+    viewModel.feedbackLink = this.feedbackLink
+    viewModel.phaseTag = this.phaseTag
 
     return viewModel
   }
@@ -74,56 +77,15 @@ export class SummaryPageController extends PageController {
   /**
    * Returns an async function. This is called in plugin.ts when there is a GET request at `/{id}/{path*}`,
    */
-  makeGetRouteHandler(): (
-    request: FormRequest,
-    h: ResponseToolkit<FormRequestRefs>
-  ) => Promise<ResponseObject | Boom> {
-    return async (request, h) => {
-      const { model } = this
+  makeGetRouteHandler() {
+    return async (
+      request: FormRequest,
+      h: ResponseToolkit<FormRequestRefs>
+    ) => {
+      const { viewName } = this
 
       const state = await this.getState(request)
       const viewModel = this.getSummaryViewModel(state, request)
-
-      /**
-       * iterates through the errors. If there are errors, a user will be redirected to the page
-       * with the error with returnUrl=`/${model.basePath}/summary` in the URL query parameter.
-       */
-      if (viewModel.errors) {
-        const errorToFix = viewModel.errors[0]
-        const { path: parts } = errorToFix
-        const section = parts[0]
-        const property = parts.length > 1 ? parts[parts.length - 1] : null
-        const pageWithError = model.pages.find((page) => {
-          if (page.section && page.section.name === section) {
-            let propertyMatches = true
-            let conditionMatches = true
-            if (property) {
-              propertyMatches =
-                page.collection.fields.filter(
-                  (component) => component.name === property
-                ).length > 0
-            }
-            if (
-              propertyMatches &&
-              page.condition &&
-              model.conditions[page.condition]
-            ) {
-              conditionMatches =
-                model.conditions[page.condition]?.fn(state) ?? false
-            }
-            return propertyMatches && conditionMatches
-          }
-          return false
-        })
-
-        if (pageWithError) {
-          return h.redirect(
-            redirectUrl(pageWithError.href, {
-              returnUrl: redirectUrl(pageWithError.getSummaryPath())
-            })
-          )
-        }
-      }
 
       const progress = state.progress ?? []
 
@@ -134,7 +96,7 @@ export class SummaryPageController extends PageController {
       viewModel.notificationEmailWarning =
         await this.buildMissingEmailWarningModel(request)
 
-      return h.view('summary', viewModel)
+      return h.view(viewName, viewModel)
     }
   }
 
@@ -142,12 +104,12 @@ export class SummaryPageController extends PageController {
    * Returns an async function. This is called in plugin.ts when there is a POST request at `/{id}/{path*}`.
    * If a form is incomplete, a user will be redirected to the start page.
    */
-  makePostRouteHandler(): (
-    request: FormRequestPayload,
-    h: ResponseToolkit<FormRequestPayloadRefs>
-  ) => Promise<ResponseObject | Boom> {
-    return async (request, h) => {
-      const { model } = this
+  makePostRouteHandler() {
+    return async (
+      request: FormRequest,
+      h: ResponseToolkit<FormRequestRefs>
+    ) => {
+      const { model, viewName } = this
 
       const { cacheService } = request.services([])
 
@@ -159,7 +121,7 @@ export class SummaryPageController extends PageController {
       if (summaryViewModel.errors) {
         summaryViewModel.showErrorSummary = true
 
-        return h.view('summary', summaryViewModel)
+        return h.view(viewName, summaryViewModel)
       }
 
       const { params } = request

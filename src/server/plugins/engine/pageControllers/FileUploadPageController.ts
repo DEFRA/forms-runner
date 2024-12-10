@@ -2,7 +2,7 @@ import {
   ComponentType,
   hasComponents,
   type FileUploadFieldComponent,
-  type Page
+  type PageFileUpload
 } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
@@ -14,7 +14,7 @@ import {
 } from '~/src/server/plugins/engine/components/FileUploadField.js'
 import { getError } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
+import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
   getUploadStatus,
   initiateUpload
@@ -57,11 +57,13 @@ function prepareFileState(fileState: FileState) {
   return fileState
 }
 
-export class FileUploadPageController extends PageController {
+export class FileUploadPageController extends QuestionPageController {
+  declare pageDef: PageFileUpload
+
   viewName = 'file-upload'
   fileUploadComponent: FileUploadFieldComponent
 
-  constructor(model: FormModel, pageDef: Page) {
+  constructor(model: FormModel, pageDef: PageFileUpload) {
     // Get the file upload components from the list of components
     const fileUploadComponents = hasComponents(pageDef)
       ? pageDef.components.filter(
@@ -190,7 +192,7 @@ export class FileUploadPageController extends PageController {
     request: FormRequest | FormRequestPayload,
     payload: FormPayload,
     errors?: FormSubmissionError[]
-  ) {
+  ): FileUploadPageViewModel {
     const viewModel = super.getViewModel(request, payload, errors)
 
     const name = this.fileUploadComponent.name
@@ -205,12 +207,11 @@ export class FileUploadPageController extends PageController {
 
     return {
       ...viewModel,
-      page: this,
       path: request.path,
       formAction: request.app.formAction,
       fileUploadComponent,
       preUploadComponents: components.slice(0, id)
-    } satisfies FileUploadPageViewModel
+    }
   }
 
   private getComponentName() {

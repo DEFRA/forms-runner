@@ -8,8 +8,7 @@ import {
   type ConditionsModelData,
   type DateUnits,
   type FormDefinition,
-  type List,
-  type Page
+  type List
 } from '@defra/forms-model'
 import { add } from 'date-fns'
 import { Parser, type Value } from 'expr-eval'
@@ -17,8 +16,9 @@ import joi from 'joi'
 
 import { getPage, normalisePath } from '~/src/server/plugins/engine/helpers.js'
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
+import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
-  getPageController,
+  createPage,
   type PageControllerClass
 } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
@@ -88,7 +88,7 @@ export class FormModel {
       this.conditions[condition.name] = condition
     })
 
-    this.pages = def.pages.map((pageDef) => this.makePage(pageDef))
+    this.pages = def.pages.map((pageDef) => createPage(this, pageDef))
 
     if (
       !def.pages.some(
@@ -98,7 +98,7 @@ export class FormModel {
       )
     ) {
       this.pages.push(
-        this.makePage({
+        createPage(this, {
           title: 'Form submitted',
           path: ControllerPath.Status,
           controller: ControllerType.Status
@@ -128,14 +128,6 @@ export class FormModel {
     })
 
     return schema
-  }
-
-  /**
-   * instantiates a Page based on {@link Page}
-   */
-  makePage(pageDef: Page): PageControllerClass {
-    const PageController = getPageController(pageDef.controller)
-    return new PageController(this, pageDef)
   }
 
   /**
@@ -224,7 +216,7 @@ export class FormModel {
     }
 
     // Find start page
-    let nextPage = pages.find(({ href }) => href === startPath)
+    let nextPage = pages.find((page) => page.href === startPath)
 
     // Walk form pages from start
     while (nextPage) {
@@ -254,7 +246,10 @@ export class FormModel {
       }
 
       // Apply conditions to determine next page
-      nextPage = nextPage.getNextPage(context.evaluationState)
+      nextPage =
+        nextPage instanceof QuestionPageController
+          ? nextPage.getNextPage(context.evaluationState)
+          : undefined
     }
 
     // Check if current page is in context

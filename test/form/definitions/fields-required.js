@@ -7,7 +7,7 @@ import {
 export default /** @satisfies {FormDefinition} */ ({
   name: 'Fields required',
   startPage: '/components',
-  pages: [
+  pages: /** @type {const} */ ([
     {
       path: '/components',
       title: 'Fields required',
@@ -143,7 +143,7 @@ export default /** @satisfies {FormDefinition} */ ({
       controller: ControllerType.Summary,
       title: 'Summary'
     }
-  ],
+  ]),
   lists: [
     {
       name: 'companyType',

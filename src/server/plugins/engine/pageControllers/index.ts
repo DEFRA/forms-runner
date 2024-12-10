@@ -1,6 +1,9 @@
 export { HomePageController } from '~/src/server/plugins/engine/pageControllers/HomePageController.js'
-export { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 export { StartPageController } from '~/src/server/plugins/engine/pageControllers/StartPageController.js'
+export {
+  QuestionPageController, // Export alongside alias
+  QuestionPageController as PageController
+} from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 export { SummaryPageController } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 export { StatusPageController } from '~/src/server/plugins/engine/pageControllers/StatusPageController.js'
 export { FileUploadPageController } from '~/src/server/plugins/engine/pageControllers/FileUploadPageController.js'
