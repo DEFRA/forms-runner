@@ -8,7 +8,7 @@ import {
 import {
   FileUploadPageController,
   HomePageController,
-  PageController,
+  QuestionPageController,
   RepeatPageController,
   StartPageController,
   StatusPageController,
@@ -29,7 +29,7 @@ describe('Page controller helpers', () => {
         break
 
       case ControllerType.Page:
-        controller = PageController
+        controller = QuestionPageController
         break
 
       case ControllerType.Repeat:

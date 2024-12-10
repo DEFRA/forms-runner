@@ -8,13 +8,13 @@ import Joi from 'joi'
 
 import { ADD_ANOTHER, CONTINUE } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
+import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
   type CheckAnswers,
+  type FormPageViewModel,
   type FormPayload,
   type FormSubmissionError,
   type FormSubmissionState,
-  type PageViewModel,
   type RepeatState,
   type SummaryList,
   type SummaryListAction
@@ -26,7 +26,7 @@ import {
   type FormRequestRefs
 } from '~/src/server/routes/types.js'
 
-export class RepeatPageController extends PageController {
+export class RepeatPageController extends QuestionPageController {
   listSummaryViewName = 'repeat-list-summary'
   listDeleteViewName = 'repeat-item-delete'
   repeat: Repeat
@@ -319,7 +319,7 @@ export class RepeatPageController extends PageController {
     request: FormRequest | FormRequestPayload,
     payload: FormPayload,
     errors?: FormSubmissionError[]
-  ): PageViewModel {
+  ): FormPageViewModel {
     const viewModel = super.getViewModel(request, payload, errors)
     const { list, item } = this.getRepeatAppData(request)
     const itemNumber = item ? item.index + 1 : list.length + 1

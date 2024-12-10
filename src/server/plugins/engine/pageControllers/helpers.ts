@@ -24,7 +24,7 @@ export function getPageController(nameOrPath?: string): PageControllerType {
   const controllerName = controllerNameFromPath(nameOrPath)
 
   if (!isPageController(controllerName)) {
-    return PageControllers.PageController
+    return PageControllers.QuestionPageController
   }
 
   return PageControllers[controllerName]

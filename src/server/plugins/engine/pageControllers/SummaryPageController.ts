@@ -2,12 +2,8 @@ import {
   type SubmitPayload,
   type SubmitResponsePayload
 } from '@defra/forms-model'
-import { badRequest, type Boom } from '@hapi/boom'
-import {
-  type ResponseObject,
-  type ResponseToolkit,
-  type RouteOptions
-} from '@hapi/hapi'
+import { badRequest } from '@hapi/boom'
+import { type ResponseToolkit, type RouteOptions } from '@hapi/hapi'
 import { addDays, format } from 'date-fns'
 
 import { config } from '~/src/config/index.js'
@@ -26,7 +22,7 @@ import {
   type Detail,
   type DetailItem
 } from '~/src/server/plugins/engine/models/types.js'
-import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
+import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
   persistFiles,
   submit
@@ -47,7 +43,7 @@ import { sendNotification } from '~/src/server/utils/notify.js'
 const designerUrl = config.get('designerUrl')
 const templateId = config.get('notifyTemplateId')
 
-export class SummaryPageController extends PageController {
+export class SummaryPageController extends QuestionPageController {
   /**
    * The controller which is used when Page["controller"] is defined as "./pages/summary.js"
    */
@@ -65,8 +61,8 @@ export class SummaryPageController extends PageController {
 
     // We already figure these out in the base page controller. Take them and apply them to our page-specific model.
     // This is a stop-gap until we can add proper inheritance in place.
-    viewModel.feedbackLink = this.getFeedbackLink()
-    viewModel.phaseTag = this.getPhaseTag()
+    viewModel.feedbackLink = this.feedbackLink
+    viewModel.phaseTag = this.phaseTag
 
     return viewModel
   }
@@ -74,11 +70,11 @@ export class SummaryPageController extends PageController {
   /**
    * Returns an async function. This is called in plugin.ts when there is a GET request at `/{id}/{path*}`,
    */
-  makeGetRouteHandler(): (
-    request: FormRequest,
-    h: ResponseToolkit<FormRequestRefs>
-  ) => Promise<ResponseObject | Boom> {
-    return async (request, h) => {
+  makeGetRouteHandler() {
+    return async (
+      request: FormRequest,
+      h: ResponseToolkit<FormRequestRefs>
+    ) => {
       const { model } = this
 
       const state = await this.getState(request)
@@ -116,7 +112,7 @@ export class SummaryPageController extends PageController {
           return false
         })
 
-        if (pageWithError) {
+        if (pageWithError && pageWithError instanceof QuestionPageController) {
           return h.redirect(
             redirectUrl(pageWithError.href, {
               returnUrl: redirectUrl(pageWithError.getSummaryPath())
@@ -142,11 +138,11 @@ export class SummaryPageController extends PageController {
    * Returns an async function. This is called in plugin.ts when there is a POST request at `/{id}/{path*}`.
    * If a form is incomplete, a user will be redirected to the start page.
    */
-  makePostRouteHandler(): (
-    request: FormRequestPayload,
-    h: ResponseToolkit<FormRequestPayloadRefs>
-  ) => Promise<ResponseObject | Boom> {
-    return async (request, h) => {
+  makePostRouteHandler() {
+    return async (
+      request: FormRequest,
+      h: ResponseToolkit<FormRequestRefs>
+    ) => {
       const { model } = this
 
       const { cacheService } = request.services([])

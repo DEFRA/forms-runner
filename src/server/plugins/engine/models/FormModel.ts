@@ -17,6 +17,7 @@ import joi from 'joi'
 
 import { getPage, normalisePath } from '~/src/server/plugins/engine/helpers.js'
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
+import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
   getPageController,
   type PageControllerClass
@@ -224,7 +225,7 @@ export class FormModel {
     }
 
     // Find start page
-    let nextPage = pages.find(({ href }) => href === startPath)
+    let nextPage = pages.find((page) => page.href === startPath)
 
     // Walk form pages from start
     while (nextPage) {
@@ -254,7 +255,10 @@ export class FormModel {
       }
 
       // Apply conditions to determine next page
-      nextPage = nextPage.getNextPage(context.evaluationState)
+      nextPage =
+        nextPage instanceof QuestionPageController
+          ? nextPage.getNextPage(context.evaluationState)
+          : undefined
     }
 
     // Check if current page is in context

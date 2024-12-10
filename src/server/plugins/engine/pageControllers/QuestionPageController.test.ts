@@ -1,14 +1,14 @@
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
+import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 import { type FormRequest } from '~/src/server/routes/types.js'
 import definitionConditionsBasic from '~/test/form/definitions/conditions-basic.js'
 import definitionConditionsComplex from '~/test/form/definitions/conditions-complex.js'
 import definitionConditionsDates from '~/test/form/definitions/conditions-dates.js'
 
-describe('PageControllerBase', () => {
-  let controller1: PageControllerBase
-  let controller2: PageControllerBase
+describe('QuestionPageController', () => {
+  let controller1: QuestionPageController
+  let controller2: QuestionPageController
 
   beforeEach(() => {
     const { pages } = definitionConditionsBasic
@@ -17,8 +17,8 @@ describe('PageControllerBase', () => {
       basePath: 'test'
     })
 
-    controller1 = new PageControllerBase(model, pages[0])
-    controller2 = new PageControllerBase(model, pages[1])
+    controller1 = new QuestionPageController(model, pages[0])
+    controller2 = new QuestionPageController(model, pages[1])
   })
 
   describe('Component collection', () => {
@@ -56,7 +56,7 @@ describe('PageControllerBase', () => {
 
       // Selected page appears after convergence and contains a conditional field
       // This is the page we're theoretically browsing to
-      const controller = new PageControllerBase(model, pages[7])
+      const controller = new QuestionPageController(model, pages[7])
 
       // The state below shows we said we had a UKPassport and entered details for an applicant
       const state: FormSubmissionState = {
@@ -166,7 +166,7 @@ describe('PageControllerBase', () => {
         basePath: 'test'
       })
 
-      const controller = new PageControllerBase(model, pages[0])
+      const controller = new QuestionPageController(model, pages[0])
 
       const request = {
         url: new URL('http://example.com/test/page-one'),

@@ -133,7 +133,6 @@ export default /** @satisfies {FormDefinition} */ ({
       path: '/applicant-two',
       title: 'Applicant 2',
       section: 'applicantTwoDetails',
-      controller: ControllerType.Page,
       components: [
         {
           type: ComponentType.Html,
