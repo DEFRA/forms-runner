@@ -225,6 +225,10 @@ export interface PageViewModelBase {
   phaseTag?: string
 }
 
+export interface ContentPageViewModel extends PageViewModelBase {
+  components: ComponentViewModel[]
+}
+
 export interface FormPageViewModel extends PageViewModelBase {
   components: ComponentViewModel[]
   errors?: FormSubmissionError[]
@@ -243,5 +247,6 @@ export interface FileUploadPageViewModel extends FormPageViewModel {
 
 export type PageViewModel =
   | PageViewModelBase
+  | ContentPageViewModel
   | FormPageViewModel
   | FileUploadPageViewModel
