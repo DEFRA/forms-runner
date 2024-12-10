@@ -133,11 +133,11 @@ describe('SummaryPageController', () => {
 
             ## Pizza
 
-            [Download Pizza (CSV)](https://test-designer.cdp-int.defra.cloud/file-download/11111111-1111-1111-1111-111111111111)
+            [Download Pizza \\(CSV\\)](https://test-designer.cdp-int.defra.cloud/file-download/11111111-1111-1111-1111-111111111111)
 
             ---
 
-            [Download main form (CSV)](https://test-designer.cdp-int.defra.cloud/file-download/00000000-0000-0000-0000-000000000000)
+            [Download main form \\(CSV\\)](https://test-designer.cdp-int.defra.cloud/file-download/00000000-0000-0000-0000-000000000000)
           `
         )
       )
