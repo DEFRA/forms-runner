@@ -16,7 +16,7 @@
         },
         {
           "type": "TextField",
-          "name": "firstName",
+          "name": "firstName1",
           "title": "First name",
           "options": {
             "required": true
@@ -29,14 +29,14 @@
             "optionalText": false
           },
           "type": "TextField",
-          "name": "middleName",
+          "name": "middleName1",
           "title": "Middle name",
           "hint": "If you have a middle name on your passport you must include it here",
           "schema": {}
         },
         {
           "type": "TextField",
-          "name": "lastName",
+          "name": "lastName1",
           "title": "Surname",
           "options": {
             "required": true
@@ -56,60 +56,8 @@
       "components": [
         {
           "type": "UkAddressField",
-          "name": "address",
+          "name": "address1",
           "title": "Address",
-          "options": {
-            "required": true
-          },
-          "schema": {}
-        }
-      ],
-      "next": [
-        {
-          "path": "/contact-details"
-        }
-      ],
-      "title": "Address"
-    },
-    {
-      "path": "/applicant-one-address-optional",
-      "section": "applicantOneDetails",
-      "components": [
-        {
-          "type": "UkAddressField",
-          "name": "address",
-          "title": "Address",
-          "options": {
-            "required": false
-          },
-          "schema": {}
-        }
-      ],
-      "next": [
-        {
-          "path": "/contact-details"
-        }
-      ],
-      "title": "Address"
-    },
-    {
-      "path": "/contact-details",
-      "section": "applicantDetails",
-      "components": [
-        {
-          "type": "TelephoneNumberField",
-          "name": "phoneNumber",
-          "title": "Phone number",
-          "hint": "If you haven't got a UK phone number, include country code",
-          "options": {
-            "required": true
-          },
-          "schema": {}
-        },
-        {
-          "type": "EmailAddressField",
-          "name": "emailAddress",
-          "title": "Your email address",
           "options": {
             "required": true
           },
@@ -121,7 +69,7 @@
           "path": "/applicant-two"
         }
       ],
-      "title": "Applicant contact details"
+      "title": "Address"
     },
     {
       "path": "/applicant-two",
@@ -138,7 +86,7 @@
         },
         {
           "type": "TextField",
-          "name": "firstName",
+          "name": "firstName2",
           "title": "First name",
           "options": {
             "required": true
@@ -151,14 +99,14 @@
             "optionalText": false
           },
           "type": "TextField",
-          "name": "middleName",
+          "name": "middleName2",
           "title": "Middle name",
           "hint": "If you have a middle name on your passport you must include it here",
           "schema": {}
         },
         {
           "type": "TextField",
-          "name": "lastName",
+          "name": "lastName2",
           "title": "Surname",
           "options": {
             "required": true
@@ -168,9 +116,30 @@
       ],
       "next": [
         {
-          "path": "/summary"
+          "path": "/applicant-two-address-optional"
         }
       ]
+    },
+    {
+      "path": "/applicant-two-address-optional",
+      "section": "applicantOneDetails",
+      "components": [
+        {
+          "type": "UkAddressField",
+          "name": "address2",
+          "title": "Address",
+          "options": {
+            "required": false
+          },
+          "schema": {}
+        }
+      ],
+      "next": [
+        {
+          "path": "/summary"
+        }
+      ],
+      "title": "Address"
     },
     {
       "path": "/summary",
