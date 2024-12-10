@@ -38,7 +38,6 @@ export class PageController {
   path: string
   title: string
   section?: Section
-  condition?: string
   collection?: ComponentCollection
   viewName = 'index'
 
