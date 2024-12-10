@@ -127,10 +127,7 @@ describe('Submission journey test', () => {
 
           ## Text field
 
-          \`\`\`
           Text field
-          \`\`\`
-
 
           ---
 
@@ -142,52 +139,37 @@ describe('Submission journey test', () => {
 
           ## Number field
 
-          \`\`\`
           1
-          \`\`\`
-
 
           ---
 
           ## Date parts field
 
-          \`\`\`
           12 December 2012
-          \`\`\`
-
 
           ---
 
           ## Month year field
 
-          \`\`\`
           December 2012
-          \`\`\`
-
 
           ---
 
           ## Yes/No field
 
-          Yes (true)
+          Yes \\(true\\)
 
           ---
 
           ## Email address field
 
-          \`\`\`
-          user@email.com
-          \`\`\`
-
+          user@email\\.com
 
           ---
 
           ## Telephone number field
 
-          \`\`\`
-          +447900000000
-          \`\`\`
-
+          \\+447900000000
 
           ---
 
@@ -202,19 +184,19 @@ describe('Submission journey test', () => {
 
           ## Radios field
 
-          Private Limited Company (privateLimitedCompany)
+          Private Limited Company \\(privateLimitedCompany\\)
 
           ---
 
           ## Select field
 
-          Afghanistan (910400000)
+          Afghanistan \\(910400000\\)
 
           ---
 
           ## Autocomplete field
 
-          Czech Republic (910400044)
+          Czech Republic \\(910400044\\)
 
           ---
 
@@ -232,16 +214,16 @@ describe('Submission journey test', () => {
 
           ---
 
-          ## Checkboxes field 3 (number)
+          ## Checkboxes field 3 \\(number\\)
 
-          * 1 point (1)
+          * 1 point \\(1\\)
 
           ---
 
-          ## Checkboxes field 4 (number)
+          ## Checkboxes field 4 \\(number\\)
 
-          * None (0)
-          * 1 point (1)
+          * None \\(0\\)
+          * 1 point \\(1\\)
 
           ---
 
@@ -249,12 +231,11 @@ describe('Submission journey test', () => {
 
           Uploaded 1 file:
 
-          * [test.pdf](https://test-designer.cdp-int.defra.cloud/file-download/5a76a1a3-bc8a-4bc0-859a-116d775c7f15)
+          * [test\\.pdf](https://test-designer.cdp-int.defra.cloud/file-download/5a76a1a3-bc8a-4bc0-859a-116d775c7f15)
 
           ---
 
-          [Download main form (CSV)](https://test-designer.cdp-int.defra.cloud/file-download/00000000-0000-0000-0000-000000000000)
-        `)
+          [Download main form \\(CSV\\)](https://test-designer.cdp-int.defra.cloud/file-download/00000000-0000-0000-0000-000000000000)`)
       }
     })
 
