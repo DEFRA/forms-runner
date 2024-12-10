@@ -1,4 +1,5 @@
 import {
+  type PageSummary,
   type SubmitPayload,
   type SubmitResponsePayload
 } from '@defra/forms-model'
@@ -44,9 +45,16 @@ const designerUrl = config.get('designerUrl')
 const templateId = config.get('notifyTemplateId')
 
 export class SummaryPageController extends QuestionPageController {
+  declare pageDef: PageSummary
+
   /**
    * The controller which is used when Page["controller"] is defined as "./pages/summary.js"
    */
+
+  constructor(model: FormModel, pageDef: PageSummary) {
+    super(model, pageDef)
+    this.viewName = 'summary'
+  }
 
   getSummaryViewModel(
     state: FormSubmissionState,
@@ -75,7 +83,7 @@ export class SummaryPageController extends QuestionPageController {
       request: FormRequest,
       h: ResponseToolkit<FormRequestRefs>
     ) => {
-      const { model } = this
+      const { model, viewName } = this
 
       const state = await this.getState(request)
       const viewModel = this.getSummaryViewModel(state, request)
@@ -130,7 +138,7 @@ export class SummaryPageController extends QuestionPageController {
       viewModel.notificationEmailWarning =
         await this.buildMissingEmailWarningModel(request)
 
-      return h.view('summary', viewModel)
+      return h.view(viewName, viewModel)
     }
   }
 
@@ -143,7 +151,7 @@ export class SummaryPageController extends QuestionPageController {
       request: FormRequest,
       h: ResponseToolkit<FormRequestRefs>
     ) => {
-      const { model } = this
+      const { model, viewName } = this
 
       const { cacheService } = request.services([])
 
@@ -155,7 +163,7 @@ export class SummaryPageController extends QuestionPageController {
       if (summaryViewModel.errors) {
         summaryViewModel.showErrorSummary = true
 
-        return h.view('summary', summaryViewModel)
+        return h.view(viewName, summaryViewModel)
       }
 
       const { params } = request
