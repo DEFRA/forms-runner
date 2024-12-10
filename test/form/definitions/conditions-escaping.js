@@ -10,7 +10,7 @@ import {
 export default /** @satisfies {FormDefinition} */ ({
   name: 'Conditions escaping',
   startPage: '/page-one',
-  pages: [
+  pages: /** @type {const} */ ([
     {
       title: 'Page one',
       path: '/page-one',
@@ -65,7 +65,7 @@ export default /** @satisfies {FormDefinition} */ ({
       controller: ControllerType.Summary,
       title: 'Summary'
     }
-  ],
+  ]),
   lists: [
     {
       title: 'test',

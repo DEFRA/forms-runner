@@ -7,7 +7,7 @@ import {
 export default /** @satisfies {FormDefinition} */ ({
   name: 'File upload',
   startPage: '/methodology-statement',
-  pages: [
+  pages: /** @type {const} */ ([
     {
       path: '/methodology-statement',
       title: 'Upload your methodology statement',
@@ -48,7 +48,7 @@ export default /** @satisfies {FormDefinition} */ ({
       controller: ControllerType.Summary,
       title: 'Summary'
     }
-  ],
+  ]),
   sections: [
     {
       name: 'section',

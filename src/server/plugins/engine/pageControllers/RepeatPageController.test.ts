@@ -27,7 +27,11 @@ describe('RepeatPageController', () => {
       const { pages } = structuredClone(definition)
 
       // Change the controller type
+      // @ts-expect-error - Allow invalid property for test
       pages[0].controller = ControllerType.Summary
+
+      // Remove specific controller options
+      // @ts-expect-error - Allow invalid property for test
       delete pages[0].repeat
 
       expect(() => new RepeatPageController(model, pages[0])).toThrow(

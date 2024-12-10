@@ -42,7 +42,7 @@ describe('FileUploadPageController', () => {
       const { pages } = structuredClone(definition)
 
       // @ts-expect-error - Allow invalid component for test
-      pages[0].components?.unshift(textComponent)
+      pages[0].components.unshift(textComponent)
 
       expect(() => new FileUploadPageController(model, pages[0])).toThrow(
         `Expected 'fileUpload' to be the first form component in FileUploadPageController '${pages[0].path}'`
