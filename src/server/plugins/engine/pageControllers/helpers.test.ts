@@ -7,7 +7,6 @@ import {
 } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
   FileUploadPageController,
-  HomePageController,
   PageController,
   RepeatPageController,
   StartPageController,
@@ -22,10 +21,6 @@ describe('Page controller helpers', () => {
     switch (defaults.name) {
       case ControllerType.Start:
         controller = StartPageController
-        break
-
-      case ControllerType.Home:
-        controller = HomePageController
         break
 
       case ControllerType.Page:
