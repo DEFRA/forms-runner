@@ -2,6 +2,7 @@ import {
   ComponentType,
   type CheckboxesFieldComponent
 } from '@defra/forms-model'
+import { outdent } from 'outdent'
 
 import { CheckboxesField } from '~/src/server/plugins/engine/components/CheckboxesField.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
@@ -245,7 +246,12 @@ describe.each([
           const answer1 = getAnswer(field, state1)
           const answer2 = getAnswer(field, state2)
 
-          expect(answer1).toBe(item.text)
+          expect(answer1).toBe(outdent`
+            <ul>
+            <li>${item.text}</li>
+            </ul>
+          `)
+
           expect(answer2).toBe('')
         }
       )
@@ -257,7 +263,12 @@ describe.each([
         const state = getFormState([item1.state, item2.state])
         const answer = getAnswer(field, state)
 
-        expect(answer).toBe(`${item1.text}, ${item2.text}`)
+        expect(answer).toBe(outdent`
+          <ul>
+          <li>${item1.text}</li>
+          <li>${item2.text}</li>
+          </ul>
+        `)
       })
 
       it.each([...options.examples])('returns payload from state', (item) => {
