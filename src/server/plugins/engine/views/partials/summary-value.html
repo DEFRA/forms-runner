@@ -2,6 +2,6 @@
   {% if params.error -%}
     <a class="govuk-link" href="{{ params.href }}">Enter {{ params.label | lower }}</a>
   {%- else %}
-    {{- params.value | default("Not supplied", true) -}}
+    {{- params.value | default("Not supplied", true) | safe -}}
   {% endif %}
 {%- endmacro %}
