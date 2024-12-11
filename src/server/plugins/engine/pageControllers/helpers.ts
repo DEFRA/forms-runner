@@ -1,10 +1,11 @@
 import {
+  ControllerType,
   controllerNameFromPath,
   isControllerName,
-  type ControllerType,
   type Page
 } from '@defra/forms-model'
 
+import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import * as PageControllers from '~/src/server/plugins/engine/pageControllers/index.js'
 
 export function isPageController(
@@ -18,14 +19,51 @@ export type PageControllerType =
   (typeof PageControllers)[keyof typeof PageControllers]
 
 /**
- * Gets the class for the controller defined in a {@link Page}
+ * Creates page instance for each {@link Page} type
  */
-export function getPageController(nameOrPath?: string): PageControllerType {
-  const controllerName = controllerNameFromPath(nameOrPath)
+export function createPage(model: FormModel, pageDef: Page) {
+  const controllerName = controllerNameFromPath(pageDef.controller)
 
-  if (!isPageController(controllerName)) {
-    return PageControllers.PageController
+  if (!pageDef.controller) {
+    return new PageControllers.PageController(model, pageDef)
   }
 
-  return PageControllers[controllerName]
+  // Patch legacy controllers
+  if (controllerName && pageDef.controller !== controllerName) {
+    pageDef.controller = controllerName
+  }
+
+  let controller: PageControllerClass | undefined
+
+  switch (pageDef.controller) {
+    case ControllerType.Start:
+      controller = new PageControllers.StartPageController(model, pageDef)
+      break
+
+    case ControllerType.Page:
+      controller = new PageControllers.PageController(model, pageDef)
+      break
+
+    case ControllerType.Summary:
+      controller = new PageControllers.SummaryPageController(model, pageDef)
+      break
+
+    case ControllerType.Status:
+      controller = new PageControllers.StatusPageController(model, pageDef)
+      break
+
+    case ControllerType.FileUpload:
+      controller = new PageControllers.FileUploadPageController(model, pageDef)
+      break
+
+    case ControllerType.Repeat:
+      controller = new PageControllers.RepeatPageController(model, pageDef)
+      break
+  }
+
+  if (typeof controller === 'undefined') {
+    throw new Error(`Page controller ${pageDef.controller} does not exist`)
+  }
+
+  return controller
 }

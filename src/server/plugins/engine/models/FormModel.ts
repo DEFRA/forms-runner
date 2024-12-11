@@ -8,8 +8,7 @@ import {
   type ConditionsModelData,
   type DateUnits,
   type FormDefinition,
-  type List,
-  type Page
+  type List
 } from '@defra/forms-model'
 import { add } from 'date-fns'
 import { Parser, type Value } from 'expr-eval'
@@ -23,7 +22,7 @@ import {
 } from '~/src/server/plugins/engine/helpers.js'
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
 import {
-  getPageController,
+  createPage,
   type PageControllerClass
 } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
@@ -92,7 +91,7 @@ export class FormModel {
       this.conditions[condition.name] = condition
     })
 
-    this.pages = def.pages.map((pageDef) => this.makePage(pageDef))
+    this.pages = def.pages.map((pageDef) => createPage(this, pageDef))
 
     if (
       !def.pages.some(
@@ -102,7 +101,7 @@ export class FormModel {
       )
     ) {
       this.pages.push(
-        this.makePage({
+        createPage(this, {
           title: 'Form submitted',
           path: ControllerPath.Status,
           controller: ControllerType.Status
@@ -132,14 +131,6 @@ export class FormModel {
     })
 
     return schema
-  }
-
-  /**
-   * instantiates a Page based on {@link Page}
-   */
-  makePage(pageDef: Page): PageControllerClass {
-    const PageController = getPageController(pageDef.controller)
-    return new PageController(this, pageDef)
   }
 
   /**
