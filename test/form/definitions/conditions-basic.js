@@ -11,7 +11,7 @@ export default /** @satisfies {FormDefinition} */ ({
   startPage: '/first-page',
   pages: [
     {
-      title: 'Have you previously been married?',
+      title: 'Previous marriages',
       path: '/first-page',
       components: [
         {
@@ -31,17 +31,24 @@ export default /** @satisfies {FormDefinition} */ ({
       path: '/second-page',
       components: [
         {
+          name: 'detailsField',
+          title: 'Find out more',
+          type: ComponentType.Details,
+          content: 'Some content goes here',
+          options: {}
+        },
+        {
           name: 'dateField',
           title: 'Date of marriage',
           type: ComponentType.DatePartsField,
           options: {}
         },
         {
-          name: 'detailsField',
-          title: 'Find out more',
-          type: ComponentType.Details,
-          content: 'Some content goes here',
-          options: {}
+          name: 'multilineTextField',
+          title: 'Remarks',
+          type: ComponentType.MultilineTextField,
+          options: {},
+          schema: {}
         }
       ],
       next: [{ path: '/summary' }]
