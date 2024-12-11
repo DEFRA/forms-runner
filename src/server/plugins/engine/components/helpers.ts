@@ -128,13 +128,13 @@ export function getAnswer(
   options: {
     format:
       | 'data' // Submission data
-      | 'markdown' // GOV.UK Notify emails
+      | 'email' // GOV.UK Notify emails
       | 'summary' // Check answers summary
   } = { format: 'summary' }
 ) {
   // Use escaped display text for GOV.UK Notify emails
-  if (options.format === 'markdown') {
-    return getAnswerMarkdown(field, state)
+  if (options.format === 'email') {
+    return getAnswerMarkdown(field, state, { format: 'email' })
   }
 
   // Use context value for submission data
@@ -150,11 +150,19 @@ export function getAnswer(
 /**
  * Get formatted answer for a field (Markdown only)
  */
-export function getAnswerMarkdown(field: Field, state: FormState) {
+export function getAnswerMarkdown(
+  field: Field,
+  state: FormState,
+  options: {
+    format:
+      | 'email' // GOV.UK Notify emails
+      | 'summary' // Check answers summary
+  } = { format: 'summary' }
+) {
   const answer = field.getDisplayStringFromState(state)
 
   // Use escaped display text
-  let answerEscaped = escapeAnswer(answer)
+  let answerEscaped = `${escapeMarkdown(answer)}\n`
 
   if (field instanceof Components.FileUploadField) {
     const files = field.getFormValueFromState(state)
@@ -164,14 +172,15 @@ export function getAnswerMarkdown(field: Field, state: FormState) {
       return answerEscaped
     }
 
-    answerEscaped = `${answer}:\n\n`
+    answerEscaped = `${escapeMarkdown(answer)}:\n\n`
 
     // Append bullet points
     answerEscaped += files
-      .map(
-        ({ status }) =>
-          `* [${status.form.file.filename}](${designerUrl}/file-download/${status.form.file.fileId})\n`
-      )
+      .map(({ status }) => {
+        const { file } = status.form
+        const filename = escapeMarkdown(file.filename)
+        return `* [${filename}](${designerUrl}/file-download/${file.fileId})\n`
+      })
       .join('')
   } else if (field instanceof ListFormComponent) {
     const values = [field.getContextValueFromState(state)].flat()
@@ -182,18 +191,42 @@ export function getAnswerMarkdown(field: Field, state: FormState) {
       return answerEscaped
     }
 
-    answerEscaped = '\n'
+    answerEscaped = ''
 
     // Append bullet points
     answerEscaped += items
-      .map(({ text, value }) =>
+      .map((item) => {
+        const label = escapeMarkdown(item.text)
+        const value = escapeMarkdown(`(${item.value})`)
+
+        let line = label
+
+        // Prepend bullet points for checkboxes only
+        if (field instanceof Components.CheckboxesField) {
+          line = `* ${line}`
+        }
+
         // Append raw values in parentheses
         // e.g. `* None of the above (false)`
-        `${value}`.toLowerCase() !== text.toLowerCase()
-          ? `* ${text} (${value})\n`
-          : `* ${text}\n`
-      )
+        return options.format === 'email' &&
+          `${item.value}`.toLowerCase() !== item.text.toLowerCase()
+          ? `${line} ${value}\n`
+          : `${line}\n`
+      })
       .join('')
+  } else if (field instanceof Components.MultilineTextField) {
+    // Preserve Multiline text new lines
+    answerEscaped = answer
+      .split(/\r?\n/)
+      .map(escapeMarkdown)
+      .join('\n')
+      .concat('\n')
+  } else if (field instanceof Components.UkAddressField) {
+    // Format UK addresses into new lines
+    answerEscaped = (field.getContextValueFromState(state) ?? [])
+      .map(escapeMarkdown)
+      .join('\n')
+      .concat('\n')
   }
 
   return answerEscaped
@@ -201,9 +234,32 @@ export function getAnswerMarkdown(field: Field, state: FormState) {
 
 /**
  * Prevent Markdown formatting
+ * @see {@link https://pandoc.org/chunkedhtml-demo/8.11-backslash-escapes.html}
  */
-export function escapeAnswer(answer: string) {
-  return `\`\`\`\n${answer}\n\`\`\`\n`
+export function escapeMarkdown(answer: string) {
+  const punctuation = [
+    '`',
+    "'",
+    '*',
+    '_',
+    '{',
+    '}',
+    '[',
+    ']',
+    '(',
+    ')',
+    '#',
+    '+',
+    '-',
+    '.',
+    '!'
+  ]
+
+  for (const character of punctuation) {
+    answer = answer.toString().replaceAll(character, `\\${character}`)
+  }
+
+  return answer
 }
 
 export const addClassOptionIfNone = (

@@ -1,7 +1,6 @@
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { addDays, format } from 'date-fns'
 import { StatusCodes } from 'http-status-codes'
 import { outdent } from 'outdent'
 
@@ -105,12 +104,6 @@ describe('Submission journey test', () => {
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
     jest.mocked(submit).mockResolvedValue(submitResponse)
 
-    const dateNow = new Date()
-    const dateNowFormatted = `${format(dateNow, 'h:mmaaa')} on ${format(dateNow, 'd MMMM yyyy')}`
-
-    const fileExpiryDate = addDays(dateNow, 30)
-    const formattedExpiryDate = `${format(fileExpiryDate, 'h:mmaaa')} on ${format(fileExpiryDate, 'eeee d MMMM yyyy')}`
-
     // Components page
     const res = await componentsPage()
 
@@ -130,84 +123,89 @@ describe('Submission journey test', () => {
       personalisation: {
         subject: 'Form submission: All components',
         body: expect.stringContaining(outdent`
-          ^ For security reasons, the links in this email expire at ${formattedExpiryDate}
-
-          Form submitted at ${dateNowFormatted}.
-
           ---
+
           ## Text field
-          \`\`\`
+
           Text field
-          \`\`\`
 
           ---
+
           ## Multiline text field
-          \`\`\`
+
           Multiline text field
-          \`\`\`
 
           ---
+
           ## Number field
-          \`\`\`
+
           1
-          \`\`\`
 
           ---
+
           ## Date parts field
-          \`\`\`
+
           12 December 2012
-          \`\`\`
 
           ---
+
           ## Month year field
-          \`\`\`
+
           December 2012
-          \`\`\`
 
           ---
+
           ## Yes/No field
 
-          * Yes (true)
+          Yes \\(true\\)
 
           ---
+
           ## Email address field
-          \`\`\`
-          user@email.com
-          \`\`\`
+
+          user@email\\.com
 
           ---
+
           ## Telephone number field
-          \`\`\`
-          +447900000000
-          \`\`\`
+
+          \\+447900000000
 
           ---
+
           ## Address field
-          \`\`\`
-          Address line 1, Address line 2, Town or city, CW1 1AB
-          \`\`\`
+
+          Address line 1
+          Address line 2
+          Town or city
+          CW1 1AB
 
           ---
+
           ## Radios field
 
-          * Private Limited Company (privateLimitedCompany)
+          Private Limited Company \\(privateLimitedCompany\\)
 
           ---
+
           ## Select field
 
-          * Afghanistan (910400000)
+          Afghanistan \\(910400000\\)
 
           ---
+
           ## Autocomplete field
 
-          * Czech Republic (910400044)
+          Czech Republic \\(910400044\\)
 
           ---
+
           ## Checkboxes field 1
 
           * Shetland
 
           ---
+
           ## Checkboxes field 2
 
           * Arabian
@@ -215,25 +213,29 @@ describe('Submission journey test', () => {
           * Race
 
           ---
-          ## Checkboxes field 3 (number)
 
-          * 1 point (1)
+          ## Checkboxes field 3 \\(number\\)
 
-          ---
-          ## Checkboxes field 4 (number)
-
-          * None (0)
-          * 1 point (1)
+          * 1 point \\(1\\)
 
           ---
+
+          ## Checkboxes field 4 \\(number\\)
+
+          * None \\(0\\)
+          * 1 point \\(1\\)
+
+          ---
+
           ## Upload your methodology statement
+
           Uploaded 1 file:
 
-          * [test.pdf](https://test-designer.cdp-int.defra.cloud/file-download/5a76a1a3-bc8a-4bc0-859a-116d775c7f15)
+          * [test\\.pdf](https://test-designer.cdp-int.defra.cloud/file-download/5a76a1a3-bc8a-4bc0-859a-116d775c7f15)
 
           ---
-          [Download main form (CSV)](https://test-designer.cdp-int.defra.cloud/file-download/00000000-0000-0000-0000-000000000000)
-        `)
+
+          [Download main form \\(CSV\\)](https://test-designer.cdp-int.defra.cloud/file-download/00000000-0000-0000-0000-000000000000)`)
       }
     })
 
