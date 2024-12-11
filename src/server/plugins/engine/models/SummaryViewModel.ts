@@ -1,4 +1,4 @@
-import { type Page } from '@defra/forms-model'
+import { type Page, type Section } from '@defra/forms-model'
 
 import {
   getAnswer,
@@ -18,15 +18,12 @@ import { validationOptions as opts } from '~/src/server/plugins/engine/pageContr
 import {
   type CheckAnswers,
   type FormContext,
+  type FormContextProgress,
+  type FormContextRequest,
   type FormState,
   type FormSubmissionError,
-  type FormSubmissionState,
   type SummaryListRow
 } from '~/src/server/plugins/engine/types.js'
-import {
-  type FormRequest,
-  type FormRequestPayload
-} from '~/src/server/routes/types.js'
 
 export class SummaryViewModel {
   /**
@@ -37,7 +34,7 @@ export class SummaryViewModel {
   declaration?: string
   details: Detail[]
   checkAnswers: CheckAnswers[]
-  context: FormContext
+  context: FormContext | FormContextProgress
   name: string | undefined
   backLink?: string
   feedbackLink?: string
@@ -52,16 +49,16 @@ export class SummaryViewModel {
   constructor(
     model: FormModel,
     pageDef: Page,
-    state: FormSubmissionState,
-    request: FormRequest | FormRequestPayload
+    request: FormContextRequest,
+    context: FormContext | FormContextProgress
   ) {
-    const { basePath, def } = model
+    const { basePath, def, sections } = model
 
     this.pageTitle = pageDef.title
     this.serviceUrl = `/${basePath}`
     this.name = def.name
     this.declaration = def.declaration
-    this.context = model.getFormContext(state, request)
+    this.context = context
 
     const result = model
       .makeFilteredSchema(this.context.relevantPages)
@@ -69,7 +66,7 @@ export class SummaryViewModel {
 
     // Format errors
     this.errors = result.error?.details.map(getError)
-    this.details = this.summaryDetails(request, model, state)
+    this.details = this.summaryDetails(request, sections)
 
     // Format check answers
     this.checkAnswers = this.details.map((detail): CheckAnswers => {
@@ -104,20 +101,16 @@ export class SummaryViewModel {
     })
   }
 
-  private summaryDetails(
-    request: FormRequest | FormRequestPayload,
-    model: FormModel,
-    state: FormSubmissionState
-  ) {
-    const { errors, context } = this
-    const { sections } = model
+  private summaryDetails(request: FormContextRequest, sections: Section[]) {
+    const { context, errors } = this
+    const { relevantPages, state } = context
 
     const details: Detail[] = []
 
     ;[undefined, ...sections].forEach((section) => {
       const items: DetailItem[] = []
 
-      const sectionPages = context.relevantPages.filter(
+      const sectionPages = relevantPages.filter(
         (page) => page.section === section
       )
 
@@ -127,7 +120,7 @@ export class SummaryViewModel {
         if (page instanceof RepeatPageController) {
           items.push(
             ItemRepeat(page, state, {
-              href: page.getSummaryPath(request),
+              href: page.getHref(page.getSummaryPath(request)),
               errors
             })
           )
@@ -175,7 +168,7 @@ function ItemRepeat(
     title: values.length ? `${unit} added` : unit,
     value: `You added ${values.length} ${unit}`,
     href: redirectUrl(options.href, {
-      returnUrl: redirectUrl(page.getSummaryPath())
+      returnUrl: redirectUrl(page.getHref(page.getSummaryPath()))
     }),
     state,
     page,
@@ -209,7 +202,7 @@ function ItemField(
     error: field.getError(options.errors),
     value: getAnswer(field, state),
     href: redirectUrl(options.href, {
-      returnUrl: redirectUrl(page.getSummaryPath())
+      returnUrl: redirectUrl(page.getHref(page.getSummaryPath()))
     }),
     state,
     page,

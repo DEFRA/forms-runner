@@ -2,13 +2,17 @@ import {
   FormModel,
   SummaryViewModel
 } from '~/src/server/plugins/engine/models/index.js'
-import { type FormRequest } from '~/src/server/routes/types.js'
+import {
+  type FormContext,
+  type FormContextRequest
+} from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
 
 describe('SummaryViewModel', () => {
   const itemId1 = 'abc-123'
   const itemId2 = 'xyz-987'
 
+  let context: FormContext
   let summaryViewModel: SummaryViewModel
 
   beforeEach(() => {
@@ -38,19 +42,22 @@ describe('SummaryViewModel', () => {
       ]
     }
 
+    const pageDef = definition.pages[2]
+    const pageUrl = new URL('http://example.com/repeat/pizza-order/summary')
+
     const request = {
-      url: new URL('http://example.com/repeat/pizza-order/summary'),
-      path: '/repeat/pizza-order/summary',
+      method: 'get',
+      url: pageUrl,
+      path: pageUrl.pathname,
       params: {
         path: 'pizza-order',
         slug: 'repeat'
       },
-      query: {},
-      app: { model }
-    } as FormRequest
+      query: {}
+    } satisfies FormContextRequest
 
-    const pageDef = definition.pages[2]
-    summaryViewModel = new SummaryViewModel(model, pageDef, state, request)
+    context = model.getFormContext(request, state, { validate: false })
+    summaryViewModel = new SummaryViewModel(model, pageDef, request, context)
   })
 
   describe('Check answers', () => {

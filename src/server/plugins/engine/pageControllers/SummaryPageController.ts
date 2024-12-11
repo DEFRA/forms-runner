@@ -36,6 +36,8 @@ import {
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
   type FormContext,
+  type FormContextProgress,
+  type FormContextRequest,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import {
@@ -55,14 +57,14 @@ export class SummaryPageController extends PageController {
    */
 
   getSummaryViewModel(
-    state: FormSubmissionState,
-    request: FormRequest | FormRequestPayload
+    request: FormContextRequest,
+    context: FormContext | FormContextProgress
   ): SummaryViewModel {
     const viewModel = new SummaryViewModel(
       this.model,
       this.pageDef,
-      state,
-      request
+      request,
+      context
     )
 
     // We already figure these out in the base page controller. Take them and apply them to our page-specific model.
@@ -81,24 +83,19 @@ export class SummaryPageController extends PageController {
     h: ResponseToolkit<FormRequestRefs>
   ) => Promise<ResponseObject | Boom> {
     return async (request, h) => {
+      const { model, path } = this
+
       const state = await this.getState(request)
-      const viewModel = this.getSummaryViewModel(state, request)
+      const context = model.getFormContext(request, state)
 
-      /**
-       * Redirect back to pages with field errors
-       */
-      if (viewModel.errors) {
-        const errorField = viewModel.details
-          .flatMap(({ items }) => items.find(({ error }) => error) ?? [])
-          .at(0)
-
-        if (errorField) {
-          return h.redirect(errorField.href)
-        }
+      // Redirect back to last relevant page
+      if (!context.paths.includes(path)) {
+        return this.proceed(request, h, this.getRelevantPath(context))
       }
 
-      const progress = state.progress ?? []
+      const viewModel = this.getSummaryViewModel(request, context)
 
+      const { progress = [] } = context.state
       await this.updateProgress(progress, request)
 
       viewModel.backLink = this.getBackLink(progress)
@@ -124,7 +121,9 @@ export class SummaryPageController extends PageController {
       const { cacheService } = request.services([])
 
       const state = await this.getState(request)
-      const summaryViewModel = this.getSummaryViewModel(state, request)
+      const context = model.getFormContext(request, state, {
+        validate: false
+      })
 
       const { params } = request
 
@@ -137,7 +136,8 @@ export class SummaryPageController extends PageController {
 
       // Send submission email
       if (emailAddress) {
-        await submitForm(request, summaryViewModel, model, state, emailAddress)
+        const viewModel = this.getSummaryViewModel(request, context)
+        await submitForm(request, viewModel, model, context.state, emailAddress)
       }
 
       await cacheService.setConfirmationState(request, { confirmed: true })
@@ -145,7 +145,7 @@ export class SummaryPageController extends PageController {
       // Clear all form data
       await cacheService.clearState(request)
 
-      return h.redirect(`/${model.basePath}/status`)
+      return this.proceed(request, h, this.getStatusPath())
     }
   }
 

@@ -223,7 +223,7 @@ describe('Form journey', () => {
             payload: { ...payload, crumb: csrfToken }
           })
 
-          expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+          expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
           expect(response.headers.location).toBe(`${basePath}${paths.next}`)
         })
       }
@@ -348,7 +348,7 @@ describe('Form journey', () => {
             payload: { ...payload, crumb: csrfToken }
           })
 
-          expect(response2.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+          expect(response2.statusCode).toBe(StatusCodes.SEE_OTHER)
           expect(response2.headers.location).toBe(returnUrl)
         }
       }
@@ -360,9 +360,9 @@ describe('Form journey', () => {
         headers
       })
 
-      // Redirect to base path
+      // Redirect back to start
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-      expect(response.headers.location).toBe(basePath)
+      expect(response.headers.location).toBe(`${basePath}/start`)
     })
 
     it('should redirect to the complete page on submit', async () => {
@@ -401,7 +401,7 @@ describe('Form journey', () => {
         sessionId: expect.any(String)
       })
 
-      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
       expect(response.headers.location).toBe(`${basePath}/status`)
 
       const { container } = await renderResponse(server, {
@@ -431,9 +431,7 @@ describe('Form journey', () => {
 
       // Redirect back to start
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-      expect(response.headers.location).toBe(
-        `${basePath}/start?returnUrl=%2Fbasic%2Fsummary`
-      )
+      expect(response.headers.location).toBe(`${basePath}/start`)
     })
   })
 })

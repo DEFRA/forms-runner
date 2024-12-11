@@ -16,7 +16,8 @@ import {
   checkFormStatus,
   getPage,
   getStartPath,
-  normalisePath
+  normalisePath,
+  proceed
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
@@ -143,7 +144,9 @@ export const plugin = {
       h: ResponseToolkit<FormRequestRefs>
     ) => {
       const { model } = request.app
-      return h.redirect(getStartPath(model))
+
+      const servicePath = model ? `/${model.basePath}` : ''
+      return proceed(request, h, `${servicePath}${getStartPath(model)}`)
     }
 
     const getHandler = (
@@ -152,30 +155,23 @@ export const plugin = {
     ) => {
       const { model } = request.app
       const { path } = request.params
-      const page = getPage(request)
-
-      if (page) {
-        return page.makeGetRouteHandler()(request, h)
-      }
 
       if (normalisePath(path) === '') {
-        return h.redirect(getStartPath(model))
+        return dispatchHandler(request, h)
       }
 
-      throw Boom.notFound('No form or page found')
+      const page = getPage(model, request)
+      return page.makeGetRouteHandler()(request, h)
     }
 
     const postHandler = (
       request: FormRequestPayload,
       h: ResponseToolkit<FormRequestPayloadRefs>
     ) => {
-      const page = getPage(request)
+      const { model } = request.app
 
-      if (page) {
-        return page.makePostRouteHandler()(request, h)
-      }
-
-      throw Boom.notFound('No form or page found')
+      const page = getPage(model, request)
+      return page.makePostRouteHandler()(request, h)
     }
 
     const dispatchRouteOptions: RouteOptions<FormRequestRefs> = {
@@ -309,13 +305,14 @@ export const plugin = {
       request: FormRequest,
       h: ResponseToolkit<FormRequestRefs>
     ) => {
-      const page = getPage(request)
+      const { app, params } = request
+      const page = getPage(app.model, request)
 
-      if (page && page instanceof RepeatPageController) {
-        return page.makeGetListSummaryRouteHandler()(request, h)
+      if (!(page instanceof RepeatPageController)) {
+        throw Boom.notFound(`No repeater page found for /${params.path}`)
       }
 
-      throw Boom.notFound('No form or page found')
+      return page.makeGetListSummaryRouteHandler()(request, h)
     }
 
     server.route({
@@ -354,13 +351,14 @@ export const plugin = {
       request: FormRequestPayload,
       h: ResponseToolkit<FormRequestPayloadRefs>
     ) => {
-      const page = getPage(request)
+      const { app, params } = request
+      const page = getPage(app.model, request)
 
-      if (page && page instanceof RepeatPageController) {
-        return page.makePostListSummaryRouteHandler()(request, h)
+      if (!(page instanceof RepeatPageController)) {
+        throw Boom.notFound(`No repeater page found for /${params.path}`)
       }
 
-      throw Boom.notFound('No form or page found')
+      return page.makePostListSummaryRouteHandler()(request, h)
     }
 
     server.route({
@@ -411,13 +409,14 @@ export const plugin = {
       request: FormRequest,
       h: ResponseToolkit<FormRequestRefs>
     ) => {
-      const page = getPage(request)
+      const { app, params } = request
+      const page = getPage(app.model, request)
 
-      if (page && page instanceof RepeatPageController) {
-        return page.makeGetListDeleteRouteHandler()(request, h)
+      if (!(page instanceof RepeatPageController)) {
+        throw Boom.notFound(`No repeater page found for /${params.path}`)
       }
 
-      throw Boom.notFound('No form or page found')
+      return page.makeGetListDeleteRouteHandler()(request, h)
     }
 
     server.route({
@@ -458,13 +457,14 @@ export const plugin = {
       request: FormRequestPayload,
       h: ResponseToolkit<FormRequestPayloadRefs>
     ) => {
-      const page = getPage(request)
+      const { app, params } = request
+      const page = getPage(app.model, request)
 
-      if (page && page instanceof RepeatPageController) {
-        return page.makePostListDeleteRouteHandler()(request, h)
+      if (!(page instanceof RepeatPageController)) {
+        throw Boom.notFound(`No repeater page found for /${params.path}`)
       }
 
-      throw Boom.notFound('No form or page found')
+      return page.makePostListDeleteRouteHandler()(request, h)
     }
 
     server.route({

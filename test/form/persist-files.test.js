@@ -109,7 +109,7 @@ describe('Submission journey test', () => {
     expect(res.headers['content-type']).toContain('text/html')
   })
 
-  test('POST /file-upload-component returns 302', async () => {
+  test('POST /file-upload-component returns 303', async () => {
     jest.spyOn(CacheService.prototype, 'getUploadState').mockResolvedValueOnce(
       /** @type {TempFileState} */ ({
         upload: {
@@ -155,7 +155,7 @@ describe('Submission journey test', () => {
       payload: form
     })
 
-    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.statusCode).toBe(StatusCodes.SEE_OTHER)
     expect(res.headers.location).toBe(`${basePath}/summary`)
 
     // Extract the session cookie
@@ -194,7 +194,7 @@ describe('Submission journey test', () => {
       sessionId: expect.any(String)
     })
 
-    expect(submitRes.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(submitRes.statusCode).toBe(StatusCodes.SEE_OTHER)
     expect(submitRes.headers.location).toBe(`${basePath}/status`)
 
     // Finally GET the /{slug}/status page

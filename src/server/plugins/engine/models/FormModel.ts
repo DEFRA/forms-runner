@@ -15,21 +15,25 @@ import { add } from 'date-fns'
 import { Parser, type Value } from 'expr-eval'
 import joi from 'joi'
 
-import { getPage, normalisePath } from '~/src/server/plugins/engine/helpers.js'
+import {
+  checkFormStatus,
+  findPage,
+  getError,
+  getPage
+} from '~/src/server/plugins/engine/helpers.js'
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
 import {
   getPageController,
   type PageControllerClass
 } from '~/src/server/plugins/engine/pageControllers/helpers.js'
+import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormContext,
+  type FormContextProgress,
+  type FormContextRequest,
   type FormState,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
-import {
-  type FormRequest,
-  type FormRequestPayload
-} from '~/src/server/routes/types.js'
 
 export class FormModel {
   /**
@@ -80,7 +84,7 @@ export class FormModel {
     this.sections = def.sections
     this.name = def.name ?? ''
     this.values = result.value
-    this.basePath = normalisePath(options.basePath)
+    this.basePath = options.basePath
     this.conditions = {}
 
     def.conditions.forEach((conditionDef) => {
@@ -202,29 +206,45 @@ export class FormModel {
     return this.lists.find((list) => list.name === name)
   }
 
+  /**
+   * Form context for the current page
+   * (with progress validation)
+   */
   getFormContext(
-    state: FormSubmissionState,
-    request: FormRequest | FormRequestPayload
-  ) {
-    const { pages } = this
+    request: FormContextRequest,
+    state: FormState
+  ): FormContextProgress
 
-    // Current page
-    const page = getPage(request)
+  /**
+   * Form context for the current page
+   * (without progress validation)
+   */
+  getFormContext(
+    request: FormContextRequest,
+    state: FormState,
+    options: { validate: false }
+  ): FormContext
+
+  getFormContext(
+    request: FormContextRequest,
+    state: FormState,
+    options?: { validate: false }
+  ): FormContext | FormContextProgress {
+    const page = getPage(this, request)
 
     // Determine form paths
-    const currentPath = page?.href
-    const startPath = page?.getStartPath()
-    const summaryPath = page?.getSummaryPath()
+    const currentPath = page.path
+    const startPath = page.getStartPath()
 
     const context: FormContext = {
       evaluationState: {},
       relevantState: {},
       relevantPages: [],
-      paths: []
+      state
     }
 
     // Find start page
-    let nextPage = pages.find(({ href }) => href === startPath)
+    let nextPage = findPage(this, startPath)
 
     // Walk form pages from start
     while (nextPage) {
@@ -248,25 +268,44 @@ export class FormModel {
         }
       }
 
-      // Stop at current or summary page
-      if (nextPage.href === currentPath || nextPage.href === summaryPath) {
+      // Stop at current page
+      if (nextPage.path === currentPath) {
         break
       }
 
       // Apply conditions to determine next page
-      nextPage = nextPage.getNextPage(context.evaluationState)
+      nextPage = findPage(this, nextPage.getNextPath(context))
     }
 
-    // Check if current page is in context
-    const isFormPath = context.relevantPages.some(
-      ({ href }) => href === currentPath
-    )
+    // Skip validation (optional)
+    if (options?.validate === false) {
+      return context
+    }
+
+    // Validate relevant state
+    const { error } = page.model
+      .makeFilteredSchema(context.relevantPages)
+      .validate(context.relevantState, { ...opts, stripUnknown: true })
+
+    // Format relevant state errors
+    const errors = error?.details.map(getError)
+    const paths: string[] = []
+    const { isPreview } = checkFormStatus(request.path)
 
     // Add paths for navigation
-    if (isFormPath) {
-      context.paths = context.relevantPages.map(({ href }) => href)
+    for (const { collection, path } of context.relevantPages) {
+      paths.push(path)
+
+      // Stop at current page or with errors
+      if (!isPreview && collection.getErrors(errors)) {
+        break
+      }
     }
 
-    return context
+    return {
+      ...context,
+      errors,
+      paths
+    }
   }
 }
