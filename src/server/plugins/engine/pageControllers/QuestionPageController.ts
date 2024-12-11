@@ -134,6 +134,21 @@ export class QuestionPageController extends PageController {
       }
 
       showTitle = !isPageHeading
+    } else {
+      const legends = formComponents.flatMap(
+        ({ model }) => model.fieldset?.legend ?? []
+      )
+
+      // Match label font size/weight when amongst legends
+      if (legends.length < formComponents.length) {
+        for (const { model } of formComponents) {
+          if (!model.label || model.fieldset) {
+            continue
+          }
+
+          model.label.classes = 'govuk-label--m'
+        }
+      }
     }
 
     return {

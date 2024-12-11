@@ -225,7 +225,8 @@ describe('QuestionPageController', () => {
 
       // Page 2, component 3, default label
       expect(components2[2].model).toHaveProperty('label', {
-        text: 'Remarks'
+        text: 'Remarks',
+        classes: 'govuk-label--m'
       })
 
       // Page 2, component 3, optional legend
