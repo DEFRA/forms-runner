@@ -23,7 +23,6 @@ import {
   type FormSubmissionState,
   type SummaryListRow
 } from '~/src/server/plugins/engine/types.js'
-import { render } from '~/src/server/plugins/nunjucks/index.js'
 import {
   type FormRequest,
   type FormRequestPayload
@@ -45,7 +44,6 @@ export class SummaryViewModel {
   phaseTag?: string
   errors?: FormSubmissionError[]
   serviceUrl: string
-  showErrorSummary?: boolean
   notificationEmailWarning?: {
     slug: string
     designerUrl: string
@@ -78,31 +76,15 @@ export class SummaryViewModel {
       const { items, title } = detail
 
       const rows = items.map((item): SummaryListRow => {
-        const value = render.macro(
-          'summaryValue',
-          'partials/summary-value.html',
-          {
-            params: {
-              href: item.href,
-              label: item.label,
-              value: item.value,
-              error: item.error
-            }
-          }
-        )
-
-        const row: SummaryListRow = {
+        return {
           key: {
             text: item.title
           },
           value: {
             classes: 'app-prose-scope',
-            html: value
-          }
-        }
-
-        if (!item.error) {
-          row.actions = {
+            html: item.value || 'Not supplied'
+          },
+          actions: {
             items: [
               {
                 href: item.href,
@@ -113,8 +95,6 @@ export class SummaryViewModel {
             ]
           }
         }
-
-        return row
       })
 
       return {
