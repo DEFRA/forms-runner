@@ -192,7 +192,10 @@ export class PageControllerBase {
 
   getHref(path: string) {
     const { model } = this
-    return `/${model.basePath}${path}`
+
+    return path === '/'
+      ? `/${model.basePath}` // Strip trailing slash
+      : `/${model.basePath}${path}`
   }
 
   getStartPath() {
