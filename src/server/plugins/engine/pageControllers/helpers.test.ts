@@ -13,6 +13,7 @@ import {
   type PageControllerType
 } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
+  ContentPageController,
   FileUploadPageController,
   QuestionPageController,
   RepeatPageController,
@@ -29,6 +30,10 @@ describe('Page controller helpers', () => {
     let controller: PageControllerType | undefined
 
     switch (pageDef.controller) {
+      case ControllerType.Content:
+        controller = ContentPageController
+        break
+
       case ControllerType.Start:
         controller = StartPageController
         break

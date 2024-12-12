@@ -1,3 +1,4 @@
+export { ContentPageController } from '~/src/server/plugins/engine/pageControllers/ContentPageController.js'
 export { StartPageController } from '~/src/server/plugins/engine/pageControllers/StartPageController.js'
 export {
   QuestionPageController, // Export alongside alias
