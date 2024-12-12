@@ -158,7 +158,7 @@ export const plugin = {
         return dispatchHandler(request, h)
       }
 
-      const page = getPage(model, request)
+      const page = getPage(model?.pages, path)
       return page.makeGetRouteHandler()(request, h)
     }
 
@@ -167,8 +167,9 @@ export const plugin = {
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { model } = request.app
+      const { path } = request.params
 
-      const page = getPage(model, request)
+      const page = getPage(model?.pages, path)
       return page.makePostRouteHandler()(request, h)
     }
 
@@ -303,11 +304,13 @@ export const plugin = {
       request: FormRequest,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { app, params } = request
-      const page = getPage(app.model, request)
+      const { model } = request.app
+      const { path } = request.params
+
+      const page = getPage(model?.pages, path)
 
       if (!(page instanceof RepeatPageController)) {
-        throw Boom.notFound(`No repeater page found for /${params.path}`)
+        throw Boom.notFound(`No repeater page found for /${path}`)
       }
 
       return page.makeGetListSummaryRouteHandler()(request, h)
@@ -349,11 +352,13 @@ export const plugin = {
       request: FormRequestPayload,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { app, params } = request
-      const page = getPage(app.model, request)
+      const { model } = request.app
+      const { path } = request.params
+
+      const page = getPage(model?.pages, path)
 
       if (!(page instanceof RepeatPageController)) {
-        throw Boom.notFound(`No repeater page found for /${params.path}`)
+        throw Boom.notFound(`No repeater page found for /${path}`)
       }
 
       return page.makePostListSummaryRouteHandler()(request, h)
@@ -407,11 +412,13 @@ export const plugin = {
       request: FormRequest,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { app, params } = request
-      const page = getPage(app.model, request)
+      const { model } = request.app
+      const { path } = request.params
+
+      const page = getPage(model?.pages, path)
 
       if (!(page instanceof RepeatPageController)) {
-        throw Boom.notFound(`No repeater page found for /${params.path}`)
+        throw Boom.notFound(`No repeater page found for /${path}`)
       }
 
       return page.makeGetListDeleteRouteHandler()(request, h)
@@ -455,11 +462,13 @@ export const plugin = {
       request: FormRequestPayload,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { app, params } = request
-      const page = getPage(app.model, request)
+      const { model } = request.app
+      const { path } = request.params
+
+      const page = getPage(model?.pages, path)
 
       if (!(page instanceof RepeatPageController)) {
-        throw Boom.notFound(`No repeater page found for /${params.path}`)
+        throw Boom.notFound(`No repeater page found for /${path}`)
       }
 
       return page.makePostListDeleteRouteHandler()(request, h)
