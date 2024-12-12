@@ -51,6 +51,7 @@ export default /** @satisfies {FormDefinition} */ ({
           schema: {}
         }
       ],
+      section: 'marriage',
       next: [{ path: '/summary' }]
     },
     {
@@ -60,7 +61,12 @@ export default /** @satisfies {FormDefinition} */ ({
     }
   ]),
   lists: [],
-  sections: [],
+  sections: [
+    {
+      name: 'marriage',
+      title: 'Your marriage'
+    }
+  ],
   conditions: [
     {
       displayName: 'Previously married',

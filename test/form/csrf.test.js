@@ -39,7 +39,7 @@ describe('CSRF', () => {
 
   test('get request returns CSRF header', async () => {
     const { response } = await renderResponse(server, {
-      url: `${basePath}/start`
+      url: `${basePath}/licence`
     })
 
     expect(response.statusCode).toBe(StatusCodes.OK)
@@ -55,7 +55,7 @@ describe('CSRF', () => {
 
   test('post request without CSRF token returns 403 forbidden', async () => {
     const response = await server.inject({
-      url: `${basePath}/start`,
+      url: `${basePath}/licence`,
       method: 'POST',
       payload: {
         licenceLength: '1'
@@ -69,7 +69,7 @@ describe('CSRF', () => {
     const csrfToken = 'dummy-token'
 
     const response = await server.inject({
-      url: `${basePath}/start`,
+      url: `${basePath}/licence`,
       method: 'POST',
       headers: {
         cookie: `crumb=${csrfToken}`

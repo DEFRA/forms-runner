@@ -6,11 +6,11 @@ import {
 
 export default /** @satisfies {FormDefinition} */ ({
   name: 'Basic',
-  startPage: '/start',
+  startPage: '/licence',
   pages: /** @type {const} */ ([
     {
       title: 'Buy a rod fishing licence',
-      path: '/start',
+      path: '/licence',
       components: [
         {
           options: {
