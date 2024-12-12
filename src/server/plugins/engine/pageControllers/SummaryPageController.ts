@@ -1,4 +1,5 @@
 import {
+  type PageSummary,
   type SubmitPayload,
   type SubmitResponsePayload
 } from '@defra/forms-model'
@@ -47,9 +48,16 @@ const designerUrl = config.get('designerUrl')
 const templateId = config.get('notifyTemplateId')
 
 export class SummaryPageController extends PageController {
+  declare pageDef: PageSummary
+
   /**
    * The controller which is used when Page["controller"] is defined as "./pages/summary.js"
    */
+
+  constructor(model: FormModel, pageDef: PageSummary) {
+    super(model, pageDef)
+    this.viewName = 'summary'
+  }
 
   getSummaryViewModel(
     request: FormContextRequest,
@@ -78,7 +86,7 @@ export class SummaryPageController extends PageController {
       request: FormRequest,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { model, path } = this
+      const { model, path, viewName } = this
 
       const state = await this.getState(request)
       const context = model.getFormContext(request, state)
@@ -98,7 +106,7 @@ export class SummaryPageController extends PageController {
       viewModel.notificationEmailWarning =
         await this.buildMissingEmailWarningModel(request)
 
-      return h.view('summary', viewModel)
+      return h.view(viewName, viewModel)
     }
   }
 

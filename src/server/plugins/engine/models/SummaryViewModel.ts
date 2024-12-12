@@ -1,4 +1,4 @@
-import { type Page, type Section } from '@defra/forms-model'
+import { type PageSummary, type Section } from '@defra/forms-model'
 
 import {
   getAnswer,
@@ -48,7 +48,7 @@ export class SummaryViewModel {
 
   constructor(
     model: FormModel,
-    pageDef: Page,
+    pageDef: PageSummary,
     request: FormContextRequest,
     context: FormContext | FormContextProgress
   ) {

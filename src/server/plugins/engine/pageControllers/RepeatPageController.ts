@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto'
 
-import { ControllerType, type Page, type Repeat } from '@defra/forms-model'
-import { badImplementation, badRequest, notFound } from '@hapi/boom'
+import { type PageRepeat, type Repeat } from '@defra/forms-model'
+import { badRequest, notFound } from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
 import Joi from 'joi'
 
@@ -25,16 +25,14 @@ import {
 } from '~/src/server/routes/types.js'
 
 export class RepeatPageController extends PageController {
+  declare pageDef: PageRepeat
+
   listSummaryViewName = 'repeat-list-summary'
   listDeleteViewName = 'repeat-item-delete'
   repeat: Repeat
 
-  constructor(model: FormModel, pageDef: Page) {
+  constructor(model: FormModel, pageDef: PageRepeat) {
     super(model, pageDef)
-
-    if (pageDef.controller !== ControllerType.Repeat) {
-      throw badImplementation('Invalid controller for Repeat page')
-    }
 
     this.repeat = pageDef.repeat
 

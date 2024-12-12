@@ -2,7 +2,7 @@ import {
   ComponentType,
   hasComponents,
   type FileUploadFieldComponent,
-  type Page
+  type PageFileUpload
 } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
@@ -56,10 +56,11 @@ function prepareFileState(fileState: FileState) {
 }
 
 export class FileUploadPageController extends PageController {
-  viewName = 'file-upload'
+  declare pageDef: PageFileUpload
+
   fileUploadComponent: FileUploadFieldComponent
 
-  constructor(model: FormModel, pageDef: Page) {
+  constructor(model: FormModel, pageDef: PageFileUpload) {
     // Get the file upload components from the list of components
     const fileUploadComponents = hasComponents(pageDef)
       ? pageDef.components.filter(
@@ -87,6 +88,7 @@ export class FileUploadPageController extends PageController {
 
     // Assign the file upload component to the controller
     this.fileUploadComponent = fileUploadComponents[0]
+    this.viewName = 'file-upload'
   }
 
   async getState(request: FormRequest) {

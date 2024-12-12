@@ -1,5 +1,3 @@
-import { ControllerType } from '@defra/forms-model'
-
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import {
@@ -20,24 +18,6 @@ describe('RepeatPageController', () => {
     })
 
     controller = new RepeatPageController(model, pages[0])
-  })
-
-  describe('Constructor', () => {
-    it('throws if page controller is not ControllerType.Repeat', () => {
-      const { pages } = structuredClone(definition)
-
-      // Change the controller type
-      // @ts-expect-error - Allow invalid property for test
-      pages[0].controller = ControllerType.Summary
-
-      // Remove specific controller options
-      // @ts-expect-error - Allow invalid property for test
-      delete pages[0].repeat
-
-      expect(() => new RepeatPageController(model, pages[0])).toThrow(
-        'Invalid controller for Repeat page'
-      )
-    })
   })
 
   describe('Form validation', () => {
