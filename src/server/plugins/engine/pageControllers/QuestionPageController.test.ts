@@ -1,5 +1,5 @@
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
+import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
   type FormContextProgress,
   type FormContextRequest,
@@ -10,9 +10,9 @@ import definitionConditionsBasic from '~/test/form/definitions/conditions-basic.
 import definitionConditionsComplex from '~/test/form/definitions/conditions-complex.js'
 import definitionConditionsDates from '~/test/form/definitions/conditions-dates.js'
 
-describe('PageControllerBase', () => {
-  let controller1: PageControllerBase
-  let controller2: PageControllerBase
+describe('QuestionPageController', () => {
+  let controller1: QuestionPageController
+  let controller2: QuestionPageController
   let requestPage1: FormRequest
   let requestPage2: FormRequest
 
@@ -29,8 +29,8 @@ describe('PageControllerBase', () => {
       basePath: 'test'
     })
 
-    controller1 = new PageControllerBase(model, page1)
-    controller2 = new PageControllerBase(model, page2)
+    controller1 = new QuestionPageController(model, page1)
+    controller2 = new QuestionPageController(model, page2)
 
     requestPage1 = {
       method: 'get',
@@ -165,7 +165,7 @@ describe('PageControllerBase', () => {
 
       // Selected page appears after convergence and contains a conditional field
       // This is the page we're theoretically browsing to
-      const controller = new PageControllerBase(model, pages[7])
+      const controller = new QuestionPageController(model, pages[7])
 
       // The state below shows we said we had a UKPassport and entered details for an applicant
       const state: FormSubmissionState = {
@@ -275,7 +275,7 @@ describe('PageControllerBase', () => {
         basePath: 'test'
       })
 
-      const controller = new PageControllerBase(model, pages[0])
+      const controller = new QuestionPageController(model, pages[0])
 
       const request = {
         method: 'get',

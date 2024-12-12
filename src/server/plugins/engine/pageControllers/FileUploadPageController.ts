@@ -14,7 +14,7 @@ import {
 } from '~/src/server/plugins/engine/components/FileUploadField.js'
 import { getError } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
+import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
   getUploadStatus,
   initiateUpload
@@ -55,7 +55,7 @@ function prepareFileState(fileState: FileState) {
   return fileState
 }
 
-export class FileUploadPageController extends PageControllerBase {
+export class FileUploadPageController extends QuestionPageController {
   declare pageDef: PageFileUpload
 
   fileUploadComponent: FileUploadFieldComponent

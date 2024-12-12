@@ -38,7 +38,7 @@ import {
   type FormRequestRefs
 } from '~/src/server/routes/types.js'
 
-export class PageControllerBase extends PageController {
+export class QuestionPageController extends PageController {
   section?: Section
   collection: ComponentCollection
   errorSummaryTitle = 'There is a problem'

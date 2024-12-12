@@ -2,11 +2,11 @@ import { type PageStatus } from '@defra/forms-model'
 import { type ResponseToolkit } from '@hapi/hapi'
 
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
+import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import { type FormRequest } from '~/src/server/routes/types.js'
 
-export class StatusPageController extends PageControllerBase {
+export class StatusPageController extends QuestionPageController {
   declare pageDef: PageStatus
 
   constructor(model: FormModel, pageDef: PageStatus) {

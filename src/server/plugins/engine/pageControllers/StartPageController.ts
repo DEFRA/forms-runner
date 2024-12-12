@@ -1,11 +1,11 @@
-import { PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
+import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
   type FormPayload,
   type FormSubmissionError
 } from '~/src/server/plugins/engine/types.js'
 import { type FormRequest } from '~/src/server/routes/types.js'
 
-export class StartPageController extends PageControllerBase {
+export class StartPageController extends QuestionPageController {
   /**
    * The controller which is used when Page["controller"] is defined as "./pages/start.js"
    * This page should not be used in production. This page is helpful for prototyping start pages within the app,

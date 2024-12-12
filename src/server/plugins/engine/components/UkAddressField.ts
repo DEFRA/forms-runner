@@ -7,7 +7,7 @@ import {
   isFormState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
-import { type PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
+import { type QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
   type FormPayload,
   type FormState,
@@ -124,7 +124,7 @@ export class UkAddressField extends FormComponent {
 
         /**
          * For screen readers, only hide legend visually. This can be overridden
-         * by single component {@link PageControllerBase | `showTitle` handling}
+         * by single component {@link QuestionPageController | `showTitle` handling}
          */
         classes: options.hideTitle
           ? 'govuk-visually-hidden'
