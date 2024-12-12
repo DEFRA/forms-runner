@@ -5,6 +5,7 @@ import {
   type FormContextRequest,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { type FormRequest } from '~/src/server/routes/types.js'
 import definitionConditionsBasic from '~/test/form/definitions/conditions-basic.js'
 import definitionConditionsComplex from '~/test/form/definitions/conditions-complex.js'
 import definitionConditionsDates from '~/test/form/definitions/conditions-dates.js'
@@ -12,16 +13,48 @@ import definitionConditionsDates from '~/test/form/definitions/conditions-dates.
 describe('PageControllerBase', () => {
   let controller1: PageControllerBase
   let controller2: PageControllerBase
+  let requestPage1: FormRequest
+  let requestPage2: FormRequest
 
   beforeEach(() => {
     const { pages } = definitionConditionsBasic
+
+    const page1 = pages[0]
+    const page1Url = new URL('http://example.com/test/first-page')
+
+    const page2 = pages[1]
+    const page2Url = new URL('http://example.com/test/second-page')
 
     const model = new FormModel(definitionConditionsBasic, {
       basePath: 'test'
     })
 
-    controller1 = new PageControllerBase(model, pages[0])
-    controller2 = new PageControllerBase(model, pages[1])
+    controller1 = new PageControllerBase(model, page1)
+    controller2 = new PageControllerBase(model, page2)
+
+    requestPage1 = {
+      method: 'get',
+      url: page1Url,
+      path: page1Url.pathname,
+      params: {
+        path: 'first-page',
+        slug: 'test'
+      },
+      query: {},
+      app: { model }
+    } as FormRequest
+
+    requestPage2 = {
+      method: 'get',
+      url: page2Url,
+      path: page2Url.pathname,
+      params: {
+        path: 'second-page',
+        slug: 'test'
+      },
+      query: {},
+      app: { model }
+    } as FormRequest
   })
 
   describe('Component collection', () => {
@@ -32,9 +65,81 @@ describe('PageControllerBase', () => {
       expect(components1).toHaveLength(1)
       expect(components1[0].name).toBe('yesNoField')
 
-      expect(components2).toHaveLength(2)
-      expect(components2[0].name).toBe('dateField')
-      expect(components2[1].name).toBe('detailsField')
+      expect(components2).toHaveLength(3)
+      expect(components2[0].name).toBe('detailsField')
+      expect(components2[1].name).toBe('dateField')
+      expect(components2[2].name).toBe('multilineTextField')
+    })
+
+    describe('Component view models', () => {
+      it('hides the page title for single form component pages', () => {
+        const viewModel1 = controller1.getViewModel(requestPage1, {})
+        const viewModel2 = controller2.getViewModel(requestPage2, {})
+
+        // Page 1 hides page title (single component)
+        expect(viewModel1).toHaveProperty('showTitle', false)
+        expect(viewModel1).toHaveProperty('pageTitle', 'Previous marriages')
+
+        // Page 2 shows page title (multiple components)
+        expect(viewModel2).toHaveProperty('showTitle', true)
+        expect(viewModel2).toHaveProperty(
+          'pageTitle',
+          'When will you get married?'
+        )
+      })
+
+      it('returns the component view models for the page', () => {
+        const viewModel1 = controller1.getViewModel(requestPage1, {})
+        const viewModel2 = controller2.getViewModel(requestPage2, {})
+
+        const { components: components1 } = viewModel1
+        const { components: components2 } = viewModel2
+
+        expect(components1).toHaveLength(1)
+        expect(components2).toHaveLength(3)
+
+        // Page 1, component 1, default label
+        expect(components1[0].model).toHaveProperty('label', {
+          text: 'Have you previously been married?'
+        })
+
+        // Page 1, component 1, optional legend
+        expect(components1[0].model).toHaveProperty('fieldset', {
+          legend: {
+            text: 'Previous marriages',
+            classes: 'govuk-fieldset__legend--l',
+            isPageHeading: true
+          }
+        })
+
+        // Page 2, component 1, content only
+        expect(components2[0].model).toEqual({
+          attributes: {},
+          summaryHtml: 'Find out more',
+          html: 'Some content goes here'
+        })
+
+        // Page 2, component 2, default label
+        expect(components2[1].model).toHaveProperty('label', {
+          text: 'Date of marriage'
+        })
+
+        // Page 2, component 2, optional legend
+        expect(components2[1].model).toHaveProperty('fieldset', {
+          legend: {
+            text: 'Date of marriage',
+            classes: 'govuk-fieldset__legend--m'
+          }
+        })
+
+        // Page 2, component 3, default label
+        expect(components2[2].model).toHaveProperty('label', {
+          text: 'Remarks'
+        })
+
+        // Page 2, component 3, optional legend
+        expect(components2[2].model).not.toHaveProperty('fieldset')
+      })
     })
 
     it('returns the fields for the page', () => {
@@ -44,8 +149,9 @@ describe('PageControllerBase', () => {
       expect(fields1).toHaveLength(1)
       expect(fields1[0].name).toBe('yesNoField')
 
-      expect(fields2).toHaveLength(1)
+      expect(fields2).toHaveLength(2)
       expect(fields2[0].name).toBe('dateField')
+      expect(fields2[1].name).toBe('multilineTextField')
     })
   })
 
@@ -208,7 +314,7 @@ describe('PageControllerBase', () => {
       const result2 = controller2.collection.validate()
 
       expect(result1.errors).toHaveLength(1)
-      expect(result2.errors).toHaveLength(3)
+      expect(result2.errors).toHaveLength(4)
     })
   })
 
