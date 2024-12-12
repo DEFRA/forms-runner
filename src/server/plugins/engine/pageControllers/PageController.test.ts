@@ -24,6 +24,109 @@ describe('PageController', () => {
     controller2 = new PageController(model, page2)
   })
 
+  describe('Properties', () => {
+    it('returns path', () => {
+      expect(controller1).toHaveProperty('path', '/licence')
+      expect(controller2).toHaveProperty('path', '/full-name')
+    })
+
+    it('returns href', () => {
+      expect(controller1).toHaveProperty('href', '/test/licence')
+      expect(controller2).toHaveProperty('href', '/test/full-name')
+    })
+
+    it('returns keys (empty)', () => {
+      expect(controller1).toHaveProperty('keys', [])
+      expect(controller2).toHaveProperty('keys', [])
+    })
+
+    it('returns the page section', () => {
+      expect(controller1).toHaveProperty('section', {
+        name: 'licenceDetails',
+        title: 'Licence details',
+        hideTitle: false
+      })
+
+      expect(controller2).toHaveProperty('section', {
+        name: 'personalDetails',
+        title: 'Personal details',
+        hideTitle: false
+      })
+    })
+
+    it('returns feedback link (from config)', () => {
+      expect(controller1).toHaveProperty(
+        'feedbackLink',
+        'https://test.defra.gov.uk/'
+      )
+    })
+
+    it('returns feedback link (from form definition)', () => {
+      const emailAddress = 'test@feedback.cat'
+
+      model.def.feedback = {
+        emailAddress
+      }
+
+      expect(controller1).toHaveProperty(
+        'feedbackLink',
+        `mailto:${emailAddress}`
+      )
+    })
+
+    it('returns phase tag (from config)', () => {
+      expect(controller1).toHaveProperty('phaseTag', 'beta')
+    })
+
+    it('returns phase tag (from form definition)', () => {
+      model.def.phaseBanner = {
+        phase: 'alpha'
+      }
+
+      expect(controller1).toHaveProperty('phaseTag', 'alpha')
+    })
+  })
+
+  describe('Path methods', () => {
+    describe('Link href', () => {
+      it('prefixes paths into link hrefs', () => {
+        const href1 = controller1.getHref('/')
+        const href2 = controller1.getHref('/page-one')
+
+        expect(href1).toBe('/test')
+        expect(href2).toBe('/test/page-one')
+      })
+    })
+
+    describe('Start path', () => {
+      it('returns path to start page', () => {
+        const startPath = controller1.getStartPath()
+        expect(startPath).toBe('/licence')
+      })
+
+      it('returns path to start page (default)', () => {
+        delete model.def.startPage
+
+        const startPath = controller1.getStartPath()
+        expect(startPath).toBe('/start')
+      })
+    })
+
+    describe('Summary path', () => {
+      it('returns path to summary page', () => {
+        const summaryPath = controller1.getSummaryPath()
+        expect(summaryPath).toBe('/summary')
+      })
+    })
+
+    describe('Status path', () => {
+      it('returns path to status page', () => {
+        const summaryPath = controller1.getStatusPath()
+        expect(summaryPath).toBe('/status')
+      })
+    })
+  })
+
   describe('Route handlers', () => {
     const page1Url = new URL('http://example.com/test/licence')
 
@@ -56,8 +159,23 @@ describe('PageController', () => {
       await controller1.makeGetRouteHandler()(request, h)
       await controller2.makeGetRouteHandler()(request, h)
 
-      expect(h.view).toHaveBeenNthCalledWith(1, controller1.viewName)
-      expect(h.view).toHaveBeenNthCalledWith(2, controller1.viewName)
+      expect(h.view).toHaveBeenNthCalledWith(
+        1,
+        controller1.viewName,
+        expect.objectContaining({
+          pageTitle: 'Buy a rod fishing licence',
+          sectionTitle: 'Licence details'
+        })
+      )
+
+      expect(h.view).toHaveBeenNthCalledWith(
+        2,
+        controller1.viewName,
+        expect.objectContaining({
+          pageTitle: "What's your name?",
+          sectionTitle: 'Personal details'
+        })
+      )
     })
 
     it('does not support POST route handler', () => {
