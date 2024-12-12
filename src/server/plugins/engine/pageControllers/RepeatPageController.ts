@@ -11,10 +11,10 @@ import { QuestionPageController } from '~/src/server/plugins/engine/pageControll
 import {
   type CheckAnswers,
   type FormContextRequest,
+  type FormPageViewModel,
   type FormPayload,
   type FormSubmissionError,
   type FormSubmissionState,
-  type PageViewModel,
   type RepeatState,
   type SummaryList,
   type SummaryListAction
@@ -328,17 +328,21 @@ export class RepeatPageController extends QuestionPageController {
     request: FormRequest | FormRequestPayload,
     payload: FormPayload,
     errors?: FormSubmissionError[]
-  ): PageViewModel {
+  ): FormPageViewModel {
     const viewModel = super.getViewModel(request, payload, errors)
+
     const { list, item } = this.getRepeatAppData(request)
+
     const itemNumber = item ? item.index + 1 : list.length + 1
     const repeatCaption = `${this.repeat.options.title} ${itemNumber}`
 
-    viewModel.sectionTitle = viewModel.sectionTitle
-      ? `${viewModel.sectionTitle}: ${repeatCaption}`
-      : repeatCaption
+    return {
+      ...viewModel,
 
-    return viewModel
+      sectionTitle: viewModel.sectionTitle
+        ? `${viewModel.sectionTitle}: ${repeatCaption}`
+        : repeatCaption
+    }
   }
 
   getListSummaryViewModel(

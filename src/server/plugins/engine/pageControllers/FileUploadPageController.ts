@@ -191,7 +191,7 @@ export class FileUploadPageController extends QuestionPageController {
     request: FormRequest | FormRequestPayload,
     payload: FormPayload,
     errors?: FormSubmissionError[]
-  ) {
+  ): FileUploadPageViewModel {
     const viewModel = super.getViewModel(request, payload, errors)
 
     const name = this.fileUploadComponent.name
@@ -206,12 +206,11 @@ export class FileUploadPageController extends QuestionPageController {
 
     return {
       ...viewModel,
-      page: this,
       path: request.path,
       formAction: request.app.formAction,
       fileUploadComponent,
       preUploadComponents: components.slice(0, id)
-    } satisfies FileUploadPageViewModel
+    }
   }
 
   private getComponentName() {

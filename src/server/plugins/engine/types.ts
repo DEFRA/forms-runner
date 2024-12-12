@@ -1,5 +1,4 @@
 import { type Item } from '@defra/forms-model'
-import { type ResponseObject } from '@hapi/hapi'
 import { type ValidationErrorItem } from 'joi'
 
 import { type FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
@@ -7,11 +6,8 @@ import {
   type ComponentText,
   type ComponentViewModel
 } from '~/src/server/plugins/engine/components/types.js'
+import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
-import {
-  type FileUploadPageController,
-  type PageController
-} from '~/src/server/plugins/engine/pageControllers/index.js'
 import { type FormRequest } from '~/src/server/routes/types.js'
 
 /**
@@ -247,26 +243,30 @@ export interface PageViewModelBase {
   pageTitle: string
   sectionTitle?: string
   showTitle: boolean
-  components: ComponentViewModel[]
-  errors?: FormSubmissionError[]
   isStartPage: boolean
-  startPage?: ResponseObject
   backLink?: string
   feedbackLink?: string
   serviceUrl: string
   phaseTag?: string
+}
+
+export interface FormPageViewModel extends PageViewModelBase {
+  components: ComponentViewModel[]
+  errors?: FormSubmissionError[]
   notificationEmailWarning?: {
     slug: string
     designerUrl: string
   }
 }
 
-export interface FileUploadPageViewModel extends PageViewModelBase {
-  page: FileUploadPageController
+export interface FileUploadPageViewModel extends FormPageViewModel {
   path: string
   formAction?: string
   fileUploadComponent: ComponentViewModel
   preUploadComponents: ComponentViewModel[]
 }
 
-export type PageViewModel = PageViewModelBase | FileUploadPageViewModel
+export type PageViewModel =
+  | PageViewModelBase
+  | FormPageViewModel
+  | FileUploadPageViewModel

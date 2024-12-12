@@ -26,10 +26,10 @@ import { getFormMetadata } from '~/src/server/plugins/engine/services/formsServi
 import {
   type FormContext,
   type FormContextProgress,
+  type FormPageViewModel,
   type FormPayload,
   type FormSubmissionError,
-  type FormSubmissionState,
-  type PageViewModel
+  type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
@@ -102,7 +102,7 @@ export class QuestionPageController extends PageController {
     request: FormRequest | FormRequestPayload,
     payload: FormPayload,
     errors?: FormSubmissionError[]
-  ): PageViewModel {
+  ): FormPageViewModel {
     let showTitle = true
 
     let { title: pageTitle, section } = this
@@ -338,7 +338,7 @@ export class QuestionPageController extends PageController {
 
   async buildMissingEmailWarningModel(
     request: FormRequest
-  ): Promise<PageViewModel['notificationEmailWarning']> {
+  ): Promise<FormPageViewModel['notificationEmailWarning']> {
     const { path } = this
     const { params } = request
 
