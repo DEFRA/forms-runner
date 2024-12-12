@@ -72,8 +72,8 @@ export class SummaryPageController extends QuestionPageController {
 
     // We already figure these out in the base page controller. Take them and apply them to our page-specific model.
     // This is a stop-gap until we can add proper inheritance in place.
-    viewModel.feedbackLink = this.getFeedbackLink()
-    viewModel.phaseTag = this.getPhaseTag()
+    viewModel.feedbackLink = this.feedbackLink
+    viewModel.phaseTag = this.phaseTag
 
     return viewModel
   }

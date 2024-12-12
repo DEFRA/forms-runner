@@ -20,64 +20,18 @@ describe('RepeatPageController', () => {
     controller = new RepeatPageController(model, pages[0])
   })
 
-  describe('Form validation', () => {
-    it('includes title text and errors', () => {
-      const result = controller.collection.validate()
-
-      expect(result.errors).toEqual<FormSubmissionError[]>([
-        {
-          path: ['toppings'],
-          href: '#toppings',
-          name: 'toppings',
-          text: 'Select toppings',
-          context: {
-            key: 'toppings',
-            label: 'toppings',
-            title: 'Toppings'
-          }
-        },
-        {
-          path: ['quantity'],
-          href: '#quantity',
-          name: 'quantity',
-          text: 'Enter quantity',
-          context: {
-            key: 'quantity',
-            label: 'quantity',
-            title: 'Quantity'
-          }
-        },
-        {
-          path: ['itemId'],
-          href: '#itemId',
-          name: 'itemId',
-          text: 'Select itemId',
-          context: {
-            key: 'itemId',
-            label: 'itemId'
-          }
-        }
-      ])
-    })
-
-    it('includes all field errors', () => {
-      const result = controller.collection.validate()
-      expect(result.errors).toHaveLength(3)
-    })
-  })
-
-  describe('Form journey', () => {
-    describe('Summary', () => {
+  describe('Path methods', () => {
+    describe('Summary path', () => {
       let request: FormContextRequest
 
       const itemId1 = 'abc-123'
       const itemId2 = 'xyz-987'
 
-      it('returns the summary path', () => {
+      it('returns path to summary page', () => {
         expect(controller.getSummaryPath()).toBe('/summary')
       })
 
-      it('returns the repeater summary path', () => {
+      it('returns path to repeater summary page', () => {
         const pageUrl = new URL('http://example.com/repeat/pizza-order')
 
         request = {
@@ -140,6 +94,52 @@ describe('RepeatPageController', () => {
 
         expect(controller.getSummaryPath(request)).toBe('/pizza-order/summary')
       })
+    })
+  })
+
+  describe('Form validation', () => {
+    it('includes title text and errors', () => {
+      const result = controller.collection.validate()
+
+      expect(result.errors).toEqual<FormSubmissionError[]>([
+        {
+          path: ['toppings'],
+          href: '#toppings',
+          name: 'toppings',
+          text: 'Select toppings',
+          context: {
+            key: 'toppings',
+            label: 'toppings',
+            title: 'Toppings'
+          }
+        },
+        {
+          path: ['quantity'],
+          href: '#quantity',
+          name: 'quantity',
+          text: 'Enter quantity',
+          context: {
+            key: 'quantity',
+            label: 'quantity',
+            title: 'Quantity'
+          }
+        },
+        {
+          path: ['itemId'],
+          href: '#itemId',
+          name: 'itemId',
+          text: 'Select itemId',
+          context: {
+            key: 'itemId',
+            label: 'itemId'
+          }
+        }
+      ])
+    })
+
+    it('includes all field errors', () => {
+      const result = controller.collection.validate()
+      expect(result.errors).toHaveLength(3)
     })
   })
 })

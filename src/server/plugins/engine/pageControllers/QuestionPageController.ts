@@ -163,8 +163,8 @@ export class QuestionPageController extends PageController {
       errors,
       isStartPage: false,
       serviceUrl: this.getHref('/'),
-      feedbackLink: this.getFeedbackLink(),
-      phaseTag: this.getPhaseTag()
+      feedbackLink: this.feedbackLink,
+      phaseTag: this.phaseTag
     }
   }
 
@@ -363,7 +363,7 @@ export class QuestionPageController extends PageController {
    * Used for when a user clicks the "back" link.
    * Progress is stored in the state.
    */
-  protected async updateProgress(progress: string[], request: FormRequest) {
+  async updateProgress(progress: string[], request: FormRequest) {
     const { cacheService } = request.services([])
 
     const lastVisited = progress.at(-1)
@@ -438,13 +438,13 @@ export class QuestionPageController extends PageController {
     }
   }
 
-  protected getFeedbackLink() {
-    const { feedback } = this.def
+  get feedbackLink() {
+    const { def } = this
 
     // setting the feedbackLink to undefined here for feedback forms prevents the feedback link from being shown
-    let feedbackLink = feedback?.emailAddress
-      ? `mailto:${feedback.emailAddress}`
-      : feedback?.url
+    let feedbackLink = def.feedback?.emailAddress
+      ? `mailto:${def.feedback.emailAddress}`
+      : def.feedback?.url
 
     if (!feedbackLink) {
       feedbackLink = config.get('feedbackLink')
@@ -453,9 +453,9 @@ export class QuestionPageController extends PageController {
     return encodeUrl(feedbackLink)
   }
 
-  protected getPhaseTag() {
-    const { phaseBanner } = this.def
-    return phaseBanner?.phase ?? config.get('phaseTag')
+  get phaseTag() {
+    const { def } = this
+    return def.phaseBanner?.phase ?? config.get('phaseTag')
   }
 
   validate(request: FormRequestPayload) {
