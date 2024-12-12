@@ -36,6 +36,10 @@ export function createPage(model: FormModel, pageDef: Page) {
   let controller: PageControllerClass | undefined
 
   switch (pageDef.controller) {
+    case ControllerType.Content:
+      controller = new PageControllers.ContentPageController(model, pageDef)
+      break
+
     case ControllerType.Start:
       controller = new PageControllers.StartPageController(model, pageDef)
       break

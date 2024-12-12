@@ -21,6 +21,7 @@ import {
   getPage
 } from '~/src/server/plugins/engine/helpers.js'
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
+import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
   createPage,
   type PageControllerClass
@@ -221,8 +222,12 @@ export class FormModel {
     state: FormState,
     options?: { validate: false }
   ): FormContext | FormContextProgress {
-    const { pages } = this
     const { path } = request.params
+
+    // Exclude content pages
+    const pages = this.pages.filter(
+      (page) => page instanceof QuestionPageController
+    )
 
     // Determine form paths
     const currentPage = getPage(pages, path)
