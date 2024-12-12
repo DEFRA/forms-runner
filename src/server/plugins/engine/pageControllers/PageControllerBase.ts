@@ -8,13 +8,7 @@ import {
   type Page,
   type Section
 } from '@defra/forms-model'
-import { type Boom } from '@hapi/boom'
-import {
-  type ResponseObject,
-  type ResponseToolkit,
-  type RouteOptions,
-  type ServerRoute
-} from '@hapi/hapi'
+import { type ResponseToolkit, type RouteOptions } from '@hapi/hapi'
 import joi, { type ValidationErrorItem } from 'joi'
 
 import { config } from '~/src/config/index.js'
@@ -281,11 +275,11 @@ export class PageControllerBase {
     return cacheService.mergeState(request, state)
   }
 
-  makeGetRouteHandler(): (
-    request: FormRequest,
-    h: ResponseToolkit<FormRequestRefs>
-  ) => Promise<ResponseObject | Boom> {
-    return async (request, h) => {
+  makeGetRouteHandler() {
+    return async (
+      request: FormRequest,
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
+    ) => {
       const { model, path, viewName } = this
 
       const state = await this.getState(request)
@@ -417,11 +411,11 @@ export class PageControllerBase {
     return progress.at(-2)
   }
 
-  makePostRouteHandler(): (
-    request: FormRequestPayload,
-    h: ResponseToolkit<FormRequestPayloadRefs>
-  ) => Promise<ResponseObject | Boom> {
-    return async (request, h) => {
+  makePostRouteHandler() {
+    return async (
+      request: FormRequestPayload,
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
+    ) => {
       const { model } = this
 
       const state = await this.getState(request)
@@ -480,33 +474,13 @@ export class PageControllerBase {
     return phaseBanner?.phase ?? config.get('phaseTag')
   }
 
-  makeGetRoute() {
-    return {
-      method: 'get',
-      path: this.pageDef.path,
-      options: this.getRouteOptions,
-      handler: this.makeGetRouteHandler()
-    } satisfies ServerRoute<FormRequestRefs>
-  }
-
-  makePostRoute() {
-    return {
-      method: 'post',
-      path: this.pageDef.path,
-      options: this.postRouteOptions,
-      handler: this.makePostRouteHandler()
-    } satisfies ServerRoute<FormRequestPayloadRefs>
-  }
-
   validate(request: FormRequestPayload) {
     return this.collection.validate(request.payload)
   }
 
   proceed(
     request: FormRequest | FormRequestPayload,
-    h:
-      | ResponseToolkit<FormRequestRefs>
-      | ResponseToolkit<FormRequestPayloadRefs>,
+    h: Pick<ResponseToolkit, 'redirect' | 'view'>,
     nextPath?: string
   ) {
     const nextUrl = nextPath
@@ -532,9 +506,7 @@ export class PageControllerBase {
 
   protected renderWithErrors(
     request: FormRequest | FormRequestPayload,
-    h:
-      | ResponseToolkit<FormRequestRefs>
-      | ResponseToolkit<FormRequestPayloadRefs>,
+    h: Pick<ResponseToolkit, 'redirect' | 'view'>,
     payload: FormPayload,
     progress: string[],
     errors?: FormSubmissionError[]

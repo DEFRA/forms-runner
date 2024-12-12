@@ -17,7 +17,7 @@ import { FormStatus } from '~/src/server/routes/types.js'
 
 describe('Helpers', () => {
   let request: FormContextRequest
-  let h: Pick<ResponseToolkit, 'redirect'>
+  let h: Pick<ResponseToolkit, 'redirect' | 'view'>
 
   beforeEach(() => {
     const pageUrl = new URL('http://example.com/test/page-one')
@@ -38,7 +38,8 @@ describe('Helpers', () => {
     }
 
     h = {
-      redirect: jest.fn().mockImplementation(() => response)
+      redirect: jest.fn().mockImplementation(() => response),
+      view: jest.fn()
     }
   })
 
@@ -84,6 +85,7 @@ describe('Helpers', () => {
 
         const response = proceed(request, h, href)
 
+        expect(h.view).not.toHaveBeenCalled()
         expect(h.redirect).toHaveBeenCalledWith(href)
         expect(response.code).toHaveBeenCalledWith(redirect.statusCode)
       }
@@ -129,6 +131,7 @@ describe('Helpers', () => {
 
         const response = proceed(request, h, href)
 
+        expect(h.view).not.toHaveBeenCalled()
         expect(h.redirect).toHaveBeenCalledWith(request.query.returnUrl)
         expect(response.code).toHaveBeenCalledWith(redirect.statusCode)
       }

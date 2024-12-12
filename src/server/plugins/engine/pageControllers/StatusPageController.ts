@@ -1,19 +1,15 @@
-import { type Boom } from '@hapi/boom'
-import { type ResponseObject, type ResponseToolkit } from '@hapi/hapi'
+import { type ResponseToolkit } from '@hapi/hapi'
 
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
-import {
-  type FormRequest,
-  type FormRequestRefs
-} from '~/src/server/routes/types.js'
+import { type FormRequest } from '~/src/server/routes/types.js'
 
 export class StatusPageController extends PageController {
-  makeGetRouteHandler(): (
-    request: FormRequest,
-    h: ResponseToolkit<FormRequestRefs>
-  ) => Promise<ResponseObject | Boom> {
-    return async (request, h) => {
+  makeGetRouteHandler() {
+    return async (
+      request: FormRequest,
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
+    ) => {
       const { model, title } = this
 
       const { cacheService } = request.services([])

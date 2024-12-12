@@ -62,9 +62,7 @@ export const plugin = {
 
     const loadFormPreHandler = async (
       request: FormRequest | FormRequestPayload,
-      h:
-        | ResponseToolkit<FormRequestRefs>
-        | ResponseToolkit<FormRequestPayloadRefs>
+      h: Pick<ResponseToolkit, 'continue'>
     ) => {
       if (server.app.model) {
         request.app.model = server.app.model
@@ -141,7 +139,7 @@ export const plugin = {
 
     const dispatchHandler = (
       request: FormRequest,
-      h: ResponseToolkit<FormRequestRefs>
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { model } = request.app
 
@@ -151,7 +149,7 @@ export const plugin = {
 
     const getHandler = (
       request: FormRequest,
-      h: ResponseToolkit<FormRequestRefs>
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { model } = request.app
       const { path } = request.params
@@ -166,7 +164,7 @@ export const plugin = {
 
     const postHandler = (
       request: FormRequestPayload,
-      h: ResponseToolkit<FormRequestPayloadRefs>
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { model } = request.app
 
@@ -303,7 +301,7 @@ export const plugin = {
     // List summary GET route
     const getListSummaryHandler = (
       request: FormRequest,
-      h: ResponseToolkit<FormRequestRefs>
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { app, params } = request
       const page = getPage(app.model, request)
@@ -349,7 +347,7 @@ export const plugin = {
     // List summary POST route
     const postListSummaryHandler = (
       request: FormRequestPayload,
-      h: ResponseToolkit<FormRequestPayloadRefs>
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { app, params } = request
       const page = getPage(app.model, request)
@@ -407,7 +405,7 @@ export const plugin = {
     // List delete GET route
     const getListDeleteHandler = (
       request: FormRequest,
-      h: ResponseToolkit<FormRequestRefs>
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { app, params } = request
       const page = getPage(app.model, request)
@@ -455,7 +453,7 @@ export const plugin = {
     // List delete POST route
     const postListDeleteHandler = (
       request: FormRequestPayload,
-      h: ResponseToolkit<FormRequestPayloadRefs>
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { app, params } = request
       const page = getPage(app.model, request)

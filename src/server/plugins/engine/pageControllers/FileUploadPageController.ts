@@ -32,9 +32,7 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
-  type FormRequestPayload,
-  type FormRequestPayloadRefs,
-  type FormRequestRefs
+  type FormRequestPayload
 } from '~/src/server/routes/types.js'
 import { type CacheService } from '~/src/server/services/cacheService.js'
 
@@ -106,7 +104,7 @@ export class FileUploadPageController extends PageController {
   makeGetRouteHandler() {
     return async (
       request: FormRequest,
-      h: ResponseToolkit<FormRequestRefs>
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { cacheService } = request.services([])
       const state = await cacheService.getUploadState(request)
@@ -120,7 +118,7 @@ export class FileUploadPageController extends PageController {
   makePostRouteHandler() {
     return async (
       request: FormRequestPayload,
-      h: ResponseToolkit<FormRequestPayloadRefs>
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { cacheService } = request.services([])
       const state = await cacheService.getUploadState(request)

@@ -21,9 +21,7 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
-  type FormRequestPayload,
-  type FormRequestPayloadRefs,
-  type FormRequestRefs
+  type FormRequestPayload
 } from '~/src/server/routes/types.js'
 
 export class RepeatPageController extends PageController {
@@ -107,12 +105,7 @@ export class RepeatPageController extends PageController {
     return state
   }
 
-  proceed(
-    request: FormRequest,
-    h:
-      | ResponseToolkit<FormRequestRefs>
-      | ResponseToolkit<FormRequestPayloadRefs>
-  ) {
+  proceed(request: FormRequest, h: Pick<ResponseToolkit, 'redirect' | 'view'>) {
     const nextPath = this.getSummaryPath(request)
     return super.proceed(request, h, nextPath)
   }
@@ -175,7 +168,7 @@ export class RepeatPageController extends PageController {
   makeGetRouteHandler() {
     return async (
       request: FormRequest,
-      h: ResponseToolkit<FormRequestRefs>
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { path } = this
 
@@ -193,7 +186,7 @@ export class RepeatPageController extends PageController {
   makePostRouteHandler() {
     return async (
       request: FormRequestPayload,
-      h: ResponseToolkit<FormRequestPayloadRefs>
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       await this.setRepeatAppData(request)
 
@@ -204,7 +197,7 @@ export class RepeatPageController extends PageController {
   makeGetListSummaryRouteHandler() {
     return async (
       request: FormRequest,
-      h: ResponseToolkit<FormRequestRefs>
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const state = await super.getState(request)
       const list = this.getListFromState(state)
@@ -222,7 +215,7 @@ export class RepeatPageController extends PageController {
   makePostListSummaryRouteHandler() {
     return async (
       request: FormRequestPayload,
-      h: ResponseToolkit<FormRequestPayloadRefs>
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { model, path, repeat } = this
       const { payload } = request
@@ -271,7 +264,7 @@ export class RepeatPageController extends PageController {
   makeGetListDeleteRouteHandler() {
     return async (
       request: FormRequest,
-      h: ResponseToolkit<FormRequestRefs>
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { item } = await this.setRepeatAppData(request)
 
@@ -307,7 +300,7 @@ export class RepeatPageController extends PageController {
   makePostListDeleteRouteHandler() {
     return async (
       request: FormRequestPayload,
-      h: ResponseToolkit<FormRequestPayloadRefs>
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { payload } = request
       const { confirm } = payload

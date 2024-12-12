@@ -2,12 +2,8 @@ import {
   type SubmitPayload,
   type SubmitResponsePayload
 } from '@defra/forms-model'
-import { badRequest, type Boom } from '@hapi/boom'
-import {
-  type ResponseObject,
-  type ResponseToolkit,
-  type RouteOptions
-} from '@hapi/hapi'
+import { badRequest } from '@hapi/boom'
+import { type ResponseToolkit, type RouteOptions } from '@hapi/hapi'
 import { addDays, format } from 'date-fns'
 
 import { config } from '~/src/config/index.js'
@@ -43,8 +39,7 @@ import {
 import {
   type FormRequest,
   type FormRequestPayload,
-  type FormRequestPayloadRefs,
-  type FormRequestRefs
+  type FormRequestPayloadRefs
 } from '~/src/server/routes/types.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
 
@@ -78,11 +73,11 @@ export class SummaryPageController extends PageController {
   /**
    * Returns an async function. This is called in plugin.ts when there is a GET request at `/{id}/{path*}`,
    */
-  makeGetRouteHandler(): (
-    request: FormRequest,
-    h: ResponseToolkit<FormRequestRefs>
-  ) => Promise<ResponseObject | Boom> {
-    return async (request, h) => {
+  makeGetRouteHandler() {
+    return async (
+      request: FormRequest,
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
+    ) => {
       const { model, path } = this
 
       const state = await this.getState(request)
@@ -111,11 +106,11 @@ export class SummaryPageController extends PageController {
    * Returns an async function. This is called in plugin.ts when there is a POST request at `/{id}/{path*}`.
    * If a form is incomplete, a user will be redirected to the start page.
    */
-  makePostRouteHandler(): (
-    request: FormRequestPayload,
-    h: ResponseToolkit<FormRequestPayloadRefs>
-  ) => Promise<ResponseObject | Boom> {
-    return async (request, h) => {
+  makePostRouteHandler() {
+    return async (
+      request: FormRequestPayload,
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
+    ) => {
       const { model } = this
 
       const { cacheService } = request.services([])
