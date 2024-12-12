@@ -7,7 +7,7 @@ import Joi from 'joi'
 
 import { ADD_ANOTHER, CONTINUE } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
+import { PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
 import {
   type CheckAnswers,
   type FormContextRequest,
@@ -24,7 +24,7 @@ import {
   type FormRequestPayload
 } from '~/src/server/routes/types.js'
 
-export class RepeatPageController extends PageController {
+export class RepeatPageController extends PageControllerBase {
   declare pageDef: PageRepeat
 
   listSummaryViewName = 'repeat-list-summary'

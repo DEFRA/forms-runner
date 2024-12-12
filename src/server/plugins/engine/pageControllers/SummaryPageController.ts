@@ -25,7 +25,7 @@ import {
   type Detail,
   type DetailItem
 } from '~/src/server/plugins/engine/models/types.js'
-import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
+import { PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
 import {
   persistFiles,
   submit
@@ -47,7 +47,7 @@ import { sendNotification } from '~/src/server/utils/notify.js'
 const designerUrl = config.get('designerUrl')
 const templateId = config.get('notifyTemplateId')
 
-export class SummaryPageController extends PageController {
+export class SummaryPageController extends PageControllerBase {
   declare pageDef: PageSummary
 
   /**

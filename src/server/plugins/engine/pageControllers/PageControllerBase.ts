@@ -3,7 +3,6 @@ import {
   ControllerPath,
   hasComponents,
   hasNext,
-  type FormDefinition,
   type Link,
   type Page,
   type Section
@@ -22,6 +21,7 @@ import {
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
   type FormContext,
@@ -38,29 +38,13 @@ import {
   type FormRequestRefs
 } from '~/src/server/routes/types.js'
 
-export class PageControllerBase {
-  /**
-   * The base class for all page controllers. Page controllers are responsible for generating the get and post route handlers when a user navigates to `/{id}/{path*}`.
-   */
-  def: FormDefinition
-  name?: string
-  model: FormModel
-  pageDef: Page
-  title: string
-  condition?: string
+export class PageControllerBase extends PageController {
   section?: Section
   collection: ComponentCollection
   errorSummaryTitle = 'There is a problem'
-  viewName = 'index'
 
   constructor(model: FormModel, pageDef: Page) {
-    const { def } = model
-
-    this.def = def
-    this.name = def.name
-    this.model = model
-    this.pageDef = pageDef
-    this.title = pageDef.title
+    super(model, pageDef)
 
     // Resolve section
     this.section = model.sections.find(
@@ -494,14 +478,35 @@ export class PageControllerBase {
    * {@link https://hapi.dev/api/?v=20.1.2#route-options}
    */
   get getRouteOptions(): RouteOptions<FormRequestRefs> {
-    return {}
+    return {
+      ext: {
+        onPostHandler: {
+          method(_request, h) {
+            return h.continue
+          }
+        }
+      }
+    }
   }
 
   /**
    * {@link https://hapi.dev/api/?v=20.1.2#route-options}
    */
   get postRouteOptions(): RouteOptions<FormRequestPayloadRefs> {
-    return {}
+    return {
+      payload: {
+        parse: true,
+        maxBytes: Number.MAX_SAFE_INTEGER,
+        failAction: 'ignore'
+      },
+      ext: {
+        onPostHandler: {
+          method(_request, h) {
+            return h.continue
+          }
+        }
+      }
+    }
   }
 
   protected renderWithErrors(
