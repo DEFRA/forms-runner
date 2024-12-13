@@ -7,7 +7,7 @@ import {
 export default /** @satisfies {FormDefinition} */ ({
   name: 'File upload basic',
   startPage: '/file-upload-component',
-  pages: [
+  pages: /** @type {const} */ ([
     {
       path: '/file-upload-component',
       title: 'File upload component',
@@ -32,7 +32,7 @@ export default /** @satisfies {FormDefinition} */ ({
       controller: ControllerType.Summary,
       title: 'Summary'
     }
-  ],
+  ]),
   lists: [],
   sections: [],
   conditions: [],

@@ -1,8 +1,11 @@
+import { type ResponseToolkit } from '@hapi/hapi'
+
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
+import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
   type FormContextProgress,
   type FormContextRequest,
+  type FormState,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import { type FormRequest } from '~/src/server/routes/types.js'
@@ -10,9 +13,10 @@ import definitionConditionsBasic from '~/test/form/definitions/conditions-basic.
 import definitionConditionsComplex from '~/test/form/definitions/conditions-complex.js'
 import definitionConditionsDates from '~/test/form/definitions/conditions-dates.js'
 
-describe('PageControllerBase', () => {
-  let controller1: PageControllerBase
-  let controller2: PageControllerBase
+describe('QuestionPageController', () => {
+  let model: FormModel
+  let controller1: QuestionPageController
+  let controller2: QuestionPageController
   let requestPage1: FormRequest
   let requestPage2: FormRequest
 
@@ -25,12 +29,12 @@ describe('PageControllerBase', () => {
     const page2 = pages[1]
     const page2Url = new URL('http://example.com/test/second-page')
 
-    const model = new FormModel(definitionConditionsBasic, {
+    model = new FormModel(definitionConditionsBasic, {
       basePath: 'test'
     })
 
-    controller1 = new PageControllerBase(model, page1)
-    controller2 = new PageControllerBase(model, page2)
+    controller1 = new QuestionPageController(model, page1)
+    controller2 = new QuestionPageController(model, page2)
 
     requestPage1 = {
       method: 'get',
@@ -55,6 +59,138 @@ describe('PageControllerBase', () => {
       query: {},
       app: { model }
     } as FormRequest
+  })
+
+  describe('Properties', () => {
+    it('returns path', () => {
+      expect(controller1).toHaveProperty('path', '/first-page')
+      expect(controller2).toHaveProperty('path', '/second-page')
+    })
+
+    it('returns href', () => {
+      expect(controller1).toHaveProperty('href', '/test/first-page')
+      expect(controller2).toHaveProperty('href', '/test/second-page')
+    })
+
+    it('returns keys', () => {
+      expect(controller1).toHaveProperty('keys', ['yesNoField'])
+      expect(controller2).toHaveProperty('keys', [
+        'dateField',
+        'dateField__day',
+        'dateField__month',
+        'dateField__year',
+        'multilineTextField'
+      ])
+    })
+
+    it('returns the page section', () => {
+      expect(controller1).toHaveProperty('section', undefined)
+      expect(controller2).toHaveProperty('section', {
+        name: 'marriage',
+        title: 'Your marriage',
+        hideTitle: false
+      })
+    })
+
+    it('returns feedback link (from config)', () => {
+      expect(controller1).toHaveProperty(
+        'feedbackLink',
+        'https://test.defra.gov.uk/'
+      )
+    })
+
+    it('returns feedback link (from form definition)', () => {
+      const emailAddress = 'test@feedback.cat'
+
+      model.def.feedback = {
+        emailAddress
+      }
+
+      expect(controller1).toHaveProperty(
+        'feedbackLink',
+        `mailto:${emailAddress}`
+      )
+    })
+
+    it('returns phase tag (from config)', () => {
+      expect(controller1).toHaveProperty('phaseTag', 'beta')
+    })
+
+    it('returns phase tag (from form definition)', () => {
+      model.def.phaseBanner = {
+        phase: 'alpha'
+      }
+
+      expect(controller1).toHaveProperty('phaseTag', 'alpha')
+    })
+  })
+
+  describe('Path methods', () => {
+    describe('Link href', () => {
+      it('prefixes paths into link hrefs', () => {
+        const href1 = controller1.getHref('/')
+        const href2 = controller1.getHref('/page-one')
+
+        expect(href1).toBe('/test')
+        expect(href2).toBe('/test/page-one')
+      })
+    })
+
+    describe('Next getter', () => {
+      it('returns page links', () => {
+        expect(controller1).toHaveProperty('next', [
+          { path: '/second-page' },
+          { path: '/summary', condition: 'isPreviouslyMarried' }
+        ])
+
+        expect(controller2).toHaveProperty('next', [{ path: '/summary' }])
+      })
+
+      it('returns page links (none found)', () => {
+        const pageDef1 = structuredClone(controller1.pageDef)
+        const pageDef2 = structuredClone(controller2.pageDef)
+
+        controller1.pageDef = pageDef1
+        controller2.pageDef = pageDef2
+
+        // @ts-expect-error - Allow invalid property for test
+        controller1.pageDef.next = []
+
+        // @ts-expect-error - Allow invalid property for test
+        delete controller2.pageDef.next
+
+        expect(controller1).toHaveProperty('next', [])
+        expect(controller2).toHaveProperty('next', [])
+      })
+    })
+
+    describe('Start path', () => {
+      it('returns path to start page', () => {
+        const startPath = controller1.getStartPath()
+        expect(startPath).toBe('/first-page')
+      })
+
+      it('returns path to start page (default)', () => {
+        delete model.def.startPage
+
+        const startPath = controller1.getStartPath()
+        expect(startPath).toBe('/start')
+      })
+    })
+
+    describe('Summary path', () => {
+      it('returns path to summary page', () => {
+        const summaryPath = controller1.getSummaryPath()
+        expect(summaryPath).toBe('/summary')
+      })
+    })
+
+    describe('Status path', () => {
+      it('returns path to status page', () => {
+        const summaryPath = controller1.getStatusPath()
+        expect(summaryPath).toBe('/status')
+      })
+    })
   })
 
   describe('Component collection', () => {
@@ -165,7 +301,7 @@ describe('PageControllerBase', () => {
 
       // Selected page appears after convergence and contains a conditional field
       // This is the page we're theoretically browsing to
-      const controller = new PageControllerBase(model, pages[7])
+      const controller = new QuestionPageController(model, pages[7])
 
       // The state below shows we said we had a UKPassport and entered details for an applicant
       const state: FormSubmissionState = {
@@ -275,7 +411,7 @@ describe('PageControllerBase', () => {
         basePath: 'test'
       })
 
-      const controller = new PageControllerBase(model, pages[0])
+      const controller = new QuestionPageController(model, pages[0])
 
       const request = {
         method: 'get',
@@ -349,18 +485,7 @@ describe('PageControllerBase', () => {
       })
     })
 
-    describe('Next getter', () => {
-      it('returns the next page links', () => {
-        expect(controller1).toHaveProperty('next', [
-          { path: '/second-page' },
-          { path: '/summary', condition: 'isPreviouslyMarried' }
-        ])
-
-        expect(controller2).toHaveProperty('next', [{ path: '/summary' }])
-      })
-    })
-
-    describe('Next', () => {
+    describe('Next page', () => {
       it('returns the next page path', () => {
         expect(controller1.getNextPath(context)).toBe('/second-page')
         expect(controller1.getNextPath(contextNo)).toBe('/second-page')
@@ -371,12 +496,73 @@ describe('PageControllerBase', () => {
         expect(controller2.getNextPath(contextYes)).toBe('/summary')
       })
     })
+  })
 
-    describe('Summary', () => {
-      it('returns the summary path', () => {
-        expect(controller1.getSummaryPath()).toBe('/summary')
-        expect(controller2.getSummaryPath()).toBe('/summary')
+  describe('Route handlers', () => {
+    const response = {
+      code: jest.fn().mockImplementation(() => response)
+    }
+
+    const h: Pick<ResponseToolkit, 'redirect' | 'view'> = {
+      redirect: jest.fn().mockReturnValue(response),
+      view: jest.fn()
+    }
+
+    it('returns default route options', () => {
+      expect(controller1.getRouteOptions).toMatchObject({
+        ext: {
+          onPostHandler: {
+            method: expect.any(Function)
+          }
+        }
       })
+
+      expect(controller1.postRouteOptions).toMatchObject({
+        ext: {
+          onPostHandler: {
+            method: expect.any(Function)
+          }
+        }
+      })
+    })
+
+    it('supports GET route handler', async () => {
+      const state: FormState = { yesNoField: false }
+
+      for (const controller of [controller1, controller2]) {
+        jest.spyOn(controller, 'getState').mockResolvedValue(state)
+
+        for (const method of [
+          jest.spyOn(controller, 'updateProgress'),
+          jest.spyOn(controller, 'buildMissingEmailWarningModel')
+        ]) {
+          method.mockResolvedValue(undefined)
+        }
+      }
+
+      expect(() => controller1.makeGetRouteHandler()).not.toThrow()
+      expect(() => controller1.makeGetRouteHandler()).toBeInstanceOf(Function)
+
+      await controller1.makeGetRouteHandler()(requestPage1, h)
+      await controller2.makeGetRouteHandler()(requestPage2, h)
+
+      expect(h.view).toHaveBeenNthCalledWith(
+        1,
+        controller1.viewName,
+        expect.objectContaining({
+          pageTitle: 'Previous marriages',
+          sectionTitle: undefined
+        })
+      )
+
+      expect(h.view).toHaveBeenNthCalledWith(
+        2,
+        controller2.viewName,
+        expect.objectContaining({
+          pageTitle: 'When will you get married?',
+          sectionTitle: 'Your marriage'
+        })
+      )
     })
   })
 })

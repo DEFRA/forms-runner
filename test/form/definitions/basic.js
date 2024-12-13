@@ -6,11 +6,11 @@ import {
 
 export default /** @satisfies {FormDefinition} */ ({
   name: 'Basic',
-  startPage: '/start',
-  pages: [
+  startPage: '/licence',
+  pages: /** @type {const} */ ([
     {
       title: 'Buy a rod fishing licence',
-      path: '/start',
+      path: '/licence',
       components: [
         {
           options: {
@@ -55,7 +55,7 @@ export default /** @satisfies {FormDefinition} */ ({
       controller: ControllerType.Summary,
       title: 'Summary'
     }
-  ],
+  ]),
   sections: [
     {
       name: 'licenceDetails',

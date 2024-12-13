@@ -28,7 +28,7 @@ describe('Form journey', () => {
       heading2: 'Licence details',
 
       paths: {
-        current: '/start',
+        current: '/licence',
         next: '/full-name'
       },
 
@@ -57,7 +57,7 @@ describe('Form journey', () => {
 
       paths: {
         current: '/full-name',
-        previous: '/start',
+        previous: '/licence',
         next: '/summary'
       },
 
@@ -362,7 +362,7 @@ describe('Form journey', () => {
 
       // Redirect back to start
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-      expect(response.headers.location).toBe(`${basePath}/start`)
+      expect(response.headers.location).toBe(`${basePath}/licence`)
     })
 
     it('should redirect to the complete page on submit', async () => {
@@ -431,7 +431,7 @@ describe('Form journey', () => {
 
       // Redirect back to start
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-      expect(response.headers.location).toBe(`${basePath}/start`)
+      expect(response.headers.location).toBe(`${basePath}/licence`)
     })
   })
 })

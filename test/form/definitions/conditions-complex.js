@@ -9,7 +9,7 @@ import {
 export default /** @satisfies {FormDefinition} */ ({
   name: 'Conditions complex',
   startPage: '/uk-passport',
-  pages: [
+  pages: /** @type {const} */ ([
     {
       path: '/uk-passport',
       components: [
@@ -133,7 +133,6 @@ export default /** @satisfies {FormDefinition} */ ({
       path: '/applicant-two',
       title: 'Applicant 2',
       section: 'applicantTwoDetails',
-      controller: ControllerType.Page,
       components: [
         {
           type: ComponentType.Html,
@@ -224,7 +223,7 @@ export default /** @satisfies {FormDefinition} */ ({
         }
       ]
     }
-  ],
+  ]),
   lists: [
     {
       name: 'numberOfApplicants',

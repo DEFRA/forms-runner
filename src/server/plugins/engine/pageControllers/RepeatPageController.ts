@@ -1,42 +1,38 @@
 import { randomUUID } from 'crypto'
 
-import { ControllerType, type Page, type Repeat } from '@defra/forms-model'
-import { badImplementation, badRequest, notFound } from '@hapi/boom'
+import { type PageRepeat, type Repeat } from '@defra/forms-model'
+import { badRequest, notFound } from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
 import Joi from 'joi'
 
 import { ADD_ANOTHER, CONTINUE } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
+import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
   type CheckAnswers,
   type FormContextRequest,
+  type FormPageViewModel,
   type FormPayload,
   type FormSubmissionError,
   type FormSubmissionState,
-  type PageViewModel,
   type RepeatState,
   type SummaryList,
   type SummaryListAction
 } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
-  type FormRequestPayload,
-  type FormRequestPayloadRefs,
-  type FormRequestRefs
+  type FormRequestPayload
 } from '~/src/server/routes/types.js'
 
-export class RepeatPageController extends PageController {
+export class RepeatPageController extends QuestionPageController {
+  declare pageDef: PageRepeat
+
   listSummaryViewName = 'repeat-list-summary'
   listDeleteViewName = 'repeat-item-delete'
   repeat: Repeat
 
-  constructor(model: FormModel, pageDef: Page) {
+  constructor(model: FormModel, pageDef: PageRepeat) {
     super(model, pageDef)
-
-    if (pageDef.controller !== ControllerType.Repeat) {
-      throw badImplementation('Invalid controller for Repeat page')
-    }
 
     this.repeat = pageDef.repeat
 
@@ -107,12 +103,7 @@ export class RepeatPageController extends PageController {
     return state
   }
 
-  proceed(
-    request: FormRequest,
-    h:
-      | ResponseToolkit<FormRequestRefs>
-      | ResponseToolkit<FormRequestPayloadRefs>
-  ) {
+  proceed(request: FormRequest, h: Pick<ResponseToolkit, 'redirect' | 'view'>) {
     const nextPath = this.getSummaryPath(request)
     return super.proceed(request, h, nextPath)
   }
@@ -175,7 +166,7 @@ export class RepeatPageController extends PageController {
   makeGetRouteHandler() {
     return async (
       request: FormRequest,
-      h: ResponseToolkit<FormRequestRefs>
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { path } = this
 
@@ -193,7 +184,7 @@ export class RepeatPageController extends PageController {
   makePostRouteHandler() {
     return async (
       request: FormRequestPayload,
-      h: ResponseToolkit<FormRequestPayloadRefs>
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       await this.setRepeatAppData(request)
 
@@ -204,7 +195,7 @@ export class RepeatPageController extends PageController {
   makeGetListSummaryRouteHandler() {
     return async (
       request: FormRequest,
-      h: ResponseToolkit<FormRequestRefs>
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const state = await super.getState(request)
       const list = this.getListFromState(state)
@@ -222,7 +213,7 @@ export class RepeatPageController extends PageController {
   makePostListSummaryRouteHandler() {
     return async (
       request: FormRequestPayload,
-      h: ResponseToolkit<FormRequestPayloadRefs>
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { model, path, repeat } = this
       const { payload } = request
@@ -271,7 +262,7 @@ export class RepeatPageController extends PageController {
   makeGetListDeleteRouteHandler() {
     return async (
       request: FormRequest,
-      h: ResponseToolkit<FormRequestRefs>
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { item } = await this.setRepeatAppData(request)
 
@@ -307,7 +298,7 @@ export class RepeatPageController extends PageController {
   makePostListDeleteRouteHandler() {
     return async (
       request: FormRequestPayload,
-      h: ResponseToolkit<FormRequestPayloadRefs>
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { payload } = request
       const { confirm } = payload
@@ -337,17 +328,21 @@ export class RepeatPageController extends PageController {
     request: FormRequest | FormRequestPayload,
     payload: FormPayload,
     errors?: FormSubmissionError[]
-  ): PageViewModel {
+  ): FormPageViewModel {
     const viewModel = super.getViewModel(request, payload, errors)
+
     const { list, item } = this.getRepeatAppData(request)
+
     const itemNumber = item ? item.index + 1 : list.length + 1
     const repeatCaption = `${this.repeat.options.title} ${itemNumber}`
 
-    viewModel.sectionTitle = viewModel.sectionTitle
-      ? `${viewModel.sectionTitle}: ${repeatCaption}`
-      : repeatCaption
+    return {
+      ...viewModel,
 
-    return viewModel
+      sectionTitle: viewModel.sectionTitle
+        ? `${viewModel.sectionTitle}: ${repeatCaption}`
+        : repeatCaption
+    }
   }
 
   getListSummaryViewModel(

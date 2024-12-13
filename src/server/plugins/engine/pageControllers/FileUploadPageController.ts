@@ -2,7 +2,7 @@ import {
   ComponentType,
   hasComponents,
   type FileUploadFieldComponent,
-  type Page
+  type PageFileUpload
 } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
@@ -14,7 +14,7 @@ import {
 } from '~/src/server/plugins/engine/components/FileUploadField.js'
 import { getError } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
+import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
   getUploadStatus,
   initiateUpload
@@ -32,9 +32,7 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
-  type FormRequestPayload,
-  type FormRequestPayloadRefs,
-  type FormRequestRefs
+  type FormRequestPayload
 } from '~/src/server/routes/types.js'
 import { type CacheService } from '~/src/server/services/cacheService.js'
 
@@ -57,11 +55,12 @@ function prepareFileState(fileState: FileState) {
   return fileState
 }
 
-export class FileUploadPageController extends PageController {
-  viewName = 'file-upload'
+export class FileUploadPageController extends QuestionPageController {
+  declare pageDef: PageFileUpload
+
   fileUploadComponent: FileUploadFieldComponent
 
-  constructor(model: FormModel, pageDef: Page) {
+  constructor(model: FormModel, pageDef: PageFileUpload) {
     // Get the file upload components from the list of components
     const fileUploadComponents = hasComponents(pageDef)
       ? pageDef.components.filter(
@@ -89,6 +88,7 @@ export class FileUploadPageController extends PageController {
 
     // Assign the file upload component to the controller
     this.fileUploadComponent = fileUploadComponents[0]
+    this.viewName = 'file-upload'
   }
 
   async getState(request: FormRequest) {
@@ -106,7 +106,7 @@ export class FileUploadPageController extends PageController {
   makeGetRouteHandler() {
     return async (
       request: FormRequest,
-      h: ResponseToolkit<FormRequestRefs>
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { cacheService } = request.services([])
       const state = await cacheService.getUploadState(request)
@@ -120,7 +120,7 @@ export class FileUploadPageController extends PageController {
   makePostRouteHandler() {
     return async (
       request: FormRequestPayload,
-      h: ResponseToolkit<FormRequestPayloadRefs>
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { cacheService } = request.services([])
       const state = await cacheService.getUploadState(request)
@@ -191,7 +191,7 @@ export class FileUploadPageController extends PageController {
     request: FormRequest | FormRequestPayload,
     payload: FormPayload,
     errors?: FormSubmissionError[]
-  ) {
+  ): FileUploadPageViewModel {
     const viewModel = super.getViewModel(request, payload, errors)
 
     const name = this.fileUploadComponent.name
@@ -206,12 +206,11 @@ export class FileUploadPageController extends PageController {
 
     return {
       ...viewModel,
-      page: this,
       path: request.path,
       formAction: request.app.formAction,
       fileUploadComponent,
       preUploadComponents: components.slice(0, id)
-    } satisfies FileUploadPageViewModel
+    }
   }
 
   private getComponentName() {

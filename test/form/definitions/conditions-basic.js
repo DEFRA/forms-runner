@@ -9,7 +9,7 @@ import {
 export default /** @satisfies {FormDefinition} */ ({
   name: 'Conditions',
   startPage: '/first-page',
-  pages: [
+  pages: /** @type {const} */ ([
     {
       title: 'Previous marriages',
       path: '/first-page',
@@ -51,6 +51,7 @@ export default /** @satisfies {FormDefinition} */ ({
           schema: {}
         }
       ],
+      section: 'marriage',
       next: [{ path: '/summary' }]
     },
     {
@@ -58,9 +59,14 @@ export default /** @satisfies {FormDefinition} */ ({
       path: ControllerPath.Summary,
       controller: ControllerType.Summary
     }
-  ],
+  ]),
   lists: [],
-  sections: [],
+  sections: [
+    {
+      name: 'marriage',
+      title: 'Your marriage'
+    }
+  ],
   conditions: [
     {
       displayName: 'Previously married',

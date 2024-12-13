@@ -23,7 +23,7 @@ export const CONTINUE = 'continue'
 
 export function proceed(
   request: Pick<FormContextRequest, 'method' | 'query'>,
-  h: Pick<ResponseToolkit, 'redirect'>,
+  h: Pick<ResponseToolkit, 'redirect' | 'view'>,
   nextUrl: string
 ) {
   const { returnUrl } = request.query

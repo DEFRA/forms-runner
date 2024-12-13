@@ -14,7 +14,7 @@ import {
 } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
   FileUploadPageController,
-  PageController,
+  QuestionPageController,
   RepeatPageController,
   StartPageController,
   StatusPageController,
@@ -34,7 +34,7 @@ describe('Page controller helpers', () => {
         break
 
       case ControllerType.Page:
-        controller = PageController
+        controller = QuestionPageController
         break
 
       case ControllerType.Repeat:

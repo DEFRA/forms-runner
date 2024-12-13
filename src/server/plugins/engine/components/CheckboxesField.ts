@@ -4,7 +4,7 @@ import joi, { type ArraySchema } from 'joi'
 import { isFormValue } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { SelectionControlField } from '~/src/server/plugins/engine/components/SelectionControlField.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { type PageControllerBase } from '~/src/server/plugins/engine/pageControllers/PageControllerBase.js'
+import { type QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
   type FormState,
   type FormStateValue,
@@ -83,7 +83,7 @@ export class CheckboxesField extends SelectionControlField {
      * with an undefined value (i.e. nothing selected) should default to [].
      * This way conditions are not evaluated against `undefined` which throws errors.
      * Currently these errors are caught and the evaluation returns default `false`.
-     * @see {@link PageControllerBase.getNextPath} for `undefined` return value
+     * @see {@link QuestionPageController.getNextPath} for `undefined` return value
      * @see {@link FormModel.makeCondition} for try/catch block with default `false`
      * For negative conditions this is a problem because E.g.
      * The condition: 'selectedchecks' does not contain 'someval'

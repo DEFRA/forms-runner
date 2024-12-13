@@ -25,7 +25,7 @@ export function createPage(model: FormModel, pageDef: Page) {
   const controllerName = controllerNameFromPath(pageDef.controller)
 
   if (!pageDef.controller) {
-    return new PageControllers.PageController(model, pageDef)
+    return new PageControllers.QuestionPageController(model, pageDef)
   }
 
   // Patch legacy controllers
@@ -41,7 +41,7 @@ export function createPage(model: FormModel, pageDef: Page) {
       break
 
     case ControllerType.Page:
-      controller = new PageControllers.PageController(model, pageDef)
+      controller = new PageControllers.QuestionPageController(model, pageDef)
       break
 
     case ControllerType.Summary:

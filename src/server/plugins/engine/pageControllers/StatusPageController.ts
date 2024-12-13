@@ -1,20 +1,25 @@
-import { type Boom } from '@hapi/boom'
-import { type ResponseObject, type ResponseToolkit } from '@hapi/hapi'
+import { type PageStatus } from '@defra/forms-model'
+import { type ResponseToolkit } from '@hapi/hapi'
 
-import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
-import {
-  type FormRequest,
-  type FormRequestRefs
-} from '~/src/server/routes/types.js'
+import { type FormRequest } from '~/src/server/routes/types.js'
 
-export class StatusPageController extends PageController {
-  makeGetRouteHandler(): (
-    request: FormRequest,
-    h: ResponseToolkit<FormRequestRefs>
-  ) => Promise<ResponseObject | Boom> {
-    return async (request, h) => {
-      const { model, title } = this
+export class StatusPageController extends QuestionPageController {
+  declare pageDef: PageStatus
+
+  constructor(model: FormModel, pageDef: PageStatus) {
+    super(model, pageDef)
+    this.viewName = 'confirmation'
+  }
+
+  makeGetRouteHandler() {
+    return async (
+      request: FormRequest,
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
+    ) => {
+      const { model, title, viewName } = this
 
       const { cacheService } = request.services([])
       const confirmationState = await cacheService.getConfirmationState(request)
@@ -28,7 +33,7 @@ export class StatusPageController extends PageController {
       const slug = request.params.slug
       const { submissionGuidance } = await getFormMetadata(slug)
 
-      return h.view('confirmation', {
+      return h.view(viewName, {
         pageTitle: title,
         name: model.name,
         submissionGuidance,
