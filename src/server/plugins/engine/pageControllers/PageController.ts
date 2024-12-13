@@ -1,4 +1,9 @@
-import { type FormDefinition, type Page } from '@defra/forms-model'
+import {
+  ControllerPath,
+  type FormDefinition,
+  type Page,
+  type Section
+} from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type Lifecycle,
@@ -6,7 +11,19 @@ import {
   type RouteOptions
 } from '@hapi/hapi'
 
+import { config } from '~/src/config/index.js'
+import { type ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
+import {
+  encodeUrl,
+  getStartPath,
+  normalisePath
+} from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import {
+  type FormPayload,
+  type FormSubmissionError,
+  type PageViewModelBase
+} from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
   type FormRequestPayload,
@@ -23,6 +40,8 @@ export class PageController {
   model: FormModel
   pageDef: Page
   title: string
+  section?: Section
+  collection?: ComponentCollection
   viewName = 'index'
 
   constructor(model: FormModel, pageDef: Page) {
@@ -33,6 +52,24 @@ export class PageController {
     this.model = model
     this.pageDef = pageDef
     this.title = pageDef.title
+
+    // Resolve section
+    this.section = model.sections.find(
+      (section) => section.name === pageDef.section
+    )
+  }
+
+  get path() {
+    return this.pageDef.path
+  }
+
+  get href() {
+    const { path } = this
+    return this.getHref(`/${normalisePath(path)}`)
+  }
+
+  get keys() {
+    return this.collection?.keys ?? []
   }
 
   /**
@@ -49,11 +86,84 @@ export class PageController {
     return {}
   }
 
+  get feedbackLink() {
+    const { def } = this
+
+    // setting the feedbackLink to undefined here for feedback forms prevents the feedback link from being shown
+    let feedbackLink = def.feedback?.emailAddress
+      ? `mailto:${def.feedback.emailAddress}`
+      : def.feedback?.url
+
+    if (!feedbackLink) {
+      feedbackLink = config.get('feedbackLink')
+    }
+
+    return encodeUrl(feedbackLink)
+  }
+
+  get phaseTag() {
+    const { def } = this
+    return def.phaseBanner?.phase ?? config.get('phaseTag')
+  }
+
+  getHref(path: string) {
+    const { model } = this
+
+    return path === '/'
+      ? `/${model.basePath}` // Strip trailing slash
+      : `/${model.basePath}${path}`
+  }
+
+  getStartPath() {
+    return getStartPath(this.model)
+  }
+
+  getSummaryPath() {
+    return ControllerPath.Summary.valueOf()
+  }
+
+  getStatusPath() {
+    return ControllerPath.Status.valueOf()
+  }
+
+  getViewModel(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    request: FormRequest | FormRequestPayload,
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    payload: FormPayload,
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    errors?: FormSubmissionError[]
+  ): PageViewModelBase {
+    const { name, section, title } = this
+
+    const showTitle = true
+    const pageTitle = title
+    const sectionTitle = section?.hideTitle !== true ? section?.title : ''
+
+    return {
+      name,
+      page: this,
+      pageTitle,
+      sectionTitle,
+      showTitle,
+      isStartPage: false,
+      serviceUrl: this.getHref('/'),
+      feedbackLink: this.feedbackLink,
+      phaseTag: this.phaseTag
+    }
+  }
+
   makeGetRouteHandler(): (
     request: FormRequest,
     h: Pick<ResponseToolkit, 'redirect' | 'view'>
   ) => ReturnType<Lifecycle.Method<FormRequestRefs>> {
-    return (request, h) => h.view(this.viewName)
+    return (request, h) => {
+      const { viewName } = this
+      const viewModel = this.getViewModel(request, {})
+      return h.view(viewName, viewModel)
+    }
   }
 
   makePostRouteHandler(): (

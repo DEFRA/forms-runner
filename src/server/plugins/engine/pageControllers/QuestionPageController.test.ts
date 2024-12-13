@@ -91,51 +91,9 @@ describe('QuestionPageController', () => {
         hideTitle: false
       })
     })
-
-    it('returns feedback link (from config)', () => {
-      expect(controller1).toHaveProperty(
-        'feedbackLink',
-        'https://test.defra.gov.uk/'
-      )
-    })
-
-    it('returns feedback link (from form definition)', () => {
-      const emailAddress = 'test@feedback.cat'
-
-      model.def.feedback = {
-        emailAddress
-      }
-
-      expect(controller1).toHaveProperty(
-        'feedbackLink',
-        `mailto:${emailAddress}`
-      )
-    })
-
-    it('returns phase tag (from config)', () => {
-      expect(controller1).toHaveProperty('phaseTag', 'beta')
-    })
-
-    it('returns phase tag (from form definition)', () => {
-      model.def.phaseBanner = {
-        phase: 'alpha'
-      }
-
-      expect(controller1).toHaveProperty('phaseTag', 'alpha')
-    })
   })
 
   describe('Path methods', () => {
-    describe('Link href', () => {
-      it('prefixes paths into link hrefs', () => {
-        const href1 = controller1.getHref('/')
-        const href2 = controller1.getHref('/page-one')
-
-        expect(href1).toBe('/test')
-        expect(href2).toBe('/test/page-one')
-      })
-    })
-
     describe('Next getter', () => {
       it('returns page links', () => {
         expect(controller1).toHaveProperty('next', [
@@ -161,34 +119,6 @@ describe('QuestionPageController', () => {
 
         expect(controller1).toHaveProperty('next', [])
         expect(controller2).toHaveProperty('next', [])
-      })
-    })
-
-    describe('Start path', () => {
-      it('returns path to start page', () => {
-        const startPath = controller1.getStartPath()
-        expect(startPath).toBe('/first-page')
-      })
-
-      it('returns path to start page (default)', () => {
-        delete model.def.startPage
-
-        const startPath = controller1.getStartPath()
-        expect(startPath).toBe('/start')
-      })
-    })
-
-    describe('Summary path', () => {
-      it('returns path to summary page', () => {
-        const summaryPath = controller1.getSummaryPath()
-        expect(summaryPath).toBe('/summary')
-      })
-    })
-
-    describe('Status path', () => {
-      it('returns path to status page', () => {
-        const summaryPath = controller1.getStatusPath()
-        expect(summaryPath).toBe('/status')
       })
     })
   })
@@ -485,7 +415,18 @@ describe('QuestionPageController', () => {
       })
     })
 
-    describe('Next page', () => {
+    describe('Next getter', () => {
+      it('returns the next page links', () => {
+        expect(controller1).toHaveProperty('next', [
+          { path: '/second-page' },
+          { path: '/summary', condition: 'isPreviouslyMarried' }
+        ])
+
+        expect(controller2).toHaveProperty('next', [{ path: '/summary' }])
+      })
+    })
+
+    describe('Next', () => {
       it('returns the next page path', () => {
         expect(controller1.getNextPath(context)).toBe('/second-page')
         expect(controller1.getNextPath(contextNo)).toBe('/second-page')
@@ -494,6 +435,13 @@ describe('QuestionPageController', () => {
         expect(controller2.getNextPath(context)).toBe('/summary')
         expect(controller2.getNextPath(contextNo)).toBe('/summary')
         expect(controller2.getNextPath(contextYes)).toBe('/summary')
+      })
+    })
+
+    describe('Summary', () => {
+      it('returns the summary path', () => {
+        expect(controller1.getSummaryPath()).toBe('/summary')
+        expect(controller2.getSummaryPath()).toBe('/summary')
       })
     })
   })

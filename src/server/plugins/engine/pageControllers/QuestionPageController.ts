@@ -1,11 +1,9 @@
 import {
   ComponentType,
-  ControllerPath,
   hasComponents,
   hasNext,
   type Link,
-  type Page,
-  type Section
+  type Page
 } from '@defra/forms-model'
 import { type ResponseToolkit, type RouteOptions } from '@hapi/hapi'
 import joi, { type ValidationErrorItem } from 'joi'
@@ -14,9 +12,7 @@ import { config } from '~/src/config/index.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import {
-  encodeUrl,
   getErrors,
-  getStartPath,
   normalisePath,
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
@@ -39,17 +35,11 @@ import {
 } from '~/src/server/routes/types.js'
 
 export class QuestionPageController extends PageController {
-  section?: Section
   collection: ComponentCollection
   errorSummaryTitle = 'There is a problem'
 
   constructor(model: FormModel, pageDef: Page) {
     super(model, pageDef)
-
-    // Resolve section
-    this.section = model.sections.find(
-      (section) => section.name === pageDef.section
-    )
 
     // Components collection
     this.collection = new ComponentCollection(
@@ -60,18 +50,6 @@ export class QuestionPageController extends PageController {
     this.collection.formSchema = this.collection.formSchema.keys({
       crumb: joi.string().optional().allow('')
     })
-  }
-
-  get path() {
-    return this.pageDef.path
-  }
-
-  get href() {
-    return this.getHref(this.path)
-  }
-
-  get keys() {
-    return this.collection.keys
   }
 
   get next(): Link[] {
@@ -103,12 +81,12 @@ export class QuestionPageController extends PageController {
     payload: FormPayload,
     errors?: FormSubmissionError[]
   ): FormPageViewModel {
-    let showTitle = true
+    const { collection } = this
 
-    let { title: pageTitle, section } = this
-    const sectionTitle = section?.hideTitle !== true ? section?.title : ''
+    const viewModel = super.getViewModel(request, payload, errors)
+    let { pageTitle, showTitle } = viewModel
 
-    const components = this.collection.getViewModel(payload, errors)
+    const components = collection.getViewModel(payload, errors)
     const formComponents = components.filter(
       ({ isFormComponent }) => isFormComponent
     )
@@ -154,30 +132,11 @@ export class QuestionPageController extends PageController {
     }
 
     return {
-      page: this,
-      name: this.name,
-      pageTitle,
-      sectionTitle,
+      ...viewModel,
       showTitle,
       components,
-      errors,
-      isStartPage: false,
-      serviceUrl: this.getHref('/'),
-      feedbackLink: this.feedbackLink,
-      phaseTag: this.phaseTag
+      errors
     }
-  }
-
-  getHref(path: string) {
-    const { model } = this
-
-    return path === '/'
-      ? `/${model.basePath}` // Strip trailing slash
-      : `/${model.basePath}${path}`
-  }
-
-  getStartPath() {
-    return getStartPath(this.model)
   }
 
   getRelevantPath(context: FormContextProgress) {
@@ -189,14 +148,6 @@ export class QuestionPageController extends PageController {
     return !paths.length
       ? startPath // First possible path
       : relevantPath // Last possible path
-  }
-
-  getSummaryPath() {
-    return ControllerPath.Summary.valueOf()
-  }
-
-  getStatusPath() {
-    return ControllerPath.Status.valueOf()
   }
 
   /**
@@ -436,26 +387,6 @@ export class QuestionPageController extends PageController {
         )
       )
     }
-  }
-
-  get feedbackLink() {
-    const { def } = this
-
-    // setting the feedbackLink to undefined here for feedback forms prevents the feedback link from being shown
-    let feedbackLink = def.feedback?.emailAddress
-      ? `mailto:${def.feedback.emailAddress}`
-      : def.feedback?.url
-
-    if (!feedbackLink) {
-      feedbackLink = config.get('feedbackLink')
-    }
-
-    return encodeUrl(feedbackLink)
-  }
-
-  get phaseTag() {
-    const { def } = this
-    return def.phaseBanner?.phase ?? config.get('phaseTag')
   }
 
   validate(request: FormRequestPayload) {
