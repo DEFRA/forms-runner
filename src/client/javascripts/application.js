@@ -10,8 +10,14 @@ import {
   createAll
 } from 'govuk-frontend'
 
+import CookieBannerForm from './cookie-banner-form.js'
+
 createAll(Button)
 createAll(CharacterCount)
+// createAll(CookieBannerForm, undefined, {
+//   onError: notifyErrorMonitoringService
+// })
+createAll(CookieBannerForm)
 createAll(Checkboxes)
 createAll(ErrorSummary)
 createAll(Header)
