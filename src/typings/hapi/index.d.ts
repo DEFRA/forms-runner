@@ -96,7 +96,7 @@ declare module 'hapi-pulse' {
 }
 
 interface CookieConsent {
-  analytics: boolean | undefined
+  analytics: boolean | null
 }
 
 declare module '@hapi/yar' {

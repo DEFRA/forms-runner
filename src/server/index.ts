@@ -129,7 +129,7 @@ export async function createServer(routeConfig?: RouteConfig) {
     clearInvalid: true,
     isSecure: config.get('isProduction'),
     path: '/',
-    encoding: 'base64json'
+    encoding: 'none' // handle this inside the application so we can share frontend/backend cookie modification
   })
 
   return server
