@@ -1,4 +1,3 @@
-/* eslint-disable jest/no-conditional-expect */
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -49,28 +48,71 @@ describe(`Cookie banner and analytics`, () => {
     // form pages
     {
       answer: 'yes',
-      isGaEnabled: true,
-      path: '/basic/start'
-    },
-    {
-      answer: 'no',
-      isGaEnabled: false,
       path: '/basic/start'
     },
     // non-form pages
     {
       answer: 'yes',
-      isGaEnabled: true,
-      path: '/'
-    },
-    {
-      answer: 'no',
-      isGaEnabled: false,
       path: '/'
     }
   ])(
-    'hides the cookie banner when the user has made a decision',
-    async ({ answer, isGaEnabled, path }) => {
+    'hides the cookie banner when the user has accepted analytics cookies',
+    async ({ answer, path }) => {
+      server = await createServer({
+        formFileName: 'basic.js',
+        formFilePath: join(testDir, 'definitions')
+      })
+
+      await server.initialize()
+
+      // set the cookie preferences
+      const sessionInitialisationResponse = await server.inject({
+        method: 'POST',
+        url: '/help/cookie-preferences',
+        payload: {
+          'cookies[analytics]': answer
+        }
+      })
+
+      const headers = getCookieHeader(sessionInitialisationResponse, [
+        'crumb',
+        'session',
+        'cookie_consent'
+      ])
+
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: path,
+        headers
+      })
+
+      const $cookieBanner = container.queryByRole('region', {
+        name: 'Cookies on Submit a form to Defra'
+      })
+
+      const $gaScriptMain = container.queryByTestId('ga-tag-js-main')
+      const $gaScriptInit = container.queryByTestId('ga-tag-js-init')
+
+      expect($cookieBanner).not.toBeInTheDocument()
+      expect($gaScriptMain).toBeInTheDocument()
+      expect($gaScriptInit).toBeInTheDocument()
+    }
+  )
+
+  test.each([
+    // form pages
+    {
+      answer: 'no',
+      path: '/basic/start'
+    },
+    // non-form pages
+    {
+      answer: 'no',
+      path: '/'
+    }
+  ])(
+    'hides the cookie banner when the user has rejected analytics cookies',
+    async ({ answer, path }) => {
       server = await createServer({
         formFileName: 'basic.js',
         formFilePath: join(testDir, 'definitions')
@@ -108,13 +150,8 @@ describe(`Cookie banner and analytics`, () => {
 
       expect($cookieBanner).not.toBeInTheDocument()
 
-      if (isGaEnabled) {
-        expect($gaScriptMain).toBeInTheDocument()
-        expect($gaScriptInit).toBeInTheDocument()
-      } else {
-        expect($gaScriptMain).not.toBeInTheDocument()
-        expect($gaScriptInit).not.toBeInTheDocument()
-      }
+      expect($gaScriptMain).not.toBeInTheDocument()
+      expect($gaScriptInit).not.toBeInTheDocument()
     }
   )
 })
