@@ -25,10 +25,6 @@ declare module '@hapi/hapi' {
   interface Request {
     logger: Logger
     yar: Yar
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- hapi types are not typed
-    state: Record<string, any> & {
-      cookie_consent: CookieConsent | undefined
-    }
   }
 
   interface RequestApplicationState {
