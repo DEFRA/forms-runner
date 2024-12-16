@@ -7,10 +7,10 @@ import {
   parseCookieConsent,
   serialiseCookieConsent
 } from '~/src/common/cookies.js'
+import { type CookieConsent } from '~/src/common/types.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import { healthRoute, publicRoutes } from '~/src/server/routes/index.js'
-import { type CookieConsent } from '~/src/typings/hapi/index.js'
 
 const routes = [...publicRoutes, healthRoute]
 

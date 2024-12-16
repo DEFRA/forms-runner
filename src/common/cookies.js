@@ -49,5 +49,5 @@ function isValidConsent(consent) {
 }
 
 /**
- * @import {CookieConsent} from '~/src/typings/hapi/index.js'
+ * @import {CookieConsent} from '~/src/common/types.js'
  */
