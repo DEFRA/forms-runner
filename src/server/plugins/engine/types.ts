@@ -124,9 +124,7 @@ export interface FormContext {
    * Form submission state (entire form)
    */
   state: FormSubmissionState
-}
 
-export interface FormContextProgress extends FormContext {
   /**
    * Validation errors (entire form)
    */
