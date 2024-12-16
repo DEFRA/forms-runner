@@ -4,6 +4,7 @@ import { type Plugin } from '@hapi/hapi'
 import { type ServerYar, type Yar } from '@hapi/yar'
 import { type Logger } from 'pino'
 
+import { type sessionNames } from '~/src/common/constants/session-names.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FileState,
@@ -24,8 +25,10 @@ declare module '@hapi/hapi' {
   interface Request {
     logger: Logger
     yar: Yar
-    state: object
-    cookieConsent: 'true' | 'false'
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- hapi types are not typed
+    state: Record<string, any> & {
+      cookie_consent: CookieConsent | undefined
+    }
   }
 
   interface RequestApplicationState {
@@ -95,4 +98,16 @@ declare module 'hapi-pulse' {
   }
 
   export = hapiPulse
+}
+
+interface CookieConsent {
+  analytics: boolean | undefined
+}
+
+declare module '@hapi/yar' {
+  type CookieConsentUpdatedKey = (typeof sessionNames)['cookieConsentUpdated']
+
+  interface Yar {
+    flash(type: CookieConsentUpdatedKey): boolean[]
+  }
 }

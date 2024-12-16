@@ -27,17 +27,17 @@ export function context(request) {
     }
   }
 
-  const { params, path } = request ?? {}
+  const { params, path, state } = request ?? {}
 
-  let cookieConsent
+  const cookieConsent = state?.cookie_consent ?? undefined
+
   let cookieConsentUpdated
-
   try {
-    cookieConsent = request?.state.cookieConsent ?? undefined
     cookieConsentUpdated = request?.yar.flash('cookieConsentUpdated').at(0)
   } catch {
-    console.log('FIXME')
+    cookieConsentUpdated = false
   }
+
   const isPreviewMode = path?.startsWith(PREVIEW_PATH_PREFIX)
 
   return {
