@@ -57,7 +57,7 @@ describe('SummaryViewModel', () => {
       app: { model }
     } satisfies FormContextRequest
 
-    context = model.getFormContext(request, state, { validate: false })
+    context = model.getFormContext(request, state)
     summaryViewModel = new SummaryViewModel(model, pageDef, request, context)
   })
 
