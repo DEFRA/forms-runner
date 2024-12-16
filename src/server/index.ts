@@ -128,7 +128,8 @@ export async function createServer(routeConfig?: RouteConfig) {
     ttl: 365 * 24 * 60 * 60 * 1000, // 1 year in ms
     clearInvalid: true,
     isSecure: config.get('isProduction'),
-    path: '/'
+    path: '/',
+    encoding: 'base64json'
   })
 
   return server
