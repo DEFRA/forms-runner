@@ -142,8 +142,8 @@
   <script type="module" src="{{ getAssetPath("application.js") }}"></script>
 
   {% if googleAnalyticsTrackingId and cookieConsent.analytics === true %}
-  <script data-testid="ga-tag-js-main" async src="https://www.googletagmanager.com/gtag/js?id={{ googleAnalyticsTrackingId }}" defer></script>
-  <script data-testid="ga-tag-js-init" defer>
+  <script data-testid="ga-tag-js-main" src="https://www.googletagmanager.com/gtag/js?id={{ googleAnalyticsTrackingId }}" defer></script>
+  <script data-testid="ga-tag-js-init">
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
@@ -151,7 +151,6 @@
   </script>
 {% endif %}
 {% endblock %}
-
 
 {% block footer %}
     {{ govukFooter({
