@@ -2,6 +2,11 @@ import Boom from '@hapi/boom'
 import { type ServerRegisterPluginObject } from '@hapi/hapi'
 import Joi from 'joi'
 
+import {
+  defaultConsent,
+  parseCookieConsent,
+  serialiseCookieConsent
+} from '~/src/common/cookies.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import { healthRoute, publicRoutes } from '~/src/server/routes/index.js'
@@ -69,19 +74,24 @@ export default {
           const analyticsDecision =
             request.payload['cookies[analytics]'].toLowerCase()
 
-          const policy: CookieConsent = request.state.cookie_consent ?? {
-            analytics: undefined
+          // move the parser into our JS code so we can delegate to the frontend in a future iteration
+          let cookieConsent: CookieConsent
+
+          if (typeof request.state.cookie_consent === 'string') {
+            cookieConsent = parseCookieConsent(request.state.cookie_consent)
+          } else {
+            cookieConsent = defaultConsent
           }
 
           if (analyticsDecision === 'yes') {
-            policy.analytics = true
+            cookieConsent.analytics = true
           } else if (analyticsDecision === 'no') {
-            policy.analytics = false
+            cookieConsent.analytics = false
           } else {
             throw Boom.badRequest('Unknown cookie preference')
           }
 
-          h.state('cookie_consent', policy)
+          h.state('cookie_consent', serialiseCookieConsent(cookieConsent))
           request.yar.flash('cookieConsentUpdated', true, true)
 
           return h.redirect(request.info.referrer)
