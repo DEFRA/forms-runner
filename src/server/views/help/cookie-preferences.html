@@ -26,10 +26,10 @@
 
     <form action="/help/cookie-preferences" method="post" novalidate>
         {{ govukRadios({
-          name: "cookies[additional]",
+          name: "cookies[analytics]",
           fieldset: {
             legend: {
-              text: "Do you want to accept additional cookies?",
+              text: "Do you want to accept analytics cookies?",
               classes: "govuk-fieldset__legend--s"
             }
           },
@@ -37,12 +37,12 @@
             {
               value: "yes",
               text: "Yes",
-              checked: cookieConsent === true
+              checked: cookieConsent.analytics === true
             },
             {
               value: "no",
               text: "No",
-              checked: cookieConsent === false
+              checked: cookieConsent.analytics === false
             }
           ]
         }) }}

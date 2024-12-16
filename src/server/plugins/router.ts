@@ -5,6 +5,7 @@ import Joi from 'joi'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import { healthRoute, publicRoutes } from '~/src/server/routes/index.js'
+import { type CookieConsent } from '~/src/typings/hapi/index.js'
 
 const routes = [...publicRoutes, healthRoute]
 
@@ -61,17 +62,26 @@ export default {
         }
       })
 
-      server.route<{ Payload: { 'cookies[additional]': string } }>({
+      server.route<{ Payload: { 'cookies[analytics]': string } }>({
         method: 'post',
         path: '/help/cookie-preferences',
         handler(request, h) {
-          const decision = request.payload['cookies[additional]'].toLowerCase()
+          const analyticsDecision =
+            request.payload['cookies[analytics]'].toLowerCase()
 
-          if (!['yes', 'no'].includes(decision)) {
+          const policy: CookieConsent = request.state.cookie_consent ?? {
+            analytics: undefined
+          }
+
+          if (analyticsDecision === 'yes') {
+            policy.analytics = true
+          } else if (analyticsDecision === 'no') {
+            policy.analytics = false
+          } else {
             throw Boom.badRequest('Unknown cookie preference')
           }
 
-          h.state('cookie_consent', decision)
+          h.state('cookie_consent', policy)
           request.yar.flash('cookieConsentUpdated', true, true)
 
           return h.redirect(request.info.referrer)
@@ -79,9 +89,17 @@ export default {
         options: {
           validate: {
             payload: Joi.object({
-              'cookies[additional]': Joi.string().valid('yes', 'no').required()
+              'cookies[analytics]': Joi.string().valid('yes', 'no').required()
             })
           }
+        }
+      })
+
+      server.route({
+        method: 'get',
+        path: '/',
+        handler() {
+          return Boom.notFound()
         }
       })
 

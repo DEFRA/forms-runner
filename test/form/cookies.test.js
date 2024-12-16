@@ -83,13 +83,14 @@ describe(`Cookie banner and analytics`, () => {
         method: 'POST',
         url: '/help/cookie-preferences',
         payload: {
-          'cookies[additional]': answer
+          'cookies[analytics]': answer
         }
       })
 
       const headers = getCookieHeader(sessionInitialisationResponse, [
         'crumb',
-        'session'
+        'session',
+        'cookie_consent'
       ])
 
       const { container } = await renderResponse(server, {
@@ -146,13 +147,14 @@ describe(`Cookie preferences`, () => {
         method: 'POST',
         url: '/help/cookie-preferences',
         payload: {
-          'cookies[additional]': value
+          'cookies[analytics]': value
         }
       })
 
       const headers = getCookieHeader(sessionInitialisationResponse, [
         'crumb',
-        'session'
+        'session',
+        'cookie_consent'
       ])
 
       const { container } = await renderResponse(server, {
