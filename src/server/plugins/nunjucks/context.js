@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { basename, join } from 'node:path'
 
 import pkg from '~/package.json' with { type: 'json' }
+import { parseCookieConsent } from '~/src/common/cookies.js'
 import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
@@ -27,15 +28,19 @@ export function context(request) {
     }
   }
 
-  const { params, path, state } = request ?? {}
+  const { params, path, state, yar } = request ?? {}
 
-  const cookieConsent = state?.cookie_consent ?? undefined
-
+  let cookieConsent
   let cookieConsentUpdated
-  try {
-    cookieConsentUpdated = request?.yar.flash('cookieConsentUpdated').at(0)
-  } catch {
-    cookieConsentUpdated = false
+
+  if (typeof state?.cookie_consent === 'string') {
+    cookieConsent = parseCookieConsent(state.cookie_consent)
+
+    try {
+      cookieConsentUpdated = yar?.flash('cookieConsentUpdated').at(0)
+    } catch {
+      cookieConsentUpdated = false
+    }
   }
 
   const isPreviewMode = path?.startsWith(PREVIEW_PATH_PREFIX)
