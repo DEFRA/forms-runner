@@ -31,16 +31,6 @@
   <link rel="preload" as="font" href="{{ assetPath }}/fonts/bold-b542beb274-v2.woff2" type="font/woff2" crossorigin="anonymous">
   <link rel="preload" as="font" href="{{ assetPath }}/fonts/light-94a07e06a1-v2.woff2" type="font/woff2" crossorigin="anonymous">
   <link rel="stylesheet" href="{{ getAssetPath("stylesheets/application.scss") }}">
-
-  {% if googleAnalyticsTrackingId and cookieConsent.analytics === true %}
-    <script data-testid="ga-tag-js-main" async src="https://www.googletagmanager.com/gtag/js?id={{ googleAnalyticsTrackingId }}"></script>
-    <script data-testid="ga-tag-js-init">
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', '{{ googleAnalyticsTrackingId }}');
-    </script>
-  {% endif %}
 {% endblock %}
 
 {% block pageTitle -%}
@@ -150,6 +140,16 @@
 
 {% block bodyEnd %}
   <script type="module" src="{{ getAssetPath("application.js") }}"></script>
+
+  {% if googleAnalyticsTrackingId and cookieConsent.analytics === true %}
+  <script data-testid="ga-tag-js-main" async src="https://www.googletagmanager.com/gtag/js?id={{ googleAnalyticsTrackingId }}" defer></script>
+  <script data-testid="ga-tag-js-init" defer>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '{{ googleAnalyticsTrackingId }}');
+  </script>
+{% endif %}
 {% endblock %}
 
 
