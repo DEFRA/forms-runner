@@ -91,7 +91,9 @@ export default {
             throw Boom.badRequest('Unknown cookie preference')
           }
 
-          h.state('cookie_consent', serialiseCookieConsent(cookieConsent))
+          const serialisedCookieConsent = serialiseCookieConsent(cookieConsent)
+          h.state('cookie_consent', serialisedCookieConsent)
+
           request.yar.flash('cookieConsentUpdated', true, true)
 
           return h.redirect(request.info.referrer)
