@@ -96,10 +96,6 @@ declare module 'hapi-pulse' {
   export = hapiPulse
 }
 
-interface CookieConsent {
-  analytics: boolean | null
-}
-
 declare module '@hapi/yar' {
   type CookieConsentUpdatedKey = (typeof sessionNames)['cookieConsentUpdated']
 
