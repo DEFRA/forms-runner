@@ -81,9 +81,8 @@ export class QuestionPageController extends PageController {
     payload: FormPayload,
     errors?: FormSubmissionError[]
   ): FormPageViewModel {
-    const { collection } = this
+    const { collection, viewModel } = this
 
-    const viewModel = super.getViewModel(request, payload, errors)
     let { pageTitle, showTitle } = viewModel
 
     const components = collection.getViewModel(payload, errors)
