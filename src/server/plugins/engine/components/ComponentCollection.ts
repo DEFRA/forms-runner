@@ -19,6 +19,7 @@ import {
 import { type ComponentViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { getErrors } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
@@ -264,13 +265,19 @@ export class ComponentCollection {
   /**
    * Validate form payload
    */
-  validate(value: FormPayload = {}): FormValidationResult<FormPayload> {
-    const result = this.formSchema.validate(value, opts)
+  validate(payload: FormPayload = {}): FormValidationResult<FormPayload> {
+    const { formSchema, page } = this
+
+    if (page && !(page instanceof QuestionPageController)) {
+      throw new Error('Unsupported validation for non-question page')
+    }
+
+    const result = formSchema.validate(payload, opts)
     const details = result.error?.details
 
     return {
-      value: (result.value ?? {}) as typeof value,
-      errors: this.page?.getErrors(details) ?? getErrors(details)
+      value: (result.value ?? {}) as typeof payload,
+      errors: page ? page.getErrors(details) : getErrors(details)
     }
   }
 }
