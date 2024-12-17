@@ -252,6 +252,7 @@ export interface PageViewModelBase {
 
 export interface FormPageViewModel extends PageViewModelBase {
   components: ComponentViewModel[]
+  context?: FormContext
   errors?: FormSubmissionError[]
   notificationEmailWarning?: {
     slug: string

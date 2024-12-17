@@ -278,6 +278,8 @@ export class QuestionPageController extends PageController {
       const { progress = [] } = context.state
       await this.updateProgress(progress, request)
 
+      viewModel.context = context
+
       viewModel.backLink = this.getBackLink(progress)
 
       viewModel.notificationEmailWarning =
@@ -369,6 +371,7 @@ export class QuestionPageController extends PageController {
         const { progress = [] } = context.state
         const viewModel = this.getViewModel(request, payload, errors)
 
+        viewModel.context = context
         viewModel.errors = collection.getErrors(viewModel.errors)
         viewModel.backLink = this.getBackLink(progress)
 
