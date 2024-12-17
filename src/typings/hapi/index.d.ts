@@ -21,6 +21,15 @@ declare module '@hapi/hapi' {
     }
   }
 
+  interface PluginsStates {
+    blankie?: {
+      nonces?: {
+        script?: string
+        style?: string
+      }
+    }
+  }
+
   interface Request {
     logger: Logger
     yar: Yar
@@ -71,7 +80,7 @@ declare module '@hapi/scooter' {
 
 declare module 'blankie' {
   declare const blankie: {
-    plugin: Plugin<Record<string, boolean | string[]>>
+    plugin: Plugin<Record<string, boolean | string | string[]>>
   }
 
   export = blankie
