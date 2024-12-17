@@ -351,7 +351,7 @@ export class QuestionPageController extends PageController {
       request: FormRequestPayload,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { model } = this
+      const { collection, model, viewName } = this
 
       const state = await this.getState(request)
       const context = model.getFormContext(request, state, {
@@ -367,7 +367,12 @@ export class QuestionPageController extends PageController {
        */
       if (errors) {
         const { progress = [] } = context.state
-        return this.renderWithErrors(request, h, payload, progress, errors)
+        const viewModel = this.getViewModel(request, payload, errors)
+
+        viewModel.errors = collection.getErrors(viewModel.errors)
+        viewModel.backLink = this.getBackLink(progress)
+
+        return h.view(viewName, viewModel)
       }
 
       // Convert and save sanitised payload to state
@@ -438,22 +443,5 @@ export class QuestionPageController extends PageController {
         }
       }
     }
-  }
-
-  protected renderWithErrors(
-    request: FormRequest | FormRequestPayload,
-    h: Pick<ResponseToolkit, 'redirect' | 'view'>,
-    payload: FormPayload,
-    progress: string[],
-    errors?: FormSubmissionError[]
-  ) {
-    const { viewName } = this
-
-    const viewModel = this.getViewModel(request, payload, errors)
-
-    viewModel.errors = this.collection.getErrors(viewModel.errors)
-    viewModel.backLink = this.getBackLink(progress)
-
-    return h.view(viewName, viewModel)
   }
 }
