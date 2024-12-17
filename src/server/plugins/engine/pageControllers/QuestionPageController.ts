@@ -362,7 +362,8 @@ export class QuestionPageController extends PageController {
     ) => {
       const { collection, model, viewName } = this
 
-      const state = await this.getState(request)
+      let state = await this.getState(request)
+
       const context = model.getFormContext(request, state, {
         validate: false
       })
@@ -386,8 +387,10 @@ export class QuestionPageController extends PageController {
       }
 
       // Convert and save sanitised payload to state
-      const pageState = this.getStateFromValidForm(request, payload)
-      const formState = await this.setState(request, pageState)
+      state = await this.setState(
+        request,
+        this.getStateFromValidForm(request, payload)
+      )
 
       return this.proceed(
         request,
@@ -396,7 +399,7 @@ export class QuestionPageController extends PageController {
         // This is required to ensure we don't navigate
         // to an incorrect page based on stale state values
         this.getNextPath(
-          model.getFormContext(request, formState, {
+          model.getFormContext(request, state, {
             validate: false
           })
         )
