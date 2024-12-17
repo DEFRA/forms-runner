@@ -5,6 +5,7 @@ import { QuestionPageController } from '~/src/server/plugins/engine/pageControll
 import {
   type FormContextProgress,
   type FormContextRequest,
+  type FormPageViewModel,
   type FormState,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
@@ -137,77 +138,6 @@ describe('QuestionPageController', () => {
       expect(components2[2].name).toBe('multilineTextField')
     })
 
-    describe('Component view models', () => {
-      it('hides the page title for single form component pages', () => {
-        const viewModel1 = controller1.getViewModel(requestPage1, {})
-        const viewModel2 = controller2.getViewModel(requestPage2, {})
-
-        // Page 1 hides page title (single component)
-        expect(viewModel1).toHaveProperty('showTitle', false)
-        expect(viewModel1).toHaveProperty('pageTitle', 'Previous marriages')
-
-        // Page 2 shows page title (multiple components)
-        expect(viewModel2).toHaveProperty('showTitle', true)
-        expect(viewModel2).toHaveProperty(
-          'pageTitle',
-          'When will you get married?'
-        )
-      })
-
-      it('returns the component view models for the page', () => {
-        const viewModel1 = controller1.getViewModel(requestPage1, {})
-        const viewModel2 = controller2.getViewModel(requestPage2, {})
-
-        const { components: components1 } = viewModel1
-        const { components: components2 } = viewModel2
-
-        expect(components1).toHaveLength(1)
-        expect(components2).toHaveLength(3)
-
-        // Page 1, component 1, default label
-        expect(components1[0].model).toHaveProperty('label', {
-          text: 'Have you previously been married?'
-        })
-
-        // Page 1, component 1, optional legend
-        expect(components1[0].model).toHaveProperty('fieldset', {
-          legend: {
-            text: 'Previous marriages',
-            classes: 'govuk-fieldset__legend--l',
-            isPageHeading: true
-          }
-        })
-
-        // Page 2, component 1, content only
-        expect(components2[0].model).toEqual({
-          attributes: {},
-          summaryHtml: 'Find out more',
-          html: 'Some content goes here'
-        })
-
-        // Page 2, component 2, default label
-        expect(components2[1].model).toHaveProperty('label', {
-          text: 'Date of marriage'
-        })
-
-        // Page 2, component 2, optional legend
-        expect(components2[1].model).toHaveProperty('fieldset', {
-          legend: {
-            text: 'Date of marriage',
-            classes: 'govuk-fieldset__legend--m'
-          }
-        })
-
-        // Page 2, component 3, default label
-        expect(components2[2].model).toHaveProperty('label', {
-          text: 'Remarks'
-        })
-
-        // Page 2, component 3, optional legend
-        expect(components2[2].model).not.toHaveProperty('fieldset')
-      })
-    })
-
     it('returns the fields for the page', () => {
       const { fields: fields1 } = controller1.collection
       const { fields: fields2 } = controller2.collection
@@ -218,6 +148,88 @@ describe('QuestionPageController', () => {
       expect(fields2).toHaveLength(2)
       expect(fields2[0].name).toBe('dateField')
       expect(fields2[1].name).toBe('multilineTextField')
+    })
+
+    it('returns the guidance for the page', () => {
+      const { guidance: guidance1 } = controller1.collection
+      const { guidance: guidance2 } = controller2.collection
+
+      expect(guidance1).toHaveLength(0)
+      expect(guidance2).toHaveLength(1)
+      expect(guidance2[0].name).toBe('detailsField')
+    })
+  })
+
+  describe('Component view models', () => {
+    let viewModel1: FormPageViewModel
+    let viewModel2: FormPageViewModel
+
+    beforeEach(() => {
+      viewModel1 = controller1.getViewModel(requestPage1, {})
+      viewModel2 = controller2.getViewModel(requestPage2, {})
+    })
+
+    it('hides the page title for single form component pages', () => {
+      // Page 1 hides page title (single component)
+      expect(viewModel1).toHaveProperty('showTitle', false)
+      expect(viewModel1).toHaveProperty('pageTitle', 'Previous marriages')
+
+      // Page 2 shows page title (multiple components)
+      expect(viewModel2).toHaveProperty('showTitle', true)
+      expect(viewModel2).toHaveProperty(
+        'pageTitle',
+        'When will you get married?'
+      )
+    })
+
+    it('returns the component view models for the page', () => {
+      const { components: components1 } = viewModel1
+      const { components: components2 } = viewModel2
+
+      expect(components1).toHaveLength(1)
+      expect(components2).toHaveLength(3)
+
+      // Page 1, component 1, default label
+      expect(components1[0].model).toHaveProperty('label', {
+        text: 'Have you previously been married?'
+      })
+
+      // Page 1, component 1, optional legend
+      expect(components1[0].model).toHaveProperty('fieldset', {
+        legend: {
+          text: 'Previous marriages',
+          classes: 'govuk-fieldset__legend--l',
+          isPageHeading: true
+        }
+      })
+
+      // Page 2, component 1, content only
+      expect(components2[0].model).toEqual({
+        attributes: {},
+        summaryHtml: 'Find out more',
+        html: 'Some content goes here'
+      })
+
+      // Page 2, component 2, default label
+      expect(components2[1].model).toHaveProperty('label', {
+        text: 'Date of marriage'
+      })
+
+      // Page 2, component 2, optional legend
+      expect(components2[1].model).toHaveProperty('fieldset', {
+        legend: {
+          text: 'Date of marriage',
+          classes: 'govuk-fieldset__legend--m'
+        }
+      })
+
+      // Page 2, component 3, default label
+      expect(components2[2].model).toHaveProperty('label', {
+        text: 'Remarks'
+      })
+
+      // Page 2, component 3, optional legend
+      expect(components2[2].model).not.toHaveProperty('fieldset')
     })
   })
 
@@ -390,27 +402,16 @@ describe('QuestionPageController', () => {
     let contextYes: FormContextProgress
 
     beforeEach(() => {
-      const request = {
-        method: 'get',
-        url: new URL('http://example.com/test/first-page'),
-        path: '/test/first-page',
-        params: {
-          path: 'first-page',
-          slug: 'test'
-        },
-        query: {}
-      } satisfies FormContextRequest
-
       // Empty state
-      context = controller1.model.getFormContext(request, {})
+      context = controller1.model.getFormContext(requestPage1, {})
 
       // Question 1: Selected 'No'
-      contextNo = controller1.model.getFormContext(request, {
+      contextNo = controller1.model.getFormContext(requestPage1, {
         yesNoField: false
       })
 
       // Question 1: Selected 'Yes'
-      contextYes = controller1.model.getFormContext(request, {
+      contextYes = controller1.model.getFormContext(requestPage1, {
         yesNoField: true
       })
     })

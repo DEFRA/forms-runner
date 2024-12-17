@@ -102,9 +102,7 @@ export class FormComponent extends ComponentBase {
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
-    const { hint, name, options = {}, title } = this
-
-    const viewModel = super.getViewModel(payload, errors)
+    const { hint, name, options = {}, title, viewModel } = this
 
     const isRequired = !('required' in options) || options.required !== false
     const hideOptional = 'optionalText' in options && options.optionalText

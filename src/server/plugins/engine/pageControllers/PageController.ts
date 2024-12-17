@@ -19,11 +19,7 @@ import {
   normalisePath
 } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import {
-  type FormPayload,
-  type FormSubmissionError,
-  type PageViewModelBase
-} from '~/src/server/plugins/engine/types.js'
+import { type PageViewModelBase } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
   type FormRequestPayload,
@@ -86,6 +82,26 @@ export class PageController {
     return {}
   }
 
+  get viewModel(): PageViewModelBase {
+    const { name, section, title } = this
+
+    const showTitle = true
+    const pageTitle = title
+    const sectionTitle = section?.hideTitle !== true ? section?.title : ''
+
+    return {
+      name,
+      page: this,
+      pageTitle,
+      sectionTitle,
+      showTitle,
+      isStartPage: false,
+      serviceUrl: this.getHref('/'),
+      feedbackLink: this.feedbackLink,
+      phaseTag: this.phaseTag
+    }
+  }
+
   get feedbackLink() {
     const { def } = this
 
@@ -126,42 +142,12 @@ export class PageController {
     return ControllerPath.Status.valueOf()
   }
 
-  getViewModel(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    request: FormRequest | FormRequestPayload,
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    payload: FormPayload,
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    errors?: FormSubmissionError[]
-  ): PageViewModelBase {
-    const { name, section, title } = this
-
-    const showTitle = true
-    const pageTitle = title
-    const sectionTitle = section?.hideTitle !== true ? section?.title : ''
-
-    return {
-      name,
-      page: this,
-      pageTitle,
-      sectionTitle,
-      showTitle,
-      isStartPage: false,
-      serviceUrl: this.getHref('/'),
-      feedbackLink: this.feedbackLink,
-      phaseTag: this.phaseTag
-    }
-  }
-
   makeGetRouteHandler(): (
     request: FormRequest,
     h: Pick<ResponseToolkit, 'redirect' | 'view'>
   ) => ReturnType<Lifecycle.Method<FormRequestRefs>> {
     return (request, h) => {
-      const { viewName } = this
-      const viewModel = this.getViewModel(request, {})
+      const { viewModel, viewName } = this
       return h.view(viewName, viewModel)
     }
   }

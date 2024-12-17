@@ -63,6 +63,14 @@ export type Field = InstanceType<
   | typeof Components.FileUploadField
 >
 
+// Guidance component instances only
+export type Guidance = InstanceType<
+  | typeof Components.Details
+  | typeof Components.Html
+  | typeof Components.InsetText
+  | typeof Components.List
+>
+
 /**
  * Create field instance for each {@link ComponentDef} type
  */
