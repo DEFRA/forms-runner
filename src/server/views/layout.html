@@ -142,8 +142,8 @@
   <script type="module" nonce="{{ scriptNonce }}" src="{{ getAssetPath("application.js") }}"></script>
 
   {% if googleAnalyticsTrackingId and cookieConsent.analytics === true %}
-  <script data-testid="ga-tag-js-main" nonce="{{ scriptNonce }}" src="https://www.googletagmanager.com/gtag/js?id={{ googleAnalyticsTrackingId }}" defer></script>
-  <script data-testid="ga-tag-js-init" nonce="{{ scriptNonce }}">
+  <script id="ga-tag-js-main" nonce="{{ scriptNonce }}" src="https://www.googletagmanager.com/gtag/js?id={{ googleAnalyticsTrackingId }}" defer></script>
+  <script id="ga-tag-js-init" nonce="{{ scriptNonce }}">
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());

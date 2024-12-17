@@ -30,14 +30,14 @@ describe(`Cookie banner and analytics`, () => {
       url: path
     }
 
-    const { container } = await renderResponse(server, options)
+    const { container, document } = await renderResponse(server, options)
 
     const $cookieBanner = container.queryByRole('region', {
       name: 'Cookies on Submit a form to Defra'
     })
 
-    const $gaScriptMain = container.queryByTestId('ga-tag-js-main')
-    const $gaScriptInit = container.queryByTestId('ga-tag-js-init')
+    const $gaScriptMain = document.getElementById('ga-tag-js-main')
+    const $gaScriptInit = document.getElementById('ga-tag-js-init')
 
     expect($cookieBanner).toBeInTheDocument()
     expect($gaScriptMain).not.toBeInTheDocument()
@@ -80,7 +80,7 @@ describe(`Cookie banner and analytics`, () => {
         'cookie_consent'
       ])
 
-      const { container } = await renderResponse(server, {
+      const { container, document } = await renderResponse(server, {
         method: 'GET',
         url: path,
         headers
@@ -90,8 +90,8 @@ describe(`Cookie banner and analytics`, () => {
         name: 'Cookies on Submit a form to Defra'
       })
 
-      const $gaScriptMain = container.queryByTestId('ga-tag-js-main')
-      const $gaScriptInit = container.queryByTestId('ga-tag-js-init')
+      const $gaScriptMain = document.getElementById('ga-tag-js-main')
+      const $gaScriptInit = document.getElementById('ga-tag-js-init')
 
       expect($cookieBanner).not.toBeInTheDocument()
       expect($gaScriptMain).toBeInTheDocument()
@@ -135,7 +135,7 @@ describe(`Cookie banner and analytics`, () => {
         'cookie_consent'
       ])
 
-      const { container } = await renderResponse(server, {
+      const { container, document } = await renderResponse(server, {
         method: 'GET',
         url: path,
         headers
@@ -145,8 +145,8 @@ describe(`Cookie banner and analytics`, () => {
         name: 'Cookies on Submit a form to Defra'
       })
 
-      const $gaScriptMain = container.queryByTestId('ga-tag-js-main')
-      const $gaScriptInit = container.queryByTestId('ga-tag-js-init')
+      const $gaScriptMain = document.getElementById('ga-tag-js-main')
+      const $gaScriptInit = document.getElementById('ga-tag-js-init')
 
       expect($cookieBanner).not.toBeInTheDocument()
 
