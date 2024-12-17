@@ -149,6 +149,15 @@ describe('QuestionPageController', () => {
       expect(fields2[0].name).toBe('dateField')
       expect(fields2[1].name).toBe('multilineTextField')
     })
+
+    it('returns the guidance for the page', () => {
+      const { guidance: guidance1 } = controller1.collection
+      const { guidance: guidance2 } = controller2.collection
+
+      expect(guidance1).toHaveLength(0)
+      expect(guidance2).toHaveLength(1)
+      expect(guidance2[0].name).toBe('detailsField')
+    })
   })
 
   describe('Component view models', () => {

@@ -13,7 +13,8 @@ import {
 import {
   createComponent,
   type Component,
-  type Field
+  type Field,
+  type Guidance
 } from '~/src/server/plugins/engine/components/helpers.js'
 import { type ComponentViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { getErrors } from '~/src/server/plugins/engine/helpers.js'
@@ -34,6 +35,7 @@ export class ComponentCollection {
 
   components: Component[]
   fields: Field[]
+  guidance: Guidance[]
 
   formSchema: ObjectSchema<FormPayload>
   stateSchema: ObjectSchema<FormSubmissionState>
@@ -62,6 +64,10 @@ export class ComponentCollection {
 
     const fields = components.filter(
       (component): component is Field => component.isFormComponent
+    )
+
+    const guidance = components.filter(
+      (component): component is Guidance => !component.isFormComponent
     )
 
     let formSchema = joi.object<FormPayload>().required()
@@ -138,6 +144,8 @@ export class ComponentCollection {
 
     this.components = components
     this.fields = fields
+    this.guidance = guidance
+
     this.formSchema = formSchema
     this.stateSchema = stateSchema
   }
