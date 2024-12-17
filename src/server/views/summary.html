@@ -1,4 +1,4 @@
-{% extends 'layout.html' %}
+{% extends "layout.html" %}
 
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
@@ -42,4 +42,8 @@
       </form>
     </div>
   </div>
+
+  {% if cdpEnvironment == 'local' and context | length %}
+    {% include "partials/debug.html" %}
+  {% endif %}
 {% endblock %}

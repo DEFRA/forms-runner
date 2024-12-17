@@ -1,0 +1,44 @@
+{% from "govuk/components/details/macro.njk" import govukDetails %}
+{% from "components/debug/macro.njk" import appDebug -%}
+
+{%- set debugHtml %}
+  <h2 class="govuk-heading-m">
+    Pages walked
+  </h2>
+
+  {% for question in context.relevantPages %}
+    <h3 class="govuk-heading-s govuk-!-margin-bottom-2">
+      {% if question.section %}
+      <span class="govuk-caption-m">{{ question.section.title }}</span>
+      {% endif -%}
+      {{ question.title }}
+    </h3>
+
+    {% if question.viewName !== "summary" %}
+      <p class="govuk-body">
+        <a class="govuk-link--no-visited-state" href="{{ question.href }}">
+          Edit answer <span class="govuk-visually-hidden">for {{ question.title }}</span>
+        </a>
+      </p>
+
+      {{ appDebug({
+        content: question.getFormDataFromState(context.state)
+      }) }}
+    {% else %}
+      {{ appDebug({
+        content: context.relevantState
+      }) }}
+    {% endif %}
+  {% endfor %}
+{% endset -%}
+
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-full">
+    <hr class="govuk-section-break govuk-section-break--xl govuk-section-break--visible">
+
+    {{ govukDetails({
+      summaryText: "Form context",
+      html: debugHtml | safe
+    }) }}
+  </div>
+</div>

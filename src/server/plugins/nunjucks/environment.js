@@ -4,7 +4,7 @@ import nunjucks from 'nunjucks'
 import resolvePkg from 'resolve'
 
 import { config } from '~/src/config/index.js'
-import * as filters from '~/src/server/plugins/nunjucks/filters.js'
+import * as filters from '~/src/server/plugins/nunjucks/filters/index.js'
 
 const govukFrontendPath = dirname(
   resolvePkg.sync('govuk-frontend/package.json')
