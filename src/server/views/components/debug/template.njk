@@ -1,0 +1,13 @@
+{%- macro _code(params) -%}
+  {{- params.content | inspect | safe -}}
+{%- endmacro -%}
+
+{%- macro _container(params) -%}
+  <code tabindex="0" class="app-code__container">
+    {{- _code(params) | highlight('js') | safe -}}
+  </code>
+{%- endmacro -%}
+
+<pre class="app-code">
+  {{- _container(params) -}}
+</pre>
