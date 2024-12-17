@@ -12,10 +12,6 @@ import { type ComponentCollection } from '~/src/server/plugins/engine/components
 import { type Component } from '~/src/server/plugins/engine/components/helpers.js'
 import { type ViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import {
-  type FormPayload,
-  type FormSubmissionError
-} from '~/src/server/plugins/engine/types.js'
 
 export class ComponentBase {
   parent: Component | undefined
@@ -57,16 +53,7 @@ export class ComponentBase {
     this.model = props.model
   }
 
-  /**
-   * parses form payload and returns an object provided to a govuk-frontend template to render
-   */
-  getViewModel(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    payload: FormPayload,
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    errors?: FormSubmissionError[]
-  ) {
+  get viewModel() {
     const { options, type } = this
 
     const viewModel: ViewModel = {

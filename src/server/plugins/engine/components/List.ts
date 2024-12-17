@@ -6,10 +6,6 @@ import {
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { type ListItem } from '~/src/server/plugins/engine/components/types.js'
-import {
-  type FormPayload,
-  type FormSubmissionError
-} from '~/src/server/plugins/engine/types.js'
 
 export class List extends ComponentBase {
   declare options: ListComponent['options']
@@ -34,10 +30,9 @@ export class List extends ComponentBase {
     this.options = options
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
-    const { items: listItems, options } = this
+  getViewModel() {
+    const { items: listItems, options, viewModel } = this
 
-    const viewModel = super.getViewModel(payload, errors)
     let { classes, content, items, type } = viewModel
 
     if (options.type) {

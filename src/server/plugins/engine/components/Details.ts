@@ -1,10 +1,6 @@
 import { type DetailsComponent } from '@defra/forms-model'
 
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
-import {
-  type FormPayload,
-  type FormSubmissionError
-} from '~/src/server/plugins/engine/types.js'
 
 export class Details extends ComponentBase {
   declare options: DetailsComponent['options']
@@ -22,10 +18,8 @@ export class Details extends ComponentBase {
     this.options = options
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
-    const { content, title } = this
-
-    const viewModel = super.getViewModel(payload, errors)
+  getViewModel() {
+    const { content, title, viewModel } = this
 
     return {
       ...viewModel,

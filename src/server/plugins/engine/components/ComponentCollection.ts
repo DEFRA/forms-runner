@@ -6,6 +6,7 @@ import joi, {
 } from 'joi'
 
 import {
+  FormComponent,
   isFormState,
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
@@ -231,11 +232,14 @@ export class ComponentCollection {
     const { components } = this
 
     const result: ComponentViewModel[] = components.map((component) => {
-      return {
-        type: component.type,
-        isFormComponent: component.isFormComponent,
-        model: component.getViewModel(payload, errors)
-      }
+      const { isFormComponent, type } = component
+
+      const model =
+        component instanceof FormComponent
+          ? component.getViewModel(payload, errors)
+          : component.getViewModel()
+
+      return { type, isFormComponent, model }
     })
 
     if (conditions) {
