@@ -482,13 +482,15 @@ describe('QuestionPageController', () => {
       const state: FormState = { yesNoField: false }
 
       for (const controller of [controller1, controller2]) {
-        jest.spyOn(controller, 'getState').mockResolvedValue(state)
+        jest
+          .spyOn(controller, 'buildMissingEmailWarningModel')
+          .mockResolvedValue(undefined)
 
         for (const method of [
-          jest.spyOn(controller, 'updateProgress'),
-          jest.spyOn(controller, 'buildMissingEmailWarningModel')
+          jest.spyOn(controller, 'getState'),
+          jest.spyOn(controller, 'updateProgress')
         ]) {
-          method.mockResolvedValue(undefined)
+          method.mockResolvedValue(state)
         }
       }
 

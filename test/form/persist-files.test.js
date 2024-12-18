@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 import { StatusCodes } from 'http-status-codes'
 
 import { createServer } from '~/src/server/index.js'
+import { FileUploadPageController } from '~/src/server/plugins/engine/pageControllers/FileUploadPageController.js'
 import {
   persistFiles,
   submit
@@ -12,7 +13,6 @@ import { getFormMetadata } from '~/src/server/plugins/engine/services/formsServi
 import * as uploadService from '~/src/server/plugins/engine/services/uploadService.js'
 import { FileStatus, UploadStatus } from '~/src/server/plugins/engine/types.js'
 import { FormAction } from '~/src/server/routes/types.js'
-import { CacheService } from '~/src/server/services/cacheService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
@@ -91,10 +91,12 @@ describe('Submission journey test', () => {
   })
 
   test('GET /file-upload-component returns 200', async () => {
-    jest.spyOn(CacheService.prototype, 'getUploadState').mockResolvedValueOnce({
-      upload: undefined,
-      files: []
-    })
+    jest
+      .spyOn(FileUploadPageController.prototype, 'getUploadState')
+      .mockReturnValue({
+        upload: undefined,
+        files: []
+      })
 
     jest.mocked(uploadService.initiateUpload).mockResolvedValueOnce({
       uploadId: '123-546-789',
@@ -111,16 +113,18 @@ describe('Submission journey test', () => {
   })
 
   test('POST /file-upload-component returns 303', async () => {
-    jest.spyOn(CacheService.prototype, 'getUploadState').mockResolvedValueOnce(
-      /** @type {TempFileState} */ ({
-        upload: {
-          uploadId: '123-546-788',
-          uploadUrl: 'http://localhost:7337/upload-and-scan/123-546-788',
-          statusUrl: 'http://localhost:7337/status/123-546-788'
-        },
-        files: [readyFile, readyFile2]
-      })
-    )
+    jest
+      .spyOn(FileUploadPageController.prototype, 'getUploadState')
+      .mockReturnValue(
+        /** @type {TempFileState} */ ({
+          upload: {
+            uploadId: '123-546-788',
+            uploadUrl: 'http://localhost:7337/upload-and-scan/123-546-788',
+            statusUrl: 'http://localhost:7337/status/123-546-788'
+          },
+          files: [readyFile, readyFile2]
+        })
+      )
 
     jest
       .mocked(uploadService.getUploadStatus)
