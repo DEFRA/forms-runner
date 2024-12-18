@@ -59,7 +59,7 @@ export function context(request) {
     cookieConsent,
     cookieConsentUpdated,
     googleAnalyticsTrackingId: config.get('googleAnalyticsTrackingId'),
-    scriptNonce: request?.plugins.blankie?.nonces?.script,
+    cspNonce: request?.plugins.blankie?.nonces?.script,
 
     getAssetPath: (asset = '') => {
       return `/${webpackManifest?.[asset] ?? asset}`
