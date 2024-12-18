@@ -83,13 +83,7 @@ export default {
             cookieConsent = defaultConsent
           }
 
-          if (analyticsDecision === 'yes') {
-            cookieConsent.analytics = true
-          } else if (analyticsDecision === 'no') {
-            cookieConsent.analytics = false
-          } else {
-            throw Boom.badRequest('Unknown cookie preference')
-          }
+          cookieConsent.analytics = analyticsDecision === 'yes'
 
           const serialisedCookieConsent = serialiseCookieConsent(cookieConsent)
           h.state('cookie_consent', serialisedCookieConsent)
