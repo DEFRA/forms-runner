@@ -12,14 +12,20 @@ import {
   proceed,
   redirectUrl
 } from '~/src/server/plugins/engine/helpers.js'
+import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type FormContextRequest } from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
+import definition from '~/test/form/definitions/basic.js'
 
 describe('Helpers', () => {
   let request: FormContextRequest
   let h: Pick<ResponseToolkit, 'redirect' | 'view'>
 
   beforeEach(() => {
+    const model = new FormModel(definition, {
+      basePath: 'test'
+    })
+
     const pageUrl = new URL('http://example.com/test/page-one')
 
     request = {
@@ -30,7 +36,8 @@ describe('Helpers', () => {
         path: 'page-one',
         slug: 'test'
       },
-      query: {}
+      query: {},
+      app: { model }
     }
 
     const response = {
@@ -71,7 +78,8 @@ describe('Helpers', () => {
         href: '/test/page-two',
 
         request: {
-          method: 'post'
+          method: 'post',
+          payload: {}
         } satisfies Partial<FormContextRequest>,
 
         redirect: {
@@ -113,6 +121,7 @@ describe('Helpers', () => {
 
         request: {
           method: 'post',
+          payload: {},
           query: {
             myParam1: 'myValue1',
             myParam2: 'myValue2',
@@ -155,6 +164,7 @@ describe('Helpers', () => {
 
         request: {
           method: 'post',
+          payload: {},
           query: { returnUrl: 'https://www.gov.uk/help/privacy-notice' }
         } satisfies Partial<FormContextRequest>,
 

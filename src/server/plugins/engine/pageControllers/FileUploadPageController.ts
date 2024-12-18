@@ -24,6 +24,7 @@ import {
   UploadStatus,
   type FileState,
   type FileUploadPageViewModel,
+  type FormContextRequest,
   type FormPayload,
   type FormSubmissionError,
   type TempFileState,
@@ -91,7 +92,7 @@ export class FileUploadPageController extends QuestionPageController {
     this.viewName = 'file-upload'
   }
 
-  async getState(request: FormRequest) {
+  async getState(request: FormRequest | FormRequestPayload) {
     // Get the actual state
     const state = await super.getState(request)
     const name = this.getComponentName()
@@ -188,7 +189,7 @@ export class FileUploadPageController extends QuestionPageController {
   }
 
   getViewModel(
-    request: FormRequest | FormRequestPayload,
+    request: FormContextRequest,
     payload: FormPayload,
     errors?: FormSubmissionError[]
   ): FileUploadPageViewModel {

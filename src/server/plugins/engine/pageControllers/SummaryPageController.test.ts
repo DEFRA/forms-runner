@@ -71,7 +71,8 @@ describe('SummaryPageController', () => {
         path: 'pizza-order',
         slug: 'repeat'
       },
-      query: {}
+      query: {},
+      app: { model }
     } satisfies FormContextRequest
 
     context = model.getFormContext(request, state, { validate: false })

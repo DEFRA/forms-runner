@@ -15,7 +15,7 @@ export interface FormParams extends Partial<Record<string, string>> {
 export interface FormRequestRefs
   extends Omit<ReqRefDefaults, 'Params' | 'Payload' | 'Query'> {
   Params: FormParams
-  Payload: object
+  Payload: object | undefined
   Query: FormQuery
 }
 

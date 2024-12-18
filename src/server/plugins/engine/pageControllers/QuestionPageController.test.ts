@@ -279,7 +279,8 @@ describe('QuestionPageController', () => {
           path: 'applicant-one-address',
           slug: 'test'
         },
-        query: {}
+        query: {},
+        app: { model }
       } satisfies FormContextRequest
 
       // Calculate our context based on the page we're attempting to load and the above state we provide
@@ -320,7 +321,8 @@ describe('QuestionPageController', () => {
           path: 'summary',
           slug: 'test'
         },
-        query: {}
+        query: {},
+        app: { model }
       } satisfies FormContextRequest
 
       // And recalculate our context
@@ -363,7 +365,8 @@ describe('QuestionPageController', () => {
           path: 'page-one',
           slug: 'test'
         },
-        query: {}
+        query: {},
+        app: { model }
       } satisfies FormContextRequest
 
       const context = controller.model.getFormContext(request, {

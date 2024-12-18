@@ -78,11 +78,13 @@ export interface FormSubmissionError
 export type FormSubmissionPayload = {
   action?: string
   confirm?: boolean
-  itemId?: string
   crumb?: string
 } & FormPayload
 
-export type FormPayload = Partial<Record<string, FormValue>>
+export type FormPayload = {
+  itemId?: string
+} & Partial<Record<string, FormValue>>
+
 export type FormValue =
   | Item['value']
   | Item['value'][]
@@ -136,10 +138,21 @@ export interface FormContextProgress extends FormContext {
   paths: string[]
 }
 
-export type FormContextRequest = Pick<
-  FormRequest,
-  'method' | 'params' | 'path' | 'query' | 'url'
->
+export type FormContextRequest = (
+  | {
+      method: 'get'
+      payload?: undefined
+    }
+  | {
+      method: 'post'
+      payload: FormSubmissionPayload
+    }
+  | {
+      method: FormRequest['method']
+      payload?: object | undefined
+    }
+) &
+  Pick<FormRequest, 'app' | 'method' | 'params' | 'path' | 'query' | 'url'>
 
 export interface UploadInitiateResponse {
   uploadId: string

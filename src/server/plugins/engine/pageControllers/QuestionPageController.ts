@@ -22,6 +22,7 @@ import { getFormMetadata } from '~/src/server/plugins/engine/services/formsServi
 import {
   type FormContext,
   type FormContextProgress,
+  type FormContextRequest,
   type FormPageViewModel,
   type FormPayload,
   type FormSubmissionError,
@@ -77,7 +78,7 @@ export class QuestionPageController extends PageController {
    * @param [errors] - validation errors that may have occurred
    */
   getViewModel(
-    request: FormRequest | FormRequestPayload,
+    request: FormContextRequest,
     payload: FormPayload,
     errors?: FormSubmissionError[]
   ): FormPageViewModel {
@@ -185,10 +186,7 @@ export class QuestionPageController extends PageController {
     }
   }
 
-  getStateFromValidForm(
-    request: FormRequestPayload,
-    payload: FormRequestPayload['payload']
-  ) {
+  getStateFromValidForm(request: FormContextRequest, payload: FormPayload) {
     return this.collection.getStateFromValidForm(payload)
   }
 
@@ -401,7 +399,7 @@ export class QuestionPageController extends PageController {
   }
 
   proceed(
-    request: FormRequest | FormRequestPayload,
+    request: FormContextRequest,
     h: Pick<ResponseToolkit, 'redirect' | 'view'>,
     nextPath?: string
   ) {

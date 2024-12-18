@@ -13,7 +13,7 @@ const logger = createLogger()
 let webpackManifest
 
 /**
- * @param {FormRequest | FormRequestPayload | null} request
+ * @param {FormContextRequest | null} request
  */
 export function context(request) {
   const manifestPath = join(config.get('publicDir'), 'assets-manifest.json')
@@ -49,5 +49,5 @@ export function context(request) {
 }
 
 /**
- * @import { FormRequest, FormRequestPayload } from '~/src/server/routes/types.js'
+ * @import { FormContextRequest } from '~/src/server/plugins/engine/types.js'
  */
