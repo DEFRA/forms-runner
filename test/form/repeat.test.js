@@ -385,10 +385,7 @@ describe('Repeat POST tests', () => {
 
     const { container, response } = await renderResponse(server, {
       url: `${basePath}/summary`,
-      headers,
-      payload: {
-        action: CONTINUE
-      }
+      headers
     })
 
     expect(response.statusCode).toBe(StatusCodes.OK)
@@ -421,10 +418,7 @@ describe('Repeat POST tests', () => {
 
     const { container, response: res2 } = await renderResponse(server, {
       url: `${basePath}/summary`,
-      headers,
-      payload: {
-        action: CONTINUE
-      }
+      headers
     })
 
     expect(res2.statusCode).toBe(StatusCodes.OK)
