@@ -92,6 +92,18 @@ export class FileUploadPageController extends QuestionPageController {
     this.viewName = 'file-upload'
   }
 
+  getFormData(request: FormContextRequest) {
+    const formData = super.getFormData(request)
+
+    const name = this.getComponentName()
+    const files = request.app.files ?? []
+
+    // Append the files to the payload
+    formData[name] = files.length ? files : undefined
+
+    return formData
+  }
+
   async getState(request: FormRequest | FormRequestPayload) {
     // Get the actual state
     const state = await super.getState(request)
@@ -137,18 +149,6 @@ export class FileUploadPageController extends QuestionPageController {
 
       return super.makePostRouteHandler()(request, h)
     }
-  }
-
-  validate(request: FormRequestPayload) {
-    const { payload } = request
-
-    const name = this.getComponentName()
-    const files = request.app.files ?? []
-
-    // Append the files to the payload
-    payload[name] = files.length ? files : undefined
-
-    return super.validate(request)
   }
 
   getErrors(details?: ValidationErrorItem[]) {
@@ -363,8 +363,7 @@ export class FileUploadPageController extends QuestionPageController {
     state: TempFileState,
     cacheService: CacheService
   ) {
-    const { payload } = request
-    const removeId = payload.__remove
+    const { __remove: removeId } = this.getFormData(request)
 
     if (removeId) {
       const fileToRemove = state.files.find(

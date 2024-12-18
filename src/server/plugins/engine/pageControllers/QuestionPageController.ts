@@ -26,6 +26,7 @@ import {
   type FormPageViewModel,
   type FormPayload,
   type FormSubmissionError,
+  type FormSubmissionPayload,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import {
@@ -178,7 +179,14 @@ export class QuestionPageController extends PageController {
   }
 
   /**
-   * gets the state for the values that can be entered on just this page
+   * Gets the form payload (from request) for this page only
+   */
+  getFormData(request: FormContextRequest): FormSubmissionPayload {
+    return request.payload ?? {}
+  }
+
+  /**
+   * Gets the form payload (from state) for this page only
    */
   getFormDataFromState(state: FormSubmissionState): FormPayload {
     return {
@@ -395,7 +403,10 @@ export class QuestionPageController extends PageController {
   }
 
   validate(request: FormRequestPayload) {
-    return this.collection.validate(request.payload)
+    const { collection } = this
+
+    const formData = this.getFormData(request)
+    return collection.validate(formData)
   }
 
   proceed(

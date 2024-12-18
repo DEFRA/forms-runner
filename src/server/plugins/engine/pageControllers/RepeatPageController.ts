@@ -54,13 +54,13 @@ export class RepeatPageController extends QuestionPageController {
     return [this.repeat.options.name]
   }
 
-  validate(request: FormRequestPayload) {
-    const { payload } = request
+  getFormData(request: FormContextRequest) {
+    const formData = super.getFormData(request)
 
     // Apply an itemId to the form payload
-    payload.itemId = request.params.itemId ?? randomUUID()
+    formData.itemId = request.params.itemId ?? randomUUID()
 
-    return super.validate(request)
+    return formData
   }
 
   getStateFromValidForm(
@@ -219,10 +219,10 @@ export class RepeatPageController extends QuestionPageController {
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { model, path, repeat } = this
-      const { payload } = request
-      const { action } = payload
 
       const state = await super.getState(request)
+
+      const { action } = this.getFormData(request)
 
       if (action === ADD_ANOTHER) {
         const list = this.getListFromState(state)
@@ -303,8 +303,8 @@ export class RepeatPageController extends QuestionPageController {
       request: FormRequestPayload,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { payload } = request
-      const { confirm } = payload
+      const { repeat } = this
+      const { confirm } = this.getFormData(request)
 
       if (confirm === true) {
         const { item, list } = await this.setRepeatAppData(request)
@@ -316,7 +316,7 @@ export class RepeatPageController extends QuestionPageController {
           list.splice(item.index, 1)
 
           const update = {
-            [this.repeat.options.name]: list
+            [repeat.options.name]: list
           }
 
           await cacheService.mergeState(request, update)
