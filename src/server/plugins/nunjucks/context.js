@@ -35,7 +35,7 @@ export function context(request) {
 
   if (typeof state?.cookieConsent === 'string') {
     cookieConsent = parseCookieConsent(state.cookieConsent)
-    cookieConsentUpdated = false
+    cookieConsentUpdated = request?.method === 'post' && cookieConsent.dismissed
   }
 
   const isPreviewMode = path?.startsWith(PREVIEW_PATH_PREFIX)

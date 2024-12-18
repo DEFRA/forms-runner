@@ -2,7 +2,8 @@
   @type {CookieConsent}
  */
 export const defaultConsent = {
-  analytics: null
+  analytics: null,
+  dismissed: false
 }
 
 /**
