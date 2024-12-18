@@ -42,11 +42,15 @@ export function serialiseCookieConsent(consent) {
 }
 
 /**
- * @param {any} consent
+ * @param {unknown} consent
  * @returns {consent is CookieConsent}
  */
 function isValidConsent(consent) {
-  return 'analytics' in consent
+  if (consent === null || Array.isArray(consent)) {
+    return false
+  }
+
+  return typeof consent === 'object' && 'analytics' in consent
 }
 
 /**

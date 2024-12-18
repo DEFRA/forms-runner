@@ -7,15 +7,14 @@ describe('cookies', () => {
     })
   })
 
-  it('converts a malformed policy to the default', () => {
-    expect(parseCookieConsent('{{{')).toEqual({
-      analytics: null,
-      dismissed: false
-    })
-  })
-
-  it('converts an invalid policy to the default', () => {
-    expect(parseCookieConsent('{unknown:false}')).toEqual({
+  it.each([
+    "['not', 'an', 'object']",
+    '{{ not: "an object" }}',
+    '{ additional: AAA }',
+    '{ marketing: 100 }',
+    ''
+  ])('converts a malformed policy to the default', (value) => {
+    expect(parseCookieConsent(value)).toEqual({
       analytics: null,
       dismissed: false
     })
