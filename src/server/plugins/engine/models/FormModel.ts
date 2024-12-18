@@ -31,6 +31,8 @@ import {
   type FormState,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { FormAction } from '~/src/server/routes/types.js'
+import { merge } from '~/src/server/services/cacheService.js'
 
 export class FormModel {
   /**
@@ -209,8 +211,21 @@ export class FormModel {
       evaluationState: {},
       relevantState: {},
       relevantPages: [],
+      payload: page.getFormDataFromState(state),
       state,
       paths: []
+    }
+
+    const { action } = page.getFormData(request)
+
+    // Validate current page
+    if (request.payload && action === FormAction.Continue) {
+      const { value: payload, errors } = page.validate(request)
+
+      // Merge sanitised payload after validation
+      context.payload = merge(context.payload, payload)
+      context.state = merge(state, page.getStateFromValidForm(request, payload))
+      context.errors = errors
     }
 
     // Find start page
@@ -227,14 +242,14 @@ export class FormModel {
       if (!hasRepeater(pageDef)) {
         Object.assign(
           context.evaluationState,
-          collection.getContextValueFromState(state)
+          collection.getContextValueFromState(context.state)
         )
       }
 
       // Copy relevant state by expected keys
       for (const key of nextPage.keys) {
-        if (typeof state[key] !== 'undefined') {
-          context.relevantState[key] = state[key]
+        if (typeof context.state[key] !== 'undefined') {
+          context.relevantState[key] = context.state[key]
         }
       }
 
@@ -254,7 +269,8 @@ export class FormModel {
 
     // Format relevant state errors
     if (error) {
-      context.errors = error.details.map(getError)
+      context.errors ??= []
+      context.errors.push(...error.details.map(getError))
     }
 
     // Add paths for navigation
