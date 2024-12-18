@@ -28,19 +28,14 @@ export function context(request) {
     }
   }
 
-  const { params, path, state, yar } = request ?? {}
+  const { params, path, state } = request ?? {}
 
   let cookieConsent
   let cookieConsentUpdated
 
   if (typeof state?.cookieConsent === 'string') {
     cookieConsent = parseCookieConsent(state.cookieConsent)
-
-    try {
-      cookieConsentUpdated = yar?.flash('cookieConsentUpdated').at(0)
-    } catch {
-      cookieConsentUpdated = false
-    }
+    cookieConsentUpdated = false
   }
 
   const isPreviewMode = path?.startsWith(PREVIEW_PATH_PREFIX)
