@@ -77,8 +77,8 @@ export default {
           // move the parser into our JS code so we can delegate to the frontend in a future iteration
           let cookieConsent: CookieConsent
 
-          if (typeof request.state.cookie_consent === 'string') {
-            cookieConsent = parseCookieConsent(request.state.cookie_consent)
+          if (typeof request.state.cookieConsent === 'string') {
+            cookieConsent = parseCookieConsent(request.state.cookieConsent)
           } else {
             cookieConsent = defaultConsent
           }
@@ -86,7 +86,7 @@ export default {
           cookieConsent.analytics = analyticsDecision === 'yes'
 
           const serialisedCookieConsent = serialiseCookieConsent(cookieConsent)
-          h.state('cookie_consent', serialisedCookieConsent)
+          h.state('cookieConsent', serialisedCookieConsent)
 
           request.yar.flash('cookieConsentUpdated', true, true)
 
