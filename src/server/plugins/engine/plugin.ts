@@ -10,8 +10,6 @@ import Joi from 'joi'
 
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
-  ADD_ANOTHER,
-  CONTINUE,
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
   getPage,
@@ -25,8 +23,9 @@ import {
   getFormDefinition,
   getFormMetadata
 } from '~/src/server/plugins/engine/services/formsService.js'
-import { FormStatus } from '~/src/server/routes/types.js'
 import {
+  FormAction,
+  FormStatus,
   type FormRequest,
   type FormRequestPayload,
   type FormRequestPayloadRefs,
@@ -40,10 +39,20 @@ export interface PluginOptions {
 const stateSchema = Joi.string()
   .valid(FormStatus.Draft, FormStatus.Live)
   .required()
+
+const actionSchema = Joi.string()
+  .valid(
+    FormAction.Continue,
+    FormAction.Delete,
+    FormAction.AddAnother,
+    FormAction.Send
+  )
+  .default(FormAction.Continue)
+  .optional()
+
 const pathSchema = Joi.string().required()
 const itemIdSchema = Joi.string().uuid().required()
 const crumbSchema = Joi.string().optional().allow('')
-const actionSchema = Joi.string().valid(ADD_ANOTHER, CONTINUE).required()
 const confirmSchema = Joi.boolean().default(false)
 
 export const plugin = {

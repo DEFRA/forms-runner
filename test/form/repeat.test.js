@@ -7,9 +7,9 @@ import { within } from '@testing-library/dom'
 import { StatusCodes } from 'http-status-codes'
 
 import { createServer } from '~/src/server/index.js'
-import { ADD_ANOTHER, CONTINUE } from '~/src/server/plugins/engine/helpers.js'
 import { submit } from '~/src/server/plugins/engine/services/formSubmissionService.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
+import { FormAction } from '~/src/server/routes/types.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
@@ -316,7 +316,7 @@ describe('Repeat POST tests', () => {
       method: 'POST',
       url: `${basePath}/pizza-order/summary`,
       payload: {
-        action: ADD_ANOTHER
+        action: FormAction.AddAnother
       }
     })
 
@@ -332,7 +332,7 @@ describe('Repeat POST tests', () => {
       method: 'POST',
       headers,
       payload: {
-        action: CONTINUE
+        action: FormAction.Continue
       }
     })
 
@@ -350,7 +350,7 @@ describe('Repeat POST tests', () => {
       method: 'POST',
       headers,
       payload: {
-        action: ADD_ANOTHER
+        action: FormAction.AddAnother
       }
     })
 
@@ -376,7 +376,7 @@ describe('Repeat POST tests', () => {
       method: 'POST',
       headers,
       payload: {
-        action: CONTINUE
+        action: FormAction.Continue
       }
     })
 
@@ -409,7 +409,7 @@ describe('Repeat POST tests', () => {
       method: 'POST',
       headers,
       payload: {
-        action: CONTINUE
+        action: FormAction.Continue
       }
     })
 

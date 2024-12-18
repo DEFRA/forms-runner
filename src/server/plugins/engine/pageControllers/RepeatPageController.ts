@@ -5,7 +5,6 @@ import { badRequest, notFound } from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
 import Joi from 'joi'
 
-import { ADD_ANOTHER, CONTINUE } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
@@ -20,6 +19,7 @@ import {
   type SummaryListAction
 } from '~/src/server/plugins/engine/types.js'
 import {
+  FormAction,
   type FormRequest,
   type FormRequestPayload
 } from '~/src/server/routes/types.js'
@@ -224,7 +224,7 @@ export class RepeatPageController extends QuestionPageController {
 
       const { action } = this.getFormData(request)
 
-      if (action === ADD_ANOTHER) {
+      if (action === FormAction.AddAnother) {
         const list = this.getListFromState(state)
         const { schema, options } = repeat
 
@@ -245,7 +245,7 @@ export class RepeatPageController extends QuestionPageController {
         }
 
         return super.proceed(request, h, `${path}${request.url.search}`)
-      } else if (action === CONTINUE) {
+      } else if (action === FormAction.Continue) {
         return super.proceed(
           request,
           h,

@@ -18,9 +18,6 @@ import { FormStatus, type FormQuery } from '~/src/server/routes/types.js'
 
 const logger = createLogger()
 
-export const ADD_ANOTHER = 'add-another'
-export const CONTINUE = 'continue'
-
 export function proceed(
   request: Pick<FormContextRequest, 'method' | 'query'>,
   h: Pick<ResponseToolkit, 'redirect' | 'view'>,
