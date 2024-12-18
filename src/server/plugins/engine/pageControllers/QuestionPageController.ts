@@ -226,10 +226,11 @@ export class QuestionPageController extends PageController {
 
       const state = await this.getState(request)
       const context = model.getFormContext(request, state)
+      const relevantPath = this.getRelevantPath(context)
 
       // Redirect back to last relevant page
-      if (!context.paths.includes(path)) {
-        return this.proceed(request, h, this.getRelevantPath(context))
+      if (relevantPath !== path) {
+        return this.proceed(request, h, relevantPath)
       }
 
       const payload = this.getFormDataFromState(context.state)
@@ -359,10 +360,16 @@ export class QuestionPageController extends PageController {
       request: FormRequestPayload,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { collection, model, viewName } = this
+      const { collection, model, path, viewName } = this
 
       let state = await this.getState(request)
       const context = model.getFormContext(request, state)
+      const relevantPath = this.getRelevantPath(context)
+
+      // Redirect back to last relevant page
+      if (relevantPath !== path) {
+        return this.proceed(request, h, relevantPath)
+      }
 
       // Sanitised payload after validation
       const { value: payload, errors } = this.validate(request)
