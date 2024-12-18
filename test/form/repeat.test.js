@@ -435,7 +435,10 @@ describe('Repeat POST tests', () => {
     await server.inject({
       method: 'POST',
       url: `${basePath}/summary`,
-      headers
+      headers,
+      payload: {
+        action: FormAction.Send
+      }
     })
 
     expect(submit).toHaveBeenCalledWith({
