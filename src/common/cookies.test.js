@@ -9,13 +9,15 @@ describe('cookies', () => {
 
   it('converts a malformed policy to the default', () => {
     expect(parseCookieConsent('{{{')).toEqual({
-      analytics: null
+      analytics: null,
+      dismissed: false
     })
   })
 
   it('converts an invalid policy to the default', () => {
     expect(parseCookieConsent('{unknown:false}')).toEqual({
-      analytics: null
+      analytics: null,
+      dismissed: false
     })
   })
 })

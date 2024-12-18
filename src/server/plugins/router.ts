@@ -84,6 +84,7 @@ export default {
           }
 
           cookieConsent.analytics = analyticsDecision === 'yes'
+          cookieConsent.dismissed = false
 
           const serialisedCookieConsent = serialiseCookieConsent(cookieConsent)
           h.state('cookieConsent', serialisedCookieConsent)
