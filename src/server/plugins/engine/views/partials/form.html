@@ -2,7 +2,8 @@
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList -%}
 
 <form method="post" novalidate>
-  <input type="hidden" name="crumb" value="{{crumb}}">
+  <input type="hidden" name="crumb" value="{{ crumb }}">
+  <input type="hidden" name="action" value="continue">
   {{ componentList(components) }}
 
   {% if isStartPage %}

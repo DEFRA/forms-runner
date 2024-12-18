@@ -268,7 +268,14 @@ export const plugin = {
             slug: slugSchema,
             path: pathSchema,
             itemId: itemIdSchema.optional()
-          })
+          }),
+          payload: Joi.object()
+            .keys({
+              crumb: crumbSchema,
+              action: actionSchema
+            })
+            .unknown(true)
+            .required()
         }
       }
     })
@@ -285,7 +292,14 @@ export const plugin = {
             slug: slugSchema,
             path: pathSchema,
             itemId: itemIdSchema.optional()
-          })
+          }),
+          payload: Joi.object()
+            .keys({
+              crumb: crumbSchema,
+              action: actionSchema
+            })
+            .unknown(true)
+            .required()
         }
       }
     })
@@ -476,6 +490,7 @@ export const plugin = {
           payload: Joi.object()
             .keys({
               crumb: crumbSchema,
+              action: actionSchema,
               confirm: confirmSchema
             })
             .required()
@@ -499,6 +514,7 @@ export const plugin = {
           payload: Joi.object()
             .keys({
               crumb: crumbSchema,
+              action: actionSchema,
               confirm: confirmSchema
             })
             .required()

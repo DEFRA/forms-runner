@@ -14,7 +14,7 @@ import {
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type FormContextRequest } from '~/src/server/plugins/engine/types.js'
-import { FormStatus } from '~/src/server/routes/types.js'
+import { FormAction, FormStatus } from '~/src/server/routes/types.js'
 import definition from '~/test/form/definitions/basic.js'
 
 describe('Helpers', () => {
@@ -79,7 +79,9 @@ describe('Helpers', () => {
 
         request: {
           method: 'post',
-          payload: {}
+          payload: {
+            action: FormAction.Continue
+          }
         } satisfies Partial<FormContextRequest>,
 
         redirect: {
@@ -121,7 +123,9 @@ describe('Helpers', () => {
 
         request: {
           method: 'post',
-          payload: {},
+          payload: {
+            action: FormAction.Continue
+          },
           query: {
             myParam1: 'myValue1',
             myParam2: 'myValue2',
@@ -164,7 +168,9 @@ describe('Helpers', () => {
 
         request: {
           method: 'post',
-          payload: {},
+          payload: {
+            action: FormAction.Continue
+          },
           query: { returnUrl: 'https://www.gov.uk/help/privacy-notice' }
         } satisfies Partial<FormContextRequest>,
 
