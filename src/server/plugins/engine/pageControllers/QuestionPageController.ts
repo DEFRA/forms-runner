@@ -22,6 +22,7 @@ import { getFormMetadata } from '~/src/server/plugins/engine/services/formsServi
 import {
   type FormContext,
   type FormContextProgress,
+  type FormContextRequest,
   type FormPageViewModel,
   type FormPayload,
   type FormSubmissionError,
@@ -401,7 +402,7 @@ export class QuestionPageController extends PageController {
   }
 
   proceed(
-    request: FormRequest | FormRequestPayload,
+    request: FormContextRequest,
     h: Pick<ResponseToolkit, 'redirect' | 'view'>,
     nextPath?: string
   ) {

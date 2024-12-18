@@ -42,7 +42,8 @@ describe('RepeatPageController', () => {
             path: 'pizza-order',
             slug: 'repeat'
           },
-          query: {}
+          query: {},
+          app: { model }
         }
 
         expect(controller.getSummaryPath(request)).toBe('/pizza-order/summary')
@@ -65,7 +66,8 @@ describe('RepeatPageController', () => {
           },
           query: {
             itemId: itemId2
-          }
+          },
+          app: { model }
         }
 
         expect(controller.getSummaryPath(request)).toBe(
@@ -89,7 +91,8 @@ describe('RepeatPageController', () => {
           },
           query: {
             itemId: itemId2
-          }
+          },
+          app: { model }
         }
 
         expect(controller.getSummaryPath(request)).toBe('/pizza-order/summary')

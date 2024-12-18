@@ -8,7 +8,10 @@ import {
 } from '~/src/server/plugins/engine/components/types.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
-import { type FormRequest } from '~/src/server/routes/types.js'
+import {
+  type FormRequest,
+  type FormRequestPayload
+} from '~/src/server/routes/types.js'
 
 /**
  * Form submission state stores the following in Redis:
@@ -137,8 +140,8 @@ export interface FormContextProgress extends FormContext {
 }
 
 export type FormContextRequest = Pick<
-  FormRequest,
-  'method' | 'params' | 'path' | 'query' | 'url'
+  FormRequest | FormRequestPayload,
+  'app' | 'method' | 'params' | 'path' | 'query' | 'url'
 >
 
 export interface UploadInitiateResponse {
