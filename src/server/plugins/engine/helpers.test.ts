@@ -106,22 +106,6 @@ describe('Helpers', () => {
         href: '/test/page-two',
 
         request: {
-          method: 'get',
-          query: {
-            myParam1: 'myValue1',
-            myParam2: 'myValue2',
-            returnUrl: '/test/summary'
-          }
-        } satisfies Partial<FormContextRequest>,
-
-        redirect: {
-          statusCode: StatusCodes.MOVED_TEMPORARILY
-        } satisfies Partial<ResponseObject>
-      },
-      {
-        href: '/test/page-two',
-
-        request: {
           method: 'post',
           payload: {
             action: FormAction.Continue
@@ -176,6 +160,25 @@ describe('Helpers', () => {
 
         redirect: {
           statusCode: StatusCodes.SEE_OTHER
+        } satisfies Partial<ResponseObject>
+      },
+      {
+        href: '/test/repeater/page-two',
+
+        request: {
+          method: 'post',
+          query: {
+            myParam1: 'myValue1',
+            myParam2: 'myValue2',
+            returnUrl: '/test/repeater/summary'
+          },
+          payload: {
+            action: FormAction.AddAnother
+          }
+        } satisfies Partial<FormContextRequest>,
+
+        redirect: {
+          statusCode: StatusCodes.MOVED_TEMPORARILY
         } satisfies Partial<ResponseObject>
       }
     ])(

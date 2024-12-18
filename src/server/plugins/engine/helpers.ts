@@ -14,24 +14,34 @@ import {
   type FormContextRequest,
   type FormSubmissionError
 } from '~/src/server/plugins/engine/types.js'
-import { FormStatus, type FormQuery } from '~/src/server/routes/types.js'
+import {
+  FormAction,
+  FormStatus,
+  type FormQuery
+} from '~/src/server/routes/types.js'
 
 const logger = createLogger()
 
 export function proceed(
-  request: Pick<FormContextRequest, 'method' | 'query'>,
+  request: Pick<FormContextRequest, 'method' | 'payload' | 'query'>,
   h: Pick<ResponseToolkit, 'redirect' | 'view'>,
   nextUrl: string
 ) {
-  const { returnUrl } = request.query
+  const { method, payload, query } = request
+
+  const isReturnAllowed =
+    payload && 'action' in payload
+      ? payload.action === FormAction.Continue
+      : false
 
   // Redirect to return location (optional)
-  const response = returnUrl?.startsWith('/')
-    ? h.redirect(returnUrl)
-    : h.redirect(nextUrl)
+  const response =
+    isReturnAllowed && query.returnUrl?.startsWith('/')
+      ? h.redirect(query.returnUrl)
+      : h.redirect(nextUrl)
 
   // Redirect POST to GET to avoid resubmission
-  return request.method === 'post'
+  return method === 'post'
     ? response.code(StatusCodes.SEE_OTHER)
     : response.code(StatusCodes.MOVED_TEMPORARILY)
 }
