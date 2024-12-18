@@ -36,20 +36,18 @@
           items: [
             {
               value: "yes",
-              text: "Yes",
-              checked: cookieConsent.analytics === true
+              text: "Yes"
             },
             {
               value: "no",
-              text: "No",
-              checked: cookieConsent.analytics === false
+              text: "No"
             }
-          ]
+          ],
+          value: "yes" if cookieConsent.analytics === true else "no"
         }) }}
 
         {{ govukButton({
-          text: "Save cookie settings",
-          type: "submit"
+          text: "Save cookie settings"
         }) }}
     </form>
   </div>
