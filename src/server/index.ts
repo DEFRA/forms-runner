@@ -125,7 +125,7 @@ export async function createServer(routeConfig?: RouteConfig) {
   await server.register(pluginErrorPages)
   await server.register(blipp)
 
-  server.state('cookie_consent', {
+  server.state('cookieConsent', {
     ttl: 365 * 24 * 60 * 60 * 1000, // 1 year in ms
     clearInvalid: true,
     isSecure: config.get('isProduction'),
