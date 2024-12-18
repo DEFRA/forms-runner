@@ -89,10 +89,11 @@ export class SummaryPageController extends QuestionPageController {
 
       const state = await this.getState(request)
       const context = model.getFormContext(request, state)
+      const relevantPath = this.getRelevantPath(context)
 
       // Redirect back to last relevant page
-      if (!context.paths.includes(path)) {
-        return this.proceed(request, h, this.getRelevantPath(context))
+      if (relevantPath !== path) {
+        return this.proceed(request, h, relevantPath)
       }
 
       const viewModel = this.getSummaryViewModel(request, context)
@@ -117,12 +118,18 @@ export class SummaryPageController extends QuestionPageController {
       request: FormRequestPayload,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { model } = this
+      const { model, path } = this
 
       const { cacheService } = request.services([])
 
       const state = await this.getState(request)
       const context = model.getFormContext(request, state)
+      const relevantPath = this.getRelevantPath(context)
+
+      // Redirect back to last relevant page
+      if (relevantPath !== path) {
+        return this.proceed(request, h, relevantPath)
+      }
 
       const { params } = request
 
