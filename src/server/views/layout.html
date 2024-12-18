@@ -139,11 +139,11 @@
 
 
 {% block bodyEnd %}
-  <script type="module" nonce="{{ scriptNonce }}" src="{{ getAssetPath("application.js") }}"></script>
+  <script type="module" nonce="{{ cspNonce }}" src="{{ getAssetPath("application.js") }}"></script>
 
   {% if googleAnalyticsTrackingId and cookieConsent.analytics === true %}
-  <script id="ga-tag-js-main" nonce="{{ scriptNonce }}" src="https://www.googletagmanager.com/gtag/js?id={{ googleAnalyticsTrackingId }}" defer></script>
-  <script id="ga-tag-js-init" nonce="{{ scriptNonce }}">
+  <script id="ga-tag-js-main" nonce="{{ cspNonce }}" src="https://www.googletagmanager.com/gtag/js?id={{ googleAnalyticsTrackingId }}" defer></script>
+  <script id="ga-tag-js-init" nonce="{{ cspNonce }}">
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
