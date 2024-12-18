@@ -103,7 +103,10 @@ export class RepeatPageController extends QuestionPageController {
     return state
   }
 
-  proceed(request: FormRequest, h: Pick<ResponseToolkit, 'redirect' | 'view'>) {
+  proceed(
+    request: FormContextRequest,
+    h: Pick<ResponseToolkit, 'redirect' | 'view'>
+  ) {
     const nextPath = this.getSummaryPath(request)
     return super.proceed(request, h, nextPath)
   }
@@ -112,7 +115,7 @@ export class RepeatPageController extends QuestionPageController {
    * Gets the repeat data from `request.app`
    * @param request - the hapi request
    */
-  private getRepeatAppData(request: FormRequest | FormRequestPayload) {
+  private getRepeatAppData(request: FormContextRequest) {
     const repeat = request.app.repeat
 
     if (!repeat) {
@@ -325,7 +328,7 @@ export class RepeatPageController extends QuestionPageController {
   }
 
   getViewModel(
-    request: FormRequest | FormRequestPayload,
+    request: FormContextRequest,
     payload: FormPayload,
     errors?: FormSubmissionError[]
   ): FormPageViewModel {
@@ -346,7 +349,7 @@ export class RepeatPageController extends QuestionPageController {
   }
 
   getListSummaryViewModel(
-    request: FormRequest | FormRequestPayload,
+    request: FormContextRequest,
     state: RepeatState[],
     errors?: FormSubmissionError[]
   ): {

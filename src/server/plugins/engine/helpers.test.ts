@@ -78,7 +78,8 @@ describe('Helpers', () => {
         href: '/test/page-two',
 
         request: {
-          method: 'post'
+          method: 'post',
+          payload: {}
         } satisfies Partial<FormContextRequest>,
 
         redirect: {
@@ -120,6 +121,7 @@ describe('Helpers', () => {
 
         request: {
           method: 'post',
+          payload: {},
           query: {
             myParam1: 'myValue1',
             myParam2: 'myValue2',
@@ -162,6 +164,7 @@ describe('Helpers', () => {
 
         request: {
           method: 'post',
+          payload: {},
           query: { returnUrl: 'https://www.gov.uk/help/privacy-notice' }
         } satisfies Partial<FormContextRequest>,
 

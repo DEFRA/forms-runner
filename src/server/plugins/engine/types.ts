@@ -8,10 +8,7 @@ import {
 } from '~/src/server/plugins/engine/components/types.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
-import {
-  type FormRequest,
-  type FormRequestPayload
-} from '~/src/server/routes/types.js'
+import { type FormRequest } from '~/src/server/routes/types.js'
 
 /**
  * Form submission state stores the following in Redis:
@@ -81,11 +78,13 @@ export interface FormSubmissionError
 export type FormSubmissionPayload = {
   action?: string
   confirm?: boolean
-  itemId?: string
   crumb?: string
 } & FormPayload
 
-export type FormPayload = Partial<Record<string, FormValue>>
+export type FormPayload = {
+  itemId?: string
+} & Partial<Record<string, FormValue>>
+
 export type FormValue =
   | Item['value']
   | Item['value'][]
@@ -139,10 +138,21 @@ export interface FormContextProgress extends FormContext {
   paths: string[]
 }
 
-export type FormContextRequest = Pick<
-  FormRequest | FormRequestPayload,
-  'app' | 'method' | 'params' | 'path' | 'query' | 'url'
->
+export type FormContextRequest = (
+  | {
+      method: 'get'
+      payload?: undefined
+    }
+  | {
+      method: 'post'
+      payload: FormSubmissionPayload
+    }
+  | {
+      method: FormRequest['method']
+      payload?: object | undefined
+    }
+) &
+  Pick<FormRequest, 'app' | 'method' | 'params' | 'path' | 'query' | 'url'>
 
 export interface UploadInitiateResponse {
   uploadId: string
