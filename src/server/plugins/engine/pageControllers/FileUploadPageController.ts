@@ -92,7 +92,7 @@ export class FileUploadPageController extends QuestionPageController {
     this.viewName = 'file-upload'
   }
 
-  async getState(request: FormRequest) {
+  async getState(request: FormRequest | FormRequestPayload) {
     // Get the actual state
     const state = await super.getState(request)
     const name = this.getComponentName()

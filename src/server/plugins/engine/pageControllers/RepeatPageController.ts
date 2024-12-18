@@ -90,7 +90,7 @@ export class RepeatPageController extends QuestionPageController {
     }
   }
 
-  async getState(request: FormRequest) {
+  async getState(request: FormRequest | FormRequestPayload) {
     const state = await super.getState(request)
     const { item } = this.getRepeatAppData(request)
 
