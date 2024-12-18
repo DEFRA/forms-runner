@@ -24,36 +24,23 @@ import {
   getFormMetadata
 } from '~/src/server/plugins/engine/services/formsService.js'
 import {
-  FormAction,
-  FormStatus,
   type FormRequest,
   type FormRequestPayload,
   type FormRequestPayloadRefs,
   type FormRequestRefs
 } from '~/src/server/routes/types.js'
+import {
+  actionSchema,
+  confirmSchema,
+  crumbSchema,
+  itemIdSchema,
+  pathSchema,
+  stateSchema
+} from '~/src/server/schemas/index.js'
 
 export interface PluginOptions {
   model?: FormModel
 }
-
-const stateSchema = Joi.string()
-  .valid(FormStatus.Draft, FormStatus.Live)
-  .required()
-
-const actionSchema = Joi.string()
-  .valid(
-    FormAction.Continue,
-    FormAction.Delete,
-    FormAction.AddAnother,
-    FormAction.Send
-  )
-  .default(FormAction.Continue)
-  .optional()
-
-const pathSchema = Joi.string().required()
-const itemIdSchema = Joi.string().uuid().required()
-const crumbSchema = Joi.string().optional().allow('')
-const confirmSchema = Joi.boolean().default(false)
 
 export const plugin = {
   name: '@defra/forms-runner/engine',
@@ -236,7 +223,7 @@ export const plugin = {
           params: Joi.object().keys({
             slug: slugSchema,
             path: pathSchema,
-            itemId: Joi.string().uuid()
+            itemId: itemIdSchema.optional()
           })
         }
       }
@@ -253,7 +240,7 @@ export const plugin = {
             state: stateSchema,
             slug: slugSchema,
             path: pathSchema,
-            itemId: Joi.string().uuid()
+            itemId: itemIdSchema.optional()
           })
         }
       }
@@ -280,7 +267,7 @@ export const plugin = {
           params: Joi.object().keys({
             slug: slugSchema,
             path: pathSchema,
-            itemId: Joi.string().uuid()
+            itemId: itemIdSchema.optional()
           })
         }
       }
@@ -297,7 +284,7 @@ export const plugin = {
             state: stateSchema,
             slug: slugSchema,
             path: pathSchema,
-            itemId: Joi.string().uuid()
+            itemId: itemIdSchema.optional()
           })
         }
       }
