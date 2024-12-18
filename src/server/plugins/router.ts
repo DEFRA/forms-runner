@@ -88,8 +88,6 @@ export default {
           const serialisedCookieConsent = serialiseCookieConsent(cookieConsent)
           h.state('cookieConsent', serialisedCookieConsent)
 
-          request.yar.flash('cookieConsentUpdated', true, true)
-
           return h.redirect(request.info.referrer)
         },
         options: {
