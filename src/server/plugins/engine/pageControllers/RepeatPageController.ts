@@ -455,6 +455,7 @@ export class RepeatPageController extends QuestionPageController {
       pageTitle: `You have added ${count} ${title}${count === 1 ? '' : 's'}`,
       sectionTitle,
       showTitle: true,
+      context,
       errors,
       serviceUrl: this.getHref('/'),
       checkAnswers: [{ summaryList }],

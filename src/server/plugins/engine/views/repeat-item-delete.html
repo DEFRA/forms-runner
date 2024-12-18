@@ -33,4 +33,8 @@
       </form>
     </div>
   </div>
+
+  {% if cdpEnvironment == 'local' and context | length %}
+    {% include "partials/debug.html" %}
+  {% endif %}
 {% endblock %}
