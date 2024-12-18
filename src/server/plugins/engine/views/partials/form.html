@@ -4,11 +4,12 @@
 <form method="post" novalidate>
   <input type="hidden" name="crumb" value="{{ crumb }}">
   <input type="hidden" name="action" value="continue">
+
   {{ componentList(components) }}
 
-  {% if isStartPage %}
-    {{ govukButton({ attributes: { id: "submit" }, text: "Start now", isStartButton: true }) }}
-  {% else %}
-    {{ govukButton({ attributes: { id: "submit" }, text: "Continue" }) }}
-  {% endif %}
+  {{ govukButton({
+    text: "Start now" if isStartPage else "Continue",
+    isStartButton: isStartPage,
+    preventDoubleClick: true
+  }) }}
 </form>

@@ -23,8 +23,13 @@
       <form method="post" novalidate>
         <input type="hidden" name="crumb" value="{{ crumb }}">
         <input type="hidden" name="action" value="delete">
+
         {{ govukRadios(field) }}
-        {{ govukButton({ attributes: { id: "submit", type: "submit" }, text: "Continue" }) }}
+
+        {{ govukButton({
+          text: "Continue",
+          preventDoubleClick: true
+        }) }}
       </form>
     </div>
   </div>
