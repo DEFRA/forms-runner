@@ -4,7 +4,6 @@ import { type Plugin } from '@hapi/hapi'
 import { type ServerYar, type Yar } from '@hapi/yar'
 import { type Logger } from 'pino'
 
-import { type sessionNames } from '~/src/common/constants/session-names.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FileState,
@@ -103,12 +102,4 @@ declare module 'hapi-pulse' {
   }
 
   export = hapiPulse
-}
-
-declare module '@hapi/yar' {
-  type CookieConsentUpdatedKey = (typeof sessionNames)['cookieConsentUpdated']
-
-  interface Yar {
-    flash(type: CookieConsentUpdatedKey): boolean[]
-  }
 }
