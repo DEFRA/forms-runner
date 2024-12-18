@@ -33,8 +33,8 @@ export function context(request) {
   let cookieConsent
   let cookieConsentUpdated
 
-  if (typeof state?.cookie_consent === 'string') {
-    cookieConsent = parseCookieConsent(state.cookie_consent)
+  if (typeof state?.cookieConsent === 'string') {
+    cookieConsent = parseCookieConsent(state.cookieConsent)
 
     try {
       cookieConsentUpdated = yar?.flash('cookieConsentUpdated').at(0)
