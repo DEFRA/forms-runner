@@ -65,14 +65,11 @@ export class RepeatPageController extends QuestionPageController {
     return formData
   }
 
-  getStateFromValidForm(
-    request: FormRequestPayload,
-    payload: FormRequestPayload['payload']
-  ) {
+  getStateFromValidForm(request: FormContextRequest, payload: FormPayload) {
     const { item, list } = this.getRepeatAppData(request)
     const state = super.getStateFromValidForm(request, payload)
 
-    if (!payload.itemId) {
+    if (typeof payload.itemId !== 'string') {
       throw badRequest('No item ID found in the payload')
     }
 
