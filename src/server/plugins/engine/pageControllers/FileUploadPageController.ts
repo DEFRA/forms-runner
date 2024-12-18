@@ -27,6 +27,7 @@ import {
   type FormContextRequest,
   type FormPayload,
   type FormSubmissionError,
+  type FormSubmissionState,
   type TempFileState,
   type UploadState,
   type UploadStatusResponse
@@ -35,7 +36,6 @@ import {
   type FormRequest,
   type FormRequestPayload
 } from '~/src/server/routes/types.js'
-import { type CacheService } from '~/src/server/services/cacheService.js'
 
 const MAX_UPLOADS = 25
 
@@ -116,16 +116,37 @@ export class FileUploadPageController extends QuestionPageController {
     return state
   }
 
+  getUploadState(
+    request: FormRequest | FormRequestPayload,
+    state: FormSubmissionState
+  ) {
+    const { path } = request
+    const { upload } = state
+
+    return upload?.[path] ?? { files: [] }
+  }
+
+  mergeUploadState(
+    request: FormRequest | FormRequestPayload,
+    state: FormSubmissionState,
+    uploadState: TempFileState
+  ) {
+    const { path } = request
+    const { cacheService } = request.services([])
+
+    return cacheService.mergeState(request, state, {
+      upload: { [path]: uploadState }
+    })
+  }
+
   makeGetRouteHandler() {
     return async (
       request: FormRequest,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { cacheService } = request.services([])
-      const uploadState = await cacheService.getUploadState(request)
+      const state = await this.getState(request)
 
-      await this.refreshUpload(request, uploadState, cacheService)
-
+      await this.refreshUpload(request, state)
       return super.makeGetRouteHandler()(request, h)
     }
   }
@@ -135,22 +156,16 @@ export class FileUploadPageController extends QuestionPageController {
       request: FormRequestPayload,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { cacheService } = request.services([])
-      const uploadState = await cacheService.getUploadState(request)
+      const state = await this.getState(request)
 
       // Check for any removed files in the POST payload
-      const removed = await this.checkRemovedFiles(
-        request,
-        uploadState,
-        cacheService
-      )
+      const stateUpdated = await this.checkRemovedFiles(request, state)
 
-      if (removed) {
+      if (!Object.is(state, stateUpdated)) {
         return this.proceed(request, h, this.path)
       }
 
-      await this.refreshUpload(request, uploadState, cacheService)
-
+      await this.refreshUpload(request, state)
       return super.makePostRouteHandler()(request, h)
     }
   }
@@ -232,37 +247,35 @@ export class FileUploadPageController extends QuestionPageController {
    * For all of the files stored in state that are `pending`,
    * their status is refreshed as they may now be `complete` or `rejected`.
    * @param request - the hapi request
-   * @param uploadState - the upload state
-   * @param cacheService - the cache service
+   * @param state - the form state
    */
   private async refreshUpload(
     request: FormRequest | FormRequestPayload,
-    uploadState: TempFileState,
-    cacheService: CacheService
+    state: FormSubmissionState
   ) {
-    await this.checkUploadStatus(request, uploadState, cacheService)
-    await this.refreshPendingFiles(request, uploadState, cacheService)
+    state = await this.checkUploadStatus(request, state)
+    state = await this.refreshPendingFiles(request, state)
 
-    const { upload, files } = uploadState
+    const { upload, files } = this.getUploadState(request, state)
 
     // Store the files and formAction on the request
     request.app.files = files
     request.app.formAction = upload?.uploadUrl
+
+    return state
   }
 
   /**
    * If an upload exists and hasn't been consumed
    * it gets re-used, otherwise a new one is initiated.
    * @param request - the hapi request
-   * @param uploadState - the upload state
-   * @param cacheService - the cache service
+   * @param state - the form state
    */
   private async checkUploadStatus(
     request: FormRequest | FormRequestPayload,
-    uploadState: TempFileState,
-    cacheService: CacheService
+    state: FormSubmissionState
   ) {
-    const { upload, files } = uploadState
+    const { upload, files } = this.getUploadState(request, state)
 
     if (upload?.uploadId) {
       // If there is a current upload check
@@ -278,7 +291,7 @@ export class FileUploadPageController extends QuestionPageController {
 
       // If the upload is in an "initiated" status, re-use it
       if (statusResponse.uploadStatus === UploadStatus.initiated) {
-        return upload
+        return state
       } else {
         // Only add to files state if the file validates.
         // This secures against html tampering of the file input
@@ -297,10 +310,10 @@ export class FileUploadPageController extends QuestionPageController {
           files.unshift(prepareFileState(validateResult.value))
         }
 
-        await this.initiateAndStoreNewUpload(request, uploadState, cacheService)
+        return this.initiateAndStoreNewUpload(request, state)
       }
     } else {
-      await this.initiateAndStoreNewUpload(request, uploadState, cacheService)
+      return this.initiateAndStoreNewUpload(request, state)
     }
   }
 
@@ -308,14 +321,14 @@ export class FileUploadPageController extends QuestionPageController {
    * For all of the files stored in state that are `pending`,
    * their status is refreshed as they may now be `complete` or `rejected`.
    * @param request - the hapi request
-   * @param uploadState - the upload state
-   * @param cacheService - the cache service
+   * @param state - the form state
    */
   private async refreshPendingFiles(
     request: FormRequest | FormRequestPayload,
-    uploadState: TempFileState,
-    cacheService: CacheService
+    state: FormSubmissionState
   ) {
+    const uploadState = this.getUploadState(request, state)
+
     const promises: Promise<UploadStatusResponse | undefined>[] = []
     const indexes: number[] = []
 
@@ -348,25 +361,27 @@ export class FileUploadPageController extends QuestionPageController {
       }
 
       if (filesUpdated) {
-        await cacheService.mergeUploadState(request, uploadState)
+        return this.mergeUploadState(request, state, uploadState)
       }
     }
+
+    return state
   }
 
   /**
    * Checks the payload for a file getting removed
    * and removes it from the upload files if found
    * @param request - the hapi request
-   * @param uploadState - the upload state
-   * @param cacheService - the cache service
-   * @returns true if any files have been removed otherwise false
+   * @param state - the form state
+   * @returns updated state if any files have been removed
    */
   private async checkRemovedFiles(
     request: FormRequestPayload,
-    uploadState: TempFileState,
-    cacheService: CacheService
+    state: FormSubmissionState
   ) {
     const { __remove: removeId } = this.getFormData(request)
+
+    const uploadState = this.getUploadState(request, state)
 
     if (removeId) {
       const fileToRemove = uploadState.files.find(
@@ -378,27 +393,24 @@ export class FileUploadPageController extends QuestionPageController {
           (item) => item !== fileToRemove
         )
 
-        await cacheService.mergeUploadState(request, uploadState)
+        return this.mergeUploadState(request, state, uploadState)
       }
-
-      return true
     }
 
-    return false
+    return state
   }
 
   /**
    * Initiates a CDP file upload and stores in the upload state
    * @param request - the hapi request
-   * @param uploadState - the upload state
-   * @param cacheService - the cache service
+   * @param state - the form state
    */
   private async initiateAndStoreNewUpload(
     request: FormRequest | FormRequestPayload,
-    uploadState: TempFileState,
-    cacheService: CacheService
+    state: FormSubmissionState
   ) {
     const { options, schema } = this.fileUploadComponent
+    const uploadState = this.getUploadState(request, state)
 
     // Reset the upload in state
     uploadState.upload = undefined
@@ -409,6 +421,7 @@ export class FileUploadPageController extends QuestionPageController {
     if (uploadState.files.length < max) {
       const outputEmail =
         this.model.def.outputEmail ?? 'defraforms@defra.gov.uk'
+
       const newUpload = await initiateUpload(
         request.path,
         outputEmail,
@@ -422,6 +435,6 @@ export class FileUploadPageController extends QuestionPageController {
       uploadState.upload = newUpload
     }
 
-    await cacheService.mergeUploadState(request, uploadState)
+    return this.mergeUploadState(request, state, uploadState)
   }
 }
