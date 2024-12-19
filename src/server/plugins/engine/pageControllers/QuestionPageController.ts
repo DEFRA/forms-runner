@@ -3,7 +3,8 @@ import {
   hasComponents,
   hasNext,
   type Link,
-  type Page
+  type Page,
+  type PageContent
 } from '@defra/forms-model'
 import { type ResponseToolkit, type RouteOptions } from '@hapi/hapi'
 import { type ValidationErrorItem } from 'joi'
@@ -38,10 +39,12 @@ import {
 import { actionSchema, crumbSchema } from '~/src/server/schemas/index.js'
 
 export class QuestionPageController extends PageController {
+  declare pageDef: Exclude<Page, PageContent>
+
   collection: ComponentCollection
   errorSummaryTitle = 'There is a problem'
 
-  constructor(model: FormModel, pageDef: Page) {
+  constructor(model: FormModel, pageDef: Exclude<Page, PageContent>) {
     super(model, pageDef)
 
     // Components collection
