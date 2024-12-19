@@ -5,6 +5,7 @@ import { badRequest, notFound } from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
 import Joi from 'joi'
 
+import { isRepeatState } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
@@ -14,7 +15,8 @@ import {
   type FormPayload,
   type FormSubmissionError,
   type FormSubmissionState,
-  type RepeatState,
+  type RepeatItemState,
+  type RepeatListState,
   type SummaryList,
   type SummaryListAction
 } from '~/src/server/plugins/engine/types.js'
@@ -40,7 +42,7 @@ export class RepeatPageController extends QuestionPageController {
     const itemId = Joi.string().uuid().required()
 
     this.collection.formSchema = this.collection.formSchema.append({ itemId })
-    this.collection.stateSchema = Joi.object<RepeatState>().keys({
+    this.collection.stateSchema = Joi.object<RepeatItemState>().keys({
       [options.name]: Joi.array()
         .items(this.collection.stateSchema.append({ itemId }))
         .min(schema.min)
@@ -74,7 +76,7 @@ export class RepeatPageController extends QuestionPageController {
       throw badRequest('No item ID found in the payload')
     }
 
-    const updated: RepeatState = { ...state, itemId: payload.itemId }
+    const updated: RepeatItemState = { ...state, itemId: payload.itemId }
     const newList = [...list]
 
     if (!item) {
@@ -157,13 +159,7 @@ export class RepeatPageController extends QuestionPageController {
     const { name } = this.repeat.options
     const values = state[name]
 
-    if (!Array.isArray(values)) {
-      return []
-    }
-
-    return values.filter(
-      (value) => typeof value === 'object' && 'itemId' in value
-    )
+    return isRepeatState(values) ? values : []
   }
 
   makeGetRouteHandler() {
@@ -350,7 +346,7 @@ export class RepeatPageController extends QuestionPageController {
 
   getListSummaryViewModel(
     request: FormContextRequest,
-    state: RepeatState[],
+    state: RepeatListState,
     errors?: FormSubmissionError[]
   ): {
     name: string | undefined

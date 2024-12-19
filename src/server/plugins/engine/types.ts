@@ -89,7 +89,7 @@ export type FormValue =
   | Item['value']
   | Item['value'][]
   | FileState[]
-  | RepeatState[]
+  | RepeatListState
   | undefined
 
 export type FormState = Partial<Record<string, FormStateValue>>
@@ -225,9 +225,11 @@ export interface TempFileState {
   files: FileState[]
 }
 
-export interface RepeatState extends FormPayload {
+export interface RepeatItemState extends FormPayload {
   itemId: string
 }
+
+export type RepeatListState = RepeatItemState[]
 
 export interface CheckAnswers {
   title?: ComponentText
