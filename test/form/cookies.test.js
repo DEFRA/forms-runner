@@ -64,7 +64,8 @@ describe(`Cookie banner and analytics`, () => {
       method: 'POST',
       url: '/help/cookie-preferences',
       payload: {
-        'cookies[analytics]': 'yes'
+        'cookies[analytics]': 'yes',
+        returnUrl: '/mypage'
       }
     })
 
@@ -116,7 +117,8 @@ describe(`Cookie banner and analytics`, () => {
       method: 'POST',
       url: '/help/cookie-preferences',
       payload: {
-        'cookies[analytics]': 'no'
+        'cookies[analytics]': 'no',
+        returnUrl: '/mypage'
       }
     })
 
@@ -170,7 +172,8 @@ describe(`Cookie banner and analytics`, () => {
       url: '/help/cookie-preferences',
       payload: {
         'cookies[analytics]': 'yes',
-        'cookies[dismissed]': 'yes'
+        'cookies[dismissed]': 'yes',
+        returnUrl: '/mypage'
       }
     })
 
@@ -222,7 +225,8 @@ describe(`Cookie preferences`, () => {
         method: 'POST',
         url: '/help/cookie-preferences',
         payload: {
-          'cookies[analytics]': value
+          'cookies[analytics]': value,
+          returnUrl: '/mypage'
         }
       })
 
