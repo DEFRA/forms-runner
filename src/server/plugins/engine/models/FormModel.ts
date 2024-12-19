@@ -264,7 +264,7 @@ export class FormModel {
 
     // Validate relevant state
     const { error } = page.model
-      .makeFilteredSchema(context.relevantPages)
+      .makeFilteredSchema(context.relevantPages.slice(0, -1))
       .validate(context.relevantState, { ...opts, stripUnknown: true })
 
     // Format relevant state errors
