@@ -65,11 +65,18 @@ export class RepeatPageController extends QuestionPageController {
     return formData
   }
 
-  getFormDataFromState(state: FormSubmissionState) {
+  getFormDataFromState(state: FormSubmissionState, itemId?: string) {
     const [name] = this.keys
 
+    const list = this.getListFromState(state)
+
+    if (itemId) {
+      const item = this.getItemFromList(list, itemId)
+      return super.getFormDataFromState(item ?? {})
+    }
+
     return {
-      [name]: this.getListFromState(state)
+      [name]: list
     }
   }
 

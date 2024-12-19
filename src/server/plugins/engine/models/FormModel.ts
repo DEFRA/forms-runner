@@ -207,11 +207,14 @@ export class FormModel {
     const currentPath = page.path
     const startPath = page.getStartPath()
 
+    // Optional item ID for repeater pages
+    const { itemId } = page.getFormData(request)
+
     const context: FormContext = {
       evaluationState: {},
       relevantState: {},
       relevantPages: [],
-      payload: page.getFormDataFromState(state),
+      payload: page.getFormDataFromState(state, itemId),
       state,
       paths: []
     }
