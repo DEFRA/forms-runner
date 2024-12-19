@@ -5,6 +5,7 @@ import { badRequest, notFound } from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
 import Joi from 'joi'
 
+import { isRepeatState } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
@@ -14,7 +15,8 @@ import {
   type FormPayload,
   type FormSubmissionError,
   type FormSubmissionState,
-  type RepeatState,
+  type RepeatItemState,
+  type RepeatListState,
   type SummaryList,
   type SummaryListAction
 } from '~/src/server/plugins/engine/types.js'
@@ -40,7 +42,7 @@ export class RepeatPageController extends QuestionPageController {
     const itemId = Joi.string().uuid().required()
 
     this.collection.formSchema = this.collection.formSchema.append({ itemId })
-    this.collection.stateSchema = Joi.object<RepeatState>().keys({
+    this.collection.stateSchema = Joi.object<RepeatItemState>().keys({
       [options.name]: Joi.array()
         .items(this.collection.stateSchema.append({ itemId }))
         .min(schema.min)
@@ -74,7 +76,7 @@ export class RepeatPageController extends QuestionPageController {
       throw badRequest('No item ID found in the payload')
     }
 
-    const updated: RepeatState = { ...state, itemId: payload.itemId }
+    const updated: RepeatItemState = { ...state, itemId: payload.itemId }
     const newList = [...list]
 
     if (!item) {
@@ -131,39 +133,33 @@ export class RepeatPageController extends QuestionPageController {
    * @param request - the hapi request
    */
   private async setRepeatAppData(request: FormRequest | FormRequestPayload) {
-    const list = await this.getList(request)
-    const { itemId } = request.params
-    const itemIndex = list.findIndex((item) => item.itemId === itemId)
+    const { app, params } = request
+    const { itemId } = params
 
-    request.app.repeat = {
-      list,
-      item:
-        itemIndex > -1
-          ? { value: list[itemIndex], index: itemIndex }
-          : undefined
-    }
-
-    return request.app.repeat
-  }
-
-  private async getList(request: FormRequest | FormRequestPayload) {
     const { cacheService } = request.services([])
     const state = await cacheService.getState(request)
 
-    return this.getListFromState(state)
+    const list = this.getListFromState(state)
+    const value = this.getItemFromList(list, itemId)
+    const index = value ? list.indexOf(value) : -1
+
+    app.repeat = {
+      list,
+      item: value ? { value, index } : undefined
+    }
+
+    return app.repeat
+  }
+
+  getItemFromList(list: RepeatListState, itemId?: string) {
+    return list.find((item) => item.itemId === itemId)
   }
 
   getListFromState(state: FormSubmissionState) {
     const { name } = this.repeat.options
     const values = state[name]
 
-    if (!Array.isArray(values)) {
-      return []
-    }
-
-    return values.filter(
-      (value) => typeof value === 'object' && 'itemId' in value
-    )
+    return isRepeatState(values) ? values : []
   }
 
   makeGetRouteHandler() {
@@ -350,7 +346,7 @@ export class RepeatPageController extends QuestionPageController {
 
   getListSummaryViewModel(
     request: FormContextRequest,
-    state: RepeatState[],
+    state: RepeatListState,
     errors?: FormSubmissionError[]
   ): {
     name: string | undefined

@@ -7,6 +7,7 @@ import { within } from '@testing-library/dom'
 import { StatusCodes } from 'http-status-codes'
 
 import { createServer } from '~/src/server/index.js'
+import { isRepeatState } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { submit } from '~/src/server/plugins/engine/services/formSubmissionService.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import { FormAction } from '~/src/server/routes/types.js'
@@ -57,21 +58,18 @@ async function createRepeatItem(
     `${basePath}/pizza-order/summary?itemId=${itemId}`
   )
 
-  const repeatName = repeatPage.repeat.options.name
-
   // Extract the session cookie
   const request = res1.request
   const { cacheService } = request.services([])
-  const state = await cacheService.getState(request)
-  const listState = state[repeatName]
 
-  if (!Array.isArray(listState) || listState.length !== expectedItemCount) {
+  const { name } = repeatPage.repeat.options
+  const state = await cacheService.getState(request)
+
+  if (!isRepeatState(state[name]) || state[name].length !== expectedItemCount) {
     throw new Error('Unexpected list state')
   }
 
-  const item = listState
-    .filter((value) => typeof value === 'object' && 'itemId' in value)
-    .at(-1)
+  const item = state[name].at(-1)
 
   if (!item) {
     throw new Error('No item state found')
