@@ -227,15 +227,18 @@ describe(`Cookie preferences`, () => {
         url: '/help/cookie-preferences',
         payload: {
           'cookies[analytics]': value,
-          returnUrl: '/mypage'
+          returnUrl: '/help/cookie-preferences'
         }
       })
 
-      const headers = getCookieHeader(sessionInitialisationResponse, [
-        'crumb',
-        'session',
-        'cookieConsent'
-      ])
+      const headers = {
+        Referer: '/help/cookie-preferences',
+        ...getCookieHeader(sessionInitialisationResponse, [
+          'crumb',
+          'session',
+          'cookieConsent'
+        ])
+      }
 
       const { container } = await renderResponse(server, {
         method: 'GET',
@@ -247,9 +250,56 @@ describe(`Cookie preferences`, () => {
         name: text
       })
 
+      const $successNotification = container.getByRole('alert', {
+        name: 'Success'
+      })
+
       expect($input).toBeChecked()
+      expect($successNotification).toHaveTextContent(
+        'You’ve set your cookie preferences.'
+      )
     }
   )
+
+  test("doesn't show the success banner if the user hasn't been posted from the cookie preferences page", async () => {
+    server = await createServer()
+    await server.initialize()
+
+    // set the cookie preferences
+    const sessionInitialisationResponse = await server.inject({
+      method: 'POST',
+      url: '/help/cookie-preferences',
+      payload: {
+        'cookies[analytics]': 'yes',
+        returnUrl: '/help/cookie-preferences'
+      }
+    })
+
+    const headers = {
+      ...getCookieHeader(sessionInitialisationResponse, [
+        'crumb',
+        'session',
+        'cookieConsent'
+      ])
+    }
+
+    const { container } = await renderResponse(server, {
+      method: 'GET',
+      url: '/help/cookie-preferences',
+      headers
+    })
+
+    const $input = container.getByRole('radio', {
+      name: 'Yes'
+    })
+
+    const $successNotification = container.queryByRole('alert', {
+      name: 'Success'
+    })
+
+    expect($input).toBeChecked()
+    expect($successNotification).not.toBeInTheDocument()
+  })
 
   test('defaults to no if one is not provided', async () => {
     server = await createServer()
