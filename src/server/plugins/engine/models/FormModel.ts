@@ -310,7 +310,7 @@ function validateFormState(
 
   // Validate relevant state
   const { error } = page.model
-    .makeFilteredSchema(relevantPages)
+    .makeFilteredSchema(relevantPages.slice(0, -1))
     .validate(relevantState, { ...opts, stripUnknown: true })
 
   // Add relevant state errors
