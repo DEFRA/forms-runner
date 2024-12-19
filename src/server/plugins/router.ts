@@ -1,6 +1,13 @@
 import Boom from '@hapi/boom'
 import { type ServerRegisterPluginObject } from '@hapi/hapi'
+import Joi from 'joi'
 
+import {
+  defaultConsent,
+  parseCookieConsent,
+  serialiseCookieConsent
+} from '~/src/common/cookies.js'
+import { type CookieConsent } from '~/src/common/types.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import { healthRoute, publicRoutes } from '~/src/server/routes/index.js'
@@ -57,6 +64,55 @@ export default {
         path: '/help/cookies',
         handler(_request, h) {
           return h.view('help/cookies')
+        }
+      })
+
+      server.route<{ Payload: { 'cookies[analytics]': string } }>({
+        method: 'post',
+        path: '/help/cookie-preferences',
+        handler(request, h) {
+          const analyticsDecision =
+            request.payload['cookies[analytics]'].toLowerCase()
+
+          // move the parser into our JS code so we can delegate to the frontend in a future iteration
+          let cookieConsent: CookieConsent
+
+          if (typeof request.state.cookieConsent === 'string') {
+            cookieConsent = parseCookieConsent(request.state.cookieConsent)
+          } else {
+            cookieConsent = defaultConsent
+          }
+
+          cookieConsent.analytics = analyticsDecision === 'yes'
+          cookieConsent.dismissed = false
+
+          const serialisedCookieConsent = serialiseCookieConsent(cookieConsent)
+          h.state('cookieConsent', serialisedCookieConsent)
+
+          return h.redirect(request.info.referrer)
+        },
+        options: {
+          validate: {
+            payload: Joi.object({
+              'cookies[analytics]': Joi.string().valid('yes', 'no').required()
+            })
+          }
+        }
+      })
+
+      server.route({
+        method: 'get',
+        path: '/',
+        handler() {
+          return Boom.notFound()
+        }
+      })
+
+      server.route({
+        method: 'get',
+        path: '/help/cookie-preferences',
+        handler(_request, h) {
+          return h.view('help/cookie-preferences')
         }
       })
 
