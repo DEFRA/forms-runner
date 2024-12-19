@@ -15,7 +15,8 @@ import {
 } from '~/src/server/plugins/engine/components/helpers.js'
 import {
   checkEmailAddressForLiveFormSubmission,
-  checkFormStatus
+  checkFormStatus,
+  getPageHref
 } from '~/src/server/plugins/engine/helpers.js'
 import {
   SummaryViewModel,
@@ -90,10 +91,12 @@ export class SummaryPageController extends QuestionPageController {
 
       const state = await this.getState(request)
       const context = model.getFormContext(request, state)
+      const relevantPath = this.getRelevantPath(context)
 
       // Redirect back to last relevant page
-      if (!context.paths.includes(path)) {
-        return this.proceed(request, h, this.getRelevantPath(context))
+      if (relevantPath !== path) {
+        request.query.returnUrl = getPageHref(this, this.getSummaryPath())
+        return this.proceed(request, h, relevantPath)
       }
 
       const viewModel = this.getSummaryViewModel(request, context)

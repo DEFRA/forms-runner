@@ -133,7 +133,9 @@ describe('Exit pages', () => {
 
           // Redirect back to exit page
           expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-          expect(response.headers.location).toBe(`${basePath}${paths.next}`)
+          expect(response.headers.location).toBe(
+            `${basePath}${paths.next}?returnUrl=%2Fdemo-cph-number%2Fsummary`
+          )
         }
       )
 
@@ -145,7 +147,9 @@ describe('Exit pages', () => {
 
         // Redirect back to exit page
         expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-        expect(response.headers.location).toBe(`${basePath}${paths.next}`)
+        expect(response.headers.location).toBe(
+          `${basePath}${paths.next}?returnUrl=%2Fdemo-cph-number%2Fsummary`
+        )
       })
     }
   )
