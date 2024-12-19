@@ -2,6 +2,7 @@ import Boom from '@hapi/boom'
 import { type ServerRegisterPluginObject } from '@hapi/hapi'
 import Joi from 'joi'
 
+
 import {
   defaultConsent,
   parseCookieConsent,
@@ -9,6 +10,7 @@ import {
 } from '~/src/common/cookies.js'
 import { type CookieConsent } from '~/src/common/types.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { isPathRelative } from '~/src/server/plugins/engine/helpers.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import { healthRoute, publicRoutes } from '~/src/server/routes/index.js'
 
@@ -71,17 +73,24 @@ export default {
         Payload: {
           'cookies[analytics]'?: string
           'cookies[dismissed]'?: string
+          returnUrl: string
         }
       }>({
         method: 'post',
         path: '/help/cookie-preferences',
         handler(request, h) {
+          const { payload } = request
+
+          if (!isPathRelative(payload.returnUrl)) {
+            throw Boom.badRequest('Return URL must be relative')
+          }
+
           const analyticsDecision = (
-            request.payload['cookies[analytics]'] ?? ''
+            payload['cookies[analytics]'] ?? ''
           ).toLowerCase()
 
           const dismissedDecision = (
-            request.payload['cookies[dismissed]'] ?? ''
+            payload['cookies[dismissed]'] ?? ''
           ).toLowerCase()
 
           // move the parser into our JS code so we can delegate to the frontend in a future iteration
@@ -105,13 +114,14 @@ export default {
           const serialisedCookieConsent = serialiseCookieConsent(cookieConsent)
           h.state('cookieConsent', serialisedCookieConsent)
 
-          return h.redirect(request.info.referrer)
+          return h.redirect(payload.returnUrl)
         },
         options: {
           validate: {
             payload: Joi.object({
               'cookies[analytics]': Joi.string().valid('yes', 'no').optional(),
-              'cookies[dismissed]': Joi.string().valid('yes', 'no').optional()
+              'cookies[dismissed]': Joi.string().valid('yes', 'no').optional(),
+              returnUrl: Joi.string().required()
             })
           }
         }
