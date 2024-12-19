@@ -67,12 +67,22 @@ export default {
         }
       })
 
-      server.route<{ Payload: { 'cookies[analytics]': string } }>({
+      server.route<{
+        Payload: {
+          'cookies[analytics]'?: string
+          'cookies[dismissed]'?: string
+        }
+      }>({
         method: 'post',
         path: '/help/cookie-preferences',
         handler(request, h) {
-          const analyticsDecision =
-            request.payload['cookies[analytics]'].toLowerCase()
+          const analyticsDecision = (
+            request.payload['cookies[analytics]'] ?? ''
+          ).toLowerCase()
+
+          const dismissedDecision = (
+            request.payload['cookies[dismissed]'] ?? ''
+          ).toLowerCase()
 
           // move the parser into our JS code so we can delegate to the frontend in a future iteration
           let cookieConsent: CookieConsent
@@ -83,8 +93,14 @@ export default {
             cookieConsent = defaultConsent
           }
 
-          cookieConsent.analytics = analyticsDecision === 'yes'
-          cookieConsent.dismissed = false
+          if (analyticsDecision) {
+            cookieConsent.analytics = analyticsDecision === 'yes'
+            cookieConsent.dismissed = false
+          }
+
+          if (dismissedDecision) {
+            cookieConsent.dismissed = dismissedDecision === 'yes'
+          }
 
           const serialisedCookieConsent = serialiseCookieConsent(cookieConsent)
           h.state('cookieConsent', serialisedCookieConsent)
@@ -94,7 +110,8 @@ export default {
         options: {
           validate: {
             payload: Joi.object({
-              'cookies[analytics]': Joi.string().valid('yes', 'no').required()
+              'cookies[analytics]': Joi.string().valid('yes', 'no').optional(),
+              'cookies[dismissed]': Joi.string().valid('yes', 'no').optional()
             })
           }
         }
