@@ -1,12 +1,14 @@
 {% extends "govuk/template.njk" %}
 
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink -%}
 {% from "govuk/components/footer/macro.njk" import govukFooter -%}
-{% from "govuk/components/phase-banner/macro.njk" import govukPhaseBanner %}
+{% from "govuk/components/phase-banner/macro.njk" import govukPhaseBanner -%}
 {% from "govuk/components/skip-link/macro.njk" import govukSkipLink -%}
-{% from "govuk/macros/attributes.njk" import govukAttributes %}
+{% from "govuk/macros/attributes.njk" import govukAttributes -%}
 {% from "components/service-banner/macro.njk" import appServiceBanner -%}
 {% from "components/tag-env/macro.njk" import appTagEnv -%}
+{% from "govuk/components/cookie-banner/macro.njk" import govukCookieBanner -%}
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner -%}
 
 {% set productName %}
   {% if cdpEnvironment !== "prod" %}
@@ -43,6 +45,71 @@
 {% endblock %}
 
 {% block header %}
+  {% if googleAnalyticsTrackingId %}
+    <form method="post" action="/help/cookie-preferences?returnUrl={{ currentPath | urlencode }}">
+    {% set acceptHtml %}
+      <p class="govuk-body">You’ve accepted analytics cookies. You can <a class="govuk-link" href="/help/cookies">change your cookie settings</a> at any time.</p>
+    {% endset %}
+
+    {% set rejectedHtml %}
+      <p class="govuk-body">You’ve rejected analytics cookies. You can <a class="govuk-link" href="/help/cookies">change your cookie settings</a> at any time.</p>
+    {% endset %}
+
+    {% if cookieConsent.analytics !== true and cookieConsent.analytics !== false and cookieConsent.dismissed !== true %}
+      {% set html %}
+        <p class="govuk-body">We use some essential cookies to make this service work.</p>
+        <p class="govuk-body">We’d like to set analytics cookies so we can understand how people use the service and make improvements.</p>
+      {% endset %}
+
+      {{ govukCookieBanner({
+        ariaLabel: "Cookies on " + serviceName,
+        messages: [
+          {
+            headingText: serviceName,
+            html: html,
+            actions: [
+              {
+                text: "Accept analytics cookies",
+                type: "submit",
+                name: "cookies[analytics]",
+                value: "yes"
+              },
+              {
+                text: "Reject analytics cookies",
+                type: "submit",
+                name: "cookies[analytics]",
+                value: "no"
+              },
+              {
+                text: "View cookies",
+                href: "/help/cookies"
+              }
+            ]
+          }
+        ]
+      }) }}
+    {% elif cookieConsent.dismissed === false %}
+      {{ govukCookieBanner({
+        ariaLabel: "Cookies on " + serviceName,
+        messages: [
+          {
+            html: acceptHtml if cookieConsent.analytics === true else rejectedHtml,
+            actions: [
+              {
+                text: "Hide cookie message",
+                type: "submit",
+                name: "cookies[dismissed]",
+                value: "yes"
+              }
+            ]
+          }
+        ]
+      }) }}
+    {% endif %}
+
+    </form>
+  {% endif %}
+
   {% if serviceBannerText | length %}
     {{ appServiceBanner({
       title: "Service status",
@@ -92,9 +159,18 @@
 
 
 {% block bodyEnd %}
-  <script type="module" src="{{ getAssetPath("application.js") }}"></script>
-{% endblock %}
+  <script type="module" nonce="{{ cspNonce }}" src="{{ getAssetPath("application.js") }}"></script>
 
+  {% if googleAnalyticsTrackingId and cookieConsent.analytics === true %}
+  <script id="ga-tag-js-main" nonce="{{ cspNonce }}" src="https://www.googletagmanager.com/gtag/js?id={{ googleAnalyticsTrackingId }}" defer></script>
+  <script id="ga-tag-js-init" nonce="{{ cspNonce }}">
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '{{ googleAnalyticsTrackingId }}');
+  </script>
+{% endif %}
+{% endblock %}
 
 {% block footer %}
     {{ govukFooter({

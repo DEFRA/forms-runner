@@ -36,7 +36,7 @@ export function proceed(
 
   // Redirect to return location (optional)
   const response =
-    isReturnAllowed && query.returnUrl?.startsWith('/')
+    isReturnAllowed && isPathRelative(query.returnUrl)
       ? h.redirect(query.returnUrl)
       : h.redirect(nextUrl)
 
@@ -85,7 +85,7 @@ export function getPageHref(
   const path = typeof pathOrQuery === 'string' ? pathOrQuery : page.path
   const query = typeof pathOrQuery === 'object' ? pathOrQuery : queryOnly
 
-  if (!path.startsWith('/')) {
+  if (!isPathRelative(path)) {
     throw Error('Only relative URLs are allowed')
   }
 
@@ -104,6 +104,10 @@ export function getPageHref(
   }
 
   return `${url.pathname}${url.search}`
+}
+
+export function isPathRelative(path?: string) {
+  return (path ?? '').startsWith('/')
 }
 
 export function normalisePath(path = '') {

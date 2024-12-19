@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { basename, join } from 'node:path'
 
 import pkg from '~/package.json' with { type: 'json' }
+import { parseCookieConsent } from '~/src/common/cookies.js'
 import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
@@ -13,7 +14,7 @@ const logger = createLogger()
 let webpackManifest
 
 /**
- * @param {FormContextRequest | null} request
+ * @param {FormRequest | FormRequestPayload | null} request
  */
 export function context(request) {
   const manifestPath = join(config.get('publicDir'), 'assets-manifest.json')
@@ -27,7 +28,14 @@ export function context(request) {
     }
   }
 
-  const { params, path } = request ?? {}
+  const { params, path, state } = request ?? {}
+
+  let cookieConsent
+
+  if (typeof state?.cookieConsent === 'string') {
+    cookieConsent = parseCookieConsent(state.cookieConsent)
+  }
+
   const isPreviewMode = path?.startsWith(PREVIEW_PATH_PREFIX)
 
   return {
@@ -41,6 +49,10 @@ export function context(request) {
     serviceName: config.get('serviceName'),
     serviceVersion: config.get('serviceVersion'),
     slug: params?.slug,
+    cookieConsent,
+    googleAnalyticsTrackingId: config.get('googleAnalyticsTrackingId'),
+    cspNonce: request?.plugins.blankie?.nonces?.script,
+    currentPath: request ? `${request.path}${request.url.search}` : undefined,
 
     getAssetPath: (asset = '') => {
       return `/${webpackManifest?.[asset] ?? asset}`
@@ -49,5 +61,5 @@ export function context(request) {
 }
 
 /**
- * @import { FormContextRequest } from '~/src/server/plugins/engine/types.js'
+ * @import { FormRequest, FormRequestPayload } from '~/src/server/routes/types.js'
  */
