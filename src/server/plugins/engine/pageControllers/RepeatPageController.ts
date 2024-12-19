@@ -133,26 +133,26 @@ export class RepeatPageController extends QuestionPageController {
    * @param request - the hapi request
    */
   private async setRepeatAppData(request: FormRequest | FormRequestPayload) {
-    const list = await this.getList(request)
-    const { itemId } = request.params
-    const itemIndex = list.findIndex((item) => item.itemId === itemId)
+    const { app, params } = request
+    const { itemId } = params
 
-    request.app.repeat = {
-      list,
-      item:
-        itemIndex > -1
-          ? { value: list[itemIndex], index: itemIndex }
-          : undefined
-    }
-
-    return request.app.repeat
-  }
-
-  private async getList(request: FormRequest | FormRequestPayload) {
     const { cacheService } = request.services([])
     const state = await cacheService.getState(request)
 
-    return this.getListFromState(state)
+    const list = this.getListFromState(state)
+    const value = this.getItemFromList(list, itemId)
+    const index = value ? list.indexOf(value) : -1
+
+    app.repeat = {
+      list,
+      item: value ? { value, index } : undefined
+    }
+
+    return app.repeat
+  }
+
+  getItemFromList(list: RepeatListState, itemId?: string) {
+    return list.find((item) => item.itemId === itemId)
   }
 
   getListFromState(state: FormSubmissionState) {
