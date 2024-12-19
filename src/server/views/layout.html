@@ -45,19 +45,20 @@
 {% endblock %}
 
 {% block header %}
-  {% if googleAnalyticsTrackingId and (cookieConsent.analytics !== true and cookieConsent.analytics !== false) %}
+  {% if googleAnalyticsTrackingId %}
     <form method="post" action="/help/cookie-preferences">
+    {% set acceptHtml %}
+      <p class="govuk-body">You’ve accepted analytics cookies. You can <a class="govuk-link" href="/help/cookies">change your cookie settings</a> at any time.</p>
+    {% endset %}
+
+    {% set rejectedHtml %}
+      <p class="govuk-body">You’ve rejected analytics cookies. You can <a class="govuk-link" href="/help/cookies">change your cookie settings</a> at any time.</p>
+    {% endset %}
+
+    {% if cookieConsent.analytics !== true and cookieConsent.analytics !== false and cookieConsent.dismissed !== true %}
       {% set html %}
         <p class="govuk-body">We use some essential cookies to make this service work.</p>
         <p class="govuk-body">We’d like to set analytics cookies so we can understand how people use the service and make improvements.</p>
-      {% endset %}
-
-      {% set acceptHtml %}
-        <p class="govuk-body">You’ve accepted analytics cookies. You can <a class="govuk-link" href="/help/cookies">change your cookie settings</a> at any time.</p>
-      {% endset %}
-
-      {% set rejectedHtml %}
-        <p class="govuk-body">You’ve rejected analytics cookies. You can <a class="govuk-link" href="/help/cookies">change your cookie settings</a> at any time.</p>
       {% endset %}
 
       {{ govukCookieBanner({
@@ -87,6 +88,24 @@
           }
         ]
       }) }}
+    {% elif cookieConsent.dismissed === false %}
+      {{ govukCookieBanner({
+        ariaLabel: "Cookies on " + serviceName,
+        messages: [
+          {
+            html: acceptHtml if cookieConsent.analytics === true else rejectedHtml,
+            actions: [
+              {
+                text: "Hide cookie message",
+                type: "submit",
+                name: "cookies[dismissed]",
+                value: "yes"
+              }
+            ]
+          }
+        ]
+      }) }}
+    {% endif %}
     </form>
   {% endif %}
 
