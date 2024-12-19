@@ -2,7 +2,6 @@ import Boom from '@hapi/boom'
 import { type ServerRegisterPluginObject } from '@hapi/hapi'
 import Joi from 'joi'
 
-
 import {
   defaultConsent,
   parseCookieConsent,
@@ -111,6 +110,10 @@ export default {
             cookieConsent.dismissed = dismissedDecision === 'yes'
           }
 
+          if (payload.returnUrl === '/help/cookie-preferences') {
+            cookieConsent.dismissed = true // this page already has a confirmation message, don't show another
+          }
+
           const serialisedCookieConsent = serialiseCookieConsent(cookieConsent)
           h.state('cookieConsent', serialisedCookieConsent)
 
@@ -138,8 +141,27 @@ export default {
       server.route({
         method: 'get',
         path: '/help/cookie-preferences',
-        handler(_request, h) {
-          return h.view('help/cookie-preferences')
+        handler(request, h) {
+          let cookieConsentDismissed = false
+
+          if (typeof request.state.cookieConsent === 'string') {
+            const cookieConsent = parseCookieConsent(
+              request.state.cookieConsent
+            )
+
+            cookieConsentDismissed = cookieConsent.dismissed
+          }
+
+          // if the user has come back to this page after updating their preferences
+          // override the 'dismissed' behaviour to show a success notification instead of
+          // the cookie banner
+          const showConsentSuccess =
+            cookieConsentDismissed &&
+            request.info.referrer.endsWith('/help/cookie-preferences')
+
+          return h.view('help/cookie-preferences', {
+            cookieConsentUpdated: showConsentSuccess
+          })
         }
       })
 

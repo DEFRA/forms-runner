@@ -31,11 +31,9 @@ export function context(request) {
   const { params, path, state } = request ?? {}
 
   let cookieConsent
-  let cookieConsentUpdated
 
   if (typeof state?.cookieConsent === 'string') {
     cookieConsent = parseCookieConsent(state.cookieConsent)
-    cookieConsentUpdated = request?.method === 'post' && cookieConsent.dismissed
   }
 
   const isPreviewMode = path?.startsWith(PREVIEW_PATH_PREFIX)
@@ -52,12 +50,9 @@ export function context(request) {
     serviceVersion: config.get('serviceVersion'),
     slug: params?.slug,
     cookieConsent,
-    cookieConsentUpdated,
     googleAnalyticsTrackingId: config.get('googleAnalyticsTrackingId'),
     cspNonce: request?.plugins.blankie?.nonces?.script,
-    currentPath: request
-      ? `${request.path}${request.url.search}`
-      : undefined,
+    currentPath: request ? `${request.path}${request.url.search}` : undefined,
 
     getAssetPath: (asset = '') => {
       return `/${webpackManifest?.[asset] ?? asset}`
