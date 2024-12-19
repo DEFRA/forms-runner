@@ -2,6 +2,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { within } from '@testing-library/dom'
+import { StatusCodes } from 'http-status-codes'
 
 import { createServer } from '~/src/server/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
@@ -264,6 +265,22 @@ describe(`Cookie preferences`, () => {
     })
 
     expect($input).toBeChecked()
+  })
+
+  test('returns bad request for invalid redirect urls', async () => {
+    server = await createServer()
+    await server.initialize()
+
+    const { response } = await renderResponse(server, {
+      method: 'POST',
+      url: '/help/cookie-preferences',
+      payload: {
+        'cookies[analytics]': 'yes',
+        returnUrl: 'https://my-malicious-url.com'
+      }
+    })
+
+    expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
   })
 })
 

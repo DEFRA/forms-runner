@@ -12,7 +12,8 @@ describe('cookies', () => {
     '{{ not: "an object" }}',
     '{ additional: AAA }',
     '{ marketing: 100 }',
-    ''
+    '',
+    'null'
   ])('converts a malformed policy to the default', (value) => {
     expect(parseCookieConsent(value)).toEqual({
       analytics: null,
