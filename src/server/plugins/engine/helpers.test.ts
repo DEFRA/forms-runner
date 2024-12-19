@@ -9,15 +9,20 @@ import {
   checkFormStatus,
   encodeUrl,
   getErrors,
-  proceed,
-  redirectUrl
+  getPageHref,
+  proceed
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import {
+  createPage,
+  type PageControllerClass
+} from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { type FormContextRequest } from '~/src/server/plugins/engine/types.js'
 import { FormAction, FormStatus } from '~/src/server/routes/types.js'
 import definition from '~/test/form/definitions/basic.js'
 
 describe('Helpers', () => {
+  let page: PageControllerClass
   let request: FormContextRequest
   let h: Pick<ResponseToolkit, 'redirect' | 'view'>
 
@@ -26,14 +31,15 @@ describe('Helpers', () => {
       basePath: 'test'
     })
 
-    const pageUrl = new URL('http://example.com/test/page-one')
+    page = createPage(model, definition.pages[0])
+    const pageUrl = new URL(page.href, 'http://example.com')
 
     request = {
       method: 'get',
       url: pageUrl,
       path: pageUrl.pathname,
       params: {
-        path: 'page-one',
+        path: 'licence',
         slug: 'test'
       },
       query: {},
@@ -64,7 +70,7 @@ describe('Helpers', () => {
         } satisfies Partial<ResponseObject>
       },
       {
-        href: '/test/page-two',
+        href: '/test/full-name',
 
         request: {
           method: 'get'
@@ -75,7 +81,7 @@ describe('Helpers', () => {
         } satisfies Partial<ResponseObject>
       },
       {
-        href: '/test/page-two',
+        href: '/test/full-name',
 
         request: {
           method: 'post',
@@ -103,7 +109,7 @@ describe('Helpers', () => {
 
     it.each([
       {
-        href: '/test/page-two',
+        href: '/test/full-name',
 
         request: {
           method: 'post',
@@ -136,7 +142,7 @@ describe('Helpers', () => {
 
     it.each([
       {
-        href: '/test/page-two',
+        href: '/test/full-name',
 
         request: {
           method: 'get',
@@ -148,7 +154,7 @@ describe('Helpers', () => {
         } satisfies Partial<ResponseObject>
       },
       {
-        href: '/test/page-two',
+        href: '/test/full-name',
 
         request: {
           method: 'post',
@@ -163,7 +169,7 @@ describe('Helpers', () => {
         } satisfies Partial<ResponseObject>
       },
       {
-        href: '/test/repeater/page-two',
+        href: '/test/repeater/example',
 
         request: {
           method: 'post',
@@ -217,35 +223,64 @@ describe('Helpers', () => {
     })
   })
 
-  describe('redirectUrl', () => {
-    it('should return target url when no query params in the request', () => {
-      const nextUrl = 'badgers/monkeys'
-      const returned = redirectUrl(nextUrl)
-
-      expect(returned).toEqual(nextUrl)
+  describe('getPageHref', () => {
+    it('should return page href', () => {
+      const returned = getPageHref(page)
+      expect(returned).toEqual(page.href)
     })
 
-    it('should return target url ignoring most params from original request', () => {
+    it('should return page href (path override)', () => {
+      const nextPath = '/badgers/monkeys'
+      const nextHref = '/test/badgers/monkeys'
+
+      const returned = getPageHref(page, nextPath)
+      expect(returned).toEqual(nextHref)
+    })
+
+    it('should return page href without query params', () => {
       request.query.myParam = 'myValue'
       request.query.myParam2 = 'myValue2'
 
-      const nextUrl = 'badgers/monkeys'
-      const returned = redirectUrl(nextUrl)
-
-      expect(returned).toEqual(nextUrl)
+      const returned = getPageHref(page)
+      expect(returned).toEqual(page.href)
     })
 
-    it('should set params from params object', () => {
-      const nextUrl = 'badgers/monkeys'
+    it('should return page href (path override) without query params', () => {
+      request.query.myParam = 'myValue'
+      request.query.myParam2 = 'myValue2'
 
-      const returned = redirectUrl(nextUrl, {
-        returnUrl: '/myreturnurl',
+      const nextPath = '/badgers/monkeys'
+      const nextHref = '/test/badgers/monkeys'
+
+      const returned = getPageHref(page, nextPath)
+      expect(returned).toEqual(nextHref)
+    })
+
+    it('should return page href with new query params', () => {
+      const returned = getPageHref(page, {
+        returnUrl: page.getSummaryPath(),
         badger: 'monkeys'
       })
 
-      expect(returned).toBe(
-        `${nextUrl}?returnUrl=%2Fmyreturnurl&badger=monkeys`
-      )
+      expect(returned).toBe(`${page.href}?returnUrl=%2Fsummary&badger=monkeys`)
+    })
+
+    it('should return page href (path override) with new query params', () => {
+      const nextPath = '/badgers/monkeys'
+      const nextHref = '/test/badgers/monkeys'
+
+      const returned = getPageHref(page, nextPath, {
+        returnUrl: page.getSummaryPath(),
+        badger: 'monkeys'
+      })
+
+      expect(returned).toBe(`${nextHref}?returnUrl=%2Fsummary&badger=monkeys`)
+    })
+
+    it('should throw when absolute URL is provided', () => {
+      expect(() =>
+        getPageHref(page, 'https://www.gov.uk/help/privacy-notice')
+      ).toThrow('Only relative URLs are allowed')
     })
   })
 
