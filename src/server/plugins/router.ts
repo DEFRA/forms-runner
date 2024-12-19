@@ -72,15 +72,16 @@ export default {
         Payload: {
           'cookies[analytics]'?: string
           'cookies[dismissed]'?: string
-          returnUrl: string
         }
+        Query: { returnUrl?: string }
       }>({
         method: 'post',
         path: '/help/cookie-preferences',
         handler(request, h) {
-          const { payload } = request
+          const { payload, query } = request
+          let { returnUrl } = query
 
-          if (!isPathRelative(payload.returnUrl)) {
+          if (returnUrl && !isPathRelative(returnUrl)) {
             throw Boom.badRequest('Return URL must be relative')
           }
 
@@ -110,21 +111,24 @@ export default {
             cookieConsent.dismissed = dismissedDecision === 'yes'
           }
 
-          if (payload.returnUrl === '/help/cookie-preferences') {
+          if (!returnUrl) {
             cookieConsent.dismissed = true // this page already has a confirmation message, don't show another
+            returnUrl = '/help/cookie-preferences'
           }
 
           const serialisedCookieConsent = serialiseCookieConsent(cookieConsent)
           h.state('cookieConsent', serialisedCookieConsent)
 
-          return h.redirect(payload.returnUrl)
+          return h.redirect(returnUrl)
         },
         options: {
           validate: {
             payload: Joi.object({
               'cookies[analytics]': Joi.string().valid('yes', 'no').optional(),
-              'cookies[dismissed]': Joi.string().valid('yes', 'no').optional(),
-              returnUrl: Joi.string().required()
+              'cookies[dismissed]': Joi.string().valid('yes', 'no').optional()
+            }),
+            query: Joi.object({
+              returnUrl: Joi.string().optional()
             })
           }
         }

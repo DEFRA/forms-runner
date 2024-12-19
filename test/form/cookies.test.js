@@ -63,10 +63,9 @@ describe(`Cookie banner and analytics`, () => {
     // set the cookie preferences
     const sessionInitialisationResponse = await server.inject({
       method: 'POST',
-      url: '/help/cookie-preferences',
+      url: `/help/cookie-preferences?returnUrl=${encodeURIComponent('/mypage')}`,
       payload: {
-        'cookies[analytics]': 'yes',
-        returnUrl: '/mypage'
+        'cookies[analytics]': 'yes'
       }
     })
 
@@ -116,10 +115,9 @@ describe(`Cookie banner and analytics`, () => {
     // set the cookie preferences
     const sessionInitialisationResponse = await server.inject({
       method: 'POST',
-      url: '/help/cookie-preferences',
+      url: `/help/cookie-preferences?returnUrl=${encodeURIComponent('/mypage')}`,
       payload: {
-        'cookies[analytics]': 'no',
-        returnUrl: '/mypage'
+        'cookies[analytics]': 'no'
       }
     })
 
@@ -170,11 +168,10 @@ describe(`Cookie banner and analytics`, () => {
     // set the cookie preferences
     const sessionInitialisationResponse = await server.inject({
       method: 'POST',
-      url: '/help/cookie-preferences',
+      url: `/help/cookie-preferences?returnUrl=${encodeURIComponent('/mypage')}`,
       payload: {
         'cookies[analytics]': 'yes',
-        'cookies[dismissed]': 'yes',
-        returnUrl: '/mypage'
+        'cookies[dismissed]': 'yes'
       }
     })
 
@@ -224,10 +221,9 @@ describe(`Cookie preferences`, () => {
       // set the cookie preferences
       const sessionInitialisationResponse = await server.inject({
         method: 'POST',
-        url: '/help/cookie-preferences',
+        url: `/help/cookie-preferences`,
         payload: {
-          'cookies[analytics]': value,
-          returnUrl: '/help/cookie-preferences'
+          'cookies[analytics]': value
         }
       })
 
@@ -268,10 +264,9 @@ describe(`Cookie preferences`, () => {
     // set the cookie preferences
     const sessionInitialisationResponse = await server.inject({
       method: 'POST',
-      url: '/help/cookie-preferences',
+      url: `/help/cookie-preferences?returnUrl=${encodeURIComponent('/another-page')}`,
       payload: {
-        'cookies[analytics]': 'yes',
-        returnUrl: '/help/cookie-preferences'
+        'cookies[analytics]': 'yes'
       }
     })
 
@@ -323,10 +318,9 @@ describe(`Cookie preferences`, () => {
 
     const { response } = await renderResponse(server, {
       method: 'POST',
-      url: '/help/cookie-preferences',
+      url: `/help/cookie-preferences?returnUrl=${encodeURIComponent('https://my-malicious-url.com')}`,
       payload: {
-        'cookies[analytics]': 'yes',
-        returnUrl: 'https://my-malicious-url.com'
+        'cookies[analytics]': 'yes'
       }
     })
 
