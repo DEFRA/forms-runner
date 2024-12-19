@@ -121,12 +121,15 @@ export interface FormContext {
   relevantPages: PageControllerClass[]
 
   /**
+   * Form submission payload (single page)
+   */
+  payload: FormPayload
+
+  /**
    * Form submission state (entire form)
    */
   state: FormSubmissionState
-}
 
-export interface FormContextProgress extends FormContext {
   /**
    * Validation errors (entire form)
    */
@@ -267,7 +270,7 @@ export interface PageViewModelBase {
 
 export interface FormPageViewModel extends PageViewModelBase {
   components: ComponentViewModel[]
-  context?: FormContext
+  context: FormContext
   errors?: FormSubmissionError[]
   notificationEmailWarning?: {
     slug: string

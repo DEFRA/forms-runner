@@ -15,7 +15,6 @@ import { Parser, type Value } from 'expr-eval'
 import joi from 'joi'
 
 import {
-  checkFormStatus,
   findPage,
   getError,
   getPage
@@ -28,11 +27,12 @@ import {
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormContext,
-  type FormContextProgress,
   type FormContextRequest,
   type FormState,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { FormAction } from '~/src/server/routes/types.js'
+import { merge } from '~/src/server/services/cacheService.js'
 
 export class FormModel {
   /**
@@ -199,39 +199,28 @@ export class FormModel {
 
   /**
    * Form context for the current page
-   * (with progress validation)
    */
-  getFormContext(
-    request: FormContextRequest,
-    state: FormState
-  ): FormContextProgress
-
-  /**
-   * Form context for the current page
-   * (without progress validation)
-   */
-  getFormContext(
-    request: FormContextRequest,
-    state: FormState,
-    options: { validate: false }
-  ): FormContext
-
-  getFormContext(
-    request: FormContextRequest,
-    state: FormState,
-    options?: { validate: false }
-  ): FormContext | FormContextProgress {
+  getFormContext(request: FormContextRequest, state: FormState): FormContext {
     const page = getPage(this, request)
 
     // Determine form paths
     const currentPath = page.path
     const startPath = page.getStartPath()
 
-    const context: FormContext = {
+    let context: FormContext = {
       evaluationState: {},
       relevantState: {},
       relevantPages: [],
-      state
+      payload: page.getFormDataFromState(state),
+      state,
+      paths: []
+    }
+
+    const { action } = page.getFormData(request)
+
+    // Validate current page
+    if (request.payload && action === FormAction.Continue) {
+      context = validateFormPayload(request, page, context)
     }
 
     // Find start page
@@ -248,14 +237,14 @@ export class FormModel {
       if (!hasRepeater(pageDef)) {
         Object.assign(
           context.evaluationState,
-          collection.getContextValueFromState(state)
+          collection.getContextValueFromState(context.state)
         )
       }
 
       // Copy relevant state by expected keys
       for (const key of nextPage.keys) {
-        if (typeof state[key] !== 'undefined') {
-          context.relevantState[key] = state[key]
+        if (typeof context.state[key] !== 'undefined') {
+          context.relevantState[key] = context.state[key]
         }
       }
 
@@ -268,35 +257,67 @@ export class FormModel {
       nextPage = findPage(this, nextPage.getNextPath(context))
     }
 
-    // Skip validation (optional)
-    if (options?.validate === false) {
-      return context
-    }
-
-    // Validate relevant state
-    const { error } = page.model
-      .makeFilteredSchema(context.relevantPages)
-      .validate(context.relevantState, { ...opts, stripUnknown: true })
-
-    // Format relevant state errors
-    const errors = error?.details.map(getError)
-    const paths: string[] = []
-    const { isPreview } = checkFormStatus(request.path)
+    // Validate form state
+    context = validateFormState(request, page, context)
 
     // Add paths for navigation
     for (const { collection, path } of context.relevantPages) {
-      paths.push(path)
+      context.paths.push(path)
 
       // Stop at current page or with errors
-      if (!isPreview && collection.getErrors(errors)) {
+      if (collection.getErrors(context.errors)) {
         break
       }
     }
 
-    return {
-      ...context,
-      errors,
-      paths
-    }
+    return context
   }
+}
+
+/**
+ * Validate current page only
+ */
+function validateFormPayload(
+  request: FormContextRequest,
+  page: PageControllerClass,
+  context: FormContext
+): FormContext {
+  const { collection } = page
+  const { payload, state } = context
+
+  // Validate form data into payload
+  const formData = page.getFormData(request)
+  const { value, errors } = collection.validate(formData)
+
+  // Add sanitised payload (ready to save)
+  return {
+    ...context,
+    payload: merge(payload, value),
+    state: merge(state, page.getStateFromValidForm(request, value)),
+    errors
+  }
+}
+
+/**
+ * Validate entire form state
+ */
+function validateFormState(
+  request: FormContextRequest,
+  page: PageControllerClass,
+  context: FormContext
+): FormContext {
+  const { errors = [], relevantPages, relevantState } = context
+
+  // Validate relevant state
+  const { error } = page.model
+    .makeFilteredSchema(relevantPages.slice(0, -1))
+    .validate(relevantState, { ...opts, stripUnknown: true })
+
+  // Add relevant state errors
+  if (error) {
+    const errorsState = error.details.map(getError)
+    return { ...context, errors: errors.concat(errorsState) }
+  }
+
+  return context
 }

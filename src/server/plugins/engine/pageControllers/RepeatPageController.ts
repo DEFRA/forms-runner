@@ -10,6 +10,7 @@ import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
   type CheckAnswers,
+  type FormContext,
   type FormContextRequest,
   type FormPageViewModel,
   type FormPayload,
@@ -65,14 +66,11 @@ export class RepeatPageController extends QuestionPageController {
     return formData
   }
 
-  getStateFromValidForm(
-    request: FormRequestPayload,
-    payload: FormRequestPayload['payload']
-  ) {
+  getStateFromValidForm(request: FormContextRequest, payload: FormPayload) {
     const { item, list } = this.getRepeatAppData(request)
     const state = super.getStateFromValidForm(request, payload)
 
-    if (!payload.itemId) {
+    if (typeof payload.itemId !== 'string') {
       throw badRequest('No item ID found in the payload')
     }
 
@@ -201,9 +199,18 @@ export class RepeatPageController extends QuestionPageController {
       request: FormRequest,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const state = await this.getState(request)
-      const list = this.getListFromState(state)
+      const { model, path } = this
 
+      const state = await this.getState(request)
+      const context = model.getFormContext(request, state)
+      const relevantPath = this.getRelevantPath(context)
+
+      // Redirect back to last relevant page
+      if (relevantPath !== path) {
+        return super.proceed(request, h, relevantPath)
+      }
+
+      const list = this.getListFromState(state)
       const viewModel = this.getListSummaryViewModel(request, list)
 
       const { progress = [] } = await this.updateProgress(request, state)
@@ -221,7 +228,16 @@ export class RepeatPageController extends QuestionPageController {
     ) => {
       const { model, path, repeat } = this
 
+      await this.setRepeatAppData(request)
+
       const state = await this.getState(request)
+      const context = model.getFormContext(request, state)
+      const relevantPath = this.getRelevantPath(context)
+
+      // Redirect back to last relevant page
+      if (relevantPath !== path) {
+        return super.proceed(request, h, relevantPath)
+      }
 
       const { action } = this.getFormData(request)
 
@@ -253,11 +269,7 @@ export class RepeatPageController extends QuestionPageController {
 
           // This is required to ensure we don't navigate
           // to an incorrect page based on stale state values
-          this.getNextPath(
-            model.getFormContext(request, state, {
-              validate: false
-            })
-          )
+          this.getNextPath(model.getFormContext(request, state))
         )
       }
     }
@@ -268,10 +280,21 @@ export class RepeatPageController extends QuestionPageController {
       request: FormRequest,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
+      const { model, path } = this
+
       const { item } = await this.setRepeatAppData(request)
 
       if (!item) {
         return notFound('List item to delete not found')
+      }
+
+      const state = await this.getState(request)
+      const context = model.getFormContext(request, state)
+      const relevantPath = this.getRelevantPath(context)
+
+      // Redirect back to last relevant page
+      if (relevantPath !== path) {
+        return super.proceed(request, h, relevantPath)
       }
 
       return h.view(this.listDeleteViewName, {
@@ -304,12 +327,22 @@ export class RepeatPageController extends QuestionPageController {
       request: FormRequestPayload,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { repeat } = this
+      const { model, path, repeat } = this
+
+      const { item, list } = await this.setRepeatAppData(request)
+
+      const state = await this.getState(request)
+      const context = model.getFormContext(request, state)
+      const relevantPath = this.getRelevantPath(context)
+
+      // Redirect back to last relevant page
+      if (relevantPath !== path) {
+        return super.proceed(request, h, relevantPath)
+      }
+
       const { confirm } = this.getFormData(request)
 
       if (confirm === true) {
-        const { item, list } = await this.setRepeatAppData(request)
-
         if (item) {
           // Remove the item from the list
           list.splice(item.index, 1)
@@ -329,10 +362,9 @@ export class RepeatPageController extends QuestionPageController {
 
   getViewModel(
     request: FormContextRequest,
-    payload: FormPayload,
-    errors?: FormSubmissionError[]
+    context: FormContext
   ): FormPageViewModel {
-    const viewModel = super.getViewModel(request, payload, errors)
+    const viewModel = super.getViewModel(request, context)
 
     const { list, item } = this.getRepeatAppData(request)
 

@@ -33,7 +33,6 @@ import {
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
   type FormContext,
-  type FormContextProgress,
   type FormContextRequest,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
@@ -61,7 +60,7 @@ export class SummaryPageController extends QuestionPageController {
 
   getSummaryViewModel(
     request: FormContextRequest,
-    context: FormContext | FormContextProgress
+    context: FormContext
   ): SummaryViewModel {
     const viewModel = new SummaryViewModel(
       this.model,
@@ -90,10 +89,11 @@ export class SummaryPageController extends QuestionPageController {
 
       const state = await this.getState(request)
       const context = model.getFormContext(request, state)
+      const relevantPath = this.getRelevantPath(context)
 
       // Redirect back to last relevant page
-      if (!context.paths.includes(path)) {
-        return this.proceed(request, h, this.getRelevantPath(context))
+      if (relevantPath !== path) {
+        return this.proceed(request, h, relevantPath)
       }
 
       const viewModel = this.getSummaryViewModel(request, context)
@@ -118,14 +118,18 @@ export class SummaryPageController extends QuestionPageController {
       request: FormRequestPayload,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { model } = this
+      const { model, path } = this
 
       const { cacheService } = request.services([])
 
       const state = await this.getState(request)
-      const context = model.getFormContext(request, state, {
-        validate: false
-      })
+      const context = model.getFormContext(request, state)
+      const relevantPath = this.getRelevantPath(context)
+
+      // Redirect back to last relevant page
+      if (relevantPath !== path) {
+        return this.proceed(request, h, relevantPath)
+      }
 
       const { params } = request
 
