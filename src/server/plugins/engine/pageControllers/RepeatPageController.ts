@@ -94,12 +94,18 @@ export class RepeatPageController extends QuestionPageController {
 
   async getState(request: FormRequest | FormRequestPayload) {
     const state = await super.getState(request)
-    const { item } = this.getRepeatAppData(request)
 
-    // When editing an existing item, get the item from
-    // the array list and set its values onto the state
-    if (item) {
-      return { ...state, ...item.value }
+    try {
+      const { item } = this.getRepeatAppData(request)
+
+      // When editing an existing item, get the item from
+      // the array list and set its values onto the state
+      if (item) {
+        const { value: repeatState } = item
+        return { ...state, ...repeatState }
+      }
+    } catch {
+      // No item found, continue
     }
 
     return state
@@ -136,8 +142,7 @@ export class RepeatPageController extends QuestionPageController {
     const { app, params } = request
     const { itemId } = params
 
-    const { cacheService } = request.services([])
-    const state = await cacheService.getState(request)
+    const state = await super.getState(request)
 
     const list = this.getListFromState(state)
     const value = this.getItemFromList(list, itemId)
@@ -196,13 +201,13 @@ export class RepeatPageController extends QuestionPageController {
       request: FormRequest,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const state = await super.getState(request)
+      const state = await this.getState(request)
       const list = this.getListFromState(state)
 
-      const { progress = [] } = state
-      await this.updateProgress(progress, request)
-
       const viewModel = this.getListSummaryViewModel(request, list)
+
+      const { progress = [] } = await this.updateProgress(request, state)
+
       viewModel.backLink = this.getBackLink(progress)
 
       return h.view(this.listSummaryViewName, viewModel)
@@ -216,7 +221,7 @@ export class RepeatPageController extends QuestionPageController {
     ) => {
       const { model, path, repeat } = this
 
-      const state = await super.getState(request)
+      const state = await this.getState(request)
 
       const { action } = this.getFormData(request)
 
@@ -306,8 +311,6 @@ export class RepeatPageController extends QuestionPageController {
         const { item, list } = await this.setRepeatAppData(request)
 
         if (item) {
-          const { cacheService } = request.services([])
-
           // Remove the item from the list
           list.splice(item.index, 1)
 
@@ -315,7 +318,8 @@ export class RepeatPageController extends QuestionPageController {
             [repeat.options.name]: list
           }
 
-          await cacheService.mergeState(request, update)
+          const state = await this.getState(request)
+          await this.mergeState(request, state, update)
         }
       }
 
