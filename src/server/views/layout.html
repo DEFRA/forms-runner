@@ -46,7 +46,7 @@
 
 {% block header %}
   {% if googleAnalyticsTrackingId %}
-    <form method="post" action="/help/cookie-preferences">
+    <form method="post" action="/help/cookie-preferences?returnUrl={{ currentPath | urlencode }}">
     {% set acceptHtml %}
       <p class="govuk-body">You’ve accepted analytics cookies. You can <a class="govuk-link" href="/help/cookies">change your cookie settings</a> at any time.</p>
     {% endset %}
@@ -107,7 +107,6 @@
       }) }}
     {% endif %}
 
-    <input type="hidden" name="returnUrl" value="{{ currentPath }}">
     </form>
   {% endif %}
 
