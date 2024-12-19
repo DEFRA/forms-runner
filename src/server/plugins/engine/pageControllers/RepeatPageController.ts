@@ -10,6 +10,7 @@ import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
   type CheckAnswers,
+  type FormContext,
   type FormContextRequest,
   type FormPageViewModel,
   type FormPayload,
@@ -361,10 +362,9 @@ export class RepeatPageController extends QuestionPageController {
 
   getViewModel(
     request: FormContextRequest,
-    payload: FormPayload,
-    errors?: FormSubmissionError[]
+    context: FormContext
   ): FormPageViewModel {
-    const viewModel = super.getViewModel(request, payload, errors)
+    const viewModel = super.getViewModel(request, context)
 
     const { list, item } = this.getRepeatAppData(request)
 
