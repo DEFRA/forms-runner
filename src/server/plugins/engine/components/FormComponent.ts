@@ -8,7 +8,8 @@ import {
   type FormStateValue,
   type FormSubmissionError,
   type FormSubmissionState,
-  type FormValue
+  type FormValue,
+  type RepeatState
 } from '~/src/server/plugins/engine/types.js'
 
 export class FormComponent extends ComponentBase {
@@ -197,4 +198,27 @@ export function isFormState(value?: unknown): value is FormState {
 
   // Skip empty objects
   return !!Object.values(value).length
+}
+
+/**
+ * Check for repeat state
+ */
+export function isRepeatList(value?: unknown): value is RepeatState[] {
+  if (!Array.isArray(value)) {
+    return false
+  }
+
+  // Skip checks when empty
+  if (!value.length) {
+    return true
+  }
+
+  return value.every(isRepeatList)
+}
+
+/**
+ * Check for repeat state
+ */
+export function isRepeatState(value?: unknown): value is RepeatState {
+  return isFormState(value) && typeof value.itemId === 'string'
 }

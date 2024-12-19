@@ -5,6 +5,7 @@ import { badRequest, notFound } from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
 import Joi from 'joi'
 
+import { isRepeatList } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
@@ -121,13 +122,7 @@ export class RepeatPageController extends QuestionPageController {
     const [name] = this.keys
     const values = state[name]
 
-    if (!Array.isArray(values)) {
-      return []
-    }
-
-    return values.filter(
-      (value) => typeof value === 'object' && 'itemId' in value
-    )
+    return isRepeatList(values) ? values : []
   }
 
   makeGetRouteHandler() {
