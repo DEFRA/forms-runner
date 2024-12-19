@@ -56,7 +56,7 @@ export function context(request) {
     googleAnalyticsTrackingId: config.get('googleAnalyticsTrackingId'),
     cspNonce: request?.plugins.blankie?.nonces?.script,
     currentPath: request
-      ? `${request.path.toString()}${request.url.search}`
+      ? `${request.path}${request.url.search}`
       : undefined,
 
     getAssetPath: (asset = '') => {
