@@ -9,8 +9,8 @@ import {
   checkFormStatus,
   encodeUrl,
   getErrors,
-  proceed,
-  redirectUrl
+  getPageHref,
+  proceed
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
@@ -223,9 +223,9 @@ describe('Helpers', () => {
     })
   })
 
-  describe('redirectUrl', () => {
+  describe('getPageHref', () => {
     it('should return page href', () => {
-      const returned = redirectUrl(page)
+      const returned = getPageHref(page)
       expect(returned).toEqual(page.href)
     })
 
@@ -233,7 +233,7 @@ describe('Helpers', () => {
       const nextPath = '/badgers/monkeys'
       const nextHref = '/test/badgers/monkeys'
 
-      const returned = redirectUrl(page, nextPath)
+      const returned = getPageHref(page, nextPath)
       expect(returned).toEqual(nextHref)
     })
 
@@ -241,7 +241,7 @@ describe('Helpers', () => {
       request.query.myParam = 'myValue'
       request.query.myParam2 = 'myValue2'
 
-      const returned = redirectUrl(page)
+      const returned = getPageHref(page)
       expect(returned).toEqual(page.href)
     })
 
@@ -252,12 +252,12 @@ describe('Helpers', () => {
       const nextPath = '/badgers/monkeys'
       const nextHref = '/test/badgers/monkeys'
 
-      const returned = redirectUrl(page, nextPath)
+      const returned = getPageHref(page, nextPath)
       expect(returned).toEqual(nextHref)
     })
 
     it('should return page href with new query params', () => {
-      const returned = redirectUrl(page, {
+      const returned = getPageHref(page, {
         returnUrl: page.getSummaryPath(),
         badger: 'monkeys'
       })
@@ -269,7 +269,7 @@ describe('Helpers', () => {
       const nextPath = '/badgers/monkeys'
       const nextHref = '/test/badgers/monkeys'
 
-      const returned = redirectUrl(page, nextPath, {
+      const returned = getPageHref(page, nextPath, {
         returnUrl: page.getSummaryPath(),
         badger: 'monkeys'
       })
@@ -279,7 +279,7 @@ describe('Helpers', () => {
 
     it('should throw when absolute URL is provided', () => {
       expect(() =>
-        redirectUrl(page, 'https://www.gov.uk/help/privacy-notice')
+        getPageHref(page, 'https://www.gov.uk/help/privacy-notice')
       ).toThrow('Only relative URLs are allowed')
     })
   })

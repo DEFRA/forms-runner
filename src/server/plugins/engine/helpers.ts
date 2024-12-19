@@ -63,7 +63,7 @@ export function encodeUrl(link?: string) {
 /**
  * Redirect to page
  */
-export function redirectUrl(
+export function getPageHref(
   page: PageControllerClass,
   query?: FormQuery
 ): string
@@ -71,13 +71,13 @@ export function redirectUrl(
 /**
  * Redirect to page by path
  */
-export function redirectUrl(
+export function getPageHref(
   page: PageControllerClass,
   path: string,
   query?: FormQuery
 ): string
 
-export function redirectUrl(
+export function getPageHref(
   page: PageControllerClass,
   pathOrQuery?: string | FormQuery,
   queryOnly: FormQuery = {}

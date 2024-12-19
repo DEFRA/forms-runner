@@ -4,7 +4,7 @@ import {
   getAnswer,
   type Field
 } from '~/src/server/plugins/engine/components/helpers.js'
-import { getError, redirectUrl } from '~/src/server/plugins/engine/helpers.js'
+import { getError, getPageHref } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   type Detail,
@@ -167,8 +167,8 @@ function ItemRepeat(
     label: title,
     title: values.length ? `${unit} added` : unit,
     value: `You added ${values.length} ${unit}`,
-    href: redirectUrl(page, options.path, {
-      returnUrl: redirectUrl(page, page.getSummaryPath())
+    href: getPageHref(page, options.path, {
+      returnUrl: getPageHref(page, page.getSummaryPath())
     }),
     state,
     page,
@@ -201,8 +201,8 @@ function ItemField(
     title: field.title,
     error: field.getError(options.errors),
     value: getAnswer(field, state),
-    href: redirectUrl(page, options.path, {
-      returnUrl: redirectUrl(page, page.getSummaryPath())
+    href: getPageHref(page, options.path, {
+      returnUrl: getPageHref(page, page.getSummaryPath())
     }),
     state,
     page,
