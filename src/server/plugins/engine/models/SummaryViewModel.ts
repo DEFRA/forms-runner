@@ -115,18 +115,18 @@ export class SummaryViewModel {
       )
 
       sectionPages.forEach((page) => {
-        const { collection, href } = page
+        const { collection, path } = page
 
         if (page instanceof RepeatPageController) {
           items.push(
             ItemRepeat(page, state, {
-              href: page.getHref(page.getSummaryPath(request)),
+              path: page.getSummaryPath(request),
               errors
             })
           )
         } else {
           for (const field of collection.fields) {
-            items.push(ItemField(page, state, field, { href, errors }))
+            items.push(ItemField(page, state, field, { path, errors }))
           }
         }
       })
@@ -152,7 +152,7 @@ function ItemRepeat(
   page: RepeatPageController,
   state: FormState,
   options: {
-    href: string
+    path: string
     errors?: FormSubmissionError[]
   }
 ): DetailItemRepeat {
@@ -167,8 +167,8 @@ function ItemRepeat(
     label: title,
     title: values.length ? `${unit} added` : unit,
     value: `You added ${values.length} ${unit}`,
-    href: redirectUrl(options.href, {
-      returnUrl: redirectUrl(page.getHref(page.getSummaryPath()))
+    href: redirectUrl(page, options.path, {
+      returnUrl: redirectUrl(page, page.getSummaryPath())
     }),
     state,
     page,
@@ -191,7 +191,7 @@ function ItemField(
   state: FormState,
   field: Field,
   options: {
-    href: string
+    path: string
     errors?: FormSubmissionError[]
   }
 ): DetailItemField {
@@ -201,8 +201,8 @@ function ItemField(
     title: field.title,
     error: field.getError(options.errors),
     value: getAnswer(field, state),
-    href: redirectUrl(options.href, {
-      returnUrl: redirectUrl(page.getHref(page.getSummaryPath()))
+    href: redirectUrl(page, options.path, {
+      returnUrl: redirectUrl(page, page.getSummaryPath())
     }),
     state,
     page,

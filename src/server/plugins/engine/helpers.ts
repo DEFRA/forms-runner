@@ -8,8 +8,8 @@ import upperFirst from 'lodash/upperFirst.js'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
-import { RelativeUrl } from '~/src/server/plugins/engine/feedback/index.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
   type FormContextRequest,
   type FormSubmissionError
@@ -60,14 +60,50 @@ export function encodeUrl(link?: string) {
   }
 }
 
-export function redirectUrl(targetUrl: string, params?: FormQuery) {
-  const relativeUrl = new RelativeUrl(targetUrl)
+/**
+ * Redirect to page
+ */
+export function redirectUrl(
+  page: PageControllerClass,
+  query?: FormQuery
+): string
 
-  Object.entries(params ?? {}).forEach(([name, value]) => {
-    relativeUrl.setParam(name, `${value}`)
-  })
+/**
+ * Redirect to page by path
+ */
+export function redirectUrl(
+  page: PageControllerClass,
+  path: string,
+  query?: FormQuery
+): string
 
-  return relativeUrl.toString()
+export function redirectUrl(
+  page: PageControllerClass,
+  pathOrQuery?: string | FormQuery,
+  queryOnly: FormQuery = {}
+) {
+  const path = typeof pathOrQuery === 'string' ? pathOrQuery : page.path
+  const query = typeof pathOrQuery === 'object' ? pathOrQuery : queryOnly
+
+  if (!path.startsWith('/')) {
+    throw Error('Only relative URLs are allowed')
+  }
+
+  // Filter string query params only
+  const params = Object.entries(query).filter(
+    (query): query is [string, string] => typeof query[1] === 'string'
+  )
+
+  // Build URL using page href as base
+  const href = page.getHref(path)
+  const url = new URL(href, 'http://example.com')
+
+  // Append query params
+  for (const [name, value] of params) {
+    url.searchParams.set(name, value)
+  }
+
+  return `${url.pathname}${url.search}`
 }
 
 export function normalisePath(path = '') {
