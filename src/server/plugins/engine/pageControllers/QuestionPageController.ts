@@ -6,7 +6,7 @@ import {
   type Page
 } from '@defra/forms-model'
 import { type ResponseToolkit, type RouteOptions } from '@hapi/hapi'
-import joi, { type ValidationErrorItem } from 'joi'
+import { type ValidationErrorItem } from 'joi'
 
 import { config } from '~/src/config/index.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
@@ -26,6 +26,7 @@ import {
   type FormPageViewModel,
   type FormPayload,
   type FormSubmissionError,
+  type FormSubmissionPayload,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import {
@@ -34,6 +35,7 @@ import {
   type FormRequestPayloadRefs,
   type FormRequestRefs
 } from '~/src/server/routes/types.js'
+import { actionSchema, crumbSchema } from '~/src/server/schemas/index.js'
 
 export class QuestionPageController extends PageController {
   collection: ComponentCollection
@@ -49,7 +51,8 @@ export class QuestionPageController extends PageController {
     )
 
     this.collection.formSchema = this.collection.formSchema.keys({
-      crumb: joi.string().optional().allow('')
+      crumb: crumbSchema,
+      action: actionSchema
     })
   }
 
@@ -178,7 +181,14 @@ export class QuestionPageController extends PageController {
   }
 
   /**
-   * gets the state for the values that can be entered on just this page
+   * Gets the form payload (from request) for this page only
+   */
+  getFormData(request: FormContextRequest): FormSubmissionPayload {
+    return request.payload ?? {}
+  }
+
+  /**
+   * Gets the form payload (from state) for this page only
    */
   getFormDataFromState(state: FormSubmissionState): FormPayload {
     return {
@@ -395,7 +405,10 @@ export class QuestionPageController extends PageController {
   }
 
   validate(request: FormRequestPayload) {
-    return this.collection.validate(request.payload)
+    const { collection } = this
+
+    const formData = this.getFormData(request)
+    return collection.validate(formData)
   }
 
   proceed(

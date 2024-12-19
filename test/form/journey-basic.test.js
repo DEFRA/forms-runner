@@ -7,6 +7,7 @@ import { StatusCodes } from 'http-status-codes'
 import { createServer } from '~/src/server/index.js'
 import { submit } from '~/src/server/plugins/engine/services/formSubmissionService.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
+import { FormAction } from '~/src/server/routes/types.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookie, getCookieHeader } from '~/test/utils/get-cookie.js'
@@ -380,7 +381,10 @@ describe('Form journey', () => {
         url: `${basePath}/summary`,
         method: 'POST',
         headers,
-        payload: { crumb: csrfToken }
+        payload: {
+          crumb: csrfToken,
+          action: FormAction.Send
+        }
       })
 
       expect(submit).toHaveBeenCalledWith({

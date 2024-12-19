@@ -11,6 +11,7 @@ import {
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import * as uploadService from '~/src/server/plugins/engine/services/uploadService.js'
 import { FileStatus, UploadStatus } from '~/src/server/plugins/engine/types.js'
+import { FormAction } from '~/src/server/routes/types.js'
 import { CacheService } from '~/src/server/services/cacheService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
@@ -144,15 +145,14 @@ describe('Submission journey test', () => {
       }
     })
 
-    const form = {
-      crumb: 'dummyCrumb'
-    }
-
     // POST the form data to set the state
     const res = await server.inject({
       url: `${basePath}/file-upload-component`,
       method: 'POST',
-      payload: form
+      payload: {
+        crumb: 'dummyCrumb',
+        action: FormAction.Continue
+      }
     })
 
     expect(res.statusCode).toBe(StatusCodes.SEE_OTHER)
@@ -174,7 +174,7 @@ describe('Submission journey test', () => {
       url: `${basePath}/summary`,
       method: 'POST',
       headers,
-      payload: { form }
+      payload: {}
     })
 
     expect(persistFiles).toHaveBeenCalledTimes(1)

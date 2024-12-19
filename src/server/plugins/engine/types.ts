@@ -8,7 +8,7 @@ import {
 } from '~/src/server/plugins/engine/components/types.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
-import { type FormRequest } from '~/src/server/routes/types.js'
+import { type FormAction, type FormRequest } from '~/src/server/routes/types.js'
 
 /**
  * Form submission state stores the following in Redis:
@@ -76,7 +76,7 @@ export interface FormSubmissionError
  * (after Joi has converted value types)
  */
 export type FormSubmissionPayload = {
-  action?: string
+  action?: FormAction
   confirm?: boolean
   crumb?: string
 } & FormPayload

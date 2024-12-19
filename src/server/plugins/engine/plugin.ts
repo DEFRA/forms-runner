@@ -10,8 +10,6 @@ import Joi from 'joi'
 
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
-  ADD_ANOTHER,
-  CONTINUE,
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
   getPage,
@@ -25,26 +23,24 @@ import {
   getFormDefinition,
   getFormMetadata
 } from '~/src/server/plugins/engine/services/formsService.js'
-import { FormStatus } from '~/src/server/routes/types.js'
 import {
   type FormRequest,
   type FormRequestPayload,
   type FormRequestPayloadRefs,
   type FormRequestRefs
 } from '~/src/server/routes/types.js'
+import {
+  actionSchema,
+  confirmSchema,
+  crumbSchema,
+  itemIdSchema,
+  pathSchema,
+  stateSchema
+} from '~/src/server/schemas/index.js'
 
 export interface PluginOptions {
   model?: FormModel
 }
-
-const stateSchema = Joi.string()
-  .valid(FormStatus.Draft, FormStatus.Live)
-  .required()
-const pathSchema = Joi.string().required()
-const itemIdSchema = Joi.string().uuid().required()
-const crumbSchema = Joi.string().optional().allow('')
-const actionSchema = Joi.string().valid(ADD_ANOTHER, CONTINUE).required()
-const confirmSchema = Joi.boolean().default(false)
 
 export const plugin = {
   name: '@defra/forms-runner/engine',
@@ -227,7 +223,7 @@ export const plugin = {
           params: Joi.object().keys({
             slug: slugSchema,
             path: pathSchema,
-            itemId: Joi.string().uuid()
+            itemId: itemIdSchema.optional()
           })
         }
       }
@@ -244,7 +240,7 @@ export const plugin = {
             state: stateSchema,
             slug: slugSchema,
             path: pathSchema,
-            itemId: Joi.string().uuid()
+            itemId: itemIdSchema.optional()
           })
         }
       }
@@ -271,8 +267,15 @@ export const plugin = {
           params: Joi.object().keys({
             slug: slugSchema,
             path: pathSchema,
-            itemId: Joi.string().uuid()
-          })
+            itemId: itemIdSchema.optional()
+          }),
+          payload: Joi.object()
+            .keys({
+              crumb: crumbSchema,
+              action: actionSchema
+            })
+            .unknown(true)
+            .required()
         }
       }
     })
@@ -288,8 +291,15 @@ export const plugin = {
             state: stateSchema,
             slug: slugSchema,
             path: pathSchema,
-            itemId: Joi.string().uuid()
-          })
+            itemId: itemIdSchema.optional()
+          }),
+          payload: Joi.object()
+            .keys({
+              crumb: crumbSchema,
+              action: actionSchema
+            })
+            .unknown(true)
+            .required()
         }
       }
     })
@@ -480,6 +490,7 @@ export const plugin = {
           payload: Joi.object()
             .keys({
               crumb: crumbSchema,
+              action: actionSchema,
               confirm: confirmSchema
             })
             .required()
@@ -503,6 +514,7 @@ export const plugin = {
           payload: Joi.object()
             .keys({
               crumb: crumbSchema,
+              action: actionSchema,
               confirm: confirmSchema
             })
             .required()

@@ -15,6 +15,7 @@ import {
   initiateUpload
 } from '~/src/server/plugins/engine/services/uploadService.js'
 import { FileStatus, UploadStatus } from '~/src/server/plugins/engine/types.js'
+import { FormAction } from '~/src/server/routes/types.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
@@ -416,7 +417,9 @@ describe('Submission journey test', () => {
       url: `${basePath}/summary`,
       method: 'POST',
       headers,
-      payload: {}
+      payload: {
+        action: FormAction.Send
+      }
     })
 
     expect(res.statusCode).toBe(StatusCodes.SEE_OTHER)

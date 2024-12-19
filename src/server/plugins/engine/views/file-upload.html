@@ -12,7 +12,11 @@
     {{ govukFileUpload(model) }}
 
     {% if formAction %}
-      {{ govukButton({ text: "Upload file", classes: "govuk-button--secondary", preventDoubleClick: true }) }}
+      {{ govukButton({
+        text: "Upload file",
+        classes: "govuk-button--secondary",
+        preventDoubleClick: true
+      }) }}
     {% else %}
       {{ govukWarningText({
         text: "You have reached the maximum number of files. Please remove a file to upload more.",

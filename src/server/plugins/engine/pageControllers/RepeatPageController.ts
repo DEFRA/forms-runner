@@ -5,7 +5,6 @@ import { badRequest, notFound } from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
 import Joi from 'joi'
 
-import { ADD_ANOTHER, CONTINUE } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
@@ -20,6 +19,7 @@ import {
   type SummaryListAction
 } from '~/src/server/plugins/engine/types.js'
 import {
+  FormAction,
   type FormRequest,
   type FormRequestPayload
 } from '~/src/server/routes/types.js'
@@ -54,13 +54,13 @@ export class RepeatPageController extends QuestionPageController {
     return [this.repeat.options.name]
   }
 
-  validate(request: FormRequestPayload) {
-    const { payload } = request
+  getFormData(request: FormContextRequest) {
+    const formData = super.getFormData(request)
 
     // Apply an itemId to the form payload
-    payload.itemId = request.params.itemId ?? randomUUID()
+    formData.itemId = request.params.itemId ?? randomUUID()
 
-    return super.validate(request)
+    return formData
   }
 
   getStateFromValidForm(
@@ -219,12 +219,12 @@ export class RepeatPageController extends QuestionPageController {
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { model, path, repeat } = this
-      const { payload } = request
-      const { action } = payload
 
       const state = await super.getState(request)
 
-      if (action === ADD_ANOTHER) {
+      const { action } = this.getFormData(request)
+
+      if (action === FormAction.AddAnother) {
         const list = this.getListFromState(state)
         const { schema, options } = repeat
 
@@ -245,7 +245,7 @@ export class RepeatPageController extends QuestionPageController {
         }
 
         return super.proceed(request, h, `${path}${request.url.search}`)
-      } else if (action === CONTINUE) {
+      } else if (action === FormAction.Continue) {
         return super.proceed(
           request,
           h,
@@ -303,8 +303,8 @@ export class RepeatPageController extends QuestionPageController {
       request: FormRequestPayload,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { payload } = request
-      const { confirm } = payload
+      const { repeat } = this
+      const { confirm } = this.getFormData(request)
 
       if (confirm === true) {
         const { item, list } = await this.setRepeatAppData(request)
@@ -316,7 +316,7 @@ export class RepeatPageController extends QuestionPageController {
           list.splice(item.index, 1)
 
           const update = {
-            [this.repeat.options.name]: list
+            [repeat.options.name]: list
           }
 
           await cacheService.mergeState(request, update)
