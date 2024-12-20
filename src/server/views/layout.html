@@ -47,6 +47,8 @@
 {% block header %}
   {% if googleAnalyticsTrackingId %}
     <form method="post" action="/help/cookie-preferences?returnUrl={{ currentPath | urlencode }}">
+      <input type="hidden" name="crumb" value="{{ crumb }}">
+
     {% set acceptHtml %}
       <p class="govuk-body">You’ve accepted analytics cookies. You can <a class="govuk-link" href="/help/cookies">change your cookie settings</a> at any time.</p>
     {% endset %}
