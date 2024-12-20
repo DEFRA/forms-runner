@@ -12,7 +12,9 @@ import { config } from '~/src/config/index.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import {
+  findPage,
   getErrors,
+  getPageHref,
   normalisePath,
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
@@ -226,10 +228,17 @@ export class QuestionPageController extends PageController {
 
       const state = await this.getState(request)
       const context = model.getFormContext(request, state)
+      const relevantPath = this.getRelevantPath(context)
 
       // Redirect back to last relevant page
-      if (!context.paths.includes(path)) {
-        return this.proceed(request, h, this.getRelevantPath(context))
+      if (relevantPath !== path) {
+        const redirectTo = findPage(model, relevantPath)
+
+        if (redirectTo?.next.length) {
+          request.query.returnUrl = getPageHref(this, this.getSummaryPath())
+        }
+
+        return this.proceed(request, h, relevantPath)
       }
 
       const payload = this.getFormDataFromState(context.state)

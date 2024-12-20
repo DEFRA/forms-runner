@@ -28,6 +28,7 @@ export function proceed(
   nextUrl: string
 ) {
   const { method, payload, query } = request
+  const { returnUrl } = query
 
   const isReturnAllowed =
     payload && 'action' in payload
@@ -36,9 +37,9 @@ export function proceed(
 
   // Redirect to return location (optional)
   const response =
-    isReturnAllowed && query.returnUrl?.startsWith('/')
-      ? h.redirect(query.returnUrl)
-      : h.redirect(nextUrl)
+    isReturnAllowed && returnUrl?.startsWith('/')
+      ? h.redirect(returnUrl)
+      : h.redirect(redirectPath(nextUrl, { returnUrl }))
 
   // Redirect POST to GET to avoid resubmission
   return method === 'post'
@@ -61,7 +62,7 @@ export function encodeUrl(link?: string) {
 }
 
 /**
- * Redirect to page
+ * Get page href
  */
 export function getPageHref(
   page: PageControllerClass,
@@ -69,7 +70,7 @@ export function getPageHref(
 ): string
 
 /**
- * Redirect to page by path
+ * Get page href by path
  */
 export function getPageHref(
   page: PageControllerClass,
@@ -86,24 +87,39 @@ export function getPageHref(
   const query = typeof pathOrQuery === 'object' ? pathOrQuery : queryOnly
 
   if (!path.startsWith('/')) {
-    throw Error('Only relative URLs are allowed')
+    throw Error(`Only relative URLs are allowed: ${path}`)
   }
+
+  // Return path with page href as base
+  return redirectPath(page.getHref(path), query)
+}
+
+/**
+ * Get redirect path with optional query params
+ */
+export function redirectPath(nextUrl: string, query: FormQuery = {}) {
+  const isRelativePath = nextUrl.startsWith('/')
 
   // Filter string query params only
   const params = Object.entries(query).filter(
     (query): query is [string, string] => typeof query[1] === 'string'
   )
 
-  // Build URL using page href as base
-  const href = page.getHref(path)
-  const url = new URL(href, 'http://example.com')
+  // Build URL with relative path support
+  const url = isRelativePath
+    ? new URL(nextUrl, 'http://example.com')
+    : new URL(nextUrl)
 
   // Append query params
   for (const [name, value] of params) {
     url.searchParams.set(name, value)
   }
 
-  return `${url.pathname}${url.search}`
+  if (isRelativePath) {
+    return `${url.pathname}${url.search}`
+  }
+
+  return url.href
 }
 
 export function normalisePath(path = '') {

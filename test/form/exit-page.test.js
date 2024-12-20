@@ -23,7 +23,8 @@ describe('Exit pages', () => {
 
       paths: {
         current: '/are-you-18-or-older',
-        next: '/you-must-be-18-or-older-to-use-this-service'
+        next: '/are-you-or-your-business-already-registered-with-the-rural-payments-agency',
+        exit: '/you-must-be-18-or-older-to-use-this-service'
       },
 
       fields: [
@@ -31,7 +32,30 @@ describe('Exit pages', () => {
           name: 'JGLmzy',
           title: '18 or older',
           payload: {
-            valid: { JGLmzy: 'false' }
+            valid: { JGLmzy: 'true' },
+            invalid: { JGLmzy: 'false' }
+          }
+        }
+      ]
+    },
+    {
+      heading1:
+        'Are you or your business already registered with the Rural Payments Agency?',
+
+      paths: {
+        current:
+          '/are-you-or-your-business-already-registered-with-the-rural-payments-agency',
+        next: '/what-country-will-you-keep-livestock-in',
+        exit: '/already-registered-with-the-rural-payments-agency'
+      },
+
+      fields: [
+        {
+          name: 'zcjEtV',
+          title: 'Registered with the Rural Payments Agency',
+          payload: {
+            valid: { zcjEtV: 'false' },
+            invalid: { zcjEtV: 'true' }
           }
         }
       ]
@@ -97,11 +121,11 @@ describe('Exit pages', () => {
         expect($heading).toBeInTheDocument()
       })
 
-      it('should redirect to the next page on submit', async () => {
+      it('should redirect to the exit page on submit (answer: No)', async () => {
         const payload = {}
 
         for (const field of fields) {
-          Object.assign(payload, field.payload.valid)
+          Object.assign(payload, field.payload.invalid)
         }
 
         // Submit form with populated values
@@ -113,7 +137,7 @@ describe('Exit pages', () => {
         })
 
         expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
-        expect(response.headers.location).toBe(`${basePath}${paths.next}`)
+        expect(response.headers.location).toBe(`${basePath}${paths.exit}`)
       })
 
       it.each([
@@ -133,7 +157,7 @@ describe('Exit pages', () => {
 
           // Redirect back to exit page
           expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-          expect(response.headers.location).toBe(`${basePath}${paths.next}`)
+          expect(response.headers.location).toBe(`${basePath}${paths.exit}`)
         }
       )
 
@@ -143,9 +167,42 @@ describe('Exit pages', () => {
           headers
         })
 
-        // Redirect back to exit page
+        // Redirect back to exit page (without return URL)
         expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-        expect(response.headers.location).toBe(`${basePath}${paths.next}`)
+        expect(response.headers.location).toBe(`${basePath}${paths.exit}`)
+      })
+
+      it('should redirect to the next page on submit (answer: Yes)', async () => {
+        const payload = {}
+
+        for (const field of fields) {
+          Object.assign(payload, field.payload.valid)
+        }
+
+        // Submit form with populated values
+        const response1 = await server.inject({
+          url: `${basePath}${paths.current}`,
+          method: 'POST',
+          headers,
+          payload: { ...payload, crumb: csrfToken }
+        })
+
+        // Redirect to next page
+        expect(response1.statusCode).toBe(StatusCodes.SEE_OTHER)
+        expect(response1.headers.location).toBe(`${basePath}${paths.next}`)
+      })
+
+      it('should prevent access to the summary page (after continue)', async () => {
+        const response = await server.inject({
+          url: `${basePath}/summary`,
+          headers
+        })
+
+        // Redirect back to relevant page (with return URL)
+        expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+        expect(response.headers.location).toBe(
+          `${basePath}${paths.next}?returnUrl=%2Fdemo-cph-number%2Fsummary`
+        )
       })
     }
   )
