@@ -23,6 +23,11 @@
       ],
       rows: [
         [
+          { text: "cookieConsent" },
+          { text: "Remembers your cookie preferences" },
+          { text: "1 year" }
+        ],
+        [
           { text: "session" },
           { text: "Remembers the information you enter" },
           { text: "When you close the browser, or after 24 hours" }
@@ -34,6 +39,33 @@
         ]
       ]
     }) }}
+
+    <h2 class="govuk-heading-m">Analytics cookies</h2>
+    <p class="govuk-body">We use Google Analytics software to understand how people use our forms. We do this to help make sure the site is meeting the needs of its users and to help us make improvements.</p>
+    {{ govukTable({
+      firstCellIsHeader: true,
+      caption: "Analytics cookies we use",
+      head: [
+        { text: "Name" },
+        { text: "Purpose" },
+        { text: "Expires" }
+      ],
+      rows: [
+        [
+          { text: "_ga" },
+          { text: "Used by Google Analytics to help us count how many people visit our forms by tracking if you’ve visited before" },
+          { text: "2 years" }
+        ],
+        [
+          { text: "_ga_" + googleAnalyticsTrackingId },
+          { text: "Used by Google Analytics to find and track an individual session with your device" },
+          { text: "2 years" }
+        ]
+      ]
+    }) }}
+
+    <h2 class="govuk-heading-m">Change your settings</h2>
+    <p class="govuk-body">You can <a class="govuk-link" href="/help/cookie-preferences">change which cookies you’re happy for us to use</a>.</p>
   </div>
 </div>
 {% endblock %}

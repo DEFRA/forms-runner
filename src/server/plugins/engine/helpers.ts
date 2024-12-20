@@ -37,7 +37,7 @@ export function proceed(
 
   // Redirect to return location (optional)
   const response =
-    isReturnAllowed && returnUrl?.startsWith('/')
+    isReturnAllowed && isPathRelative(returnUrl)
       ? h.redirect(returnUrl)
       : h.redirect(redirectPath(nextUrl, { returnUrl }))
 
@@ -86,7 +86,7 @@ export function getPageHref(
   const path = typeof pathOrQuery === 'string' ? pathOrQuery : page.path
   const query = typeof pathOrQuery === 'object' ? pathOrQuery : queryOnly
 
-  if (!path.startsWith('/')) {
+  if (!isPathRelative(path)) {
     throw Error(`Only relative URLs are allowed: ${path}`)
   }
 
@@ -98,7 +98,7 @@ export function getPageHref(
  * Get redirect path with optional query params
  */
 export function redirectPath(nextUrl: string, query: FormQuery = {}) {
-  const isRelativePath = nextUrl.startsWith('/')
+  const isRelative = isPathRelative(nextUrl)
 
   // Filter string query params only
   const params = Object.entries(query).filter(
@@ -106,7 +106,7 @@ export function redirectPath(nextUrl: string, query: FormQuery = {}) {
   )
 
   // Build URL with relative path support
-  const url = isRelativePath
+  const url = isRelative
     ? new URL(nextUrl, 'http://example.com')
     : new URL(nextUrl)
 
@@ -115,11 +115,15 @@ export function redirectPath(nextUrl: string, query: FormQuery = {}) {
     url.searchParams.set(name, value)
   }
 
-  if (isRelativePath) {
+  if (isRelative) {
     return `${url.pathname}${url.search}`
   }
 
   return url.href
+}
+
+export function isPathRelative(path?: string) {
+  return (path ?? '').startsWith('/')
 }
 
 export function normalisePath(path = '') {
