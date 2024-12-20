@@ -28,6 +28,7 @@ export function proceed(
   nextUrl: string
 ) {
   const { method, payload, query } = request
+  const { returnUrl } = query
 
   const isReturnAllowed =
     payload && 'action' in payload
@@ -36,9 +37,9 @@ export function proceed(
 
   // Redirect to return location (optional)
   const response =
-    isReturnAllowed && query.returnUrl?.startsWith('/')
-      ? h.redirect(query.returnUrl)
-      : h.redirect(nextUrl)
+    isReturnAllowed && returnUrl?.startsWith('/')
+      ? h.redirect(returnUrl)
+      : h.redirect(redirectPath(nextUrl, { returnUrl }))
 
   // Redirect POST to GET to avoid resubmission
   return method === 'post'
