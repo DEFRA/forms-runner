@@ -235,7 +235,10 @@ export class RepeatPageController extends QuestionPageController {
             }
           ]
 
+          const { progress = [] } = state
+
           const viewModel = this.getListSummaryViewModel(request, list, errors)
+          viewModel.backLink = this.getBackLink(progress)
 
           return h.view(this.listSummaryViewName, viewModel)
         }
