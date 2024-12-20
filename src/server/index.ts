@@ -128,6 +128,7 @@ export async function createServer(routeConfig?: RouteConfig) {
   server.state('cookieConsent', {
     ttl: 365 * 24 * 60 * 60 * 1000, // 1 year in ms
     clearInvalid: true,
+    isHttpOnly: false,
     isSecure: config.get('isProduction'),
     path: '/',
     encoding: 'none' // handle this inside the application so we can share frontend/backend cookie modification
