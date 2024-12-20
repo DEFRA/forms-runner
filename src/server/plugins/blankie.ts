@@ -1,12 +1,7 @@
 import { type ServerRegisterPluginObject } from '@hapi/hapi'
 import Blankie from 'blankie'
-import flatten from 'lodash/flatten.js'
 
 import { config } from '~/src/config/index.js'
-
-function combine(...values: string[][]) {
-  return [...new Set(flatten(values))]
-}
 
 const googleAnalyticsOptions = {
   scriptSrc: ['https://*.googletagmanager.com'],
@@ -31,19 +26,19 @@ export const configureBlankiePlugin = (): ServerRegisterPluginObject<
     options: {
       defaultSrc: ['self'],
       fontSrc: ['self', 'data:'],
-      connectSrc: combine(
+      connectSrc: [
         ['self'],
         gaTrackingId ? googleAnalyticsOptions.connectSrc : []
-      ),
-      scriptSrc: combine(
+      ].flat(),
+      scriptSrc: [
         ['self', 'strict-dynamic', 'unsafe-inline'],
         gaTrackingId ? googleAnalyticsOptions.scriptSrc : []
-      ),
+      ].flat(),
       styleSrc: ['self', 'unsafe-inline'],
-      imgSrc: combine(
+      imgSrc: [
         ['self'],
         gaTrackingId ? googleAnalyticsOptions.imgSrc : []
-      ),
+      ].flat(),
       frameSrc: ['self', 'data:'],
       generateNonces: true
     }
