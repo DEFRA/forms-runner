@@ -261,7 +261,8 @@ export class RepeatPageController extends QuestionPageController {
           return h.view(this.listSummaryViewName, viewModel)
         }
 
-        return super.proceed(request, h, `${path}${request.url.search}`)
+        const nextPath = `${path}/${randomUUID()}${request.url.search}`
+        return super.proceed(request, h, nextPath)
       } else if (action === FormAction.Continue) {
         return super.proceed(
           request,

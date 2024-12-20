@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto'
+import crypto from 'node:crypto'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -34,7 +34,7 @@ async function createRepeatItem(
   repeatPage,
   expectedItemCount = 1,
   headers,
-  itemId = randomUUID()
+  itemId = crypto.randomUUID()
 ) {
   // Issue a GET request to the item
   // page to add to the progress stack
@@ -310,6 +310,9 @@ describe('Repeat POST tests', () => {
   })
 
   test('POST /pizza-order/summary ADD_ANOTHER returns 303', async () => {
+    const itemId = '00000000-0000-0000-0000-000000000000'
+    jest.spyOn(crypto, 'randomUUID').mockReturnValue(itemId)
+
     const res = await server.inject({
       method: 'POST',
       url: `${basePath}/pizza-order/summary`,
@@ -319,7 +322,7 @@ describe('Repeat POST tests', () => {
     })
 
     expect(res.statusCode).toBe(StatusCodes.SEE_OTHER)
-    expect(res.headers.location).toBe(`${basePath}/pizza-order`)
+    expect(res.headers.location).toBe(`${basePath}/pizza-order/${itemId}`)
   })
 
   test('POST /pizza-order/summary CONTINUE returns 303', async () => {
