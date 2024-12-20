@@ -53,7 +53,8 @@ export class RepeatPageController extends QuestionPageController {
   }
 
   get keys() {
-    return [this.repeat.options.name]
+    const { repeat } = this
+    return [repeat.options.name, ...super.keys]
   }
 
   getItemId(request?: FormContextRequest) {

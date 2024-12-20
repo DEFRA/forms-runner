@@ -284,11 +284,16 @@ export class FormModel {
     const { isPreview } = checkFormStatus(request.path)
 
     // Add paths for navigation
-    for (const { collection, path } of context.relevantPages) {
+    for (const { keys, path } of context.relevantPages) {
       paths.push(path)
 
-      // Stop at current page or with errors
-      if (!isPreview && collection.getErrors(errors)) {
+      // Stop at page with errors
+      if (
+        !isPreview &&
+        errors?.some(({ name, path }) => {
+          return keys.includes(name) || keys.some((key) => path.includes(key))
+        })
+      ) {
         break
       }
     }
