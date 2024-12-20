@@ -10,6 +10,10 @@ import {
   type RepeatItemState,
   type RepeatListState
 } from '~/src/server/plugins/engine/types.js'
+import {
+  type FormRequest,
+  type FormRequestPayload
+} from '~/src/server/routes/types.js'
 import { type CacheService } from '~/src/server/services/index.js'
 
 declare module '@hapi/hapi' {
@@ -17,7 +21,7 @@ declare module '@hapi/hapi' {
   // props from plugins which doesn't export @types
   interface PluginProperties {
     crumb: {
-      generate?: (request: Request) => void
+      generate?: (request: Request | FormRequest | FormRequestPayload) => void
     }
   }
 

@@ -30,16 +30,14 @@ export function context(request) {
 
   const { params, path, state } = request ?? {}
 
-  let crumb
+  /** @type {CookieConsent | undefined} */
   let cookieConsent
 
   if (typeof state?.cookieConsent === 'string') {
     cookieConsent = parseCookieConsent(state.cookieConsent)
   }
 
-  if (request) {
-    crumb = request.server.plugins.crumb.generate?.(request)
-  }
+  const crumb = request?.server.plugins.crumb.generate?.(request)
 
   const isPreviewMode = path?.startsWith(PREVIEW_PATH_PREFIX)
 
@@ -67,5 +65,6 @@ export function context(request) {
 }
 
 /**
+ * @import { CookieConsent } from '~/src/common/types.js'
  * @import { FormRequest, FormRequestPayload } from '~/src/server/routes/types.js'
  */
