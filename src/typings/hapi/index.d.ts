@@ -17,7 +17,7 @@ declare module '@hapi/hapi' {
   // props from plugins which doesn't export @types
   interface PluginProperties {
     crumb: {
-      generate?: (request: Request, h: ResponseToolkit) => void
+      generate?: (request: Request) => void
     }
   }
 

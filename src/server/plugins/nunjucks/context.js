@@ -30,10 +30,15 @@ export function context(request) {
 
   const { params, path, state } = request ?? {}
 
+  let crumb
   let cookieConsent
 
   if (typeof state?.cookieConsent === 'string') {
     cookieConsent = parseCookieConsent(state.cookieConsent)
+  }
+
+  if (request) {
+    crumb = request.server.plugins.crumb.generate?.(request)
   }
 
   const isPreviewMode = path?.startsWith(PREVIEW_PATH_PREFIX)
@@ -50,6 +55,7 @@ export function context(request) {
     serviceVersion: config.get('serviceVersion'),
     slug: params?.slug,
     cookieConsent,
+    crumb,
     googleAnalyticsTrackingId: config.get('googleAnalyticsTrackingId'),
     cspNonce: request?.plugins.blankie?.nonces?.script,
     currentPath: request ? `${request.path}${request.url.search}` : undefined,
