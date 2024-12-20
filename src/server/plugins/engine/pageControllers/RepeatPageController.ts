@@ -182,8 +182,14 @@ export class RepeatPageController extends QuestionPageController {
       const itemId = this.getItemId(request)
 
       if (!itemId) {
+        const state = await super.getState(request)
+        const list = this.getListFromState(state)
+
+        const summaryPath = this.getSummaryPath(request)
         const nextPath = `${path}/${randomUUID()}${request.url.search}`
-        return super.proceed(request, h, nextPath)
+
+        // Only redirect to new item when list is empty
+        return super.proceed(request, h, list.length ? summaryPath : nextPath)
       }
 
       await this.setRepeatAppData(request)
