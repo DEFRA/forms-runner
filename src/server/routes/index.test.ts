@@ -30,8 +30,13 @@ describe('Routes', () => {
       level: 1
     })
 
+    const $rowheader = container.getByRole('rowheader', {
+      name: '_ga_123456789'
+    })
+
     expect($heading).toBeInTheDocument()
     expect($heading).toHaveClass('govuk-heading-l')
+    expect($rowheader).toBeInTheDocument()
   })
 
   test('accessibility statement page is served', async () => {
