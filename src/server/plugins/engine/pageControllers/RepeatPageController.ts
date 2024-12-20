@@ -234,34 +234,36 @@ export class RepeatPageController extends QuestionPageController {
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { model, path, repeat } = this
+      const { schema, options } = repeat
 
       const state = await super.getState(request)
+      const list = this.getListFromState(state)
 
       const { action } = this.getFormData(request)
 
+      // Show error if repeat max limit reached
+      if (
+        (action === FormAction.AddAnother && list.length >= schema.max) ||
+        (action === FormAction.Continue && list.length > schema.max)
+      ) {
+        const errors: FormSubmissionError[] = [
+          {
+            path: [],
+            href: '',
+            name: '',
+            text: `You can only add up to ${schema.max} ${options.title}${schema.max === 1 ? '' : 's'}`
+          }
+        ]
+
+        const { progress = [] } = state
+
+        const viewModel = this.getListSummaryViewModel(request, list, errors)
+        viewModel.backLink = this.getBackLink(progress)
+
+        return h.view(this.listSummaryViewName, viewModel)
+      }
+
       if (action === FormAction.AddAnother) {
-        const list = this.getListFromState(state)
-        const { schema, options } = repeat
-
-        // Show error if repeat max limit reached
-        if (list.length >= schema.max) {
-          const errors: FormSubmissionError[] = [
-            {
-              path: [],
-              href: '',
-              name: '',
-              text: `You can only add up to ${schema.max} ${options.title}${schema.max === 1 ? '' : 's'}`
-            }
-          ]
-
-          const { progress = [] } = state
-
-          const viewModel = this.getListSummaryViewModel(request, list, errors)
-          viewModel.backLink = this.getBackLink(progress)
-
-          return h.view(this.listSummaryViewName, viewModel)
-        }
-
         const nextPath = `${path}/${randomUUID()}${request.url.search}`
         return super.proceed(request, h, nextPath)
       } else if (action === FormAction.Continue) {
