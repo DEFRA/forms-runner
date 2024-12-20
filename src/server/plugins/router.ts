@@ -8,6 +8,7 @@ import {
   serialiseCookieConsent
 } from '~/src/common/cookies.js'
 import { type CookieConsent } from '~/src/common/types.js'
+import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { isPathRelative } from '~/src/server/plugins/engine/helpers.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
@@ -64,7 +65,11 @@ export default {
         method: 'get',
         path: '/help/cookies',
         handler(_request, h) {
-          return h.view('help/cookies')
+          return h.view('help/cookies', {
+            googleAnalyticsContainerId: config
+              .get('googleAnalyticsTrackingId')
+              .replace(/^G-/, '')
+          })
         }
       })
 
