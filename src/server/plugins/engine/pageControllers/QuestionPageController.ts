@@ -185,8 +185,8 @@ export class QuestionPageController extends PageController {
   /**
    * Gets the form payload (from request) for this page only
    */
-  getFormData(request: FormContextRequest): FormSubmissionPayload {
-    return request.payload ?? {}
+  getFormData(request?: FormContextRequest): FormSubmissionPayload {
+    return request?.payload ?? {}
   }
 
   /**

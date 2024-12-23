@@ -56,11 +56,13 @@ export class RepeatPageController extends QuestionPageController {
     return [this.repeat.options.name]
   }
 
-  getFormData(request: FormContextRequest) {
+  getFormData(request?: FormContextRequest) {
     const formData = super.getFormData(request)
 
     // Apply an itemId to the form payload
-    formData.itemId = request.params.itemId ?? randomUUID()
+    if (request?.payload) {
+      formData.itemId = request.params.itemId ?? randomUUID()
+    }
 
     return formData
   }
