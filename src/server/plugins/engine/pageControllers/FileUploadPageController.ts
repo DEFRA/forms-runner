@@ -91,11 +91,11 @@ export class FileUploadPageController extends QuestionPageController {
     this.viewName = 'file-upload'
   }
 
-  getFormData(request: FormContextRequest) {
+  getFormData(request?: FormContextRequest) {
     const formData = super.getFormData(request)
 
     const name = this.getComponentName()
-    const files = request.app.files ?? []
+    const files = request?.app.files ?? []
 
     // Append the files to the payload
     formData[name] = files.length ? files : undefined
