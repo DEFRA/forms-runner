@@ -179,14 +179,15 @@ export class RepeatPageController extends QuestionPageController {
       request: FormRequest,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { path } = this
+      const { path, repeat } = this
+      const { schema } = repeat
 
       const itemId = this.getItemId(request)
 
-      if (!itemId) {
-        const state = await super.getState(request)
-        const list = this.getListFromState(state)
+      const state = await super.getState(request)
+      const list = this.getListFromState(state)
 
+      if (!itemId || list.length >= schema.max) {
         const summaryPath = this.getSummaryPath(request)
         const nextPath = `${path}/${randomUUID()}${request.url.search}`
 
