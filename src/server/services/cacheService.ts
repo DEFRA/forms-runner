@@ -63,10 +63,12 @@ export class CacheService {
 
   async setConfirmationState(
     request: FormRequest | FormRequestPayload,
-    value: { confirmed?: true }
+    confirmationState: { confirmed?: true }
   ) {
     const key = this.Key(request, ADDITIONAL_IDENTIFIER.Confirmation)
-    return this.cache.set(key, value, config.get('confirmationSessionTimeout'))
+    const ttl = config.get('confirmationSessionTimeout')
+
+    return this.cache.set(key, confirmationState, ttl)
   }
 
   async getUploadState(request: FormRequest | FormRequestPayload) {
@@ -79,12 +81,12 @@ export class CacheService {
 
   async mergeUploadState(
     request: FormRequest | FormRequestPayload,
-    value: TempFileState
+    uploadState: TempFileState
   ) {
     const path = request.path
 
     await this.mergeState(request, {
-      upload: { [path]: value }
+      upload: { [path]: uploadState }
     })
   }
 

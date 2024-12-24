@@ -349,7 +349,7 @@ export class RepeatPageController extends QuestionPageController {
 
   getListSummaryViewModel(
     request: FormContextRequest,
-    state: RepeatListState,
+    list: RepeatListState,
     errors?: FormSubmissionError[]
   ): {
     name: string | undefined
@@ -374,10 +374,10 @@ export class RepeatPageController extends QuestionPageController {
 
     let count = 0
 
-    if (Array.isArray(state)) {
-      count = state.length
+    if (Array.isArray(list)) {
+      count = list.length
 
-      state.forEach((item, index) => {
+      list.forEach((item, index) => {
         const items: SummaryListAction[] = [
           {
             href: `${href}/${item.itemId}${request.url.search}`,
