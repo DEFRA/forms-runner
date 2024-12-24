@@ -285,13 +285,25 @@ export class RepeatPageController extends QuestionPageController {
       request: FormRequest,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
+      const { viewModel } = this
+
       const { item } = await this.setRepeatAppData(request)
 
       if (!item) {
         return notFound('List item to delete not found')
       }
 
+      const state = await super.getState(request)
+
+      const { progress = [] } = state
+      await this.updateProgress(progress, request)
+
       return h.view(this.listDeleteViewName, {
+        ...viewModel,
+
+        backLink: this.getBackLink(progress),
+        showTitle: false,
+
         field: {
           name: 'confirm',
           fieldset: {
