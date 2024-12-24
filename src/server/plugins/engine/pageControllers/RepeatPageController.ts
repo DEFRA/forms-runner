@@ -293,8 +293,14 @@ export class RepeatPageController extends QuestionPageController {
         return notFound('List item to delete not found')
       }
 
+      const state = await super.getState(request)
+
+      const { progress = [] } = state
+      await this.updateProgress(progress, request)
+
       return h.view(this.listDeleteViewName, {
         ...viewModel,
+        backLink: this.getBackLink(progress),
         field: {
           name: 'confirm',
           fieldset: {
