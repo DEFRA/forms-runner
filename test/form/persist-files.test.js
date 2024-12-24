@@ -91,10 +91,7 @@ describe('Submission journey test', () => {
   })
 
   test('GET /file-upload-component returns 200', async () => {
-    jest.spyOn(CacheService.prototype, 'getUploadState').mockResolvedValueOnce({
-      upload: undefined,
-      files: []
-    })
+    jest.spyOn(CacheService.prototype, 'getState').mockResolvedValueOnce({})
 
     jest.mocked(uploadService.initiateUpload).mockResolvedValueOnce({
       uploadId: '123-546-789',
@@ -111,14 +108,19 @@ describe('Submission journey test', () => {
   })
 
   test('POST /file-upload-component returns 303', async () => {
-    jest.spyOn(CacheService.prototype, 'getUploadState').mockResolvedValueOnce(
-      /** @type {TempFileState} */ ({
+    jest.spyOn(CacheService.prototype, 'getState').mockResolvedValueOnce(
+      // @ts-expect-error - Allow upload property mismatch with `FormState`
+      /** @type {FormSubmissionState} */ ({
         upload: {
-          uploadId: '123-546-788',
-          uploadUrl: 'http://localhost:7337/upload-and-scan/123-546-788',
-          statusUrl: 'http://localhost:7337/status/123-546-788'
-        },
-        files: [readyFile, readyFile2]
+          '/file-upload-component': {
+            files: [readyFile, readyFile2],
+            upload: {
+              uploadId: '123-546-788',
+              uploadUrl: 'http://localhost:7337/upload-and-scan/123-546-788',
+              statusUrl: 'http://localhost:7337/status/123-546-788'
+            }
+          }
+        }
       })
     )
 
@@ -223,5 +225,5 @@ describe('Submission journey test', () => {
 
 /**
  * @import { Server } from '@hapi/hapi'
- * @import { FileState, TempFileState } from '~/src/server/plugins/engine/types.js'
+ * @import { FileState, FormSubmissionState } from '~/src/server/plugins/engine/types.js'
  */

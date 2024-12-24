@@ -277,7 +277,6 @@ export interface FormPageViewModel extends PageViewModelBase {
 }
 
 export interface FileUploadPageViewModel extends FormPageViewModel {
-  path: string
   formAction?: string
   fileUploadComponent: ComponentViewModel
   preUploadComponents: ComponentViewModel[]

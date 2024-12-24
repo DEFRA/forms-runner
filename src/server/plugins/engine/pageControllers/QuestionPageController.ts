@@ -211,12 +211,9 @@ export class QuestionPageController extends PageController {
     return cacheService.getState(request)
   }
 
-  async setState(
-    request: FormRequest | FormRequestPayload,
-    state: FormSubmissionState
-  ) {
+  async setState(request: FormRequest | FormRequestPayload, value: object) {
     const { cacheService } = request.services([])
-    return cacheService.mergeState(request, state)
+    return cacheService.mergeState(request, value)
   }
 
   makeGetRouteHandler() {
@@ -333,8 +330,6 @@ export class QuestionPageController extends PageController {
    * Progress is stored in the state.
    */
   async updateProgress(progress: string[], request: FormRequest) {
-    const { cacheService } = request.services([])
-
     const lastVisited = progress.at(-1)
     const currentPath = `${request.path.substring(1)}${request.url.search}`
 
@@ -354,7 +349,7 @@ export class QuestionPageController extends PageController {
       }
     }
 
-    await cacheService.mergeState(request, { progress })
+    await this.setState(request, { progress })
   }
 
   /**

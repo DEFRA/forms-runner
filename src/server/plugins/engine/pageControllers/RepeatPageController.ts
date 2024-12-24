@@ -309,8 +309,6 @@ export class RepeatPageController extends QuestionPageController {
         const { item, list } = await this.setRepeatAppData(request)
 
         if (item) {
-          const { cacheService } = request.services([])
-
           // Remove the item from the list
           list.splice(item.index, 1)
 
@@ -318,7 +316,7 @@ export class RepeatPageController extends QuestionPageController {
             [repeat.options.name]: list
           }
 
-          await cacheService.mergeState(request, update)
+          await this.setState(request, update)
         }
       }
 
