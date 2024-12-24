@@ -19,7 +19,7 @@ export class StatusPageController extends QuestionPageController {
       request: FormRequest,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { model, title, viewName } = this
+      const { viewModel, viewName } = this
 
       const { cacheService } = request.services([])
       const confirmationState = await cacheService.getConfirmationState(request)
@@ -34,10 +34,8 @@ export class StatusPageController extends QuestionPageController {
       const { submissionGuidance } = await getFormMetadata(slug)
 
       return h.view(viewName, {
-        pageTitle: title,
-        name: model.name,
-        submissionGuidance,
-        serviceUrl: this.getHref('/')
+        ...viewModel,
+        submissionGuidance
       })
     }
   }
