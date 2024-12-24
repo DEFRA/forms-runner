@@ -285,6 +285,8 @@ export class RepeatPageController extends QuestionPageController {
       request: FormRequest,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
+      const { viewModel } = this
+
       const { item } = await this.setRepeatAppData(request)
 
       if (!item) {
@@ -292,6 +294,7 @@ export class RepeatPageController extends QuestionPageController {
       }
 
       return h.view(this.listDeleteViewName, {
+        ...viewModel,
         field: {
           name: 'confirm',
           fieldset: {
