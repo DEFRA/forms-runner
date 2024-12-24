@@ -3,10 +3,7 @@ import { merge } from '@hapi/hoek'
 
 import { config } from '~/src/config/index.js'
 import { type createServer } from '~/src/server/index.js'
-import {
-  type FormSubmissionState,
-  type TempFileState
-} from '~/src/server/plugins/engine/types.js'
+import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
   type FormRequestPayload
@@ -69,25 +66,6 @@ export class CacheService {
     const ttl = config.get('confirmationSessionTimeout')
 
     return this.cache.set(key, confirmationState, ttl)
-  }
-
-  async getUploadState(request: FormRequest | FormRequestPayload) {
-    const state = await this.getState(request)
-    const uploadState = state.upload ?? {}
-    const path = request.path
-
-    return uploadState[path] ?? { files: [] }
-  }
-
-  async mergeUploadState(
-    request: FormRequest | FormRequestPayload,
-    uploadState: TempFileState
-  ) {
-    const path = request.path
-
-    await this.mergeState(request, {
-      upload: { [path]: uploadState }
-    })
   }
 
   async clearState(request: FormRequest | FormRequestPayload) {
