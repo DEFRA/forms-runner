@@ -56,11 +56,18 @@ export class RepeatPageController extends QuestionPageController {
     return [this.repeat.options.name]
   }
 
-  getFormData(request: FormContextRequest) {
+  getItemId(request?: FormContextRequest) {
+    const { itemId } = this.getFormData(request)
+    return itemId ?? request?.params.itemId
+  }
+
+  getFormData(request?: FormContextRequest) {
     const formData = super.getFormData(request)
 
     // Apply an itemId to the form payload
-    formData.itemId = request.params.itemId ?? randomUUID()
+    if (request?.payload) {
+      formData.itemId = request.params.itemId ?? randomUUID()
+    }
 
     return formData
   }
@@ -69,14 +76,16 @@ export class RepeatPageController extends QuestionPageController {
     request: FormRequestPayload,
     payload: FormRequestPayload['payload']
   ) {
-    const { item, list } = this.getRepeatAppData(request)
-    const state = super.getStateFromValidForm(request, payload)
+    const itemId = this.getItemId(request)
 
-    if (!payload.itemId) {
-      throw badRequest('No item ID found in the payload')
+    if (!itemId) {
+      throw badRequest('No item ID found')
     }
 
-    const updated: RepeatItemState = { ...state, itemId: payload.itemId }
+    const { item, list } = this.getRepeatAppData(request)
+    const itemState = super.getStateFromValidForm(request, payload)
+
+    const updated: RepeatItemState = { ...itemState, itemId }
     const newList = [...list]
 
     if (!item) {
@@ -133,13 +142,14 @@ export class RepeatPageController extends QuestionPageController {
    * @param request - the hapi request
    */
   private async setRepeatAppData(request: FormRequest | FormRequestPayload) {
-    const { app, params } = request
-    const { itemId } = params
+    const { app } = request
 
     const { cacheService } = request.services([])
     const state = await cacheService.getState(request)
 
     const list = this.getListFromState(state)
+
+    const itemId = this.getItemId(request)
     const value = this.getItemFromList(list, itemId)
     const index = value ? list.indexOf(value) : -1
 
@@ -169,9 +179,17 @@ export class RepeatPageController extends QuestionPageController {
     ) => {
       const { path } = this
 
-      if (!request.params.itemId) {
+      const itemId = this.getItemId(request)
+
+      if (!itemId) {
+        const state = await super.getState(request)
+        const list = this.getListFromState(state)
+
+        const summaryPath = this.getSummaryPath(request)
         const nextPath = `${path}/${randomUUID()}${request.url.search}`
-        return super.proceed(request, h, nextPath)
+
+        // Only redirect to new item when list is empty
+        return super.proceed(request, h, list.length ? summaryPath : nextPath)
       }
 
       await this.setRepeatAppData(request)
@@ -243,7 +261,8 @@ export class RepeatPageController extends QuestionPageController {
           return h.view(this.listSummaryViewName, viewModel)
         }
 
-        return super.proceed(request, h, `${path}${request.url.search}`)
+        const nextPath = `${path}/${randomUUID()}${request.url.search}`
+        return super.proceed(request, h, nextPath)
       } else if (action === FormAction.Continue) {
         return super.proceed(
           request,
@@ -433,11 +452,13 @@ export class RepeatPageController extends QuestionPageController {
       return summaryPath
     }
 
-    const { params, url } = request
+    const { url } = request
+
+    const itemId = this.getItemId(request)
     const newUrl = new URL(url)
 
-    if (params.itemId) {
-      newUrl.searchParams.set('itemId', params.itemId)
+    if (itemId) {
+      newUrl.searchParams.set('itemId', itemId)
     } else {
       newUrl.searchParams.delete('itemId')
     }
