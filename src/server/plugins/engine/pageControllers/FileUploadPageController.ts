@@ -120,7 +120,7 @@ export class FileUploadPageController extends QuestionPageController {
       request: FormRequest,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { path } = request
+      const { path } = this
 
       const state = await this.getState(request)
       const uploadState = state.upload?.[path] ?? { files: [] }
@@ -136,7 +136,7 @@ export class FileUploadPageController extends QuestionPageController {
       request: FormRequestPayload,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { path } = request
+      const { path } = this
 
       const state = await this.getState(request)
       const uploadState = state.upload?.[path] ?? { files: [] }
@@ -145,7 +145,7 @@ export class FileUploadPageController extends QuestionPageController {
       const removed = await this.checkRemovedFiles(request, uploadState)
 
       if (removed) {
-        return this.proceed(request, h, this.path)
+        return this.proceed(request, h, path)
       }
 
       await this.refreshUpload(request, uploadState)
@@ -210,7 +210,6 @@ export class FileUploadPageController extends QuestionPageController {
 
     return {
       ...viewModel,
-      path: request.path,
       formAction: request.app.formAction,
       fileUploadComponent,
       preUploadComponents: components.slice(0, id)
@@ -309,6 +308,8 @@ export class FileUploadPageController extends QuestionPageController {
     request: FormRequest | FormRequestPayload,
     uploadState: TempFileState
   ) {
+    const { path } = this
+
     const promises: Promise<UploadStatusResponse | undefined>[] = []
     const indexes: number[] = []
 
@@ -341,7 +342,6 @@ export class FileUploadPageController extends QuestionPageController {
       }
 
       if (filesUpdated) {
-        const { path } = request
         await this.setState(request, {
           upload: { [path]: uploadState }
         })
@@ -360,6 +360,7 @@ export class FileUploadPageController extends QuestionPageController {
     request: FormRequestPayload,
     uploadState: TempFileState
   ) {
+    const { path } = this
     const { __remove: removeId } = this.getFormData(request)
 
     if (removeId) {
@@ -372,7 +373,6 @@ export class FileUploadPageController extends QuestionPageController {
           (item) => item !== fileToRemove
         )
 
-        const { path } = request
         await this.setState(request, {
           upload: { [path]: uploadState }
         })
@@ -393,6 +393,7 @@ export class FileUploadPageController extends QuestionPageController {
     request: FormRequest | FormRequestPayload,
     uploadState: TempFileState
   ) {
+    const { href, path } = this
     const { options, schema } = this.fileUploadComponent
 
     // Reset the upload in state
@@ -404,11 +405,8 @@ export class FileUploadPageController extends QuestionPageController {
     if (uploadState.files.length < max) {
       const outputEmail =
         this.model.def.outputEmail ?? 'defraforms@defra.gov.uk'
-      const newUpload = await initiateUpload(
-        request.path,
-        outputEmail,
-        options.accept
-      )
+
+      const newUpload = await initiateUpload(href, outputEmail, options.accept)
 
       if (newUpload === undefined) {
         throw Boom.badRequest('Unexpected empty response from initiateUpload')
@@ -416,8 +414,6 @@ export class FileUploadPageController extends QuestionPageController {
 
       uploadState.upload = newUpload
     }
-
-    const path = request.path
 
     await this.setState(request, {
       upload: { [path]: uploadState }
