@@ -210,8 +210,20 @@ describe('Repeat GET tests', () => {
     )
   })
 
-  test('GET /pizza-order/{id}/confirm-delete returns 200', async () => {
+  test('GET /pizza-order/{id}/confirm-delete with 1 item returns 404', async () => {
     const { item, headers } = await createRepeatItem(server, repeatPage)
+
+    const res = await server.inject({
+      url: `${basePath}/pizza-order/${item.itemId}/confirm-delete`,
+      headers
+    })
+
+    expect(res.statusCode).toBe(StatusCodes.NOT_FOUND)
+  })
+
+  test('GET /pizza-order/{id}/confirm-delete with 2 items returns 200', async () => {
+    const { item, headers } = await createRepeatItem(server, repeatPage)
+    await createRepeatItem(server, repeatPage, 2, headers)
 
     const res = await server.inject({
       url: `${basePath}/pizza-order/${item.itemId}/confirm-delete`,
@@ -229,7 +241,7 @@ describe('Repeat GET tests', () => {
     expect(res.statusCode).toBe(StatusCodes.NOT_FOUND)
   })
 
-  test('GET /pizza-order/summary with items returns 200', async () => {
+  test('GET /pizza-order/summary with 2 items returns 200', async () => {
     const { headers } = await createRepeatItem(server, repeatPage)
     await createRepeatItem(server, repeatPage, 2, headers)
 
@@ -293,8 +305,24 @@ describe('Repeat POST tests', () => {
     expect(res.headers.location).toMatch(/^\/repeat\/pizza-order\/summary?/)
   })
 
-  test('POST /pizza-order/{id}/confirm-delete returns 303', async () => {
+  test('POST /pizza-order/{id}/confirm-delete with 1 item returns 404', async () => {
     const { item, headers } = await createRepeatItem(server, repeatPage)
+
+    const res = await server.inject({
+      url: `${basePath}/pizza-order/${item.itemId}/confirm-delete`,
+      method: 'POST',
+      headers,
+      payload: {
+        confirm: true
+      }
+    })
+
+    expect(res.statusCode).toBe(StatusCodes.NOT_FOUND)
+  })
+
+  test('POST /pizza-order/{id}/confirm-delete with 2 items returns 303', async () => {
+    const { item, headers } = await createRepeatItem(server, repeatPage)
+    await createRepeatItem(server, repeatPage, 2, headers)
 
     const res = await server.inject({
       url: `${basePath}/pizza-order/${item.itemId}/confirm-delete`,

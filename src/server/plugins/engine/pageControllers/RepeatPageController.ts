@@ -290,10 +290,14 @@ export class RepeatPageController extends QuestionPageController {
     ) => {
       const { viewModel } = this
 
-      const { item } = await this.setRepeatAppData(request)
+      const { item, list } = await this.setRepeatAppData(request)
 
-      if (!item) {
-        return notFound('List item to delete not found')
+      if (!item || list.length === 1) {
+        return notFound(
+          item
+            ? 'Last list item cannot be removed'
+            : 'List item to remove not found'
+        )
       }
 
       const state = await super.getState(request)
@@ -340,19 +344,25 @@ export class RepeatPageController extends QuestionPageController {
       const { repeat } = this
       const { confirm } = this.getFormData(request)
 
+      const { item, list } = await this.setRepeatAppData(request)
+
+      if (!item || list.length === 1) {
+        return notFound(
+          item
+            ? 'Last list item cannot be removed'
+            : 'List item to remove not found'
+        )
+      }
+
+      // Remove the item from the list
       if (confirm) {
-        const { item, list } = await this.setRepeatAppData(request)
+        list.splice(item.index, 1)
 
-        if (item) {
-          // Remove the item from the list
-          list.splice(item.index, 1)
-
-          const update = {
-            [repeat.options.name]: list
-          }
-
-          await this.setState(request, update)
+        const update = {
+          [repeat.options.name]: list
         }
+
+        await this.setState(request, update)
       }
 
       return this.proceed(request, h)
