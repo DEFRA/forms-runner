@@ -300,7 +300,10 @@ export class RepeatPageController extends QuestionPageController {
 
       return h.view(this.listDeleteViewName, {
         ...viewModel,
+
         backLink: this.getBackLink(progress),
+        showTitle: false,
+
         field: {
           name: 'confirm',
           fieldset: {
