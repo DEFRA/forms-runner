@@ -1,7 +1,10 @@
 import { type FileUploadFieldComponent } from '@defra/forms-model'
 import joi, { type ArraySchema } from 'joi'
 
-import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import {
+  FormComponent,
+  isUploadState
+} from '~/src/server/plugins/engine/components/FormComponent.js'
 import { filesize } from '~/src/server/plugins/engine/helpers.js'
 import {
   FileStatus,
@@ -17,6 +20,7 @@ import {
   type SummaryList,
   type SummaryListRow,
   type UploadState,
+  type UploadStatusFileResponse,
   type UploadStatusResponse
 } from '~/src/server/plugins/engine/types.js'
 import { render } from '~/src/server/plugins/nunjucks/index.js'
@@ -51,7 +55,7 @@ export const metadataSchema = joi
   .required()
 
 export const tempStatusSchema = joi
-  .object<UploadState>({
+  .object<UploadStatusFileResponse>({
     uploadStatus: joi
       .string()
       .valid(UploadStatus.ready, UploadStatus.pending)
@@ -256,24 +260,7 @@ export class FileUploadField extends FormComponent {
     }
   }
 
-  isValue(value?: FormStateValue | FormState): value is FileState[] {
-    return FileUploadField.isFileUploads(value)
-  }
-
-  static isFileUploads(
-    value?: FormStateValue | FormState
-  ): value is FileState[] {
-    if (!Array.isArray(value)) {
-      return false
-    }
-
-    // Skip checks when empty
-    if (!value.length) {
-      return true
-    }
-
-    return value.every(
-      (value) => typeof value === 'object' && 'uploadId' in value
-    )
+  isValue(value?: FormStateValue | FormState): value is UploadState {
+    return isUploadState(value)
   }
 }

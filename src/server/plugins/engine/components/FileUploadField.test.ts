@@ -18,7 +18,7 @@ import { validationOptions as opts } from '~/src/server/plugins/engine/pageContr
 import {
   FileStatus,
   UploadStatus,
-  type FileState
+  type UploadState
 } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/file-upload-basic.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
@@ -26,7 +26,7 @@ import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 describe('FileUploadField', () => {
   let model: FormModel
 
-  const validTempState: FileState[] = [
+  const validTempState: UploadState = [
     {
       uploadId: '3075efea-e5de-476f-a0bf-9ae7ef56ca69',
       status: {
@@ -85,7 +85,7 @@ describe('FileUploadField', () => {
     }
   ]
 
-  const validState: FileState[] = [
+  const validState: UploadState = [
     {
       uploadId: '3075efea-e5de-476f-a0bf-9ae7ef56ca69',
       status: {

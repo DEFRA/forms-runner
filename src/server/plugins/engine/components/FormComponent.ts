@@ -3,6 +3,7 @@ import { type FormComponentsDef, type Item } from '@defra/forms-model'
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import {
+  type FileState,
   type FormPayload,
   type FormState,
   type FormStateValue,
@@ -10,7 +11,8 @@ import {
   type FormSubmissionState,
   type FormValue,
   type RepeatItemState,
-  type RepeatListState
+  type RepeatListState,
+  type UploadState
 } from '~/src/server/plugins/engine/types.js'
 
 export class FormComponent extends ComponentBase {
@@ -222,4 +224,27 @@ export function isRepeatState(value?: unknown): value is RepeatListState {
  */
 export function isRepeatValue(value?: unknown): value is RepeatItemState {
   return isFormState(value) && typeof value.itemId === 'string'
+}
+
+/**
+ * Check for upload state
+ */
+export function isUploadState(value?: unknown): value is UploadState {
+  if (!Array.isArray(value)) {
+    return false
+  }
+
+  // Skip checks when empty
+  if (!value.length) {
+    return true
+  }
+
+  return value.every(isUploadValue)
+}
+
+/**
+ * Check for upload state value
+ */
+export function isUploadValue(value?: unknown): value is FileState {
+  return isFormState(value) && typeof value.uploadId === 'string'
 }

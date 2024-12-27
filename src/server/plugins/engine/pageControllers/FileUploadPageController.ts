@@ -28,7 +28,7 @@ import {
   type FormPayload,
   type FormSubmissionError,
   type TempFileState,
-  type UploadState,
+  type UploadStatusFileResponse,
   type UploadStatusResponse
 } from '~/src/server/plugins/engine/types.js'
 import {
@@ -38,7 +38,7 @@ import {
 
 const MAX_UPLOADS = 25
 
-function prepareStatus(status: UploadState) {
+function prepareStatus(status: UploadStatusFileResponse) {
   const file = status.form.file
   const isPending = file.fileStatus === FileStatus.pending
 
@@ -402,7 +402,7 @@ export class FileUploadPageController extends QuestionPageController {
         const result = results[index]
 
         if (result.status === 'fulfilled') {
-          const validateResult: ValidationResult<UploadState> =
+          const validateResult: ValidationResult<UploadStatusFileResponse> =
             tempStatusSchema.validate(result.value, { stripUnknown: true })
 
           if (!validateResult.error) {
