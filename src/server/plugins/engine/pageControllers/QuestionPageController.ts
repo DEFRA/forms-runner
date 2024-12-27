@@ -27,6 +27,7 @@ import {
   type FormContextRequest,
   type FormPageViewModel,
   type FormPayload,
+  type FormState,
   type FormSubmissionError,
   type FormSubmissionPayload,
   type FormSubmissionState
@@ -201,7 +202,11 @@ export class QuestionPageController extends PageController {
     }
   }
 
-  getStateFromValidForm(request: FormContextRequest, payload: FormPayload) {
+  getStateFromValidForm(
+    request: FormContextRequest,
+    state: FormSubmissionState,
+    payload: FormPayload
+  ): FormState {
     return this.collection.getStateFromValidForm(payload)
   }
 
@@ -396,7 +401,7 @@ export class QuestionPageController extends PageController {
       // Convert and save sanitised payload to state
       state = await this.setState(
         request,
-        this.getStateFromValidForm(request, payload)
+        this.getStateFromValidForm(request, state, payload)
       )
 
       return this.proceed(

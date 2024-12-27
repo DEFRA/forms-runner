@@ -74,8 +74,9 @@ export class RepeatPageController extends QuestionPageController {
   }
 
   getStateFromValidForm(
-    request: FormRequestPayload,
-    payload: FormRequestPayload['payload']
+    request: FormContextRequest,
+    state: FormSubmissionState,
+    payload: FormPayload
   ) {
     const itemId = this.getItemId(request)
 
@@ -84,7 +85,7 @@ export class RepeatPageController extends QuestionPageController {
     }
 
     const { item, list } = this.getRepeatAppData(request)
-    const itemState = super.getStateFromValidForm(request, payload)
+    const itemState = super.getStateFromValidForm(request, state, payload)
 
     const updated: RepeatItemState = { ...itemState, itemId }
     const newList = [...list]
