@@ -14,9 +14,12 @@ import {
   type FormStateValue,
   type FormSubmissionError,
   type FormSubmissionState,
+  type SummaryList,
+  type SummaryListRow,
   type UploadState,
   type UploadStatusResponse
 } from '~/src/server/plugins/engine/types.js'
+import { render } from '~/src/server/plugins/nunjucks/index.js'
 
 export const uploadIdSchema = joi.string().uuid().required()
 
@@ -151,10 +154,10 @@ export class FileUploadField extends FormComponent {
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
-    const { options } = this
+    const { options, page } = this
 
     const viewModel = super.getViewModel(payload, errors)
-    const { attributes, value } = viewModel
+    const { attributes, id, value } = viewModel
 
     const files = this.isValue(value) ? value : []
     const count = files.length
@@ -162,35 +165,77 @@ export class FileUploadField extends FormComponent {
     let pendingCount = 0
     let successfulCount = 0
 
-    const summary = files.map((item) => {
+    const rows: SummaryListRow[] = files.map((item, index) => {
       const { status } = item
       const { form } = status
       const { file } = form
-      const { fileStatus } = file
-      let tag
 
-      if (fileStatus === FileStatus.complete) {
+      const tag = { classes: 'govuk-tag--red', text: 'Error' }
+
+      if (file.fileStatus === FileStatus.complete) {
         successfulCount++
-        tag = { classes: 'govuk-tag--green', text: 'Uploaded' }
-      } else if (fileStatus === FileStatus.pending) {
+        tag.classes = 'govuk-tag--green'
+        tag.text = 'Uploaded'
+      } else if (file.fileStatus === FileStatus.pending) {
         pendingCount++
-        tag = { classes: 'govuk-tag--yellow', text: 'Uploading' }
-      } else {
-        tag = { classes: 'govuk-tag--red', text: 'Error' }
+        tag.classes = 'govuk-tag--yellow'
+        tag.text = 'Uploading'
       }
+
+      const valueHtml = render
+        .view('components/fileuploadfield-value.html', {
+          context: {
+            params: {
+              size: filesize(file.contentLength),
+              tag
+            }
+          }
+        })
+        .trim()
+
+      const keyHtml = render
+        .view('components/fileuploadfield-key.html', {
+          context: {
+            params: {
+              name: file.filename,
+              errorMessage: errors && file.errorMessage
+            }
+          }
+        })
+        .trim()
+
+      const path = `/${item.uploadId}/confirm-delete`
+      const href = page?.getHref(`${page.path}${path}`) ?? '#'
 
       return {
-        name: file.filename,
-        errorMessage: errors && file.errorMessage,
-        size: filesize(file.contentLength),
-        tag,
-        uploadId: item.uploadId
-      }
+        key: {
+          html: keyHtml
+        },
+        value: {
+          html: valueHtml
+        },
+        actions: {
+          items: [
+            {
+              href,
+              text: 'Remove',
+              classes: 'govuk-link--no-visited-state',
+              attributes: { id: `${id}__${index}` },
+              visuallyHiddenText: file.filename
+            }
+          ]
+        }
+      } satisfies SummaryListRow
     })
 
     // Set up the `accept` attribute
     if ('accept' in options) {
       attributes.accept = options.accept
+    }
+
+    const summaryList: SummaryList = {
+      classes: 'govuk-summary-list--long-key',
+      rows
     }
 
     return {
@@ -206,7 +251,7 @@ export class FileUploadField extends FormComponent {
         count,
         pendingCount,
         successfulCount,
-        summary
+        summaryList
       }
     }
   }

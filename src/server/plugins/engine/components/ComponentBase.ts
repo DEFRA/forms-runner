@@ -12,8 +12,10 @@ import { type ComponentCollection } from '~/src/server/plugins/engine/components
 import { type Component } from '~/src/server/plugins/engine/components/helpers.js'
 import { type ViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 
 export class ComponentBase {
+  page?: PageControllerClass
   parent: Component | undefined
   collection: ComponentCollection | undefined
 
@@ -33,6 +35,7 @@ export class ComponentBase {
   constructor(
     def: ComponentDef,
     props: {
+      page?: PageControllerClass
       parent?: Component
       model: FormModel
     }
@@ -49,6 +52,7 @@ export class ComponentBase {
       this.options = def.options
     }
 
+    this.page = props.page
     this.parent = props.parent
     this.model = props.model
   }

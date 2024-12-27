@@ -10,13 +10,17 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import {
+  createPage,
+  type PageControllerClass
+} from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   FileStatus,
   UploadStatus,
   type FileState
 } from '~/src/server/plugins/engine/types.js'
-import definition from '~/test/form/definitions/blank.js'
+import definition from '~/test/form/definitions/file-upload-basic.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 
 describe('FileUploadField', () => {
@@ -146,6 +150,7 @@ describe('FileUploadField', () => {
 
   describe('Defaults', () => {
     let def: FileUploadFieldComponent
+    let page: PageControllerClass
     let collection: ComponentCollection
     let field: Field
 
@@ -158,7 +163,8 @@ describe('FileUploadField', () => {
         schema: {}
       } satisfies FileUploadFieldComponent
 
-      collection = new ComponentCollection([def], { model })
+      page = createPage(model, definition.pages[0])
+      collection = new ComponentCollection([def], { page, model })
       field = collection.fields[0]
     })
 
@@ -334,35 +340,68 @@ describe('FileUploadField', () => {
               count: 3,
               pendingCount: 0,
               successfulCount: 3,
-              summary: [
-                {
-                  name: 'SampleJPGImage_30mbmb.jpg',
-                  size: '30.8 MB',
-                  tag: {
-                    classes: 'govuk-tag--green',
-                    text: 'Uploaded'
+              summaryList: {
+                classes: 'govuk-summary-list--long-key',
+                rows: [
+                  {
+                    key: {
+                      html: expect.stringContaining('SampleJPGImage_30mbmb.jpg')
+                    },
+                    value: {
+                      html: expect.stringContaining('Uploaded')
+                    },
+                    actions: {
+                      items: [
+                        {
+                          href: `/test/file-upload-component/${validState[0].uploadId}/confirm-delete`,
+                          text: 'Remove',
+                          attributes: { id: 'myComponent__0' },
+                          classes: 'govuk-link--no-visited-state',
+                          visuallyHiddenText: 'SampleJPGImage_30mbmb.jpg'
+                        }
+                      ]
+                    }
                   },
-                  uploadId: '3075efea-e5de-476f-a0bf-9ae7ef56ca69'
-                },
-                {
-                  name: 'error-messages.txt',
-                  size: '9.7 kB',
-                  tag: {
-                    classes: 'govuk-tag--green',
-                    text: 'Uploaded'
+                  {
+                    key: {
+                      html: expect.stringContaining('error-messages.txt')
+                    },
+                    value: {
+                      html: expect.stringContaining('Uploaded')
+                    },
+                    actions: {
+                      items: [
+                        {
+                          href: `/test/file-upload-component/${validState[1].uploadId}/confirm-delete`,
+                          text: 'Remove',
+                          attributes: { id: 'myComponent__1' },
+                          classes: 'govuk-link--no-visited-state',
+                          visuallyHiddenText: 'error-messages.txt'
+                        }
+                      ]
+                    }
                   },
-                  uploadId: 'c7e8c8f1-fa5b-4587-966a-96066c6356bb'
-                },
-                {
-                  name: 'SampleJPGImage_20mbmb.jpg',
-                  size: '21.3 MB',
-                  tag: {
-                    classes: 'govuk-tag--green',
-                    text: 'Uploaded'
-                  },
-                  uploadId: 'ec9f9b26-76c6-4ede-8aaa-3d4e02fe9984'
-                }
-              ]
+                  {
+                    key: {
+                      html: expect.stringContaining('SampleJPGImage_20mbmb.jpg')
+                    },
+                    value: {
+                      html: expect.stringContaining('Uploaded')
+                    },
+                    actions: {
+                      items: [
+                        {
+                          href: `/test/file-upload-component/${validState[2].uploadId}/confirm-delete`,
+                          text: 'Remove',
+                          attributes: { id: 'myComponent__2' },
+                          classes: 'govuk-link--no-visited-state',
+                          visuallyHiddenText: 'SampleJPGImage_20mbmb.jpg'
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
             }
           })
         )
@@ -381,35 +420,68 @@ describe('FileUploadField', () => {
               count: 3,
               pendingCount: 1,
               successfulCount: 1,
-              summary: [
-                {
-                  name: 'SampleJPGImage_30mbmb.jpg',
-                  size: '30.8 MB',
-                  tag: {
-                    classes: 'govuk-tag--yellow',
-                    text: 'Uploading'
+              summaryList: {
+                classes: 'govuk-summary-list--long-key',
+                rows: [
+                  {
+                    key: {
+                      html: expect.stringContaining('SampleJPGImage_30mbmb.jpg')
+                    },
+                    value: {
+                      html: expect.stringContaining('Uploading')
+                    },
+                    actions: {
+                      items: [
+                        {
+                          href: `/test/file-upload-component/${validState[0].uploadId}/confirm-delete`,
+                          text: 'Remove',
+                          attributes: { id: 'myComponent__0' },
+                          classes: 'govuk-link--no-visited-state',
+                          visuallyHiddenText: 'SampleJPGImage_30mbmb.jpg'
+                        }
+                      ]
+                    }
                   },
-                  uploadId: '3075efea-e5de-476f-a0bf-9ae7ef56ca69'
-                },
-                {
-                  name: 'virus.txt',
-                  size: '9.7 kB',
-                  tag: {
-                    classes: 'govuk-tag--red',
-                    text: 'Error'
+                  {
+                    key: {
+                      html: expect.stringContaining('virus.txt')
+                    },
+                    value: {
+                      html: expect.stringContaining('Error')
+                    },
+                    actions: {
+                      items: [
+                        {
+                          href: `/test/file-upload-component/${validState[1].uploadId}/confirm-delete`,
+                          text: 'Remove',
+                          attributes: { id: 'myComponent__1' },
+                          classes: 'govuk-link--no-visited-state',
+                          visuallyHiddenText: 'virus.txt'
+                        }
+                      ]
+                    }
                   },
-                  uploadId: 'c7e8c8f1-fa5b-4587-966a-96066c6356bb'
-                },
-                {
-                  name: 'SampleJPGImage_20mbmb.jpg',
-                  size: '21.3 MB',
-                  tag: {
-                    classes: 'govuk-tag--green',
-                    text: 'Uploaded'
-                  },
-                  uploadId: 'ec9f9b26-76c6-4ede-8aaa-3d4e02fe9984'
-                }
-              ]
+                  {
+                    key: {
+                      html: expect.stringContaining('SampleJPGImage_20mbmb.jpg')
+                    },
+                    value: {
+                      html: expect.stringContaining('Uploaded')
+                    },
+                    actions: {
+                      items: [
+                        {
+                          href: `/test/file-upload-component/${validState[2].uploadId}/confirm-delete`,
+                          text: 'Remove',
+                          attributes: { id: 'myComponent__2' },
+                          classes: 'govuk-link--no-visited-state',
+                          visuallyHiddenText: 'SampleJPGImage_20mbmb.jpg'
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
             }
           })
         )
@@ -428,37 +500,72 @@ describe('FileUploadField', () => {
               count: 3,
               pendingCount: 1,
               successfulCount: 1,
-              summary: [
-                {
-                  name: 'SampleJPGImage_30mbmb.jpg',
-                  size: '30.8 MB',
-                  tag: {
-                    classes: 'govuk-tag--yellow',
-                    text: 'Uploading'
+              summaryList: {
+                classes: 'govuk-summary-list--long-key',
+                rows: [
+                  {
+                    key: {
+                      html: expect.stringContaining(
+                        'The selected file has not fully uploaded'
+                      )
+                    },
+                    value: {
+                      html: expect.stringContaining('Uploading')
+                    },
+                    actions: {
+                      items: [
+                        {
+                          href: `/test/file-upload-component/${validState[0].uploadId}/confirm-delete`,
+                          text: 'Remove',
+                          attributes: { id: 'myComponent__0' },
+                          classes: 'govuk-link--no-visited-state',
+                          visuallyHiddenText: 'SampleJPGImage_30mbmb.jpg'
+                        }
+                      ]
+                    }
                   },
-                  uploadId: '3075efea-e5de-476f-a0bf-9ae7ef56ca69',
-                  errorMessage: 'The selected file has not fully uploaded'
-                },
-                {
-                  name: 'virus.txt',
-                  size: '9.7 kB',
-                  tag: {
-                    classes: 'govuk-tag--red',
-                    text: 'Error'
+                  {
+                    key: {
+                      html: expect.stringContaining(
+                        'The selected file contains a virus'
+                      )
+                    },
+                    value: {
+                      html: expect.stringContaining('Error')
+                    },
+                    actions: {
+                      items: [
+                        {
+                          href: `/test/file-upload-component/${validState[1].uploadId}/confirm-delete`,
+                          text: 'Remove',
+                          attributes: { id: 'myComponent__1' },
+                          classes: 'govuk-link--no-visited-state',
+                          visuallyHiddenText: 'virus.txt'
+                        }
+                      ]
+                    }
                   },
-                  uploadId: 'c7e8c8f1-fa5b-4587-966a-96066c6356bb',
-                  errorMessage: 'The selected file contains a virus'
-                },
-                {
-                  name: 'SampleJPGImage_20mbmb.jpg',
-                  size: '21.3 MB',
-                  tag: {
-                    classes: 'govuk-tag--green',
-                    text: 'Uploaded'
-                  },
-                  uploadId: 'ec9f9b26-76c6-4ede-8aaa-3d4e02fe9984'
-                }
-              ]
+                  {
+                    key: {
+                      html: expect.stringContaining('SampleJPGImage_20mbmb.jpg')
+                    },
+                    value: {
+                      html: expect.stringContaining('Uploaded')
+                    },
+                    actions: {
+                      items: [
+                        {
+                          href: `/test/file-upload-component/${validState[2].uploadId}/confirm-delete`,
+                          text: 'Remove',
+                          attributes: { id: 'myComponent__2' },
+                          classes: 'govuk-link--no-visited-state',
+                          visuallyHiddenText: 'SampleJPGImage_20mbmb.jpg'
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
             }
           })
         )
