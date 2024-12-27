@@ -192,7 +192,10 @@ export class QuestionPageController extends PageController {
   /**
    * Gets the form payload (from state) for this page only
    */
-  getFormDataFromState(state: FormSubmissionState): FormPayload {
+  getFormDataFromState(
+    request: FormContextRequest | undefined,
+    state: FormSubmissionState
+  ): FormPayload {
     return {
       ...this.collection.getFormDataFromState(state)
     }
@@ -238,7 +241,7 @@ export class QuestionPageController extends PageController {
         return this.proceed(request, h, relevantPath)
       }
 
-      const payload = this.getFormDataFromState(context.state)
+      const payload = this.getFormDataFromState(request, context.state)
       const viewModel = this.getViewModel(request, payload)
 
       /**
