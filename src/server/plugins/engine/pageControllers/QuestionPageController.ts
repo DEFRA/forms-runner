@@ -80,11 +80,13 @@ export class QuestionPageController extends PageController {
   /**
    * Used for mapping form payloads and errors to govuk-frontend's template api, so a page can be rendered
    * @param request - the hapi request
+   * @param state - the form state
    * @param payload - contains a user's form payload
    * @param [errors] - validation errors that may have occurred
    */
   getViewModel(
     request: FormContextRequest,
+    state: FormSubmissionState,
     payload: FormPayload,
     errors?: FormSubmissionError[]
   ): FormPageViewModel {
@@ -247,7 +249,7 @@ export class QuestionPageController extends PageController {
       }
 
       const payload = this.getFormDataFromState(request, context.state)
-      const viewModel = this.getViewModel(request, payload)
+      const viewModel = this.getViewModel(request, context.state, payload)
 
       /**
        * Content components can be hidden based on a condition. If the condition evaluates to true, it is safe to be kept, otherwise discard it
@@ -389,7 +391,12 @@ export class QuestionPageController extends PageController {
        */
       if (errors) {
         const { progress = [] } = context.state
-        const viewModel = this.getViewModel(request, payload, errors)
+        const viewModel = this.getViewModel(
+          request,
+          context.state,
+          payload,
+          errors
+        )
 
         viewModel.context = context
         viewModel.errors = collection.getErrors(viewModel.errors)

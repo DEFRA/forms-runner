@@ -27,6 +27,7 @@ import {
   type FormContextRequest,
   type FormPayload,
   type FormSubmissionError,
+  type FormSubmissionState,
   type TempFileState,
   type UploadStatusFileResponse,
   type UploadStatusResponse
@@ -264,10 +265,11 @@ export class FileUploadPageController extends QuestionPageController {
 
   getViewModel(
     request: FormContextRequest,
+    state: FormSubmissionState,
     payload: FormPayload,
     errors?: FormSubmissionError[]
   ): FileUploadPageViewModel {
-    const viewModel = super.getViewModel(request, payload, errors)
+    const viewModel = super.getViewModel(request, state, payload, errors)
 
     const name = this.fileUploadComponent.name
     const components = viewModel.components

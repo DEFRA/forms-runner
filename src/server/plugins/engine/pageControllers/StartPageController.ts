@@ -1,7 +1,8 @@
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
   type FormPayload,
-  type FormSubmissionError
+  type FormSubmissionError,
+  type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import { type FormRequest } from '~/src/server/routes/types.js'
 
@@ -14,11 +15,12 @@ export class StartPageController extends QuestionPageController {
 
   getViewModel(
     request: FormRequest,
+    state: FormSubmissionState,
     payload: FormPayload,
     errors?: FormSubmissionError[]
   ) {
     return {
-      ...super.getViewModel(request, payload, errors),
+      ...super.getViewModel(request, state, payload, errors),
       isStartPage: true
     }
   }
