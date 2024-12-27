@@ -125,12 +125,13 @@ describe('Repeat GET tests', () => {
     expect(res.headers.location).toMatch(/^\/repeat\/pizza-order\/[0-9a-f-]+$/)
   })
 
-  test('GET /pizza-order/summary returns 200', async () => {
+  test('GET /pizza-order/summary returns 302 to add another', async () => {
     const res = await server.inject({
       url: `${basePath}/pizza-order/summary`
     })
 
-    expect(res.statusCode).toBe(StatusCodes.OK)
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.headers.location).toMatch(/^\/repeat\/pizza-order\/[0-9a-f-]+$/)
   })
 
   test('GET /pizza-order/{id} returns 200', async () => {

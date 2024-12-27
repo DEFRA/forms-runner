@@ -217,8 +217,15 @@ export class RepeatPageController extends QuestionPageController {
       request: FormRequest,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
+      const { path } = this
+
       const state = await super.getState(request)
       const list = this.getListFromState(state)
+
+      if (!list.length) {
+        const nextPath = `${path}/${randomUUID()}${request.url.search}`
+        return super.proceed(request, h, nextPath)
+      }
 
       const { progress = [] } = state
       await this.updateProgress(progress, request)
@@ -240,6 +247,11 @@ export class RepeatPageController extends QuestionPageController {
 
       const state = await super.getState(request)
       const list = this.getListFromState(state)
+
+      if (!list.length) {
+        const nextPath = `${path}/${randomUUID()}${request.url.search}`
+        return super.proceed(request, h, nextPath)
+      }
 
       const { action } = this.getFormData(request)
 
