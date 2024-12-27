@@ -59,6 +59,7 @@ export class FileUploadPageController extends QuestionPageController {
   declare pageDef: PageFileUpload
 
   fileUploadComponent: FileUploadFieldComponent
+  fileDeleteViewName = 'item-delete'
 
   constructor(model: FormModel, pageDef: PageFileUpload) {
     // Get the file upload components from the list of components
@@ -131,7 +132,62 @@ export class FileUploadPageController extends QuestionPageController {
     }
   }
 
-  makePostRouteHandler() {
+  makeGetItemDeleteRouteHandler() {
+    return async (
+      request: FormRequest,
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
+    ) => {
+      const { path, viewModel } = this
+      const { params } = request
+
+      const state = await this.getState(request)
+      const uploadState = state.upload?.[path] ?? { files: [] }
+
+      const fileToRemove = uploadState.files.find(
+        (file) => file.uploadId === params.itemId
+      )
+
+      if (!fileToRemove) {
+        return Boom.notFound('File to delete not found')
+      }
+
+      const { filename: itemTitle } = fileToRemove.status.form.file
+
+      const { progress = [] } = state
+      await this.updateProgress(progress, request)
+
+      return h.view(this.fileDeleteViewName, {
+        ...viewModel,
+
+        backLink: this.getBackLink(progress),
+        showTitle: false,
+
+        field: {
+          name: 'confirm',
+          fieldset: {
+            legend: {
+              text: `Are you sure you want to remove ${itemTitle} from this form?`,
+              isPageHeading: true,
+              classes: 'govuk-fieldset__legend--l'
+            }
+          },
+          items: [
+            {
+              value: true,
+              text: `Yes, remove ${itemTitle}`
+            },
+            {
+              value: false,
+              text: 'No'
+            }
+          ],
+          value: true
+        }
+      })
+    }
+  }
+
+  makePostItemDeleteRouteHandler() {
     return async (
       request: FormRequestPayload,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
@@ -141,12 +197,27 @@ export class FileUploadPageController extends QuestionPageController {
       const state = await this.getState(request)
       const uploadState = state.upload?.[path] ?? { files: [] }
 
-      // Check for any removed files in the POST payload
-      const removed = await this.checkRemovedFiles(request, uploadState)
+      const { confirm } = this.getFormData(request)
 
-      if (removed) {
+      // Check for any removed files in the POST payload
+      if (confirm === true) {
+        await this.checkRemovedFiles(request, uploadState)
         return this.proceed(request, h, path)
       }
+
+      return this.proceed(request, h)
+    }
+  }
+
+  makePostRouteHandler() {
+    return async (
+      request: FormRequestPayload,
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
+    ) => {
+      const { path } = this
+
+      const state = await this.getState(request)
+      const uploadState = state.upload?.[path] ?? { files: [] }
 
       await this.refreshUpload(request, uploadState)
 
@@ -361,27 +432,23 @@ export class FileUploadPageController extends QuestionPageController {
     uploadState: TempFileState
   ) {
     const { path } = this
-    const { __remove: removeId } = this.getFormData(request)
+    const { params } = request
 
-    if (removeId) {
-      const fileToRemove = uploadState.files.find(
-        (file) => file.uploadId === removeId
-      )
+    const fileToRemove = uploadState.files.find(
+      (file) => file.uploadId === params.itemId
+    )
 
-      if (fileToRemove) {
-        uploadState.files = uploadState.files.filter(
-          (item) => item !== fileToRemove
-        )
-
-        await this.setState(request, {
-          upload: { [path]: uploadState }
-        })
-      }
-
-      return true
+    if (!fileToRemove) {
+      return
     }
 
-    return false
+    uploadState.files = uploadState.files.filter(
+      (item) => item !== fileToRemove
+    )
+
+    await this.setState(request, {
+      upload: { [path]: uploadState }
+    })
   }
 
   /**

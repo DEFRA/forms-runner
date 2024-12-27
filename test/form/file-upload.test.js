@@ -303,15 +303,23 @@ describe('File upload POST tests', () => {
     expect(res2.statusCode).toBe(StatusCodes.OK)
 
     const res3 = await server.inject({
-      url: `${basePath}/methodology-statement`,
+      url: `${basePath}/methodology-statement/15b2303c-9965-4632-acb6-0776081e0399/confirm-delete`,
+      headers
+    })
+
+    expect(res3.statusCode).toBe(StatusCodes.OK)
+
+    const res4 = await server.inject({
+      url: `${basePath}/methodology-statement/15b2303c-9965-4632-acb6-0776081e0399/confirm-delete`,
       method: 'POST',
       headers,
       payload: {
-        __remove: '15b2303c-9965-4632-acb6-0776081e0399'
+        confirm: true
       }
     })
 
-    expect(res3.statusCode).toBe(StatusCodes.SEE_OTHER)
+    expect(res4.statusCode).toBe(StatusCodes.SEE_OTHER)
+    expect(res4.headers.location).toBe(`${basePath}/methodology-statement`)
   })
 })
 
