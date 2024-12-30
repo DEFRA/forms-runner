@@ -125,6 +125,47 @@ describe('Repeat GET tests', () => {
     expect(res.headers.location).toMatch(/^\/repeat\/pizza-order\/[0-9a-f-]+$/)
   })
 
+  test('GET /pizza-order with 1 item returns 302 to repeater summary', async () => {
+    const { headers } = await createRepeatItem(server, repeatPage, 1)
+
+    const res = await server.inject({
+      url: `${basePath}/pizza-order`,
+      headers
+    })
+
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.headers.location).toMatch(`${basePath}/pizza-order/summary`)
+  })
+
+  test('GET /pizza-order with 2 items returns 302 to repeater summary', async () => {
+    const { headers } = await createRepeatItem(server, repeatPage, 1)
+
+    await createRepeatItem(server, repeatPage, 2, headers)
+
+    const res = await server.inject({
+      url: `${basePath}/pizza-order`,
+      headers
+    })
+
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.headers.location).toMatch(`${basePath}/pizza-order/summary`)
+  })
+
+  test('GET /pizza-order with 3 items returns 302 to repeater summary', async () => {
+    const { headers } = await createRepeatItem(server, repeatPage, 1)
+
+    await createRepeatItem(server, repeatPage, 2, headers)
+    await createRepeatItem(server, repeatPage, 3, headers)
+
+    const res = await server.inject({
+      url: `${basePath}/pizza-order`,
+      headers
+    })
+
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.headers.location).toBe(`${basePath}/pizza-order/summary`)
+  })
+
   test('GET /pizza-order/summary returns 302 to add another', async () => {
     const res = await server.inject({
       url: `${basePath}/pizza-order/summary`
@@ -241,7 +282,7 @@ describe('Repeat GET tests', () => {
     expect(res.statusCode).toBe(StatusCodes.OK)
   })
 
-  test('GET /pizza-order/{id} with 3 items returns 302 to repeater summary', async () => {
+  test('GET /pizza-order/{id} with 3 items returns 200', async () => {
     const { headers } = await createRepeatItem(server, repeatPage, 1)
 
     await createRepeatItem(server, repeatPage, 2, headers)
@@ -255,10 +296,7 @@ describe('Repeat GET tests', () => {
       headers
     })
 
-    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-    expect(res.headers.location).toBe(
-      `${basePath}/pizza-order/summary?itemId=${itemId}`
-    )
+    expect(res.statusCode).toBe(StatusCodes.OK)
   })
 
   test('GET /pizza-order/{id}/confirm-delete with 1 item returns 404', async () => {
