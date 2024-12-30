@@ -35,14 +35,23 @@ export class CacheService {
     return cached || {}
   }
 
-  async mergeState(request: FormRequest | FormRequestPayload, value: object) {
+  async setState(
+    request: FormRequest | FormRequestPayload,
+    state: FormSubmissionState
+  ) {
     const key = this.Key(request)
-    const state = merge(await this.getState(request), value)
     const ttl = config.get('sessionTimeout')
 
     await this.cache.set(key, state, ttl)
-
     return this.getState(request)
+  }
+
+  async mergeState(
+    request: FormRequest | FormRequestPayload,
+    state: FormSubmissionState,
+    update: object
+  ) {
+    return this.setState(request, merge(state, update))
   }
 
   async getConfirmationState(

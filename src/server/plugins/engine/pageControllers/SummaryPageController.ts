@@ -107,8 +107,7 @@ export class SummaryPageController extends QuestionPageController {
 
       const viewModel = this.getSummaryViewModel(request, context)
 
-      const { progress = [] } = context.state
-      await this.updateProgress(progress, request)
+      const { progress = [] } = await this.updateProgress(request, state)
 
       viewModel.backLink = this.getBackLink(progress)
 
