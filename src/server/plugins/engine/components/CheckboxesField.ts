@@ -51,8 +51,7 @@ export class CheckboxesField extends SelectionControlField {
     const { items, name } = this
 
     // State checkbox values
-    const value = state[name]
-    const values = this.isValue(value) ? value : []
+    const values = this.getFormValue(state[name]) ?? []
 
     // Map (or discard) state values to item values
     const selected = items
@@ -60,6 +59,10 @@ export class CheckboxesField extends SelectionControlField {
       .map((item) => item.value)
 
     return selected.length ? selected : undefined
+  }
+
+  getFormValue(value?: FormStateValue | FormState) {
+    return this.isValue(value) ? value : undefined
   }
 
   getDisplayStringFromState(state: FormSubmissionState) {

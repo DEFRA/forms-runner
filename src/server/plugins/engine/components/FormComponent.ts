@@ -51,10 +51,8 @@ export class FormComponent extends ComponentBase {
       return collection.getFormDataFromState(state)
     }
 
-    const value = state[name]
-
     return {
-      [name]: this.isValue(value) ? value : undefined
+      [name]: this.getFormValue(state[name])
     }
   }
 
@@ -65,7 +63,10 @@ export class FormComponent extends ComponentBase {
       return collection.getFormValueFromState(state)
     }
 
-    const value = state[name]
+    return this.getFormValue(state[name])
+  }
+
+  getFormValue(value?: FormStateValue | FormState) {
     return this.isValue(value) ? value : undefined
   }
 
@@ -76,10 +77,8 @@ export class FormComponent extends ComponentBase {
       return collection.getStateFromValidForm(payload)
     }
 
-    const value = payload[name]
-
     return {
-      [name]: this.isValue(value) ? value : null
+      [name]: this.getFormValue(payload[name]) ?? null
     }
   }
 

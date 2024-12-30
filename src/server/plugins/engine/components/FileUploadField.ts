@@ -138,7 +138,11 @@ export class FileUploadField extends FormComponent {
   }
 
   getFormValueFromState(state: FormSubmissionState) {
-    const value = super.getFormValueFromState(state)
+    const { name } = this
+    return this.getFormValue(state[name])
+  }
+
+  getFormValue(value?: FormStateValue | FormState) {
     return this.isValue(value) ? value : undefined
   }
 
@@ -163,7 +167,7 @@ export class FileUploadField extends FormComponent {
     const viewModel = super.getViewModel(payload, errors)
     const { attributes, id, value } = viewModel
 
-    const files = this.isValue(value) ? value : []
+    const files = this.getFormValue(value) ?? []
     const count = files.length
 
     let pendingCount = 0
