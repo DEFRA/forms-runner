@@ -199,8 +199,17 @@ export class QuestionPageController extends PageController {
     request: FormContextRequest | undefined,
     state: FormSubmissionState
   ): FormPayload {
+    const { collection } = this
+
+    // Form data from request
+    const formData = this.getFormData(request)
+
+    // Form payload from state
+    const payload = collection.getFormDataFromState(state)
+
     return {
-      ...this.collection.getFormDataFromState(state)
+      ...formData,
+      ...payload
     }
   }
 
@@ -383,7 +392,7 @@ export class QuestionPageController extends PageController {
       })
 
       // Sanitised payload after validation
-      const { value: payload, errors } = this.validate(request)
+      const { value: payload, errors } = this.validate(request, context.state)
 
       /**
        * If there are any errors, render the page with the parsed errors
@@ -426,11 +435,11 @@ export class QuestionPageController extends PageController {
     }
   }
 
-  validate(request: FormRequestPayload) {
+  validate(request: FormRequestPayload, state: FormSubmissionState) {
     const { collection } = this
 
-    const formData = this.getFormData(request)
-    return collection.validate(formData)
+    const payload = this.getFormDataFromState(request, state)
+    return collection.validate({ ...payload, ...request.payload })
   }
 
   proceed(
