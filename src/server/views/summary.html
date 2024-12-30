@@ -28,7 +28,7 @@
         {{ govukSummaryList(section.summaryList) }}
       {% endfor %}
 
-      <form method="post" autocomplete="off" novalidate>
+      <form method="post" novalidate>
         <input type="hidden" name="crumb" value="{{ crumb }}">
         <input type="hidden" name="action" value="send">
 

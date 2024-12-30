@@ -1,15 +1,14 @@
-{% extends 'index.html' %}
+{% extends "index.html" %}
 
-{% from "govuk/components/file-upload/macro.njk" import govukFileUpload %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/file-upload/macro.njk" import govukFileUpload %}
 {% from "govuk/components/warning-text/macro.njk" import govukWarningText %}
 
-{% set model = fileUploadComponent.model %}
-
 {% block form %}
-  {{ componentList(preUploadComponents) }}
-  <form method="post" enctype="multipart/form-data" autocomplete="off" novalidate action="{{ formAction }}">
-    {{ govukFileUpload(model) }}
+  {{ componentList(componentsBefore) }}
+
+  <form method="post" novalidate {%- if formAction %} action="{{ formAction }}" enctype="multipart/form-data" {%- endif %}>
+    {{ govukFileUpload(formComponent.model) }}
 
     {% if formAction %}
       {{ govukButton({
@@ -24,5 +23,6 @@
       }) }}
     {% endif %}
   </form>
-  {{super()}}
+
+  {{ super() }}
 {% endblock %}

@@ -1,8 +1,7 @@
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList -%}
 
 {% macro FileUploadField(component) %}
-  {% set model = component.model %}
-  {% set upload = model.upload %}
+  {% set upload = component.model.upload %}
 
   <h2 class="govuk-heading-m">Uploaded files</h2>
   {% if upload.count %}
