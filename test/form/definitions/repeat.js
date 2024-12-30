@@ -18,8 +18,8 @@ export default /** @satisfies {FormDefinition} */ ({
           title: 'Pizza'
         },
         schema: {
-          min: 1,
-          max: 2
+          min: 2,
+          max: 3
         }
       },
       section: 'food',

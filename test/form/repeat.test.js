@@ -125,12 +125,13 @@ describe('Repeat GET tests', () => {
     expect(res.headers.location).toMatch(/^\/repeat\/pizza-order\/[0-9a-f-]+$/)
   })
 
-  test('GET /pizza-order/summary returns 200', async () => {
+  test('GET /pizza-order/summary returns 302 to add another', async () => {
     const res = await server.inject({
       url: `${basePath}/pizza-order/summary`
     })
 
-    expect(res.statusCode).toBe(StatusCodes.OK)
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.headers.location).toMatch(/^\/repeat\/pizza-order\/[0-9a-f-]+$/)
   })
 
   test('GET /pizza-order/{id} returns 200', async () => {
@@ -225,9 +226,26 @@ describe('Repeat GET tests', () => {
     expect(res.statusCode).toBe(StatusCodes.OK)
   })
 
-  test('GET /pizza-order/{id} with 2 items returns 302 to repeater summary', async () => {
+  test('GET /pizza-order/{id} with 2 items returns 200', async () => {
     const { headers } = await createRepeatItem(server, repeatPage, 1)
     await createRepeatItem(server, repeatPage, 2, headers)
+
+    const itemId = '00000000-0000-0000-0000-000000000000'
+    jest.spyOn(crypto, 'randomUUID').mockReturnValue(itemId)
+
+    const res = await server.inject({
+      url: `${basePath}/pizza-order/${itemId}`,
+      headers
+    })
+
+    expect(res.statusCode).toBe(StatusCodes.OK)
+  })
+
+  test('GET /pizza-order/{id} with 3 items returns 302 to repeater summary', async () => {
+    const { headers } = await createRepeatItem(server, repeatPage, 1)
+
+    await createRepeatItem(server, repeatPage, 2, headers)
+    await createRepeatItem(server, repeatPage, 3, headers)
 
     const itemId = '00000000-0000-0000-0000-000000000000'
     jest.spyOn(crypto, 'randomUUID').mockReturnValue(itemId)
@@ -272,6 +290,17 @@ describe('Repeat GET tests', () => {
     })
 
     expect(res.statusCode).toBe(StatusCodes.NOT_FOUND)
+  })
+
+  test('GET /pizza-order/summary with 1 item returns 200', async () => {
+    const { headers } = await createRepeatItem(server, repeatPage)
+
+    const res = await server.inject({
+      url: `${basePath}/pizza-order/summary`,
+      headers
+    })
+
+    expect(res.statusCode).toBe(StatusCodes.OK)
   })
 
   test('GET /pizza-order/summary with 2 items returns 200', async () => {
@@ -375,8 +404,8 @@ describe('Repeat POST tests', () => {
     jest.spyOn(crypto, 'randomUUID').mockReturnValue(itemId)
 
     const res = await server.inject({
-      method: 'POST',
       url: `${basePath}/pizza-order/summary`,
+      method: 'POST',
       payload: {
         action: FormAction.AddAnother
       }
@@ -386,7 +415,10 @@ describe('Repeat POST tests', () => {
     expect(res.headers.location).toBe(`${basePath}/pizza-order/${itemId}`)
   })
 
-  test('POST /pizza-order/summary CONTINUE returns 303', async () => {
+  test('POST /pizza-order/summary with 1 item ADD_ANOTHER returns 303', async () => {
+    const itemId = '00000000-0000-0000-0000-000000000000'
+    jest.spyOn(crypto, 'randomUUID').mockReturnValue(itemId)
+
     const { headers } = await createRepeatItem(server, repeatPage)
 
     const res = await server.inject({
@@ -394,18 +426,40 @@ describe('Repeat POST tests', () => {
       method: 'POST',
       headers,
       payload: {
-        action: FormAction.Continue
+        action: FormAction.AddAnother
       }
     })
 
     expect(res.statusCode).toBe(StatusCodes.SEE_OTHER)
-    expect(res.headers.location).toBe(`${basePath}/summary`)
+    expect(res.headers.location).toBe(`${basePath}/pizza-order/${itemId}`)
   })
 
-  test('POST /pizza-order/summary ADD_ANOTHER returns 200 with errors over schema.max', async () => {
+  test('POST /pizza-order/summary with 2 items ADD_ANOTHER returns 303', async () => {
+    const itemId = '00000000-0000-0000-0000-000000000000'
+    jest.spyOn(crypto, 'randomUUID').mockReturnValue(itemId)
+
+    const { headers } = await createRepeatItem(server, repeatPage)
+
+    await createRepeatItem(server, repeatPage, 1, headers)
+
+    const res = await server.inject({
+      url: `${basePath}/pizza-order/summary`,
+      method: 'POST',
+      headers,
+      payload: {
+        action: FormAction.AddAnother
+      }
+    })
+
+    expect(res.statusCode).toBe(StatusCodes.SEE_OTHER)
+    expect(res.headers.location).toBe(`${basePath}/pizza-order/${itemId}`)
+  })
+
+  test('POST /pizza-order/summary with 3 items ADD_ANOTHER returns 200 with errors over schema.max', async () => {
     const { headers } = await createRepeatItem(server, repeatPage)
 
     await createRepeatItem(server, repeatPage, 2, headers)
+    await createRepeatItem(server, repeatPage, 3, headers)
 
     const { container, response } = await renderResponse(server, {
       url: `${basePath}/pizza-order/summary`,
@@ -427,13 +481,13 @@ describe('Repeat POST tests', () => {
     })
 
     expect($heading).toBeInTheDocument()
-    expect($errorItems[0]).toHaveTextContent('You can only add up to 2 Pizzas')
+    expect($errorItems[0]).toHaveTextContent('You can only add up to 3 Pizzas')
   })
 
-  test('POST /pizza-order/summary CONTINUE returns 303 to /summary', async () => {
+  test('POST /pizza-order/summary CONTINUE with 1 item returns 200 with errors under schema.min', async () => {
     const { headers } = await createRepeatItem(server, repeatPage)
 
-    const res = await server.inject({
+    const { container, response } = await renderResponse(server, {
       url: `${basePath}/pizza-order/summary`,
       method: 'POST',
       headers,
@@ -442,23 +496,18 @@ describe('Repeat POST tests', () => {
       }
     })
 
-    expect(res.statusCode).toBe(StatusCodes.SEE_OTHER)
-    expect(res.headers.location).toBe(`${basePath}/summary`)
-
-    const { container, response } = await renderResponse(server, {
-      url: `${basePath}/summary`,
-      headers
-    })
-
     expect(response.statusCode).toBe(StatusCodes.OK)
 
-    const $values = container
-      .getAllByRole('definition')
-      .filter(({ classList }) =>
-        classList.contains('govuk-summary-list__value')
-      )
+    const $errorSummary = container.getByRole('alert')
+    const $errorItems = within($errorSummary).getAllByRole('listitem')
 
-    expect($values[0]).toHaveTextContent('You added 1 Pizza')
+    const $heading = within($errorSummary).getByRole('heading', {
+      name: 'There is a problem',
+      level: 2
+    })
+
+    expect($heading).toBeInTheDocument()
+    expect($errorItems[0]).toHaveTextContent('You must add at least 2 Pizzas')
   })
 
   test('POST /pizza-order/summary with 2 items CONTINUE returns 303 to /summary', async () => {
@@ -495,8 +544,8 @@ describe('Repeat POST tests', () => {
 
     // POST the summary page
     await server.inject({
-      method: 'POST',
       url: `${basePath}/summary`,
+      method: 'POST',
       headers,
       payload: {
         action: FormAction.Send

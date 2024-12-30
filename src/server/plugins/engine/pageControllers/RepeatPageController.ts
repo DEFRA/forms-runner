@@ -217,8 +217,15 @@ export class RepeatPageController extends QuestionPageController {
       request: FormRequest,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
+      const { path } = this
+
       const state = await super.getState(request)
       const list = this.getListFromState(state)
+
+      if (!list.length) {
+        const nextPath = `${path}/${randomUUID()}${request.url.search}`
+        return super.proceed(request, h, nextPath)
+      }
 
       const { progress = [] } = state
       await this.updateProgress(progress, request)
@@ -241,19 +248,33 @@ export class RepeatPageController extends QuestionPageController {
       const state = await super.getState(request)
       const list = this.getListFromState(state)
 
+      if (!list.length) {
+        const nextPath = `${path}/${randomUUID()}${request.url.search}`
+        return super.proceed(request, h, nextPath)
+      }
+
       const { action } = this.getFormData(request)
 
-      // Show error if repeat max limit reached
-      if (
+      const hasErrorMin =
+        action === FormAction.Continue && list.length < schema.min
+
+      const hasErrorMax =
         (action === FormAction.AddAnother && list.length >= schema.max) ||
         (action === FormAction.Continue && list.length > schema.max)
-      ) {
+
+      // Show error if repeat limits apply
+      if (hasErrorMin || hasErrorMax) {
+        const count = hasErrorMax ? schema.max : schema.min
+        const itemTitle = `${options.title}${count === 1 ? '' : 's'}`
+
         const errors: FormSubmissionError[] = [
           {
             path: [],
             href: '',
             name: '',
-            text: `You can only add up to ${schema.max} ${options.title}${schema.max === 1 ? '' : 's'}`
+            text: hasErrorMax
+              ? `You can only add up to ${count} ${itemTitle}`
+              : `You must add at least ${count} ${itemTitle}`
           }
         ]
 
