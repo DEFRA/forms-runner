@@ -1,16 +1,12 @@
-import {
-  ComponentType,
-  hasComponents,
-  type FileUploadFieldComponent,
-  type PageFileUpload
-} from '@defra/forms-model'
+import { ComponentType, type PageFileUpload } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
 import { type ValidationErrorItem, type ValidationResult } from 'joi'
 
 import {
   tempItemSchema,
-  tempStatusSchema
+  tempStatusSchema,
+  type FileUploadField
 } from '~/src/server/plugins/engine/components/FileUploadField.js'
 import { getError } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
@@ -59,60 +55,62 @@ function prepareFileState(fileState: FileState) {
 export class FileUploadPageController extends QuestionPageController {
   declare pageDef: PageFileUpload
 
-  fileUploadComponent: FileUploadFieldComponent
+  fileUpload: FileUploadField
   fileDeleteViewName = 'item-delete'
 
   constructor(model: FormModel, pageDef: PageFileUpload) {
-    // Get the file upload components from the list of components
-    const fileUploadComponents = hasComponents(pageDef)
-      ? pageDef.components.filter(
-          (c) => c.type === ComponentType.FileUploadField
-        )
-      : []
+    super(model, pageDef)
+
+    const { collection } = this
+
+    // Get the file upload fields from the collection
+    const fileUploads = collection.fields.filter(
+      (field): field is FileUploadField =>
+        field.type === ComponentType.FileUploadField
+    )
+
+    const fileUpload = fileUploads.at(0)
 
     // Assert we have exactly 1 file upload component
-    if (fileUploadComponents.length !== 1) {
+    if (!fileUpload || fileUploads.length > 1) {
       throw Boom.badImplementation(
         `Expected 1 FileUploadFieldComponent in FileUploadPageController '${pageDef.path}'`
       )
     }
 
-    super(model, pageDef)
-
-    const fileUploadComponent = fileUploadComponents[0]
-
     // Assert the file upload component is the first form component
-    if (this.collection.fields[0].name !== fileUploadComponent.name) {
+    if (collection.fields.indexOf(fileUpload) !== 0) {
       throw Boom.badImplementation(
-        `Expected '${fileUploadComponent.name}' to be the first form component in FileUploadPageController '${pageDef.path}'`
+        `Expected '${fileUpload.name}' to be the first form component in FileUploadPageController '${pageDef.path}'`
       )
     }
 
     // Assign the file upload component to the controller
-    this.fileUploadComponent = fileUploadComponents[0]
+    this.fileUpload = fileUpload
     this.viewName = 'file-upload'
   }
 
   getFormData(request?: FormContextRequest) {
-    const formData = super.getFormData(request)
+    const { fileUpload } = this
 
-    const name = this.getComponentName()
+    const formData = super.getFormData(request)
     const files = request?.app.files ?? []
 
     // Append the files to the payload
-    formData[name] = files.length ? files : undefined
+    formData[fileUpload.name] = files.length ? files : undefined
 
     return formData
   }
 
   async getState(request: FormRequest | FormRequestPayload) {
+    const { fileUpload } = this
+
     // Get the actual state
     const state = await super.getState(request)
-    const name = this.getComponentName()
     const files = request.app.files
 
     // Overwrite the files with those in the upload state
-    state[name] = files
+    state[fileUpload.name] = files
 
     return state
   }
@@ -227,12 +225,13 @@ export class FileUploadPageController extends QuestionPageController {
   }
 
   getErrors(details?: ValidationErrorItem[]) {
+    const { fileUpload } = this
+
     if (details) {
       const errors: FormSubmissionError[] = []
-      const componentName = this.getComponentName()
 
       details.forEach((error) => {
-        const isUploadError = error.path[0] === componentName
+        const isUploadError = error.path[0] === fileUpload.name
         const isUploadRootError = isUploadError && error.path.length === 1
 
         if (!isUploadError || isUploadRootError) {
@@ -269,28 +268,26 @@ export class FileUploadPageController extends QuestionPageController {
     payload: FormPayload,
     errors?: FormSubmissionError[]
   ): FileUploadPageViewModel {
-    const viewModel = super.getViewModel(request, state, payload, errors)
+    const { fileUpload } = this
 
-    const name = this.fileUploadComponent.name
-    const components = viewModel.components
+    const viewModel = super.getViewModel(request, state, payload, errors)
+    const { components } = viewModel
 
     const [fileUploadComponent] = components.filter(
-      (component) => component.model.id === name
+      ({ model }) => model.id === fileUpload.name
     )
 
-    const id = components.indexOf(fileUploadComponent)
-    viewModel.components = components.slice(id)
+    const index = components.indexOf(fileUploadComponent)
 
     return {
       ...viewModel,
       formAction: request.app.formAction,
       fileUploadComponent,
-      preUploadComponents: components.slice(0, id)
-    }
-  }
 
-  private getComponentName() {
-    return this.fileUploadComponent.name
+      // Split out components before/after
+      preUploadComponents: components.slice(0, index),
+      components: components.slice(index)
+    }
   }
 
   /**
@@ -462,8 +459,8 @@ export class FileUploadPageController extends QuestionPageController {
     request: FormRequest | FormRequestPayload,
     uploadState: TempFileState
   ) {
-    const { href, path } = this
-    const { options, schema } = this.fileUploadComponent
+    const { fileUpload, href, path } = this
+    const { options, schema } = fileUpload
 
     // Reset the upload in state
     uploadState.upload = undefined
