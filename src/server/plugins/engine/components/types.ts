@@ -2,7 +2,8 @@ import { type ComponentType, type Item } from '@defra/forms-model'
 
 import {
   type FormSubmissionError,
-  type FormValue
+  type FormValue,
+  type SummaryList
 } from '~/src/server/plugins/engine/types.js'
 
 export type ComponentText = {
@@ -103,16 +104,8 @@ export interface ViewModel extends Record<string, unknown> {
     count: number
     pendingCount: number
     successfulCount: number
-    summary: FileUploadSummaryRow[]
+    summaryList: SummaryList
   }
-}
-
-export interface FileUploadSummaryRow {
-  name: string
-  errorMessage?: string
-  size: string
-  tag: { classes: string; text: string }
-  uploadId: string
 }
 
 export interface ComponentViewModel {

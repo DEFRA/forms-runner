@@ -1,0 +1,8 @@
+{% if params.errorMessage %}
+  <div class="govuk-form-group govuk-form-group--error govuk-!-margin-bottom-0">
+    <div class="govuk-!-margin-bottom-3">{{ params.name }}</div>
+    <p class="govuk-error-message">{{ params.errorMessage }}</p>
+  </div>
+{% else %}
+  {{ params.name }}
+{% endif %}

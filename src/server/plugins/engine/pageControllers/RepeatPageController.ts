@@ -30,7 +30,7 @@ export class RepeatPageController extends QuestionPageController {
   declare pageDef: PageRepeat
 
   listSummaryViewName = 'repeat-list-summary'
-  listDeleteViewName = 'repeat-item-delete'
+  listDeleteViewName = 'item-delete'
   repeat: Repeat
 
   constructor(model: FormModel, pageDef: PageRepeat) {
@@ -280,7 +280,7 @@ export class RepeatPageController extends QuestionPageController {
     }
   }
 
-  makeGetListDeleteRouteHandler() {
+  makeGetItemDeleteRouteHandler() {
     return async (
       request: FormRequest,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
@@ -322,13 +322,14 @@ export class RepeatPageController extends QuestionPageController {
               value: false,
               text: 'No'
             }
-          ]
+          ],
+          value: true
         }
       })
     }
   }
 
-  makePostListDeleteRouteHandler() {
+  makePostItemDeleteRouteHandler() {
     return async (
       request: FormRequestPayload,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
@@ -336,7 +337,7 @@ export class RepeatPageController extends QuestionPageController {
       const { repeat } = this
       const { confirm } = this.getFormData(request)
 
-      if (confirm === true) {
+      if (confirm) {
         const { item, list } = await this.setRepeatAppData(request)
 
         if (item) {

@@ -18,6 +18,7 @@ import {
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { FileUploadPageController } from '~/src/server/plugins/engine/pageControllers/FileUploadPageController.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import {
   getFormDefinition,
@@ -408,25 +409,30 @@ export const plugin = {
       }
     })
 
-    // List delete GET route
-    const getListDeleteHandler = (
+    // Item delete GET route
+    const getItemDeleteHandler = (
       request: FormRequest,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { app, params } = request
       const page = getPage(app.model, request)
 
-      if (!(page instanceof RepeatPageController)) {
-        throw Boom.notFound(`No repeater page found for /${params.path}`)
+      if (
+        !(
+          page instanceof RepeatPageController ||
+          page instanceof FileUploadPageController
+        )
+      ) {
+        throw Boom.notFound(`No page found for /${params.path}`)
       }
 
-      return page.makeGetListDeleteRouteHandler()(request, h)
+      return page.makeGetItemDeleteRouteHandler()(request, h)
     }
 
     server.route({
       method: 'get',
       path: '/{slug}/{path}/{itemId}/confirm-delete',
-      handler: getListDeleteHandler,
+      handler: getItemDeleteHandler,
       options: {
         ...getRouteOptions,
         validate: {
@@ -442,7 +448,7 @@ export const plugin = {
     server.route({
       method: 'get',
       path: '/preview/{state}/{slug}/{path}/{itemId}/confirm-delete',
-      handler: getListDeleteHandler,
+      handler: getItemDeleteHandler,
       options: {
         ...getRouteOptions,
         validate: {
@@ -456,25 +462,30 @@ export const plugin = {
       }
     })
 
-    // List delete POST route
-    const postListDeleteHandler = (
+    // Item delete POST route
+    const postItemDeleteHandler = (
       request: FormRequestPayload,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { app, params } = request
       const page = getPage(app.model, request)
 
-      if (!(page instanceof RepeatPageController)) {
-        throw Boom.notFound(`No repeater page found for /${params.path}`)
+      if (
+        !(
+          page instanceof RepeatPageController ||
+          page instanceof FileUploadPageController
+        )
+      ) {
+        throw Boom.notFound(`No page found for /${params.path}`)
       }
 
-      return page.makePostListDeleteRouteHandler()(request, h)
+      return page.makePostItemDeleteRouteHandler()(request, h)
     }
 
     server.route({
       method: 'post',
       path: '/{slug}/{path}/{itemId}/confirm-delete',
-      handler: postListDeleteHandler,
+      handler: postItemDeleteHandler,
       options: {
         ...postRouteOptions,
         validate: {
@@ -497,7 +508,7 @@ export const plugin = {
     server.route({
       method: 'post',
       path: '/preview/{state}/{slug}/{path}/{itemId}/confirm-delete',
-      handler: postListDeleteHandler,
+      handler: postItemDeleteHandler,
       options: {
         ...postRouteOptions,
         validate: {
