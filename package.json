@@ -63,7 +63,7 @@
     "btoa": "^1.2.1",
     "convict": "^6.2.4",
     "date-fns": "^4.1.0",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.4.7",
     "expr-eval": "^2.0.2",
     "govuk-frontend": "^5.7.1",
     "hapi-pino": "^12.1.0",
