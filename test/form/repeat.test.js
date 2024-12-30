@@ -116,12 +116,13 @@ describe('Repeat GET tests', () => {
     await server.stop()
   })
 
-  test('GET /pizza-order returns 302', async () => {
+  test('GET /pizza-order returns 302 to add another', async () => {
     const res = await server.inject({
       url: `${basePath}/pizza-order`
     })
 
     expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.headers.location).toMatch(/^\/repeat\/pizza-order\/[0-9a-f-]+$/)
   })
 
   test('GET /pizza-order/summary returns 200', async () => {
@@ -207,6 +208,38 @@ describe('Repeat GET tests', () => {
     expect($backLink).toHaveAttribute(
       'href',
       `${basePath}/pizza-order/summary?itemId=${item.itemId}`
+    )
+  })
+
+  test('GET /pizza-order/{id} with 1 item returns 200', async () => {
+    const { headers } = await createRepeatItem(server, repeatPage, 1)
+
+    const itemId = '00000000-0000-0000-0000-000000000000'
+    jest.spyOn(crypto, 'randomUUID').mockReturnValue(itemId)
+
+    const res = await server.inject({
+      url: `${basePath}/pizza-order/${itemId}`,
+      headers
+    })
+
+    expect(res.statusCode).toBe(StatusCodes.OK)
+  })
+
+  test('GET /pizza-order/{id} with 2 items returns 302 to repeater summary', async () => {
+    const { headers } = await createRepeatItem(server, repeatPage, 1)
+    await createRepeatItem(server, repeatPage, 2, headers)
+
+    const itemId = '00000000-0000-0000-0000-000000000000'
+    jest.spyOn(crypto, 'randomUUID').mockReturnValue(itemId)
+
+    const res = await server.inject({
+      url: `${basePath}/pizza-order/${itemId}`,
+      headers
+    })
+
+    expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(res.headers.location).toBe(
+      `${basePath}/pizza-order/summary?itemId=${itemId}`
     )
   })
 
