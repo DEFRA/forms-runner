@@ -200,7 +200,7 @@ export class FileUploadPageController extends QuestionPageController {
       const { confirm } = this.getFormData(request)
 
       // Check for any removed files in the POST payload
-      if (confirm === true) {
+      if (confirm) {
         await this.checkRemovedFiles(request, uploadState)
         return this.proceed(request, h, path)
       }

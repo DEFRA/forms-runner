@@ -337,7 +337,7 @@ export class RepeatPageController extends QuestionPageController {
       const { repeat } = this
       const { confirm } = this.getFormData(request)
 
-      if (confirm === true) {
+      if (confirm) {
         const { item, list } = await this.setRepeatAppData(request)
 
         if (item) {
