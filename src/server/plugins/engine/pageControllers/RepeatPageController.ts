@@ -58,19 +58,19 @@ export class RepeatPageController extends QuestionPageController {
   }
 
   getItemId(request?: FormContextRequest) {
-    const { itemId } = this.getFormData(request)
+    const { itemId } = this.getFormParams(request)
     return itemId ?? request?.params.itemId
   }
 
-  getFormData(request?: FormContextRequest) {
-    const formData = super.getFormData(request)
+  getFormParams(request?: FormContextRequest) {
+    const params = super.getFormParams(request)
 
     // Apply an itemId to the form payload
     if (request?.payload) {
-      formData.itemId = request.params.itemId ?? randomUUID()
+      params.itemId = request.params.itemId ?? randomUUID()
     }
 
-    return formData
+    return params
   }
 
   getStateFromValidForm(
@@ -252,7 +252,7 @@ export class RepeatPageController extends QuestionPageController {
         return super.proceed(request, h, nextPath)
       }
 
-      const { action } = this.getFormData(request)
+      const { action } = this.getFormParams(request)
 
       const hasErrorMin =
         action === FormAction.Continue && list.length < schema.min
@@ -364,7 +364,7 @@ export class RepeatPageController extends QuestionPageController {
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { repeat } = this
-      const { confirm } = this.getFormData(request)
+      const { confirm } = this.getFormParams(request)
 
       const { item, list } = await this.setRepeatAppData(request)
 

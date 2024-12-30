@@ -199,7 +199,7 @@ export class FileUploadPageController extends QuestionPageController {
       const state = await this.getState(request)
       const uploadState = state.upload?.[path] ?? { files: [] }
 
-      const { confirm } = this.getFormData(request)
+      const { confirm } = this.getFormParams(request)
 
       // Check for any removed files in the POST payload
       if (confirm) {
