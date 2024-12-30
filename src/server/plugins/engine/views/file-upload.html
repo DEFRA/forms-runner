@@ -7,7 +7,7 @@
 {% block form %}
   {{ componentList(componentsBefore) }}
 
-  <form method="post" enctype="multipart/form-data" autocomplete="off" novalidate action="{{ formAction }}">
+  <form method="post" novalidate {%- if formAction %} action="{{ formAction }}" enctype="multipart/form-data" {%- endif %}>
     {{ govukFileUpload(formComponent.model) }}
 
     {% if formAction %}
