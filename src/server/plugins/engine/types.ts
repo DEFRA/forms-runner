@@ -278,13 +278,13 @@ export interface FormPageViewModel extends PageViewModelBase {
   }
 }
 
-export interface FileUploadPageViewModel extends FormPageViewModel {
+export interface FeaturedFormPageViewModel extends FormPageViewModel {
   formAction?: string
-  fileUploadComponent: ComponentViewModel
-  preUploadComponents: ComponentViewModel[]
+  formComponent: ComponentViewModel
+  componentsBefore: ComponentViewModel[]
 }
 
 export type PageViewModel =
   | PageViewModelBase
   | FormPageViewModel
-  | FileUploadPageViewModel
+  | FeaturedFormPageViewModel

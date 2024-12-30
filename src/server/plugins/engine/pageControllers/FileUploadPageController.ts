@@ -18,8 +18,8 @@ import {
 import {
   FileStatus,
   UploadStatus,
+  type FeaturedFormPageViewModel,
   type FileState,
-  type FileUploadPageViewModel,
   type FormContextRequest,
   type FormPayload,
   type FormSubmissionError,
@@ -267,25 +267,26 @@ export class FileUploadPageController extends QuestionPageController {
     state: FormSubmissionState,
     payload: FormPayload,
     errors?: FormSubmissionError[]
-  ): FileUploadPageViewModel {
+  ): FeaturedFormPageViewModel {
     const { fileUpload } = this
 
     const viewModel = super.getViewModel(request, state, payload, errors)
     const { components } = viewModel
 
-    const [fileUploadComponent] = components.filter(
+    // Featured form component
+    const [formComponent] = components.filter(
       ({ model }) => model.id === fileUpload.name
     )
 
-    const index = components.indexOf(fileUploadComponent)
+    const index = components.indexOf(formComponent)
 
     return {
       ...viewModel,
       formAction: request.app.formAction,
-      fileUploadComponent,
+      formComponent,
 
       // Split out components before/after
-      preUploadComponents: components.slice(0, index),
+      componentsBefore: components.slice(0, index),
       components: components.slice(index)
     }
   }
