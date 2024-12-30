@@ -78,7 +78,11 @@ export class NumberField extends FormComponent {
   }
 
   getFormValueFromState(state: FormSubmissionState) {
-    const value = super.getFormValueFromState(state)
+    const { name } = this
+    return this.getFormValue(state[name])
+  }
+
+  getFormValue(value?: FormStateValue | FormState) {
     return this.isValue(value) ? value : undefined
   }
 

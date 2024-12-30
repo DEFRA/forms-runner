@@ -6,9 +6,9 @@ import { type Logger } from 'pino'
 
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
-  type FileState,
   type RepeatItemState,
-  type RepeatListState
+  type RepeatListState,
+  type UploadState
 } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
@@ -41,7 +41,7 @@ declare module '@hapi/hapi' {
 
   interface RequestApplicationState {
     model?: FormModel
-    files?: FileState[]
+    files?: UploadState
     formAction?: string
     repeat?: {
       list: RepeatListState

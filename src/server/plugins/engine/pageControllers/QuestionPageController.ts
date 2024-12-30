@@ -27,6 +27,7 @@ import {
   type FormContextRequest,
   type FormPageViewModel,
   type FormPayload,
+  type FormState,
   type FormSubmissionError,
   type FormSubmissionPayload,
   type FormSubmissionState
@@ -79,11 +80,13 @@ export class QuestionPageController extends PageController {
   /**
    * Used for mapping form payloads and errors to govuk-frontend's template api, so a page can be rendered
    * @param request - the hapi request
+   * @param state - the form state
    * @param payload - contains a user's form payload
    * @param [errors] - validation errors that may have occurred
    */
   getViewModel(
     request: FormContextRequest,
+    state: FormSubmissionState,
     payload: FormPayload,
     errors?: FormSubmissionError[]
   ): FormPageViewModel {
@@ -192,13 +195,20 @@ export class QuestionPageController extends PageController {
   /**
    * Gets the form payload (from state) for this page only
    */
-  getFormDataFromState(state: FormSubmissionState): FormPayload {
+  getFormDataFromState(
+    request: FormContextRequest | undefined,
+    state: FormSubmissionState
+  ): FormPayload {
     return {
       ...this.collection.getFormDataFromState(state)
     }
   }
 
-  getStateFromValidForm(request: FormContextRequest, payload: FormPayload) {
+  getStateFromValidForm(
+    request: FormContextRequest,
+    state: FormSubmissionState,
+    payload: FormPayload
+  ): FormState {
     return this.collection.getStateFromValidForm(payload)
   }
 
@@ -238,8 +248,8 @@ export class QuestionPageController extends PageController {
         return this.proceed(request, h, relevantPath)
       }
 
-      const payload = this.getFormDataFromState(context.state)
-      const viewModel = this.getViewModel(request, payload)
+      const payload = this.getFormDataFromState(request, context.state)
+      const viewModel = this.getViewModel(request, context.state, payload)
 
       /**
        * Content components can be hidden based on a condition. If the condition evaluates to true, it is safe to be kept, otherwise discard it
@@ -381,7 +391,12 @@ export class QuestionPageController extends PageController {
        */
       if (errors) {
         const { progress = [] } = context.state
-        const viewModel = this.getViewModel(request, payload, errors)
+        const viewModel = this.getViewModel(
+          request,
+          context.state,
+          payload,
+          errors
+        )
 
         viewModel.context = context
         viewModel.errors = collection.getErrors(viewModel.errors)
@@ -393,7 +408,7 @@ export class QuestionPageController extends PageController {
       // Convert and save sanitised payload to state
       state = await this.setState(
         request,
-        this.getStateFromValidForm(request, payload)
+        this.getStateFromValidForm(request, state, payload)
       )
 
       return this.proceed(

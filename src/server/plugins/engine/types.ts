@@ -88,7 +88,7 @@ export type FormPayload = {
 export type FormValue =
   | Item['value']
   | Item['value'][]
-  | FileState[]
+  | UploadState
   | RepeatListState
   | undefined
 
@@ -172,6 +172,8 @@ export enum FileStatus {
   pending = 'pending'
 }
 
+export type UploadState = FileState[]
+
 export type FileUpload = {
   fileId: string
   filename: string
@@ -210,19 +212,19 @@ export type UploadStatusResponse =
       numberOfRejectedFiles: 0
     }
 
-export type UploadState = Exclude<
+export type UploadStatusFileResponse = Exclude<
   UploadStatusResponse,
   { uploadStatus: UploadStatus.initiated }
 >
 
 export interface FileState {
   uploadId: string
-  status: UploadState
+  status: UploadStatusFileResponse
 }
 
 export interface TempFileState {
   upload?: UploadInitiateResponse
-  files: FileState[]
+  files: UploadState
 }
 
 export interface RepeatItemState extends FormPayload {

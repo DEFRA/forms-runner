@@ -22,7 +22,7 @@
       </p>
 
       {{ appDebug({
-        content: question.getFormDataFromState(context.state)
+        content: question.getFormDataFromState(undefined, context.state)
       }) }}
     {% else %}
       {{ appDebug({
