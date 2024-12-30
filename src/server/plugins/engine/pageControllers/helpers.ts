@@ -1,9 +1,4 @@
-import {
-  ControllerType,
-  controllerNameFromPath,
-  isControllerName,
-  type Page
-} from '@defra/forms-model'
+import { ControllerType, isControllerName, type Page } from '@defra/forms-model'
 
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import * as PageControllers from '~/src/server/plugins/engine/pageControllers/index.js'
@@ -22,15 +17,8 @@ export type PageControllerType =
  * Creates page instance for each {@link Page} type
  */
 export function createPage(model: FormModel, pageDef: Page) {
-  const controllerName = controllerNameFromPath(pageDef.controller)
-
   if (!pageDef.controller) {
     return new PageControllers.QuestionPageController(model, pageDef)
-  }
-
-  // Patch legacy controllers
-  if (controllerName && pageDef.controller !== controllerName) {
-    pageDef.controller = controllerName
   }
 
   let controller: PageControllerClass | undefined
