@@ -35,9 +35,11 @@ export class PageController {
    */
   def: FormDefinition
   name?: string
+  id: string
   model: FormModel
   pageDef: Page
   title: string
+  condition?: Schema
   section?: Section
   collection?: ComponentCollection
   viewName = 'index'
@@ -49,12 +51,17 @@ export class PageController {
     this.name = def.name
     this.model = model
     this.pageDef = pageDef
+    this.id = pageDef.id
     this.title = pageDef.title
 
     // Resolve section
     this.section = model.sections.find(
       (section) => section.name === pageDef.section
     )
+
+    if (pageDef.condition) {
+      this.condition = this.makeCondition()
+    }
   }
 
   get path() {
@@ -94,13 +101,15 @@ export class PageController {
     return {
       name,
       page: this,
+      pageId: this.id,
       pageTitle,
       sectionTitle,
       showTitle,
       isStartPage: false,
       serviceUrl: this.getHref('/'),
       feedbackLink: this.feedbackLink,
-      phaseTag: this.phaseTag
+      phaseTag: this.phaseTag,
+      isTerminalPage: this.pageDef.controller === ControllerType.Terminal
     }
   }
 
@@ -157,5 +166,69 @@ export class PageController {
     h: Pick<ResponseToolkit, 'redirect' | 'view'>
   ) => ReturnType<Lifecycle.Method<FormRequestPayloadRefs>> {
     throw Boom.badRequest('Unsupported POST route handler for this page')
+  }
+
+  private makeCondition() {
+    const { condition } = this.pageDef
+
+    if (!condition) {
+      return
+    }
+
+    function createCondition(condition: PageCondition) {
+      const { pageId, componentId, valueId } = condition
+
+      const page = this.model.pageMap.get(pageId)
+
+      if (!page) {
+        throw new Error(`Page ${pageId} not found`)
+      }
+
+      const component = this.model.componentMap.get(componentId)
+
+      if (!component) {
+        throw new Error(`Component '${componentId}' not found`)
+      }
+
+      const listId = component.list
+      const list = this.model.listMap.get(listId)
+
+      if (!list) {
+        throw new Error(`List '${listId}' not found`)
+      }
+
+      const item = list.items.find((item) => item.id === valueId)
+
+      if (!item) {
+        throw new Error(`Item '${valueId}' not found in list '${listId}'`)
+      }
+
+      console.log('==>', page.path, component.title, item.value)
+
+      return { component, list, item }
+    }
+
+    const types = condition.map((clause) => {
+      const term = {}
+
+      clause.forEach((pageCondition) => {
+        const { item, component } = createCondition.call(this, pageCondition)
+
+        term[pageCondition.componentId] =
+          component.type === ComponentType.CheckboxesField
+            ? joi
+                .array()
+                .items(
+                  joi.string().valid(item.value).required(),
+                  joi.string().optional()
+                )
+                .required()
+            : joi.valid(item.value).required()
+      })
+
+      return term
+    })
+
+    return joi.alternatives().try(...types)
   }
 }

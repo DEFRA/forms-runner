@@ -79,7 +79,12 @@ export class ListFormComponent extends FormComponent {
     }
 
     this.formSchema = formSchema
-    this.stateSchema = formSchema.default(null).allow(null)
+    this.stateSchema = formSchema.default(null)
+
+    if (options.required === false) {
+      this.stateSchema = this.stateSchema.allow(null)
+    }
+
     this.options = options
   }
 

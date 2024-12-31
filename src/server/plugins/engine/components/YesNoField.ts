@@ -14,7 +14,7 @@ export class YesNoField extends SelectionControlField {
     def: YesNoFieldComponent,
     props: ConstructorParameters<typeof SelectionControlField>[1]
   ) {
-    super({ ...def, list: '__yesNo' }, props)
+    super({ ...def }, props)
 
     const { options } = def
     let { formSchema } = this

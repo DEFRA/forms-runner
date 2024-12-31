@@ -4,6 +4,7 @@ import {
   ControllerType,
   formDefinitionSchema,
   hasRepeater,
+  type ComponentDef,
   type ConditionWrapper,
   type ConditionsModelData,
   type DateUnits,
@@ -49,6 +50,9 @@ export class FormModel {
   basePath: string
   conditions: Partial<Record<string, ExecutableCondition>>
   pages: PageControllerClass[]
+  pageMap: Map<string, Page>
+  listMap: Map<string, List>
+  componentMap: Map<string, ComponentDef>
 
   constructor(def: typeof this.def, options: { basePath: string }) {
     const result = formDefinitionSchema.validate(def, { abortEarly: false })
@@ -61,23 +65,6 @@ export class FormModel {
     // by joi so as not to change the source data.
     def = structuredClone(result.value)
 
-    // Add default lists
-    def.lists.push({
-      name: '__yesNo',
-      title: 'Yes/No',
-      type: 'boolean',
-      items: [
-        {
-          text: 'Yes',
-          value: true
-        },
-        {
-          text: 'No',
-          value: false
-        }
-      ]
-    })
-
     this.def = def
     this.lists = def.lists
     this.sections = def.sections
@@ -85,6 +72,14 @@ export class FormModel {
     this.values = result.value
     this.basePath = options.basePath
     this.conditions = {}
+
+    this.pageMap = new Map(def.pages.map((page) => [page.id, page]))
+    this.listMap = new Map(def.lists.map((list) => [list.id, list]))
+    this.componentMap = new Map(
+      def.pages.flatMap((page) =>
+        page.components.map((component) => [component.id, component])
+      )
+    )
 
     def.conditions.forEach((conditionDef) => {
       const condition = this.makeCondition(conditionDef)
@@ -111,10 +106,16 @@ export class FormModel {
   }
 
   /**
-   * build the entire model schema from individual pages/sections
+   * Build the entire model schema from individual pages
    */
-  makeSchema() {
-    return this.makeFilteredSchema(this.pages)
+  makeSchema(strict = false) {
+    let schema = joi.object<FormSubmissionState>().required()
+
+    this.pages.forEach((page) => {
+      schema = schema.concat(page.collection.stateSchema)
+    })
+
+    return schema
   }
 
   /**
@@ -193,8 +194,8 @@ export class FormModel {
     return parser.parse(conditions.toExpression())
   }
 
-  getList(name: string): List | undefined {
-    return this.lists.find((list) => list.name === name)
+  getList(id: string): List | undefined {
+    return this.lists.find((list) => list.id === id)
   }
 
   /**
@@ -227,13 +228,21 @@ export class FormModel {
 
     // Find start page
     let nextPage = findPage(this, startPath)
+      // const { collection, pageDef, condition } = page
 
-    // Walk form pages from start
-    while (nextPage) {
-      const { collection, pageDef } = nextPage
+      // if (condition) {
+      //   const res = condition.validate(state, { allowUnknown: true })
+      //   if (res.error) continue
+      // }
 
-      // Add page to context
-      context.relevantPages.push(nextPage)
+      // // Add page to context
+      // context.relevantPages.push(page)
+
+      // for (const key of page.keys) {
+      //   if (typeof state[key] !== 'undefined') {
+      //     context.relevantState[key] = state[key]
+      //   }
+      // }
 
       // Skip evaluation state for repeater pages
       if (!hasRepeater(pageDef)) {

@@ -20,7 +20,8 @@ export class ComponentBase {
   collection: ComponentCollection | undefined
 
   type: ComponentDef['type']
-  name: ComponentDef['name']
+  id: ComponentDef['id']
+  name: ComponentDef['id']
   title: ComponentDef['title']
   schema?: Extract<ComponentDef, { schema: object }>['schema']
   options?: Extract<ComponentDef, { options: object }>['options']
@@ -40,8 +41,9 @@ export class ComponentBase {
       model: FormModel
     }
   ) {
+    this.id = def.id
+    this.name = def.id
     this.type = def.type
-    this.name = def.name
     this.title = def.title
 
     if ('schema' in def) {

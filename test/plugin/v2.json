@@ -1,0 +1,367 @@
+{
+  "id": "dsfrRT",
+  "name": "Report a bug or issue with a form",
+  "pages": [
+    {
+      "id": "elSwer",
+      "path": "/are-you-eligible",
+      "title": "Are you eligible?",
+      "components": [
+        {
+          "id": "CfBnjg",
+          "title": "Are you eligible?",
+          "type": "YesNoField",
+          "list": "YesNos",
+          "options": {},
+          "schema": {}
+        }
+      ]
+    },
+    {
+      "id": "eggSwz",
+      "path": "/ineligible-for-service",
+      "title": "You are ineligible for this service",
+      "controller": "TerminalPageController",
+      "components": [
+        {
+          "id": "dfhgYH",
+          "title": "Name",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">You are ineligible to use this service :(</p>\n"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "elSwer",
+            "componentId": "CfBnjg",
+            "operator": "==",
+            "valueId": "YesNoN"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "paSeTs",
+      "path": "/whats-your-name",
+      "title": "What's your name?",
+      "components": [
+        {
+          "id": "QXZcPD",
+          "title": "Name",
+          "type": "TextField",
+          "options": {},
+          "schema": {}
+        }
+      ]
+    },
+    {
+      "id": "PmutSS",
+      "path": "/whats-your-email-address",
+      "title": "What's your email address?",
+      "components": [
+        {
+          "id": "FWREEr",
+          "title": "Email address",
+          "type": "EmailAddressField",
+          "hint": "For example, ‘name@example.com’",
+          "options": {},
+          "schema": {}
+        }
+      ]
+    },
+    {
+      "id": "intSti",
+      "path": "/interstitial",
+      "title": "Interstitial content page",
+      "components": [
+        {
+          "id": "dfhgYH",
+          "title": "Name",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">Read me and continue</p>\n"
+        }
+      ]
+    },
+    {
+      "id": "IsaStp",
+      "path": "/whats-the-link-for-the-form",
+      "title": "What's the link for the form?",
+      "components": [
+        {
+          "id": "jHoAKj",
+          "title": "Form link",
+          "type": "TextField",
+          "options": {},
+          "schema": {}
+        }
+      ]
+    },
+    {
+      "id": "UIdney",
+      "path": "/does-the-bug-or-issue-prevent-users-from-submitting-a-form",
+      "title": "Does the bug or issue prevent users from submitting a form?",
+      "components": [
+        {
+          "id": "AtDqSG",
+          "title": "Bug or issue prevents users from submitting a form",
+          "type": "YesNoField",
+          "list": "YesNos",
+          "options": {},
+          "schema": {}
+        }
+      ]
+    },
+    {
+      "id": "sdDder",
+      "path": "/does-the-bug-appear-on-a-specific-page",
+      "title": "Does the bug appear on a specific page?",
+      "components": [
+        {
+          "id": "KHaYWA",
+          "title": "Specific page",
+          "type": "YesNoField",
+          "list": "YesNos",
+          "options": {},
+          "schema": {}
+        }
+      ]
+    },
+    {
+      "id": "HGtymk",
+      "path": "/whats-the-link-to-the-page",
+      "title": "What's the link to the page?",
+      "components": [
+        {
+          "id": "kXBNOV",
+          "title": "Page link",
+          "type": "TextField",
+          "hint": "If you do not know the page link, enter the page title or question instead",
+          "options": {},
+          "schema": {}
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "sdDder",
+            "componentId": "KHaYWA",
+            "operator": "==",
+            "valueId": "YesNoY"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "PoSdrf",
+      "path": "/describe-the-bug-or-issue",
+      "title": "Describe the bug or issue",
+      "components": [
+        {
+          "id": "frutpJ",
+          "title": "Affect of issue or bug",
+          "type": "MultilineTextField",
+          "hint": "Include what's affected, for example, a specific feature or journey through a form",
+          "options": {},
+          "schema": {}
+        }
+      ]
+    },
+    {
+      "id": "WsDFre",
+      "path": "/what-should-have-happened",
+      "title": "What should have happened?",
+      "components": [
+        {
+          "id": "jZNFZM",
+          "title": "What should have happened",
+          "type": "MultilineTextField",
+          "options": {},
+          "schema": {}
+        }
+      ]
+    },
+    {
+      "id": "PHjLbg",
+      "path": "/location",
+      "title": "Location",
+      "components": [
+        {
+          "id": "xxfFhj",
+          "title": "Location",
+          "type": "RadiosField",
+          "list": "dfFegh",
+          "options": {},
+          "schema": {}
+        }
+      ]
+    },
+    {
+      "id": "hhDFrt",
+      "path": "/what-country",
+      "title": "What country?",
+      "components": [
+        {
+          "id": "dumVFd",
+          "title": "Country",
+          "type": "CheckboxesField",
+          "list": "oNaqxb",
+          "options": {},
+          "schema": {}
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "PHjLbg",
+            "componentId": "xxfFhj",
+            "operator": "==",
+            "valueId": "xdgfvh"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "msfYYh",
+      "path": "/eng-wales-ref",
+      "title": "Eng & wales only reference",
+      "components": [
+        {
+          "id": "sdYump",
+          "title": "Reference",
+          "type": "TextField",
+          "options": {},
+          "schema": {}
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "hhDFrt",
+            "componentId": "dumVFd",
+            "operator": "==",
+            "valueId": "SsxFed"
+          }
+        ],
+        [
+          {
+            "pageId": "hhDFrt",
+            "componentId": "dumVFd",
+            "operator": "==",
+            "valueId": "dfghtu"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "DFbhkl",
+      "title": "Summary",
+      "path": "/summary",
+      "controller": "SummaryPageController",
+      "components": [],
+      "condition": [
+        [
+          {
+            "pageId": "elSwer",
+            "componentId": "CfBnjg",
+            "operator": "==",
+            "valueId": "YesNoY"
+          }
+        ]
+      ]
+    }
+  ],
+  "conditions": [
+    {
+      "id": "sdftFg",
+      "displayName": "Not a specific page",
+      "value": {
+        "name": "Not a specific page",
+        "conditions": [
+          {
+            "field": {
+              "name": "KHaYWA",
+              "type": "YesNoField",
+              "display": "Specific page"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "false",
+              "display": "No"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "sections": [
+    {
+      "id": "rOnNie",
+      "title": "Section title"
+    }
+  ],
+  "lists": [
+    {
+      "id": "YesNos",
+      "title": "Yes/No",
+      "type": "boolean",
+      "items": [
+        {
+          "id": "YesNoY",
+          "text": "Yes",
+          "value": true
+        },
+        {
+          "id": "YesNoN",
+          "text": "No",
+          "value": false
+        }
+      ]
+    },
+    {
+      "id": "dfFegh",
+      "title": "Location",
+      "type": "string",
+      "items": [
+        {
+          "id": "xdgfvh",
+          "text": "UK",
+          "value": "uk"
+        },
+        {
+          "id": "dsfyjm",
+          "text": "Elsewhere",
+          "value": "elsewhere"
+        }
+      ]
+    },
+    {
+      "id": "oNaqxb",
+      "title": "Country",
+      "type": "string",
+      "items": [
+        {
+          "id": "SsxFed",
+          "text": "England",
+          "value": "England"
+        },
+        {
+          "id": "DSfess",
+          "text": "Northern Ireland",
+          "value": "Northern Ireland"
+        },
+        {
+          "id": "SDsfgf",
+          "text": "Scotland",
+          "value": "Scotland"
+        },
+        {
+          "id": "dfghtu",
+          "text": "Wales",
+          "value": "Wales"
+        }
+      ]
+    }
+  ]
+}

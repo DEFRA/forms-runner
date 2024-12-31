@@ -247,6 +247,7 @@ export type SummaryListAction = ComponentText & {
 
 export interface PageViewModelBase extends Partial<ViewContext> {
   page: PageController
+  pageId: string
   name?: string
   pageTitle: string
   sectionTitle?: string
@@ -256,6 +257,11 @@ export interface PageViewModelBase extends Partial<ViewContext> {
   feedbackLink?: string
   serviceUrl: string
   phaseTag?: string
+  notificationEmailWarning?: {
+    slug: string
+    designerUrl: string
+  }
+  isTerminalPage: boolean
 }
 
 export interface ItemDeletePageViewModel extends PageViewModelBase {

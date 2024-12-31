@@ -28,7 +28,7 @@ export class UkAddressField extends FormComponent {
   ) {
     super(def, props)
 
-    const { name, options } = def
+    const { id, options } = def
 
     const isRequired = options.required !== false
     const hideOptional = !!options.optionalText
@@ -38,7 +38,7 @@ export class UkAddressField extends FormComponent {
       [
         {
           type: ComponentType.TextField,
-          name: `${name}__addressLine1`,
+          id: `${id}__addressLine1`,
           title: 'Address line 1',
           schema: { max: 100 },
           options: {
@@ -49,7 +49,7 @@ export class UkAddressField extends FormComponent {
         },
         {
           type: ComponentType.TextField,
-          name: `${name}__addressLine2`,
+          id: `${id}__addressLine2`,
           title: 'Address line 2',
           schema: { max: 100 },
           options: {
@@ -60,7 +60,7 @@ export class UkAddressField extends FormComponent {
         },
         {
           type: ComponentType.TextField,
-          name: `${name}__town`,
+          id: `${id}__town`,
           title: 'Town or city',
           schema: { max: 100 },
           options: {
@@ -72,7 +72,7 @@ export class UkAddressField extends FormComponent {
         },
         {
           type: ComponentType.TextField,
-          name: `${name}__postcode`,
+          id: `${id}__postcode`,
           title: 'Postcode',
           schema: {
             regex: '^[a-zA-Z]{1,2}\\d[a-zA-Z\\d]?\\s?\\d[a-zA-Z]{2}$'

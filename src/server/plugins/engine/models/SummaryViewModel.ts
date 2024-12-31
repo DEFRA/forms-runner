@@ -60,9 +60,16 @@ export class SummaryViewModel {
     this.declaration = def.declaration
     this.context = context
 
-    const result = model
-      .makeFilteredSchema(this.context.relevantPages)
-      .validate(this.context.relevantState, { ...opts, stripUnknown: true })
+    const result = model.makeSchema().validate(
+      { [pageDef.id]: true, ...state },
+      {
+        ...opts,
+        stripUnknown: true,
+        context: { strip: true }
+      }
+    )
+
+    this.context = model.getFormContext(result.value, request)
 
     // Format errors
     this.errors = result.error?.details.map(getError)
@@ -138,7 +145,7 @@ export class SummaryViewModel {
 
       if (items.length) {
         details.push({
-          name: section?.name,
+          name: section?.id,
           title: section?.title,
           items
         })

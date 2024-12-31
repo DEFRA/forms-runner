@@ -1,0 +1,3296 @@
+{
+  "id": "cHpfrm",
+  "name": "Apply for a county parish holding (CPH) number",
+  "pages": [
+    {
+      "id": "NmSjfy",
+      "title": "Are you 18 or older?",
+      "path": "/are-you-18-or-older",
+      "components": [
+        {
+          "title": "18 or older",
+          "type": "YesNoField",
+          "hint": "",
+          "options": {},
+          "schema": {},
+          "id": "JGLmzy",
+          "list": "YesNos"
+        }
+      ]
+    },
+    {
+      "id": "TdVqAr",
+      "title": "You must be 18 or older to use this service",
+      "path": "/you-must-be-18-or-older-to-use-this-service",
+      "controller": "TerminalPageController",
+      "components": [
+        {
+          "title": "Html",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">\nTo apply for a country parish holding (CPH) number, you must be 18 or older.\n</p>",
+          "options": {},
+          "schema": {},
+          "id": "acXfVy"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "NmSjfy",
+            "componentId": "JGLmzy",
+            "operator": "==",
+            "valueId": "YesNoN"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "scyYOy",
+      "title": "Are you or your business already registered with the Rural Payments Agency?",
+      "path": "/are-you-or-your-business-already-registered-with-the-rural-payments-agency",
+      "components": [
+        {
+          "title": "Registered with the Rural Payments Agency",
+          "type": "YesNoField",
+          "hint": "",
+          "options": {},
+          "schema": {},
+          "id": "zcjEtV",
+          "list": "YesNos"
+        }
+      ]
+    },
+    {
+      "id": "xUAzXg",
+      "title": "Already registered with the Rural Payments Agency",
+      "path": "/already-registered-with-the-rural-payments-agency",
+      "controller": "TerminalPageController",
+      "components": [
+        {
+          "title": "Html",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">\nYou cannot use this form if you’re already registered on the Rural Payments service. The Rural Payments Agency (RPA) already has much of the information it needs to process your application. You must apply by phone instead.\n<br><br>\nTelephone (Defra rural services helpline): 03000 200 301<br>\nMonday to Friday, 8:30am to 5pm<br>\n<a href=\"https://www.gov.uk/call-charges\" class=\"govuk-link\" target=\"_blank\">Find out about call charges (opens in new tab)</a>\n</p>",
+          "options": {},
+          "schema": {},
+          "id": "uqUowX"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "scyYOy",
+            "componentId": "zcjEtV",
+            "operator": "==",
+            "valueId": "YesNoY"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "RJgRTo",
+      "title": "What country will you keep livestock in?",
+      "path": "/what-country-will-you-keep-livestock-in",
+      "components": [
+        {
+          "title": "Country where you will keep livestock",
+          "type": "RadiosField",
+          "hint": "",
+          "list": "oNaqxb",
+          "options": {},
+          "schema": {},
+          "id": "aYjRCZ"
+        }
+      ]
+    },
+    {
+      "id": "cCwkcB",
+      "title": "You cannot use this service",
+      "path": "/you-cannot-use-this-service",
+      "components": [
+        {
+          "title": "Html",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">\nYou cannot use this service to apply for a county parish holding (CPH) number if you live in Northern Ireland, Scotland or Wales.\n<br><br>\nRead guidance for:\n<ol class=\"govuk-list govuk-list--bullet\"> \n<li><a href=\"https://www.daera-ni.gov.uk/topics/animal-health-and-welfare/identification-registration-and-movement\" class=\"govuk-link\" target=\"_blank\">Northern Ireland</a> (opens in new tab)</li> \n<li><a href=\"https://www.ruralpayments.org/publicsite/futures/topics/customer-services/contact/\" class=\"govuk-link\" target=\"_blank\">Scotland</a> (opens in new tab)</li> \n<li><a href=\"https://gov.wales/get-county-parish-holding-cph-number\" class=\"govuk-link\" target=\"_blank\">Wales</a> (opens in new tab)</li> \n</ul> \n</p>",
+          "options": {},
+          "schema": {},
+          "id": "INnXyT"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "RJgRTo",
+            "componentId": "aYjRCZ",
+            "operator": "==",
+            "valueId": "RpZhvD"
+          }
+        ],
+        [
+          {
+            "pageId": "RJgRTo",
+            "componentId": "aYjRCZ",
+            "operator": "==",
+            "valueId": "NTJhvG"
+          }
+        ],
+        [
+          {
+            "pageId": "RJgRTo",
+            "componentId": "aYjRCZ",
+            "operator": "==",
+            "valueId": "NKvzxS"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "RsBpVV",
+      "path": "/arrival-date",
+      "title": "Arrival date",
+      "components": [
+        {
+          "options": {},
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">\nTell the Rural Payments Agency (RPA) when the livestock or animal by-products will arrive. This date must be no more than 6 weeks from today's date. If they will arrive later, do not apply for your CPH number now.\n<br><br>\nIf you do not know when the livestock or animal by-products will arrive, give an estimate. If they have already arrived, you can put a date in the past.\n<br><br>\nRPA need to know this so they can prioritise your application.\n</p>",
+          "schema": {},
+          "id": "NRlngf"
+        },
+        {
+          "options": {},
+          "type": "DatePartsField",
+          "title": "What date will the livestock or animal by-products arrive?",
+          "hint": "If you keep both livestock and animal by-products, tell us the date the first one will arrive",
+          "schema": {},
+          "id": "uogTBM"
+        }
+      ]
+    },
+    {
+      "id": "IjcwWJ",
+      "title": "The livestock must arrive within 6 weeks",
+      "path": "/the-livestock-must-arrive-within-6-weeks",
+      "components": [
+        {
+          "title": "Html",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">\nThe livestock or animal by-products must arrive within 6 weeks from today's date. \n<br><br>\nYou cannot apply for your county parish number (CPH) number now as the date you have entered is more than 6 weeks from today's date.\n<br><br>\nYou can return to fill in this form closer to the arrival date of your livestock or animal by-products.\n</p>",
+          "options": {},
+          "schema": {},
+          "id": "MDtiNg"
+        }
+      ]
+    },
+    {
+      "id": "tZlYRa",
+      "path": "/what-livestock-will-you-keep",
+      "title": "What livestock will you keep?",
+      "components": [
+        {
+          "options": {},
+          "schema": {},
+          "type": "CheckboxesField",
+          "list": "CoRNqi",
+          "title": "Livestock that you keep",
+          "values": {
+            "type": "listRef"
+          },
+          "id": "vumpmr"
+        }
+      ]
+    },
+    {
+      "id": "BcPBJm",
+      "title": "You must use a different service",
+      "path": "/you-must-use-a-different-service",
+      "controller": "TerminalPageController",
+      "components": [
+        {
+          "title": "Html",
+          "type": "Html",
+          "content": "<h3 class=\"govuk-heading-m\">Less than 50 poultry or other captive birds</h3>\n<p class=\"govuk-body\">\nIf you’re a keeper of less than 50 poultry or other captive birds, you must <a href=\"https://www.gov.uk/guidance/register-as-a-keeper-of-less-than-50-poultry-or-other-captive-birds\"class=\" govuk-link\" target=\"_blank\">register with the Animal and Plant Health Agency (APHA) (opens in new tab)</a>. This includes any birds you keep as pets. \n<br><br>\nAPHA will provide you with a CPH number when you register. You should not apply for a country parish holding (CPH) number from the Rurual Payments Agency (RPA) using this form.\n<br><br>\nIf you already have a CPH number from keeping other livestock, call the RPA to get your CPH number updated to include keeping 50 poultry or other captive birds.\n<br><br>\nTelephone (Defra rural services helpline): 03000 200 301<br>\nMonday to Friday, 8:30am to 5pm<br>\n<a href=\"http://www.gov.uk/call-charges\"class=\" govuk-link\" target=\"_blank\">Find out about call charges (opens in new tab)</a>\n</p>",
+          "options": {
+            "condition": "BYIene"
+          },
+          "schema": {},
+          "id": "NxLvxq"
+        },
+        {
+          "title": "Html",
+          "type": "Html",
+          "content": "<h3 class=\"govuk-heading-m\">Racing pigeons</h3>\n<p class=\"govuk-body\">\nThere's a different process for racing pigeons. \n<br><br>\nFind out how to <a href=\"https://www.gov.uk/guidance/register-a-racing-pigeon-establishment-to-move-pigeons-to-the-eu-or-northern-ireland-for-a-race\"class=\" govuk-link\" target=\"_blank\">register a racing pigeon establishment to move pigeons to the EU or Northern Ireland for a race (opens in new tab)</a>.\n</p>",
+          "options": {
+            "condition": "OFokTY"
+          },
+          "schema": {},
+          "id": "GKEcri"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "tZlYRa",
+            "componentId": "vumpmr",
+            "operator": "==",
+            "valueId": "qIJTgB"
+          }
+        ],
+        [
+          {
+            "pageId": "tZlYRa",
+            "componentId": "vumpmr",
+            "operator": "==",
+            "valueId": "GsjJmf"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "wGppMi",
+      "path": "/what-do-you-use-animal-by-products-for",
+      "title": "What do you use animal by-products for?",
+      "components": [
+        {
+          "options": {
+            "hideTitle": true
+          },
+          "type": "TextField",
+          "title": "What you use animal by-products for",
+          "schema": {},
+          "hint": "For example, using animal by-products to produce pet food",
+          "id": "nTEdlT"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "tZlYRa",
+            "componentId": "vumpmr",
+            "operator": "==",
+            "valueId": "IaLrcI"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "oRcnPF",
+      "title": "Business or hobbyist",
+      "path": "/business-or-hobbyist",
+      "components": [
+        {
+          "title": "Html",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">\nWhen you apply for a country parish holding (CPH) number, the Rural Payments Agency (RPA) will give you a single business identifier (SBI) number. You'll get an SBI number even if you're not a business.\n<br><br>\nIf you're a hobbyist keeper, RPA will use your full name as your business name.\n</p>",
+          "options": {},
+          "schema": {},
+          "id": "UQlrDN"
+        },
+        {
+          "title": "Are you a hobbyist keeper or a business?",
+          "type": "RadiosField",
+          "hint": "",
+          "list": "IGZhBB",
+          "options": {},
+          "schema": {},
+          "id": "FsSpLA"
+        }
+      ]
+    },
+    {
+      "id": "dhwLTh",
+      "title": "What's the name of the applicant?",
+      "path": "/whats-the-name-of-the-applicant",
+      "components": [
+        {
+          "options": {},
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">Enter the name of the person applying for the county parish holding (CPH) number. This should be the person who is responsible for the livestock.</p>\n",
+          "schema": {},
+          "id": "Jhimsh"
+        },
+        {
+          "options": {
+            "classes": "govuk-!-width-one-quarter",
+            "required": false
+          },
+          "type": "TextField",
+          "title": "Title",
+          "hint": "",
+          "schema": {},
+          "id": "TKsWbP"
+        },
+        {
+          "options": {
+            "classes": "govuk-input govuk-!-width-one-half"
+          },
+          "type": "TextField",
+          "title": "First name",
+          "schema": {},
+          "id": "iyutEh"
+        },
+        {
+          "title": "Middle name",
+          "type": "TextField",
+          "hint": "",
+          "options": {
+            "required": false,
+            "classes": "govuk-input govuk-!-width-one-half"
+          },
+          "schema": {},
+          "id": "ByUqQW"
+        },
+        {
+          "options": {
+            "classes": "govuk-input govuk-!-width-one-half"
+          },
+          "type": "TextField",
+          "title": "Last name",
+          "schema": {},
+          "id": "GDYfTS"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "oRcnPF",
+            "componentId": "FsSpLA",
+            "operator": "==",
+            "valueId": "PFAEml"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "vOlecx",
+      "path": "/business-name",
+      "title": "Business name",
+      "components": [
+        {
+          "options": {},
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">RPA needs to register you as a business on their system (the Rural Payments service) before they can give you a CPH number. They must do this even if you keep livestock as pets or for a hobby.\n</p>\n\n\n\n\n",
+          "schema": {},
+          "id": "azvqQo"
+        },
+        {
+          "options": {},
+          "type": "TextField",
+          "title": "What is the name of the business?",
+          "schema": {},
+          "id": "jFlrpY"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "oRcnPF",
+            "componentId": "FsSpLA",
+            "operator": "==",
+            "valueId": "PFAEml"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "GwLJvN",
+      "title": "What's your name?",
+      "path": "/whats-your-name",
+      "components": [
+        {
+          "title": "Title",
+          "type": "TextField",
+          "hint": "",
+          "options": {
+            "classes": "govuk-!-width-one-quarter",
+            "required": false
+          },
+          "schema": {},
+          "id": "QvSFQU"
+        },
+        {
+          "title": "First name",
+          "type": "TextField",
+          "hint": "",
+          "options": {
+            "classes": "govuk-input govuk-!-width-one-half"
+          },
+          "schema": {},
+          "id": "fGBFPv"
+        },
+        {
+          "title": "Middle name",
+          "type": "TextField",
+          "hint": "",
+          "options": {
+            "required": false,
+            "classes": "govuk-input govuk-!-width-one-half"
+          },
+          "schema": {},
+          "id": "BzFtpG"
+        },
+        {
+          "title": "Last name",
+          "type": "TextField",
+          "hint": "",
+          "options": {
+            "classes": "govuk-input govuk-!-width-one-half"
+          },
+          "schema": {},
+          "id": "HEHgbQ"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "oRcnPF",
+            "componentId": "FsSpLA",
+            "operator": "==",
+            "valueId": "vZAgrn"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "KGuQoa",
+      "path": "/telephone-numbers",
+      "title": "Telephone numbers",
+      "components": [
+        {
+          "options": {},
+          "schema": {},
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">\nThe Rural Payments Agency (RPA) will use the phone numbers you provide to contact you if they need to discuss your application.\n</p>",
+          "id": "ndonzl"
+        },
+        {
+          "options": {},
+          "schema": {},
+          "type": "TelephoneNumberField",
+          "hint": "",
+          "title": "What's your main phone number?",
+          "id": "aEFhyW"
+        },
+        {
+          "options": {
+            "required": false
+          },
+          "schema": {},
+          "type": "TelephoneNumberField",
+          "title": "What's your second phone number?",
+          "id": "tmSOkR"
+        }
+      ]
+    },
+    {
+      "id": "XocKCp",
+      "path": "/whats-your-email-address",
+      "title": "What's your email address?",
+      "components": [
+        {
+          "options": {
+            "hideTitle": true
+          },
+          "type": "EmailAddressField",
+          "title": "Email address",
+          "hint": "The Rural Payments Agency (RPA)  will email your CPH number to you.",
+          "schema": {},
+          "id": "uZcVcc"
+        }
+      ]
+    },
+    {
+      "id": "qAyBhp",
+      "path": "/whats-your-business-address",
+      "title": "What's your business address?",
+      "components": [
+        {
+          "options": {},
+          "type": "UkAddressField",
+          "title": "Business address",
+          "schema": {},
+          "hint": "Your business address must be a postal address",
+          "id": "SJmeaZ"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "oRcnPF",
+            "componentId": "FsSpLA",
+            "operator": "==",
+            "valueId": "PFAEml"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "hmCjDj",
+      "title": "Is your business address the same as your home address?",
+      "path": "/is-your-business-address-the-same-as-your-home-address",
+      "components": [
+        {
+          "title": "Is your business address the same as your home address?",
+          "type": "YesNoField",
+          "hint": "",
+          "options": {},
+          "schema": {},
+          "id": "wXycoH",
+          "list": "YesNos"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "oRcnPF",
+            "componentId": "FsSpLA",
+            "operator": "==",
+            "valueId": "PFAEml"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "nmGDnt",
+      "path": "/whats-your-home-address",
+      "title": "What's your home address?",
+      "components": [
+        {
+          "options": {
+            "hideTitle": true
+          },
+          "type": "UkAddressField",
+          "title": "Home address",
+          "schema": {},
+          "id": "hpmkrN"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "oRcnPF",
+            "componentId": "FsSpLA",
+            "operator": "==",
+            "valueId": "vZAgrn"
+          }
+        ],
+        [
+          {
+            "pageId": "oRcnPF",
+            "componentId": "FsSpLA",
+            "operator": "==",
+            "valueId": "PFAEml"
+          },
+          {
+            "pageId": "hmCjDj",
+            "componentId": "wXycoH",
+            "operator": "==",
+            "valueId": "YesNoN"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "pNatkf",
+      "path": "/legal-status-of-your-business",
+      "title": "Legal status of your business",
+      "components": [
+        {
+          "options": {},
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">\nThe Rural Payments Agency (RPA) needs the legal status of your business to register you on the Rural Payments service.\n<br><br>\nRead more about <a href=\"https://www.gov.uk/set-up-business\"class=\" govuk-link\" target=\"_blank\">registering a business (opens in new tab)</a> or <a href=\"https://www.gov.uk/guidance/charity-types-how-to-choose-a-structure\" class=\"govuk-link\" target=\"_blank\">find out more about charity types (opens in new tab)</a>. If you're not sure, seek professional advice.\n</p>",
+          "schema": {},
+          "id": "KVSTXs"
+        },
+        {
+          "options": {},
+          "type": "RadiosField",
+          "list": "LLfsSM",
+          "title": "Business legal status",
+          "schema": {},
+          "values": {
+            "type": "listRef"
+          },
+          "id": "yHQAol"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "oRcnPF",
+            "componentId": "FsSpLA",
+            "operator": "==",
+            "valueId": "PFAEml"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "CClNUx",
+      "title": "Legal status of your business: something else",
+      "path": "/legal-status-of-your-business-something-else",
+      "components": [
+        {
+          "title": "Html",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">\nRPA needs the legal status of your business to register you on the Rural Payments service.\n<br>\n<br>\nRead more about <a href=\"https://www.gov.uk/set-up-business\"class=\" govuk-link\" target=\"_blank\">registering a business (opens in new tab)</a> or <a href=\"https://www.gov.uk/guidance/charity-types-how-to-choose-a-structure\" class=\"govuk-link\" target=\"_blank\">find out more about charity types (opens in new tab)</a>. If you're not sure, seek professional advice.\n</p>",
+          "options": {},
+          "schema": {},
+          "id": "NUaCrU"
+        },
+        {
+          "title": "Business legal status: something else",
+          "type": "RadiosField",
+          "hint": "",
+          "list": "dfccAs",
+          "options": {},
+          "schema": {},
+          "id": "MfzkDz"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "oRcnPF",
+            "componentId": "FsSpLA",
+            "operator": "==",
+            "valueId": "PFAEml"
+          },
+          {
+            "pageId": "pNatkf",
+            "componentId": "yHQAol",
+            "operator": "==",
+            "valueId": "VPloWU"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "sKwGVo",
+      "path": "/companies-house",
+      "title": "Companies House",
+      "components": [
+        {
+          "title": "Html",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">\nThe Rural Payments Agency (RPA) need to know your company number. You can get this from Companies House.\n<br><br>\n<a href=\"https://find-and-update.company-information.service.gov.uk/\"class=\" govuk-link\" target=\"_blank\">Find your company number (opens in new tab)</a>\n<br><br>\nYou can also find your company number on any documents you have received from Companies House.\n</p>",
+          "options": {},
+          "schema": {},
+          "id": "vvVXGQ"
+        },
+        {
+          "options": {
+            "customValidationMessage": "Enter a valid company number"
+          },
+          "type": "TextField",
+          "title": "What's your company number?",
+          "hint": "You company number is either an 8-digit number or 2 letters followed by a 6-digit number, for example, 03256178 or SL123456.",
+          "schema": {
+            "regex": "^([0-9]{8}|(?:LP|lp|NC|nc|NL|nl|NI|ni|OC|oc|SC|sc|SL|sl|SO|so)[0-9]{6}|(?:R|r)[0-9]{7})$"
+          },
+          "id": "nNNsgO"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "oRcnPF",
+            "componentId": "FsSpLA",
+            "operator": "==",
+            "valueId": "PFAEml"
+          },
+          {
+            "pageId": "pNatkf",
+            "componentId": "yHQAol",
+            "operator": "==",
+            "valueId": "rjgmag"
+          }
+        ],
+        [
+          {
+            "pageId": "oRcnPF",
+            "componentId": "FsSpLA",
+            "operator": "==",
+            "valueId": "PFAEml"
+          },
+          {
+            "pageId": "pNatkf",
+            "componentId": "yHQAol",
+            "operator": "==",
+            "valueId": "zkxsDd"
+          }
+        ],
+        [
+          {
+            "pageId": "CClNUx",
+            "componentId": "MfzkDz",
+            "operator": "==",
+            "valueId": "NfkZhl"
+          }
+        ],
+        [
+          {
+            "pageId": "CClNUx",
+            "componentId": "MfzkDz",
+            "operator": "==",
+            "valueId": "WaxEHr"
+          }
+        ],
+        [
+          {
+            "pageId": "CClNUx",
+            "componentId": "MfzkDz",
+            "operator": "==",
+            "valueId": "AzWzQR"
+          }
+        ],
+        [
+          {
+            "pageId": "CClNUx",
+            "componentId": "MfzkDz",
+            "operator": "==",
+            "valueId": "ZrsEoO"
+          }
+        ],
+        [
+          {
+            "pageId": "CClNUx",
+            "componentId": "MfzkDz",
+            "operator": "==",
+            "valueId": "YWwNhe"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "hzOClJ",
+      "path": "/charity-number",
+      "title": "Charity number",
+      "components": [
+        {
+          "options": {},
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">\n<a href=\"https://register-of-charities.charitycommission.gov.uk/charity-search\" class=\"govuk-link\" class=\"govuk-link\" target=\"_blank\">Search the register of charities (opens in new tab)</a> to find your charity number.\n</p>",
+          "schema": {},
+          "id": "uHmVat"
+        },
+        {
+          "title": "What's your charity number?",
+          "type": "NumberField",
+          "hint": "",
+          "options": {},
+          "schema": {},
+          "id": "ifygYY"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "oRcnPF",
+            "componentId": "FsSpLA",
+            "operator": "==",
+            "valueId": "PFAEml"
+          },
+          {
+            "pageId": "pNatkf",
+            "componentId": "yHQAol",
+            "operator": "==",
+            "valueId": "FZDkvG"
+          }
+        ],
+        [
+          {
+            "pageId": "CClNUx",
+            "componentId": "MfzkDz",
+            "operator": "==",
+            "valueId": "RIbLYO"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "BKjQjj",
+      "path": "/what-is-the-main-purpose-of-your-business",
+      "title": "What is the main purpose of your business?",
+      "components": [
+        {
+          "options": {},
+          "type": "RadiosField",
+          "list": "kMOALL",
+          "title": "Business type",
+          "hint": "Select the main purpose of your business. If you're a farmer and you keep livestock, select 'farmer'.",
+          "values": {
+            "type": "listRef"
+          },
+          "schema": {},
+          "id": "AoofuF"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "oRcnPF",
+            "componentId": "FsSpLA",
+            "operator": "==",
+            "valueId": "PFAEml"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "mjGbOl",
+      "title": "What is the main purpose of your business: something else?",
+      "path": "/what-is-the-main-purpose-of-your-business-something-else",
+      "components": [
+        {
+          "title": "Main purpose of your business: something else",
+          "type": "RadiosField",
+          "hint": "",
+          "list": "IOxAAj",
+          "options": {},
+          "schema": {},
+          "id": "luoxoh"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "BKjQjj",
+            "componentId": "AoofuF",
+            "operator": "==",
+            "valueId": "zQwWGC"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "kXSvNe",
+      "path": "/what-type-of-business-do-you-have",
+      "title": "What type of business do you have?",
+      "components": [
+        {
+          "options": {},
+          "type": "TextField",
+          "title": "What type of business do you have?",
+          "schema": {},
+          "id": "hCxIFa"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "mjGbOl",
+            "componentId": "luoxoh",
+            "operator": "==",
+            "valueId": "mJUurt"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "QppnDa",
+      "path": "/is-your-business-a-market-showground-or-zoo",
+      "title": "Is your business a market, showground or zoo?",
+      "components": [
+        {
+          "options": {},
+          "type": "RadiosField",
+          "list": "rieXPV",
+          "title": "Is your business a market, showground or zoo?",
+          "schema": {},
+          "hint": "Your answer will help us to process your application correctly",
+          "values": {
+            "type": "listRef"
+          },
+          "id": "jLxphO"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "oRcnPF",
+            "componentId": "FsSpLA",
+            "operator": "==",
+            "valueId": "PFAEml"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "niBRzx",
+      "title": "Does your business have a second contact?",
+      "path": "/does-your-business-have-a-second-contact",
+      "components": [
+        {
+          "title": "Does your business have a second contact?",
+          "type": "YesNoField",
+          "hint": "",
+          "options": {},
+          "schema": {},
+          "id": "iszBCF",
+          "list": "YesNos"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "oRcnPF",
+            "componentId": "FsSpLA",
+            "operator": "==",
+            "valueId": "PFAEml"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "KrTVfI",
+      "title": "Do you want to add a second contact?",
+      "path": "/do-you-want-to-add-a-second-contact",
+      "components": [
+        {
+          "title": "Second contact",
+          "type": "YesNoField",
+          "hint": "For example, if someone else helps you keep the livestock or you want them to communicate with the Rural Payments Agency on your behalf. Secondary contacts can view and make changes to the information we hold\n",
+          "options": {},
+          "schema": {},
+          "id": "yQiBlu",
+          "list": "YesNos"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "oRcnPF",
+            "componentId": "FsSpLA",
+            "operator": "==",
+            "valueId": "vZAgrn"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "ufClWl",
+      "title": "Contact details of the second contact",
+      "path": "/contact-details-of-the-second-contact",
+      "components": [
+        {
+          "title": "Title",
+          "type": "TextField",
+          "hint": "",
+          "options": {
+            "required": false,
+            "classes": "govuk-!-width-one-quarter"
+          },
+          "schema": {},
+          "id": "vCcTAU"
+        },
+        {
+          "title": "First name of second contact",
+          "type": "TextField",
+          "hint": "",
+          "options": {
+            "required": true,
+            "classes": "govuk-input govuk-!-width-one-half"
+          },
+          "schema": {},
+          "id": "MtBoTP"
+        },
+        {
+          "title": "Middle name of second contact",
+          "type": "TextField",
+          "hint": "",
+          "options": {
+            "required": false,
+            "classes": "govuk-input govuk-!-width-one-half"
+          },
+          "schema": {},
+          "id": "QZNQVn"
+        },
+        {
+          "title": "Last name of second contact",
+          "type": "TextField",
+          "hint": "",
+          "options": {
+            "classes": "govuk-input govuk-!-width-one-half"
+          },
+          "schema": {},
+          "id": "JdIhbf"
+        },
+        {
+          "title": "Phone number of second contact",
+          "type": "TelephoneNumberField",
+          "hint": "",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "RHkcga"
+        },
+        {
+          "title": "Email address of second contact",
+          "type": "EmailAddressField",
+          "hint": "The email address of the second contact must be different from the main contact",
+          "options": {
+            "required": true
+          },
+          "schema": {},
+          "id": "JiLYDB"
+        },
+        {
+          "title": "Home address for the second contact",
+          "type": "UkAddressField",
+          "hint": "",
+          "options": {},
+          "schema": {},
+          "id": "YnSTrb"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "niBRzx",
+            "componentId": "iszBCF",
+            "operator": "==",
+            "valueId": "YesNoY"
+          }
+        ],
+        [
+          {
+            "pageId": "KrTVfI",
+            "componentId": "yQiBlu",
+            "operator": "==",
+            "valueId": "YesNoY"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "pWskWk",
+      "title": "Will you keep livestock or use animal by-products at your business address?",
+      "path": "/will-you-keep-livestock-or-use-animal-by-products-at-your-business-address",
+      "components": [
+        {
+          "title": "Will you keep livestock or use animal by-products at your business address?",
+          "type": "YesNoField",
+          "hint": "",
+          "options": {},
+          "schema": {},
+          "id": "bNpGPD",
+          "list": "YesNos"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "oRcnPF",
+            "componentId": "FsSpLA",
+            "operator": "==",
+            "valueId": "PFAEml"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "ZMRtTk",
+      "path": "/will-you-keep-livestock-or-use-animal-by-products-at-your-home-address",
+      "title": "Will you keep livestock or use animal by-products at your home address?",
+      "components": [
+        {
+          "options": {},
+          "type": "YesNoField",
+          "title": "Will you keep livestock or use animal by-products at your home address?",
+          "schema": {},
+          "id": "QcfaVC",
+          "list": "YesNos"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "oRcnPF",
+            "componentId": "FsSpLA",
+            "operator": "==",
+            "valueId": "vZAgrn"
+          }
+        ],
+        [
+          {
+            "pageId": "pWskWk",
+            "componentId": "bNpGPD",
+            "operator": "==",
+            "valueId": "YesNoN"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "YlIMRs",
+      "path": "/whats-the-address-where-youll-keep-livestock-or-use-animal-by-products",
+      "title": "What's the address where you'll keep livestock or use animal by-products?",
+      "components": [
+        {
+          "options": {
+            "hideTitle": true
+          },
+          "type": "UkAddressField",
+          "title": "Address for livestock and animal by-products",
+          "schema": {},
+          "hint": "This will help trace the animals to prevent and contain disease",
+          "id": "PXRMtw"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "ZMRtTk",
+            "componentId": "QcfaVC",
+            "operator": "==",
+            "valueId": "YesNoN"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "mBfIkK",
+      "path": "/national-grid-field-number-for-where-youll-keep-livestock",
+      "title": "National Grid field number for where you'll keep livestock",
+      "components": [
+        {
+          "options": {},
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">\nRPA need the National Grid field number for the main area where you'll keep livestock. For example, if you're a:\n</p>",
+          "schema": {},
+          "id": "GIGZXr"
+        },
+        {
+          "options": {
+            "hideTitle": true
+          },
+          "type": "List",
+          "list": "OxfbRE",
+          "title": "National Grid field number for where you'll keep livestock",
+          "schema": {},
+          "id": "hJJvRZ"
+        },
+        {
+          "options": {},
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">\nIf your business uses animal by-products, this will be for the premises where you use them.\n<br><br>\nUse the <a href=\"https://magic.defra.gov.uk/\" class=\"govuk-link\" target=\"_blank\">MAGIC map (opens in new tab)</a> to find the National Grid field numbers for your land or buildings. Follow these instructions:\n\n<ol class=\"govuk-list govuk-list--number\">\n<li>Select ‘Get Started’.</li>\n<li>Search for a postcode or place.<br></li>\n<li>Using the map, locate the land or building. Use the +/- icons to zoom in and out.<br></li>\n<li>In the top toolbar, select the fourth icon along ('Where am I?') - it looks like a target.</li>\n<li>Click on the land or building.<br></li>\n<li>A pop-up box will appear showing the land details for this location. The National Grid field number is the fourth number down and comes after the ‘Grid Ref’ (Ordnance Survey grid reference). It’s made up of 2 letters and 8 numbers, for example, SO 0418 8589.</li>\n</ul>\n</p>",
+          "schema": {},
+          "id": "moXMAe"
+        },
+        {
+          "options": {
+            "customValidationMessage": "Enter a valid National Grid field number",
+            "classes": "govuk-!-width-one-third"
+          },
+          "type": "TextField",
+          "title": "What's the National Grid field number for the main area where you'll keep livestock or use animal by-products?",
+          "schema": {
+            "regex": "^((([sS]|[nN])[a-hA-Hj-zJ-Z])|(([tT]|[oO])[abfglmqrvwABFGLMQRVW])|([hH][l-zL-Z])|([jJ][lmqrvwLMQRVW]))\\s?([0-9]{4})\\s?([0-9]{4})$"
+          },
+          "id": "sLRVWq"
+        }
+      ]
+    },
+    {
+      "id": "NSsofN",
+      "path": "/will-you-keep-livestock-or-use-animal-by-products-anywhere-else",
+      "title": "Will you keep livestock or use animal by-products anywhere else?",
+      "components": [
+        {
+          "options": {},
+          "type": "YesNoField",
+          "hint": "The Rural Payments Agency (RPA) needs to know about any other land or buildings you'll use to keep livestock",
+          "title": "Will you keep livestock or use animal by-products anywhere else?",
+          "values": {
+            "type": "listRef"
+          },
+          "schema": {},
+          "id": "MBoevI",
+          "list": "YesNos"
+        }
+      ]
+    },
+    {
+      "id": "sqJVZf",
+      "path": "/national-grid-field-numbers-for-other-land-and-buildings-where-youll-keep-livestock",
+      "title": "National Grid field numbers for other land and buildings where you'll keep livestock",
+      "components": [
+        {
+          "options": {},
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">\nTell us where you'll keep animals, in addition to the main area.\n<br><br>\nUse the <a href=\"https://magic.defra.gov.uk/\" class=\"govuk-link\" target=\"_blank\">MAGIC map (opens in new tab)</a> to find the National Grid field numbers for your land or buildings. Follow these instructions:\n\n<ol class=\"govuk-list govuk-list--number\">\n<li>Select ‘Get Started’.</li>\n<li>Search for a postcode or place.<br></li>\n<li>Using the map, locate the land or building. Use the +/- icons to zoom in and out.<br></li>\n<li>In the top toolbar, select the fourth icon along ('Where am I?') - it looks like a target.</li>\n<li>Click on the land or building.<br></li>\n<li>A pop-up box will appear showing the land details for this location. The National Grid field number is the fourth number down and comes after the ‘Grid Ref’ (Ordnance Survey grid reference). It’s made up of 2 letters and 8 numbers, for example, SO 0418 8589.</li>\n</ul>\n</p>",
+          "schema": {},
+          "id": "ILcbVH"
+        },
+        {
+          "options": {
+            "required": true,
+            "classes": "govuk-!-width-one-third",
+            "customValidationMessage": ""
+          },
+          "schema": {
+            "regex": "^((([sS]|[nN])[a-hA-Hj-zJ-Z])|(([tT]|[oO])[abfglmqrvwABFGLMQRVW])|([hH][l-zL-Z])|([jJ][lmqrvwLMQRVW]))\\s?([0-9]{4})\\s?([0-9]{4})$"
+          },
+          "type": "TextField",
+          "title": "National Grid field number for additional field 2",
+          "id": "wBfSTW"
+        },
+        {
+          "options": {
+            "required": false,
+            "optionalText": false,
+            "classes": "govuk-!-width-one-third",
+            "customValidationMessage": ""
+          },
+          "schema": {
+            "regex": "^((([sS]|[nN])[a-hA-Hj-zJ-Z])|(([tT]|[oO])[abfglmqrvwABFGLMQRVW])|([hH][l-zL-Z])|([jJ][lmqrvwLMQRVW]))\\s?([0-9]{4})\\s?([0-9]{4})$"
+          },
+          "type": "TextField",
+          "title": "National Grid field number for additional field 3",
+          "id": "mLvSOS"
+        },
+        {
+          "options": {
+            "required": false,
+            "classes": "govuk-!-width-one-third",
+            "customValidationMessage": ""
+          },
+          "schema": {
+            "regex": "^((([sS]|[nN])[a-hA-Hj-zJ-Z])|(([tT]|[oO])[abfglmqrvwABFGLMQRVW])|([hH][l-zL-Z])|([jJ][lmqrvwLMQRVW]))\\s?([0-9]{4})\\s?([0-9]{4})$"
+          },
+          "type": "TextField",
+          "title": "National Grid field number for additional field 4",
+          "id": "VqlUVC"
+        },
+        {
+          "options": {
+            "required": false,
+            "classes": "govuk-!-width-one-third",
+            "customValidationMessage": "Enter a valid National Grid field number for additional field 5"
+          },
+          "schema": {
+            "regex": "^((([sS]|[nN])[a-hA-Hj-zJ-Z])|(([tT]|[oO])[abfglmqrvwABFGLMQRVW])|([hH][l-zL-Z])|([jJ][lmqrvwLMQRVW]))\\s?([0-9]{4})\\s?([0-9]{4})$"
+          },
+          "type": "TextField",
+          "title": "National Grid field number for additional field 5",
+          "id": "ueciBB"
+        },
+        {
+          "options": {
+            "required": false,
+            "classes": "govuk-!-width-one-third",
+            "customValidationMessage": "Enter a valid National Grid field number for additional field 6"
+          },
+          "schema": {
+            "regex": "^((([sS]|[nN])[a-hA-Hj-zJ-Z])|(([tT]|[oO])[abfglmqrvwABFGLMQRVW])|([hH][l-zL-Z])|([jJ][lmqrvwLMQRVW]))\\s?([0-9]{4})\\s?([0-9]{4})$"
+          },
+          "type": "TextField",
+          "title": "National Grid field number for additional field 6",
+          "id": "QAHEJC"
+        },
+        {
+          "options": {
+            "required": false,
+            "classes": "govuk-!-width-one-third",
+            "customValidationMessage": "Enter a valid National Grid field number for additional field 7"
+          },
+          "schema": {
+            "regex": "^((([sS]|[nN])[a-hA-Hj-zJ-Z])|(([tT]|[oO])[abfglmqrvwABFGLMQRVW])|([hH][l-zL-Z])|([jJ][lmqrvwLMQRVW]))\\s?([0-9]{4})\\s?([0-9]{4})$"
+          },
+          "type": "TextField",
+          "title": "National Grid field number for additional field 7",
+          "id": "BxsQdG"
+        },
+        {
+          "options": {
+            "required": false,
+            "autocomplete": "",
+            "classes": "govuk-!-width-one-third",
+            "customValidationMessage": "Enter a valid National Grid field number for additional field 8"
+          },
+          "schema": {
+            "regex": "^((([sS]|[nN])[a-hA-Hj-zJ-Z])|(([tT]|[oO])[abfglmqrvwABFGLMQRVW])|([hH][l-zL-Z])|([jJ][lmqrvwLMQRVW]))\\s?([0-9]{4})\\s?([0-9]{4})$"
+          },
+          "type": "TextField",
+          "title": "National Grid field number for additional field 8",
+          "id": "OAlihM"
+        },
+        {
+          "options": {
+            "required": false,
+            "classes": "govuk-!-width-one-third",
+            "optionalText": false,
+            "customValidationMessage": "Enter a valid National Grid field number for additional field 9"
+          },
+          "schema": {
+            "regex": "^((([sS]|[nN])[a-hA-Hj-zJ-Z])|(([tT]|[oO])[abfglmqrvwABFGLMQRVW])|([hH][l-zL-Z])|([jJ][lmqrvwLMQRVW]))\\s?([0-9]{4})\\s?([0-9]{4})$"
+          },
+          "type": "TextField",
+          "title": "National Grid field number for additional field 9",
+          "id": "UlWuJy"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "NSsofN",
+            "componentId": "MBoevI",
+            "operator": "==",
+            "valueId": "YesNoY"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "iybFvm",
+      "path": "/do-you-own-the-land",
+      "title": "Do you own the land?",
+      "components": [
+        {
+          "options": {},
+          "type": "YesNoField",
+          "title": "Do you own the land?",
+          "hint": "If you rent the land, select 'No'",
+          "schema": {},
+          "id": "rOgnUv",
+          "list": "YesNos"
+        }
+      ]
+    },
+    {
+      "id": "Mcpqar",
+      "path": "/is-your-tenancy-agreement-for-more-than-one-year",
+      "title": "Is your tenancy agreement for more than one year?",
+      "components": [
+        {
+          "options": {},
+          "type": "YesNoField",
+          "title": "Is your tenancy agreement for more than one year?",
+          "schema": {},
+          "id": "qLmGSL",
+          "list": "YesNos"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "iybFvm",
+            "componentId": "rOgnUv",
+            "operator": "==",
+            "valueId": "YesNoN"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "LIrhSP",
+      "path": "/does-the-landowner-have-a-cph-number-for-the-land",
+      "title": "Does the landowner have a CPH number for the land?",
+      "components": [
+        {
+          "options": {},
+          "type": "YesNoField",
+          "title": "Does the landowner have a CPH number for the land?",
+          "schema": {},
+          "id": "uuQMUp",
+          "list": "YesNos"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "Mcpqar",
+            "componentId": "qLmGSL",
+            "operator": "==",
+            "valueId": "YesNoY"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "rmkgzH",
+      "title": "Do you want to tell us anything else?",
+      "path": "/do-you-want-to-tell-us-anything-else",
+      "components": [
+        {
+          "title": "Anything else to tell us",
+          "type": "YesNoField",
+          "hint": "",
+          "options": {
+            "required": false
+          },
+          "schema": {},
+          "id": "ledUEN",
+          "list": "YesNos"
+        }
+      ]
+    },
+    {
+      "id": "ZZQtWu",
+      "title": "What do you want to tell us?",
+      "path": "/what-do-you-want-to-tell-us",
+      "components": [
+        {
+          "title": "Additional information",
+          "type": "MultilineTextField",
+          "hint": "",
+          "options": {},
+          "schema": {},
+          "id": "JKtzeY"
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "rmkgzH",
+            "componentId": "ledUEN",
+            "operator": "==",
+            "valueId": "YesNoY"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "gixznD",
+      "title": "Rural payments",
+      "path": "/rural-payments",
+      "components": [
+        {
+          "title": "Html",
+          "type": "Html",
+          "content": "<p class=\"govuk-body\">\nFind out about the available <a href=\"https://www.gov.uk/guidance/funding-for-farmers\" class=\"govuk-link\" target=\"_blank\">funding for farmers, growers and land managers (opens in new tab)</a>\n<br><br>\nAnswering 'No' does not stop you from applying for funding at a later date.\n</p>",
+          "options": {},
+          "schema": {},
+          "id": "dOMSCK"
+        },
+        {
+          "title": "Do you intend to claim funding from the RPA?",
+          "type": "YesNoField",
+          "hint": "Select 'No' if you're not sure",
+          "options": {},
+          "schema": {},
+          "id": "qIhSXZ",
+          "list": "YesNos"
+        }
+      ]
+    },
+    {
+      "id": "rdaOXJ",
+      "path": "/summary",
+      "title": "Check your answers before submitting your form",
+      "components": [],
+      "controller": "./pages/summary.js"
+    }
+  ],
+  "lists": [
+    {
+      "id": "YesNos",
+      "title": "Yes/No",
+      "type": "boolean",
+      "items": [
+        {
+          "id": "YesNoY",
+          "text": "Yes",
+          "value": true
+        },
+        {
+          "id": "YesNoN",
+          "text": "No",
+          "value": false
+        }
+      ]
+    },
+    {
+      "title": "What is the legal status of your business?",
+      "type": "string",
+      "items": [
+        {
+          "text": "Sole trader",
+          "value": "Sole trader",
+          "id": "QEcHlb"
+        },
+        {
+          "text": "Private limited company (Ltd)",
+          "value": "Private limited company (Ltd)",
+          "id": "LEGSgZ"
+        },
+        {
+          "text": "Partnership",
+          "value": "Partnership",
+          "id": "QwDWrP"
+        },
+        {
+          "text": "Limited partnership (LP)",
+          "value": "Limited partnership (LP)",
+          "id": "RLNtqp"
+        },
+        {
+          "text": "Charitable trust",
+          "value": "Charitable trust",
+          "id": "pZyEkO"
+        },
+        {
+          "text": "Limited liability partnership (LLP)",
+          "value": "Limited liability partnership (LLP)",
+          "id": "nSRqvw"
+        },
+        {
+          "text": "Charitable incorporated organisation (CIO)",
+          "value": "Charitable incorporated organisation (CIO)",
+          "id": "sATDaW"
+        },
+        {
+          "text": "Government (local)",
+          "value": "Government (local)",
+          "id": "iGiLND"
+        },
+        {
+          "text": "Public limited company (PLC)",
+          "value": "Public limited company (PLC)",
+          "id": "GrRYeY"
+        },
+        {
+          "text": "Community interest company (CIC)",
+          "value": "Community interest company (CIC)",
+          "id": "PZTtjn"
+        },
+        {
+          "text": "Non-UK company",
+          "value": "Non-UK company",
+          "id": "yhYusJ"
+        },
+        {
+          "text": "The Crown",
+          "value": "The Crown",
+          "id": "YVjWrL"
+        },
+        {
+          "text": "Unlimited company (Ultd)",
+          "value": "Unlimited company (Ultd)",
+          "id": "ImPYdo"
+        },
+        {
+          "text": "Government (central)",
+          "value": "Government (central)",
+          "id": "dWEPiT"
+        }
+      ],
+      "id": "ihwVmQ"
+    },
+    {
+      "title": "Companies House",
+      "type": "string",
+      "items": [
+        {
+          "text": "Community interest company (CIC)",
+          "value": "Community interest company (CIC)",
+          "id": "feZGqT"
+        },
+        {
+          "text": "Limited liability partnership (LLP)",
+          "value": "Limited liability partnership (LLP)",
+          "id": "LShjUa"
+        },
+        {
+          "text": "Limited partnership (LP)",
+          "value": "Limited partnership (LP)",
+          "id": "sjUGNk"
+        },
+        {
+          "text": "Non-UK company",
+          "value": "Non-UK company",
+          "id": "TFmhSI"
+        },
+        {
+          "text": "Private limited company (Ltd)",
+          "value": "Private limited company (Ltd)",
+          "id": "Wsvcaj"
+        },
+        {
+          "text": "Public limited company (PLC)",
+          "value": "Public limited company (PLC)",
+          "id": "YcrSSb"
+        },
+        {
+          "text": "Unlimited company (Ultd)",
+          "value": "Unlimited company (Ultd)",
+          "id": "UtOebx"
+        }
+      ],
+      "id": "gqNQpU"
+    },
+    {
+      "title": "Animal by-products and livestock",
+      "type": "string",
+      "items": [
+        {
+          "text": "livestock only",
+          "value": "livestock only",
+          "id": "aRZvdu"
+        },
+        {
+          "text": "livestock and animal by-products",
+          "value": "livestock and animal by-products",
+          "id": "KzotnN"
+        },
+        {
+          "text": "animal by-products only",
+          "value": "animal by-products only",
+          "id": "jtQHHJ"
+        }
+      ],
+      "id": "CzxRVp"
+    },
+    {
+      "title": "Business type",
+      "type": "string",
+      "items": [
+        {
+          "text": "Hobby livestock keeper - if you keep livestock for a hobby or as a pet",
+          "value": "Hobby livestock keeper - if you keep livestock for a hobby or as a pet",
+          "id": "QinVwW"
+        },
+        {
+          "text": "Professional livestock keeper - if you keep livestock as your profession",
+          "value": "Professional livestock keeper - if you keep livestock as your profession",
+          "id": "Ynduln"
+        },
+        {
+          "text": "Farmer",
+          "value": "Farmer",
+          "id": "PqDNjD"
+        },
+        {
+          "text": "Meat industry",
+          "value": "Meat industry",
+          "id": "FpEilz"
+        },
+        {
+          "text": "Land manager",
+          "value": "Land manager",
+          "id": "SidDtF"
+        },
+        {
+          "text": "Education provider or trainer",
+          "value": "Education provider or trainer",
+          "id": "wHNLMd"
+        },
+        {
+          "text": "Rural community, voluntary or third sector organisation",
+          "value": "Rural community, voluntary or third sector organisation",
+          "id": "ZXlbBt"
+        },
+        {
+          "text": "Tourism",
+          "value": "Tourism",
+          "id": "SJTkWA"
+        },
+        {
+          "text": "Forestry or woodland owner",
+          "value": "Forestry or woodland owner",
+          "id": "cuwTiU"
+        },
+        {
+          "text": "Horticultural business",
+          "value": "Horticultural business",
+          "id": "MCkxOE"
+        },
+        {
+          "text": "Central or local government",
+          "value": "Central or local government",
+          "id": "LDPUoj"
+        },
+        {
+          "text": "Trader only organisation",
+          "value": "Trader only organisation",
+          "id": "fEXPbc"
+        },
+        {
+          "text": "Intervention or private storage",
+          "value": "Intervention or private storage",
+          "id": "UFenUL"
+        },
+        {
+          "text": "Commons or graziers association",
+          "value": "Commons or graziers association",
+          "id": "jdnzZl"
+        },
+        {
+          "text": "Leader group",
+          "value": "Leader group",
+          "id": "xQrQhG"
+        },
+        {
+          "text": "Official receiver or administrator",
+          "value": "Official receiver or administrator",
+          "id": "qxGCro"
+        },
+        {
+          "text": "Other",
+          "value": "Other",
+          "id": "aYjbPF"
+        }
+      ],
+      "id": "ycOtLx"
+    },
+    {
+      "title": "Livestock you keep",
+      "type": "string",
+      "items": [
+        {
+          "text": "Cattle",
+          "value": "Cattle",
+          "id": "MqFfvk"
+        },
+        {
+          "text": "Camelids ",
+          "value": "Camelids ",
+          "description": "For example, llamas, camels, alpacas",
+          "id": "dHxHgY"
+        },
+        {
+          "text": "Deer",
+          "value": "Deer",
+          "id": "rXQPLP"
+        },
+        {
+          "text": "Goats",
+          "value": "Goats",
+          "id": "QjYqGr"
+        },
+        {
+          "text": "Pigs",
+          "value": "Pigs",
+          "id": "bCTSUL"
+        },
+        {
+          "text": "Sheep",
+          "value": "Sheep",
+          "id": "ApIEpO"
+        },
+        {
+          "text": "More than 50 poultry",
+          "value": "More than 50 poultry",
+          "id": "AaZiEG"
+        },
+        {
+          "text": "Less than 50 poultry or other captive birds",
+          "value": "Less than 50 poultry or other captive birds",
+          "id": "qIJTgB"
+        },
+        {
+          "text": "Racing pigeons",
+          "value": "Racing pigeons",
+          "description": "Only if racing in the EU or Northern Ireland",
+          "id": "GsjJmf"
+        },
+        {
+          "text": "Animal by-products",
+          "value": "Animal by-products",
+          "description": "For example, hides and skins from slaughterhouses, processed animal proteins, carcasses ",
+          "id": "IaLrcI"
+        }
+      ],
+      "id": "CoRNqi"
+    },
+    {
+      "title": "business a market, showground or zoo",
+      "type": "string",
+      "items": [
+        {
+          "text": "Market",
+          "value": "Market",
+          "id": "PzasNI"
+        },
+        {
+          "text": "Showground",
+          "value": "Showground",
+          "id": "VGufXs"
+        },
+        {
+          "text": "Zoo",
+          "value": "Zoo",
+          "id": "lKoJoH"
+        },
+        {
+          "text": "None of the above",
+          "value": "None of the above",
+          "id": "VuQedr"
+        }
+      ],
+      "id": "rieXPV"
+    },
+    {
+      "title": "National Grid field number for where you'll keep livestock",
+      "type": "string",
+      "items": [
+        {
+          "text": "pet owner, this might be a back yard, garden or piece of land attached to your house",
+          "value": "pet owner, this might be a back yard, garden or piece of land attached to your house",
+          "id": "mRrqDN"
+        },
+        {
+          "text": "hobby livestock keeper, this might be a community allotment, back yard or a piece of of land you own",
+          "value": "hobby livestock keeper, this might be a community allotment, back yard or a piece of of land you own",
+          "id": "QSbpjC"
+        },
+        {
+          "text": "professional livestock keeper or farmer, this would be the gathering point on your farm yard or main field",
+          "value": "professional livestock keeper or farmer, this would be the gathering point on your farm yard or main field",
+          "id": "ZxQgpq"
+        }
+      ],
+      "id": "OxfbRE"
+    },
+    {
+      "title": "Country",
+      "type": "string",
+      "items": [
+        {
+          "text": "England",
+          "value": "England",
+          "id": "vCduwb"
+        },
+        {
+          "text": "Northern Ireland",
+          "value": "Northern Ireland",
+          "id": "NTJhvG"
+        },
+        {
+          "text": "Scotland",
+          "value": "Scotland",
+          "id": "RpZhvD"
+        },
+        {
+          "text": "Wales",
+          "value": "Wales",
+          "id": "NKvzxS"
+        }
+      ],
+      "id": "oNaqxb"
+    },
+    {
+      "title": "Hobbyist or business",
+      "type": "string",
+      "items": [
+        {
+          "text": "I'm a hobbyist keeper",
+          "value": "Im a hobbyist keeper",
+          "id": "vZAgrn"
+        },
+        {
+          "text": "I'm registering on behalf of a business",
+          "value": "Im registering on behalf of a business",
+          "id": "PFAEml"
+        }
+      ],
+      "id": "IGZhBB"
+    },
+    {
+      "title": "Top 5 legal statuses for businesses",
+      "type": "string",
+      "items": [
+        {
+          "text": "Sole trader",
+          "value": "Sole trader",
+          "id": "vURLOo"
+        },
+        {
+          "text": "Partnership",
+          "value": "Partnership",
+          "id": "ObbgAW"
+        },
+        {
+          "text": "Private limited company (Ltd)",
+          "value": "Private limited company Ltd",
+          "id": "rjgmag"
+        },
+        {
+          "text": "Limited partnership (LP)",
+          "value": "Limited partnership LP",
+          "id": "zkxsDd"
+        },
+        {
+          "text": "Charitable trust",
+          "value": "Charitable trust",
+          "id": "FZDkvG"
+        },
+        {
+          "text": "Something else",
+          "value": "Something else",
+          "id": "VPloWU"
+        }
+      ],
+      "id": "LLfsSM"
+    },
+    {
+      "title": "Less used legal statuses for businesses",
+      "type": "string",
+      "items": [
+        {
+          "text": "Charitable incorporated organisation (CIO)",
+          "value": "Charitable incorporated organisation CIO",
+          "id": "RIbLYO"
+        },
+        {
+          "text": "Community interest company (CIC)",
+          "value": "Community interest company CIC",
+          "id": "NfkZhl"
+        },
+        {
+          "text": "Limited liability partnership (LLP)",
+          "value": "Limited liability partnership LLP",
+          "id": "WaxEHr"
+        },
+        {
+          "text": "Government (local)",
+          "value": "Government local",
+          "id": "JatINE"
+        },
+        {
+          "text": "Public limited company (PLC)",
+          "value": "Public limited company PLC",
+          "id": "ZrsEoO"
+        },
+        {
+          "text": "The Crown",
+          "value": "The Crown",
+          "id": "QIgTOp"
+        },
+        {
+          "text": "Non-UK company",
+          "value": "Non-UK company",
+          "id": "AzWzQR"
+        },
+        {
+          "text": "Unlimited company (Ultd)",
+          "value": "Unlimited company Ultd",
+          "id": "YWwNhe"
+        },
+        {
+          "text": "Government (central)",
+          "value": "Government central",
+          "id": "mybqni"
+        }
+      ],
+      "id": "dfccAs"
+    },
+    {
+      "title": "Top 5 business types",
+      "type": "string",
+      "items": [
+        {
+          "text": "Farmer",
+          "value": "Farmer",
+          "id": "PFJvmY"
+        },
+        {
+          "text": "Professional livestock keeper",
+          "value": "Professional livestock keeper",
+          "id": "gasylb"
+        },
+        {
+          "text": "Meat industry",
+          "value": "Meat industry",
+          "id": "pABnnj"
+        },
+        {
+          "text": "Land manager",
+          "value": "Land manager",
+          "id": "fLKAFk"
+        },
+        {
+          "text": "Education provider or trainer",
+          "value": "Education provider or trainer",
+          "id": "MIUZOO"
+        },
+        {
+          "text": "Something else",
+          "value": "Something else",
+          "id": "zQwWGC"
+        }
+      ],
+      "id": "kMOALL"
+    },
+    {
+      "title": "Lesser used business types",
+      "type": "string",
+      "items": [
+        {
+          "text": "Forestry or woodland owner",
+          "value": "Forestry or woodland owner",
+          "id": "FksjjA"
+        },
+        {
+          "text": "Tourism",
+          "value": "Tourism",
+          "id": "ameqws"
+        },
+        {
+          "text": "Rural community, voluntary or third sector organisation",
+          "value": "Rural community, voluntary or third sector organisation",
+          "id": "TbVfke"
+        },
+        {
+          "text": "Horticultural business",
+          "value": "Horticultural business",
+          "id": "mhqjpw"
+        },
+        {
+          "text": "Trader only organisation",
+          "value": "Trader only organisation",
+          "id": "wUGbou"
+        },
+        {
+          "text": "Intervention or private storage",
+          "value": "Intervention or private storage",
+          "id": "LyZbve"
+        },
+        {
+          "text": "Central or local government",
+          "value": "Central or local government",
+          "id": "JTMDlw"
+        },
+        {
+          "text": "Commons or graziers association",
+          "value": "Commons or graziers association",
+          "id": "SGzHYX"
+        },
+        {
+          "text": "Leader group",
+          "value": "Leader group",
+          "id": "FMyReP"
+        },
+        {
+          "text": "Other",
+          "value": "Other",
+          "id": "mJUurt"
+        }
+      ],
+      "id": "IOxAAj"
+    }
+  ],
+  "sections": [
+    {
+      "title": "Contact details",
+      "id": "dhpiZu"
+    }
+  ],
+  "conditions": [
+    {
+      "displayName": "livestock only",
+      "name": "HkZPxJ",
+      "value": {
+        "name": "livestock only",
+        "conditions": [
+          {
+            "field": {
+              "name": "iXwGcW",
+              "type": "RadiosField",
+              "display": "What do you want to register?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "livestock only",
+              "display": "livestock only"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "livestock and animal by-products",
+      "name": "lMZXws",
+      "value": {
+        "name": "livestock and animal by-products",
+        "conditions": [
+          {
+            "field": {
+              "name": "iXwGcW",
+              "type": "RadiosField",
+              "display": "What do you want to register?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "livestock and animal by-products",
+              "display": "livestock and animal by-products"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "animal by-products only",
+      "name": "uiTSgY",
+      "value": {
+        "name": "animal by-products only",
+        "conditions": [
+          {
+            "field": {
+              "name": "iXwGcW",
+              "type": "RadiosField",
+              "display": "What do you want to register?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "animal by-products only",
+              "display": "animal by-products only"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Business address is not the same as home address",
+      "name": "BpTXyI",
+      "value": {
+        "name": "Business address is not the same as home address",
+        "conditions": [
+          {
+            "field": {
+              "name": "CMTiOK",
+              "type": "YesNoField",
+              "display": "Is your business address the same as your home address?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "false",
+              "display": "false"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Does not contain 'Other or my business uses animal by-products'",
+      "name": "TngqpM",
+      "value": {
+        "name": "Does not contain 'Other or my business uses animal by-products'",
+        "conditions": [
+          {
+            "field": {
+              "name": "livestock-keep",
+              "type": "CheckboxesField",
+              "display": "What livestock do you keep?"
+            },
+            "operator": "does not contain",
+            "value": {
+              "type": "Value",
+              "value": "Other or my business uses animal by-products",
+              "display": "Other or my business uses animal by-products"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "No - will not keep livestock at business address",
+      "name": "FoYTFn",
+      "value": {
+        "name": "No - will not keep livestock at business address",
+        "conditions": [
+          {
+            "field": {
+              "name": "QcfaVC",
+              "type": "YesNoField",
+              "display": "Will you keep livestock or use animal by-products at your home address?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "false",
+              "display": "false"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "No - Will you keep livestock or use animal by-products anywhere else?",
+      "name": "qLowJn",
+      "value": {
+        "name": "No - Will you keep livestock or use animal by-products anywhere else?",
+        "conditions": [
+          {
+            "field": {
+              "name": "MBoevI",
+              "type": "YesNoField",
+              "display": "Will you keep livestock or use animal by-products anywhere else?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "false",
+              "display": "false"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "No - will not keep livestock at home address",
+      "name": "jxSqwt",
+      "value": {
+        "name": "No - will not keep livestock at home address",
+        "conditions": [
+          {
+            "field": {
+              "name": "QcfaVC",
+              "type": "YesNoField",
+              "display": "Will you keep livestock or use animal by-products at your home address?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "false",
+              "display": "false"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Yes - will keep livestock at business address",
+      "name": "BStxIv",
+      "value": {
+        "name": "Yes - will keep livestock at business address",
+        "conditions": [
+          {
+            "field": {
+              "name": "RiEsSm",
+              "type": "YesNoField",
+              "display": "Will you keep livestock or use animal by-products at your business address?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "true",
+              "display": "true"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "No - do not own the land",
+      "name": "yTTblu",
+      "value": {
+        "name": "No - do not own the land",
+        "conditions": [
+          {
+            "field": {
+              "name": "rOgnUv",
+              "type": "YesNoField",
+              "display": "Do you own the land?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "false",
+              "display": "false"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Yes - the landowner has a CPH number for the land",
+      "name": "pOUOIi",
+      "value": {
+        "name": "Yes - the landowner has a CPH number for the land",
+        "conditions": [
+          {
+            "field": {
+              "name": "qLmGSL",
+              "type": "YesNoField",
+              "display": "Is your tenancy agreement for more than one year?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "true",
+              "display": "true"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Yes - tenancy agreement is for more than one year",
+      "name": "jHDHJK",
+      "value": {
+        "name": "Yes - tenancy agreement is for more than one year",
+        "conditions": [
+          {
+            "field": {
+              "name": "qLmGSL",
+              "type": "YesNoField",
+              "display": "Is your tenancy agreement for more than one year?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "true",
+              "display": "true"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "No - tenancy agreement is not for more than one year",
+      "name": "WgVJGi",
+      "value": {
+        "name": "No - tenancy agreement is not for more than one year",
+        "conditions": [
+          {
+            "field": {
+              "name": "qLmGSL",
+              "type": "YesNoField",
+              "display": "Is your tenancy agreement for more than one year?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "false",
+              "display": "false"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Yes - own the land",
+      "name": "VtzzTR",
+      "value": {
+        "name": "Yes - own the land",
+        "conditions": [
+          {
+            "field": {
+              "name": "rOgnUv",
+              "type": "YesNoField",
+              "display": "Do you own the land?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "true",
+              "display": "true"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "No - not registered with Companies House",
+      "name": "GhOaqI",
+      "value": {
+        "name": "No - not registered with Companies House",
+        "conditions": [
+          {
+            "field": {
+              "name": "rJIKfO",
+              "type": "YesNoField",
+              "display": "Is your business registered with Companies House?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "false",
+              "display": "false"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "No - not registered with the Charity Commission",
+      "name": "cGDdyD",
+      "value": {
+        "name": "No - not registered with the Charity Commission",
+        "conditions": [
+          {
+            "field": {
+              "name": "DRrBSz",
+              "type": "YesNoField",
+              "display": "Is your charity registered with the Charity Commission?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "false",
+              "display": "false"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "displayName": "Must have a charity number",
+      "name": "HhHvCo",
+      "value": {
+        "name": "Must have a charity number",
+        "conditions": [
+          {
+            "field": {
+              "name": "yHQAol",
+              "type": "RadiosField",
+              "display": "Business legal status"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "Charitable trust",
+              "display": "Charitable trust"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "PxBtNC",
+      "displayName": "Not a business (Applying on behalf of a business)",
+      "value": {
+        "name": "Not a business (Applying on behalf of a business)",
+        "conditions": [
+          {
+            "field": {
+              "name": "mSqqmJ",
+              "type": "YesNoField",
+              "display": "Applying on behalf of a business"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "false",
+              "display": "No"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "WHxsFL",
+      "displayName": "Northern Ireland, Scotland or Wales",
+      "value": {
+        "name": "Northern Ireland, Scotland or Wales",
+        "conditions": [
+          {
+            "field": {
+              "name": "aYjRCZ",
+              "type": "RadiosField",
+              "display": "Country where you will keep livestock"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "Scotland",
+              "display": "Scotland"
+            }
+          },
+          {
+            "coordinator": "or",
+            "field": {
+              "name": "aYjRCZ",
+              "type": "RadiosField",
+              "display": "Country where you will keep livestock"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "Wales",
+              "display": "Wales"
+            }
+          },
+          {
+            "coordinator": "or",
+            "field": {
+              "name": "aYjRCZ",
+              "type": "RadiosField",
+              "display": "Country where you will keep livestock"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "Northern Ireland",
+              "display": "Northern Ireland"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "KzDEBv",
+      "displayName": "Contains animal by-products",
+      "value": {
+        "name": "Contains animal by-products",
+        "conditions": [
+          {
+            "field": {
+              "name": "vumpmr",
+              "type": "CheckboxesField",
+              "display": "Livestock that you keep"
+            },
+            "operator": "contains",
+            "value": {
+              "type": "Value",
+              "value": "Animal by-products",
+              "display": "Animal by-products"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "SmRHwO",
+      "displayName": "Hobbyist",
+      "value": {
+        "name": "Hobbyist",
+        "conditions": [
+          {
+            "field": {
+              "name": "FsSpLA",
+              "type": "RadiosField",
+              "display": "Are you a hobbyist keeper or a business?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "Im a hobbyist keeper",
+              "display": "I'm a hobbyist keeper"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "NqsUxW",
+      "displayName": "Business legal status is something else",
+      "value": {
+        "name": "Business legal status is something else",
+        "conditions": [
+          {
+            "field": {
+              "name": "yHQAol",
+              "type": "RadiosField",
+              "display": "Business legal status"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "Something else",
+              "display": "Something else"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "aEAQKS",
+      "displayName": "Is Charitable incorporated organisation (CIO)",
+      "value": {
+        "name": "Is Charitable incorporated organisation (CIO)",
+        "conditions": [
+          {
+            "field": {
+              "name": "MfzkDz",
+              "type": "RadiosField",
+              "display": "Business legal status: something else"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "Charitable incorporated organisation CIO",
+              "display": "Charitable incorporated organisation (CIO)"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "mLnJPE",
+      "displayName": "Main business type is something else",
+      "value": {
+        "name": "Main business type is something else",
+        "conditions": [
+          {
+            "field": {
+              "name": "AoofuF",
+              "type": "RadiosField",
+              "display": "Business type"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "Something else",
+              "display": "Something else"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "tEkhIS",
+      "displayName": "Other business type",
+      "value": {
+        "name": "Other business type",
+        "conditions": [
+          {
+            "field": {
+              "name": "luoxoh",
+              "type": "RadiosField",
+              "display": "Main purpose of your business: something else"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "Other",
+              "display": "Other"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "fLLefX",
+      "displayName": "Yes - already registered with RPA",
+      "value": {
+        "name": "Yes - already registered with RPA",
+        "conditions": [
+          {
+            "field": {
+              "name": "zcjEtV",
+              "type": "YesNoField",
+              "display": "Registered with the Rural Payments Agency"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "true",
+              "display": "Yes"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "dfoUtU",
+      "displayName": "Less than 50 birds or racing pigeons",
+      "value": {
+        "name": "Less than 50 birds or racing pigeons",
+        "conditions": [
+          {
+            "field": {
+              "name": "vumpmr",
+              "type": "CheckboxesField",
+              "display": "Livestock that you keep"
+            },
+            "operator": "contains",
+            "value": {
+              "type": "Value",
+              "value": "Less than 50 poultry or other captive birds",
+              "display": "Less than 50 poultry or other captive birds"
+            }
+          },
+          {
+            "coordinator": "or",
+            "field": {
+              "name": "vumpmr",
+              "type": "CheckboxesField",
+              "display": "Livestock that you keep"
+            },
+            "operator": "contains",
+            "value": {
+              "type": "Value",
+              "value": "Racing pigeons",
+              "display": "Racing pigeons"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Mofdix",
+      "displayName": "Does not need a charity number or Companies house number and is not something else",
+      "value": {
+        "name": "Does not need a charity number or Companies house number and is not something else",
+        "conditions": [
+          {
+            "field": {
+              "name": "yHQAol",
+              "type": "RadiosField",
+              "display": "Business legal status"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "Sole trader",
+              "display": "Sole trader"
+            }
+          },
+          {
+            "coordinator": "or",
+            "field": {
+              "name": "yHQAol",
+              "type": "RadiosField",
+              "display": "Business legal status"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "Partnership",
+              "display": "Partnership"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ZEZlNG",
+      "displayName": "Yes - business has a second contact",
+      "value": {
+        "name": "Yes - business has a second contact",
+        "conditions": [
+          {
+            "field": {
+              "name": "iszBCF",
+              "type": "YesNoField",
+              "display": "Does your business have a second contact?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "true",
+              "display": "Yes"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "oKXMlf",
+      "displayName": "Business type is not sole trader",
+      "value": {
+        "name": "Business type is not sole trader",
+        "conditions": [
+          {
+            "field": {
+              "name": "yHQAol",
+              "type": "RadiosField",
+              "display": "Business legal status"
+            },
+            "operator": "is not",
+            "value": {
+              "type": "Value",
+              "value": "Sole trader",
+              "display": "Sole trader"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "jJEMOD",
+      "displayName": "Not a business",
+      "value": {
+        "name": "Not a business",
+        "conditions": [
+          {
+            "field": {
+              "name": "FsSpLA",
+              "type": "RadiosField",
+              "display": "Are you a hobbyist keeper or a business?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "Im a hobbyist keeper",
+              "display": "I'm a hobbyist keeper"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "MrMPHC",
+      "displayName": "Yes - want to tell us something else",
+      "value": {
+        "name": "Yes - want to tell us something else",
+        "conditions": [
+          {
+            "field": {
+              "name": "ledUEN",
+              "type": "YesNoField",
+              "display": "Anything else to tell us"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "true",
+              "display": "Yes"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "WAdayu",
+      "displayName": "Yes - hobbyist keeper wants to add a second contact",
+      "value": {
+        "name": "Yes - hobbyist keeper wants to add a second contact",
+        "conditions": [
+          {
+            "field": {
+              "name": "yQiBlu",
+              "type": "YesNoField",
+              "display": "Second contact"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "true",
+              "display": "Yes"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "aCslEZ",
+      "displayName": "is hobbyist keeper",
+      "value": {
+        "name": "is hobbyist keeper",
+        "conditions": [
+          {
+            "field": {
+              "name": "FsSpLA",
+              "type": "RadiosField",
+              "display": "Are you a hobbyist keeper or a business?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "Im a hobbyist keeper",
+              "display": "I'm a hobbyist keeper"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "oQKstF",
+      "displayName": "Livestock not within 6 weeks",
+      "value": {
+        "name": "Livestock not within 6 weeks",
+        "conditions": [
+          {
+            "field": {
+              "name": "uogTBM",
+              "type": "DatePartsField",
+              "display": "What date will the livestock or animal by-products arrive?"
+            },
+            "operator": "is more than",
+            "value": {
+              "type": "RelativeDate",
+              "period": "56",
+              "unit": "days",
+              "direction": "in the future"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "OFokTY",
+      "displayName": "Racing pigeons only",
+      "value": {
+        "name": "Racing pigeons only",
+        "conditions": [
+          {
+            "field": {
+              "name": "vumpmr",
+              "type": "CheckboxesField",
+              "display": "Livestock that you keep"
+            },
+            "operator": "contains",
+            "value": {
+              "type": "Value",
+              "value": "Racing pigeons",
+              "display": "Racing pigeons"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "yuNJzn",
+      "displayName": "Less used legal statuses - must have a companies house number",
+      "value": {
+        "name": "Less used legal statuses - must have a companies house number",
+        "conditions": [
+          {
+            "field": {
+              "name": "MfzkDz",
+              "type": "RadiosField",
+              "display": "Business legal status: something else"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "Community interest company CIC",
+              "display": "Community interest company (CIC)"
+            }
+          },
+          {
+            "coordinator": "or",
+            "field": {
+              "name": "MfzkDz",
+              "type": "RadiosField",
+              "display": "Business legal status: something else"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "Limited liability partnership LLP",
+              "display": "Limited liability partnership (LLP)"
+            }
+          },
+          {
+            "coordinator": "or",
+            "field": {
+              "name": "MfzkDz",
+              "type": "RadiosField",
+              "display": "Business legal status: something else"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "Non-UK company",
+              "display": "Non-UK company"
+            }
+          },
+          {
+            "coordinator": "or",
+            "field": {
+              "name": "MfzkDz",
+              "type": "RadiosField",
+              "display": "Business legal status: something else"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "Public limited company PLC",
+              "display": "Public limited company (PLC)"
+            }
+          },
+          {
+            "coordinator": "or",
+            "field": {
+              "name": "MfzkDz",
+              "type": "RadiosField",
+              "display": "Business legal status: something else"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "Unlimited company Ultd",
+              "display": "Unlimited company (Ultd)"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "WWZpek",
+      "displayName": "Must have a companies house number",
+      "value": {
+        "name": "Must have a companies house number",
+        "conditions": [
+          {
+            "field": {
+              "name": "yHQAol",
+              "type": "RadiosField",
+              "display": "Business legal status"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "Private limited company Ltd",
+              "display": "Private limited company (Ltd)"
+            }
+          },
+          {
+            "coordinator": "or",
+            "field": {
+              "name": "yHQAol",
+              "type": "RadiosField",
+              "display": "Business legal status"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "Limited partnership LP",
+              "display": "Limited partnership (LP)"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "VHfpoC",
+      "displayName": "Not 18 years old",
+      "value": {
+        "name": "Not 18 years old",
+        "conditions": [
+          {
+            "field": {
+              "name": "JGLmzy",
+              "type": "YesNoField",
+              "display": "18 or older"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "false",
+              "display": "No"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "BYIene",
+      "displayName": "Less than 50 birds only",
+      "value": {
+        "name": "Less than 50 birds only",
+        "conditions": [
+          {
+            "field": {
+              "name": "vumpmr",
+              "type": "CheckboxesField",
+              "display": "Livestock that you keep"
+            },
+            "operator": "contains",
+            "value": {
+              "type": "Value",
+              "value": "Less than 50 poultry or other captive birds",
+              "display": "Less than 50 poultry or other captive birds"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "DcaWSB",
+      "displayName": "Is registering on behalf of a business",
+      "value": {
+        "name": "Is registering on behalf of a business",
+        "conditions": [
+          {
+            "field": {
+              "name": "FsSpLA",
+              "type": "RadiosField",
+              "display": "Are you a hobbyist keeper or a business?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "Im registering on behalf of a business",
+              "display": "I'm registering on behalf of a business"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "VMjPqC",
+      "displayName": "no - will not keep livestock to ABP at business address",
+      "value": {
+        "name": "no - will not keep livestock to ABP at business address",
+        "conditions": [
+          {
+            "field": {
+              "name": "bNpGPD",
+              "type": "YesNoField",
+              "display": "Will you keep livestock or use animal by-products at your business address?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "false",
+              "display": "No"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "tCqdNC",
+      "displayName": "no - business not have a second contact",
+      "value": {
+        "name": "no - business not have a second contact",
+        "conditions": [
+          {
+            "field": {
+              "name": "iszBCF",
+              "type": "YesNoField",
+              "display": "Does your business have a second contact?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "false",
+              "display": "No"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "zgnVuK",
+      "displayName": "Not less than 50 birds or racing pigeons",
+      "value": {
+        "name": "Not less than 50 birds or racing pigeons",
+        "conditions": [
+          {
+            "field": {
+              "name": "vumpmr",
+              "type": "CheckboxesField",
+              "display": "Livestock that you keep"
+            },
+            "operator": "contains",
+            "value": {
+              "type": "Value",
+              "value": "Cattle",
+              "display": "Cattle"
+            }
+          },
+          {
+            "coordinator": "or",
+            "field": {
+              "name": "vumpmr",
+              "type": "CheckboxesField",
+              "display": "Livestock that you keep"
+            },
+            "operator": "contains",
+            "value": {
+              "type": "Value",
+              "value": "Camelids ",
+              "display": "Camelids "
+            }
+          },
+          {
+            "coordinator": "or",
+            "field": {
+              "name": "vumpmr",
+              "type": "CheckboxesField",
+              "display": "Livestock that you keep"
+            },
+            "operator": "contains",
+            "value": {
+              "type": "Value",
+              "value": "Deer",
+              "display": "Deer"
+            }
+          },
+          {
+            "coordinator": "or",
+            "field": {
+              "name": "vumpmr",
+              "type": "CheckboxesField",
+              "display": "Livestock that you keep"
+            },
+            "operator": "contains",
+            "value": {
+              "type": "Value",
+              "value": "Goats",
+              "display": "Goats"
+            }
+          },
+          {
+            "coordinator": "or",
+            "field": {
+              "name": "vumpmr",
+              "type": "CheckboxesField",
+              "display": "Livestock that you keep"
+            },
+            "operator": "contains",
+            "value": {
+              "type": "Value",
+              "value": "Pigs",
+              "display": "Pigs"
+            }
+          },
+          {
+            "coordinator": "or",
+            "field": {
+              "name": "vumpmr",
+              "type": "CheckboxesField",
+              "display": "Livestock that you keep"
+            },
+            "operator": "contains",
+            "value": {
+              "type": "Value",
+              "value": "Sheep",
+              "display": "Sheep"
+            }
+          },
+          {
+            "coordinator": "or",
+            "field": {
+              "name": "vumpmr",
+              "type": "CheckboxesField",
+              "display": "Livestock that you keep"
+            },
+            "operator": "contains",
+            "value": {
+              "type": "Value",
+              "value": "More than 50 poultry",
+              "display": "More than 50 poultry"
+            }
+          },
+          {
+            "coordinator": "or",
+            "field": {
+              "name": "vumpmr",
+              "type": "CheckboxesField",
+              "display": "Livestock that you keep"
+            },
+            "operator": "contains",
+            "value": {
+              "type": "Value",
+              "value": "Animal by-products",
+              "display": "Animal by-products"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "bRAETI",
+      "displayName": "Business address is different to home address",
+      "value": {
+        "name": "Business address is different to home address",
+        "conditions": [
+          {
+            "field": {
+              "name": "wXycoH",
+              "type": "YesNoField",
+              "display": "Is your business address the same as your home address?"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "false",
+              "display": "No"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

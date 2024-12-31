@@ -1,0 +1,185 @@
+{
+  "id": "stripT",
+  "name": "Strip test",
+  "pages": [
+    {
+      "id": "elSwer",
+      "path": "/are-you-eligible",
+      "title": "Are you eligible?",
+      "components": [
+        {
+          "id": "CfBnjg",
+          "title": "Are you eligible?",
+          "type": "YesNoField",
+          "list": "YesNos",
+          "options": {},
+          "schema": {}
+        }
+      ]
+    },
+    {
+      "id": "eggSwz",
+      "path": "/are-you-normal",
+      "title": "Are you normal",
+      "components": [
+        {
+          "id": "dsfrhD",
+          "title": "Are you normal?",
+          "type": "YesNoField",
+          "list": "YesNos",
+          "options": {},
+          "schema": {}
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "elSwer",
+            "componentId": "CfBnjg",
+            "operator": "==",
+            "valueId": "YesNoN"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "paSeTs",
+      "path": "/whats-your-name",
+      "title": "What's your name?",
+      "components": [
+        {
+          "id": "QXZcPD",
+          "title": "Name",
+          "type": "TextField",
+          "options": {},
+          "schema": {}
+        }
+      ],
+      "condition": [
+        [
+          {
+            "pageId": "eggSwz",
+            "componentId": "dsfrhD",
+            "operator": "==",
+            "valueId": "YesNoN"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "PmutSS",
+      "path": "/whats-your-email-address",
+      "title": "What's your email address?",
+      "components": [
+        {
+          "id": "FWREEr",
+          "title": "Email address",
+          "type": "EmailAddressField",
+          "hint": "For example, ‘name@example.com’",
+          "options": {},
+          "schema": {}
+        }
+      ]
+    },
+    {
+      "id": "DFbhkl",
+      "title": "Summary",
+      "path": "/summary",
+      "controller": "SummaryPageController",
+      "components": []
+    }
+  ],
+  "conditions": [
+    {
+      "id": "sdftFg",
+      "displayName": "Not a specific page",
+      "value": {
+        "name": "Not a specific page",
+        "conditions": [
+          {
+            "field": {
+              "name": "KHaYWA",
+              "type": "YesNoField",
+              "display": "Specific page"
+            },
+            "operator": "is",
+            "value": {
+              "type": "Value",
+              "value": "false",
+              "display": "No"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "sections": [
+    {
+      "id": "rOnNie",
+      "title": "Section title"
+    }
+  ],
+  "lists": [
+    {
+      "id": "YesNos",
+      "title": "Yes/No",
+      "type": "boolean",
+      "items": [
+        {
+          "id": "YesNoY",
+          "text": "Yes",
+          "value": true
+        },
+        {
+          "id": "YesNoN",
+          "text": "No",
+          "value": false
+        }
+      ]
+    },
+    {
+      "id": "dfFegh",
+      "title": "Location",
+      "type": "string",
+      "items": [
+        {
+          "id": "xdgfvh",
+          "text": "UK",
+          "value": "uk"
+        },
+        {
+          "id": "dsfyjm",
+          "text": "Elsewhere",
+          "value": "elsewhere"
+        }
+      ]
+    },
+    {
+      "id": "oNaqxb",
+      "title": "Country",
+      "type": "string",
+      "items": [
+        {
+          "id": "SsxFed",
+          "text": "England",
+          "value": "England"
+        },
+        {
+          "id": "DSfess",
+          "text": "Northern Ireland",
+          "value": "Northern Ireland"
+        },
+        {
+          "id": "SDsfgf",
+          "text": "Scotland",
+          "value": "Scotland"
+        },
+        {
+          "id": "dfghtu",
+          "text": "Wales",
+          "value": "Wales"
+        }
+      ]
+    }
+  ]
+}

@@ -74,7 +74,12 @@ export class MultilineTextField extends FormComponent {
     }
 
     this.formSchema = formSchema.default('')
-    this.stateSchema = formSchema.default(null).allow(null)
+    this.stateSchema = formSchema.default(null)
+
+    if (options.required === false) {
+      this.stateSchema = this.stateSchema.allow(null)
+    }
+
     this.options = options
     this.schema = schema
   }

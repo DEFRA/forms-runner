@@ -70,9 +70,32 @@ export class ComponentCollection {
     const guidance = components.filter(
       (component): component is Guidance => !component.isFormComponent
     )
+    const { id: pageId, condition } = props.page ?? {}
 
     let formSchema = joi.object<FormPayload>().required()
     let stateSchema = joi.object<FormSubmissionState>().required()
+
+    if (pageId) {
+      formSchema = formSchema.keys({
+        [pageId]: joi.boolean().valid(true).required()
+      })
+      stateSchema = stateSchema.keys({
+        [pageId]: !condition
+          ? joi.boolean().valid(true).required()
+          : joi
+              .boolean()
+              .valid(true)
+              .when(joi.ref('/'), {
+                is: condition,
+                then: joi.required(),
+                otherwise: joi.when(joi.ref('$strip'), {
+                  is: true,
+                  then: joi.optional().strip(),
+                  otherwise: joi.optional()
+                })
+              })
+      })
+    }
 
     // Add each field or concat collection
     for (const field of fields) {
@@ -84,7 +107,19 @@ export class ComponentCollection {
 
       stateSchema = collection
         ? stateSchema.concat(collection.stateSchema)
-        : stateSchema.keys({ [name]: field.stateSchema })
+        : stateSchema.keys({
+            [name]: !condition
+              ? field.stateSchema
+              : field.stateSchema.when(joi.ref('/'), {
+                  is: condition,
+                  then: joi.required(),
+                  otherwise: joi.when(joi.ref('$strip'), {
+                    is: true,
+                    then: joi.optional().strip(),
+                    otherwise: joi.optional()
+                  })
+                })
+          })
     }
 
     // Add parent field title to collection field errors
@@ -194,6 +229,11 @@ export class ComponentCollection {
 
   getStateFromValidForm(payload: FormPayload) {
     const state: FormState = {}
+
+    if (this.page) {
+      const pageId = this.page.id
+      Object.assign(state, { [pageId]: payload[pageId] })
+    }
 
     this.fields.forEach((component) => {
       Object.assign(state, component.getStateFromValidForm(payload))

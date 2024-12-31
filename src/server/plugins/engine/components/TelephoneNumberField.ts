@@ -49,7 +49,12 @@ export class TelephoneNumberField extends FormComponent {
     addClassOptionIfNone(options, 'govuk-input--width-20')
 
     this.formSchema = formSchema.default('')
-    this.stateSchema = formSchema.default(null).allow(null)
+    this.stateSchema = formSchema.default(null)
+
+    if (options.required === false) {
+      this.stateSchema = this.stateSchema.allow(null)
+    }
+
     this.options = options
   }
 

@@ -14,7 +14,10 @@ process.on('unhandledRejection', (error) => {
  * Main entrypoint to the application.
  */
 async function startServer() {
-  const server = await createServer()
+  const server = await createServer({
+    formFileName: 'cph.json',
+    formFilePath: '/home/david/Documents/dev/DEFRA/forms-runner/test/plugin'
+  })
   await server.start()
 
   process.send?.('online')

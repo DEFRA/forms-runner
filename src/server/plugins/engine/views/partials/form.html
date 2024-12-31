@@ -10,6 +10,7 @@
   {{ govukButton({
     text: "Start now" if isStartPage else "Continue",
     isStartButton: isStartPage,
-    preventDoubleClick: true
+    preventDoubleClick: true,
+    attributes: { id: "submit", "name": pageId, value: "true" } if not isStartPage
   }) }}
 </form>
