@@ -257,7 +257,7 @@ export class QuestionPageController extends PageController {
     ) => {
       const { model, path, viewName } = this
 
-      const state = await this.getState(request)
+      let state = await this.getState(request)
       const context = model.getFormContext(request, state)
       const relevantPath = this.getRelevantPath(context)
 
@@ -322,7 +322,8 @@ export class QuestionPageController extends PageController {
         return evaluatedComponent
       })
 
-      const { progress = [] } = await this.updateProgress(request, state)
+      state = await this.updateProgress(request, state)
+      const { progress = [] } = state
 
       viewModel.context = context
 

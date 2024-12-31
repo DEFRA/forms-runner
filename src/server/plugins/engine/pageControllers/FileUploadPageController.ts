@@ -159,7 +159,7 @@ export class FileUploadPageController extends QuestionPageController {
       const { viewModel } = this
       const { params } = request
 
-      const state = await this.getState(request)
+      let state = await this.getState(request)
       const files = this.getFilesFromState(state)
 
       const fileToRemove = files.find(
@@ -172,7 +172,8 @@ export class FileUploadPageController extends QuestionPageController {
 
       const { filename: itemTitle } = fileToRemove.status.form.file
 
-      const { progress = [] } = await this.updateProgress(request, state)
+      state = await this.updateProgress(request, state)
+      const { progress = [] } = state
 
       return h.view(this.fileDeleteViewName, {
         ...viewModel,

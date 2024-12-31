@@ -220,7 +220,7 @@ export class RepeatPageController extends QuestionPageController {
     ) => {
       const { path } = this
 
-      const state = await super.getState(request)
+      let state = await super.getState(request)
       const list = this.getListFromState(state)
 
       if (!list.length) {
@@ -228,7 +228,8 @@ export class RepeatPageController extends QuestionPageController {
         return super.proceed(request, h, nextPath)
       }
 
-      const { progress = [] } = await this.updateProgress(request, state)
+      state = await this.updateProgress(request, state)
+      const { progress = [] } = state
 
       const viewModel = this.getListSummaryViewModel(request, list)
       viewModel.backLink = this.getBackLink(progress)
@@ -313,7 +314,7 @@ export class RepeatPageController extends QuestionPageController {
     ) => {
       const { viewModel } = this
 
-      const state = await super.getState(request)
+      let state = await super.getState(request)
       const list = this.getListFromState(state)
 
       const { item } = this.setRepeatAppData(request, list)
@@ -329,7 +330,8 @@ export class RepeatPageController extends QuestionPageController {
       const { title } = this.repeat.options
       const itemTitle = `${title} ${item.index + 1}`
 
-      const { progress = [] } = await this.updateProgress(request, state)
+      state = await this.updateProgress(request, state)
+      const { progress = [] } = state
 
       return h.view(this.listDeleteViewName, {
         ...viewModel,

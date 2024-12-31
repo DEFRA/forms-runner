@@ -90,7 +90,7 @@ export class SummaryPageController extends QuestionPageController {
     ) => {
       const { model, path, viewName } = this
 
-      const state = await this.getState(request)
+      let state = await this.getState(request)
       const context = model.getFormContext(request, state)
       const relevantPath = this.getRelevantPath(context)
 
@@ -107,7 +107,8 @@ export class SummaryPageController extends QuestionPageController {
 
       const viewModel = this.getSummaryViewModel(request, context)
 
-      const { progress = [] } = await this.updateProgress(request, state)
+      state = await this.updateProgress(request, state)
+      const { progress = [] } = state
 
       viewModel.backLink = this.getBackLink(progress)
 
