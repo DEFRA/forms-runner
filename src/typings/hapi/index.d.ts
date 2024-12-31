@@ -6,10 +6,6 @@ import { type Logger } from 'pino'
 
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
-  type RepeatItemState,
-  type RepeatListState
-} from '~/src/server/plugins/engine/types.js'
-import {
   type FormRequest,
   type FormRequestPayload
 } from '~/src/server/routes/types.js'
@@ -40,13 +36,6 @@ declare module '@hapi/hapi' {
 
   interface RequestApplicationState {
     model?: FormModel
-    repeat?: {
-      list: RepeatListState
-      item?: {
-        value: RepeatItemState
-        index: number
-      }
-    }
   }
 
   interface Server {
