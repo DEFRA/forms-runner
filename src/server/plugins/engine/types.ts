@@ -267,6 +267,13 @@ export interface PageViewModelBase {
   googleAnalyticsTrackingId?: string
 }
 
+export interface ItemDeletePageViewModel extends PageViewModelBase {
+  itemTitle: string
+  confirmation?: ComponentText
+  buttonConfirm: ComponentText
+  buttonCancel: ComponentText
+}
+
 export interface FormPageViewModel extends PageViewModelBase {
   components: ComponentViewModel[]
   context?: FormContext
@@ -285,5 +292,6 @@ export interface FeaturedFormPageViewModel extends FormPageViewModel {
 
 export type PageViewModel =
   | PageViewModelBase
+  | ItemDeletePageViewModel
   | FormPageViewModel
   | FeaturedFormPageViewModel

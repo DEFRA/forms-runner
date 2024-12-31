@@ -24,6 +24,7 @@ import {
   type FormPayload,
   type FormSubmissionError,
   type FormSubmissionState,
+  type ItemDeletePageViewModel,
   type UploadInitiateResponse,
   type UploadStatusFileResponse,
   type UploadStatusResponse
@@ -170,39 +171,20 @@ export class FileUploadPageController extends QuestionPageController {
         return Boom.notFound('File to delete not found')
       }
 
-      const { filename: itemTitle } = fileToRemove.status.form.file
+      const { filename } = fileToRemove.status.form.file
 
       state = await this.updateProgress(request, state)
       const { progress = [] } = state
 
       return h.view(this.fileDeleteViewName, {
         ...viewModel,
-
         backLink: this.getBackLink(progress),
-        showTitle: false,
-
-        field: {
-          name: 'confirm',
-          fieldset: {
-            legend: {
-              text: `Are you sure you want to remove ${itemTitle} from this form?`,
-              isPageHeading: true,
-              classes: 'govuk-fieldset__legend--l'
-            }
-          },
-          items: [
-            {
-              value: true,
-              text: `Yes, remove ${itemTitle}`
-            },
-            {
-              value: false,
-              text: 'No'
-            }
-          ],
-          value: true
-        }
-      })
+        pageTitle: `Are you sure you want to remove this file?`,
+        itemTitle: filename,
+        confirmation: { text: 'You cannot recover removed files.' },
+        buttonConfirm: { text: 'Remove file' },
+        buttonCancel: { text: 'Cancel' }
+      } satisfies ItemDeletePageViewModel)
     }
   }
 
