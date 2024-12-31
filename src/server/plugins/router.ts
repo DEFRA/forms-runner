@@ -9,14 +9,11 @@ import {
 } from '~/src/common/cookies.js'
 import { type CookieConsent } from '~/src/common/types.js'
 import { config } from '~/src/config/index.js'
-import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { isPathRelative } from '~/src/server/plugins/engine/helpers.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import { healthRoute, publicRoutes } from '~/src/server/routes/index.js'
 
 const routes = [...publicRoutes, healthRoute]
-
-const logger = createLogger()
 
 export default {
   plugin: {
@@ -48,16 +45,9 @@ export default {
         path: '/help/privacy/{slug}',
         async handler(request, h) {
           const { slug } = request.params
-
           const form = await getFormMetadata(slug)
-          const { privacyNoticeUrl } = form
 
-          if (!privacyNoticeUrl) {
-            logger.error(`Privacy notice not found for slug ${slug}`)
-            return Boom.notFound()
-          }
-
-          return h.redirect(privacyNoticeUrl)
+          return h.view('help/privacy-notice', { form })
         }
       })
 
