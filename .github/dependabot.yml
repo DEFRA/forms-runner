@@ -20,7 +20,7 @@ updates:
           - 'cssnano-*'
           - 'postcss'
           - 'postcss-*'
-          - 'sass'
+          - 'sass-embedded'
           - 'tsc-alias'
           - 'typescript'
           - 'webpack'
