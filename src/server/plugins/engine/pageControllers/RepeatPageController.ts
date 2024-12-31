@@ -73,6 +73,33 @@ export class RepeatPageController extends QuestionPageController {
     return params
   }
 
+  getFormDataFromState(
+    request: FormContextRequest | undefined,
+    state: FormSubmissionState
+  ) {
+    const { repeat } = this
+
+    const params = this.getFormParams(request)
+    const list = this.getListFromState(state)
+    const itemId = this.getItemId(request)
+
+    // Create payload with repeater list state
+    if (!itemId) {
+      return {
+        ...params,
+        [repeat.options.name]: list
+      }
+    }
+
+    // Create payload with repeater item state
+    const item = this.getItemFromList(list, itemId)
+
+    return {
+      ...params,
+      ...item
+    }
+  }
+
   getStateFromValidForm(
     request: FormContextRequest,
     state: FormSubmissionState,
@@ -84,9 +111,10 @@ export class RepeatPageController extends QuestionPageController {
       throw badRequest('No item ID found')
     }
 
-    const { item, list } = this.getRepeatAppData(request)
-    const itemState = super.getStateFromValidForm(request, state, payload)
+    const list = this.getListFromState(state)
+    const item = this.getItemFromList(list, itemId)
 
+    const itemState = super.getStateFromValidForm(request, state, payload)
     const updated: RepeatItemState = { ...itemState, itemId }
     const newList = [...list]
 
@@ -95,25 +123,12 @@ export class RepeatPageController extends QuestionPageController {
       newList.push(updated)
     } else {
       // Update an existing item
-      newList[item.index] = updated
+      newList[list.indexOf(item)] = updated
     }
 
     return {
       [this.repeat.options.name]: newList
     }
-  }
-
-  async getState(request: FormRequest | FormRequestPayload) {
-    const state = await super.getState(request)
-    const { item } = this.getRepeatAppData(request)
-
-    // When editing an existing item, get the item from
-    // the array list and set its values onto the state
-    if (item) {
-      return { ...state, ...item.value }
-    }
-
-    return state
   }
 
   proceed(
@@ -122,44 +137,6 @@ export class RepeatPageController extends QuestionPageController {
   ) {
     const nextPath = this.getSummaryPath(request)
     return super.proceed(request, h, nextPath)
-  }
-
-  /**
-   * Gets the repeat data from `request.app`
-   * @param request - the hapi request
-   */
-  private getRepeatAppData(request: FormContextRequest) {
-    const repeat = request.app.repeat
-
-    if (!repeat) {
-      throw badRequest('No repeat data found on the request')
-    }
-
-    return repeat
-  }
-
-  /**
-   * Get the repeat list array from state and add it to `request.app`.
-   * If editing an existing item, the item and index will also be added.
-   * @param request - the hapi request
-   * @param list - the repeat list state
-   */
-  private setRepeatAppData(
-    request: FormRequest | FormRequestPayload,
-    list: RepeatListState
-  ) {
-    const { app } = request
-
-    const itemId = this.getItemId(request)
-    const value = this.getItemFromList(list, itemId)
-    const index = value ? list.indexOf(value) : -1
-
-    app.repeat = {
-      list,
-      item: value ? { value, index } : undefined
-    }
-
-    return app.repeat
   }
 
   getItemFromList(list: RepeatListState, itemId?: string) {
@@ -182,7 +159,7 @@ export class RepeatPageController extends QuestionPageController {
 
       const itemId = this.getItemId(request)
 
-      const state = await super.getState(request)
+      const state = await this.getState(request)
       const list = this.getListFromState(state)
 
       if (!itemId) {
@@ -193,23 +170,7 @@ export class RepeatPageController extends QuestionPageController {
         return super.proceed(request, h, list.length ? summaryPath : nextPath)
       }
 
-      this.setRepeatAppData(request, list)
-
       return super.makeGetRouteHandler()(request, h)
-    }
-  }
-
-  makePostRouteHandler() {
-    return async (
-      request: FormRequestPayload,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
-    ) => {
-      const state = await super.getState(request)
-      const list = this.getListFromState(state)
-
-      this.setRepeatAppData(request, list)
-
-      return super.makePostRouteHandler()(request, h)
     }
   }
 
@@ -220,7 +181,7 @@ export class RepeatPageController extends QuestionPageController {
     ) => {
       const { path } = this
 
-      let state = await super.getState(request)
+      let state = await this.getState(request)
       const list = this.getListFromState(state)
 
       if (!list.length) {
@@ -246,7 +207,7 @@ export class RepeatPageController extends QuestionPageController {
       const { model, path, repeat } = this
       const { schema, options } = repeat
 
-      const state = await super.getState(request)
+      const state = await this.getState(request)
       const list = this.getListFromState(state)
 
       if (!list.length) {
@@ -314,10 +275,11 @@ export class RepeatPageController extends QuestionPageController {
     ) => {
       const { viewModel } = this
 
-      let state = await super.getState(request)
+      let state = await this.getState(request)
       const list = this.getListFromState(state)
 
-      const { item } = this.setRepeatAppData(request, list)
+      const itemId = this.getItemId(request)
+      const item = this.getItemFromList(list, itemId)
 
       if (!item || list.length === 1) {
         return notFound(
@@ -328,7 +290,7 @@ export class RepeatPageController extends QuestionPageController {
       }
 
       const { title } = this.repeat.options
-      const itemTitle = `${title} ${item.index + 1}`
+      const itemTitle = `${title} ${list.indexOf(item) + 1}`
 
       state = await this.updateProgress(request, state)
       const { progress = [] } = state
@@ -372,10 +334,11 @@ export class RepeatPageController extends QuestionPageController {
       const { repeat } = this
       const { confirm } = this.getFormParams(request)
 
-      const state = await super.getState(request)
+      const state = await this.getState(request)
       const list = this.getListFromState(state)
 
-      const { item } = this.setRepeatAppData(request, list)
+      const itemId = this.getItemId(request)
+      const item = this.getItemFromList(list, itemId)
 
       if (!item || list.length === 1) {
         return notFound(
@@ -387,7 +350,7 @@ export class RepeatPageController extends QuestionPageController {
 
       // Remove the item from the list
       if (confirm) {
-        list.splice(item.index, 1)
+        list.splice(list.indexOf(item), 1)
 
         const update = {
           [repeat.options.name]: list
@@ -406,11 +369,13 @@ export class RepeatPageController extends QuestionPageController {
     payload: FormPayload,
     errors?: FormSubmissionError[]
   ): FormPageViewModel {
+    const list = this.getListFromState(state)
+
+    const itemId = this.getItemId(request)
+    const item = this.getItemFromList(list, itemId)
+
     const viewModel = super.getViewModel(request, state, payload, errors)
-
-    const { list, item } = this.getRepeatAppData(request)
-
-    const itemNumber = item ? item.index + 1 : list.length + 1
+    const itemNumber = item ? list.indexOf(item) + 1 : list.length + 1
     const repeatCaption = `${this.repeat.options.title} ${itemNumber}`
 
     return {
