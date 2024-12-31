@@ -90,16 +90,19 @@ export class FileUploadPageController extends QuestionPageController {
     this.viewName = 'file-upload'
   }
 
-  getFormData(request?: FormContextRequest) {
+  getFormDataFromState(
+    request: FormContextRequest | undefined,
+    state: FormSubmissionState
+  ) {
     const { fileUpload } = this
 
-    const formData = super.getFormData(request)
+    const payload = super.getFormDataFromState(request, state)
     const files = request?.app.files ?? []
 
     // Append the files to the payload
-    formData[fileUpload.name] = files.length ? files : undefined
+    payload[fileUpload.name] = files.length ? files : undefined
 
-    return formData
+    return payload
   }
 
   async getState(request: FormRequest | FormRequestPayload) {
@@ -196,7 +199,7 @@ export class FileUploadPageController extends QuestionPageController {
       const state = await this.getState(request)
       const uploadState = state.upload?.[path] ?? { files: [] }
 
-      const { confirm } = this.getFormData(request)
+      const { confirm } = this.getFormParams(request)
 
       // Check for any removed files in the POST payload
       if (confirm) {

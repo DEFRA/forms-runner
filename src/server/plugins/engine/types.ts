@@ -71,19 +71,18 @@ export interface FormSubmissionError
   text: string // e.g: 'Date field must be a real date'
 }
 
+export interface FormParams {
+  action?: FormAction
+  confirm?: true
+  crumb?: string
+  itemId?: string
+}
+
 /**
  * Form POST for question pages
  * (after Joi has converted value types)
  */
-export type FormSubmissionPayload = {
-  action?: FormAction
-  confirm?: boolean
-  crumb?: string
-} & FormPayload
-
-export type FormPayload = {
-  itemId?: string
-} & Partial<Record<string, FormValue>>
+export type FormPayload = FormParams & Partial<Record<string, FormValue>>
 
 export type FormValue =
   | Item['value']
@@ -145,7 +144,7 @@ export type FormContextRequest = (
     }
   | {
       method: 'post'
-      payload: FormSubmissionPayload
+      payload: FormPayload
     }
   | {
       method: FormRequest['method']

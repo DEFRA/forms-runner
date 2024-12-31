@@ -26,10 +26,10 @@ import {
   type FormContextProgress,
   type FormContextRequest,
   type FormPageViewModel,
+  type FormParams,
   type FormPayload,
   type FormState,
   type FormSubmissionError,
-  type FormSubmissionPayload,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import {
@@ -38,7 +38,11 @@ import {
   type FormRequestPayloadRefs,
   type FormRequestRefs
 } from '~/src/server/routes/types.js'
-import { actionSchema, crumbSchema } from '~/src/server/schemas/index.js'
+import {
+  actionSchema,
+  crumbSchema,
+  paramsSchema
+} from '~/src/server/schemas/index.js'
 
 export class QuestionPageController extends PageController {
   collection: ComponentCollection
@@ -186,22 +190,38 @@ export class QuestionPageController extends PageController {
   }
 
   /**
-   * Gets the form payload (from request) for this page only
-   */
-  getFormData(request?: FormContextRequest): FormSubmissionPayload {
-    return request?.payload ?? {}
-  }
-
-  /**
    * Gets the form payload (from state) for this page only
    */
   getFormDataFromState(
     request: FormContextRequest | undefined,
     state: FormSubmissionState
   ): FormPayload {
+    const { collection } = this
+
+    // Form params from request
+    const params = this.getFormParams(request)
+
+    // Form payload from state
+    const payload = collection.getFormDataFromState(state)
+
     return {
-      ...this.collection.getFormDataFromState(state)
+      ...params,
+      ...payload
     }
+  }
+
+  /**
+   * Gets form params (from payload) for this page only
+   */
+  getFormParams(request?: FormContextRequest): FormParams {
+    const { payload } = request ?? {}
+
+    const result = paramsSchema.validate(payload, {
+      abortEarly: false,
+      stripUnknown: true
+    })
+
+    return result.value as FormParams
   }
 
   getStateFromValidForm(
@@ -383,7 +403,7 @@ export class QuestionPageController extends PageController {
       })
 
       // Sanitised payload after validation
-      const { value: payload, errors } = this.validate(request)
+      const { value: payload, errors } = this.validate(request, context.state)
 
       /**
        * If there are any errors, render the page with the parsed errors
@@ -426,11 +446,11 @@ export class QuestionPageController extends PageController {
     }
   }
 
-  validate(request: FormRequestPayload) {
+  validate(request: FormRequestPayload, state: FormSubmissionState) {
     const { collection } = this
 
-    const formData = this.getFormData(request)
-    return collection.validate(formData)
+    const payload = this.getFormDataFromState(request, state)
+    return collection.validate({ ...payload, ...request.payload })
   }
 
   proceed(

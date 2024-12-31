@@ -1,6 +1,6 @@
 import { type ReqRefDefaults, type Request } from '@hapi/hapi'
 
-import { type FormSubmissionPayload } from '~/src/server/plugins/engine/types.js'
+import { type FormPayload } from '~/src/server/plugins/engine/types.js'
 
 export interface FormQuery extends Partial<Record<string, string>> {
   returnUrl?: string
@@ -20,7 +20,7 @@ export interface FormRequestRefs
 }
 
 export interface FormRequestPayloadRefs extends FormRequestRefs {
-  Payload: FormSubmissionPayload
+  Payload: FormPayload
 }
 
 export type FormRequest = Request<FormRequestRefs>
