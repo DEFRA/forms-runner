@@ -28,6 +28,12 @@ module.exports = {
       plugins: ['@typescript-eslint', 'import', 'jsdoc', 'n', 'promise'],
       rules: {
         'no-console': 'error',
+        'no-irregular-whitespace': [
+          'error',
+          {
+            skipTemplates: true
+          }
+        ],
 
         // Check type imports are identified
         '@typescript-eslint/consistent-type-imports': [
