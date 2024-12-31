@@ -1,5 +1,5 @@
 import { type Request, type Server } from '@hapi/hapi'
-import { merge } from '@hapi/hoek'
+import * as Hoek from '@hapi/hoek'
 
 import { config } from '~/src/config/index.js'
 import { type createServer } from '~/src/server/index.js'
@@ -35,18 +35,23 @@ export class CacheService {
     return cached || {}
   }
 
-  async mergeState(request: FormRequest | FormRequestPayload, value: object) {
+  async setState(
+    request: FormRequest | FormRequestPayload,
+    state: FormSubmissionState
+  ) {
     const key = this.Key(request)
-    const state = await this.getState(request)
     const ttl = config.get('sessionTimeout')
 
-    merge(state, value, {
-      mergeArrays: false
-    })
-
     await this.cache.set(key, state, ttl)
-
     return this.getState(request)
+  }
+
+  async mergeState(
+    request: FormRequest | FormRequestPayload,
+    state: FormSubmissionState,
+    update: object
+  ) {
+    return this.setState(request, merge(state, update))
   }
 
   async getConfirmationState(
@@ -92,4 +97,15 @@ export class CacheService {
       id: `${request.yar.id}:${request.params.state ?? ''}:${request.params.slug ?? ''}:${additionalIdentifier ?? ''}`
     }
   }
+}
+
+/**
+ * State merge helper
+ * 1. Merges objects (form fields)
+ * 2. Overwrites arrays (progress)
+ */
+export function merge(state: FormSubmissionState, update: object) {
+  return Hoek.merge(state, update, {
+    mergeArrays: false
+  })
 }

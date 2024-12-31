@@ -241,9 +241,13 @@ export class QuestionPageController extends PageController {
     return cacheService.getState(request)
   }
 
-  async setState(request: FormRequest | FormRequestPayload, value: object) {
+  async mergeState(
+    request: FormRequest | FormRequestPayload,
+    state: FormSubmissionState,
+    update: object
+  ) {
     const { cacheService } = request.services([])
-    return cacheService.mergeState(request, value)
+    return cacheService.mergeState(request, state, update)
   }
 
   makeGetRouteHandler() {
@@ -253,7 +257,7 @@ export class QuestionPageController extends PageController {
     ) => {
       const { model, path, viewName } = this
 
-      const state = await this.getState(request)
+      let state = await this.getState(request)
       const context = model.getFormContext(request, state)
       const relevantPath = this.getRelevantPath(context)
 
@@ -318,8 +322,8 @@ export class QuestionPageController extends PageController {
         return evaluatedComponent
       })
 
-      const { progress = [] } = context.state
-      await this.updateProgress(progress, request)
+      state = await this.updateProgress(request, state)
+      const { progress = [] } = state
 
       viewModel.context = context
 
@@ -359,7 +363,9 @@ export class QuestionPageController extends PageController {
    * Used for when a user clicks the "back" link.
    * Progress is stored in the state.
    */
-  async updateProgress(progress: string[], request: FormRequest) {
+  async updateProgress(request: FormRequest, state: FormSubmissionState) {
+    const { progress = [] } = state
+
     const lastVisited = progress.at(-1)
     const currentPath = `${request.path.substring(1)}${request.url.search}`
 
@@ -379,7 +385,7 @@ export class QuestionPageController extends PageController {
       }
     }
 
-    await this.setState(request, { progress })
+    return this.mergeState(request, state, { progress })
   }
 
   /**
@@ -426,8 +432,9 @@ export class QuestionPageController extends PageController {
       }
 
       // Convert and save sanitised payload to state
-      state = await this.setState(
+      state = await this.mergeState(
         request,
+        state,
         this.getStateFromValidForm(request, state, payload)
       )
 
