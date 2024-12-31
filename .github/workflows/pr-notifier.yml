@@ -74,6 +74,7 @@ jobs:
 
             // Payload output is JSON encoded
             return {
+              channel: '${{ vars.SLACK_CHANNEL_ID }}',
               blocks: [
                 {
                   type: 'section',
@@ -91,9 +92,7 @@ jobs:
         uses: slackapi/slack-github-action@v2.0.0
         if: github.event.action != 'submitted' || github.event.review.state == 'approved'
 
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-
         with:
-          channel-id: ${{ vars.SLACK_CHANNEL_ID }}
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
           payload: ${{ steps.payload.outputs.result }}
