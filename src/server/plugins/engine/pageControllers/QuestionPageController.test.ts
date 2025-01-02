@@ -254,12 +254,6 @@ describe('QuestionPageController', () => {
 
       // The state below shows we said we had a UKPassport and entered details for an applicant
       const state: FormSubmissionState = {
-        progress: [
-          'test/uk-passport',
-          'test/how-many-people',
-          'test/applicant-one-name',
-          'test/applicant-one-address'
-        ],
         ukPassport: true,
         numberOfApplicants: 2,
         applicantOneFirstName: 'Enrique',
@@ -377,7 +371,6 @@ describe('QuestionPageController', () => {
       } satisfies FormContextRequest
 
       const context = controller.model.getFormContext(request, {
-        progress: [],
         dateField__day: 5,
         dateField__month: 1,
         dateField__year: 2024
@@ -493,12 +486,7 @@ describe('QuestionPageController', () => {
           .spyOn(controller, 'buildMissingEmailWarningModel')
           .mockResolvedValue(undefined)
 
-        for (const method of [
-          jest.spyOn(controller, 'getState'),
-          jest.spyOn(controller, 'updateProgress')
-        ]) {
-          method.mockResolvedValue(state)
-        }
+        jest.spyOn(controller, 'getState').mockResolvedValue(state)
       }
 
       expect(() => controller1.makeGetRouteHandler()).not.toThrow()

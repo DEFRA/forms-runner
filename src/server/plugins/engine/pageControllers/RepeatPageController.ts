@@ -59,11 +59,6 @@ export class RepeatPageController extends QuestionPageController {
     return [repeat.options.name, ...super.keys]
   }
 
-  getItemId(request?: FormContextRequest) {
-    const { itemId } = this.getFormParams(request)
-    return itemId ?? request?.params.itemId
-  }
-
   getFormParams(request?: FormContextRequest) {
     const params = super.getFormParams(request)
 
@@ -180,7 +175,7 @@ export class RepeatPageController extends QuestionPageController {
   }
 
   makeGetListSummaryRouteHandler() {
-    return async (
+    return (
       request: FormRequest,
       context: FormContext,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
@@ -199,10 +194,7 @@ export class RepeatPageController extends QuestionPageController {
         return super.proceed(request, h, nextPath)
       }
 
-      const { progress = [] } = await this.updateProgress(request, state)
-
       const viewModel = this.getListSummaryViewModel(request, context, list)
-      viewModel.backLink = this.getBackLink(progress)
 
       return h.view(this.listSummaryViewName, viewModel)
     }
@@ -254,10 +246,7 @@ export class RepeatPageController extends QuestionPageController {
           }
         ]
 
-        const { progress = [] } = state
-
         const viewModel = this.getListSummaryViewModel(request, context, list)
-        viewModel.backLink = this.getBackLink(progress)
 
         return h.view(this.listSummaryViewName, viewModel)
       }
@@ -276,7 +265,7 @@ export class RepeatPageController extends QuestionPageController {
   }
 
   makeGetItemDeleteRouteHandler() {
-    return async (
+    return (
       request: FormRequest,
       context: FormContext,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
@@ -298,12 +287,10 @@ export class RepeatPageController extends QuestionPageController {
 
       const { title } = this.repeat.options
 
-      const { progress = [] } = await this.updateProgress(request, state)
-
       return h.view(this.listDeleteViewName, {
         ...viewModel,
         context,
-        backLink: this.getBackLink(progress),
+        backLink: this.getBackLink(request, context),
         pageTitle: `Are you sure you want to remove this ${title}?`,
         itemTitle: `${title} ${list.indexOf(item) + 1}`,
         buttonConfirm: { text: `Remove ${title}` },
@@ -394,11 +381,13 @@ export class RepeatPageController extends QuestionPageController {
     if (Array.isArray(list)) {
       count = list.length
 
+      const summaryPath = this.getSummaryPath(request)
+
       list.forEach((item, index) => {
         const items: SummaryListAction[] = [
           {
             href: redirectPath(`${href}/${item.itemId}`, {
-              returnUrl: query.returnUrl
+              returnUrl: query.returnUrl ?? this.getHref(summaryPath)
             }),
             text: 'Change',
             classes: 'govuk-link--no-visited-state',
@@ -437,6 +426,7 @@ export class RepeatPageController extends QuestionPageController {
 
     return {
       ...this.viewModel,
+      backLink: this.getBackLink(request, context),
       repeatTitle: title,
       pageTitle: `You have added ${count} ${title}${count === 1 ? '' : 's'}`,
       showTitle: true,

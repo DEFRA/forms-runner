@@ -37,12 +37,6 @@ describe('SummaryPageController', () => {
     })
 
     state = {
-      progress: [
-        'repeat/delivery-or-collection',
-        `repeat/pizza-order/${itemId1}`,
-        `repeat/pizza-order/${itemId2}`,
-        'repeat/summary'
-      ],
       orderType: 'delivery',
       pizza: [
         {

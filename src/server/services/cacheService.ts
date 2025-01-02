@@ -106,7 +106,7 @@ export class CacheService {
 /**
  * State merge helper
  * 1. Merges objects (form fields)
- * 2. Overwrites arrays (progress)
+ * 2. Overwrites arrays
  */
 export function merge<StateType extends FormState | FormPayload>(
   state: StateType,

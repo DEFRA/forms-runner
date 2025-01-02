@@ -3,6 +3,7 @@ import { type ValidationErrorItem } from 'joi'
 
 import { type FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import {
+  type BackLink,
   type ComponentText,
   type ComponentViewModel
 } from '~/src/server/plugins/engine/components/types.js'
@@ -12,15 +13,10 @@ import { type FormAction, type FormRequest } from '~/src/server/routes/types.js'
 
 /**
  * Form submission state stores the following in Redis:
- * 1. progress[]: which indicates the urls the user have already submitted.
- * 2. Other props containing user's submitted values as `{ [inputId]: value }` or as `{ [sectionName]: { [inputName]: value } }`
+ * Props containing user's submitted values as `{ [inputId]: value }` or as `{ [sectionName]: { [inputName]: value } }`
  *   a) . e.g:
  * ```ts
  *     {
- *       progress: [
- *         '/gZovGvanSq/student-visa-application?visit=HxCva29Xhd',
- *         '/gZovGvanSq/what-are-you-going-to-study?visit=HxCva29Xhd'
- *       ],
  *       _C9PRHmsgt: 'Ben',
  *       WfLk9McjzX: 'Music',
  *       IK7jkUFCBL: 'Royal Academy of Music'
@@ -30,13 +26,6 @@ import { type FormAction, type FormRequest } from '~/src/server/routes/types.js'
  *   b)
  * ```ts
  *   {
- *         progress: [
- *           '/gZovGvanSq/uk-passport?visit=pQ1LIzb5kE',
- *           '/gZovGvanSq/how-many-people?visit=pQ1LIzb5kE',
- *           '/gZovGvanSq/applicant-one?visit=pQ1LIzb5kE',
- *           '/gZovGvanSq/applicant-one-address?visit=pQ1LIzb5kE',
- *           '/gZovGvanSq/contact-details?visit=pQ1LIzb5kE'
- *         ],
  *         checkBeforeYouStart: { ukPassport: true },
  *         applicantDetails: {
  *           numberOfApplicants: 1,
@@ -57,10 +46,6 @@ import { type FormAction, type FormRequest } from '~/src/server/routes/types.js'
  * Form submission state
  */
 export type FormSubmissionState = {
-  /**
-   * URL paths the user has already submitted
-   */
-  progress?: string[]
   upload?: Record<string, TempFileState>
 } & FormState
 
@@ -263,7 +248,7 @@ export interface PageViewModelBase {
   sectionTitle?: string
   showTitle: boolean
   isStartPage: boolean
-  backLink?: string
+  backLink?: BackLink
   feedbackLink?: string
   serviceUrl: string
   phaseTag?: string
