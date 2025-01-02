@@ -16,6 +16,10 @@ on:
       - '!**/*.test.*'
 
   workflow_dispatch:
+    inputs:
+      version:
+        description: Version number (optional)
+        required: false
 
 concurrency:
   group: publish
@@ -42,3 +46,4 @@ jobs:
         uses: DEFRA/cdp-build-action/build@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          version: ${{ github.event.inputs.version }}
