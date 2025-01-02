@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+      - 'releases/**'
+
     paths:
       - '.browserslistrc'
       - 'babel.config.*'
@@ -14,6 +16,10 @@ on:
       - '!**/*.test.*'
 
   workflow_dispatch:
+    inputs:
+      version:
+        description: Version number (optional)
+        required: false
 
 concurrency:
   group: publish
@@ -25,7 +31,7 @@ permissions:
 
 env:
   AWS_REGION: eu-west-2
-  AWS_ACCOUNT_ID: "094954420758"
+  AWS_ACCOUNT_ID: '094954420758'
 
 jobs:
   build:
@@ -40,3 +46,4 @@ jobs:
         uses: DEFRA/cdp-build-action/build@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          version: ${{ github.event.inputs.version }}
