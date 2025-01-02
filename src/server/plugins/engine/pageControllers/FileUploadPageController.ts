@@ -142,12 +142,13 @@ export class FileUploadPageController extends QuestionPageController {
   makeGetItemDeleteRouteHandler() {
     return async (
       request: FormRequest,
+      context: FormContext,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { model, viewModel } = this
+      const { viewModel } = this
       const { params } = request
+      const { state } = context
 
-      let state = await this.getState(request)
       const files = this.getFilesFromState(state)
 
       const fileToRemove = files.find(
@@ -160,10 +161,7 @@ export class FileUploadPageController extends QuestionPageController {
 
       const { filename } = fileToRemove.status.form.file
 
-      state = await this.updateProgress(request, state)
-      const { progress = [] } = state
-
-      const context = model.getFormContext(request, state)
+      const { progress = [] } = await this.updateProgress(request, state)
 
       return h.view(this.fileDeleteViewName, {
         ...viewModel,
@@ -181,16 +179,16 @@ export class FileUploadPageController extends QuestionPageController {
   makePostItemDeleteRouteHandler() {
     return async (
       request: FormRequestPayload,
+      context: FormContext,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { path } = this
+      const { state } = context
 
       const { confirm } = this.getFormParams(request)
 
       // Check for any removed files in the POST payload
       if (confirm) {
-        const state = await this.getState(request)
-
         await this.checkRemovedFiles(request, state)
         return this.proceed(request, h, path)
       }
@@ -242,8 +240,9 @@ export class FileUploadPageController extends QuestionPageController {
     context: FormContext
   ): FeaturedFormPageViewModel {
     const { fileUpload } = this
+    const { state } = context
 
-    const upload = this.getUploadFromState(context.state)
+    const upload = this.getUploadFromState(state)
 
     const viewModel = super.getViewModel(request, context)
     const { components } = viewModel

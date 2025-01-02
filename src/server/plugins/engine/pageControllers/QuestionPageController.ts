@@ -12,9 +12,7 @@ import { config } from '~/src/config/index.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import {
-  findPage,
   getErrors,
-  getPageHref,
   normalisePath,
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
@@ -147,7 +145,10 @@ export class QuestionPageController extends PageController {
     }
   }
 
-  getRelevantPath(context: FormContext) {
+  getRelevantPath(
+    request: FormRequest | FormRequestPayload,
+    context: FormContext
+  ) {
     const { paths } = context
 
     const startPath = this.getStartPath()
@@ -237,6 +238,14 @@ export class QuestionPageController extends PageController {
     return cacheService.getState(request)
   }
 
+  async setState(
+    request: FormRequest | FormRequestPayload,
+    state: FormSubmissionState
+  ) {
+    const { cacheService } = request.services([])
+    return cacheService.setState(request, state)
+  }
+
   async mergeState(
     request: FormRequest | FormRequestPayload,
     state: FormSubmissionState,
@@ -249,33 +258,17 @@ export class QuestionPageController extends PageController {
   makeGetRouteHandler() {
     return async (
       request: FormRequest,
+      context: FormContext,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { model, path, viewName } = this
-
-      let state = await this.getState(request)
-      const context = model.getFormContext(request, state)
-      const relevantPath = this.getRelevantPath(context)
-
-      // Redirect back to last relevant page
-      if (relevantPath !== path) {
-        const redirectTo = findPage(model, relevantPath)
-
-        if (redirectTo?.next.length) {
-          request.query.returnUrl = getPageHref(this, this.getSummaryPath())
-        }
-
-        return this.proceed(request, h, relevantPath)
-      }
+      const { model, viewName } = this
+      const { evaluationState, state } = context
 
       const viewModel = this.getViewModel(request, context)
 
       /**
        * Content components can be hidden based on a condition. If the condition evaluates to true, it is safe to be kept, otherwise discard it
        */
-
-      // Evaluation form state only (filtered by visited paths)
-      const { evaluationState } = context
 
       // Filter our components based on their conditions using our evaluated state
       viewModel.components = viewModel.components.filter((component) => {
@@ -317,8 +310,7 @@ export class QuestionPageController extends PageController {
         return evaluatedComponent
       })
 
-      state = await this.updateProgress(request, state)
-      const { progress = [] } = state
+      const { progress = [] } = await this.updateProgress(request, state)
 
       viewModel.backLink = this.getBackLink(progress)
 
@@ -391,19 +383,18 @@ export class QuestionPageController extends PageController {
   makePostRouteHandler() {
     return async (
       request: FormRequestPayload,
+      context: FormContext,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { collection, model, viewName } = this
-
-      const state = await this.getState(request)
-      const context = model.getFormContext(request, state)
+      const { collection, viewName } = this
+      const { state } = context
 
       /**
        * If there are any errors, render the page with the parsed errors
        * @todo Refactor to match POST REDIRECT GET pattern
        */
       if (context.errors) {
-        const { progress = [] } = context.state
+        const { progress = [] } = state
         const viewModel = this.getViewModel(request, context)
 
         viewModel.errors = collection.getErrors(viewModel.errors)
@@ -413,7 +404,7 @@ export class QuestionPageController extends PageController {
       }
 
       // Save and proceed
-      await this.mergeState(request, state, context.state)
+      await this.setState(request, state)
       return this.proceed(request, h, this.getNextPath(context))
     }
   }
