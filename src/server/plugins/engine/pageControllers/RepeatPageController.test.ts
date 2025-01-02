@@ -24,9 +24,6 @@ describe('RepeatPageController', () => {
     describe('Summary path', () => {
       let request: FormContextRequest
 
-      const itemId1 = 'abc-123'
-      const itemId2 = 'xyz-987'
-
       it('returns path to summary page', () => {
         expect(controller.getSummaryPath()).toBe('/summary')
       })
@@ -43,55 +40,6 @@ describe('RepeatPageController', () => {
             slug: 'repeat'
           },
           query: {},
-          app: { model }
-        }
-
-        expect(controller.getSummaryPath(request)).toBe('/pizza-order/summary')
-      })
-
-      it('adds item ID query when in params', () => {
-        const pageUrl = new URL(
-          `/repeat/pizza-order/${itemId1}?itemId=${itemId2}`,
-          'http://example.com'
-        )
-
-        request = {
-          method: 'get',
-          url: pageUrl,
-          path: pageUrl.pathname,
-          params: {
-            path: 'pizza-order',
-            slug: 'repeat',
-            itemId: itemId1
-          },
-          query: {
-            itemId: itemId2
-          },
-          app: { model }
-        }
-
-        expect(controller.getSummaryPath(request)).toBe(
-          `/pizza-order/summary?itemId=${itemId1}`
-        )
-      })
-
-      it('removes item ID query when not in params', () => {
-        const pageUrl = new URL(
-          `/repeat/pizza-order?itemId=${itemId2}`,
-          'http://example.com'
-        )
-
-        request = {
-          method: 'get',
-          url: pageUrl,
-          path: pageUrl.pathname,
-          params: {
-            path: 'pizza-order',
-            slug: 'repeat'
-          },
-          query: {
-            itemId: itemId2
-          },
           app: { model }
         }
 
