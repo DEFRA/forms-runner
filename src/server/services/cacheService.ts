@@ -3,7 +3,11 @@ import * as Hoek from '@hapi/hoek'
 
 import { config } from '~/src/config/index.js'
 import { type createServer } from '~/src/server/index.js'
-import { type FormSubmissionState } from '~/src/server/plugins/engine/types.js'
+import {
+  type FormPayload,
+  type FormState,
+  type FormSubmissionState
+} from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
   type FormRequestPayload
@@ -104,7 +108,10 @@ export class CacheService {
  * 1. Merges objects (form fields)
  * 2. Overwrites arrays (progress)
  */
-export function merge(state: FormSubmissionState, update: object) {
+export function merge<StateType extends FormState | FormPayload>(
+  state: StateType,
+  update: object
+): StateType {
   return Hoek.merge(state, update, {
     mergeArrays: false
   })

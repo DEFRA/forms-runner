@@ -32,7 +32,8 @@ export function proceed(
 
   const isReturnAllowed =
     payload && 'action' in payload
-      ? payload.action === FormAction.Continue
+      ? payload.action === FormAction.Continue ||
+        payload.action === FormAction.Validate
       : false
 
   // Redirect to return location (optional)

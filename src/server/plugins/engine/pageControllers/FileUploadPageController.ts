@@ -20,8 +20,8 @@ import {
   UploadStatus,
   type FeaturedFormPageViewModel,
   type FileState,
+  type FormContext,
   type FormContextRequest,
-  type FormPayload,
   type FormSubmissionError,
   type FormSubmissionState,
   type ItemDeletePageViewModel,
@@ -262,15 +262,13 @@ export class FileUploadPageController extends QuestionPageController {
 
   getViewModel(
     request: FormContextRequest,
-    state: FormSubmissionState,
-    payload: FormPayload,
-    errors?: FormSubmissionError[]
+    context: FormContext
   ): FeaturedFormPageViewModel {
     const { fileUpload } = this
 
-    const upload = this.getUploadFromState(state)
+    const upload = this.getUploadFromState(context.state)
 
-    const viewModel = super.getViewModel(request, state, payload, errors)
+    const viewModel = super.getViewModel(request, context)
     const { components } = viewModel
 
     // Featured form component

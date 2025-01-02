@@ -32,6 +32,8 @@ import {
   type FormState,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { FormAction } from '~/src/server/routes/types.js'
+import { merge } from '~/src/server/services/cacheService.js'
 
 export class FormModel {
   /**
@@ -206,13 +208,17 @@ export class FormModel {
     const currentPath = page.path
     const startPath = page.getStartPath()
 
-    const context: FormContext = {
+    let context: FormContext = {
       evaluationState: {},
       relevantState: {},
       relevantPages: [],
+      payload: page.getFormDataFromState(request, state),
       state,
       paths: []
     }
+
+    // Validate current page
+    context = validateFormPayload(request, page, context)
 
     // Find start page
     let nextPage = findPage(this, startPath)
@@ -228,14 +234,14 @@ export class FormModel {
       if (!hasRepeater(pageDef)) {
         Object.assign(
           context.evaluationState,
-          collection.getContextValueFromState(state)
+          collection.getContextValueFromState(context.state)
         )
       }
 
       // Copy relevant state by expected keys
       for (const key of nextPage.keys) {
-        if (typeof state[key] !== 'undefined') {
-          context.relevantState[key] = state[key]
+        if (typeof context.state[key] !== 'undefined') {
+          context.relevantState[key] = context.state[key]
         }
       }
 
@@ -248,15 +254,8 @@ export class FormModel {
       nextPage = findPage(this, nextPage.getNextPath(context))
     }
 
-    // Validate relevant state
-    const { error } = page.model
-      .makeFilteredSchema(context.relevantPages)
-      .validate(context.relevantState, { ...opts, stripUnknown: true })
-
-    // Format relevant state errors
-    if (error) {
-      context.errors = error.details.map(getError)
-    }
+    // Validate form state
+    context = validateFormState(request, page, context)
 
     const { isPreview } = checkFormStatus(request.path)
 
@@ -277,4 +276,68 @@ export class FormModel {
 
     return context
   }
+}
+
+/**
+ * Validate current page only
+ */
+function validateFormPayload(
+  request: FormContextRequest,
+  page: PageControllerClass,
+  context: FormContext
+): FormContext {
+  const { collection } = page
+  const { payload, state } = context
+
+  const { action } = page.getFormParams(request)
+
+  // Skip validation GET requests or other actions
+  if (!request.payload || action !== FormAction.Validate) {
+    return context
+  }
+
+  // Validate form data into payload
+  const { value, errors } = collection.validate({
+    ...payload,
+    ...request.payload
+  })
+
+  // Add sanitised payload (ready to save)
+  const formState = page.getStateFromValidForm(request, state, value)
+
+  return {
+    ...context,
+    payload: merge(payload, value),
+    state: merge(state, formState),
+    errors
+  }
+}
+
+/**
+ * Validate entire form state
+ */
+function validateFormState(
+  request: FormContextRequest,
+  page: PageControllerClass,
+  context: FormContext
+): FormContext {
+  const { errors = [], relevantPages, relevantState } = context
+
+  // Exclude current page
+  const previousPages = relevantPages.filter(
+    (relevantPage) => relevantPage !== page
+  )
+
+  // Validate relevant state
+  const { error } = page.model
+    .makeFilteredSchema(previousPages)
+    .validate(relevantState, { ...opts, stripUnknown: true })
+
+  // Add relevant state errors
+  if (error) {
+    const errorsState = error.details.map(getError)
+    return { ...context, errors: errors.concat(errorsState) }
+  }
+
+  return context
 }
