@@ -75,6 +75,7 @@ export default {
 
       server.route<{
         Payload: {
+          crumb?: string
           'cookies[analytics]'?: string
           'cookies[dismissed]'?: string
         }
@@ -129,6 +130,7 @@ export default {
         options: {
           validate: {
             payload: Joi.object({
+              crumb: Joi.string().optional().allow(''),
               'cookies[analytics]': Joi.string().valid('yes', 'no').optional(),
               'cookies[dismissed]': Joi.string().valid('yes', 'no').optional()
             }),
