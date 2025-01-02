@@ -19,7 +19,10 @@ import {
   normalisePath
 } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { type PageViewModelBase } from '~/src/server/plugins/engine/types.js'
+import {
+  type FormContext,
+  type PageViewModelBase
+} from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
   type FormRequestPayload,
@@ -144,9 +147,10 @@ export class PageController {
 
   makeGetRouteHandler(): (
     request: FormRequest,
+    context: FormContext,
     h: Pick<ResponseToolkit, 'redirect' | 'view'>
   ) => ReturnType<Lifecycle.Method<FormRequestRefs>> {
-    return (request, h) => {
+    return (request, context, h) => {
       const { viewModel, viewName } = this
       return h.view(viewName, viewModel)
     }
@@ -154,6 +158,7 @@ export class PageController {
 
   makePostRouteHandler(): (
     request: FormRequestPayload,
+    context: FormContext,
     h: Pick<ResponseToolkit, 'redirect' | 'view'>
   ) => ReturnType<Lifecycle.Method<FormRequestPayloadRefs>> {
     throw Boom.badRequest('Unsupported POST route handler for this page')

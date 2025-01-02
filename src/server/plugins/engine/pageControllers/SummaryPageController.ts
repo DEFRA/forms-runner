@@ -15,9 +15,7 @@ import {
 } from '~/src/server/plugins/engine/components/helpers.js'
 import {
   checkEmailAddressForLiveFormSubmission,
-  checkFormStatus,
-  findPage,
-  getPageHref
+  checkFormStatus
 } from '~/src/server/plugins/engine/helpers.js'
 import {
   SummaryViewModel,
@@ -85,29 +83,15 @@ export class SummaryPageController extends QuestionPageController {
   makeGetRouteHandler() {
     return async (
       request: FormRequest,
+      context: FormContext,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { model, path, viewName } = this
-
-      let state = await this.getState(request)
-      const context = model.getFormContext(request, state)
-      const relevantPath = this.getRelevantPath(context)
-
-      // Redirect back to last relevant page
-      if (relevantPath !== path) {
-        const redirectTo = findPage(model, relevantPath)
-
-        if (redirectTo?.next.length) {
-          request.query.returnUrl = getPageHref(this, this.getSummaryPath())
-        }
-
-        return this.proceed(request, h, relevantPath)
-      }
+      const { viewName } = this
+      const { state } = context
 
       const viewModel = this.getSummaryViewModel(request, context)
 
-      state = await this.updateProgress(request, state)
-      const { progress = [] } = state
+      const { progress = [] } = await this.updateProgress(request, state)
 
       viewModel.backLink = this.getBackLink(progress)
 
@@ -125,16 +109,14 @@ export class SummaryPageController extends QuestionPageController {
   makePostRouteHandler() {
     return async (
       request: FormRequestPayload,
+      context: FormContext,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { model } = this
+      const { params } = request
+      const { state } = context
 
       const { cacheService } = request.services([])
-
-      const state = await this.getState(request)
-      const context = model.getFormContext(request, state)
-
-      const { params } = request
 
       // Get the form metadata using the `slug` param
       const { notificationEmail } = await getFormMetadata(params.slug)
@@ -146,7 +128,7 @@ export class SummaryPageController extends QuestionPageController {
       // Send submission email
       if (emailAddress) {
         const viewModel = this.getSummaryViewModel(request, context)
-        await submitForm(request, viewModel, model, context.state, emailAddress)
+        await submitForm(request, viewModel, model, state, emailAddress)
       }
 
       await cacheService.setConfirmationState(request, { confirmed: true })

@@ -413,15 +413,15 @@ describe('QuestionPageController', () => {
 
     beforeEach(() => {
       // Empty state
-      context = controller1.model.getFormContext(requestPage1, {})
+      context = model.getFormContext(requestPage1, {})
 
       // Question 1: Selected 'No'
-      contextNo = controller1.model.getFormContext(requestPage1, {
+      contextNo = model.getFormContext(requestPage1, {
         yesNoField: false
       })
 
       // Question 1: Selected 'Yes'
-      contextYes = controller1.model.getFormContext(requestPage1, {
+      contextYes = model.getFormContext(requestPage1, {
         yesNoField: true
       })
     })
@@ -504,8 +504,17 @@ describe('QuestionPageController', () => {
       expect(() => controller1.makeGetRouteHandler()).not.toThrow()
       expect(() => controller1.makeGetRouteHandler()).toBeInstanceOf(Function)
 
-      await controller1.makeGetRouteHandler()(requestPage1, h)
-      await controller2.makeGetRouteHandler()(requestPage2, h)
+      await controller1.makeGetRouteHandler()(
+        requestPage1,
+        model.getFormContext(requestPage1, {}),
+        h
+      )
+
+      await controller2.makeGetRouteHandler()(
+        requestPage2,
+        model.getFormContext(requestPage2, {}),
+        h
+      )
 
       expect(h.view).toHaveBeenNthCalledWith(
         1,

@@ -2,6 +2,7 @@ import { slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type Plugin,
+  type ResponseObject,
   type ResponseToolkit,
   type RouteOptions
 } from '@hapi/hapi'
@@ -12,6 +13,7 @@ import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
+  findPage,
   getPage,
   getStartPath,
   normalisePath,
@@ -20,10 +22,12 @@ import {
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { FileUploadPageController } from '~/src/server/plugins/engine/pageControllers/FileUploadPageController.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
+import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
   getFormDefinition,
   getFormMetadata
 } from '~/src/server/plugins/engine/services/formsService.js'
+import { type FormContext } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
   type FormRequestPayload,
@@ -144,29 +148,66 @@ export const plugin = {
       return proceed(request, h, `${servicePath}${getStartPath(model)}`)
     }
 
+    const redirectOrMakeHandler = async (
+      request: FormRequest | FormRequestPayload,
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>,
+      makeHandler: (
+        page: PageControllerClass,
+        context: FormContext
+      ) => ResponseObject | Promise<ResponseObject>
+    ) => {
+      const { app, params } = request
+      const { model } = app
+
+      if (!model) {
+        throw Boom.notFound(`No model found for /${params.path}`)
+      }
+
+      const page = getPage(model, request)
+      const state = await page.getState(request)
+      const context = model.getFormContext(request, state)
+
+      const relevantPath = page.getRelevantPath(request, context)
+      const summaryPath = page.getSummaryPath()
+
+      // Return handler for relevant pages
+      if (relevantPath.startsWith(page.path)) {
+        return makeHandler(page, context)
+      }
+
+      // Redirect back to last relevant page
+      const redirectTo = findPage(model, relevantPath)
+
+      // Set the return URL unless an exit page
+      if (redirectTo?.next.length) {
+        request.query.returnUrl = page.getHref(summaryPath)
+      }
+
+      return proceed(request, h, page.getHref(relevantPath))
+    }
+
     const getHandler = (
       request: FormRequest,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { model } = request.app
-      const { path } = request.params
+      const { params } = request
 
-      if (normalisePath(path) === '') {
+      if (normalisePath(params.path) === '') {
         return dispatchHandler(request, h)
       }
 
-      const page = getPage(model, request)
-      return page.makeGetRouteHandler()(request, h)
+      return redirectOrMakeHandler(request, h, (page, context) =>
+        page.makeGetRouteHandler()(request, context, h)
+      )
     }
 
     const postHandler = (
       request: FormRequestPayload,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { model } = request.app
-
-      const page = getPage(model, request)
-      return page.makePostRouteHandler()(request, h)
+      return redirectOrMakeHandler(request, h, (page, context) =>
+        page.makePostRouteHandler()(request, context, h)
+      )
     }
 
     const dispatchRouteOptions: RouteOptions<FormRequestRefs> = {
@@ -310,14 +351,15 @@ export const plugin = {
       request: FormRequest,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { app, params } = request
-      const page = getPage(app.model, request)
+      const { params } = request
 
-      if (!(page instanceof RepeatPageController)) {
-        throw Boom.notFound(`No repeater page found for /${params.path}`)
-      }
+      return redirectOrMakeHandler(request, h, (page, context) => {
+        if (!(page instanceof RepeatPageController)) {
+          throw Boom.notFound(`No repeater page found for /${params.path}`)
+        }
 
-      return page.makeGetListSummaryRouteHandler()(request, h)
+        return page.makeGetListSummaryRouteHandler()(request, context, h)
+      })
     }
 
     server.route({
@@ -356,14 +398,15 @@ export const plugin = {
       request: FormRequestPayload,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { app, params } = request
-      const page = getPage(app.model, request)
+      const { params } = request
 
-      if (!(page instanceof RepeatPageController)) {
-        throw Boom.notFound(`No repeater page found for /${params.path}`)
-      }
+      return redirectOrMakeHandler(request, h, (page, context) => {
+        if (!(page instanceof RepeatPageController)) {
+          throw Boom.notFound(`No repeater page found for /${params.path}`)
+        }
 
-      return page.makePostListSummaryRouteHandler()(request, h)
+        return page.makePostListSummaryRouteHandler()(request, context, h)
+      })
     }
 
     server.route({
@@ -414,19 +457,20 @@ export const plugin = {
       request: FormRequest,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { app, params } = request
-      const page = getPage(app.model, request)
+      const { params } = request
 
-      if (
-        !(
-          page instanceof RepeatPageController ||
-          page instanceof FileUploadPageController
-        )
-      ) {
-        throw Boom.notFound(`No page found for /${params.path}`)
-      }
+      return redirectOrMakeHandler(request, h, (page, context) => {
+        if (
+          !(
+            page instanceof RepeatPageController ||
+            page instanceof FileUploadPageController
+          )
+        ) {
+          throw Boom.notFound(`No page found for /${params.path}`)
+        }
 
-      return page.makeGetItemDeleteRouteHandler()(request, h)
+        return page.makeGetItemDeleteRouteHandler()(request, context, h)
+      })
     }
 
     server.route({
@@ -467,19 +511,20 @@ export const plugin = {
       request: FormRequestPayload,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { app, params } = request
-      const page = getPage(app.model, request)
+      const { params } = request
 
-      if (
-        !(
-          page instanceof RepeatPageController ||
-          page instanceof FileUploadPageController
-        )
-      ) {
-        throw Boom.notFound(`No page found for /${params.path}`)
-      }
+      return redirectOrMakeHandler(request, h, (page, context) => {
+        if (
+          !(
+            page instanceof RepeatPageController ||
+            page instanceof FileUploadPageController
+          )
+        ) {
+          throw Boom.notFound(`No page found for /${params.path}`)
+        }
 
-      return page.makePostItemDeleteRouteHandler()(request, h)
+        return page.makePostItemDeleteRouteHandler()(request, context, h)
+      })
     }
 
     server.route({
