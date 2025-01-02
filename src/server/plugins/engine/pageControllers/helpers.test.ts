@@ -1,7 +1,6 @@
 import {
   ComponentType,
   ControllerType,
-  ControllerTypes,
   PageTypes,
   type Page
 } from '@defra/forms-model'
@@ -80,19 +79,7 @@ describe('Page controller helpers', () => {
       "creates page for controller '$pageDef.controller'",
       ({ controller, pageDef }) => {
         const pageDef1 = structuredClone(pageDef)
-        const pageDef2 = structuredClone(pageDef)
-
         expect(createPage(model, pageDef1)).toBeInstanceOf(controller)
-
-        const controllerType = ControllerTypes.find(
-          ({ name }) => name === pageDef1.controller
-        )
-
-        // @ts-expect-error - Allow invalid property for test
-        pageDef2.controller = controllerType?.path
-
-        // Check for legacy path support
-        expect(createPage(model, pageDef2)).toBeInstanceOf(controller)
       }
     )
 
@@ -117,6 +104,17 @@ describe('Page controller helpers', () => {
         expect(isPageController(pageDef.controller)).toBe(true)
       }
     )
+
+    it.each([
+      { name: './pages/start.js' },
+      { name: './pages/page.js' },
+      { name: './pages/repeat.js' },
+      { name: './pages/file-upload.js' },
+      { name: './pages/summary.js' },
+      { name: './pages/status.js' }
+    ])("rejects legacy page controller '$name'", ({ name }) => {
+      expect(isPageController(name)).toBe(false)
+    })
 
     it.each([
       { name: './pages/unknown.js' },
