@@ -11,6 +11,7 @@ import { type ValidationErrorItem } from 'joi'
 import { config } from '~/src/config/index.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
+import { type BackLink } from '~/src/server/plugins/engine/components/types.js'
 import {
   getErrors,
   normalisePath,
@@ -77,6 +78,11 @@ export class QuestionPageController extends PageController {
     })
   }
 
+  getItemId(request?: FormContextRequest) {
+    const { itemId } = this.getFormParams(request)
+    return itemId ?? request?.params.itemId
+  }
+
   /**
    * Used for mapping form payloads and errors to govuk-frontend's template api, so a page can be rendered
    * @param request - the hapi request
@@ -138,6 +144,7 @@ export class QuestionPageController extends PageController {
 
     return {
       ...viewModel,
+      backLink: this.getBackLink(request, context),
       context,
       showTitle,
       components,
@@ -262,7 +269,7 @@ export class QuestionPageController extends PageController {
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { collection, model, viewName } = this
-      const { evaluationState, state } = context
+      const { evaluationState } = context
 
       const viewModel = this.getViewModel(request, context)
       viewModel.errors = collection.getErrors(viewModel.errors)
@@ -311,10 +318,6 @@ export class QuestionPageController extends PageController {
         return evaluatedComponent
       })
 
-      const { progress = [] } = await this.updateProgress(request, state)
-
-      viewModel.backLink = this.getBackLink(progress)
-
       viewModel.notificationEmailWarning =
         await this.buildMissingEmailWarningModel(request)
 
@@ -345,40 +348,42 @@ export class QuestionPageController extends PageController {
   }
 
   /**
-   * Updates the progress history stack.
-   * Used for when a user clicks the "back" link.
-   * Progress is stored in the state.
+   * Get the back link for a given progress.
    */
-  async updateProgress(request: FormRequest, state: FormSubmissionState) {
-    const { progress = [] } = state
+  protected getBackLink(
+    request: FormContextRequest,
+    context: FormContext
+  ): BackLink | undefined {
+    const { path, query } = request
+    const { returnUrl } = query
+    const { paths } = context
 
-    const lastVisited = progress.at(-1)
-    const currentPath = `${request.path.substring(1)}${request.url.search}`
+    const itemId = this.getItemId(request)
 
-    if (!lastVisited?.startsWith(currentPath)) {
-      if (progress.at(-2) === currentPath) {
-        progress.pop()
-      } else {
-        progress.push(currentPath)
-
-        // Ensure progress history doesn't grow too large
-        // by curtailing the array to max length of 100
-        const MAX_PROGRESS_ENTRIES = 100
-
-        if (progress.length > MAX_PROGRESS_ENTRIES) {
-          progress.shift()
-        }
+    // Check answers back link
+    if (returnUrl) {
+      return {
+        text: 'Go back to check answers',
+        href: returnUrl
       }
     }
 
-    return this.mergeState(request, state, { progress })
-  }
+    // Item delete pages etc
+    const backPath =
+      itemId && !path.endsWith(itemId)
+        ? paths.at(-1) // Back to main page
+        : paths.at(-2) // Back to previous page
 
-  /**
-   * Get the back link for a given progress.
-   */
-  protected getBackLink(progress: string[]) {
-    return progress.at(-2)
+    // No back link
+    if (!backPath) {
+      return
+    }
+
+    // Default back link
+    return {
+      text: 'Back',
+      href: this.getHref(backPath)
+    }
   }
 
   makePostRouteHandler() {
@@ -395,11 +400,8 @@ export class QuestionPageController extends PageController {
        * @todo Refactor to match POST REDIRECT GET pattern
        */
       if (context.errors) {
-        const { progress = [] } = state
         const viewModel = this.getViewModel(request, context)
-
         viewModel.errors = collection.getErrors(viewModel.errors)
-        viewModel.backLink = this.getBackLink(progress)
 
         return h.view(viewName, viewModel)
       }
