@@ -29,12 +29,12 @@ describe('RepeatPageController', () => {
     pageUrl = new URL('/repeat/pizza-order', 'http://example.com')
 
     pageItemUrl = new URL(
-      `${pageUrl.pathname}/${itemId1}?itemId=${itemId2}`,
+      `${pageUrl.pathname}/${itemId1}`,
       'http://example.com'
     )
 
     pageSummaryUrl = new URL(
-      `${pageUrl.pathname}/summary?itemId=${itemId2}`,
+      `${pageUrl.pathname}/summary`,
       'http://example.com'
     )
 
@@ -65,9 +65,7 @@ describe('RepeatPageController', () => {
         slug: 'repeat',
         itemId: itemId1
       },
-      query: {
-        itemId: itemId2
-      },
+      query: {},
       app: { model }
     }
 
@@ -79,9 +77,7 @@ describe('RepeatPageController', () => {
         path: 'pizza-order',
         slug: 'repeat'
       },
-      query: {
-        itemId: itemId2
-      },
+      query: {},
       app: { model }
     }
   })
@@ -120,18 +116,6 @@ describe('RepeatPageController', () => {
 
       it('returns path to repeater summary page', () => {
         expect(controller.getSummaryPath(requestPage)).toBe(
-          '/pizza-order/summary'
-        )
-      })
-
-      it('adds item ID query when in params', () => {
-        expect(controller.getSummaryPath(requestPageItem)).toBe(
-          `/pizza-order/summary?itemId=${itemId1}`
-        )
-      })
-
-      it('removes item ID query when not in params', () => {
-        expect(controller.getSummaryPath(requestPageSummary)).toBe(
           '/pizza-order/summary'
         )
       })

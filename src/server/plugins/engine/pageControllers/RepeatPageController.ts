@@ -448,7 +448,6 @@ export class RepeatPageController extends QuestionPageController {
     const { query } = request
 
     return redirectPath(`${path}${summaryPath}`, {
-      itemId: this.getItemId(request),
       returnUrl: query.returnUrl
     })
   }
