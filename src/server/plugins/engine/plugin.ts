@@ -258,11 +258,7 @@ export const plugin = {
 
     const postRouteOptions: RouteOptions<FormRequestPayloadRefs> = {
       payload: {
-        parse: true,
-        failAction: (request, h) => {
-          request.server.plugins.crumb.generate?.(request, h)
-          return h.continue
-        }
+        parse: true
       },
       pre: [{ method: loadFormPreHandler }]
     }

@@ -464,5 +464,22 @@ describe('Model cache', () => {
 
       expect(res.statusCode).toBe(StatusCodes.OK)
     })
+
+    test('Privacy notice page returns 200', async () => {
+      jest.mocked(getFormMetadata).mockResolvedValue({
+        ...fixtures.form.metadata,
+        draft: fixtures.form.state,
+        live: fixtures.form.state
+      })
+
+      const options = {
+        method: 'GET',
+        url: '/help/privacy/slug'
+      }
+
+      const res = await server.inject(options)
+
+      expect(res.statusCode).toBe(StatusCodes.OK)
+    })
   })
 })

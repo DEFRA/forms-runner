@@ -230,6 +230,7 @@ export interface PageViewModelBase {
   feedbackLink?: string
   serviceUrl: string
   phaseTag?: string
+  googleAnalyticsTrackingId?: string
   notificationEmailWarning?: {
     slug: string
     designerUrl: string

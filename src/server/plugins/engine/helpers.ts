@@ -29,7 +29,7 @@ export function proceed(
 ) {
   const { returnUrl } = request.query
 
-  if (returnUrl?.startsWith('/')) {
+  if (isPathRelative(returnUrl)) {
     return h.redirect(returnUrl)
   } else {
     return h.redirect(nextUrl)
@@ -58,6 +58,10 @@ export function redirectUrl(targetUrl: string, params?: FormQuery) {
   })
 
   return relativeUrl.toString()
+}
+
+export function isPathRelative(path?: string) {
+  return (path ?? '').startsWith('/')
 }
 
 export function normalisePath(path = '') {
