@@ -262,7 +262,9 @@ describe('Helpers', () => {
         badger: 'monkeys'
       })
 
-      expect(returned).toBe(`${page.href}?returnUrl=%2Fsummary&badger=monkeys`)
+      expect(returned).toBe(
+        `${page.href}?returnUrl=${encodeURIComponent('/summary')}&badger=monkeys`
+      )
     })
 
     it('should return page href (path override) with new query params', () => {
@@ -274,7 +276,9 @@ describe('Helpers', () => {
         badger: 'monkeys'
       })
 
-      expect(returned).toBe(`${nextHref}?returnUrl=%2Fsummary&badger=monkeys`)
+      expect(returned).toBe(
+        `${nextHref}?returnUrl=${encodeURIComponent('/summary')}&badger=monkeys`
+      )
     })
 
     it('should throw when absolute URL is provided', () => {
