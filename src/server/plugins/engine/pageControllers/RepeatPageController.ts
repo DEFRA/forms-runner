@@ -259,11 +259,7 @@ export class RepeatPageController extends QuestionPageController {
 
           // This is required to ensure we don't navigate
           // to an incorrect page based on stale state values
-          this.getNextPath(
-            model.getFormContext(request, state, {
-              validate: false
-            })
-          )
+          this.getNextPath(model.getFormContext(request, state))
         )
       }
     }

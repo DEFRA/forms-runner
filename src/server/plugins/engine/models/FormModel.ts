@@ -28,7 +28,6 @@ import {
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type FormContext,
-  type FormContextProgress,
   type FormContextRequest,
   type FormState,
   type FormSubmissionState
@@ -199,28 +198,8 @@ export class FormModel {
 
   /**
    * Form context for the current page
-   * (with progress validation)
    */
-  getFormContext(
-    request: FormContextRequest,
-    state: FormState
-  ): FormContextProgress
-
-  /**
-   * Form context for the current page
-   * (without progress validation)
-   */
-  getFormContext(
-    request: FormContextRequest,
-    state: FormState,
-    options: { validate: false }
-  ): FormContext
-
-  getFormContext(
-    request: FormContextRequest,
-    state: FormState,
-    options?: { validate: false }
-  ): FormContext | FormContextProgress {
+  getFormContext(request: FormContextRequest, state: FormState): FormContext {
     const page = getPage(this, request)
 
     // Determine form paths
@@ -231,7 +210,8 @@ export class FormModel {
       evaluationState: {},
       relevantState: {},
       relevantPages: [],
-      state
+      state,
+      paths: []
     }
 
     // Find start page
@@ -268,29 +248,26 @@ export class FormModel {
       nextPage = findPage(this, nextPage.getNextPath(context))
     }
 
-    // Skip validation (optional)
-    if (options?.validate === false) {
-      return context
-    }
-
     // Validate relevant state
     const { error } = page.model
       .makeFilteredSchema(context.relevantPages)
       .validate(context.relevantState, { ...opts, stripUnknown: true })
 
     // Format relevant state errors
-    const errors = error?.details.map(getError)
-    const paths: string[] = []
+    if (error) {
+      context.errors = error.details.map(getError)
+    }
+
     const { isPreview } = checkFormStatus(request.path)
 
     // Add paths for navigation
     for (const { keys, path } of context.relevantPages) {
-      paths.push(path)
+      context.paths.push(path)
 
       // Stop at page with errors
       if (
         !isPreview &&
-        errors?.some(({ name, path }) => {
+        context.errors?.some(({ name, path }) => {
           return keys.includes(name) || keys.some((key) => path.includes(key))
         })
       ) {
@@ -298,10 +275,6 @@ export class FormModel {
       }
     }
 
-    return {
-      ...context,
-      errors,
-      paths
-    }
+    return context
   }
 }
