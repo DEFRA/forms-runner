@@ -6,6 +6,7 @@ import { type ResponseToolkit } from '@hapi/hapi'
 import Joi from 'joi'
 
 import { isRepeatState } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { redirectPath } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
@@ -158,6 +159,7 @@ export class RepeatPageController extends QuestionPageController {
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { path } = this
+      const { query } = request
       const { state } = context
 
       const itemId = this.getItemId(request)
@@ -165,7 +167,9 @@ export class RepeatPageController extends QuestionPageController {
 
       if (!itemId) {
         const summaryPath = this.getSummaryPath(request)
-        const nextPath = `${path}/${randomUUID()}${request.url.search}`
+        const nextPath = redirectPath(`${path}/${randomUUID()}`, {
+          returnUrl: query.returnUrl
+        })
 
         // Only redirect to new item when list is empty
         return super.proceed(request, h, list.length ? summaryPath : nextPath)
@@ -182,12 +186,16 @@ export class RepeatPageController extends QuestionPageController {
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { path } = this
+      const { query } = request
       const { state } = context
 
       const list = this.getListFromState(state)
 
       if (!list.length) {
-        const nextPath = `${path}/${randomUUID()}${request.url.search}`
+        const nextPath = redirectPath(`${path}/${randomUUID()}`, {
+          returnUrl: query.returnUrl
+        })
+
         return super.proceed(request, h, nextPath)
       }
 
@@ -207,13 +215,17 @@ export class RepeatPageController extends QuestionPageController {
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { path, repeat } = this
+      const { query } = request
       const { schema, options } = repeat
       const { state } = context
 
       const list = this.getListFromState(state)
 
       if (!list.length) {
-        const nextPath = `${path}/${randomUUID()}${request.url.search}`
+        const nextPath = redirectPath(`${path}/${randomUUID()}`, {
+          returnUrl: query.returnUrl
+        })
+
         return super.proceed(request, h, nextPath)
       }
 
@@ -251,7 +263,10 @@ export class RepeatPageController extends QuestionPageController {
       }
 
       if (action === FormAction.AddAnother) {
-        const nextPath = `${path}/${randomUUID()}${request.url.search}`
+        const nextPath = redirectPath(`${path}/${randomUUID()}`, {
+          returnUrl: query.returnUrl
+        })
+
         return super.proceed(request, h, nextPath)
       }
 
@@ -364,6 +379,7 @@ export class RepeatPageController extends QuestionPageController {
     list: RepeatListState
   ): RepeaterSummaryPageViewModel {
     const { collection, href, repeat } = this
+    const { query } = request
     const { errors } = context
 
     const { title } = repeat.options
@@ -381,7 +397,9 @@ export class RepeatPageController extends QuestionPageController {
       list.forEach((item, index) => {
         const items: SummaryListAction[] = [
           {
-            href: `${href}/${item.itemId}${request.url.search}`,
+            href: redirectPath(`${href}/${item.itemId}`, {
+              returnUrl: query.returnUrl
+            }),
             text: 'Change',
             classes: 'govuk-link--no-visited-state',
             visuallyHiddenText: `item ${index + 1}`
@@ -390,7 +408,9 @@ export class RepeatPageController extends QuestionPageController {
 
         if (count > 1) {
           items.push({
-            href: `${href}/${item.itemId}/confirm-delete${request.url.search}`,
+            href: redirectPath(`${href}/${item.itemId}/confirm-delete`, {
+              returnUrl: query.returnUrl
+            }),
             text: 'Remove',
             classes: 'govuk-link--no-visited-state',
             visuallyHiddenText: `item ${index + 1}`
@@ -435,17 +455,11 @@ export class RepeatPageController extends QuestionPageController {
       return summaryPath
     }
 
-    const { url } = request
+    const { query } = request
 
-    const itemId = this.getItemId(request)
-    const newUrl = new URL(url)
-
-    if (itemId) {
-      newUrl.searchParams.set('itemId', itemId)
-    } else {
-      newUrl.searchParams.delete('itemId')
-    }
-
-    return `${path}${summaryPath}${newUrl.search}`
+    return redirectPath(`${path}${summaryPath}`, {
+      itemId: this.getItemId(request),
+      returnUrl: query.returnUrl
+    })
   }
 }
