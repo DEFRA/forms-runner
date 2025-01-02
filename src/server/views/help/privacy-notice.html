@@ -1,41 +1,36 @@
 {% extends "layout.html" %}
 
-{% set pageTitle = "Submit a form to Defra privacy notice" %}
+{% set pageTitle = serviceName + " privacy notice" %}
 
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-l">Submit a form to Defra privacy notice</h1>
-      <p class="govuk-body">The {{ form.title }} form was created using ‘Submit a form to Defra’. This service is owned and operated by the Department for Environment, Food & Rural Affairs (Defra).</p>
+      <h1 class="govuk-heading-l">{{ serviceName }} privacy notice</h1>
+      <p class="govuk-body">The {{ form.title }} form was created using ‘{{ serviceName }}’. This service is owned and operated by the Department for Environment, Food & Rural Affairs (Defra).</p>
 
       <h2 class="govuk-heading-m">Who collects your personal data</h2>
-      <p class="govuk-body">The organisation that created the {{ form.title }} form using ‘Submit a form to Defra’ is the data controller of personal data they collect. If the data controller is outside the Defra legal entity, then Defra is the data processor.</p>
+      <p class="govuk-body">The organisation that created the {{ form.title }} form using ‘{{ serviceName }}’ is the data controller of personal data they collect. If the data controller is outside the Defra legal entity, then Defra is the data processor.</p>
       <p class="govuk-body">Read the <a href="{{ form.privacyNoticeUrl }}" class="govuk-link">specific privacy notice for the {{ form.title }} form</a>.</p>
-
-      <p class="govuk-body">Defra also collects some data as a data controller. This privacy notice explains what personal data Defra collects and processes as a data controller through forms made with ‘Submit a form to Defra’.</p>
+      <p class="govuk-body">Defra also collects some data as a data controller. This privacy notice explains what personal data Defra collects and processes as a data controller through forms made with ‘{{ serviceName }}’.</p>
       <p class="govuk-body">If you need further information about how Defra uses your personal data, email <a href="mailto:defraforms@defra.gov.uk" class="govuk-link">defraforms@defra.gov.uk</a>.</p>
       <p class="govuk-body">If you want information and your associated rights you can email: <a href="mailto:data.protection@defra.gov.uk" class="govuk-link">data.protection@defra.gov.uk</a>.</p>
       <p class="govuk-body">The data protection officer for Defra is responsible for checking that Defra complies with legislation. You can contact them at <a href="mailto:DefraGroupDataProtectionOfficer@defra.gov.uk" class="govuk-link">DefraGroupDataProtectionOfficer@defra.gov.uk</a>.</p>
 
       <h2 class="govuk-heading-m">Data we collect from you and what we do with it</h2>
-
-      <p class="govuk-body">If you give your consent, we use Google Analytics cookies to collect information about how you use ‘Submit a form to Defra’. Read the <a href="https://support.google.com/analytics/topic/2919631" class="govuk-link">data privacy and security policy for Google Analytics</a>.</p>
+      <p class="govuk-body">If you give your consent, we use Google Analytics cookies to collect information about how you use ‘{{ serviceName }}’. Read the <a href="https://support.google.com/analytics/topic/2919631" class="govuk-link">data privacy and security policy for Google Analytics</a>.</p>
       <p class="govuk-body">Google Analytics processes information about:</p>
       <ul class="govuk-list govuk-list--bullet">
         <li>your IP address</li>
-        <li>the pages you visit on ‘Submit a form to Defra’</li>
-        <li>how long you spend on each ‘Submit a form to Defra’ page</li>
+        <li>the pages you visit on ‘{{ serviceName }}’</li>
+        <li>how long you spend on each ‘{{ serviceName }}’ page</li>
         <li>how you got to the site</li>
         <li>what you select while you’re visiting the site</li>
       </ul>
-
       <p class="govuk-body">Defra will make sure you cannot be directly identified by Google Analytics data. We do this by using <a href="https://support.google.com/analytics/answer/2763052" class="govuk-link">Google Analytics’ IP address anonymisation</a> feature and by removing any other personal data from the titles or URLs of the pages you visit.</p>
       <p class="govuk-body">Defra will not combine analytics information with other data sets in a way that would directly identify who you are.</p>
       <p class="govuk-body">We use system logs to collect information about the usage of forms. The logs are stored in Amazon Web Services based in London.</p>
-
-      <p class="govuk-body">We use the system logs and Google Analytics data to create anonymised reports about the performance of forms that use ‘Submit a form to Defra’. We use this data to improve forms, for example, if we discover a high number of drops offs at a certain point within a form. We may share this information with the data controller of the form.</p>
-
-      <p class="govuk-body">If you email us feedback about a form that uses ‘Submit a form to Defra’, we’ll send your email address and any other personal information you choose to include in your email to the data controller for review. The data controller may use your personal information to reply to your query to update a form based on your feedback where it is appropriate.</p>
+      <p class="govuk-body">We use the system logs and Google Analytics data to create anonymised reports about the performance of forms that use ‘{{ serviceName }}’. We use this data to improve forms, for example, if we discover a high number of drops offs at a certain point within a form. We may share this information with the data controller of the form.</p>
+      <p class="govuk-body">If you email us feedback about a form that uses ‘{{ serviceName }}’, we’ll send your email address and any other personal information you choose to include in your email to the data controller for review. The data controller may use your personal information to reply to your query to update a form based on your feedback where it is appropriate.</p>
 
       <h2 class="govuk-heading-m">Lawful basis for processing your personal data</h2>
       <p class="govuk-body">The lawful basis for processing your personal data is your consent.</p>
@@ -60,7 +55,6 @@
         <li>the right to data portability</li>
         <li>rights in relation to automated decision making and profiling</li>
       </ul>
-
       <p class="govuk-body">Get more information about your <a href="https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/individual-rights/" class="govuk-link">individual rights</a> under the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018 (DPA 2018).</p>
 
       <h2 class="govuk-heading-m">Complaints</h2>
