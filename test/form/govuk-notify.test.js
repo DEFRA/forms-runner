@@ -138,9 +138,21 @@ describe('Submission journey test', () => {
 
           ---
 
-          ## Number field
+          ## Number field 1
 
           1
+
+          ---
+
+          ## Number field 2
+
+          99\\.00
+
+          ---
+
+          ## Number field 3
+
+          Limited to 1234 kg
 
           ---
 
@@ -254,8 +266,18 @@ describe('Submission journey test', () => {
         },
         {
           name: 'numberField',
-          title: 'Number field',
+          title: 'Number field 1',
           value: '1'
+        },
+        {
+          name: 'numberFieldPrecision',
+          title: 'Number field 2',
+          value: '99'
+        },
+        {
+          name: 'numberFieldPrefixSuffix',
+          title: 'Number field 3',
+          value: '1234'
         },
         {
           name: 'datePartsField',
@@ -345,6 +367,8 @@ describe('Submission journey test', () => {
       textField: 'Text field',
       multilineTextField: 'Multiline text field',
       numberField: '1',
+      numberFieldPrecision: '99',
+      numberFieldPrefixSuffix: '1234',
       datePartsField__day: '12',
       datePartsField__month: '12',
       datePartsField__year: '2012',
