@@ -23,7 +23,6 @@ import { PageController } from '~/src/server/plugins/engine/pageControllers/Page
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
   type FormContext,
-  type FormContextProgress,
   type FormContextRequest,
   type FormPageViewModel,
   type FormParams,
@@ -151,7 +150,7 @@ export class QuestionPageController extends PageController {
     }
   }
 
-  getRelevantPath(context: FormContextProgress) {
+  getRelevantPath(context: FormContext) {
     const { paths } = context
 
     const startPath = this.getStartPath()
@@ -403,10 +402,7 @@ export class QuestionPageController extends PageController {
       const { collection, model, viewName } = this
 
       let state = await this.getState(request)
-
-      const context = model.getFormContext(request, state, {
-        validate: false
-      })
+      const context = model.getFormContext(request, state)
 
       // Sanitised payload after validation
       const { value: payload, errors } = this.validate(request, context.state)
@@ -444,11 +440,7 @@ export class QuestionPageController extends PageController {
 
         // This is required to ensure we don't navigate
         // to an incorrect page based on stale state values
-        this.getNextPath(
-          model.getFormContext(request, state, {
-            validate: false
-          })
-        )
+        this.getNextPath(model.getFormContext(request, state))
       )
     }
   }

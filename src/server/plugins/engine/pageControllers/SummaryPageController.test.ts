@@ -75,7 +75,7 @@ describe('SummaryPageController', () => {
       app: { model }
     } satisfies FormContextRequest
 
-    context = model.getFormContext(request, state, { validate: false })
+    context = model.getFormContext(request, state)
     summaryViewModel = controller.getSummaryViewModel(request, context)
 
     submitResponse = {

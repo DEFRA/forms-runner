@@ -3,7 +3,7 @@ import { type ResponseToolkit } from '@hapi/hapi'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
-  type FormContextProgress,
+  type FormContext,
   type FormContextRequest,
   type FormPageViewModel,
   type FormState,
@@ -400,9 +400,9 @@ describe('QuestionPageController', () => {
   })
 
   describe('Form journey', () => {
-    let context: FormContextProgress
-    let contextNo: FormContextProgress
-    let contextYes: FormContextProgress
+    let context: FormContext
+    let contextNo: FormContext
+    let contextYes: FormContext
 
     beforeEach(() => {
       // Empty state
