@@ -221,11 +221,12 @@ export class FormModel {
     state: FormState,
     options?: { validate: false }
   ): FormContext | FormContextProgress {
-    const page = getPage(this, request)
+    const { pages } = this
+    const { path } = request.params
 
     // Determine form paths
-    const currentPath = page.path
-    const startPath = page.getStartPath()
+    const currentPage = getPage(pages, path)
+    const startPage = findPage(pages, currentPage.getStartPath())
 
     const context: FormContext = {
       evaluationState: {},
@@ -235,7 +236,7 @@ export class FormModel {
     }
 
     // Find start page
-    let nextPage = findPage(this, startPath)
+    let nextPage = startPage
 
     // Walk form pages from start
     while (nextPage) {
@@ -260,12 +261,12 @@ export class FormModel {
       }
 
       // Stop at current page
-      if (nextPage.path === currentPath) {
+      if (nextPage.path === currentPage.path) {
         break
       }
 
       // Apply conditions to determine next page
-      nextPage = findPage(this, nextPage.getNextPath(context))
+      nextPage = findPage(pages, nextPage.getNextPath(context))
     }
 
     // Skip validation (optional)
@@ -274,7 +275,7 @@ export class FormModel {
     }
 
     // Validate relevant state
-    const { error } = page.model
+    const { error } = currentPage.model
       .makeFilteredSchema(context.relevantPages)
       .validate(context.relevantState, { ...opts, stripUnknown: true })
 

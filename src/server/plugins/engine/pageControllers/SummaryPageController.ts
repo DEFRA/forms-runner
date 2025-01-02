@@ -96,7 +96,7 @@ export class SummaryPageController extends QuestionPageController {
 
       // Redirect back to last relevant page
       if (relevantPath !== path) {
-        const redirectTo = findPage(model, relevantPath)
+        const redirectTo = findPage(model.pages, relevantPath)
 
         if (redirectTo?.next.length) {
           request.query.returnUrl = getPageHref(this, this.getSummaryPath())

@@ -133,24 +133,25 @@ export function normalisePath(path = '') {
     .replace(/\/$/, '') // Remove trailing slash
 }
 
-export function getPage(
-  model: FormModel | undefined,
-  request: FormContextRequest
+export function getPage<PageType extends PageControllerClass>(
+  pages: PageType[] | undefined = [],
+  path?: string
 ) {
-  const { params } = request
-
-  const page = findPage(model, `/${params.path}`)
+  const page = findPage(pages, path)
 
   if (!page) {
-    throw Boom.notFound(`No page found for /${params.path}`)
+    throw Boom.notFound(`No page found for /${path}`)
   }
 
   return page
 }
 
-export function findPage(model: FormModel | undefined, path?: string) {
+export function findPage<PageType extends PageControllerClass>(
+  pages: PageType[] | undefined = [],
+  path?: string
+) {
   const findPath = `/${normalisePath(path)}`
-  return model?.pages.find(({ path }) => path === findPath)
+  return pages.find(({ path }) => path === findPath)
 }
 
 export function getStartPath(model?: FormModel) {
