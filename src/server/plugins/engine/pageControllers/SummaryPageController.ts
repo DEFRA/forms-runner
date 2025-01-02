@@ -3,7 +3,7 @@ import {
   type SubmitPayload,
   type SubmitResponsePayload
 } from '@defra/forms-model'
-import { badRequest } from '@hapi/boom'
+import Boom from '@hapi/boom'
 import { type ResponseToolkit, type RouteOptions } from '@hapi/hapi'
 import { addDays, format } from 'date-fns'
 
@@ -278,7 +278,7 @@ async function sendEmail(
   const submitResponse = await submitData(items, emailAddress, request.yar.id)
 
   if (submitResponse === undefined) {
-    throw badRequest('Unexpected empty response from submit api')
+    throw Boom.badRequest('Unexpected empty response from submit api')
   }
 
   // Get submission email personalisation

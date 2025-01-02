@@ -78,7 +78,7 @@ export const plugin = {
 
       // Check the metadata supports the requested state
       if (!state) {
-        return Boom.notFound(`No '${formState}' state for form metadata ${id}`)
+        throw Boom.notFound(`No '${formState}' state for form metadata ${id}`)
       }
 
       // Cache the models based on id, state and whether
@@ -99,7 +99,7 @@ export const plugin = {
         const definition = await getFormDefinition(id, formState)
 
         if (!definition) {
-          return Boom.notFound(
+          throw Boom.notFound(
             `No definition found for form metadata ${id} (${slug}) ${formState}`
           )
         }

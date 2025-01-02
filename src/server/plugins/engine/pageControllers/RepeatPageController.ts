@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto'
 
 import { type PageRepeat, type Repeat } from '@defra/forms-model'
-import { badRequest, notFound } from '@hapi/boom'
+import Boom from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
 import Joi from 'joi'
 
@@ -109,7 +109,7 @@ export class RepeatPageController extends QuestionPageController {
     const itemId = this.getItemId(request)
 
     if (!itemId) {
-      throw badRequest('No item ID found')
+      throw Boom.badRequest('No item ID found')
     }
 
     const list = this.getListFromState(state)
@@ -283,7 +283,7 @@ export class RepeatPageController extends QuestionPageController {
       const item = this.getItemFromList(list, itemId)
 
       if (!item || list.length === 1) {
-        return notFound(
+        throw Boom.notFound(
           item
             ? 'Last list item cannot be removed'
             : 'List item to remove not found'
@@ -324,7 +324,7 @@ export class RepeatPageController extends QuestionPageController {
       const item = this.getItemFromList(list, itemId)
 
       if (!item || list.length === 1) {
-        return notFound(
+        throw Boom.notFound(
           item
             ? 'Last list item cannot be removed'
             : 'List item to remove not found'

@@ -148,7 +148,7 @@ export default {
         method: 'get',
         path: '/',
         handler() {
-          return Boom.notFound()
+          throw Boom.notFound()
         }
       })
 

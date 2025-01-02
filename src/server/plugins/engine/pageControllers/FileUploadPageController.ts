@@ -155,7 +155,7 @@ export class FileUploadPageController extends QuestionPageController {
       )
 
       if (!fileToRemove) {
-        return Boom.notFound('File to delete not found')
+        throw Boom.notFound('File to delete not found')
       }
 
       const { filename } = fileToRemove.status.form.file
