@@ -13,6 +13,7 @@ import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { isPathRelative } from '~/src/server/plugins/engine/helpers.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import { healthRoute, publicRoutes } from '~/src/server/routes/index.js'
+import { crumbSchema } from '~/src/server/schemas/index.js'
 
 const routes = [...publicRoutes, healthRoute]
 
@@ -75,6 +76,7 @@ export default {
 
       server.route<{
         Payload: {
+          crumb?: string
           'cookies[analytics]'?: string
           'cookies[dismissed]'?: string
         }
@@ -129,6 +131,7 @@ export default {
         options: {
           validate: {
             payload: Joi.object({
+              crumb: crumbSchema,
               'cookies[analytics]': Joi.string().valid('yes', 'no').optional(),
               'cookies[dismissed]': Joi.string().valid('yes', 'no').optional()
             }),
