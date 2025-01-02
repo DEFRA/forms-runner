@@ -116,7 +116,7 @@ export class FileUploadPageController extends QuestionPageController {
     // Overwrite the files with those in the upload state
     state[fileUpload.name] = files
 
-    return state
+    return this.refreshUpload(request, state)
   }
 
   /**
@@ -137,19 +137,6 @@ export class FileUploadPageController extends QuestionPageController {
 
     const uploadState = state.upload?.[path]
     return uploadState?.upload
-  }
-
-  makeGetRouteHandler() {
-    return async (
-      request: FormRequest,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
-    ) => {
-      const state = await this.getState(request)
-
-      await this.refreshUpload(request, state)
-
-      return super.makeGetRouteHandler()(request, h)
-    }
   }
 
   makeGetItemDeleteRouteHandler() {
@@ -209,19 +196,6 @@ export class FileUploadPageController extends QuestionPageController {
       }
 
       return this.proceed(request, h)
-    }
-  }
-
-  makePostRouteHandler() {
-    return async (
-      request: FormRequestPayload,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
-    ) => {
-      const state = await this.getState(request)
-
-      await this.refreshUpload(request, state)
-
-      return super.makePostRouteHandler()(request, h)
     }
   }
 
