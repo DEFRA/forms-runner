@@ -267,6 +267,10 @@ export interface PageViewModelBase {
   googleAnalyticsTrackingId?: string
 }
 
+export interface ContentPageViewModel extends PageViewModelBase {
+  components: ComponentViewModel[]
+}
+
 export interface FormPageViewModel extends PageViewModelBase {
   components: ComponentViewModel[]
   context?: FormContext
@@ -285,5 +289,6 @@ export interface FeaturedFormPageViewModel extends FormPageViewModel {
 
 export type PageViewModel =
   | PageViewModelBase
+  | ContentPageViewModel
   | FormPageViewModel
   | FeaturedFormPageViewModel
