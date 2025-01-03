@@ -274,7 +274,7 @@ export class RepeatPageController extends QuestionPageController {
       request: FormRequest,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { viewModel } = this
+      const { model, viewModel } = this
 
       let state = await this.getState(request)
       const list = this.getListFromState(state)
@@ -295,8 +295,11 @@ export class RepeatPageController extends QuestionPageController {
       state = await this.updateProgress(request, state)
       const { progress = [] } = state
 
+      const context = model.getFormContext(request, state)
+
       return h.view(this.listDeleteViewName, {
         ...viewModel,
+        context,
         backLink: this.getBackLink(progress),
         pageTitle: `Are you sure you want to remove this ${title}?`,
         itemTitle: `${title} ${list.indexOf(item) + 1}`,
