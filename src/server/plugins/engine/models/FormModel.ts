@@ -15,7 +15,6 @@ import { Parser, type Value } from 'expr-eval'
 import joi from 'joi'
 
 import {
-  checkFormStatus,
   findPage,
   getError,
   getPage
@@ -257,15 +256,12 @@ export class FormModel {
     // Validate form state
     context = validateFormState(request, page, context)
 
-    const { isPreview } = checkFormStatus(request.path)
-
     // Add paths for navigation
     for (const { keys, path } of context.relevantPages) {
       context.paths.push(path)
 
       // Stop at page with errors
       if (
-        !isPreview &&
         context.errors?.some(({ name, path }) => {
           return keys.includes(name) || keys.some((key) => path.includes(key))
         })
