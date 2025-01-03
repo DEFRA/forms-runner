@@ -427,6 +427,7 @@ export class RepeatPageController extends QuestionPageController {
       repeatTitle: title,
       pageTitle: `You have added ${count} ${title}${count === 1 ? '' : 's'}`,
       showTitle: true,
+      context,
       errors,
       checkAnswers: [{ summaryList }]
     }
