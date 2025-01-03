@@ -170,8 +170,11 @@ export const plugin = {
       const relevantPath = page.getRelevantPath(request, context)
       const summaryPath = page.getSummaryPath()
 
-      // Return handler for relevant pages
-      if (relevantPath.startsWith(page.path)) {
+      // Allow preview URL direct access
+      const { isPreview } = checkFormStatus(request.path)
+
+      // Return handler for relevant pages or preview URL direct access
+      if (relevantPath.startsWith(page.path) || isPreview) {
         return makeHandler(page, context)
       }
 
