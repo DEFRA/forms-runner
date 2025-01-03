@@ -15,6 +15,7 @@ import {
   type FormPayload,
   type FormSubmissionError,
   type FormSubmissionState,
+  type ItemDeletePageViewModel,
   type RepeatItemState,
   type RepeatListState,
   type SummaryList,
@@ -290,39 +291,18 @@ export class RepeatPageController extends QuestionPageController {
       }
 
       const { title } = this.repeat.options
-      const itemTitle = `${title} ${list.indexOf(item) + 1}`
 
       state = await this.updateProgress(request, state)
       const { progress = [] } = state
 
       return h.view(this.listDeleteViewName, {
         ...viewModel,
-
         backLink: this.getBackLink(progress),
-        showTitle: false,
-
-        field: {
-          name: 'confirm',
-          fieldset: {
-            legend: {
-              text: `Are you sure you want to remove ${itemTitle} from this form?`,
-              isPageHeading: true,
-              classes: 'govuk-fieldset__legend--l'
-            }
-          },
-          items: [
-            {
-              value: true,
-              text: `Yes, remove ${itemTitle}`
-            },
-            {
-              value: false,
-              text: 'No'
-            }
-          ],
-          value: true
-        }
-      })
+        pageTitle: `Are you sure you want to remove this ${title}?`,
+        itemTitle: `${title} ${list.indexOf(item) + 1}`,
+        buttonConfirm: { text: `Remove ${title}` },
+        buttonCancel: { text: 'Cancel' }
+      } satisfies ItemDeletePageViewModel)
     }
   }
 

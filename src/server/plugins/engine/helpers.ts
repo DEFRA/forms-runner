@@ -158,17 +158,6 @@ export function getStartPath(model?: FormModel) {
   return startPath ? `/${startPath}` : ControllerPath.Start
 }
 
-export const filesize = (bytes: number) => {
-  let i = -1
-  const byteUnits = [' kB', ' MB', ' GB', ' TB', 'PB', 'EB', 'ZB', 'YB']
-  do {
-    bytes = bytes / 1000
-    i++
-  } while (bytes > 1000)
-
-  return Math.max(bytes, 0.1).toFixed(1) + byteUnits[i]
-}
-
 export function checkFormStatus(path: string) {
   const isPreview = path.toLowerCase().startsWith(PREVIEW_PATH_PREFIX)
 

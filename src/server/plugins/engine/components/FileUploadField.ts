@@ -5,7 +5,6 @@ import {
   FormComponent,
   isUploadState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { filesize } from '~/src/server/plugins/engine/helpers.js'
 import {
   FileStatus,
   UploadStatus,
@@ -192,12 +191,7 @@ export class FileUploadField extends FormComponent {
 
       const valueHtml = render
         .view('components/fileuploadfield-value.html', {
-          context: {
-            params: {
-              size: filesize(file.contentLength),
-              tag
-            }
-          }
+          context: { params: { tag } }
         })
         .trim()
 

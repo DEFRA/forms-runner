@@ -1,8 +1,16 @@
-{% if sectionTitle and (sectionTitle !== pageTitle) %}
-  <h2 class="govuk-caption-l govuk-!-margin-top-0" id="section-title">{{sectionTitle}}</h2>
+{% if sectionTitle and (sectionTitle !== pageTitle) or itemTitle %}
+  <h2 class="govuk-caption-l govuk-!-margin-top-0" id="section-title">
+    {% if sectionTitle and itemTitle %}
+      {{- sectionTitle }}: {{ itemTitle -}}
+    {% elif not sectionTitle %}
+      {{- itemTitle -}}
+    {% else %}
+      {{- sectionTitle -}}
+    {% endif %}
+  </h2>
 {% endif %}
 {% if showTitle %}
   <h1 class="govuk-heading-l">
-    {{pageTitle}}
+    {{ pageTitle }}
   </h1>
 {% endif %}
