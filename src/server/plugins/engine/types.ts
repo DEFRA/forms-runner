@@ -270,6 +270,7 @@ export interface PageViewModelBase {
 }
 
 export interface ItemDeletePageViewModel extends PageViewModelBase {
+  context: FormContext
   itemTitle: string
   confirmation?: ComponentText
   buttonConfirm: ComponentText

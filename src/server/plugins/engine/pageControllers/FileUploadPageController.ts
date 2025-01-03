@@ -157,7 +157,7 @@ export class FileUploadPageController extends QuestionPageController {
       request: FormRequest,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { viewModel } = this
+      const { model, viewModel } = this
       const { params } = request
 
       let state = await this.getState(request)
@@ -176,8 +176,11 @@ export class FileUploadPageController extends QuestionPageController {
       state = await this.updateProgress(request, state)
       const { progress = [] } = state
 
+      const context = model.getFormContext(request, state)
+
       return h.view(this.fileDeleteViewName, {
         ...viewModel,
+        context,
         backLink: this.getBackLink(progress),
         pageTitle: `Are you sure you want to remove this file?`,
         itemTitle: filename,
