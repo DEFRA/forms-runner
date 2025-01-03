@@ -287,6 +287,7 @@ export interface FormPageViewModel extends PageViewModelBase {
 }
 
 export interface RepeaterSummaryPageViewModel extends PageViewModelBase {
+  context: FormContext
   errors?: FormSubmissionError[]
   checkAnswers: CheckAnswers[]
   repeatTitle: string
