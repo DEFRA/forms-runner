@@ -264,7 +264,6 @@ export interface PageViewModelBase {
   feedbackLink?: string
   serviceUrl: string
   phaseTag?: string
-  googleAnalyticsTrackingId?: string
 }
 
 export interface ItemDeletePageViewModel extends PageViewModelBase {
