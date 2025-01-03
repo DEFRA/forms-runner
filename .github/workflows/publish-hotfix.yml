@@ -1,9 +1,9 @@
-name: Publish
+name: Publish Hot Fix
 
 on:
   push:
     branches:
-      - main
+      - 'releases/**'
 
     paths:
       - '.browserslistrc'
@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: publish
+  group: publish-hotfix
 
 permissions:
   id-token: write
@@ -30,14 +30,13 @@ env:
 
 jobs:
   build:
-    if: github.run_number != 1
     name: CDP-build-workflow
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code
         uses: actions/checkout@v4
 
-      - name: Build and Publish
-        uses: DEFRA/cdp-build-action/build@main
+      - name: Build and Publish Hot Fix
+        uses: DEFRA/cdp-build-action/build-hotfix@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
