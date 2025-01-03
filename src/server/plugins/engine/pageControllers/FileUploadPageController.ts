@@ -140,7 +140,7 @@ export class FileUploadPageController extends QuestionPageController {
   }
 
   makeGetItemDeleteRouteHandler() {
-    return async (
+    return (
       request: FormRequest,
       context: FormContext,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
@@ -161,12 +161,10 @@ export class FileUploadPageController extends QuestionPageController {
 
       const { filename } = fileToRemove.status.form.file
 
-      const { progress = [] } = await this.updateProgress(request, state)
-
       return h.view(this.fileDeleteViewName, {
         ...viewModel,
         context,
-        backLink: this.getBackLink(progress),
+        backLink: this.getBackLink(request, context),
         pageTitle: `Are you sure you want to remove this file?`,
         itemTitle: filename,
         confirmation: { text: 'You cannot recover removed files.' },

@@ -33,6 +33,11 @@ export interface Content {
   condition?: string
 }
 
+export interface BackLink {
+  text: string
+  href: string
+}
+
 export type ListItemLabel = Omit<Label, 'text' | 'isPageHeading'>
 
 export interface ListItem {

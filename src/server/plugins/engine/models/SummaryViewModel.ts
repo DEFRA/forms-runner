@@ -4,6 +4,7 @@ import {
   getAnswer,
   type Field
 } from '~/src/server/plugins/engine/components/helpers.js'
+import { type BackLink } from '~/src/server/plugins/engine/components/types.js'
 import { getError, getPageHref } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
@@ -35,7 +36,7 @@ export class SummaryViewModel {
   checkAnswers: CheckAnswers[]
   context: FormContext
   name: string | undefined
-  backLink?: string
+  backLink?: BackLink
   feedbackLink?: string
   phaseTag?: string
   errors?: FormSubmissionError[]

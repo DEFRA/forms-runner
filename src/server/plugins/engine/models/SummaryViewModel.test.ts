@@ -8,6 +8,8 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
 
+const basePath = '/test'
+
 describe('SummaryViewModel', () => {
   const itemId1 = 'abc-123'
   const itemId2 = 'xyz-987'
@@ -21,12 +23,6 @@ describe('SummaryViewModel', () => {
     })
 
     const state = {
-      progress: [
-        'repeat/delivery-or-collection',
-        `repeat/pizza-order/${itemId1}`,
-        `repeat/pizza-order/${itemId2}`,
-        'repeat/summary'
-      ],
       orderType: 'delivery',
       pizza: [
         {
@@ -95,7 +91,7 @@ describe('SummaryViewModel', () => {
             items: [
               {
                 classes: 'govuk-link--no-visited-state',
-                href: '/test/delivery-or-collection?returnUrl=%2Ftest%2Fsummary',
+                href: `${basePath}/delivery-or-collection?returnUrl=${encodeURIComponent(`${basePath}/summary`)}`,
                 text: 'Change',
                 visuallyHiddenText: 'How would you like to receive your pizza?'
               }
@@ -117,7 +113,7 @@ describe('SummaryViewModel', () => {
             items: [
               {
                 classes: 'govuk-link--no-visited-state',
-                href: '/test/pizza-order/summary?returnUrl=%2Ftest%2Fsummary',
+                href: `${basePath}/pizza-order/summary?returnUrl=${encodeURIComponent(`${basePath}/summary`)}`,
                 text: 'Change',
                 visuallyHiddenText: 'Pizza'
               }

@@ -6,6 +6,7 @@ import { type ResponseToolkit } from '@hapi/hapi'
 import Joi from 'joi'
 
 import { isRepeatState } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { redirectPath } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
@@ -56,11 +57,6 @@ export class RepeatPageController extends QuestionPageController {
   get keys() {
     const { repeat } = this
     return [repeat.options.name, ...super.keys]
-  }
-
-  getItemId(request?: FormContextRequest) {
-    const { itemId } = this.getFormParams(request)
-    return itemId ?? request?.params.itemId
   }
 
   getFormParams(request?: FormContextRequest) {
@@ -158,6 +154,7 @@ export class RepeatPageController extends QuestionPageController {
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { path } = this
+      const { query } = request
       const { state } = context
 
       const itemId = this.getItemId(request)
@@ -165,7 +162,9 @@ export class RepeatPageController extends QuestionPageController {
 
       if (!itemId) {
         const summaryPath = this.getSummaryPath(request)
-        const nextPath = `${path}/${randomUUID()}${request.url.search}`
+        const nextPath = redirectPath(`${path}/${randomUUID()}`, {
+          returnUrl: query.returnUrl
+        })
 
         // Only redirect to new item when list is empty
         return super.proceed(request, h, list.length ? summaryPath : nextPath)
@@ -176,25 +175,26 @@ export class RepeatPageController extends QuestionPageController {
   }
 
   makeGetListSummaryRouteHandler() {
-    return async (
+    return (
       request: FormRequest,
       context: FormContext,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { path } = this
+      const { query } = request
       const { state } = context
 
       const list = this.getListFromState(state)
 
       if (!list.length) {
-        const nextPath = `${path}/${randomUUID()}${request.url.search}`
+        const nextPath = redirectPath(`${path}/${randomUUID()}`, {
+          returnUrl: query.returnUrl
+        })
+
         return super.proceed(request, h, nextPath)
       }
 
-      const { progress = [] } = await this.updateProgress(request, state)
-
       const viewModel = this.getListSummaryViewModel(request, context, list)
-      viewModel.backLink = this.getBackLink(progress)
 
       return h.view(this.listSummaryViewName, viewModel)
     }
@@ -207,13 +207,17 @@ export class RepeatPageController extends QuestionPageController {
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { path, repeat } = this
+      const { query } = request
       const { schema, options } = repeat
       const { state } = context
 
       const list = this.getListFromState(state)
 
       if (!list.length) {
-        const nextPath = `${path}/${randomUUID()}${request.url.search}`
+        const nextPath = redirectPath(`${path}/${randomUUID()}`, {
+          returnUrl: query.returnUrl
+        })
+
         return super.proceed(request, h, nextPath)
       }
 
@@ -242,16 +246,16 @@ export class RepeatPageController extends QuestionPageController {
           }
         ]
 
-        const { progress = [] } = state
-
         const viewModel = this.getListSummaryViewModel(request, context, list)
-        viewModel.backLink = this.getBackLink(progress)
 
         return h.view(this.listSummaryViewName, viewModel)
       }
 
       if (action === FormAction.AddAnother) {
-        const nextPath = `${path}/${randomUUID()}${request.url.search}`
+        const nextPath = redirectPath(`${path}/${randomUUID()}`, {
+          returnUrl: query.returnUrl
+        })
+
         return super.proceed(request, h, nextPath)
       }
 
@@ -261,7 +265,7 @@ export class RepeatPageController extends QuestionPageController {
   }
 
   makeGetItemDeleteRouteHandler() {
-    return async (
+    return (
       request: FormRequest,
       context: FormContext,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
@@ -283,12 +287,10 @@ export class RepeatPageController extends QuestionPageController {
 
       const { title } = this.repeat.options
 
-      const { progress = [] } = await this.updateProgress(request, state)
-
       return h.view(this.listDeleteViewName, {
         ...viewModel,
         context,
-        backLink: this.getBackLink(progress),
+        backLink: this.getBackLink(request, context),
         pageTitle: `Are you sure you want to remove this ${title}?`,
         itemTitle: `${title} ${list.indexOf(item) + 1}`,
         buttonConfirm: { text: `Remove ${title}` },
@@ -364,6 +366,7 @@ export class RepeatPageController extends QuestionPageController {
     list: RepeatListState
   ): RepeaterSummaryPageViewModel {
     const { collection, href, repeat } = this
+    const { query } = request
     const { errors } = context
 
     const { title } = repeat.options
@@ -378,10 +381,14 @@ export class RepeatPageController extends QuestionPageController {
     if (Array.isArray(list)) {
       count = list.length
 
+      const summaryPath = this.getSummaryPath(request)
+
       list.forEach((item, index) => {
         const items: SummaryListAction[] = [
           {
-            href: `${href}/${item.itemId}${request.url.search}`,
+            href: redirectPath(`${href}/${item.itemId}`, {
+              returnUrl: query.returnUrl ?? this.getHref(summaryPath)
+            }),
             text: 'Change',
             classes: 'govuk-link--no-visited-state',
             visuallyHiddenText: `item ${index + 1}`
@@ -390,7 +397,9 @@ export class RepeatPageController extends QuestionPageController {
 
         if (count > 1) {
           items.push({
-            href: `${href}/${item.itemId}/confirm-delete${request.url.search}`,
+            href: redirectPath(`${href}/${item.itemId}/confirm-delete`, {
+              returnUrl: query.returnUrl
+            }),
             text: 'Remove',
             classes: 'govuk-link--no-visited-state',
             visuallyHiddenText: `item ${index + 1}`
@@ -417,6 +426,7 @@ export class RepeatPageController extends QuestionPageController {
 
     return {
       ...this.viewModel,
+      backLink: this.getBackLink(request, context),
       repeatTitle: title,
       pageTitle: `You have added ${count} ${title}${count === 1 ? '' : 's'}`,
       showTitle: true,
@@ -435,17 +445,10 @@ export class RepeatPageController extends QuestionPageController {
       return summaryPath
     }
 
-    const { url } = request
+    const { query } = request
 
-    const itemId = this.getItemId(request)
-    const newUrl = new URL(url)
-
-    if (itemId) {
-      newUrl.searchParams.set('itemId', itemId)
-    } else {
-      newUrl.searchParams.delete('itemId')
-    }
-
-    return `${path}${summaryPath}${newUrl.search}`
+    return redirectPath(`${path}${summaryPath}`, {
+      returnUrl: query.returnUrl
+    })
   }
 }

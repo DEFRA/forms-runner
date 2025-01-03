@@ -147,10 +147,7 @@
         {% endif %}
     {% endif %}
     {% if backLink %}
-        {{ govukBackLink({
-            href: '/' + backLink,
-            text: "Back"
-        }) }}
+      {{ govukBackLink(backLink) }}
     {% endif %}
 {% endblock %}
 
