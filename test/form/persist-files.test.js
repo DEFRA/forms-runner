@@ -153,7 +153,7 @@ describe('Submission journey test', () => {
       method: 'POST',
       payload: {
         crumb: 'dummyCrumb',
-        action: FormAction.Continue
+        action: FormAction.Validate
       }
     })
 

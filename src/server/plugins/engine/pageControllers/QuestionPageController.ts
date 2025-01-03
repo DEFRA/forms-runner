@@ -12,9 +12,7 @@ import { config } from '~/src/config/index.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import {
-  findPage,
   getErrors,
-  getPageHref,
   normalisePath,
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
@@ -23,13 +21,11 @@ import { PageController } from '~/src/server/plugins/engine/pageControllers/Page
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
   type FormContext,
-  type FormContextProgress,
   type FormContextRequest,
   type FormPageViewModel,
   type FormParams,
   type FormPayload,
   type FormState,
-  type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import {
@@ -84,17 +80,14 @@ export class QuestionPageController extends PageController {
   /**
    * Used for mapping form payloads and errors to govuk-frontend's template api, so a page can be rendered
    * @param request - the hapi request
-   * @param state - the form state
-   * @param payload - contains a user's form payload
-   * @param [errors] - validation errors that may have occurred
+   * @param context - the form context
    */
   getViewModel(
     request: FormContextRequest,
-    state: FormSubmissionState,
-    payload: FormPayload,
-    errors?: FormSubmissionError[]
+    context: FormContext
   ): FormPageViewModel {
     const { collection, viewModel } = this
+    const { payload, errors } = context
 
     let { pageTitle, showTitle } = viewModel
 
@@ -145,13 +138,17 @@ export class QuestionPageController extends PageController {
 
     return {
       ...viewModel,
+      context,
       showTitle,
       components,
       errors
     }
   }
 
-  getRelevantPath(context: FormContextProgress) {
+  getRelevantPath(
+    request: FormRequest | FormRequestPayload,
+    context: FormContext
+  ) {
     const { paths } = context
 
     const startPath = this.getStartPath()
@@ -241,6 +238,14 @@ export class QuestionPageController extends PageController {
     return cacheService.getState(request)
   }
 
+  async setState(
+    request: FormRequest | FormRequestPayload,
+    state: FormSubmissionState
+  ) {
+    const { cacheService } = request.services([])
+    return cacheService.setState(request, state)
+  }
+
   async mergeState(
     request: FormRequest | FormRequestPayload,
     state: FormSubmissionState,
@@ -253,34 +258,18 @@ export class QuestionPageController extends PageController {
   makeGetRouteHandler() {
     return async (
       request: FormRequest,
+      context: FormContext,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { model, path, viewName } = this
+      const { collection, model, viewName } = this
+      const { evaluationState, state } = context
 
-      let state = await this.getState(request)
-      const context = model.getFormContext(request, state)
-      const relevantPath = this.getRelevantPath(context)
-
-      // Redirect back to last relevant page
-      if (relevantPath !== path) {
-        const redirectTo = findPage(model, relevantPath)
-
-        if (redirectTo?.next.length) {
-          request.query.returnUrl = getPageHref(this, this.getSummaryPath())
-        }
-
-        return this.proceed(request, h, relevantPath)
-      }
-
-      const payload = this.getFormDataFromState(request, context.state)
-      const viewModel = this.getViewModel(request, context.state, payload)
+      const viewModel = this.getViewModel(request, context)
+      viewModel.errors = collection.getErrors(viewModel.errors)
 
       /**
        * Content components can be hidden based on a condition. If the condition evaluates to true, it is safe to be kept, otherwise discard it
        */
-
-      // Evaluation form state only (filtered by visited paths)
-      const { evaluationState } = context
 
       // Filter our components based on their conditions using our evaluated state
       viewModel.components = viewModel.components.filter((component) => {
@@ -322,10 +311,7 @@ export class QuestionPageController extends PageController {
         return evaluatedComponent
       })
 
-      state = await this.updateProgress(request, state)
-      const { progress = [] } = state
-
-      viewModel.context = context
+      const { progress = [] } = await this.updateProgress(request, state)
 
       viewModel.backLink = this.getBackLink(progress)
 
@@ -398,66 +384,30 @@ export class QuestionPageController extends PageController {
   makePostRouteHandler() {
     return async (
       request: FormRequestPayload,
+      context: FormContext,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { collection, model, viewName } = this
-
-      let state = await this.getState(request)
-
-      const context = model.getFormContext(request, state, {
-        validate: false
-      })
-
-      // Sanitised payload after validation
-      const { value: payload, errors } = this.validate(request, context.state)
+      const { collection, viewName } = this
+      const { state } = context
 
       /**
        * If there are any errors, render the page with the parsed errors
        * @todo Refactor to match POST REDIRECT GET pattern
        */
-      if (errors) {
-        const { progress = [] } = context.state
-        const viewModel = this.getViewModel(
-          request,
-          context.state,
-          payload,
-          errors
-        )
+      if (context.errors) {
+        const { progress = [] } = state
+        const viewModel = this.getViewModel(request, context)
 
-        viewModel.context = context
         viewModel.errors = collection.getErrors(viewModel.errors)
         viewModel.backLink = this.getBackLink(progress)
 
         return h.view(viewName, viewModel)
       }
 
-      // Convert and save sanitised payload to state
-      state = await this.mergeState(
-        request,
-        state,
-        this.getStateFromValidForm(request, state, payload)
-      )
-
-      return this.proceed(
-        request,
-        h,
-
-        // This is required to ensure we don't navigate
-        // to an incorrect page based on stale state values
-        this.getNextPath(
-          model.getFormContext(request, state, {
-            validate: false
-          })
-        )
-      )
+      // Save and proceed
+      await this.setState(request, state)
+      return this.proceed(request, h, this.getNextPath(context))
     }
-  }
-
-  validate(request: FormRequestPayload, state: FormSubmissionState) {
-    const { collection } = this
-
-    const payload = this.getFormDataFromState(request, state)
-    return collection.validate({ ...payload, ...request.payload })
   }
 
   proceed(

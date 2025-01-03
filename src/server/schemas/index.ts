@@ -10,11 +10,12 @@ export const stateSchema = Joi.string<FormStatus>()
 export const actionSchema = Joi.string<FormAction>()
   .valid(
     FormAction.Continue,
+    FormAction.Validate,
     FormAction.Delete,
     FormAction.AddAnother,
     FormAction.Send
   )
-  .default(FormAction.Continue)
+  .default(FormAction.Validate)
   .optional()
 
 export const pathSchema = Joi.string().required()

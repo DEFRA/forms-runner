@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto'
 
 import { type PageRepeat, type Repeat } from '@defra/forms-model'
-import { badRequest, notFound } from '@hapi/boom'
+import Boom from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
 import Joi from 'joi'
 
@@ -9,10 +9,10 @@ import { isRepeatState } from '~/src/server/plugins/engine/components/FormCompon
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
+  type FormContext,
   type FormContextRequest,
   type FormPageViewModel,
   type FormPayload,
-  type FormSubmissionError,
   type FormSubmissionState,
   type ItemDeletePageViewModel,
   type RepeatItemState,
@@ -109,7 +109,7 @@ export class RepeatPageController extends QuestionPageController {
     const itemId = this.getItemId(request)
 
     if (!itemId) {
-      throw badRequest('No item ID found')
+      throw Boom.badRequest('No item ID found')
     }
 
     const list = this.getListFromState(state)
@@ -154,13 +154,13 @@ export class RepeatPageController extends QuestionPageController {
   makeGetRouteHandler() {
     return async (
       request: FormRequest,
+      context: FormContext,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { path } = this
+      const { state } = context
 
       const itemId = this.getItemId(request)
-
-      const state = await this.getState(request)
       const list = this.getListFromState(state)
 
       if (!itemId) {
@@ -171,18 +171,19 @@ export class RepeatPageController extends QuestionPageController {
         return super.proceed(request, h, list.length ? summaryPath : nextPath)
       }
 
-      return super.makeGetRouteHandler()(request, h)
+      return super.makeGetRouteHandler()(request, context, h)
     }
   }
 
   makeGetListSummaryRouteHandler() {
     return async (
       request: FormRequest,
+      context: FormContext,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { path } = this
+      const { state } = context
 
-      let state = await this.getState(request)
       const list = this.getListFromState(state)
 
       if (!list.length) {
@@ -190,10 +191,9 @@ export class RepeatPageController extends QuestionPageController {
         return super.proceed(request, h, nextPath)
       }
 
-      state = await this.updateProgress(request, state)
-      const { progress = [] } = state
+      const { progress = [] } = await this.updateProgress(request, state)
 
-      const viewModel = this.getListSummaryViewModel(request, list)
+      const viewModel = this.getListSummaryViewModel(request, context, list)
       viewModel.backLink = this.getBackLink(progress)
 
       return h.view(this.listSummaryViewName, viewModel)
@@ -201,14 +201,15 @@ export class RepeatPageController extends QuestionPageController {
   }
 
   makePostListSummaryRouteHandler() {
-    return async (
+    return (
       request: FormRequestPayload,
+      context: FormContext,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { model, path, repeat } = this
+      const { path, repeat } = this
       const { schema, options } = repeat
+      const { state } = context
 
-      const state = await this.getState(request)
       const list = this.getListFromState(state)
 
       if (!list.length) {
@@ -230,7 +231,7 @@ export class RepeatPageController extends QuestionPageController {
         const count = hasErrorMax ? schema.max : schema.min
         const itemTitle = `${options.title}${count === 1 ? '' : 's'}`
 
-        const errors: FormSubmissionError[] = [
+        context.errors = [
           {
             path: [],
             href: '',
@@ -243,7 +244,7 @@ export class RepeatPageController extends QuestionPageController {
 
         const { progress = [] } = state
 
-        const viewModel = this.getListSummaryViewModel(request, list, errors)
+        const viewModel = this.getListSummaryViewModel(request, context, list)
         viewModel.backLink = this.getBackLink(progress)
 
         return h.view(this.listSummaryViewName, viewModel)
@@ -252,38 +253,28 @@ export class RepeatPageController extends QuestionPageController {
       if (action === FormAction.AddAnother) {
         const nextPath = `${path}/${randomUUID()}${request.url.search}`
         return super.proceed(request, h, nextPath)
-      } else if (action === FormAction.Continue) {
-        return super.proceed(
-          request,
-          h,
-
-          // This is required to ensure we don't navigate
-          // to an incorrect page based on stale state values
-          this.getNextPath(
-            model.getFormContext(request, state, {
-              validate: false
-            })
-          )
-        )
       }
+
+      const nextPath = this.getNextPath(context)
+      return super.proceed(request, h, nextPath)
     }
   }
 
   makeGetItemDeleteRouteHandler() {
     return async (
       request: FormRequest,
+      context: FormContext,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { viewModel } = this
+      const { state } = context
 
-      let state = await this.getState(request)
       const list = this.getListFromState(state)
-
       const itemId = this.getItemId(request)
       const item = this.getItemFromList(list, itemId)
 
       if (!item || list.length === 1) {
-        return notFound(
+        throw Boom.notFound(
           item
             ? 'Last list item cannot be removed'
             : 'List item to remove not found'
@@ -292,11 +283,11 @@ export class RepeatPageController extends QuestionPageController {
 
       const { title } = this.repeat.options
 
-      state = await this.updateProgress(request, state)
-      const { progress = [] } = state
+      const { progress = [] } = await this.updateProgress(request, state)
 
       return h.view(this.listDeleteViewName, {
         ...viewModel,
+        context,
         backLink: this.getBackLink(progress),
         pageTitle: `Are you sure you want to remove this ${title}?`,
         itemTitle: `${title} ${list.indexOf(item) + 1}`,
@@ -309,19 +300,20 @@ export class RepeatPageController extends QuestionPageController {
   makePostItemDeleteRouteHandler() {
     return async (
       request: FormRequestPayload,
+      context: FormContext,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { repeat } = this
+      const { state } = context
+
       const { confirm } = this.getFormParams(request)
 
-      const state = await this.getState(request)
       const list = this.getListFromState(state)
-
       const itemId = this.getItemId(request)
       const item = this.getItemFromList(list, itemId)
 
       if (!item || list.length === 1) {
-        return notFound(
+        throw Boom.notFound(
           item
             ? 'Last list item cannot be removed'
             : 'List item to remove not found'
@@ -345,16 +337,15 @@ export class RepeatPageController extends QuestionPageController {
 
   getViewModel(
     request: FormContextRequest,
-    state: FormSubmissionState,
-    payload: FormPayload,
-    errors?: FormSubmissionError[]
+    context: FormContext
   ): FormPageViewModel {
-    const list = this.getListFromState(state)
+    const { state } = context
 
+    const list = this.getListFromState(state)
     const itemId = this.getItemId(request)
     const item = this.getItemFromList(list, itemId)
 
-    const viewModel = super.getViewModel(request, state, payload, errors)
+    const viewModel = super.getViewModel(request, context)
     const itemNumber = item ? list.indexOf(item) + 1 : list.length + 1
     const repeatCaption = `${this.repeat.options.title} ${itemNumber}`
 
@@ -369,10 +360,11 @@ export class RepeatPageController extends QuestionPageController {
 
   getListSummaryViewModel(
     request: FormContextRequest,
-    list: RepeatListState,
-    errors?: FormSubmissionError[]
+    context: FormContext,
+    list: RepeatListState
   ): RepeaterSummaryPageViewModel {
     const { collection, href, repeat } = this
+    const { errors } = context
 
     const { title } = repeat.options
 
@@ -428,6 +420,7 @@ export class RepeatPageController extends QuestionPageController {
       repeatTitle: title,
       pageTitle: `You have added ${count} ${title}${count === 1 ? '' : 's'}`,
       showTitle: true,
+      context,
       errors,
       checkAnswers: [{ summaryList }]
     }
