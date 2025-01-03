@@ -261,10 +261,11 @@ export class QuestionPageController extends PageController {
       context: FormContext,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { model, viewName } = this
+      const { collection, model, viewName } = this
       const { evaluationState, state } = context
 
       const viewModel = this.getViewModel(request, context)
+      viewModel.errors = collection.getErrors(viewModel.errors)
 
       /**
        * Content components can be hidden based on a condition. If the condition evaluates to true, it is safe to be kept, otherwise discard it
