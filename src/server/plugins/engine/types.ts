@@ -283,6 +283,12 @@ export interface FormPageViewModel extends PageViewModelBase {
   }
 }
 
+export interface RepeaterSummaryPageViewModel extends PageViewModelBase {
+  errors?: FormSubmissionError[]
+  checkAnswers: CheckAnswers[]
+  repeatTitle: string
+}
+
 export interface FeaturedFormPageViewModel extends FormPageViewModel {
   formAction?: string
   formComponent: ComponentViewModel
@@ -293,4 +299,5 @@ export type PageViewModel =
   | PageViewModelBase
   | ItemDeletePageViewModel
   | FormPageViewModel
+  | RepeaterSummaryPageViewModel
   | FeaturedFormPageViewModel
