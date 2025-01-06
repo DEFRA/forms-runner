@@ -62,12 +62,7 @@ export class SummaryPageController extends QuestionPageController {
     request: FormContextRequest,
     context: FormContext
   ): SummaryViewModel {
-    const viewModel = new SummaryViewModel(
-      this.model,
-      this.pageDef,
-      request,
-      context
-    )
+    const viewModel = new SummaryViewModel(request, this, context)
 
     // We already figure these out in the base page controller. Take them and apply them to our page-specific model.
     // This is a stop-gap until we can add proper inheritance in place.

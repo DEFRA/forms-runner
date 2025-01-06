@@ -1,4 +1,4 @@
-import { type PageSummary, type Section } from '@defra/forms-model'
+import { type Section } from '@defra/forms-model'
 
 import {
   getAnswer,
@@ -6,7 +6,6 @@ import {
 } from '~/src/server/plugins/engine/components/helpers.js'
 import { type BackLink } from '~/src/server/plugins/engine/components/types.js'
 import { getError, getPageHref } from '~/src/server/plugins/engine/helpers.js'
-import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   type Detail,
   type DetailItem,
@@ -31,6 +30,7 @@ export class SummaryViewModel {
    * Responsible for parsing state values to the govuk-frontend summary list template
    */
 
+  page: PageControllerClass
   pageTitle: string
   declaration?: string
   details: Detail[]
@@ -48,15 +48,16 @@ export class SummaryViewModel {
   }
 
   constructor(
-    model: FormModel,
-    pageDef: PageSummary,
     request: FormContextRequest,
+    page: PageControllerClass,
     context: FormContext
   ) {
+    const { model } = page
     const { basePath, def, sections } = model
     const { isForceAccess } = context
 
-    this.pageTitle = pageDef.title
+    this.page = page
+    this.pageTitle = page.title
     this.serviceUrl = `/${basePath}`
     this.name = def.name
     this.declaration = def.declaration

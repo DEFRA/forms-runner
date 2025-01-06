@@ -1,9 +1,11 @@
-import { type PageSummary } from '@defra/forms-model'
-
 import {
   FormModel,
   SummaryViewModel
 } from '~/src/server/plugins/engine/models/index.js'
+import {
+  createPage,
+  type PageControllerClass
+} from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
   type FormContext,
   type FormContextRequest,
@@ -19,7 +21,7 @@ describe('SummaryViewModel', () => {
 
   let model: FormModel
   let state: FormState
-  let pageDef: PageSummary
+  let page: PageControllerClass
   let pageUrl: URL
   let request: FormContextRequest
   let context: FormContext
@@ -46,7 +48,7 @@ describe('SummaryViewModel', () => {
       ]
     }
 
-    pageDef = definition.pages[2]
+    page = createPage(model, definition.pages[2])
     pageUrl = new URL('http://example.com/repeat/pizza-order/summary')
 
     request = {
@@ -62,7 +64,7 @@ describe('SummaryViewModel', () => {
     }
 
     context = model.getFormContext(request, state)
-    summaryViewModel = new SummaryViewModel(model, pageDef, request, context)
+    summaryViewModel = new SummaryViewModel(request, page, context)
   })
 
   describe('Check answers', () => {
@@ -134,7 +136,7 @@ describe('SummaryViewModel', () => {
     it('should add summary list for each section (preview URL direct access)', () => {
       request.query.force = '' // Preview URL '?force'
       context = model.getFormContext(request, state)
-      summaryViewModel = new SummaryViewModel(model, pageDef, request, context)
+      summaryViewModel = new SummaryViewModel(request, page, context)
 
       expect(summaryViewModel.checkAnswers).toHaveLength(2)
 
