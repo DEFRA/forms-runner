@@ -1,3 +1,4 @@
+import { type PageQuestion } from '@defra/forms-model'
 import { type ResponseToolkit } from '@hapi/hapi'
 
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
@@ -10,11 +11,18 @@ import {
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import { type FormRequest } from '~/src/server/routes/types.js'
+import { CacheService } from '~/src/server/services/cacheService.js'
 import definitionConditionsBasic from '~/test/form/definitions/conditions-basic.js'
 import definitionConditionsComplex from '~/test/form/definitions/conditions-complex.js'
 import definitionConditionsDates from '~/test/form/definitions/conditions-dates.js'
 
 describe('QuestionPageController', () => {
+  let page1: PageQuestion
+  let page1Url: URL
+
+  let page2: PageQuestion
+  let page2Url: URL
+
   let model: FormModel
   let controller1: QuestionPageController
   let controller2: QuestionPageController
@@ -24,11 +32,11 @@ describe('QuestionPageController', () => {
   beforeEach(() => {
     const { pages } = definitionConditionsBasic
 
-    const page1 = pages[0]
-    const page1Url = new URL('http://example.com/test/first-page')
+    page1 = pages[0]
+    page1Url = new URL('http://example.com/test/first-page')
 
-    const page2 = pages[1]
-    const page2Url = new URL('http://example.com/test/second-page')
+    page2 = pages[1]
+    page2Url = new URL('http://example.com/test/second-page')
 
     model = new FormModel(definitionConditionsBasic, {
       basePath: 'test'
@@ -521,6 +529,64 @@ describe('QuestionPageController', () => {
           sectionTitle: 'Your marriage'
         })
       )
+    })
+  })
+
+  describe('State', () => {
+    beforeEach(() => {
+      jest.spyOn(CacheService.prototype, 'getState')
+      jest.spyOn(CacheService.prototype, 'setState')
+
+      // Preview URL '?force'
+      requestPage1.query.force = ''
+    })
+
+    describe('getState', () => {
+      it('should skip get for preview URL direct access', async () => {
+        const state = await controller1.getState(requestPage1)
+
+        expect(state).toEqual({})
+        expect(CacheService.prototype.getState).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('setState', () => {
+      it('should skip set for preview URL direct access', async () => {
+        const state: FormSubmissionState = { yesNoField: false }
+        const updated = await controller1.setState(requestPage1, state)
+
+        expect(updated).toBe(state)
+        expect(CacheService.prototype.setState).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('mergeState', () => {
+      it('should skip merge for preview URL direct access', async () => {
+        const state: FormSubmissionState = {
+          yesNoField: false
+        }
+
+        const update: FormSubmissionState = {
+          dateField__day: 5,
+          dateField__month: 1,
+          dateField__year: 2024
+        }
+
+        const updated = await controller1.mergeState(
+          requestPage1,
+          state,
+          update
+        )
+
+        expect(updated).toEqual({
+          yesNoField: false,
+          dateField__day: 5,
+          dateField__month: 1,
+          dateField__year: 2024
+        })
+
+        expect(CacheService.prototype.setState).not.toHaveBeenCalled()
+      })
     })
   })
 })

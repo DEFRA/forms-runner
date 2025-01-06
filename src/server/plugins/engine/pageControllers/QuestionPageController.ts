@@ -41,6 +41,7 @@ import {
   crumbSchema,
   paramsSchema
 } from '~/src/server/schemas/index.js'
+import { merge } from '~/src/server/services/cacheService.js'
 
 export class QuestionPageController extends PageController {
   collection: ComponentCollection
@@ -243,6 +244,13 @@ export class QuestionPageController extends PageController {
   }
 
   async getState(request: FormRequest | FormRequestPayload) {
+    const { query } = request
+
+    // Skip get for preview URL direct access
+    if ('force' in query) {
+      return {}
+    }
+
     const { cacheService } = request.services([])
     return cacheService.getState(request)
   }
@@ -251,6 +259,13 @@ export class QuestionPageController extends PageController {
     request: FormRequest | FormRequestPayload,
     state: FormSubmissionState
   ) {
+    const { query } = request
+
+    // Skip set for preview URL direct access
+    if ('force' in query) {
+      return state
+    }
+
     const { cacheService } = request.services([])
     return cacheService.setState(request, state)
   }
@@ -260,8 +275,18 @@ export class QuestionPageController extends PageController {
     state: FormSubmissionState,
     update: object
   ) {
+    const { query } = request
+
+    // Merge state before set
+    const updated = merge(state, update)
+
+    // Skip set for preview URL direct access
+    if ('force' in query) {
+      return updated
+    }
+
     const { cacheService } = request.services([])
-    return cacheService.mergeState(request, state, update)
+    return cacheService.setState(request, updated)
   }
 
   makeGetRouteHandler() {
