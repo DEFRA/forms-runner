@@ -9,7 +9,6 @@ import { isRepeatState } from '~/src/server/plugins/engine/components/FormCompon
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
-  type CheckAnswers,
   type FormContextRequest,
   type FormPageViewModel,
   type FormPayload,
@@ -18,6 +17,7 @@ import {
   type ItemDeletePageViewModel,
   type RepeatItemState,
   type RepeatListState,
+  type RepeaterSummaryPageViewModel,
   type SummaryList,
   type SummaryListAction
 } from '~/src/server/plugins/engine/types.js'
@@ -371,21 +371,10 @@ export class RepeatPageController extends QuestionPageController {
     request: FormContextRequest,
     list: RepeatListState,
     errors?: FormSubmissionError[]
-  ): {
-    name: string | undefined
-    pageTitle: string
-    sectionTitle: string | undefined
-    showTitle: boolean
-    serviceUrl: string
-    errors?: FormSubmissionError[]
-    checkAnswers: CheckAnswers[]
-    repeatTitle: string
-    backLink?: string
-  } {
-    const { collection, href, repeat, section } = this
+  ): RepeaterSummaryPageViewModel {
+    const { collection, href, repeat } = this
 
     const { title } = repeat.options
-    const sectionTitle = section?.hideTitle !== true ? section?.title : ''
 
     const summaryList: SummaryList = {
       classes: 'govuk-summary-list--long-actions',
@@ -435,14 +424,12 @@ export class RepeatPageController extends QuestionPageController {
     }
 
     return {
-      name: this.name,
+      ...this.viewModel,
+      repeatTitle: title,
       pageTitle: `You have added ${count} ${title}${count === 1 ? '' : 's'}`,
-      sectionTitle,
       showTitle: true,
       errors,
-      serviceUrl: this.getHref('/'),
-      checkAnswers: [{ summaryList }],
-      repeatTitle: title
+      checkAnswers: [{ summaryList }]
     }
   }
 
