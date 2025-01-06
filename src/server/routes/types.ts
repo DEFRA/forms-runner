@@ -28,6 +28,7 @@ export type FormRequestPayload = Request<FormRequestPayloadRefs>
 
 export enum FormAction {
   Continue = 'continue',
+  Validate = 'validate',
   Delete = 'delete',
   AddAnother = 'add-another',
   Send = 'send'

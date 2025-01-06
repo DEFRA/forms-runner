@@ -86,7 +86,7 @@ describe('Helpers', () => {
         request: {
           method: 'post',
           payload: {
-            action: FormAction.Continue
+            action: FormAction.Validate
           }
         } satisfies Partial<FormContextRequest>,
 
@@ -114,7 +114,7 @@ describe('Helpers', () => {
         request: {
           method: 'post',
           payload: {
-            action: FormAction.Continue
+            action: FormAction.Validate
           },
           query: {
             myParam1: 'myValue1',
@@ -159,7 +159,7 @@ describe('Helpers', () => {
         request: {
           method: 'post',
           payload: {
-            action: FormAction.Continue
+            action: FormAction.Validate
           },
           query: { returnUrl: 'https://www.gov.uk/help/privacy-notice' }
         } satisfies Partial<FormContextRequest>,

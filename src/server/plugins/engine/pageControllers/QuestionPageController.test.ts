@@ -165,8 +165,15 @@ describe('QuestionPageController', () => {
     let viewModel2: FormPageViewModel
 
     beforeEach(() => {
-      viewModel1 = controller1.getViewModel(requestPage1, {}, {})
-      viewModel2 = controller2.getViewModel(requestPage2, {}, {})
+      viewModel1 = controller1.getViewModel(
+        requestPage1,
+        model.getFormContext(requestPage1, {})
+      )
+
+      viewModel2 = controller2.getViewModel(
+        requestPage2,
+        model.getFormContext(requestPage2, {})
+      )
     })
 
     it('hides the page title for single form component pages', () => {

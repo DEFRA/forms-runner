@@ -9,10 +9,10 @@ import { isRepeatState } from '~/src/server/plugins/engine/components/FormCompon
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
+  type FormContext,
   type FormContextRequest,
   type FormPageViewModel,
   type FormPayload,
-  type FormSubmissionError,
   type FormSubmissionState,
   type ItemDeletePageViewModel,
   type RepeatItemState,
@@ -180,7 +180,7 @@ export class RepeatPageController extends QuestionPageController {
       request: FormRequest,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { path } = this
+      const { model, path } = this
 
       let state = await this.getState(request)
       const list = this.getListFromState(state)
@@ -193,7 +193,9 @@ export class RepeatPageController extends QuestionPageController {
       state = await this.updateProgress(request, state)
       const { progress = [] } = state
 
-      const viewModel = this.getListSummaryViewModel(request, list)
+      const context = model.getFormContext(request, state)
+
+      const viewModel = this.getListSummaryViewModel(request, context, list)
       viewModel.backLink = this.getBackLink(progress)
 
       return h.view(this.listSummaryViewName, viewModel)
@@ -227,10 +229,12 @@ export class RepeatPageController extends QuestionPageController {
 
       // Show error if repeat limits apply
       if (hasErrorMin || hasErrorMax) {
+        const context = model.getFormContext(request, state)
+
         const count = hasErrorMax ? schema.max : schema.min
         const itemTitle = `${options.title}${count === 1 ? '' : 's'}`
 
-        const errors: FormSubmissionError[] = [
+        context.errors = [
           {
             path: [],
             href: '',
@@ -241,9 +245,9 @@ export class RepeatPageController extends QuestionPageController {
           }
         ]
 
-        const { progress = [] } = state
+        const { progress = [] } = context.state
 
-        const viewModel = this.getListSummaryViewModel(request, list, errors)
+        const viewModel = this.getListSummaryViewModel(request, context, list)
         viewModel.backLink = this.getBackLink(progress)
 
         return h.view(this.listSummaryViewName, viewModel)
@@ -341,16 +345,14 @@ export class RepeatPageController extends QuestionPageController {
 
   getViewModel(
     request: FormContextRequest,
-    state: FormSubmissionState,
-    payload: FormPayload,
-    errors?: FormSubmissionError[]
+    context: FormContext
   ): FormPageViewModel {
-    const list = this.getListFromState(state)
+    const list = this.getListFromState(context.state)
 
     const itemId = this.getItemId(request)
     const item = this.getItemFromList(list, itemId)
 
-    const viewModel = super.getViewModel(request, state, payload, errors)
+    const viewModel = super.getViewModel(request, context)
     const itemNumber = item ? list.indexOf(item) + 1 : list.length + 1
     const repeatCaption = `${this.repeat.options.title} ${itemNumber}`
 
@@ -365,10 +367,11 @@ export class RepeatPageController extends QuestionPageController {
 
   getListSummaryViewModel(
     request: FormContextRequest,
-    list: RepeatListState,
-    errors?: FormSubmissionError[]
+    context: FormContext,
+    list: RepeatListState
   ): RepeaterSummaryPageViewModel {
     const { collection, href, repeat } = this
+    const { errors } = context
 
     const { title } = repeat.options
 

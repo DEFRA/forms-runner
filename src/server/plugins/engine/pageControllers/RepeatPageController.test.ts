@@ -142,7 +142,10 @@ describe('RepeatPageController', () => {
     let viewModel: FormPageViewModel
 
     beforeEach(() => {
-      viewModel = controller.getViewModel(requestPageItem, {}, {})
+      viewModel = controller.getViewModel(
+        requestPageItem,
+        model.getFormContext(requestPageItem, {})
+      )
     })
 
     it('updates section title with repeater title and count', () => {
@@ -201,7 +204,11 @@ describe('RepeatPageController', () => {
       let viewModel: RepeaterSummaryPageViewModel
 
       beforeEach(() => {
-        viewModel = controller.getListSummaryViewModel(requestPageSummary, list)
+        viewModel = controller.getListSummaryViewModel(
+          requestPageSummary,
+          model.getFormContext(requestPageSummary, {}),
+          list
+        )
       })
 
       it('should customise page title', () => {

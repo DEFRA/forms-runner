@@ -28,7 +28,6 @@ import {
   type FormParams,
   type FormPayload,
   type FormState,
-  type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import {
@@ -83,17 +82,14 @@ export class QuestionPageController extends PageController {
   /**
    * Used for mapping form payloads and errors to govuk-frontend's template api, so a page can be rendered
    * @param request - the hapi request
-   * @param state - the form state
-   * @param payload - contains a user's form payload
-   * @param [errors] - validation errors that may have occurred
+   * @param context - the form context
    */
   getViewModel(
     request: FormContextRequest,
-    state: FormSubmissionState,
-    payload: FormPayload,
-    errors?: FormSubmissionError[]
+    context: FormContext
   ): FormPageViewModel {
     const { collection, viewModel } = this
+    const { payload, errors } = context
 
     let { pageTitle, showTitle } = viewModel
 
@@ -144,6 +140,7 @@ export class QuestionPageController extends PageController {
 
     return {
       ...viewModel,
+      context,
       showTitle,
       components,
       errors
@@ -271,8 +268,7 @@ export class QuestionPageController extends PageController {
         return this.proceed(request, h, relevantPath)
       }
 
-      const payload = this.getFormDataFromState(request, context.state)
-      const viewModel = this.getViewModel(request, context.state, payload)
+      const viewModel = this.getViewModel(request, context)
 
       /**
        * Content components can be hidden based on a condition. If the condition evaluates to true, it is safe to be kept, otherwise discard it
@@ -323,8 +319,6 @@ export class QuestionPageController extends PageController {
 
       state = await this.updateProgress(request, state)
       const { progress = [] } = state
-
-      viewModel.context = context
 
       viewModel.backLink = this.getBackLink(progress)
 
@@ -401,55 +395,27 @@ export class QuestionPageController extends PageController {
     ) => {
       const { collection, model, viewName } = this
 
-      let state = await this.getState(request)
+      const state = await this.getState(request)
       const context = model.getFormContext(request, state)
-
-      // Sanitised payload after validation
-      const { value: payload, errors } = this.validate(request, context.state)
 
       /**
        * If there are any errors, render the page with the parsed errors
        * @todo Refactor to match POST REDIRECT GET pattern
        */
-      if (errors) {
+      if (context.errors) {
         const { progress = [] } = context.state
-        const viewModel = this.getViewModel(
-          request,
-          context.state,
-          payload,
-          errors
-        )
+        const viewModel = this.getViewModel(request, context)
 
-        viewModel.context = context
         viewModel.errors = collection.getErrors(viewModel.errors)
         viewModel.backLink = this.getBackLink(progress)
 
         return h.view(viewName, viewModel)
       }
 
-      // Convert and save sanitised payload to state
-      state = await this.mergeState(
-        request,
-        state,
-        this.getStateFromValidForm(request, state, payload)
-      )
-
-      return this.proceed(
-        request,
-        h,
-
-        // This is required to ensure we don't navigate
-        // to an incorrect page based on stale state values
-        this.getNextPath(model.getFormContext(request, state))
-      )
+      // Save and proceed
+      await this.mergeState(request, state, context.state)
+      return this.proceed(request, h, this.getNextPath(context))
     }
-  }
-
-  validate(request: FormRequestPayload, state: FormSubmissionState) {
-    const { collection } = this
-
-    const payload = this.getFormDataFromState(request, state)
-    return collection.validate({ ...payload, ...request.payload })
   }
 
   proceed(
