@@ -92,7 +92,7 @@ export class SummaryPageController extends QuestionPageController {
       const viewModel = this.getSummaryViewModel(request, context)
 
       viewModel.notificationEmailWarning =
-        await this.buildMissingEmailWarningModel(request)
+        await this.buildMissingEmailWarningModel(request, context)
 
       return h.view(viewName, viewModel)
     }

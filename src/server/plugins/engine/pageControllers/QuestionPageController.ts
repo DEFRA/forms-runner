@@ -321,23 +321,25 @@ export class QuestionPageController extends PageController {
       })
 
       viewModel.notificationEmailWarning =
-        await this.buildMissingEmailWarningModel(request)
+        await this.buildMissingEmailWarningModel(request, context)
 
       return h.view(viewName, viewModel)
     }
   }
 
   async buildMissingEmailWarningModel(
-    request: FormRequest
+    request: FormRequest,
+    context: FormContext
   ): Promise<FormPageViewModel['notificationEmailWarning']> {
     const { path } = this
     const { params } = request
+    const { isForceAccess } = context
 
     const startPath = this.getStartPath()
     const summaryPath = this.getSummaryPath()
 
     // Warn the user if the form has no notification email set only on start page and summary page
-    if ([startPath, summaryPath].includes(path)) {
+    if ([startPath, summaryPath].includes(path) && !isForceAccess) {
       const { notificationEmail } = await getFormMetadata(params.slug)
 
       if (!notificationEmail) {
