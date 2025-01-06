@@ -1,5 +1,4 @@
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { resolve } from 'node:path'
 
 import { within } from '@testing-library/dom'
 import { StatusCodes } from 'http-status-codes'
@@ -15,7 +14,6 @@ import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
-const testDir = dirname(fileURLToPath(import.meta.url))
 const basePath = '/file-upload'
 
 jest.mock('~/src/server/plugins/engine/services/uploadService.js')
@@ -87,7 +85,7 @@ describe('File upload GET tests', () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: 'file-upload.js',
-      formFilePath: resolve(testDir, '../form/definitions')
+      formFilePath: resolve(import.meta.dirname, '../form/definitions')
     })
 
     await server.initialize()
@@ -191,7 +189,7 @@ describe('File upload POST tests', () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: 'file-upload.js',
-      formFilePath: resolve(testDir, '../form/definitions')
+      formFilePath: resolve(import.meta.dirname, '../form/definitions')
     })
 
     await server.initialize()

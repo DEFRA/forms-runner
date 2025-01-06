@@ -1,12 +1,9 @@
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { resolve } from 'node:path'
 
 import convict, { type SchemaObj } from 'convict'
 import { type LevelWithSilent } from 'pino'
 
 import 'dotenv/config'
-
-const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const isProduction = process.env.NODE_ENV === 'production'
 const isDev = process.env.NODE_ENV !== 'production'
@@ -18,13 +15,13 @@ const oneHour = oneMinute * 60
 export const config = convict({
   appDir: {
     format: String,
-    default: path.resolve(dirname, '../server')
+    default: resolve(import.meta.dirname, '../server')
   },
   publicDir: {
     format: String,
     default: isTest
-      ? path.resolve(dirname, '../../test/fixtures')
-      : path.resolve(dirname, '../../.public')
+      ? resolve(import.meta.dirname, '../../test/fixtures')
+      : resolve(import.meta.dirname, '../../.public')
   },
 
   /**

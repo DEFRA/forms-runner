@@ -1,6 +1,5 @@
 import crypto from 'node:crypto'
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { resolve } from 'node:path'
 
 import { hasRepeater } from '@defra/forms-model'
 import { within } from '@testing-library/dom'
@@ -19,7 +18,6 @@ jest.mock('~/src/server/utils/notify.ts')
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
 jest.mock('~/src/server/plugins/engine/services/formSubmissionService.js')
 
-const testDir = dirname(fileURLToPath(import.meta.url))
 const basePath = '/repeat'
 
 /**
@@ -93,7 +91,7 @@ describe('Repeat GET tests', () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: 'repeat.js',
-      formFilePath: resolve(testDir, '../form/definitions')
+      formFilePath: resolve(import.meta.dirname, '../form/definitions')
     })
 
     const model = server.app.model
@@ -365,7 +363,7 @@ describe('Repeat POST tests', () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: 'repeat.js',
-      formFilePath: resolve(testDir, '../form/definitions')
+      formFilePath: resolve(import.meta.dirname, '../form/definitions')
     })
 
     const model = server.app.model

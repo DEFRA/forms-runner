@@ -1,22 +1,19 @@
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { join } from 'node:path'
 
 import { formDefinitionSchema } from '@defra/forms-model'
 
 import { getForm } from '~/src/server/plugins/engine/configureEnginePlugin.js'
 import { getForms } from '~/test/utils/get-form-definitions.js'
 
-const testDir = dirname(fileURLToPath(import.meta.url))
-
 describe('Form definition JSON', () => {
   describe.each([
     {
       description: 'Demo forms',
-      directory: join(testDir, '../../src/server/forms')
+      directory: join(import.meta.dirname, '../../src/server/forms')
     },
     {
       description: 'Test fixtures',
-      directory: join(testDir, 'definitions')
+      directory: join(import.meta.dirname, 'definitions')
     }
   ])('$description', ({ directory }) => {
     /** @type {string[]} */

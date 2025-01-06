@@ -1,5 +1,4 @@
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { join } from 'node:path'
 
 import { within } from '@testing-library/dom'
 import { StatusCodes } from 'http-status-codes'
@@ -7,8 +6,6 @@ import { StatusCodes } from 'http-status-codes'
 import { createServer } from '~/src/server/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
-
-const testDir = dirname(fileURLToPath(import.meta.url))
 
 describe(`Cookie banner and analytics`, () => {
   /** @type {Server} */
@@ -24,7 +21,7 @@ describe(`Cookie banner and analytics`, () => {
   ])('shows the cookie banner by default', async (path) => {
     server = await createServer({
       formFileName: 'basic.js',
-      formFilePath: join(testDir, 'definitions')
+      formFilePath: join(import.meta.dirname, 'definitions')
     })
     await server.initialize()
 
@@ -55,7 +52,7 @@ describe(`Cookie banner and analytics`, () => {
   ])('confirms when the user has accepted analytics cookies', async (path) => {
     server = await createServer({
       formFileName: 'basic.js',
-      formFilePath: join(testDir, 'definitions')
+      formFilePath: join(import.meta.dirname, 'definitions')
     })
 
     await server.initialize()
@@ -107,7 +104,7 @@ describe(`Cookie banner and analytics`, () => {
   ])('confirms when the user has rejected analytics cookies', async (path) => {
     server = await createServer({
       formFileName: 'basic.js',
-      formFilePath: join(testDir, 'definitions')
+      formFilePath: join(import.meta.dirname, 'definitions')
     })
 
     await server.initialize()
@@ -160,7 +157,7 @@ describe(`Cookie banner and analytics`, () => {
   ])('hides the cookie banner once dismissed', async (path) => {
     server = await createServer({
       formFileName: 'basic.js',
-      formFilePath: join(testDir, 'definitions')
+      formFilePath: join(import.meta.dirname, 'definitions')
     })
 
     await server.initialize()

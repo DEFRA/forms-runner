@@ -1,5 +1,4 @@
-import { dirname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { resolve } from 'node:path'
 
 import { StatusCodes } from 'http-status-codes'
 
@@ -8,7 +7,6 @@ import { getFormMetadata } from '~/src/server/plugins/engine/services/formsServi
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
-const testDir = dirname(fileURLToPath(import.meta.url))
 const basePath = '/text'
 const key = 'wqJmSf'
 
@@ -22,7 +20,7 @@ describe('TextField based conditions', () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: 'text.json',
-      formFilePath: resolve(testDir, '../form/definitions')
+      formFilePath: resolve(import.meta.dirname, '../form/definitions')
     })
 
     await server.initialize()
