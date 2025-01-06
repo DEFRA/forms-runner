@@ -1,10 +1,13 @@
+import { type PageSummary } from '@defra/forms-model'
+
 import {
   FormModel,
   SummaryViewModel
 } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormContext,
-  type FormContextRequest
+  type FormContextRequest,
+  type FormState
 } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
 
@@ -14,15 +17,20 @@ describe('SummaryViewModel', () => {
   const itemId1 = 'abc-123'
   const itemId2 = 'xyz-987'
 
+  let model: FormModel
+  let state: FormState
+  let pageDef: PageSummary
+  let pageUrl: URL
+  let request: FormContextRequest
   let context: FormContext
   let summaryViewModel: SummaryViewModel
 
   beforeEach(() => {
-    const model = new FormModel(definition, {
+    model = new FormModel(definition, {
       basePath: 'test'
     })
 
-    const state = {
+    state = {
       orderType: 'delivery',
       pizza: [
         {
@@ -38,10 +46,10 @@ describe('SummaryViewModel', () => {
       ]
     }
 
-    const pageDef = definition.pages[2]
-    const pageUrl = new URL('http://example.com/repeat/pizza-order/summary')
+    pageDef = definition.pages[2]
+    pageUrl = new URL('http://example.com/repeat/pizza-order/summary')
 
-    const request = {
+    request = {
       method: 'get',
       url: pageUrl,
       path: pageUrl.pathname,
@@ -51,7 +59,7 @@ describe('SummaryViewModel', () => {
       },
       query: {},
       app: { model }
-    } satisfies FormContextRequest
+    }
 
     context = model.getFormContext(request, state)
     summaryViewModel = new SummaryViewModel(model, pageDef, request, context)
@@ -118,6 +126,49 @@ describe('SummaryViewModel', () => {
                 visuallyHiddenText: 'Pizza'
               }
             ]
+          }
+        }
+      ])
+    })
+
+    it('should add summary list for each section (preview URL direct access)', () => {
+      request.query.force = '' // Preview URL '?force'
+      context = model.getFormContext(request, state)
+      summaryViewModel = new SummaryViewModel(model, pageDef, request, context)
+
+      expect(summaryViewModel.checkAnswers).toHaveLength(2)
+
+      const [checkAnswers1, checkAnswers2] = summaryViewModel.checkAnswers
+
+      const { summaryList: summaryList1 } = checkAnswers1
+      const { summaryList: summaryList2 } = checkAnswers2
+
+      expect(summaryList1).toHaveProperty('rows', [
+        {
+          key: {
+            text: 'How would you like to receive your pizza?'
+          },
+          value: {
+            classes: 'app-prose-scope',
+            html: 'Delivery'
+          },
+          actions: {
+            items: []
+          }
+        }
+      ])
+
+      expect(summaryList2).toHaveProperty('rows', [
+        {
+          key: {
+            text: 'Pizzas added'
+          },
+          value: {
+            classes: 'app-prose-scope',
+            html: 'You added 2 Pizzas'
+          },
+          actions: {
+            items: []
           }
         }
       ])

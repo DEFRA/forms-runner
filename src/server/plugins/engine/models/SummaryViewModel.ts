@@ -22,6 +22,7 @@ import {
   type FormContextRequest,
   type FormState,
   type FormSubmissionError,
+  type SummaryListAction,
   type SummaryListRow
 } from '~/src/server/plugins/engine/types.js'
 
@@ -53,6 +54,7 @@ export class SummaryViewModel {
     context: FormContext
   ) {
     const { basePath, def, sections } = model
+    const { isForceAccess } = context
 
     this.pageTitle = pageDef.title
     this.serviceUrl = `/${basePath}`
@@ -70,9 +72,21 @@ export class SummaryViewModel {
 
     // Format check answers
     this.checkAnswers = this.details.map((detail): CheckAnswers => {
-      const { items, title } = detail
+      const { title } = detail
 
-      const rows = items.map((item): SummaryListRow => {
+      const rows = detail.items.map((item): SummaryListRow => {
+        const items: SummaryListAction[] = []
+
+        // Remove summary list actions from previews
+        if (!isForceAccess) {
+          items.push({
+            href: item.href,
+            text: 'Change',
+            classes: 'govuk-link--no-visited-state',
+            visuallyHiddenText: item.label
+          })
+        }
+
         return {
           key: {
             text: item.title
@@ -82,14 +96,7 @@ export class SummaryViewModel {
             html: item.value || 'Not supplied'
           },
           actions: {
-            items: [
-              {
-                href: item.href,
-                text: 'Change',
-                classes: 'govuk-link--no-visited-state',
-                visuallyHiddenText: item.label
-              }
-            ]
+            items
           }
         }
       })
