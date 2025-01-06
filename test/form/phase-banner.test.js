@@ -1,5 +1,4 @@
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { join } from 'node:path'
 
 import { within } from '@testing-library/dom'
 
@@ -7,8 +6,6 @@ import { createServer } from '~/src/server/index.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
-
-const testDir = dirname(fileURLToPath(import.meta.url))
 
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
 
@@ -29,7 +26,7 @@ describe(`Phase banner`, () => {
 
     server = await createServer({
       formFileName: 'phase-default.json',
-      formFilePath: join(testDir, 'definitions')
+      formFilePath: join(import.meta.dirname, 'definitions')
     })
 
     await server.initialize()
@@ -51,7 +48,7 @@ describe(`Phase banner`, () => {
 
     server = await createServer({
       formFileName: 'phase-alpha.json',
-      formFilePath: join(testDir, 'definitions')
+      formFilePath: join(import.meta.dirname, 'definitions')
     })
 
     await server.initialize()

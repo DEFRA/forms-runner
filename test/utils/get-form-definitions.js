@@ -1,11 +1,7 @@
 import { readdir } from 'node:fs/promises'
-import { dirname, extname, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { extname, resolve } from 'node:path'
 
-export const formDir = resolve(
-  dirname(fileURLToPath(import.meta.url)),
-  '../form/definitions'
-)
+export const formDir = resolve(import.meta.dirname, '../form/definitions')
 
 /**
  * Get form definition filenames

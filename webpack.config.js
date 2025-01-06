@@ -1,6 +1,5 @@
 import { createRequire } from 'node:module'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { dirname, join } from 'node:path'
 
 import { CleanWebpackPlugin } from 'clean-webpack-plugin'
 import CopyPlugin from 'copy-webpack-plugin'
@@ -10,9 +9,8 @@ import WebpackAssetsManifest from 'webpack-assets-manifest'
 const { NODE_ENV = 'development' } = process.env
 
 const require = createRequire(import.meta.url)
-const dirname = path.dirname(fileURLToPath(import.meta.url))
 
-const govukFrontendPath = path.dirname(
+const govukFrontendPath = dirname(
   require.resolve('govuk-frontend/package.json')
 )
 
@@ -20,7 +18,7 @@ const govukFrontendPath = path.dirname(
  * @type {Configuration}
  */
 export default {
-  context: path.resolve(dirname, 'src/client'),
+  context: join(import.meta.dirname, 'src/client'),
   entry: {
     application: {
       import: ['./javascripts/application.js', './stylesheets/application.scss']
@@ -46,13 +44,13 @@ export default {
         ? 'javascripts/[name].[chunkhash:7].min.js'
         : 'javascripts/[name].js',
 
-    path: path.join(dirname, '.public'),
+    path: join(import.meta.dirname, '.public'),
     libraryTarget: 'module',
     module: true
   },
   resolve: {
     alias: {
-      '/assets': path.join(govukFrontendPath, 'dist/govuk/assets')
+      '/assets': join(govukFrontendPath, 'dist/govuk/assets')
     }
   },
   module: {
@@ -69,7 +67,7 @@ export default {
         options: {
           browserslistEnv: 'javascripts',
           cacheDirectory: true,
-          extends: path.join(dirname, 'babel.config.cjs'),
+          extends: join(import.meta.dirname, 'babel.config.cjs'),
           presets: [
             [
               '@babel/preset-env',
@@ -173,7 +171,7 @@ export default {
             )
 
             // Move into /javascripts/vendor
-            return path.join('vendor', pkgName || modulePath)
+            return join('vendor', pkgName || modulePath)
           }
         }
       }
@@ -190,7 +188,7 @@ export default {
     new CopyPlugin({
       patterns: [
         {
-          from: path.join(govukFrontendPath, 'dist/govuk/assets'),
+          from: join(govukFrontendPath, 'dist/govuk/assets'),
           to: 'assets'
         }
       ]

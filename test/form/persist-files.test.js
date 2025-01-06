@@ -1,5 +1,4 @@
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { join } from 'node:path'
 
 import { StatusCodes } from 'http-status-codes'
 
@@ -16,7 +15,6 @@ import { CacheService } from '~/src/server/services/cacheService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
-const testDir = dirname(fileURLToPath(import.meta.url))
 const basePath = '/file-upload-basic'
 
 jest.mock('~/src/server/utils/notify.ts')
@@ -76,7 +74,7 @@ describe('Submission journey test', () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: 'file-upload-basic.js',
-      formFilePath: join(testDir, 'definitions')
+      formFilePath: join(import.meta.dirname, 'definitions')
     })
 
     await server.initialize()

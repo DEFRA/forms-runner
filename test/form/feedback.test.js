@@ -1,5 +1,4 @@
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { join } from 'node:path'
 
 import { createServer } from '~/src/server/index.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
@@ -7,7 +6,6 @@ import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 const { FEEDBACK_LINK } = process.env
-const testDir = dirname(fileURLToPath(import.meta.url))
 const basePath = '/feedback'
 
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
@@ -20,7 +18,7 @@ describe('Feedback link', () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: 'feedback.json',
-      formFilePath: join(testDir, 'definitions')
+      formFilePath: join(import.meta.dirname, 'definitions')
     })
 
     await server.initialize()

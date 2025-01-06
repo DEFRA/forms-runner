@@ -1,5 +1,4 @@
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { join } from 'node:path'
 
 import { StatusCodes } from 'http-status-codes'
 import { outdent } from 'outdent'
@@ -20,7 +19,6 @@ import { sendNotification } from '~/src/server/utils/notify.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
-const testDir = dirname(fileURLToPath(import.meta.url))
 const basePath = '/components'
 
 jest.mock('~/src/server/utils/notify.ts')
@@ -75,7 +73,7 @@ describe('Submission journey test', () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: 'components.json',
-      formFilePath: join(testDir, 'definitions')
+      formFilePath: join(import.meta.dirname, 'definitions')
     })
 
     await server.initialize()

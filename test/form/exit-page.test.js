@@ -1,5 +1,4 @@
-import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { join } from 'node:path'
 
 import { StatusCodes } from 'http-status-codes'
 
@@ -9,7 +8,6 @@ import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookie, getCookieHeader } from '~/test/utils/get-cookie.js'
 
-const testDir = dirname(fileURLToPath(import.meta.url))
 const basePath = '/demo-cph-number'
 
 jest.mock('~/src/server/utils/notify.ts')
@@ -78,7 +76,7 @@ describe('Exit pages', () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: 'demo-cph-number.js',
-      formFilePath: join(testDir, 'definitions'),
+      formFilePath: join(import.meta.dirname, 'definitions'),
       enforceCsrf: true
     })
 
