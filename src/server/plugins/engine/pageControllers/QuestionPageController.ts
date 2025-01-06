@@ -2,6 +2,7 @@ import {
   ComponentType,
   hasComponents,
   hasNext,
+  hasRepeater,
   type Link,
   type Page
 } from '@defra/forms-model'
@@ -354,6 +355,7 @@ export class QuestionPageController extends PageController {
     request: FormContextRequest,
     context: FormContext
   ): BackLink | undefined {
+    const { pageDef } = this
     const { path, query } = request
     const { returnUrl } = query
     const { paths } = context
@@ -363,7 +365,9 @@ export class QuestionPageController extends PageController {
     // Check answers back link
     if (returnUrl) {
       return {
-        text: 'Go back to check answers',
+        text: hasRepeater(pageDef)
+          ? 'Go back to add another'
+          : 'Go back to check answers',
         href: returnUrl
       }
     }

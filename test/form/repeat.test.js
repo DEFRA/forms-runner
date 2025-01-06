@@ -237,7 +237,7 @@ describe('Repeat GET tests', () => {
     expect($heading2).toHaveClass('govuk-caption-l')
 
     const $backLink = container.getByRole('link', {
-      name: 'Go back to check answers'
+      name: 'Go back to add another'
     })
 
     expect($backLink).toBeInTheDocument()
