@@ -193,5 +193,7 @@
     ]
   } if slug %}
 
-  {{ govukFooter({ meta: meta }) }}
+  {% if not context.isForceAccess %}
+    {{ govukFooter({ meta: meta }) }}
+  {% endif %}
 {% endblock %}
