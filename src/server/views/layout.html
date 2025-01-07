@@ -129,6 +129,7 @@
 {% endblock %}
 
 {% block beforeContent %}
+  {% set feedbackLink = feedbackLink or config.feedbackLink -%}
   {% set phaseTag = phaseTag or config.phaseTag -%}
 
   {% if phaseTag %}

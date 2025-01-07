@@ -54,14 +54,9 @@ describe('PageController', () => {
       })
     })
 
-    it('returns feedback link (from config)', () => {
-      expect(controller1).toHaveProperty(
-        'feedbackLink',
-        'https://test.defra.gov.uk/'
-      )
-    })
-
     it('returns feedback link (from form definition)', () => {
+      expect(controller1).toHaveProperty('feedbackLink', undefined)
+
       const emailAddress = 'test@feedback.cat'
 
       model.def.feedback = {

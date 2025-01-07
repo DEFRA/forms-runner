@@ -11,7 +11,6 @@ import {
   type RouteOptions
 } from '@hapi/hapi'
 
-import { config } from '~/src/config/index.js'
 import { type ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
   encodeUrl,
@@ -109,13 +108,9 @@ export class PageController {
     const { def } = this
 
     // setting the feedbackLink to undefined here for feedback forms prevents the feedback link from being shown
-    let feedbackLink = def.feedback?.emailAddress
+    const feedbackLink = def.feedback?.emailAddress
       ? `mailto:${def.feedback.emailAddress}`
       : def.feedback?.url
-
-    if (!feedbackLink) {
-      feedbackLink = config.get('feedbackLink')
-    }
 
     return encodeUrl(feedbackLink)
   }
