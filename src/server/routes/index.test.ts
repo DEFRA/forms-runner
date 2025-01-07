@@ -3,7 +3,11 @@ import { StatusCodes } from 'http-status-codes'
 
 import { config } from '~/src/config/index.js'
 import { createServer } from '~/src/server/index.js'
+import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
+import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
+
+jest.mock('~/src/server/plugins/engine/services/formsService.js')
 
 describe('Routes', () => {
   let server: Server
@@ -20,7 +24,7 @@ describe('Routes', () => {
   test('cookies page is served', async () => {
     const options = {
       method: 'GET',
-      url: '/help/cookies'
+      url: '/help/cookies/slug'
     }
 
     const { container } = await renderResponse(server, options)
@@ -42,7 +46,7 @@ describe('Routes', () => {
   test('accessibility statement page is served', async () => {
     const options = {
       method: 'GET',
-      url: '/help/accessibility-statement'
+      url: '/help/accessibility-statement/slug'
     }
 
     const { container } = await renderResponse(server, options)
@@ -57,9 +61,11 @@ describe('Routes', () => {
   })
 
   test('Help page is served', async () => {
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+
     const options = {
       method: 'GET',
-      url: '/help/get-support'
+      url: '/help/get-support/slug'
     }
 
     const res = await server.inject(options)
