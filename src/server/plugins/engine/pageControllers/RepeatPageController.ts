@@ -163,7 +163,8 @@ export class RepeatPageController extends QuestionPageController {
       if (!itemId) {
         const summaryPath = this.getSummaryPath(request)
         const nextPath = redirectPath(`${path}/${randomUUID()}`, {
-          returnUrl: query.returnUrl
+          returnUrl: query.returnUrl,
+          force: query.force
         })
 
         // Only redirect to new item when list is empty
