@@ -3,7 +3,7 @@ import { type ResponseToolkit } from '@hapi/hapi'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
-  type FormContextProgress,
+  type FormContext,
   type FormContextRequest,
   type FormPageViewModel,
   type FormState,
@@ -165,8 +165,15 @@ describe('QuestionPageController', () => {
     let viewModel2: FormPageViewModel
 
     beforeEach(() => {
-      viewModel1 = controller1.getViewModel(requestPage1, {}, {})
-      viewModel2 = controller2.getViewModel(requestPage2, {}, {})
+      viewModel1 = controller1.getViewModel(
+        requestPage1,
+        model.getFormContext(requestPage1, {})
+      )
+
+      viewModel2 = controller2.getViewModel(
+        requestPage2,
+        model.getFormContext(requestPage2, {})
+      )
     })
 
     it('hides the page title for single form component pages', () => {
@@ -400,21 +407,21 @@ describe('QuestionPageController', () => {
   })
 
   describe('Form journey', () => {
-    let context: FormContextProgress
-    let contextNo: FormContextProgress
-    let contextYes: FormContextProgress
+    let context: FormContext
+    let contextNo: FormContext
+    let contextYes: FormContext
 
     beforeEach(() => {
       // Empty state
-      context = controller1.model.getFormContext(requestPage1, {})
+      context = model.getFormContext(requestPage1, {})
 
       // Question 1: Selected 'No'
-      contextNo = controller1.model.getFormContext(requestPage1, {
+      contextNo = model.getFormContext(requestPage1, {
         yesNoField: false
       })
 
       // Question 1: Selected 'Yes'
-      contextYes = controller1.model.getFormContext(requestPage1, {
+      contextYes = model.getFormContext(requestPage1, {
         yesNoField: true
       })
     })
@@ -497,8 +504,17 @@ describe('QuestionPageController', () => {
       expect(() => controller1.makeGetRouteHandler()).not.toThrow()
       expect(() => controller1.makeGetRouteHandler()).toBeInstanceOf(Function)
 
-      await controller1.makeGetRouteHandler()(requestPage1, h)
-      await controller2.makeGetRouteHandler()(requestPage2, h)
+      await controller1.makeGetRouteHandler()(
+        requestPage1,
+        model.getFormContext(requestPage1, {}),
+        h
+      )
+
+      await controller2.makeGetRouteHandler()(
+        requestPage2,
+        model.getFormContext(requestPage2, {}),
+        h
+      )
 
       expect(h.view).toHaveBeenNthCalledWith(
         1,

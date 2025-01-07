@@ -156,8 +156,17 @@ describe('PageController', () => {
       expect(() => controller1.makeGetRouteHandler()).not.toThrow()
       expect(() => controller1.makeGetRouteHandler()).toBeInstanceOf(Function)
 
-      await controller1.makeGetRouteHandler()(request, h)
-      await controller2.makeGetRouteHandler()(request, h)
+      await controller1.makeGetRouteHandler()(
+        request,
+        model.getFormContext(request, {}),
+        h
+      )
+
+      await controller2.makeGetRouteHandler()(
+        request,
+        model.getFormContext(request, {}),
+        h
+      )
 
       expect(h.view).toHaveBeenNthCalledWith(
         1,

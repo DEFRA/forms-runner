@@ -4,6 +4,7 @@ import { type ResponseToolkit } from '@hapi/hapi'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
+import { type FormContext } from '~/src/server/plugins/engine/types.js'
 import { type FormRequest } from '~/src/server/routes/types.js'
 
 export class StatusPageController extends QuestionPageController {
@@ -14,9 +15,14 @@ export class StatusPageController extends QuestionPageController {
     this.viewName = 'confirmation'
   }
 
+  getRelevantPath() {
+    return this.getStatusPath()
+  }
+
   makeGetRouteHandler() {
     return async (
       request: FormRequest,
+      context: FormContext,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { viewModel, viewName } = this

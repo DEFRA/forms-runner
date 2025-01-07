@@ -232,11 +232,7 @@ export class ComponentCollection {
     return list
   }
 
-  getViewModel(
-    payload: FormPayload,
-    errors?: FormSubmissionError[],
-    conditions?: FormModel['conditions']
-  ) {
+  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
     const { components } = this
 
     const result: ComponentViewModel[] = components.map((component) => {
@@ -249,14 +245,6 @@ export class ComponentCollection {
 
       return { type, isFormComponent, model }
     })
-
-    if (conditions) {
-      return result.filter((item) =>
-        item.model.condition
-          ? conditions[item.model.condition]?.fn(payload)
-          : true
-      )
-    }
 
     return result
   }

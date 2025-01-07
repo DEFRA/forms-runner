@@ -20,8 +20,8 @@ import {
   UploadStatus,
   type FeaturedFormPageViewModel,
   type FileState,
+  type FormContext,
   type FormContextRequest,
-  type FormPayload,
   type FormSubmissionError,
   type FormSubmissionState,
   type ItemDeletePageViewModel,
@@ -116,7 +116,7 @@ export class FileUploadPageController extends QuestionPageController {
     // Overwrite the files with those in the upload state
     state[fileUpload.name] = files
 
-    return state
+    return this.refreshUpload(request, state)
   }
 
   /**
@@ -139,28 +139,16 @@ export class FileUploadPageController extends QuestionPageController {
     return uploadState?.upload
   }
 
-  makeGetRouteHandler() {
-    return async (
-      request: FormRequest,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
-    ) => {
-      const state = await this.getState(request)
-
-      await this.refreshUpload(request, state)
-
-      return super.makeGetRouteHandler()(request, h)
-    }
-  }
-
   makeGetItemDeleteRouteHandler() {
     return async (
       request: FormRequest,
+      context: FormContext,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { viewModel } = this
       const { params } = request
+      const { state } = context
 
-      let state = await this.getState(request)
       const files = this.getFilesFromState(state)
 
       const fileToRemove = files.find(
@@ -168,16 +156,16 @@ export class FileUploadPageController extends QuestionPageController {
       )
 
       if (!fileToRemove) {
-        return Boom.notFound('File to delete not found')
+        throw Boom.notFound('File to delete not found')
       }
 
       const { filename } = fileToRemove.status.form.file
 
-      state = await this.updateProgress(request, state)
-      const { progress = [] } = state
+      const { progress = [] } = await this.updateProgress(request, state)
 
       return h.view(this.fileDeleteViewName, {
         ...viewModel,
+        context,
         backLink: this.getBackLink(progress),
         pageTitle: `Are you sure you want to remove this file?`,
         itemTitle: filename,
@@ -191,34 +179,21 @@ export class FileUploadPageController extends QuestionPageController {
   makePostItemDeleteRouteHandler() {
     return async (
       request: FormRequestPayload,
+      context: FormContext,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { path } = this
+      const { state } = context
 
       const { confirm } = this.getFormParams(request)
 
       // Check for any removed files in the POST payload
       if (confirm) {
-        const state = await this.getState(request)
-
         await this.checkRemovedFiles(request, state)
         return this.proceed(request, h, path)
       }
 
       return this.proceed(request, h)
-    }
-  }
-
-  makePostRouteHandler() {
-    return async (
-      request: FormRequestPayload,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
-    ) => {
-      const state = await this.getState(request)
-
-      await this.refreshUpload(request, state)
-
-      return super.makePostRouteHandler()(request, h)
     }
   }
 
@@ -262,15 +237,14 @@ export class FileUploadPageController extends QuestionPageController {
 
   getViewModel(
     request: FormContextRequest,
-    state: FormSubmissionState,
-    payload: FormPayload,
-    errors?: FormSubmissionError[]
+    context: FormContext
   ): FeaturedFormPageViewModel {
     const { fileUpload } = this
+    const { state } = context
 
     const upload = this.getUploadFromState(state)
 
-    const viewModel = super.getViewModel(request, state, payload, errors)
+    const viewModel = super.getViewModel(request, context)
     const { components } = viewModel
 
     // Featured form component

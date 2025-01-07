@@ -1,9 +1,5 @@
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
-import {
-  type FormPayload,
-  type FormSubmissionError,
-  type FormSubmissionState
-} from '~/src/server/plugins/engine/types.js'
+import { type FormContext } from '~/src/server/plugins/engine/types.js'
 import { type FormRequest } from '~/src/server/routes/types.js'
 
 export class StartPageController extends QuestionPageController {
@@ -13,14 +9,9 @@ export class StartPageController extends QuestionPageController {
    * but start pages should really live on gov.uk (whitehall publisher) so a user can be properly signposted.
    */
 
-  getViewModel(
-    request: FormRequest,
-    state: FormSubmissionState,
-    payload: FormPayload,
-    errors?: FormSubmissionError[]
-  ) {
+  getViewModel(request: FormRequest, context: FormContext) {
     return {
-      ...super.getViewModel(request, state, payload, errors),
+      ...super.getViewModel(request, context),
       isStartPage: true
     }
   }

@@ -18,7 +18,6 @@ import { validationOptions as opts } from '~/src/server/plugins/engine/pageContr
 import {
   type CheckAnswers,
   type FormContext,
-  type FormContextProgress,
   type FormContextRequest,
   type FormState,
   type FormSubmissionError,
@@ -34,7 +33,7 @@ export class SummaryViewModel {
   declaration?: string
   details: Detail[]
   checkAnswers: CheckAnswers[]
-  context: FormContext | FormContextProgress
+  context: FormContext
   name: string | undefined
   backLink?: string
   feedbackLink?: string
@@ -50,7 +49,7 @@ export class SummaryViewModel {
     model: FormModel,
     pageDef: PageSummary,
     request: FormContextRequest,
-    context: FormContext | FormContextProgress
+    context: FormContext
   ) {
     const { basePath, def, sections } = model
 
