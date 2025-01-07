@@ -40,8 +40,6 @@ export function context(request) {
     cookieConsent = parseCookieConsent(state.cookieConsent)
   }
 
-  const crumb = request?.server.plugins.crumb.generate?.(request)
-
   const isPreviewMode = path?.startsWith(PREVIEW_PATH_PREFIX)
 
   // Only add the slug in to the context if the response is OK.
@@ -49,30 +47,33 @@ export function context(request) {
   const isResponseOK =
     !Boom.isBoom(response) && response?.statusCode === StatusCodes.OK
 
-  return {
+  return /** @type {ViewContext} */ ({
     appVersion: pkg.version,
     assetPath: '/assets',
-    cdpEnvironment: config.get('cdpEnvironment'),
-    feedbackLink: encodeUrl(config.get('feedbackLink')),
-    phaseTag: config.get('phaseTag'),
-    previewMode: isPreviewMode ? params?.state : undefined,
-    serviceBannerText: config.get('serviceBannerText'),
-    serviceName: config.get('serviceName'),
-    serviceVersion: config.get('serviceVersion'),
-    slug: isResponseOK ? params?.slug : undefined,
+    config: {
+      cdpEnvironment: config.get('cdpEnvironment'),
+      feedbackLink: encodeUrl(config.get('feedbackLink')),
+      googleAnalyticsTrackingId: config.get('googleAnalyticsTrackingId'),
+      phaseTag: config.get('phaseTag'),
+      serviceBannerText: config.get('serviceBannerText'),
+      serviceName: config.get('serviceName'),
+      serviceVersion: config.get('serviceVersion')
+    },
     cookieConsent,
-    crumb,
-    googleAnalyticsTrackingId: config.get('googleAnalyticsTrackingId'),
+    crumb: request?.server.plugins.crumb.generate?.(request),
     cspNonce: request?.plugins.blankie?.nonces?.script,
     currentPath: request ? `${request.path}${request.url.search}` : undefined,
+    previewMode: isPreviewMode ? params?.state : undefined,
+    slug: isResponseOK ? params?.slug : undefined,
 
     getAssetPath: (asset = '') => {
       return `/${webpackManifest?.[asset] ?? asset}`
     }
-  }
+  })
 }
 
 /**
  * @import { CookieConsent } from '~/src/common/types.js'
+ * @import { ViewContext } from '~/src/server/plugins/nunjucks/types.js'
  * @import { FormRequest, FormRequestPayload } from '~/src/server/routes/types.js'
  */

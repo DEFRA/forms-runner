@@ -54,14 +54,9 @@ describe('PageController', () => {
       })
     })
 
-    it('returns feedback link (from config)', () => {
-      expect(controller1).toHaveProperty(
-        'feedbackLink',
-        'https://test.defra.gov.uk/'
-      )
-    })
-
     it('returns feedback link (from form definition)', () => {
+      expect(controller1).toHaveProperty('feedbackLink', undefined)
+
       const emailAddress = 'test@feedback.cat'
 
       model.def.feedback = {
@@ -74,11 +69,9 @@ describe('PageController', () => {
       )
     })
 
-    it('returns phase tag (from config)', () => {
-      expect(controller1).toHaveProperty('phaseTag', 'beta')
-    })
-
     it('returns phase tag (from form definition)', () => {
+      expect(controller1).toHaveProperty('phaseTag', undefined)
+
       model.def.phaseBanner = {
         phase: 'alpha'
       }

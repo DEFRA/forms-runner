@@ -11,19 +11,19 @@
 {% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner -%}
 
 {% set productName %}
-  {% if cdpEnvironment !== "prod" %}
-    {{ appTagEnv({ env: cdpEnvironment }) }}
+  {% if config.cdpEnvironment !== "prod" %}
+    {{ appTagEnv({ env: config.cdpEnvironment }) }}
   {% endif %}
 {% endset %}
 
 {% block head %}
   <meta name="application-name" content="@defra/forms-runner" {{- govukAttributes({
     "data-environment": {
-      value: cdpEnvironment,
+      value: config.cdpEnvironment,
       optional: true
     },
     "data-version": {
-      value: serviceVersion,
+      value: config.serviceVersion,
       optional: true
     }
   }) }}>
@@ -34,7 +34,7 @@
 {% endblock %}
 
 {% block pageTitle -%}
-  {{ "Error: " if errors | length }}{{ pageTitle }} - {{ name if name else serviceName }} - GOV.UK
+  {{ "Error: " if errors | length }}{{ pageTitle }} - {{ name if name else config.serviceName }} - GOV.UK
 {%- endblock %}
 
 {% block skipLink %}
@@ -45,8 +45,8 @@
 {% endblock %}
 
 {% block header %}
-  {% if googleAnalyticsTrackingId and slug %}
-    <form method="post" action="/help/cookie-preferences/{{ slug }}?returnUrl={{ currentPath | urlencode }}">
+  {% if config.googleAnalyticsTrackingId and slug %}
+    <form method="post" action="/help/cookie-preferences?returnUrl={{ currentPath | urlencode }}">
       <input type="hidden" name="crumb" value="{{ crumb }}">
 
     {% set acceptHtml %}
@@ -64,10 +64,10 @@
       {% endset %}
 
       {{ govukCookieBanner({
-        ariaLabel: "Cookies on " + serviceName,
+        ariaLabel: "Cookies on " + config.serviceName,
         messages: [
           {
-            headingText: serviceName,
+            headingText: config.serviceName,
             html: html,
             actions: [
               {
@@ -92,7 +92,7 @@
       }) }}
     {% elif cookieConsent.dismissed === false %}
       {{ govukCookieBanner({
-        ariaLabel: "Cookies on " + serviceName,
+        ariaLabel: "Cookies on " + config.serviceName,
         messages: [
           {
             html: acceptHtml if cookieConsent.analytics === true else rejectedHtml,
@@ -112,10 +112,10 @@
     </form>
   {% endif %}
 
-  {% if serviceBannerText | length %}
+  {% if config.serviceBannerText | length %}
     {{ appServiceBanner({
       title: "Service status",
-      text: serviceBannerText
+      text: config.serviceBannerText
     }) }}
   {% endif %}
 
@@ -123,69 +123,74 @@
     homepageUrl: "https://www.gov.uk",
     containerClasses: "govuk-width-container",
     productName: productName | safe | trim,
-    serviceName: name if name else serviceName,
+    serviceName: name if name else config.serviceName,
     serviceUrl: serviceUrl
   }) }}
 {% endblock %}
 
 {% block beforeContent %}
-    {% if phaseTag %}
-        {% if 'mailto:' in feedbackLink %}
-            {{ govukPhaseBanner({
-                tag: {
-                    text: phaseTag | capitalize
-                },
-                html: 'This is a new service. Help us improve it and <a class="govuk-link" target="_blank" rel="noopener noreferrer" href="' + feedbackLink | escape + '">give your feedback by email</a>.'
-            }) }}
-        {% else %}
-            {{ govukPhaseBanner({
-                tag: {
-                    text: phaseTag | capitalize
-                },
-                html: 'This is a new service. Help us improve it and <a class="govuk-link" target="_blank" rel="noopener noreferrer" href="' + feedbackLink | escape + '">give your feedback (opens in new tab)</a>.'
-            }) }}
-        {% endif %}
-    {% endif %}
-    {% if backLink %}
-      {{ govukBackLink(backLink) }}
-    {% endif %}
-{% endblock %}
+  {% set feedbackLink = feedbackLink or config.feedbackLink -%}
+  {% set phaseTag = phaseTag or config.phaseTag -%}
 
+  {% if phaseTag %}
+    {% set feedbackLinkHtml -%}
+      <a href="{{ feedbackLink }}" class="govuk-link" target="_blank" rel="noopener noreferrer">
+        {%- if "mailto:" in feedbackLink -%}
+          give your feedback by email
+        {%- else -%}
+          give your feedback (opens in new tab)
+        {%- endif -%}
+      </a>
+    {%- endset %}
+
+    {{ govukPhaseBanner({
+      tag: { text: phaseTag | capitalize },
+      html: "This is a new service. Help us improve it and " + feedbackLinkHtml | safe + "."
+    }) }}
+  {% endif %}
+  {% if backLink %}
+    {{ govukBackLink(backLink) }}
+  {% endif %}
+{% endblock %}
 
 {% block content %}
   <h1 class="govuk-heading-l">Default page template</h1>
 {% endblock %}
 
-
 {% block bodyEnd %}
   <script type="module" nonce="{{ cspNonce }}" src="{{ getAssetPath("application.js") }}"></script>
 
-  {% if googleAnalyticsTrackingId and cookieConsent.analytics === true %}
-  <script id="ga-tag-js-main" nonce="{{ cspNonce }}" src="https://www.googletagmanager.com/gtag/js?id={{ googleAnalyticsTrackingId }}" defer></script>
+  {% if config.googleAnalyticsTrackingId and cookieConsent.analytics === true %}
+  <script id="ga-tag-js-main" nonce="{{ cspNonce }}" src="https://www.googletagmanager.com/gtag/js?id={{ config.googleAnalyticsTrackingId }}" defer></script>
   <script id="ga-tag-js-init" nonce="{{ cspNonce }}">
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', '{{ googleAnalyticsTrackingId }}');
+    gtag('config', '{{ config.googleAnalyticsTrackingId }}');
   </script>
 {% endif %}
 {% endblock %}
 
 {% block footer %}
   {% set meta = {
-    items: [{
-      href: '/help/get-support/' + slug,
-      text: 'Get help with this form'
-    }, {
-      href: '/help/privacy/' + slug,
-      text: 'Privacy'
-    }, {
-      href: '/help/cookies/' + slug,
-      text: 'Cookies'
-    }, {
-      href: '/help/accessibility-statement/' + slug,
-      text: 'Accessibility Statement'
-    }]
+    items: [
+      {
+        href: '/help/get-support/' + slug,
+        text: 'Get help with this form'
+      },
+      {
+        href: '/help/privacy/' + slug,
+        text: 'Privacy'
+      },
+      {
+        href: '/help/cookies/' + slug,
+        text: 'Cookies'
+      },
+      {
+        href: '/help/accessibility-statement/' + slug,
+        text: 'Accessibility Statement'
+      }
+    ]
   } if slug %}
 
   {{ govukFooter({ meta: meta }) }}
