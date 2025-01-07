@@ -94,11 +94,12 @@ export class QuestionPageController extends PageController {
     context: FormContext
   ): FormPageViewModel {
     const { collection, viewModel } = this
+    const { query } = request
     const { payload, errors } = context
 
     let { pageTitle, showTitle } = viewModel
 
-    const components = collection.getViewModel(payload, errors)
+    const components = collection.getViewModel(payload, errors, query)
     const formComponents = components.filter(
       ({ isFormComponent }) => isFormComponent
     )
