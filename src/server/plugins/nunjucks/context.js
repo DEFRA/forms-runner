@@ -31,15 +31,9 @@ export function context(request) {
     }
   }
 
-  const { params, path, state, response } = request ?? {}
+  const { params, path, query = {}, response, state } = request ?? {}
 
-  /** @type {CookieConsent | undefined} */
-  let cookieConsent
-
-  if (typeof state?.cookieConsent === 'string') {
-    cookieConsent = parseCookieConsent(state.cookieConsent)
-  }
-
+  const isForceAccess = 'force' in query
   const isPreviewMode = path?.startsWith(PREVIEW_PATH_PREFIX)
 
   // Only add the slug in to the context if the response is OK.
@@ -47,19 +41,18 @@ export function context(request) {
   const isResponseOK =
     !Boom.isBoom(response) && response?.statusCode === StatusCodes.OK
 
-  return /** @type {ViewContext} */ ({
+  /** @type {ViewContext} */
+  const ctx = {
     appVersion: pkg.version,
     assetPath: '/assets',
     config: {
       cdpEnvironment: config.get('cdpEnvironment'),
       feedbackLink: encodeUrl(config.get('feedbackLink')),
-      googleAnalyticsTrackingId: config.get('googleAnalyticsTrackingId'),
       phaseTag: config.get('phaseTag'),
       serviceBannerText: config.get('serviceBannerText'),
       serviceName: config.get('serviceName'),
       serviceVersion: config.get('serviceVersion')
     },
-    cookieConsent,
     crumb: request?.server.plugins.crumb.generate?.(request),
     cspNonce: request?.plugins.blankie?.nonces?.script,
     currentPath: request ? `${request.path}${request.url.search}` : undefined,
@@ -69,7 +62,19 @@ export function context(request) {
     getAssetPath: (asset = '') => {
       return `/${webpackManifest?.[asset] ?? asset}`
     }
-  })
+  }
+
+  if (!isForceAccess) {
+    ctx.config.googleAnalyticsTrackingId = config.get(
+      'googleAnalyticsTrackingId'
+    )
+
+    if (typeof state?.cookieConsent === 'string') {
+      ctx.cookieConsent = parseCookieConsent(state.cookieConsent)
+    }
+  }
+
+  return ctx
 }
 
 /**
