@@ -34,8 +34,7 @@ async function createRepeatItem(
   headers,
   itemId = crypto.randomUUID()
 ) {
-  // Issue a GET request to the item
-  // page to add to the progress stack
+  // Visit the item page
   await server.inject({
     url: `${basePath}/pizza-order/${itemId}`,
     headers
@@ -52,9 +51,7 @@ async function createRepeatItem(
   })
 
   expect(res1.statusCode).toBe(StatusCodes.SEE_OTHER)
-  expect(res1.headers.location).toBe(
-    `${basePath}/pizza-order/summary?itemId=${itemId}`
-  )
+  expect(res1.headers.location).toBe(`${basePath}/pizza-order/summary`)
 
   // Extract the session cookie
   const request = res1.request
@@ -210,15 +207,14 @@ describe('Repeat GET tests', () => {
       throw new Error('Unexpected empty redirectLocation')
     }
 
-    // Visit the summary page to append to the progress stack to
-    // ensure the back link is rendered on the next page request
+    // Visit the summary page
     await server.inject({
       url: redirectLocation,
       headers
     })
 
     const { container, response } = await renderResponse(server, {
-      url: `${basePath}/pizza-order/${item.itemId}`,
+      url: `${basePath}/pizza-order/${item.itemId}?returnUrl=${encodeURIComponent(`${basePath}/pizza-order/summary`)}`,
       headers
     })
 
@@ -241,14 +237,11 @@ describe('Repeat GET tests', () => {
     expect($heading2).toHaveClass('govuk-caption-l')
 
     const $backLink = container.getByRole('link', {
-      name: 'Back'
+      name: 'Go back to add another'
     })
 
     expect($backLink).toBeInTheDocument()
-    expect($backLink).toHaveAttribute(
-      'href',
-      `${basePath}/pizza-order/summary?itemId=${item.itemId}`
-    )
+    expect($backLink).toHaveAttribute('href', `${basePath}/pizza-order/summary`)
   })
 
   test('GET /pizza-order/{id} with 1 item returns 200', async () => {

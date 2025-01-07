@@ -71,6 +71,7 @@ export class SummaryPageController extends QuestionPageController {
 
     // We already figure these out in the base page controller. Take them and apply them to our page-specific model.
     // This is a stop-gap until we can add proper inheritance in place.
+    viewModel.backLink = this.getBackLink(request, context)
     viewModel.feedbackLink = this.feedbackLink
     viewModel.phaseTag = this.phaseTag
 
@@ -87,13 +88,8 @@ export class SummaryPageController extends QuestionPageController {
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { viewName } = this
-      const { state } = context
 
       const viewModel = this.getSummaryViewModel(request, context)
-
-      const { progress = [] } = await this.updateProgress(request, state)
-
-      viewModel.backLink = this.getBackLink(progress)
 
       viewModel.notificationEmailWarning =
         await this.buildMissingEmailWarningModel(request)
