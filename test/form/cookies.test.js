@@ -4,20 +4,28 @@ import { within } from '@testing-library/dom'
 import { StatusCodes } from 'http-status-codes'
 
 import { createServer } from '~/src/server/index.js'
+import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
+import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
+
+jest.mock('~/src/server/plugins/engine/services/formsService.js')
 
 describe(`Cookie banner and analytics`, () => {
   /** @type {Server} */
   let server
+
+  beforeEach(() => {
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+  })
 
   afterEach(async () => {
     await server.stop()
   })
 
   test.each([
-    '/basic/start', // form pages
-    '/' // non-form pages
+    '/basic/licence', // form pages
+    '/help/accessibility-statement/basic' // non-form pages
   ])('shows the cookie banner by default', async (path) => {
     server = await createServer({
       formFileName: 'basic.js',
@@ -46,9 +54,9 @@ describe(`Cookie banner and analytics`, () => {
 
   test.each([
     // form pages
-    '/basic/start',
+    '/basic/licence',
     // non-form pages
-    '/'
+    '/help/accessibility-statement/basic'
   ])('confirms when the user has accepted analytics cookies', async (path) => {
     server = await createServer({
       formFileName: 'basic.js',
@@ -98,9 +106,9 @@ describe(`Cookie banner and analytics`, () => {
 
   test.each([
     // form pages
-    '/basic/start',
+    '/basic/licence',
     // non-form pages
-    '/'
+    '/help/accessibility-statement/basic'
   ])('confirms when the user has rejected analytics cookies', async (path) => {
     server = await createServer({
       formFileName: 'basic.js',
