@@ -1,5 +1,5 @@
 import { ComponentType, type ComponentDef } from '@defra/forms-model'
-import { marked, type Token } from 'marked'
+import { Marked, type Token } from 'marked'
 
 import { config } from '~/src/config/index.js'
 import { type ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
@@ -9,15 +9,17 @@ import { type FormState } from '~/src/server/plugins/engine/types.js'
 
 const designerUrl = config.get('designerUrl')
 
-const markdown = marked.use({
+const markdown = new Marked({
+  breaks: true,
+  gfm: true,
+
+  /**
+   * Render paragraphs without `<p>` wrappers
+   * for check answers summary list `<dd>`
+   */
   extensions: [
     {
       name: 'paragraph',
-
-      /**
-       * Render paragraphs without `<p>` wrappers
-       * for check answers summary list `<dd>`
-       */
       renderer({ tokens = [] }) {
         const text = this.parser.parseInline(tokens)
         return tokens.length > 1 ? `${text}<br>` : text
@@ -25,6 +27,9 @@ const markdown = marked.use({
     }
   ],
 
+  /**
+   * Restrict allowed Markdown tokens
+   */
   walkTokens(token) {
     const tokens: Token['type'][] = [
       'br',
@@ -192,11 +197,7 @@ export function getAnswer(
     field instanceof Components.UkAddressField
   ) {
     return markdown
-      .parse(getAnswerMarkdown(field, state), {
-        async: false,
-        breaks: true,
-        gfm: true
-      })
+      .parse(getAnswerMarkdown(field, state), { async: false })
       .trim()
   }
 
