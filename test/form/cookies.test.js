@@ -26,7 +26,7 @@ describe(`Cookie banner and analytics`, () => {
   })
 
   test.each([
-    '/basic/licence', // form pages
+    '/basic/start', // form pages
     '/help/accessibility-statement/basic' // non-form pages
   ])('shows the cookie banner by default', async (path) => {
     server = await createServer({
@@ -56,7 +56,7 @@ describe(`Cookie banner and analytics`, () => {
 
   test.each([
     // form pages
-    '/basic/licence',
+    '/basic/start',
     // non-form pages
     '/help/accessibility-statement/basic'
   ])('confirms when the user has accepted analytics cookies', async (path) => {
@@ -108,7 +108,7 @@ describe(`Cookie banner and analytics`, () => {
 
   test.each([
     // form pages
-    '/basic/licence',
+    '/basic/start',
     // non-form pages
     '/help/accessibility-statement/basic'
   ])('confirms when the user has rejected analytics cookies', async (path) => {
