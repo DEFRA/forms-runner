@@ -425,13 +425,13 @@ export class QuestionPageController extends PageController {
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { collection, viewName } = this
-      const { state } = context
+      const { isForceAccess, state } = context
 
       /**
        * If there are any errors, render the page with the parsed errors
        * @todo Refactor to match POST REDIRECT GET pattern
        */
-      if (context.errors) {
+      if (context.errors || isForceAccess) {
         const viewModel = this.getViewModel(request, context)
         viewModel.errors = collection.getErrors(viewModel.errors)
 
