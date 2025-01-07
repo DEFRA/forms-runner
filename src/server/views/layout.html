@@ -129,6 +129,8 @@
 {% endblock %}
 
 {% block beforeContent %}
+  {% set phaseTag = phaseTag or config.phaseTag -%}
+
   {% if phaseTag %}
     {% set feedbackLinkHtml -%}
       <a href="{{ feedbackLink }}" class="govuk-link" target="_blank" rel="noopener noreferrer">

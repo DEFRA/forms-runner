@@ -122,7 +122,7 @@ export class PageController {
 
   get phaseTag() {
     const { def } = this
-    return def.phaseBanner?.phase ?? config.get('phaseTag')
+    return def.phaseBanner?.phase
   }
 
   getHref(path: string) {

@@ -74,11 +74,9 @@ describe('PageController', () => {
       )
     })
 
-    it('returns phase tag (from config)', () => {
-      expect(controller1).toHaveProperty('phaseTag', 'beta')
-    })
-
     it('returns phase tag (from form definition)', () => {
+      expect(controller1).toHaveProperty('phaseTag', undefined)
+
       model.def.phaseBanner = {
         phase: 'alpha'
       }
