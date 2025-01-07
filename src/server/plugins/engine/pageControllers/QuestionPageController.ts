@@ -365,9 +365,10 @@ export class QuestionPageController extends PageController {
     // Check answers back link
     if (returnUrl) {
       return {
-        text: hasRepeater(pageDef)
-          ? 'Go back to add another'
-          : 'Go back to check answers',
+        text:
+          hasRepeater(pageDef) && itemId
+            ? 'Go back to add another'
+            : 'Go back to check answers',
         href: returnUrl
       }
     }
