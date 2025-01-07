@@ -1,6 +1,7 @@
 import { tmpdir } from 'node:os'
 
 import { config } from '~/src/config/index.js'
+import { encodeUrl } from '~/src/server/plugins/engine/helpers.js'
 import { context } from '~/src/server/plugins/nunjucks/context.js'
 
 describe('Nunjucks context', () => {
@@ -58,10 +59,13 @@ describe('Nunjucks context', () => {
     it('should include environment, phase tag and service info', () => {
       const ctx = context(null)
 
-      expect(ctx).toEqual(
+      expect(ctx.config).toEqual(
         expect.objectContaining({
           cdpEnvironment: config.get('cdpEnvironment'),
+          feedbackLink: encodeUrl(config.get('feedbackLink')),
+          googleAnalyticsTrackingId: config.get('googleAnalyticsTrackingId'),
           phaseTag: config.get('phaseTag'),
+          serviceBannerText: config.get('serviceBannerText'),
           serviceName: config.get('serviceName'),
           serviceVersion: config.get('serviceVersion')
         })
