@@ -47,7 +47,7 @@ export function context(request) {
   const isResponseOK =
     !Boom.isBoom(response) && response?.statusCode === StatusCodes.OK
 
-  return {
+  return /** @type {ViewContext} */ ({
     appVersion: pkg.version,
     assetPath: '/assets',
     config: {
@@ -69,10 +69,11 @@ export function context(request) {
     getAssetPath: (asset = '') => {
       return `/${webpackManifest?.[asset] ?? asset}`
     }
-  }
+  })
 }
 
 /**
  * @import { CookieConsent } from '~/src/common/types.js'
+ * @import { ViewContext } from '~/src/server/plugins/nunjucks/types.js'
  * @import { FormRequest, FormRequestPayload } from '~/src/server/routes/types.js'
  */

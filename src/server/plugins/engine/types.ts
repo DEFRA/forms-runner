@@ -9,6 +9,7 @@ import {
 } from '~/src/server/plugins/engine/components/types.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
+import { type ViewContext } from '~/src/server/plugins/nunjucks/types.js'
 import { type FormAction, type FormRequest } from '~/src/server/routes/types.js'
 
 /**
@@ -241,7 +242,7 @@ export type SummaryListAction = ComponentText & {
   visuallyHiddenText: string
 }
 
-export interface PageViewModelBase {
+export interface PageViewModelBase extends Partial<ViewContext> {
   page: PageController
   name?: string
   pageTitle: string
