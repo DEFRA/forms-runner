@@ -62,12 +62,7 @@ export class SummaryPageController extends QuestionPageController {
     request: FormContextRequest,
     context: FormContext
   ): SummaryViewModel {
-    const viewModel = new SummaryViewModel(
-      this.model,
-      this.pageDef,
-      request,
-      context
-    )
+    const viewModel = new SummaryViewModel(request, this, context)
 
     // We already figure these out in the base page controller. Take them and apply them to our page-specific model.
     // This is a stop-gap until we can add proper inheritance in place.
@@ -92,7 +87,7 @@ export class SummaryPageController extends QuestionPageController {
       const viewModel = this.getSummaryViewModel(request, context)
 
       viewModel.notificationEmailWarning =
-        await this.buildMissingEmailWarningModel(request)
+        await this.buildMissingEmailWarningModel(request, context)
 
       return h.view(viewName, viewModel)
     }

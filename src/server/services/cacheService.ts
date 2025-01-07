@@ -50,14 +50,6 @@ export class CacheService {
     return this.getState(request)
   }
 
-  async mergeState(
-    request: FormRequest | FormRequestPayload,
-    state: FormSubmissionState,
-    update: object
-  ) {
-    return this.setState(request, merge(state, update))
-  }
-
   async getConfirmationState(
     request: FormRequest | FormRequestPayload
   ): Promise<{ confirmed?: true }> {

@@ -41,6 +41,7 @@ import {
   crumbSchema,
   paramsSchema
 } from '~/src/server/schemas/index.js'
+import { merge } from '~/src/server/services/cacheService.js'
 
 export class QuestionPageController extends PageController {
   collection: ComponentCollection
@@ -94,11 +95,12 @@ export class QuestionPageController extends PageController {
     context: FormContext
   ): FormPageViewModel {
     const { collection, viewModel } = this
+    const { query } = request
     const { payload, errors } = context
 
     let { pageTitle, showTitle } = viewModel
 
-    const components = collection.getViewModel(payload, errors)
+    const components = collection.getViewModel(payload, errors, query)
     const formComponents = components.filter(
       ({ isFormComponent }) => isFormComponent
     )
@@ -242,6 +244,13 @@ export class QuestionPageController extends PageController {
   }
 
   async getState(request: FormRequest | FormRequestPayload) {
+    const { query } = request
+
+    // Skip get for preview URL direct access
+    if ('force' in query) {
+      return {}
+    }
+
     const { cacheService } = request.services([])
     return cacheService.getState(request)
   }
@@ -250,6 +259,13 @@ export class QuestionPageController extends PageController {
     request: FormRequest | FormRequestPayload,
     state: FormSubmissionState
   ) {
+    const { query } = request
+
+    // Skip set for preview URL direct access
+    if ('force' in query) {
+      return state
+    }
+
     const { cacheService } = request.services([])
     return cacheService.setState(request, state)
   }
@@ -259,8 +275,18 @@ export class QuestionPageController extends PageController {
     state: FormSubmissionState,
     update: object
   ) {
+    const { query } = request
+
+    // Merge state before set
+    const updated = merge(state, update)
+
+    // Skip set for preview URL direct access
+    if ('force' in query) {
+      return updated
+    }
+
     const { cacheService } = request.services([])
-    return cacheService.mergeState(request, state, update)
+    return cacheService.setState(request, updated)
   }
 
   makeGetRouteHandler() {
@@ -320,23 +346,25 @@ export class QuestionPageController extends PageController {
       })
 
       viewModel.notificationEmailWarning =
-        await this.buildMissingEmailWarningModel(request)
+        await this.buildMissingEmailWarningModel(request, context)
 
       return h.view(viewName, viewModel)
     }
   }
 
   async buildMissingEmailWarningModel(
-    request: FormRequest
+    request: FormRequest,
+    context: FormContext
   ): Promise<FormPageViewModel['notificationEmailWarning']> {
     const { path } = this
     const { params } = request
+    const { isForceAccess } = context
 
     const startPath = this.getStartPath()
     const summaryPath = this.getSummaryPath()
 
     // Warn the user if the form has no notification email set only on start page and summary page
-    if ([startPath, summaryPath].includes(path)) {
+    if ([startPath, summaryPath].includes(path) && !isForceAccess) {
       const { notificationEmail } = await getFormMetadata(params.slug)
 
       if (!notificationEmail) {
@@ -398,13 +426,13 @@ export class QuestionPageController extends PageController {
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
       const { collection, viewName } = this
-      const { state } = context
+      const { isForceAccess, state } = context
 
       /**
        * If there are any errors, render the page with the parsed errors
        * @todo Refactor to match POST REDIRECT GET pattern
        */
-      if (context.errors) {
+      if (context.errors || isForceAccess) {
         const viewModel = this.getViewModel(request, context)
         viewModel.errors = collection.getErrors(viewModel.errors)
 

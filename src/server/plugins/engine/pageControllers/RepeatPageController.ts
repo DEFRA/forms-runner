@@ -163,7 +163,8 @@ export class RepeatPageController extends QuestionPageController {
       if (!itemId) {
         const summaryPath = this.getSummaryPath(request)
         const nextPath = redirectPath(`${path}/${randomUUID()}`, {
-          returnUrl: query.returnUrl
+          returnUrl: query.returnUrl,
+          force: query.force
         })
 
         // Only redirect to new item when list is empty
@@ -367,7 +368,7 @@ export class RepeatPageController extends QuestionPageController {
   ): RepeaterSummaryPageViewModel {
     const { collection, href, repeat } = this
     const { query } = request
-    const { errors } = context
+    const { isForceAccess, errors } = context
 
     const { title } = repeat.options
 
@@ -384,26 +385,29 @@ export class RepeatPageController extends QuestionPageController {
       const summaryPath = this.getSummaryPath(request)
 
       list.forEach((item, index) => {
-        const items: SummaryListAction[] = [
-          {
+        const items: SummaryListAction[] = []
+
+        // Remove summary list actions from previews
+        if (!isForceAccess) {
+          items.push({
             href: redirectPath(`${href}/${item.itemId}`, {
               returnUrl: query.returnUrl ?? this.getHref(summaryPath)
             }),
             text: 'Change',
             classes: 'govuk-link--no-visited-state',
             visuallyHiddenText: `item ${index + 1}`
-          }
-        ]
-
-        if (count > 1) {
-          items.push({
-            href: redirectPath(`${href}/${item.itemId}/confirm-delete`, {
-              returnUrl: query.returnUrl
-            }),
-            text: 'Remove',
-            classes: 'govuk-link--no-visited-state',
-            visuallyHiddenText: `item ${index + 1}`
           })
+
+          if (count > 1) {
+            items.push({
+              href: redirectPath(`${href}/${item.itemId}/confirm-delete`, {
+                returnUrl: query.returnUrl
+              }),
+              text: 'Remove',
+              classes: 'govuk-link--no-visited-state',
+              visuallyHiddenText: `item ${index + 1}`
+            })
+          }
         }
 
         const itemDisplayText = collection.fields.length

@@ -1,7 +1,22 @@
 {% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner -%}
 
+{% set hasPreviousPages = context.relevantPages | length > 1 -%}
+
 {% call govukNotificationBanner() %}
-  <p class="govuk-notification-banner__heading">
-    This is a preview of a {{previewMode}} form. Do not enter personal information.
-  </p>
+  {% if not context.isForceAccess %}
+    <p class="govuk-notification-banner__heading">
+      This is a preview of a {{ previewMode }} form. Do not enter personal information.
+    </p>
+  {% else %}
+    <p class="govuk-notification-banner__heading {{- " govuk-!-margin-bottom-1" if hasPreviousPages }}">
+      This is a preview of a {{ previewMode }} form page.
+    </p>
+
+    {% if hasPreviousPages %}
+      <p class="govuk-body">
+        It depends on answers from earlier pages in the form. In the live
+        version, users will need to complete those questions first.
+      </p>
+    {% endif %}
+  {% endif %}
 {% endcall %}

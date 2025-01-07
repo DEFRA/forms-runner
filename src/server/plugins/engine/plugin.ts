@@ -1,4 +1,4 @@
-import { slugSchema } from '@defra/forms-model'
+import { hasFormComponents, slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type Plugin,
@@ -17,7 +17,8 @@ import {
   getPage,
   getStartPath,
   normalisePath,
-  proceed
+  proceed,
+  redirectPath
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { FileUploadPageController } from '~/src/server/plugins/engine/pageControllers/FileUploadPageController.js'
@@ -170,11 +171,8 @@ export const plugin = {
       const relevantPath = page.getRelevantPath(request, context)
       const summaryPath = page.getSummaryPath()
 
-      // Allow preview URL direct access
-      const { isPreview } = checkFormStatus(request.path)
-
       // Return handler for relevant pages or preview URL direct access
-      if (relevantPath.startsWith(page.path) || isPreview) {
+      if (relevantPath.startsWith(page.path) || context.isForceAccess) {
         return makeHandler(page, context)
       }
 
@@ -208,9 +206,19 @@ export const plugin = {
       request: FormRequestPayload,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      return redirectOrMakeHandler(request, h, (page, context) =>
-        page.makePostRouteHandler()(request, context, h)
-      )
+      const { query } = request
+
+      return redirectOrMakeHandler(request, h, (page, context) => {
+        const { pageDef } = page
+        const { isForceAccess } = context
+
+        // Redirect to GET for preview URL direct access
+        if (isForceAccess && !hasFormComponents(pageDef)) {
+          return proceed(request, h, redirectPath(page.href, query))
+        }
+
+        return page.makePostRouteHandler()(request, context, h)
+      })
     }
 
     const dispatchRouteOptions: RouteOptions<FormRequestRefs> = {
@@ -404,7 +412,9 @@ export const plugin = {
       const { params } = request
 
       return redirectOrMakeHandler(request, h, (page, context) => {
-        if (!(page instanceof RepeatPageController)) {
+        const { isForceAccess } = context
+
+        if (isForceAccess || !(page instanceof RepeatPageController)) {
           throw Boom.notFound(`No repeater page found for /${params.path}`)
         }
 
@@ -517,7 +527,10 @@ export const plugin = {
       const { params } = request
 
       return redirectOrMakeHandler(request, h, (page, context) => {
+        const { isForceAccess } = context
+
         if (
+          isForceAccess ||
           !(
             page instanceof RepeatPageController ||
             page instanceof FileUploadPageController

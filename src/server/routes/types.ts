@@ -3,6 +3,14 @@ import { type ReqRefDefaults, type Request } from '@hapi/hapi'
 import { type FormPayload } from '~/src/server/plugins/engine/types.js'
 
 export interface FormQuery extends Partial<Record<string, string>> {
+  /**
+   * Allow preview URL direct access without relevant page checks
+   */
+  force?: string
+
+  /**
+   * Redirect location after 'continue' form action
+   */
   returnUrl?: string
 }
 

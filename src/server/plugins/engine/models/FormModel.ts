@@ -201,11 +201,16 @@ export class FormModel {
    * Form context for the current page
    */
   getFormContext(request: FormContextRequest, state: FormState): FormContext {
+    const { query } = request
+
     const page = getPage(this, request)
 
     // Determine form paths
     const currentPath = page.path
     const startPath = page.getStartPath()
+
+    // Preview URL direct access is allowed
+    const isForceAccess = 'force' in query
 
     let context: FormContext = {
       evaluationState: {},
@@ -213,7 +218,8 @@ export class FormModel {
       relevantPages: [],
       payload: page.getFormDataFromState(request, state),
       state,
-      paths: []
+      paths: [],
+      isForceAccess
     }
 
     // Validate current page

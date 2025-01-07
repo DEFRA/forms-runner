@@ -3,8 +3,13 @@ import {
   SummaryViewModel
 } from '~/src/server/plugins/engine/models/index.js'
 import {
+  createPage,
+  type PageControllerClass
+} from '~/src/server/plugins/engine/pageControllers/helpers.js'
+import {
   type FormContext,
-  type FormContextRequest
+  type FormContextRequest,
+  type FormState
 } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
 
@@ -14,34 +19,22 @@ describe('SummaryViewModel', () => {
   const itemId1 = 'abc-123'
   const itemId2 = 'xyz-987'
 
+  let model: FormModel
+  let page: PageControllerClass
+  let pageUrl: URL
+  let request: FormContextRequest
   let context: FormContext
   let summaryViewModel: SummaryViewModel
 
   beforeEach(() => {
-    const model = new FormModel(definition, {
+    model = new FormModel(definition, {
       basePath: 'test'
     })
 
-    const state = {
-      orderType: 'delivery',
-      pizza: [
-        {
-          toppings: 'Ham',
-          quantity: 2,
-          itemId: itemId1
-        },
-        {
-          toppings: 'Pepperoni',
-          quantity: 1,
-          itemId: itemId2
-        }
-      ]
-    }
+    page = createPage(model, definition.pages[2])
+    pageUrl = new URL('http://example.com/repeat/pizza-order/summary')
 
-    const pageDef = definition.pages[2]
-    const pageUrl = new URL('http://example.com/repeat/pizza-order/summary')
-
-    const request = {
+    request = {
       method: 'get',
       url: pageUrl,
       path: pageUrl.pathname,
@@ -51,13 +44,60 @@ describe('SummaryViewModel', () => {
       },
       query: {},
       app: { model }
-    } satisfies FormContextRequest
-
-    context = model.getFormContext(request, state)
-    summaryViewModel = new SummaryViewModel(model, pageDef, request, context)
+    }
   })
 
-  describe('Check answers', () => {
+  describe.each([
+    {
+      description: '0 items',
+      state: {
+        orderType: 'collection',
+        pizza: []
+      } satisfies FormState,
+      keys: ['How would you like to receive your pizza?', 'Pizzas'],
+      values: ['Collection', 'Not supplied']
+    },
+    {
+      description: '1 item',
+      state: {
+        orderType: 'delivery',
+        pizza: [
+          {
+            toppings: 'Ham',
+            quantity: 2,
+            itemId: itemId1
+          }
+        ]
+      } satisfies FormState,
+      keys: ['How would you like to receive your pizza?', 'Pizza added'],
+      values: ['Delivery', 'You added 1 Pizza']
+    },
+    {
+      description: '2 items',
+      state: {
+        orderType: 'delivery',
+        pizza: [
+          {
+            toppings: 'Ham',
+            quantity: 2,
+            itemId: itemId1
+          },
+          {
+            toppings: 'Pepperoni',
+            quantity: 1,
+            itemId: itemId2
+          }
+        ]
+      } satisfies FormState,
+      keys: ['How would you like to receive your pizza?', 'Pizzas added'],
+      values: ['Delivery', 'You added 2 Pizzas']
+    }
+  ])('Check answers ($description)', ({ state, keys, values }) => {
+    beforeEach(() => {
+      context = model.getFormContext(request, state)
+      summaryViewModel = new SummaryViewModel(request, page, context)
+    })
+
     it('should add title for each section', () => {
       const [checkAnswers1, checkAnswers2] = summaryViewModel.checkAnswers
 
@@ -81,11 +121,11 @@ describe('SummaryViewModel', () => {
       expect(summaryList1).toHaveProperty('rows', [
         {
           key: {
-            text: 'How would you like to receive your pizza?'
+            text: keys[0]
           },
           value: {
             classes: 'app-prose-scope',
-            html: 'Delivery'
+            html: values[0]
           },
           actions: {
             items: [
@@ -93,7 +133,7 @@ describe('SummaryViewModel', () => {
                 classes: 'govuk-link--no-visited-state',
                 href: `${basePath}/delivery-or-collection?returnUrl=${encodeURIComponent(`${basePath}/summary`)}`,
                 text: 'Change',
-                visuallyHiddenText: 'How would you like to receive your pizza?'
+                visuallyHiddenText: keys[0]
               }
             ]
           }
@@ -103,11 +143,11 @@ describe('SummaryViewModel', () => {
       expect(summaryList2).toHaveProperty('rows', [
         {
           key: {
-            text: 'Pizzas added'
+            text: keys[1]
           },
           value: {
             classes: 'app-prose-scope',
-            html: 'You added 2 Pizzas'
+            html: values[1]
           },
           actions: {
             items: [
@@ -118,6 +158,49 @@ describe('SummaryViewModel', () => {
                 visuallyHiddenText: 'Pizza'
               }
             ]
+          }
+        }
+      ])
+    })
+
+    it('should add summary list for each section (preview URL direct access)', () => {
+      request.query.force = '' // Preview URL '?force'
+      context = model.getFormContext(request, state)
+      summaryViewModel = new SummaryViewModel(request, page, context)
+
+      expect(summaryViewModel.checkAnswers).toHaveLength(2)
+
+      const [checkAnswers1, checkAnswers2] = summaryViewModel.checkAnswers
+
+      const { summaryList: summaryList1 } = checkAnswers1
+      const { summaryList: summaryList2 } = checkAnswers2
+
+      expect(summaryList1).toHaveProperty('rows', [
+        {
+          key: {
+            text: keys[0]
+          },
+          value: {
+            classes: 'app-prose-scope',
+            html: values[0]
+          },
+          actions: {
+            items: []
+          }
+        }
+      ])
+
+      expect(summaryList2).toHaveProperty('rows', [
+        {
+          key: {
+            text: keys[1]
+          },
+          value: {
+            classes: 'app-prose-scope',
+            html: values[1]
+          },
+          actions: {
+            items: []
           }
         }
       ])

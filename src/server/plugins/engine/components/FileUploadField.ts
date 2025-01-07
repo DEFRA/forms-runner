@@ -17,12 +17,14 @@ import {
   type FormSubmissionError,
   type FormSubmissionState,
   type SummaryList,
+  type SummaryListAction,
   type SummaryListRow,
   type UploadState,
   type UploadStatusFileResponse,
   type UploadStatusResponse
 } from '~/src/server/plugins/engine/types.js'
 import { render } from '~/src/server/plugins/nunjucks/index.js'
+import { type FormQuery } from '~/src/server/routes/types.js'
 
 export const uploadIdSchema = joi.string().uuid().required()
 
@@ -160,8 +162,15 @@ export class FileUploadField extends FormComponent {
     return files?.map(({ status }) => status.form.file.fileId) ?? null
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
+  getViewModel(
+    payload: FormPayload,
+    errors?: FormSubmissionError[],
+    query: FormQuery = {}
+  ) {
     const { options, page } = this
+
+    // Allow preview URL direct access
+    const isForceAccess = 'force' in query
 
     const viewModel = super.getViewModel(payload, errors)
     const { attributes, id, value } = viewModel
@@ -206,8 +215,21 @@ export class FileUploadField extends FormComponent {
         })
         .trim()
 
-      const path = `/${item.uploadId}/confirm-delete`
-      const href = page?.getHref(`${page.path}${path}`) ?? '#'
+      const items: SummaryListAction[] = []
+
+      // Remove summary list actions from previews
+      if (!isForceAccess) {
+        const path = `/${item.uploadId}/confirm-delete`
+        const href = page?.getHref(`${page.path}${path}`) ?? '#'
+
+        items.push({
+          href,
+          text: 'Remove',
+          classes: 'govuk-link--no-visited-state',
+          attributes: { id: `${id}__${index}` },
+          visuallyHiddenText: file.filename
+        })
+      }
 
       return {
         key: {
@@ -217,15 +239,7 @@ export class FileUploadField extends FormComponent {
           html: valueHtml
         },
         actions: {
-          items: [
-            {
-              href,
-              text: 'Remove',
-              classes: 'govuk-link--no-visited-state',
-              attributes: { id: `${id}__${index}` },
-              visuallyHiddenText: file.filename
-            }
-          ]
+          items
         }
       } satisfies SummaryListRow
     })

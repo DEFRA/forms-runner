@@ -407,6 +407,68 @@ describe('FileUploadField', () => {
         )
       })
 
+      it('sets Nunjucks component defaults (preview URL direct access)', () => {
+        const viewModel = field.getViewModel(
+          getFormData(validState),
+          undefined,
+
+          // Preview URL '?force'
+          { force: '' }
+        )
+
+        expect(viewModel).toEqual(
+          expect.objectContaining({
+            label: { text: def.title },
+            name: 'file', // hardcoded to 'file' for CDP
+            id: 'myComponent',
+            value: '', // input type=file can't have a default value
+            upload: {
+              count: 3,
+              pendingCount: 0,
+              successfulCount: 3,
+              summaryList: {
+                classes: 'govuk-summary-list--long-key',
+                rows: [
+                  {
+                    key: {
+                      html: expect.stringContaining('SampleJPGImage_30mbmb.jpg')
+                    },
+                    value: {
+                      html: expect.stringContaining('Uploaded')
+                    },
+                    actions: {
+                      items: []
+                    }
+                  },
+                  {
+                    key: {
+                      html: expect.stringContaining('error-messages.txt')
+                    },
+                    value: {
+                      html: expect.stringContaining('Uploaded')
+                    },
+                    actions: {
+                      items: []
+                    }
+                  },
+                  {
+                    key: {
+                      html: expect.stringContaining('SampleJPGImage_20mbmb.jpg')
+                    },
+                    value: {
+                      html: expect.stringContaining('Uploaded')
+                    },
+                    actions: {
+                      items: []
+                    }
+                  }
+                ]
+              }
+            }
+          })
+        )
+      })
+
       it('sets Nunjucks component defaults with temp valid state', () => {
         const viewModel = field.getViewModel(getFormData(validTempState))
 

@@ -28,6 +28,7 @@ import {
   type FormSubmissionState,
   type FormValidationResult
 } from '~/src/server/plugins/engine/types.js'
+import { type FormQuery } from '~/src/server/routes/types.js'
 
 export class ComponentCollection {
   page?: PageControllerClass
@@ -232,7 +233,11 @@ export class ComponentCollection {
     return list
   }
 
-  getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
+  getViewModel(
+    payload: FormPayload,
+    errors?: FormSubmissionError[],
+    query: FormQuery = {}
+  ) {
     const { components } = this
 
     const result: ComponentViewModel[] = components.map((component) => {
@@ -240,7 +245,7 @@ export class ComponentCollection {
 
       const model =
         component instanceof FormComponent
-          ? component.getViewModel(payload, errors)
+          ? component.getViewModel(payload, errors, query)
           : component.getViewModel()
 
       return { type, isFormComponent, model }

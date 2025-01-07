@@ -44,7 +44,7 @@
     </div>
   </div>
 
-  {% if config.cdpEnvironment == 'local' and context | length %}
+  {% if config.cdpEnvironment == 'local' and context | length and not context.isForceAccess %}
     {% include "partials/debug.html" %}
   {% endif %}
 {% endblock %}

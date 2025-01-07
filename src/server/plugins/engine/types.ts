@@ -124,6 +124,9 @@ export interface FormContext {
    * Visited paths evaluated from form state
    */
   paths: string[]
+
+  // Preview URL direct access is allowed
+  isForceAccess: boolean
 }
 
 export type FormContextRequest = (

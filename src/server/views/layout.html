@@ -120,11 +120,11 @@
   {% endif %}
 
   {{ govukHeader({
-    homepageUrl: "https://www.gov.uk",
+    homepageUrl: currentPath if context.isForceAccess else "https://www.gov.uk",
     containerClasses: "govuk-width-container",
     productName: productName | safe | trim,
     serviceName: name if name else config.serviceName,
-    serviceUrl: serviceUrl
+    serviceUrl: currentPath if context.isForceAccess else serviceUrl
   }) }}
 {% endblock %}
 
@@ -134,7 +134,7 @@
 
   {% if phaseTag %}
     {% set feedbackLinkHtml -%}
-      <a href="{{ feedbackLink }}" class="govuk-link" target="_blank" rel="noopener noreferrer">
+      <a href="{{ currentPath if context.isForceAccess else feedbackLink }}" class="govuk-link" {%- if not context.isForceAccess %} target="_blank" rel="noopener noreferrer" {%- endif %}>
         {%- if "mailto:" in feedbackLink -%}
           give your feedback by email
         {%- else -%}
@@ -193,5 +193,7 @@
     ]
   } if slug %}
 
-  {{ govukFooter({ meta: meta }) }}
+  {% if not context.isForceAccess %}
+    {{ govukFooter({ meta: meta }) }}
+  {% endif %}
 {% endblock %}
