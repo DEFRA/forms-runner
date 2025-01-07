@@ -129,33 +129,30 @@
 {% endblock %}
 
 {% block beforeContent %}
-    {% if phaseTag %}
-        {% if 'mailto:' in feedbackLink %}
-            {{ govukPhaseBanner({
-                tag: {
-                    text: phaseTag | capitalize
-                },
-                html: 'This is a new service. Help us improve it and <a class="govuk-link" target="_blank" rel="noopener noreferrer" href="' + feedbackLink | escape + '">give your feedback by email</a>.'
-            }) }}
-        {% else %}
-            {{ govukPhaseBanner({
-                tag: {
-                    text: phaseTag | capitalize
-                },
-                html: 'This is a new service. Help us improve it and <a class="govuk-link" target="_blank" rel="noopener noreferrer" href="' + feedbackLink | escape + '">give your feedback (opens in new tab)</a>.'
-            }) }}
-        {% endif %}
-    {% endif %}
-    {% if backLink %}
-      {{ govukBackLink(backLink) }}
-    {% endif %}
-{% endblock %}
+  {% if phaseTag %}
+    {% set feedbackLinkHtml -%}
+      <a href="{{ feedbackLink }}" class="govuk-link" target="_blank" rel="noopener noreferrer">
+        {%- if "mailto:" in feedbackLink -%}
+          give your feedback by email
+        {%- else -%}
+          give your feedback (opens in new tab)
+        {%- endif -%}
+      </a>
+    {%- endset %}
 
+    {{ govukPhaseBanner({
+      tag: { text: phaseTag | capitalize },
+      html: "This is a new service. Help us improve it and " + feedbackLinkHtml | safe + "."
+    }) }}
+  {% endif %}
+  {% if backLink %}
+    {{ govukBackLink(backLink) }}
+  {% endif %}
+{% endblock %}
 
 {% block content %}
   <h1 class="govuk-heading-l">Default page template</h1>
 {% endblock %}
-
 
 {% block bodyEnd %}
   <script type="module" nonce="{{ cspNonce }}" src="{{ getAssetPath("application.js") }}"></script>
@@ -173,19 +170,24 @@
 
 {% block footer %}
   {% set meta = {
-    items: [{
-      href: '/help/get-support/' + slug,
-      text: 'Get help with this form'
-    }, {
-      href: '/help/privacy/' + slug,
-      text: 'Privacy'
-    }, {
-      href: '/help/cookies/' + slug,
-      text: 'Cookies'
-    }, {
-      href: '/help/accessibility-statement/' + slug,
-      text: 'Accessibility Statement'
-    }]
+    items: [
+      {
+        href: '/help/get-support/' + slug,
+        text: 'Get help with this form'
+      },
+      {
+        href: '/help/privacy/' + slug,
+        text: 'Privacy'
+      },
+      {
+        href: '/help/cookies/' + slug,
+        text: 'Cookies'
+      },
+      {
+        href: '/help/accessibility-statement/' + slug,
+        text: 'Accessibility Statement'
+      }
+    ]
   } if slug %}
 
   {{ govukFooter({ meta: meta }) }}
