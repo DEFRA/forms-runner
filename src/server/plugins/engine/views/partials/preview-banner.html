@@ -3,27 +3,27 @@
 {% set hasPreviousPages = context.relevantPages | length > 1 -%}
 
 {%- macro _closeLink() -%}
-  <p class="govuk-notification-banner__heading js-preview-banner-close" hidden>
+  <p class="govuk-notification-banner__heading govuk-!-margin-top-1 js-preview-banner-close" hidden>
     <a href="{{ config.designerUrl }}" class="govuk-link--no-visited-state">Close preview and go back to the editor</a>
   </p>
 {%- endmacro -%}
 
 {% call govukNotificationBanner() %}
   {% if not context.isForceAccess %}
-    <p class="govuk-notification-banner__heading">
+    <p class="govuk-notification-banner__heading govuk-!-margin-bottom-0">
       This is a preview of a {{ previewMode }} form. Do not enter personal information.
     </p>
 
     {{ _closeLink() }}
   {% else %}
-    <p class="govuk-notification-banner__heading {{- " govuk-!-margin-bottom-1" if hasPreviousPages }}">
+    <p class="govuk-notification-banner__heading govuk-!-margin-bottom-0">
       This is a preview of a {{ previewMode }} form page.
     </p>
 
     {{ _closeLink() }}
 
     {% if hasPreviousPages %}
-      <p class="govuk-body">
+      <p class="govuk-body govuk-!-margin-top-2">
         It depends on answers from earlier pages in the form. In the live
         version, users will need to complete those questions first.
       </p>
