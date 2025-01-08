@@ -4,7 +4,7 @@
 
 {%- macro _closeLink() -%}
   <p class="govuk-notification-banner__heading govuk-!-margin-top-1 js-preview-banner-close" hidden>
-    <a href="{{ config.designerUrl }}" class="govuk-link--no-visited-state">Close preview and go back to the editor</a>
+    <a href="{{ config.designerUrl }}/library/{{ slug }}/editor" class="govuk-link--no-visited-state">Go back to the editor</a>
   </p>
 {%- endmacro -%}
 
@@ -17,7 +17,7 @@
     {{ _closeLink() }}
   {% else %}
     <p class="govuk-notification-banner__heading govuk-!-margin-bottom-0">
-      This is a preview of a {{ previewMode }} form page.
+      This is a preview of a {{ previewMode }} form page you are editing.
     </p>
 
     {{ _closeLink() }}
