@@ -1,3 +1,4 @@
+import { slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ServerRegisterPluginObject } from '@hapi/hapi'
 import Joi from 'joi'
@@ -21,23 +22,29 @@ export default {
     register: (server) => {
       server.route(routes)
 
-      server.route<{ Params: { slug?: string } }>({
+      // Shared help routes params schema & options
+      const params = Joi.object()
+        .keys({
+          slug: slugSchema
+        })
+        .required()
+
+      const options = {
+        validate: {
+          params
+        }
+      }
+
+      server.route<{ Params: { slug: string } }>({
         method: 'get',
-        path: '/help/get-support/{slug?}',
+        path: '/help/get-support/{slug}',
         async handler(request, h) {
           const { slug } = request.params
-          const viewName = 'help/get-support'
-
-          // If there's no slug in the path,
-          // return the generic help page
-          if (!slug) {
-            return h.view(viewName)
-          }
-
           const form = await getFormMetadata(slug)
 
-          return h.view(viewName, { form })
-        }
+          return h.view('help/get-support', { form })
+        },
+        options
       })
 
       server.route<{ Params: { slug: string } }>({
@@ -48,22 +55,25 @@ export default {
           const form = await getFormMetadata(slug)
 
           return h.view('help/privacy-notice', { form })
-        }
+        },
+        options
       })
 
-      server.route({
+      server.route<{ Params: { slug: string } }>({
         method: 'get',
-        path: '/help/cookies',
+        path: '/help/cookies/{slug}',
         handler(_request, h) {
           return h.view('help/cookies', {
             googleAnalyticsContainerId: config
               .get('googleAnalyticsTrackingId')
               .replace(/^G-/, '')
           })
-        }
+        },
+        options
       })
 
       server.route<{
+        Params: { slug: string }
         Payload: {
           crumb?: string
           'cookies[analytics]'?: string
@@ -72,9 +82,10 @@ export default {
         Query: { returnUrl?: string }
       }>({
         method: 'post',
-        path: '/help/cookie-preferences',
+        path: '/help/cookie-preferences/{slug}',
         handler(request, h) {
-          const { payload, query } = request
+          const { params, payload, query } = request
+          const { slug } = params
           let { returnUrl } = query
 
           if (returnUrl && !isPathRelative(returnUrl)) {
@@ -109,7 +120,7 @@ export default {
 
           if (!returnUrl) {
             cookieConsent.dismissed = true // this page already has a confirmation message, don't show another
-            returnUrl = '/help/cookie-preferences'
+            returnUrl = `/help/cookie-preferences/${slug}`
           }
 
           const serialisedCookieConsent = serialiseCookieConsent(cookieConsent)
@@ -119,6 +130,7 @@ export default {
         },
         options: {
           validate: {
+            params,
             payload: Joi.object({
               crumb: Joi.string().optional().allow(''),
               'cookies[analytics]': Joi.string().valid('yes', 'no').optional(),
@@ -139,10 +151,12 @@ export default {
         }
       })
 
-      server.route({
+      server.route<{ Params: { slug: string } }>({
         method: 'get',
-        path: '/help/cookie-preferences',
+        path: '/help/cookie-preferences/{slug}',
         handler(request, h) {
+          const { params } = request
+          const { slug } = params
           let cookieConsentDismissed = false
 
           if (typeof request.state.cookieConsent === 'string') {
@@ -158,20 +172,22 @@ export default {
           // the cookie banner
           const showConsentSuccess =
             cookieConsentDismissed &&
-            request.info.referrer.endsWith('/help/cookie-preferences')
+            request.info.referrer.endsWith(`/help/cookie-preferences/${slug}`)
 
           return h.view('help/cookie-preferences', {
             cookieConsentUpdated: showConsentSuccess
           })
-        }
+        },
+        options
       })
 
-      server.route({
+      server.route<{ Params: { slug: string } }>({
         method: 'get',
-        path: '/help/accessibility-statement',
+        path: '/help/accessibility-statement/{slug}',
         handler(_request, h) {
           return h.view('help/accessibility-statement')
-        }
+        },
+        options
       })
     }
   }

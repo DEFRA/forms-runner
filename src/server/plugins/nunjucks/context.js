@@ -1,6 +1,9 @@
 import { readFileSync } from 'node:fs'
 import { basename, join } from 'node:path'
 
+import Boom from '@hapi/boom'
+import { StatusCodes } from 'http-status-codes'
+
 import pkg from '~/package.json' with { type: 'json' }
 import { parseCookieConsent } from '~/src/common/cookies.js'
 import { config } from '~/src/config/index.js'
@@ -28,7 +31,7 @@ export function context(request) {
     }
   }
 
-  const { params, path, state } = request ?? {}
+  const { params, path, state, response } = request ?? {}
 
   /** @type {CookieConsent | undefined} */
   let cookieConsent
@@ -41,6 +44,11 @@ export function context(request) {
 
   const isPreviewMode = path?.startsWith(PREVIEW_PATH_PREFIX)
 
+  // Only add the slug in to the context if the response is OK.
+  // Footer meta links are not rendered when the slug is missing.
+  const isResponseOK =
+    !Boom.isBoom(response) && response?.statusCode === StatusCodes.OK
+
   return {
     appVersion: pkg.version,
     assetPath: '/assets',
@@ -51,7 +59,7 @@ export function context(request) {
     serviceBannerText: config.get('serviceBannerText'),
     serviceName: config.get('serviceName'),
     serviceVersion: config.get('serviceVersion'),
-    slug: params?.slug,
+    slug: isResponseOK ? params?.slug : undefined,
     cookieConsent,
     crumb,
     googleAnalyticsTrackingId: config.get('googleAnalyticsTrackingId'),

@@ -45,16 +45,16 @@
 {% endblock %}
 
 {% block header %}
-  {% if googleAnalyticsTrackingId %}
-    <form method="post" action="/help/cookie-preferences?returnUrl={{ currentPath | urlencode }}">
+  {% if googleAnalyticsTrackingId and slug %}
+    <form method="post" action="/help/cookie-preferences/{{ slug }}?returnUrl={{ currentPath | urlencode }}">
       <input type="hidden" name="crumb" value="{{ crumb }}">
 
     {% set acceptHtml %}
-      <p class="govuk-body">You’ve accepted analytics cookies. You can <a class="govuk-link" href="/help/cookies">change your cookie settings</a> at any time.</p>
+      <p class="govuk-body">You’ve accepted analytics cookies. You can <a class="govuk-link" href="/help/cookies/{{ slug }}">change your cookie settings</a> at any time.</p>
     {% endset %}
 
     {% set rejectedHtml %}
-      <p class="govuk-body">You’ve rejected analytics cookies. You can <a class="govuk-link" href="/help/cookies">change your cookie settings</a> at any time.</p>
+      <p class="govuk-body">You’ve rejected analytics cookies. You can <a class="govuk-link" href="/help/cookies/{{ slug }}">change your cookie settings</a> at any time.</p>
     {% endset %}
 
     {% if cookieConsent.analytics !== true and cookieConsent.analytics !== false and cookieConsent.dismissed !== true %}
@@ -84,7 +84,7 @@
               },
               {
                 text: "View cookies",
-                href: "/help/cookies"
+                href: "/help/cookies/" + slug
               }
             ]
           }
@@ -175,21 +175,21 @@
 {% endblock %}
 
 {% block footer %}
-    {{ govukFooter({
-        meta: {
-            items: [{
-                href: '/help/get-support' + ('/' + slug if slug),
-                text: 'Get help with this form'
-            }, {
-                href: '/help/privacy' + ('/' + slug if slug),
-                text: 'Privacy'
-            }, {
-                href: '/help/cookies',
-                text: 'Cookies'
-            }, {
-                href: '/help/accessibility-statement',
-                text: 'Accessibility Statement'
-            }]
-        }
-    }) }}
+  {% set meta = {
+    items: [{
+      href: '/help/get-support/' + slug,
+      text: 'Get help with this form'
+    }, {
+      href: '/help/privacy/' + slug,
+      text: 'Privacy'
+    }, {
+      href: '/help/cookies/' + slug,
+      text: 'Cookies'
+    }, {
+      href: '/help/accessibility-statement/' + slug,
+      text: 'Accessibility Statement'
+    }]
+  } if slug %}
+
+  {{ govukFooter({ meta: meta }) }}
 {% endblock %}
