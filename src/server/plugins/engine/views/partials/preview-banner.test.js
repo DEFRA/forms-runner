@@ -67,7 +67,7 @@ describe('Preview banner partial', () => {
 
       it('should have text content', () => {
         expect($paragraphs[0]).toHaveTextContent(
-          `This is a preview of a ${status} form page.`
+          `This is a preview of a ${status} form page you are editing.`
         )
 
         expect($paragraphs[1]).toBeUndefined()
@@ -110,7 +110,7 @@ describe('Preview banner partial', () => {
 
       it('should have text content', () => {
         expect($paragraphs[0]).toHaveTextContent(
-          `This is a preview of a ${status} form page.`
+          `This is a preview of a ${status} form page you are editing.`
         )
 
         expect($paragraphs[1]).toHaveTextContent(
