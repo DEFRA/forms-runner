@@ -42,10 +42,7 @@ export class SummaryViewModel {
   phaseTag?: string
   errors?: FormSubmissionError[]
   serviceUrl: string
-  notificationEmailWarning?: {
-    slug: string
-    designerUrl: string
-  }
+  hasMissingNotificationEmail?: boolean
 
   constructor(
     request: FormContextRequest,

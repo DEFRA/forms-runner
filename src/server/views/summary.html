@@ -10,7 +10,7 @@
         {% include "partials/preview-banner.html" %}
       {% endif %}
 
-      {% if notificationEmailWarning %}
+      {% if hasMissingNotificationEmail %}
         {% include "partials/warn-missing-notification-email.html" %}
       {% endif %}
 
