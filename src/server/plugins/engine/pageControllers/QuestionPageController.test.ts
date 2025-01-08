@@ -491,8 +491,8 @@ describe('QuestionPageController', () => {
 
       for (const controller of [controller1, controller2]) {
         jest
-          .spyOn(controller, 'buildMissingEmailWarningModel')
-          .mockResolvedValue(undefined)
+          .spyOn(controller, 'hasMissingNotificationEmail')
+          .mockResolvedValue(false)
 
         jest.spyOn(controller, 'getState').mockResolvedValue(state)
       }

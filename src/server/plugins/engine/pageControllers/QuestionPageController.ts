@@ -9,7 +9,6 @@ import {
 import { type ResponseToolkit, type RouteOptions } from '@hapi/hapi'
 import { type ValidationErrorItem } from 'joi'
 
-import { config } from '~/src/config/index.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import { type BackLink } from '~/src/server/plugins/engine/components/types.js'
@@ -345,17 +344,17 @@ export class QuestionPageController extends PageController {
         return evaluatedComponent
       })
 
-      viewModel.notificationEmailWarning =
-        await this.buildMissingEmailWarningModel(request, context)
+      viewModel.hasMissingNotificationEmail =
+        await this.hasMissingNotificationEmail(request, context)
 
       return h.view(viewName, viewModel)
     }
   }
 
-  async buildMissingEmailWarningModel(
+  async hasMissingNotificationEmail(
     request: FormRequest,
     context: FormContext
-  ): Promise<FormPageViewModel['notificationEmailWarning']> {
+  ) {
     const { path } = this
     const { params } = request
     const { isForceAccess } = context
@@ -366,14 +365,10 @@ export class QuestionPageController extends PageController {
     // Warn the user if the form has no notification email set only on start page and summary page
     if ([startPath, summaryPath].includes(path) && !isForceAccess) {
       const { notificationEmail } = await getFormMetadata(params.slug)
-
-      if (!notificationEmail) {
-        return {
-          slug: params.slug,
-          designerUrl: config.get('designerUrl')
-        }
-      }
+      return !notificationEmail
     }
+
+    return false
   }
 
   /**

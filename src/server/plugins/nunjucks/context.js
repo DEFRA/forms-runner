@@ -47,6 +47,7 @@ export function context(request) {
     assetPath: '/assets',
     config: {
       cdpEnvironment: config.get('cdpEnvironment'),
+      designerUrl: config.get('designerUrl'),
       feedbackLink: encodeUrl(config.get('feedbackLink')),
       phaseTag: config.get('phaseTag'),
       serviceBannerText: config.get('serviceBannerText'),
