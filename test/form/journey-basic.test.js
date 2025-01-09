@@ -433,9 +433,7 @@ describe('Form journey', () => {
 
       // Redirect back to start
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-      expect(response.headers.location).toBe(
-        `${basePath}/licence?returnUrl=${encodeURIComponent(`${basePath}/summary`)}`
-      )
+      expect(response.headers.location).toBe(`${basePath}/licence`)
     })
   })
 })
