@@ -22,6 +22,7 @@ import {
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormContext,
+  type FormContextRequest,
   type PageViewModelBase
 } from '~/src/server/plugins/engine/types.js'
 import {
@@ -142,7 +143,7 @@ export class PageController {
     return getStartPath(this.model)
   }
 
-  getSummaryPath() {
+  getSummaryPath(_request?: FormContextRequest) {
     return ControllerPath.Summary.valueOf()
   }
 
@@ -155,7 +156,7 @@ export class PageController {
     context: FormContext,
     h: Pick<ResponseToolkit, 'redirect' | 'view'>
   ) => ReturnType<Lifecycle.Method<FormRequestRefs>> {
-    return (request, context, h) => {
+    return (_request, _context, h) => {
       const { viewModel, viewName } = this
       return h.view(viewName, viewModel)
     }
