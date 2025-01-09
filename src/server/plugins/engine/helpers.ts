@@ -40,7 +40,7 @@ export function proceed(
   const response =
     isReturnAllowed && isPathRelative(returnUrl)
       ? h.redirect(returnUrl)
-      : h.redirect(redirectPath(nextUrl, { returnUrl }))
+      : h.redirect(redirectPath(nextUrl))
 
   // Redirect POST to GET to avoid resubmission
   return method === 'post'

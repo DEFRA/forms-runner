@@ -198,9 +198,7 @@ describe('Exit pages', () => {
 
         // Redirect back to relevant page (with return URL)
         expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-        expect(response.headers.location).toBe(
-          `${basePath}${paths.next}?returnUrl=${encodeURIComponent(`${basePath}/summary`)}`
-        )
+        expect(response.headers.location).toBe(`${basePath}${paths.next}`)
       })
     }
   )
