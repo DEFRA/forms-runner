@@ -2,7 +2,6 @@ import {
   ComponentType,
   hasComponents,
   hasNext,
-  hasRepeater,
   type Link,
   type Page
 } from '@defra/forms-model'
@@ -372,29 +371,27 @@ export class QuestionPageController extends PageController {
   }
 
   /**
-   * Get the back link for a given progress.
+   * Get back link by form context
    */
-  protected getBackLink(
+  getBackLink(
     request: FormContextRequest,
     context: FormContext
   ): BackLink | undefined {
-    const { pageDef } = this
     const { path, query } = request
     const { returnUrl } = query
     const { relevantPaths } = context
 
-    const itemId = this.getItemId(request)
+    const { action } = this.getFormParams(request)
 
     // Check answers back link
-    if (returnUrl) {
+    if (!action && returnUrl) {
       return {
-        text:
-          hasRepeater(pageDef) && itemId
-            ? 'Go back to add another'
-            : 'Go back to check answers',
+        text: 'Go back to check answers',
         href: returnUrl
       }
     }
+
+    const itemId = this.getItemId(request)
 
     // Item delete pages etc
     const backPath =
