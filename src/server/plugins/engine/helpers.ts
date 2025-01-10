@@ -22,12 +22,12 @@ import {
 const logger = createLogger()
 
 export function proceed(
-  request: Pick<FormContextRequest, 'method' | 'payload' | 'query'>,
+  request: FormContextRequest,
   h: Pick<ResponseToolkit, 'redirect' | 'view'>,
   nextUrl: string
 ) {
   const { method, payload, query } = request
-  const { returnUrl } = query
+  const { itemId, returnUrl } = query
 
   const isReturnAllowed =
     payload && 'action' in payload
@@ -37,9 +37,9 @@ export function proceed(
 
   // Redirect to return location (optional)
   const response =
-    isReturnAllowed && isPathRelative(returnUrl)
-      ? h.redirect(returnUrl)
-      : h.redirect(redirectPath(nextUrl, { returnUrl }))
+    returnUrl && isReturnAllowed && isPathRelative(returnUrl)
+      ? h.redirect(redirectPath(returnUrl, { itemId }))
+      : h.redirect(redirectPath(nextUrl, { itemId, returnUrl }))
 
   // Redirect POST to GET to avoid resubmission
   return method === 'post'
