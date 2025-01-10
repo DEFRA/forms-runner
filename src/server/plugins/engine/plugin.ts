@@ -17,8 +17,7 @@ import {
   getPage,
   getStartPath,
   normalisePath,
-  proceed,
-  redirectPath
+  proceed
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { FileUploadPageController } from '~/src/server/plugins/engine/pageControllers/FileUploadPageController.js'
@@ -214,7 +213,7 @@ export const plugin = {
 
         // Redirect to GET for preview URL direct access
         if (isForceAccess && !hasFormComponents(pageDef)) {
-          return proceed(request, h, redirectPath(page.href, query))
+          return proceed(request, h, page.getHref(page.path, query))
         }
 
         return page.makePostRouteHandler()(request, context, h)

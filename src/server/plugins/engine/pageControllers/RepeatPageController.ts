@@ -366,7 +366,7 @@ export class RepeatPageController extends QuestionPageController {
     context: FormContext,
     list: RepeatListState
   ): RepeaterSummaryPageViewModel {
-    const { collection, href, repeat } = this
+    const { collection, path, repeat } = this
     const { query } = request
     const { isForceAccess, errors } = context
 
@@ -390,7 +390,7 @@ export class RepeatPageController extends QuestionPageController {
         // Remove summary list actions from previews
         if (!isForceAccess) {
           items.push({
-            href: redirectPath(`${href}/${item.itemId}`, {
+            href: this.getHref(`${path}/${item.itemId}`, {
               returnUrl: query.returnUrl ?? this.getHref(summaryPath)
             }),
             text: 'Change',
@@ -400,7 +400,7 @@ export class RepeatPageController extends QuestionPageController {
 
           if (count > 1) {
             items.push({
-              href: redirectPath(`${href}/${item.itemId}/confirm-delete`, {
+              href: this.getHref(`${path}/${item.itemId}/confirm-delete`, {
                 returnUrl: query.returnUrl
               }),
               text: 'Remove',

@@ -5,7 +5,7 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers.js'
 import { type BackLink } from '~/src/server/plugins/engine/components/types.js'
-import { getError, getPageHref } from '~/src/server/plugins/engine/helpers.js'
+import { getError } from '~/src/server/plugins/engine/helpers.js'
 import {
   type Detail,
   type DetailItem,
@@ -172,8 +172,8 @@ function ItemRepeat(
     label: title,
     title: values.length ? `${unit} added` : unit,
     value: values.length ? `You added ${values.length} ${unit}` : '',
-    href: getPageHref(page, options.path, {
-      returnUrl: getPageHref(page, page.getSummaryPath())
+    href: page.getHref(options.path, {
+      returnUrl: page.getHref(page.getSummaryPath())
     }),
     state,
     page,
@@ -206,8 +206,8 @@ function ItemField(
     title: field.title,
     error: field.getError(options.errors),
     value: getAnswer(field, state),
-    href: getPageHref(page, options.path, {
-      returnUrl: getPageHref(page, page.getSummaryPath())
+    href: page.getHref(options.path, {
+      returnUrl: page.getHref(page.getSummaryPath())
     }),
     state,
     page,

@@ -15,7 +15,9 @@ import { type ComponentCollection } from '~/src/server/plugins/engine/components
 import {
   encodeUrl,
   getStartPath,
-  normalisePath
+  isPathRelative,
+  normalisePath,
+  redirectPath
 } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
@@ -23,6 +25,7 @@ import {
   type PageViewModelBase
 } from '~/src/server/plugins/engine/types.js'
 import {
+  type FormQuery,
   type FormRequest,
   type FormRequestPayload,
   type FormRequestPayloadRefs,
@@ -120,12 +123,19 @@ export class PageController {
     return def.phaseBanner?.phase
   }
 
-  getHref(path: string) {
+  getHref(path: string, query: FormQuery = {}) {
     const { model } = this
 
-    return path === '/'
-      ? `/${model.basePath}` // Strip trailing slash
-      : `/${model.basePath}${path}`
+    if (!isPathRelative(path)) {
+      throw Error('Only relative URLs are allowed')
+    }
+
+    const href =
+      path === '/'
+        ? `/${model.basePath}` // Strip trailing slash
+        : `/${model.basePath}${path}`
+
+    return redirectPath(href, query)
   }
 
   getStartPath() {
