@@ -61,24 +61,6 @@ export class QuestionPageController extends PageController {
     })
   }
 
-  get next(): Link[] {
-    const { def, pageDef } = this
-
-    if (!hasNext(pageDef)) {
-      return []
-    }
-
-    // Remove stale links
-    return pageDef.next.filter(({ path }) => {
-      const linkPath = normalisePath(path)
-
-      return def.pages.some((page) => {
-        const pagePath = normalisePath(page.path)
-        return pagePath === linkPath
-      })
-    })
-  }
-
   getItemId(request?: FormContextRequest) {
     const { itemId } = this.getFormParams(request)
     return itemId ?? request?.params.itemId
@@ -169,30 +151,53 @@ export class QuestionPageController extends PageController {
   }
 
   /**
-   * Apply conditions to evaluation state to determine next page path
+   * Apply conditions to evaluation state to determine next page
    */
   getNextPath(context: FormContext) {
-    const { model, next, path } = this
-    const { evaluationState } = context
+    const { state } = context
+    // PAGE WALK VALIDATION APPROACH
+    // const { pages } = this.model
+    // const nextPage = pages
+    //   .filter((page) => page !== this)
+    //   .find((page) => {
+    //     const { collection, condition } = page
 
-    const summaryPath = this.getSummaryPath()
-    const statusPath = this.getStatusPath()
+    //     // The "next" page is the first found that's either unconditional
+    //     // or has a condition that evaluates to "true" AND whose schema is unfulfilled
+    //     if (condition) {
+    //       const res = condition.validate(evaluationState, {
+    //         allowUnknown: true
+    //       })
+    //       if (res.error) return false
+    //     }
 
-    // Walk from summary page (no next links) to status page
-    let defaultPath = path === summaryPath ? statusPath : undefined
+    //     if (page.pageDef.controller === ControllerType.Terminal) {
+    //       return true
+    //     }
 
-    const nextLink = next.find((link) => {
-      const { condition } = link
+    //     const res2 = collection.stateSchema.validate(evaluationState, {
+    //       allowUnknown: true
+    //     })
 
-      if (condition) {
-        return model.conditions[condition]?.fn(evaluationState) ?? false
-      }
+    //     return res2.error
+    //   })
 
-      defaultPath = link.path
-      return false
+    // return nextPage
+
+    // MODEL VALIDATION APPROACH
+    const schema = this.model.makeSchema()
+    const res = schema.validate(state, {
+      allowUnknown: true
     })
 
-    return nextLink?.path ?? defaultPath
+    if (res.error) {
+      const { pages } = this.model
+      const nextPage = pages.find(
+        (page) => page.id === res.error.details.at(0)?.path.at(0)
+      )
+
+      return nextPage?.path
+    }
   }
 
   /**

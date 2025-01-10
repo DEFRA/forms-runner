@@ -204,11 +204,12 @@ export class FormModel {
   getFormContext(request: FormContextRequest, state: FormState): FormContext {
     const { query } = request
 
+    const { pages } = this
     const page = getPage(this, request)
 
     // Determine form paths
-    const currentPath = page.path
-    const startPath = page.getStartPath()
+    // const currentPath = page.path
+    // const startPath = page.getStartPath()
 
     // Preview URL direct access is allowed
     const isForceAccess = 'force' in query
@@ -226,66 +227,95 @@ export class FormModel {
     // Validate current page
     context = validateFormPayload(request, page, context)
 
-    // Find start page
-    let nextPage = findPage(this, startPath)
-      // const { collection, pageDef, condition } = page
+    for (const page of pages) {
+      const { collection, pageDef, condition } = page
 
-      // if (condition) {
-      //   const res = condition.validate(state, { allowUnknown: true })
-      //   if (res.error) continue
-      // }
+      if (condition) {
+        const res = condition.validate(state, { allowUnknown: true })
+        if (res.error) continue
+      }
 
-      // // Add page to context
-      // context.relevantPages.push(page)
-
-      // for (const key of page.keys) {
-      //   if (typeof state[key] !== 'undefined') {
-      //     context.relevantState[key] = state[key]
-      //   }
-      // }
+      // Add page to context
+      context.relevantPages.push(page)
 
       // Skip evaluation state for repeater pages
       if (!hasRepeater(pageDef)) {
         Object.assign(
           context.evaluationState,
-          collection.getContextValueFromState(context.state)
+          collection.getContextValueFromState(state)
         )
       }
 
       // Copy relevant state by expected keys
-      for (const key of nextPage.keys) {
-        if (typeof context.state[key] !== 'undefined') {
-          context.relevantState[key] = context.state[key]
+      for (const key of page.keys) {
+        if (typeof state[key] !== 'undefined') {
+          context.relevantState[key] = state[key]
         }
-      }
-
-      // Stop at current page
-      if (nextPage.path === currentPath) {
-        break
-      }
-
-      // Apply conditions to determine next page
-      nextPage = findPage(this, nextPage.getNextPath(context))
-    }
-
-    // Validate form state
-    context = validateFormState(request, page, context)
-
-    // Add paths for navigation
-    for (const { keys, path } of context.relevantPages) {
-      context.paths.push(path)
-
-      // Stop at page with errors
-      if (
-        context.errors?.some(({ name, path }) => {
-          return keys.includes(name) || keys.some((key) => path.includes(key))
-        })
-      ) {
-        break
       }
     }
 
     return context
+
+    // // Find start page
+    // let nextPage = findPage(this, startPath)
+    //   // const { collection, pageDef, condition } = page
+
+    //   // if (condition) {
+    //   //   const res = condition.validate(state, { allowUnknown: true })
+    //   //   if (res.error) continue
+    //   // }
+
+    //   // // Add page to context
+    //   // context.relevantPages.push(page)
+
+    //   // for (const key of page.keys) {
+    //   //   if (typeof state[key] !== 'undefined') {
+    //   //     context.relevantState[key] = state[key]
+    //   //   }
+    //   // }
+
+    //   // Skip evaluation state for repeater pages
+    //   // if (!hasRepeater(pageDef)) {
+    //   //   Object.assign(
+    //   //     context.evaluationState,
+    //   //     collection.getContextValueFromState(context.state)
+    //   //   )
+    //   // }
+
+    //   // Copy relevant state by expected keys
+    //   for (const key of nextPage.keys) {
+    //     if (typeof context.state[key] !== 'undefined') {
+    //       context.relevantState[key] = context.state[key]
+    //     }
+    //   }
+
+    //   // Stop at current page
+    //   if (nextPage.path === currentPath) {
+    //     break
+    //   }
+
+    //   // Apply conditions to determine next page
+    //   nextPage = findPage(this, nextPage.getNextPath(context))
+    // }
+
+    // // Validate form state
+    // context = validateFormState(request, page, context)
+
+    // // Add paths for navigation
+    // for (const { keys, path } of context.relevantPages) {
+    //   context.paths.push(path)
+
+    //   // Stop at page with errors
+    //   if (
+    //     context.errors?.some(({ name, path }) => {
+    //       return keys.includes(name) || keys.some((key) => path.includes(key))
+    //     })
+    //   ) {
+    //     break
+    //   }
+    // }
+
+    // return context
   }
 }
 

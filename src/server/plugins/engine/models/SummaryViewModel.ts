@@ -60,16 +60,15 @@ export class SummaryViewModel {
     this.declaration = def.declaration
     this.context = context
 
+    const { state } = context
     const result = model.makeSchema().validate(
-      { [pageDef.id]: true, ...state },
+      { [this.page.pageDef.id]: true, ...state },
       {
         ...opts,
         stripUnknown: true,
         context: { strip: true }
       }
     )
-
-    this.context = model.getFormContext(result.value, request)
 
     // Format errors
     this.errors = result.error?.details.map(getError)

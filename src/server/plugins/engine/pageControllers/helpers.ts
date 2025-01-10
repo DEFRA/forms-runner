@@ -41,6 +41,7 @@ export function createPage(model: FormModel, pageDef: Page) {
       break
 
     case ControllerType.Page:
+    case ControllerType.Terminal:
       controller = new PageControllers.QuestionPageController(model, pageDef)
       break
 

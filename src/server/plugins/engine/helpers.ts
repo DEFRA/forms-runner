@@ -155,7 +155,7 @@ export function findPage(model: FormModel | undefined, path?: string) {
 }
 
 export function getStartPath(model?: FormModel) {
-  const startPath = normalisePath(model?.def.startPage)
+  const startPath = normalisePath(model?.def.pages.at(0)?.path)
   return startPath ? `/${startPath}` : ControllerPath.Start
 }
 

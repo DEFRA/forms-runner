@@ -168,23 +168,23 @@ export const plugin = {
       const state = await page.getState(request)
       const context = model.getFormContext(request, state)
 
-      const relevantPath = page.getRelevantPath(request, context)
-      const summaryPath = page.getSummaryPath()
+      // const relevantPath = page.getRelevantPath(request, context)
+      // const summaryPath = page.getSummaryPath()
 
       // Return handler for relevant pages or preview URL direct access
-      if (relevantPath.startsWith(page.path) || context.isForceAccess) {
-        return makeHandler(page, context)
-      }
+      // if (relevantPath.startsWith(page.path) || context.isForceAccess) {
+      return makeHandler(page, context)
+      // }
 
-      // Redirect back to last relevant page
-      const redirectTo = findPage(model, relevantPath)
+      // // Redirect back to last relevant page
+      // const redirectTo = findPage(model, relevantPath)
 
-      // Set the return URL unless an exit page
-      if (redirectTo?.next.length) {
-        request.query.returnUrl = page.getHref(summaryPath)
-      }
+      // // Set the return URL unless an exit page
+      // if (redirectTo?.next.length) {
+      //   request.query.returnUrl = page.getHref(summaryPath)
+      // }
 
-      return proceed(request, h, page.getHref(relevantPath))
+      // return proceed(request, h, page.getHref(relevantPath))
     }
 
     const getHandler = (
