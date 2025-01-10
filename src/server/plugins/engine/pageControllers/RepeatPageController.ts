@@ -176,6 +176,27 @@ export class RepeatPageController extends QuestionPageController {
     }
   }
 
+  makePostRouteHandler() {
+    return async (
+      request: FormRequestPayload,
+      context: FormContext,
+      h: Pick<ResponseToolkit, 'redirect' | 'view'>
+    ) => {
+      const { query } = request
+      const { returnUrl } = query
+
+      const summaryPath = this.getSummaryPath(request)
+      const summaryHref = this.getHref(summaryPath)
+
+      // Append item ID for list summary back link
+      if (!returnUrl || summaryHref.startsWith(returnUrl)) {
+        request.query.itemId = this.getItemId(request)
+      }
+
+      return super.makePostRouteHandler()(request, context, h)
+    }
+  }
+
   makeGetListSummaryRouteHandler() {
     return (
       request: FormRequest,
@@ -261,6 +282,7 @@ export class RepeatPageController extends QuestionPageController {
         return super.proceed(request, h, nextPath)
       }
 
+      delete query.itemId
       const nextPath = this.getNextPath(context)
       return super.proceed(request, h, nextPath)
     }
@@ -464,6 +486,7 @@ export class RepeatPageController extends QuestionPageController {
     request: FormContextRequest,
     context: FormContext
   ): BackLink | undefined {
+    const { path } = this
     const { query } = request
     const { returnUrl } = query
 
@@ -480,6 +503,16 @@ export class RepeatPageController extends QuestionPageController {
           text: 'Go back to add another',
           href: returnUrl
         }
+      }
+    }
+
+    // Item back link
+    if (query.itemId) {
+      const backPath = `${path}/${query.itemId}`
+
+      return {
+        text: 'Back',
+        href: this.getHref(backPath, { returnUrl })
       }
     }
 

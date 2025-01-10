@@ -51,7 +51,9 @@ async function createRepeatItem(
   })
 
   expect(res1.statusCode).toBe(StatusCodes.SEE_OTHER)
-  expect(res1.headers.location).toBe(`${basePath}/pizza-order/summary`)
+  expect(res1.headers.location).toBe(
+    `${basePath}/pizza-order/summary?itemId=${itemId}`
+  )
 
   // Extract the session cookie
   const request = res1.request
