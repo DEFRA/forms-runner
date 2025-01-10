@@ -379,12 +379,13 @@ export class QuestionPageController extends PageController {
   ): BackLink | undefined {
     const { path, query } = request
     const { returnUrl } = query
-    const { relevantPaths } = context
+    const { pages, relevantPaths } = context
 
     const { action } = this.getFormParams(request)
+    const hrefs = pages.map(({ href }) => href)
 
     // Check answers back link
-    if (!action && returnUrl) {
+    if (!action && returnUrl && hrefs.includes(returnUrl)) {
       return {
         text: 'Go back to check answers',
         href: returnUrl
@@ -407,7 +408,7 @@ export class QuestionPageController extends PageController {
     // Default back link
     return {
       text: 'Back',
-      href: this.getHref(backPath)
+      href: this.getHref(backPath, { returnUrl })
     }
   }
 
