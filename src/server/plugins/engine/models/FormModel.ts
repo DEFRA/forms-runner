@@ -230,7 +230,7 @@ export class FormModel {
 
     // Walk form pages from start
     while (nextPage) {
-      const { collection, pageDef } = nextPage
+      const { collection, keys, pageDef } = nextPage
 
       // Add page to context
       context.relevantPages.push(nextPage)
@@ -243,12 +243,11 @@ export class FormModel {
         )
       }
 
-      // Copy relevant state by expected keys
-      for (const key of nextPage.keys) {
-        if (typeof context.state[key] !== 'undefined') {
-          context.relevantState[key] = context.state[key]
-        }
-      }
+      // Gather relevant page state
+      Object.assign(
+        context.relevantState,
+        collection.getState(context.state, keys)
+      )
 
       // Stop at current page
       if (nextPage.path === currentPath) {
