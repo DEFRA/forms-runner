@@ -85,9 +85,63 @@ describe('PageController', () => {
       it('prefixes paths into link hrefs', () => {
         const href1 = controller1.getHref('/')
         const href2 = controller1.getHref('/page-one')
+        const href3 = controller1.getHref('/page-one', {
+          returnUrl: '/test/summary'
+        })
 
         expect(href1).toBe('/test')
         expect(href2).toBe('/test/page-one')
+        expect(href3).toBe(
+          `/test/page-one?returnUrl=${encodeURIComponent('/test/summary')}`
+        )
+      })
+
+      it('should return page href', () => {
+        const { href, path } = controller1
+
+        const returned = controller1.getHref(path)
+        expect(returned).toEqual(href)
+      })
+
+      it('should return page href (path override)', () => {
+        const nextPath = '/badgers/monkeys'
+        const nextHref = '/test/badgers/monkeys'
+
+        const returned = controller1.getHref(nextPath)
+        expect(returned).toEqual(nextHref)
+      })
+
+      it('should return page href with new query params', () => {
+        const { href, path } = controller1
+
+        const returned = controller1.getHref(path, {
+          returnUrl: controller1.getSummaryPath(),
+          badger: 'monkeys'
+        })
+
+        expect(returned).toBe(
+          `${href}?returnUrl=${encodeURIComponent('/summary')}&badger=monkeys`
+        )
+      })
+
+      it('should return page href (path override) with new query params', () => {
+        const nextPath = '/badgers/monkeys'
+        const nextHref = '/test/badgers/monkeys'
+
+        const returned = controller1.getHref(nextPath, {
+          returnUrl: controller1.getSummaryPath(),
+          badger: 'monkeys'
+        })
+
+        expect(returned).toBe(
+          `${nextHref}?returnUrl=${encodeURIComponent('/summary')}&badger=monkeys`
+        )
+      })
+
+      it('should throw when absolute URL is provided', () => {
+        expect(() =>
+          controller1.getHref('https://www.gov.uk/help/privacy-notice')
+        ).toThrow('Only relative URLs are allowed')
       })
     })
 

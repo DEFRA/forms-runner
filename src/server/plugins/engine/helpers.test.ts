@@ -9,7 +9,6 @@ import {
   checkFormStatus,
   encodeUrl,
   getErrors,
-  getPageHref,
   proceed
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
@@ -220,71 +219,6 @@ describe('Helpers', () => {
 
     it('should throw when invalid url is provided', () => {
       expect(() => encodeUrl('not a url')).toThrow()
-    })
-  })
-
-  describe('getPageHref', () => {
-    it('should return page href', () => {
-      const returned = getPageHref(page)
-      expect(returned).toEqual(page.href)
-    })
-
-    it('should return page href (path override)', () => {
-      const nextPath = '/badgers/monkeys'
-      const nextHref = '/test/badgers/monkeys'
-
-      const returned = getPageHref(page, nextPath)
-      expect(returned).toEqual(nextHref)
-    })
-
-    it('should return page href without query params', () => {
-      request.query.myParam = 'myValue'
-      request.query.myParam2 = 'myValue2'
-
-      const returned = getPageHref(page)
-      expect(returned).toEqual(page.href)
-    })
-
-    it('should return page href (path override) without query params', () => {
-      request.query.myParam = 'myValue'
-      request.query.myParam2 = 'myValue2'
-
-      const nextPath = '/badgers/monkeys'
-      const nextHref = '/test/badgers/monkeys'
-
-      const returned = getPageHref(page, nextPath)
-      expect(returned).toEqual(nextHref)
-    })
-
-    it('should return page href with new query params', () => {
-      const returned = getPageHref(page, {
-        returnUrl: page.getSummaryPath(),
-        badger: 'monkeys'
-      })
-
-      expect(returned).toBe(
-        `${page.href}?returnUrl=${encodeURIComponent('/summary')}&badger=monkeys`
-      )
-    })
-
-    it('should return page href (path override) with new query params', () => {
-      const nextPath = '/badgers/monkeys'
-      const nextHref = '/test/badgers/monkeys'
-
-      const returned = getPageHref(page, nextPath, {
-        returnUrl: page.getSummaryPath(),
-        badger: 'monkeys'
-      })
-
-      expect(returned).toBe(
-        `${nextHref}?returnUrl=${encodeURIComponent('/summary')}&badger=monkeys`
-      )
-    })
-
-    it('should throw when absolute URL is provided', () => {
-      expect(() =>
-        getPageHref(page, 'https://www.gov.uk/help/privacy-notice')
-      ).toThrow('Only relative URLs are allowed')
     })
   })
 

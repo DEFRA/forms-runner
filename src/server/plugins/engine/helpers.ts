@@ -9,7 +9,6 @@ import upperFirst from 'lodash/upperFirst.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
-import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
   type FormContextRequest,
   type FormSubmissionError
@@ -63,39 +62,6 @@ export function encodeUrl(link?: string) {
 }
 
 /**
- * Get page href
- */
-export function getPageHref(
-  page: PageControllerClass,
-  query?: FormQuery
-): string
-
-/**
- * Get page href by path
- */
-export function getPageHref(
-  page: PageControllerClass,
-  path: string,
-  query?: FormQuery
-): string
-
-export function getPageHref(
-  page: PageControllerClass,
-  pathOrQuery?: string | FormQuery,
-  queryOnly: FormQuery = {}
-) {
-  const path = typeof pathOrQuery === 'string' ? pathOrQuery : page.path
-  const query = typeof pathOrQuery === 'object' ? pathOrQuery : queryOnly
-
-  if (!isPathRelative(path)) {
-    throw Error(`Only relative URLs are allowed: ${path}`)
-  }
-
-  // Return path with page href as base
-  return redirectPath(page.getHref(path), query)
-}
-
-/**
  * Get redirect path with optional query params
  */
 export function redirectPath(nextUrl: string, query: FormQuery = {}) {
@@ -123,7 +89,7 @@ export function redirectPath(nextUrl: string, query: FormQuery = {}) {
   return url.href
 }
 
-export function isPathRelative(path?: string) {
+export function isPathRelative(path?: string): path is string {
   return (path ?? '').startsWith('/')
 }
 
