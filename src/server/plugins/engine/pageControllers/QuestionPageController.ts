@@ -2,7 +2,6 @@ import {
   ComponentType,
   hasComponents,
   hasNext,
-  hasRepeater,
   type Link,
   type Page
 } from '@defra/forms-model'
@@ -158,12 +157,12 @@ export class QuestionPageController extends PageController {
     request: FormRequest | FormRequestPayload,
     context: FormContext
   ) {
-    const { paths } = context
+    const { relevantPaths } = context
 
     const startPath = this.getStartPath()
-    const relevantPath = paths.at(-1) ?? startPath
+    const relevantPath = relevantPaths.at(-1) ?? startPath
 
-    return !paths.length
+    return !relevantPaths.length
       ? startPath // First possible path
       : relevantPath // Last possible path
   }
@@ -372,35 +371,34 @@ export class QuestionPageController extends PageController {
   }
 
   /**
-   * Get the back link for a given progress.
+   * Get back link by form context
    */
-  protected getBackLink(
+  getBackLink(
     request: FormContextRequest,
     context: FormContext
   ): BackLink | undefined {
-    const { pageDef } = this
     const { path, query } = request
     const { returnUrl } = query
-    const { paths } = context
+    const { pages, relevantPaths } = context
 
-    const itemId = this.getItemId(request)
+    const { action } = this.getFormParams(request)
+    const hrefs = pages.map(({ href }) => href)
 
     // Check answers back link
-    if (returnUrl) {
+    if (!action && returnUrl && hrefs.includes(returnUrl)) {
       return {
-        text:
-          hasRepeater(pageDef) && itemId
-            ? 'Go back to add another'
-            : 'Go back to check answers',
+        text: 'Go back to check answers',
         href: returnUrl
       }
     }
 
+    const itemId = this.getItemId(request)
+
     // Item delete pages etc
     const backPath =
       itemId && !path.endsWith(itemId)
-        ? paths.at(-1) // Back to main page
-        : paths.at(-2) // Back to previous page
+        ? relevantPaths.at(-1) // Back to main page
+        : relevantPaths.at(-2) // Back to previous page
 
     // No back link
     if (!backPath) {
@@ -410,7 +408,7 @@ export class QuestionPageController extends PageController {
     // Default back link
     return {
       text: 'Back',
-      href: this.getHref(backPath)
+      href: this.getHref(backPath, { returnUrl })
     }
   }
 

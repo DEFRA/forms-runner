@@ -192,14 +192,36 @@ export class ComponentCollection {
     return payload
   }
 
+  hasState(state: FormSubmissionState, keys = this.keys) {
+    if (!this.keys.length) {
+      return true
+    }
+
+    const collectionState = this.getState(state, keys)
+    return !!Object.keys(collectionState).length
+  }
+
+  getState(state: FormSubmissionState, keys = this.keys) {
+    const collectionState: FormState = {}
+
+    // Copy state by expected keys
+    for (const key of keys) {
+      if (typeof state[key] !== 'undefined') {
+        collectionState[key] = state[key]
+      }
+    }
+
+    return collectionState
+  }
+
   getStateFromValidForm(payload: FormPayload) {
-    const state: FormState = {}
+    const collectionState: FormState = {}
 
     this.fields.forEach((component) => {
-      Object.assign(state, component.getStateFromValidForm(payload))
+      Object.assign(collectionState, component.getStateFromValidForm(payload))
     })
 
-    return state
+    return collectionState
   }
 
   getContextValueFromState(state: FormSubmissionState) {

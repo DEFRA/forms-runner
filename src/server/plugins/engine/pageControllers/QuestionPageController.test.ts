@@ -312,7 +312,7 @@ describe('QuestionPageController', () => {
       })
 
       // Our context should know which pages are relevant
-      expect(context.paths).toEqual([
+      expect(context.relevantPaths).toEqual([
         '/uk-passport',
         '/how-many-people',
         '/applicant-one-name',
@@ -339,7 +339,7 @@ describe('QuestionPageController', () => {
       const { evaluationState: stateAfter } = context
 
       // Our context should no longer list pages about our applicant
-      expect(context.paths).toEqual([
+      expect(context.relevantPaths).toEqual([
         '/uk-passport',
         '/testconditions',
         '/summary'

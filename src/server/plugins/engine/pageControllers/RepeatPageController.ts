@@ -6,6 +6,7 @@ import { type ResponseToolkit } from '@hapi/hapi'
 import Joi from 'joi'
 
 import { isRepeatState } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { type BackLink } from '~/src/server/plugins/engine/components/types.js'
 import { redirectPath } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
@@ -454,5 +455,35 @@ export class RepeatPageController extends QuestionPageController {
     return redirectPath(`${path}${summaryPath}`, {
       returnUrl: query.returnUrl
     })
+  }
+
+  /**
+   * Get back link by form context
+   */
+  getBackLink(
+    request: FormContextRequest,
+    context: FormContext
+  ): BackLink | undefined {
+    const { query } = request
+    const { returnUrl } = query
+
+    const { action } = this.getFormParams(request)
+
+    if (!action && returnUrl) {
+      const itemId = this.getItemId(request)
+      const summaryPath = this.getSummaryPath(request)
+      const summaryHref = this.getHref(summaryPath)
+
+      // Add another back link
+      if (summaryHref.startsWith(returnUrl) && itemId) {
+        return {
+          text: 'Go back to add another',
+          href: returnUrl
+        }
+      }
+    }
+
+    // Default back link
+    return super.getBackLink(request, context)
   }
 }
