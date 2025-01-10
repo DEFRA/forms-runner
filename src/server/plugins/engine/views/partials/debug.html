@@ -14,7 +14,7 @@
       {{ question.title }}
     </h3>
 
-    {% if question.viewName !== "summary" %}
+    {% if question.next | length %}
       <p class="govuk-body">
         <a class="govuk-link--no-visited-state" href="{{ question.href }}">
           Edit answer <span class="govuk-visually-hidden">for {{ question.title }}</span>
