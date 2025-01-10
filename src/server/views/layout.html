@@ -46,7 +46,7 @@
 
 {% block header %}
   {% if config.googleAnalyticsTrackingId and slug %}
-    <form method="post" action="/help/cookie-preferences?returnUrl={{ currentPath | urlencode }}">
+    <form method="post" action="/help/cookie-preferences/{{ slug }}?returnUrl={{ currentPath | urlencode }}">
       <input type="hidden" name="crumb" value="{{ crumb }}">
 
     {% set acceptHtml %}
