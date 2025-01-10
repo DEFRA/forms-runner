@@ -111,6 +111,12 @@ export interface FormContext {
   relevantPages: PageControllerClass[]
 
   /**
+   * Walked pages from start to finish (up to the status page
+   * when matching conditions or default links can be followed)
+   */
+  pages: PageControllerClass[]
+
+  /**
    * Form submission payload (single page)
    */
   payload: FormPayload

@@ -217,6 +217,7 @@ export class FormModel {
       relevantState: {},
       relevantPaths: [],
       relevantPages: [],
+      pages: [],
       payload: page.getFormDataFromState(request, state),
       state,
       isForceAccess
@@ -227,13 +228,24 @@ export class FormModel {
 
     // Find start page
     let nextPage = findPage(this, startPath)
+    let nextPageIsRelevant = true
 
     // Walk form pages from start
     while (nextPage) {
-      const { collection, keys, pageDef } = nextPage
+      const { collection, keys, pageDef, path } = nextPage
 
       // Add page to context
-      context.relevantPages.push(nextPage)
+      context.pages.push(nextPage)
+
+      // Gather relevant page state
+      if (nextPageIsRelevant) {
+        context.relevantPages.push(nextPage)
+
+        Object.assign(
+          context.relevantState,
+          collection.getState(context.state, keys)
+        )
+      }
 
       // Skip evaluation state for repeater pages
       if (!hasRepeater(pageDef)) {
@@ -243,14 +255,13 @@ export class FormModel {
         )
       }
 
-      // Gather relevant page state
-      Object.assign(
-        context.relevantState,
-        collection.getState(context.state, keys)
-      )
+      // Stop relevant pages at current page
+      if (path === currentPath) {
+        nextPageIsRelevant = false
+      }
 
-      // Stop at current page
-      if (nextPage.path === currentPath) {
+      // Stop walk at first page without state
+      if (!collection.hasState(context.state, keys)) {
         break
       }
 

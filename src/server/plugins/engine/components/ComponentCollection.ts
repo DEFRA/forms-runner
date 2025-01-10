@@ -192,6 +192,15 @@ export class ComponentCollection {
     return payload
   }
 
+  hasState(state: FormSubmissionState, keys = this.keys) {
+    if (!this.keys.length) {
+      return true
+    }
+
+    const collectionState = this.getState(state, keys)
+    return !!Object.keys(collectionState).length
+  }
+
   getState(state: FormSubmissionState, keys = this.keys) {
     const collectionState: FormState = {}
 
