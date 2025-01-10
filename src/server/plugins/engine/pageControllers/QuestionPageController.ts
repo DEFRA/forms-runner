@@ -158,12 +158,12 @@ export class QuestionPageController extends PageController {
     request: FormRequest | FormRequestPayload,
     context: FormContext
   ) {
-    const { paths } = context
+    const { relevantPaths } = context
 
     const startPath = this.getStartPath()
-    const relevantPath = paths.at(-1) ?? startPath
+    const relevantPath = relevantPaths.at(-1) ?? startPath
 
-    return !paths.length
+    return !relevantPaths.length
       ? startPath // First possible path
       : relevantPath // Last possible path
   }
@@ -381,7 +381,7 @@ export class QuestionPageController extends PageController {
     const { pageDef } = this
     const { path, query } = request
     const { returnUrl } = query
-    const { paths } = context
+    const { relevantPaths } = context
 
     const itemId = this.getItemId(request)
 
@@ -399,8 +399,8 @@ export class QuestionPageController extends PageController {
     // Item delete pages etc
     const backPath =
       itemId && !path.endsWith(itemId)
-        ? paths.at(-1) // Back to main page
-        : paths.at(-2) // Back to previous page
+        ? relevantPaths.at(-1) // Back to main page
+        : relevantPaths.at(-2) // Back to previous page
 
     // No back link
     if (!backPath) {

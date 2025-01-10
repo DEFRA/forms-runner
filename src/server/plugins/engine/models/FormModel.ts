@@ -215,10 +215,10 @@ export class FormModel {
     let context: FormContext = {
       evaluationState: {},
       relevantState: {},
+      relevantPaths: [],
       relevantPages: [],
       payload: page.getFormDataFromState(request, state),
       state,
-      paths: [],
       isForceAccess
     }
 
@@ -264,7 +264,7 @@ export class FormModel {
 
     // Add paths for navigation
     for (const { keys, path } of context.relevantPages) {
-      context.paths.push(path)
+      context.relevantPaths.push(path)
 
       // Stop at page with errors
       if (

@@ -101,6 +101,11 @@ export interface FormContext {
   relevantState: FormState
 
   /**
+   * Relevant paths only (filtered by visited paths)
+   */
+  relevantPaths: string[]
+
+  /**
    * Relevant pages only (filtered by visited paths)
    */
   relevantPages: PageControllerClass[]
@@ -119,11 +124,6 @@ export interface FormContext {
    * Validation errors (entire form)
    */
   errors?: FormSubmissionError[]
-
-  /**
-   * Visited paths evaluated from form state
-   */
-  paths: string[]
 
   // Preview URL direct access is allowed
   isForceAccess: boolean
