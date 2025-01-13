@@ -120,7 +120,7 @@
     "concurrently": "^9.1.2",
     "cookie": "^1.0.2",
     "copy-webpack-plugin": "^12.0.2",
-    "core-js": "^3.39.0",
+    "core-js": "^3.40.0",
     "cssnano": "^7.0.6",
     "cssnano-preset-default": "^7.0.4",
     "editorconfig-checker": "^6.0.0",
@@ -151,7 +151,7 @@
     "stylelint-config-gds": "^2.0.0",
     "terser-webpack-plugin": "^5.3.11",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.2",
+    "typescript": "^5.7.3",
     "webpack": "^5.97.1",
     "webpack-assets-manifest": "^5.2.1",
     "webpack-cli": "^6.0.1"
