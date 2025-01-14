@@ -1,5 +1,7 @@
 import {
   ComponentType,
+  ControllerType,
+  Engine,
   hasComponents,
   hasNext,
   hasRepeater,
@@ -180,6 +182,33 @@ export class QuestionPageController extends PageController {
 
     // Walk from summary page (no next links) to status page
     let defaultPath = path === summaryPath ? statusPath : undefined
+
+    if (model.engine === Engine.V2) {
+      if (this.pageDef.controller !== ControllerType.Terminal) {
+        const { pages } = this.model
+        const pageIndex = pages.indexOf(this)
+
+        // The "next" page is the first found after the current which is
+        // either unconditional or has a condition that evaluates to "true"
+        const nextPage = pages.slice(pageIndex + 1).find((page) => {
+          const { condition } = page
+
+          if (condition) {
+            const conditionResult = condition.fn(evaluationState)
+
+            if (!conditionResult) {
+              return false
+            }
+          }
+
+          return true
+        })
+
+        return nextPage?.path ?? defaultPath
+      } else {
+        return defaultPath
+      }
+    }
 
     const nextLink = next.find((link) => {
       const { condition } = link
