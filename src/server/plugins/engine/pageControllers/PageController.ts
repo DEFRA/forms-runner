@@ -18,6 +18,7 @@ import {
   normalisePath
 } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
 import {
   type FormContext,
   type PageViewModelBase
@@ -39,6 +40,7 @@ export class PageController {
   pageDef: Page
   title: string
   section?: Section
+  condition?: ExecutableCondition
   collection?: ComponentCollection
   viewName = 'index'
 
@@ -55,6 +57,11 @@ export class PageController {
     this.section = model.sections.find(
       (section) => section.name === pageDef.section
     )
+
+    // Resolve condition
+    if (pageDef.condition) {
+      this.condition = model.conditions[pageDef.condition]
+    }
   }
 
   get path() {

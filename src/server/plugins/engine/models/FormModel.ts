@@ -2,6 +2,7 @@ import {
   ConditionsModel,
   ControllerPath,
   ControllerType,
+  Engine,
   formDefinitionSchema,
   hasRepeater,
   type ConditionWrapper,
@@ -34,10 +35,12 @@ import {
 import { FormAction } from '~/src/server/routes/types.js'
 import { merge } from '~/src/server/services/cacheService.js'
 
+/**
+ * Responsible for instantiating the {@link PageControllerClass} and condition context from a form JSON
+ */
 export class FormModel {
-  /**
-   * Responsible for instantiating the {@link PageControllerClass} and condition context from a form JSON
-   */
+  /** The runtime engine that should be used */
+  engine: Engine
 
   /** the entire form JSON as an object */
   def: FormDefinition
@@ -78,6 +81,7 @@ export class FormModel {
       ]
     })
 
+    this.engine = def.engine
     this.def = def
     this.lists = def.lists
     this.sections = def.sections
@@ -227,6 +231,17 @@ export class FormModel {
 
     // Find start page
     let nextPage = findPage(this, startPath)
+
+    // For the V2 engine, we need to initialise `evaluationState` to null
+    // for all keys. This is because the current condition evaluation
+    // library (eval-expr) will throw if an expression uses a key that is undefined.
+    if (this.engine === Engine.V2) {
+      for (const page of this.pages) {
+        for (const key of page.keys) {
+          context.evaluationState[key] = null
+        }
+      }
+    }
 
     // Walk form pages from start
     while (nextPage) {

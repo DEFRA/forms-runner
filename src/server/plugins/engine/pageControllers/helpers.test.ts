@@ -18,7 +18,8 @@ import {
   RepeatPageController,
   StartPageController,
   StatusPageController,
-  SummaryPageController
+  SummaryPageController,
+  TerminalPageController
 } from '~/src/server/plugins/engine/pageControllers/index.js'
 import definition from '~/test/form/definitions/blank.js'
 
@@ -35,6 +36,10 @@ describe('Page controller helpers', () => {
 
       case ControllerType.Page:
         controller = QuestionPageController
+        break
+
+      case ControllerType.Terminal:
+        controller = TerminalPageController
         break
 
       case ControllerType.Repeat:
