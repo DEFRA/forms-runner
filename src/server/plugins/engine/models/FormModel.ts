@@ -40,7 +40,7 @@ import { merge } from '~/src/server/services/cacheService.js'
  */
 export class FormModel {
   /** The runtime engine that should be used */
-  engine: Engine
+  engine?: Engine
 
   /** the entire form JSON as an object */
   def: FormDefinition
