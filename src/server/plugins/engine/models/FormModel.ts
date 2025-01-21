@@ -232,38 +232,16 @@ export class FormModel {
     // Find start page
     let nextPage = findPage(this, startPath)
 
-    // For the V2 engine, we need to initialise `evaluationState` to null
-    // for all keys. This is because the current condition evaluation
-    // library (eval-expr) will throw if an expression uses a key that is undefined.
-    if (this.engine === Engine.V2) {
-      for (const page of this.pages) {
-        for (const key of page.keys) {
-          context.evaluationState[key] = null
-        }
-      }
-    }
+    this.initialiseContext(context)
 
     // Walk form pages from start
     while (nextPage) {
-      const { collection, pageDef } = nextPage
-
       // Add page to context
       context.relevantPages.push(nextPage)
 
-      // Skip evaluation state for repeater pages
-      if (!hasRepeater(pageDef)) {
-        Object.assign(
-          context.evaluationState,
-          collection.getContextValueFromState(context.state)
-        )
-      }
+      this.assignEvaluationState(context, nextPage)
 
-      // Copy relevant state by expected keys
-      for (const key of nextPage.keys) {
-        if (typeof context.state[key] !== 'undefined') {
-          context.relevantState[key] = context.state[key]
-        }
-      }
+      this.assignRelevantState(context, nextPage)
 
       // Stop at current page
       if (nextPage.path === currentPath) {
@@ -278,6 +256,49 @@ export class FormModel {
     context = validateFormState(request, page, context)
 
     // Add paths for navigation
+    this.assignPaths(context)
+
+    return context
+  }
+
+  private initialiseContext(context: FormContext) {
+    // For the V2 engine, we need to initialise `evaluationState` to null
+    // for all keys. This is because the current condition evaluation
+    // library (eval-expr) will throw if an expression uses a key that is undefined.
+    if (this.engine === Engine.V2) {
+      for (const page of this.pages) {
+        for (const key of page.keys) {
+          context.evaluationState[key] = null
+        }
+      }
+    }
+  }
+
+  private assignEvaluationState(
+    context: FormContext,
+    page: PageControllerClass
+  ) {
+    const { collection, pageDef } = page
+    // Skip evaluation state for repeater pages
+
+    if (!hasRepeater(pageDef)) {
+      Object.assign(
+        context.evaluationState,
+        collection.getContextValueFromState(context.state)
+      )
+    }
+  }
+
+  private assignRelevantState(context: FormContext, page: PageControllerClass) {
+    // Copy relevant state by expected keys
+    for (const key of page.keys) {
+      if (typeof context.state[key] !== 'undefined') {
+        context.relevantState[key] = context.state[key]
+      }
+    }
+  }
+
+  private assignPaths(context: FormContext) {
     for (const { keys, path } of context.relevantPages) {
       context.paths.push(path)
 
@@ -290,8 +311,6 @@ export class FormModel {
         break
       }
     }
-
-    return context
   }
 }
 
