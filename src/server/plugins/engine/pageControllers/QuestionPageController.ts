@@ -81,6 +81,14 @@ export class QuestionPageController extends PageController {
     })
   }
 
+  get allowContinue(): boolean {
+    if (this.model.engine === Engine.V2) {
+      return this.pageDef.controller !== ControllerType.Terminal
+    }
+
+    return this.next.length > 0
+  }
+
   getItemId(request?: FormContextRequest) {
     const { itemId } = this.getFormParams(request)
     return itemId ?? request?.params.itemId
