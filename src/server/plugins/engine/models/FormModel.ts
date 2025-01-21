@@ -26,6 +26,8 @@ import {
   type PageControllerClass
 } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+import * as defaultFormSubmissionService from '~/src/server/plugins/engine/services/formSubmissionService.js'
+import * as defaultFormsService from '~/src/server/plugins/engine/services/formsService.js'
 import {
   type FormContext,
   type FormContextRequest,
@@ -34,6 +36,12 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import { FormAction } from '~/src/server/routes/types.js'
 import { merge } from '~/src/server/services/cacheService.js'
+import { type Services } from '~/src/server/types.js'
+
+const defaultServices = {
+  formsService: defaultFormsService,
+  formSubmissionService: defaultFormSubmissionService
+}
 
 /**
  * Responsible for instantiating the {@link PageControllerClass} and condition context from a form JSON
@@ -52,8 +60,13 @@ export class FormModel {
   basePath: string
   conditions: Partial<Record<string, ExecutableCondition>>
   pages: PageControllerClass[]
+  services: Services
 
-  constructor(def: typeof this.def, options: { basePath: string }) {
+  constructor(
+    def: typeof this.def,
+    options: { basePath: string },
+    services?: Services
+  ) {
     const result = formDefinitionSchema.validate(def, { abortEarly: false })
 
     if (result.error) {
@@ -89,6 +102,7 @@ export class FormModel {
     this.values = result.value
     this.basePath = options.basePath
     this.conditions = {}
+    this.services = services ?? defaultServices
 
     def.conditions.forEach((conditionDef) => {
       const condition = this.makeCondition(conditionDef)

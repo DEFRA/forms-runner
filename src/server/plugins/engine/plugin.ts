@@ -43,9 +43,11 @@ import {
   pathSchema,
   stateSchema
 } from '~/src/server/schemas/index.js'
+import { type Services } from '~/src/server/types.js'
 
 export interface PluginOptions {
   model?: FormModel
+  services?: Services
 }
 
 export const plugin = {
@@ -53,7 +55,7 @@ export const plugin = {
   dependencies: '@hapi/vision',
   multiple: true,
   register(server, options) {
-    const { model } = options
+    const { model, services } = options
 
     server.app.model = model
 
@@ -125,7 +127,7 @@ export const plugin = {
           : slug
 
         // Construct the form model
-        const model = new FormModel(definition, { basePath })
+        const model = new FormModel(definition, { basePath }, services)
 
         // Create new item and add it to the item cache
         item = { model, updatedAt: state.updatedAt }

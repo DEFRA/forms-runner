@@ -12,7 +12,8 @@ import { type RouteConfig } from '~/src/server/types.js'
 
 export const configureEnginePlugin = async ({
   formFileName,
-  formFilePath
+  formFilePath,
+  services
 }: RouteConfig = {}): Promise<ServerRegisterPluginObject<PluginOptions>> => {
   let model: FormModel | undefined
 
@@ -20,12 +21,12 @@ export const configureEnginePlugin = async ({
     const definition = await getForm(join(formFilePath, formFileName))
     const { name } = parse(formFileName)
 
-    model = new FormModel(definition, { basePath: name })
+    model = new FormModel(definition, { basePath: name }, services)
   }
 
   return {
     plugin,
-    options: { model }
+    options: { model, services }
   }
 }
 
