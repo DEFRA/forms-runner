@@ -24,10 +24,7 @@ import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { FileUploadPageController } from '~/src/server/plugins/engine/pageControllers/FileUploadPageController.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
-import {
-  getFormDefinition,
-  getFormMetadata
-} from '~/src/server/plugins/engine/services/formsService.js'
+import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import { type FormContext } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
@@ -43,9 +40,11 @@ import {
   pathSchema,
   stateSchema
 } from '~/src/server/schemas/index.js'
+import { type Services } from '~/src/server/types.js'
 
 export interface PluginOptions {
   model?: FormModel
+  services?: Services
 }
 
 export const plugin = {
@@ -53,7 +52,8 @@ export const plugin = {
   dependencies: '@hapi/vision',
   multiple: true,
   register(server, options) {
-    const { model } = options
+    const { model, services = defaultServices } = options
+    const { formsService } = services
 
     server.app.model = model
 
@@ -77,7 +77,7 @@ export const plugin = {
       const { isPreview, state: formState } = checkFormStatus(path)
 
       // Get the form metadata using the `slug` param
-      const metadata = await getFormMetadata(slug)
+      const metadata = await formsService.getFormMetadata(slug)
 
       const { id, [formState]: state } = metadata
 
@@ -101,7 +101,7 @@ export const plugin = {
         )
 
         // Get the form definition using the `id` from the metadata
-        const definition = await getFormDefinition(id, formState)
+        const definition = await formsService.getFormDefinition(id, formState)
 
         if (!definition) {
           throw Boom.notFound(
@@ -125,7 +125,7 @@ export const plugin = {
           : slug
 
         // Construct the form model
-        const model = new FormModel(definition, { basePath })
+        const model = new FormModel(definition, { basePath }, services)
 
         // Create new item and add it to the item cache
         item = { model, updatedAt: state.updatedAt }

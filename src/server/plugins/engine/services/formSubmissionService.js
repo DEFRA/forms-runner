@@ -9,7 +9,7 @@ const submissionUrl = config.get('submissionUrl')
  * @param {string} persistedRetrievalKey - final retrieval key when submitting
  */
 export async function persistFiles(files, persistedRetrievalKey) {
-  const postJsonByType = /** @type {typeof postJson} */ (postJson)
+  const postJsonByType = /** @type {typeof postJson<object>} */ (postJson)
 
   const payload = {
     files,

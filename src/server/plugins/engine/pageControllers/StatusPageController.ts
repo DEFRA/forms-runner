@@ -3,7 +3,6 @@ import { type ResponseToolkit } from '@hapi/hapi'
 
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
-import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import { type FormContext } from '~/src/server/plugins/engine/types.js'
 import { type FormRequest } from '~/src/server/routes/types.js'
 
@@ -37,6 +36,9 @@ export class StatusPageController extends QuestionPageController {
       }
 
       const slug = request.params.slug
+      const { formsService } = this.model.services
+      const { getFormMetadata } = formsService
+
       const { submissionGuidance } = await getFormMetadata(slug)
 
       return h.view(viewName, {

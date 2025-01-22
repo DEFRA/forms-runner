@@ -27,11 +27,6 @@ import {
 } from '~/src/server/plugins/engine/models/types.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
-  persistFiles,
-  submit
-} from '~/src/server/plugins/engine/services/formSubmissionService.js'
-import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
-import {
   type FormContext,
   type FormContextRequest,
   type FormSubmissionState
@@ -108,6 +103,8 @@ export class SummaryPageController extends QuestionPageController {
       const { state } = context
 
       const { cacheService } = request.services([])
+      const { formsService } = this.model.services
+      const { getFormMetadata } = formsService
 
       // Get the form metadata using the `slug` param
       const { notificationEmail } = await getFormMetadata(params.slug)
@@ -160,6 +157,8 @@ async function extendFileRetention(
   state: FormSubmissionState,
   updatedRetrievalKey: string
 ) {
+  const { formSubmissionService } = model.services
+  const { persistFiles } = formSubmissionService
   const files: { fileId: string; initiatedRetrievalKey: string }[] = []
 
   // For each file upload component with files in
@@ -190,10 +189,14 @@ async function extendFileRetention(
 }
 
 function submitData(
+  model: FormModel,
   items: DetailItem[],
   retrievalKey: string,
   sessionId: string
 ) {
+  const { formSubmissionService } = model.services
+  const { submit } = formSubmissionService
+
   const payload: SubmitPayload = {
     sessionId,
     retrievalKey,
@@ -248,7 +251,12 @@ async function sendEmail(
 
   // Submit data
   request.logger.info(logTags, 'Submitting data')
-  const submitResponse = await submitData(items, emailAddress, request.yar.id)
+  const submitResponse = await submitData(
+    model,
+    items,
+    emailAddress,
+    request.yar.id
+  )
 
   if (submitResponse === undefined) {
     throw Boom.badRequest('Unexpected empty response from submit api')
