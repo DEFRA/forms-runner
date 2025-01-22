@@ -1,5 +1,3 @@
-import { type IncomingMessage } from 'http'
-
 import {
   type FormDefinition,
   type FormMetadata,
@@ -21,18 +19,7 @@ export interface FormSubmissionService {
   persistFiles: (
     files: { fileId: string; initiatedRetrievalKey: string }[],
     persistedRetrievalKey: string
-  ) => Promise<
-    | {
-        res: IncomingMessage
-        error: Error | object
-        payload?: undefined
-      }
-    | {
-        res: IncomingMessage
-        payload: object
-        error?: undefined
-      }
-  >
+  ) => Promise<object>
   submit: (data: SubmitPayload) => Promise<SubmitResponsePayload | undefined>
 }
 
