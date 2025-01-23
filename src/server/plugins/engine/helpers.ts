@@ -247,13 +247,20 @@ export function getError(detail: ValidationErrorItem): FormSubmissionError {
 export function safeGenerateCrumb(
   request: FormRequest | FormRequestPayload | null
 ): string | undefined {
-  if (
-    !request?.server.plugins.crumb.generate ||
-    request.route.settings.plugins?.crumb === false ||
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    !request?.state
-  ) {
+  // no request or no .state
+  if (!request?.state) {
     return undefined
   }
+
+  // crumb plugin or its generate method doesn’t exist
+  if (!request.server.plugins.crumb.generate) {
+    return undefined
+  }
+
+  // crumb is explicitly disabled for this route
+  if (request.route.settings.plugins?.crumb === false) {
+    return undefined
+  }
+
   return request.server.plugins.crumb.generate(request)
 }
