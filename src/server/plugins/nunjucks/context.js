@@ -9,7 +9,10 @@ import { parseCookieConsent } from '~/src/common/cookies.js'
 import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
-import { encodeUrl } from '~/src/server/plugins/engine/helpers.js'
+import {
+  encodeUrl,
+  safeGenerateCrumb
+} from '~/src/server/plugins/engine/helpers.js'
 
 const logger = createLogger()
 
@@ -54,14 +57,7 @@ export function context(request) {
       serviceName: config.get('serviceName'),
       serviceVersion: config.get('serviceVersion')
     },
-    // only generate crumb if plugin exists and is enabled for this route
-    crumb:
-      request?.server.plugins.crumb.generate &&
-      request.route.settings.plugins?.crumb !== false &&
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      request.state
-        ? request.server.plugins.crumb.generate(request)
-        : undefined,
+    crumb: safeGenerateCrumb(request),
     cspNonce: request?.plugins.blankie?.nonces?.script,
     currentPath: request ? `${request.path}${request.url.search}` : undefined,
     previewMode: isPreviewMode ? params?.state : undefined,
