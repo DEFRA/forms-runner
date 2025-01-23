@@ -17,7 +17,9 @@ import {
 import {
   FormAction,
   FormStatus,
-  type FormQuery
+  type FormQuery,
+  type FormRequest,
+  type FormRequestPayload
 } from '~/src/server/routes/types.js'
 
 const logger = createLogger()
@@ -235,4 +237,30 @@ export function getError(detail: ValidationErrorItem): FormSubmissionError {
     text,
     context
   }
+}
+
+/**
+ * A small helper to safely generate a crumb token.
+ * Checks that the crumb plugin is available, that crumb
+ * is not disabled on the current route, and that cookies/state are present.
+ */
+export function safeGenerateCrumb(
+  request: FormRequest | FormRequestPayload | null
+): string | undefined {
+  // no request or no .state
+  if (!request?.state) {
+    return undefined
+  }
+
+  // crumb plugin or its generate method doesn’t exist
+  if (!request.server.plugins.crumb.generate) {
+    return undefined
+  }
+
+  // crumb is explicitly disabled for this route
+  if (request.route.settings.plugins?.crumb === false) {
+    return undefined
+  }
+
+  return request.server.plugins.crumb.generate(request)
 }
