@@ -72,4 +72,71 @@ describe('Nunjucks context', () => {
       )
     })
   })
+
+  describe('Crumb', () => {
+    it('should handle malformed requests with missing state', () => {
+      // While state should always exist in a valid Hapi request (it holds cookies),
+      // we've seen malformed requests in production where it's missing
+      const malformedRequest = /** @type {FormRequest} */ (
+        /** @type {unknown} */ ({
+          server: {
+            plugins: {
+              crumb: {
+                generate: jest.fn()
+              }
+            }
+          },
+          plugins: {},
+          route: {
+            settings: {
+              plugins: {}
+            }
+          },
+          path: '/test',
+          url: { search: '' }
+          // state intentionally omitted to test real malformed requests
+        })
+      )
+
+      const { crumb } = context(malformedRequest)
+      expect(crumb).toBeUndefined()
+      expect(
+        malformedRequest.server.plugins.crumb.generate
+      ).not.toHaveBeenCalled()
+    })
+
+    it('should generate crumb when state exists', () => {
+      const mockCrumb = 'generated-crumb-value'
+      const validRequest = /** @type {FormRequest} */ (
+        /** @type {unknown} */ ({
+          server: {
+            plugins: {
+              crumb: {
+                generate: jest.fn().mockReturnValue(mockCrumb)
+              }
+            }
+          },
+          plugins: {},
+          route: {
+            settings: {
+              plugins: {}
+            }
+          },
+          path: '/test',
+          url: { search: '' },
+          state: {}
+        })
+      )
+
+      const { crumb } = context(validRequest)
+      expect(crumb).toBe(mockCrumb)
+      expect(validRequest.server.plugins.crumb.generate).toHaveBeenCalledWith(
+        validRequest
+      )
+    })
+  })
 })
+
+/**
+ * @import { FormRequest } from '~/src/server/routes/types.js'
+ */
