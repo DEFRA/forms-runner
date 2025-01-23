@@ -54,7 +54,14 @@ export function context(request) {
       serviceName: config.get('serviceName'),
       serviceVersion: config.get('serviceVersion')
     },
-    crumb: request?.server.plugins.crumb.generate?.(request),
+    // only generate crumb if plugin exists and is enabled for this route
+    crumb:
+      request?.server.plugins.crumb.generate &&
+      request.route.settings.plugins?.crumb !== false &&
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      request.state
+        ? request.server.plugins.crumb.generate(request)
+        : undefined,
     cspNonce: request?.plugins.blankie?.nonces?.script,
     currentPath: request ? `${request.path}${request.url.search}` : undefined,
     previewMode: isPreviewMode ? params?.state : undefined,
