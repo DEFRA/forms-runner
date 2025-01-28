@@ -27,6 +27,7 @@ import {
 } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import { validationOptions as opts } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
+import * as notifyServiceForMachines from '~/src/server/plugins/engine/services/notifyServiceForMachines.js'
 import {
   type FormContext,
   type FormContextRequest,
@@ -59,6 +60,12 @@ export class FormModel {
     services: Services = defaultServices
   ) {
     const result = formDefinitionSchema.validate(def, { abortEarly: false })
+
+    const servicesNew = {
+      // TODO do this conditionally
+      ...services,
+      outputService: notifyServiceForMachines
+    }
 
     if (result.error) {
       throw result.error
@@ -93,7 +100,7 @@ export class FormModel {
     this.values = result.value
     this.basePath = options.basePath
     this.conditions = {}
-    this.services = services
+    this.services = servicesNew
 
     def.conditions.forEach((conditionDef) => {
       const condition = this.makeCondition(conditionDef)
