@@ -10,8 +10,7 @@ import {
 
 export function format(
   items: DetailItem[],
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _model: FormModel,
+  model: FormModel,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _submitResponse: SubmitResponsePayload,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -25,7 +24,8 @@ export function format(
   const data = {
     meta: {
       schemaVersion: '1',
-      timestamp: now.toISOString()
+      timestamp: now.toISOString(),
+      definition: model.def
     },
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     data: itemsRendered
@@ -40,11 +40,11 @@ function renderDetailItem(item: DetailItem) {
   if ('subItems' in item) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return [
-      item.label,
+      item.name,
       item.subItems.map((subitem) =>
         Object.fromEntries(
           subitem.map((subsubitem) => [
-            subsubitem.label,
+            subsubitem.name,
             getItemEntry(subsubitem)
           ])
         )
