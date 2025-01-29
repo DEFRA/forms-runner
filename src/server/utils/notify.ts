@@ -1,7 +1,6 @@
 import { token } from '@hapi/jwt'
 
 import { config } from '~/src/config/index.js'
-import { type getPersonalisation } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 import { postJson } from '~/src/server/services/httpService.js'
 
 const notifyAPIKey = config.get('notifyAPIKey')
@@ -21,7 +20,7 @@ const serviceId: string = notifyAPIKey.substring(
 export interface SendNotificationArgs {
   templateId: string
   emailAddress: string
-  personalisation: ReturnType<typeof getPersonalisation>
+  personalisation: { subject: string; body: string }
 }
 
 function createToken(iss: string, secret: string) {

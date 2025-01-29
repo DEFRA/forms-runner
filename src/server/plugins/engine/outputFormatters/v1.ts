@@ -1,0 +1,65 @@
+import { type SubmitResponsePayload } from '@defra/forms-model'
+
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers.js'
+import { type checkFormStatus } from '~/src/server/plugins/engine/helpers.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import {
+  type DetailItem,
+  type DetailItemField
+} from '~/src/server/plugins/engine/models/types.js'
+
+export function format(
+  items: DetailItem[],
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _model: FormModel,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _submitResponse: SubmitResponsePayload,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _formStatus: ReturnType<typeof checkFormStatus>
+) {
+  const now = new Date()
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const itemsRendered = Object.fromEntries(items.map(renderDetailItem))
+
+  const data = {
+    meta: {
+      schemaVersion: '1',
+      timestamp: now.toISOString()
+    },
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    data: itemsRendered
+  }
+
+  const body = JSON.stringify(data)
+
+  return body
+}
+
+function renderDetailItem(item: DetailItem) {
+  if ('subItems' in item) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return [
+      item.label,
+      item.subItems.map((subitem) =>
+        Object.fromEntries(
+          subitem.map((subsubitem) => [
+            subsubitem.label,
+            getItemEntry(subsubitem)
+          ])
+        )
+      )
+    ]
+  } else {
+    return [item.label, getItemEntry(item)]
+  }
+}
+
+/**
+ * Get an entry compatible with Object.fromEntries
+ */
+function getItemEntry(item: DetailItemField): string {
+  return getAnswer(item.field, item.state, {
+    format: 'data'
+  })
+}
