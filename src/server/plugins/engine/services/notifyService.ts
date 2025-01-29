@@ -5,7 +5,8 @@ import { escapeMarkdown } from '~/src/server/plugins/engine/components/helpers.j
 import { checkFormStatus } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type DetailItem } from '~/src/server/plugins/engine/models/types.js'
-import { format as v1Format } from '~/src/server/plugins/engine/outputFormatters/human/v1.js'
+import { format as humanFormatter } from '~/src/server/plugins/engine/outputFormatters/human/v1.js'
+import { format as machineFormatter } from '~/src/server/plugins/engine/outputFormatters/machine/v1.js'
 import { type FormRequestPayload } from '~/src/server/routes/types.js'
 import { sendNotification } from '~/src/server/utils/notify.js'
 
@@ -30,7 +31,9 @@ export async function submit(
     ? `TEST FORM SUBMISSION: ${formName}`
     : `Form submission: ${formName}`
 
-  const body = v1Format(items, model, submitResponse, formStatus)
+  const outputFormatter = false ? humanFormatter : machineFormatter // TODO derive this from the model somehow
+
+  const body = outputFormatter(items, model, submitResponse, formStatus)
 
   request.logger.info(logTags, 'Sending email')
 
