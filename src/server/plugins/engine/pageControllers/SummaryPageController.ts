@@ -1,18 +1,9 @@
-import {
-  type PageSummary,
-  type SubmitPayload,
-  type SubmitResponsePayload
-} from '@defra/forms-model'
+import { type PageSummary, type SubmitPayload } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ResponseToolkit, type RouteOptions } from '@hapi/hapi'
-import { addDays, format } from 'date-fns'
 
-import { config } from '~/src/config/index.js'
 import { FileUploadField } from '~/src/server/plugins/engine/components/FileUploadField.js'
-import {
-  escapeMarkdown,
-  getAnswer
-} from '~/src/server/plugins/engine/components/helpers.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers.js'
 import {
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus
@@ -36,10 +27,6 @@ import {
   type FormRequestPayload,
   type FormRequestPayloadRefs
 } from '~/src/server/routes/types.js'
-import { sendNotification } from '~/src/server/utils/notify.js'
-
-const designerUrl = config.get('designerUrl')
-const templateId = config.get('notifyTemplateId')
 
 export class SummaryPageController extends QuestionPageController {
   declare pageDef: PageSummary
@@ -164,25 +151,16 @@ async function submitForm(
 
   // Submit data
   request.logger.info(logTags, 'Submitting data')
-  // const submitResponse = await submitData(
-  //   model,
-  //   items,
-  //   emailAddress,
-  //   request.yar.id
-  // )
-  const submitResponse: SubmitResponsePayload = {
-    message: 'success',
-    result: {
-      files: {
-        main: 'main-file-id',
-        repeaters: {}
-      }
-    }
-  }
+  const submitResponse = await submitData(
+    model,
+    items,
+    emailAddress,
+    request.yar.id
+  )
 
-  // if (submitResponse === undefined) {
-  //   throw Boom.badRequest('Unexpected empty response from submit api')
-  // }
+  if (submitResponse === undefined) {
+    throw Boom.badRequest('Unexpected empty response from submit api')
+  }
 
   return model.services.outputService.submit(
     request,
