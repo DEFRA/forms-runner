@@ -51,7 +51,7 @@ function renderDetailItem(item: DetailItem) {
       )
     ]
   } else {
-    return [item.label, getItemEntry(item)]
+    return [item.name, getItemEntry(item)]
   }
 }
 

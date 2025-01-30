@@ -26,7 +26,7 @@ module.exports = {
   ],
   coverageDirectory: '<rootDir>/coverage',
   setupFiles: ['<rootDir>/jest.setup.cjs'],
-  setupFilesAfterEnv: ['<rootDir>/jest.environment.js'],
+  setupFilesAfterEnv: ['<rootDir>/jest.environment.js', 'jest-extended/all'],
   transform: {
     '^.+\\.(cjs|js|mjs|ts)$': [
       'babel-jest',
