@@ -38,28 +38,25 @@ export function format(
 
 function renderDetailItem(item: DetailItem) {
   if ('subItems' in item) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return [
       item.name,
       item.subItems.map((subitem) =>
-        Object.fromEntries(
-          subitem.map((subsubitem) => [
-            subsubitem.name,
-            getItemEntry(subsubitem)
-          ])
-        )
+        Object.fromEntries(subitem.map(getItemEntry))
       )
     ]
   } else {
-    return [item.name, getItemEntry(item)]
+    return getItemEntry(item)
   }
 }
 
 /**
  * Get an entry compatible with Object.fromEntries
  */
-function getItemEntry(item: DetailItemField): string {
-  return getAnswer(item.field, item.state, {
-    format: 'data'
-  })
+function getItemEntry(item: DetailItemField): [string, string] {
+  return [
+    item.name,
+    getAnswer(item.field, item.state, {
+      format: 'data'
+    })
+  ]
 }
