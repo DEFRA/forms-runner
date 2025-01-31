@@ -11,9 +11,7 @@ import {
 export function format(
   items: DetailItem[],
   model: FormModel,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _submitResponse: SubmitResponsePayload,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _formStatus: ReturnType<typeof checkFormStatus>
 ) {
   const now = new Date()

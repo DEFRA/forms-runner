@@ -32,7 +32,6 @@ const formStatus = {
 }
 
 const dummyField: Field = {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   getContextValueFromState: (_) => 'hello world'
 } as Field
 
