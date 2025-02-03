@@ -5,7 +5,12 @@ import {
   type SubmitResponsePayload
 } from '@defra/forms-model'
 
-import { type FormStatus } from '~/src/server/routes/types.js'
+import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { type DetailItem } from '~/src/server/plugins/engine/models/types.js'
+import {
+  type FormRequestPayload,
+  type FormStatus
+} from '~/src/server/routes/types.js'
 
 export interface FormsService {
   getFormMetadata: (slug: string) => Promise<FormMetadata>
@@ -26,6 +31,7 @@ export interface FormSubmissionService {
 export interface Services {
   formsService: FormsService
   formSubmissionService: FormSubmissionService
+  outputService: OutputService
 }
 
 export interface RouteConfig {
@@ -33,4 +39,14 @@ export interface RouteConfig {
   formFilePath?: string
   enforceCsrf?: boolean
   services?: Services
+}
+
+export interface OutputService {
+  submit: (
+    request: FormRequestPayload,
+    model: FormModel,
+    emailAddress: string,
+    items: DetailItem[],
+    submitResponse: SubmitResponsePayload
+  ) => Promise<void>
 }

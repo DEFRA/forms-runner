@@ -1,18 +1,9 @@
-import {
-  type PageSummary,
-  type SubmitPayload,
-  type SubmitResponsePayload
-} from '@defra/forms-model'
+import { type PageSummary, type SubmitPayload } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ResponseToolkit, type RouteOptions } from '@hapi/hapi'
-import { addDays, format } from 'date-fns'
 
-import { config } from '~/src/config/index.js'
 import { FileUploadField } from '~/src/server/plugins/engine/components/FileUploadField.js'
-import {
-  escapeMarkdown,
-  getAnswer
-} from '~/src/server/plugins/engine/components/helpers.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers.js'
 import {
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus
@@ -36,10 +27,6 @@ import {
   type FormRequestPayload,
   type FormRequestPayloadRefs
 } from '~/src/server/routes/types.js'
-import { sendNotification } from '~/src/server/utils/notify.js'
-
-const designerUrl = config.get('designerUrl')
-const templateId = config.get('notifyTemplateId')
 
 export class SummaryPageController extends QuestionPageController {
   declare pageDef: PageSummary
@@ -149,7 +136,39 @@ async function submitForm(
   emailAddress: string
 ) {
   await extendFileRetention(model, state, emailAddress)
-  await sendEmail(request, summaryViewModel, model, emailAddress)
+
+  const { path } = request
+  const formStatus = checkFormStatus(path)
+  const logTags = ['submit', 'submissionApi']
+
+  request.logger.info(logTags, 'Preparing email', formStatus)
+
+  // Get detail items
+  const items = getFormSubmissionData(
+    summaryViewModel.context,
+    summaryViewModel.details
+  )
+
+  // Submit data
+  request.logger.info(logTags, 'Submitting data')
+  const submitResponse = await submitData(
+    model,
+    items,
+    emailAddress,
+    request.yar.id
+  )
+
+  if (submitResponse === undefined) {
+    throw Boom.badRequest('Unexpected empty response from submit api')
+  }
+
+  return model.services.outputService.submit(
+    request,
+    model,
+    emailAddress,
+    items,
+    submitResponse
+  )
 }
 
 async function extendFileRetention(
@@ -229,131 +248,6 @@ function submitData(
   }
 
   return submit(payload)
-}
-
-async function sendEmail(
-  request: FormRequestPayload,
-  summaryViewModel: SummaryViewModel,
-  model: FormModel,
-  emailAddress: string
-) {
-  const { path } = request
-  const formStatus = checkFormStatus(path)
-  const logTags = ['submit', 'email']
-
-  request.logger.info(logTags, 'Preparing email', formStatus)
-
-  // Get detail items
-  const items = getFormSubmissionData(
-    summaryViewModel.context,
-    summaryViewModel.details
-  )
-
-  // Submit data
-  request.logger.info(logTags, 'Submitting data')
-  const submitResponse = await submitData(
-    model,
-    items,
-    emailAddress,
-    request.yar.id
-  )
-
-  if (submitResponse === undefined) {
-    throw Boom.badRequest('Unexpected empty response from submit api')
-  }
-
-  // Get submission email personalisation
-  request.logger.info(logTags, 'Getting personalisation data')
-
-  const personalisation = getPersonalisation(
-    items,
-    model,
-    submitResponse,
-    formStatus
-  )
-
-  request.logger.info(logTags, 'Sending email')
-
-  try {
-    // Send submission email
-    await sendNotification({
-      templateId,
-      emailAddress,
-      personalisation
-    })
-
-    request.logger.info(logTags, 'Email sent successfully')
-  } catch (err) {
-    request.logger.error(logTags, 'Error sending email', err)
-
-    throw err
-  }
-}
-
-export function getPersonalisation(
-  items: DetailItem[],
-  model: FormModel,
-  submitResponse: SubmitResponsePayload,
-  formStatus: ReturnType<typeof checkFormStatus>
-) {
-  const { files } = submitResponse.result
-
-  /**
-   * @todo Refactor this below but the code to
-   * generate the question and answers works for now
-   */
-  const now = new Date()
-  const formattedNow = `${format(now, 'h:mmaaa')} on ${format(now, 'd MMMM yyyy')}`
-
-  const fileExpiryDate = addDays(now, 30)
-  const formattedExpiryDate = `${format(fileExpiryDate, 'h:mmaaa')} on ${format(fileExpiryDate, 'eeee d MMMM yyyy')}`
-
-  const formName = escapeMarkdown(model.name)
-  const subject = formStatus.isPreview
-    ? `TEST FORM SUBMISSION: ${formName}`
-    : `Form submission: ${formName}`
-
-  const lines: string[] = []
-
-  lines.push(
-    `^ For security reasons, the links in this email expire at ${escapeMarkdown(formattedExpiryDate)}\n`
-  )
-
-  if (formStatus.isPreview) {
-    lines.push(`This is a test of the ${formName} ${formStatus.state} form.\n`)
-  }
-
-  lines.push(`Form submitted at ${escapeMarkdown(formattedNow)}.\n`)
-  lines.push('---\n')
-
-  items.forEach((item) => {
-    const label = escapeMarkdown(item.label)
-
-    lines.push(`## ${label}\n`)
-
-    if ('subItems' in item) {
-      const filename = escapeMarkdown(`Download ${label} (CSV)`)
-      const fileId = files.repeaters[item.name]
-
-      lines.push(`[${filename}](${designerUrl}/file-download/${fileId})\n`)
-    } else {
-      lines.push(
-        getAnswer(item.field, item.state, {
-          format: 'email'
-        })
-      )
-    }
-
-    lines.push('---\n')
-  })
-
-  const filename = escapeMarkdown('Download main form (CSV)')
-  lines.push(`[${filename}](${designerUrl}/file-download/${files.main})\n`)
-
-  return {
-    body: lines.join('\n'),
-    subject
-  }
 }
 
 export function getFormSubmissionData(context: FormContext, details: Detail[]) {
