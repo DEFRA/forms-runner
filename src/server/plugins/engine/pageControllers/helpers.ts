@@ -66,6 +66,14 @@ export function createPage(model: FormModel, pageDef: Page) {
   }
 
   if (typeof controller === 'undefined') {
+    if (model.controllers?.[pageDef.controller]) {
+      const Ctrl = model.controllers[pageDef.controller]
+      // @ts-expect-error - TODO: Sort out the types so it understands that some controllers are custom/user provided
+      controller = new Ctrl(model, pageDef)
+    }
+  }
+
+  if (typeof controller === 'undefined') {
     throw new Error(`Page controller ${pageDef.controller} does not exist`)
   }
 

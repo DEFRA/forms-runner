@@ -127,6 +127,11 @@ export interface FormContext {
 
   // Preview URL direct access is allowed
   isForceAccess: boolean
+
+  /**
+   * Miscellaneous extra data from event responses
+   */
+  data: object
 }
 
 export type FormContextRequest = (

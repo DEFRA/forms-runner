@@ -41,6 +41,7 @@ import {
   pathSchema,
   stateSchema
 } from '~/src/server/schemas/index.js'
+import * as httpService from '~/src/server/services/httpService.js'
 import { type Services } from '~/src/server/types.js'
 
 export interface PluginOptions {
@@ -199,9 +200,26 @@ export const plugin = {
         return dispatchHandler(request, h)
       }
 
-      return redirectOrMakeHandler(request, h, (page, context) =>
-        page.makeGetRouteHandler()(request, context, h)
-      )
+      return redirectOrMakeHandler(request, h, async (page, context) => {
+        // Check for a page onLoad HTTP event and if one exists,
+        // call it and assign the response to the context data
+        const { events } = page
+
+        if (events?.onLoad && events.onLoad.type === 'http') {
+          const { options } = events.onLoad
+          const { url } = options
+
+          // TODO: Replace POST payload with structured data when helper
+          // is available from https://github.com/DEFRA/forms-runner/pull/679
+          const { payload } = await httpService.postJson(url, {
+            payload: context.relevantState
+          })
+
+          Object.assign(context.data, payload)
+        }
+
+        return page.makeGetRouteHandler()(request, context, h)
+      })
     }
 
     const postHandler = (
