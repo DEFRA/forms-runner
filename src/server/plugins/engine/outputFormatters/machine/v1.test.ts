@@ -91,10 +91,31 @@ const testDetailItemRepeat: DetailItemRepeat = {
   ]
 } as DetailItemRepeat
 
+const testDetailItemRepeat2: DetailItemRepeat = {
+  name: 'exampleRepeat2',
+  label: 'Example Repeat 2',
+  href: '/example-repeat-2',
+  title: 'Example Repeat 2 Title',
+  value: 'Example Repeat 2 Value',
+  subItems: [
+    [
+      {
+        name: 'subItem1_1',
+        label: 'Sub Item 1 1',
+        field: dummyField,
+        href: '/sub-item-1-1',
+        title: 'Sub Item 1 1 Title',
+        value: 'Sub Item 1 1 Value'
+      } as DetailItemField
+    ]
+  ]
+} as DetailItemRepeat
+
 const items: DetailItem[] = [
   testDetailItemField,
   testDetailItemField2,
-  testDetailItemRepeat
+  testDetailItemRepeat,
+  testDetailItemRepeat2
 ]
 
 describe('getPersonalisation', () => {
@@ -106,17 +127,26 @@ describe('getPersonalisation', () => {
     const parsedBody = JSON.parse(body)
 
     const expectedData = {
-      exampleField: 'hello world',
-      exampleField2: 'hello world',
-      exampleRepeat: [
-        {
-          subItem1_1: 'hello world',
-          subItem1_2: 'hello world'
-        },
-        {
-          subItem2_1: 'hello world'
-        }
-      ]
+      main: {
+        exampleField: 'hello world',
+        exampleField2: 'hello world'
+      },
+      repeaters: {
+        exampleRepeat: [
+          {
+            subItem1_1: 'hello world',
+            subItem1_2: 'hello world'
+          },
+          {
+            subItem2_1: 'hello world'
+          }
+        ],
+        exampleRepeat2: [
+          {
+            subItem1_1: 'hello world'
+          }
+        ]
+      }
     }
 
     expect(parsedBody.meta.schemaVersion).toBe('1')
