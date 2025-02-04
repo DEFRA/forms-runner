@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import { FileUploadField } from '~/src/server/plugins/engine/components/FileUploadField.js'
 import { type Field } from '~/src/server/plugins/engine/components/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
@@ -7,6 +8,11 @@ import {
   type DetailItemRepeat
 } from '~/src/server/plugins/engine/models/types.js'
 import { format } from '~/src/server/plugins/engine/outputFormatters/machine/v1.js'
+import {
+  FileStatus,
+  UploadStatus,
+  type FileState
+} from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
 
@@ -111,11 +117,65 @@ const testDetailItemRepeat2: DetailItemRepeat = {
   ]
 } as DetailItemRepeat
 
+const fileState: FileState = {
+  uploadId: '123',
+  status: {
+    form: {
+      file: {
+        fileId: '123-456-789',
+        contentLength: 1,
+        filename: 'foobar.txt',
+        fileStatus: FileStatus.complete
+      }
+    },
+    uploadStatus: UploadStatus.ready,
+    numberOfRejectedFiles: 0,
+    metadata: {
+      retrievalKey: '123'
+    }
+  }
+}
+
+const fileState2: FileState = {
+  uploadId: '456',
+  status: {
+    form: {
+      file: {
+        fileId: '456-789-123',
+        contentLength: 1,
+        filename: 'bazbuzz.txt',
+        fileStatus: FileStatus.complete
+      }
+    },
+    uploadStatus: UploadStatus.ready,
+    numberOfRejectedFiles: 0,
+    metadata: {
+      retrievalKey: '123'
+    }
+  }
+}
+
+const testDetailItemFile1: DetailItemField = Object.create(
+  FileUploadField.prototype
+)
+Object.assign(testDetailItemFile1, {
+  name: 'exampleFile1',
+  label: 'Example Field',
+  href: '/example-field',
+  title: 'Example Field Title',
+  field: testDetailItemFile1,
+  value: 'Example Value',
+  state: {
+    exampleFile1: [fileState, fileState2]
+  }
+})
+
 const items: DetailItem[] = [
   testDetailItemField,
   testDetailItemField2,
   testDetailItemRepeat,
-  testDetailItemRepeat2
+  testDetailItemRepeat2,
+  testDetailItemFile1
 ]
 
 describe('getPersonalisation', () => {
@@ -144,6 +204,18 @@ describe('getPersonalisation', () => {
         exampleRepeat2: [
           {
             subItem1_1: 'hello world'
+          }
+        ]
+      },
+      files: {
+        exampleFile1: [
+          {
+            fileId: '123-456-789',
+            userDownloadLink: 'https://forms-designer/file-download/123-456-789'
+          },
+          {
+            fileId: '456-789-123',
+            userDownloadLink: 'https://forms-designer/file-download/456-789-123'
           }
         ]
       }
