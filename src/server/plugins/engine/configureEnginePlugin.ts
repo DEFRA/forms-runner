@@ -27,7 +27,7 @@ export const configureEnginePlugin = async ({
 
   return {
     plugin,
-    options: { model, services }
+    options: { model, services, controllers }
   }
 }
 

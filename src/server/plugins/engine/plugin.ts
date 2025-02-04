@@ -22,6 +22,7 @@ import {
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { FileUploadPageController } from '~/src/server/plugins/engine/pageControllers/FileUploadPageController.js'
+import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
@@ -47,6 +48,7 @@ import { type Services } from '~/src/server/types.js'
 export interface PluginOptions {
   model?: FormModel
   services?: Services
+  controllers?: Record<string, typeof PageController>
 }
 
 export const plugin = {
@@ -54,7 +56,7 @@ export const plugin = {
   dependencies: '@hapi/vision',
   multiple: true,
   register(server, options) {
-    const { model, services = defaultServices } = options
+    const { model, services = defaultServices, controllers } = options
     const { formsService } = services
 
     server.app.model = model
@@ -127,7 +129,12 @@ export const plugin = {
           : slug
 
         // Construct the form model
-        const model = new FormModel(definition, { basePath }, services)
+        const model = new FormModel(
+          definition,
+          { basePath },
+          services,
+          controllers
+        )
 
         // Create new item and add it to the item cache
         item = { model, updatedAt: state.updatedAt }
