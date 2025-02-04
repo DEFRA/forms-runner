@@ -29,7 +29,7 @@ export function format(
   const now = new Date()
   const formattedNow = `${dateFormat(now, 'h:mmaaa')} on ${dateFormat(now, 'd MMMM yyyy')}`
 
-  const fileExpiryDate = addDays(now, 30)
+  const fileExpiryDate = addDays(now, 90)
   const formattedExpiryDate = `${dateFormat(fileExpiryDate, 'h:mmaaa')} on ${dateFormat(fileExpiryDate, 'eeee d MMMM yyyy')}`
 
   const lines: string[] = []
