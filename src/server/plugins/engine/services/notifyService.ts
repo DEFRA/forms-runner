@@ -30,12 +30,17 @@ export async function submit(
     ? `TEST FORM SUBMISSION: ${formName}`
     : `Form submission: ${formName}`
 
-  const outputFormatter = getFormatter(
-    model.output.audience,
-    model.output.version
-  )
+  const outputAudience = model.def.output?.audience ?? 'human'
+  const outputVersion = model.def.output?.version ?? '1'
 
-  const body = outputFormatter(items, model, submitResponse, formStatus)
+  const outputFormatter = getFormatter(outputAudience, outputVersion)
+  let body = outputFormatter(items, model, submitResponse, formStatus)
+
+  // GOV.UK Notify transforms quotes into curly quotes, so we can't just send the raw payload
+  // This is logic specific to Notify, so we include the logic here rather than in the formatter
+  if (outputAudience === 'machine') {
+    body = Buffer.from(body).toString('base64')
+  }
 
   request.logger.info(logTags, 'Sending email')
 

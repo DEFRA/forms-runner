@@ -34,13 +34,7 @@ describe('notifyService', () => {
       info: jest.fn()
     }
   } as unknown as FormRequestPayload)
-  const model: FormModel = {
-    name: 'foobar',
-    output: {
-      audience: 'human',
-      version: '1'
-    }
-  } as FormModel
+  let model: FormModel
   const sendNotificationMock = jest.mocked(sendNotification)
 
   beforeEach(() => {
@@ -48,6 +42,16 @@ describe('notifyService', () => {
   })
 
   it('creates a subject line for real forms', async () => {
+    model = {
+      name: 'foobar',
+      def: {
+        output: {
+          audience: 'human',
+          version: '1'
+        }
+      }
+    } as FormModel
+
     jest.mocked(checkFormStatus).mockReturnValue({
       isPreview: false,
       state: FormStatus.Draft
@@ -67,6 +71,16 @@ describe('notifyService', () => {
   })
 
   it('creates a subject line for preview forms', async () => {
+    model = {
+      name: 'foobar',
+      def: {
+        output: {
+          audience: 'human',
+          version: '1'
+        }
+      }
+    } as FormModel
+
     jest.mocked(checkFormStatus).mockReturnValue({
       isPreview: true,
       state: FormStatus.Draft
@@ -80,6 +94,37 @@ describe('notifyService', () => {
         personalisation: {
           subject: `TEST FORM SUBMISSION: foobar`,
           body: 'dummy-preview'
+        }
+      })
+    )
+  })
+
+  it('base64 encodes form data when aimed at machines', async () => {
+    model = {
+      name: 'foobar',
+      def: {
+        output: {
+          audience: 'machine',
+          version: '1'
+        }
+      }
+    } as FormModel
+
+    jest.mocked(checkFormStatus).mockReturnValue({
+      isPreview: true,
+      state: FormStatus.Draft
+    })
+    jest
+      .mocked(getFormatter)
+      .mockReturnValue(() => 'dummy-preview " Hello world \' !@/')
+
+    await submit(mockRequest, model, 'test@defra.gov.uk', items, submitResponse)
+
+    expect(sendNotificationMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        personalisation: {
+          subject: `TEST FORM SUBMISSION: foobar`,
+          body: 'ZHVtbXktcHJldmlldyAiIEhlbGxvIHdvcmxkICcgIUAv'
         }
       })
     )

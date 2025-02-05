@@ -1,12 +1,17 @@
 import { type SubmitResponsePayload } from '@defra/forms-model'
 
+import { config } from '~/src/config/index.js'
 import { getAnswer } from '~/src/server/plugins/engine/components/helpers.js'
+import { FileUploadField } from '~/src/server/plugins/engine/components/index.js'
 import { type checkFormStatus } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type DetailItem,
-  type DetailItemField
+  type DetailItemField,
+  type DetailItemRepeat
 } from '~/src/server/plugins/engine/models/types.js'
+
+const designerUrl = config.get('designerUrl')
 
 export function format(
   items: DetailItem[],
@@ -16,8 +21,7 @@ export function format(
 ) {
   const now = new Date()
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const itemsRendered = Object.fromEntries(items.map(renderDetailItem))
+  const categorisedData = categoriseData(items)
 
   const data = {
     meta: {
@@ -25,8 +29,7 @@ export function format(
       timestamp: now.toISOString(),
       definition: model.def
     },
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    data: itemsRendered
+    data: categorisedData
   }
 
   const body = JSON.stringify(data)
@@ -34,27 +37,100 @@ export function format(
   return body
 }
 
-function renderDetailItem(item: DetailItem) {
-  if ('subItems' in item) {
-    return [
-      item.name,
-      item.subItems.map((subitem) =>
-        Object.fromEntries(subitem.map(getItemEntry))
-      )
-    ]
-  } else {
-    return getItemEntry(item)
-  }
+/**
+ * Categories the form submission data into the "main" body and "repeaters".
+ *
+ * {
+ *    main: {
+ *       componentName: 'componentValue',
+ *    },
+ *    repeaters: {
+ *      repeaterName: [
+ *        {
+ *          componentName: 'componentValue'
+ *        }
+ *      ]
+ *    },
+ *    files: {
+ *      fileComponentName: [
+ *        {
+ *          fileId: '123-456-789',
+ *          link: 'https://forms-designer/file-download/123-456-789'
+ *        }
+ *      ]
+ *    }
+ * }
+ */
+function categoriseData(items: DetailItem[]) {
+  const output: {
+    main: Record<string, string>
+    repeaters: Record<string, Record<string, string>[]>
+    files: Record<string, Record<string, string>[]>
+  } = { main: {}, repeaters: {}, files: {} }
+
+  items.forEach((item) => {
+    if ('subItems' in item) {
+      output.repeaters[item.name] = extractRepeaters(item)
+    } else if (isFileUploadFieldItem(item)) {
+      output.files[item.name] = extractFileUploads(item)
+    } else {
+      output.main[item.name] = getAnswer(item.field, item.state, {
+        format: 'data'
+      })
+    }
+  })
+
+  return output
 }
 
 /**
- * Get an entry compatible with Object.fromEntries
+ * Returns the "repeaters" section of the response body
+ * @param item - the repeater item
+ * @returns the repeater item
  */
-function getItemEntry(item: DetailItemField): [string, string] {
-  return [
-    item.name,
-    getAnswer(item.field, item.state, {
-      format: 'data'
+function extractRepeaters(item: DetailItemRepeat) {
+  const repeaters: Record<string, string>[] = []
+
+  item.subItems.forEach((subItem) => {
+    const repeaterEntry: Record<string, string> = {}
+
+    subItem.forEach((subSubitem) => {
+      repeaterEntry[subSubitem.name] = getAnswer(subSubitem.field, item.state, {
+        format: 'data'
+      })
     })
-  ]
+
+    repeaters.push(repeaterEntry)
+  })
+
+  return repeaters
+}
+
+/**
+ * Returns the "files" section of the response body
+ * @param item - the file upload item in the form
+ * @returns the file upload data
+ */
+function extractFileUploads(item: FileUploadFieldDetailitem) {
+  const fileUploadState = item.field.getContextValueFromState(item.state) ?? []
+
+  return fileUploadState.map((fileId) => {
+    return {
+      fileId,
+      userDownloadLink: `${designerUrl}/file-download/${fileId}`
+    }
+  })
+}
+
+function isFileUploadFieldItem(
+  item: DetailItemField
+): item is FileUploadFieldDetailitem {
+  return item.field instanceof FileUploadField
+}
+
+/**
+ * A detail item specifically for files
+ */
+type FileUploadFieldDetailitem = Omit<DetailItemField, 'field'> & {
+  field: FileUploadField
 }
