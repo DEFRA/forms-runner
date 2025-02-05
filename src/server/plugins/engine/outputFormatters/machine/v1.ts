@@ -1,5 +1,6 @@
 import { type SubmitResponsePayload } from '@defra/forms-model'
 
+import { config } from '~/src/config/index.js'
 import { getAnswer } from '~/src/server/plugins/engine/components/helpers.js'
 import { FileUploadField } from '~/src/server/plugins/engine/components/index.js'
 import { type checkFormStatus } from '~/src/server/plugins/engine/helpers.js'
@@ -9,6 +10,8 @@ import {
   type DetailItemField,
   type DetailItemRepeat
 } from '~/src/server/plugins/engine/models/types.js'
+
+const designerUrl = config.get('designerUrl')
 
 export function format(
   items: DetailItem[],
@@ -114,7 +117,7 @@ function extractFileUploads(item: FileUploadFieldDetailitem) {
   return fileUploadState.map((fileId) => {
     return {
       fileId,
-      userDownloadLink: 'https://forms-designer/file-download/' + fileId
+      userDownloadLink: `${designerUrl}/file-download/${fileId}`
     }
   })
 }
