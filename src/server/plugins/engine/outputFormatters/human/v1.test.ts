@@ -85,7 +85,7 @@ describe('getPersonalisation', () => {
     const body = format(items, model, submitResponse, formStatus)
 
     const dateNow = new Date()
-    const dateExpiry = addDays(dateNow, 30)
+    const dateExpiry = addDays(dateNow, 90)
 
     // Check for link expiry message
     expect(body).toContain(
