@@ -107,7 +107,7 @@ function extractRepeaters(item: DetailItemRepeat) {
 }
 
 /**
- * Returnd the "files" section of the response body
+ * Returns the "files" section of the response body
  * @param item - the file upload item in the form
  * @returns the file upload data
  */
