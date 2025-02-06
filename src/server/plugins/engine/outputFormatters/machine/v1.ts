@@ -95,9 +95,13 @@ function extractRepeaters(item: DetailItemRepeat) {
     const repeaterEntry: Record<string, string> = {}
 
     subItem.forEach((subSubitem) => {
-      repeaterEntry[subSubitem.name] = getAnswer(subSubitem.field, item.state, {
-        format: 'data'
-      })
+      repeaterEntry[subSubitem.name] = getAnswer(
+        subSubitem.field,
+        subSubitem.state,
+        {
+          format: 'data'
+        }
+      )
     })
 
     repeaters.push(repeaterEntry)
