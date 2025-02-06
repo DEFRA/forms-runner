@@ -91,16 +91,20 @@ function categoriseData(items: DetailItem[]) {
 function extractRepeaters(item: DetailItemRepeat) {
   const repeaters: Record<string, string>[] = []
 
-  item.subItems.forEach((subItem) => {
-    const repeaterEntry: Record<string, string> = {}
+  item.subItems.forEach((inputRepeaterItem) => {
+    const outputRepeaterItem: Record<string, string> = {}
 
-    subItem.forEach((subSubitem) => {
-      repeaterEntry[subSubitem.name] = getAnswer(subSubitem.field, item.state, {
-        format: 'data'
-      })
+    inputRepeaterItem.forEach((repeaterComponent) => {
+      outputRepeaterItem[repeaterComponent.name] = getAnswer(
+        repeaterComponent.field,
+        repeaterComponent.state,
+        {
+          format: 'data'
+        }
+      )
     })
 
-    repeaters.push(repeaterEntry)
+    repeaters.push(outputRepeaterItem)
   })
 
   return repeaters
