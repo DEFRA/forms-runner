@@ -7,17 +7,37 @@ const uploaderBucketName = config.get('uploaderBucketName')
 const stagingPrefix = config.get('stagingPrefix')
 
 /**
+ * Transforms an uploader URL to use the configured host/protocol
+ * Mainly used for local dev reverse proxy setup
+ * @param {string} originalUrl - The original URL.
+ * @returns {string} - The transformed URL.
+ */
+function transformUploaderUrl(originalUrl) {
+  const configuredUrl = new URL(uploaderUrl)
+  const urlObj = new URL(originalUrl)
+  urlObj.protocol = configuredUrl.protocol
+  urlObj.host = configuredUrl.host
+  return urlObj.toString()
+}
+
+/**
  * Initiates a CDP file upload
  * @param {string} path - the path of the page in the form
  * @param {string} retrievalKey - the retrieval key for the files
- * @param {string} [mimeTypes] - the csv string of accepted mimeTypes
+ * @param {string} [mimeTypes] - the CSV string of accepted mimeTypes
+ * @param {string} [redirectUrl] - the redirect URL, derived from the request headers
  */
-export async function initiateUpload(path, retrievalKey, mimeTypes) {
+export async function initiateUpload(
+  path,
+  retrievalKey,
+  mimeTypes,
+  redirectUrl = ''
+) {
   const postJsonByType =
     /** @type {typeof postJson<UploadInitiateResponse>} */ (postJson)
 
   const payload = {
-    redirect: path,
+    redirect: redirectUrl,
     callback: `${submissionUrl}/file`,
     s3Bucket: uploaderBucketName,
     s3Path: stagingPrefix,
@@ -36,7 +56,17 @@ export async function initiateUpload(path, retrievalKey, mimeTypes) {
     { payload }
   )
 
-  return initiate
+  if (!initiate?.uploadId || !initiate.uploadUrl || !initiate.statusUrl) {
+    throw new Error('Missing required upload response fields')
+  }
+
+  const transformedInitiate = {
+    uploadId: initiate.uploadId,
+    uploadUrl: transformUploaderUrl(initiate.uploadUrl),
+    statusUrl: transformUploaderUrl(initiate.statusUrl)
+  }
+
+  return transformedInitiate
 }
 
 /**

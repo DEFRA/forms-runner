@@ -1,6 +1,9 @@
+/* eslint-disable no-console */
+
 import { formMetadataSchema } from '@defra/forms-model'
 
 import { config } from '~/src/config/index.js'
+import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { FormStatus } from '~/src/server/routes/types.js'
 import { getJson } from '~/src/server/services/httpService.js'
 
@@ -39,6 +42,24 @@ export async function getFormDefinition(id, state) {
   )
 
   return definition
+}
+
+/**
+ * Retrieves a form model based on the provided slug.
+ * @param {string} slug - The form slug.
+ * @param {FormStatus} state - The form state.
+ * @returns {Promise<FormModel|null>} The form model if found, otherwise null.
+ */
+export async function getFormModel(slug, state = FormStatus.Live) {
+  const metadata = await getFormMetadata(slug)
+
+  const definition = await getFormDefinition(metadata.id, state)
+  if (!definition) {
+    return null
+  }
+  console.log('DEBUG: Definition:', definition)
+
+  return new FormModel(definition, { basePath: slug })
 }
 
 /**

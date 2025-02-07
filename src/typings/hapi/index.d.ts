@@ -36,6 +36,7 @@ declare module '@hapi/hapi' {
 
   interface RequestApplicationState {
     model?: FormModel
+    context?: { state?: FormStatus; slug: string; path: string }
   }
 
   interface Server {

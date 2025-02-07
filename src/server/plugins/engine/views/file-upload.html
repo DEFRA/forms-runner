@@ -7,15 +7,33 @@
 {% block form %}
   {{ componentList(componentsBefore) }}
 
-  <form method="post" {%- if formAction and not context.isForceAccess %} action="{{ formAction }}" enctype="multipart/form-data" {%- endif %} novalidate>
+  <div class="govuk-error-summary-container"></div>
+
+  <form method="post" 
+        data-base-path="{{ formAction }}"
+        onsubmit="return false" 
+        {%- if formAction and not context.isForceAccess %} 
+          action="{{ formAction }}" 
+          enctype="multipart/form-data" 
+        {%- endif %} 
+        novalidate>
     {{ govukFileUpload(formComponent.model) }}
 
     {% if formAction %}
       {{ govukButton({
+        id: 'upload-file-button',
         text: "Upload file",
         classes: "govuk-button--secondary",
         preventDoubleClick: true
       }) }}
+      
+      <div class="file-upload-status">
+        <div class="govuk-tag govuk-tag--yellow govuk-visually-hidden" role="status" aria-live="polite">
+          Uploading
+        </div>
+      </div>
+
+      <div class="govuk-summary-list-container"></div>
     {% else %}
       {{ govukWarningText({
         text: "You have reached the maximum number of files. Please remove a file to upload more.",
@@ -25,4 +43,19 @@
   </form>
 
   {{ super() }}
+{% endblock %}
+
+{% block bodyEnd %}
+  {{ super() }}
+  <script type="module" nonce="{{ cspNonce }}">
+    import { initFileUpload } from '{{ getAssetPath("file-upload.js") }}'
+    
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        initFileUpload()
+      })
+    } else {
+      initFileUpload()
+    }
+  </script>
 {% endblock %}

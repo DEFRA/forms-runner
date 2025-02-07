@@ -284,6 +284,8 @@ export interface FeaturedFormPageViewModel extends FormPageViewModel {
   formAction?: string
   formComponent: ComponentViewModel
   componentsBefore: ComponentViewModel[]
+  path?: string
+  slug?: string
 }
 
 export type PageViewModel =

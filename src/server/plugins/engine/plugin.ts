@@ -1,7 +1,10 @@
+/* eslint-disable no-console */
+
 import { hasFormComponents, slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type Plugin,
+  type Request,
   type ResponseObject,
   type ResponseToolkit,
   type RouteOptions
@@ -25,8 +28,13 @@ import { FileUploadPageController } from '~/src/server/plugins/engine/pageContro
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
+import {
+  getUploadStatus,
+  initiateUpload
+} from '~/src/server/plugins/engine/services/uploadService.js'
 import { type FormContext } from '~/src/server/plugins/engine/types.js'
 import {
+  FormStatus,
   type FormRequest,
   type FormRequestPayload,
   type FormRequestPayloadRefs,
@@ -157,7 +165,14 @@ export const plugin = {
         context: FormContext
       ) => ResponseObject | Promise<ResponseObject>
     ) => {
-      const { app, params } = request
+      console.log(
+        '[redirectOrMakeHandler] Request received - params:',
+        request.params,
+        'query:',
+        request.query
+      )
+
+      const { app, params, query } = request
       const { model } = app
 
       if (!model) {
@@ -587,6 +602,225 @@ export const plugin = {
               confirm: confirmSchema
             })
             .required()
+        }
+      }
+    })
+
+    server.route({
+      method: 'POST',
+      path: '/initiate-upload',
+      options: {
+        payload: {
+          parse: true,
+          output: 'data',
+          allow: ['application/json', 'multipart/form-data'],
+          multipart: { output: 'data' }
+        },
+        plugins: {
+          crumb: false
+        }
+      },
+      handler: async (request, h) => {
+        const outputEmail = 'defraforms@defra.gov.uk' // TODO: this needs to come from the form definition
+
+        const redirectUrl: string =
+          typeof request.headers.referer === 'string'
+            ? request.headers.referer
+            : ''
+
+        const formPagePath = redirectUrl
+          ? new URL(redirectUrl).pathname.split('/').slice(2).join('/')
+          : ''
+
+        const newUpload = await initiateUpload(
+          formPagePath,
+          outputEmail,
+          undefined,
+          redirectUrl
+        )
+
+        return h.response({
+          uploadUrl: newUpload.uploadUrl,
+          uploadId: newUpload.uploadId
+        })
+      }
+    })
+
+    server.route({
+      method: 'GET',
+      path: '/upload-status/{uploadId}',
+      handler: async (request, h) => {
+        const { uploadId } = request.params as { uploadId: string }
+        const status = await getUploadStatus(uploadId)
+        return h.response(status)
+      },
+      options: {
+        plugins: {
+          crumb: false
+        }
+      }
+    })
+
+    async function loadModelAndContext(request: Request, h: ResponseToolkit) {
+      const { state, slug, path } = request.params as {
+        state?: string
+        slug: string
+        path: string
+      }
+      console.log('DEBUG: Computed context:', { state, slug, path })
+
+      const formStatus: FormStatus = state
+        ? (state as FormStatus)
+        : FormStatus.Live
+      const model = await formsService.getFormModel(slug, formStatus)
+      if (!model) {
+        throw Boom.notFound(`No model found for path: ${path}`)
+      }
+
+      request.app.model = model
+      request.app.context = { state, slug, path }
+      return h.continue
+    }
+
+    server.route({
+      method: 'PUT',
+      path: '/{slug}/{path}/upload/{uploadId}',
+      options: {
+        pre: [
+          {
+            assign: 'modelLoader',
+            method: loadModelAndContext
+          }
+        ],
+        payload: {
+          allow: ['application/json'],
+          parse: true,
+          output: 'data'
+        },
+        validate: {
+          params: Joi.object().keys({
+            slug: slugSchema,
+            path: pathSchema,
+            uploadId: Joi.string().guid().required()
+          })
+        }
+      },
+      handler: async (request: FormRequestPayload, h) => {
+        console.log('DEBUG: In unified PUT handler. Model:', request.app.model)
+        return redirectOrMakeHandler(request, h, (page, context) => {
+          if (!(page instanceof FileUploadPageController)) {
+            throw Boom.notFound('No FileUploadPageController found')
+          }
+          return page.makePutCompleteUploadHandler()(request, context, h)
+        })
+      }
+    })
+
+    server.route({
+      method: 'DELETE',
+      path: '/{slug}/{path}/upload/{uploadId}',
+      options: {
+        pre: [
+          {
+            assign: 'modelLoader',
+            method: loadModelAndContext
+          }
+        ],
+        payload: {
+          allow: ['application/json'],
+          parse: true,
+          output: 'data'
+        },
+        validate: {
+          params: Joi.object().keys({
+            slug: slugSchema,
+            path: pathSchema,
+            uploadId: Joi.string().guid().required()
+          })
+        }
+      },
+      handler: async (request, h) => {
+        return redirectOrMakeHandler(request, h, (page, context) => {
+          if (!(page instanceof FileUploadPageController)) {
+            throw Boom.notFound('No FileUploadPageController found')
+          }
+          return page.makeDeleteRemoveUploadHandler()(request, context, h)
+        })
+      }
+    })
+
+    server.route({
+      method: 'PUT',
+      path: '/preview/{state}/{slug}/{path}/upload/{uploadId}',
+      handler: async (request: FormRequestPayload, h) => {
+        console.log(
+          '🚀 PUT /{slug}/{path}/upload/{uploadId} - Processing upload',
+          {
+            uploadId: request.params.uploadId,
+            slug: request.params.slug,
+            path: request.params.path
+          }
+        )
+        return redirectOrMakeHandler(request, h, (page, context) => {
+          if (!(page instanceof FileUploadPageController)) {
+            throw Boom.notFound('No FileUploadPageController found')
+          }
+          return page.makePutCompleteUploadHandler()(request, context, h)
+        })
+      },
+      options: {
+        pre: [
+          {
+            assign: 'modelLoader',
+            method: loadModelAndContext
+          }
+        ],
+        payload: {
+          allow: ['application/json'],
+          parse: true,
+          output: 'data'
+        },
+        validate: {
+          params: Joi.object().keys({
+            state: Joi.string().required(),
+            slug: slugSchema,
+            path: pathSchema,
+            uploadId: Joi.string().guid().required()
+          })
+        }
+      }
+    })
+
+    server.route({
+      method: 'DELETE',
+      path: '/preview/{state}/{slug}/{path}/upload/{uploadId}',
+      handler: (request: FormRequestPayload, h) => {
+        return redirectOrMakeHandler(request, h, (page, context) => {
+          if (!(page instanceof FileUploadPageController)) {
+            throw Boom.notFound('No FileUploadPageController found')
+          }
+          return page.makeDeleteRemoveUploadHandler()(request, context, h)
+        })
+      },
+      options: {
+        pre: [
+          {
+            assign: 'modelLoader',
+            method: loadModelAndContext
+          }
+        ],
+        payload: {
+          allow: ['application/json'],
+          parse: true,
+          output: 'data'
+        },
+        validate: {
+          params: Joi.object().keys({
+            state: Joi.string().required(),
+            slug: slugSchema,
+            path: pathSchema,
+            uploadId: Joi.string().guid().required()
+          })
         }
       }
     })

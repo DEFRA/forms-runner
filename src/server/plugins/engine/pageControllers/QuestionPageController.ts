@@ -255,15 +255,13 @@ export class QuestionPageController extends PageController {
   /**
    * Gets form params (from payload) for this page only
    */
-  getFormParams(request?: FormContextRequest): FormParams {
+  getFormParams(request?: FormContextRequest): Partial<FormParams> {
     const { payload } = request ?? {}
-
     const result = paramsSchema.validate(payload, {
       abortEarly: false,
       stripUnknown: true
     })
-
-    return result.value as FormParams
+    return (result.value ?? {}) as Partial<FormParams>
   }
 
   getStateFromValidForm(
