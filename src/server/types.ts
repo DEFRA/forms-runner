@@ -13,6 +13,7 @@ export interface FormsService {
     id: string,
     state: FormStatus
   ) => Promise<FormDefinition | undefined>
+  getFormModel: (slug: string) => Promise<unknown> // TODO: Fix this
 }
 
 export interface FormSubmissionService {

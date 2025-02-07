@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import { ComponentType, type PageFileUpload } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
@@ -61,6 +63,7 @@ export class FileUploadPageController extends QuestionPageController {
 
   constructor(model: FormModel, pageDef: PageFileUpload) {
     super(model, pageDef)
+    console.log('🔍 FileUploadPageController constructor:', { pageDef })
 
     const { collection } = this
 
@@ -107,10 +110,37 @@ export class FileUploadPageController extends QuestionPageController {
   }
 
   async getState(request: FormRequest | FormRequestPayload) {
-    const { fileUpload } = this
+    const { fileUpload, path } = this
 
-    // Get the actual state
     const state = await super.getState(request)
+
+    state.upload = state.upload ?? {}
+    state.upload[path] = state.upload[path] ?? { files: [], upload: undefined }
+
+    // Extract the file IDs submitted via the hidden inputs using the file input's name. (CAN REMOVE THIS NOW I THINK)
+    let payloadFileIds: string[] = []
+    if (
+      request.payload &&
+      (request.payload as Record<string, unknown>)[fileUpload.name]
+    ) {
+      const payload = request.payload as Record<string, unknown>
+      const value = payload[fileUpload.name]
+      payloadFileIds = Array.isArray(value)
+        ? (value as string[])
+        : [value as string]
+    }
+
+    for (const uploadId of payloadFileIds) {
+      const exists = state.upload[path].files.some(
+        (file: FileState) => file.uploadId === uploadId
+      )
+      if (!exists) {
+        console.log(
+          `🔍 getState - No existing file state for uploadId: ${uploadId}.`
+        )
+      }
+    }
+
     const files = this.getFilesFromState(state)
 
     // Overwrite the files with those in the upload state
@@ -124,9 +154,10 @@ export class FileUploadPageController extends QuestionPageController {
    */
   getFilesFromState(state: FormSubmissionState) {
     const { path } = this
-
     const uploadState = state.upload?.[path]
-    return uploadState?.files ?? []
+    const files = uploadState?.files ?? []
+    console.log('🔍 getFilesFromState:', { path, files })
+    return files
   }
 
   /**
@@ -217,7 +248,7 @@ export class FileUploadPageController extends QuestionPageController {
 
           if (type === 'object.unknown' && path.at(-1) === 'errorMessage') {
             const name = path.map(formatter).join('')
-            const value = context?.value
+            const value = context?.value as string | undefined
 
             if (value) {
               const text = typeof value === 'string' ? value : 'Unknown error'
@@ -238,9 +269,6 @@ export class FileUploadPageController extends QuestionPageController {
     context: FormContext
   ): FeaturedFormPageViewModel {
     const { fileUpload } = this
-    const { state } = context
-
-    const upload = this.getUploadFromState(state)
 
     const viewModel = super.getViewModel(request, context)
     const { components } = viewModel
@@ -254,9 +282,8 @@ export class FileUploadPageController extends QuestionPageController {
 
     return {
       ...viewModel,
-      formAction: upload?.uploadUrl,
+      formAction: '/initiate-upload', // TODO needs to be suitable for non-JS users
       formComponent,
-
       // Split out components before/after
       componentsBefore: components.slice(0, index),
       components: components.slice(index)
@@ -299,8 +326,15 @@ export class FileUploadPageController extends QuestionPageController {
     const files = this.getFilesFromState(state)
 
     if (upload?.uploadId) {
-      // If there is a current upload check
-      // it hasn't been consumed and re-use it
+      // If we have an uploadId but no URLs, we need to initiate a new upload
+      // TODO: This is a temporary fix to ensure we always have URLs.. my local was behaving weirdly with the upload
+      if (!upload.uploadUrl || !upload.statusUrl) {
+        console.log(
+          '🔍 checkUploadStatus - missing URLs, initiating new upload'
+        )
+        return this.initiateAndStoreNewUpload(request, state)
+      }
+
       const uploadId = upload.uploadId
       const statusResponse = await getUploadStatus(uploadId)
 
@@ -437,26 +471,217 @@ export class FileUploadPageController extends QuestionPageController {
     const { options, schema } = fileUpload
 
     const files = this.getFilesFromState(state)
-
-    // Reset the upload in state
     let upload: UploadInitiateResponse | undefined
 
-    // Don't initiate anymore after minimum of `schema.max` or MAX_UPLOADS
     const max = Math.min(schema.max ?? MAX_UPLOADS, MAX_UPLOADS)
 
     if (files.length < max) {
       const outputEmail =
         this.model.def.outputEmail ?? 'defraforms@defra.gov.uk'
+      console.log('🔍 initiateAndStoreNewUpload - initiating upload:', {
+        href,
+        outputEmail,
+        accept: options.accept
+      })
 
-      const newUpload = await initiateUpload(href, outputEmail, options.accept)
+      const newUpload = await initiateUpload(
+        path,
+        outputEmail,
+        options.accept,
+        href
+      )
 
-      if (newUpload === undefined) {
-        throw Boom.badRequest('Unexpected empty response from initiateUpload')
+      if (!newUpload.uploadUrl || !newUpload.statusUrl) {
+        console.error(
+          '🔥 initiateAndStoreNewUpload - Missing URLs in upload response'
+        )
       }
 
       upload = newUpload
     }
 
+    const newState = await this.mergeState(request, state, {
+      upload: { [path]: { files, upload } }
+    })
+
+    return newState
+  }
+
+  makeGetUploadStatusRouteHandler() {
+    return async (
+      request: FormRequest,
+      context: FormContext,
+      h: Pick<ResponseToolkit, 'redirect' | 'view' | 'response'>
+    ) => {
+      const { uploadId } = request.params
+      try {
+        if (!uploadId) {
+          throw new Error('Missing upload id')
+        }
+        const status = await getUploadStatus(uploadId)
+        return h.response(status)
+      } catch (error) {
+        throw Boom.boomify(error as Error, {
+          message: 'Failed to get upload status',
+          statusCode: 502
+        })
+      }
+    }
+  }
+
+  makeInitiateUploadRouteHandler() {
+    return async (
+      request: FormRequest,
+      context: FormContext,
+      h: Pick<ResponseToolkit, 'redirect' | 'view' | 'response'>
+    ) => {
+      try {
+        const { mimeTypes } = request.payload as { mimeTypes?: string }
+        const outputEmail =
+          this.model.def.outputEmail ?? 'defraforms@defra.gov.uk'
+
+        const redirectUrl =
+          typeof request.headers.referer === 'string'
+            ? request.headers.referer
+            : ''
+
+        const newUpload = await initiateUpload(
+          this.href,
+          outputEmail,
+          mimeTypes,
+          redirectUrl
+        )
+
+        return h.response(newUpload)
+      } catch (error) {
+        throw Boom.boomify(error as Error, {
+          message: 'Failed to initiate upload session'
+        })
+      }
+    }
+  }
+
+  makePutCompleteUploadHandler() {
+    return async (
+      request: FormRequestPayload,
+      context: FormContext,
+      h: Pick<ResponseToolkit, 'redirect' | 'view' | 'response'>
+    ) => {
+      console.log('🎯 Complete Upload - Starting', {
+        uploadId: request.params.uploadId
+      })
+      const uploadId = request.params.uploadId
+      if (!uploadId) {
+        console.log('🎯 Complete Upload - Failed: No uploadId provided')
+        throw Boom.badRequest('No uploadId provided')
+      }
+
+      console.log('🎯 Complete Upload - Fetching status', { uploadId })
+      const statusResponse = await getUploadStatus(uploadId)
+      if (!statusResponse) {
+        console.log('🎯 Complete Upload - Failed: No status found', {
+          uploadId
+        })
+        throw Boom.badRequest(`No upload status found for ${uploadId}`)
+      }
+
+      console.log('🎯 Complete Upload - Adding file to state', { uploadId })
+      const updatedState = await this.addFileToState(
+        request,
+        context.state,
+        uploadId,
+        statusResponse
+      )
+
+      console.log('🎯 Complete Upload - Saving state')
+      await this.setState(request, updatedState)
+
+      return h.response({ message: 'File added successfully' }).code(200)
+    }
+  }
+
+  makeDeleteRemoveUploadHandler() {
+    return async (
+      request: FormRequestPayload,
+      context: FormContext,
+      h: Pick<ResponseToolkit, 'redirect' | 'view' | 'response'>
+    ) => {
+      console.log('🎯 Remove Upload - Starting', {
+        itemId: request.params.itemId
+      })
+      const { uploadId } = request.params
+      const { state } = context
+
+      if (!uploadId) {
+        console.log('🎯 Remove Upload - Failed: No itemId provided')
+        throw Boom.badRequest('No item ID provided')
+      }
+
+      console.log('🎯 Remove Upload - Removing file from state', { uploadId })
+      await this.removeFileFromState(request, state, uploadId)
+
+      console.log('🎯 Remove Upload - Saving state')
+      await this.setState(request, state)
+
+      console.log('🎯 Remove Upload - Complete, returning success response')
+      return h.response({ message: 'File removed successfully' }).code(200)
+    }
+  }
+
+  private async addFileToState(
+    request: FormRequestPayload,
+    state: FormSubmissionState,
+    uploadId: string,
+    statusResponse: UploadStatusResponse
+  ) {
+    console.log('🎯 Add File To State - Starting', { uploadId })
+    const { path } = this
+    const files = this.getFilesFromState(state)
+
+    console.log('🎯 Add File To State - Validating file data')
+    const validated = tempItemSchema.validate(
+      {
+        uploadId,
+        status: statusResponse
+      },
+      { stripUnknown: true }
+    )
+
+    if (!validated.error) {
+      console.log('🎯 Add File To State - Validation successful, adding file')
+      files.unshift(prepareFileState(validated.value))
+    } else {
+      console.log('🎯 Add File To State - Validation failed', {
+        error: validated.error
+      })
+      throw Boom.badRequest(`File failed validation for uploadId ${uploadId}`)
+    }
+
+    const upload = this.getUploadFromState(state)
+    console.log('🎯 Add File To State - Complete', { filesCount: files.length })
+    return this.mergeState(request, state, {
+      upload: { [path]: { files, upload } }
+    })
+  }
+
+  private async removeFileFromState(
+    request: FormRequestPayload,
+    state: FormSubmissionState,
+    removeId: string
+  ) {
+    console.log('🎯 Remove File From State - Starting', { removeId })
+    const { path } = this
+    const originalFiles = this.getFilesFromState(state)
+    const files = originalFiles.filter((file) => file.uploadId !== removeId)
+
+    console.log('🎯 Remove File From State - Filtered files', {
+      originalCount: originalFiles.length,
+      newCount: files.length,
+      removed: originalFiles.length - files.length
+    })
+
+    const upload = this.getUploadFromState(state)
+    console.log('🎯 Remove File From State - Complete')
     return this.mergeState(request, state, {
       upload: { [path]: { files, upload } }
     })
