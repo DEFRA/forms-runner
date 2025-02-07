@@ -31,6 +31,15 @@ export interface FormRequestPayloadRefs extends FormRequestRefs {
   Payload: FormPayload
 }
 
+export interface UploadRequestPayloadRefs extends FormRequestRefs {
+  Params: FormParams & {
+    uploadId: string
+  }
+  Payload: {
+    action: string
+  }
+}
+
 export type FormRequest = Request<FormRequestRefs>
 export type FormRequestPayload = Request<FormRequestPayloadRefs>
 
