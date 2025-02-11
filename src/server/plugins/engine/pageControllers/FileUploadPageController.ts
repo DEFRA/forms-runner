@@ -1,11 +1,11 @@
 import { ComponentType, type PageFileUpload } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
+import { wait } from '@hapi/hoek'
 import { type ValidationErrorItem, type ValidationResult } from 'joi'
 
 import {
   tempItemSchema,
-  tempStatusSchema,
   type FileUploadField
 } from '~/src/server/plugins/engine/components/FileUploadField.js'
 import { getError } from '~/src/server/plugins/engine/helpers.js'
@@ -26,8 +26,7 @@ import {
   type FormSubmissionState,
   type ItemDeletePageViewModel,
   type UploadInitiateResponse,
-  type UploadStatusFileResponse,
-  type UploadStatusResponse
+  type UploadStatusFileResponse
 } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
@@ -212,16 +211,13 @@ export class FileUploadPageController extends QuestionPageController {
         } else {
           const { context, path, type } = error
 
-          const formatter = (name: string | number, index: number) =>
-            index > 0 ? `__${name}` : name
-
           if (type === 'object.unknown' && path.at(-1) === 'errorMessage') {
-            const name = path.map(formatter).join('')
             const value = context?.value
 
             if (value) {
+              const name = fileUpload.name
               const text = typeof value === 'string' ? value : 'Unknown error'
-              const href = `#${path.slice(0, 2).map(formatter).join('')}`
+              const href = `#${name}`
 
               errors.push({ path, href, name, text })
             }
@@ -269,9 +265,6 @@ export class FileUploadPageController extends QuestionPageController {
    *
    * If an upload exists and hasn't been consumed
    * it gets re-used, otherwise we initiate a new one.
-   *
-   * For all of the files stored in state that are `pending`,
-   * their status is refreshed as they may now be `complete` or `rejected`.
    * @param request - the hapi request
    * @param state - the form state
    */
@@ -280,7 +273,6 @@ export class FileUploadPageController extends QuestionPageController {
     state: FormSubmissionState
   ) {
     state = await this.checkUploadStatus(request, state)
-    state = await this.refreshPendingFiles(request, state)
 
     return state
   }
@@ -290,11 +282,13 @@ export class FileUploadPageController extends QuestionPageController {
    * it gets re-used, otherwise a new one is initiated.
    * @param request - the hapi request
    * @param state - the form state
+   * @param depth - the number of retries so far
    */
   private async checkUploadStatus(
     request: FormRequest | FormRequestPayload,
-    state: FormSubmissionState
-  ) {
+    state: FormSubmissionState,
+    depth = 1
+  ): Promise<FormSubmissionState> {
     const upload = this.getUploadFromState(state)
     const files = this.getFilesFromState(state)
 
@@ -313,6 +307,22 @@ export class FileUploadPageController extends QuestionPageController {
       // If the upload is in an "initiated" status, re-use it
       if (statusResponse.uploadStatus === UploadStatus.initiated) {
         return state
+      } else if (statusResponse.uploadStatus === UploadStatus.pending) {
+        if (depth > 6) {
+          throw Boom.gatewayTimeout(
+            `Giving up waiting for getUploadStatus for ${uploadId} to complete`
+          )
+        }
+
+        const secs = 2 ** depth * 1000
+
+        request.logger.info(
+          `Waiting ${secs} seconds for ${uploadId} to complete`
+        )
+
+        await wait(secs)
+
+        return this.checkUploadStatus(request, state, depth + 1)
       } else {
         // Only add to files state if the file validates.
         // This secures against html tampering of the file input
@@ -328,7 +338,34 @@ export class FileUploadPageController extends QuestionPageController {
           )
 
         if (!validateResult.error) {
-          files.unshift(prepareFileState(validateResult.value))
+          const fileState = validateResult.value
+          const status = fileState.status
+          const form = status.form
+          const file = form.file
+          const fileStatus = file.fileStatus
+
+          if (fileStatus === FileStatus.complete) {
+            files.unshift(prepareFileState(validateResult.value))
+
+            await this.mergeState(request, state, {
+              upload: { [this.path]: { files, upload } }
+            })
+          } else {
+            // Validate form data into payload
+            const { fileUpload } = this
+            // request.payload = {
+            //   [fileUpload.name]: [fileState, ...files]
+            // }
+            const { cacheService } = request.services([])
+
+            const errors: FormSubmissionError[] = []
+            const name = fileUpload.name
+            const text = file.errorMessage ?? 'Unknown error'
+            const href = `#${name}`
+
+            errors.push({ path: [name], href, name, text })
+            cacheService.setFlash(request, { errors })
+          }
         }
 
         return this.initiateAndStoreNewUpload(request, state)
@@ -336,62 +373,6 @@ export class FileUploadPageController extends QuestionPageController {
     } else {
       return this.initiateAndStoreNewUpload(request, state)
     }
-  }
-
-  /**
-   * For all of the files stored in state that are `pending`,
-   * their status is refreshed as they may now be `complete` or `rejected`.
-   * @param request - the hapi request
-   * @param state - the form state
-   */
-  private async refreshPendingFiles(
-    request: FormRequest | FormRequestPayload,
-    state: FormSubmissionState
-  ) {
-    const { path } = this
-
-    const upload = this.getUploadFromState(state)
-    const files = this.getFilesFromState(state)
-
-    const promises: Promise<UploadStatusResponse | undefined>[] = []
-    const indexes: number[] = []
-
-    // Refresh any pending uploads
-    files.forEach((file: FileState, index: number) => {
-      if (file.status.uploadStatus === UploadStatus.pending) {
-        promises.push(getUploadStatus(file.uploadId))
-        indexes.push(index)
-      }
-    })
-
-    if (promises.length) {
-      let filesUpdated = false
-      const results = await Promise.allSettled(promises)
-
-      // Update state with the latest result
-      for (let index = 0; index < indexes.length; index++) {
-        const idx = indexes[index]
-        const result = results[index]
-
-        if (result.status === 'fulfilled') {
-          const validateResult: ValidationResult<UploadStatusFileResponse> =
-            tempStatusSchema.validate(result.value, { stripUnknown: true })
-
-          if (!validateResult.error) {
-            files[idx].status = prepareStatus(validateResult.value)
-            filesUpdated = true
-          }
-        }
-      }
-
-      if (filesUpdated) {
-        return this.mergeState(request, state, {
-          upload: { [path]: { files, upload } }
-        })
-      }
-    }
-
-    return state
   }
 
   /**

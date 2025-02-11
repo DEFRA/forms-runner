@@ -107,8 +107,6 @@ export interface ViewModel extends Record<string, unknown> {
   components?: ComponentViewModel[]
   upload?: {
     count: number
-    pendingCount: number
-    successfulCount: number
     summaryList: SummaryList
   }
 }

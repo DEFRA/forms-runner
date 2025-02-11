@@ -176,27 +176,17 @@ export class FileUploadField extends FormComponent {
     const { attributes, id, value } = viewModel
 
     const files = this.getFormValue(value) ?? []
-    const count = files.length
+    const filtered = files.filter(
+      (file) => file.status.form.file.fileStatus === FileStatus.complete
+    )
+    const count = filtered.length
 
-    let pendingCount = 0
-    let successfulCount = 0
-
-    const rows: SummaryListRow[] = files.map((item, index) => {
+    const rows: SummaryListRow[] = filtered.map((item, index) => {
       const { status } = item
       const { form } = status
       const { file } = form
 
-      const tag = { classes: 'govuk-tag--red', text: 'Error' }
-
-      if (file.fileStatus === FileStatus.complete) {
-        successfulCount++
-        tag.classes = 'govuk-tag--green'
-        tag.text = 'Uploaded'
-      } else if (file.fileStatus === FileStatus.pending) {
-        pendingCount++
-        tag.classes = 'govuk-tag--yellow'
-        tag.text = 'Uploading'
-      }
+      const tag = { classes: 'govuk-tag--green', text: 'Uploaded' }
 
       const valueHtml = render
         .view('components/fileuploadfield-value.html', {
@@ -265,8 +255,6 @@ export class FileUploadField extends FormComponent {
 
       upload: {
         count,
-        pendingCount,
-        successfulCount,
         summaryList
       }
     }

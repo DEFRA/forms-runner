@@ -164,10 +164,11 @@ export const plugin = {
         throw Boom.notFound(`No model found for /${params.path}`)
       }
 
+      const { cacheService } = request.services([])
       const page = getPage(model, request)
       const state = await page.getState(request)
-      const context = model.getFormContext(request, state)
-
+      const flash = cacheService.getFlash(request)
+      const context = model.getFormContext(request, state, flash?.errors)
       const relevantPath = page.getRelevantPath(request, context)
       const summaryPath = page.getSummaryPath()
 

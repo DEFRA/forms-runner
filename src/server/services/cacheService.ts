@@ -6,6 +6,7 @@ import { type createServer } from '~/src/server/index.js'
 import {
   type FormPayload,
   type FormState,
+  type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import {
@@ -73,6 +74,26 @@ export class CacheService {
     if (request.yar.id) {
       await this.cache.drop(this.Key(request))
     }
+  }
+
+  getFlash(
+    request: FormRequest | FormRequestPayload
+  ): { errors: FormSubmissionError[] } | undefined {
+    const key = this.Key(request)
+    const messages = request.yar.flash(key.id)
+
+    if (Array.isArray(messages) && messages.length) {
+      return messages.at(0) as { errors: FormSubmissionError[] }
+    }
+  }
+
+  setFlash(
+    request: FormRequest | FormRequestPayload,
+    message: { errors: FormSubmissionError[] }
+  ) {
+    const key = this.Key(request)
+
+    request.yar.flash(key.id, message)
   }
 
   /**

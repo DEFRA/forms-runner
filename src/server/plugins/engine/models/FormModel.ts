@@ -31,6 +31,7 @@ import {
   type FormContext,
   type FormContextRequest,
   type FormState,
+  type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import { FormAction } from '~/src/server/routes/types.js'
@@ -209,7 +210,11 @@ export class FormModel {
   /**
    * Form context for the current page
    */
-  getFormContext(request: FormContextRequest, state: FormState): FormContext {
+  getFormContext(
+    request: FormContextRequest,
+    state: FormState,
+    errors?: FormSubmissionError[]
+  ): FormContext {
     const { query } = request
 
     const page = getPage(this, request)
@@ -228,6 +233,7 @@ export class FormModel {
       payload: page.getFormDataFromState(request, state),
       state,
       paths: [],
+      errors,
       isForceAccess
     }
 
