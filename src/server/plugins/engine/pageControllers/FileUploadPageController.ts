@@ -310,7 +310,7 @@ export class FileUploadPageController extends QuestionPageController {
       } else if (statusResponse.uploadStatus === UploadStatus.pending) {
         if (depth > 6) {
           throw Boom.gatewayTimeout(
-            `Giving up waiting for getUploadStatus for ${uploadId} to complete`
+            `Giving up waiting for ${uploadId} to complete`
           )
         }
 
@@ -351,13 +351,9 @@ export class FileUploadPageController extends QuestionPageController {
               upload: { [this.path]: { files, upload } }
             })
           } else {
-            // Validate form data into payload
+            // Flash the error message
             const { fileUpload } = this
-            // request.payload = {
-            //   [fileUpload.name]: [fileState, ...files]
-            // }
             const { cacheService } = request.services([])
-
             const errors: FormSubmissionError[] = []
             const name = fileUpload.name
             const text = file.errorMessage ?? 'Unknown error'
