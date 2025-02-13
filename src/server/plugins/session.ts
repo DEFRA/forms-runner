@@ -22,7 +22,8 @@ export default {
     // storeBlank: false,
     cookieOptions: {
       password: config.get('sessionCookiePassword'),
-      isSecure: config.get('isProduction')
+      isSecure: config.get('isProduction'),
+      ttl: 7 * 24 * 60 * 60 * 1000 // 7 days
     }
   }
 } satisfies ServerRegisterPluginObject<YarOptions>

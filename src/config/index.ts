@@ -111,7 +111,7 @@ export const config = convict({
    */
   sessionTimeout: {
     format: Number,
-    default: oneHour * 24, // 1 day
+    default: oneHour * 168, // 7 days
     env: 'SESSION_TIMEOUT'
   },
   confirmationSessionTimeout: {
