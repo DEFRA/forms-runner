@@ -21,7 +21,11 @@ import {
 } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
+import { extendFileRetention } from '~/src/server/plugins/engine/services/formSubmissionService.js'
+import { type FilePersistData } from '~/src/server/plugins/engine/services/types.js'
 import {
+  FileStatus,
+  type FileState,
   type FormContext,
   type FormContextRequest,
   type FormPageViewModel,
@@ -321,7 +325,45 @@ export class QuestionPageController extends PageController {
     }
 
     const { cacheService } = request.services([])
-    return cacheService.setState(request, updated)
+    const newState = await cacheService.setState(request, updated)
+
+    await this.updateFileRetention(newState)
+
+    return newState
+  }
+
+  /**
+   * Checks the updated session state for any file upload information and,
+   * if found, calls the file retention service to extend the files' S3 expiration.
+   * @param state - The current session state.
+   */
+  private async updateFileRetention(state: FormSubmissionState): Promise<void> {
+    if (!state.upload) {
+      return
+    }
+
+    const files: FilePersistData[] = []
+
+    const uploads = state.upload ?? {}
+    Object.keys(uploads).forEach((uploadKey) => {
+      const uploadData = uploads[uploadKey]
+      if (Array.isArray(uploadData.files) && uploadData.files.length > 0) {
+        uploadData.files.forEach((file: FileState) => {
+          // Only extend retention if the file upload is complete otherwise we'll run into a race condition.
+          if (file.status.form.file.fileStatus === FileStatus.complete) {
+            files.push({
+              fileId: file.status.form.file.fileId
+            })
+          }
+        })
+      }
+    })
+
+    if (files.length > 0) {
+      const retrievalKey =
+        this.model.def.outputEmail ?? 'defraforms@defra.gov.uk'
+      await extendFileRetention(files, retrievalKey)
+    }
   }
 
   makeGetRouteHandler() {

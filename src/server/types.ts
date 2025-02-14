@@ -7,6 +7,7 @@ import {
 
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type DetailItem } from '~/src/server/plugins/engine/models/types.js'
+import { type FilePersistData } from '~/src/server/plugins/engine/services/types.js'
 import {
   type FormRequestPayload,
   type FormStatus
@@ -22,7 +23,7 @@ export interface FormsService {
 
 export interface FormSubmissionService {
   persistFiles: (
-    files: { fileId: string; initiatedRetrievalKey: string }[],
+    files: FilePersistData[],
     persistedRetrievalKey: string
   ) => Promise<object>
   submit: (data: SubmitPayload) => Promise<SubmitResponsePayload | undefined>
