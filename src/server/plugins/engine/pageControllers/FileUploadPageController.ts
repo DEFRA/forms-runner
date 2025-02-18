@@ -8,7 +8,10 @@ import {
   tempItemSchema,
   type FileUploadField
 } from '~/src/server/plugins/engine/components/FileUploadField.js'
-import { getError } from '~/src/server/plugins/engine/helpers.js'
+import {
+  getError,
+  getExponentialBackoffDelay
+} from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
@@ -212,7 +215,7 @@ export class FileUploadPageController extends QuestionPageController {
           const { context, path, type } = error
 
           if (type === 'object.unknown' && path.at(-1) === 'errorMessage') {
-            const value = context?.value
+            const value = context?.value as string | undefined
 
             if (value) {
               const name = fileUpload.name
@@ -314,13 +317,12 @@ export class FileUploadPageController extends QuestionPageController {
           )
         }
 
-        const secs = 2 ** depth * 1000
-
+        const delay = getExponentialBackoffDelay(depth)
         request.logger.info(
-          `Waiting ${secs} seconds for ${uploadId} to complete`
+          `Waiting ${delay / 1000} seconds for ${uploadId} to complete`
         )
 
-        await wait(secs)
+        await wait(delay)
 
         return this.checkUploadStatus(request, state, depth + 1)
       } else {
