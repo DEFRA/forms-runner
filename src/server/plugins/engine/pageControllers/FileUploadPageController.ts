@@ -2,7 +2,7 @@ import { ComponentType, type PageFileUpload } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
 import { wait } from '@hapi/hoek'
-import { type ValidationErrorItem, type ValidationResult } from 'joi'
+import { type ValidationErrorItem } from 'joi'
 
 import {
   tempItemSchema,
@@ -295,82 +295,73 @@ export class FileUploadPageController extends QuestionPageController {
     const upload = this.getUploadFromState(state)
     const files = this.getFilesFromState(state)
 
-    if (upload?.uploadId) {
-      // If there is a current upload check
-      // it hasn't been consumed and re-use it
-      const uploadId = upload.uploadId
-      const statusResponse = await getUploadStatus(uploadId)
-
-      if (statusResponse === undefined) {
-        throw Boom.badRequest(
-          `Unexpected empty response from getUploadStatus for ${uploadId}`
-        )
-      }
-
-      // If the upload is in an "initiated" status, re-use it
-      if (statusResponse.uploadStatus === UploadStatus.initiated) {
-        return state
-      } else if (statusResponse.uploadStatus === UploadStatus.pending) {
-        if (depth > 6) {
-          throw Boom.gatewayTimeout(
-            `Giving up waiting for ${uploadId} to complete`
-          )
-        }
-
-        const delay = getExponentialBackoffDelay(depth)
-        request.logger.info(
-          `Waiting ${delay / 1000} seconds for ${uploadId} to complete`
-        )
-
-        await wait(delay)
-
-        return this.checkUploadStatus(request, state, depth + 1)
-      } else {
-        // Only add to files state if the file validates.
-        // This secures against html tampering of the file input
-        // by adding a 'multiple' attribute or it being
-        // changed to a simple text field or similar.
-        const validateResult: ValidationResult<FileState> =
-          tempItemSchema.validate(
-            {
-              uploadId,
-              status: statusResponse
-            },
-            { stripUnknown: true }
-          )
-
-        if (!validateResult.error) {
-          const fileState = validateResult.value
-          const status = fileState.status
-          const form = status.form
-          const file = form.file
-          const fileStatus = file.fileStatus
-
-          if (fileStatus === FileStatus.complete) {
-            files.unshift(prepareFileState(validateResult.value))
-
-            await this.mergeState(request, state, {
-              upload: { [this.path]: { files, upload } }
-            })
-          } else {
-            // Flash the error message
-            const { fileUpload } = this
-            const { cacheService } = request.services([])
-            const errors: FormSubmissionError[] = []
-            const name = fileUpload.name
-            const text = file.errorMessage ?? 'Unknown error'
-            const href = `#${name}`
-
-            errors.push({ path: [name], href, name, text })
-            cacheService.setFlash(request, { errors })
-          }
-        }
-
-        return this.initiateAndStoreNewUpload(request, state)
-      }
-    } else {
+    // If no upload exists, initiate a new one.
+    if (!upload?.uploadId) {
       return this.initiateAndStoreNewUpload(request, state)
     }
+
+    const uploadId = upload.uploadId
+    const statusResponse = await getUploadStatus(uploadId)
+    if (!statusResponse) {
+      throw Boom.badRequest(
+        `Unexpected empty response from getUploadStatus for ${uploadId}`
+      )
+    }
+
+    // Re-use the upload if it is still in the "initiated" state.
+    if (statusResponse.uploadStatus === UploadStatus.initiated) {
+      return state
+    }
+
+    // If still pending, wait using exponential backoff until complete (with a maximum depth).
+    if (statusResponse.uploadStatus === UploadStatus.pending) {
+      if (depth > 6) {
+        throw Boom.gatewayTimeout(
+          `Giving up waiting for ${uploadId} to complete`
+        )
+      }
+      const delay = getExponentialBackoffDelay(depth)
+      request.logger.info(
+        `Waiting ${delay / 1000} seconds for ${uploadId} to complete`
+      )
+      await wait(delay)
+      return this.checkUploadStatus(request, state, depth + 1)
+    }
+
+    // Only add to files state if the file validates.
+    // This secures against html tampering of the file input
+    // by adding a 'multiple' attribute or it being
+    // changed to a simple text field or similar.
+    const validationResult = tempItemSchema.validate(
+      { uploadId, status: statusResponse },
+      { stripUnknown: true }
+    )
+    const error = validationResult.error
+    const fileState = validationResult.value as FileState
+
+    if (error) {
+      return this.initiateAndStoreNewUpload(request, state)
+    }
+
+    const file = fileState.status.form.file
+    if (file.fileStatus === FileStatus.complete) {
+      files.unshift(prepareFileState(fileState))
+      await this.mergeState(request, state, {
+        upload: { [this.path]: { files, upload } }
+      })
+    } else {
+      // Flash the error message.
+      const { fileUpload } = this
+      const { cacheService } = request.services([])
+      const name = fileUpload.name
+      const text = file.errorMessage ?? 'Unknown error'
+      const errors: FormSubmissionError[] = [
+        { path: [name], href: `#${name}`, name, text }
+      ]
+      cacheService.setFlash(request, { errors })
+    }
+
+    return this.initiateAndStoreNewUpload(request, state)
   }
 
   /**
