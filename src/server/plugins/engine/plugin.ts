@@ -20,10 +20,15 @@ import {
   proceed,
   redirectPath
 } from '~/src/server/plugins/engine/helpers.js'
-import { FormModel } from '~/src/server/plugins/engine/models/index.js'
+import {
+  FormModel,
+  SummaryViewModel
+} from '~/src/server/plugins/engine/models/index.js'
+import { format } from '~/src/server/plugins/engine/outputFormatters/machine/v1.js'
 import { FileUploadPageController } from '~/src/server/plugins/engine/pageControllers/FileUploadPageController.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
+import { getFormSubmissionData } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import { getUploadStatus } from '~/src/server/plugins/engine/services/uploadService.js'
@@ -211,18 +216,32 @@ export const plugin = {
         // Check for a page onLoad HTTP event and if one exists,
         // call it and assign the response to the context data
         const { events } = page
+        const { model } = request.app
+
+        if (!model) {
+          throw Boom.notFound(`No model found for /${params.path}`)
+        }
 
         if (events?.onLoad && events.onLoad.type === 'http') {
           const { options } = events.onLoad
           const { url } = options
 
-          // TODO: Replace POST payload with structured data when helper
-          // is available from https://github.com/DEFRA/forms-runner/pull/679
-          const { payload } = await httpService.postJson(url, {
-            payload: context.relevantState
+          // TODO: Update structured data POST payload with when helper
+          // is updated to removing the dependency on `SummaryViewModel` etc.
+          const viewModel = new SummaryViewModel(request, page, context)
+          const items = getFormSubmissionData(
+            viewModel.context,
+            viewModel.details
+          )
+
+          // @ts-expect-error - function signature will be refactored in the next iteration of the formatter
+          const payload = format(items, model, undefined, undefined)
+
+          const { payload: response } = await httpService.postJson(url, {
+            payload
           })
 
-          Object.assign(context.data, payload)
+          Object.assign(context.data, response)
         }
 
         return page.makeGetRouteHandler()(request, context, h)
