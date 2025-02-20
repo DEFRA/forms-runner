@@ -44,22 +44,6 @@ const initiatedStatusResponse = {
   form: {}
 }
 
-// /**
-//  * @satisfies {UploadStatusResponse}
-//  */
-// const pendingStatusResponse = {
-//   uploadStatus: UploadStatus.pending,
-//   metadata,
-//   form: {
-//     file: {
-//       fileId: '5a76a1a3-bc8a-4bc0-859a-116d775c7f15',
-//       filename: 'test.pdf',
-//       contentLength: 1024,
-//       fileStatus: FileStatus.pending
-//     }
-//   }
-// }
-
 /**
  * @satisfies {UploadStatusResponse}
  */
