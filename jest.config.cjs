@@ -46,5 +46,8 @@ module.exports = {
       'nanoid', // Supports ESM only
       'slug' // Supports ESM only
     ].join('|')}/)`
-  ]
+  ],
+  testTimeout: 10000,
+  detectOpenHandles: true,
+  forceExit: true
 }

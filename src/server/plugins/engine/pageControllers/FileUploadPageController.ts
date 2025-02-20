@@ -38,7 +38,7 @@ import {
 
 const MAX_UPLOADS = 25
 
-function prepareStatus(status: UploadStatusFileResponse) {
+export function prepareStatus(status: UploadStatusFileResponse) {
   const file = status.form.file
   const isPending = file.fileStatus === FileStatus.pending
 
