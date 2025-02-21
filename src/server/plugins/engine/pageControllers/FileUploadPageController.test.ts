@@ -58,7 +58,15 @@ describe('FileUploadPageController', () => {
 
     controller = new FileUploadPageController(model, pages[0])
     request = {
-      logger: { info: jest.fn() },
+      logger: {
+        info: jest.fn(),
+        error: jest.fn(),
+        fatal: jest.fn(),
+        warn: jest.fn(),
+        debug: jest.fn(),
+        trace: jest.fn(),
+        level: 'info'
+      },
       services: jest.fn().mockReturnValue({
         cacheService: {
           setFlash: jest.fn(),
@@ -196,31 +204,7 @@ describe('FileUploadPageController', () => {
         expect(logMsg).toEqual(expect.stringContaining('some-id'))
       }, 3000)
 
-      it('throws gateway timeout when maximum retry depth is exceeded', async () => {
-        const state = {
-          upload: {
-            [controller.path]: {
-              upload: {
-                uploadId: 'some-id',
-                uploadUrl: 'some-url',
-                statusUrl: 'some-status-url'
-              },
-              files: []
-            }
-          }
-        } as unknown as FormSubmissionState
-
-        jest.spyOn(uploadService, 'getUploadStatus').mockResolvedValue({
-          uploadStatus: UploadStatus.pending,
-          form: { file: { fileStatus: FileStatus.pending } }
-        } as UploadStatusResponse)
-
-        await expect(
-          controller['checkUploadStatus'](request, state, 7)
-        ).rejects.toThrow('Giving up waiting for some-id to complete')
-      })
-
-      it('throws gateway timeout when max depth exceeded', async () => {
+      it('throws gateway timeout when maximum retry depth is exceeded, logs an error, and re-initiates a new upload', async () => {
         const state = {
           upload: {
             [controller.path]: {
@@ -236,16 +220,33 @@ describe('FileUploadPageController', () => {
 
         const pendingStatus = {
           uploadStatus: UploadStatus.pending,
-          form: { file: { fileStatus: FileStatus.complete } }
+          form: { file: { fileStatus: FileStatus.pending } }
         }
 
         jest
           .spyOn(uploadService, 'getUploadStatus')
           .mockResolvedValue(pendingStatus as UploadStatusResponse)
 
+        const initiateSpy = jest
+          .spyOn(
+            controller as TestableFileUploadPageController,
+            'initiateAndStoreNewUpload'
+          )
+          .mockResolvedValue(state as never)
+
         await expect(
           controller['checkUploadStatus'](request, state, 7)
-        ).rejects.toThrow('Giving up waiting for some-id to complete')
+        ).rejects.toThrow(
+          'Timed out waiting for some-id after cumulative retries exceeding 55 seconds'
+        )
+
+        expect(request.logger.error).toHaveBeenCalledWith(
+          expect.stringContaining(
+            'Exceeded cumulative retry delay for some-id (depth: 7). Re-initiating a new upload.'
+          )
+        )
+
+        expect(initiateSpy).toHaveBeenCalledWith(request, state)
       })
 
       it('throws error when initiateUpload returns undefined', async () => {

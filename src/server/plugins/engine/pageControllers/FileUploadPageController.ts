@@ -37,6 +37,7 @@ import {
 } from '~/src/server/routes/types.js'
 
 const MAX_UPLOADS = 25
+const CDP_UPLOAD_TIMEOUT_MS = 60000 // 1 minute
 
 export function prepareStatus(status: UploadStatusFileResponse) {
   const file = status.form.file
@@ -313,16 +314,22 @@ export class FileUploadPageController extends QuestionPageController {
       return state
     }
 
-    // If still pending, wait using exponential backoff until complete (with a maximum depth).
     if (statusResponse.uploadStatus === UploadStatus.pending) {
-      if (depth > 6) {
+      // Using exponential backoff delays:
+      // Depth 1: 2000ms, Depth 2: 4000ms, Depth 3: 8000ms, Depth 4: 16000ms, Depth 5+: 30000ms (capped)
+      // A depth of 5 (or more) implies cumulative delays roughly reaching 60 seconds.
+      if (depth >= 5) {
+        request.logger.error(
+          `Exceeded cumulative retry delay for ${uploadId} (depth: ${depth}). Re-initiating a new upload.`
+        )
+        await this.initiateAndStoreNewUpload(request, state)
         throw Boom.gatewayTimeout(
-          `Giving up waiting for ${uploadId} to complete`
+          `Timed out waiting for ${uploadId} after cumulative retries exceeding ${((CDP_UPLOAD_TIMEOUT_MS - 5000) / 1000).toFixed(0)} seconds`
         )
       }
       const delay = getExponentialBackoffDelay(depth)
       request.logger.info(
-        `Waiting ${delay / 1000} seconds for ${uploadId} to complete`
+        `Waiting ${delay / 1000} seconds for ${uploadId} to complete (depth: ${depth})`
       )
       await wait(delay)
       return this.checkUploadStatus(request, state, depth + 1)
