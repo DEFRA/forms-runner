@@ -164,7 +164,7 @@ export class UkAddressField extends FormComponent {
   }
 }
 
-interface UkAddressState extends Record<string, string> {
+export interface UkAddressState extends Record<string, string> {
   addressLine1: string
   addressLine2: string
   town: string

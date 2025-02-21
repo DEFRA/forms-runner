@@ -186,7 +186,7 @@ export class MonthYearField extends FormComponent {
   }
 }
 
-interface MonthYearState extends Record<string, number> {
+export interface MonthYearState extends Record<string, number> {
   month: number
   year: number
 }
