@@ -1,3 +1,4 @@
+import { getTraceId } from '@defra/hapi-tracing'
 import Boom from '@hapi/boom'
 import Wreck from '@hapi/wreck'
 import { StatusCodes } from 'http-status-codes'
@@ -9,6 +10,8 @@ import {
   postJson,
   put
 } from '~/src/server/services/httpService.js'
+
+jest.mock('@defra/hapi-tracing')
 
 describe('HTTP service', () => {
   /** @type {RequestOptions} */
@@ -25,6 +28,17 @@ describe('HTTP service', () => {
           statusCode: StatusCodes.OK
         }),
         payload: undefined
+      })
+    })
+
+    it('passes headers', async () => {
+      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
+      await expect(get('/test', options)).resolves.toEqual({
+        res: { statusCode: StatusCodes.OK }
+      })
+
+      expect(Wreck.get).toHaveBeenCalledWith('/test', {
+        headers: { 'x-cdp-request-id': 'my-trace-id' }
       })
     })
 
@@ -54,6 +68,18 @@ describe('HTTP service', () => {
           statusCode: StatusCodes.NOT_FOUND
         }),
         payload: error
+      })
+    })
+
+    it('passes headers', async () => {
+      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
+      await expect(get('/error', options)).resolves.toEqual({
+        res: { statusCode: StatusCodes.NOT_FOUND },
+        error
+      })
+
+      expect(Wreck.get).toHaveBeenCalledWith('/error', {
+        headers: { 'x-cdp-request-id': 'my-trace-id' }
       })
     })
 
@@ -102,6 +128,18 @@ describe('HTTP service', () => {
       })
     })
 
+    it('passes headers', async () => {
+      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
+      await expect(post('/test', options)).resolves.toEqual({
+        res: { statusCode: StatusCodes.OK },
+        payload: { reference: '1234' }
+      })
+
+      expect(Wreck.post).toHaveBeenCalledWith('/test', {
+        headers: { 'x-cdp-request-id': 'my-trace-id' }
+      })
+    })
+
     it('sends request', async () => {
       await expect(post('/test', options)).resolves.toEqual({
         res: { statusCode: StatusCodes.OK },
@@ -130,6 +168,18 @@ describe('HTTP service', () => {
           statusCode: StatusCodes.NOT_FOUND
         }),
         payload: error
+      })
+    })
+
+    it('passes headers', async () => {
+      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
+      await expect(post('/error', options)).resolves.toEqual({
+        res: { statusCode: StatusCodes.NOT_FOUND },
+        error
+      })
+
+      expect(Wreck.post).toHaveBeenCalledWith('/error', {
+        headers: { 'x-cdp-request-id': 'my-trace-id' }
       })
     })
 
@@ -178,6 +228,17 @@ describe('HTTP service', () => {
       })
     })
 
+    it('passes headers', async () => {
+      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
+      await expect(put('/test', options)).resolves.toEqual({
+        res: { statusCode: StatusCodes.OK }
+      })
+
+      expect(Wreck.put).toHaveBeenCalledWith('/test', {
+        headers: { 'x-cdp-request-id': 'my-trace-id' }
+      })
+    })
+
     it('sends request', async () => {
       await expect(put('/test', options)).resolves.toEqual({
         res: { statusCode: StatusCodes.OK }
@@ -196,6 +257,18 @@ describe('HTTP service', () => {
           statusCode: StatusCodes.NOT_FOUND
         }),
         payload: error
+      })
+    })
+
+    it('passes headers', async () => {
+      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
+      await expect(put('/error', options)).resolves.toEqual({
+        res: { statusCode: StatusCodes.NOT_FOUND },
+        error
+      })
+
+      expect(Wreck.put).toHaveBeenCalledWith('/error', {
+        headers: { 'x-cdp-request-id': 'my-trace-id' }
       })
     })
 

@@ -1,3 +1,4 @@
+import { getTraceId } from '@defra/hapi-tracing'
 import { ecsFormat } from '@elastic/ecs-pino-format'
 import { type Options } from 'hapi-pino'
 import { type LoggerOptions, type TransportSingleOptions } from 'pino'
@@ -33,5 +34,13 @@ export const loggerOptions = {
     remove: true
   },
   level: logConfig.level,
-  ...formatters[logConfig.format]
+  ...formatters[logConfig.format],
+  mixin() {
+    const mixinValues: { trace?: { id: string } } = {}
+    const traceId = getTraceId()
+    if (traceId) {
+      mixinValues.trace = { id: traceId }
+    }
+    return mixinValues
+  }
 } satisfies Options

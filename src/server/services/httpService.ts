@@ -1,5 +1,7 @@
 import Wreck from '@hapi/wreck'
 
+import { getHeaders } from '~/src/server/utils/utils.js'
+
 export type Method = keyof Pick<typeof Wreck, 'get' | 'post' | 'put' | 'delete'>
 export type RequestOptions = Parameters<typeof Wreck.defaults>[0]
 
@@ -8,7 +10,12 @@ export const request = async <BodyType = Buffer>(
   url: string,
   options?: RequestOptions
 ) => {
-  const { res, payload } = await Wreck[method]<BodyType>(url, options)
+  const mergedOptions = {
+    ...options,
+    ...getHeaders()
+  }
+
+  const { res, payload } = await Wreck[method]<BodyType>(url, mergedOptions)
 
   if (!res.statusCode || res.statusCode < 200 || res.statusCode > 299) {
     return { res, error: payload || new Error('Unknown error') }

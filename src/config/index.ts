@@ -152,6 +152,14 @@ export const config = convict({
       env: 'REDIS_KEY_PREFIX'
     } as SchemaObj<string>
   },
+  tracing: {
+    header: {
+      doc: 'Tracing header name',
+      format: String,
+      default: 'x-cdp-request-id',
+      env: 'TRACING_HEADER'
+    } as SchemaObj<string>
+  },
 
   /**
    * Email outputs
