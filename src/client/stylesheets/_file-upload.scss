@@ -1,0 +1,82 @@
+@use "govuk-frontend" as *;
+
+.govuk-summary-list {
+  margin-bottom: govuk-spacing(6);
+
+  &__error-container {
+    border-left: 5px solid $govuk-error-colour;
+    padding-left: govuk-spacing(3);
+
+    .govuk-summary-list__row:first-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .govuk-summary-list__row--error {
+      padding-top: 0;
+    }
+  }
+
+  &__row {
+    border-bottom: 1px solid $govuk-border-colour;
+    display: flex;
+    margin-bottom: govuk-spacing(2);
+    padding: govuk-spacing(2) 0;
+    align-items: center;
+
+    &--error {
+      border-top: none;
+
+      .govuk-error-message {
+        margin-top: 0;
+      }
+    }
+  }
+
+  &__key {
+    flex: 2;
+    margin-bottom: 0;
+    padding-right: govuk-spacing(4);
+  }
+
+  &__value,
+  &__actions {
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 0;
+  }
+
+  &__value {
+    margin-right: govuk-spacing(2);
+
+    .govuk-tag {
+      margin-left: govuk-spacing(2);
+    }
+  }
+
+  &__actions {
+    margin-right: 0;
+  }
+}
+
+.js-file-upload-reload {
+  .js-enabled & {
+    display: none;
+  }
+}
+
+.file-upload-status {
+  margin-top: govuk-spacing(3);
+}
+
+.uploaded-files {
+  margin-top: govuk-spacing(6);
+  margin-bottom: govuk-spacing(6);
+}
+
+.govuk-form-group--error {
+  .govuk-file-upload {
+    border: 2px solid $govuk-error-colour;
+  }
+}
