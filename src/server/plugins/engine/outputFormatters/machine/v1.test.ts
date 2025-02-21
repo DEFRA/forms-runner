@@ -38,7 +38,7 @@ const formStatus = {
 }
 
 const dummyField: Field = {
-  getContextValueFromState: (_) => 'hello world'
+  getFormValueFromState: (_) => 'hello world'
 } as Field
 
 const testDetailItemField: DetailItemField = {
