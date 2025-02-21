@@ -264,3 +264,16 @@ export function safeGenerateCrumb(
 
   return request.server.plugins.crumb.generate(request)
 }
+
+/**
+ * Calculates an exponential backoff delay (in milliseconds) based on the current retry depth,
+ * using a base delay of 2000ms (2 seconds) and doubling for each additional depth, while capping the delay at 30,000ms (30 seconds).
+ * @param depth - The current retry depth (1, 2, 3, …)
+ * @returns The calculated delay in milliseconds.
+ */
+export function getExponentialBackoffDelay(depth: number): number {
+  const BASE_DELAY_MS = 2000 // 2 seconds initial delay
+  const CAP_DELAY_MS = 30000 // cap each delay to 30 seconds
+  const delay = BASE_DELAY_MS * 2 ** (depth - 1)
+  return Math.min(delay, CAP_DELAY_MS)
+}

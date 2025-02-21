@@ -1,14 +1,17 @@
 import { ComponentType, type PageFileUpload } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
-import { type ValidationErrorItem, type ValidationResult } from 'joi'
+import { wait } from '@hapi/hoek'
+import { type ValidationErrorItem } from 'joi'
 
 import {
   tempItemSchema,
-  tempStatusSchema,
   type FileUploadField
 } from '~/src/server/plugins/engine/components/FileUploadField.js'
-import { getError } from '~/src/server/plugins/engine/helpers.js'
+import {
+  getError,
+  getExponentialBackoffDelay
+} from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
@@ -26,8 +29,7 @@ import {
   type FormSubmissionState,
   type ItemDeletePageViewModel,
   type UploadInitiateResponse,
-  type UploadStatusFileResponse,
-  type UploadStatusResponse
+  type UploadStatusFileResponse
 } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
@@ -35,8 +37,9 @@ import {
 } from '~/src/server/routes/types.js'
 
 const MAX_UPLOADS = 25
+const CDP_UPLOAD_TIMEOUT_MS = 60000 // 1 minute
 
-function prepareStatus(status: UploadStatusFileResponse) {
+export function prepareStatus(status: UploadStatusFileResponse) {
   const file = status.form.file
   const isPending = file.fileStatus === FileStatus.pending
 
@@ -212,16 +215,13 @@ export class FileUploadPageController extends QuestionPageController {
         } else {
           const { context, path, type } = error
 
-          const formatter = (name: string | number, index: number) =>
-            index > 0 ? `__${name}` : name
-
           if (type === 'object.unknown' && path.at(-1) === 'errorMessage') {
-            const name = path.map(formatter).join('')
-            const value = context?.value
+            const value = context?.value as string | undefined
 
             if (value) {
+              const name = fileUpload.name
               const text = typeof value === 'string' ? value : 'Unknown error'
-              const href = `#${path.slice(0, 2).map(formatter).join('')}`
+              const href = `#${name}`
 
               errors.push({ path, href, name, text })
             }
@@ -269,9 +269,6 @@ export class FileUploadPageController extends QuestionPageController {
    *
    * If an upload exists and hasn't been consumed
    * it gets re-used, otherwise we initiate a new one.
-   *
-   * For all of the files stored in state that are `pending`,
-   * their status is refreshed as they may now be `complete` or `rejected`.
    * @param request - the hapi request
    * @param state - the form state
    */
@@ -280,7 +277,6 @@ export class FileUploadPageController extends QuestionPageController {
     state: FormSubmissionState
   ) {
     state = await this.checkUploadStatus(request, state)
-    state = await this.refreshPendingFiles(request, state)
 
     return state
   }
@@ -290,108 +286,89 @@ export class FileUploadPageController extends QuestionPageController {
    * it gets re-used, otherwise a new one is initiated.
    * @param request - the hapi request
    * @param state - the form state
+   * @param depth - the number of retries so far
    */
   private async checkUploadStatus(
     request: FormRequest | FormRequestPayload,
-    state: FormSubmissionState
-  ) {
+    state: FormSubmissionState,
+    depth = 1
+  ): Promise<FormSubmissionState> {
     const upload = this.getUploadFromState(state)
     const files = this.getFilesFromState(state)
 
-    if (upload?.uploadId) {
-      // If there is a current upload check
-      // it hasn't been consumed and re-use it
-      const uploadId = upload.uploadId
-      const statusResponse = await getUploadStatus(uploadId)
-
-      if (statusResponse === undefined) {
-        throw Boom.badRequest(
-          `Unexpected empty response from getUploadStatus for ${uploadId}`
-        )
-      }
-
-      // If the upload is in an "initiated" status, re-use it
-      if (statusResponse.uploadStatus === UploadStatus.initiated) {
-        return state
-      } else {
-        // Only add to files state if the file validates.
-        // This secures against html tampering of the file input
-        // by adding a 'multiple' attribute or it being
-        // changed to a simple text field or similar.
-        const validateResult: ValidationResult<FileState> =
-          tempItemSchema.validate(
-            {
-              uploadId,
-              status: statusResponse
-            },
-            { stripUnknown: true }
-          )
-
-        if (!validateResult.error) {
-          files.unshift(prepareFileState(validateResult.value))
-        }
-
-        return this.initiateAndStoreNewUpload(request, state)
-      }
-    } else {
+    // If no upload exists, initiate a new one.
+    if (!upload?.uploadId) {
       return this.initiateAndStoreNewUpload(request, state)
     }
-  }
 
-  /**
-   * For all of the files stored in state that are `pending`,
-   * their status is refreshed as they may now be `complete` or `rejected`.
-   * @param request - the hapi request
-   * @param state - the form state
-   */
-  private async refreshPendingFiles(
-    request: FormRequest | FormRequestPayload,
-    state: FormSubmissionState
-  ) {
-    const { path } = this
-
-    const upload = this.getUploadFromState(state)
-    const files = this.getFilesFromState(state)
-
-    const promises: Promise<UploadStatusResponse | undefined>[] = []
-    const indexes: number[] = []
-
-    // Refresh any pending uploads
-    files.forEach((file: FileState, index: number) => {
-      if (file.status.uploadStatus === UploadStatus.pending) {
-        promises.push(getUploadStatus(file.uploadId))
-        indexes.push(index)
-      }
-    })
-
-    if (promises.length) {
-      let filesUpdated = false
-      const results = await Promise.allSettled(promises)
-
-      // Update state with the latest result
-      for (let index = 0; index < indexes.length; index++) {
-        const idx = indexes[index]
-        const result = results[index]
-
-        if (result.status === 'fulfilled') {
-          const validateResult: ValidationResult<UploadStatusFileResponse> =
-            tempStatusSchema.validate(result.value, { stripUnknown: true })
-
-          if (!validateResult.error) {
-            files[idx].status = prepareStatus(validateResult.value)
-            filesUpdated = true
-          }
-        }
-      }
-
-      if (filesUpdated) {
-        return this.mergeState(request, state, {
-          upload: { [path]: { files, upload } }
-        })
-      }
+    const uploadId = upload.uploadId
+    const statusResponse = await getUploadStatus(uploadId)
+    if (!statusResponse) {
+      throw Boom.badRequest(
+        `Unexpected empty response from getUploadStatus for ${uploadId}`
+      )
     }
 
-    return state
+    // Re-use the upload if it is still in the "initiated" state.
+    if (statusResponse.uploadStatus === UploadStatus.initiated) {
+      return state
+    }
+
+    if (statusResponse.uploadStatus === UploadStatus.pending) {
+      // Using exponential backoff delays:
+      // Depth 1: 2000ms, Depth 2: 4000ms, Depth 3: 8000ms, Depth 4: 16000ms, Depth 5+: 30000ms (capped)
+      // A depth of 5 (or more) implies cumulative delays roughly reaching 60 seconds.
+      if (depth >= 5) {
+        request.logger.error(
+          `Exceeded cumulative retry delay for ${uploadId} (depth: ${depth}). Re-initiating a new upload.`
+        )
+        await this.initiateAndStoreNewUpload(request, state)
+        throw Boom.gatewayTimeout(
+          `Timed out waiting for ${uploadId} after cumulative retries exceeding ${((CDP_UPLOAD_TIMEOUT_MS - 5000) / 1000).toFixed(0)} seconds`
+        )
+      }
+      const delay = getExponentialBackoffDelay(depth)
+      request.logger.info(
+        `Waiting ${delay / 1000} seconds for ${uploadId} to complete (depth: ${depth})`
+      )
+      await wait(delay)
+      return this.checkUploadStatus(request, state, depth + 1)
+    }
+
+    // Only add to files state if the file validates.
+    // This secures against html tampering of the file input
+    // by adding a 'multiple' attribute or it being
+    // changed to a simple text field or similar.
+    const validationResult = tempItemSchema.validate(
+      { uploadId, status: statusResponse },
+      { stripUnknown: true }
+    )
+    const error = validationResult.error
+    const fileState = validationResult.value as FileState
+
+    if (error) {
+      return this.initiateAndStoreNewUpload(request, state)
+    }
+
+    const file = fileState.status.form.file
+    if (file.fileStatus === FileStatus.complete) {
+      files.unshift(prepareFileState(fileState))
+      await this.mergeState(request, state, {
+        upload: { [this.path]: { files, upload } }
+      })
+    } else {
+      // Flash the error message.
+      const { fileUpload } = this
+      const { cacheService } = request.services([])
+      const name = fileUpload.name
+      const text = file.errorMessage ?? 'Unknown error'
+      const errors: FormSubmissionError[] = [
+        { path: [name], href: `#${name}`, name, text }
+      ]
+      cacheService.setFlash(request, { errors })
+    }
+
+    return this.initiateAndStoreNewUpload(request, state)
   }
 
   /**

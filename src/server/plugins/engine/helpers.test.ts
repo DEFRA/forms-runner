@@ -9,6 +9,7 @@ import {
   checkFormStatus,
   encodeUrl,
   getErrors,
+  getExponentialBackoffDelay,
   getPageHref,
   proceed,
   safeGenerateCrumb
@@ -488,6 +489,37 @@ describe('Helpers', () => {
       expect(validRequest.server.plugins.crumb.generate).toHaveBeenCalledWith(
         validRequest
       )
+    })
+  })
+
+  describe('getExponentialBackoffDelay', () => {
+    it.each([
+      { depth: 1, expected: 2000 },
+      { depth: 2, expected: 4000 },
+      { depth: 3, expected: 8000 },
+      { depth: 4, expected: 16000 },
+      { depth: 5, expected: 30000 },
+      { depth: 6, expected: 30000 },
+      { depth: 7, expected: 30000 }
+    ])(
+      'should calculate correct delay for depth $depth',
+      ({ depth, expected }) => {
+        expect(getExponentialBackoffDelay(depth)).toBe(expected)
+      }
+    )
+
+    it('should handle depth of 0', () => {
+      expect(getExponentialBackoffDelay(0)).toBe(1000)
+    })
+
+    it('should handle negative depth', () => {
+      expect(getExponentialBackoffDelay(-1)).toBe(500)
+    })
+
+    it('should cap at 30 seconds (30000ms) even for large depths', () => {
+      // For depth 10: 2000 * 2^(9) would be too high, so it should be capped
+      expect(getExponentialBackoffDelay(10)).toBe(30000)
+      expect(getExponentialBackoffDelay(20)).toBe(30000)
     })
   })
 })

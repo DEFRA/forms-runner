@@ -5,12 +5,14 @@
 
   <h2 class="govuk-heading-m">Uploaded files</h2>
   {% if upload.count %}
-    <p class="govuk-body">{{upload.successfulCount}} of {{upload.count}} files uploaded</p>
+    <p class="govuk-body">{{upload.count}} file{{ "s" if upload.count > 1}} uploaded</p>
     <p class="govuk-body">
-      {% if upload.pendingCount %}
-        <a href="{{ page.href }}" class="govuk-link govuk-link--no-visited-state">Refresh page to update file upload progress</a>
-      {% endif %}
     </p>
+
+    <div class="govuk-visually-hidden" aria-live="polite" id="statusInformation">
+      {{upload.count}} file{{ "s" if upload.count > 1}} uploaded
+    </div>
+
     {% if upload.summaryList.rows | length %}
       {{ govukSummaryList(upload.summaryList) }}
     {% endif %}

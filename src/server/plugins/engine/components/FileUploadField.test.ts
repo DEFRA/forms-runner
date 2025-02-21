@@ -338,8 +338,6 @@ describe('FileUploadField', () => {
             value: '', // input type=file can't have a default value
             upload: {
               count: 3,
-              pendingCount: 0,
-              successfulCount: 3,
               summaryList: {
                 classes: 'govuk-summary-list--long-key',
                 rows: [
@@ -424,8 +422,6 @@ describe('FileUploadField', () => {
             value: '', // input type=file can't have a default value
             upload: {
               count: 3,
-              pendingCount: 0,
-              successfulCount: 3,
               summaryList: {
                 classes: 'govuk-summary-list--long-key',
                 rows: [
@@ -479,50 +475,10 @@ describe('FileUploadField', () => {
             id: 'myComponent',
             value: '', // input type=file can't have a default value
             upload: {
-              count: 3,
-              pendingCount: 1,
-              successfulCount: 1,
+              count: 1,
               summaryList: {
                 classes: 'govuk-summary-list--long-key',
                 rows: [
-                  {
-                    key: {
-                      html: expect.stringContaining('SampleJPGImage_30mbmb.jpg')
-                    },
-                    value: {
-                      html: expect.stringContaining('Uploading')
-                    },
-                    actions: {
-                      items: [
-                        {
-                          href: `/test/file-upload-component/${validState[0].uploadId}/confirm-delete`,
-                          text: 'Remove',
-                          attributes: { id: 'myComponent__0' },
-                          classes: 'govuk-link--no-visited-state',
-                          visuallyHiddenText: 'SampleJPGImage_30mbmb.jpg'
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    key: {
-                      html: expect.stringContaining('virus.txt')
-                    },
-                    value: {
-                      html: expect.stringContaining('Error')
-                    },
-                    actions: {
-                      items: [
-                        {
-                          href: `/test/file-upload-component/${validState[1].uploadId}/confirm-delete`,
-                          text: 'Remove',
-                          attributes: { id: 'myComponent__1' },
-                          classes: 'govuk-link--no-visited-state',
-                          visuallyHiddenText: 'virus.txt'
-                        }
-                      ]
-                    }
-                  },
                   {
                     key: {
                       html: expect.stringContaining('SampleJPGImage_20mbmb.jpg')
@@ -535,7 +491,7 @@ describe('FileUploadField', () => {
                         {
                           href: `/test/file-upload-component/${validState[2].uploadId}/confirm-delete`,
                           text: 'Remove',
-                          attributes: { id: 'myComponent__2' },
+                          attributes: { id: 'myComponent__0' },
                           classes: 'govuk-link--no-visited-state',
                           visuallyHiddenText: 'SampleJPGImage_20mbmb.jpg'
                         }
@@ -559,54 +515,10 @@ describe('FileUploadField', () => {
             id: 'myComponent',
             value: '', // input type=file can't have a default value
             upload: {
-              count: 3,
-              pendingCount: 1,
-              successfulCount: 1,
+              count: 1,
               summaryList: {
                 classes: 'govuk-summary-list--long-key',
                 rows: [
-                  {
-                    key: {
-                      html: expect.stringContaining(
-                        'The selected file has not fully uploaded'
-                      )
-                    },
-                    value: {
-                      html: expect.stringContaining('Uploading')
-                    },
-                    actions: {
-                      items: [
-                        {
-                          href: `/test/file-upload-component/${validState[0].uploadId}/confirm-delete`,
-                          text: 'Remove',
-                          attributes: { id: 'myComponent__0' },
-                          classes: 'govuk-link--no-visited-state',
-                          visuallyHiddenText: 'SampleJPGImage_30mbmb.jpg'
-                        }
-                      ]
-                    }
-                  },
-                  {
-                    key: {
-                      html: expect.stringContaining(
-                        'The selected file contains a virus'
-                      )
-                    },
-                    value: {
-                      html: expect.stringContaining('Error')
-                    },
-                    actions: {
-                      items: [
-                        {
-                          href: `/test/file-upload-component/${validState[1].uploadId}/confirm-delete`,
-                          text: 'Remove',
-                          attributes: { id: 'myComponent__1' },
-                          classes: 'govuk-link--no-visited-state',
-                          visuallyHiddenText: 'virus.txt'
-                        }
-                      ]
-                    }
-                  },
                   {
                     key: {
                       html: expect.stringContaining('SampleJPGImage_20mbmb.jpg')
@@ -619,7 +531,7 @@ describe('FileUploadField', () => {
                         {
                           href: `/test/file-upload-component/${validState[2].uploadId}/confirm-delete`,
                           text: 'Remove',
-                          attributes: { id: 'myComponent__2' },
+                          attributes: { id: 'myComponent__0' },
                           classes: 'govuk-link--no-visited-state',
                           visuallyHiddenText: 'SampleJPGImage_20mbmb.jpg'
                         }

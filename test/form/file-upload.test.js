@@ -47,22 +47,6 @@ const initiatedStatusResponse = {
 /**
  * @satisfies {UploadStatusResponse}
  */
-const pendingStatusResponse = {
-  uploadStatus: UploadStatus.pending,
-  metadata,
-  form: {
-    file: {
-      fileId: '5a76a1a3-bc8a-4bc0-859a-116d775c7f15',
-      filename: 'test.pdf',
-      contentLength: 1024,
-      fileStatus: FileStatus.pending
-    }
-  }
-}
-
-/**
- * @satisfies {UploadStatusResponse}
- */
 const readyStatusResponse = {
   uploadStatus: UploadStatus.ready,
   metadata,
@@ -169,7 +153,7 @@ describe('File upload GET tests', () => {
     // Extract the session cookie
     const headers = getCookieHeader(res1, 'session')
 
-    jest.mocked(getUploadStatus).mockResolvedValue(pendingStatusResponse)
+    jest.mocked(getUploadStatus).mockResolvedValue(readyStatusResponse)
     jest.mocked(initiateUpload).mockResolvedValueOnce(uploadInitiateResponse)
 
     const res2 = await server.inject({
@@ -203,7 +187,7 @@ describe('File upload POST tests', () => {
     await server.stop()
   })
 
-  test('POST /methodology-statement with pending file returns 200 with errors', async () => {
+  test('POST /methodology-statement with 1 file returns 200 with errors', async () => {
     jest.mocked(initiateUpload).mockResolvedValue(uploadInitiateResponse)
 
     const res1 = await server.inject({
@@ -215,7 +199,7 @@ describe('File upload POST tests', () => {
     // Extract the session cookie
     const headers = getCookieHeader(res1, 'session')
 
-    jest.mocked(getUploadStatus).mockResolvedValue(pendingStatusResponse)
+    jest.mocked(getUploadStatus).mockResolvedValue(readyStatusResponse)
 
     const { container, response } = await renderResponse(server, {
       url: `${basePath}/methodology-statement`,
@@ -237,7 +221,7 @@ describe('File upload POST tests', () => {
     expect($heading).toBeInTheDocument()
 
     expect($errorItems[0]).toHaveTextContent(
-      'The selected file has not fully uploaded'
+      'Upload your methodology statement must contain at least 2 items'
     )
 
     const $input = container.getByLabelText(
@@ -245,7 +229,9 @@ describe('File upload POST tests', () => {
     )
 
     expect($input).toHaveAccessibleDescription(
-      expect.stringContaining('Error: The selected file has not fully uploaded')
+      expect.stringContaining(
+        'Error: Upload your methodology statement must contain at least 2 items'
+      )
     )
   })
 
