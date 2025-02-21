@@ -498,9 +498,9 @@ describe('Helpers', () => {
       { depth: 2, expected: 4000 },
       { depth: 3, expected: 8000 },
       { depth: 4, expected: 16000 },
-      { depth: 5, expected: 32000 },
-      { depth: 6, expected: 60000 }, // capped at 60 seconds
-      { depth: 7, expected: 60000 } // still capped at 60 seconds
+      { depth: 5, expected: 30000 },
+      { depth: 6, expected: 30000 },
+      { depth: 7, expected: 30000 }
     ])(
       'should calculate correct delay for depth $depth',
       ({ depth, expected }) => {
@@ -516,11 +516,10 @@ describe('Helpers', () => {
       expect(getExponentialBackoffDelay(-1)).toBe(500)
     })
 
-    it('should cap at 60 seconds (60000ms) even for large depths', () => {
-      // 2^10 * 1000 would be 1,024,000ms without the cap
-      expect(getExponentialBackoffDelay(10)).toBe(60000)
-      // 2^20 * 1000 would be ~1 billion ms without the cap
-      expect(getExponentialBackoffDelay(20)).toBe(60000)
+    it('should cap at 30 seconds (30000ms) even for large depths', () => {
+      // For depth 10: 2000 * 2^(9) would be too high, so it should be capped
+      expect(getExponentialBackoffDelay(10)).toBe(30000)
+      expect(getExponentialBackoffDelay(20)).toBe(30000)
     })
   })
 })
