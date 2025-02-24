@@ -114,7 +114,7 @@ export class ComponentCollection {
 
         // Update error with child label
         if (child && (!error.local.label || error.local.label === 'value')) {
-          error.local.label = child.title.toLowerCase()
+          error.local.label = child.title
         }
 
         // Fix error summary links for missing fields

@@ -48,10 +48,10 @@ describe('MonthYearField', () => {
         expect(keys).toEqual(
           expect.objectContaining({
             myComponent__month: expect.objectContaining({
-              flags: expect.objectContaining({ label: 'month' })
+              flags: expect.objectContaining({ label: 'Month' })
             }),
             myComponent__year: expect.objectContaining({
-              flags: expect.objectContaining({ label: 'year' })
+              flags: expect.objectContaining({ label: 'Year' })
             })
           })
         )

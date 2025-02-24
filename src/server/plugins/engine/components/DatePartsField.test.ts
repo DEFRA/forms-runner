@@ -48,21 +48,21 @@ describe('DatePartsField', () => {
         expect(keys).toHaveProperty(
           'myComponent__day',
           expect.objectContaining({
-            flags: expect.objectContaining({ label: 'day' })
+            flags: expect.objectContaining({ label: 'Day' })
           })
         )
 
         expect(keys).toHaveProperty(
           'myComponent__month',
           expect.objectContaining({
-            flags: expect.objectContaining({ label: 'month' })
+            flags: expect.objectContaining({ label: 'Month' })
           })
         )
 
         expect(keys).toHaveProperty(
           'myComponent__year',
           expect.objectContaining({
-            flags: expect.objectContaining({ label: 'year' })
+            flags: expect.objectContaining({ label: 'Year' })
           })
         )
       })

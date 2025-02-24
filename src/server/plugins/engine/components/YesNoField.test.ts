@@ -41,7 +41,7 @@ describe('YesNoField', () => {
         'myComponent',
         expect.objectContaining({
           flags: expect.objectContaining({
-            label: 'example yes/no'
+            label: 'Example yes/no'
           })
         })
       )

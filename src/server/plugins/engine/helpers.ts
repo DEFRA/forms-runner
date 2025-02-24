@@ -1,16 +1,26 @@
-import { ControllerPath, Engine } from '@defra/forms-model'
+import {
+  ControllerPath,
+  Engine,
+  type ComponentDef,
+  type Page
+} from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ResponseToolkit } from '@hapi/hapi'
 import { format, parseISO } from 'date-fns'
 import { StatusCodes } from 'http-status-codes'
 import { type Schema, type ValidationErrorItem } from 'joi'
-import upperFirst from 'lodash/upperFirst.js'
+import { Liquid } from 'liquidjs'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
+import {
+  getAnswer,
+  type Field
+} from '~/src/server/plugins/engine/components/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
+  type FormContext,
   type FormContextRequest,
   type FormSubmissionError
 } from '~/src/server/plugins/engine/types.js'
@@ -23,6 +33,83 @@ import {
 } from '~/src/server/routes/types.js'
 
 const logger = createLogger()
+
+export const engine = new Liquid({
+  outputEscape: 'escape',
+  jsTruthy: true,
+  ownPropertyOnly: false
+})
+
+interface GlobalScope {
+  context: FormContext
+  pages: Map<string, Page>
+  components: Map<string, ComponentDef>
+}
+
+engine.registerFilter('evaluate', function (template?: string) {
+  if (typeof template !== 'string') {
+    return template
+  }
+
+  const globals = this.context.globals as GlobalScope
+  const evaluated = evaluateTemplate(template, globals.context)
+
+  return evaluated
+})
+
+engine.registerFilter('page', function (path?: string) {
+  if (typeof path !== 'string') {
+    return
+  }
+
+  const globals = this.context.globals as GlobalScope
+  const pageDef = globals.pages.get(path)
+
+  return pageDef
+})
+
+engine.registerFilter('href', function (path: string, query?: FormQuery) {
+  if (typeof path !== 'string') {
+    return
+  }
+
+  const globals = this.context.globals as GlobalScope
+  const page = globals.context.pageMap.get(path)
+
+  if (page === undefined) {
+    return
+  }
+
+  return getPageHref(page, query)
+})
+
+engine.registerFilter('field', function (name: string) {
+  if (typeof name !== 'string') {
+    return
+  }
+
+  const globals = this.context.globals as GlobalScope
+  const componentDef = globals.components.get(name)
+
+  return componentDef
+})
+
+engine.registerFilter('answer', function (name: string) {
+  if (typeof name !== 'string') {
+    return
+  }
+
+  const globals = this.context.globals as GlobalScope
+  const component = globals.context.componentMap.get(name)
+
+  if (!component?.isFormComponent) {
+    return
+  }
+
+  const answer = getAnswer(component as Field, globals.context.relevantState)
+
+  return answer
+})
 
 export function proceed(
   request: Pick<FormContextRequest, 'method' | 'payload' | 'query'>,
@@ -223,11 +310,9 @@ export function getError(detail: ValidationErrorItem): FormSubmissionError {
   const name = context?.key ?? ''
   const href = `#${name}`
 
-  const text = upperFirst(
-    message.replace(
-      /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/,
-      (text) => format(parseISO(text), 'd MMMM yyyy')
-    )
+  const text = message.replace(
+    /\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)/,
+    (text) => format(parseISO(text), 'd MMMM yyyy')
   )
 
   return {
@@ -276,4 +361,20 @@ export function getExponentialBackoffDelay(depth: number): number {
   const CAP_DELAY_MS = 25000 // cap each delay to 25 seconds
   const delay = BASE_DELAY_MS * 2 ** (depth - 1)
   return Math.min(delay, CAP_DELAY_MS)
+}
+
+export function evaluateTemplate(
+  template: string,
+  context: FormContext
+): string {
+  const globals: GlobalScope = {
+    context,
+    pages: context.pageDefMap,
+    components: context.componentDefMap
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  return engine.parseAndRenderSync(template, context.relevantState, {
+    globals
+  })
 }

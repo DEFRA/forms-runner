@@ -1,7 +1,13 @@
-import { type Item } from '@defra/forms-model'
+import {
+  type ComponentDef,
+  type Item,
+  type List,
+  type Page
+} from '@defra/forms-model'
 import { type ValidationErrorItem } from 'joi'
 
-import { type FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { type Component } from '~/src/server/plugins/engine/components/helpers.js'
 import {
   type BackLink,
   type ComponentText,
@@ -125,13 +131,21 @@ export interface FormContext {
    */
   paths: string[]
 
-  // Preview URL direct access is allowed
+  /**
+   * Preview URL direct access is allowed
+   */
   isForceAccess: boolean
 
   /**
    * Miscellaneous extra data from event responses
    */
   data: object
+
+  pageDefMap: Map<string, Page>
+  listDefMap: Map<string, List>
+  componentDefMap: Map<string, ComponentDef>
+  pageMap: Map<string, PageControllerClass>
+  componentMap: Map<string, Component>
 }
 
 export type FormContextRequest = (

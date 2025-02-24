@@ -49,7 +49,7 @@ describe('MultilineTextField', () => {
           'myComponent',
           expect.objectContaining({
             flags: expect.objectContaining({
-              label: 'example textarea'
+              label: 'Example textarea'
             })
           })
         )
