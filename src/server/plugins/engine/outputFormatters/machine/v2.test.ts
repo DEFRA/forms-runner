@@ -7,7 +7,7 @@ import {
   type DetailItemField,
   type DetailItemRepeat
 } from '~/src/server/plugins/engine/models/types.js'
-import { format } from '~/src/server/plugins/engine/outputFormatters/machine/v1.js'
+import { format } from '~/src/server/plugins/engine/outputFormatters/machine/v2.js'
 import {
   FileStatus,
   UploadStatus,
@@ -38,7 +38,7 @@ const formStatus = {
 }
 
 const dummyField: Field = {
-  getContextValueFromState: (_) => 'hello world'
+  getFormValueFromState: (_) => 'hello world'
 } as Field
 
 const testDetailItemField: DetailItemField = {
@@ -221,7 +221,7 @@ describe('getPersonalisation', () => {
       }
     }
 
-    expect(parsedBody.meta.schemaVersion).toBe('1')
+    expect(parsedBody.meta.schemaVersion).toBe('2')
     expect(parsedBody.meta.timestamp).toBeDateString()
     expect(parsedBody.meta.definition).toEqual(definition)
     expect(parsedBody.data).toEqual(expectedData)
