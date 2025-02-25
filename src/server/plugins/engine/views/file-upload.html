@@ -26,10 +26,11 @@
     {% endif %}
   </form>
 
+  {{ super() }}
+
   <div class="govuk-summary-list-container"></div>
 
-  {{ super() }}
-{% endblock %}
+  {% endblock %}
 
 {% block bodyEnd %}
   {{ super() }}
