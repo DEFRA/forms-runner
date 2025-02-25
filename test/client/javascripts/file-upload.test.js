@@ -40,23 +40,39 @@ describe('File Upload Client JS', () => {
     if (fileInput) {
       const originalFileInputAddEventListener =
         fileInput.addEventListener.bind(fileInput)
-      fileInput.addEventListener = jest.fn((type, handler) => {
-        if (type === 'change') {
-          changeHandler = /** @type {() => void} */ (handler)
+      fileInput.addEventListener = jest.fn(
+        /**
+         * @param {string} [type]
+         * @param {EventListenerOrEventListenerObject} [handler]
+         */
+        (type, handler) => {
+          if (type === 'change') {
+            changeHandler = /** @type {() => void} */ (handler)
+          }
+          if (type && handler) {
+            originalFileInputAddEventListener(type, handler)
+          }
         }
-        originalFileInputAddEventListener(type, handler)
-      })
+      )
     }
 
     if (uploadButton) {
       const originalButtonAddEventListener =
         uploadButton.addEventListener.bind(uploadButton)
-      uploadButton.addEventListener = jest.fn((type, handler) => {
-        if (type === 'click') {
-          clickHandler = /** @type {(event: any) => void} */ (handler)
+      uploadButton.addEventListener = jest.fn(
+        /**
+         * @param {string} [type]
+         * @param {EventListenerOrEventListenerObject} [handler]
+         */
+        (type, handler) => {
+          if (type === 'click') {
+            clickHandler = /** @type {(event: any) => void} */ (handler)
+          }
+          if (type && handler) {
+            originalButtonAddEventListener(type, handler)
+          }
         }
-        originalButtonAddEventListener(type, handler)
-      })
+      )
     }
 
     if (runInit) {
@@ -377,5 +393,150 @@ describe('File Upload Client JS', () => {
     const event2 = { preventDefault: jest.fn() }
     triggerClick(event2)
     expect(event2.preventDefault).toHaveBeenCalled()
+  })
+
+  test('renderSummary handles the case where next element is not a form', () => {
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form>
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+      <div>Not a form element</div>
+    `
+
+    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+
+    loadFile('some-file.pdf')
+    triggerChange()
+    triggerClick({})
+
+    expect(document.querySelector('dl.govuk-summary-list')).toBeNull()
+  })
+
+  test('renderSummary inserts summaryList before continue button when no fileCountP.nextSibling exists', () => {
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form>
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+      <form>
+        <h2 class="govuk-heading-m">Uploaded files</h2>
+        <p class="govuk-body">0 files uploaded</p>
+        <!-- No next sibling after p.govuk-body -->
+        <button class="govuk-button">Continue</button>
+      </form>
+    `
+
+    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+
+    loadFile('some-file.pdf')
+    triggerChange()
+    triggerClick({})
+
+    const summaryList = document.querySelector('dl.govuk-summary-list')
+
+    expect(summaryList).not.toBeNull()
+    expect(summaryList?.parentElement).toBe(
+      document.querySelectorAll('form')[1]
+    )
+
+    const fileRow = document.querySelector('[data-filename="some-file.pdf"]')
+    expect(fileRow).not.toBeNull()
+    expect(fileRow?.textContent).toContain('Uploading…')
+
+    expect(summaryList?.tagName).toBe('DL')
+    expect(summaryList?.classList.contains('govuk-summary-list')).toBe(true)
+  })
+
+  test('renderSummary properly removes existing row with same filename', () => {
+    document.body.innerHTML = `      <div class="govuk-error-summary-container"></div>
+      <form>
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+      <form>
+        <h2 class="govuk-heading-m">Uploaded files</h2>
+        <p class="govuk-body">0 files uploaded</p>
+        <dl class="govuk-summary-list govuk-summary-list--long-key">
+          <div class="govuk-summary-list__row" data-filename="some-file.pdf">
+            <dt class="govuk-summary-list__key">some-file.pdf</dt>
+            <dd class="govuk-summary-list__value">
+              <strong class="govuk-tag govuk-tag--yellow">Previous status</strong>
+            </dd>
+            <dd class="govuk-summary-list__actions"></dd>
+          </div>
+        </dl>
+        <button class="govuk-button">Continue</button>
+      </form>
+    `
+
+    expect(
+      document.querySelectorAll('[data-filename="some-file.pdf"]')
+    ).toHaveLength(1)
+    expect(
+      document.querySelector('[data-filename="some-file.pdf"]')?.textContent
+    ).toContain('Previous status')
+
+    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+
+    loadFile('some-file.pdf')
+    triggerChange()
+    triggerClick({})
+
+    expect(
+      document.querySelectorAll('[data-filename="some-file.pdf"]')
+    ).toHaveLength(1)
+    expect(
+      document.querySelector('[data-filename="some-file.pdf"]')?.textContent
+    ).toContain('Uploading…')
+    expect(
+      document.querySelector('[data-filename="some-file.pdf"]')?.textContent
+    ).not.toContain('Previous status')
+  })
+
+  test('renderSummary uses fileCountP.nextSibling when no continue button exists', () => {
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form>
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+      <form>
+        <h2 class="govuk-heading-m">Uploaded files</h2>
+        <p class="govuk-body">0 files uploaded</p>
+        <div class="next-element">Some other element</div>
+        <!-- No continue button -->
+      </form>
+    `
+
+    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+
+    loadFile('some-file.pdf')
+    triggerChange()
+    triggerClick({})
+
+    const summaryList = document.querySelector('dl.govuk-summary-list')
+
+    expect(summaryList).not.toBeNull()
+
+    expect(summaryList?.parentElement).toBe(
+      document.querySelectorAll('form')[1]
+    )
+
+    expect(summaryList?.classList.contains('govuk-summary-list')).toBe(true)
+    expect(
+      summaryList?.classList.contains('govuk-summary-list--long-key')
+    ).toBe(true)
+
+    const fileRow = document.querySelector('[data-filename="some-file.pdf"]')
+    expect(fileRow).not.toBeNull()
+
+    const statusAnnouncer = document.getElementById('statusInformation')
+    expect(statusAnnouncer).not.toBeNull()
+
+    expect(document.contains(summaryList)).toBe(true)
+    expect(document.contains(statusAnnouncer)).toBe(true)
   })
 })
