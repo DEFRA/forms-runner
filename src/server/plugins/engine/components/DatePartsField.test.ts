@@ -298,6 +298,17 @@ describe('DatePartsField', () => {
         expect(value2).toBeNull()
       })
 
+      it('returns null context when date is invalid', () => {
+        const state1 = getFormState({ day: 1, month: 0, year: 2025 })
+        const state2 = getFormState({})
+
+        const value1 = field.getContextValueFromState(state1)
+        const value2 = field.getContextValueFromState(state2)
+
+        expect(value1).toBeNull()
+        expect(value2).toBeNull()
+      })
+
       it('returns state from payload', () => {
         const payload1 = getFormData(date)
         const payload2 = getFormData({})
