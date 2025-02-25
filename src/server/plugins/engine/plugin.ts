@@ -9,6 +9,8 @@ import {
 import { isEqual } from 'date-fns'
 import Joi from 'joi'
 
+import { getUploadStatus } from './services/uploadService.js'
+
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
   checkEmailAddressForLiveFormSubmission,
@@ -279,6 +281,21 @@ export const plugin = {
             path: pathSchema,
             itemId: itemIdSchema.optional()
           })
+        }
+      }
+    })
+
+    server.route({
+      method: 'GET',
+      path: '/upload-status/{uploadId}',
+      handler: async (request, h) => {
+        const { uploadId } = request.params as { uploadId: string }
+        const status = await getUploadStatus(uploadId)
+        return h.response(status)
+      },
+      options: {
+        plugins: {
+          crumb: false
         }
       }
     })
