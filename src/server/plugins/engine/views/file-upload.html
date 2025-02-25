@@ -7,13 +7,15 @@
 {% block form %}
   {{ componentList(componentsBefore) }}
 
+  <div class="govuk-error-summary-container"></div>
+
   <form method="post" {%- if formAction and not context.isForceAccess %} action="{{ formAction }}" enctype="multipart/form-data" {%- endif %} novalidate>
     {{ govukFileUpload(formComponent.model) }}
 
     {% if formAction %}
       {{ govukButton({
         text: "Upload file",
-        classes: "govuk-button--secondary",
+        classes: "govuk-button--secondary upload-file-button",
         preventDoubleClick: true
       }) }}
     {% else %}
@@ -24,5 +26,19 @@
     {% endif %}
   </form>
 
+  <div class="govuk-summary-list-container"></div>
+
   {{ super() }}
+{% endblock %}
+
+{% block bodyEnd %}
+  {{ super() }}
+  <script type="module" nonce="{{ cspNonce }}">
+    import { initFileUpload } from '{{ getAssetPath("file-upload.js") }}';
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initFileUpload);
+    } else {
+      initFileUpload();
+    }
+  </script>
 {% endblock %}
