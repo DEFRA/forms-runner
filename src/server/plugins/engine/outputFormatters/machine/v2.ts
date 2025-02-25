@@ -31,7 +31,7 @@ export function format(
 
   const data = {
     meta: {
-      schemaVersion: '1',
+      schemaVersion: '2',
       timestamp: now.toISOString(),
       definition: model.def
     },
@@ -53,7 +53,10 @@ export function format(
  *    repeaters: {
  *      repeaterName: [
  *        {
- *          componentName: 'componentValue'
+ *          textComponentName: 'componentValue'
+ *        },
+ *        {
+ *          richComponentName: { foo: 'bar', 'baz': true }
  *        }
  *      ]
  *    },

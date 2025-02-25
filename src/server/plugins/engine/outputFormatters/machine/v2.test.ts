@@ -221,7 +221,7 @@ describe('getPersonalisation', () => {
       }
     }
 
-    expect(parsedBody.meta.schemaVersion).toBe('1')
+    expect(parsedBody.meta.schemaVersion).toBe('2')
     expect(parsedBody.meta.timestamp).toBeDateString()
     expect(parsedBody.meta.definition).toEqual(definition)
     expect(parsedBody.data).toEqual(expectedData)
