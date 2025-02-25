@@ -119,7 +119,16 @@ export class DatePartsField extends FormComponent {
   getContextValueFromState(state: FormSubmissionState) {
     const value = this.getFormValueFromState(state)
 
-    if (!value) {
+    if (
+      !value ||
+      !isValid(
+        parse(
+          `${value.year}-${value.month}-${value.day}`,
+          'yyyy-MM-dd',
+          new Date()
+        )
+      )
+    ) {
       return null
     }
 
