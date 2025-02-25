@@ -252,6 +252,20 @@ describe('MonthYearField', () => {
         expect(value2).toBeNull()
       })
 
+      it('returns null context when date is invalid', () => {
+        const state1 = getFormState({ month: 0, year: 2025 })
+        const state2 = getFormState({})
+        const state3 = getFormState({ month: 13, year: 2025 })
+
+        const value1 = field.getContextValueFromState(state1)
+        const value2 = field.getContextValueFromState(state2)
+        const value3 = field.getContextValueFromState(state3)
+
+        expect(value1).toBeNull()
+        expect(value2).toBeNull()
+        expect(value3).toBeNull()
+      })
+
       it('returns state from payload', () => {
         const payload1 = getFormData(date)
         const payload2 = {}
