@@ -1,5 +1,5 @@
 import { ComponentType, type MonthYearFieldComponent } from '@defra/forms-model'
-import { format } from 'date-fns'
+import { format, isValid, parse } from 'date-fns'
 import {
   type Context,
   type CustomValidator,
@@ -111,7 +111,12 @@ export class MonthYearField extends FormComponent {
   getContextValueFromState(state: FormSubmissionState) {
     const value = this.getFormValueFromState(state)
 
-    if (!value) {
+    if (
+      !value ||
+      !isValid(
+        parse(`${value.year}-${value.month}-01`, 'yyyy-MM-dd', new Date())
+      )
+    ) {
       return null
     }
 

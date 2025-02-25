@@ -301,12 +301,18 @@ describe('DatePartsField', () => {
       it('returns null context when date is invalid', () => {
         const state1 = getFormState({ day: 1, month: 0, year: 2025 })
         const state2 = getFormState({})
+        const state3 = getFormState({ day: 1, month: 13, year: 2025 })
+        const state4 = getFormState({ day: 32, month: 12, year: 2025 })
 
         const value1 = field.getContextValueFromState(state1)
         const value2 = field.getContextValueFromState(state2)
+        const value3 = field.getContextValueFromState(state3)
+        const value4 = field.getContextValueFromState(state4)
 
         expect(value1).toBeNull()
         expect(value2).toBeNull()
+        expect(value3).toBeNull()
+        expect(value4).toBeNull()
       })
 
       it('returns state from payload', () => {
