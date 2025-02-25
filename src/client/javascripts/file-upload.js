@@ -135,3 +135,47 @@ export function initFileUpload() {
     }, 100)
   })
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+  const form = document.querySelector('form')
+
+  if (!form) {
+    console.error('No form is present on the page')
+    return
+  }
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault() // Prevent default form submission
+
+    const uploadId = '' // extract uploadId from form.action
+
+    const formData = new FormData(form)
+
+    fetch(form.action, {
+      method: form.method || 'POST',
+      body: formData,
+      redirect: 'manual'
+    })
+      .then(() => {
+        checkUploadStatus(uploadId) // Start checking upload status
+      })
+      .catch((error) => {
+        console.error('Error:', error)
+        alert('File upload failed')
+      })
+  })
+
+  function checkUploadStatus(uploadId) {
+    const interval = setInterval(() => {
+      fetch(`/upload-status/${uploadId}`)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.uploadStatus === 'ready') {
+            clearInterval(interval)
+            location.reload()
+          }
+        })
+        .catch((error) => console.error('Error checking upload status:', error))
+    }, 5000)
+  }
+})
