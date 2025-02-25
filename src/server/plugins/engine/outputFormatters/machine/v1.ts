@@ -1,8 +1,7 @@
 import { type SubmitResponsePayload } from '@defra/forms-model'
 
 import { config } from '~/src/config/index.js'
-import { type MonthYearState } from '~/src/server/plugins/engine/components/MonthYearField.js'
-import { type UkAddressState } from '~/src/server/plugins/engine/components/UkAddressField.js'
+import { getAnswer } from '~/src/server/plugins/engine/components/helpers.js'
 import { FileUploadField } from '~/src/server/plugins/engine/components/index.js'
 import { type checkFormStatus } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
@@ -11,10 +10,6 @@ import {
   type DetailItemField,
   type DetailItemRepeat
 } from '~/src/server/plugins/engine/models/types.js'
-import {
-  type FormPayload,
-  type FormValue
-} from '~/src/server/plugins/engine/types.js'
 
 const designerUrl = config.get('designerUrl')
 
@@ -68,20 +63,20 @@ export function format(
  */
 function categoriseData(items: DetailItem[]) {
   const output: {
-    main: Record<string, RichFormValue>
-    repeaters: Record<string, Record<string, RichFormValue>[]>
+    main: Record<string, string>
+    repeaters: Record<string, Record<string, string>[]>
     files: Record<string, Record<string, string>[]>
   } = { main: {}, repeaters: {}, files: {} }
 
   items.forEach((item) => {
-    const { name, state } = item
-
     if ('subItems' in item) {
-      output.repeaters[name] = extractRepeaters(item)
+      output.repeaters[item.name] = extractRepeaters(item)
     } else if (isFileUploadFieldItem(item)) {
-      output.files[name] = extractFileUploads(item)
+      output.files[item.name] = extractFileUploads(item)
     } else {
-      output.main[name] = item.field.getFormValueFromState(state)
+      output.main[item.name] = getAnswer(item.field, item.state, {
+        format: 'data'
+      })
     }
   })
 
@@ -94,16 +89,19 @@ function categoriseData(items: DetailItem[]) {
  * @returns the repeater item
  */
 function extractRepeaters(item: DetailItemRepeat) {
-  const repeaters: Record<string, RichFormValue>[] = []
+  const repeaters: Record<string, string>[] = []
 
   item.subItems.forEach((inputRepeaterItem) => {
-    const outputRepeaterItem: Record<string, RichFormValue> = {}
+    const outputRepeaterItem: Record<string, string> = {}
 
     inputRepeaterItem.forEach((repeaterComponent) => {
-      const { field, state } = repeaterComponent
-
-      outputRepeaterItem[repeaterComponent.name] =
-        field.getFormValueFromState(state)
+      outputRepeaterItem[repeaterComponent.name] = getAnswer(
+        repeaterComponent.field,
+        repeaterComponent.state,
+        {
+          format: 'data'
+        }
+      )
     })
 
     repeaters.push(outputRepeaterItem)
@@ -140,5 +138,3 @@ function isFileUploadFieldItem(
 type FileUploadFieldDetailitem = Omit<DetailItemField, 'field'> & {
   field: FileUploadField
 }
-
-type RichFormValue = FormValue | FormPayload | MonthYearState | UkAddressState
