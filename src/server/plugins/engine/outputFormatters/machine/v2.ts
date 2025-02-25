@@ -1,6 +1,7 @@
 import { type SubmitResponsePayload } from '@defra/forms-model'
 
 import { config } from '~/src/config/index.js'
+import { type DatePartsState } from '~/src/server/plugins/engine/components/DatePartsField.js'
 import { type MonthYearState } from '~/src/server/plugins/engine/components/MonthYearField.js'
 import { type UkAddressState } from '~/src/server/plugins/engine/components/UkAddressField.js'
 import { FileUploadField } from '~/src/server/plugins/engine/components/index.js'
@@ -141,4 +142,9 @@ type FileUploadFieldDetailitem = Omit<DetailItemField, 'field'> & {
   field: FileUploadField
 }
 
-type RichFormValue = FormValue | FormPayload | MonthYearState | UkAddressState
+type RichFormValue =
+  | FormValue
+  | FormPayload
+  | DatePartsState
+  | MonthYearState
+  | UkAddressState
