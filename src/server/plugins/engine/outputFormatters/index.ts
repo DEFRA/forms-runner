@@ -5,6 +5,7 @@ import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type DetailItem } from '~/src/server/plugins/engine/models/types.js'
 import { format as formatHumanV1 } from '~/src/server/plugins/engine/outputFormatters/human/v1.js'
 import { format as formatMachineV1 } from '~/src/server/plugins/engine/outputFormatters/machine/v1.js'
+import { format as formatMachineV2 } from '~/src/server/plugins/engine/outputFormatters/machine/v2.js'
 
 type Formatter = (
   items: DetailItem[],
@@ -21,7 +22,8 @@ const formatters: Record<
     '1': formatHumanV1
   },
   machine: {
-    '1': formatMachineV1
+    '1': formatMachineV1,
+    '2': formatMachineV2
   }
 }
 

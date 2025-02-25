@@ -195,7 +195,7 @@ export class DatePartsField extends FormComponent {
   }
 }
 
-interface DatePartsState extends Record<string, number> {
+export interface DatePartsState extends Record<string, number> {
   day: number
   month: number
   year: number
