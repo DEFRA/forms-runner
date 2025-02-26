@@ -819,4 +819,61 @@ describe('File Upload Client JS', () => {
     expect(summaryListAdded).toBe(false)
     expect(document.querySelector('dl.govuk-summary-list')).toBeNull()
   })
+
+  test('status announcer falls back to document.body when form.appendChild fails', () => {
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form id="upload-form">
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+      <form id="second-form">
+        <div id="uploadedFilesContainer">
+          <h2 class="govuk-heading-m">Uploaded files</h2>
+          <p class="govuk-body">0 files uploaded</p>
+        </div>
+        <button class="govuk-button">Continue</button>
+      </form>
+    `
+
+    const containerDiv = document.getElementById('uploadedFilesContainer')
+    if (!containerDiv) {
+      throw new Error()
+    }
+    const originalContainerAppend = containerDiv.appendChild.bind(containerDiv)
+    containerDiv.appendChild = jest.fn(() => {
+      throw new Error()
+    })
+
+    const form = document.getElementById('second-form')
+    if (!form) {
+      throw new Error()
+    }
+    const originalFormAppend = form.appendChild.bind(form)
+    form.appendChild = jest.fn(() => {
+      throw new Error()
+    })
+
+    const bodyAppendChildSpy = jest.spyOn(document.body, 'appendChild')
+
+    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+    loadFile('test.pdf')
+    triggerChange()
+    triggerClick({})
+
+    expect(bodyAppendChildSpy).toHaveBeenCalled()
+    const statusAnnouncerAppended = bodyAppendChildSpy.mock.calls.some(
+      (call) =>
+        call[0] instanceof HTMLElement && call[0].id === 'statusInformation'
+    )
+    expect(statusAnnouncerAppended).toBe(true)
+
+    const statusAnnouncer = document.getElementById('statusInformation')
+    expect(statusAnnouncer).not.toBeNull()
+    expect(statusAnnouncer?.parentNode).toBe(document.body)
+
+    containerDiv.appendChild = originalContainerAppend
+    form.appendChild = originalFormAppend
+    bodyAppendChildSpy.mockRestore()
+  })
 })
