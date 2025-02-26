@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 /**
  * Creates or updates status announcer for screen readers
  * @param {HTMLElement|null} form - The form element
@@ -7,7 +6,6 @@
  */
 function createOrUpdateStatusAnnouncer(form, fileCountP) {
   if (!form) {
-    console.warn('Form is null in createOrUpdateStatusAnnouncer')
     const dummyElement = document.createElement('div')
     return dummyElement
   }
@@ -20,6 +18,8 @@ function createOrUpdateStatusAnnouncer(form, fileCountP) {
     statusAnnouncer.className = 'govuk-visually-hidden'
     statusAnnouncer.setAttribute('aria-live', 'polite')
 
+    // multiple fallbacks to ensure the status announcer is always added to the DOM
+    // this helps with cross-browser compatibility and unexpected DOM structures encountered during QA
     try {
       if (fileCountP) {
         if (fileCountP.nextSibling && fileCountP.parentNode === form) {
@@ -31,20 +31,10 @@ function createOrUpdateStatusAnnouncer(form, fileCountP) {
       } else {
         form.appendChild(statusAnnouncer)
       }
-    } catch (error) {
-      console.warn(
-        'Error inserting status announcer:',
-        error.message,
-        error.stack
-      )
+    } catch {
       try {
         form.appendChild(statusAnnouncer)
-      } catch (innerError) {
-        console.error(
-          'Could not append status announcer to form:',
-          innerError.message,
-          innerError.stack
-        )
+      } catch {
         document.body.appendChild(statusAnnouncer)
       }
     }
@@ -64,24 +54,16 @@ function renderSummary(selectedFile, statusText, form) {
     return
   }
 
-  // Find upload form using getElementById + closest instead of :has() selector
   const container = document.getElementById('uploadedFilesContainer')
   const uploadForm = container ? container.closest('form') : null
 
-  console.log('Form:', form)
-  console.log('Container found:', container)
-  console.log('Upload form found:', uploadForm)
-
   if (!uploadForm || !(uploadForm instanceof HTMLFormElement)) {
-    console.warn('Upload form not found or not a form element')
     return
   }
 
   const fileCountP = uploadForm.querySelector('p.govuk-body')
-  console.log('File count paragraph:', fileCountP)
 
   if (!fileCountP) {
-    console.warn('File count paragraph not found')
     return
   }
 
@@ -89,41 +71,31 @@ function renderSummary(selectedFile, statusText, form) {
     /** @type {HTMLElement} */ (uploadForm),
     /** @type {HTMLElement} */ (fileCountP)
   )
-  console.log('Status announcer created:', statusAnnouncer)
 
   const fileInput = form.querySelector('input[type="file"]')
-  console.log('File input found:', fileInput)
 
   if (fileInput) {
     fileInput.setAttribute('aria-describedby', 'statusInformation')
   }
 
   let summaryList = uploadForm.querySelector('dl.govuk-summary-list')
-  console.log('Existing summary list:', summaryList)
 
   if (!summaryList) {
-    console.log('Creating new summary list')
     summaryList = document.createElement('dl')
     summaryList.className = 'govuk-summary-list govuk-summary-list--long-key'
 
     const continueButton = uploadForm.querySelector('.govuk-button')
-    console.log('Continue button:', continueButton)
 
     if (continueButton) {
-      console.log('Inserting summary list before continue button')
       uploadForm.insertBefore(summaryList, continueButton)
     } else {
-      console.log('Inserting summary list after file count paragraph')
       uploadForm.insertBefore(summaryList, fileCountP.nextSibling)
     }
-
-    console.log('Summary list inserted:', summaryList.parentNode === uploadForm)
   }
 
   const existingRow = document.querySelector(
     `[data-filename="${selectedFile.name}"]`
   )
-  console.log('Existing row:', existingRow)
 
   if (existingRow) {
     existingRow.remove()
@@ -143,10 +115,8 @@ function renderSummary(selectedFile, statusText, form) {
       </dd>
     `
 
-  console.log('Row created, inserting into summary list')
   summaryList.insertBefore(row, summaryList.firstChild)
   statusAnnouncer.textContent = `${selectedFile.name} ${statusText}`
-  console.log('Summary process complete')
 }
 
 /**
@@ -179,19 +149,7 @@ function showError(message, errorSummary, fileInput) {
 }
 
 export function initFileUpload() {
-  // Select specifically the upload form (first form with file input)
   const form = document.querySelector('form:has(input[type="file"])')
-
-  // Log which form was selected and its attributes
-  console.log('Selected upload form:', form)
-  console.log(
-    'Form has file input:',
-    form?.querySelector('input[type="file"]') !== null
-  )
-  console.log(
-    'Form has upload button:',
-    form?.querySelector('.upload-file-button') !== null
-  )
 
   /** @type {HTMLInputElement | null} */
   const fileInput = form ? form.querySelector('input[type="file"]') : null
@@ -202,11 +160,6 @@ export function initFileUpload() {
   const errorSummary = document.querySelector('.govuk-error-summary-container')
 
   if (!form || !fileInput || !uploadButton) {
-    console.warn('Missing required elements:', {
-      form,
-      fileInput,
-      uploadButton
-    })
     return
   }
 
@@ -220,16 +173,12 @@ export function initFileUpload() {
     }
     if (fileInput.files && fileInput.files.length > 0) {
       selectedFile = fileInput.files[0]
-      console.log('Selected file:', selectedFile.name)
     }
   })
 
   uploadButton.addEventListener('click', (event) => {
-    console.log('Upload button clicked')
-
     if (!selectedFile) {
       event.preventDefault()
-      console.log('No file selected, showing error')
       showError(
         'Select a file',
         /** @type {HTMLElement | null} */ (errorSummary),
@@ -240,12 +189,10 @@ export function initFileUpload() {
 
     if (isSubmitting) {
       event.preventDefault()
-      console.log('Already submitting, preventing duplicate submission')
       return
     }
 
     isSubmitting = true
-    console.log('Rendering summary for file:', selectedFile.name)
     renderSummary(selectedFile, 'Uploading…', /** @type {HTMLElement} */ (form))
 
     // moves focus back to the file input for screen readers
@@ -255,7 +202,6 @@ export function initFileUpload() {
     setTimeout(() => {
       fileInput.disabled = true
       uploadButton.disabled = true
-      console.log('Input and button disabled')
     }, 100)
   })
 }

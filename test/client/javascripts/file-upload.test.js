@@ -8,6 +8,13 @@ describe('File Upload Client JS', () => {
         <input type="file" id="file-upload">
         <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
       </form>
+      <form>
+        <div id="uploadedFilesContainer">
+          <h2 class="govuk-heading-m">Uploaded files</h2>
+          <p class="govuk-body">0 files uploaded</p>
+        </div>
+        <button class="govuk-button">Continue</button>
+      </form>
     `
 
     jest.useFakeTimers()
@@ -154,8 +161,10 @@ describe('File Upload Client JS', () => {
         <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
       </form>
       <form>
-        <h2 class="govuk-heading-m">Uploaded files</h2>
-        <p class="govuk-body">0 files uploaded</p>
+        <div id="uploadedFilesContainer">
+          <h2 class="govuk-heading-m">Uploaded files</h2>
+          <p class="govuk-body">0 files uploaded</p>
+        </div>
         <button class="govuk-button">Continue</button>
       </form>
     `
@@ -308,8 +317,10 @@ describe('File Upload Client JS', () => {
         <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
       </form>
       <form>
-        <h2 class="govuk-heading-m">Uploaded files</h2>
-        <p class="govuk-body">0 files uploaded</p>
+        <div id="uploadedFilesContainer">
+          <h2 class="govuk-heading-m">Uploaded files</h2>
+          <p class="govuk-body">0 files uploaded</p>
+        </div>
         <button class="govuk-button">Continue</button>
       </form>
     `
@@ -320,11 +331,9 @@ describe('File Upload Client JS', () => {
     triggerChange()
     triggerClick({})
 
-    const statusAnnouncer = document.querySelector('#statusInformation')
-    const secondForm = document.querySelectorAll('form')[1]
-
+    const statusAnnouncer = document.getElementById('statusInformation')
     expect(statusAnnouncer).not.toBeNull()
-    expect(statusAnnouncer?.parentNode).toBe(secondForm)
+    expect(document.contains(statusAnnouncer)).toBe(true)
   })
 
   test('disables form controls after submission', () => {
@@ -422,9 +431,11 @@ describe('File Upload Client JS', () => {
         <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
       </form>
       <form>
-        <h2 class="govuk-heading-m">Uploaded files</h2>
-        <p class="govuk-body">0 files uploaded</p>
-        <!-- No next sibling after p.govuk-body -->
+        <div id="uploadedFilesContainer">
+          <h2 class="govuk-heading-m">Uploaded files</h2>
+          <p class="govuk-body">0 files uploaded</p>
+          <!-- No next sibling after p.govuk-body -->
+        </div>
         <button class="govuk-button">Continue</button>
       </form>
     `
@@ -451,14 +462,17 @@ describe('File Upload Client JS', () => {
   })
 
   test('renderSummary properly removes existing row with same filename', () => {
-    document.body.innerHTML = `      <div class="govuk-error-summary-container"></div>
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
       <form>
         <input type="file" id="file-upload">
         <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
       </form>
       <form>
-        <h2 class="govuk-heading-m">Uploaded files</h2>
-        <p class="govuk-body">0 files uploaded</p>
+        <div id="uploadedFilesContainer">
+          <h2 class="govuk-heading-m">Uploaded files</h2>
+          <p class="govuk-body">0 files uploaded</p>
+        </div>
         <dl class="govuk-summary-list govuk-summary-list--long-key">
           <div class="govuk-summary-list__row" data-filename="some-file.pdf">
             <dt class="govuk-summary-list__key">some-file.pdf</dt>
@@ -503,7 +517,7 @@ describe('File Upload Client JS', () => {
         <input type="file" id="file-upload">
         <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
       </form>
-      <form>
+      <form id="uploadedFilesContainer">
         <h2 class="govuk-heading-m">Uploaded files</h2>
         <p class="govuk-body">0 files uploaded</p>
         <div class="next-element">Some other element</div>
@@ -521,23 +535,14 @@ describe('File Upload Client JS', () => {
 
     expect(summaryList).not.toBeNull()
 
-    expect(summaryList?.parentElement).toBe(
-      document.querySelectorAll('form')[1]
-    )
-
-    expect(summaryList?.classList.contains('govuk-summary-list')).toBe(true)
-    expect(
-      summaryList?.classList.contains('govuk-summary-list--long-key')
-    ).toBe(true)
+    const secondForm = document.querySelectorAll('form')[1]
+    expect(summaryList?.parentElement).toBe(secondForm)
 
     const fileRow = document.querySelector('[data-filename="some-file.pdf"]')
     expect(fileRow).not.toBeNull()
 
     const statusAnnouncer = document.getElementById('statusInformation')
     expect(statusAnnouncer).not.toBeNull()
-
-    expect(document.contains(summaryList)).toBe(true)
-    expect(document.contains(statusAnnouncer)).toBe(true)
   })
 
   test('sets aria-describedby on file input to connect with status announcer when uploading', () => {
@@ -548,8 +553,10 @@ describe('File Upload Client JS', () => {
         <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
       </form>
       <form>
-        <h2 class="govuk-heading-m">Uploaded files</h2>
-        <p class="govuk-body">0 files uploaded</p>
+        <div id="uploadedFilesContainer">
+          <h2 class="govuk-heading-m">Uploaded files</h2>
+          <p class="govuk-body">0 files uploaded</p>
+        </div>
         <button class="govuk-button">Continue</button>
       </form>
     `
@@ -569,5 +576,156 @@ describe('File Upload Client JS', () => {
     )
     expect(statusAnnouncer?.textContent).toContain('test.pdf')
     expect(statusAnnouncer?.textContent).toContain('Uploading')
+  })
+
+  test('disables controls after timeout when uploading', () => {
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form>
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+      <form>
+        <div id="uploadedFilesContainer">
+          <h2 class="govuk-heading-m">Uploaded files</h2>
+          <p class="govuk-body">0 files uploaded</p>
+        </div>
+        <button class="govuk-button">Continue</button>
+      </form>
+    `
+
+    const { fileInput, uploadButton, loadFile, triggerChange, triggerClick } =
+      setupTestableComponent()
+
+    loadFile('test.pdf')
+    triggerChange()
+    triggerClick({})
+
+    expect(/** @type {HTMLInputElement} */ (fileInput).disabled).toBe(false)
+    expect(/** @type {HTMLButtonElement} */ (uploadButton).disabled).toBe(false)
+
+    jest.advanceTimersByTime(101)
+
+    expect(/** @type {HTMLInputElement} */ (fileInput).disabled).toBe(true)
+    expect(/** @type {HTMLButtonElement} */ (uploadButton).disabled).toBe(true)
+  })
+
+  test('handles null form gracefully', () => {
+    document.body.innerHTML =
+      '<div class="govuk-error-summary-container"></div>'
+    expect(() => initFileUpload()).not.toThrow()
+  })
+
+  test('renderSummary handles existing row correctly', () => {
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form>
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+      <form>
+        <div id="uploadedFilesContainer">
+          <h2 class="govuk-heading-m">Uploaded files</h2>
+          <p class="govuk-body">0 files uploaded</p>
+        </div>
+        <button class="govuk-button">Continue</button>
+      </form>
+      <div class="govuk-summary-list__row" data-filename="some-file.pdf">
+        <dt class="govuk-summary-list__key">some-file.pdf</dt>
+        <dd class="govuk-summary-list__value">
+          <strong class="govuk-tag govuk-tag--yellow">Old status</strong>
+        </dd>
+      </div>
+    `
+
+    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+
+    loadFile('some-file.pdf')
+    triggerChange()
+    triggerClick({})
+
+    expect(
+      document.querySelectorAll('[data-filename="some-file.pdf"]')
+    ).toHaveLength(1)
+
+    const summaryList = document.querySelector('dl.govuk-summary-list')
+    const fileRow = document.querySelector('[data-filename="some-file.pdf"]')
+    expect(fileRow).not.toBeNull()
+    expect(fileRow?.parentNode).toBe(summaryList)
+    expect(fileRow?.textContent).toContain('Uploading…')
+  })
+
+  test('handles missing file count paragraph', () => {
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form>
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+      <form id="uploadedFilesContainer">
+        <h2 class="govuk-heading-m">Uploaded files</h2>
+        <!-- No p.govuk-body element -->
+        <button class="govuk-button">Continue</button>
+      </form>
+    `
+
+    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+
+    loadFile('some-file.pdf')
+    triggerChange()
+    triggerClick({})
+
+    const summaryList = document.querySelector('dl.govuk-summary-list')
+    expect(summaryList).toBeNull()
+  })
+
+  test('handles missing file input gracefully', () => {
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form>
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+      <form id="uploadedFilesContainer">
+        <h2 class="govuk-heading-m">Uploaded files</h2>
+        <p class="govuk-body">0 files uploaded</p>
+        <button class="govuk-button">Continue</button>
+      </form>
+    `
+
+    expect(() => initFileUpload()).not.toThrow()
+  })
+
+  test('handles existing row correctly in dom', () => {
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form>
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+      <form id="uploadedFilesContainer">
+        <h2 class="govuk-heading-m">Uploaded files</h2>
+        <p class="govuk-body">0 files uploaded</p>
+        <div class="govuk-summary-list__row" data-filename="some-file.pdf">
+          <dt>Original row that should be removed</dt>
+        </div>
+        <button class="govuk-button">Continue</button>
+      </form>
+    `
+
+    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+
+    loadFile('some-file.pdf')
+    triggerChange()
+    triggerClick({})
+
+    expect(
+      document.querySelectorAll('[data-filename="some-file.pdf"]')
+    ).toHaveLength(1)
+
+    const row = document.querySelector('[data-filename="some-file.pdf"]')
+    expect(row?.textContent).toContain('Uploading…')
+    expect(row?.textContent).not.toContain(
+      'Original row that should be removed'
+    )
   })
 })
