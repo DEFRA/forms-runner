@@ -42,6 +42,11 @@ function renderSummary(selectedFile, statusText, form) {
     /** @type {HTMLElement} */ (fileCountP)
   )
 
+  const fileInput = form.querySelector('input[type="file"]')
+  if (fileInput) {
+    fileInput.setAttribute('aria-describedby', 'statusInformation')
+  }
+
   let summaryList = uploadForm.querySelector('dl.govuk-summary-list')
   if (!summaryList) {
     summaryList = document.createElement('dl')

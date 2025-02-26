@@ -539,4 +539,35 @@ describe('File Upload Client JS', () => {
     expect(document.contains(summaryList)).toBe(true)
     expect(document.contains(statusAnnouncer)).toBe(true)
   })
+
+  test('sets aria-describedby on file input to connect with status announcer when uploading', () => {
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form>
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+      <form>
+        <h2 class="govuk-heading-m">Uploaded files</h2>
+        <p class="govuk-body">0 files uploaded</p>
+        <button class="govuk-button">Continue</button>
+      </form>
+    `
+
+    const { fileInput, loadFile, triggerChange, triggerClick } =
+      setupTestableComponent()
+
+    loadFile('test.pdf')
+    triggerChange()
+    triggerClick({})
+
+    const statusAnnouncer = document.getElementById('statusInformation')
+
+    expect(statusAnnouncer).not.toBeNull()
+    expect(fileInput?.getAttribute('aria-describedby')).toBe(
+      'statusInformation'
+    )
+    expect(statusAnnouncer?.textContent).toContain('test.pdf')
+    expect(statusAnnouncer?.textContent).toContain('Uploading')
+  })
 })
