@@ -1,7 +1,7 @@
 /**
  * Creates or updates status announcer for screen readers
- * @param {HTMLElement|null} form - The form element
- * @param {HTMLElement|null} fileCountP - The file count paragraph element
+ * @param {HTMLElement | null} form - The form element
+ * @param {HTMLElement | null} fileCountP - The file count paragraph element
  * @returns {HTMLElement} The status announcer element
  */
 function createOrUpdateStatusAnnouncer(form, fileCountP) {
@@ -21,16 +21,11 @@ function createOrUpdateStatusAnnouncer(form, fileCountP) {
     // multiple fallbacks to ensure the status announcer is always added to the DOM
     // this helps with cross-browser compatibility and unexpected DOM structures encountered during QA
     try {
-      if (fileCountP) {
-        if (fileCountP.nextSibling && fileCountP.parentNode === form) {
-          form.insertBefore(statusAnnouncer, fileCountP.nextSibling)
-        } else {
-          const parentElement = fileCountP.parentNode ?? form
-          parentElement.appendChild(statusAnnouncer)
-        }
-      } else {
-        form.appendChild(statusAnnouncer)
-      }
+      addStatusAnnouncerToDOM(
+        asHTMLElement(form),
+        asHTMLElement(fileCountP),
+        asHTMLElement(statusAnnouncer)
+      )
     } catch {
       try {
         form.appendChild(statusAnnouncer)
@@ -41,6 +36,27 @@ function createOrUpdateStatusAnnouncer(form, fileCountP) {
   }
 
   return /** @type {HTMLElement} */ (statusAnnouncer)
+}
+
+/**
+ * Helper function to add the status announcer to the DOM
+ * @param {HTMLElement} form - The form element
+ * @param {HTMLElement | null} fileCountP - The file count paragraph element
+ * @param {HTMLElement} statusAnnouncer - The status announcer element to add
+ */
+function addStatusAnnouncerToDOM(form, fileCountP, statusAnnouncer) {
+  if (!fileCountP) {
+    form.appendChild(statusAnnouncer)
+    return
+  }
+
+  if (fileCountP.nextSibling && fileCountP.parentNode === form) {
+    form.insertBefore(statusAnnouncer, fileCountP.nextSibling)
+    return
+  }
+
+  const parentElement = fileCountP.parentNode ?? form
+  parentElement.appendChild(statusAnnouncer)
 }
 
 /**
@@ -69,7 +85,7 @@ function renderSummary(selectedFile, statusText, form) {
 
   const statusAnnouncer = createOrUpdateStatusAnnouncer(
     /** @type {HTMLElement} */ (uploadForm),
-    /** @type {HTMLElement} */ (fileCountP)
+    /** @type {HTMLElement | null} */ (fileCountP)
   )
 
   const fileInput = form.querySelector('input[type="file"]')
@@ -146,6 +162,14 @@ function showError(message, errorSummary, fileInput) {
       `
     fileInput.setAttribute('aria-describedby', 'error-summary-title')
   }
+}
+
+/**
+ * Helper to safely convert an Element to HTMLElement
+ * @param {Element | null} element - The element to convert
+ */
+function asHTMLElement(element) {
+  return /** @type {HTMLElement} */ (element)
 }
 
 export function initFileUpload() {
