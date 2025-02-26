@@ -179,15 +179,34 @@ function showError(message, errorSummary, fileInput) {
 }
 
 export function initFileUpload() {
-  const form = document.querySelector('form')
-  console.log('🚀 ~ initFileUpload ~ form:', form)
+  // Select specifically the upload form (first form with file input)
+  const form = document.querySelector('form:has(input[type="file"])')
+
+  // Log which form was selected and its attributes
+  console.log('Selected upload form:', form)
+  console.log(
+    'Form has file input:',
+    form?.querySelector('input[type="file"]') !== null
+  )
+  console.log(
+    'Form has upload button:',
+    form?.querySelector('.upload-file-button') !== null
+  )
+
   /** @type {HTMLInputElement | null} */
-  const fileInput = document.querySelector('input[type="file"]')
+  const fileInput = form ? form.querySelector('input[type="file"]') : null
+
   /** @type {HTMLButtonElement | null} */
-  const uploadButton = document.querySelector('.upload-file-button')
+  const uploadButton = form ? form.querySelector('.upload-file-button') : null
+
   const errorSummary = document.querySelector('.govuk-error-summary-container')
 
   if (!form || !fileInput || !uploadButton) {
+    console.warn('Missing required elements:', {
+      form,
+      fileInput,
+      uploadButton
+    })
     return
   }
 
@@ -201,12 +220,16 @@ export function initFileUpload() {
     }
     if (fileInput.files && fileInput.files.length > 0) {
       selectedFile = fileInput.files[0]
+      console.log('Selected file:', selectedFile.name)
     }
   })
 
   uploadButton.addEventListener('click', (event) => {
+    console.log('Upload button clicked')
+
     if (!selectedFile) {
       event.preventDefault()
+      console.log('No file selected, showing error')
       showError(
         'Select a file',
         /** @type {HTMLElement | null} */ (errorSummary),
@@ -217,20 +240,22 @@ export function initFileUpload() {
 
     if (isSubmitting) {
       event.preventDefault()
+      console.log('Already submitting, preventing duplicate submission')
       return
     }
 
     isSubmitting = true
-    renderSummary(selectedFile, 'Uploading…', form)
+    console.log('Rendering summary for file:', selectedFile.name)
+    renderSummary(selectedFile, 'Uploading…', /** @type {HTMLElement} */ (form))
 
     // moves focus back to the file input for screen readers
     fileInput.focus()
 
     // submission still happens via formAction in the form
-    // and we're not disabling controls until after form submits to avoid blocking submission
     setTimeout(() => {
       fileInput.disabled = true
       uploadButton.disabled = true
+      console.log('Input and button disabled')
     }, 100)
   })
 }
