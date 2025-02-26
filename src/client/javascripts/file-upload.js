@@ -122,6 +122,7 @@ function showError(message, errorSummary, fileInput) {
 
 export function initFileUpload() {
   const form = document.querySelector('form')
+  console.log('🚀 ~ initFileUpload ~ form:', form)
   /** @type {HTMLInputElement | null} */
   const fileInput = document.querySelector('input[type="file"]')
   /** @type {HTMLButtonElement | null} */
