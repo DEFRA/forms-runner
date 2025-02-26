@@ -64,10 +64,13 @@ function renderSummary(selectedFile, statusText, form) {
     return
   }
 
-  const uploadForm = document.querySelector('form:has(#uploadedFilesContainer)')
+  // Find upload form using getElementById + closest instead of :has() selector
+  const container = document.getElementById('uploadedFilesContainer')
+  const uploadForm = container ? container.closest('form') : null
 
   console.log('Form:', form)
-  console.log('Upload form found by ID:', uploadForm)
+  console.log('Container found:', container)
+  console.log('Upload form found:', uploadForm)
 
   if (!uploadForm || !(uploadForm instanceof HTMLFormElement)) {
     console.warn('Upload form not found or not a form element')
@@ -75,6 +78,8 @@ function renderSummary(selectedFile, statusText, form) {
   }
 
   const fileCountP = uploadForm.querySelector('p.govuk-body')
+  console.log('File count paragraph:', fileCountP)
+
   if (!fileCountP) {
     console.warn('File count paragraph not found')
     return
@@ -84,28 +89,42 @@ function renderSummary(selectedFile, statusText, form) {
     /** @type {HTMLElement} */ (uploadForm),
     /** @type {HTMLElement} */ (fileCountP)
   )
+  console.log('Status announcer created:', statusAnnouncer)
 
   const fileInput = form.querySelector('input[type="file"]')
+  console.log('File input found:', fileInput)
+
   if (fileInput) {
     fileInput.setAttribute('aria-describedby', 'statusInformation')
   }
 
   let summaryList = uploadForm.querySelector('dl.govuk-summary-list')
+  console.log('Existing summary list:', summaryList)
+
   if (!summaryList) {
+    console.log('Creating new summary list')
     summaryList = document.createElement('dl')
     summaryList.className = 'govuk-summary-list govuk-summary-list--long-key'
 
     const continueButton = uploadForm.querySelector('.govuk-button')
+    console.log('Continue button:', continueButton)
+
     if (continueButton) {
+      console.log('Inserting summary list before continue button')
       uploadForm.insertBefore(summaryList, continueButton)
     } else {
+      console.log('Inserting summary list after file count paragraph')
       uploadForm.insertBefore(summaryList, fileCountP.nextSibling)
     }
+
+    console.log('Summary list inserted:', summaryList.parentNode === uploadForm)
   }
 
   const existingRow = document.querySelector(
     `[data-filename="${selectedFile.name}"]`
   )
+  console.log('Existing row:', existingRow)
+
   if (existingRow) {
     existingRow.remove()
   }
@@ -124,8 +143,10 @@ function renderSummary(selectedFile, statusText, form) {
       </dd>
     `
 
+  console.log('Row created, inserting into summary list')
   summaryList.insertBefore(row, summaryList.firstChild)
   statusAnnouncer.textContent = `${selectedFile.name} ${statusText}`
+  console.log('Summary process complete')
 }
 
 /**
