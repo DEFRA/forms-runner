@@ -728,4 +728,95 @@ describe('File Upload Client JS', () => {
       'Original row that should be removed'
     )
   })
+
+  test('file upload handles null form gracefully when creating status announcer', () => {
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form id="uploadForm">
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+      <form>
+        <div id="uploadedFilesContainer">
+          <h2 class="govuk-heading-m">Uploaded files</h2>
+          <p class="govuk-body">0 files uploaded</p>
+        </div>
+        <button class="govuk-button">Continue</button>
+      </form>
+    `
+
+    const { loadFile, triggerChange } = setupTestableComponent()
+
+    loadFile('some-file.pdf')
+    triggerChange()
+
+    const form = document.getElementById('uploadForm')
+    if (form) {
+      form.parentNode?.removeChild(form)
+    }
+
+    const uploadButton = document.querySelector('.upload-file-button')
+
+    const clickEvent = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true
+    })
+
+    expect(() => {
+      uploadButton?.dispatchEvent(clickEvent)
+    }).not.toThrow()
+
+    expect(document.querySelector('[data-filename="some-file.pdf"]')).toBeNull()
+    expect(document.getElementById('statusInformation')).toBeNull()
+  })
+
+  test('renderSummary explicitly handles null selectedFile', () => {
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form>
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+      <form>
+        <div id="uploadedFilesContainer">
+          <h2 class="govuk-heading-m">Uploaded files</h2>
+          <p class="govuk-body">0 files uploaded</p>
+        </div>
+        <button class="govuk-button">Continue</button>
+      </form>
+    `
+
+    const { triggerClick } = setupTestableComponent()
+
+    const containerObserver = new MutationObserver(() => {
+      /* intentionally empty - we just want to collect mutations */
+    })
+    const summaryListContainer = document.querySelector('form:nth-child(2)')
+
+    if (summaryListContainer) {
+      containerObserver.observe(summaryListContainer, {
+        childList: true,
+        subtree: true
+      })
+    }
+
+    containerObserver.takeRecords()
+
+    triggerClick({ preventDefault: jest.fn() })
+
+    const mutations = containerObserver.takeRecords()
+    const summaryListAdded = mutations.some((mutation) =>
+      Array.from(mutation.addedNodes).some(
+        (node) =>
+          node.nodeType === Node.ELEMENT_NODE &&
+          node instanceof HTMLElement &&
+          node.classList.contains('govuk-summary-list')
+      )
+    )
+
+    containerObserver.disconnect()
+
+    expect(summaryListAdded).toBe(false)
+    expect(document.querySelector('dl.govuk-summary-list')).toBeNull()
+  })
 })
