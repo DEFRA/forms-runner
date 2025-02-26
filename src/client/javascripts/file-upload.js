@@ -1,19 +1,55 @@
 /* eslint-disable no-console */
 /**
  * Creates or updates status announcer for screen readers
- * @param {HTMLElement} form - The form element
- * @param {HTMLElement} fileCountP - The file count paragraph element
+ * @param {HTMLElement|null} form - The form element
+ * @param {HTMLElement|null} fileCountP - The file count paragraph element
  * @returns {HTMLElement} The status announcer element
  */
 function createOrUpdateStatusAnnouncer(form, fileCountP) {
+  if (!form) {
+    console.warn('Form is null in createOrUpdateStatusAnnouncer')
+    const dummyElement = document.createElement('div')
+    return dummyElement
+  }
+
   let statusAnnouncer = form.querySelector('#statusInformation')
+
   if (!statusAnnouncer) {
     statusAnnouncer = document.createElement('div')
     statusAnnouncer.id = 'statusInformation'
     statusAnnouncer.className = 'govuk-visually-hidden'
     statusAnnouncer.setAttribute('aria-live', 'polite')
-    form.insertBefore(statusAnnouncer, fileCountP.nextSibling)
+
+    try {
+      if (fileCountP) {
+        if (fileCountP.nextSibling && fileCountP.parentNode === form) {
+          form.insertBefore(statusAnnouncer, fileCountP.nextSibling)
+        } else {
+          const parentElement = fileCountP.parentNode ?? form
+          parentElement.appendChild(statusAnnouncer)
+        }
+      } else {
+        form.appendChild(statusAnnouncer)
+      }
+    } catch (error) {
+      console.warn(
+        'Error inserting status announcer:',
+        error.message,
+        error.stack
+      )
+      try {
+        form.appendChild(statusAnnouncer)
+      } catch (innerError) {
+        console.error(
+          'Could not append status announcer to form:',
+          innerError.message,
+          innerError.stack
+        )
+        document.body.appendChild(statusAnnouncer)
+      }
+    }
   }
+
   return /** @type {HTMLElement} */ (statusAnnouncer)
 }
 
@@ -28,10 +64,11 @@ function renderSummary(selectedFile, statusText, form) {
     return
   }
 
-  console.log('Form:', form)
-  console.log('Next sibling:', form.nextElementSibling)
+  const uploadForm = document.querySelector('form:has(#uploadedFilesContainer)')
 
-  const uploadForm = form.nextElementSibling
+  console.log('Form:', form)
+  console.log('Upload form found by ID:', uploadForm)
+
   if (!uploadForm || !(uploadForm instanceof HTMLFormElement)) {
     console.warn('Upload form not found or not a form element')
     return
