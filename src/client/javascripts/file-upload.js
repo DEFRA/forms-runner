@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Creates or updates status announcer for screen readers
  * @param {HTMLElement} form - The form element
@@ -27,13 +28,18 @@ function renderSummary(selectedFile, statusText, form) {
     return
   }
 
+  console.log('Form:', form)
+  console.log('Next sibling:', form.nextElementSibling)
+
   const uploadForm = form.nextElementSibling
   if (!uploadForm || !(uploadForm instanceof HTMLFormElement)) {
+    console.warn('Upload form not found or not a form element')
     return
   }
 
   const fileCountP = uploadForm.querySelector('p.govuk-body')
   if (!fileCountP) {
+    console.warn('File count paragraph not found')
     return
   }
 
