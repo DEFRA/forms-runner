@@ -15,10 +15,6 @@ on:
       - '!**/*.test.*'
 
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version number manual override'
-        required: false
 
 concurrency:
   group: publish-hotfix
@@ -44,4 +40,3 @@ jobs:
         uses: DEFRA/cdp-build-action/build-hotfix@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          version: ${{ inputs.version }}
