@@ -21,7 +21,9 @@ describe('Routes', () => {
     await server.stop()
   })
 
-  test('cookies page is served', async () => {
+  test('cookies page is served with 24 hour duration', async () => {
+    config.set('sessionTimeout', 86400000)
+
     const options = {
       method: 'GET',
       url: '/help/cookies/slug'
@@ -34,13 +36,18 @@ describe('Routes', () => {
       level: 1
     })
 
-    const $rowheader = container.getByRole('rowheader', {
+    const $googleAnalyticsRowheader = container.getByRole('rowheader', {
       name: '_ga_123456789'
+    })
+
+    const $sessionDurationRow = container.getByRole('row', {
+      name: 'session Remembers the information you enter When you close the browser, or after 1 day'
     })
 
     expect($heading).toBeInTheDocument()
     expect($heading).toHaveClass('govuk-heading-l')
-    expect($rowheader).toBeInTheDocument()
+    expect($googleAnalyticsRowheader).toBeInTheDocument()
+    expect($sessionDurationRow).toBeInTheDocument()
   })
 
   test('accessibility statement page is served', async () => {

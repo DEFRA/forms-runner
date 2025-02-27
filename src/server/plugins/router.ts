@@ -1,6 +1,7 @@
 import { slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { type ServerRegisterPluginObject } from '@hapi/hapi'
+import humanizeDuration from 'humanize-duration'
 import Joi from 'joi'
 
 import {
@@ -64,10 +65,15 @@ export default {
         method: 'get',
         path: '/help/cookies/{slug}',
         handler(_request, h) {
+          const sessionTimeout = config.get('sessionTimeout')
+
+          const sessionDurationPretty = humanizeDuration(sessionTimeout)
+
           return h.view('help/cookies', {
             googleAnalyticsContainerId: config
               .get('googleAnalyticsTrackingId')
-              .replace(/^G-/, '')
+              .replace(/^G-/, ''),
+            sessionDurationPretty
           })
         },
         options
