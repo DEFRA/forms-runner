@@ -50,6 +50,54 @@ function addStatusAnnouncerToDOM(form, fileCountP, statusAnnouncer) {
 }
 
 /**
+ * Finds an existing summary list or creates a new one
+ * @param {HTMLFormElement} form - The form element
+ * @param {HTMLElement} fileCountP - The file count paragraph element
+ * @returns {HTMLElement} The summary list element
+ */
+function findOrCreateSummaryList(form, fileCountP) {
+  let summaryList = form.querySelector('dl.govuk-summary-list')
+
+  if (!summaryList) {
+    summaryList = document.createElement('dl')
+    summaryList.className = 'govuk-summary-list govuk-summary-list--long-key'
+
+    const continueButton = form.querySelector('.govuk-button')
+
+    if (continueButton) {
+      form.insertBefore(summaryList, continueButton)
+    } else {
+      form.insertBefore(summaryList, fileCountP.nextSibling)
+    }
+  }
+
+  return /** @type {HTMLElement} */ (summaryList)
+}
+
+/**
+ * Creates a file row element for the summary list
+ * @param {File | null} selectedFile - The selected file
+ * @param {string} statusText - The status to display
+ * @returns {HTMLElement} The created row element
+ */
+function createFileRow(selectedFile, statusText) {
+  const row = document.createElement('div')
+  row.className = 'govuk-summary-list__row'
+  row.setAttribute('data-filename', selectedFile?.name ?? '')
+  row.innerHTML = `
+      <dt class="govuk-summary-list__key">
+        ${selectedFile?.name ?? ''}
+      </dt>
+      <dd class="govuk-summary-list__value">
+        <strong class="govuk-tag govuk-tag--yellow">${statusText}</strong>
+      </dd>
+      <dd class="govuk-summary-list__actions">
+      </dd>
+    `
+  return row
+}
+
+/**
  * Renders or updates the file summary box for the selected file
  * @param {File | null} selectedFile - The selected file
  * @param {string} statusText - The status to display
@@ -80,20 +128,10 @@ function renderSummary(selectedFile, statusText, form) {
     fileInput.setAttribute('aria-describedby', 'statusInformation')
   }
 
-  let summaryList = uploadForm.querySelector('dl.govuk-summary-list')
-
-  if (!summaryList) {
-    summaryList = document.createElement('dl')
-    summaryList.className = 'govuk-summary-list govuk-summary-list--long-key'
-
-    const continueButton = uploadForm.querySelector('.govuk-button')
-
-    if (continueButton) {
-      uploadForm.insertBefore(summaryList, continueButton)
-    } else {
-      uploadForm.insertBefore(summaryList, fileCountP.nextSibling)
-    }
-  }
+  const summaryList = findOrCreateSummaryList(
+    /** @type {HTMLFormElement} */ (uploadForm),
+    /** @type {HTMLElement} */ (fileCountP)
+  )
 
   const existingRow = document.querySelector(
     `[data-filename="${selectedFile?.name}"]`
@@ -103,20 +141,7 @@ function renderSummary(selectedFile, statusText, form) {
     existingRow.remove()
   }
 
-  const row = document.createElement('div')
-  row.className = 'govuk-summary-list__row'
-  row.setAttribute('data-filename', selectedFile?.name ?? '')
-  row.innerHTML = `
-      <dt class="govuk-summary-list__key">
-        ${selectedFile?.name ?? ''}
-      </dt>
-      <dd class="govuk-summary-list__value">
-        <strong class="govuk-tag govuk-tag--yellow">${statusText}</strong>
-      </dd>
-      <dd class="govuk-summary-list__actions">
-      </dd>
-    `
-
+  const row = createFileRow(selectedFile, statusText)
   summaryList.insertBefore(row, summaryList.firstChild)
   statusAnnouncer.textContent = `${selectedFile?.name ?? ''} ${statusText}`
 }
