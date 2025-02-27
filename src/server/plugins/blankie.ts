@@ -3,6 +3,7 @@ import Blankie from 'blankie'
 
 import { config } from '~/src/config/index.js'
 
+const uploaderUrl = config.get('uploaderUrl')
 const googleAnalyticsOptions = {
   scriptSrc: ['https://*.googletagmanager.com'],
   imgSrc: ['https://*.google-analytics.com', 'https://*.googletagmanager.com'],
@@ -28,7 +29,8 @@ export const configureBlankiePlugin = (): ServerRegisterPluginObject<
       fontSrc: ['self', 'data:'],
       connectSrc: [
         ['self'],
-        gaTrackingId ? googleAnalyticsOptions.connectSrc : []
+        gaTrackingId ? googleAnalyticsOptions.connectSrc : [],
+        uploaderUrl ? [uploaderUrl] : []
       ].flat(),
       scriptSrc: [
         ['self', 'strict-dynamic', 'unsafe-inline'],

@@ -284,6 +284,8 @@ export interface FeaturedFormPageViewModel extends FormPageViewModel {
   formAction?: string
   formComponent: ComponentViewModel
   componentsBefore: ComponentViewModel[]
+  uploadId: string | undefined
+  proxyUrl: string | null
 }
 
 export type PageViewModel =

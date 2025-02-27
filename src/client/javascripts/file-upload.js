@@ -183,6 +183,36 @@ function asHTMLElement(element) {
   return /** @type {HTMLElement} */ (element)
 }
 
+/**
+ * Polls the upload status endpoint until the file is ready
+ * @param {string} uploadId - The upload ID to check
+ */
+function pollUploadStatus(uploadId) {
+  const interval = setInterval(() => {
+    fetch(`/upload-status/${uploadId}`, {
+      headers: {
+        Accept: 'application/json'
+      }
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok')
+        }
+        return response.json()
+      })
+      .then((data) => {
+        if (data.uploadStatus === 'ready') {
+          clearInterval(interval)
+          location.reload()
+        }
+      })
+      .catch(() => {
+        clearInterval(interval)
+        location.reload()
+      })
+  }, 1000)
+}
+
 export function initFileUpload() {
   const form = document.querySelector('form:has(input[type="file"])')
 
@@ -198,9 +228,13 @@ export function initFileUpload() {
     return
   }
 
+  const formElement = /** @type {HTMLFormElement} */ (form)
+
   /** @type {File | null} */
   let selectedFile = null
   let isSubmitting = false
+
+  const uploadId = formElement.dataset.uploadId
 
   fileInput.addEventListener('change', () => {
     if (errorSummary) {
@@ -224,6 +258,49 @@ export function initFileUpload() {
 
     if (isSubmitting) {
       event.preventDefault()
+      return
+    }
+
+    if (formElement.action && uploadId) {
+      event.preventDefault()
+      isSubmitting = true
+
+      renderSummary(
+        selectedFile,
+        'Uploading…',
+        /** @type {HTMLElement} */ (form)
+      )
+
+      const formData = new FormData(formElement)
+
+      const uploadUrl = formElement.dataset.proxyUrl ?? formElement.action
+
+      fileInput.disabled = true
+      uploadButton.disabled = true
+
+      fetch(uploadUrl, {
+        method: 'POST',
+        body: formData,
+        redirect: 'follow',
+        mode: 'no-cors'
+      })
+        .then(() => {
+          pollUploadStatus(uploadId)
+        })
+        .catch(() => {
+          fileInput.disabled = false
+          uploadButton.disabled = false
+          isSubmitting = false
+
+          showError(
+            'There was a problem uploading the file',
+            /** @type {HTMLElement | null} */ (errorSummary),
+            fileInput
+          )
+
+          return null
+        })
+
       return
     }
 

@@ -25,6 +25,7 @@ import { FileUploadPageController } from '~/src/server/plugins/engine/pageContro
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
+import { getUploadStatus } from '~/src/server/plugins/engine/services/uploadService.js'
 import { type FormContext } from '~/src/server/plugins/engine/types.js'
 import {
   type FormRequest,
@@ -587,6 +588,40 @@ export const plugin = {
               confirm: confirmSchema
             })
             .required()
+        }
+      }
+    })
+
+    server.route({
+      method: 'get',
+      path: '/upload-status/{uploadId}',
+      handler: async (request, h) => {
+        try {
+          const { uploadId } = request.params as { uploadId: string }
+          const status = await getUploadStatus(uploadId)
+
+          if (!status) {
+            return h.response({ error: 'Status check failed' }).code(400)
+          }
+
+          return h.response(status)
+        } catch (error) {
+          request.logger.error(
+            ['upload-status'],
+            'Upload status check failed',
+            error
+          )
+          return h.response({ error: 'Status check error' }).code(500)
+        }
+      },
+      options: {
+        plugins: {
+          crumb: false
+        },
+        validate: {
+          params: Joi.object().keys({
+            uploadId: Joi.string().guid().required()
+          })
         }
       }
     })
