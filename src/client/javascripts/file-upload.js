@@ -5,12 +5,7 @@
  * @returns {HTMLElement} The status announcer element
  */
 function createOrUpdateStatusAnnouncer(form, fileCountP) {
-  if (!form) {
-    const dummyElement = document.createElement('div')
-    return dummyElement
-  }
-
-  let statusAnnouncer = form.querySelector('#statusInformation')
+  let statusAnnouncer = form?.querySelector('#statusInformation')
 
   if (!statusAnnouncer) {
     statusAnnouncer = document.createElement('div')
@@ -28,7 +23,7 @@ function createOrUpdateStatusAnnouncer(form, fileCountP) {
       )
     } catch {
       try {
-        form.appendChild(statusAnnouncer)
+        form?.appendChild(statusAnnouncer)
       } catch {
         document.body.appendChild(statusAnnouncer)
       }
@@ -45,17 +40,12 @@ function createOrUpdateStatusAnnouncer(form, fileCountP) {
  * @param {HTMLElement} statusAnnouncer - The status announcer element to add
  */
 function addStatusAnnouncerToDOM(form, fileCountP, statusAnnouncer) {
-  if (!fileCountP) {
-    form.appendChild(statusAnnouncer)
-    return
-  }
-
-  if (fileCountP.nextSibling && fileCountP.parentNode === form) {
+  if (fileCountP?.nextSibling && fileCountP.parentNode === form) {
     form.insertBefore(statusAnnouncer, fileCountP.nextSibling)
     return
   }
 
-  const parentElement = fileCountP.parentNode ?? form
+  const parentElement = fileCountP?.parentNode ?? form
   parentElement.appendChild(statusAnnouncer)
 }
 
@@ -66,10 +56,6 @@ function addStatusAnnouncerToDOM(form, fileCountP, statusAnnouncer) {
  * @param {HTMLElement} form - The form element
  */
 function renderSummary(selectedFile, statusText, form) {
-  if (!selectedFile) {
-    return
-  }
-
   const container = document.getElementById('uploadedFilesContainer')
   const uploadForm = container ? container.closest('form') : null
 
@@ -110,7 +96,7 @@ function renderSummary(selectedFile, statusText, form) {
   }
 
   const existingRow = document.querySelector(
-    `[data-filename="${selectedFile.name}"]`
+    `[data-filename="${selectedFile?.name}"]`
   )
 
   if (existingRow) {
@@ -119,10 +105,10 @@ function renderSummary(selectedFile, statusText, form) {
 
   const row = document.createElement('div')
   row.className = 'govuk-summary-list__row'
-  row.setAttribute('data-filename', selectedFile.name)
+  row.setAttribute('data-filename', selectedFile?.name ?? '')
   row.innerHTML = `
       <dt class="govuk-summary-list__key">
-        ${selectedFile.name}
+        ${selectedFile?.name ?? ''}
       </dt>
       <dd class="govuk-summary-list__value">
         <strong class="govuk-tag govuk-tag--yellow">${statusText}</strong>
@@ -132,7 +118,7 @@ function renderSummary(selectedFile, statusText, form) {
     `
 
   summaryList.insertBefore(row, summaryList.firstChild)
-  statusAnnouncer.textContent = `${selectedFile.name} ${statusText}`
+  statusAnnouncer.textContent = `${selectedFile?.name ?? ''} ${statusText}`
 }
 
 /**
