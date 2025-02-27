@@ -113,7 +113,7 @@ describe('File Upload Client JS', () => {
 
   test('shows error when upload button is clicked without selecting a file', () => {
     const event = { preventDefault: jest.fn() }
-    const { triggerClick } = setupTestableComponent()
+    const { triggerClick, fileInput } = setupTestableComponent()
 
     triggerClick(event)
 
@@ -122,6 +122,12 @@ describe('File Upload Client JS', () => {
     const errorSummary = document.querySelector('.govuk-error-summary')
     expect(errorSummary).not.toBeNull()
     expect(errorSummary?.textContent).toContain('Select a file')
+
+    const errorSummaryTitle = document.getElementById('error-summary-title')
+    expect(errorSummaryTitle).not.toBeNull()
+    expect(fileInput?.getAttribute('aria-describedby')).toBe(
+      'error-summary-title'
+    )
   })
 
   test('clears error when file is selected', () => {

@@ -158,7 +158,7 @@ function showError(message, errorSummary, fileInput) {
     errorSummary.innerHTML = `
         <div class="govuk-error-summary" data-module="govuk-error-summary">
           <div role="alert">
-            <h2 class="govuk-error-summary__title">
+            <h2 class="govuk-error-summary__title" id="error-summary-title">
               There is a problem
             </h2>
             <div class="govuk-error-summary__body">
