@@ -28,6 +28,7 @@ import {
   type FormParams,
   type FormPayload,
   type FormState,
+  type FormStateValue,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import {
@@ -324,6 +325,25 @@ export class QuestionPageController extends PageController {
     return cacheService.setState(request, updated)
   }
 
+  filterConditionalComponents(
+    viewModel: FormPageViewModel,
+    model: FormModel,
+    evaluationState: Partial<Record<string, FormStateValue>>
+  ) {
+    // Filter our components based on their conditions using our evaluated state
+    return viewModel.components.filter((component) => {
+      if (
+        (!!component.model.content ||
+          component.type === ComponentType.Details) &&
+        component.model.condition
+      ) {
+        const condition = model.conditions[component.model.condition]
+        return condition?.fn(evaluationState)
+      }
+      return true
+    })
+  }
+
   makeGetRouteHandler() {
     return async (
       request: FormRequest,
@@ -341,17 +361,11 @@ export class QuestionPageController extends PageController {
        */
 
       // Filter our components based on their conditions using our evaluated state
-      viewModel.components = viewModel.components.filter((component) => {
-        if (
-          (!!component.model.content ||
-            component.type === ComponentType.Details) &&
-          component.model.condition
-        ) {
-          const condition = model.conditions[component.model.condition]
-          return condition?.fn(evaluationState)
-        }
-        return true
-      })
+      viewModel.components = this.filterConditionalComponents(
+        viewModel,
+        model,
+        evaluationState
+      )
 
       /**
        * For conditional reveal components (which we no longer support until GDS resolves the related accessibility issues {@link https://github.com/alphagov/govuk-frontend/issues/1991}
@@ -458,8 +472,8 @@ export class QuestionPageController extends PageController {
       context: FormContext,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { collection, viewName } = this
-      const { isForceAccess, state } = context
+      const { collection, viewName, model } = this
+      const { isForceAccess, state, evaluationState } = context
 
       /**
        * If there are any errors, render the page with the parsed errors
@@ -468,6 +482,13 @@ export class QuestionPageController extends PageController {
       if (context.errors || isForceAccess) {
         const viewModel = this.getViewModel(request, context)
         viewModel.errors = collection.getErrors(viewModel.errors)
+
+        // Filter our components based on their conditions using our evaluated state
+        viewModel.components = this.filterConditionalComponents(
+          viewModel,
+          model,
+          evaluationState
+        )
 
         return h.view(viewName, viewModel)
       }
