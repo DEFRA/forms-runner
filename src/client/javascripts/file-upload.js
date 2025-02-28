@@ -272,13 +272,21 @@ function handleAjaxFormSubmission(
   event.preventDefault()
 
   const formData = new FormData(formElement)
+  const isLocalDev = !!formElement.dataset.proxyUrl
   const uploadUrl = formElement.dataset.proxyUrl ?? formElement.action
 
-  fetch(uploadUrl, {
+  const fetchOptions = /** @type {RequestInit} */ ({
     method: 'POST',
     body: formData,
-    redirect: 'manual'
+    redirect: isLocalDev ? 'follow' : 'manual' // follow mode if local development with the proxy
   })
+
+  // no-cors mode if needed local development with the proxy
+  if (isLocalDev) {
+    fetchOptions.mode = 'no-cors'
+  }
+
+  fetch(uploadUrl, fetchOptions)
     .then(() => {
       pollUploadStatus(uploadId)
     })
