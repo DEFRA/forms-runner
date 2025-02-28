@@ -1054,7 +1054,7 @@ describe('File Upload Client JS', () => {
       'http://some-url.com/upload',
       expect.objectContaining({
         method: 'POST',
-        mode: 'no-cors'
+        redirect: 'manual'
       })
     )
 
@@ -1111,7 +1111,7 @@ describe('File Upload Client JS', () => {
       '/proxy-endpoint',
       expect.objectContaining({
         method: 'POST',
-        mode: 'no-cors'
+        redirect: 'manual'
       })
     )
 
