@@ -3,7 +3,6 @@ import Blankie from 'blankie'
 
 import { config } from '~/src/config/index.js'
 
-const uploaderUrl = config.get('uploaderUrl')
 const googleAnalyticsOptions = {
   scriptSrc: ['https://*.googletagmanager.com'],
   imgSrc: ['https://*.google-analytics.com', 'https://*.googletagmanager.com'],
@@ -18,6 +17,7 @@ export const configureBlankiePlugin = (): ServerRegisterPluginObject<
   Record<string, boolean | string | string[]>
 > => {
   const gaTrackingId = config.get('googleAnalyticsTrackingId')
+  const uploaderUrl = config.get('uploaderUrl')
 
   /*
   Note that unsafe-inline is a fallback for old browsers that don't support nonces. It will be ignored by modern browsers as the nonce is provided.

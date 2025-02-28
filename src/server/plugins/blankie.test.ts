@@ -50,4 +50,24 @@ describe('Server Blankie Plugin', () => {
       generateNonces: true
     })
   })
+
+  test('configuration includes uploaderUrl when provided', () => {
+    config.set('googleAnalyticsTrackingId', '')
+    config.set('uploaderUrl', 'https://some-random-uploader.example.com')
+
+    const { options } = configureBlankiePlugin()
+
+    expect(options?.connectSrc).toContain(
+      'https://some-random-uploader.example.com'
+    )
+  })
+
+  test('configuration does not include uploaderUrl when not provided', () => {
+    config.set('googleAnalyticsTrackingId', '')
+    config.set('uploaderUrl', '')
+
+    const { options } = configureBlankiePlugin()
+
+    expect(options?.connectSrc).toEqual(['self'])
+  })
 })
