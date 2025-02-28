@@ -12,6 +12,7 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import { type FormRequest } from '~/src/server/routes/types.js'
 import { CacheService } from '~/src/server/services/cacheService.js'
+import conditionalReveal from '~/test/form/definitions/conditional-reveal.js'
 import definitionConditionsBasic, {
   V2 as definitionConditionsBasicV2
 } from '~/test/form/definitions/conditions-basic.js'
@@ -396,6 +397,118 @@ describe('QuestionPageController', () => {
         dateField__month: 1,
         dateField__year: 2024
       })
+    })
+
+    it('filters on condition A', () => {
+      const { pages } = conditionalReveal
+
+      const model = new FormModel(conditionalReveal, {
+        basePath: 'test'
+      })
+
+      const controller = new QuestionPageController(model, pages[0])
+
+      // The state below shows we said we had a UKPassport and entered details for an applicant
+      const state: FormSubmissionState = {}
+
+      const request = {
+        method: 'get',
+        url: new URL('http://example.com/test/page-one'),
+        path: '/test/first-page',
+        params: {
+          path: 'first-page',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      } satisfies FormContextRequest
+
+      const context = controller.model.getFormContext(request, state)
+      const evaluationState = { animalType: 'Barn owl' }
+
+      const viewModel = controller.getViewModel(request, context)
+
+      const filtered = controller.filterConditionalComponents(
+        viewModel,
+        model,
+        evaluationState
+      )
+
+      expect(filtered).toHaveLength(2)
+      expect(filtered[0].model.content).toBe('This is info for Barn owls')
+      expect(filtered[1].model.label?.text).toBe('Select from the list')
+      expect(filtered[1].model.items).toEqual([
+        {
+          checked: false,
+          condition: 'isBarnOwl',
+          selected: false,
+          text: 'Option 1',
+          value: '1'
+        },
+        {
+          checked: false,
+          condition: 'isBarnOwl',
+          selected: false,
+          text: 'Option 2',
+          value: '2'
+        }
+      ])
+    })
+
+    it('filters on condition B', () => {
+      const { pages } = conditionalReveal
+
+      const model = new FormModel(conditionalReveal, {
+        basePath: 'test'
+      })
+
+      const controller = new QuestionPageController(model, pages[0])
+
+      // The state below shows we said we had a UKPassport and entered details for an applicant
+      const state: FormSubmissionState = {}
+
+      const request = {
+        method: 'get',
+        url: new URL('http://example.com/test/page-one'),
+        path: '/test/first-page',
+        params: {
+          path: 'first-page',
+          slug: 'test'
+        },
+        query: {},
+        app: { model }
+      } satisfies FormContextRequest
+
+      const context = controller.model.getFormContext(request, state)
+      const evaluationState = { animalType: 'Swan' }
+
+      const viewModel = controller.getViewModel(request, context)
+
+      const filtered = controller.filterConditionalComponents(
+        viewModel,
+        model,
+        evaluationState
+      )
+
+      expect(filtered).toHaveLength(2)
+      expect(filtered[0].model.content).toBe('This is info for other breeds')
+      expect(filtered[1].model.label?.text).toBe('Select from the list')
+      expect(filtered[1].model.items).toEqual([
+        {
+          checked: false,
+          condition: 'notBarnOwl',
+          selected: false,
+          text: 'Option 3',
+          value: '3'
+        },
+        {
+          checked: false,
+          condition: 'notBarnOwl',
+          selected: false,
+          text: 'Option 4',
+          value: '4'
+        }
+      ])
     })
   })
 
