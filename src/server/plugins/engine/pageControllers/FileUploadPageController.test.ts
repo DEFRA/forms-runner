@@ -10,11 +10,15 @@ import {
   FileUploadPageController,
   prepareStatus
 } from '~/src/server/plugins/engine/pageControllers/FileUploadPageController.js'
+import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
+import * as pageHelpers from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import * as uploadService from '~/src/server/plugins/engine/services/uploadService.js'
 import {
   FileStatus,
   UploadStatus,
+  type FeaturedFormPageViewModel,
   type FormContext,
+  type FormContextRequest,
   type FormParams,
   type FormSubmissionState,
   type UploadStatusFileResponse,
@@ -1059,6 +1063,46 @@ describe('FileUploadPageController', () => {
       await handler(request, context, h)
 
       expect(proceedSpy).toHaveBeenCalledWith(request, h)
+    })
+  })
+
+  describe('getViewModel', () => {
+    it('includes uploadId and proxyUrl in the view model', () => {
+      const state = {
+        upload: {
+          [controller.path]: {
+            upload: {
+              uploadId: 'some-upload-id',
+              uploadUrl: 'https://cdp-upload-and-scan.com/upload',
+              statusUrl: 'https://cdp-upload-and-scan.com/status'
+            },
+            files: []
+          }
+        }
+      } as unknown as FormSubmissionState
+
+      const context = { state } as FormContext
+
+      jest
+        .spyOn(QuestionPageController.prototype, 'getViewModel')
+        .mockReturnValue({
+          components: [{ model: { id: 'fileUpload' } }]
+        } as unknown as FeaturedFormPageViewModel)
+
+      jest
+        .spyOn(pageHelpers, 'getProxyUrlForLocalDevelopment')
+        .mockReturnValue('http://uploader.127.0.0.1.sslip.io:7300')
+
+      const viewModel = controller.getViewModel(
+        request as FormContextRequest,
+        context
+      )
+
+      expect(viewModel.uploadId).toBe('some-upload-id')
+      expect(viewModel.proxyUrl).toBe('http://uploader.127.0.0.1.sslip.io:7300')
+      expect(viewModel.formAction).toBe(
+        'https://cdp-upload-and-scan.com/upload'
+      )
     })
   })
 })
