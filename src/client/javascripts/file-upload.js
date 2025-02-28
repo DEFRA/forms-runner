@@ -1,3 +1,5 @@
+export const MAX_POLLING_DURATION = 300 // 5 minutes
+
 /**
  * Creates or updates status announcer for screen readers
  * @param {HTMLElement | null} form - The form element
@@ -184,11 +186,20 @@ function asHTMLElement(element) {
 }
 
 /**
- * Polls the upload status endpoint until the file is ready
+ * Polls the upload status endpoint until the file is ready or timeout occurs
  * @param {string} uploadId - The upload ID to check
  */
 function pollUploadStatus(uploadId) {
+  let attempts = 0
   const interval = setInterval(() => {
+    attempts++
+
+    if (attempts >= MAX_POLLING_DURATION) {
+      clearInterval(interval)
+      location.reload()
+      return
+    }
+
     fetch(`/upload-status/${uploadId}`, {
       headers: {
         Accept: 'application/json'
@@ -213,15 +224,93 @@ function pollUploadStatus(uploadId) {
   }, 1000)
 }
 
+/**
+ * Handle standard form submission for file upload
+ * @param {HTMLFormElement} formElement - The form element
+ * @param {HTMLInputElement} fileInput - The file input element
+ * @param {HTMLButtonElement} uploadButton - The upload button
+ * @param {File | null} selectedFile - The selected file
+ */
+function handleStandardFormSubmission(
+  formElement,
+  fileInput,
+  uploadButton,
+  selectedFile
+) {
+  renderSummary(selectedFile, 'Uploading…', formElement)
+
+  fileInput.focus()
+
+  setTimeout(() => {
+    fileInput.disabled = true
+    uploadButton.disabled = true
+  }, 100)
+}
+
+/**
+ * Handle AJAX form submission with upload ID
+ * @param {Event} event - The click event
+ * @param {HTMLFormElement} formElement - The form element
+ * @param {HTMLInputElement} fileInput - The file input element
+ * @param {HTMLButtonElement} uploadButton - The upload button
+ * @param {File | null} selectedFile - The selected file
+ * @param {HTMLElement | null} errorSummary - The error summary container
+ * @param {string | undefined} uploadId - The upload ID
+ * @returns {boolean} Whether the event was handled
+ */
+function handleAjaxFormSubmission(
+  event,
+  formElement,
+  fileInput,
+  uploadButton,
+  selectedFile,
+  errorSummary,
+  uploadId
+) {
+  if (!formElement.action || !uploadId) {
+    return false
+  }
+
+  event.preventDefault()
+  renderSummary(selectedFile, 'Uploading…', formElement)
+
+  const formData = new FormData(formElement)
+  const uploadUrl = formElement.dataset.proxyUrl ?? formElement.action
+
+  fileInput.disabled = true
+  uploadButton.disabled = true
+
+  fetch(uploadUrl, {
+    method: 'POST',
+    body: formData,
+    redirect: 'follow',
+    mode: 'no-cors'
+  })
+    .then(() => {
+      pollUploadStatus(uploadId)
+    })
+    .catch(() => {
+      fileInput.disabled = false
+      uploadButton.disabled = false
+
+      showError(
+        'There was a problem uploading the file',
+        errorSummary,
+        fileInput
+      )
+
+      return null
+    })
+
+  return true
+}
+
 export function initFileUpload() {
   const form = document.querySelector('form:has(input[type="file"])')
-
   /** @type {HTMLInputElement | null} */
   const fileInput = form ? form.querySelector('input[type="file"]') : null
-
   /** @type {HTMLButtonElement | null} */
   const uploadButton = form ? form.querySelector('.upload-file-button') : null
-
   const errorSummary = document.querySelector('.govuk-error-summary-container')
 
   if (!form || !fileInput || !uploadButton) {
@@ -229,11 +318,9 @@ export function initFileUpload() {
   }
 
   const formElement = /** @type {HTMLFormElement} */ (form)
-
   /** @type {File | null} */
   let selectedFile = null
   let isSubmitting = false
-
   const uploadId = formElement.dataset.uploadId
 
   fileInput.addEventListener('change', () => {
@@ -261,59 +348,27 @@ export function initFileUpload() {
       return
     }
 
-    if (formElement.action && uploadId) {
-      event.preventDefault()
-      isSubmitting = true
+    isSubmitting = true
 
-      renderSummary(
+    if (
+      handleAjaxFormSubmission(
+        event,
+        formElement,
+        fileInput,
+        uploadButton,
         selectedFile,
-        'Uploading…',
-        /** @type {HTMLElement} */ (form)
+        /** @type {HTMLElement | null} */ (errorSummary),
+        uploadId
       )
-
-      const formData = new FormData(formElement)
-
-      const uploadUrl = formElement.dataset.proxyUrl ?? formElement.action
-
-      fileInput.disabled = true
-      uploadButton.disabled = true
-
-      fetch(uploadUrl, {
-        method: 'POST',
-        body: formData,
-        redirect: 'follow',
-        mode: 'no-cors'
-      })
-        .then(() => {
-          pollUploadStatus(uploadId)
-        })
-        .catch(() => {
-          fileInput.disabled = false
-          uploadButton.disabled = false
-          isSubmitting = false
-
-          showError(
-            'There was a problem uploading the file',
-            /** @type {HTMLElement | null} */ (errorSummary),
-            fileInput
-          )
-
-          return null
-        })
-
+    ) {
       return
     }
 
-    isSubmitting = true
-    renderSummary(selectedFile, 'Uploading…', /** @type {HTMLElement} */ (form))
-
-    // moves focus back to the file input for screen readers
-    fileInput.focus()
-
-    // submission still happens via formAction in the form
-    setTimeout(() => {
-      fileInput.disabled = true
-      uploadButton.disabled = true
-    }, 100)
+    handleStandardFormSubmission(
+      formElement,
+      fileInput,
+      uploadButton,
+      selectedFile
+    )
   })
 }
