@@ -19,6 +19,7 @@ The designer is no longer a plugin and is responsible for running itself on defa
   - [Local JSON API](#local-json-api)
   - [Production](#production)
   - [npm scripts](#npm-scripts)
+  - [File Uploads with Local Development](#file-uploads-with-local-development)
 - [Docker](#docker)
   - [Development Image](#development-image)
   - [Production Image](#production-image)
@@ -75,6 +76,53 @@ To view them in your command line run:
 ```bash
 $ npm run
 ```
+
+### File Uploads with Local Development
+
+When developing locally with file upload functionality, there are specific configuration requirements to handle CORS (Cross-Origin Resource Sharing) and CSP (Content Security Policy) restrictions.
+
+### Setting up the CDP Uploader Service
+
+The forms-runner application needs to use the CDP uploader service which is available in the docker-compose setup from the forms-api-submissions repository:
+
+1. Clone the forms-api-submissions repository
+2. Start the required services with docker-compose:
+
+```bash
+$ cd forms-api-submissions
+$ docker-compose up -d
+```
+
+This will start:
+
+- The CDP uploader service on port 7337
+- A Nginx reverse proxy on port 7300
+- Supporting services (localstack, Redis) needed by the uploader
+
+### Configuring the Uploader URL
+
+For file uploads to work properly in local development, you need to use the sslip.io domain that maps to the proxy:
+
+1. Set the UPLOADER_URL in your .env file:
+
+```
+UPLOADER_URL=http://uploader.127.0.0.1.sslip.io:7300
+```
+
+2. Make sure "host.docker.internal" is enabled in your Docker Desktop settings
+
+### How it Works
+
+- The docker-compose setup includes an Nginx reverse proxy that routes requests from uploader.127.0.0.1.sslip.io:7300 to the CDP uploader service
+- When developing locally, JavaScript CORS restrictions would normally block direct requests to localhost:7337
+- The sslip.io domain (a special DNS service that maps IPs to domains) allows your browser to make cross-origin requests
+- The application automatically detects local development URLs with localhost:7337 and rewrites them to use the proxy
+
+### Troubleshooting
+
+- If file uploads fail, ensure all the required docker services are running
+- Verify the proxy is working by testing: http://uploader.127.0.0.1.sslip.io:7300
+- Check Docker logs for the cdp-uploader and proxy containers if issues persist
 
 ## Docker
 
