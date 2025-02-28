@@ -277,8 +277,7 @@ function handleAjaxFormSubmission(
   fetch(uploadUrl, {
     method: 'POST',
     body: formData,
-    redirect: 'follow',
-    mode: 'no-cors'
+    redirect: 'manual'
   })
     .then(() => {
       pollUploadStatus(uploadId)
