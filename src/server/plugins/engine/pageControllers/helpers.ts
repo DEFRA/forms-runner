@@ -87,5 +87,8 @@ export function getProxyUrlForLocalDevelopment(
     return null
   }
 
-  return uploadUrl.replace('localhost:7337', 'uploader.127.0.0.1.sslip.io:7300')
+  return uploadUrl.replace(
+    /localhost:7337/g,
+    'uploader.127.0.0.1.sslip.io:7300'
+  )
 }
