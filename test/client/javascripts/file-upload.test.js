@@ -882,4 +882,240 @@ describe('File Upload Client JS', () => {
     form.appendChild = originalFormAppend
     bodyAppendChildSpy.mockRestore()
   })
+
+  test('uses form action when proxyUrl is undefined and uses proxyUrl when defined', () => {
+    const originalFetch = global.fetch
+    const fetchMock = jest.fn(() =>
+      Promise.resolve(new Response(JSON.stringify({}), { status: 200 }))
+    )
+    global.fetch = fetchMock
+
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form action="http://some-url.com/upload" enctype="multipart/form-data" data-upload-id="test-id">
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+    `
+    setupTestableComponent()
+
+    const form = document.querySelector('form')
+    const uploadUrl1 = form?.dataset.proxyUrl ?? form?.action
+
+    expect(uploadUrl1).toBe('http://some-url.com/upload')
+
+    form?.setAttribute('data-proxy-url', 'http://some-proxy-url.com/upload')
+
+    const uploadUrl2 = form?.dataset.proxyUrl ?? form?.action
+
+    expect(uploadUrl2).toBe('http://some-proxy-url.com/upload')
+
+    global.fetch = originalFetch
+  })
+
+  test('form submission depends on formElement having action attribute and uploadId', () => {
+    const originalFormData = global.FormData
+    global.FormData = /** @type {any} */ (
+      jest.fn(() => ({
+        append: jest.fn()
+      }))
+    )
+
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form action="/upload-endpoint" data-upload-id="test-id">
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+    `
+
+    const form1 = document.querySelector('form')
+    expect(form1?.hasAttribute('action')).toBe(true)
+    expect(form1?.getAttribute('action')).toBe('/upload-endpoint')
+
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form data-upload-id="test-id">
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+    `
+
+    const form2 = document.querySelector('form')
+    expect(form2?.hasAttribute('action')).toBe(false)
+
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form action="/upload-endpoint">
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+    `
+
+    const form3 = document.querySelector('form')
+    expect(form3?.hasAttribute('action')).toBe(true)
+    expect(form3?.hasAttribute('data-upload-id')).toBe(false)
+
+    global.FormData = originalFormData
+  })
+
+  test('upload URL is correctly determined by formElement attributes', () => {
+    document.body.innerHTML = `
+      <form action="/upload-endpoint" data-upload-id="test-id">
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+    `
+
+    const form1 = document.querySelector('form')
+    const uploadUrl1 = form1?.dataset.proxyUrl ?? form1?.getAttribute('action')
+    expect(uploadUrl1).toBe('/upload-endpoint')
+
+    document.body.innerHTML = `
+      <form action="/upload-endpoint" data-upload-id="test-id" data-proxy-url="/proxy-endpoint">
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+    `
+
+    const form2 = document.querySelector('form')
+    const uploadUrl2 = form2?.dataset.proxyUrl ?? form2?.getAttribute('action')
+    expect(uploadUrl2).toBe('/proxy-endpoint')
+
+    document.body.innerHTML = `
+      <form data-upload-id="test-id" data-proxy-url="/proxy-endpoint">
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+    `
+
+    const form3 = document.querySelector('form')
+    const uploadUrl3 = form3?.dataset.proxyUrl ?? form3?.getAttribute('action')
+    expect(uploadUrl3).toBe('/proxy-endpoint')
+
+    document.body.innerHTML = `
+      <form data-upload-id="test-id">
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+    `
+
+    const form4 = document.querySelector('form')
+    const uploadUrl4 = form4?.dataset.proxyUrl ?? form4?.getAttribute('action')
+    expect(uploadUrl4).toBeNull()
+  })
+
+  test('handles AJAX form submission when form has action and uploadId', () => {
+    const originalFetch = global.fetch
+    const fetchMock = jest.fn(() =>
+      Promise.resolve(new Response(JSON.stringify({}), { status: 200 }))
+    )
+    global.fetch = fetchMock
+
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form action="http://some-url.com/upload" enctype="multipart/form-data" data-upload-id="test-id">
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+      <form>
+        <div id="uploadedFilesContainer">
+          <h2 class="govuk-heading-m">Uploaded files</h2>
+          <p class="govuk-body">0 files uploaded</p>
+        </div>
+        <button class="govuk-button">Continue</button>
+      </form>
+    `
+
+    const originalFormData = global.FormData
+    const formDataMock = jest.fn(function () {
+      return {
+        append: jest.fn()
+      }
+    })
+    global.FormData = /** @type {any} */ (formDataMock)
+
+    const tempGlobal = /** @type {any} */ (global)
+    // using bracket notation with ESLint disabled to safely add property to global
+    // eslint-disable-next-line @typescript-eslint/dot-notation, @typescript-eslint/no-unsafe-member-access
+    tempGlobal['pollUploadStatus'] = jest.fn()
+
+    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+
+    loadFile('test-file.pdf')
+    triggerChange()
+
+    const preventDefaultMock = jest.fn()
+    triggerClick({ preventDefault: preventDefaultMock })
+
+    expect(preventDefaultMock).toHaveBeenCalled()
+    expect(formDataMock).toHaveBeenCalled()
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://some-url.com/upload',
+      expect.objectContaining({
+        method: 'POST',
+        mode: 'no-cors'
+      })
+    )
+
+    global.fetch = originalFetch
+    global.FormData = originalFormData
+  })
+
+  test('handles AJAX form submission with proxy URL when provided', () => {
+    const originalFetch = global.fetch
+    const fetchMock = jest.fn(() =>
+      Promise.resolve(new Response(JSON.stringify({}), { status: 200 }))
+    )
+    global.fetch = fetchMock
+
+    // Mock FormData
+    const originalFormData = global.FormData
+    const formDataMock = jest.fn(function () {
+      return {
+        append: jest.fn()
+      }
+    })
+    global.FormData = /** @type {any} */ (formDataMock)
+
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form action="/upload-endpoint" data-proxy-url="/proxy-endpoint" data-upload-id="test-id" enctype="multipart/form-data">
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+      <form>
+        <div id="uploadedFilesContainer">
+          <h2 class="govuk-heading-m">Uploaded files</h2>
+          <p class="govuk-body">0 files uploaded</p>
+        </div>
+        <button class="govuk-button">Continue</button>
+      </form>
+    `
+
+    const tempGlobal = /** @type {any} */ (global)
+    // eslint-disable-next-line @typescript-eslint/dot-notation, @typescript-eslint/no-unsafe-member-access
+    tempGlobal['pollUploadStatus'] = jest.fn()
+
+    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+
+    loadFile('some-file.pdf')
+    triggerChange()
+
+    const preventDefaultMock = jest.fn()
+    triggerClick({ preventDefault: preventDefaultMock })
+
+    expect(preventDefaultMock).toHaveBeenCalled()
+    expect(formDataMock).toHaveBeenCalled()
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/proxy-endpoint',
+      expect.objectContaining({
+        method: 'POST',
+        mode: 'no-cors'
+      })
+    )
+
+    global.fetch = originalFetch
+    global.FormData = originalFormData
+  })
 })

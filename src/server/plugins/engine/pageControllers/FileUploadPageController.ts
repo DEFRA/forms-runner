@@ -14,6 +14,7 @@ import {
 } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
+import { getProxyUrlForLocalDevelopment } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import {
   getUploadStatus,
   initiateUpload
@@ -252,14 +253,18 @@ export class FileUploadPageController extends QuestionPageController {
 
     const index = components.indexOf(formComponent)
 
+    const proxyUrl = getProxyUrlForLocalDevelopment(upload?.uploadUrl)
+
     return {
       ...viewModel,
       formAction: upload?.uploadUrl,
+      uploadId: upload?.uploadId,
       formComponent,
 
       // Split out components before/after
       componentsBefore: components.slice(0, index),
-      components: components.slice(index)
+      components: components.slice(index),
+      proxyUrl
     }
   }
 
@@ -317,7 +322,7 @@ export class FileUploadPageController extends QuestionPageController {
     if (statusResponse.uploadStatus === UploadStatus.pending) {
       // Using exponential backoff delays:
       // Depth 1: 2000ms, Depth 2: 4000ms, Depth 3: 8000ms, Depth 4: 16000ms, Depth 5+: 30000ms (capped)
-      // A depth of 5 (or more) implies cumulative delays roughly reaching 60 seconds.
+      // A depth of 5 (or more) implies cumulative delays roughly reaching 55 seconds.
       if (depth >= 5) {
         request.logger.error(
           `Exceeded cumulative retry delay for ${uploadId} (depth: ${depth}). Re-initiating a new upload.`

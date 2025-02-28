@@ -9,6 +9,7 @@ import {
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   createPage,
+  getProxyUrlForLocalDevelopment,
   isPageController,
   type PageControllerType
 } from '~/src/server/plugins/engine/pageControllers/helpers.js'
@@ -130,6 +131,33 @@ describe('Page controller helpers', () => {
       { name: '' }
     ])("rejects invalid page controller '$name'", ({ name }) => {
       expect(isPageController(name)).toBe(false)
+    })
+  })
+
+  describe('Helper: getProxyUrlForLocalDevelopment', () => {
+    it('returns null if uploadUrl is undefined', () => {
+      expect(getProxyUrlForLocalDevelopment(undefined)).toBeNull()
+    })
+
+    it('returns null if uploadUrl does not include localhost:7337', () => {
+      expect(getProxyUrlForLocalDevelopment('https://some-url.com')).toBeNull()
+      expect(getProxyUrlForLocalDevelopment('http://localhost:8080')).toBeNull()
+    })
+
+    it('replaces localhost:7337 with uploader.127.0.0.1.sslip.io:7300', () => {
+      const originalUrl = 'http://localhost:7337/upload'
+      const expectedUrl = 'http://uploader.127.0.0.1.sslip.io:7300/upload'
+
+      expect(getProxyUrlForLocalDevelopment(originalUrl)).toBe(expectedUrl)
+    })
+
+    it('handles multiple occurrences of localhost:7337', () => {
+      const originalUrl =
+        'http://localhost:7337/path?redirect=http://localhost:7337/callback'
+      const expectedUrl =
+        'http://uploader.127.0.0.1.sslip.io:7300/path?redirect=http://uploader.127.0.0.1.sslip.io:7300/callback'
+
+      expect(getProxyUrlForLocalDevelopment(originalUrl)).toBe(expectedUrl)
     })
   })
 })

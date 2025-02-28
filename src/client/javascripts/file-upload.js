@@ -1,3 +1,5 @@
+export const MAX_POLLING_DURATION = 300 // 5 minutes
+
 /**
  * Creates or updates status announcer for screen readers
  * @param {HTMLElement | null} form - The form element
@@ -183,24 +185,137 @@ function asHTMLElement(element) {
   return /** @type {HTMLElement} */ (element)
 }
 
+/**
+ * Polls the upload status endpoint until the file is ready or timeout occurs
+ * @param {string} uploadId - The upload ID to check
+ */
+function pollUploadStatus(uploadId) {
+  let attempts = 0
+  const interval = setInterval(() => {
+    attempts++
+
+    if (attempts >= MAX_POLLING_DURATION) {
+      clearInterval(interval)
+      location.reload()
+      return
+    }
+
+    fetch(`/upload-status/${uploadId}`, {
+      headers: {
+        Accept: 'application/json'
+      }
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok')
+        }
+        return response.json()
+      })
+      .then((data) => {
+        if (data.uploadStatus === 'ready') {
+          clearInterval(interval)
+          location.reload()
+        }
+      })
+      .catch(() => {
+        clearInterval(interval)
+        location.reload()
+      })
+  }, 1000)
+}
+
+/**
+ * Handle standard form submission for file upload
+ * @param {HTMLFormElement} formElement - The form element
+ * @param {HTMLInputElement} fileInput - The file input element
+ * @param {HTMLButtonElement} uploadButton - The upload button
+ * @param {File | null} selectedFile - The selected file
+ */
+function handleStandardFormSubmission(
+  formElement,
+  fileInput,
+  uploadButton,
+  selectedFile
+) {
+  renderSummary(selectedFile, 'Uploading…', formElement)
+
+  fileInput.focus()
+
+  setTimeout(() => {
+    fileInput.disabled = true
+    uploadButton.disabled = true
+  }, 100)
+}
+
+/**
+ * Handle AJAX form submission with upload ID
+ * @param {Event} event - The click event
+ * @param {HTMLFormElement} formElement - The form element
+ * @param {HTMLInputElement} fileInput - The file input element
+ * @param {HTMLButtonElement} uploadButton - The upload button
+ * @param {HTMLElement | null} errorSummary - The error summary container
+ * @param {string | undefined} uploadId - The upload ID
+ * @returns {boolean} Whether the event was handled
+ */
+function handleAjaxFormSubmission(
+  event,
+  formElement,
+  fileInput,
+  uploadButton,
+  errorSummary,
+  uploadId
+) {
+  if (!formElement.action || !uploadId) {
+    return false
+  }
+
+  event.preventDefault()
+
+  const formData = new FormData(formElement)
+  const uploadUrl = formElement.dataset.proxyUrl ?? formElement.action
+
+  fetch(uploadUrl, {
+    method: 'POST',
+    body: formData,
+    redirect: 'follow',
+    mode: 'no-cors'
+  })
+    .then(() => {
+      pollUploadStatus(uploadId)
+    })
+    .catch(() => {
+      fileInput.disabled = false
+      uploadButton.disabled = false
+
+      showError(
+        'There was a problem uploading the file',
+        errorSummary,
+        fileInput
+      )
+
+      return null
+    })
+
+  return true
+}
+
 export function initFileUpload() {
   const form = document.querySelector('form:has(input[type="file"])')
-
   /** @type {HTMLInputElement | null} */
   const fileInput = form ? form.querySelector('input[type="file"]') : null
-
   /** @type {HTMLButtonElement | null} */
   const uploadButton = form ? form.querySelector('.upload-file-button') : null
-
   const errorSummary = document.querySelector('.govuk-error-summary-container')
 
   if (!form || !fileInput || !uploadButton) {
     return
   }
 
+  const formElement = /** @type {HTMLFormElement} */ (form)
   /** @type {File | null} */
   let selectedFile = null
   let isSubmitting = false
+  const uploadId = formElement.dataset.uploadId
 
   fileInput.addEventListener('change', () => {
     if (errorSummary) {
@@ -228,15 +343,21 @@ export function initFileUpload() {
     }
 
     isSubmitting = true
-    renderSummary(selectedFile, 'Uploading…', /** @type {HTMLElement} */ (form))
 
-    // moves focus back to the file input for screen readers
-    fileInput.focus()
+    handleStandardFormSubmission(
+      formElement,
+      fileInput,
+      uploadButton,
+      selectedFile
+    )
 
-    // submission still happens via formAction in the form
-    setTimeout(() => {
-      fileInput.disabled = true
-      uploadButton.disabled = true
-    }, 100)
+    handleAjaxFormSubmission(
+      event,
+      formElement,
+      fileInput,
+      uploadButton,
+      /** @type {HTMLElement | null} */ (errorSummary),
+      uploadId
+    )
   })
 }

@@ -17,6 +17,7 @@ export const configureBlankiePlugin = (): ServerRegisterPluginObject<
   Record<string, boolean | string | string[]>
 > => {
   const gaTrackingId = config.get('googleAnalyticsTrackingId')
+  const uploaderUrl = config.get('uploaderUrl')
 
   /*
   Note that unsafe-inline is a fallback for old browsers that don't support nonces. It will be ignored by modern browsers as the nonce is provided.
@@ -28,7 +29,8 @@ export const configureBlankiePlugin = (): ServerRegisterPluginObject<
       fontSrc: ['self', 'data:'],
       connectSrc: [
         ['self'],
-        gaTrackingId ? googleAnalyticsOptions.connectSrc : []
+        gaTrackingId ? googleAnalyticsOptions.connectSrc : [],
+        uploaderUrl ? [uploaderUrl] : []
       ].flat(),
       scriptSrc: [
         ['self', 'strict-dynamic', 'unsafe-inline'],

@@ -6,10 +6,17 @@ import {
   getFormDefinition,
   getFormMetadata
 } from '~/src/server/plugins/engine/services/formsService.js'
+import { getUploadStatus } from '~/src/server/plugins/engine/services/uploadService.js'
+import {
+  FileStatus,
+  UploadStatus,
+  type UploadStatusResponse
+} from '~/src/server/plugins/engine/types.js'
 import { FormStatus } from '~/src/server/routes/types.js'
 import * as fixtures from '~/test/fixtures/index.js'
 
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
+jest.mock('~/src/server/plugins/engine/services/uploadService.js')
 
 describe('Model cache', () => {
   let server: Server
@@ -481,5 +488,95 @@ describe('Model cache', () => {
 
       expect(res.statusCode).toBe(StatusCodes.OK)
     })
+  })
+})
+
+describe('Upload status route', () => {
+  let server: Server
+
+  beforeAll(async () => {
+    server = await createServer()
+    await server.initialize()
+  })
+
+  afterAll(async () => {
+    await server.stop()
+  })
+
+  beforeEach(() => {
+    jest.resetAllMocks()
+  })
+
+  test('GET /upload-status/{uploadId} returns upload status with 200 when successful', async () => {
+    const mockStatus: UploadStatusResponse = {
+      uploadStatus: UploadStatus.ready,
+      metadata: {
+        retrievalKey: 'some-key'
+      },
+      form: {
+        file: {
+          fileId: 'some-file-id',
+          filename: 'some-file-name',
+          contentLength: 1024,
+          fileStatus: FileStatus.complete
+        }
+      },
+      numberOfRejectedFiles: 0
+    }
+    jest.mocked(getUploadStatus).mockResolvedValueOnce(mockStatus)
+
+    const options = {
+      method: 'GET',
+      url: '/upload-status/123e4567-e89b-12d3-a456-426614174000'
+    }
+
+    const res = await server.inject(options)
+
+    expect(res.statusCode).toBe(StatusCodes.OK)
+    expect(res.result).toEqual(mockStatus)
+    expect(getUploadStatus).toHaveBeenCalledWith(
+      '123e4567-e89b-12d3-a456-426614174000'
+    )
+  })
+
+  test('GET /upload-status/{uploadId} returns 400 when status check fails', async () => {
+    jest.mocked(getUploadStatus).mockResolvedValueOnce(undefined)
+
+    const options = {
+      method: 'GET',
+      url: '/upload-status/123e4567-e89b-12d3-a456-426614174000'
+    }
+
+    const res = await server.inject(options)
+
+    expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST)
+    expect(res.result).toEqual({ error: 'Status check failed' })
+  })
+
+  test('GET /upload-status/{uploadId} returns 500 when exception occurs', async () => {
+    jest
+      .mocked(getUploadStatus)
+      .mockRejectedValueOnce(new Error('Service unavailable'))
+
+    const options = {
+      method: 'GET',
+      url: '/upload-status/123e4567-e89b-12d3-a456-426614174000'
+    }
+
+    const res = await server.inject(options)
+
+    expect(res.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+    expect(res.result).toEqual({ error: 'Status check error' })
+  })
+
+  test('GET /upload-status/{uploadId} returns 400 for invalid uploadId format', async () => {
+    const options = {
+      method: 'GET',
+      url: '/upload-status/not-a-valid-guid'
+    }
+
+    const res = await server.inject(options)
+
+    expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST)
   })
 })
