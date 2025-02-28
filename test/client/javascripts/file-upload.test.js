@@ -1004,4 +1004,118 @@ describe('File Upload Client JS', () => {
     const uploadUrl4 = form4?.dataset.proxyUrl ?? form4?.getAttribute('action')
     expect(uploadUrl4).toBeNull()
   })
+
+  test('handles AJAX form submission when form has action and uploadId', () => {
+    const originalFetch = global.fetch
+    const fetchMock = jest.fn(() =>
+      Promise.resolve(new Response(JSON.stringify({}), { status: 200 }))
+    )
+    global.fetch = fetchMock
+
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form action="http://some-url.com/upload" enctype="multipart/form-data" data-upload-id="test-id">
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+      <form>
+        <div id="uploadedFilesContainer">
+          <h2 class="govuk-heading-m">Uploaded files</h2>
+          <p class="govuk-body">0 files uploaded</p>
+        </div>
+        <button class="govuk-button">Continue</button>
+      </form>
+    `
+
+    const originalFormData = global.FormData
+    const formDataMock = jest.fn(function () {
+      return {
+        append: jest.fn()
+      }
+    })
+    global.FormData = /** @type {any} */ (formDataMock)
+
+    const tempGlobal = /** @type {any} */ (global)
+    // using bracket notation with ESLint disabled to safely add property to global
+    // eslint-disable-next-line @typescript-eslint/dot-notation, @typescript-eslint/no-unsafe-member-access
+    tempGlobal['pollUploadStatus'] = jest.fn()
+
+    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+
+    loadFile('test-file.pdf')
+    triggerChange()
+
+    const preventDefaultMock = jest.fn()
+    triggerClick({ preventDefault: preventDefaultMock })
+
+    expect(preventDefaultMock).toHaveBeenCalled()
+    expect(formDataMock).toHaveBeenCalled()
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://some-url.com/upload',
+      expect.objectContaining({
+        method: 'POST',
+        mode: 'no-cors'
+      })
+    )
+
+    global.fetch = originalFetch
+    global.FormData = originalFormData
+  })
+
+  test('handles AJAX form submission with proxy URL when provided', () => {
+    const originalFetch = global.fetch
+    const fetchMock = jest.fn(() =>
+      Promise.resolve(new Response(JSON.stringify({}), { status: 200 }))
+    )
+    global.fetch = fetchMock
+
+    // Mock FormData
+    const originalFormData = global.FormData
+    const formDataMock = jest.fn(function () {
+      return {
+        append: jest.fn()
+      }
+    })
+    global.FormData = /** @type {any} */ (formDataMock)
+
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form action="/upload-endpoint" data-proxy-url="/proxy-endpoint" data-upload-id="test-id" enctype="multipart/form-data">
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+      <form>
+        <div id="uploadedFilesContainer">
+          <h2 class="govuk-heading-m">Uploaded files</h2>
+          <p class="govuk-body">0 files uploaded</p>
+        </div>
+        <button class="govuk-button">Continue</button>
+      </form>
+    `
+
+    const tempGlobal = /** @type {any} */ (global)
+    // eslint-disable-next-line @typescript-eslint/dot-notation, @typescript-eslint/no-unsafe-member-access
+    tempGlobal['pollUploadStatus'] = jest.fn()
+
+    const { loadFile, triggerChange, triggerClick } = setupTestableComponent()
+
+    loadFile('some-file.pdf')
+    triggerChange()
+
+    const preventDefaultMock = jest.fn()
+    triggerClick({ preventDefault: preventDefaultMock })
+
+    expect(preventDefaultMock).toHaveBeenCalled()
+    expect(formDataMock).toHaveBeenCalled()
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/proxy-endpoint',
+      expect.objectContaining({
+        method: 'POST',
+        mode: 'no-cors'
+      })
+    )
+
+    global.fetch = originalFetch
+    global.FormData = originalFormData
+  })
 })
