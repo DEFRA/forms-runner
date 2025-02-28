@@ -331,7 +331,7 @@ export class QuestionPageController extends PageController {
     evaluationState: Partial<Record<string, FormStateValue>>
   ) {
     // Filter our components based on their conditions using our evaluated state
-    return viewModel.components.filter((component) => {
+    let filtered = viewModel.components.filter((component) => {
       if (
         (!!component.model.content ||
           component.type === ComponentType.Details) &&
@@ -342,6 +342,35 @@ export class QuestionPageController extends PageController {
       }
       return true
     })
+
+    /**
+     * For conditional reveal components (which we no longer support until GDS resolves the related accessibility issues {@link https://github.com/alphagov/govuk-frontend/issues/1991}
+     */
+    filtered = filtered.map((component) => {
+      const evaluatedComponent = component
+      const content = evaluatedComponent.model.content
+      if (content instanceof Array) {
+        evaluatedComponent.model.content = content.filter((item) =>
+          item.condition
+            ? model.conditions[item.condition]?.fn(evaluationState)
+            : true
+        )
+      }
+      // apply condition to items for radios, checkboxes etc
+      const items = evaluatedComponent.model.items
+
+      if (items instanceof Array) {
+        evaluatedComponent.model.items = items.filter((item) =>
+          item.condition
+            ? model.conditions[item.condition]?.fn(evaluationState)
+            : true
+        )
+      }
+
+      return evaluatedComponent
+    })
+
+    return filtered
   }
 
   makeGetRouteHandler() {
@@ -366,33 +395,6 @@ export class QuestionPageController extends PageController {
         model,
         evaluationState
       )
-
-      /**
-       * For conditional reveal components (which we no longer support until GDS resolves the related accessibility issues {@link https://github.com/alphagov/govuk-frontend/issues/1991}
-       */
-      viewModel.components = viewModel.components.map((component) => {
-        const evaluatedComponent = component
-        const content = evaluatedComponent.model.content
-        if (content instanceof Array) {
-          evaluatedComponent.model.content = content.filter((item) =>
-            item.condition
-              ? model.conditions[item.condition]?.fn(evaluationState)
-              : true
-          )
-        }
-        // apply condition to items for radios, checkboxes etc
-        const items = evaluatedComponent.model.items
-
-        if (items instanceof Array) {
-          evaluatedComponent.model.items = items.filter((item) =>
-            item.condition
-              ? model.conditions[item.condition]?.fn(evaluationState)
-              : true
-          )
-        }
-
-        return evaluatedComponent
-      })
 
       viewModel.hasMissingNotificationEmail =
         await this.hasMissingNotificationEmail(request, context)
