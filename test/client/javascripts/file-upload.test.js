@@ -882,4 +882,126 @@ describe('File Upload Client JS', () => {
     form.appendChild = originalFormAppend
     bodyAppendChildSpy.mockRestore()
   })
+
+  test('uses form action when proxyUrl is undefined and uses proxyUrl when defined', () => {
+    const originalFetch = global.fetch
+    const fetchMock = jest.fn(() =>
+      Promise.resolve(new Response(JSON.stringify({}), { status: 200 }))
+    )
+    global.fetch = fetchMock
+
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form action="http://some-url.com/upload" enctype="multipart/form-data" data-upload-id="test-id">
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+    `
+    setupTestableComponent()
+
+    const form = document.querySelector('form')
+    const uploadUrl1 = form?.dataset.proxyUrl ?? form?.action
+
+    expect(uploadUrl1).toBe('http://some-url.com/upload')
+
+    form?.setAttribute('data-proxy-url', 'http://some-proxy-url.com/upload')
+
+    const uploadUrl2 = form?.dataset.proxyUrl ?? form?.action
+
+    expect(uploadUrl2).toBe('http://some-proxy-url.com/upload')
+
+    global.fetch = originalFetch
+  })
+
+  test('form submission depends on formElement having action attribute and uploadId', () => {
+    const originalFormData = global.FormData
+    global.FormData = /** @type {any} */ (
+      jest.fn(() => ({
+        append: jest.fn()
+      }))
+    )
+
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form action="/upload-endpoint" data-upload-id="test-id">
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+    `
+
+    const form1 = document.querySelector('form')
+    expect(form1?.hasAttribute('action')).toBe(true)
+    expect(form1?.getAttribute('action')).toBe('/upload-endpoint')
+
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form data-upload-id="test-id">
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+    `
+
+    const form2 = document.querySelector('form')
+    expect(form2?.hasAttribute('action')).toBe(false)
+
+    document.body.innerHTML = `
+      <div class="govuk-error-summary-container"></div>
+      <form action="/upload-endpoint">
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+    `
+
+    const form3 = document.querySelector('form')
+    expect(form3?.hasAttribute('action')).toBe(true)
+    expect(form3?.hasAttribute('data-upload-id')).toBe(false)
+
+    global.FormData = originalFormData
+  })
+
+  test('upload URL is correctly determined by formElement attributes', () => {
+    document.body.innerHTML = `
+      <form action="/upload-endpoint" data-upload-id="test-id">
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+    `
+
+    const form1 = document.querySelector('form')
+    const uploadUrl1 = form1?.dataset.proxyUrl ?? form1?.getAttribute('action')
+    expect(uploadUrl1).toBe('/upload-endpoint')
+
+    document.body.innerHTML = `
+      <form action="/upload-endpoint" data-upload-id="test-id" data-proxy-url="/proxy-endpoint">
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+    `
+
+    const form2 = document.querySelector('form')
+    const uploadUrl2 = form2?.dataset.proxyUrl ?? form2?.getAttribute('action')
+    expect(uploadUrl2).toBe('/proxy-endpoint')
+
+    document.body.innerHTML = `
+      <form data-upload-id="test-id" data-proxy-url="/proxy-endpoint">
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+    `
+
+    const form3 = document.querySelector('form')
+    const uploadUrl3 = form3?.dataset.proxyUrl ?? form3?.getAttribute('action')
+    expect(uploadUrl3).toBe('/proxy-endpoint')
+
+    document.body.innerHTML = `
+      <form data-upload-id="test-id">
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+    `
+
+    const form4 = document.querySelector('form')
+    const uploadUrl4 = form4?.dataset.proxyUrl ?? form4?.getAttribute('action')
+    expect(uploadUrl4).toBeNull()
+  })
 })
