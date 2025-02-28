@@ -57,19 +57,23 @@ export default /** @satisfies {FormDefinition} */ ({
       items: [
         {
           text: 'Option 1',
-          value: '1'
+          value: '1',
+          condition: 'isBarnOwl'
         },
         {
           text: 'Option 2',
-          value: '2'
+          value: '2',
+          condition: 'isBarnOwl'
         },
         {
           text: 'Option 3',
-          value: '3'
+          value: '3',
+          condition: 'notBarnOwl'
         },
         {
           text: 'Option 4',
-          value: '4'
+          value: '4',
+          condition: 'notBarnOwl'
         }
       ]
     }

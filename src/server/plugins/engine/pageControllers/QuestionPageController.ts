@@ -349,7 +349,7 @@ export class QuestionPageController extends PageController {
     filtered = filtered.map((component) => {
       const evaluatedComponent = component
       const content = evaluatedComponent.model.content
-      if (content instanceof Array) {
+      if (Array.isArray(content)) {
         evaluatedComponent.model.content = content.filter((item) =>
           item.condition
             ? model.conditions[item.condition]?.fn(evaluationState)
@@ -359,7 +359,7 @@ export class QuestionPageController extends PageController {
       // apply condition to items for radios, checkboxes etc
       const items = evaluatedComponent.model.items
 
-      if (items instanceof Array) {
+      if (Array.isArray(items)) {
         evaluatedComponent.model.items = items.filter((item) =>
           item.condition
             ? model.conditions[item.condition]?.fn(evaluationState)

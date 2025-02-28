@@ -437,6 +437,22 @@ describe('QuestionPageController', () => {
       expect(filtered).toHaveLength(2)
       expect(filtered[0].model.content).toBe('This is info for Barn owls')
       expect(filtered[1].model.label?.text).toBe('Select from the list')
+      expect(filtered[1].model.items).toEqual([
+        {
+          checked: false,
+          condition: 'isBarnOwl',
+          selected: false,
+          text: 'Option 1',
+          value: '1'
+        },
+        {
+          checked: false,
+          condition: 'isBarnOwl',
+          selected: false,
+          text: 'Option 2',
+          value: '2'
+        }
+      ])
     })
 
     it('filters on condition B', () => {
@@ -477,6 +493,22 @@ describe('QuestionPageController', () => {
       expect(filtered).toHaveLength(2)
       expect(filtered[0].model.content).toBe('This is info for other breeds')
       expect(filtered[1].model.label?.text).toBe('Select from the list')
+      expect(filtered[1].model.items).toEqual([
+        {
+          checked: false,
+          condition: 'notBarnOwl',
+          selected: false,
+          text: 'Option 3',
+          value: '3'
+        },
+        {
+          checked: false,
+          condition: 'notBarnOwl',
+          selected: false,
+          text: 'Option 4',
+          value: '4'
+        }
+      ])
     })
   })
 
