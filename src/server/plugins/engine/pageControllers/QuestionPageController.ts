@@ -28,6 +28,7 @@ import {
   type FormParams,
   type FormPayload,
   type FormState,
+  type FormStateValue,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
 import {
@@ -324,6 +325,54 @@ export class QuestionPageController extends PageController {
     return cacheService.setState(request, updated)
   }
 
+  filterConditionalComponents(
+    viewModel: FormPageViewModel,
+    model: FormModel,
+    evaluationState: Partial<Record<string, FormStateValue>>
+  ) {
+    // Filter our components based on their conditions using our evaluated state
+    let filtered = viewModel.components.filter((component) => {
+      if (
+        (!!component.model.content ||
+          component.type === ComponentType.Details) &&
+        component.model.condition
+      ) {
+        const condition = model.conditions[component.model.condition]
+        return condition?.fn(evaluationState)
+      }
+      return true
+    })
+
+    /**
+     * For conditional reveal components (which we no longer support until GDS resolves the related accessibility issues {@link https://github.com/alphagov/govuk-frontend/issues/1991}
+     */
+    filtered = filtered.map((component) => {
+      const evaluatedComponent = component
+      const content = evaluatedComponent.model.content
+      if (Array.isArray(content)) {
+        evaluatedComponent.model.content = content.filter((item) =>
+          item.condition
+            ? model.conditions[item.condition]?.fn(evaluationState)
+            : true
+        )
+      }
+      // apply condition to items for radios, checkboxes etc
+      const items = evaluatedComponent.model.items
+
+      if (Array.isArray(items)) {
+        evaluatedComponent.model.items = items.filter((item) =>
+          item.condition
+            ? model.conditions[item.condition]?.fn(evaluationState)
+            : true
+        )
+      }
+
+      return evaluatedComponent
+    })
+
+    return filtered
+  }
+
   makeGetRouteHandler() {
     return async (
       request: FormRequest,
@@ -341,44 +390,11 @@ export class QuestionPageController extends PageController {
        */
 
       // Filter our components based on their conditions using our evaluated state
-      viewModel.components = viewModel.components.filter((component) => {
-        if (
-          (!!component.model.content ||
-            component.type === ComponentType.Details) &&
-          component.model.condition
-        ) {
-          const condition = model.conditions[component.model.condition]
-          return condition?.fn(evaluationState)
-        }
-        return true
-      })
-
-      /**
-       * For conditional reveal components (which we no longer support until GDS resolves the related accessibility issues {@link https://github.com/alphagov/govuk-frontend/issues/1991}
-       */
-      viewModel.components = viewModel.components.map((component) => {
-        const evaluatedComponent = component
-        const content = evaluatedComponent.model.content
-        if (content instanceof Array) {
-          evaluatedComponent.model.content = content.filter((item) =>
-            item.condition
-              ? model.conditions[item.condition]?.fn(evaluationState)
-              : true
-          )
-        }
-        // apply condition to items for radios, checkboxes etc
-        const items = evaluatedComponent.model.items
-
-        if (items instanceof Array) {
-          evaluatedComponent.model.items = items.filter((item) =>
-            item.condition
-              ? model.conditions[item.condition]?.fn(evaluationState)
-              : true
-          )
-        }
-
-        return evaluatedComponent
-      })
+      viewModel.components = this.filterConditionalComponents(
+        viewModel,
+        model,
+        evaluationState
+      )
 
       viewModel.hasMissingNotificationEmail =
         await this.hasMissingNotificationEmail(request, context)
@@ -458,8 +474,8 @@ export class QuestionPageController extends PageController {
       context: FormContext,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
     ) => {
-      const { collection, viewName } = this
-      const { isForceAccess, state } = context
+      const { collection, viewName, model } = this
+      const { isForceAccess, state, evaluationState } = context
 
       /**
        * If there are any errors, render the page with the parsed errors
@@ -468,6 +484,13 @@ export class QuestionPageController extends PageController {
       if (context.errors || isForceAccess) {
         const viewModel = this.getViewModel(request, context)
         viewModel.errors = collection.getErrors(viewModel.errors)
+
+        // Filter our components based on their conditions using our evaluated state
+        viewModel.components = this.filterConditionalComponents(
+          viewModel,
+          model,
+          evaluationState
+        )
 
         return h.view(viewName, viewModel)
       }
