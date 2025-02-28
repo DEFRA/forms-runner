@@ -49,6 +49,5 @@ module.exports = {
     ].join('|')}/)`
   ],
   testTimeout: 10000,
-  detectOpenHandles: true,
   forceExit: true
 }
