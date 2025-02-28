@@ -253,7 +253,6 @@ function handleStandardFormSubmission(
  * @param {HTMLFormElement} formElement - The form element
  * @param {HTMLInputElement} fileInput - The file input element
  * @param {HTMLButtonElement} uploadButton - The upload button
- * @param {File | null} selectedFile - The selected file
  * @param {HTMLElement | null} errorSummary - The error summary container
  * @param {string | undefined} uploadId - The upload ID
  * @returns {boolean} Whether the event was handled
@@ -263,7 +262,6 @@ function handleAjaxFormSubmission(
   formElement,
   fileInput,
   uploadButton,
-  selectedFile,
   errorSummary,
   uploadId
 ) {
@@ -272,13 +270,9 @@ function handleAjaxFormSubmission(
   }
 
   event.preventDefault()
-  renderSummary(selectedFile, 'Uploading…', formElement)
 
   const formData = new FormData(formElement)
   const uploadUrl = formElement.dataset.proxyUrl ?? formElement.action
-
-  fileInput.disabled = true
-  uploadButton.disabled = true
 
   fetch(uploadUrl, {
     method: 'POST',
@@ -350,25 +344,20 @@ export function initFileUpload() {
 
     isSubmitting = true
 
-    if (
-      handleAjaxFormSubmission(
-        event,
-        formElement,
-        fileInput,
-        uploadButton,
-        selectedFile,
-        /** @type {HTMLElement | null} */ (errorSummary),
-        uploadId
-      )
-    ) {
-      return
-    }
-
     handleStandardFormSubmission(
       formElement,
       fileInput,
       uploadButton,
       selectedFile
+    )
+
+    handleAjaxFormSubmission(
+      event,
+      formElement,
+      fileInput,
+      uploadButton,
+      /** @type {HTMLElement | null} */ (errorSummary),
+      uploadId
     )
   })
 }
