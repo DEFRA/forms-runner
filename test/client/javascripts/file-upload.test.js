@@ -1107,13 +1107,20 @@ describe('File Upload Client JS', () => {
     expect(preventDefaultMock).toHaveBeenCalled()
     expect(formDataMock).toHaveBeenCalled()
 
-    // local development configuration (proxy URL exists)
     expect(fetchMock).toHaveBeenCalledWith(
       '/proxy-endpoint',
       expect.objectContaining({
         method: 'POST',
         redirect: 'follow',
         mode: 'no-cors'
+      })
+    )
+
+    // it was NOT called with 'manual' redirect
+    expect(fetchMock).not.toHaveBeenCalledWith(
+      '/proxy-endpoint',
+      expect.objectContaining({
+        redirect: 'manual'
       })
     )
 
@@ -1175,6 +1182,8 @@ describe('File Upload Client JS', () => {
       method: 'POST',
       redirect: 'manual'
     })
+
+    expect(options.mode).not.toBe('no-cors')
 
     global.fetch = originalFetch
     global.FormData = originalFormData
