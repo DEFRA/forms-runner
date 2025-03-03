@@ -152,6 +152,17 @@ export class QuestionPageController extends PageController {
       }
 
       showTitle = !isPageHeading
+    } else if (formComponents.length > 1) {
+      // When there is more than one form component,
+      // adjust the label/legends to give equal prominence
+      for (const { model } of formComponents) {
+        if (model.fieldset?.legend) {
+          model.fieldset.legend.classes = 'govuk-fieldset__legend--m'
+        }
+        if (model.label) {
+          model.label.classes = 'govuk-label--m'
+        }
+      }
     }
 
     return {
