@@ -2,7 +2,7 @@ import { evaluateTemplate } from '~/src/server/plugins/engine/helpers.js'
 
 /**
  * Nunjucks filter to evaluate a liquid template.
- * Current just used in `src/server/views/layout.html#LN37` for the pageTitle
+ * Currently just used in `src/server/views/layout.html#LN37` for the pageTitle
  * @this {NunjucksContext}
  * @param {string} template
  */
