@@ -34,7 +34,9 @@
 
         {% if declaration %}
           <h2 class="govuk-heading-m" id="declaration">Declaration</h2>
-          {{ declaration | safe }}
+          <div class="govuk-body">
+          {{ declaration | markdown | safe }}
+          </div>
         {% endif %}
 
         <button data-prevent-double-click="true" class="govuk-button" data-module="govuk-button">

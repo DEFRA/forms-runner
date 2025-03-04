@@ -1,4 +1,10 @@
-import { type Section } from '@defra/forms-model'
+import {
+  ComponentType,
+  Engine,
+  hasComponentsEvenIfNoNext,
+  type Page,
+  type Section
+} from '@defra/forms-model'
 
 import {
   getAnswer,
@@ -57,7 +63,10 @@ export class SummaryViewModel {
     this.pageTitle = page.title
     this.serviceUrl = `/${basePath}`
     this.name = def.name
-    this.declaration = def.declaration
+    this.declaration =
+      def.engine === Engine.V2
+        ? getDeclarationV2(page.pageDef)
+        : def.declaration
     this.context = context
 
     const result = model
@@ -147,6 +156,15 @@ export class SummaryViewModel {
 
     return details
   }
+}
+
+/**
+ * Gets declaration text from guidance component (V2 engine)
+ */
+function getDeclarationV2(page: Page) {
+  const components = hasComponentsEvenIfNoNext(page) ? page.components : []
+  const declarations = components.filter((x) => x.type === ComponentType.Html)
+  return declarations.length ? declarations[0].content : undefined
 }
 
 /**
