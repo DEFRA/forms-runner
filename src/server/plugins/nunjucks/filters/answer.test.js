@@ -26,57 +26,64 @@ describe('answer Nunjucks filter', () => {
     jest.mocked(getAnswer).mockReturnValue('test answer')
   })
 
-  test('returns undefined when context is missing', () => {
-    mockThis.ctx.context = undefined
+  describe('missing context', () => {
+    it('returns undefined', () => {
+      mockThis.ctx.context = undefined
 
-    const result = answer.call(mockThis, 'componentName')
+      const result = answer.call(mockThis, 'componentName')
 
-    expect(result).toBeUndefined()
-    expect(getAnswer).not.toHaveBeenCalled()
+      expect(result).toBeUndefined()
+      expect(getAnswer).not.toHaveBeenCalled()
+    })
   })
 
-  test('returns undefined when component is not found', () => {
-    const result = answer.call(mockThis, 'nonExistentComponent')
+  describe('component lookup', () => {
+    it('returns undefined for non-existent component', () => {
+      const result = answer.call(mockThis, 'nonExistentComponent')
 
-    expect(result).toBeUndefined()
-    expect(getAnswer).not.toHaveBeenCalled()
+      expect(result).toBeUndefined()
+      expect(getAnswer).not.toHaveBeenCalled()
+    })
   })
 
-  test('returns undefined when component is not a form component', () => {
-    mockThis.ctx.context?.componentMap.set(
-      'nonFormComponent',
-      // @ts-expect-error - simplified mock component for testing
-      { isFormComponent: false }
-    )
+  describe('non-form component', () => {
+    it('returns undefined', () => {
+      mockThis.ctx.context?.componentMap.set(
+        'nonFormComponent',
+        // @ts-expect-error - simplified mock component for testing
+        { isFormComponent: false }
+      )
 
-    const result = answer.call(mockThis, 'nonFormComponent')
+      const result = answer.call(mockThis, 'nonFormComponent')
 
-    expect(result).toBeUndefined()
-    expect(getAnswer).not.toHaveBeenCalled()
+      expect(result).toBeUndefined()
+      expect(getAnswer).not.toHaveBeenCalled()
+    })
   })
 
-  test('returns the answer when component is a valid form component', () => {
-    const mockFormComponent = {
-      isFormComponent: true,
-      someProperty: 'value'
-    }
-    mockThis.ctx.context?.componentMap.set(
-      'validFormComponent',
-      // @ts-expect-error - simplified mock component for testing
-      mockFormComponent
-    )
+  describe('valid form component', () => {
+    it('returns the answer', () => {
+      const mockFormComponent = {
+        isFormComponent: true,
+        someProperty: 'value'
+      }
+      mockThis.ctx.context?.componentMap.set(
+        'validFormComponent',
+        // @ts-expect-error - simplified mock component for testing
+        mockFormComponent
+      )
 
-    const result = answer.call(mockThis, 'validFormComponent')
+      const result = answer.call(mockThis, 'validFormComponent')
 
-    expect(getAnswer).toHaveBeenCalledWith(
-      mockFormComponent,
-      mockThis.ctx.context?.relevantState
-    )
-    expect(result).toBe('test answer')
+      expect(getAnswer).toHaveBeenCalledWith(
+        mockFormComponent,
+        mockThis.ctx.context?.relevantState
+      )
+      expect(result).toBe('test answer')
+    })
   })
 })
 
 /**
  * @import { NunjucksContext } from '~/src/server/plugins/nunjucks/types.js'
- * @import { FormContext } from '~/src/server/plugins/engine/types.js'
  */
