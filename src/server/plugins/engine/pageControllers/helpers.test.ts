@@ -7,6 +7,7 @@ import {
 } from '@defra/forms-model'
 
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
+import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
   createPage,
   getProxyUrlForLocalDevelopment,
@@ -101,6 +102,40 @@ describe('Page controller helpers', () => {
         expect(createPage(model, pageDef2)).toBeInstanceOf(controller)
       }
     )
+
+    describe('Helper: createPage (custom controllers)', () => {
+      it('uses custom controllers from model.controllers', () => {
+        class CustomPageController extends PageController {
+          customProperty: string
+
+          constructor(model: FormModel, pageDef: Page) {
+            super(model, pageDef)
+            this.customProperty = 'some-value'
+          }
+        }
+
+        const customPageDef = {
+          path: '/custom-page',
+          title: 'Custom Page',
+          controller: 'CustomController',
+          components: []
+        }
+
+        const testModel = new FormModel(definition, {
+          basePath: 'test'
+        })
+
+        type ControllerMap = Record<string, typeof PageController>
+        testModel.controllers = {
+          CustomController: CustomPageController
+        } as ControllerMap
+
+        const controller = createPage(testModel, customPageDef as Page)
+
+        expect(controller).toBeInstanceOf(CustomPageController)
+        expect(controller).toHaveProperty('customProperty', 'some-value')
+      })
+    })
 
     it('throws if page controller is unknown', () => {
       const pageDef: Page = {
