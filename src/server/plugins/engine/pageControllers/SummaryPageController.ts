@@ -31,10 +31,6 @@ import {
 export class SummaryPageController extends QuestionPageController {
   declare pageDef: PageSummary
 
-  /**
-   * The controller which is used when Page["controller"] is defined as "./pages/summary.js"
-   */
-
   constructor(model: FormModel, pageDef: PageSummary) {
     super(model, pageDef)
     this.viewName = 'summary'
