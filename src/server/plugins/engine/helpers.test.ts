@@ -14,7 +14,8 @@ import {
   getExponentialBackoffDelay,
   getPageHref,
   proceed,
-  safeGenerateCrumb
+  safeGenerateCrumb,
+  type GlobalScope
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
@@ -32,6 +33,15 @@ import {
 } from '~/src/server/routes/types.js'
 import definition from '~/test/form/definitions/basic.js'
 import templateDefinition from '~/test/form/definitions/templates.js'
+
+interface NunjucksContext {
+  context: {
+    globals: GlobalScope
+  }
+}
+
+type EvaluateFilter = (this: NunjucksContext, template: unknown) => unknown
+type HrefFilter = (this: NunjucksContext, path: string) => string | undefined
 
 describe('Helpers', () => {
   let page: PageControllerClass
@@ -729,6 +739,53 @@ describe('Helpers', () => {
       const result = evaluateTemplate('{{ "FGyiLS" | answer }}', formContext)
       expect(pageFilterSpy).toHaveBeenLastCalledWith('FGyiLS')
       expect(result).toBe('')
+    })
+  })
+
+  describe('Nunjucks filters', () => {
+    describe('evaluate filter', () => {
+      it('returns non-string values unchanged', () => {
+        const mockContext: NunjucksContext = {
+          context: {
+            globals: {
+              context: { pageMap: new Map() } as FormContext,
+              pages: new Map(),
+              components: new Map()
+            }
+          }
+        }
+
+        const numResult = (
+          engine.filters.evaluate as unknown as EvaluateFilter
+        ).call(mockContext, 123)
+        expect(numResult).toBe(123)
+
+        const objResult = (
+          engine.filters.evaluate as unknown as EvaluateFilter
+        ).call(mockContext, { foo: 'bar' })
+        expect(objResult).toEqual({ foo: 'bar' })
+      })
+    })
+
+    describe('href filter', () => {
+      it('returns undefined when page is undefined', () => {
+        const mockContext: NunjucksContext = {
+          context: {
+            globals: {
+              context: { pageMap: new Map() } as FormContext,
+              pages: new Map(),
+              components: new Map()
+            }
+          }
+        }
+
+        const result = (engine.filters.href as unknown as HrefFilter).call(
+          mockContext,
+          '/some-page'
+        )
+
+        expect(result).toBeUndefined()
+      })
     })
   })
 })

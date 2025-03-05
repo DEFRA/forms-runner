@@ -40,7 +40,7 @@ export const engine = new Liquid({
   ownPropertyOnly: false
 })
 
-interface GlobalScope {
+export interface GlobalScope {
   context: FormContext
   pages: Map<string, Page>
   components: Map<string, ComponentDef>
@@ -362,7 +362,6 @@ export function getExponentialBackoffDelay(depth: number): number {
   const delay = BASE_DELAY_MS * 2 ** (depth - 1)
   return Math.min(delay, CAP_DELAY_MS)
 }
-
 export function evaluateTemplate(
   template: string,
   context: FormContext
