@@ -7,19 +7,19 @@ import { getPageHref } from '~/src/server/plugins/engine/index.js'
  */
 export function href(path) {
   if (typeof path !== 'string') {
-    return
+    return undefined
   }
 
   const { context } = this.ctx
 
   if (!context) {
-    return
+    return undefined
   }
 
   const page = context.pageMap.get(path)
 
   if (page === undefined) {
-    return
+    return undefined
   }
 
   return getPageHref(page)

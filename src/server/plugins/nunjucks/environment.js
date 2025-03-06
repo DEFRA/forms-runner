@@ -72,6 +72,8 @@ function checkComponentTemplates(component) {
       const label = component.model.label
 
       label.text = evaluateTemplate(label.text, context)
+    } else {
+      // No template evaluation needed for other component types
     }
 
     // Evaluate error message
@@ -86,6 +88,8 @@ function checkComponentTemplates(component) {
     if (typeof content === 'string') {
       component.model.content = evaluateTemplate(content, context)
     }
+  } else {
+    // No template evaluation needed for other component types
   }
 
   return component

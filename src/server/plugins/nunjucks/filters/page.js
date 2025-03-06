@@ -5,18 +5,18 @@
  */
 export function page(path) {
   if (typeof path !== 'string') {
-    return
+    return undefined
   }
 
   const { context } = this.ctx
 
   if (!context) {
-    return
+    return undefined
   }
 
-  const page = context.pageMap.get(path)
+  const foundPage = context.pageMap.get(path)
 
-  return page
+  return foundPage
 }
 
 /**

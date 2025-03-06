@@ -5,19 +5,19 @@
  */
 export function field(name) {
   if (typeof name !== 'string') {
-    return
+    return undefined
   }
 
   const { context } = this.ctx
 
   if (!context) {
-    return
+    return undefined
   }
 
   const component = context.componentMap.get(name)
 
   if (!component?.isFormComponent) {
-    return
+    return undefined
   }
 
   return component
