@@ -1,0 +1,5 @@
+{% macro Markdown(component) %}
+    <div class="govuk-body">
+    {{ component.model.content | markdown | safe }}
+    </div>
+{% endmacro %}

@@ -203,6 +203,7 @@ describe('FileUploadPageController', () => {
         expect(getUploadStatusSpy).toHaveBeenCalledTimes(2)
         expect(request.logger.info).toHaveBeenCalled()
 
+        /* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access */
         const logMsg = (request.logger.info as jest.Mock).mock.calls[0][0]
         expect(logMsg).toEqual(expect.stringContaining('Waiting'))
         expect(logMsg).toEqual(expect.stringContaining('some-id'))

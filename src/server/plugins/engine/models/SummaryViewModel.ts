@@ -1,16 +1,13 @@
-import {
-  ComponentType,
-  Engine,
-  hasComponentsEvenIfNoNext,
-  type Page,
-  type Section
-} from '@defra/forms-model'
+import { type Section } from '@defra/forms-model'
 
 import {
   getAnswer,
   type Field
 } from '~/src/server/plugins/engine/components/helpers.js'
-import { type BackLink } from '~/src/server/plugins/engine/components/types.js'
+import {
+  type BackLink,
+  type ComponentViewModel
+} from '~/src/server/plugins/engine/components/types.js'
 import { getError, getPageHref } from '~/src/server/plugins/engine/helpers.js'
 import {
   type Detail,
@@ -49,6 +46,7 @@ export class SummaryViewModel {
   errors?: FormSubmissionError[]
   serviceUrl: string
   hasMissingNotificationEmail?: boolean
+  components?: ComponentViewModel[]
 
   constructor(
     request: FormContextRequest,
@@ -63,10 +61,7 @@ export class SummaryViewModel {
     this.pageTitle = page.title
     this.serviceUrl = `/${basePath}`
     this.name = def.name
-    this.declaration =
-      def.engine === Engine.V2
-        ? getDeclarationV2(page.pageDef)
-        : def.declaration
+    this.declaration = def.declaration
     this.context = context
 
     const result = model
@@ -156,15 +151,6 @@ export class SummaryViewModel {
 
     return details
   }
-}
-
-/**
- * Gets declaration text from guidance component (V2 engine)
- */
-function getDeclarationV2(page: Page) {
-  const components = hasComponentsEvenIfNoNext(page) ? page.components : []
-  const declarations = components.filter((x) => x.type === ComponentType.Html)
-  return declarations.length ? declarations[0].content : undefined
 }
 
 /**
