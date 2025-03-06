@@ -320,11 +320,11 @@ export function initFileUpload() {
   const fileInput = form ? form.querySelector('input[type="file"]') : null
   /** @type {HTMLButtonElement | null} */
   const uploadButton = form ? form.querySelector('.upload-file-button') : null
-  /** @type {HTMLButtonElement | null} */
-  // TO-DO fix type
   const continueButton =
-    Array.from(document.querySelectorAll('button.govuk-button')).find(
-      (button) => button.textContent?.trim() === 'Continue'
+    /** @type {HTMLButtonElement} */ (
+      Array.from(document.querySelectorAll('button.govuk-button')).find(
+        (button) => button.textContent?.trim() === 'Continue'
+      )
     ) ?? null
 
   const errorSummary = document.querySelector('.govuk-error-summary-container')
