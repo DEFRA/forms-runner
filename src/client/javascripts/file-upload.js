@@ -234,12 +234,14 @@ function pollUploadStatus(uploadId) {
  * @param {HTMLFormElement} formElement - The form element
  * @param {HTMLInputElement} fileInput - The file input element
  * @param {HTMLButtonElement} uploadButton - The upload button
+ * @param {HTMLButtonElement} continueButton - The continue button
  * @param {File | null} selectedFile - The selected file
  */
 function handleStandardFormSubmission(
   formElement,
   fileInput,
   uploadButton,
+  continueButton,
   selectedFile
 ) {
   renderSummary(selectedFile, 'Uploading…', formElement)
@@ -249,6 +251,7 @@ function handleStandardFormSubmission(
   setTimeout(() => {
     fileInput.disabled = true
     uploadButton.disabled = true
+    continueButton.disabled = true
   }, 100)
 }
 
@@ -317,6 +320,13 @@ export function initFileUpload() {
   const fileInput = form ? form.querySelector('input[type="file"]') : null
   /** @type {HTMLButtonElement | null} */
   const uploadButton = form ? form.querySelector('.upload-file-button') : null
+  const continueButton =
+    /** @type {HTMLButtonElement} */ (
+      Array.from(document.querySelectorAll('button.govuk-button')).find(
+        (button) => button.textContent?.trim() === 'Continue'
+      )
+    ) ?? null
+
   const errorSummary = document.querySelector('.govuk-error-summary-container')
 
   if (!form || !fileInput || !uploadButton) {
@@ -360,6 +370,7 @@ export function initFileUpload() {
       formElement,
       fileInput,
       uploadButton,
+      continueButton,
       selectedFile
     )
 
