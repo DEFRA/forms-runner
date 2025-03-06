@@ -352,6 +352,11 @@ describe('File Upload Client JS', () => {
     /** @type {HTMLButtonElement | null} */
     const button = document.querySelector('.upload-file-button')
     expect(button?.disabled).toBeFalsy()
+    /** @type {HTMLButtonElement | null} */
+    const continueButton = document.querySelector(
+      'button.govuk-button:not(.govuk-button--secondary)'
+    )
+    expect(continueButton?.disabled).toBeFalsy()
 
     loadFile()
     triggerChange()
@@ -361,6 +366,7 @@ describe('File Upload Client JS', () => {
 
     expect(input.disabled).toBeTruthy()
     expect(button?.disabled).toBeTruthy()
+    expect(continueButton?.disabled).toBeTruthy()
   })
 
   test('sets focus on file input after upload begins', () => {
