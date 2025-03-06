@@ -185,6 +185,11 @@ function asHTMLElement(element) {
   return /** @type {HTMLElement} */ (element)
 }
 
+function reloadPage() {
+  window.history.replaceState(null, '', window.location.href)
+  window.location.href = window.location.pathname
+}
+
 /**
  * Polls the upload status endpoint until the file is ready or timeout occurs
  * @param {string} uploadId - The upload ID to check
@@ -196,7 +201,7 @@ function pollUploadStatus(uploadId) {
 
     if (attempts >= MAX_POLLING_DURATION) {
       clearInterval(interval)
-      location.reload()
+      reloadPage()
       return
     }
 
@@ -214,12 +219,12 @@ function pollUploadStatus(uploadId) {
       .then((data) => {
         if (data.uploadStatus === 'ready') {
           clearInterval(interval)
-          location.reload()
+          reloadPage()
         }
       })
       .catch(() => {
         clearInterval(interval)
-        location.reload()
+        reloadPage()
       })
   }, 1000)
 }
