@@ -57,4 +57,99 @@ describe('Nunjucks environment', () => {
       ])
     })
   })
+
+  describe('checkComponentTemplates function', () => {
+    /** @type {Function} */
+    let checkComponentTemplates
+
+    beforeEach(() => {
+      checkComponentTemplates = environment.getGlobal('checkComponentTemplates')
+
+      jest
+        .spyOn(helpers, 'evaluateTemplate')
+        .mockImplementation((text) => `evaluated-${text}`)
+    })
+
+    afterEach(() => {
+      jest.restoreAllMocks()
+    })
+
+    test('evaluates string content for Html components', () => {
+      const formContext = { someData: 'some-text' }
+      const nunjucksCtx = {
+        ctx: { context: formContext }
+      }
+
+      const component = {
+        type: 'Html',
+        isFormComponent: false,
+        model: {
+          content: 'Some {{ context.someData }} content'
+        }
+      }
+
+      const result = checkComponentTemplates.call(nunjucksCtx, component)
+
+      expect(helpers.evaluateTemplate).toHaveBeenCalledWith(
+        'Some {{ context.someData }} content',
+        formContext
+      )
+      expect(result.model.content).toBe(
+        'evaluated-Some {{ context.someData }} content'
+      )
+    })
+
+    test('does not evaluate non-string content for Html components', () => {
+      const formContext = { someData: 'some-text' }
+      const nunjucksCtx = {
+        ctx: { context: formContext }
+      }
+
+      const nonStringContent = { some: 'object' }
+      const component = {
+        type: 'Html',
+        isFormComponent: false,
+        model: {
+          content: nonStringContent
+        }
+      }
+
+      const result = checkComponentTemplates.call(nunjucksCtx, component)
+
+      expect(helpers.evaluateTemplate).not.toHaveBeenCalled()
+
+      expect(result.model.content).toBe(nonStringContent)
+    })
+
+    test('evaluates label text for form components', () => {
+      const formContext = { someData: 'some-text' }
+      const nunjucksCtx = {
+        ctx: { context: formContext }
+      }
+
+      const component = {
+        isFormComponent: true,
+        model: {
+          label: {
+            text: 'Label with {{ context.someData }}'
+          }
+        }
+      }
+
+      const result = checkComponentTemplates.call(nunjucksCtx, component)
+
+      expect(helpers.evaluateTemplate).toHaveBeenCalledWith(
+        'Label with {{ context.someData }}',
+        formContext
+      )
+
+      expect(result.model.label?.text).toBe(
+        'evaluated-Label with {{ context.someData }}'
+      )
+    })
+  })
 })
+
+/*
+ * @import { ComponentViewModel } from '~/src/server/plugins/engine/components/types.js'
+ */
