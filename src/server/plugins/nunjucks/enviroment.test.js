@@ -148,6 +148,52 @@ describe('Nunjucks environment', () => {
       )
     })
   })
+
+  describe('evaluate function', () => {
+    /** @type {Function} */
+    let evaluateFunc
+
+    beforeEach(() => {
+      evaluateFunc = environment.getGlobal('evaluate')
+
+      jest
+        .spyOn(helpers, 'evaluateTemplate')
+        .mockImplementation((text) => `evaluated-${text}`)
+    })
+
+    afterEach(() => {
+      jest.restoreAllMocks()
+    })
+
+    test('evaluates template when context is present', () => {
+      const formContext = { someData: 'some-text' }
+      const nunjucksCtx = {
+        ctx: { context: formContext }
+      }
+
+      const template = 'Template with {{ context.someData }}'
+      const result = evaluateFunc.call(nunjucksCtx, template)
+
+      expect(helpers.evaluateTemplate).toHaveBeenCalledWith(
+        template,
+        formContext
+      )
+      expect(result).toBe('evaluated-Template with {{ context.someData }}')
+    })
+
+    test('returns template unchanged when context is not present', () => {
+      const nunjucksCtx = {
+        ctx: {}
+      }
+
+      const template = 'Template with {{ context.someData }}'
+      const result = evaluateFunc.call(nunjucksCtx, template)
+
+      expect(helpers.evaluateTemplate).not.toHaveBeenCalled()
+
+      expect(result).toBe(template)
+    })
+  })
 })
 
 /*
