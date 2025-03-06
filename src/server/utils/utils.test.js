@@ -44,4 +44,19 @@ describe('Header helper functions', () => {
       Authorization: 'Bearer token'
     })
   })
+
+  it('should return existing headers if tracing header configuration is missing', () => {
+    const originalConfig = config.get('tracing')
+    jest.spyOn(config, 'get').mockImplementation((key) => {
+      if (key === 'tracing') {
+        return { header: '' }
+      }
+      return originalConfig
+    })
+
+    const existingHeaders = { Authorization: 'Bearer token' }
+    const result = applyTraceHeaders(existingHeaders)
+
+    expect(result).toBe(existingHeaders)
+  })
 })
