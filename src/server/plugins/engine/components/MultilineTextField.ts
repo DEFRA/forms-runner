@@ -94,7 +94,7 @@ export class MultilineTextField extends FormComponent {
     }
 
     if (options.rows) {
-      maxwords = options.rows
+      rows = options.rows
     }
 
     return {

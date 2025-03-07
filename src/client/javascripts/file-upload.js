@@ -185,6 +185,11 @@ function asHTMLElement(element) {
   return /** @type {HTMLElement} */ (element)
 }
 
+function reloadPage() {
+  window.history.replaceState(null, '', window.location.href)
+  window.location.href = window.location.pathname
+}
+
 /**
  * Polls the upload status endpoint until the file is ready or timeout occurs
  * @param {string} uploadId - The upload ID to check
@@ -196,7 +201,7 @@ function pollUploadStatus(uploadId) {
 
     if (attempts >= MAX_POLLING_DURATION) {
       clearInterval(interval)
-      location.reload()
+      reloadPage()
       return
     }
 
@@ -214,12 +219,12 @@ function pollUploadStatus(uploadId) {
       .then((data) => {
         if (data.uploadStatus === 'ready') {
           clearInterval(interval)
-          location.reload()
+          reloadPage()
         }
       })
       .catch(() => {
         clearInterval(interval)
-        location.reload()
+        reloadPage()
       })
   }, 1000)
 }
@@ -229,12 +234,14 @@ function pollUploadStatus(uploadId) {
  * @param {HTMLFormElement} formElement - The form element
  * @param {HTMLInputElement} fileInput - The file input element
  * @param {HTMLButtonElement} uploadButton - The upload button
+ * @param {HTMLButtonElement} continueButton - The continue button
  * @param {File | null} selectedFile - The selected file
  */
 function handleStandardFormSubmission(
   formElement,
   fileInput,
   uploadButton,
+  continueButton,
   selectedFile
 ) {
   renderSummary(selectedFile, 'Uploading…', formElement)
@@ -244,6 +251,7 @@ function handleStandardFormSubmission(
   setTimeout(() => {
     fileInput.disabled = true
     uploadButton.disabled = true
+    continueButton.disabled = true
   }, 100)
 }
 
@@ -312,6 +320,13 @@ export function initFileUpload() {
   const fileInput = form ? form.querySelector('input[type="file"]') : null
   /** @type {HTMLButtonElement | null} */
   const uploadButton = form ? form.querySelector('.upload-file-button') : null
+  const continueButton =
+    /** @type {HTMLButtonElement} */ (
+      Array.from(document.querySelectorAll('button.govuk-button')).find(
+        (button) => button.textContent?.trim() === 'Continue'
+      )
+    ) ?? null
+
   const errorSummary = document.querySelector('.govuk-error-summary-container')
 
   if (!form || !fileInput || !uploadButton) {
@@ -355,6 +370,7 @@ export function initFileUpload() {
       formElement,
       fileInput,
       uploadButton,
+      continueButton,
       selectedFile
     )
 
