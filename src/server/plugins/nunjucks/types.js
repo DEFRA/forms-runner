@@ -21,6 +21,7 @@
  * @property {string} [previewMode] - Preview mode
  * @property {string} [slug] - Form slug
  * @property {(asset?: string) => string} getAssetPath - Asset path resolver
+ * @property {FormContext} [context] - the current form context
  */
 
 /**
@@ -28,6 +29,12 @@
  */
 
 /**
+ * @typedef NunjucksContext
+ * @property {ViewContext} ctx - the current nunjucks view context
+ */
+
+/**
  * @import { CookieConsent } from '~/src/common/types.js'
  * @import { config } from '~/src/config/index.js'
+ * @import { FormContext } from '~/src/server/plugins/engine/types.js'
  */

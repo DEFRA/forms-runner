@@ -47,28 +47,28 @@ describe('UkAddressField', () => {
         expect(keys).toHaveProperty(
           'myComponent__addressLine1',
           expect.objectContaining({
-            flags: expect.objectContaining({ label: 'address line 1' })
+            flags: expect.objectContaining({ label: 'Address line 1' })
           })
         )
 
         expect(keys).toHaveProperty(
           'myComponent__addressLine2',
           expect.objectContaining({
-            flags: expect.objectContaining({ label: 'address line 2' })
+            flags: expect.objectContaining({ label: 'Address line 2' })
           })
         )
 
         expect(keys).toHaveProperty(
           'myComponent__town',
           expect.objectContaining({
-            flags: expect.objectContaining({ label: 'town or city' })
+            flags: expect.objectContaining({ label: 'Town or city' })
           })
         )
 
         expect(keys).toHaveProperty(
           `myComponent__postcode`,
           expect.objectContaining({
-            flags: expect.objectContaining({ label: 'postcode' })
+            flags: expect.objectContaining({ label: 'Postcode' })
           })
         )
       })

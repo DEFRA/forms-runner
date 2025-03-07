@@ -132,7 +132,7 @@ describe('FileUploadPageController', () => {
           text: 'Select upload something',
           context: {
             key: 'fileUpload',
-            label: 'upload something',
+            label: 'Upload something',
             title: 'Upload something'
           }
         }

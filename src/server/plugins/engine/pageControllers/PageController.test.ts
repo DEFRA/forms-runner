@@ -78,6 +78,22 @@ describe('PageController', () => {
 
       expect(controller1).toHaveProperty('phaseTag', 'alpha')
     })
+
+    it('sets default viewName to "index"', () => {
+      expect(controller1).toHaveProperty('viewName', 'index')
+      expect(controller2).toHaveProperty('viewName', 'index')
+    })
+
+    it('overrides viewName when pageDef.view is provided', () => {
+      const customPage = {
+        ...definition.pages[0],
+        view: 'custom-view'
+      }
+
+      const customController = new PageController(model, customPage)
+
+      expect(customController).toHaveProperty('viewName', 'custom-view')
+    })
   })
 
   describe('Path methods', () => {

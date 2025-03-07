@@ -5,7 +5,11 @@ import {
   type Field
 } from '~/src/server/plugins/engine/components/helpers.js'
 import { type BackLink } from '~/src/server/plugins/engine/components/types.js'
-import { getError, getPageHref } from '~/src/server/plugins/engine/helpers.js'
+import {
+  evaluateTemplate,
+  getError,
+  getPageHref
+} from '~/src/server/plugins/engine/helpers.js'
 import {
   type Detail,
   type DetailItem,
@@ -87,7 +91,7 @@ export class SummaryViewModel {
 
         return {
           key: {
-            text: item.title
+            text: evaluateTemplate(item.title, context)
           },
           value: {
             classes: 'app-prose-scope',

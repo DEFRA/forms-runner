@@ -31,7 +31,7 @@ export class NumberField extends FormComponent {
     let formSchema = joi
       .number()
       .custom(getValidatorPrecision(this))
-      .label(title.toLowerCase())
+      .label(title)
       .required()
 
     if (options.required === false) {

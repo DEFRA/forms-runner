@@ -1,9 +1,9 @@
 {% if sectionTitle and (sectionTitle !== pageTitle) or itemTitle %}
   <h2 class="govuk-caption-l govuk-!-margin-top-0" id="section-title">
     {% if sectionTitle and itemTitle %}
-      {{- sectionTitle }}: {{ itemTitle -}}
+      {{- sectionTitle }}: {{ evaluate(itemTitle) -}}
     {% elif not sectionTitle %}
-      {{- itemTitle -}}
+      {{- evaluate(itemTitle) -}}
     {% else %}
       {{- sectionTitle -}}
     {% endif %}
@@ -11,6 +11,6 @@
 {% endif %}
 {% if showTitle %}
   <h1 class="govuk-heading-l">
-    {{ pageTitle }}
+    {{ evaluate(pageTitle) }}
   </h1>
 {% endif %}

@@ -47,7 +47,7 @@ describe('EmailAddressField', () => {
           'myComponent',
           expect.objectContaining({
             flags: expect.objectContaining({
-              label: 'example email address field'
+              label: 'Example email address field'
             })
           })
         )

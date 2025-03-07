@@ -8,24 +8,40 @@ import {
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
   encodeUrl,
+  engine,
+  evaluateTemplate,
   getErrors,
   getExponentialBackoffDelay,
   getPageHref,
   proceed,
-  safeGenerateCrumb
+  safeGenerateCrumb,
+  type GlobalScope
 } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   createPage,
   type PageControllerClass
 } from '~/src/server/plugins/engine/pageControllers/helpers.js'
-import { type FormContextRequest } from '~/src/server/plugins/engine/types.js'
+import {
+  type FormContext,
+  type FormContextRequest
+} from '~/src/server/plugins/engine/types.js'
 import {
   FormAction,
   FormStatus,
   type FormRequest
 } from '~/src/server/routes/types.js'
 import definition from '~/test/form/definitions/basic.js'
+import templateDefinition from '~/test/form/definitions/templates.js'
+
+interface NunjucksContext {
+  context: {
+    globals: GlobalScope
+  }
+}
+
+type EvaluateFilter = (this: NunjucksContext, template: unknown) => unknown
+type HrefFilter = (this: NunjucksContext, path: string) => string | undefined
 
 describe('Helpers', () => {
   let page: PageControllerClass
@@ -390,7 +406,7 @@ describe('Helpers', () => {
       ])
     })
 
-    it('formats first letter to uppercase', () => {
+    it('does not format the first letter to uppercase', () => {
       const { details } = new ValidationError(
         'Date of marriage example',
         [
@@ -411,7 +427,7 @@ describe('Helpers', () => {
           path: ['yesNoField'],
           href: '#yesNoField',
           name: 'yesNoField',
-          text: 'Something invalid',
+          text: 'something invalid',
           context: {
             key: 'yesNoField'
           }
@@ -520,6 +536,256 @@ describe('Helpers', () => {
       // For depth 10: 2000 * 2^(9) would be too high, so it should be capped
       expect(getExponentialBackoffDelay(10)).toBe(25000)
       expect(getExponentialBackoffDelay(20)).toBe(25000)
+    })
+  })
+
+  describe('evaluateTemplate', () => {
+    let model: FormModel
+    let formContext: FormContext
+
+    beforeEach(() => {
+      model = new FormModel(templateDefinition, {
+        basePath: 'template'
+      })
+
+      formContext = {
+        evaluationState: {},
+        relevantState: {},
+        relevantPages: [],
+        payload: {},
+        state: {},
+        paths: [],
+        isForceAccess: false,
+        data: {},
+        pageDefMap: model.pageDefMap,
+        listDefMap: model.listDefMap,
+        componentDefMap: model.componentDefMap,
+        pageMap: model.pageMap,
+        componentMap: model.componentMap
+      }
+    })
+
+    it('should replace placeholders with values from form context relevantState', () => {
+      Object.assign(formContext.relevantState, {
+        WmHfSb: 'Enrique Chase'
+      })
+
+      const areYouInEngland = templateDefinition.pages[2]
+      expect(areYouInEngland.title).toBe('Are you in England, {{ WmHfSb }}?')
+
+      const result = evaluateTemplate(areYouInEngland.title, formContext)
+      expect(result).toBe('Are you in England, Enrique Chase?')
+    })
+
+    it('should replace placeholders with values from form context data', () => {
+      Object.assign(formContext.data, {
+        score: 'Low'
+      })
+
+      const result = evaluateTemplate(
+        'Your score is: {{ context.data.score }}',
+        formContext
+      )
+
+      expect(result).toBe('Your score is: Low')
+    })
+
+    it('evaluate filter should evaluate a liquid template', () => {
+      Object.assign(formContext.relevantState, {
+        WmHfSb: 'Enrique Chase'
+      })
+
+      const result = evaluateTemplate(
+        '{{ "Hello, {{ WmHfSb }}!" | evaluate }}',
+        formContext
+      )
+
+      expect(result).toBe('Hello, Enrique Chase!')
+    })
+
+    it('page filter should return the page definition', () => {
+      // @ts-expect-error - spyOn type issue
+      const filterSpy = jest.spyOn(engine.filters, 'page')
+      const result = evaluateTemplate(
+        '{%- assign startPageDef = "/start" | page -%}{{ startPageDef.title }}',
+        formContext
+      )
+
+      expect(filterSpy).toHaveBeenCalledWith('/start')
+      expect(result).toBe('Start page')
+    })
+
+    it('page filter should return empty when anything but a string is passed', () => {
+      // @ts-expect-error - spyOn type issue
+      const pageFilterSpy = jest.spyOn(engine.filters, 'page')
+
+      let result = evaluateTemplate('{{ 0 | page }}', formContext)
+      expect(pageFilterSpy).toHaveBeenLastCalledWith(0)
+      expect(result).toBe('')
+
+      result = evaluateTemplate('{{ undefined | page }}', formContext)
+      expect(pageFilterSpy).toHaveBeenLastCalledWith(undefined)
+      expect(result).toBe('')
+
+      result = evaluateTemplate('{{ null | page }}', formContext)
+      expect(result).toBe('')
+
+      result = evaluateTemplate('{{ false | page }}', formContext)
+      expect(pageFilterSpy).toHaveBeenLastCalledWith(false)
+      expect(result).toBe('')
+
+      result = evaluateTemplate('{{ [] | page }}', formContext)
+      expect(result).toBe('')
+    })
+
+    it('href filter should return the page href', () => {
+      // @ts-expect-error - spyOn type issue
+      const filterSpy = jest.spyOn(engine.filters, 'href')
+      const result = evaluateTemplate('{{ "/full-name" | href }}', formContext)
+
+      expect(filterSpy).toHaveBeenCalledWith('/full-name')
+      expect(result).toBe('/template/full-name')
+    })
+
+    it('href filter should return empty when no page passed', () => {
+      // @ts-expect-error - spyOn type issue
+      const pageFilterSpy = jest.spyOn(engine.filters, 'href')
+
+      const result = evaluateTemplate('{{ undefined | href }}', formContext)
+      expect(pageFilterSpy).toHaveBeenLastCalledWith(undefined)
+      expect(result).toBe('')
+    })
+
+    it('field filter should return the component definition', () => {
+      // @ts-expect-error - spyOn type issue
+      const filterSpy = jest.spyOn(engine.filters, 'field')
+      const result = evaluateTemplate(
+        '{%- assign fullNameComponentDef = "WmHfSb" | field -%}{{ fullNameComponentDef.title }}',
+        formContext
+      )
+
+      expect(filterSpy).toHaveBeenCalledWith('WmHfSb')
+      expect(result).toBe('What&#39;s your full name?')
+    })
+
+    it('field filter should return empty when anything but a string is passed', () => {
+      // @ts-expect-error - spyOn type issue
+      const pageFilterSpy = jest.spyOn(engine.filters, 'field')
+
+      let result = evaluateTemplate('{{ 0 | field }}', formContext)
+      expect(pageFilterSpy).toHaveBeenLastCalledWith(0)
+      expect(result).toBe('')
+
+      result = evaluateTemplate('{{ undefined | field }}', formContext)
+      expect(pageFilterSpy).toHaveBeenLastCalledWith(undefined)
+      expect(result).toBe('')
+
+      result = evaluateTemplate('{{ null | field }}', formContext)
+      expect(result).toBe('')
+
+      result = evaluateTemplate('{{ false | field }}', formContext)
+      expect(pageFilterSpy).toHaveBeenLastCalledWith(false)
+      expect(result).toBe('')
+
+      result = evaluateTemplate('{{ [] | field }}', formContext)
+      expect(result).toBe('')
+    })
+
+    it('answer filter should return the formatted submitted answer', () => {
+      Object.assign(formContext.relevantState, {
+        TKsWbP: true,
+        WmHfSb: 'Enrique Chase'
+      })
+
+      // @ts-expect-error - spyOn type issue
+      const filterSpy = jest.spyOn(engine.filters, 'answer')
+
+      let result = evaluateTemplate("{{ 'TKsWbP' | answer }}", formContext)
+      expect(filterSpy).toHaveBeenCalledWith('TKsWbP')
+      expect(result).toBe('Yes')
+
+      result = evaluateTemplate("{{ 'WmHfSb' | answer }}", formContext)
+      expect(filterSpy).toHaveBeenCalledWith('WmHfSb')
+      expect(result).toBe('Enrique Chase')
+    })
+
+    it('answer filter should return empty when anything but a string is passed', () => {
+      // @ts-expect-error - spyOn type issue
+      const pageFilterSpy = jest.spyOn(engine.filters, 'answer')
+
+      let result = evaluateTemplate('{{ 0 | answer }}', formContext)
+      expect(pageFilterSpy).toHaveBeenLastCalledWith(0)
+      expect(result).toBe('')
+
+      result = evaluateTemplate('{{ undefined | answer }}', formContext)
+      expect(pageFilterSpy).toHaveBeenLastCalledWith(undefined)
+      expect(result).toBe('')
+
+      result = evaluateTemplate('{{ null | answer }}', formContext)
+      expect(result).toBe('')
+
+      result = evaluateTemplate('{{ false | answer }}', formContext)
+      expect(pageFilterSpy).toHaveBeenLastCalledWith(false)
+      expect(result).toBe('')
+
+      result = evaluateTemplate('{{ [] | answer }}', formContext)
+      expect(result).toBe('')
+    })
+
+    it('answer filter should return empty when non-form component name is passed', () => {
+      // @ts-expect-error - spyOn type issue
+      const pageFilterSpy = jest.spyOn(engine.filters, 'answer')
+
+      const result = evaluateTemplate('{{ "FGyiLS" | answer }}', formContext)
+      expect(pageFilterSpy).toHaveBeenLastCalledWith('FGyiLS')
+      expect(result).toBe('')
+    })
+  })
+
+  describe('Nunjucks filters', () => {
+    describe('evaluate filter', () => {
+      it('returns non-string values unchanged', () => {
+        const mockContext: NunjucksContext = {
+          context: {
+            globals: {
+              context: { pageMap: new Map() } as FormContext,
+              pages: new Map(),
+              components: new Map()
+            }
+          }
+        }
+
+        const numResult = (
+          engine.filters.evaluate as unknown as EvaluateFilter
+        ).call(mockContext, 123)
+        expect(numResult).toBe(123)
+
+        const objResult = (
+          engine.filters.evaluate as unknown as EvaluateFilter
+        ).call(mockContext, { foo: 'bar' })
+        expect(objResult).toEqual({ foo: 'bar' })
+      })
+    })
+
+    describe('href filter', () => {
+      it('returns undefined when page is undefined', () => {
+        const mockContext: NunjucksContext = {
+          context: {
+            globals: {
+              context: { pageMap: new Map() } as FormContext,
+              pages: new Map(),
+              components: new Map()
+            }
+          }
+        }
+
+        const result = (engine.filters.href as unknown as HrefFilter).call(
+          mockContext,
+          '/some-page'
+        )
+
+        expect(result).toBeUndefined()
+      })
     })
   })
 })
