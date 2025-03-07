@@ -4,7 +4,10 @@ import {
   getAnswer,
   type Field
 } from '~/src/server/plugins/engine/components/helpers.js'
-import { type BackLink } from '~/src/server/plugins/engine/components/types.js'
+import {
+  type BackLink,
+  type ComponentViewModel
+} from '~/src/server/plugins/engine/components/types.js'
 import { getError, getPageHref } from '~/src/server/plugins/engine/helpers.js'
 import {
   type Detail,
@@ -43,6 +46,7 @@ export class SummaryViewModel {
   errors?: FormSubmissionError[]
   serviceUrl: string
   hasMissingNotificationEmail?: boolean
+  components?: ComponentViewModel[]
 
   constructor(
     request: FormContextRequest,
