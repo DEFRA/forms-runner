@@ -42,7 +42,7 @@
 
         {{ componentList(components) }}
 
-        {% set isDeclaration = declaration or components | length%}
+        {% set isDeclaration = declaration or components | length %}
         <button data-prevent-double-click="true" class="govuk-button" data-module="govuk-button">
           {{ "Accept and send" if isDeclaration else "Send" }}
         </button>

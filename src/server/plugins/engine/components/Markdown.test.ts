@@ -24,7 +24,7 @@ describe('Markdown', () => {
         title: 'Markdown guidance',
         name: 'myComponent',
         type: ComponentType.Markdown,
-        content: '<p class="govuk-body">\nLorem ipsum dolor sit amet</p>',
+        content: '# Heading 1 ## Heading 2',
         options: {}
       } satisfies MarkdownComponent
 
