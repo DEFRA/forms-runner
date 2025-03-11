@@ -6,6 +6,7 @@ import {
   Engine,
   formDefinitionSchema,
   hasRepeater,
+  safeFieldName,
   type ConditionWrapper,
   type ConditionsModelData,
   type DateUnits,
@@ -166,6 +167,11 @@ export class FormModel {
 
     const fn = (evaluationState: FormState) => {
       const ctx = this.toConditionContext(evaluationState, this.conditions)
+
+      Object.keys(ctx).forEach((key) => {
+        ctx[safeFieldName(key)] = ctx[key]
+      })
+
       try {
         return expr.evaluate(ctx) as boolean
       } catch {
