@@ -73,7 +73,7 @@
     "highlight.js": "^11.11.1",
     "http-status-codes": "^2.3.0",
     "humanize-duration": "^3.32.1",
-    "ioredis": "^5.4.2",
+    "ioredis": "^5.6.0",
     "joi": "^17.13.3",
     "liquidjs": "^10.20.3",
     "lodash": "^4.17.21",
