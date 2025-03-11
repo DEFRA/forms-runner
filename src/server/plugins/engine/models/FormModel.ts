@@ -5,23 +5,28 @@ import {
   ControllerType,
   Engine,
   formDefinitionSchema,
+  hasComponents,
   hasRepeater,
+  type ComponentDef,
   type ConditionWrapper,
   type ConditionsModelData,
   type DateUnits,
   type FormDefinition,
-  type List
+  type List,
+  type Page
 } from '@defra/forms-model'
 import { add } from 'date-fns'
 import { Parser, type Value } from 'expr-eval'
 import joi from 'joi'
 
+import { type Component } from '~/src/server/plugins/engine/components/helpers.js'
 import {
   findPage,
   getError,
   getPage
 } from '~/src/server/plugins/engine/helpers.js'
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
+import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
   createPage,
   type PageControllerClass
@@ -55,10 +60,18 @@ export class FormModel {
   pages: PageControllerClass[]
   services: Services
 
+  controllers?: Record<string, typeof PageController>
+  pageDefMap: Map<string, Page>
+  listDefMap: Map<string, List>
+  componentDefMap: Map<string, ComponentDef>
+  pageMap: Map<string, PageControllerClass>
+  componentMap: Map<string, Component>
+
   constructor(
     def: typeof this.def,
     options: { basePath: string },
-    services: Services = defaultServices
+    services: Services = defaultServices,
+    controllers?: Record<string, typeof PageController>
   ) {
     const result = formDefinitionSchema.validate(def, { abortEarly: false })
 
@@ -96,6 +109,7 @@ export class FormModel {
     this.basePath = options.basePath
     this.conditions = {}
     this.services = services
+    this.controllers = controllers
 
     def.conditions.forEach((conditionDef) => {
       const condition = this.makeCondition(conditionDef)
@@ -119,6 +133,26 @@ export class FormModel {
         })
       )
     }
+
+    this.pageDefMap = new Map(def.pages.map((page) => [page.path, page]))
+    this.listDefMap = new Map(def.lists.map((list) => [list.name, list]))
+    this.componentDefMap = new Map(
+      def.pages
+        .filter(hasComponents)
+        .flatMap((page) =>
+          page.components.map((component) => [component.name, component])
+        )
+    )
+
+    this.pageMap = new Map(this.pages.map((page) => [page.path, page]))
+    this.componentMap = new Map(
+      this.pages.flatMap((page) =>
+        page.collection.components.map((component) => [
+          component.name,
+          component
+        ])
+      )
+    )
   }
 
   /**
@@ -235,7 +269,13 @@ export class FormModel {
       state,
       paths: [],
       errors,
-      isForceAccess
+      isForceAccess,
+      data: {},
+      pageDefMap: this.pageDefMap,
+      listDefMap: this.listDefMap,
+      componentDefMap: this.componentDefMap,
+      pageMap: this.pageMap,
+      componentMap: this.componentMap
     }
 
     // Validate current page

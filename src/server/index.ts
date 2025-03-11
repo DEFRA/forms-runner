@@ -14,6 +14,7 @@ import { ProxyAgent } from 'proxy-agent'
 
 import { config } from '~/src/config/index.js'
 import { requestLogger } from '~/src/server/common/helpers/logging/request-logger.js'
+import { requestTracing } from '~/src/server/common/helpers/logging/request-tracing.js'
 import { buildRedisClient } from '~/src/server/common/helpers/redis-client.js'
 import { configureBlankiePlugin } from '~/src/server/plugins/blankie.js'
 import { configureCrumbPlugin } from '~/src/server/plugins/crumb.js'
@@ -124,6 +125,7 @@ export async function createServer(routeConfig?: RouteConfig) {
   await server.register(pluginRouter)
   await server.register(pluginErrorPages)
   await server.register(blipp)
+  await server.register(requestTracing)
 
   server.state('cookieConsent', {
     ttl: 365 * 24 * 60 * 60 * 1000, // 1 year in ms

@@ -20,9 +20,15 @@ import {
   proceed,
   redirectPath
 } from '~/src/server/plugins/engine/helpers.js'
-import { FormModel } from '~/src/server/plugins/engine/models/index.js'
+import {
+  FormModel,
+  SummaryViewModel
+} from '~/src/server/plugins/engine/models/index.js'
+import { format } from '~/src/server/plugins/engine/outputFormatters/machine/v1.js'
 import { FileUploadPageController } from '~/src/server/plugins/engine/pageControllers/FileUploadPageController.js'
+import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { RepeatPageController } from '~/src/server/plugins/engine/pageControllers/RepeatPageController.js'
+import { getFormSubmissionData } from '~/src/server/plugins/engine/pageControllers/SummaryPageController.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
 import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import { getUploadStatus } from '~/src/server/plugins/engine/services/uploadService.js'
@@ -41,11 +47,13 @@ import {
   pathSchema,
   stateSchema
 } from '~/src/server/schemas/index.js'
+import * as httpService from '~/src/server/services/httpService.js'
 import { type Services } from '~/src/server/types.js'
 
 export interface PluginOptions {
   model?: FormModel
   services?: Services
+  controllers?: Record<string, typeof PageController>
 }
 
 export const plugin = {
@@ -53,7 +61,7 @@ export const plugin = {
   dependencies: '@hapi/vision',
   multiple: true,
   register(server, options) {
-    const { model, services = defaultServices } = options
+    const { model, services = defaultServices, controllers } = options
     const { formsService } = services
 
     server.app.model = model
@@ -126,7 +134,12 @@ export const plugin = {
           : slug
 
         // Construct the form model
-        const model = new FormModel(definition, { basePath }, services)
+        const model = new FormModel(
+          definition,
+          { basePath },
+          services,
+          controllers
+        )
 
         // Create new item and add it to the item cache
         item = { model, updatedAt: state.updatedAt }
@@ -199,9 +212,40 @@ export const plugin = {
         return dispatchHandler(request, h)
       }
 
-      return redirectOrMakeHandler(request, h, (page, context) =>
-        page.makeGetRouteHandler()(request, context, h)
-      )
+      return redirectOrMakeHandler(request, h, async (page, context) => {
+        // Check for a page onLoad HTTP event and if one exists,
+        // call it and assign the response to the context data
+        const { events } = page
+        const { model } = request.app
+
+        if (!model) {
+          throw Boom.notFound(`No model found for /${params.path}`)
+        }
+
+        if (events?.onLoad && events.onLoad.type === 'http') {
+          const { options } = events.onLoad
+          const { url } = options
+
+          // TODO: Update structured data POST payload with when helper
+          // is updated to removing the dependency on `SummaryViewModel` etc.
+          const viewModel = new SummaryViewModel(request, page, context)
+          const items = getFormSubmissionData(
+            viewModel.context,
+            viewModel.details
+          )
+
+          // @ts-expect-error - function signature will be refactored in the next iteration of the formatter
+          const payload = format(items, model, undefined, undefined)
+
+          const { payload: response } = await httpService.postJson(url, {
+            payload
+          })
+
+          Object.assign(context.data, response)
+        }
+
+        return page.makeGetRouteHandler()(request, context, h)
+      })
     }
 
     const postHandler = (

@@ -30,13 +30,9 @@ export class CheckboxesField extends SelectionControlField {
 
     const itemsSchema = joi[type]()
       .valid(...this.values)
-      .label(title.toLowerCase())
+      .label(title)
 
-    formSchema = formSchema
-      .items(itemsSchema)
-      .single()
-      .label(title.toLowerCase())
-      .required()
+    formSchema = formSchema.items(itemsSchema).single().label(title).required()
 
     if (options.required === false) {
       formSchema = formSchema.optional()

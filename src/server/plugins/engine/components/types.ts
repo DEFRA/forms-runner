@@ -63,7 +63,6 @@ export interface DateInputItem {
   condition?: undefined
 }
 
-// TODO: Break this down for each component (Same as model/Component).
 export interface ViewModel extends Record<string, unknown> {
   label?: Label
   type?: string

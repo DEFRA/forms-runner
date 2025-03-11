@@ -45,7 +45,7 @@ describe('TextField', () => {
           'myComponent',
           expect.objectContaining({
             flags: expect.objectContaining({
-              label: 'example text field'
+              label: 'Example text field'
             })
           })
         )

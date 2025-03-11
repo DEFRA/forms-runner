@@ -106,11 +106,7 @@ export class FileUploadField extends FormComponent {
 
     const { options, schema, title } = def
 
-    let formSchema = joi
-      .array<FileState>()
-      .label(title.toLowerCase())
-      .single()
-      .required()
+    let formSchema = joi.array<FileState>().label(title).single().required()
 
     if (options.required === false) {
       formSchema = formSchema.optional()

@@ -177,7 +177,7 @@ describe('FileUploadField', () => {
           'myComponent',
           expect.objectContaining({
             flags: expect.objectContaining({
-              label: 'example file upload field'
+              label: 'Example file upload field'
             })
           })
         )

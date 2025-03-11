@@ -9,3 +9,4 @@ coverage
 .server
 .cache
 .env
+tsconfig.tsbuildinfo
