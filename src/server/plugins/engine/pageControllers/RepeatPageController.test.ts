@@ -228,7 +228,7 @@ describe('RepeatPageController', () => {
           text: 'Select toppings',
           context: {
             key: 'toppings',
-            label: 'toppings',
+            label: 'Toppings',
             title: 'Toppings'
           }
         },
@@ -239,7 +239,7 @@ describe('RepeatPageController', () => {
           text: 'Enter quantity',
           context: {
             key: 'quantity',
-            label: 'quantity',
+            label: 'Quantity',
             title: 'Quantity'
           }
         },

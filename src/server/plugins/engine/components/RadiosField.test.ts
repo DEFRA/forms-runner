@@ -74,7 +74,7 @@ describe.each([
           'myComponent',
           expect.objectContaining({
             flags: expect.objectContaining({
-              label: def.title.toLowerCase()
+              label: def.title
             })
           })
         )

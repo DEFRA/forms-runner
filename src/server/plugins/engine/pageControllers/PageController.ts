@@ -1,5 +1,6 @@
 import {
   ControllerPath,
+  type Events,
   type FormDefinition,
   type Page,
   type Section
@@ -41,6 +42,7 @@ export class PageController {
   title: string
   section?: Section
   condition?: ExecutableCondition
+  events?: Events
   collection?: ComponentCollection
   viewName = 'index'
 
@@ -52,6 +54,7 @@ export class PageController {
     this.model = model
     this.pageDef = pageDef
     this.title = pageDef.title
+    this.events = pageDef.events
 
     // Resolve section
     this.section = model.sections.find(
@@ -61,6 +64,11 @@ export class PageController {
     // Resolve condition
     if (pageDef.condition) {
       this.condition = model.conditions[pageDef.condition]
+    }
+
+    // Override view name
+    if (pageDef.view) {
+      this.viewName = pageDef.view
     }
   }
 

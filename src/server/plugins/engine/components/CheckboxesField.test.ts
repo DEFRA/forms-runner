@@ -79,7 +79,7 @@ describe.each([
         expect(keys).toHaveProperty(
           'myComponent',
           expect.objectContaining({
-            flags: expect.objectContaining({ label: def.title.toLowerCase() })
+            flags: expect.objectContaining({ label: def.title })
           })
         )
       })
@@ -157,7 +157,7 @@ describe.each([
               {
                 allow: options.allow,
                 flags: {
-                  label: def.title.toLowerCase(),
+                  label: def.title,
                   only: true
                 },
                 type: options.list.type
