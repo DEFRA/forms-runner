@@ -2,6 +2,7 @@
 
 {% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "partials/components.html" import componentList with context %}
 
 {% block content %}
   <div class="govuk-grid-row">
@@ -34,11 +35,16 @@
 
         {% if declaration %}
           <h2 class="govuk-heading-m" id="declaration">Declaration</h2>
+          <div class="govuk-body">
           {{ declaration | safe }}
+          </div>
         {% endif %}
 
+        {{ componentList(components) }}
+
+        {% set isDeclaration = declaration or components | length %}
         <button data-prevent-double-click="true" class="govuk-button" data-module="govuk-button">
-          {{ "Accept and send" if declaration else "Send" }}
+          {{ "Accept and send" if isDeclaration else "Send" }}
         </button>
       </form>
     </div>

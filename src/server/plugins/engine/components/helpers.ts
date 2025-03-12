@@ -72,6 +72,7 @@ export type Field = InstanceType<
 export type Guidance = InstanceType<
   | typeof Components.Details
   | typeof Components.Html
+  | typeof Components.Markdown
   | typeof Components.InsetText
   | typeof Components.List
 >
@@ -116,6 +117,10 @@ export function createComponent(
 
     case ComponentType.List:
       component = new Components.List(def, options)
+      break
+
+    case ComponentType.Markdown:
+      component = new Components.Markdown(def, options)
       break
 
     case ComponentType.MultilineTextField:
