@@ -17,19 +17,25 @@
       <p class="govuk-body">The data protection officer for Defra is responsible for checking that Defra complies with legislation. You can contact them at <a href="mailto:DefraGroupDataProtectionOfficer@defra.gov.uk" class="govuk-link">Defra<wbr>Group<wbr>Data<wbr>Protection<wbr>Officer@defra.gov.uk</a>.</p>
 
       <h2 class="govuk-heading-m">Data we collect from you and what we do with it</h2>
-      <p class="govuk-body">If you give your consent, we use Google Analytics cookies to collect information about how you use ‘{{ config.serviceName }}’. Read the <a href="https://support.google.com/analytics/topic/2919631" class="govuk-link">data privacy and security policy for Google Analytics</a>.</p>
-      <p class="govuk-body">Google Analytics processes information about:</p>
-      <ul class="govuk-list govuk-list--bullet">
-        <li>your IP address</li>
-        <li>the pages you visit on ‘{{ config.serviceName }}’</li>
-        <li>how long you spend on each ‘{{ config.serviceName }}’ page</li>
-        <li>how you got to the site</li>
-        <li>what you select while you’re visiting the site</li>
-      </ul>
-      <p class="govuk-body">Defra will make sure you cannot be directly identified by Google Analytics data. We do this by using <a href="https://support.google.com/analytics/answer/2763052" class="govuk-link">Google Analytics’ IP address anonymisation</a> feature and by removing any other personal data from the titles or URLs of the pages you visit.</p>
-      <p class="govuk-body">Defra will not combine analytics information with other data sets in a way that would directly identify who you are.</p>
+
+      {% if config.googleAnalyticsTrackingId %}
+        <span id="ga-analytics-segment">
+          <p class="govuk-body">If you give your consent, we use Google Analytics cookies to collect information about how you use ‘{{ config.serviceName }}’. Read the <a href="https://support.google.com/analytics/topic/2919631" class="govuk-link">data privacy and security policy for Google Analytics</a>.</p>
+          <p class="govuk-body">Google Analytics processes information about:</p>
+          <ul class="govuk-list govuk-list--bullet">
+            <li>your IP address</li>
+            <li>the pages you visit on ‘{{ config.serviceName }}’</li>
+            <li>how long you spend on each ‘{{ config.serviceName }}’ page</li>
+            <li>how you got to the site</li>
+            <li>what you select while you’re visiting the site</li>
+          </ul>
+          <p class="govuk-body">Defra will make sure you cannot be directly identified by Google Analytics data. We do this by using <a href="https://support.google.com/analytics/answer/2763052" class="govuk-link">Google Analytics’ IP address anonymisation</a> feature and by removing any other personal data from the titles or URLs of the pages you visit.</p>
+          <p class="govuk-body">Defra will not combine analytics information with other data sets in a way that would directly identify who you are.</p>
+        </span>
+      {% endif %}
+
       <p class="govuk-body">We use system logs to collect information about the usage of forms. The logs are stored in Amazon Web Services based in London.</p>
-      <p class="govuk-body">We use the system logs and Google Analytics data to create anonymised reports about the performance of forms that use ‘{{ config.serviceName }}’. We use this data to improve forms, for example, if we discover a high number of drops offs at a certain point within a form. We may share this information with the data controller of the form.</p>
+      <p class="govuk-body">We use the system logs {% if config.googleAnalyticsTrackingId %}and Google Analytics data{% endif %} to create anonymised reports about the performance of forms that use ‘{{ config.serviceName }}’. We use this data to improve forms, for example, if we discover a high number of drops offs at a certain point within a form. We may share this information with the data controller of the form.</p>
       <p class="govuk-body">If you email us feedback about a form that uses ‘{{ config.serviceName }}’, we’ll send your email address and any other personal information you choose to include in your email to the data controller for review. The data controller may use your personal information to reply to your query to update a form based on your feedback where it is appropriate.</p>
 
       <h2 class="govuk-heading-m">Lawful basis for processing your personal data</h2>
