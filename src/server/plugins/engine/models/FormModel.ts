@@ -19,7 +19,10 @@ import { add } from 'date-fns'
 import { Parser, type Value } from 'expr-eval'
 import joi from 'joi'
 
-import { type Component } from '~/src/server/plugins/engine/components/helpers.js'
+import {
+  hasListFormField,
+  type Component
+} from '~/src/server/plugins/engine/components/helpers.js'
 import {
   findPage,
   getError,
@@ -296,7 +299,10 @@ export class FormModel {
       this.assignRelevantState(context, nextPage)
 
       // Stop at current page
-      if (nextPage.path === currentPath) {
+      if (
+        nextPage.path === currentPath ||
+        this.pageStateIsInvalid(context, nextPage)
+      ) {
         break
       }
 
@@ -311,6 +317,49 @@ export class FormModel {
     this.assignPaths(context)
 
     return context
+  }
+
+  private pageStateIsInvalid(context: FormContext, page: PageControllerClass) {
+    // Get any list-bound fields on the page
+    const listFields = page.collection.fields.filter(hasListFormField)
+
+    for (const field of listFields) {
+      const list = field.list
+
+      // Filter out YesNo as they can't be conditional
+      if (list !== undefined && field.type !== ComponentType.YesNoField) {
+        const hasOptionalItems =
+          list.items.filter((item) => item.condition).length > 0
+
+        if (hasOptionalItems) {
+          const { evaluationState, state } = context
+
+          // For each list field that is bound to a list that contains any conditional items,
+          // we need to check any answers are still valid. Do this be evaluating the conditions
+          // and ensuring any current answers are all included in the set of valid answers
+          const validValues = list.items
+            .filter((item) =>
+              item.condition
+                ? this.conditions[item.condition]?.fn(evaluationState)
+                : true
+            )
+            .map((item) => item.value)
+
+          // Get the field state
+          const fieldState = field.getFormValueFromState(state)
+
+          if (fieldState !== undefined) {
+            // Check if any saved state value(s) are still valid
+            // and return true if any are invalid
+            if (Array.isArray(fieldState)) {
+              return !fieldState.every((item) => validValues.includes(item))
+            } else {
+              return !validValues.includes(fieldState)
+            }
+          }
+        }
+      }
+    }
   }
 
   private initialiseContext(context: FormContext) {
