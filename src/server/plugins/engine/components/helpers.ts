@@ -102,9 +102,10 @@ export function isListFieldType(
 ): type is ListField['type'] {
   const allowedTypes = [
     ComponentType.AutocompleteField,
+    ComponentType.CheckboxesField,
     ComponentType.RadiosField,
     ComponentType.SelectField,
-    ComponentType.CheckboxesField
+    ComponentType.YesNoField
   ]
 
   return !!type && allowedTypes.includes(type)
