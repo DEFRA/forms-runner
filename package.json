@@ -75,7 +75,7 @@
     "humanize-duration": "^3.32.1",
     "ioredis": "^5.4.2",
     "joi": "^17.13.3",
-    "liquidjs": "^10.20.3",
+    "liquidjs": "^10.21.0",
     "lodash": "^4.17.21",
     "marked": "^15.0.6",
     "nunjucks": "^3.2.3",
