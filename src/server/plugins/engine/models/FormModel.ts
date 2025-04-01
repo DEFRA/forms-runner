@@ -300,8 +300,8 @@ export class FormModel {
 
       // Stop at current page
       if (
-        nextPage.path === currentPath ||
-        this.pageStateIsInvalid(context, nextPage)
+        this.pageStateIsInvalid(context, nextPage) ||
+        nextPage.path === currentPath
       ) {
         break
       }
@@ -335,7 +335,7 @@ export class FormModel {
           const { evaluationState, state } = context
 
           // For each list field that is bound to a list that contains any conditional items,
-          // we need to check any answers are still valid. Do this be evaluating the conditions
+          // we need to check any answers are still valid. Do this by evaluating the conditions
           // and ensuring any current answers are all included in the set of valid answers
           const validValues = list.items
             .filter((item) =>
@@ -349,13 +349,35 @@ export class FormModel {
           const fieldState = field.getFormValueFromState(state)
 
           if (fieldState !== undefined) {
+            let isInvalid = false
+            const isArray = Array.isArray(fieldState)
+
             // Check if any saved state value(s) are still valid
             // and return true if any are invalid
-            if (Array.isArray(fieldState)) {
-              return !fieldState.every((item) => validValues.includes(item))
+            if (isArray) {
+              isInvalid = !fieldState.every((item) =>
+                validValues.includes(item)
+              )
             } else {
-              return !validValues.includes(fieldState)
+              isInvalid = !validValues.includes(fieldState)
             }
+
+            if (isInvalid) {
+              if (!context.errors) {
+                context.errors = []
+              }
+
+              const text = `${field.title} contains ${isArray ? 'invalid values' : 'an invalid value'}`
+
+              context.errors.push({
+                text,
+                name: field.name,
+                href: `#${field.name}`,
+                path: [`#${field.name}`]
+              })
+            }
+
+            return isInvalid
           }
         }
       }
