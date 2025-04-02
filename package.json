@@ -1,7 +1,7 @@
 {
-  "name": "forms-runner",
-  "version": "0.15.0",
-  "description": "Forms Runner",
+  "name": "@defra/forms-runner",
+  "version": "3.0.0",
+  "description": "Defra forms runner",
   "sideEffects": false,
   "main": ".server/index.js",
   "type": "module",
