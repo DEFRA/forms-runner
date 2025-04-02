@@ -546,6 +546,33 @@ describe('UkAddressField', () => {
                 })
               ]
             }
+          },
+          {
+            input: getFormData({
+              addressLine1: '',
+              addressLine2: '',
+              town: '',
+              postcode: postcodeInvalid
+            }),
+            output: {
+              value: getFormData({
+                addressLine1: '',
+                addressLine2: '',
+                town: '',
+                postcode: postcodeInvalid
+              }),
+              errors: [
+                expect.objectContaining({
+                  text: 'Enter address line 1'
+                }),
+                expect.objectContaining({
+                  text: 'Enter town or city'
+                }),
+                expect.objectContaining({
+                  text: 'Enter a valid postcode'
+                })
+              ]
+            }
           }
         ]
       }

@@ -1,4 +1,4 @@
-import { type ComponentDef } from '@defra/forms-model'
+import { ComponentType, type ComponentDef } from '@defra/forms-model'
 import joi, {
   type CustomValidator,
   type ErrorReportCollection,
@@ -217,12 +217,30 @@ export class ComponentCollection {
 
     const list: FormSubmissionError[] = []
 
-    // Add only one error per field
-    for (const field of fields) {
-      const error = field.getError(errors)
+    if (errors?.length) {
+      for (const field of fields) {
+        if (field.type === ComponentType.UkAddressField) {
+          // Get all errors
+          const addressErrors = field.getErrors(errors)
 
-      if (error) {
-        list.push(error)
+          if (addressErrors?.length) {
+            // Add only one error per address field
+            list.push(
+              ...addressErrors.filter(
+                (error, index) =>
+                  index ===
+                  addressErrors.findIndex((err) => err.name === error.name)
+              )
+            )
+          }
+        } else {
+          // Add only one error per field
+          const error = field.getError(errors)
+
+          if (error) {
+            list.push(error)
+          }
+        }
       }
     }
 
