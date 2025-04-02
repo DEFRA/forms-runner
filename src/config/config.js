@@ -4,12 +4,14 @@ import { fileURLToPath } from 'node:url'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
-const fourHoursMs = 14400000
 const oneWeekMs = 604800000
 
 const isProduction = process.env.NODE_ENV === 'production'
 const isTest = process.env.NODE_ENV === 'test'
 const isDevelopment = process.env.NODE_ENV === 'development'
+
+const oneMinute = 1000 * 60
+const oneHour = oneMinute * 60
 
 export const config = convict({
   serviceVersion: {
@@ -131,16 +133,16 @@ export const config = convict({
       ttl: {
         doc: 'server side session cache ttl',
         format: Number,
-        default: fourHoursMs,
-        env: 'SESSION_CACHE_TTL'
+        default: oneHour * 24,
+        env: 'SESSION_TIMEOUT' /** @todo tis is the same as cookie.ttl */
       }
     },
     cookie: {
       ttl: {
         doc: 'Session cookie ttl',
         format: Number,
-        default: fourHoursMs,
-        env: 'SESSION_COOKIE_TTL'
+        default: oneHour * 24,
+        env: 'SESSION_TIMEOUT' /** @todo tis is the same as cookie.ttl */
       },
       password: {
         doc: 'session cookie password',
@@ -215,6 +217,13 @@ export const config = convict({
       default: 'x-cdp-request-id',
       env: 'TRACING_HEADER'
     }
+  },
+
+  googleAnalyticsTrackingId: {
+    doc: 'Google analytics tracking ID to be used when a user has opted in to additional cookies',
+    format: String,
+    default: '',
+    env: 'GOOGLE_ANALYTICS_TRACKING_ID'
   }
 })
 
