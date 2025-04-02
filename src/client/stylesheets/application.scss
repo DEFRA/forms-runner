@@ -1,14 +1,7 @@
-@use "govuk-frontend" as *;
-@use "pkg:accessible-autocomplete";
-@use "code";
-@use "prose";
-@use "service-banner";
-@use "summary-list";
-@use "tag-env";
+@use "govuk-frontend";
 
-// Use default GDS Transport font for autocomplete
-.autocomplete__hint,
-.autocomplete__input,
-.autocomplete__option {
-  @include govuk-typography-common;
-}
+@use "variables";
+@use "helpers";
+@use "core";
+@use "components";
+@use "partials";

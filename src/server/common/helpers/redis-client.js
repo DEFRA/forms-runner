@@ -1,36 +1,52 @@
 import { Cluster, Redis } from 'ioredis'
 
-import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+
+/**
+ * @typedef {object} RedisConfig
+ * @property {string} host
+ * @property {string} username
+ * @property {string} password
+ * @property {string} keyPrefix
+ * @property {boolean} useSingleInstanceCache
+ * @property {boolean} useTLS
+ */
 
 /**
  * Setup Redis and provide a redis client
  *
  * Local development - 1 Redis instance
- * Out in the wild - Elasticache / Redis Cluster with username and password
+ * Environments - Elasticache / Redis Cluster with username and password
+ * @param {RedisConfig} redisConfig - Redis config
+ * @returns {Cluster | Redis}
  */
-export function buildRedisClient() {
+export function buildRedisClient(redisConfig) {
   const logger = createLogger()
-
   const port = 6379
   const db = 0
-  const redisConfig = config.get('redis')
   const keyPrefix = redisConfig.keyPrefix
   const host = redisConfig.host
   let redisClient
 
-  if (!config.get('isProduction')) {
-    logger.info('Connecting to Redis using single instance')
+  const credentials =
+    redisConfig.username === ''
+      ? {}
+      : {
+          username: redisConfig.username,
+          password: redisConfig.password
+        }
+  const tls = redisConfig.useTLS ? { tls: {} } : {}
 
+  if (redisConfig.useSingleInstanceCache) {
     redisClient = new Redis({
       port,
       host,
       db,
-      keyPrefix
+      keyPrefix,
+      ...credentials,
+      ...tls
     })
   } else {
-    logger.info('Connecting to Redis using cluster')
-
     redisClient = new Cluster(
       [
         {
@@ -40,13 +56,12 @@ export function buildRedisClient() {
       ],
       {
         keyPrefix,
-        slotsRefreshTimeout: 2000,
+        slotsRefreshTimeout: 10000,
         dnsLookup: (address, callback) => callback(null, address),
         redisOptions: {
-          username: redisConfig.username,
-          password: redisConfig.password,
           db,
-          tls: {}
+          ...credentials,
+          ...tls
         }
       }
     )
@@ -56,14 +71,8 @@ export function buildRedisClient() {
     logger.info('Connected to Redis server')
   })
 
-  redisClient.on('close', () => {
-    logger.warn(
-      'Redis connection closed attempting reconnect with default behavior'
-    )
-  })
-
   redisClient.on('error', (error) => {
-    logger.error(error, `Redis connection error ${error}.`)
+    logger.error(`Redis connection error ${error}`)
   })
 
   return redisClient

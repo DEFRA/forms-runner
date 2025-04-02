@@ -1,28 +1,29 @@
-# forms-runner
+# CDP Node.js Frontend Template
 
-Citizen-facing forms using a config driven Node application.
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_forms-runner&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=DEFRA_forms-runner)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_forms-runner&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=DEFRA_forms-runner)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_forms-runner&metric=coverage)](https://sonarcloud.io/summary/new_code?id=DEFRA_forms-runner)
 
-This repository is forked from [the old Defra digital form builder](https://github.com/DEFRA/digital-form-builder).
-These projects has been adapted to run several configurations on a single instance.
-
-> DEFRA's digital form builder is a metadata-driven framework that builds on our robust,
-> enterprise backend tech stack and the new gov.uk frontend Design System and allows form based gov.uk sites to be easily
-> built using a graphical design tool.
-
-The designer is no longer a plugin and is responsible for running itself on default port 3000.
+Core delivery platform Node.js Frontend Template.
 
 - [Requirements](#requirements)
   - [Node.js](#nodejs)
-- [Local development](#local-development)
+- [Server-side Caching](#server-side-caching)
+- [Redis](#redis)
+- [Local Development](#local-development)
   - [Setup](#setup)
   - [Development](#development)
-  - [Local JSON API](#local-json-api)
   - [Production](#production)
-  - [npm scripts](#npm-scripts)
-  - [File Uploads with Local Development](#file-uploads-with-local-development)
+  - [Npm scripts](#npm-scripts)
+  - [Update dependencies](#update-dependencies)
+  - [Formatting](#formatting)
+    - [Windows prettier issue](#windows-prettier-issue)
 - [Docker](#docker)
-  - [Development Image](#development-image)
-  - [Production Image](#production-image)
+  - [Development image](#development-image)
+  - [Production image](#production-image)
+  - [Docker Compose](#docker-compose)
+  - [Dependabot](#dependabot)
+  - [SonarCloud](#sonarcloud)
 - [Licence](#licence)
   - [About the licence](#about-the-licence)
 
@@ -30,26 +31,63 @@ The designer is no longer a plugin and is responsible for running itself on defa
 
 ### Node.js
 
-Please install [Node.js](http://nodejs.org/) `>= v20`. You will find it
+Please install [Node.js](http://nodejs.org/) `>= v18` and [npm](https://nodejs.org/) `>= v9`. You will find it
 easier to use the Node Version Manager [nvm](https://github.com/creationix/nvm)
 
 To use the correct version of Node.js for this application, via nvm:
 
 ```bash
-$ cd forms-runner
-$ nvm use
+cd forms-runner
+nvm use
 ```
 
-## Local development
+## Server-side Caching
 
-for local developers
+We use Catbox for server-side caching. By default the service will use CatboxRedis when deployed and CatboxMemory for
+local development.
+You can override the default behaviour by setting the `SESSION_CACHE_ENGINE` environment variable to either `redis` or
+`memory`.
+
+Please note: CatboxMemory (`memory`) is _not_ suitable for production use! The cache will not be shared between each
+instance of the service and it will not persist between restarts.
+
+## Redis
+
+Redis is an in-memory key-value store. Every instance of a service has access to the same Redis key-value store similar
+to how services might have a database (or MongoDB). All frontend services are given access to a namespaced prefixed that
+matches the service name. e.g. `my-service` will have access to everything in Redis that is prefixed with `my-service`.
+
+If your service does not require a session cache to be shared between instances or if you don't require Redis, you can
+disable setting `SESSION_CACHE_ENGINE=false` or changing the default value in `~/src/config/index.js`.
+
+## Proxy
+
+We are using forward-proxy which is set up by default. To make use of this: `import { fetch } from 'undici'` then because of the `setGlobalDispatcher(new ProxyAgent(proxyUrl))` calls will use the ProxyAgent Dispatcher
+
+If you are not using Wreck, Axios or Undici or a similar http that uses `Request`. Then you may have to provide the proxy dispatcher:
+
+To add the dispatcher to your own client:
+
+```javascript
+import { ProxyAgent } from 'undici'
+
+return await fetch(url, {
+  dispatcher: new ProxyAgent({
+    uri: proxyUrl,
+    keepAliveTimeout: 10,
+    keepAliveMaxTimeout: 10
+  })
+})
+```
+
+## Local Development
 
 ### Setup
 
 Install application dependencies:
 
 ```bash
-$ npm ci
+npm install
 ```
 
 ### Development
@@ -57,7 +95,7 @@ $ npm ci
 To run the application in `development` mode run:
 
 ```bash
-$ npm run dev
+npm run dev
 ```
 
 ### Production
@@ -65,64 +103,38 @@ $ npm run dev
 To mimic the application running in `production` mode locally run:
 
 ```bash
-$ npm run start
+npm start
 ```
 
-### npm scripts
+### Npm scripts
 
-All available npm scripts can be seen in [package.json](./package.json)
+All available Npm scripts can be seen in [package.json](./package.json)
 To view them in your command line run:
 
 ```bash
-$ npm run
+npm run
 ```
 
-### File Uploads with Local Development
+### Update dependencies
 
-When developing locally with file upload functionality, there are specific configuration requirements to handle CORS (Cross-Origin Resource Sharing) and CSP (Content Security Policy) restrictions.
+To update dependencies use [npm-check-updates](https://github.com/raineorshine/npm-check-updates):
 
-### Setting up the CDP Uploader Service
-
-The forms-runner application needs to use the CDP uploader service which is available in the docker-compose setup from the forms-api-submissions repository:
-
-1. Clone the forms-api-submissions repository
-2. Start the required services with docker-compose:
+> The following script is a good start. Check out all the options on
+> the [npm-check-updates](https://github.com/raineorshine/npm-check-updates)
 
 ```bash
-$ cd forms-api-submissions
-$ docker-compose up -d
+ncu --interactive --format group
 ```
 
-This will start:
+### Formatting
 
-- The CDP uploader service on port 7337
-- A Nginx reverse proxy on port 7300
-- Supporting services (localstack, Redis) needed by the uploader
+#### Windows prettier issue
 
-### Configuring the Uploader URL
+If you are having issues with formatting of line breaks on Windows update your global git config by running:
 
-For file uploads to work properly in local development, you need to use the sslip.io domain that maps to the proxy:
-
-1. Set the UPLOADER_URL in your .env file:
-
+```bash
+git config --global core.autocrlf false
 ```
-UPLOADER_URL=http://uploader.127.0.0.1.sslip.io:7300
-```
-
-2. Make sure "host.docker.internal" is enabled in your Docker Desktop settings
-
-### How it Works
-
-- The docker-compose setup includes an Nginx reverse proxy that routes requests from uploader.127.0.0.1.sslip.io:7300 to the CDP uploader service
-- When developing locally, JavaScript CORS restrictions would normally block direct requests to localhost:7337
-- The sslip.io domain (a special DNS service that maps IPs to domains) allows your browser to make cross-origin requests
-- The application automatically detects local development URLs with localhost:7337 and rewrites them to use the proxy
-
-### Troubleshooting
-
-- If file uploads fail, ensure all the required docker services are running
-- Verify the proxy is working by testing: http://uploader.127.0.0.1.sslip.io:7300
-- Check Docker logs for the cdp-uploader and proxy containers if issues persist
 
 ## Docker
 
@@ -131,13 +143,13 @@ UPLOADER_URL=http://uploader.127.0.0.1.sslip.io:7300
 Build:
 
 ```bash
-$ docker build --target development --no-cache --tag forms-runner:development .
+docker build --target development --no-cache --tag forms-runner:development .
 ```
 
 Run:
 
 ```bash
-$ docker run -p 3000:3000 forms-runner:development
+docker run -p 3000:3000 forms-runner:development
 ```
 
 ### Production image
@@ -151,46 +163,31 @@ docker build --no-cache --tag forms-runner .
 Run:
 
 ```bash
-$ docker run -p 3000:3000 forms-runner
+docker run -p 3000:3000 forms-runner
 ```
 
-# Environment variables
+### Docker Compose
 
-If there is a .env file present, these will be loaded in.
+A local environment with:
 
-### ⚠️ See [config](./src/config/index.ts) for default values for each environment
+- Localstack for AWS services (S3, SQS)
+- Redis
+- MongoDB
+- This service.
+- A commented out backend example.
 
-Please use a config file instead. This will give you more control over each environment.
-The defaults can be found in [config](./src/config/index.ts). Place your config files in `runner/config`
-See [https://github.com/node-config/node-config#readme](https://github.com/node-config/node-config#readme) for more info.
+```bash
+docker compose up --build -d
+```
 
-| name               | description                                                               | required | default |            valid            |                                                            notes                                                            |
-| ------------------ | ------------------------------------------------------------------------- | :------: | ------- | :-------------------------: | :-------------------------------------------------------------------------------------------------------------------------: |
-| NODE_ENV           | Node environment                                                          |    no    |         | development,test,production |                                                                                                                             |
-| PORT               | Port number                                                               |    no    | 3009    |                             |                                                                                                                             |
-| NOTIFY_TEMPLATE_ID | Notify api key                                                            |   yes    |         |                             |   Template ID required to send form payloads via [GOV.UK Notify](https://www.notifications.service.gov.uk) email service.   |
-| NOTIFY_API_KEY     | Notify api key                                                            |   yes    |         |                             |     API KEY required to send form payloads via [GOV.UK Notify](https://www.notifications.service.gov.uk) email service.     |
-| LOG_LEVEL          | Log level                                                                 |    no    | debug   |   trace,debug,info,error    |                                                                                                                             |
-| PHASE_TAG          | Tag to use for phase banner                                               |    no    | beta    |  alpha, beta, empty string  |                                                                                                                             |
-| FEEDBACK_LINK      | Link to display in the phase banner when asking for feedback.             |    no    |         |                             | Used for an anchor tag's href. To display an email link, use a 'mailto:dest@domain.com' value. Else use a standard website. |
-| HTTP_PROXY         | HTTP proxy to use, e.g. the one from CDP. Currently used for Hapi Wreck.  |    no    |         |                             |
-| HTTPS_PROXY        | HTTPS proxy to use, e.g. the one from CDP. Currently used for Hapi Wreck. |    no    |         |                             |
-| NO_PROXY           | HTTP proxy to use, e.g. the one from CDP. Currently used for Hapi Wreck.  |    no    |         |                             |
+### Dependabot
 
-For proxy options, see https://www.npmjs.com/package/proxy-from-env which is used by https://github.com/TooTallNate/proxy-agents/tree/main/packages/proxy-agent.
+We have added an example dependabot configuration file to the repository. You can enable it by renaming
+the [.github/example.dependabot.yml](.github/example.dependabot.yml) to `.github/dependabot.yml`
 
-# Testing
+### SonarCloud
 
-Tests are found inside `test/cases`. For test scripts, name them `${NAME}.test.js`.
-
-# Outputs
-
-At the end of a form, there are multiple output types. The schemas for the right json format can be found in the engine repo.
-Additional steps are required for the different output types.
-
-- Notify
-  - A GOV.UK [notify](https://www.notifications.service.gov.uk) is required
-  - For each notification you wish to send, a template must be set up. If there are 'personalisations' they must match the configuration
+Instructions for setting up SonarCloud can be found in [sonar-project.properties](./sonar-project.properties).
 
 ## Licence
 

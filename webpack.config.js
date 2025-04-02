@@ -1,29 +1,35 @@
 import { createRequire } from 'node:module'
-import { dirname, join } from 'node:path'
-
-import { CleanWebpackPlugin } from 'clean-webpack-plugin'
+import { fileURLToPath } from 'node:url'
+import path from 'path'
 import CopyPlugin from 'copy-webpack-plugin'
+import { CleanWebpackPlugin } from 'clean-webpack-plugin'
 import TerserPlugin from 'terser-webpack-plugin'
 import WebpackAssetsManifest from 'webpack-assets-manifest'
 
 const { NODE_ENV = 'development' } = process.env
 
 const require = createRequire(import.meta.url)
+const dirname = path.dirname(fileURLToPath(import.meta.url))
 
-const govukFrontendPath = dirname(
+const govukFrontendPath = path.dirname(
   require.resolve('govuk-frontend/package.json')
 )
+
+const defraFormsPath = path.dirname(
+  require.resolve('@defra/forms-engine-plugin/package.json')
+)
+
+const ruleTypeAssetResource = 'asset/resource'
 
 /**
  * @type {Configuration}
  */
 export default {
-  context: join(import.meta.dirname, 'src/client'),
+  context: path.resolve(dirname, 'src/client'),
   entry: {
     application: {
       import: ['./javascripts/application.js', './stylesheets/application.scss']
-    },
-    'file-upload': './javascripts/file-upload.js'
+    }
   },
   experiments: {
     outputModule: true
@@ -45,13 +51,14 @@ export default {
         ? 'javascripts/[name].[chunkhash:7].min.js'
         : 'javascripts/[name].js',
 
-    path: join(import.meta.dirname, '.public'),
+    path: path.join(dirname, '.public'),
+    publicPath: '/public/',
     libraryTarget: 'module',
     module: true
   },
   resolve: {
     alias: {
-      '/assets': join(govukFrontendPath, 'dist/govuk/assets')
+      '/public/assets': path.join(govukFrontendPath, 'dist/govuk/assets')
     }
   },
   module: {
@@ -68,7 +75,7 @@ export default {
         options: {
           browserslistEnv: 'javascripts',
           cacheDirectory: true,
-          extends: join(import.meta.dirname, 'babel.config.cjs'),
+          extends: path.join(dirname, 'babel.config.cjs'),
           presets: [
             [
               '@babel/preset-env',
@@ -91,7 +98,7 @@ export default {
       },
       {
         test: /\.scss$/,
-        type: 'asset/resource',
+        type: ruleTypeAssetResource,
         generator: {
           binary: false,
           filename:
@@ -105,6 +112,11 @@ export default {
             loader: 'sass-loader',
             options: {
               sassOptions: {
+                loadPaths: [
+                  path.join(dirname, 'src/client/stylesheets'),
+                  path.join(dirname, 'src/server/common/components'),
+                  path.join(dirname, 'src/server/common/templates/partials')
+                ],
                 quietDeps: true,
                 sourceMapIncludeSources: true,
                 style: 'expanded'
@@ -116,21 +128,21 @@ export default {
       },
       {
         test: /\.(png|svg|jpe?g|gif)$/,
-        type: 'asset/resource',
+        type: ruleTypeAssetResource,
         generator: {
           filename: 'assets/images/[name][ext]'
         }
       },
       {
         test: /\.(ico)$/,
-        type: 'asset/resource',
+        type: ruleTypeAssetResource,
         generator: {
           filename: 'assets/images/[name][ext]'
         }
       },
       {
         test: /\.(woff|woff2|eot|ttf|otf)$/,
-        type: 'asset/resource',
+        type: ruleTypeAssetResource,
         generator: {
           filename: 'assets/fonts/[name][ext]'
         }
@@ -159,24 +171,6 @@ export default {
         }
       })
     ],
-    splitChunks: {
-      cacheGroups: {
-        defaultVendors: {
-          /**
-           * Use npm package names
-           * @param {NormalModule} module
-           */
-          name({ userRequest }) {
-            const [[modulePath, pkgName]] = userRequest.matchAll(
-              /node_modules\/([^\\/]+)/g
-            )
-
-            // Move into /javascripts/vendor
-            return join('vendor', pkgName || modulePath)
-          }
-        }
-      }
-    },
 
     // Skip bundling unused modules
     providedExports: true,
@@ -189,9 +183,22 @@ export default {
     new CopyPlugin({
       patterns: [
         {
-          from: join(govukFrontendPath, 'dist/govuk/assets'),
+          from: path.join(govukFrontendPath, 'dist/govuk/assets'),
           to: 'assets'
-        }
+        },
+        {
+          from: require.resolve(
+            '@defra/forms-engine-plugin/application.min.css'
+          ),
+          to: 'stylesheets/dxt-application.min.css'
+        },
+        {
+          from: require.resolve(
+            '@defra/forms-engine-plugin/application.min.js'
+          ),
+          to: 'javascripts/dxt-application.min.js'
+        },
+        { from: path.join(defraFormsPath, '.public/assets'), to: 'dxt-assets' }
       ]
     })
   ],
@@ -204,5 +211,5 @@ export default {
 }
 
 /**
- * @import { Configuration, NormalModule } from 'webpack'
+ * @import { Configuration } from 'webpack'
  */
