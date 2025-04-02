@@ -215,31 +215,33 @@ export class ComponentCollection {
   getErrors(errors?: FormSubmissionError[]): FormSubmissionError[] | undefined {
     const { fields } = this
 
+    if (!errors?.length) {
+      return
+    }
+
     const list: FormSubmissionError[] = []
 
-    if (errors?.length) {
-      for (const field of fields) {
-        if (field.type === ComponentType.UkAddressField) {
-          // Get all errors
-          const addressErrors = field.getErrors(errors)
+    for (const field of fields) {
+      if (field.type === ComponentType.UkAddressField) {
+        // Get all errors
+        const addressErrors = field.getErrors(errors)
 
-          if (addressErrors?.length) {
-            // Add only one error per address field
-            list.push(
-              ...addressErrors.filter(
-                (error, index) =>
-                  index ===
-                  addressErrors.findIndex((err) => err.name === error.name)
-              )
+        if (addressErrors?.length) {
+          // Add only one error per address field
+          list.push(
+            ...addressErrors.filter(
+              (error, index) =>
+                index ===
+                addressErrors.findIndex((err) => err.name === error.name)
             )
-          }
-        } else {
-          // Add only one error per field
-          const error = field.getError(errors)
+          )
+        }
+      } else {
+        // Add only one error per field
+        const error = field.getError(errors)
 
-          if (error) {
-            list.push(error)
-          }
+        if (error) {
+          list.push(error)
         }
       }
     }
