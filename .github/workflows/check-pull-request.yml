@@ -1,0 +1,209 @@
+name: Check Pull Request
+
+on:
+  pull_request:
+
+  push:
+    branches:
+      - main
+      - 'releases/**'
+
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-24.04
+
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        id: npm-install-cache
+        with:
+          enableCrossOsArchive: true
+          key: npm-install-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          path: node_modules
+
+      - name: Cache build
+        uses: actions/cache@v4
+        with:
+          enableCrossOsArchive: true
+          key: npm-build-${{ runner.os }}-${{ github.sha }}
+          path: |
+            .public
+            .server
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install dependencies
+        if: steps.npm-install-cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Run build
+        run: npm run build
+
+  lint:
+    name: ${{ matrix.task.description }}
+    runs-on: ubuntu-24.04
+    needs: [build]
+
+    env:
+      # Authorise GitHub API requests for EditorConfig checker binary
+      # https://www.npmjs.com/package/editorconfig-checker
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        task:
+          - description: Prettier
+            name: lint-prettier
+            run: npm run format:check
+            cache: .cache/prettier
+
+          - description: EditorConfig
+            name: lint-editorconfig
+            run: npm run lint:editorconfig
+
+          - description: ESLint
+            name: lint-js
+            run: npm run lint:js
+            cache: .cache/eslint
+
+          - description: Stylelint
+            run: npm run lint:scss
+            cache: .cache/stylelint
+
+          - description: TypeScript compiler
+            name: lint-types
+            run: npm run lint:types -- --incremental --pretty
+            cache: '**/*.tsbuildinfo'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Restore dependencies
+        uses: actions/cache/restore@v4
+        with:
+          enableCrossOsArchive: true
+          fail-on-cache-miss: true
+          key: npm-install-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          path: node_modules
+
+      - name: Cache task
+        if: ${{ matrix.task.cache }}
+        uses: actions/cache@v4
+        with:
+          enableCrossOsArchive: true
+          key: ${{ matrix.task.name }}-${{ runner.os }}
+          path: ${{ matrix.task.cache }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Run lint task
+        run: ${{ matrix.task.run }}
+
+  tasks:
+    name: ${{ matrix.task.description }}
+    runs-on: ubuntu-24.04
+    needs: [build]
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        task:
+          - description: Unit tests
+            name: test-unit
+            run: npm run test
+            cache: coverage
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Restore dependencies
+        uses: actions/cache/restore@v4
+        with:
+          enableCrossOsArchive: true
+          fail-on-cache-miss: true
+          key: npm-install-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          path: node_modules
+
+      - name: Restore build
+        uses: actions/cache/restore@v4
+        with:
+          enableCrossOsArchive: true
+          fail-on-cache-miss: true
+          key: npm-build-${{ runner.os }}-${{ github.sha }}
+          path: |
+            .public
+            .server
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Cache task
+        if: ${{ matrix.task.cache }}
+        uses: actions/cache@v4
+        with:
+          enableCrossOsArchive: true
+          key: ${{ matrix.task.name }}-${{ runner.os }}-${{ github.sha }}
+          path: ${{ matrix.task.cache }}
+
+      - name: Run task
+        run: ${{ matrix.task.run }}
+
+      - name: Save test coverage
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.task.description }} coverage
+          path: coverage
+          if-no-files-found: ignore
+
+  analysis:
+    name: Analysis
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    needs: [build, tasks]
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore unit test coverage
+        uses: actions/cache/restore@v4
+        with:
+          enableCrossOsArchive: true
+          fail-on-cache-miss: true
+          key: test-unit-${{ runner.os }}-${{ github.sha }}
+          path: coverage
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v4.2.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
