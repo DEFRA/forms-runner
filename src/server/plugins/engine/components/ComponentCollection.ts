@@ -212,10 +212,18 @@ export class ComponentCollection {
     return context
   }
 
+  /**
+   * Get all errors for all fields in this collection
+   */
   getErrors(errors?: FormSubmissionError[]): FormSubmissionError[] | undefined {
     return this.getFieldErrors((field) => field.getErrors(errors), errors)
   }
 
+  /**
+   * Get view errors for all fields in this collection.
+   * For most fields this means filtering to the first error in the list.
+   * Composite fields like UKAddress can choose to return more than one error.
+   */
   getViewErrors(
     errors?: FormSubmissionError[]
   ): FormSubmissionError[] | undefined {

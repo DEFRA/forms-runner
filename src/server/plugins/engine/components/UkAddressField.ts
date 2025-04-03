@@ -112,6 +112,9 @@ export class UkAddressField extends FormComponent {
     return Object.values(value).filter(Boolean)
   }
 
+  /**
+   * Returns one error per child field
+   */
   getViewErrors(
     errors?: FormSubmissionError[]
   ): FormSubmissionError[] | undefined {
