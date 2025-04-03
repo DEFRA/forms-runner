@@ -231,7 +231,7 @@ export class FileUploadField extends FormComponent {
     })
 
     // Set up the `accept` attribute
-    if ('accept' in options) {
+    if ('accept' in options && options.accept) {
       attributes.accept = options.accept
     }
 
