@@ -1,11 +1,18 @@
 const { NODE_ENV } = process.env
 
 /**
- * Babel config
- * @satisfies {import('@babel/core').TransformOptions}
+ * @type {TransformOptions}
  */
 module.exports = {
   browserslistEnv: 'node',
+  presets: [
+    [
+      '@babel/preset-env',
+      {
+        modules: NODE_ENV === 'test' ? 'auto' : false
+      }
+    ]
+  ],
   plugins: [
     [
       'module-resolver',
@@ -15,41 +22,15 @@ module.exports = {
           '~': '.'
         }
       }
-    ],
-    '@babel/plugin-syntax-import-attributes'
-  ],
-  presets: [
-    [
-      '@babel/preset-env',
-      {
-        // Apply bug fixes to avoid transforms
-        bugfixes: true,
-
-        // Apply ES module transforms for Jest
-        // https://jestjs.io/docs/ecmascript-modules
-        modules: NODE_ENV === 'test' ? 'auto' : false
-      }
-    ],
-    [
-      '@babel/preset-typescript',
-      {
-        allowDeclareFields: true
-      }
     ]
   ],
   env: {
     test: {
-      plugins: [
-        [
-          'replace-import-extension',
-          {
-            extMapping: {
-              '.cjs': '',
-              '.js': ''
-            }
-          }
-        ]
-      ]
+      plugins: ['babel-plugin-transform-import-meta']
     }
   }
 }
+
+/**
+ * @import { TransformOptions } from '@babel/core'
+ */

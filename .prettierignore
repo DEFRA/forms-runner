@@ -1,8 +1,5 @@
-# Ignore
+.public
+.server
+package-lock.json
 node_modules
 coverage
-dist
-public
-
-# Ignore all HTML files:
-*.html
