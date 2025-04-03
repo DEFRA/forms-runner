@@ -212,7 +212,7 @@ function ItemField(
     name: field.name,
     label: field.title,
     title: field.title,
-    error: field.getError(options.errors),
+    error: field.getFirstError(options.errors),
     value: getAnswer(field, state),
     href: getPageHref(page, options.path, {
       returnUrl: getPageHref(page, page.getSummaryPath())

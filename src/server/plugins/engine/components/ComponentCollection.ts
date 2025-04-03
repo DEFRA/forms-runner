@@ -1,4 +1,4 @@
-import { ComponentType, type ComponentDef } from '@defra/forms-model'
+import { type ComponentDef } from '@defra/forms-model'
 import joi, {
   type CustomValidator,
   type ErrorReportCollection,
@@ -213,44 +213,13 @@ export class ComponentCollection {
   }
 
   getErrors(errors?: FormSubmissionError[]): FormSubmissionError[] | undefined {
-    const { fields } = this
+    return this.getFieldErrors((field) => field.getErrors(errors), errors)
+  }
 
-    if (!errors?.length) {
-      return
-    }
-
-    const list: FormSubmissionError[] = []
-
-    for (const field of fields) {
-      if (field.type === ComponentType.UkAddressField) {
-        // Get all errors
-        const addressErrors = field.getErrors(errors)
-
-        if (addressErrors?.length) {
-          // Add only one error per address field
-          list.push(
-            ...addressErrors.filter(
-              (error, index) =>
-                index ===
-                addressErrors.findIndex((err) => err.name === error.name)
-            )
-          )
-        }
-      } else {
-        // Add only one error per field
-        const error = field.getError(errors)
-
-        if (error) {
-          list.push(error)
-        }
-      }
-    }
-
-    if (!list.length) {
-      return
-    }
-
-    return list
+  getViewErrors(
+    errors?: FormSubmissionError[]
+  ): FormSubmissionError[] | undefined {
+    return this.getFieldErrors((field) => field.getViewErrors(errors), errors)
   }
 
   getViewModel(
@@ -285,6 +254,36 @@ export class ComponentCollection {
       value: (result.value ?? {}) as typeof value,
       errors: this.page?.getErrors(details) ?? getErrors(details)
     }
+  }
+
+  /**
+   * Helper to get errors from all fields
+   */
+  private getFieldErrors(
+    callback: (field: Field) => FormSubmissionError[] | undefined,
+    errors?: FormSubmissionError[]
+  ): FormSubmissionError[] | undefined {
+    const { fields } = this
+
+    if (!errors?.length) {
+      return
+    }
+
+    const list: FormSubmissionError[] = []
+
+    for (const field of fields) {
+      const fieldErrors = callback(field)
+
+      if (fieldErrors?.length) {
+        list.push(...fieldErrors)
+      }
+    }
+
+    if (!list.length) {
+      return
+    }
+
+    return list
   }
 }
 

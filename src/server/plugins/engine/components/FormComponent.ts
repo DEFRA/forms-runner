@@ -100,8 +100,17 @@ export class FormComponent extends ComponentBase {
     return list
   }
 
-  getError(errors?: FormSubmissionError[]): FormSubmissionError | undefined {
+  getFirstError(
+    errors?: FormSubmissionError[]
+  ): FormSubmissionError | undefined {
     return this.getErrors(errors)?.[0]
+  }
+
+  getViewErrors(
+    errors?: FormSubmissionError[]
+  ): FormSubmissionError[] | undefined {
+    const firstError = this.getFirstError(errors)
+    return firstError && [firstError]
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
@@ -119,7 +128,7 @@ export class FormComponent extends ComponentBase {
 
     // Filter component errors only
     const componentErrors = this.getErrors(errors)
-    const componentError = this.getError(componentErrors)
+    const componentError = this.getFirstError(componentErrors)
 
     if (componentErrors) {
       viewModel.errors = componentErrors
