@@ -22,7 +22,7 @@ describe('#errors', () => {
     })
 
     expect(result).toEqual(
-      expect.stringContaining('Page not found | forms-runner')
+      expect.stringContaining('Page not found | Submit a form to Defra')
     )
     expect(statusCode).toBe(statusCodes.notFound)
   })

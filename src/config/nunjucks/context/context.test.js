@@ -47,7 +47,10 @@ describe('#context', () => {
             url: '/about'
           }
         ],
-        serviceName: 'forms-runner',
+        config: {
+          serviceName: 'Submit a form to Defra',
+          serviceVersion: null
+        },
         serviceUrl: '/'
       })
     })
@@ -136,7 +139,10 @@ describe('#context cache', () => {
             url: '/about'
           }
         ],
-        serviceName: 'forms-runner',
+        config: {
+          serviceName: 'Submit a form to Defra',
+          serviceVersion: null
+        },
         serviceUrl: '/'
       })
     })

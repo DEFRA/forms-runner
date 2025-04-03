@@ -29,10 +29,13 @@ export function context(request) {
 
   return {
     assetPath: `${assetPath}/assets`,
-    serviceName: config.get('serviceName'),
     serviceUrl: '/',
     breadcrumbs: [],
     navigation: buildNavigation(request),
+    config: {
+      serviceName: config.get('serviceName'),
+      serviceVersion: config.get('serviceVersion')
+    },
 
     /**
      * @param {string} asset

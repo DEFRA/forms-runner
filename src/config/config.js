@@ -42,7 +42,7 @@ export const config = convict({
   serviceName: {
     doc: 'Applications Service Name',
     format: String,
-    default: 'forms-runner'
+    default: 'Submit a form to Defra'
   },
   root: {
     doc: 'Project root',
