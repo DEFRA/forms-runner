@@ -10,11 +10,18 @@ const stagingPrefix = config.get('stagingPrefix')
  * Initiates a CDP file upload
  * @param {string} path - the path of the page in the form
  * @param {string} retrievalKey - the retrieval key for the files
- * @param {string} [mimeTypes] - the csv string of accepted mimeTypes
+ * @param {string} [mimeTypesCsv] - the csv string of accepted mimeTypes
  */
-export async function initiateUpload(path, retrievalKey, mimeTypes) {
+export async function initiateUpload(path, retrievalKey, mimeTypesCsv) {
   const postJsonByType =
     /** @type {typeof postJson<UploadInitiateResponse>} */ (postJson)
+
+  const mimeTypesList = mimeTypesCsv
+    ?.split(',')
+    .map((type) => type.trim())
+    .filter((type) => type !== '')
+
+  const mimeTypes = mimeTypesList?.length ? mimeTypesList : undefined
 
   const payload = {
     redirect: path,
@@ -24,10 +31,7 @@ export async function initiateUpload(path, retrievalKey, mimeTypes) {
     metadata: {
       retrievalKey
     },
-    mimeTypes: mimeTypes
-      ?.split(',')
-      .map((type) => type.trim())
-      .filter((type) => type !== '')
+    mimeTypes
     // maxFileSize: 25 * 1000 * 1000
   }
 
