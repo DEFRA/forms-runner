@@ -4,14 +4,21 @@ import { format, isValid, parse } from 'date-fns'
  * @param {import('./DatePartsField.js').DatePartsState | undefined} value
  */
 function test(value) {
-  if (!value ||
+  if (
+    !value ||
     !isValid(
-      parse(`${value.year}-${value.month}-${value.day}`, 'yyyy-MM-dd', new Date())
-    )) {
+      parse(
+        `${value.year}-${value.month}-${value.day}`,
+        'yyyy-MM-dd',
+        new Date()
+      )
+    )
+  ) {
     console.log(null)
-
   } else {
-    console.log(format(`${value.year}-${value.month}-${value.day}`, 'yyyy-MM-dd'))
+    console.log(
+      format(`${value.year}-${value.month}-${value.day}`, 'yyyy-MM-dd')
+    )
   }
 }
 
