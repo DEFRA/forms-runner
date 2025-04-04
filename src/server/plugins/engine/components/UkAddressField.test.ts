@@ -427,7 +427,8 @@ describe('UkAddressField', () => {
               postcode: ' WA4 1HT'
             }),
             output: {
-              value: getFormData(address)
+              value: getFormData(address),
+              errors: undefined
             }
           },
           {
@@ -438,7 +439,8 @@ describe('UkAddressField', () => {
               postcode: 'WA4 1HT '
             }),
             output: {
-              value: getFormData(address)
+              value: getFormData(address),
+              errors: undefined
             }
           },
           {
@@ -449,7 +451,8 @@ describe('UkAddressField', () => {
               postcode: ' WA4 1HT \n\n'
             }),
             output: {
-              value: getFormData(address)
+              value: getFormData(address),
+              errors: undefined
             }
           }
         ]
@@ -546,6 +549,33 @@ describe('UkAddressField', () => {
                 })
               ]
             }
+          },
+          {
+            input: getFormData({
+              addressLine1: '',
+              addressLine2: '',
+              town: '',
+              postcode: postcodeInvalid
+            }),
+            output: {
+              value: getFormData({
+                addressLine1: '',
+                addressLine2: '',
+                town: '',
+                postcode: postcodeInvalid
+              }),
+              errors: [
+                expect.objectContaining({
+                  text: 'Enter address line 1'
+                }),
+                expect.objectContaining({
+                  text: 'Enter town or city'
+                }),
+                expect.objectContaining({
+                  text: 'Enter a valid postcode'
+                })
+              ]
+            }
           }
         ]
       }
@@ -561,6 +591,9 @@ describe('UkAddressField', () => {
         ({ input, output }) => {
           const result = collection.validate(input)
           expect(result).toEqual(output)
+
+          const errors = collection.getErrors(result.errors)
+          expect(errors).toEqual(output.errors)
         }
       )
     })

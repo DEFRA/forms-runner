@@ -394,7 +394,7 @@ export class QuestionPageController extends PageController {
       const { evaluationState } = context
 
       const viewModel = this.getViewModel(request, context)
-      viewModel.errors = collection.getErrors(viewModel.errors)
+      viewModel.errors = collection.getViewErrors(viewModel.errors)
 
       /**
        * Content components can be hidden based on a condition. If the condition evaluates to true, it is safe to be kept, otherwise discard it
@@ -494,7 +494,7 @@ export class QuestionPageController extends PageController {
        */
       if (context.errors || isForceAccess) {
         const viewModel = this.getViewModel(request, context)
-        viewModel.errors = collection.getErrors(viewModel.errors)
+        viewModel.errors = collection.getViewErrors(viewModel.errors)
 
         // Filter our components based on their conditions using our evaluated state
         viewModel.components = this.filterConditionalComponents(

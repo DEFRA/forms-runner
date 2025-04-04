@@ -112,6 +112,18 @@ export class UkAddressField extends FormComponent {
     return Object.values(value).filter(Boolean)
   }
 
+  /**
+   * Returns one error per child field
+   */
+  getViewErrors(
+    errors?: FormSubmissionError[]
+  ): FormSubmissionError[] | undefined {
+    return this.getErrors(errors)?.filter(
+      (error, index, self) =>
+        index === self.findIndex((err) => err.name === error.name)
+    )
+  }
+
   getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
     const { collection, name, options } = this
 

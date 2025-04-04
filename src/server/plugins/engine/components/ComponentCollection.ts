@@ -212,25 +212,22 @@ export class ComponentCollection {
     return context
   }
 
+  /**
+   * Get all errors for all fields in this collection
+   */
   getErrors(errors?: FormSubmissionError[]): FormSubmissionError[] | undefined {
-    const { fields } = this
+    return this.getFieldErrors((field) => field.getErrors(errors), errors)
+  }
 
-    const list: FormSubmissionError[] = []
-
-    // Add only one error per field
-    for (const field of fields) {
-      const error = field.getError(errors)
-
-      if (error) {
-        list.push(error)
-      }
-    }
-
-    if (!list.length) {
-      return
-    }
-
-    return list
+  /**
+   * Get view errors for all fields in this collection.
+   * For most fields this means filtering to the first error in the list.
+   * Composite fields like UKAddress can choose to return more than one error.
+   */
+  getViewErrors(
+    errors?: FormSubmissionError[]
+  ): FormSubmissionError[] | undefined {
+    return this.getFieldErrors((field) => field.getViewErrors(errors), errors)
   }
 
   getViewModel(
@@ -265,6 +262,36 @@ export class ComponentCollection {
       value: (result.value ?? {}) as typeof value,
       errors: this.page?.getErrors(details) ?? getErrors(details)
     }
+  }
+
+  /**
+   * Helper to get errors from all fields
+   */
+  private getFieldErrors(
+    callback: (field: Field) => FormSubmissionError[] | undefined,
+    errors?: FormSubmissionError[]
+  ): FormSubmissionError[] | undefined {
+    const { fields } = this
+
+    if (!errors?.length) {
+      return
+    }
+
+    const list: FormSubmissionError[] = []
+
+    for (const field of fields) {
+      const fieldErrors = callback(field)
+
+      if (fieldErrors?.length) {
+        list.push(...fieldErrors)
+      }
+    }
+
+    if (!list.length) {
+      return
+    }
+
+    return list
   }
 }
 
