@@ -414,7 +414,8 @@ export class FormModel {
           context.errors = []
         }
 
-        const text = `${field.title} contains ${isArray ? 'invalid values' : 'an invalid value'}`
+        const text =
+          'Options are different because you changed a previous answer'
 
         context.errors.push({
           text,

@@ -66,7 +66,9 @@ describe('FormModel', () => {
       const context = formModel.getFormContext(request, state)
 
       expect(context.errors).toHaveLength(1)
-      expect(context.errors?.at(0)?.text).toBe('Type contains an invalid value')
+      expect(context.errors?.at(0)?.text).toBe(
+        'Options are different because you changed a previous answer'
+      )
       expect(context.relevantPages).toHaveLength(2)
       expect(context.paths).toHaveLength(2)
       expect(context.relevantState).toEqual({ gXsqLq: true, QwcNsc: 'meat' })
@@ -99,7 +101,7 @@ describe('FormModel', () => {
 
       expect(context.errors).toHaveLength(1)
       expect(context.errors?.at(0)?.text).toBe(
-        'Toppings contains invalid values'
+        'Options are different because you changed a previous answer'
       )
       expect(context.relevantPages).toHaveLength(3)
       expect(context.paths).toHaveLength(3)
