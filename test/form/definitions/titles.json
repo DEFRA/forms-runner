@@ -16,7 +16,7 @@
         },
         {
           "type": "TextField",
-          "name": "firstName1",
+          "name": "firstNameOne",
           "title": "First name",
           "options": {
             "required": true
@@ -29,14 +29,14 @@
             "optionalText": false
           },
           "type": "TextField",
-          "name": "middleName1",
+          "name": "middleNameOne",
           "title": "Middle name",
           "hint": "If you have a middle name on your passport you must include it here",
           "schema": {}
         },
         {
           "type": "TextField",
-          "name": "lastName1",
+          "name": "lastNameOne",
           "title": "Surname",
           "options": {
             "required": true
@@ -56,7 +56,7 @@
       "components": [
         {
           "type": "UkAddressField",
-          "name": "address1",
+          "name": "addressOne",
           "title": "Address",
           "options": {
             "required": true
@@ -86,7 +86,7 @@
         },
         {
           "type": "TextField",
-          "name": "firstName2",
+          "name": "firstNameTwo",
           "title": "First name",
           "options": {
             "required": true
@@ -99,14 +99,14 @@
             "optionalText": false
           },
           "type": "TextField",
-          "name": "middleName2",
+          "name": "middleNameTwo",
           "title": "Middle name",
           "hint": "If you have a middle name on your passport you must include it here",
           "schema": {}
         },
         {
           "type": "TextField",
-          "name": "lastName2",
+          "name": "lastNameTwo",
           "title": "Surname",
           "options": {
             "required": true
@@ -126,7 +126,7 @@
       "components": [
         {
           "type": "UkAddressField",
-          "name": "address2",
+          "name": "addressTwo",
           "title": "Address",
           "options": {
             "required": false

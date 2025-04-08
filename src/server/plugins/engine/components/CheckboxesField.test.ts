@@ -240,7 +240,7 @@ describe.each([
       it.each([...options.examples])(
         'returns text from state (single)',
         (item) => {
-          const state1 = getFormState([item.state])
+          const state1 = getFormState([item.value])
           const state2 = getFormState(null)
 
           const answer1 = getAnswer(field, state1)
@@ -260,7 +260,7 @@ describe.each([
         const item1 = options.examples[0]
         const item2 = options.examples[2]
 
-        const state = getFormState([item1.state, item2.state])
+        const state = getFormState([item1.value, item2.value])
         const answer = getAnswer(field, state)
 
         expect(answer).toBe(outdent`
@@ -272,7 +272,7 @@ describe.each([
       })
 
       it.each([...options.examples])('returns payload from state', (item) => {
-        const state1 = getFormState([item.state])
+        const state1 = getFormState([item.value])
         const state2 = getFormState(null)
 
         const payload1 = field.getFormDataFromState(state1)
@@ -283,7 +283,7 @@ describe.each([
       })
 
       it.each([...options.examples])('returns value from state', (item) => {
-        const state1 = getFormState([item.state])
+        const state1 = getFormState([item.value])
         const state2 = getFormState(null)
 
         const value1 = field.getFormValueFromState(state1)
@@ -296,13 +296,13 @@ describe.each([
       it.each([...options.examples])(
         'returns context for conditions and form submission',
         (item) => {
-          const state1 = getFormState([item.state])
+          const state1 = getFormState([item.value])
           const state2 = getFormState(null)
 
           const value1 = field.getContextValueFromState(state1)
           const value2 = field.getContextValueFromState(state2)
 
-          expect(value1).toEqual([item.state])
+          expect(value1).toEqual([item.value])
           expect(value2).toEqual([])
         }
       )
@@ -314,7 +314,7 @@ describe.each([
         const value1 = field.getStateFromValidForm(payload1)
         const value2 = field.getStateFromValidForm(payload2)
 
-        expect(value1).toEqual(getFormState([item.state]))
+        expect(value1).toEqual(getFormState([item.value]))
         expect(value2).toEqual(getFormState(null))
       })
     })

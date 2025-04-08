@@ -70,7 +70,7 @@ describe('Radio based conditions', () => {
       })
 
       expect($radio).toBeInTheDocument()
-      expect($radio).toHaveAttribute('id', example.id)
+      expect($radio).toHaveAttribute('id', expect.any(String)) // is now a uuid
       expect($radio).toHaveAttribute('name', example.name)
       expect($radio).toHaveAttribute('value', example.value)
       expect($radio).toHaveClass('govuk-radios__input')
