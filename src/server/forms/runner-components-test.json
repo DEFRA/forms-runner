@@ -6,7 +6,7 @@
       "path": "/do-you-own-a-vehicle",
       "components": [
         {
-          "name": "qqbRw1",
+          "name": "qqbRwO",
           "options": {},
           "type": "YesNoField",
           "title": "Do you own a vehicle?",
@@ -32,7 +32,7 @@
       "title": "What address is the vehicle registered to?",
       "components": [
         {
-          "name": "sFR4aX",
+          "name": "sFRFaX",
           "options": {},
           "type": "UkAddressField",
           "title": "What address is the vehicle registered to?",
@@ -46,7 +46,7 @@
           "schema": {}
         },
         {
-          "name": "Z0Guyn",
+          "name": "ZZGuyn",
           "options": {},
           "type": "CheckboxesField",
           "title": "Which Clean Air Zones are you claiming an exemption for?",
@@ -66,7 +66,7 @@
       "title": "Clean Air Zone (CAZ) Exemption",
       "components": [
         {
-          "name": "MOB13t",
+          "name": "MOBOTt",
           "title": "Html",
           "options": {},
           "type": "Html",
@@ -86,7 +86,7 @@
       "title": "Details about your vehicle",
       "components": [
         {
-          "name": "0ZVmN_",
+          "name": "ZZVmNd",
           "options": {},
           "type": "AutocompleteField",
           "title": "What is the make of you vehicle?",
@@ -94,7 +94,7 @@
           "schema": {}
         },
         {
-          "name": "gHSgo2",
+          "name": "gHSgoT",
           "options": {},
           "type": "TextField",
           "title": "Vehicle Model",
@@ -102,7 +102,7 @@
           "schema": {}
         },
         {
-          "name": "4LZ9to",
+          "name": "FLZNto",
           "options": {},
           "type": "DatePartsField",
           "title": "Date you purchased the vehicle?",
@@ -152,7 +152,7 @@
           "schema": {}
         },
         {
-          "name": "0zL5bB",
+          "name": "ZzLFbB",
           "options": {},
           "type": "TelephoneNumberField",
           "title": "Contact number",
@@ -171,7 +171,7 @@
       "title": "final steps",
       "components": [
         {
-          "name": "fkd8av",
+          "name": "fkdEav",
           "options": {},
           "type": "List",
           "title": "Declaration",
@@ -179,7 +179,7 @@
           "schema": {}
         },
         {
-          "name": "L_2AYe",
+          "name": "LdTAYe",
           "options": {},
           "type": "EmailAddressField",
           "title": "Your email address",

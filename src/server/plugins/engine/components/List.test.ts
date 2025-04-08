@@ -52,18 +52,21 @@ describe('List', () => {
       it('returns list items', () => {
         expect(guidance).toHaveProperty('items', [
           {
+            id: '52fc51fc-c75a-4b08-9c9e-6bd99b9bc49b',
             text: '1 day',
             value: 1,
             description:
               'Valid for 24 hours from the start time that you select'
           },
           {
+            id: '56b7b34f-23b3-4446-ac8e-b2443d18588e',
             text: '8 day',
             value: 8,
             description:
               'Valid for 8 consecutive days from the start time that you select'
           },
           {
+            id: '1af54fbc-eec2-4e1e-bd53-2415abf62677',
             text: '12 months',
             value: 365,
             description:

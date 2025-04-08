@@ -45,38 +45,38 @@ describe('Title and section title', () => {
         path: '/applicant-one',
         payload: {
           crumb: csrfToken,
-          firstName1: 'Firstname',
-          middleName1: '',
-          lastName1: 'Lastname'
+          firstNameOne: 'Firstname',
+          middleNameOne: '',
+          lastNameOne: 'Lastname'
         }
       },
       {
         path: '/applicant-one-address',
         payload: {
           crumb: csrfToken,
-          address1__addressLine1: 'Richard Fairclough House',
-          address1__addressLine2: 'Knutsford Road',
-          address1__town: 'Warrington',
-          address1__postcode: 'WA4 1HT'
+          addressOne__addressLine1: 'Richard Fairclough House',
+          addressOne__addressLine2: 'Knutsford Road',
+          addressOne__town: 'Warrington',
+          addressOne__postcode: 'WA4 1HT'
         }
       },
       {
         path: '/applicant-two',
         payload: {
           crumb: csrfToken,
-          firstName2: 'Firstname',
-          middleName2: '',
-          lastName2: 'Lastname'
+          firstNameTwo: 'Firstname',
+          middleNameTwo: '',
+          lastNameTwo: 'Lastname'
         }
       },
       {
         path: '/applicant-two-address-optional',
         payload: {
           crumb: csrfToken,
-          address2__addressLine1: '',
-          address2__addressLine2: '',
-          address2__town: '',
-          address2__postcode: ''
+          addressTwo__addressLine1: '',
+          addressTwo__addressLine2: '',
+          addressTwo__town: '',
+          addressTwo__postcode: ''
         }
       }
     ]) {

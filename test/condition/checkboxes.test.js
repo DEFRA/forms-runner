@@ -70,7 +70,7 @@ describe('Checkboxes based conditions', () => {
       })
 
       expect($checkbox).toBeInTheDocument()
-      expect($checkbox).toHaveAttribute('id', example.id)
+      expect($checkbox).toHaveAttribute('id', expect.any(String)) // id is now a uuid
       expect($checkbox).toHaveAttribute('name', example.name)
       expect($checkbox).toHaveAttribute('value', example.value)
       expect($checkbox).toHaveClass('govuk-checkboxes__input')
