@@ -3,7 +3,10 @@ import { type ResponseObject, type ResponseToolkit } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 import { ValidationError } from 'joi'
 
-import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
+import {
+  ERROR_PREVIEW_PATH_PREFIX,
+  PREVIEW_PATH_PREFIX
+} from '~/src/server/constants.js'
 import {
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
@@ -315,7 +318,8 @@ describe('Helpers', () => {
       const path = `${PREVIEW_PATH_PREFIX}/live/another/segment`
       expect(checkFormStatus(path)).toStrictEqual({
         state: FormStatus.Live,
-        isPreview: true
+        isPreview: true,
+        isErrorPreview: false
       })
     })
 
@@ -323,7 +327,17 @@ describe('Helpers', () => {
       const path = '/some/other/path'
       expect(checkFormStatus(path)).toStrictEqual({
         state: FormStatus.Live,
-        isPreview: false
+        isPreview: false,
+        isErrorPreview: false
+      })
+    })
+
+    it('should return isErrorPreview is true for paths starting with PREVIEW_PATH_PREFIX and form is draft', () => {
+      const path = `${ERROR_PREVIEW_PATH_PREFIX}/draft/another/segment`
+      expect(checkFormStatus(path)).toStrictEqual({
+        state: FormStatus.Draft,
+        isPreview: false,
+        isErrorPreview: true
       })
     })
 
@@ -331,7 +345,8 @@ describe('Helpers', () => {
       const path = `${PREVIEW_PATH_PREFIX.toUpperCase()}/draft/path`
       expect(checkFormStatus(path)).toStrictEqual({
         state: FormStatus.Draft,
-        isPreview: true
+        isPreview: true,
+        isErrorPreview: false
       })
     })
 
