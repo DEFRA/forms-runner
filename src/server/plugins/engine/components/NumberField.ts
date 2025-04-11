@@ -7,6 +7,7 @@ import {
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
+  type ErrorMessageTemplateList,
   type FormPayload,
   type FormState,
   type FormStateValue,
@@ -127,6 +128,22 @@ export class NumberField extends FormComponent {
 
   isValue(value?: FormStateValue | FormState) {
     return NumberField.isNumber(value)
+  }
+
+  /**
+   * For error preview page that shows all possible errors on a component
+   */
+  getAllPossibleErrors(): ErrorMessageTemplateList {
+    return {
+      baseErrors: [
+        { type: 'required', template: messageTemplate.required },
+        { type: 'numberInteger', template: messageTemplate.numberInteger }
+      ],
+      advancedSettingsErrors: [
+        { type: 'numberMin', template: messageTemplate.numberMin },
+        { type: 'numberMax', template: messageTemplate.numberMax }
+      ]
+    }
   }
 
   static isNumber(value?: FormStateValue | FormState): value is number {

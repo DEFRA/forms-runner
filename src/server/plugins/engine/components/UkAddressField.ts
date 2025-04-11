@@ -9,6 +9,7 @@ import {
 import { TextField } from '~/src/server/plugins/engine/components/TextField.js'
 import { type QuestionPageController } from '~/src/server/plugins/engine/pageControllers/QuestionPageController.js'
 import {
+  type ErrorMessageTemplateList,
   type FormPayload,
   type FormState,
   type FormStateValue,
@@ -162,6 +163,17 @@ export class UkAddressField extends FormComponent {
 
   isState(value?: FormStateValue | FormState): value is UkAddressState {
     return UkAddressField.isUkAddress(value)
+  }
+
+  /**
+   * For error preview page that shows all possible errors on a component
+   */
+  getAllPossibleErrors(): ErrorMessageTemplateList {
+    // TODO
+    return {
+      baseErrors: [],
+      advancedSettingsErrors: []
+    }
   }
 
   static isUkAddress(

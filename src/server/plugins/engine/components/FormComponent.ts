@@ -3,6 +3,7 @@ import { type FormComponentsDef, type Item } from '@defra/forms-model'
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import {
+  type ErrorMessageTemplateList,
   type FileState,
   type FormPayload,
   type FormState,
@@ -111,6 +112,13 @@ export class FormComponent extends ComponentBase {
   ): FormSubmissionError[] | undefined {
     const firstError = this.getFirstError(errors)
     return firstError && [firstError]
+  }
+
+  getAllPossibleErrors(): ErrorMessageTemplateList {
+    return {
+      baseErrors: [],
+      advancedSettingsErrors: []
+    }
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {

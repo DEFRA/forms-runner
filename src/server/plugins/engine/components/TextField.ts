@@ -8,7 +8,9 @@ import {
   FormComponent,
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
+  type ErrorMessageTemplateList,
   type FormState,
   type FormStateValue,
   type FormSubmissionState
@@ -88,6 +90,19 @@ export class TextField extends FormComponent {
 
   isValue(value?: FormStateValue | FormState): value is string {
     return TextField.isText(value)
+  }
+
+  /**
+   * For error preview page that shows all possible errors on a component
+   */
+  getAllPossibleErrors(): ErrorMessageTemplateList {
+    return {
+      baseErrors: [{ type: 'required', template: messageTemplate.required }],
+      advancedSettingsErrors: [
+        { type: 'min', template: messageTemplate.min },
+        { type: 'max', template: messageTemplate.max }
+      ]
+    }
   }
 
   static isText(value?: FormStateValue | FormState): value is string {

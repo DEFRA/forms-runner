@@ -17,6 +17,7 @@ import { NumberField } from '~/src/server/plugins/engine/components/NumberField.
 import { type DateInputItem } from '~/src/server/plugins/engine/components/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
+  type ErrorMessageTemplateList,
   type FormPayload,
   type FormState,
   type FormStateValue,
@@ -178,6 +179,19 @@ export class MonthYearField extends FormComponent {
 
   isState(value?: FormStateValue | FormState) {
     return MonthYearField.isMonthYear(value)
+  }
+
+  /**
+   * For error preview page that shows all possible errors on a component
+   */
+  getAllPossibleErrors(): ErrorMessageTemplateList {
+    return {
+      baseErrors: [{ type: 'required', template: messageTemplate.required }],
+      advancedSettingsErrors: [
+        { type: 'dateMin', template: messageTemplate.dateMin },
+        { type: 'dateMax', template: messageTemplate.dateMax }
+      ]
+    }
   }
 
   static isMonthYear(

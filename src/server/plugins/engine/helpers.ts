@@ -12,7 +12,10 @@ import { type Schema, type ValidationErrorItem } from 'joi'
 import { Liquid } from 'liquidjs'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
-import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
+import {
+  ERROR_PREVIEW_PATH_PREFIX,
+  PREVIEW_PATH_PREFIX
+} from '~/src/server/constants.js'
 import {
   getAnswer,
   type Field
@@ -255,6 +258,9 @@ export function getStartPath(model?: FormModel) {
 
 export function checkFormStatus(path: string) {
   const isPreview = path.toLowerCase().startsWith(PREVIEW_PATH_PREFIX)
+  const isErrorPreview = path
+    .toLowerCase()
+    .startsWith(ERROR_PREVIEW_PATH_PREFIX)
 
   let state: FormStatus | undefined
 
@@ -275,7 +281,8 @@ export function checkFormStatus(path: string) {
 
   return {
     isPreview,
-    state: state ?? FormStatus.Live
+    isErrorPreview,
+    state: state ?? (isErrorPreview ? FormStatus.Draft : FormStatus.Live)
   }
 }
 

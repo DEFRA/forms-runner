@@ -17,6 +17,7 @@ import { NumberField } from '~/src/server/plugins/engine/components/NumberField.
 import { type DateInputItem } from '~/src/server/plugins/engine/components/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
+  type ErrorMessageTemplateList,
   type FormPayload,
   type FormState,
   type FormStateValue,
@@ -190,6 +191,22 @@ export class DatePartsField extends FormComponent {
 
   isState(value?: FormStateValue | FormState) {
     return DatePartsField.isDateParts(value)
+  }
+
+  /**
+   * For error preview page that shows all possible errors on a component
+   */
+  getAllPossibleErrors(): ErrorMessageTemplateList {
+    return {
+      baseErrors: [
+        { type: 'required', template: messageTemplate.required },
+        { type: 'dateFormat', template: messageTemplate.dateFormat }
+      ],
+      advancedSettingsErrors: [
+        { type: 'dateMin', template: messageTemplate.dateMin },
+        { type: 'dateMax', template: messageTemplate.dateMax }
+      ]
+    }
   }
 
   static isDateParts(

@@ -8,6 +8,7 @@ import {
 import {
   FileStatus,
   UploadStatus,
+  type ErrorMessageTemplateList,
   type FileState,
   type FileUpload,
   type FileUploadMetadata,
@@ -258,5 +259,16 @@ export class FileUploadField extends FormComponent {
 
   isValue(value?: FormStateValue | FormState): value is UploadState {
     return isUploadState(value)
+  }
+
+  /**
+   * For error preview page that shows all possible errors on a component
+   */
+  getAllPossibleErrors(): ErrorMessageTemplateList {
+    // TODO
+    return {
+      baseErrors: [],
+      advancedSettingsErrors: []
+    }
   }
 }
