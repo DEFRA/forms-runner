@@ -1194,4 +1194,29 @@ describe('File Upload Client JS', () => {
     global.fetch = originalFetch
     global.FormData = originalFormData
   })
+
+  test('does not add new error summary if one already exists', () => {
+    document.body.innerHTML = `
+      <div class="govuk-error-summary">
+        <div role="alert">
+          <h2 class="govuk-error-summary__title" id="error-summary-title">Existing error</h2>
+        </div>
+      </div>
+      <div class="govuk-error-summary-container"></div>
+      <form>
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+    `
+
+    const { triggerClick } = setupTestableComponent()
+    const errorSummary = document.querySelector(
+      '.govuk-error-summary-container'
+    )
+
+    triggerClick({ preventDefault: jest.fn() })
+
+    expect(document.querySelectorAll('.govuk-error-summary')).toHaveLength(1)
+    expect(errorSummary?.innerHTML).toBe('')
+  })
 })
