@@ -1,4 +1,5 @@
 export const MAX_POLLING_DURATION = 300 // 5 minutes
+const ARIA_DESCRIBEDBY = 'aria-describedby'
 
 /**
  * Creates or updates status announcer for screen readers
@@ -127,7 +128,7 @@ function renderSummary(selectedFile, statusText, form) {
   const fileInput = form.querySelector('input[type="file"]')
 
   if (fileInput) {
-    fileInput.setAttribute('aria-describedby', 'statusInformation')
+    fileInput.setAttribute(ARIA_DESCRIBEDBY, 'statusInformation')
   }
 
   const summaryList = findOrCreateSummaryList(
@@ -160,7 +161,7 @@ function showError(message, errorSummary, fileInput) {
   const topErrorSummary = document.querySelector('.govuk-error-summary')
 
   if (topErrorSummary) {
-    fileInput.setAttribute('aria-describedby', 'error-summary-title')
+    fileInput.setAttribute(ARIA_DESCRIBEDBY, 'error-summary-title')
     return
   }
 
@@ -181,8 +182,8 @@ function showError(message, errorSummary, fileInput) {
           </div>
         </div>
       `
-    // Always set aria-describedby to point to the error summary
-    fileInput.setAttribute('aria-describedby', 'error-summary-title')
+
+    fileInput.setAttribute(ARIA_DESCRIBEDBY, 'error-summary-title')
   }
 
   const formGroup = fileInput.closest('.govuk-form-group')
@@ -202,7 +203,7 @@ function showError(message, errorSummary, fileInput) {
     }
 
     fileInput.setAttribute(
-      'aria-describedby',
+      ARIA_DESCRIBEDBY,
       `error-summary-title ${inputId}-error`
     )
   }
