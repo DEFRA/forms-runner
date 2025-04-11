@@ -61,7 +61,7 @@ export class ListFormComponent extends FormComponent {
   ) {
     super(def, props)
 
-    const { options, title } = def
+    const { options } = def
     const { model } = props
 
     if ('list' in def) {
@@ -71,7 +71,7 @@ export class ListFormComponent extends FormComponent {
 
     let formSchema = joi[this.listType]()
       .valid(...this.values)
-      .label(title)
+      .label(this.label)
       .required()
 
     if (options.customValidationMessages) {
