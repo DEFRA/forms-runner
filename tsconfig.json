@@ -13,7 +13,7 @@
     "paths": {
       "~/*": ["./*"]
     },
-    "types": ["@testing-library/jest-dom"]
+    "types": ["@testing-library/jest-dom", "jest"]
   },
   "include": [
     "**/*.cjs",
@@ -22,7 +22,8 @@
     "**/*.ts",
     ".eslintrc.*",
     ".prettierrc.*",
-    ".lintstagedrc.*"
+    ".lintstagedrc.*",
+    "node_modules/@types/jest/index.d.ts"
   ],
   "exclude": ["coverage", "node_modules", ".public", ".server"]
 }
