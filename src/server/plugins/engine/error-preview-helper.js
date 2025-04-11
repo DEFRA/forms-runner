@@ -13,6 +13,7 @@ import { FormModel } from '~/src/server/plugins/engine/models/index.js'
  */
 export function getSchemaProperty(component, propertyName, fallbackText) {
   return (
+    // @ts-expect-error - need to dynamically lookup property
     ('schema' in component ? component.schema[propertyName] : undefined) ??
     fallbackText
   )
@@ -26,6 +27,7 @@ export function getSchemaProperty(component, propertyName, fallbackText) {
  */
 export function getOptionsProperty(component, propertyName, fallbackText) {
   return (
+    // @ts-expect-error - need to dynamically lookup property
     ('options' in component ? component.options[propertyName] : undefined) ??
     fallbackText
   )
@@ -132,12 +134,11 @@ export function createErrorPreviewModel(definition, path, questionId) {
   const componentClass = createComponent(component, { model: dummyFormModel })
   const errors = componentClass.getAllPossibleErrors()
 
-  const baseErrors = errors
-    ? evaluateErrorTemplates(errors.baseErrors, component)
-    : []
-  const advancedSettingsErrors = errors
-    ? evaluateErrorTemplates(errors.advancedSettingsErrors, component)
-    : []
+  const baseErrors = evaluateErrorTemplates(errors.baseErrors, component)
+  const advancedSettingsErrors = evaluateErrorTemplates(
+    errors.advancedSettingsErrors,
+    component
+  )
 
   return {
     pageNum: pageIdx + 1,

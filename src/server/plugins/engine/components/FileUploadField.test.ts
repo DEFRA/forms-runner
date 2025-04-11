@@ -545,6 +545,14 @@ describe('FileUploadField', () => {
         )
       })
     })
+
+    describe('AllPossibleErrors', () => {
+      it('should return errors', () => {
+        const errors = field.getAllPossibleErrors()
+        expect(errors.baseErrors).toBeEmpty()
+        expect(errors.advancedSettingsErrors).toBeEmpty()
+      })
+    })
   })
 
   describe('Validation', () => {

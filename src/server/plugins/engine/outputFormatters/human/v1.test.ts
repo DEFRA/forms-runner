@@ -75,11 +75,13 @@ describe('getPersonalisation', () => {
   it.each([
     {
       state: FormStatus.Live,
-      isPreview: false
+      isPreview: false,
+      isErrorPreview: false
     },
     {
       state: FormStatus.Draft,
-      isPreview: true
+      isPreview: true,
+      isErrorPreview: false
     }
   ])('should personalise $state email', (formStatus) => {
     const body = format(items, model, submitResponse, formStatus)
@@ -124,12 +126,14 @@ describe('getPersonalisation', () => {
 
     const body1 = format(items, model, submitResponse, {
       state: FormStatus.Live,
-      isPreview: false
+      isPreview: false,
+      isErrorPreview: false
     })
 
     const body2 = format(items, model, submitResponse, {
       state: FormStatus.Draft,
-      isPreview: true
+      isPreview: true,
+      isErrorPreview: false
     })
 
     expect(body1).not.toContain(

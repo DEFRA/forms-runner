@@ -13,6 +13,7 @@ import { type Component } from '~/src/server/plugins/engine/components/helpers.j
 import { type ViewModel } from '~/src/server/plugins/engine/components/types.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { type PageControllerClass } from '~/src/server/plugins/engine/pageControllers/helpers.js'
+import { type ErrorMessageTemplateList } from '~/src/server/plugins/engine/types.js'
 
 export class ComponentBase {
   page?: PageControllerClass
@@ -81,6 +82,13 @@ export class ComponentBase {
     }
 
     return viewModel
+  }
+
+  getAllPossibleErrors(): ErrorMessageTemplateList {
+    return {
+      baseErrors: [],
+      advancedSettingsErrors: []
+    }
   }
 }
 

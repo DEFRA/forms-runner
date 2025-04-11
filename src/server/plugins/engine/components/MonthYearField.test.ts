@@ -347,6 +347,14 @@ describe('MonthYearField', () => {
         })
       })
     })
+
+    describe('AllPossibleErrors', () => {
+      it('should return errors', () => {
+        const errors = field.getAllPossibleErrors()
+        expect(errors.baseErrors).not.toBeEmpty()
+        expect(errors.advancedSettingsErrors).not.toBeEmpty()
+      })
+    })
   })
 
   describe('Validation', () => {
