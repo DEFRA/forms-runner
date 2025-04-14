@@ -29,7 +29,8 @@ describe('MultilineTextField', () => {
 
     beforeEach(() => {
       def = {
-        title: 'Example textarea',
+        title: 'Example textarea title',
+        shortDescription: 'Example textarea',
         name: 'myComponent',
         type: ComponentType.MultilineTextField,
         options: {},
@@ -41,7 +42,7 @@ describe('MultilineTextField', () => {
     })
 
     describe('Schema', () => {
-      it('uses component title as label', () => {
+      it('uses component short description as label', () => {
         const { formSchema } = collection
         const { keys } = formSchema.describe()
 
@@ -113,6 +114,25 @@ describe('MultilineTextField', () => {
         expect(result.errors).toEqual([
           expect.objectContaining({
             text: 'Enter example textarea'
+          })
+        ])
+      })
+
+      it('adds errors for empty value given no short description', () => {
+        def = {
+          title: 'Example textarea title',
+          name: 'myComponent',
+          type: ComponentType.MultilineTextField,
+          options: {},
+          schema: {}
+        } satisfies MultilineTextFieldComponent
+
+        collection = new ComponentCollection([def], { model })
+        const result = collection.validate(getFormData(''))
+
+        expect(result.errors).toEqual([
+          expect.objectContaining({
+            text: 'Enter example textarea title'
           })
         ])
       })
