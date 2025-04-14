@@ -26,12 +26,12 @@ export class NumberField extends FormComponent {
   ) {
     super(def, props)
 
-    const { options, schema, title } = def
+    const { options, schema } = def
 
     let formSchema = joi
       .number()
       .custom(getValidatorPrecision(this))
-      .label(title)
+      .label(this.label)
       .required()
 
     if (options.required === false) {
