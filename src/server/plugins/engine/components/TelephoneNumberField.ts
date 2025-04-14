@@ -21,13 +21,13 @@ export class TelephoneNumberField extends FormComponent {
   ) {
     super(def, props)
 
-    const { options, title } = def
+    const { options } = def
 
     let formSchema = joi
       .string()
       .trim()
       .pattern(PATTERN)
-      .label(title)
+      .label(this.label)
       .required()
 
     if (options.required === false) {
