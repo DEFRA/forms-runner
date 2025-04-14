@@ -42,7 +42,7 @@ export function format(
     lines.push(`This is a test of the ${formName} ${formStatus.state} form.\n`)
   }
 
-  lines.push(`Form submitted at ${escapeMarkdown(formattedNow)}.\n`)
+  lines.push(`${formName} form received at ${escapeMarkdown(formattedNow)}.\n`)
   lines.push('---\n')
 
   items.forEach((item) => {
