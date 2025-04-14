@@ -161,7 +161,12 @@ function showError(message, errorSummary, fileInput) {
   const topErrorSummary = document.querySelector('.govuk-error-summary')
 
   if (topErrorSummary) {
-    fileInput.setAttribute(ARIA_DESCRIBEDBY, 'error-summary-title')
+    const titleElement = document.getElementById('error-summary-title')
+    if (titleElement) {
+      fileInput.setAttribute(ARIA_DESCRIBEDBY, 'error-summary-title')
+    } else {
+      fileInput.removeAttribute(ARIA_DESCRIBEDBY)
+    }
     return
   }
 
