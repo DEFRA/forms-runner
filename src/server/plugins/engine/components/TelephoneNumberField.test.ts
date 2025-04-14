@@ -29,6 +29,7 @@ describe('TelephoneNumberField', () => {
     beforeEach(() => {
       def = {
         title: 'Example telephone number field',
+        shortDescription: 'Example telephone number',
         name: 'myComponent',
         type: ComponentType.TelephoneNumberField,
         options: {}
@@ -39,7 +40,7 @@ describe('TelephoneNumberField', () => {
     })
 
     describe('Schema', () => {
-      it('uses component title as label', () => {
+      it('uses component short description as label', () => {
         const { formSchema } = collection
         const { keys } = formSchema.describe()
 
@@ -47,7 +48,7 @@ describe('TelephoneNumberField', () => {
           'myComponent',
           expect.objectContaining({
             flags: expect.objectContaining({
-              label: 'Example telephone number field'
+              label: 'Example telephone number'
             })
           })
         )
@@ -119,6 +120,25 @@ describe('TelephoneNumberField', () => {
       })
 
       it('adds errors for empty value', () => {
+        const result = collection.validate(getFormData(''))
+
+        expect(result.errors).toEqual([
+          expect.objectContaining({
+            text: 'Enter example telephone number'
+          })
+        ])
+      })
+
+      it('adds errors for empty value given no short description exists', () => {
+        def = {
+          title: 'Example telephone number field',
+          name: 'myComponent',
+          type: ComponentType.TelephoneNumberField,
+          options: {}
+        } satisfies TelephoneNumberFieldComponent
+
+        collection = new ComponentCollection([def], { model })
+
         const result = collection.validate(getFormData(''))
 
         expect(result.errors).toEqual([

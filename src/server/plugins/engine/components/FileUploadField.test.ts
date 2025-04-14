@@ -157,6 +157,7 @@ describe('FileUploadField', () => {
     beforeEach(() => {
       def = {
         title: 'Example file upload field',
+        shortDescription: 'Example file upload',
         name: 'myComponent',
         type: ComponentType.FileUploadField,
         options: {},
@@ -169,7 +170,32 @@ describe('FileUploadField', () => {
     })
 
     describe('Schema', () => {
+      it('uses component short description as label', () => {
+        const { formSchema } = collection
+        const { keys } = formSchema.describe()
+
+        expect(keys).toHaveProperty(
+          'myComponent',
+          expect.objectContaining({
+            flags: expect.objectContaining({
+              label: 'Example file upload'
+            })
+          })
+        )
+      })
+
       it('uses component title as label', () => {
+        def = {
+          title: 'Example file upload field',
+          name: 'myComponent',
+          type: ComponentType.FileUploadField,
+          options: {},
+          schema: {}
+        } satisfies FileUploadFieldComponent
+
+        page = createPage(model, definition.pages[0])
+        collection = new ComponentCollection([def], { page, model })
+
         const { formSchema } = collection
         const { keys } = formSchema.describe()
 
@@ -244,6 +270,25 @@ describe('FileUploadField', () => {
       })
 
       it('adds errors for empty value', () => {
+        const result = collection.validate(getFormData())
+
+        expect(result.errors).toEqual([
+          expect.objectContaining({
+            text: 'Select example file upload'
+          })
+        ])
+      })
+
+      it('adds errors for empty value with no shortDescription', () => {
+        def = {
+          title: 'Example file upload field',
+          name: 'myComponent',
+          type: ComponentType.FileUploadField,
+          options: {},
+          schema: {}
+        } satisfies FileUploadFieldComponent
+
+        collection = new ComponentCollection([def], { model })
         const result = collection.validate(getFormData())
 
         expect(result.errors).toEqual([

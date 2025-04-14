@@ -23,16 +23,20 @@ export class CheckboxesField extends SelectionControlField {
     super(def, props)
 
     const { listType: type } = this
-    const { options, title } = def
+    const { options } = def
 
     let formSchema =
       type === 'string' ? joi.array<string>() : joi.array<number>()
 
     const itemsSchema = joi[type]()
       .valid(...this.values)
-      .label(title)
+      .label(this.label)
 
-    formSchema = formSchema.items(itemsSchema).single().label(title).required()
+    formSchema = formSchema
+      .items(itemsSchema)
+      .single()
+      .label(this.label)
+      .required()
 
     if (options.required === false) {
       formSchema = formSchema.optional()

@@ -124,7 +124,7 @@ export class ComponentCollection {
         }
 
         // Update error with parent title
-        error.local.title ??= parent?.title
+        error.local.title ??= parent?.label
 
         return error
       })

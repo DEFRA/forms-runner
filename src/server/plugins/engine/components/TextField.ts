@@ -30,10 +30,10 @@ export class TextField extends FormComponent {
   ) {
     super(def, props)
 
-    const { options, title } = def
+    const { options } = def
     const schema = 'schema' in def ? def.schema : {}
 
-    let formSchema = joi.string().trim().label(title).required()
+    let formSchema = joi.string().trim().label(this.label).required()
 
     if (options.required === false) {
       formSchema = formSchema.allow('')
