@@ -40,6 +40,20 @@ describe('Error preview helper', () => {
       expect(res).toBe(5)
     })
 
+    it('should return alternative text if schema property undefined', () => {
+      const component = /** @type {ComponentDef} */ ({
+        name: 'abcdef',
+        title: 'Component title',
+        type: ComponentType.TextField,
+        schema: {
+          min: undefined
+        },
+        options: {}
+      })
+      const res = getSchemaProperty(component, 'min', '[min placeholder]')
+      expect(res).toBe('[min placeholder]')
+    })
+
     it('should return alternative text if schema property missing', () => {
       const component = /** @type {ComponentDef} */ ({
         name: 'abcdef',
@@ -72,6 +86,24 @@ describe('Error preview helper', () => {
       expect(res).toBe(15)
     })
 
+    it('should return alternative text if schema property undefined', () => {
+      const component = /** @type {ComponentDef} */ ({
+        name: 'abcdef',
+        title: 'Component title',
+        type: ComponentType.TextField,
+        schema: {},
+        options: {
+          maxFuture: undefined
+        }
+      })
+      const res = getOptionsProperty(
+        component,
+        'maxFuture',
+        '[max days in the future]'
+      )
+      expect(res).toBe('[max days in the future]')
+    })
+
     it('should return alternative text if schema property missing', () => {
       const component = /** @type {ComponentDef} */ ({
         name: 'abcdef',
@@ -90,33 +122,51 @@ describe('Error preview helper', () => {
   })
 
   describe('determineLimit', () => {
-    it('should return correct limit for min and TextField', () => {
-      const component = /** @type {ComponentDef} */ ({
-        name: 'abcdef',
-        title: 'Component title',
-        type: ComponentType.TextField,
-        schema: {
-          min: 7
-        },
-        options: {}
-      })
-      const res = determineLimit('min', component)
-      expect(res).toBe(7)
+    const component = /** @type {ComponentDef} */ ({
+      name: 'abcdef',
+      title: 'Component title',
+      type: ComponentType.TextField,
+      schema: {
+        min: 7,
+        max: 30
+      },
+      options: {
+        maxPast: 21,
+        maxFuture: 35
+      }
     })
 
-    it('should return correct limit for max and TextField', () => {
-      const component = /** @type {ComponentDef} */ ({
-        name: 'abcdef',
-        title: 'Component title',
-        type: ComponentType.TextField,
-        schema: {
-          max: 30
-        },
-        options: {}
-      })
-      const res = determineLimit('max', component)
-      expect(res).toBe(30)
-    })
+    it.each([
+      ComponentType.TextField,
+      ComponentType.MultilineTextField,
+      ComponentType.EmailAddressField
+    ])(
+      'should return correct limit for min and TextField/MultilineTextField/EmailAddress',
+      (componentType) => {
+        const componentLocal = /** @type {ComponentDef} */ ({
+          ...component,
+          type: componentType
+        })
+        const res = determineLimit('min', componentLocal)
+        expect(res).toBe(7)
+      }
+    )
+
+    it.each([
+      ComponentType.TextField,
+      ComponentType.MultilineTextField,
+      ComponentType.EmailAddressField
+    ])(
+      'should return correct limit for mmax and TextField',
+      (componentType) => {
+        const componentLocal = /** @type {ComponentDef} */ ({
+          ...component,
+          type: componentType
+        })
+        const res = determineLimit('max', componentLocal)
+        expect(res).toBe(30)
+      }
+    )
 
     it('should return correct limit for numberMin', () => {
       const component = /** @type {ComponentDef} */ ({

@@ -40,24 +40,22 @@ export function getOptionsProperty(component, propertyName, fallbackText) {
  * @returns { number | string | undefined }
  */
 export function determineLimit(type, component) {
-  if (type === 'min') {
-    if (
-      component.type === ComponentType.TextField ||
+  if (
+    type === 'min' &&
+    (component.type === ComponentType.TextField ||
       component.type === ComponentType.MultilineTextField ||
-      component.type === ComponentType.EmailAddressField
-    ) {
-      return getSchemaProperty(component, 'min', '[min length]')
-    }
+      component.type === ComponentType.EmailAddressField)
+  ) {
+    return getSchemaProperty(component, 'min', '[min length]')
   }
 
-  if (type === 'max') {
-    if (
-      component.type === ComponentType.TextField ||
+  if (
+    type === 'max' &&
+    (component.type === ComponentType.TextField ||
       component.type === ComponentType.MultilineTextField ||
-      component.type === ComponentType.EmailAddressField
-    ) {
-      return getSchemaProperty(component, 'max', '[max length]')
-    }
+      component.type === ComponentType.EmailAddressField)
+  ) {
+    return getSchemaProperty(component, 'max', '[max length]')
   }
 
   if (type === 'numberMin') {
