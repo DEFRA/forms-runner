@@ -1,5 +1,6 @@
 export const MAX_POLLING_DURATION = 300 // 5 minutes
 const ARIA_DESCRIBEDBY = 'aria-describedby'
+const ERROR_SUMMARY_TITLE_ID = 'error-summary-title'
 
 /**
  * Creates or updates status announcer for screen readers
@@ -161,7 +162,12 @@ function showError(message, errorSummary, fileInput) {
   const topErrorSummary = document.querySelector('.govuk-error-summary')
 
   if (topErrorSummary) {
-    fileInput.setAttribute(ARIA_DESCRIBEDBY, 'error-summary-title')
+    const titleElement = document.getElementById(ERROR_SUMMARY_TITLE_ID)
+    if (titleElement) {
+      fileInput.setAttribute(ARIA_DESCRIBEDBY, ERROR_SUMMARY_TITLE_ID)
+    } else {
+      fileInput.removeAttribute(ARIA_DESCRIBEDBY)
+    }
     return
   }
 
@@ -169,7 +175,7 @@ function showError(message, errorSummary, fileInput) {
     errorSummary.innerHTML = `
         <div class="govuk-error-summary" data-module="govuk-error-summary">
           <div role="alert">
-            <h2 class="govuk-error-summary__title" id="error-summary-title">
+            <h2 class="govuk-error-summary__title" id="${ERROR_SUMMARY_TITLE_ID}">
               There is a problem
             </h2>
             <div class="govuk-error-summary__body">
@@ -183,7 +189,7 @@ function showError(message, errorSummary, fileInput) {
         </div>
       `
 
-    fileInput.setAttribute(ARIA_DESCRIBEDBY, 'error-summary-title')
+    fileInput.setAttribute(ARIA_DESCRIBEDBY, ERROR_SUMMARY_TITLE_ID)
   }
 
   const formGroup = fileInput.closest('.govuk-form-group')

@@ -2,6 +2,7 @@ import {
   ComponentType,
   type AutocompleteFieldComponent
 } from '@defra/forms-model'
+import lowerFirst from 'lodash/lowerFirst.js'
 
 import { AutocompleteField } from '~/src/server/plugins/engine/components/AutocompleteField.js'
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
@@ -32,7 +33,8 @@ describe.each([
     options: {
       list: listString,
       examples: listStringExamples,
-      allow: ['1', '2', '3', '4']
+      allow: ['1', '2', '3', '4'],
+      shortDescription: 'My string list'
     }
   },
   {
@@ -47,7 +49,8 @@ describe.each([
     options: {
       list: listNumber,
       examples: listNumberExamples,
-      allow: [1, 2, 3, 4]
+      allow: [1, 2, 3, 4],
+      shortDescription: 'My number list'
     }
   }
 ])('AutocompleteField: $component.title', ({ component: def, options }) => {
@@ -153,7 +156,35 @@ describe.each([
 
         expect(result.errors).toEqual([
           expect.objectContaining({
-            text: `Enter ${def.title.toLowerCase()}`
+            text: `Enter ${lowerFirst(def.title)}`
+          })
+        ])
+      })
+
+      it('adds errors for empty value if shortDescription exists', () => {
+        collection = new ComponentCollection(
+          [{ ...def, shortDescription: options.shortDescription }],
+          { model }
+        )
+        const result = collection.validate(getFormData(''))
+
+        expect(result.errors).toEqual([
+          expect.objectContaining({
+            text: `Enter ${lowerFirst(options.shortDescription)}`
+          })
+        ])
+      })
+
+      it('adds errors for empty value if shortDescription exists but is empty', () => {
+        collection = new ComponentCollection(
+          [{ ...def, shortDescription: '' }],
+          { model }
+        )
+        const result = collection.validate(getFormData(''))
+
+        expect(result.errors).toEqual([
+          expect.objectContaining({
+            text: `Enter ${lowerFirst(def.title)}`
           })
         ])
       })
@@ -297,6 +328,34 @@ describe.each([
         expect(errors.baseErrors).not.toBeEmpty()
         expect(errors.advancedSettingsErrors).toBeEmpty()
       })
+
+    describe('Validation', () => {
+      describe.each([
+        {
+          description: 'Use short description if it exists',
+          component: {
+            title: 'What is your example text?',
+            shortDescription: 'Your example text',
+            name: 'myComponent',
+            type: ComponentType.AutocompleteField,
+            list: 'ABCE',
+            options: {}
+          } satisfies AutocompleteFieldComponent,
+          assertions: [
+            {
+              input: getFormData(''),
+              output: {
+                value: getFormData(''),
+                errors: [
+                  expect.objectContaining({
+                    text: 'Enter your example text'
+                  })
+                ]
+              }
+            }
+          ]
+        }
+      ])
     })
   })
 })
