@@ -164,5 +164,5 @@ export function expandTemplate(template, local = {}) {
 
 /**
  * @import { ComponentDef, FormDefinition } from '@defra/forms-model'
- * @import { ErrorMessageTemplate } from './types.js'
+ * @import { ErrorMessageTemplate } from '~/src/server/plugins/engine/types.js'
  */
