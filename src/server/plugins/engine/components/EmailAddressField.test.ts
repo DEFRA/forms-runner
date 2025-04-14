@@ -29,6 +29,7 @@ describe('EmailAddressField', () => {
     beforeEach(() => {
       def = {
         title: 'Example email address field',
+        shortDescription: 'Example email address',
         name: 'myComponent',
         type: ComponentType.EmailAddressField,
         options: {}
@@ -47,7 +48,7 @@ describe('EmailAddressField', () => {
           'myComponent',
           expect.objectContaining({
             flags: expect.objectContaining({
-              label: 'Example email address field'
+              label: 'Example email address'
             })
           })
         )
@@ -109,6 +110,24 @@ describe('EmailAddressField', () => {
       })
 
       it('adds errors for empty value', () => {
+        const result = collection.validate(getFormData(''))
+
+        expect(result.errors).toEqual([
+          expect.objectContaining({
+            text: 'Enter example email address'
+          })
+        ])
+      })
+
+      it('adds errors for empty value given no shortDescription', () => {
+        def = {
+          title: 'Example email address field',
+          name: 'myComponent',
+          type: ComponentType.EmailAddressField,
+          options: {}
+        } satisfies EmailAddressFieldComponent
+
+        collection = new ComponentCollection([def], { model })
         const result = collection.validate(getFormData(''))
 
         expect(result.errors).toEqual([
@@ -274,6 +293,29 @@ describe('EmailAddressField', () => {
           {
             input: getFormData('defra.helpline@defra.gov.uk'),
             output: { value: getFormData('defra.helpline@defra.gov.uk') }
+          }
+        ]
+      },
+      {
+        description: 'Email address validation',
+        component: {
+          title: 'Example email address field',
+          shortDescription: 'Example email address',
+          name: 'myComponent',
+          type: ComponentType.EmailAddressField,
+          options: {}
+        } satisfies EmailAddressFieldComponent,
+        assertions: [
+          {
+            input: getFormData('defra.helpline'),
+            output: {
+              value: getFormData('defra.helpline'),
+              errors: [
+                expect.objectContaining({
+                  text: 'Enter example email address in the correct format'
+                })
+              ]
+            }
           }
         ]
       },

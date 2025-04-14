@@ -27,12 +27,12 @@ export class NumberField extends FormComponent {
   ) {
     super(def, props)
 
-    const { options, schema, title } = def
+    const { options, schema } = def
 
     let formSchema = joi
       .number()
       .custom(getValidatorPrecision(this))
-      .label(title)
+      .label(this.label)
       .required()
 
     if (options.required === false) {
@@ -41,6 +41,7 @@ export class NumberField extends FormComponent {
       const messages = options.customValidationMessages
 
       formSchema = formSchema.empty('').messages({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         'any.required': messages?.['any.required'] ?? messageTemplate.required
       })
     }

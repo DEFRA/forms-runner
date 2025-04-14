@@ -23,7 +23,9 @@ export class AutocompleteField extends SelectField {
       const messages = options.customValidationMessages
 
       formSchema = formSchema.messages({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         'any.only': messages?.['any.only'] ?? messageTemplate.required,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         'any.required': messages?.['any.required'] ?? messageTemplate.required
       })
     }

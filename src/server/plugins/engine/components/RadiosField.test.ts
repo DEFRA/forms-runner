@@ -1,4 +1,5 @@
 import { ComponentType, type RadiosFieldComponent } from '@defra/forms-model'
+import lowerFirst from 'lodash/lowerFirst.js'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import { RadiosField } from '~/src/server/plugins/engine/components/RadiosField.js'
@@ -151,7 +152,7 @@ describe.each([
 
         expect(result.errors).toEqual([
           expect.objectContaining({
-            text: `Select ${def.title.toLowerCase()}`
+            text: `Select ${lowerFirst(def.title)}`
           })
         ])
       })
