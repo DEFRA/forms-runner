@@ -92,10 +92,9 @@ describe('getPersonalisation', () => {
       `^ For security reasons, the links in this email expire at ${dateFormat(dateExpiry, 'h:mmaaa')} on ${dateFormat(dateExpiry, 'eeee d MMMM yyyy')}`
     )
 
-    // Check for form answers
     expect(body).toContain(
       outdent`
-            Form submitted at ${dateFormat(dateNow, 'h:mmaaa')} on ${dateFormat(dateNow, 'd MMMM yyyy')}.
+            ${definition.name} form received at ${dateFormat(dateNow, 'h:mmaaa')} on ${dateFormat(dateNow, 'd MMMM yyyy')}.
 
             ---
 
