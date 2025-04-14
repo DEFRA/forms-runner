@@ -110,7 +110,7 @@ export function evaluateErrorTemplates(templates, component) {
  */
 export function createErrorPreviewModel(definition, path, questionId) {
   const pageIdx = definition.pages.findIndex((x) => x.path === `/${path}`)
-  if (!pageIdx) {
+  if (pageIdx === -1) {
     throw Boom.notFound(
       `No page found for form ${definition.name} path ${path}`
     )

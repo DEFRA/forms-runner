@@ -45,5 +45,13 @@ describe('Details', () => {
         )
       })
     })
+
+    describe('AllPossibleErrors', () => {
+      it('should return errors', () => {
+        const errors = guidance.getAllPossibleErrors()
+        expect(errors.baseErrors).toBeEmpty()
+        expect(errors.advancedSettingsErrors).toBeEmpty()
+      })
+    })
   })
 })
