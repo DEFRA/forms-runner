@@ -1254,4 +1254,48 @@ describe('File Upload Client JS', () => {
       `${fileInput?.id}-error`
     )
   })
+
+  test('sets aria-describedby when error summary exists with title element', () => {
+    document.body.innerHTML = `
+      <div class="govuk-error-summary">
+        <div role="alert">
+          <h2 class="govuk-error-summary__title" id="error-summary-title">Existing error</h2>
+        </div>
+      </div>
+      <div class="govuk-error-summary-container"></div>
+      <form>
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+    `
+
+    const { triggerClick, fileInput } = setupTestableComponent()
+    triggerClick({ preventDefault: jest.fn() })
+
+    expect(fileInput?.getAttribute('aria-describedby')).toBe(
+      'error-summary-title'
+    )
+  })
+
+  test('removes aria-describedby when error summary exists without title element', () => {
+    document.body.innerHTML = `
+      <div class="govuk-error-summary">
+        <div role="alert">
+          <h2 class="govuk-error-summary__title">Existing error without ID</h2>
+        </div>
+      </div>
+      <div class="govuk-error-summary-container"></div>
+      <form>
+        <input type="file" id="file-upload">
+        <button class="govuk-button govuk-button--secondary upload-file-button">Upload file</button>
+      </form>
+    `
+
+    const { triggerClick, fileInput } = setupTestableComponent()
+
+    fileInput?.setAttribute('aria-describedby', 'some-value')
+    triggerClick({ preventDefault: jest.fn() })
+
+    expect(fileInput?.hasAttribute('aria-describedby')).toBe(false)
+  })
 })
