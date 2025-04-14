@@ -31,6 +31,7 @@ describe('MonthYearField', () => {
     beforeEach(() => {
       def = {
         title: 'Example month/year field',
+        shortDescription: 'Example month/year',
         name: 'myComponent',
         type: ComponentType.MonthYearField,
         options: {}
@@ -161,6 +162,32 @@ describe('MonthYearField', () => {
       })
 
       it('adds errors for empty value', () => {
+        const result = collection.validate(
+          getFormData({
+            month: '',
+            year: ''
+          })
+        )
+
+        expect(result.errors).toEqual([
+          expect.objectContaining({
+            text: 'Example month/year must include a month'
+          }),
+          expect.objectContaining({
+            text: 'Example month/year must include a year'
+          })
+        ])
+      })
+
+      it('adds errors for empty value given no short desc exists', () => {
+        def = {
+          title: 'Example month/year field',
+          name: 'myComponent',
+          type: ComponentType.MonthYearField,
+          options: {}
+        } satisfies MonthYearFieldComponent
+
+        collection = new ComponentCollection([def], { model })
         const result = collection.validate(
           getFormData({
             month: '',

@@ -42,7 +42,9 @@ export class MonthYearField extends FormComponent {
     const isRequired = options.required !== false
 
     const customValidationMessages: LanguageMessages = {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       'any.required': messageTemplate.objectMissing,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       'number.base': messageTemplate.objectMissing,
       'number.precision': messageTemplate.dateFormat,
       'number.integer': messageTemplate.dateFormat,

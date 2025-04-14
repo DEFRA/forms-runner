@@ -18,6 +18,7 @@ import {
 export class FormComponent extends ComponentBase {
   type: FormComponentsDef['type']
   hint: FormComponentsDef['hint']
+  label: string
 
   isFormComponent = true
 
@@ -31,6 +32,10 @@ export class FormComponent extends ComponentBase {
 
     this.type = type
     this.hint = hint
+    this.label =
+      'shortDescription' in def && def.shortDescription
+        ? def.shortDescription
+        : def.title
   }
 
   get keys() {
