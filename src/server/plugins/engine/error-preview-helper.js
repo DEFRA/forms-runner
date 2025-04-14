@@ -34,27 +34,28 @@ export function getOptionsProperty(component, propertyName, fallbackText) {
 }
 
 /**
+ * @param {ComponentType} type
+ */
+export function isTypeForMinMax(type) {
+  return (
+    type === ComponentType.TextField ||
+    type === ComponentType.MultilineTextField ||
+    type === ComponentType.EmailAddressField
+  )
+}
+
+/**
  * Determine the limit (if any) relevant to the error type
  * @param {string} type
  * @param {ComponentDef} component
  * @returns { number | string | undefined }
  */
 export function determineLimit(type, component) {
-  if (
-    type === 'min' &&
-    (component.type === ComponentType.TextField ||
-      component.type === ComponentType.MultilineTextField ||
-      component.type === ComponentType.EmailAddressField)
-  ) {
+  if (type === 'min' && isTypeForMinMax(component.type)) {
     return getSchemaProperty(component, 'min', '[min length]')
   }
 
-  if (
-    type === 'max' &&
-    (component.type === ComponentType.TextField ||
-      component.type === ComponentType.MultilineTextField ||
-      component.type === ComponentType.EmailAddressField)
-  ) {
+  if (type === 'max' && isTypeForMinMax(component.type)) {
     return getSchemaProperty(component, 'max', '[max length]')
   }
 

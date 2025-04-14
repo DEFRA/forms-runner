@@ -5,7 +5,8 @@ import {
   determineLimit,
   expandTemplate,
   getOptionsProperty,
-  getSchemaProperty
+  getSchemaProperty,
+  isTypeForMinMax
 } from '~/src/server/plugins/engine/error-preview-helper.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import { componentId, definitionWithComponentId } from '~/test/fixtures/form.js'
@@ -118,6 +119,18 @@ describe('Error preview helper', () => {
         '[max days in the future]'
       )
       expect(res).toBe('[max days in the future]')
+    })
+  })
+
+  describe('isTypeForMinMax', () => {
+    it('should return true for valid types', () => {
+      expect(isTypeForMinMax(ComponentType.TextField)).toBeTruthy()
+      expect(isTypeForMinMax(ComponentType.MultilineTextField)).toBeTruthy()
+      expect(isTypeForMinMax(ComponentType.EmailAddressField)).toBeTruthy()
+    })
+
+    it('should return false for invalid types', () => {
+      expect(isTypeForMinMax(ComponentType.NumberField)).toBeFalsy()
     })
   })
 
