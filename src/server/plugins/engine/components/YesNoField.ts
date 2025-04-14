@@ -35,7 +35,6 @@ export class YesNoField extends SelectionControlField {
    * For error preview page that shows all possible errors on a component
    */
   getAllPossibleErrors(): ErrorMessageTemplateList {
-    // TODO - customise error message
     return {
       baseErrors: [
         { type: 'selectRequired', template: messageTemplate.selectRequired }

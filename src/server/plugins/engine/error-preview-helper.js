@@ -45,6 +45,69 @@ export function isTypeForMinMax(type) {
 }
 
 /**
+ * @param {ComponentDef} component
+ * @param {string} type
+ * @returns {string}
+ */
+export function getNumberLimits(component, type) {
+  if (type === 'numberMin') {
+    return getSchemaProperty(component, 'min', '[lowest number]')
+  }
+
+  if (type === 'numberMax') {
+    return getSchemaProperty(component, 'max', '[highest number]')
+  }
+
+  if (type === 'numberPrecision') {
+    return getSchemaProperty(component, 'precision', '[precision]')
+  }
+
+  return '[unknown]'
+}
+
+/**
+ * @param {ComponentDef} component
+ * @param {string} type
+ * @returns {string}
+ */
+export function getDateLimits(component, type) {
+  if (type === 'dateMin') {
+    return getOptionsProperty(component, 'maxPast', '[max days in the past]')
+  }
+
+  if (type === 'dateMax') {
+    return getOptionsProperty(
+      component,
+      'maxFuture',
+      '[max days in the future]'
+    )
+  }
+
+  return '[unknown]'
+}
+
+/**
+ * @param {ComponentDef} component
+ * @param {string} type
+ * @returns {string}
+ */
+export function getFileLimits(component, type) {
+  if (type === 'filesMin') {
+    return getSchemaProperty(component, 'min', '[min file count]')
+  }
+
+  if (type === 'filesMax') {
+    return getSchemaProperty(component, 'max', '[max file count]')
+  }
+
+  if (type === 'filesExact') {
+    return getSchemaProperty(component, 'length', '[exact file count]')
+  }
+
+  return '[unknown]'
+}
+
+/**
  * Determine the limit (if any) relevant to the error type
  * @param {string} type
  * @param {ComponentDef} component
@@ -59,24 +122,16 @@ export function determineLimit(type, component) {
     return getSchemaProperty(component, 'max', '[max length]')
   }
 
-  if (type === 'numberMin') {
-    return getSchemaProperty(component, 'min', '[lowest number]')
+  if (type.startsWith('number')) {
+    return getNumberLimits(component, type)
   }
 
-  if (type === 'numberMax') {
-    return getSchemaProperty(component, 'max', '[highest number]')
+  if (type.startsWith('date')) {
+    return getDateLimits(component, type)
   }
 
-  if (type === 'dateMin') {
-    return getOptionsProperty(component, 'maxPast', '[max days in the past]')
-  }
-
-  if (type === 'dateMax') {
-    return getOptionsProperty(
-      component,
-      'maxFuture',
-      '[max days in the future]'
-    )
+  if (type.startsWith('files')) {
+    return getFileLimits(component, type)
   }
 
   return '[unknown]'

@@ -141,7 +141,8 @@ export class NumberField extends FormComponent {
       ],
       advancedSettingsErrors: [
         { type: 'numberMin', template: messageTemplate.numberMin },
-        { type: 'numberMax', template: messageTemplate.numberMax }
+        { type: 'numberMax', template: messageTemplate.numberMax },
+        { type: 'numberPrecision', template: messageTemplate.numberPrecision }
       ]
     }
   }

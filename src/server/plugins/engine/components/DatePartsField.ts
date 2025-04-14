@@ -200,7 +200,13 @@ export class DatePartsField extends FormComponent {
     return {
       baseErrors: [
         { type: 'required', template: messageTemplate.required },
-        { type: 'dateFormat', template: messageTemplate.dateFormat }
+        { type: 'dateFormat', template: messageTemplate.dateFormat },
+        { type: 'dateFormaDay', template: '{{#label}} must include a day' },
+        {
+          type: 'dateFormatMonth',
+          template: '{{#label}} must include a month'
+        },
+        { type: 'dateFormatYear', template: '{{#label}} must include a year' }
       ],
       advancedSettingsErrors: [
         { type: 'dateMin', template: messageTemplate.dateMin },

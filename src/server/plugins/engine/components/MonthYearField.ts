@@ -186,7 +186,14 @@ export class MonthYearField extends FormComponent {
    */
   getAllPossibleErrors(): ErrorMessageTemplateList {
     return {
-      baseErrors: [{ type: 'required', template: messageTemplate.required }],
+      baseErrors: [
+        { type: 'required', template: messageTemplate.required },
+        {
+          type: 'dateFormatMonth',
+          template: '{{#label}} must include a month'
+        },
+        { type: 'dateFormatYear', template: '{{#label}} must include a year' }
+      ],
       advancedSettingsErrors: [
         { type: 'dateMin', template: messageTemplate.dateMin },
         { type: 'dateMax', template: messageTemplate.dateMax }

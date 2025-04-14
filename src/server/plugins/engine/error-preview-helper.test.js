@@ -211,6 +211,22 @@ describe('Error preview helper', () => {
       expect(res).toBe(25)
     })
 
+    it('should return correct limit for numberPrecision', () => {
+      const component = /** @type {ComponentDef} */ ({
+        name: 'abcdef',
+        title: 'Component title',
+        type: ComponentType.TextField,
+        schema: {
+          min: 10,
+          max: 25,
+          precision: 3
+        },
+        options: {}
+      })
+      const res = determineLimit('numberPrecision', component)
+      expect(res).toBe(3)
+    })
+
     it('should return correct limit for dateMin', () => {
       const component = /** @type {ComponentDef} */ ({
         name: 'abcdef',

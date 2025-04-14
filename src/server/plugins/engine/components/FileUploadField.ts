@@ -5,6 +5,7 @@ import {
   FormComponent,
   isUploadState
 } from '~/src/server/plugins/engine/components/FormComponent.js'
+import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   FileStatus,
   UploadStatus,
@@ -265,10 +266,24 @@ export class FileUploadField extends FormComponent {
    * For error preview page that shows all possible errors on a component
    */
   getAllPossibleErrors(): ErrorMessageTemplateList {
-    // TODO
     return {
-      baseErrors: [],
-      advancedSettingsErrors: []
+      baseErrors: [
+        { type: 'selectRequired', template: messageTemplate.selectRequired }
+      ],
+      advancedSettingsErrors: [
+        {
+          type: 'filesMin',
+          template: 'You must upload {{#limit}} files or more'
+        },
+        {
+          type: 'filesMax',
+          template: 'You can only upload {{#limit}} files or less'
+        },
+        {
+          type: 'filesExact',
+          template: 'You must upload exactly {{#limit}} files'
+        }
+      ]
     }
   }
 }
