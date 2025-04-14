@@ -2,6 +2,8 @@ import {
   ComponentType,
   type CheckboxesFieldComponent
 } from '@defra/forms-model'
+import { toLower } from 'lodash'
+import lowerFirst from 'lodash/lowerFirst.js'
 import { outdent } from 'outdent'
 
 import { CheckboxesField } from '~/src/server/plugins/engine/components/CheckboxesField.js'
@@ -194,7 +196,7 @@ describe.each([
 
         expect(result.errors).toEqual([
           expect.objectContaining({
-            text: `Select ${options.label.toLowerCase()}`
+            text: `Select ${lowerFirst(options.label)}`
           })
         ])
       })
@@ -222,7 +224,7 @@ describe.each([
 
           expect(result.errors).toEqual([
             expect.objectContaining({
-              text: `Select ${def.shortDescription.toLowerCase()}`
+              text: `Select ${toLower(def.shortDescription)}`
             })
           ])
         }
@@ -235,7 +237,7 @@ describe.each([
 
           expect(result.errors).toEqual([
             expect.objectContaining({
-              text: `Select ${options.label.toLowerCase()}`
+              text: `Select ${lowerFirst(options.label)}`
             })
           ])
         }

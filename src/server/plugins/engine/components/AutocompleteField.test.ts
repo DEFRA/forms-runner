@@ -34,7 +34,7 @@ describe.each([
       list: listString,
       examples: listStringExamples,
       allow: ['1', '2', '3', '4'],
-      shortDescription: 'my string list'
+      shortDescription: 'My string list'
     }
   },
   {
@@ -50,7 +50,7 @@ describe.each([
       list: listNumber,
       examples: listNumberExamples,
       allow: [1, 2, 3, 4],
-      shortDescription: 'my number list'
+      shortDescription: 'My number list'
     }
   }
 ])('AutocompleteField: $component.title', ({ component: def, options }) => {
@@ -156,7 +156,7 @@ describe.each([
 
         expect(result.errors).toEqual([
           expect.objectContaining({
-            text: `Enter ${def.title.toLowerCase()}`
+            text: `Enter ${lowerFirst(def.title)}`
           })
         ])
       })
@@ -171,6 +171,20 @@ describe.each([
         expect(result.errors).toEqual([
           expect.objectContaining({
             text: `Enter ${lowerFirst(options.shortDescription)}`
+          })
+        ])
+      })
+
+      it('adds errors for empty value if shortDescription exists but is empty', () => {
+        collection = new ComponentCollection(
+          [{ ...def, shortDescription: '' }],
+          { model }
+        )
+        const result = collection.validate(getFormData(''))
+
+        expect(result.errors).toEqual([
+          expect.objectContaining({
+            text: `Enter ${lowerFirst(def.title)}`
           })
         ])
       })
