@@ -1,15 +1,13 @@
-import {
-  ComponentType,
-  ControllerPath,
-  ControllerType
-} from '@defra/forms-model'
-
 import { createServer } from '~/src/server/index.js'
 import {
   getFormDefinition,
   getFormMetadata
 } from '~/src/server/plugins/engine/services/formsService.js'
-import { metadata } from '~/test/fixtures/form.js'
+import {
+  componentId,
+  definitionWithComponentId,
+  metadata
+} from '~/test/fixtures/form.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
@@ -28,57 +26,15 @@ describe('Plugin', () => {
   })
 
   describe('route error-preview', () => {
-    const itemId = '1491981d-99cd-485e-ab4a-f88275edeadc'
-
-    /**
-     * @satisfies {FormDefinition}
-     */
-    const definition = {
-      name: '',
-      startPage: '/page-one',
-      pages: [
-        {
-          path: '/page-one',
-          title: 'Page one',
-          section: 'section',
-          components: [
-            {
-              id: itemId,
-              type: ComponentType.TextField,
-              name: 'textField',
-              title: 'This is your first field',
-              hint: 'Help text',
-              options: {},
-              schema: {}
-            }
-          ],
-          next: [{ path: ControllerPath.Summary }]
-        },
-        {
-          title: 'Summary',
-          path: ControllerPath.Summary,
-          controller: ControllerType.Summary
-        }
-      ],
-      sections: [
-        {
-          name: 'section',
-          title: 'Section title',
-          hideTitle: false
-        }
-      ],
-      conditions: [],
-      lists: [],
-      outputEmail: 'enrique.chase@defra.gov.uk'
-    }
-
     test('validates and calls handle if valid payload', async () => {
       jest.mocked(getFormMetadata).mockResolvedValueOnce(metadata)
-      const def = /** @type {FormDefinition} */ (structuredClone(definition))
+      const def = /** @type {FormDefinition} */ (
+        structuredClone(definitionWithComponentId)
+      )
       jest.mocked(getFormDefinition).mockResolvedValueOnce(def)
       const options = {
         method: 'GET',
-        url: `/error-preview/draft/slug/page-one/${itemId}`
+        url: `/error-preview/draft/slug/page-one/${componentId}`
       }
 
       const { container } = await renderResponse(server, options)
@@ -104,6 +60,21 @@ describe('Plugin', () => {
       expect($links[7].textContent).toBe(
         '[short description] must be [max length] characters or less'
       )
+    })
+
+    test('should error if definition not found', async () => {
+      jest.mocked(getFormMetadata).mockResolvedValueOnce(metadata)
+      jest.mocked(getFormDefinition).mockResolvedValueOnce(undefined)
+      const options = {
+        method: 'GET',
+        url: `/error-preview/draft/slug/page-one/${componentId}`
+      }
+
+      const { container } = await renderResponse(server, options)
+
+      const $headings = container.getAllByRole('heading')
+
+      expect($headings[0].textContent).toBe('Page not found')
     })
   })
 })

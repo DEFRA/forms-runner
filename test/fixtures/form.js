@@ -81,6 +81,50 @@ export const definition = {
   outputEmail: 'enrique.chase@defra.gov.uk'
 }
 
+export const componentId = '1491981d-99cd-485e-ab4a-f88275edeadc'
+
+/**
+ * @satisfies {FormDefinition}
+ */
+export const definitionWithComponentId = {
+  name: '',
+  startPage: '/page-one',
+  pages: [
+    {
+      path: '/page-one',
+      title: 'Page one',
+      section: 'section',
+      components: [
+        {
+          id: componentId,
+          type: ComponentType.TextField,
+          name: 'textField',
+          title: 'This is your first field',
+          hint: 'Help text',
+          options: {},
+          schema: {}
+        }
+      ],
+      next: [{ path: ControllerPath.Summary }]
+    },
+    {
+      title: 'Summary',
+      path: ControllerPath.Summary,
+      controller: ControllerType.Summary
+    }
+  ],
+  sections: [
+    {
+      name: 'section',
+      title: 'Section title',
+      hideTitle: false
+    }
+  ],
+  conditions: [],
+  lists: [],
+  outputEmail: 'enrique.chase@defra.gov.uk'
+}
+
 /**
  * @import { FormDefinition, FormMetadata, FormMetadataAuthor, FormMetadataState } from '@defra/forms-model'
  */
