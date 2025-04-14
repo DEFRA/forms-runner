@@ -23,7 +23,8 @@ import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
 describe.each([
   {
     component: {
-      title: 'String list',
+      title: 'String list title',
+      shortDescription: 'String list',
       name: 'myComponent',
       type: ComponentType.CheckboxesField,
       list: 'listString',
@@ -31,6 +32,7 @@ describe.each([
     } satisfies CheckboxesFieldComponent,
 
     options: {
+      label: 'string list',
       list: listString,
       examples: listStringExamples,
       allow: ['1', '2', '3', '4'],
@@ -39,14 +41,34 @@ describe.each([
   },
   {
     component: {
-      title: 'Number list',
+      title: 'String list title',
+      shortDescription: 'String list',
       name: 'myComponent',
+      type: ComponentType.CheckboxesField,
+      list: 'listString',
+      options: {}
+    } satisfies CheckboxesFieldComponent,
+
+    options: {
+      label: 'string list',
+      list: listString,
+      examples: listStringExamples,
+      allow: ['1', '2', '3', '4'],
+      deny: ['5', '6', '7', '8']
+    }
+  },
+  {
+    component: {
+      title: 'Number list title',
+      name: 'myComponent',
+      shortDescription: 'Number list',
       type: ComponentType.CheckboxesField,
       list: 'listNumber',
       options: {}
     } satisfies CheckboxesFieldComponent,
 
     options: {
+      label: 'number list',
       list: listNumber,
       examples: listNumberExamples,
       allow: [1, 2, 3, 4],
@@ -72,14 +94,14 @@ describe.each([
 
   describe('Defaults', () => {
     describe('Schema', () => {
-      it('uses component title as label', () => {
+      it('uses component short description as label', () => {
         const { formSchema } = collection
         const { keys } = formSchema.describe()
 
         expect(keys).toHaveProperty(
           'myComponent',
           expect.objectContaining({
-            flags: expect.objectContaining({ label: def.title })
+            flags: expect.objectContaining({ label: def.shortDescription })
           })
         )
       })
@@ -157,7 +179,7 @@ describe.each([
               {
                 allow: options.allow,
                 flags: {
-                  label: def.title,
+                  label: def.shortDescription,
                   only: true
                 },
                 type: options.list.type
@@ -172,7 +194,7 @@ describe.each([
 
         expect(result.errors).toEqual([
           expect.objectContaining({
-            text: `Select ${def.title.toLowerCase()}`
+            text: `Select ${options.label.toLowerCase()}`
           })
         ])
       })
@@ -200,7 +222,7 @@ describe.each([
 
           expect(result.errors).toEqual([
             expect.objectContaining({
-              text: `Select ${def.title.toLowerCase()}`
+              text: `Select ${def.shortDescription.toLowerCase()}`
             })
           ])
         }
@@ -213,7 +235,7 @@ describe.each([
 
           expect(result.errors).toEqual([
             expect.objectContaining({
-              text: `Select ${def.title.toLowerCase()}`
+              text: `Select ${options.label.toLowerCase()}`
             })
           ])
         }

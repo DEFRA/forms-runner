@@ -317,9 +317,8 @@ describe.each([
             shortDescription: 'Your example text',
             name: 'myComponent',
             type: ComponentType.AutocompleteField,
-
-            options: {},
-            schema: {}
+            list: 'ABCE',
+            options: {}
           } satisfies AutocompleteFieldComponent,
           assertions: [
             {
