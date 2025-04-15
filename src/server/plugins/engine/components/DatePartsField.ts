@@ -199,7 +199,7 @@ export class DatePartsField extends FormComponent {
       baseErrors: [
         { type: 'required', template: messageTemplate.required },
         { type: 'dateFormat', template: messageTemplate.dateFormat },
-        { type: 'dateFormaDay', template: '{{#label}} must include a day' },
+        { type: 'dateFormatDay', template: '{{#label}} must include a day' },
         {
           type: 'dateFormatMonth',
           template: '{{#label}} must include a month'
