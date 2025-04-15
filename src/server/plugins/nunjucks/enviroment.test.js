@@ -88,7 +88,9 @@ describe('Nunjucks environment', () => {
         }
       }
 
-      const result = checkComponentTemplates.call(nunjucksCtx, component)
+      const result = /** @type {{ model: { content: string } }} */ (
+        checkComponentTemplates.call(nunjucksCtx, component)
+      )
 
       expect(helpers.evaluateTemplate).toHaveBeenCalledWith(
         'Some {{ context.someData }} content',
@@ -114,7 +116,9 @@ describe('Nunjucks environment', () => {
         }
       }
 
-      const result = checkComponentTemplates.call(nunjucksCtx, component)
+      const result = /** @type {{ model: { content: string } }} */ (
+        checkComponentTemplates.call(nunjucksCtx, component)
+      )
 
       expect(helpers.evaluateTemplate).not.toHaveBeenCalled()
 
@@ -136,7 +140,9 @@ describe('Nunjucks environment', () => {
         }
       }
 
-      const result = checkComponentTemplates.call(nunjucksCtx, component)
+      const result = /** @type {{ model: { label?: { text: string } } }} */ (
+        checkComponentTemplates.call(nunjucksCtx, component)
+      )
 
       expect(helpers.evaluateTemplate).toHaveBeenCalledWith(
         'Label with {{ context.someData }}',

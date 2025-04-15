@@ -1,6 +1,8 @@
 import { ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
 import { type ListItem } from '~/src/server/plugins/engine/components/types.js'
+import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
+  type ErrorMessageTemplateList,
   type FormPayload,
   type FormSubmissionError
 } from '~/src/server/plugins/engine/types.js'
@@ -38,6 +40,18 @@ export class SelectionControlField extends ListFormComponent {
       ...viewModel,
       fieldset,
       items
+    }
+  }
+
+  /**
+   * For error preview page that shows all possible errors on a component
+   */
+  getAllPossibleErrors(): ErrorMessageTemplateList {
+    return {
+      baseErrors: [
+        { type: 'selectRequired', template: messageTemplate.selectRequired }
+      ],
+      advancedSettingsErrors: []
     }
   }
 }

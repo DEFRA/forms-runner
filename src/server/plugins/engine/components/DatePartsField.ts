@@ -1,11 +1,6 @@
 import { ComponentType, type DatePartsFieldComponent } from '@defra/forms-model'
 import { add, format, isValid, parse, startOfToday, sub } from 'date-fns'
-import {
-  type Context,
-  type CustomValidator,
-  type LanguageMessages,
-  type ObjectSchema
-} from 'joi'
+import { type Context, type CustomValidator, type ObjectSchema } from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
@@ -17,12 +12,14 @@ import { NumberField } from '~/src/server/plugins/engine/components/NumberField.
 import { type DateInputItem } from '~/src/server/plugins/engine/components/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
+  type ErrorMessageTemplateList,
   type FormPayload,
   type FormState,
   type FormStateValue,
   type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
 export class DatePartsField extends FormComponent {
   declare options: DatePartsFieldComponent['options']
@@ -40,7 +37,7 @@ export class DatePartsField extends FormComponent {
 
     const isRequired = options.required !== false
 
-    const customValidationMessages: LanguageMessages = {
+    const customValidationMessages = convertToLanguageMessages({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       'any.required': messageTemplate.objectMissing,
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -50,7 +47,7 @@ export class DatePartsField extends FormComponent {
       'number.unsafe': messageTemplate.dateFormat,
       'number.min': messageTemplate.dateFormat,
       'number.max': messageTemplate.dateFormat
-    }
+    })
 
     this.collection = new ComponentCollection(
       [
@@ -192,6 +189,28 @@ export class DatePartsField extends FormComponent {
 
   isState(value?: FormStateValue | FormState) {
     return DatePartsField.isDateParts(value)
+  }
+
+  /**
+   * For error preview page that shows all possible errors on a component
+   */
+  getAllPossibleErrors(): ErrorMessageTemplateList {
+    return {
+      baseErrors: [
+        { type: 'required', template: messageTemplate.required },
+        { type: 'dateFormat', template: messageTemplate.dateFormat },
+        { type: 'dateFormatDay', template: '{{#label}} must include a day' },
+        {
+          type: 'dateFormatMonth',
+          template: '{{#label}} must include a month'
+        },
+        { type: 'dateFormatYear', template: '{{#label}} must include a year' }
+      ],
+      advancedSettingsErrors: [
+        { type: 'dateMin', template: messageTemplate.dateMin },
+        { type: 'dateMax', template: messageTemplate.dateMax }
+      ]
+    }
   }
 
   static isDateParts(

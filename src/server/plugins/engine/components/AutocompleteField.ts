@@ -24,9 +24,11 @@ export class AutocompleteField extends SelectField {
 
       formSchema = formSchema.messages({
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        'any.only': messages?.['any.only'] ?? messageTemplate.required,
+        'any.only':
+          messages?.['any.only'] ?? (messageTemplate.required as string),
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        'any.required': messages?.['any.required'] ?? messageTemplate.required
+        'any.required':
+          messages?.['any.required'] ?? (messageTemplate.required as string)
       })
     }
 

@@ -17,12 +17,14 @@ import { NumberField } from '~/src/server/plugins/engine/components/NumberField.
 import { type DateInputItem } from '~/src/server/plugins/engine/components/types.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
+  type ErrorMessageTemplateList,
   type FormPayload,
   type FormState,
   type FormStateValue,
   type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
 export class MonthYearField extends FormComponent {
   declare options: MonthYearFieldComponent['options']
@@ -40,17 +42,18 @@ export class MonthYearField extends FormComponent {
 
     const isRequired = options.required !== false
 
-    const customValidationMessages: LanguageMessages = {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      'any.required': messageTemplate.objectMissing,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      'number.base': messageTemplate.objectMissing,
-      'number.precision': messageTemplate.dateFormat,
-      'number.integer': messageTemplate.dateFormat,
-      'number.unsafe': messageTemplate.dateFormat,
-      'number.min': messageTemplate.dateFormat,
-      'number.max': messageTemplate.dateFormat
-    }
+    const customValidationMessages: LanguageMessages =
+      convertToLanguageMessages({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        'any.required': messageTemplate.objectMissing,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        'number.base': messageTemplate.objectMissing,
+        'number.precision': messageTemplate.dateFormat,
+        'number.integer': messageTemplate.dateFormat,
+        'number.unsafe': messageTemplate.dateFormat,
+        'number.min': messageTemplate.dateFormat,
+        'number.max': messageTemplate.dateFormat
+      })
 
     this.collection = new ComponentCollection(
       [
@@ -180,6 +183,26 @@ export class MonthYearField extends FormComponent {
 
   isState(value?: FormStateValue | FormState) {
     return MonthYearField.isMonthYear(value)
+  }
+
+  /**
+   * For error preview page that shows all possible errors on a component
+   */
+  getAllPossibleErrors(): ErrorMessageTemplateList {
+    return {
+      baseErrors: [
+        { type: 'required', template: messageTemplate.required },
+        {
+          type: 'dateFormatMonth',
+          template: '{{#label}} must include a month'
+        },
+        { type: 'dateFormatYear', template: '{{#label}} must include a year' }
+      ],
+      advancedSettingsErrors: [
+        { type: 'dateMin', template: messageTemplate.dateMin },
+        { type: 'dateMax', template: messageTemplate.dateMax }
+      ]
+    }
   }
 
   static isMonthYear(

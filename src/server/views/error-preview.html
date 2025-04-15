@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
+
+{% set mainClasses = "govuk-main-wrapper--l" %}
+
+{% set html %}
+  <p class="govuk-notification-banner__heading">
+    This is a preview of the error messages for page {{ pageNum }} in a draft form you are editing.
+  </p>
+  <p class="govuk-body govuk-!-margin-bottom-0">Close this tab to go back to the editor.</p>
+{% endset %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {{ govukNotificationBanner({
+        html: html
+      }) }}
+
+
+      <div class="govuk-error-summary" data-module="govuk-error-summary" data-govuk-error-summary-init="">
+        <div role="alert">
+          <h2 class="govuk-error-summary__title govuk-!-margin-bottom-2">
+            There is a problem
+          </h2>
+          <div class="govuk-error-summary__body">
+              <ul class="govuk-list govuk-error-summary__list">
+                {% for error in baseErrors %}
+                <li>
+                  <a href="#">{{ error }}</a>
+                </li>
+                {% endfor %}
+              </ul>
+          </div>
+          {% if advancedSettingsErrors | length %}
+            <h2 class="govuk-error-summary__title govuk-!-padding-top-5 govuk-!-margin-bottom-2">
+              If you set answer limits
+            </h2>
+            <div class="govuk-error-summary__body">
+                <ul class="govuk-list govuk-error-summary__list">
+                  {% for error in advancedSettingsErrors %}
+                  <li>
+                    <a href="#">{{ error }}</a>
+                  </li>
+                  {% endfor %}
+                </ul>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

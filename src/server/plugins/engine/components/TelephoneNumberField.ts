@@ -3,7 +3,9 @@ import joi, { type StringSchema } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers.js'
+import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
+  type ErrorMessageTemplateList,
   type FormPayload,
   type FormSubmissionError
 } from '~/src/server/plugins/engine/types.js'
@@ -62,6 +64,19 @@ export class TelephoneNumberField extends FormComponent {
     return {
       ...viewModel,
       type: 'tel'
+    }
+  }
+
+  /**
+   * For error preview page that shows all possible errors on a component
+   */
+  getAllPossibleErrors(): ErrorMessageTemplateList {
+    return {
+      baseErrors: [
+        { type: 'required', template: messageTemplate.required },
+        { type: 'format', template: messageTemplate.format }
+      ],
+      advancedSettingsErrors: []
     }
   }
 }

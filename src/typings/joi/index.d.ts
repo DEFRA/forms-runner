@@ -19,4 +19,12 @@ declare module 'joi' {
       title?: string
     }
   }
+
+  interface JoiExpressionReturn {
+    render: (p1, p2, p3, p4, p5) => string
+  }
+
+  type JoiExpression = JoiExpressionReturn | string
+
+  type LanguageMessagesExt = Record<string, JoiExpression>
 }

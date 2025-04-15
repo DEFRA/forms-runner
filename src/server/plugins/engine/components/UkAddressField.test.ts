@@ -388,6 +388,14 @@ describe('UkAddressField', () => {
         })
       })
     })
+
+    describe('AllPossibleErrors', () => {
+      it('should return errors', () => {
+        const errors = field.getAllPossibleErrors()
+        expect(errors.baseErrors).not.toBeEmpty()
+        expect(errors.advancedSettingsErrors).toBeEmpty()
+      })
+    })
   })
 
   describe('Validation', () => {
