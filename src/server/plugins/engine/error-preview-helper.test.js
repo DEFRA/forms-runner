@@ -66,6 +66,17 @@ describe('Error preview helper', () => {
       const res = getSchemaProperty(component, 'min', '[min placeholder]')
       expect(res).toBe('[min placeholder]')
     })
+
+    it('should return alternative text if schema structure missing', () => {
+      const component = /** @type {ComponentDef} */ ({
+        name: 'abcdef',
+        title: 'Component title',
+        type: ComponentType.TextField,
+        options: {}
+      })
+      const res = getSchemaProperty(component, 'min', '[min placeholder]')
+      expect(res).toBe('[min placeholder]')
+    })
   })
 
   describe('getOptionsProperty', () => {
@@ -87,7 +98,7 @@ describe('Error preview helper', () => {
       expect(res).toBe(15)
     })
 
-    it('should return alternative text if schema property undefined', () => {
+    it('should return alternative text if options property undefined', () => {
       const component = /** @type {ComponentDef} */ ({
         name: 'abcdef',
         title: 'Component title',
@@ -105,12 +116,27 @@ describe('Error preview helper', () => {
       expect(res).toBe('[max days in the future]')
     })
 
-    it('should return alternative text if schema property missing', () => {
+    it('should return alternative text if options property missing', () => {
       const component = /** @type {ComponentDef} */ ({
         name: 'abcdef',
         title: 'Component title',
         type: ComponentType.TextField,
         schema: {},
+        options: {}
+      })
+      const res = getOptionsProperty(
+        component,
+        'maxFuture',
+        '[max days in the future]'
+      )
+      expect(res).toBe('[max days in the future]')
+    })
+
+    it('should return alternative text if options structure missing', () => {
+      const component = /** @type {ComponentDef} */ ({
+        name: 'abcdef',
+        title: 'Component title',
+        type: ComponentType.TextField,
         options: {}
       })
       const res = getOptionsProperty(
@@ -219,12 +245,12 @@ describe('Error preview helper', () => {
         schema: {
           min: 10,
           max: 25,
-          precision: 3
+          precision: 2
         },
         options: {}
       })
       const res = determineLimit('numberPrecision', component)
-      expect(res).toBe(3)
+      expect(res).toBe(2)
     })
 
     it('should return correct limit for dateMin', () => {
@@ -255,6 +281,50 @@ describe('Error preview helper', () => {
       })
       const res = determineLimit('dateMax', component)
       expect(res).toBe(35)
+    })
+
+    it('should return correct limit for filesMin', () => {
+      const component = /** @type {ComponentDef} */ ({
+        name: 'abcdef',
+        title: 'Component title',
+        type: ComponentType.FileUploadField,
+        schema: {
+          min: 1,
+          max: 3
+        },
+        options: {}
+      })
+      const res = determineLimit('filesMin', component)
+      expect(res).toBe(1)
+    })
+
+    it('should return correct limit for filesMax', () => {
+      const component = /** @type {ComponentDef} */ ({
+        name: 'abcdef',
+        title: 'Component title',
+        type: ComponentType.FileUploadField,
+        schema: {
+          min: 1,
+          max: 3
+        },
+        options: {}
+      })
+      const res = determineLimit('filesMax', component)
+      expect(res).toBe(3)
+    })
+
+    it('should return correct limit for filesExact', () => {
+      const component = /** @type {ComponentDef} */ ({
+        name: 'abcdef',
+        title: 'Component title',
+        type: ComponentType.FileUploadField,
+        schema: {
+          length: 2
+        },
+        options: {}
+      })
+      const res = determineLimit('filesExact', component)
+      expect(res).toBe(2)
     })
 
     it('should return unknown for invalid type', () => {
