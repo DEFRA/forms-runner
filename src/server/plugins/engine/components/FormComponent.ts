@@ -3,6 +3,7 @@ import { type FormComponentsDef, type Item } from '@defra/forms-model'
 import { ComponentBase } from '~/src/server/plugins/engine/components/ComponentBase.js'
 import { optionalText } from '~/src/server/plugins/engine/components/constants.js'
 import {
+  type ErrorMessageTemplateList,
   type FileState,
   type FormPayload,
   type FormState,
@@ -188,6 +189,13 @@ export class FormComponent extends ComponentBase {
 
   isState(value?: FormStateValue | FormState): value is FormState {
     return isFormState(value)
+  }
+
+  getAllPossibleErrors(): ErrorMessageTemplateList {
+    return {
+      baseErrors: [],
+      advancedSettingsErrors: []
+    }
   }
 }
 

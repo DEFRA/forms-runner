@@ -1,6 +1,7 @@
 import { ComponentType, hasComponents } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 
+import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { createComponent } from '~/src/server/plugins/engine/components/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { createJoiExpression } from '~/src/server/utils/type-utils.js'
@@ -188,7 +189,10 @@ export function createErrorPreviewModel(definition, path, questionId) {
     { basePath: '' }
   )
   const componentClass = createComponent(component, { model: dummyFormModel })
-  const errors = componentClass.getAllPossibleErrors()
+  const errors =
+    componentClass instanceof FormComponent
+      ? componentClass.getAllPossibleErrors()
+      : { baseErrors: [], advancedSettingsErrors: [] }
 
   const baseErrors = evaluateErrorTemplates(errors.baseErrors, component)
   const advancedSettingsErrors = evaluateErrorTemplates(
