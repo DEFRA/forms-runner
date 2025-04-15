@@ -5,6 +5,7 @@ import joi, {
   type JoiExpression,
   type LanguageMessages,
   type LanguageMessagesExt,
+  type ReferenceOptions,
   type ValidationOptions
 } from 'joi'
 import lowerFirst from 'lodash/lowerFirst.js'
@@ -13,32 +14,28 @@ const opts = {
   functions: {
     lowerFirst
   }
-}
+} as ReferenceOptions
 
 /**
  * see @link https://joi.dev/api/?v=17.4.2#template-syntax for template syntax
  */
 export const messageTemplate: Record<string, JoiExpression> = {
-  // @ts-expect-error - joi.expression options type issue
   required: joi.expression(
     'Enter {{lowerFirst(#label)}}',
     opts
   ) as JoiExpression,
-  // @ts-expect-error - joi.expression options type issue
   selectRequired: joi.expression(
     'Select {{lowerFirst(#label)}}',
     opts
   ) as JoiExpression,
   max: '{{#label}} must be {{#limit}} characters or less',
   min: '{{#label}} must be {{#limit}} characters or more',
-  // @ts-expect-error - joi.expression options type issue
   pattern: joi.expression(
     'Enter a valid {{lowerFirst(#label)}}',
     opts
   ) as JoiExpression,
   format: joi.expression(
     'Enter {{lowerFirst(#label)}} in the correct format',
-    // @ts-expect-error - joi.expression options type issue
     opts
   ) as JoiExpression,
   number: '{{#label}} must be a number',
@@ -50,11 +47,9 @@ export const messageTemplate: Record<string, JoiExpression> = {
 
   // Nested fields use component title
 
-  // @ts-expect-error - joi.expression options type issue
   objectRequired: joi.expression('Enter {{#label}}', opts) as JoiExpression,
   objectMissing: joi.expression(
     '{{#title}} must include a {{lowerFirst(#label)}}',
-    // @ts-expect-error - joi.expression options type issue
     opts
   ) as JoiExpression,
   dateFormat: '{{#title}} must be a real date',

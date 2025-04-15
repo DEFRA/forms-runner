@@ -1,9 +1,10 @@
 import { ComponentType, hasComponents } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import Joi from 'joi'
 
+import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { createComponent } from '~/src/server/plugins/engine/components/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
+import { createJoiExpression } from '~/src/server/utils/type-utils.js'
 
 /**
  * @param {ComponentDef} component
@@ -12,6 +13,7 @@ import { FormModel } from '~/src/server/plugins/engine/models/index.js'
  * @returns {string}
  */
 export function getSchemaProperty(component, propertyName, fallbackText) {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return (
     // @ts-expect-error - need to dynamically lookup property
     ('schema' in component ? component.schema[propertyName] : undefined) ??
@@ -26,6 +28,7 @@ export function getSchemaProperty(component, propertyName, fallbackText) {
  * @returns {string}
  */
 export function getOptionsProperty(component, propertyName, fallbackText) {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return (
     // @ts-expect-error - need to dynamically lookup property
     ('options' in component ? component.options[propertyName] : undefined) ??
@@ -145,12 +148,12 @@ export function evaluateErrorTemplates(templates, component) {
   return templates.map((templ) => {
     return expandTemplate(templ.template, {
       label:
-        'shortDescription' in component
-          ? component.shortDescription
+        component instanceof FormComponent
+          ? component.label
           : '[short description]',
       title:
-        'shortDescription' in component
-          ? component.shortDescription
+        component instanceof FormComponent
+          ? component.label
           : '[short description]',
       limit: determineLimit(templ.type, component)
     })
@@ -203,7 +206,7 @@ export function createErrorPreviewModel(definition, path, questionId) {
 
 /**
  * Render a Joi template (expression) or tokenised string to generate complete error message
- * @param { typeof Joi.expression | string } template
+ * @param { JoiExpression | string } template
  * @param {{ label?: string, limit?: number | string, title?: string }} [local]
  * @returns {string}
  */
@@ -212,12 +215,15 @@ export function expandTemplate(template, local = {}) {
   const prefs = { errors: { wrap: { label: false } } }
 
   const templateExpression =
-    typeof template === 'string' ? Joi.expression(template) : template
+    typeof template === 'string' ? createJoiExpression(template) : template
 
+  // @ts-expect-error Joi types are messed up
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
   return templateExpression.render('', {}, prefs, local, options)
 }
 
 /**
  * @import { ComponentDef, FormDefinition } from '@defra/forms-model'
+ * @import { JoiExpression } from 'joi'
  * @import { ErrorMessageTemplate } from '~/src/server/plugins/engine/types.js'
  */

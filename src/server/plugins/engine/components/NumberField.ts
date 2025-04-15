@@ -42,7 +42,8 @@ export class NumberField extends FormComponent {
 
       formSchema = formSchema.empty('').messages({
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        'any.required': messages?.['any.required'] ?? messageTemplate.required
+        'any.required':
+          messages?.['any.required'] ?? (messageTemplate.required as string)
       })
     }
 
