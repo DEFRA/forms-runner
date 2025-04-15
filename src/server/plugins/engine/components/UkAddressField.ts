@@ -169,9 +169,13 @@ export class UkAddressField extends FormComponent {
    * For error preview page that shows all possible errors on a component
    */
   getAllPossibleErrors(): ErrorMessageTemplateList {
-    // TODO
     return {
-      baseErrors: [],
+      baseErrors: [
+        { type: 'required', template: 'Enter address line 1' },
+        { type: 'required', template: 'Enter town or city' },
+        { type: 'required', template: 'Enter postcode' },
+        { type: 'format', template: 'Enter valid postcode' }
+      ],
       advancedSettingsErrors: []
     }
   }

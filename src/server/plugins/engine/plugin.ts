@@ -10,7 +10,6 @@ import { isEqual } from 'date-fns'
 import Joi from 'joi'
 
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
-import { createErrorPreviewModel } from '~/src/server/plugins/engine/error-preview-helper.js'
 import {
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
@@ -35,7 +34,6 @@ import * as defaultServices from '~/src/server/plugins/engine/services/index.js'
 import { getUploadStatus } from '~/src/server/plugins/engine/services/uploadService.js'
 import { type FormContext } from '~/src/server/plugins/engine/types.js'
 import {
-  FormStatus,
   type FormRequest,
   type FormRequestPayload,
   type FormRequestPayloadRefs,
@@ -204,33 +202,6 @@ export const plugin = {
       return proceed(request, h, page.getHref(relevantPath))
     }
 
-    const getErrorPreviewHandler = async (
-      request: FormRequest,
-      h: Pick<ResponseToolkit, 'redirect' | 'view'>
-    ) => {
-      const { params } = request
-      const { slug, path, itemId } = params
-
-      // Get the form metadata using the `slug` param
-      const metadata = await formsService.getFormMetadata(slug)
-
-      // Get the form definition using the `id` from the metadata
-      const definition = await formsService.getFormDefinition(
-        metadata.id,
-        FormStatus.Draft
-      )
-      if (!definition) {
-        throw Boom.notFound(
-          `No definition found for form metadata ${metadata.id} (${slug}) ${FormStatus.Draft}`
-        )
-      }
-
-      return h.view(
-        'error-preview',
-        createErrorPreviewModel(definition, path, itemId ?? '')
-      )
-    }
-
     const getHandler = (
       request: FormRequest,
       h: Pick<ResponseToolkit, 'redirect' | 'view'>
@@ -352,22 +323,6 @@ export const plugin = {
             slug: slugSchema,
             path: pathSchema,
             itemId: itemIdSchema.optional()
-          })
-        }
-      }
-    })
-
-    server.route({
-      method: 'get',
-      path: '/error-preview/{state}/{slug}/{path}/{itemId}',
-      handler: getErrorPreviewHandler,
-      options: {
-        validate: {
-          params: Joi.object().keys({
-            state: stateSchema,
-            slug: slugSchema,
-            path: pathSchema,
-            itemId: itemIdSchema
           })
         }
       }
