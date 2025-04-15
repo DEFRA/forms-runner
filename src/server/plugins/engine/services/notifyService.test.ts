@@ -54,7 +54,6 @@ describe('notifyService', () => {
 
     jest.mocked(checkFormStatus).mockReturnValue({
       isPreview: false,
-      isErrorPreview: false,
       state: FormStatus.Draft
     })
     jest.mocked(getFormatter).mockReturnValue(() => 'dummy-live')
@@ -84,7 +83,6 @@ describe('notifyService', () => {
 
     jest.mocked(checkFormStatus).mockReturnValue({
       isPreview: true,
-      isErrorPreview: false,
       state: FormStatus.Draft
     })
     jest.mocked(getFormatter).mockReturnValue(() => 'dummy-preview')
@@ -114,7 +112,6 @@ describe('notifyService', () => {
 
     jest.mocked(checkFormStatus).mockReturnValue({
       isPreview: true,
-      isErrorPreview: false,
       state: FormStatus.Draft
     })
     jest

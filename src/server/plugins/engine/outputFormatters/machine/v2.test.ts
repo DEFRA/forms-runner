@@ -34,7 +34,6 @@ const model = new FormModel(definition, {
 
 const formStatus = {
   isPreview: false,
-  isErrorPreview: false,
   state: FormStatus.Live
 }
 
