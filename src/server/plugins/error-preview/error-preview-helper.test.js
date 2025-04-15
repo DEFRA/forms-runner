@@ -1,5 +1,6 @@
 import { ComponentType } from '@defra/forms-model'
 
+import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   createErrorPreviewModel,
   determineLimit,
@@ -7,8 +8,7 @@ import {
   getOptionsProperty,
   getSchemaProperty,
   isTypeForMinMax
-} from '~/src/server/plugins/engine/error-preview-helper.js'
-import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
+} from '~/src/server/plugins/error-preview/error-preview-helper.js'
 import { componentId, definitionWithComponentId } from '~/test/fixtures/form.js'
 
 describe('Error preview helper', () => {

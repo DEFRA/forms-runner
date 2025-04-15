@@ -13,8 +13,14 @@ import { type CookieConsent } from '~/src/common/types.js'
 import { config } from '~/src/config/index.js'
 import { isPathRelative } from '~/src/server/plugins/engine/helpers.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
+import { getErrorPreviewHandler } from '~/src/server/plugins/error-preview/error-preview.js'
 import { healthRoute, publicRoutes } from '~/src/server/routes/index.js'
-import { crumbSchema } from '~/src/server/schemas/index.js'
+import {
+  crumbSchema,
+  itemIdSchema,
+  pathSchema,
+  stateSchema
+} from '~/src/server/schemas/index.js'
 
 const routes = [...publicRoutes, healthRoute]
 
@@ -195,6 +201,22 @@ export default {
           return h.view('help/accessibility-statement')
         },
         options
+      })
+
+      server.route({
+        method: 'get',
+        path: '/error-preview/{state}/{slug}/{path}/{itemId}',
+        handler: getErrorPreviewHandler,
+        options: {
+          validate: {
+            params: Joi.object().keys({
+              state: stateSchema,
+              slug: slugSchema,
+              path: pathSchema,
+              itemId: itemIdSchema
+            })
+          }
+        }
       })
     }
   }
