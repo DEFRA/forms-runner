@@ -19,4 +19,15 @@ declare module 'joi' {
       title?: string
     }
   }
+
+  type JoiExpressionReturn = string
+
+  type JoiExpressionFunction = (
+    template: string,
+    options?: ReferenceOptions
+  ) => JoiExpressionReturn
+
+  type JoiExpression = JoiExpressionFunction | string
+
+  type LanguageMessagesExt = Record<string, JoiExpression>
 }

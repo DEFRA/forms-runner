@@ -1,7 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 // Declaration above is needed for: https://github.com/hapijs/joi/issues/3064
 
-import joi, { type LanguageMessages, type ValidationOptions } from 'joi'
+import joi, {
+  type JoiExpression,
+  type LanguageMessages,
+  type LanguageMessagesExt,
+  type ValidationOptions
+} from 'joi'
 import lowerFirst from 'lodash/lowerFirst.js'
 
 const opts = {
@@ -13,20 +18,29 @@ const opts = {
 /**
  * see @link https://joi.dev/api/?v=17.4.2#template-syntax for template syntax
  */
-export const messageTemplate = {
+export const messageTemplate: Record<string, JoiExpression> = {
   // @ts-expect-error - joi.expression options type issue
-  required: joi.expression('Enter {{lowerFirst(#label)}}', opts),
+  required: joi.expression(
+    'Enter {{lowerFirst(#label)}}',
+    opts
+  ) as JoiExpression,
   // @ts-expect-error - joi.expression options type issue
-  selectRequired: joi.expression('Select {{lowerFirst(#label)}}', opts),
+  selectRequired: joi.expression(
+    'Select {{lowerFirst(#label)}}',
+    opts
+  ) as JoiExpression,
   max: '{{#label}} must be {{#limit}} characters or less',
   min: '{{#label}} must be {{#limit}} characters or more',
   // @ts-expect-error - joi.expression options type issue
-  pattern: joi.expression('Enter a valid {{lowerFirst(#label)}}', opts),
+  pattern: joi.expression(
+    'Enter a valid {{lowerFirst(#label)}}',
+    opts
+  ) as JoiExpression,
   format: joi.expression(
     'Enter {{lowerFirst(#label)}} in the correct format',
     // @ts-expect-error - joi.expression options type issue
     opts
-  ),
+  ) as JoiExpression,
   number: '{{#label}} must be a number',
   numberPrecision: '{{#label}} must have {{#limit}} or fewer decimal places',
   numberInteger: '{{#label}} must be a whole number',
@@ -37,18 +51,18 @@ export const messageTemplate = {
   // Nested fields use component title
 
   // @ts-expect-error - joi.expression options type issue
-  objectRequired: joi.expression('Enter {{#label}}', opts),
+  objectRequired: joi.expression('Enter {{#label}}', opts) as JoiExpression,
   objectMissing: joi.expression(
     '{{#title}} must include a {{lowerFirst(#label)}}',
     // @ts-expect-error - joi.expression options type issue
     opts
-  ),
+  ) as JoiExpression,
   dateFormat: '{{#title}} must be a real date',
   dateMin: '{{#title}} must be the same as or after {{#limit}}',
   dateMax: '{{#title}} must be the same as or before {{#limit}}'
 }
 
-export const messages: LanguageMessages = {
+export const messages: LanguageMessagesExt = {
   'string.base': messageTemplate.required,
   'string.min': messageTemplate.min,
   'string.empty': messageTemplate.required,
@@ -77,9 +91,12 @@ export const messages: LanguageMessages = {
   'date.max': messageTemplate.dateMax
 }
 
+export const messagesPre: LanguageMessages =
+  messages as unknown as LanguageMessages
+
 export const validationOptions: ValidationOptions = {
   abortEarly: false,
-  messages,
+  messages: messagesPre,
   errors: {
     wrap: {
       array: false,

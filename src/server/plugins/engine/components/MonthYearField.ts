@@ -24,6 +24,7 @@ import {
   type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
 export class MonthYearField extends FormComponent {
   declare options: MonthYearFieldComponent['options']
@@ -41,17 +42,18 @@ export class MonthYearField extends FormComponent {
 
     const isRequired = options.required !== false
 
-    const customValidationMessages: LanguageMessages = {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      'any.required': messageTemplate.objectMissing,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      'number.base': messageTemplate.objectMissing,
-      'number.precision': messageTemplate.dateFormat,
-      'number.integer': messageTemplate.dateFormat,
-      'number.unsafe': messageTemplate.dateFormat,
-      'number.min': messageTemplate.dateFormat,
-      'number.max': messageTemplate.dateFormat
-    }
+    const customValidationMessages: LanguageMessages =
+      convertToLanguageMessages({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        'any.required': messageTemplate.objectMissing,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        'number.base': messageTemplate.objectMissing,
+        'number.precision': messageTemplate.dateFormat,
+        'number.integer': messageTemplate.dateFormat,
+        'number.unsafe': messageTemplate.dateFormat,
+        'number.min': messageTemplate.dateFormat,
+        'number.max': messageTemplate.dateFormat
+      })
 
     this.collection = new ComponentCollection(
       [

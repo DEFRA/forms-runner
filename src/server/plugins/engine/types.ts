@@ -4,8 +4,7 @@ import {
   type List,
   type Page
 } from '@defra/forms-model'
-import type Joi from 'joi'
-import { type ValidationErrorItem } from 'joi'
+import { type JoiExpression, type ValidationErrorItem } from 'joi'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { type Component } from '~/src/server/plugins/engine/components/helpers.js'
@@ -317,7 +316,7 @@ export type PageViewModel =
 
 export interface ErrorMessageTemplate {
   type: string
-  template: string | typeof Joi.expression
+  template: JoiExpression
 }
 
 export interface ErrorMessageTemplateList {

@@ -1,11 +1,6 @@
 import { ComponentType, type DatePartsFieldComponent } from '@defra/forms-model'
 import { add, format, isValid, parse, startOfToday, sub } from 'date-fns'
-import {
-  type Context,
-  type CustomValidator,
-  type LanguageMessages,
-  type ObjectSchema
-} from 'joi'
+import { type Context, type CustomValidator, type ObjectSchema } from 'joi'
 
 import { ComponentCollection } from '~/src/server/plugins/engine/components/ComponentCollection.js'
 import {
@@ -24,6 +19,7 @@ import {
   type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
 export class DatePartsField extends FormComponent {
   declare options: DatePartsFieldComponent['options']
@@ -41,7 +37,7 @@ export class DatePartsField extends FormComponent {
 
     const isRequired = options.required !== false
 
-    const customValidationMessages: LanguageMessages = {
+    const customValidationMessages = convertToLanguageMessages({
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       'any.required': messageTemplate.objectMissing,
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -51,7 +47,7 @@ export class DatePartsField extends FormComponent {
       'number.unsafe': messageTemplate.dateFormat,
       'number.min': messageTemplate.dateFormat,
       'number.max': messageTemplate.dateFormat
-    }
+    })
 
     this.collection = new ComponentCollection(
       [
