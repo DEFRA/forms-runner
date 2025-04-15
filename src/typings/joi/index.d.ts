@@ -24,11 +24,6 @@ declare module 'joi' {
     render: (p1, p2, p3, p4, p5) => string
   }
 
-  type JoiExpressionFunction = (
-    template: string,
-    options?: ReferenceOptions
-  ) => JoiExpressionReturn
-
   type JoiExpression = JoiExpressionReturn | string
 
   type LanguageMessagesExt = Record<string, JoiExpression>

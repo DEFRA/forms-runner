@@ -4,6 +4,7 @@ import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/val
 import {
   createErrorPreviewModel,
   determineLimit,
+  evaluateErrorTemplates,
   expandTemplate,
   getOptionsProperty,
   getSchemaProperty,
@@ -137,7 +138,7 @@ describe('Error preview helper', () => {
         name: 'abcdef',
         title: 'Component title',
         type: ComponentType.TextField,
-        options: {}
+        schema: {}
       })
       const res = getOptionsProperty(
         component,
@@ -327,6 +328,42 @@ describe('Error preview helper', () => {
       expect(res).toBe(2)
     })
 
+    it('should return unknown for invalid number type', () => {
+      const component = /** @type {ComponentDef} */ ({
+        name: 'abcdef',
+        title: 'Component title',
+        type: ComponentType.NumberField,
+        schema: {},
+        options: {}
+      })
+      const res = determineLimit('numberInvalid', component)
+      expect(res).toBe('[unknown]')
+    })
+
+    it('should return unknown for invalid date type', () => {
+      const component = /** @type {ComponentDef} */ ({
+        name: 'abcdef',
+        title: 'Component title',
+        type: ComponentType.DatePartsField,
+        schema: {},
+        options: {}
+      })
+      const res = determineLimit('dateInvalid', component)
+      expect(res).toBe('[unknown]')
+    })
+
+    it('should return unknown for invalid file type', () => {
+      const component = /** @type {ComponentDef} */ ({
+        name: 'abcdef',
+        title: 'Component title',
+        type: ComponentType.FileUploadField,
+        schema: {},
+        options: {}
+      })
+      const res = determineLimit('filesInvalid', component)
+      expect(res).toBe('[unknown]')
+    })
+
     it('should return unknown for invalid type', () => {
       const component = /** @type {ComponentDef} */ ({
         name: 'abcdef',
@@ -373,8 +410,60 @@ describe('Error preview helper', () => {
       )
     })
   })
+
+  describe('evaluateErrorTemplates', () => {
+    it('should render all templates using short description', () => {
+      const component = /** @type {ComponentDef} */ ({
+        name: 'abcdef',
+        title: 'Component title',
+        shortDescription: 'Your full name',
+        type: ComponentType.TextField,
+        schema: {
+          min: 5,
+          max: 30
+        },
+        options: {}
+      })
+
+      const templates = /** @type {ErrorMessageTemplate[]} */ ([
+        { type: 'required', template: messageTemplate.required },
+        { type: 'min', template: messageTemplate.min },
+        { type: 'max', template: messageTemplate.max }
+      ])
+      const res = evaluateErrorTemplates(templates, component)
+      expect(res).toHaveLength(3)
+      expect(res[0]).toBe('Enter your full name')
+      expect(res[1]).toBe('Your full name must be 5 characters or more')
+      expect(res[2]).toBe('Your full name must be 30 characters or less')
+    })
+
+    it('should render all templates with short description placeholder', () => {
+      const component = /** @type {ComponentDef} */ ({
+        name: 'abcdef',
+        title: 'Component title',
+        type: ComponentType.TextField,
+        schema: {
+          min: 5,
+          max: 30
+        },
+        options: {}
+      })
+
+      const templates = /** @type {ErrorMessageTemplate[]} */ ([
+        { type: 'required', template: messageTemplate.required },
+        { type: 'min', template: messageTemplate.min },
+        { type: 'max', template: messageTemplate.max }
+      ])
+      const res = evaluateErrorTemplates(templates, component)
+      expect(res).toHaveLength(3)
+      expect(res[0]).toBe('Enter [short description]')
+      expect(res[1]).toBe('[short description] must be 5 characters or more')
+      expect(res[2]).toBe('[short description] must be 30 characters or less')
+    })
+  })
 })
 
 /**
  * @import { ComponentDef } from '@defra/forms-model'
+ * @import { ErrorMessageTemplate } from '~/src/server/plugins/engine/types.js'
  */

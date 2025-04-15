@@ -1,7 +1,6 @@
 import { ComponentType, hasComponents } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 
-import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { createComponent } from '~/src/server/plugins/engine/components/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { createJoiExpression } from '~/src/server/utils/type-utils.js'
@@ -10,30 +9,30 @@ import { createJoiExpression } from '~/src/server/utils/type-utils.js'
  * @param {ComponentDef} component
  * @param {string} propertyName
  * @param {string} fallbackText
- * @returns {string}
+ * @returns { string | number }
  */
 export function getSchemaProperty(component, propertyName, fallbackText) {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-  return (
-    // @ts-expect-error - need to dynamically lookup property
-    ('schema' in component ? component.schema[propertyName] : undefined) ??
-    fallbackText
-  )
+  const schema =
+    /** @type {Record<string, string | number | undefined> | undefined} */ (
+      'schema' in component ? component.schema : undefined
+    )
+  const schemaVal = schema ? schema[propertyName] : undefined
+  return schemaVal ?? fallbackText
 }
 
 /**
  * @param {ComponentDef} component
  * @param {string} propertyName
  * @param {string} fallbackText
- * @returns {string}
+ * @returns { string | number }
  */
 export function getOptionsProperty(component, propertyName, fallbackText) {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-  return (
-    // @ts-expect-error - need to dynamically lookup property
-    ('options' in component ? component.options[propertyName] : undefined) ??
-    fallbackText
-  )
+  const options =
+    /** @type {Record<string, string | number | undefined> | undefined} */ (
+      'options' in component ? component.options : undefined
+    )
+  const optionsVal = options ? options[propertyName] : undefined
+  return optionsVal ?? fallbackText
 }
 
 /**
@@ -50,7 +49,7 @@ export function isTypeForMinMax(type) {
 /**
  * @param {ComponentDef} component
  * @param {string} type
- * @returns {string}
+ * @returns { string | number }
  */
 export function getNumberLimits(component, type) {
   if (type === 'numberMin') {
@@ -71,7 +70,7 @@ export function getNumberLimits(component, type) {
 /**
  * @param {ComponentDef} component
  * @param {string} type
- * @returns {string}
+ * @returns { string | number }
  */
 export function getDateLimits(component, type) {
   if (type === 'dateMin') {
@@ -92,7 +91,7 @@ export function getDateLimits(component, type) {
 /**
  * @param {ComponentDef} component
  * @param {string} type
- * @returns {string}
+ * @returns { string | number }
  */
 export function getFileLimits(component, type) {
   if (type === 'filesMin') {
@@ -114,7 +113,7 @@ export function getFileLimits(component, type) {
  * Determine the limit (if any) relevant to the error type
  * @param {string} type
  * @param {ComponentDef} component
- * @returns { number | string | undefined }
+ * @returns { number | string }
  */
 export function determineLimit(type, component) {
   if (type === 'min' && isTypeForMinMax(component.type)) {
@@ -148,12 +147,12 @@ export function evaluateErrorTemplates(templates, component) {
   return templates.map((templ) => {
     return expandTemplate(templ.template, {
       label:
-        component instanceof FormComponent
-          ? component.label
+        'shortDescription' in component
+          ? component.shortDescription
           : '[short description]',
       title:
-        component instanceof FormComponent
-          ? component.label
+        'shortDescription' in component
+          ? component.shortDescription
           : '[short description]',
       limit: determineLimit(templ.type, component)
     })
