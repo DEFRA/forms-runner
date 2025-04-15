@@ -12,7 +12,7 @@ import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
 
-describe('Plugin', () => {
+describe('Error preview route', () => {
   /** @type {Server} */
   let server
 
@@ -47,17 +47,17 @@ describe('Plugin', () => {
         'govuk-error-summary__title govuk-!-margin-bottom-2'
       )
 
-      expect($links[5].textContent).toBe('Enter [short description]')
+      expect($links[4].textContent).toBe('Enter [short description]')
 
       expect($headings[3].textContent?.trim()).toBe('If you set answer limits')
       expect($headings[3]).toHaveClass(
         'govuk-error-summary__title govuk-!-margin-bottom-2'
       )
 
-      expect($links[6].textContent).toBe(
+      expect($links[5].textContent).toBe(
         '[short description] must be [min length] characters or more'
       )
-      expect($links[7].textContent).toBe(
+      expect($links[6].textContent).toBe(
         '[short description] must be [max length] characters or less'
       )
     })
