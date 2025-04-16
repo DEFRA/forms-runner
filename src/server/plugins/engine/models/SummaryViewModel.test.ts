@@ -54,7 +54,11 @@ describe('SummaryViewModel', () => {
         orderType: 'collection',
         pizza: []
       } satisfies FormState,
-      keys: ['How would you like to receive your pizza?', 'Pizzas'],
+      keys: [
+        'How would you like to receive your pizza?',
+        'Pizzas',
+        'How you would like to receive your pizza'
+      ],
       values: ['Collection', 'Not supplied']
     },
     {
@@ -69,7 +73,11 @@ describe('SummaryViewModel', () => {
           }
         ]
       } satisfies FormState,
-      keys: ['How would you like to receive your pizza?', 'Pizza added'],
+      keys: [
+        'How would you like to receive your pizza?',
+        'Pizza added',
+        'How you would like to receive your pizza'
+      ],
       values: ['Delivery', 'You added 1 Pizza']
     },
     {
@@ -89,7 +97,11 @@ describe('SummaryViewModel', () => {
           }
         ]
       } satisfies FormState,
-      keys: ['How would you like to receive your pizza?', 'Pizzas added'],
+      keys: [
+        'How would you like to receive your pizza?',
+        'Pizzas added',
+        'How you would like to receive your pizza'
+      ],
       values: ['Delivery', 'You added 2 Pizzas']
     }
   ])('Check answers ($description)', ({ state, keys, values }) => {
@@ -121,7 +133,7 @@ describe('SummaryViewModel', () => {
       expect(summaryList1).toHaveProperty('rows', [
         {
           key: {
-            text: keys[0]
+            text: keys[2]
           },
           value: {
             classes: 'app-prose-scope',
@@ -178,7 +190,7 @@ describe('SummaryViewModel', () => {
       expect(summaryList1).toHaveProperty('rows', [
         {
           key: {
-            text: keys[0]
+            text: keys[2]
           },
           value: {
             classes: 'app-prose-scope',
@@ -191,6 +203,49 @@ describe('SummaryViewModel', () => {
       ])
 
       expect(summaryList2).toHaveProperty('rows', [
+        {
+          key: {
+            text: keys[1]
+          },
+          value: {
+            classes: 'app-prose-scope',
+            html: values[1]
+          },
+          actions: {
+            items: []
+          }
+        }
+      ])
+    })
+
+    it('should use correct summary labels', () => {
+      request.query.force = '' // Preview URL '?force'
+      context = model.getFormContext(request, state)
+      summaryViewModel = new SummaryViewModel(request, page, context)
+
+      expect(summaryViewModel.details).toHaveLength(2)
+
+      const [details1, details2] = summaryViewModel.details
+
+      const { items: items1 } = details1
+      const { items: items2 } = details2
+
+      expect(items1).toHaveProperty('rows', [
+        {
+          key: {
+            text: keys[2]
+          },
+          value: {
+            classes: 'app-prose-scope',
+            html: values[0]
+          },
+          actions: {
+            items: []
+          }
+        }
+      ])
+
+      expect(items2).toHaveProperty('rows', [
         {
           key: {
             text: keys[1]

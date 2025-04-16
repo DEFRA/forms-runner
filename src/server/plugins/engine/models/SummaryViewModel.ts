@@ -211,7 +211,7 @@ function ItemField(
   return {
     name: field.name,
     label: field.title,
-    title: field.title,
+    title: field.label,
     error: field.getFirstError(options.errors),
     value: getAnswer(field, state),
     href: getPageHref(page, options.path, {

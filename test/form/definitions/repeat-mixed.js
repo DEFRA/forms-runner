@@ -15,6 +15,7 @@ export default /** @satisfies {FormDefinition} */ ({
         {
           name: 'orderType',
           title: 'How would you like to receive your pizza?',
+          shortDescription: 'How you would like to receive your pizza',
           type: ComponentType.RadiosField,
           list: 'orderTypeOption',
           options: {}
