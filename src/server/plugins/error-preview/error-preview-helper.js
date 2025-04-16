@@ -90,19 +90,14 @@ export function lookupFileTypes(types) {
 
   const totalTypes = documentTypes.concat(imageTypes).concat(tabularDataTypes)
 
-  const lastItem = totalTypes.pop()
-
-  if (!lastItem) {
-    return '[files types you accept]'
+  if (totalTypes.length) {
+    return totalTypes.length > 1
+      ? totalTypes.slice(0, totalTypes.length - 1).join(', ') +
+          ` or ${totalTypes[totalTypes.length - 1]}`
+      : (totalTypes[0] ?? '')
   }
 
-  const penultimate = totalTypes.pop()
-
-  if (!penultimate) {
-    return lastItem
-  }
-
-  return [...totalTypes, `${penultimate} or ${lastItem}`].join(', ')
+  return '[files types you accept]'
 }
 
 /**
