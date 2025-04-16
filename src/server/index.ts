@@ -1,3 +1,4 @@
+import * as dxt from '@defra/forms-engine-plugin'
 import { Engine as CatboxMemory } from '@hapi/catbox-memory'
 import { Engine as CatboxRedis } from '@hapi/catbox-redis'
 import hapi, {
@@ -18,7 +19,6 @@ import { requestTracing } from '~/src/server/common/helpers/logging/request-trac
 import { buildRedisClient } from '~/src/server/common/helpers/redis-client.js'
 import { configureBlankiePlugin } from '~/src/server/plugins/blankie.js'
 import { configureCrumbPlugin } from '~/src/server/plugins/crumb.js'
-import { configureEnginePlugin } from '~/src/server/plugins/engine/index.js'
 import pluginErrorPages from '~/src/server/plugins/errorPages.js'
 import { plugin as pluginViews } from '~/src/server/plugins/nunjucks/index.js'
 import pluginPulse from '~/src/server/plugins/pulse.js'
@@ -84,7 +84,6 @@ export async function createServer(routeConfig?: RouteConfig) {
     prepareSecureContext(server)
   }
 
-  const pluginEngine = await configureEnginePlugin(routeConfig)
   const pluginCrumb = configureCrumbPlugin(routeConfig)
   const pluginBlankie = configureBlankiePlugin()
 
@@ -121,7 +120,15 @@ export async function createServer(routeConfig?: RouteConfig) {
   })
 
   await server.register(pluginViews)
-  await server.register(pluginEngine)
+  await server.register({
+    dxt,
+    options: {
+      cacheName: 'session',
+      viewContext: {
+        baseLayoutPath: 'layout.html'
+      }
+    }
+  })
   await server.register(pluginRouter)
   await server.register(pluginErrorPages)
   await server.register(blipp)

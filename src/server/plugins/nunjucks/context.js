@@ -1,6 +1,10 @@
 import { readFileSync } from 'node:fs'
 import { basename, join } from 'node:path'
 
+import {
+  encodeUrl,
+  safeGenerateCrumb
+} from '@defra/forms-engine-plugin/engine/helpers.js'
 import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
 
@@ -9,10 +13,6 @@ import { parseCookieConsent } from '~/src/common/cookies.js'
 import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
-import {
-  encodeUrl,
-  safeGenerateCrumb
-} from '~/src/server/plugins/engine/helpers.js'
 
 const logger = createLogger()
 

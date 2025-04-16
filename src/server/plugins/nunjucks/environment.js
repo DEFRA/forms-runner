@@ -1,11 +1,11 @@
 import { dirname, join } from 'node:path'
 
+import { evaluateTemplate } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { ComponentType } from '@defra/forms-model'
 import nunjucks from 'nunjucks'
 import resolvePkg from 'resolve'
 
 import { config } from '~/src/config/index.js'
-import { evaluateTemplate } from '~/src/server/plugins/engine/helpers.js'
 import * as filters from '~/src/server/plugins/nunjucks/filters/index.js'
 
 const govukFrontendPath = dirname(
