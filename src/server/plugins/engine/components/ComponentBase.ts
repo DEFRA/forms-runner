@@ -22,6 +22,7 @@ export class ComponentBase {
   type: ComponentDef['type']
   name: ComponentDef['name']
   title: ComponentDef['title']
+  label: string
   schema?: Extract<ComponentDef, { schema: object }>['schema']
   options?: Extract<ComponentDef, { options: object }>['options']
 
@@ -43,6 +44,10 @@ export class ComponentBase {
     this.type = def.type
     this.name = def.name
     this.title = def.title
+    this.label =
+      'shortDescription' in def
+        ? (def.shortDescription ?? def.title)
+        : def.title
 
     if ('schema' in def) {
       this.schema = def.schema
