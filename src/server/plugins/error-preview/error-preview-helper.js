@@ -61,9 +61,9 @@ export function findFileTypeMappings(selectedMimeTypesFromCSV, allTypes) {
   return selectedMimeTypesFromCSV
     .map((currMimeType) => {
       const found = allTypes.find((dt) => dt.mimeType === currMimeType)
-      return found ? found.text : null
+      return found ? found.text : undefined
     })
-    .filter(Boolean)
+    .filter((x) => typeof x === 'string')
 }
 
 /**
@@ -90,14 +90,17 @@ export function lookupFileTypes(types) {
 
   const totalTypes = documentTypes.concat(imageTypes).concat(tabularDataTypes)
 
-  if (totalTypes.length) {
-    return totalTypes.length > 1
-      ? totalTypes.slice(0, totalTypes.length - 1).join(', ') +
-          ` or ${totalTypes[totalTypes.length - 1]}`
-      : (totalTypes[0] ?? '')
-  }
+  const finalList = totalTypes.reduce((acc, el, idx) => {
+    if (idx > 0) {
+      if (idx < totalTypes.length - 1) {
+        return `${acc}, ${el}`
+      }
+      return `${acc} or ${el}`
+    }
+    return el
+  }, '')
 
-  return '[files types you accept]'
+  return finalList.length ? finalList : '[files types you accept]'
 }
 
 /**

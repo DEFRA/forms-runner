@@ -282,6 +282,11 @@ export class FileUploadField extends FormComponent {
           template: 'The selected file must be smaller than 100MB'
         },
         { type: 'filesEmpty', template: 'The selected file is empty' },
+        { type: 'filesVirus', template: 'The selected file contains a virus' },
+        {
+          type: 'filesPartial',
+          template: 'The selected file has not fully uploaded'
+        },
         {
           type: 'filesError',
           template: 'The selected file could not be uploaded – try again'

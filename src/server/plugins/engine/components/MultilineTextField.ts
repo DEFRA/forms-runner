@@ -78,8 +78,10 @@ export class MultilineTextField extends FormComponent {
       typeof schema.min === 'number'
     ) {
       const minMaxErrorText = this.buildMinMaxText(schema.min, schema.max)
-      formSchema = formSchema.min(schema.min).message(minMaxErrorText)
-      formSchema = formSchema.max(schema.max).message(minMaxErrorText)
+      formSchema = formSchema.ruleset
+        .min(schema.min)
+        .max(schema.max)
+        .message(minMaxErrorText)
     }
 
     this.formSchema = formSchema.default('')
