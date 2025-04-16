@@ -22,7 +22,6 @@ export class ComponentBase {
   type: ComponentDef['type']
   name: ComponentDef['name']
   title: ComponentDef['title']
-  label: string
   schema?: Extract<ComponentDef, { schema: object }>['schema']
   options?: Extract<ComponentDef, { options: object }>['options']
 
