@@ -1,3 +1,4 @@
+import * as dxt from '@defra/forms-engine-plugin'
 import { Engine as CatboxMemory } from '@hapi/catbox-memory'
 import { Engine as CatboxRedis } from '@hapi/catbox-redis'
 import hapi, {
@@ -16,9 +17,9 @@ import { config } from '~/src/config/index.js'
 import { requestLogger } from '~/src/server/common/helpers/logging/request-logger.js'
 import { requestTracing } from '~/src/server/common/helpers/logging/request-tracing.js'
 import { buildRedisClient } from '~/src/server/common/helpers/redis-client.js'
+import { FORM_PREFIX } from '~/src/server/constants.js'
 import { configureBlankiePlugin } from '~/src/server/plugins/blankie.js'
 import { configureCrumbPlugin } from '~/src/server/plugins/crumb.js'
-import { configureEnginePlugin } from '~/src/server/plugins/engine/index.js'
 import pluginErrorPages from '~/src/server/plugins/errorPages.js'
 import { plugin as pluginViews } from '~/src/server/plugins/nunjucks/index.js'
 import pluginPulse from '~/src/server/plugins/pulse.js'
@@ -84,7 +85,6 @@ export async function createServer(routeConfig?: RouteConfig) {
     prepareSecureContext(server)
   }
 
-  const pluginEngine = await configureEnginePlugin(routeConfig)
   const pluginCrumb = configureCrumbPlugin(routeConfig)
   const pluginBlankie = configureBlankiePlugin()
 
@@ -97,10 +97,6 @@ export async function createServer(routeConfig?: RouteConfig) {
   await server.register(Schmervice)
 
   server.registerService(CacheService)
-
-  await server.register(...pluginEngine)
-
-  await server.register(pluginRouter)
 
   server.ext('onPreResponse', (request: Request, h: ResponseToolkit) => {
     const { response } = request
@@ -125,6 +121,20 @@ export async function createServer(routeConfig?: RouteConfig) {
   })
 
   await server.register(pluginViews)
+  await server.register(
+    {
+      dxt,
+      options: {
+        cacheName: 'session',
+        viewContext: {
+          baseLayoutPath: 'layout.html'
+        }
+      }
+    },
+    { routes: { prefix: FORM_PREFIX } }
+  )
+
+  await server.register(pluginRouter)
   await server.register(pluginErrorPages)
   await server.register(blipp)
   await server.register(requestTracing)

@@ -1,4 +1,4 @@
-import { getAnswer } from '~/src/server/plugins/engine/components/helpers.js'
+import { getAnswer } from '@defra/forms-engine-plugin/engine/components/helpers.js'
 
 /**
  * Nunjucks filter to get the answer for a component
@@ -23,5 +23,5 @@ export function answer(name) {
 
 /**
  * @import { NunjucksContext } from '~/src/server/plugins/nunjucks/types.js'
- * @import { Field } from '~/src/server/plugins/engine/components/helpers.js'
+ * @import { Field } from '@defra/forms-engine-plugin/engine/components/helpers.js'
  */

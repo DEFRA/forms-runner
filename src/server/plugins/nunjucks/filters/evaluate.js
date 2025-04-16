@@ -1,4 +1,4 @@
-import { evaluateTemplate } from '~/src/server/plugins/engine/helpers.js'
+import { evaluateTemplate } from '@defra/forms-engine-plugin/engine/helpers.js'
 
 /**
  * Nunjucks filter to evaluate a liquid template.
