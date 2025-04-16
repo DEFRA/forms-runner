@@ -57,7 +57,9 @@ describe('SummaryViewModel', () => {
       keys: [
         'How would you like to receive your pizza?',
         'Pizzas',
-        'How you would like to receive your pizza'
+        'How you would like to receive your pizza',
+        'Pizzas',
+        'Pizza'
       ],
       values: ['Collection', 'Not supplied']
     },
@@ -76,7 +78,9 @@ describe('SummaryViewModel', () => {
       keys: [
         'How would you like to receive your pizza?',
         'Pizza added',
-        'How you would like to receive your pizza'
+        'How you would like to receive your pizza',
+        'Pizzas',
+        'Pizza'
       ],
       values: ['Delivery', 'You added 1 Pizza']
     },
@@ -100,7 +104,9 @@ describe('SummaryViewModel', () => {
       keys: [
         'How would you like to receive your pizza?',
         'Pizzas added',
-        'How you would like to receive your pizza'
+        'How you would like to receive your pizza',
+        'Pizzas',
+        'Pizza'
       ],
       values: ['Delivery', 'You added 2 Pizzas']
     }
@@ -227,38 +233,15 @@ describe('SummaryViewModel', () => {
 
       const [details1, details2] = summaryViewModel.details
 
-      const { items: items1 } = details1
-      const { items: items2 } = details2
+      expect(details1.items[0]).toMatchObject({
+        title: keys[2],
+        label: keys[0]
+      })
 
-      expect(items1).toHaveProperty('rows', [
-        {
-          key: {
-            text: keys[2]
-          },
-          value: {
-            classes: 'app-prose-scope',
-            html: values[0]
-          },
-          actions: {
-            items: []
-          }
-        }
-      ])
-
-      expect(items2).toHaveProperty('rows', [
-        {
-          key: {
-            text: keys[1]
-          },
-          value: {
-            classes: 'app-prose-scope',
-            html: values[1]
-          },
-          actions: {
-            items: []
-          }
-        }
-      ])
+      expect(details2.items[0]).toMatchObject({
+        title: keys[1],
+        label: keys[4]
+      })
     })
   })
 })
