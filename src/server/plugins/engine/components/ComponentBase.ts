@@ -44,10 +44,6 @@ export class ComponentBase {
     this.type = def.type
     this.name = def.name
     this.title = def.title
-    this.label =
-      'shortDescription' in def
-        ? (def.shortDescription ?? def.title)
-        : def.title
 
     if ('schema' in def) {
       this.schema = def.schema
