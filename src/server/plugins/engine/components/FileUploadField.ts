@@ -272,7 +272,20 @@ export class FileUploadField extends FormComponent {
   getAllPossibleErrors(): ErrorMessageTemplateList {
     return {
       baseErrors: [
-        { type: 'selectRequired', template: messageTemplate.selectRequired }
+        { type: 'selectRequired', template: messageTemplate.selectRequired },
+        {
+          type: 'filesMimes',
+          template: 'The selected file must be a {{#limit}}'
+        },
+        {
+          type: 'filesSize',
+          template: 'The selected file must be smaller than 100MB'
+        },
+        { type: 'filesEmpty', template: 'The selected file is empty' },
+        {
+          type: 'filesError',
+          template: 'The selected file could not be uploaded – try again'
+        }
       ],
       advancedSettingsErrors: [
         {

@@ -1,4 +1,5 @@
 import {
+  ComponentType,
   type Item,
   type List,
   type ListComponentsDef,
@@ -21,6 +22,7 @@ import {
   type FormSubmissionError,
   type FormSubmissionState
 } from '~/src/server/plugins/engine/types.js'
+import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
 export class ListFormComponent extends FormComponent {
   declare options: Extract<
@@ -78,6 +80,12 @@ export class ListFormComponent extends FormComponent {
 
     if (options.customValidationMessages) {
       formSchema = formSchema.messages(options.customValidationMessages)
+    } else if (def.type === ComponentType.YesNoField) {
+      formSchema = formSchema.messages(
+        convertToLanguageMessages({
+          'any.required': messageTemplate.selectYesNoRequired
+        })
+      )
     }
 
     this.formSchema = formSchema

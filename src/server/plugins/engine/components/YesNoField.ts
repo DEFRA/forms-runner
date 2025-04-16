@@ -37,7 +37,10 @@ export class YesNoField extends SelectionControlField {
   getAllPossibleErrors(): ErrorMessageTemplateList {
     return {
       baseErrors: [
-        { type: 'selectRequired', template: messageTemplate.selectRequired }
+        {
+          type: 'selectYesNoRequired',
+          template: messageTemplate.selectYesNoRequired
+        }
       ],
       advancedSettingsErrors: []
     }

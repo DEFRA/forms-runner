@@ -1,4 +1,10 @@
-import { ComponentType, hasComponents } from '@defra/forms-model'
+import {
+  ComponentType,
+  allDocumentTypes,
+  allImageTypes,
+  allTabularDataTypes,
+  hasComponents
+} from '@defra/forms-model'
 import Boom from '@hapi/boom'
 
 import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
@@ -45,6 +51,53 @@ export function isTypeForMinMax(type) {
     type === ComponentType.MultilineTextField ||
     type === ComponentType.EmailAddressField
   )
+}
+
+/**
+ * @param {string[]} selectedMimeTypesFromCSV
+ * @param {{ value: string; text: string; mimeType: string; }[]} allTypes
+ */
+export function findFileTypeMappings(selectedMimeTypesFromCSV, allTypes) {
+  return selectedMimeTypesFromCSV
+    .map((currMimeType) => {
+      const found = allTypes.find((dt) => dt.mimeType === currMimeType)
+      return found ? found.text : null
+    })
+    .filter(Boolean)
+}
+
+/**
+ * @param {string} types
+ * @returns {string}
+ */
+export function lookupFileTypes(types) {
+  const selectedMimeTypesFromCSV = types ? types.split(',') : []
+
+  const documentTypes = findFileTypeMappings(
+    selectedMimeTypesFromCSV,
+    allDocumentTypes
+  )
+
+  const imageTypes = findFileTypeMappings(
+    selectedMimeTypesFromCSV,
+    allImageTypes
+  )
+
+  const tabularDataTypes = findFileTypeMappings(
+    selectedMimeTypesFromCSV,
+    allTabularDataTypes
+  )
+
+  const totalTypes = documentTypes.concat(imageTypes).concat(tabularDataTypes)
+
+  if (totalTypes.length) {
+    return totalTypes.length > 1
+      ? totalTypes.slice(0, totalTypes.length - 1).join(', ') +
+          ` or ${totalTypes[totalTypes.length - 1]}`
+      : (totalTypes[0] ?? '')
+  }
+
+  return '[files types you accept]'
 }
 
 /**
@@ -105,6 +158,11 @@ export function getFileLimits(component, type) {
 
   if (type === 'filesExact') {
     return getSchemaProperty(component, 'length', '[exact file count]')
+  }
+
+  if (type === 'filesMimes') {
+    const accept = getOptionsProperty(component, 'accept', '')
+    return lookupFileTypes(typeof accept === 'string' ? accept : '')
   }
 
   return '[unknown]'

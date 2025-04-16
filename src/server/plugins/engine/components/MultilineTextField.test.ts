@@ -322,7 +322,57 @@ describe('MultilineTextField', () => {
         ]
       },
       {
-        description: 'Schema min and max',
+        description: 'Schema min',
+        component: {
+          title: 'Example textarea',
+          name: 'myComponent',
+          type: ComponentType.MultilineTextField,
+          options: {},
+          schema: {
+            min: 5
+          }
+        } satisfies MultilineTextFieldComponent,
+        assertions: [
+          {
+            input: getFormData('Text'),
+            output: {
+              value: getFormData('Text'),
+              errors: [
+                expect.objectContaining({
+                  text: 'Example textarea must be 5 characters or more'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Schema max',
+        component: {
+          title: 'Example textarea',
+          name: 'myComponent',
+          type: ComponentType.MultilineTextField,
+          options: {},
+          schema: {
+            max: 8
+          }
+        } satisfies MultilineTextFieldComponent,
+        assertions: [
+          {
+            input: getFormData('Text too long'),
+            output: {
+              value: getFormData('Text too long'),
+              errors: [
+                expect.objectContaining({
+                  text: 'Example textarea must be 8 characters or less'
+                })
+              ]
+            }
+          }
+        ]
+      },
+      {
+        description: 'Schema min and max together',
         component: {
           title: 'Example textarea',
           name: 'myComponent',
@@ -340,7 +390,7 @@ describe('MultilineTextField', () => {
               value: getFormData('Text'),
               errors: [
                 expect.objectContaining({
-                  text: 'Example textarea must be 5 characters or more'
+                  text: 'Example textarea must be between 5 and 8 characters'
                 })
               ]
             }
@@ -351,7 +401,7 @@ describe('MultilineTextField', () => {
               value: getFormData('Textarea too long'),
               errors: [
                 expect.objectContaining({
-                  text: 'Example textarea must be 8 characters or less'
+                  text: 'Example textarea must be between 5 and 8 characters'
                 })
               ]
             }

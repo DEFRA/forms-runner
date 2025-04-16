@@ -138,7 +138,7 @@ describe('Form template journey', () => {
 
     const $errorItems = within($errorSummary).getAllByRole('listitem')
     expect($errorItems[0]).toHaveTextContent(
-      'Select are you in England, Enrique Chase?'
+      'Select yes if are you in England, Enrique Chase? is true'
     )
   })
 
