@@ -4,6 +4,7 @@ import { SelectionControlField } from '~/src/server/plugins/engine/components/Se
 import { addClassOptionIfNone } from '~/src/server/plugins/engine/components/helpers.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import { type ErrorMessageTemplateList } from '~/src/server/plugins/engine/types.js'
+import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
 /**
  * @description
@@ -27,6 +28,12 @@ export class YesNoField extends SelectionControlField {
       formSchema = formSchema.optional()
     }
 
+    formSchema = formSchema.messages(
+      convertToLanguageMessages({
+        'any.required': messageTemplate.selectYesNoRequired
+      })
+    )
+
     this.formSchema = formSchema
     this.options = options
   }
@@ -37,7 +44,10 @@ export class YesNoField extends SelectionControlField {
   getAllPossibleErrors(): ErrorMessageTemplateList {
     return {
       baseErrors: [
-        { type: 'selectRequired', template: messageTemplate.selectRequired }
+        {
+          type: 'selectYesNoRequired',
+          template: messageTemplate.selectYesNoRequired
+        }
       ],
       advancedSettingsErrors: []
     }

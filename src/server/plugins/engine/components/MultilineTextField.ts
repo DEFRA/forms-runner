@@ -73,6 +73,15 @@ export class MultilineTextField extends FormComponent {
       })
     } else if (options.customValidationMessages) {
       formSchema = formSchema.messages(options.customValidationMessages)
+    } else if (
+      typeof schema.max === 'number' &&
+      typeof schema.min === 'number'
+    ) {
+      const minMaxErrorText = this.buildMinMaxText(schema.min, schema.max)
+      formSchema = formSchema.ruleset
+        .min(schema.min)
+        .max(schema.max)
+        .message(minMaxErrorText)
     }
 
     this.formSchema = formSchema.default('')
@@ -108,6 +117,13 @@ export class MultilineTextField extends FormComponent {
     }
   }
 
+  buildMinMaxText(min?: number, max?: number): string {
+    const minMaxError = messageTemplate.minMax as string
+    return minMaxError
+      .replace('{{#min}}', min ? min.toString() : '[min length]')
+      .replace('{{#max}}', max ? max.toString() : '[max length]')
+  }
+
   /**
    * For error preview page that shows all possible errors on a component
    */
@@ -116,7 +132,11 @@ export class MultilineTextField extends FormComponent {
       baseErrors: [{ type: 'required', template: messageTemplate.required }],
       advancedSettingsErrors: [
         { type: 'min', template: messageTemplate.min },
-        { type: 'max', template: messageTemplate.max }
+        { type: 'max', template: messageTemplate.max },
+        {
+          type: 'minMax',
+          template: this.buildMinMaxText(this.schema.min, this.schema.max)
+        }
       ]
     }
   }

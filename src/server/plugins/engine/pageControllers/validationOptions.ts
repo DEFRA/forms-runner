@@ -28,8 +28,10 @@ export const messageTemplate: Record<string, JoiExpression> = {
     'Select {{lowerFirst(#label)}}',
     opts
   ) as JoiExpression,
+  selectYesNoRequired: 'Select yes or no',
   max: '{{#label}} must be {{#limit}} characters or less',
   min: '{{#label}} must be {{#limit}} characters or more',
+  minMax: '{{#label}} must be between {{#min}} and {{#max}} characters',
   pattern: joi.expression(
     'Enter a valid {{lowerFirst(#label)}}',
     opts

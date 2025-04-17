@@ -8,7 +8,8 @@ import {
   expandTemplate,
   getOptionsProperty,
   getSchemaProperty,
-  isTypeForMinMax
+  isTypeForMinMax,
+  lookupFileTypes
 } from '~/src/server/plugins/error-preview/error-preview-helper.js'
 import { componentId, definitionWithComponentId } from '~/test/fixtures/form.js'
 
@@ -328,6 +329,20 @@ describe('Error preview helper', () => {
       expect(res).toBe(2)
     })
 
+    it('should return correct limit for filesMimes', () => {
+      const component = /** @type {ComponentDef} */ ({
+        name: 'abcdef',
+        title: 'Component title',
+        type: ComponentType.FileUploadField,
+        schema: {},
+        options: {
+          accept: 'application/pdf'
+        }
+      })
+      const res = determineLimit('filesMimes', component)
+      expect(res).toBe('PDF')
+    })
+
     it('should return unknown for invalid number type', () => {
       const component = /** @type {ComponentDef} */ ({
         name: 'abcdef',
@@ -459,6 +474,35 @@ describe('Error preview helper', () => {
       expect(res[0]).toBe('Enter [short description]')
       expect(res[1]).toBe('[short description] must be 5 characters or more')
       expect(res[2]).toBe('[short description] must be 30 characters or less')
+    })
+  })
+
+  describe('lookupFileTypes', () => {
+    test('should ignore when not file upload Field', () => {
+      const res = lookupFileTypes('')
+      expect(res).toBe('[files types you accept]')
+    })
+
+    test('should handle doc types', () => {
+      const res = lookupFileTypes(
+        'application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      )
+      expect(res).toBe('DOC or DOCX')
+    })
+
+    test('should handle image types', () => {
+      const res = lookupFileTypes('image/jpeg')
+      expect(res).toBe('JPG')
+    })
+
+    test('should handle tabular data types', () => {
+      const res = lookupFileTypes('text/csv')
+      expect(res).toBe('CSV')
+    })
+
+    test('should handle all types', () => {
+      const res = lookupFileTypes('text/csv,image/jpeg,application/msword')
+      expect(res).toBe('DOC, JPG or CSV')
     })
   })
 })
