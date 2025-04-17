@@ -12,6 +12,8 @@ import Wreck from '@hapi/wreck'
 import blipp from 'blipp'
 import { ProxyAgent } from 'proxy-agent'
 
+import { context } from './plugins/nunjucks/context.js'
+
 import { config } from '~/src/config/index.js'
 import { requestLogger } from '~/src/server/common/helpers/logging/request-logger.js'
 import { requestTracing } from '~/src/server/common/helpers/logging/request-tracing.js'
@@ -19,6 +21,7 @@ import { buildRedisClient } from '~/src/server/common/helpers/redis-client.js'
 import { configureBlankiePlugin } from '~/src/server/plugins/blankie.js'
 import { configureCrumbPlugin } from '~/src/server/plugins/crumb.js'
 import pluginErrorPages from '~/src/server/plugins/errorPages.js'
+import { paths } from '~/src/server/plugins/nunjucks/environment.js'
 import { plugin as pluginViews } from '~/src/server/plugins/nunjucks/index.js'
 import pluginPulse from '~/src/server/plugins/pulse.js'
 import pluginRouter from '~/src/server/plugins/router.js'
@@ -119,9 +122,10 @@ export async function createServer(routeConfig?: RouteConfig) {
     plugin,
     options: {
       cacheName: 'session',
-      viewContext: {
-        baseLayoutPath: 'layout.html'
-      }
+      nunjucks: {
+        paths
+      },
+      viewContext: context
     }
   })
   await server.register(pluginRouter)

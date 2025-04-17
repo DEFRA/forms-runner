@@ -12,10 +12,7 @@ const govukFrontendPath = dirname(
   resolvePkg.sync('govuk-frontend/package.json')
 )
 
-export const paths = [
-  join(config.get('appDir'), 'plugins/engine/views'),
-  join(config.get('appDir'), 'views')
-]
+export const paths = [join(config.get('appDir'), 'views')]
 
 export const environment = nunjucks.configure(
   [...paths, join(govukFrontendPath, 'dist')],
