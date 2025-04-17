@@ -101,11 +101,7 @@ export async function createServer(routeConfig?: RouteConfig) {
 
   server.registerService(CacheService)
 
-  await server.register(pluginEngine, {
-    routes: {
-      prefix: '/form'
-    }
-  })
+  await server.register(pluginEngine)
 
   await server.register(pluginRouter)
 
