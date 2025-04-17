@@ -335,11 +335,24 @@ describe('Helpers', () => {
       })
     })
 
-    it('should throw an error for invalid form state', () => {
-      const path = `${PREVIEW_PATH_PREFIX}/invalid-state`
-      expect(() => checkFormStatus(path)).toThrow(
-        'Invalid form state: invalid-state'
-      )
+    it('should handle deeply nested prefixes (live)', () => {
+      const nestedFormPrefix = '/many/nested/levels/form'
+      const path = `${nestedFormPrefix}${PREVIEW_PATH_PREFIX}/live/some-slug`
+
+      expect(checkFormStatus(path)).toStrictEqual({
+        state: FormStatus.Live,
+        isPreview: true
+      })
+    })
+
+    it('should handle deeply nested prefixes (draft)', () => {
+      const nestedFormPrefix = '/a/b/c/d/form'
+      const path = `${nestedFormPrefix}${PREVIEW_PATH_PREFIX}/draft/another-slug`
+
+      expect(checkFormStatus(path)).toStrictEqual({
+        state: FormStatus.Draft,
+        isPreview: true
+      })
     })
   })
 

@@ -12,7 +12,7 @@ import { type Schema, type ValidationErrorItem } from 'joi'
 import { Liquid } from 'liquidjs'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
-import { FORM_PREFIX, PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
+import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
   getAnswer,
   type Field
@@ -257,40 +257,42 @@ export function checkFormStatus(path: string): {
   isPreview: boolean
   state: FormStatus
 } {
-  let isPreview = false
-  let stateSegmentIndex = -1
+  const previewKeyword = PREVIEW_PATH_PREFIX.startsWith('/')
+    ? PREVIEW_PATH_PREFIX.substring(1)
+    : PREVIEW_PATH_PREFIX
+
   const lowerCasePath = path.toLowerCase()
 
-  if (lowerCasePath.startsWith(FORM_PREFIX + PREVIEW_PATH_PREFIX)) {
-    isPreview = true
-    const prefixSegments = (FORM_PREFIX + PREVIEW_PATH_PREFIX)
-      .split('/')
-      .filter((s) => s !== '')
-    stateSegmentIndex = prefixSegments.length + 1 // empty string
-  } else if (lowerCasePath.startsWith(PREVIEW_PATH_PREFIX)) {
-    isPreview = true
-    stateSegmentIndex = 2 // ['', 'preview', 'STATE']
-  }
+  const pathSegments = lowerCasePath
+    .split('/')
+    .filter((segment) => segment !== '')
 
+  let isPreview = false
   let state: FormStatus | undefined
 
-  if (isPreview && stateSegmentIndex > 0) {
-    const pathSegments = path.split('/')
-    if (pathSegments.length > stateSegmentIndex) {
-      const potentialState = pathSegments[stateSegmentIndex]
-      for (const formState of Object.values(FormStatus)) {
-        if (potentialState === formState.toString()) {
-          state = formState
-          break
-        }
+  const previewSegmentIndex = pathSegments.findIndex(
+    (segment) => segment === previewKeyword
+  )
+
+  // Check if 'preview' was found AND if there's at least one segment *after* it
+  if (
+    previewSegmentIndex !== -1 &&
+    pathSegments.length > previewSegmentIndex + 1
+  ) {
+    const potentialStateSegment = pathSegments[previewSegmentIndex + 1]
+
+    for (const formState of Object.values(FormStatus)) {
+      if (potentialStateSegment === formState.toString()) {
+        state = formState
+        isPreview = true
+        break
       }
-      if (!state) {
-        throw Boom.badRequest(
-          `Invalid form state specified in URL: ${potentialState}`
-        )
-      }
-    } else {
-      throw Boom.badRequest(`Malformed preview URL: ${path}`)
+    }
+
+    if (!isPreview) {
+      logger.warn(
+        `Path segment after '${previewKeyword}' ('${potentialStateSegment}') is not a valid FormStatus in path: ${path}`
+      )
     }
   }
 
