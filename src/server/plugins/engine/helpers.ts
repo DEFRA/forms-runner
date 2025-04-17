@@ -12,7 +12,7 @@ import { type Schema, type ValidationErrorItem } from 'joi'
 import { Liquid } from 'liquidjs'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
-import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
+import { FORM_PREFIX, PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
   getAnswer,
   type Field
@@ -253,22 +253,23 @@ export function getStartPath(model?: FormModel) {
   return startPath ? `/${startPath}` : ControllerPath.Start
 }
 
-export function checkFormStatus(path: string) {
-  const previewPrefix = PREVIEW_PATH_PREFIX
-  const formRoutePrefix = '/form'
-
+export function checkFormStatus(path: string): {
+  isPreview: boolean
+  state: FormStatus
+} {
   let isPreview = false
   let stateSegmentIndex = -1
   const lowerCasePath = path.toLowerCase()
 
-  if (lowerCasePath.startsWith(formRoutePrefix + previewPrefix)) {
+  if (lowerCasePath.startsWith(FORM_PREFIX + PREVIEW_PATH_PREFIX)) {
     isPreview = true
-    // State is after ['', 'form', 'preview', 'STATE']
-    stateSegmentIndex = 3
-  } else if (lowerCasePath.startsWith(previewPrefix)) {
+    const prefixSegments = (FORM_PREFIX + PREVIEW_PATH_PREFIX)
+      .split('/')
+      .filter((s) => s !== '')
+    stateSegmentIndex = prefixSegments.length + 1 // empty string
+  } else if (lowerCasePath.startsWith(PREVIEW_PATH_PREFIX)) {
     isPreview = true
-    // State is after ['', 'preview', 'STATE']
-    stateSegmentIndex = 2
+    stateSegmentIndex = 2 // ['', 'preview', 'STATE']
   }
 
   let state: FormStatus | undefined
@@ -277,27 +278,18 @@ export function checkFormStatus(path: string) {
     const pathSegments = path.split('/')
     if (pathSegments.length > stateSegmentIndex) {
       const potentialState = pathSegments[stateSegmentIndex]
-
       for (const formState of Object.values(FormStatus)) {
         if (potentialState === formState.toString()) {
           state = formState
           break
         }
       }
-
       if (!state) {
-        logger.error(
-          `Invalid form state detected in path '${path}': ${potentialState}`
-        )
-
         throw Boom.badRequest(
           `Invalid form state specified in URL: ${potentialState}`
         )
       }
     } else {
-      logger.error(
-        `Preview path '${path}' is too short to contain state segment at index ${stateSegmentIndex}`
-      )
       throw Boom.badRequest(`Malformed preview URL: ${path}`)
     }
   }

@@ -2,14 +2,13 @@ import { join, parse } from 'node:path'
 
 import { type FormDefinition } from '@defra/forms-model'
 
+import { FORM_PREFIX } from '~/src/server/constants.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   plugin,
   type PluginOptions
 } from '~/src/server/plugins/engine/plugin.js'
 import { type RouteConfig } from '~/src/server/types.js'
-
-const FORM_PREFIX = '/form'
 
 export const configureEnginePlugin = async ({
   formFileName,
