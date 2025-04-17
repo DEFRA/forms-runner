@@ -1,4 +1,4 @@
-import * as dxt from '@defra/forms-engine-plugin'
+import plugin from '@defra/forms-engine-plugin'
 import { Engine as CatboxMemory } from '@hapi/catbox-memory'
 import { Engine as CatboxRedis } from '@hapi/catbox-redis'
 import hapi, {
@@ -9,7 +9,6 @@ import hapi, {
 import inert from '@hapi/inert'
 import Scooter from '@hapi/scooter'
 import Wreck from '@hapi/wreck'
-import Schmervice from '@hapipal/schmervice'
 import blipp from 'blipp'
 import { ProxyAgent } from 'proxy-agent'
 
@@ -26,7 +25,6 @@ import pluginPulse from '~/src/server/plugins/pulse.js'
 import pluginRouter from '~/src/server/plugins/router.js'
 import pluginSession from '~/src/server/plugins/session.js'
 import { prepareSecureContext } from '~/src/server/secure-context.js'
-import { CacheService } from '~/src/server/services/index.js'
 import { type RouteConfig } from '~/src/server/types.js'
 
 const proxyAgent = new ProxyAgent()
@@ -94,9 +92,6 @@ export async function createServer(routeConfig?: RouteConfig) {
   await server.register(Scooter)
   await server.register(pluginBlankie)
   await server.register(pluginCrumb)
-  await server.register(Schmervice)
-
-  server.registerService(CacheService)
 
   server.ext('onPreResponse', (request: Request, h: ResponseToolkit) => {
     const { response } = request
@@ -123,7 +118,7 @@ export async function createServer(routeConfig?: RouteConfig) {
   await server.register(pluginViews)
   await server.register(
     {
-      dxt,
+      plugin,
       options: {
         cacheName: 'session',
         viewContext: {
@@ -131,7 +126,9 @@ export async function createServer(routeConfig?: RouteConfig) {
         }
       }
     },
-    { routes: { prefix: FORM_PREFIX } }
+    {
+      routes: { prefix: FORM_PREFIX }
+    }
   )
 
   await server.register(pluginRouter)
