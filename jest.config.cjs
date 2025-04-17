@@ -9,7 +9,7 @@ module.exports = {
   resetModules: true,
   restoreMocks: true,
   clearMocks: true,
-  silent: true,
+  silent: false,
   testMatch: [
     '<rootDir>/src/**/*.test.{cjs,js,mjs,ts}',
     '<rootDir>/test/**/*.test.{cjs,js,mjs,ts}'
