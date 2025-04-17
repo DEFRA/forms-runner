@@ -1,7 +1,6 @@
 import { join, parse } from 'node:path'
 
 import { type FormDefinition } from '@defra/forms-model'
-import { type ServerRegisterPluginObject } from '@hapi/hapi'
 
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
@@ -17,7 +16,12 @@ export const configureEnginePlugin = async ({
   formFilePath,
   services,
   controllers
-}: RouteConfig = {}): Promise<ServerRegisterPluginObject<PluginOptions>> => {
+}: RouteConfig = {}): Promise<
+  [
+    { plugin: typeof plugin; options: PluginOptions },
+    { routes: { prefix: string } }
+  ]
+> => {
   let model: FormModel | undefined
 
   if (formFileName && formFilePath) {
@@ -34,13 +38,9 @@ export const configureEnginePlugin = async ({
     )
   }
 
-  return {
-    plugin,
-    options: { model, services, controllers },
-    routes: {
-      prefix: FORM_PREFIX
-    }
-  }
+  const pluginObject = { plugin, options: { model, services, controllers } }
+  const routeOptions = { routes: { prefix: FORM_PREFIX } }
+  return [pluginObject, routeOptions]
 }
 
 export async function getForm(importPath: string) {
