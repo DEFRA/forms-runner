@@ -1,3 +1,5 @@
+import { slugSchema } from '@defra/forms-model'
+import Boom from '@hapi/boom'
 import { Engine as CatboxMemory } from '@hapi/catbox-memory'
 import { Engine as CatboxRedis } from '@hapi/catbox-redis'
 import hapi, {
@@ -24,6 +26,7 @@ import { plugin as pluginViews } from '~/src/server/plugins/nunjucks/index.js'
 import pluginPulse from '~/src/server/plugins/pulse.js'
 import pluginRouter from '~/src/server/plugins/router.js'
 import pluginSession from '~/src/server/plugins/session.js'
+import { stateSchema } from '~/src/server/schemas/index.js'
 import { prepareSecureContext } from '~/src/server/secure-context.js'
 import { CacheService } from '~/src/server/services/index.js'
 import { type RouteConfig } from '~/src/server/types.js'
@@ -98,6 +101,14 @@ export async function createServer(routeConfig?: RouteConfig) {
 
   server.registerService(CacheService)
 
+  await server.register(pluginEngine, {
+    routes: {
+      prefix: '/form'
+    }
+  })
+
+  await server.register(pluginRouter)
+
   server.ext('onPreResponse', (request: Request, h: ResponseToolkit) => {
     const { response } = request
 
@@ -121,8 +132,6 @@ export async function createServer(routeConfig?: RouteConfig) {
   })
 
   await server.register(pluginViews)
-  await server.register(pluginEngine)
-  await server.register(pluginRouter)
   await server.register(pluginErrorPages)
   await server.register(blipp)
   await server.register(requestTracing)
@@ -134,6 +143,89 @@ export async function createServer(routeConfig?: RouteConfig) {
     isSecure: config.get('isProduction'),
     path: '/',
     encoding: 'none' // handle this inside the application so we can share frontend/backend cookie modification
+  })
+
+  server.ext('onRequest', (request: Request, h: ResponseToolkit) => {
+    const { method, path } = request
+
+    const prefixesToIgnore = [
+      '/form/',
+      '/assets/',
+      '/help/',
+      '/javascripts/',
+      '/stylesheets/',
+      '/upload-status/',
+      '/health',
+      '/error-preview/'
+    ]
+    if (
+      method !== 'get' ||
+      path === '/' ||
+      prefixesToIgnore.some(
+        (prefixOrPath) => path === prefixOrPath || path.startsWith(prefixOrPath)
+      )
+    ) {
+      return h.continue
+    }
+
+    const previewRegex = /^\/preview\/([a-zA-Z0-9-]+)\/([a-zA-Z0-9-]+)/
+    const slugPathRegex = /^\/([a-zA-Z0-9-]+)\/(.+)/
+    const slugOnlyRegex = /^\/([a-zA-Z0-9-]+)$/
+
+    // /preview/{state}/{slug}
+    const previewParts = previewRegex.exec(path)
+    if (previewParts) {
+      const [, potentialState, potentialSlug] = previewParts
+      const { error: stateError } = stateSchema.validate(potentialState)
+      const { error: slugError } = slugSchema.validate(potentialSlug)
+      if (!stateError && !slugError) {
+        const targetUrl = `/form${path}`
+        server.logger.info(
+          `onRequest: Redirecting legacy preview path ${path} -> ${targetUrl}`
+        )
+        return h.redirect(targetUrl).permanent().takeover()
+      } else {
+        server.logger.warn(
+          `onRequest: Invalid format for preview path start: ${path}. Responding 404.`
+        )
+        throw Boom.notFound(`Invalid preview path format: ${path}`)
+      }
+    }
+
+    // /{slug}/
+    const slugPathParts = slugPathRegex.exec(path)
+    if (slugPathParts) {
+      const [, potentialSlug] = slugPathParts
+      const { error } = slugSchema.validate(potentialSlug)
+      if (!error) {
+        const targetUrl = `/form${path}`
+        server.logger.info(
+          `onRequest: Redirecting legacy slug path ${path} -> ${targetUrl}`
+        )
+        return h.redirect(targetUrl).permanent().takeover()
+      }
+    }
+
+    // /{slug}
+    const slugOnlyMatch = slugOnlyRegex.exec(path)
+    if (slugOnlyMatch) {
+      const potentialSlug = slugOnlyMatch[1]
+      const { error } = slugSchema.validate(potentialSlug)
+      if (!error) {
+        const targetUrl = `/form/${potentialSlug}`
+        server.logger.info(
+          `onRequest: Redirecting legacy root slug ${path} -> ${targetUrl}`
+        )
+        return h.redirect(targetUrl).permanent().takeover()
+      } else {
+        server.logger.warn(
+          `onRequest: Path ${path} matched /slug pattern but failed slug validation. Responding 404.`
+        )
+        throw Boom.notFound(`Invalid slug format: ${path}`)
+      }
+    }
+
+    return h.continue
   })
 
   return server

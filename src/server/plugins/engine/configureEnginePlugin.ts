@@ -10,6 +10,8 @@ import {
 } from '~/src/server/plugins/engine/plugin.js'
 import { type RouteConfig } from '~/src/server/types.js'
 
+const FORM_PREFIX = 'form'
+
 export const configureEnginePlugin = async ({
   formFileName,
   formFilePath,
@@ -22,7 +24,14 @@ export const configureEnginePlugin = async ({
     const definition = await getForm(join(formFilePath, formFileName))
     const { name } = parse(formFileName)
 
-    model = new FormModel(definition, { basePath: name }, services, controllers)
+    const initialBasePath = `${FORM_PREFIX}/${name}`
+
+    model = new FormModel(
+      definition,
+      { basePath: initialBasePath },
+      services,
+      controllers
+    )
   }
 
   return {

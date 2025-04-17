@@ -135,12 +135,22 @@ export class PageController {
     return def.phaseBanner?.phase
   }
 
-  getHref(path: string) {
-    const { model } = this
+  getHref(path: string): string {
+    const basePath = this.model.basePath
 
-    return path === '/'
-      ? `/${model.basePath}` // Strip trailing slash
-      : `/${model.basePath}${path}`
+    if (path === '/') {
+      return `/${basePath}`
+    }
+
+    // if ever the path is not prefixed with a slash, add it
+    const relativeTargetPath = path.startsWith('/') ? path.substring(1) : path
+    let finalPath = `/${basePath}`
+    if (relativeTargetPath) {
+      finalPath += `/${relativeTargetPath}`
+    }
+    finalPath = finalPath.replace(/\/{2,}/g, '/')
+
+    return finalPath
   }
 
   getStartPath() {

@@ -254,22 +254,51 @@ export function getStartPath(model?: FormModel) {
 }
 
 export function checkFormStatus(path: string) {
-  const isPreview = path.toLowerCase().startsWith(PREVIEW_PATH_PREFIX)
+  const previewPrefix = PREVIEW_PATH_PREFIX
+  const formRoutePrefix = '/form'
+
+  let isPreview = false
+  let stateSegmentIndex = -1
+  const lowerCasePath = path.toLowerCase()
+
+  if (lowerCasePath.startsWith(formRoutePrefix + previewPrefix)) {
+    isPreview = true
+    // State is after ['', 'form', 'preview', 'STATE']
+    stateSegmentIndex = 3
+  } else if (lowerCasePath.startsWith(previewPrefix)) {
+    isPreview = true
+    // State is after ['', 'preview', 'STATE']
+    stateSegmentIndex = 2
+  }
 
   let state: FormStatus | undefined
 
-  if (isPreview) {
-    const previewState = path.split('/')[2]
+  if (isPreview && stateSegmentIndex > 0) {
+    const pathSegments = path.split('/')
+    if (pathSegments.length > stateSegmentIndex) {
+      const potentialState = pathSegments[stateSegmentIndex]
 
-    for (const formState of Object.values(FormStatus)) {
-      if (previewState === formState.toString()) {
-        state = formState
-        break
+      for (const formState of Object.values(FormStatus)) {
+        if (potentialState === formState.toString()) {
+          state = formState
+          break
+        }
       }
-    }
 
-    if (!state) {
-      throw new Error(`Invalid form state: ${previewState}`)
+      if (!state) {
+        logger.error(
+          `Invalid form state detected in path '${path}': ${potentialState}`
+        )
+
+        throw Boom.badRequest(
+          `Invalid form state specified in URL: ${potentialState}`
+        )
+      }
+    } else {
+      logger.error(
+        `Preview path '${path}' is too short to contain state segment at index ${stateSegmentIndex}`
+      )
+      throw Boom.badRequest(`Malformed preview URL: ${path}`)
     }
   }
 
@@ -337,7 +366,7 @@ export function safeGenerateCrumb(
     return undefined
   }
 
-  // crumb plugin or its generate method doesn’t exist
+  // crumb plugin or its generate method doesn't exist
   if (!request.server.plugins.crumb.generate) {
     return undefined
   }

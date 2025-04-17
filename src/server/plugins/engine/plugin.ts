@@ -130,8 +130,8 @@ export const plugin = {
 
         // Set up the basePath for the model
         const basePath = isPreview
-          ? `${PREVIEW_PATH_PREFIX.substring(1)}/${formState}/${slug}`
-          : slug
+          ? `form/${PREVIEW_PATH_PREFIX.substring(1)}/${formState}/${slug}`
+          : `form/${slug}`
 
         // Construct the form model
         const model = new FormModel(

@@ -1,6 +1,11 @@
 import { slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import { type ServerRegisterPluginObject } from '@hapi/hapi'
+import {
+  type Request,
+  type ResponseToolkit,
+  type ServerRegisterPluginObject,
+  type ServerRoute
+} from '@hapi/hapi'
 import humanizeDuration from 'humanize-duration'
 import Joi from 'joi'
 
@@ -22,7 +27,56 @@ import {
   stateSchema
 } from '~/src/server/schemas/index.js'
 
-const routes = [...publicRoutes, healthRoute]
+const uploadStatusProxyHandler = async (
+  request: Request,
+  h: ResponseToolkit
+) => {
+  const { uploadId } = request.params as { uploadId: string }
+  const targetUrl = `/form/upload-status/${uploadId}`
+
+  request.logger.info(
+    `Proxying upload status request for ${uploadId} to ${targetUrl}`
+  )
+
+  try {
+    const res = await request.server.inject({
+      method: 'GET',
+      url: targetUrl
+    })
+
+    return h.response(res.result).code(res.statusCode)
+  } catch (err: unknown) {
+    request.logger.error(
+      { err },
+      `Error proxying upload status request for ${uploadId} to ${targetUrl}`
+    )
+    return Boom.badGateway('Failed to retrieve upload status')
+  }
+}
+
+const uploadStatusProxyRoute: ServerRoute = {
+  method: 'GET',
+  path: '/upload-status/{uploadId}',
+  options: {
+    validate: {
+      params: Joi.object({
+        uploadId: Joi.string().guid().required()
+      })
+    },
+    plugins: {
+      crumb: false
+    },
+    description: 'Proxy route for file upload status checks',
+    tags: ['api', 'proxy']
+  },
+  handler: uploadStatusProxyHandler
+}
+
+const routes: ServerRoute[] = [
+  ...publicRoutes,
+  healthRoute,
+  uploadStatusProxyRoute
+]
 
 export default {
   plugin: {
