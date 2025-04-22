@@ -213,11 +213,6 @@ export async function createServer(routeConfig?: RouteConfig) {
           `onRequest: Redirecting legacy root slug ${path} -> ${targetUrl}`
         )
         return h.redirect(targetUrl).permanent().takeover()
-      } else {
-        server.logger.warn(
-          `onRequest: Path ${path} matched /slug pattern but failed slug validation. Responding 404.`
-        )
-        throw Boom.notFound(`Invalid slug format: ${path}`)
       }
     }
 
