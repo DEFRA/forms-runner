@@ -182,7 +182,7 @@ export async function createServer(routeConfig?: RouteConfig) {
         return h.redirect(targetUrl).permanent().takeover()
       } else {
         server.logger.warn(
-          `onRequest: Invalid format for preview path start: ${path}. Responding 404.`
+          `onRequest: Invalid format for preview path start: ${path}.`
         )
         throw Boom.notFound(`Invalid preview path format: ${path}`)
       }

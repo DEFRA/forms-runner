@@ -1,3 +1,4 @@
+import Boom from '@hapi/boom'
 import { type Server } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 
@@ -615,6 +616,26 @@ describe('onRequest Hook Redirects', () => {
       })
       expect(res.statusCode).toBe(StatusCodes.MOVED_PERMANENTLY)
       expect(res.headers.location).toBe('/form/preview/draft/another-slug')
+    })
+
+    test('should return 404, log warning, and throw specific Boom error internally for /preview/{invalid-state}/{slug}', async () => {
+      const invalidPath = '/preview/invalid/my-slug'
+      const expectedLogMessage = `onRequest: Invalid format for preview path start: ${invalidPath}.`
+      const expectedBoomMessage = `Invalid preview path format: ${invalidPath}`
+
+      const loggerWarnSpy = jest.spyOn(server.logger, 'warn')
+      const boomNotFoundSpy = jest.spyOn(Boom, 'notFound')
+
+      const res = await server.inject({ method: 'GET', url: invalidPath })
+
+      expect(res.statusCode).toBe(StatusCodes.NOT_FOUND)
+      expect(loggerWarnSpy).toHaveBeenCalledTimes(1)
+      expect(loggerWarnSpy).toHaveBeenCalledWith(expectedLogMessage)
+      expect(boomNotFoundSpy).toHaveBeenCalledTimes(1)
+      expect(boomNotFoundSpy).toHaveBeenCalledWith(expectedBoomMessage)
+
+      loggerWarnSpy.mockRestore()
+      boomNotFoundSpy.mockRestore()
     })
   })
 
