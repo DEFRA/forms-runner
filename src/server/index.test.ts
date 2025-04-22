@@ -580,3 +580,95 @@ describe('Upload status route', () => {
     expect(res.statusCode).toBe(StatusCodes.BAD_REQUEST)
   })
 })
+
+describe('onRequest Hook Redirects', () => {
+  let server: Server
+
+  beforeAll(async () => {
+    server = await createServer()
+    await server.initialize()
+  })
+
+  afterAll(async () => {
+    await server.stop()
+  })
+
+  beforeEach(() => {
+    jest.resetAllMocks()
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+  })
+
+  describe('Legacy /preview/{state}/{slug} redirects', () => {
+    test('should redirect valid /preview/live/{slug} to /form/preview/live/{slug}', async () => {
+      const res = await server.inject({
+        method: 'GET',
+        url: '/preview/live/my-valid-slug'
+      })
+      expect(res.statusCode).toBe(StatusCodes.MOVED_PERMANENTLY)
+      expect(res.headers.location).toBe('/form/preview/live/my-valid-slug')
+    })
+
+    test('should redirect valid /preview/draft/{slug} to /form/preview/draft/{slug}', async () => {
+      const res = await server.inject({
+        method: 'GET',
+        url: '/preview/draft/another-slug'
+      })
+      expect(res.statusCode).toBe(StatusCodes.MOVED_PERMANENTLY)
+      expect(res.headers.location).toBe('/form/preview/draft/another-slug')
+    })
+  })
+
+  describe('Legacy /{slug}/{path...} redirects', () => {
+    test('should redirect valid /{slug}/{page} to /form/{slug}/{page}', async () => {
+      const res = await server.inject({
+        method: 'GET',
+        url: '/my-slug/page-one'
+      })
+      expect(res.statusCode).toBe(StatusCodes.MOVED_PERMANENTLY)
+      expect(res.headers.location).toBe('/form/my-slug/page-one')
+    })
+
+    test('should redirect valid /{slug}/{deep/path} to /form/{slug}/{deep/path}', async () => {
+      const res = await server.inject({
+        method: 'GET',
+        url: '/another-slug/deep/nested/path'
+      })
+      expect(res.statusCode).toBe(StatusCodes.MOVED_PERMANENTLY)
+      expect(res.headers.location).toBe('/form/another-slug/deep/nested/path')
+    })
+  })
+
+  describe('Legacy /{slug} redirects', () => {
+    test('should redirect valid /{slug} to /form/{slug}', async () => {
+      const res = await server.inject({ method: 'GET', url: '/my-slug' })
+      expect(res.statusCode).toBe(StatusCodes.MOVED_PERMANENTLY)
+      expect(res.headers.location).toBe('/form/my-slug')
+    })
+
+    test('should return 404 for /{invalid-slug}', async () => {
+      const res = await server.inject({ method: 'GET', url: '/invalid_slug!' })
+      expect(res.statusCode).toBe(StatusCodes.NOT_FOUND)
+    })
+  })
+
+  test('should continue processing for non-legacy, non-prefixed paths and add the prefix', async () => {
+    const res = await server.inject({ method: 'GET', url: '/some/other/path' })
+    expect(res.statusCode).toBe(StatusCodes.MOVED_PERMANENTLY)
+  })
+
+  test('should continue processing for paths not matching legacy redirect patterns', async () => {
+    const pathsToTest = [
+      '/',
+      '/form/some-slug/some-page',
+      '/help/cookies/some-slug',
+      '/health',
+      '/assets/govuk.css'
+    ]
+
+    for (const testPath of pathsToTest) {
+      const res = await server.inject({ method: 'GET', url: testPath })
+
+      expect(res.statusCode).not.toBe(StatusCodes.MOVED_PERMANENTLY)
+    }
+  })
+})
