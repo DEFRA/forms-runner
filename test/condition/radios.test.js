@@ -7,7 +7,7 @@ import { getFormMetadata } from '~/src/server/plugins/engine/services/formsServi
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
-const basePath = '/radios'
+const basePath = '/form/radios'
 const key = 'wqJmSf'
 
 jest.mock('~/src/server/plugins/engine/services/formsService.js')

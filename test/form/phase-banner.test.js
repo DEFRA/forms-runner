@@ -22,7 +22,7 @@ describe(`Phase banner`, () => {
   })
 
   test('shows the server phase tag by default', async () => {
-    const basePath = '/phase-default'
+    const basePath = '/form/phase-default'
 
     server = await createServer({
       formFileName: 'phase-default.json',
@@ -44,7 +44,7 @@ describe(`Phase banner`, () => {
   })
 
   test('shows the form phase tag if provided', async () => {
-    const basePath = '/phase-alpha'
+    const basePath = '/form/phase-alpha'
 
     server = await createServer({
       formFileName: 'phase-alpha.json',

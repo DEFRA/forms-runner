@@ -7,7 +7,7 @@ import { getFormMetadata } from '~/src/server/plugins/engine/services/formsServi
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
-const basePath = '/checkboxes'
+const basePath = '/form/checkboxes'
 const key = 'wqJmSf'
 
 jest.mock('~/src/server/plugins/engine/services/formsService.js')

@@ -10,6 +10,8 @@ describe('PageController', () => {
   let controller1: PageController
   let controller2: PageController
 
+  const testBasePath = 'form/test'
+
   beforeEach(() => {
     const { pages } = definition
 
@@ -17,7 +19,7 @@ describe('PageController', () => {
     const page2 = pages[1]
 
     model = new FormModel(definition, {
-      basePath: 'test'
+      basePath: testBasePath
     })
 
     controller1 = new PageController(model, page1)
@@ -31,8 +33,8 @@ describe('PageController', () => {
     })
 
     it('returns href', () => {
-      expect(controller1).toHaveProperty('href', '/test/licence')
-      expect(controller2).toHaveProperty('href', '/test/full-name')
+      expect(controller1).toHaveProperty('href', `/${testBasePath}/licence`)
+      expect(controller2).toHaveProperty('href', `/${testBasePath}/full-name`)
     })
 
     it('returns keys (empty)', () => {
@@ -102,8 +104,8 @@ describe('PageController', () => {
         const href1 = controller1.getHref('/')
         const href2 = controller1.getHref('/page-one')
 
-        expect(href1).toBe('/test')
-        expect(href2).toBe('/test/page-one')
+        expect(href1).toBe(`/${testBasePath}`)
+        expect(href2).toBe(`/${testBasePath}/page-one`)
       })
     })
 

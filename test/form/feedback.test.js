@@ -6,7 +6,7 @@ import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 const { FEEDBACK_LINK } = process.env
-const basePath = '/feedback'
+const basePath = '/form/feedback'
 
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
 

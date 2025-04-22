@@ -18,7 +18,7 @@ jest.mock('~/src/server/utils/notify.ts')
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
 jest.mock('~/src/server/plugins/engine/services/formSubmissionService.js')
 
-const basePath = '/repeat'
+const basePath = '/form/repeat'
 
 /**
  * POST a new repeat item
@@ -117,7 +117,9 @@ describe('Repeat GET tests', () => {
     })
 
     expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-    expect(res.headers.location).toMatch(/^\/repeat\/pizza-order\/[0-9a-f-]+$/)
+    expect(res.headers.location).toMatch(
+      /^\/form\/repeat\/pizza-order\/[0-9a-f-]+$/
+    )
   })
 
   test('GET /pizza-order with 1 item returns 302 to repeater summary', async () => {
@@ -167,7 +169,9 @@ describe('Repeat GET tests', () => {
     })
 
     expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-    expect(res.headers.location).toMatch(/^\/repeat\/pizza-order\/[0-9a-f-]+$/)
+    expect(res.headers.location).toMatch(
+      /^\/form\/repeat\/pizza-order\/[0-9a-f-]+$/
+    )
   })
 
   test('GET /pizza-order/{id} returns 200', async () => {
@@ -393,7 +397,9 @@ describe('Repeat POST tests', () => {
     })
 
     expect(res.statusCode).toBe(StatusCodes.SEE_OTHER)
-    expect(res.headers.location).toMatch(/^\/repeat\/pizza-order\/summary?/)
+    expect(res.headers.location).toMatch(
+      /^\/form\/repeat\/pizza-order\/summary$/
+    )
   })
 
   test('POST /pizza-order/{id}/confirm-delete with 1 item returns 404', async () => {
@@ -425,7 +431,9 @@ describe('Repeat POST tests', () => {
     })
 
     expect(res.statusCode).toBe(StatusCodes.SEE_OTHER)
-    expect(res.headers.location).toMatch(/^\/repeat\/pizza-order\/summary/)
+    expect(res.headers.location).toMatch(
+      /^\/form\/repeat\/pizza-order\/summary$/
+    )
   })
 
   test('POST /pizza-order/summary ADD_ANOTHER returns 303', async () => {

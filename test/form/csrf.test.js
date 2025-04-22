@@ -8,7 +8,7 @@ import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookie } from '~/test/utils/get-cookie.js'
 
-const basePath = '/basic'
+const basePath = '/form/basic'
 
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
 

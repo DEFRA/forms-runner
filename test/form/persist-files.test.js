@@ -15,7 +15,7 @@ import { CacheService } from '~/src/server/services/cacheService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
-const basePath = '/file-upload-basic'
+const basePath = '/form/file-upload-basic'
 
 jest.mock('~/src/server/utils/notify.ts')
 jest.mock('~/src/server/plugins/engine/services/formsService.js')

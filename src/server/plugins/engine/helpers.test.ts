@@ -336,7 +336,7 @@ describe('Helpers', () => {
     })
 
     it('should handle deeply nested prefixes (live)', () => {
-      const nestedFormPrefix = '/many/nested/levels/form'
+      const nestedFormPrefix = '/draft/many/nested/levels/form'
       const path = `${nestedFormPrefix}${PREVIEW_PATH_PREFIX}/live/some-slug`
 
       expect(checkFormStatus(path)).toStrictEqual({

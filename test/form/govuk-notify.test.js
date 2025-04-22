@@ -19,7 +19,7 @@ import { sendNotification } from '~/src/server/utils/notify.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
-const basePath = '/components'
+const basePath = '/form/components'
 
 jest.mock('~/src/server/utils/notify.ts')
 jest.mock('~/src/server/plugins/engine/services/uploadService.js')

@@ -24,8 +24,8 @@ describe(`Cookie banner and analytics`, () => {
   })
 
   test.each([
-    '/basic/licence', // form pages
-    '/help/accessibility-statement/basic' // non-form pages
+    '/form/basic/licence', // Form pages HAVE the prefix
+    '/help/accessibility-statement/basic' // Help pages DO NOT have the prefix
   ])('shows the cookie banner by default', async (path) => {
     server = await createServer({
       formFileName: 'basic.js',
@@ -53,10 +53,8 @@ describe(`Cookie banner and analytics`, () => {
   })
 
   test.each([
-    // form pages
-    '/basic/licence',
-    // non-form pages
-    '/help/accessibility-statement/basic'
+    '/form/basic/licence', // Form pages HAVE the prefix
+    '/help/accessibility-statement/basic' // Help pages DO NOT have the prefix
   ])('confirms when the user has accepted analytics cookies', async (path) => {
     server = await createServer({
       formFileName: 'basic.js',
@@ -106,7 +104,7 @@ describe(`Cookie banner and analytics`, () => {
 
   test.each([
     // form pages
-    '/basic/licence',
+    '/form/basic/licence',
     // non-form pages
     '/help/accessibility-statement/basic'
   ])('confirms when the user has rejected analytics cookies', async (path) => {
@@ -159,7 +157,7 @@ describe(`Cookie banner and analytics`, () => {
 
   test.each([
     // form pages
-    '/basic/start',
+    '/form/basic/start',
     // non-form pages
     '/'
   ])('hides the cookie banner once dismissed', async (path) => {
