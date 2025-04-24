@@ -12,7 +12,6 @@ import { type Schema, type ValidationErrorItem } from 'joi'
 import { Liquid } from 'liquidjs'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
-import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
   getAnswer,
   type Field
@@ -27,6 +26,7 @@ import {
 import {
   FormAction,
   FormStatus,
+  type FormParams,
   type FormQuery,
   type FormRequest,
   type FormRequestPayload
@@ -253,52 +253,18 @@ export function getStartPath(model?: FormModel) {
   return startPath ? `/${startPath}` : ControllerPath.Start
 }
 
-export function checkFormStatus(path: string): {
-  isPreview: boolean
-  state: FormStatus
-} {
-  const previewKeyword = PREVIEW_PATH_PREFIX.startsWith('/')
-    ? PREVIEW_PATH_PREFIX.substring(1)
-    : PREVIEW_PATH_PREFIX
+export function checkFormStatus(params: FormParams) {
+  const isPreview = !!params.state
 
-  const lowerCasePath = path.toLowerCase()
+  let state = FormStatus.Live
 
-  const pathSegments = lowerCasePath
-    .split('/')
-    .filter((segment) => segment !== '')
-
-  let isPreview = false
-  let state: FormStatus | undefined
-
-  const previewSegmentIndex = pathSegments.findIndex(
-    (segment) => segment === previewKeyword
-  )
-
-  // Check if 'preview' was found AND if there's at least one segment *after* it
-  if (
-    previewSegmentIndex !== -1 &&
-    pathSegments.length > previewSegmentIndex + 1
-  ) {
-    const potentialStateSegment = pathSegments[previewSegmentIndex + 1]
-
-    for (const formState of Object.values(FormStatus)) {
-      if (potentialStateSegment === formState.toString()) {
-        state = formState
-        isPreview = true
-        break
-      }
-    }
-
-    if (!isPreview) {
-      logger.warn(
-        `Path segment after '${previewKeyword}' ('${potentialStateSegment}') is not a valid FormStatus in path: ${path}`
-      )
-    }
+  if (isPreview && params.state === FormStatus.Draft) {
+    state = FormStatus.Draft
   }
 
   return {
     isPreview,
-    state: state ?? FormStatus.Live
+    state
   }
 }
 
@@ -385,6 +351,7 @@ export function getExponentialBackoffDelay(depth: number): number {
   const delay = BASE_DELAY_MS * 2 ** (depth - 1)
   return Math.min(delay, CAP_DELAY_MS)
 }
+
 export function evaluateTemplate(
   template: string,
   context: FormContext

@@ -19,8 +19,7 @@ export async function submit(
   submitResponse: SubmitResponsePayload
 ) {
   const logTags = ['submit', 'email']
-  const { path } = request
-  const formStatus = checkFormStatus(path)
+  const formStatus = checkFormStatus(request.params)
 
   // Get submission email personalisation
   request.logger.info(logTags, 'Getting personalisation data')
