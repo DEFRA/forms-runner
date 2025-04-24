@@ -82,9 +82,9 @@ export const plugin = {
         return h.continue
       }
 
-      const { params, path } = request
+      const { params } = request
       const { slug } = params
-      const { isPreview, state: formState } = checkFormStatus(path)
+      const { isPreview, state: formState } = checkFormStatus(params)
 
       // Get the form metadata using the `slug` param
       const metadata = await formsService.getFormMetadata(slug)

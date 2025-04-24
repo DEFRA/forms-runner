@@ -111,7 +111,7 @@ export class SummaryPageController extends QuestionPageController {
 
       // Get the form metadata using the `slug` param
       const { notificationEmail } = await getFormMetadata(params.slug)
-      const { isPreview } = checkFormStatus(request.path)
+      const { isPreview } = checkFormStatus(request.params)
       const emailAddress = notificationEmail ?? this.model.def.outputEmail
 
       checkEmailAddressForLiveFormSubmission(emailAddress, isPreview)
@@ -153,8 +153,7 @@ async function submitForm(
 ) {
   await extendFileRetention(model, state, emailAddress)
 
-  const { path } = request
-  const formStatus = checkFormStatus(path)
+  const formStatus = checkFormStatus(request.params)
   const logTags = ['submit', 'submissionApi']
 
   request.logger.info(logTags, 'Preparing email', formStatus)

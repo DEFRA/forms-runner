@@ -3,7 +3,6 @@ import { type ResponseObject, type ResponseToolkit } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 import { ValidationError } from 'joi'
 
-import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
@@ -311,47 +310,41 @@ describe('Helpers', () => {
   })
 
   describe('checkFormStatus', () => {
-    it('should return true/live for paths starting with PREVIEW_PATH_PREFIX and form is live', () => {
-      const path = `${PREVIEW_PATH_PREFIX}/live/another/segment`
-      expect(checkFormStatus(path)).toStrictEqual({
+    it('should return true/live for params that include live state segment', () => {
+      expect(
+        checkFormStatus({
+          state: FormStatus.Live,
+          slug: 'another',
+          path: 'segment'
+        })
+      ).toStrictEqual({
         state: FormStatus.Live,
         isPreview: true
       })
     })
 
-    it('should return false for paths not starting with PREVIEW_PATH_PREFIX', () => {
-      const path = '/some/other/path'
-      expect(checkFormStatus(path)).toStrictEqual({
+    it('should return true/draft for params that include draft state segment', () => {
+      expect(
+        checkFormStatus({
+          state: FormStatus.Draft,
+          slug: 'another',
+          path: 'segment'
+        })
+      ).toStrictEqual({
+        state: FormStatus.Draft,
+        isPreview: true
+      })
+    })
+
+    it('should return false/live for paths without a state segment', () => {
+      expect(
+        checkFormStatus({
+          slug: 'some',
+          path: 'other'
+        })
+      ).toStrictEqual({
         state: FormStatus.Live,
         isPreview: false
-      })
-    })
-
-    it('should be case insensitive and return draft when form is draft', () => {
-      const path = `${PREVIEW_PATH_PREFIX.toUpperCase()}/draft/path`
-      expect(checkFormStatus(path)).toStrictEqual({
-        state: FormStatus.Draft,
-        isPreview: true
-      })
-    })
-
-    it('should handle deeply nested prefixes (live)', () => {
-      const nestedFormPrefix = '/draft/many/nested/levels/form'
-      const path = `${nestedFormPrefix}${PREVIEW_PATH_PREFIX}/live/some-slug`
-
-      expect(checkFormStatus(path)).toStrictEqual({
-        state: FormStatus.Live,
-        isPreview: true
-      })
-    })
-
-    it('should handle deeply nested prefixes (draft)', () => {
-      const nestedFormPrefix = '/a/b/c/d/form'
-      const path = `${nestedFormPrefix}${PREVIEW_PATH_PREFIX}/draft/another-slug`
-
-      expect(checkFormStatus(path)).toStrictEqual({
-        state: FormStatus.Draft,
-        isPreview: true
       })
     })
   })
