@@ -1,5 +1,4 @@
 import { handleLegacyRedirect, isPathRelative } from '@defra/forms-engine-plugin/engine/helpers.js'
-import { getFormMetadata } from '@defra/forms-engine-plugin/engine/services/formsService.js'
 import { slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
@@ -27,6 +26,7 @@ import {
   pathSchema,
   stateSchema
 } from '~/src/server/schemas/index.js'
+import { getFormMetadata } from '~/src/server/services/formsService.js'
 
 const routes: ServerRoute[] = [...publicRoutes, healthRoute]
 
