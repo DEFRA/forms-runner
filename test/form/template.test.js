@@ -137,7 +137,9 @@ describe('Form template journey', () => {
     expect($heading).toBeInTheDocument()
 
     const $errorItems = within($errorSummary).getAllByRole('listitem')
-    expect($errorItems[0]).toHaveTextContent('Select yes or no')
+    expect($errorItems[0]).toHaveTextContent(
+      'Are you in England, Enrique Chase? - select yes or no'
+    )
   })
 
   test('POST /are-you-in-england', async () => {

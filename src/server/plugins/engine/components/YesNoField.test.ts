@@ -121,7 +121,7 @@ describe('YesNoField', () => {
 
       expect(result.errors).toEqual([
         expect.objectContaining({
-          text: 'Select yes or no'
+          text: 'Example yes/no - select yes or no'
         })
       ])
     })
