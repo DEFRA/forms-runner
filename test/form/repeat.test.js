@@ -5,6 +5,7 @@ import { hasRepeater } from '@defra/forms-model'
 import { within } from '@testing-library/dom'
 import { StatusCodes } from 'http-status-codes'
 
+import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import { isRepeatState } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { submit } from '~/src/server/plugins/engine/services/formSubmissionService.js'
@@ -18,7 +19,7 @@ jest.mock('~/src/server/utils/notify.ts')
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
 jest.mock('~/src/server/plugins/engine/services/formSubmissionService.js')
 
-const basePath = '/form/repeat'
+const basePath = `${FORM_PREFIX}/repeat`
 
 /**
  * POST a new repeat item
@@ -170,7 +171,7 @@ describe('Repeat GET tests', () => {
 
     expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
     expect(res.headers.location).toMatch(
-      /^\/form\/repeat\/pizza-order\/[0-9a-f-]+$/
+      new RegExp(`^${FORM_PREFIX}/repeat/pizza-order/[0-9a-f-]+$`)
     )
   })
 
@@ -397,9 +398,10 @@ describe('Repeat POST tests', () => {
     })
 
     expect(res.statusCode).toBe(StatusCodes.SEE_OTHER)
-    expect(res.headers.location).toMatch(
-      /^\/form\/repeat\/pizza-order\/summary$/
+    const expectedPathRegex = new RegExp(
+      `^${FORM_PREFIX}/repeat/pizza-order/summary$`
     )
+    expect(res.headers.location).toMatch(expectedPathRegex)
   })
 
   test('POST /pizza-order/{id}/confirm-delete with 1 item returns 404', async () => {
@@ -432,7 +434,7 @@ describe('Repeat POST tests', () => {
 
     expect(res.statusCode).toBe(StatusCodes.SEE_OTHER)
     expect(res.headers.location).toMatch(
-      /^\/form\/repeat\/pizza-order\/summary$/
+      new RegExp(`^${FORM_PREFIX}/repeat/pizza-order/summary$`)
     )
   })
 

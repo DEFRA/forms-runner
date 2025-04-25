@@ -1,5 +1,6 @@
 import { type ResponseToolkit } from '@hapi/hapi'
 
+import { FORM_PREFIX } from '~/src/server/constants.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import { type FormRequest } from '~/src/server/routes/types.js'
@@ -10,7 +11,7 @@ describe('PageController', () => {
   let controller1: PageController
   let controller2: PageController
 
-  const testBasePath = 'form/test'
+  const testBasePath = `${FORM_PREFIX}/test`
 
   beforeEach(() => {
     const { pages } = definition
@@ -33,8 +34,8 @@ describe('PageController', () => {
     })
 
     it('returns href', () => {
-      expect(controller1).toHaveProperty('href', `/${testBasePath}/licence`)
-      expect(controller2).toHaveProperty('href', `/${testBasePath}/full-name`)
+      expect(controller1).toHaveProperty('href', `${testBasePath}/licence`)
+      expect(controller2).toHaveProperty('href', `${testBasePath}/full-name`)
     })
 
     it('returns keys (empty)', () => {
@@ -101,11 +102,11 @@ describe('PageController', () => {
   describe('Path methods', () => {
     describe('Link href', () => {
       it('prefixes paths into link hrefs', () => {
-        const href1 = controller1.getHref('/')
+        const href1 = controller1.getHref('')
         const href2 = controller1.getHref('/page-one')
 
-        expect(href1).toBe(`/${testBasePath}`)
-        expect(href2).toBe(`/${testBasePath}/page-one`)
+        expect(href1).toBe(testBasePath)
+        expect(href2).toBe(`${testBasePath}/page-one`)
       })
     })
 

@@ -2,11 +2,11 @@ import { join } from 'node:path'
 
 import { within } from '@testing-library/dom'
 
+import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
-
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
 
 describe(`Phase banner`, () => {
@@ -22,7 +22,7 @@ describe(`Phase banner`, () => {
   })
 
   test('shows the server phase tag by default', async () => {
-    const basePath = '/form/phase-default'
+    const basePath = `${FORM_PREFIX}/phase-default`
 
     server = await createServer({
       formFileName: 'phase-default.json',
@@ -44,7 +44,7 @@ describe(`Phase banner`, () => {
   })
 
   test('shows the form phase tag if provided', async () => {
-    const basePath = '/form/phase-alpha'
+    const basePath = `${FORM_PREFIX}/phase-alpha`
 
     server = await createServer({
       formFileName: 'phase-alpha.json',
