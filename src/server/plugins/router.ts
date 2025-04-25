@@ -16,6 +16,7 @@ import {
 } from '~/src/common/cookies.js'
 import { type CookieConsent } from '~/src/common/types.js'
 import { config } from '~/src/config/index.js'
+import { FORM_PREFIX } from '~/src/server/constants.js'
 import { isPathRelative } from '~/src/server/plugins/engine/helpers.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import { getErrorPreviewHandler } from '~/src/server/plugins/error-preview/error-preview.js'
@@ -27,62 +28,78 @@ import {
   stateSchema
 } from '~/src/server/schemas/index.js'
 
-const uploadStatusProxyHandler = async (
-  request: Request,
-  h: ResponseToolkit
-) => {
-  const { uploadId } = request.params as { uploadId: string }
-  const targetUrl = `/form/upload-status/${uploadId}`
-
-  request.logger.info(
-    `Proxying upload status request for ${uploadId} to ${targetUrl}`
-  )
-
-  try {
-    const res = await request.server.inject({
-      method: 'GET',
-      url: targetUrl
-    })
-
-    return h.response(res.result).code(res.statusCode)
-  } catch (err: unknown) {
-    request.logger.error(
-      { err },
-      `Error proxying upload status request for ${uploadId} to ${targetUrl}`
-    )
-    return Boom.badGateway('Failed to retrieve upload status')
-  }
-}
-
-const uploadStatusProxyRoute: ServerRoute = {
-  method: 'GET',
-  path: '/upload-status/{uploadId}',
-  options: {
-    validate: {
-      params: Joi.object({
-        uploadId: Joi.string().guid().required()
-      })
-    },
-    plugins: {
-      crumb: false
-    },
-    description: 'Proxy route for file upload status checks',
-    tags: ['api', 'proxy']
-  },
-  handler: uploadStatusProxyHandler
-}
-
-const routes: ServerRoute[] = [
-  ...publicRoutes,
-  healthRoute,
-  uploadStatusProxyRoute
-]
+const routes: ServerRoute[] = [...publicRoutes, healthRoute]
 
 export default {
   plugin: {
     name: 'router',
     register: (server) => {
       server.route(routes)
+
+      // /preview/{state}/{slug} -> {FORM_PREFIX}/preview/{state}/{slug}
+      server.route({
+        method: 'GET',
+        path: '/preview/{state}/{slug}',
+        options: {
+          handler: (request: Request, h: ResponseToolkit) => {
+            const { state, slug } = request.params
+            const { error: stateError } = stateSchema.validate(state)
+            const { error: slugError } = slugSchema.validate(slug)
+
+            if (!stateError && !slugError) {
+              const targetUrl = `${FORM_PREFIX}${request.path}`
+              server.logger.info(
+                `Legacy redirect: ${request.path} -> ${targetUrl}`
+              )
+              return h.redirect(targetUrl).permanent().takeover()
+            } else {
+              throw Boom.notFound()
+            }
+          }
+        }
+      })
+
+      // /{slug}/{path*} -> {FORM_PREFIX}/{slug}/{path*}
+      server.route({
+        method: 'GET',
+        path: '/{slug}/{path*}',
+        options: {
+          handler: (request: Request, h: ResponseToolkit) => {
+            const { slug } = request.params
+            const { error } = slugSchema.validate(slug)
+            if (!error) {
+              const targetUrl = `${FORM_PREFIX}${request.path}`
+              server.logger.info(
+                `Legacy redirect: ${request.path} -> ${targetUrl}`
+              )
+              return h.redirect(targetUrl).permanent().takeover()
+            } else {
+              throw Boom.notFound()
+            }
+          }
+        }
+      })
+
+      // /{slug} -> {FORM_PREFIX}/{slug}
+      server.route({
+        method: 'GET',
+        path: '/{slug}',
+        options: {
+          handler: (request: Request, h: ResponseToolkit) => {
+            const { slug } = request.params
+            const { error } = slugSchema.validate(slug)
+            if (!error) {
+              const targetUrl = `${FORM_PREFIX}/${slug}`
+              server.logger.info(
+                `Legacy redirect: ${request.path} -> ${targetUrl}`
+              )
+              return h.redirect(targetUrl).permanent().takeover()
+            } else {
+              throw Boom.notFound()
+            }
+          }
+        }
+      })
 
       // Shared help routes params schema & options
       const params = Joi.object()

@@ -243,7 +243,12 @@ function pollUploadStatus(uploadId) {
       return
     }
 
-    fetch(`/upload-status/${uploadId}`, {
+    const currentPathname = window.location.pathname
+    const pathSegments = currentPathname.split('/').filter((segment) => segment)
+    const prefix = pathSegments.length > 0 ? `/${pathSegments[0]}` : ''
+    const uploadStatusUrl = `${prefix}/upload-status/${uploadId}`
+
+    fetch(uploadStatusUrl, {
       headers: {
         Accept: 'application/json'
       }
