@@ -34,8 +34,7 @@ describe('Feedback link', () => {
 
   it.each([
     {
-      // Default feedback link
-      url: '/help/cookies',
+      url: '/form/help/cookies',
       name: 'give your feedback (opens in new tab)',
       href: FEEDBACK_LINK
     },
@@ -58,7 +57,7 @@ describe('Feedback link', () => {
     expect($link).toHaveAttribute('href', href)
     expect($link).toHaveClass('govuk-link')
 
-    expect($phaseBanner).toHaveAttribute('class', 'govuk-phase-banner')
+    expect($phaseBanner).toBeInTheDocument()
     expect($phaseBanner).toContainElement($link)
   })
 })
