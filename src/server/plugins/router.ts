@@ -17,7 +17,10 @@ import {
 import { type CookieConsent } from '~/src/common/types.js'
 import { config } from '~/src/config/index.js'
 import { FORM_PREFIX } from '~/src/server/constants.js'
-import { isPathRelative } from '~/src/server/plugins/engine/helpers.js'
+import {
+  handleLegacyRedirect,
+  isPathRelative
+} from '~/src/server/plugins/engine/helpers.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import { getErrorPreviewHandler } from '~/src/server/plugins/error-preview/error-preview.js'
 import { healthRoute, publicRoutes } from '~/src/server/routes/index.js'
@@ -46,15 +49,12 @@ export default {
             const { error: stateError } = stateSchema.validate(state)
             const { error: slugError } = slugSchema.validate(slug)
 
-            if (!stateError && !slugError) {
-              const targetUrl = `${FORM_PREFIX}${request.path}`
-              server.logger.info(
-                `Legacy redirect: ${request.path} -> ${targetUrl}`
-              )
-              return h.redirect(targetUrl).permanent().takeover()
-            } else {
+            if (stateError || slugError) {
               throw Boom.notFound()
             }
+
+            const targetUrl = `${FORM_PREFIX}${request.path}`
+            return handleLegacyRedirect(h, targetUrl)
           }
         }
       })
@@ -67,15 +67,13 @@ export default {
           handler: (request: Request, h: ResponseToolkit) => {
             const { slug } = request.params
             const { error } = slugSchema.validate(slug)
-            if (!error) {
-              const targetUrl = `${FORM_PREFIX}${request.path}`
-              server.logger.info(
-                `Legacy redirect: ${request.path} -> ${targetUrl}`
-              )
-              return h.redirect(targetUrl).permanent().takeover()
-            } else {
+
+            if (error) {
               throw Boom.notFound()
             }
+
+            const targetUrl = `${FORM_PREFIX}${request.path}`
+            return handleLegacyRedirect(h, targetUrl)
           }
         }
       })
@@ -88,15 +86,13 @@ export default {
           handler: (request: Request, h: ResponseToolkit) => {
             const { slug } = request.params
             const { error } = slugSchema.validate(slug)
-            if (!error) {
-              const targetUrl = `${FORM_PREFIX}/${slug}`
-              server.logger.info(
-                `Legacy redirect: ${request.path} -> ${targetUrl}`
-              )
-              return h.redirect(targetUrl).permanent().takeover()
-            } else {
+
+            if (error) {
               throw Boom.notFound()
             }
+            // Note: Target URL is slightly different for this specific route
+            const targetUrl = `${FORM_PREFIX}/${slug}`
+            return handleLegacyRedirect(h, targetUrl)
           }
         }
       })

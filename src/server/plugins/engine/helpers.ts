@@ -367,3 +367,13 @@ export function evaluateTemplate(
     globals
   })
 }
+
+/**
+ * Handles logging and issuing a permanent redirect for legacy routes.
+ * @param h - The Hapi response toolkit.
+ * @param targetUrl - The URL to redirect to.
+ * @returns The Hapi response object configured for permanent redirect.
+ */
+export function handleLegacyRedirect(h: ResponseToolkit, targetUrl: string) {
+  return h.redirect(targetUrl).permanent().takeover()
+}

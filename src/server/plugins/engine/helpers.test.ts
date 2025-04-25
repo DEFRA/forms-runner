@@ -16,6 +16,7 @@ import {
   safeGenerateCrumb,
   type GlobalScope
 } from '~/src/server/plugins/engine/helpers.js'
+import { handleLegacyRedirect } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   createPage,
@@ -792,6 +793,50 @@ describe('Helpers', () => {
 
         expect(result).toBeUndefined()
       })
+    })
+  })
+
+  describe('handleLegacyRedirect', () => {
+    let mockH: jest.Mocked<Pick<ResponseToolkit, 'redirect'>>
+    let mockRedirectResponse: jest.Mocked<
+      ReturnType<ResponseToolkit['redirect']>
+    >
+
+    beforeEach(() => {
+      mockRedirectResponse = {
+        permanent: jest.fn().mockReturnThis(),
+        takeover: jest.fn().mockReturnThis()
+      } as unknown as jest.Mocked<ReturnType<ResponseToolkit['redirect']>>
+
+      mockH = {
+        redirect: jest.fn().mockReturnValue(mockRedirectResponse)
+      }
+    })
+
+    it('should call h.redirect with the target URL', () => {
+      const targetUrl = '/another/target'
+      handleLegacyRedirect(mockH as unknown as ResponseToolkit, targetUrl)
+
+      expect(mockH.redirect).toHaveBeenCalledTimes(1)
+      expect(mockH.redirect).toHaveBeenCalledWith(targetUrl)
+    })
+
+    it('should call permanent() and takeover() on the redirect response', () => {
+      const targetUrl = '/final/destination'
+      handleLegacyRedirect(mockH as unknown as ResponseToolkit, targetUrl)
+
+      expect(mockRedirectResponse.permanent).toHaveBeenCalledTimes(1)
+      expect(mockRedirectResponse.takeover).toHaveBeenCalledTimes(1)
+    })
+
+    it('should return the final response object from takeover()', () => {
+      const targetUrl = '/the/end'
+      const response = handleLegacyRedirect(
+        mockH as unknown as ResponseToolkit,
+        targetUrl
+      )
+
+      expect(response).toBe(mockRedirectResponse)
     })
   })
 })
