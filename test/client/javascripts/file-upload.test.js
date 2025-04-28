@@ -1,4 +1,7 @@
-import { initFileUpload } from '~/src/client/javascripts/file-upload.js'
+import {
+  buildUploadStatusUrl,
+  initFileUpload
+} from '~/src/client/javascripts/file-upload.js'
 
 describe('File Upload Client JS', () => {
   beforeEach(() => {
@@ -1297,5 +1300,24 @@ describe('File Upload Client JS', () => {
     triggerClick({ preventDefault: jest.fn() })
 
     expect(fileInput?.hasAttribute('aria-describedby')).toBe(false)
+  })
+})
+
+describe('buildUploadStatusUrl()', () => {
+  it('builds URL with no prefix for root paths', () => {
+    expect(buildUploadStatusUrl('/', 'abc')).toBe('/upload-status/abc')
+    expect(buildUploadStatusUrl('', 'xyz')).toBe('/upload-status/xyz')
+  })
+
+  it('uses the first segment as prefix', () => {
+    expect(buildUploadStatusUrl('/form/mypage', 'id1')).toBe(
+      '/form/upload-status/id1'
+    )
+  })
+
+  it('trims nested segments and trailing slashes', () => {
+    expect(buildUploadStatusUrl('/one/two/three/', 'id2')).toBe(
+      '/one/upload-status/id2'
+    )
   })
 })

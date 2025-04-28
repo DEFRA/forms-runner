@@ -3,7 +3,6 @@ import { type ResponseObject, type ResponseToolkit } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 import { ValidationError } from 'joi'
 
-import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
   checkEmailAddressForLiveFormSubmission,
   checkFormStatus,
@@ -17,6 +16,7 @@ import {
   safeGenerateCrumb,
   type GlobalScope
 } from '~/src/server/plugins/engine/helpers.js'
+import { handleLegacyRedirect } from '~/src/server/plugins/engine/helpers.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   createPage,
@@ -311,35 +311,42 @@ describe('Helpers', () => {
   })
 
   describe('checkFormStatus', () => {
-    it('should return true/live for paths starting with PREVIEW_PATH_PREFIX and form is live', () => {
-      const path = `${PREVIEW_PATH_PREFIX}/live/another/segment`
-      expect(checkFormStatus(path)).toStrictEqual({
+    it('should return true/live for params that include live state segment', () => {
+      expect(
+        checkFormStatus({
+          state: FormStatus.Live,
+          slug: 'another',
+          path: 'segment'
+        })
+      ).toStrictEqual({
         state: FormStatus.Live,
         isPreview: true
       })
     })
 
-    it('should return false for paths not starting with PREVIEW_PATH_PREFIX', () => {
-      const path = '/some/other/path'
-      expect(checkFormStatus(path)).toStrictEqual({
-        state: FormStatus.Live,
-        isPreview: false
-      })
-    })
-
-    it('should be case insensitive and return draft when form is draft', () => {
-      const path = `${PREVIEW_PATH_PREFIX.toUpperCase()}/draft/path`
-      expect(checkFormStatus(path)).toStrictEqual({
+    it('should return true/draft for params that include draft state segment', () => {
+      expect(
+        checkFormStatus({
+          state: FormStatus.Draft,
+          slug: 'another',
+          path: 'segment'
+        })
+      ).toStrictEqual({
         state: FormStatus.Draft,
         isPreview: true
       })
     })
 
-    it('should throw an error for invalid form state', () => {
-      const path = `${PREVIEW_PATH_PREFIX}/invalid-state`
-      expect(() => checkFormStatus(path)).toThrow(
-        'Invalid form state: invalid-state'
-      )
+    it('should return false/live for paths without a state segment', () => {
+      expect(
+        checkFormStatus({
+          slug: 'some',
+          path: 'other'
+        })
+      ).toStrictEqual({
+        state: FormStatus.Live,
+        isPreview: false
+      })
     })
   })
 
@@ -786,6 +793,50 @@ describe('Helpers', () => {
 
         expect(result).toBeUndefined()
       })
+    })
+  })
+
+  describe('handleLegacyRedirect', () => {
+    let mockH: jest.Mocked<Pick<ResponseToolkit, 'redirect'>>
+    let mockRedirectResponse: jest.Mocked<
+      ReturnType<ResponseToolkit['redirect']>
+    >
+
+    beforeEach(() => {
+      mockRedirectResponse = {
+        permanent: jest.fn().mockReturnThis(),
+        takeover: jest.fn().mockReturnThis()
+      } as unknown as jest.Mocked<ReturnType<ResponseToolkit['redirect']>>
+
+      mockH = {
+        redirect: jest.fn().mockReturnValue(mockRedirectResponse)
+      }
+    })
+
+    it('should call h.redirect with the target URL', () => {
+      const targetUrl = '/another/target'
+      handleLegacyRedirect(mockH as unknown as ResponseToolkit, targetUrl)
+
+      expect(mockH.redirect).toHaveBeenCalledTimes(1)
+      expect(mockH.redirect).toHaveBeenCalledWith(targetUrl)
+    })
+
+    it('should call permanent() and takeover() on the redirect response', () => {
+      const targetUrl = '/final/destination'
+      handleLegacyRedirect(mockH as unknown as ResponseToolkit, targetUrl)
+
+      expect(mockRedirectResponse.permanent).toHaveBeenCalledTimes(1)
+      expect(mockRedirectResponse.takeover).toHaveBeenCalledTimes(1)
+    })
+
+    it('should return the final response object from takeover()', () => {
+      const targetUrl = '/the/end'
+      const response = handleLegacyRedirect(
+        mockH as unknown as ResponseToolkit,
+        targetUrl
+      )
+
+      expect(response).toBe(mockRedirectResponse)
     })
   })
 })

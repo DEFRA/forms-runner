@@ -61,6 +61,7 @@ export const plugin = {
   dependencies: '@hapi/vision',
   multiple: true,
   register(server, options) {
+    const prefix = server.realm.modifiers.route.prefix
     const { model, services = defaultServices, controllers } = options
     const { formsService } = services
 
@@ -81,9 +82,9 @@ export const plugin = {
         return h.continue
       }
 
-      const { params, path } = request
+      const { params } = request
       const { slug } = params
-      const { isPreview, state: formState } = checkFormStatus(path)
+      const { isPreview, state: formState } = checkFormStatus(params)
 
       // Get the form metadata using the `slug` param
       const metadata = await formsService.getFormMetadata(slug)
@@ -129,9 +130,11 @@ export const plugin = {
         )
 
         // Set up the basePath for the model
-        const basePath = isPreview
-          ? `${PREVIEW_PATH_PREFIX.substring(1)}/${formState}/${slug}`
-          : slug
+        const basePath = (
+          isPreview
+            ? `${prefix}${PREVIEW_PATH_PREFIX}/${formState}/${slug}`
+            : `${prefix}/${slug}`
+        ).substring(1)
 
         // Construct the form model
         const model = new FormModel(

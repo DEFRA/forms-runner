@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import { within } from '@testing-library/dom'
 import { StatusCodes } from 'http-status-codes'
 
+import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import {
@@ -14,7 +15,7 @@ import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
-const basePath = '/file-upload'
+const basePath = `${FORM_PREFIX}/file-upload`
 
 jest.mock('~/src/server/plugins/engine/services/uploadService.js')
 jest.mock('~/src/server/plugins/engine/services/formsService.js')

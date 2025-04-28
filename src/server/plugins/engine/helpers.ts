@@ -12,7 +12,6 @@ import { type Schema, type ValidationErrorItem } from 'joi'
 import { Liquid } from 'liquidjs'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
-import { PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import {
   getAnswer,
   type Field
@@ -27,6 +26,7 @@ import {
 import {
   FormAction,
   FormStatus,
+  type FormParams,
   type FormQuery,
   type FormRequest,
   type FormRequestPayload
@@ -253,29 +253,18 @@ export function getStartPath(model?: FormModel) {
   return startPath ? `/${startPath}` : ControllerPath.Start
 }
 
-export function checkFormStatus(path: string) {
-  const isPreview = path.toLowerCase().startsWith(PREVIEW_PATH_PREFIX)
+export function checkFormStatus(params?: FormParams) {
+  const isPreview = !!params?.state
 
-  let state: FormStatus | undefined
+  let state = FormStatus.Live
 
-  if (isPreview) {
-    const previewState = path.split('/')[2]
-
-    for (const formState of Object.values(FormStatus)) {
-      if (previewState === formState.toString()) {
-        state = formState
-        break
-      }
-    }
-
-    if (!state) {
-      throw new Error(`Invalid form state: ${previewState}`)
-    }
+  if (isPreview && params.state === FormStatus.Draft) {
+    state = FormStatus.Draft
   }
 
   return {
     isPreview,
-    state: state ?? FormStatus.Live
+    state
   }
 }
 
@@ -337,7 +326,7 @@ export function safeGenerateCrumb(
     return undefined
   }
 
-  // crumb plugin or its generate method doesn’t exist
+  // crumb plugin or its generate method doesn't exist
   if (!request.server.plugins.crumb.generate) {
     return undefined
   }
@@ -362,6 +351,7 @@ export function getExponentialBackoffDelay(depth: number): number {
   const delay = BASE_DELAY_MS * 2 ** (depth - 1)
   return Math.min(delay, CAP_DELAY_MS)
 }
+
 export function evaluateTemplate(
   template: string,
   context: FormContext
@@ -376,4 +366,14 @@ export function evaluateTemplate(
   return engine.parseAndRenderSync(template, context.relevantState, {
     globals
   })
+}
+
+/**
+ * Handles logging and issuing a permanent redirect for legacy routes.
+ * @param h - The Hapi response toolkit.
+ * @param targetUrl - The URL to redirect to.
+ * @returns The Hapi response object configured for permanent redirect.
+ */
+export function handleLegacyRedirect(h: ResponseToolkit, targetUrl: string) {
+  return h.redirect(targetUrl).permanent().takeover()
 }

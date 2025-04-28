@@ -1,3 +1,4 @@
+import { FORM_PREFIX } from '~/src/server/constants.js'
 import {
   FormModel,
   SummaryViewModel
@@ -13,7 +14,7 @@ import {
 } from '~/src/server/plugins/engine/types.js'
 import definition from '~/test/form/definitions/repeat-mixed.js'
 
-const basePath = '/test'
+const basePath = `${FORM_PREFIX}/test`
 
 describe('SummaryViewModel', () => {
   const itemId1 = 'abc-123'
@@ -28,7 +29,7 @@ describe('SummaryViewModel', () => {
 
   beforeEach(() => {
     model = new FormModel(definition, {
-      basePath: 'test'
+      basePath: `${FORM_PREFIX}/test`
     })
 
     page = createPage(model, definition.pages[2])

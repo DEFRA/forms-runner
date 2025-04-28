@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { within } from '@testing-library/dom'
 import { StatusCodes } from 'http-status-codes'
 
+import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
@@ -24,8 +25,8 @@ describe(`Cookie banner and analytics`, () => {
   })
 
   test.each([
-    '/basic/licence', // form pages
-    '/help/accessibility-statement/basic' // non-form pages
+    `${FORM_PREFIX}/basic/licence`, // Form pages HAVE the prefix
+    '/help/accessibility-statement/basic' // Help pages DO NOT have the prefix
   ])('shows the cookie banner by default', async (path) => {
     server = await createServer({
       formFileName: 'basic.js',
@@ -53,10 +54,8 @@ describe(`Cookie banner and analytics`, () => {
   })
 
   test.each([
-    // form pages
-    '/basic/licence',
-    // non-form pages
-    '/help/accessibility-statement/basic'
+    `${FORM_PREFIX}/basic/licence`, // Form pages HAVE the prefix
+    '/help/accessibility-statement/basic' // Help pages DO NOT have the prefix
   ])('confirms when the user has accepted analytics cookies', async (path) => {
     server = await createServer({
       formFileName: 'basic.js',
@@ -106,7 +105,7 @@ describe(`Cookie banner and analytics`, () => {
 
   test.each([
     // form pages
-    '/basic/licence',
+    `${FORM_PREFIX}/basic/licence`,
     // non-form pages
     '/help/accessibility-statement/basic'
   ])('confirms when the user has rejected analytics cookies', async (path) => {
@@ -159,9 +158,8 @@ describe(`Cookie banner and analytics`, () => {
 
   test.each([
     // form pages
-    '/basic/start',
+    `${FORM_PREFIX}/basic/start`
     // non-form pages
-    '/'
   ])('hides the cookie banner once dismissed', async (path) => {
     server = await createServer({
       formFileName: 'basic.js',

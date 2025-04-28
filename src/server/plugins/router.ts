@@ -1,6 +1,11 @@
 import { slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import { type ServerRegisterPluginObject } from '@hapi/hapi'
+import {
+  type Request,
+  type ResponseToolkit,
+  type ServerRegisterPluginObject,
+  type ServerRoute
+} from '@hapi/hapi'
 import humanizeDuration from 'humanize-duration'
 import Joi from 'joi'
 
@@ -11,7 +16,11 @@ import {
 } from '~/src/common/cookies.js'
 import { type CookieConsent } from '~/src/common/types.js'
 import { config } from '~/src/config/index.js'
-import { isPathRelative } from '~/src/server/plugins/engine/helpers.js'
+import { FORM_PREFIX } from '~/src/server/constants.js'
+import {
+  handleLegacyRedirect,
+  isPathRelative
+} from '~/src/server/plugins/engine/helpers.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import { getErrorPreviewHandler } from '~/src/server/plugins/error-preview/error-preview.js'
 import { healthRoute, publicRoutes } from '~/src/server/routes/index.js'
@@ -22,13 +31,65 @@ import {
   stateSchema
 } from '~/src/server/schemas/index.js'
 
-const routes = [...publicRoutes, healthRoute]
+const routes: ServerRoute[] = [...publicRoutes, healthRoute]
 
 export default {
   plugin: {
     name: 'router',
     register: (server) => {
       server.route(routes)
+
+      // /preview/{state}/{slug} -> {FORM_PREFIX}/preview/{state}/{slug}
+      server.route({
+        method: 'GET',
+        path: '/preview/{state}/{slug}',
+        handler: (request: Request, h: ResponseToolkit) => {
+          const { state, slug } = request.params
+          const { error: stateError } = stateSchema.validate(state)
+          const { error: slugError } = slugSchema.validate(slug)
+
+          if (stateError || slugError) {
+            throw Boom.notFound()
+          }
+
+          const targetUrl = `${FORM_PREFIX}${request.path}`
+          return handleLegacyRedirect(h, targetUrl)
+        }
+      })
+
+      // /{slug}/{path*} -> {FORM_PREFIX}/{slug}/{path*}
+      server.route({
+        method: 'GET',
+        path: '/{slug}/{path*}',
+        handler: (request: Request, h: ResponseToolkit) => {
+          const { slug } = request.params
+          const { error } = slugSchema.validate(slug)
+
+          if (error) {
+            throw Boom.notFound()
+          }
+
+          const targetUrl = `${FORM_PREFIX}${request.path}`
+          return handleLegacyRedirect(h, targetUrl)
+        }
+      })
+
+      // /{slug} -> {FORM_PREFIX}/{slug}
+      server.route({
+        method: 'GET',
+        path: '/{slug}',
+        handler: (request: Request, h: ResponseToolkit) => {
+          const { slug } = request.params
+          const { error } = slugSchema.validate(slug)
+
+          if (error) {
+            throw Boom.notFound()
+          }
+          // Note: Target URL is slightly different for this specific route
+          const targetUrl = `${FORM_PREFIX}/${slug}`
+          return handleLegacyRedirect(h, targetUrl)
+        }
+      })
 
       // Shared help routes params schema & options
       const params = Joi.object()

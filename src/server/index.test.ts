@@ -1,6 +1,7 @@
 import { type Server } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 
+import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import {
   getFormDefinition,
@@ -54,13 +55,13 @@ describe('Model cache', () => {
 
       const options = {
         method: 'GET',
-        url: '/slug'
+        url: `${FORM_PREFIX}/slug`
       }
 
       const res = await server.inject(options)
 
       expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-      expect(res.headers.location).toBe('/slug/page-one')
+      expect(res.headers.location).toBe(`${FORM_PREFIX}/slug/page-one`)
       expect(getCacheSize()).toBe(1)
     })
 
@@ -74,13 +75,15 @@ describe('Model cache', () => {
 
       const options = {
         method: 'GET',
-        url: '/preview/live/slug'
+        url: `${FORM_PREFIX}/preview/live/slug`
       }
 
       const res = await server.inject(options)
 
       expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-      expect(res.headers.location).toBe('/preview/live/slug/page-one')
+      expect(res.headers.location).toBe(
+        `${FORM_PREFIX}/preview/live/slug/page-one`
+      )
       expect(getCacheSize()).toBe(1)
     })
 
@@ -94,13 +97,15 @@ describe('Model cache', () => {
 
       const options = {
         method: 'GET',
-        url: '/preview/draft/slug'
+        url: `${FORM_PREFIX}/preview/draft/slug`
       }
 
       const res = await server.inject(options)
 
       expect(res.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-      expect(res.headers.location).toBe('/preview/draft/slug/page-one')
+      expect(res.headers.location).toBe(
+        `${FORM_PREFIX}/preview/draft/slug/page-one`
+      )
       expect(getCacheSize()).toBe(1)
     })
 
@@ -114,7 +119,7 @@ describe('Model cache', () => {
 
       const options = {
         method: 'GET',
-        url: '/slug/page-one'
+        url: `${FORM_PREFIX}/slug/page-one`
       }
 
       const res = await server.inject(options)
@@ -133,7 +138,7 @@ describe('Model cache', () => {
 
       const options = {
         method: 'GET',
-        url: '/preview/live/slug/page-one'
+        url: `${FORM_PREFIX}/preview/live/slug/page-one`
       }
 
       const res = await server.inject(options)
@@ -152,7 +157,7 @@ describe('Model cache', () => {
 
       const options = {
         method: 'GET',
-        url: '/preview/draft/slug/page-one'
+        url: `${FORM_PREFIX}/preview/draft/slug/page-one`
       }
 
       const res = await server.inject(options)
@@ -171,7 +176,7 @@ describe('Model cache', () => {
 
       const options = {
         method: 'GET',
-        url: '/slug/page-one'
+        url: `${FORM_PREFIX}/slug/page-one`
       }
 
       const res = await server.inject(options)
@@ -192,7 +197,7 @@ describe('Model cache', () => {
       // Populate live/live cache item
       const options1 = {
         method: 'GET',
-        url: '/slug/page-one'
+        url: `${FORM_PREFIX}/slug/page-one`
       }
 
       const res1 = await server.inject(options1)
@@ -203,7 +208,7 @@ describe('Model cache', () => {
       // Populate live/preview cache item
       const options2 = {
         method: 'GET',
-        url: '/preview/live/slug/page-one'
+        url: `${FORM_PREFIX}/preview/live/slug/page-one`
       }
 
       const res2 = await server.inject(options2)
@@ -214,7 +219,7 @@ describe('Model cache', () => {
       // Populate draft/preview cache item
       const options3 = {
         method: 'GET',
-        url: '/preview/draft/slug/page-one'
+        url: `${FORM_PREFIX}/preview/draft/slug/page-one`
       }
 
       const res3 = await server.inject(options3)
@@ -266,7 +271,7 @@ describe('Model cache', () => {
 
       const options = {
         method: 'GET',
-        url: '/slug'
+        url: `${FORM_PREFIX}/slug`
       }
 
       const res = await server.inject(options)
@@ -280,7 +285,7 @@ describe('Model cache', () => {
 
       const options = {
         method: 'GET',
-        url: '/preview/draft/slug'
+        url: `${FORM_PREFIX}/preview/draft/slug`
       }
 
       const res = await server.inject(options)
@@ -294,7 +299,7 @@ describe('Model cache', () => {
 
       const options = {
         method: 'GET',
-        url: '/preview/live/slug'
+        url: `${FORM_PREFIX}/preview/live/slug`
       }
 
       const res = await server.inject(options)
@@ -312,7 +317,7 @@ describe('Model cache', () => {
 
       const options = {
         method: 'GET',
-        url: '/slug'
+        url: `${FORM_PREFIX}/slug`
       }
 
       const res = await server.inject(options)
@@ -330,7 +335,7 @@ describe('Model cache', () => {
 
       const options = {
         method: 'GET',
-        url: '/preview/draft/slug'
+        url: `${FORM_PREFIX}/preview/draft/slug`
       }
 
       const res = await server.inject(options)
@@ -348,7 +353,7 @@ describe('Model cache', () => {
 
       const options = {
         method: 'GET',
-        url: '/preview/live/slug'
+        url: `${FORM_PREFIX}/preview/live/slug`
       }
 
       const res = await server.inject(options)
@@ -362,7 +367,7 @@ describe('Model cache', () => {
 
       const options = {
         method: 'GET',
-        url: '/slug/page-one'
+        url: `${FORM_PREFIX}/slug/page-one`
       }
 
       const res = await server.inject(options)
@@ -376,7 +381,7 @@ describe('Model cache', () => {
 
       const options = {
         method: 'GET',
-        url: '/preview/draft/slug/page-one'
+        url: `${FORM_PREFIX}/preview/draft/slug/page-one`
       }
 
       const res = await server.inject(options)
@@ -390,7 +395,7 @@ describe('Model cache', () => {
 
       const options = {
         method: 'GET',
-        url: '/preview/live/slug/page-one'
+        url: `${FORM_PREFIX}/preview/live/slug/page-one`
       }
 
       const res = await server.inject(options)
@@ -408,7 +413,7 @@ describe('Model cache', () => {
 
       const options = {
         method: 'GET',
-        url: '/slug/page-one'
+        url: `${FORM_PREFIX}/slug/page-one`
       }
 
       const res = await server.inject(options)
@@ -426,7 +431,7 @@ describe('Model cache', () => {
 
       const options = {
         method: 'GET',
-        url: '/preview/draft/slug/page-one'
+        url: `${FORM_PREFIX}/preview/draft/slug/page-one`
       }
 
       const res = await server.inject(options)
@@ -444,7 +449,7 @@ describe('Model cache', () => {
 
       const options = {
         method: 'GET',
-        url: '/preview/live/slug/page-one'
+        url: `${FORM_PREFIX}/preview/live/slug/page-one`
       }
 
       const res = await server.inject(options)
@@ -527,7 +532,7 @@ describe('Upload status route', () => {
 
     const options = {
       method: 'GET',
-      url: '/upload-status/123e4567-e89b-12d3-a456-426614174000'
+      url: `${FORM_PREFIX}/upload-status/123e4567-e89b-12d3-a456-426614174000`
     }
 
     const res = await server.inject(options)
@@ -544,7 +549,7 @@ describe('Upload status route', () => {
 
     const options = {
       method: 'GET',
-      url: '/upload-status/123e4567-e89b-12d3-a456-426614174000'
+      url: `${FORM_PREFIX}/upload-status/123e4567-e89b-12d3-a456-426614174000`
     }
 
     const res = await server.inject(options)
@@ -560,7 +565,7 @@ describe('Upload status route', () => {
 
     const options = {
       method: 'GET',
-      url: '/upload-status/123e4567-e89b-12d3-a456-426614174000'
+      url: `${FORM_PREFIX}/upload-status/123e4567-e89b-12d3-a456-426614174000`
     }
 
     const res = await server.inject(options)
@@ -572,7 +577,7 @@ describe('Upload status route', () => {
   test('GET /upload-status/{uploadId} returns 400 for invalid uploadId format', async () => {
     const options = {
       method: 'GET',
-      url: '/upload-status/not-a-valid-guid'
+      url: `${FORM_PREFIX}/upload-status/not-a-valid-guid`
     }
 
     const res = await server.inject(options)

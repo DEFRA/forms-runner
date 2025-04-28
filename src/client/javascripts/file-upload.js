@@ -229,6 +229,18 @@ function reloadPage() {
 }
 
 /**
+ * Build the upload status URL given the current pathname and the upload ID.
+ * @param {string} pathname – e.g. window.location.pathname
+ * @param {string} uploadId
+ * @returns {string} e.g. "/form/upload-status/abc123"
+ */
+export function buildUploadStatusUrl(pathname, uploadId) {
+  const pathSegments = pathname.split('/').filter((segment) => segment)
+  const prefix = pathSegments.length > 0 ? `/${pathSegments[0]}` : ''
+  return `${prefix}/upload-status/${uploadId}`
+}
+
+/**
  * Polls the upload status endpoint until the file is ready or timeout occurs
  * @param {string} uploadId - The upload ID to check
  */
@@ -243,7 +255,12 @@ function pollUploadStatus(uploadId) {
       return
     }
 
-    fetch(`/upload-status/${uploadId}`, {
+    const uploadStatusUrl = buildUploadStatusUrl(
+      window.location.pathname,
+      uploadId
+    )
+
+    fetch(uploadStatusUrl, {
       headers: {
         Accept: 'application/json'
       }

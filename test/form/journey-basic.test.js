@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { within } from '@testing-library/dom'
 import { StatusCodes } from 'http-status-codes'
 
+import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import { submit } from '~/src/server/plugins/engine/services/formSubmissionService.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
@@ -11,7 +12,7 @@ import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookie, getCookieHeader } from '~/test/utils/get-cookie.js'
 
-const basePath = '/basic'
+const basePath = `${FORM_PREFIX}/basic`
 
 jest.mock('~/src/server/utils/notify.ts')
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
@@ -122,6 +123,8 @@ describe('Form journey', () => {
   })
 
   beforeEach(() => {
+    // server.app.models.clear()
+    jest.clearAllMocks()
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
   })
 

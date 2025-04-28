@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { StatusCodes } from 'http-status-codes'
 import { outdent } from 'outdent'
 
+import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import {
   persistFiles,
@@ -19,7 +20,7 @@ import { sendNotification } from '~/src/server/utils/notify.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
-const basePath = '/components'
+const basePath = `${FORM_PREFIX}/components`
 
 jest.mock('~/src/server/utils/notify.ts')
 jest.mock('~/src/server/plugins/engine/services/uploadService.js')

@@ -2,13 +2,14 @@ import { join } from 'node:path'
 
 import { StatusCodes } from 'http-status-codes'
 
+import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookie } from '~/test/utils/get-cookie.js'
 
-const basePath = '/basic'
+const basePath = `${FORM_PREFIX}/basic`
 
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
 

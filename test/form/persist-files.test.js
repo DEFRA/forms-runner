@@ -2,6 +2,7 @@ import { join } from 'node:path'
 
 import { StatusCodes } from 'http-status-codes'
 
+import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import {
   persistFiles,
@@ -15,7 +16,7 @@ import { CacheService } from '~/src/server/services/cacheService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
-const basePath = '/file-upload-basic'
+const basePath = `${FORM_PREFIX}/file-upload-basic`
 
 jest.mock('~/src/server/utils/notify.ts')
 jest.mock('~/src/server/plugins/engine/services/formsService.js')

@@ -98,6 +98,10 @@ export async function createServer(routeConfig?: RouteConfig) {
 
   server.registerService(CacheService)
 
+  await server.register(...pluginEngine)
+
+  await server.register(pluginRouter)
+
   server.ext('onPreResponse', (request: Request, h: ResponseToolkit) => {
     const { response } = request
 
@@ -121,8 +125,6 @@ export async function createServer(routeConfig?: RouteConfig) {
   })
 
   await server.register(pluginViews)
-  await server.register(pluginEngine)
-  await server.register(pluginRouter)
   await server.register(pluginErrorPages)
   await server.register(blipp)
   await server.register(requestTracing)

@@ -3,13 +3,14 @@ import { join } from 'node:path'
 import { within } from '@testing-library/dom'
 import { StatusCodes } from 'http-status-codes'
 
+import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookie, getCookieHeader } from '~/test/utils/get-cookie.js'
 
-const basePath = '/templates'
+const basePath = `${FORM_PREFIX}/templates`
 
 jest.mock('~/src/server/plugins/engine/services/formsService.js')
 
@@ -250,7 +251,9 @@ describe('Form template journey', () => {
 
     const $output4 = container.getByTestId('output-4')
     expect($output4).toBeInTheDocument()
-    expect($output4.textContent).toBe('/templates/are-you-in-england')
+    expect($output4.textContent).toBe(
+      `${FORM_PREFIX}/templates/are-you-in-england`
+    )
   })
 
   test('POST /information', async () => {
