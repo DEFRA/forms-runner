@@ -253,8 +253,8 @@ export function getStartPath(model?: FormModel) {
   return startPath ? `/${startPath}` : ControllerPath.Start
 }
 
-export function checkFormStatus(params: FormParams) {
-  const isPreview = !!params.state
+export function checkFormStatus(params?: FormParams) {
+  const isPreview = !!params?.state
 
   let state = FormStatus.Live
 
