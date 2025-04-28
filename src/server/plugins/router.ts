@@ -43,19 +43,17 @@ export default {
       server.route({
         method: 'GET',
         path: '/preview/{state}/{slug}',
-        options: {
-          handler: (request: Request, h: ResponseToolkit) => {
-            const { state, slug } = request.params
-            const { error: stateError } = stateSchema.validate(state)
-            const { error: slugError } = slugSchema.validate(slug)
+        handler: (request: Request, h: ResponseToolkit) => {
+          const { state, slug } = request.params
+          const { error: stateError } = stateSchema.validate(state)
+          const { error: slugError } = slugSchema.validate(slug)
 
-            if (stateError || slugError) {
-              throw Boom.notFound()
-            }
-
-            const targetUrl = `${FORM_PREFIX}${request.path}`
-            return handleLegacyRedirect(h, targetUrl)
+          if (stateError || slugError) {
+            throw Boom.notFound()
           }
+
+          const targetUrl = `${FORM_PREFIX}${request.path}`
+          return handleLegacyRedirect(h, targetUrl)
         }
       })
 
@@ -63,18 +61,16 @@ export default {
       server.route({
         method: 'GET',
         path: '/{slug}/{path*}',
-        options: {
-          handler: (request: Request, h: ResponseToolkit) => {
-            const { slug } = request.params
-            const { error } = slugSchema.validate(slug)
+        handler: (request: Request, h: ResponseToolkit) => {
+          const { slug } = request.params
+          const { error } = slugSchema.validate(slug)
 
-            if (error) {
-              throw Boom.notFound()
-            }
-
-            const targetUrl = `${FORM_PREFIX}${request.path}`
-            return handleLegacyRedirect(h, targetUrl)
+          if (error) {
+            throw Boom.notFound()
           }
+
+          const targetUrl = `${FORM_PREFIX}${request.path}`
+          return handleLegacyRedirect(h, targetUrl)
         }
       })
 
@@ -82,18 +78,16 @@ export default {
       server.route({
         method: 'GET',
         path: '/{slug}',
-        options: {
-          handler: (request: Request, h: ResponseToolkit) => {
-            const { slug } = request.params
-            const { error } = slugSchema.validate(slug)
+        handler: (request: Request, h: ResponseToolkit) => {
+          const { slug } = request.params
+          const { error } = slugSchema.validate(slug)
 
-            if (error) {
-              throw Boom.notFound()
-            }
-            // Note: Target URL is slightly different for this specific route
-            const targetUrl = `${FORM_PREFIX}/${slug}`
-            return handleLegacyRedirect(h, targetUrl)
+          if (error) {
+            throw Boom.notFound()
           }
+          // Note: Target URL is slightly different for this specific route
+          const targetUrl = `${FORM_PREFIX}/${slug}`
+          return handleLegacyRedirect(h, targetUrl)
         }
       })
 
