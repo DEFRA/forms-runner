@@ -1,3 +1,6 @@
+import { FormComponent } from '@defra/forms-engine-plugin/engine/components/FormComponent.js'
+import { createComponent } from '@defra/forms-engine-plugin/engine/components/helpers.js'
+import { FormModel } from '@defra/forms-engine-plugin/engine/models/index.js'
 import {
   ComponentType,
   allDocumentTypes,
@@ -7,9 +10,6 @@ import {
 } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 
-import { FormComponent } from '~/src/server/plugins/engine/components/FormComponent.js'
-import { createComponent } from '~/src/server/plugins/engine/components/helpers.js'
-import { FormModel } from '~/src/server/plugins/engine/models/index.js'
 import { createJoiExpression } from '~/src/server/utils/type-utils.js'
 
 /**

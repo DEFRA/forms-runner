@@ -130,6 +130,7 @@ export async function createServer(routeConfig?: RouteConfig) {
       options: {
         cacheName: 'session',
         nunjucks: {
+          baseLayoutPath: 'layout.html',
           paths
         },
         services: {

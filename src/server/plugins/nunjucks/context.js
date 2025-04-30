@@ -48,7 +48,6 @@ export function context(request) {
   const ctx = {
     appVersion: pkg.version,
     assetPath: '/assets',
-    baseLayoutPath: 'layout.html',
     config: {
       cdpEnvironment: config.get('cdpEnvironment'),
       designerUrl: config.get('designerUrl'),

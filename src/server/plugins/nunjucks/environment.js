@@ -6,7 +6,6 @@ import nunjucks from 'nunjucks'
 import resolvePkg from 'resolve'
 
 import { config } from '~/src/config/index.js'
-import * as filters from '~/src/server/plugins/nunjucks/filters/index.js'
 
 const govukFrontendPath = dirname(
   resolvePkg.sync('govuk-frontend/package.json')
@@ -23,10 +22,6 @@ export const environment = nunjucks.configure(
     noCache: config.get('isDevelopment')
   }
 )
-
-for (const [name, nunjucksFilter] of Object.entries(filters)) {
-  environment.addFilter(name, nunjucksFilter)
-}
 
 /**
  * @this {NunjucksContext}
