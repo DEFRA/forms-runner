@@ -27,7 +27,8 @@ import {
 import {
   findPage,
   getError,
-  getPage
+  getPage,
+  setPageTitles
 } from '~/src/server/plugins/engine/helpers.js'
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
@@ -103,6 +104,9 @@ export class FormModel {
         }
       ]
     })
+
+    // Fix up page titles
+    setPageTitles(def)
 
     this.engine = def.engine
     this.def = def
