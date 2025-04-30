@@ -291,5 +291,5 @@ export function expandTemplate(template, local = {}) {
 /**
  * @import { ComponentDef, FormDefinition } from '@defra/forms-model'
  * @import { JoiExpression } from 'joi'
- * @import { ErrorMessageTemplate } from '~/src/server/plugins/engine/types.js'
+ * @import { ErrorMessageTemplate } from '@defra/forms-engine-plugin/engine/types.js'
  */

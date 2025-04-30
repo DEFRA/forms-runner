@@ -1,6 +1,6 @@
+import { type FormParams } from '@defra/forms-engine-plugin/engine/types.js'
 import Joi from 'joi'
 
-import { type FormParams } from '~/src/server/plugins/engine/types.js'
 import { FormAction, FormStatus } from '~/src/server/routes/types.js'
 
 export const stateSchema = Joi.string<FormStatus>()

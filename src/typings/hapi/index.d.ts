@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/unified-signatures */
 
+import { type FormModel } from '@defra/forms-engine-plugin/engine/models/index.js'
 import { type Plugin } from '@hapi/hapi'
 import { type ServerYar, type Yar } from '@hapi/yar'
 import { type Logger } from 'pino'
 
-import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {
   type FormRequest,
   type FormRequestPayload

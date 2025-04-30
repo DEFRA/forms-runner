@@ -20,3 +20,5 @@ export const environment = nunjucks.configure(
     noCache: config.get('isDevelopment')
   }
 )
+
+environment.addFilter('evaluate', (value) => value) // temporary until we use an exported one from the engine
