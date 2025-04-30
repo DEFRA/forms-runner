@@ -1,5 +1,6 @@
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type FormContextRequest } from '~/src/server/plugins/engine/types.js'
+import { V2 as definitionV2 } from '~/test/form/definitions/conditions-basic.js'
 import definition from '~/test/form/definitions/conditions-escaping.js'
 import conditionsListDefinition from '~/test/form/definitions/conditions-list.js'
 import fieldsRequiredDefinition from '~/test/form/definitions/fields-required.js'
@@ -10,6 +11,20 @@ describe('FormModel', () => {
       expect(
         () => new FormModel(definition, { basePath: 'test' })
       ).not.toThrow()
+    })
+
+    it('Sets the page title from first form component when empty (V2 only)', () => {
+      const noTitlesDefinition = {
+        ...definitionV2,
+        pages: definitionV2.pages.map((page) => ({ ...page, title: '' }))
+      }
+
+      const model = new FormModel(noTitlesDefinition, { basePath: 'test' })
+
+      expect(model.def.pages.at(0)?.title).toBe(
+        'Have you previously been married?'
+      )
+      expect(model.def.pages.at(1)?.title).toBe('Date of marriage')
     })
   })
 

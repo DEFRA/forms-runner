@@ -1,7 +1,10 @@
 import {
   ControllerPath,
   Engine,
+  hasComponents,
+  isFormType,
   type ComponentDef,
+  type FormDefinition,
   type Page
 } from '@defra/forms-model'
 import Boom from '@hapi/boom'
@@ -376,4 +379,29 @@ export function evaluateTemplate(
  */
 export function handleLegacyRedirect(h: ResponseToolkit, targetUrl: string) {
   return h.redirect(targetUrl).permanent().takeover()
+}
+
+/**
+ * If the page doesn't have a title, set it from the title of the first form component
+ * @param def - the form definition
+ */
+export function setPageTitles(def: FormDefinition) {
+  def.pages.forEach((page) => {
+    if (!page.title) {
+      if (hasComponents(page)) {
+        // Set the page title from the first form component
+        const firstFormComponent = page.components.find((component) =>
+          isFormType(component.type)
+        )
+
+        page.title = firstFormComponent?.title ?? ''
+      }
+
+      if (!page.title) {
+        logger.warn(
+          `Page '${page.path}' has no title${def.name ? ` in form '${def.name}'` : ''}`
+        )
+      }
+    }
+  })
 }
