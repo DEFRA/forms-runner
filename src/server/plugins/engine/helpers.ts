@@ -398,9 +398,9 @@ export function setPageTitles(def: FormDefinition) {
       }
 
       if (!page.title) {
-        logger.warn(
-          `Page '${page.path}' has no title${def.name ? ` in form '${def.name}'` : ''}`
-        )
+        const formNameMsg = def.name ? ` in form '${def.name}'` : ''
+
+        logger.warn(`Page '${page.path}' has no title${formNameMsg}`)
       }
     }
   })
