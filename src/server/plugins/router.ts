@@ -49,7 +49,7 @@ export default {
             throw Boom.notFound()
           }
 
-          const targetUrl = `${FORM_PREFIX}${request.path}`
+          const targetUrl = `${FORM_PREFIX}${request.path}${request.url.search}`
           return handleLegacyRedirect(h, targetUrl)
         }
       })
@@ -66,7 +66,7 @@ export default {
             throw Boom.notFound()
           }
 
-          const targetUrl = `${FORM_PREFIX}${request.path}`
+          const targetUrl = `${FORM_PREFIX}${request.path}${request.url.search}`
           return handleLegacyRedirect(h, targetUrl)
         }
       })
@@ -83,7 +83,7 @@ export default {
             throw Boom.notFound()
           }
           // Note: Target URL is slightly different for this specific route
-          const targetUrl = `${FORM_PREFIX}/${slug}`
+          const targetUrl = `${FORM_PREFIX}${request.path}${request.url.search}`
           return handleLegacyRedirect(h, targetUrl)
         }
       })
