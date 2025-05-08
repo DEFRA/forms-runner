@@ -1,23 +1,23 @@
+import { getUploadStatus } from '@defra/forms-engine-plugin/engine/services/uploadService.js'
+import {
+  FileStatus,
+  UploadStatus,
+  type UploadStatusResponse
+} from '@defra/forms-engine-plugin/engine/types.js'
 import { type Server } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
+import { FormStatus } from '~/src/server/routes/types.js'
 import {
   getFormDefinition,
   getFormMetadata
-} from '~/src/server/plugins/engine/services/formsService.js'
-import { getUploadStatus } from '~/src/server/plugins/engine/services/uploadService.js'
-import {
-  FileStatus,
-  UploadStatus,
-  type UploadStatusResponse
-} from '~/src/server/plugins/engine/types.js'
-import { FormStatus } from '~/src/server/routes/types.js'
+} from '~/src/server/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 
-jest.mock('~/src/server/plugins/engine/services/formsService.js')
-jest.mock('~/src/server/plugins/engine/services/uploadService.js')
+jest.mock('~/src/server/services/formsService.js')
+jest.mock('@defra/forms-engine-plugin/engine/services/uploadService.js')
 
 describe('Model cache', () => {
   let server: Server

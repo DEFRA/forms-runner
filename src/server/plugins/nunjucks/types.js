@@ -36,5 +36,5 @@
 /**
  * @import { CookieConsent } from '~/src/common/types.js'
  * @import { config } from '~/src/config/index.js'
- * @import { FormContext } from '~/src/server/plugins/engine/types.js'
+ * @import { FormContext } from '@defra/forms-engine-plugin/engine/types.js'
  */

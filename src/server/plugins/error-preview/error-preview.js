@@ -1,11 +1,11 @@
 import Boom from '@hapi/boom'
 
+import { createErrorPreviewModel } from '~/src/server/plugins/error-preview/error-preview-helper.js'
+import { FormStatus } from '~/src/server/routes/types.js'
 import {
   getFormDefinition,
   getFormMetadata
-} from '~/src/server/plugins/engine/services/formsService.js'
-import { createErrorPreviewModel } from '~/src/server/plugins/error-preview/error-preview-helper.js'
-import { FormStatus } from '~/src/server/routes/types.js'
+} from '~/src/server/services/formsService.js'
 
 /**
  * @param {FormRequest} request
