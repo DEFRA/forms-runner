@@ -1,6 +1,6 @@
+import { messageTemplate } from '@defra/forms-engine-plugin/engine/pageControllers/validationOptions.js'
 import { ComponentType } from '@defra/forms-model'
 
-import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   createErrorPreviewModel,
   determineLimit,
@@ -509,5 +509,5 @@ describe('Error preview helper', () => {
 
 /**
  * @import { ComponentDef } from '@defra/forms-model'
- * @import { ErrorMessageTemplate } from '~/src/server/plugins/engine/types.js'
+ * @import { ErrorMessageTemplate } from '@defra/forms-engine-plugin/engine/types.js'
  */

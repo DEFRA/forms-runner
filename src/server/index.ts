@@ -1,3 +1,8 @@
+import plugin from '@defra/forms-engine-plugin'
+import {
+  formSubmissionService,
+  outputService
+} from '@defra/forms-engine-plugin/services/index.js'
 import { Engine as CatboxMemory } from '@hapi/catbox-memory'
 import { Engine as CatboxRedis } from '@hapi/catbox-redis'
 import hapi, {
@@ -8,7 +13,6 @@ import hapi, {
 import inert from '@hapi/inert'
 import Scooter from '@hapi/scooter'
 import Wreck from '@hapi/wreck'
-import Schmervice from '@hapipal/schmervice'
 import blipp from 'blipp'
 import { ProxyAgent } from 'proxy-agent'
 
@@ -16,16 +20,18 @@ import { config } from '~/src/config/index.js'
 import { requestLogger } from '~/src/server/common/helpers/logging/request-logger.js'
 import { requestTracing } from '~/src/server/common/helpers/logging/request-tracing.js'
 import { buildRedisClient } from '~/src/server/common/helpers/redis-client.js'
+import { FORM_PREFIX } from '~/src/server/constants.js'
 import { configureBlankiePlugin } from '~/src/server/plugins/blankie.js'
 import { configureCrumbPlugin } from '~/src/server/plugins/crumb.js'
-import { configureEnginePlugin } from '~/src/server/plugins/engine/index.js'
 import pluginErrorPages from '~/src/server/plugins/errorPages.js'
+import { context } from '~/src/server/plugins/nunjucks/context.js'
+import { paths } from '~/src/server/plugins/nunjucks/environment.js'
 import { plugin as pluginViews } from '~/src/server/plugins/nunjucks/index.js'
 import pluginPulse from '~/src/server/plugins/pulse.js'
 import pluginRouter from '~/src/server/plugins/router.js'
 import pluginSession from '~/src/server/plugins/session.js'
 import { prepareSecureContext } from '~/src/server/secure-context.js'
-import { CacheService } from '~/src/server/services/index.js'
+import * as formsService from '~/src/server/services/formsService.js'
 import { type RouteConfig } from '~/src/server/types.js'
 
 const proxyAgent = new ProxyAgent()
@@ -84,7 +90,6 @@ export async function createServer(routeConfig?: RouteConfig) {
     prepareSecureContext(server)
   }
 
-  const pluginEngine = await configureEnginePlugin(routeConfig)
   const pluginCrumb = configureCrumbPlugin(routeConfig)
   const pluginBlankie = configureBlankiePlugin()
 
@@ -94,13 +99,6 @@ export async function createServer(routeConfig?: RouteConfig) {
   await server.register(Scooter)
   await server.register(pluginBlankie)
   await server.register(pluginCrumb)
-  await server.register(Schmervice)
-
-  server.registerService(CacheService)
-
-  await server.register(...pluginEngine)
-
-  await server.register(pluginRouter)
 
   server.ext('onPreResponse', (request: Request, h: ResponseToolkit) => {
     const { response } = request
@@ -125,6 +123,30 @@ export async function createServer(routeConfig?: RouteConfig) {
   })
 
   await server.register(pluginViews)
+
+  await server.register(
+    {
+      plugin,
+      options: {
+        cacheName: 'session',
+        nunjucks: {
+          baseLayoutPath: 'layout.html',
+          paths
+        },
+        services: {
+          formsService,
+          formSubmissionService,
+          outputService
+        },
+        viewContext: context
+      }
+    },
+    {
+      routes: { prefix: FORM_PREFIX }
+    }
+  )
+
+  await server.register(pluginRouter)
   await server.register(pluginErrorPages)
   await server.register(blipp)
   await server.register(requestTracing)
