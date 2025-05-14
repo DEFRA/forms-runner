@@ -4,7 +4,7 @@ const { CI } = process.env
  * Jest config
  * @type {import('@jest/types').Config.InitialOptions}
  */
-module.exports = {
+export default {
   resetMocks: true,
   resetModules: true,
   restoreMocks: true,
@@ -46,9 +46,11 @@ module.exports = {
       '@defra/forms-model/.*',
       'nanoid', // Supports ESM only
       'slug', // Supports ESM only
-      '@defra/hapi-tracing' // Supports ESM only|
+      '@defra/hapi-tracing', // Supports ESM only|,
+      '@defra/forms-engine-plugin'
     ].join('|')}/)`
   ],
+  testEnvironment: 'node',
   testTimeout: 10000,
   forceExit: true
 }
