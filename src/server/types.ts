@@ -1,7 +1,6 @@
 
 import { type FormModel } from '@defra/forms-engine-plugin/engine/models/index.js'
 import { type DetailItem } from '@defra/forms-engine-plugin/engine/models/types.js'
-import { type PageController } from '@defra/forms-engine-plugin/engine/pageControllers/PageController.js'
 import {
   type FormDefinition,
   type FormMetadata,
@@ -40,8 +39,6 @@ export interface RouteConfig {
   formFileName?: string
   formFilePath?: string
   enforceCsrf?: boolean
-  services?: Services
-  controllers?: Record<string, typeof PageController>
 }
 
 export interface OutputService {

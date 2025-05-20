@@ -1,0 +1,33 @@
+{
+  "metadata": {},
+  "startPage": "/first-page",
+  "pages": [
+    {
+      "title": "First page",
+      "path": "/first-page",
+      "components": [],
+      "next": [
+        {
+          "path": "/summary"
+        }
+      ]
+    },
+    {
+      "path": "/summary",
+      "controller": "SummaryPageController",
+      "title": "Summary",
+      "components": [],
+      "next": []
+    }
+  ],
+  "lists": [],
+  "sections": [],
+  "conditions": [],
+  "name": "Alpha form",
+  "feedback": {
+    "feedbackForm": false
+  },
+  "phaseBanner": {
+    "phase": "alpha"
+  }
+}

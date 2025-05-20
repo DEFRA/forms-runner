@@ -1,8 +1,13 @@
+import { join, parse } from 'path'
+
 import plugin from '@defra/forms-engine-plugin'
+import { FormModel } from '@defra/forms-engine-plugin/engine/models/FormModel.js'
+import { type PluginOptions } from '@defra/forms-engine-plugin/engine/plugin.js'
 import {
   formSubmissionService,
   outputService
 } from '@defra/forms-engine-plugin/services/index.js'
+import { type FormDefinition } from '@defra/forms-model'
 import { Engine as CatboxMemory } from '@hapi/catbox-memory'
 import { Engine as CatboxRedis } from '@hapi/catbox-redis'
 import hapi, {
@@ -81,6 +86,68 @@ const serverOptions = (): ServerOptions => {
   return serverOptions
 }
 
+export async function getForm(importPath: string) {
+  const { ext } = parse(importPath)
+
+  const attributes: ImportAttributes = {
+    type: ext === '.json' ? 'json' : 'module'
+  }
+
+  const formImport = import(importPath, { with: attributes }) as Promise<{
+    default: FormDefinition
+  }>
+
+  const { default: definition } = await formImport
+  return definition
+}
+
+export const configureEnginePlugin = async ({
+  formFileName,
+  formFilePath
+}: RouteConfig = {}): Promise<
+  [
+    { plugin: typeof plugin; options: PluginOptions },
+    { routes: { prefix: string } }
+  ]
+> => {
+  const services = {
+    formsService,
+    formSubmissionService,
+    outputService
+  }
+
+  let model: FormModel | undefined
+
+  if (formFileName && formFilePath) {
+    // used for test where we want to test a single form definition
+    const definition = await getForm(join(formFilePath, formFileName))
+    const { name } = parse(formFileName)
+
+    const initialBasePath = `${FORM_PREFIX}/${name}`
+
+    model = new FormModel(definition, { basePath: initialBasePath }, services)
+  }
+
+  const pluginObject = {
+    plugin,
+    options: {
+      cacheName: 'session',
+      nunjucks: {
+        baseLayoutPath: 'layout.html',
+        paths
+      },
+      model,
+      services,
+      viewContext: context
+    }
+  }
+  const routeOptions = {
+    routes: { prefix: FORM_PREFIX }
+  }
+
+  return [pluginObject, routeOptions]
+}
+
 export async function createServer(routeConfig?: RouteConfig) {
   const server = hapi.server(serverOptions())
 
@@ -90,6 +157,7 @@ export async function createServer(routeConfig?: RouteConfig) {
     prepareSecureContext(server)
   }
 
+  const pluginEngine = await configureEnginePlugin(routeConfig)
   const pluginCrumb = configureCrumbPlugin(routeConfig)
   const pluginBlankie = configureBlankiePlugin()
 
@@ -123,29 +191,7 @@ export async function createServer(routeConfig?: RouteConfig) {
   })
 
   await server.register(pluginViews)
-
-  await server.register(
-    {
-      plugin,
-      options: {
-        cacheName: 'session',
-        nunjucks: {
-          baseLayoutPath: 'layout.html',
-          paths
-        },
-        services: {
-          formsService,
-          formSubmissionService,
-          outputService
-        },
-        viewContext: context
-      }
-    },
-    {
-      routes: { prefix: FORM_PREFIX }
-    }
-  )
-
+  await server.register(...pluginEngine)
   await server.register(pluginRouter)
   await server.register(pluginErrorPages)
   await server.register(blipp)
