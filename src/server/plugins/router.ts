@@ -1,4 +1,7 @@
-import { handleLegacyRedirect, isPathRelative } from '@defra/forms-engine-plugin/engine/helpers.js'
+import {
+  handleLegacyRedirect,
+  isPathRelative
+} from '@defra/forms-engine-plugin/engine/helpers.js'
 import { slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {

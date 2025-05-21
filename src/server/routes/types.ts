@@ -1,7 +1,6 @@
 import { type FormPayload } from '@defra/forms-engine-plugin/engine/types.js'
 import { type ReqRefDefaults, type Request } from '@hapi/hapi'
 
-
 export interface FormQuery extends Partial<Record<string, string>> {
   /**
    * Allow preview URL direct access without relevant page checks

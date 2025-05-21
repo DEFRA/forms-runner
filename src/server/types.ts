@@ -1,4 +1,3 @@
-
 import { type FormModel } from '@defra/forms-engine-plugin/engine/models/index.js'
 import { type DetailItem } from '@defra/forms-engine-plugin/engine/models/types.js'
 import {
