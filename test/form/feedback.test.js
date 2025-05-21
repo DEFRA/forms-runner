@@ -1,16 +1,15 @@
 import { join } from 'node:path'
 
-import { getFormMetadata } from '@defra/forms-engine-plugin/engine/services/formsService.js'
-
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
+import { getFormMetadata } from '~/src/server/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 const { FEEDBACK_LINK } = process.env
 const basePath = `${FORM_PREFIX}/feedback`
 
-jest.mock('@defra/forms-engine-plugin/engine/services/formsService.js')
+jest.mock('~/src/server/services/formsService.js')
 
 describe('Feedback link', () => {
   /** @type {Server} */
