@@ -1,19 +1,32 @@
 import {
   ComponentType,
+  ConditionType,
   ConditionsModel,
   ControllerPath,
   ControllerType,
   Engine,
   formDefinitionSchema,
+  formDefinitionV2Schema,
   hasComponents,
   hasRepeater,
   type ComponentDef,
+  type Condition2Data,
+  type Condition2RefData,
+  type Condition2RefValueData,
+  type Condition2ValueData,
+  type Condition2Wrapper,
+  type ConditionData,
+  type ConditionRefData,
+  type ConditionValueData,
   type ConditionWrapper,
+  type ConditionalComponentType,
   type ConditionsModelData,
+  type Coordinator,
   type DateUnits,
   type FormDefinition,
   type List,
-  type Page
+  type Page,
+  type RelativeDateValueData
 } from '@defra/forms-model'
 import { add } from 'date-fns'
 import { Parser, type Value } from 'expr-eval'
@@ -67,8 +80,12 @@ export class FormModel {
 
   controllers?: Record<string, typeof PageController>
   pageDefMap: Map<string, Page>
+
   listDefMap: Map<string, List>
+  listDefIdMap: Map<string, List>
+
   componentDefMap: Map<string, ComponentDef>
+  componentDefIdMap: Map<string, ComponentDef>
   pageMap: Map<string, PageControllerClass>
   componentMap: Map<string, Component>
 
@@ -78,7 +95,13 @@ export class FormModel {
     services: Services = defaultServices,
     controllers?: Record<string, typeof PageController>
   ) {
-    const result = formDefinitionSchema.validate(def, { abortEarly: false })
+    let schema = formDefinitionSchema
+
+    if (def.engine === Engine.V2) {
+      schema = formDefinitionV2Schema
+    }
+
+    const result = schema.validate(def, { abortEarly: false })
 
     if (result.error) {
       throw result.error
@@ -90,15 +113,18 @@ export class FormModel {
 
     // Add default lists
     def.lists.push({
+      id: '3167ecb5-61f9-4918-b7d0-6793b56aa814',
       name: '__yesNo',
       title: 'Yes/No',
       type: 'boolean',
       items: [
         {
+          id: '02900d42-83d1-4c72-a719-c4e8228952fa',
           text: 'Yes',
           value: true
         },
         {
+          id: 'f39000eb-c51b-4019-8f82-bbda0423f04d',
           text: 'No',
           value: false
         }
@@ -119,9 +145,74 @@ export class FormModel {
     this.services = services
     this.controllers = controllers
 
+    this.pageDefMap = new Map(def.pages.map((page) => [page.path, page]))
+    this.listDefMap = new Map(def.lists.map((list) => [list.name, list]))
+    this.listDefIdMap = new Map(
+      def.lists.map((list) => {
+        if (!list.id) {
+          throw Error('List ID is required')
+        }
+        return [list.id, list]
+      })
+    )
+    this.componentDefMap = new Map(
+      def.pages
+        .filter(hasComponents)
+        .flatMap((page) =>
+          page.components.map((component) => [component.name, component])
+        )
+    )
+    this.componentDefIdMap = new Map(
+      def.pages.filter(hasComponents).flatMap((page) =>
+        page.components.map((component) => {
+          if (!component.id) {
+            throw Error('Component ID is required')
+          }
+          return [component.id, component]
+        })
+      )
+    )
+
     def.conditions.forEach((conditionDef) => {
-      const condition = this.makeCondition(conditionDef)
-      this.conditions[condition.name] = condition
+      if (isCondition2Wrapper(conditionDef)) {
+        let coordinator
+
+        if (conditionDef.conditions.length > 1 && !conditionDef.coordinator) {
+          throw new Error('Coordinator is required for multiple conditions')
+        } else {
+          coordinator = conditionDef.coordinator
+        }
+
+        const conditionWrapper: ConditionWrapper = {
+          name: conditionDef.name,
+          displayName: conditionDef.displayName,
+          value: {
+            name: 'foo',
+            conditions: conditionDef.conditions.map((condition) => {
+              let newCondition: ConditionData | ConditionRefData
+
+              if (isCondition2Data(condition)) {
+                newCondition = convertCondition2Data(
+                  this,
+                  condition,
+                  coordinator
+                )
+              } else {
+                newCondition = convertCondition2RefData(
+                  this,
+                  condition,
+                  coordinator
+                )
+              }
+
+              return newCondition
+            })
+          }
+        }
+
+        const condition = this.makeCondition(conditionWrapper)
+        this.conditions[condition.name] = condition
+      }
     })
 
     this.pages = def.pages.map((pageDef) => createPage(this, pageDef))
@@ -141,16 +232,6 @@ export class FormModel {
         })
       )
     }
-
-    this.pageDefMap = new Map(def.pages.map((page) => [page.path, page]))
-    this.listDefMap = new Map(def.lists.map((list) => [list.name, list]))
-    this.componentDefMap = new Map(
-      def.pages
-        .filter(hasComponents)
-        .flatMap((page) =>
-          page.components.map((component) => [component.name, component])
-        )
-    )
 
     this.pageMap = new Map(this.pages.map((page) => [page.path, page]))
     this.componentMap = new Map(
@@ -523,4 +604,115 @@ function validateFormState(
   }
 
   return context
+}
+
+function isCondition2Wrapper(
+  wrapper: ConditionWrapper | Condition2Wrapper
+): wrapper is Condition2Wrapper {
+  return Array.isArray((wrapper as Condition2Wrapper).conditions)
+}
+
+function isCondition2RefValueData(
+  value: Condition2RefValueData | Condition2ValueData | RelativeDateValueData
+): value is Condition2RefValueData {
+  return value.type === ConditionType.Ref
+}
+
+function isCondition2ValueData(
+  value: Condition2RefValueData | Condition2ValueData | RelativeDateValueData
+): value is Condition2ValueData {
+  return value.type === ConditionType.Value
+}
+
+function getListItemValue(model: FormModel, listId: string, itemId: string) {
+  const foundList = model.listDefIdMap.get(listId)
+
+  if (!foundList) {
+    throw Error('List not found')
+  }
+
+  return foundList.items.find((item) => item.id === itemId)?.value
+}
+
+function createConditionValueDataFromRef(
+  value: Condition2RefValueData,
+  model: FormModel
+): ConditionValueData {
+  const refValue = getListItemValue(model, value.listId, value.itemId)
+
+  if (!refValue) {
+    throw Error('List item not found')
+  }
+
+  return {
+    display: 'foobar',
+    type: ConditionType.Value,
+    value: refValue.toString()
+  }
+}
+
+function createConditionValueDataFromV2(
+  value: Condition2ValueData
+): ConditionValueData {
+  return {
+    type: value.type,
+    value: value.value,
+    display: 'foobar'
+  }
+}
+
+function isCondition2Data(
+  condition: Condition2Data | Condition2RefData
+): condition is Condition2Data {
+  return 'componentId' in condition
+}
+
+function convertCondition2Data(
+  model: FormModel,
+  condition: Condition2Data,
+  coordinator: Coordinator | undefined
+): ConditionData {
+  const component = model.componentDefIdMap.get(condition.componentId)
+
+  if (!component) {
+    throw Error('Component not found')
+  }
+
+  let newValue
+  if (isCondition2RefValueData(condition.value)) {
+    newValue = createConditionValueDataFromRef(condition.value, model)
+  } else if (isCondition2ValueData(condition.value)) {
+    newValue = createConditionValueDataFromV2(condition.value)
+  } else {
+    newValue = condition.value
+  }
+
+  return {
+    field: {
+      name: component.name,
+      type: component.type as ConditionalComponentType /** @todo fix this */,
+      display: component.title
+    },
+    operator: condition.operator,
+    value: newValue,
+    coordinator
+  }
+}
+
+function convertCondition2RefData(
+  model: FormModel,
+  condition: Condition2RefData,
+  coordinator: Coordinator | undefined
+): ConditionRefData {
+  const component = model.componentDefIdMap.get(condition.conditionId)
+
+  if (!component) {
+    throw Error('Component not found')
+  }
+
+  return {
+    conditionName: component.name,
+    conditionDisplayName: component.title,
+    coordinator
+  }
 }
