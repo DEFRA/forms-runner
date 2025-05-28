@@ -4,14 +4,14 @@ import {
   ControllerPath,
   ControllerType,
   Engine,
-  convertCondition2Wrapper,
+  convertConditionWrapperFromV2,
   formDefinitionSchema,
   formDefinitionV2Schema,
   hasComponents,
   hasRepeater,
   type ComponentDef,
-  type Condition2Wrapper,
   type ConditionWrapper,
+  type ConditionWrapperV2,
   type ConditionsModelData,
   type DateUnits,
   type FormDefinition,
@@ -138,12 +138,14 @@ export class FormModel {
     this.pageDefMap = new Map(def.pages.map((page) => [page.path, page]))
     this.listDefMap = new Map(def.lists.map((list) => [list.name, list]))
     this.listDefIdMap = new Map(
-      def.lists.map((list) => {
-        if (!list.id) {
-          throw Error('List ID is required')
-        }
-        return [list.id, list]
-      })
+      def.lists
+        .filter((component) => component.id) // Skip components without an ID
+        .map((list) => {
+          if (!list.id) {
+            throw Error('List ID is required') // this shouldn't happen with the above filter
+          }
+          return [list.id, list]
+        })
     )
     this.componentDefMap = new Map(
       def.pages
@@ -154,20 +156,25 @@ export class FormModel {
     )
     this.componentDefIdMap = new Map(
       def.pages.filter(hasComponents).flatMap((page) =>
-        page.components.map((component) => {
-          if (!component.id) {
-            throw Error('Component ID is required')
-          }
-          return [component.id, component]
-        })
+        page.components
+          .filter((component) => component.id) // Skip components without an ID
+          .map((component) => {
+            if (!component.id) {
+              throw Error('Component ID is required') // this shouldn't happen with the above filter
+            }
+            return [component.id, component]
+          })
       )
     )
 
     def.conditions.forEach((conditionDef) => {
       let newCondition: ConditionWrapper
 
-      if (isCondition2Wrapper(conditionDef)) {
-        const convertedCondition = convertCondition2Wrapper(conditionDef, this)
+      if (isConditionWrapperV2(conditionDef)) {
+        const convertedCondition = convertConditionWrapperFromV2(
+          conditionDef,
+          this
+        )
         newCondition = convertedCondition
       } else {
         newCondition = conditionDef
@@ -576,8 +583,8 @@ function validateFormState(
   return context
 }
 
-function isCondition2Wrapper(
-  wrapper: ConditionWrapper | Condition2Wrapper
-): wrapper is Condition2Wrapper {
-  return Array.isArray((wrapper as Condition2Wrapper).conditions)
+function isConditionWrapperV2(
+  wrapper: ConditionWrapper | ConditionWrapperV2
+): wrapper is ConditionWrapperV2 {
+  return Array.isArray((wrapper as ConditionWrapperV2).conditions)
 }
