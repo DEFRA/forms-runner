@@ -21,8 +21,9 @@ describe('Routes', () => {
     await server.stop()
   })
 
-  test('cookies page is served with 24 hour duration', async () => {
+  test('cookies page is served with 24 hour duration and GA info', async () => {
     config.set('sessionTimeout', 86400000)
+    config.set('googleAnalyticsContainerId', '12345')
 
     const options = {
       method: 'GET',
@@ -44,10 +45,49 @@ describe('Routes', () => {
       name: 'session Remembers the information you enter When you close the browser, or after 1 day'
     })
 
+    const $cookieConsentRow = container.getByRole('row', {
+      name: 'cookieConsent Remembers your cookie preferences 1 year'
+    })
+
     expect($heading).toBeInTheDocument()
     expect($heading).toHaveClass('govuk-heading-l')
     expect($googleAnalyticsRowheader).toBeInTheDocument()
     expect($sessionDurationRow).toBeInTheDocument()
+    expect($cookieConsentRow).toBeInTheDocument()
+  })
+
+  test('cookies page is served without GA info', async () => {
+    config.set('sessionTimeout', 86400000)
+    config.reset('googleAnalyticsTrackingId')
+
+    const options = {
+      method: 'GET',
+      url: '/help/cookies/slug'
+    }
+
+    const { container } = await renderResponse(server, options)
+
+    const $heading = container.getByRole('heading', {
+      name: 'Cookies',
+      level: 1
+    })
+    const $googleAnalyticsRowheader = container.queryByRole('rowheader', {
+      name: '_ga_123456789'
+    })
+
+    const $sessionDurationRow = container.getByRole('row', {
+      name: 'session Remembers the information you enter When you close the browser, or after 1 day'
+    })
+
+    const $cookieConsentRow = container.queryByRole('row', {
+      name: 'cookieConsent Remembers your cookie preferences 1 year'
+    })
+
+    expect($heading).toBeInTheDocument()
+    expect($heading).toHaveClass('govuk-heading-l')
+    expect($googleAnalyticsRowheader).not.toBeInTheDocument()
+    expect($sessionDurationRow).toBeInTheDocument()
+    expect($cookieConsentRow).not.toBeInTheDocument()
   })
 
   test('accessibility statement page is served', async () => {
