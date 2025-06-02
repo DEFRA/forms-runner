@@ -13,6 +13,26 @@
 
     <h2 class="govuk-heading-m">Essential cookies</h2>
     <p class="govuk-body">Essential cookies keep your information secure. We do not need to ask your permission to use them.</p>
+    {% set essentialTableRows = [
+      [
+        { text: "session" },
+        { text: "Remembers the information you enter" },
+        { text: "When you close the browser, or after " + sessionDurationPretty }
+      ],
+      [
+        { text: "crumb" },
+        { text: "Ensures forms can only be submitted from this website" },
+        { text: "When you close the browser" }
+      ]
+    ] %}
+    {% if googleAnalyticsContainerId %}
+    {% set essentialTableRows = (essentialTableRows.unshift([
+          { text: "cookieConsent" },
+          { text: "Remembers your cookie preferences" },
+          { text: "1 year" }
+        ]), essentialTableRows)
+    %}
+    {% endif %}
     {{ govukTable({
       firstCellIsHeader: true,
       caption: "Essential cookies we use",
@@ -21,51 +41,37 @@
         { text: "Purpose" },
         { text: "Expires" }
       ],
-      rows: [
-        [
-          { text: "cookieConsent" },
-          { text: "Remembers your cookie preferences" },
-          { text: "1 year" }
-        ],
-        [
-          { text: "session" },
-          { text: "Remembers the information you enter" },
-          { text: "When you close the browser, or after " + sessionDurationPretty }
-        ],
-        [
-          { text: "crumb" },
-          { text: "Ensures forms can only be submitted from this website" },
-          { text: "When you close the browser" }
-        ]
-      ]
+      rows: essentialTableRows
     }) }}
 
-    <h2 class="govuk-heading-m">Analytics cookies</h2>
-    <p class="govuk-body">We use Google Analytics software to understand how people use our forms. We do this to help make sure the site is meeting the needs of its users and to help us make improvements.</p>
-    {{ govukTable({
-      firstCellIsHeader: true,
-      caption: "Analytics cookies we use",
-      head: [
-        { text: "Name" },
-        { text: "Purpose" },
-        { text: "Expires" }
-      ],
-      rows: [
-        [
-          { text: "_ga" },
-          { text: "Used by Google Analytics to help us count how many people visit our forms by tracking if you’ve visited before" },
-          { text: "2 years" }
+    {% if googleAnalyticsContainerId %}
+      <h2 class="govuk-heading-m">Analytics cookies</h2>
+      <p class="govuk-body">We use Google Analytics software to understand how people use our forms. We do this to help make sure the site is meeting the needs of its users and to help us make improvements.</p>
+      {{ govukTable({
+        firstCellIsHeader: true,
+        caption: "Analytics cookies we use",
+        head: [
+          { text: "Name" },
+          { text: "Purpose" },
+          { text: "Expires" }
         ],
-        [
-          { text: "_ga_" + googleAnalyticsContainerId },
-          { text: "Used by Google Analytics to find and track an individual session with your device" },
-          { text: "2 years" }
+        rows: [
+          [
+            { text: "_ga" },
+            { text: "Used by Google Analytics to help us count how many people visit our forms by tracking if you’ve visited before" },
+            { text: "2 years" }
+          ],
+          [
+            { text: "_ga_" + googleAnalyticsContainerId },
+            { text: "Used by Google Analytics to find and track an individual session with your device" },
+            { text: "2 years" }
+          ]
         ]
-      ]
-    }) }}
+      }) }}
 
-    <h2 class="govuk-heading-m">Change your settings</h2>
-    <p class="govuk-body">You can <a class="govuk-link" href="/help/cookie-preferences/{{ slug }}">change which cookies you’re happy for us to use</a>.</p>
+      <h2 class="govuk-heading-m">Change your settings</h2>
+      <p class="govuk-body">You can <a class="govuk-link" href="/help/cookie-preferences/{{ slug }}">change which cookies you’re happy for us to use</a>.</p>
+    {% endif %}
   </div>
 </div>
 {% endblock %}
