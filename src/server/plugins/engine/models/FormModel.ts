@@ -4,6 +4,7 @@ import {
   ControllerPath,
   ControllerType,
   Engine,
+  SchemaVersion,
   formDefinitionSchema,
   hasComponents,
   hasRepeater,
@@ -56,6 +57,7 @@ export class FormModel {
   /** the entire form JSON as an object */
   def: FormDefinition
 
+  schemaVersion?: SchemaVersion
   lists: FormDefinition['lists']
   sections: FormDefinition['sections'] = []
   name: string
@@ -109,6 +111,7 @@ export class FormModel {
     setPageTitles(def)
 
     this.engine = def.engine
+    this.schemaVersion = def.schema
     this.def = def
     this.lists = def.lists
     this.sections = def.sections
@@ -246,8 +249,10 @@ export class FormModel {
     return parser.parse(conditions.toExpression())
   }
 
-  getList(name: string): List | undefined {
-    return this.lists.find((list) => list.name === name)
+  getList(nameOrId: string): List | undefined {
+    return this.schemaVersion === SchemaVersion.V1
+      ? this.lists.find((list) => list.name === nameOrId)
+      : this.lists.find((list) => list.id === nameOrId)
   }
 
   /**
