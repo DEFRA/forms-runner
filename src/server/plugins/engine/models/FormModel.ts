@@ -9,14 +9,15 @@ import {
   formDefinitionV2Schema,
   hasComponents,
   hasRepeater,
+  isConditionWrapperV2,
   type ComponentDef,
   type ConditionWrapper,
-  type ConditionWrapperV2,
   type ConditionsModelData,
   type DateUnits,
   type FormDefinition,
   type List,
-  type Page
+  type Page,
+  type RuntimeFormModel
 } from '@defra/forms-model'
 import { add } from 'date-fns'
 import { Parser, type Value } from 'expr-eval'
@@ -167,20 +168,22 @@ export class FormModel {
       )
     )
 
+    const accessors: RuntimeFormModel = {
+      getListById: (listId: string) => this.getListById(listId),
+      getComponentById: (componentId: string) =>
+        this.getComponentById(componentId),
+      getConditionById: (conditionId: string) =>
+        def.conditions
+          .filter(isConditionWrapperV2)
+          .find((condition) => condition.id === conditionId)
+    }
+
     def.conditions.forEach((conditionDef) => {
-      let newCondition: ConditionWrapper
-
-      if (isConditionWrapperV2(conditionDef)) {
-        const convertedCondition = convertConditionWrapperFromV2(
-          conditionDef,
-          this
-        )
-        newCondition = convertedCondition
-      } else {
-        newCondition = conditionDef
-      }
-
-      const condition = this.makeCondition(newCondition)
+      const condition = this.makeCondition(
+        isConditionWrapperV2(conditionDef)
+          ? convertConditionWrapperFromV2(conditionDef, accessors)
+          : conditionDef
+      )
       this.conditions[condition.name] = condition
     })
 
@@ -581,10 +584,4 @@ function validateFormState(
   }
 
   return context
-}
-
-function isConditionWrapperV2(
-  wrapper: ConditionWrapper | ConditionWrapperV2
-): wrapper is ConditionWrapperV2 {
-  return Array.isArray((wrapper as ConditionWrapperV2).conditions)
 }
