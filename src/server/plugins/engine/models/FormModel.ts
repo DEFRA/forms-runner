@@ -4,6 +4,7 @@ import {
   ControllerPath,
   ControllerType,
   Engine,
+  SchemaVersion,
   convertConditionWrapperFromV2,
   formDefinitionSchema,
   formDefinitionV2Schema,
@@ -57,6 +58,8 @@ export class FormModel {
   /** The runtime engine that should be used */
   engine?: Engine
 
+  schemaVersion: SchemaVersion
+
   /** the entire form JSON as an object */
   def: FormDefinition
 
@@ -89,7 +92,7 @@ export class FormModel {
   ) {
     let schema = formDefinitionSchema
 
-    if (def.engine === Engine.V2) {
+    if (def.schema === SchemaVersion.V2) {
       schema = formDefinitionV2Schema
     }
 
@@ -127,6 +130,7 @@ export class FormModel {
     setPageTitles(def)
 
     this.engine = def.engine
+    this.schemaVersion = def.schema ?? SchemaVersion.V1
     this.def = def
     this.lists = def.lists
     this.sections = def.sections
@@ -503,7 +507,7 @@ export class FormModel {
   /**
    * Returns a condition by its ID. O(n) lookup time.
    * @param conditionId
-   * @returns ConditionWrapperV2
+   * @returns
    */
   getConditionById(conditionId: string): ConditionWrapperV2 | undefined {
     return this.def.conditions
