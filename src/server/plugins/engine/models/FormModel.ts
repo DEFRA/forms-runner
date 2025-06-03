@@ -12,12 +12,12 @@ import {
   isConditionWrapperV2,
   type ComponentDef,
   type ConditionWrapper,
+  type ConditionWrapperV2,
   type ConditionsModelData,
   type DateUnits,
   type FormDefinition,
   type List,
-  type Page,
-  type RuntimeFormModel
+  type Page
 } from '@defra/forms-model'
 import { add } from 'date-fns'
 import { Parser, type Value } from 'expr-eval'
@@ -77,6 +77,7 @@ export class FormModel {
 
   componentDefMap: Map<string, ComponentDef>
   componentDefIdMap: Map<string, ComponentDef>
+
   pageMap: Map<string, PageControllerClass>
   componentMap: Map<string, Component>
 
@@ -168,20 +169,10 @@ export class FormModel {
       )
     )
 
-    const accessors: RuntimeFormModel = {
-      getListById: (listId: string) => this.getListById(listId),
-      getComponentById: (componentId: string) =>
-        this.getComponentById(componentId),
-      getConditionById: (conditionId: string) =>
-        def.conditions
-          .filter(isConditionWrapperV2)
-          .find((condition) => condition.id === conditionId)
-    }
-
     def.conditions.forEach((conditionDef) => {
       const condition = this.makeCondition(
         isConditionWrapperV2(conditionDef)
-          ? convertConditionWrapperFromV2(conditionDef, accessors)
+          ? convertConditionWrapperFromV2(conditionDef, this)
           : conditionDef
       )
       this.conditions[condition.name] = condition
@@ -507,6 +498,17 @@ export class FormModel {
 
   getListById(listId: string): List | undefined {
     return this.listDefIdMap.get(listId)
+  }
+
+  /**
+   * Returns a condition by its ID. O(n) lookup time.
+   * @param conditionId
+   * @returns ConditionWrapperV2
+   */
+  getConditionById(conditionId: string): ConditionWrapperV2 | undefined {
+    return this.def.conditions
+      .filter(isConditionWrapperV2)
+      .find((condition) => condition.id === conditionId)
   }
 }
 
