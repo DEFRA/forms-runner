@@ -1,10 +1,10 @@
 import { StatusCodes } from 'http-status-codes'
 
+import { FormStatus } from '~/src/server/routes/types.js'
 import {
   getFormDefinition,
   getFormMetadata
-} from '~/src/server/plugins/engine/services/formsService.js'
-import { FormStatus } from '~/src/server/routes/types.js'
+} from '~/src/server/services/formsService.js'
 import { getJson } from '~/src/server/services/httpService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 

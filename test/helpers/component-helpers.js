@@ -70,5 +70,5 @@ export function renderDOM(html = '') {
 
 /**
  * @import { Server, ServerInjectOptions, ServerInjectResponse } from '@hapi/hapi'
- * @import { FormPayload, FormState, FormValue } from '~/src/server/plugins/engine/types.js'
+ * @import { FormPayload, FormState, FormValue } from '@defra/forms-engine-plugin/engine/types.js'
  */

@@ -1,6 +1,5 @@
+import { type FormPayload } from '@defra/forms-engine-plugin/engine/types.js'
 import { type ReqRefDefaults, type Request } from '@hapi/hapi'
-
-import { type FormPayload } from '~/src/server/plugins/engine/types.js'
 
 export interface FormQuery extends Partial<Record<string, string>> {
   /**
