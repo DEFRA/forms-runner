@@ -4,7 +4,8 @@ import {
   ControllerPath,
   ControllerType,
   Engine,
-  OperatorName
+  OperatorName,
+  SchemaVersion
 } from '@defra/forms-model'
 
 export default /** @satisfies {FormDefinition} */ ({
@@ -97,6 +98,7 @@ export default /** @satisfies {FormDefinition} */ ({
 
 export const V2 = /** @satisfies {FormDefinition} */ ({
   name: 'Conditions V2',
+  schema: SchemaVersion.V2,
   engine: Engine.V2,
   startPage: '/first-page',
   pages: /** @type {const} */ ([
@@ -105,6 +107,7 @@ export const V2 = /** @satisfies {FormDefinition} */ ({
       path: '/first-page',
       components: [
         {
+          id: '717eb213-4e4b-4a2d-9cfd-2780f5e1e3e5',
           name: 'yesNoField',
           title: 'Have you previously been married?',
           type: ComponentType.YesNoField,
@@ -138,7 +141,7 @@ export const V2 = /** @satisfies {FormDefinition} */ ({
           schema: {}
         }
       ],
-      condition: 'isNotPreviouslyMarried',
+      condition: '6c9e2f4a-1d7b-5e8c-3f6a-9e2d5b7c4f1a',
       section: 'marriage',
       next: []
     },
@@ -157,26 +160,19 @@ export const V2 = /** @satisfies {FormDefinition} */ ({
   ],
   conditions: [
     {
+      id: '6c9e2f4a-1d7b-5e8c-3f6a-9e2d5b7c4f1a',
       displayName: 'Not previously married',
-      name: 'isNotPreviouslyMarried',
-      value: {
-        name: 'Not previously married',
-        conditions: [
-          {
-            field: {
-              name: 'yesNoField',
-              display: 'Have you previously been married?',
-              type: ComponentType.YesNoField
-            },
-            operator: OperatorName.Is,
-            value: {
-              type: ConditionType.Value,
-              value: 'false',
-              display: 'No'
-            }
+      items: [
+        {
+          id: '4f7e1a9c-2b5d-8e3f-6c1a-7f9e2d4b5c8a',
+          componentId: '717eb213-4e4b-4a2d-9cfd-2780f5e1e3e5',
+          operator: OperatorName.Is,
+          value: {
+            type: ConditionType.StringValue,
+            value: 'false'
           }
-        ]
-      }
+        }
+      ]
     }
   ],
   outputEmail: 'enrique.chase@defra.gov.uk'
