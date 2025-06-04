@@ -282,7 +282,7 @@ export class FormModel {
   }
 
   getList(nameOrId: string): List | undefined {
-    return this.schemaVersion === SchemaVersion.V1
+    return this.schemaVersion === SchemaVersion.V1 || nameOrId === '__yesNo'
       ? this.lists.find((list) => list.name === nameOrId)
       : this.lists.find((list) => list.id === nameOrId)
   }
