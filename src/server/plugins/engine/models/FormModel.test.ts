@@ -103,9 +103,10 @@ describe('FormModel', () => {
     it('throws an error if schema validation fails', () => {
       jest.mock('@defra/forms-model')
 
-      formDefinitionV2Schema.validate = jest.fn().mockImplementation(() => {
-        throw new Error('Validation error')
+      formDefinitionV2Schema.validate = jest.fn().mockReturnValueOnce({
+        error: 'Validation error'
       })
+
       expect(() => new FormModel(definitionV2, { basePath: 'test' })).toThrow(
         'Validation error'
       )
