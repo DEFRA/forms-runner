@@ -162,7 +162,7 @@ export const V2 = /** @satisfies {FormDefinition} */ ({
     {
       id: '6c9e2f4a-1d7b-5e8c-3f6a-9e2d5b7c4f1a',
       displayName: 'Not previously married',
-      conditions: [
+      items: [
         {
           id: '4f7e1a9c-2b5d-8e3f-6c1a-7f9e2d4b5c8a',
           componentId: '717eb213-4e4b-4a2d-9cfd-2780f5e1e3e5',
