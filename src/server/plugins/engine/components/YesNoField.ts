@@ -6,6 +6,8 @@ import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/val
 import { type ErrorMessageTemplateList } from '~/src/server/plugins/engine/types.js'
 import { convertToLanguageMessages } from '~/src/server/utils/type-utils.js'
 
+export const yesNoListId = '3167ecb5-61f9-4918-b7d0-6793b56aa814'
+
 /**
  * @description
  * YesNoField is a radiosField with predefined values.
@@ -17,7 +19,7 @@ export class YesNoField extends SelectionControlField {
     def: YesNoFieldComponent,
     props: ConstructorParameters<typeof SelectionControlField>[1]
   ) {
-    super({ ...def, list: '__yesNo' }, props)
+    super({ ...def, list: yesNoListId }, props)
 
     const { options } = def
     let { formSchema } = this
