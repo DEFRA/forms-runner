@@ -1,4 +1,8 @@
-import { formDefinitionV2Schema, type FormDefinition } from '@defra/forms-model'
+import {
+  SchemaVersion,
+  formDefinitionV2Schema,
+  type FormDefinition
+} from '@defra/forms-model'
 
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type FormContextRequest } from '~/src/server/plugins/engine/types.js'
@@ -105,6 +109,22 @@ describe('FormModel', () => {
       expect(() => new FormModel(definitionV2, { basePath: 'test' })).toThrow(
         'Validation error'
       )
+    })
+
+    it('assigns v1 to the schema if not defined', () => {
+      const definitionWithoutSchema: FormDefinition = {
+        ...definition,
+        schema: undefined
+      }
+
+      // Mock validation to just return the definition
+      formDefinitionV2Schema.validate = jest
+        .fn()
+        .mockReturnValue({ value: definitionWithoutSchema })
+
+      const model = new FormModel(definitionWithoutSchema, { basePath: 'test' })
+
+      expect(model.schemaVersion).toBe(SchemaVersion.V1)
     })
   })
 
