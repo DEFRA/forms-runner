@@ -17,7 +17,7 @@ describe('FormModel', () => {
   })
 
   describe('Constructor', () => {
-    it("doesn't throw when conditions are passed with apostrophes", () => {
+    it('loads a valid form definition', () => {
       expect(
         () => new FormModel(definition, { basePath: 'test' })
       ).not.toThrow()
@@ -37,7 +37,7 @@ describe('FormModel', () => {
       expect(model.def.pages.at(1)?.title).toBe('Date of marriage')
     })
 
-    it('Builds a map of lists from the definition and only indexes those with IDs', () => {
+    it('Gets a list by ID', () => {
       jest.mock('@defra/forms-model')
 
       const definitionWithLists: FormDefinition = {
@@ -79,13 +79,13 @@ describe('FormModel', () => {
 
       const model = new FormModel(definitionWithLists, { basePath: 'test' })
 
-      expect(Array.from(model.listDefIdMap.keys())).toContain(
-        'c5eba145-b04d-4d41-a50c-e5e2f9b6357f'
-      )
+      expect(
+        model.getListById('c5eba145-b04d-4d41-a50c-e5e2f9b6357f')
+      ).toBeDefined()
       expect(model.listDefIdMap.size).toBe(2) // 1 + the yes/no list. list 'bar' isn't present as there's no ID
     })
 
-    it('Builds a map of components from the definition and only indexes those with IDs', () => {
+    it('Gets a component by ID', () => {
       jest.mock('@defra/forms-model')
 
       formDefinitionV2Schema.validate = jest
@@ -94,10 +94,22 @@ describe('FormModel', () => {
 
       const model = new FormModel(definitionV2, { basePath: 'test' })
 
-      expect(Array.from(model.componentDefIdMap.keys())).toContain(
-        '717eb213-4e4b-4a2d-9cfd-2780f5e1e3e5'
-      )
+      expect(
+        model.getComponentById('717eb213-4e4b-4a2d-9cfd-2780f5e1e3e5')
+      ).toBeDefined()
       expect(model.listDefIdMap.size).toBe(1)
+    })
+
+    it('gets a condition by its ID', () => {
+      jest.mock('@defra/forms-model')
+      formDefinitionV2Schema.validate = jest
+        .fn()
+        .mockReturnValue({ value: definitionV2 })
+      const model = new FormModel(definitionV2, { basePath: 'test' })
+
+      expect(
+        model.getConditionById('6c9e2f4a-1d7b-5e8c-3f6a-9e2d5b7c4f1a')
+      ).toBeDefined()
     })
 
     it('throws an error if schema validation fails', () => {
