@@ -95,6 +95,17 @@ describe('FormModel', () => {
       )
       expect(model.listDefIdMap.size).toBe(1)
     })
+
+    it('throws an error if schema validation fails', () => {
+      jest.mock('@defra/forms-model')
+
+      formDefinitionV2Schema.validate = jest.fn().mockImplementation(() => {
+        throw new Error('Validation error')
+      })
+      expect(() => new FormModel(definitionV2, { basePath: 'test' })).toThrow(
+        'Validation error'
+      )
+    })
   })
 
   describe('getFormContext', () => {
