@@ -206,13 +206,6 @@ export class FormModel {
   }
 
   /**
-   * build the entire model schema from individual pages/sections
-   */
-  makeSchema() {
-    return this.makeFilteredSchema(this.pages)
-  }
-
-  /**
    * build the entire model schema from individual pages/sections and filter out answers
    * for pages which are no longer accessible due to an answer that has been changed
    */
