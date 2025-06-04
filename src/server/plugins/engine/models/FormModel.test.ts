@@ -1,3 +1,5 @@
+import { formDefinitionV2Schema, type FormDefinition } from '@defra/forms-model'
+
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type FormContextRequest } from '~/src/server/plugins/engine/types.js'
 import { V2 as definitionV2 } from '~/test/form/definitions/conditions-basic.js'
@@ -6,6 +8,10 @@ import conditionsListDefinition from '~/test/form/definitions/conditions-list.js
 import fieldsRequiredDefinition from '~/test/form/definitions/fields-required.js'
 
 describe('FormModel', () => {
+  beforeEach(() => {
+    jest.resetAllMocks()
+  })
+
   describe('Constructor', () => {
     it("doesn't throw when conditions are passed with apostrophes", () => {
       expect(
@@ -25,6 +31,69 @@ describe('FormModel', () => {
         'Have you previously been married?'
       )
       expect(model.def.pages.at(1)?.title).toBe('Date of marriage')
+    })
+
+    it('Builds a map of lists from the definition and only indexes those with IDs', () => {
+      jest.mock('@defra/forms-model')
+
+      const definitionWithLists: FormDefinition = {
+        ...definitionV2,
+        lists: [
+          {
+            id: 'c5eba145-b04d-4d41-a50c-e5e2f9b6357f',
+            type: 'string',
+            title: 'foo',
+            name: 'foo',
+            items: [
+              { text: 'a', value: 'a' },
+              { text: 'b', value: 'b' }
+            ]
+          },
+          {
+            type: 'string',
+            title: 'bar',
+            name: 'bar',
+            items: [
+              {
+                id: 'a85a42a8-3e08-4c2a-b263-a0dc0b8c49f6',
+                text: 'a',
+                value: 'a'
+              },
+              {
+                id: 'c31664ac-887b-434b-b9f4-e5bc30d24439',
+                text: 'b',
+                value: 'b'
+              }
+            ]
+          }
+        ]
+      }
+
+      formDefinitionV2Schema.validate = jest
+        .fn()
+        .mockReturnValue({ value: definitionWithLists })
+
+      const model = new FormModel(definitionWithLists, { basePath: 'test' })
+
+      expect(Array.from(model.listDefIdMap.keys())).toContain(
+        'c5eba145-b04d-4d41-a50c-e5e2f9b6357f'
+      )
+      expect(model.listDefIdMap.size).toBe(2) // 1 + the yes/no list. list 'bar' isn't present as there's no ID
+    })
+
+    it('Builds a map of components from the definition and only indexes those with IDs', () => {
+      jest.mock('@defra/forms-model')
+
+      formDefinitionV2Schema.validate = jest
+        .fn()
+        .mockReturnValue({ value: definitionV2 })
+
+      const model = new FormModel(definitionV2, { basePath: 'test' })
+
+      expect(Array.from(model.componentDefIdMap.keys())).toContain(
+        '717eb213-4e4b-4a2d-9cfd-2780f5e1e3e5'
+      )
+      expect(model.listDefIdMap.size).toBe(1)
     })
   })
 

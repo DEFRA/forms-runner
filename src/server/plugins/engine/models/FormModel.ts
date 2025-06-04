@@ -145,13 +145,9 @@ export class FormModel {
     this.listDefMap = new Map(def.lists.map((list) => [list.name, list]))
     this.listDefIdMap = new Map(
       def.lists
-        .filter((component) => component.id) // Skip components without an ID
-        .map((list) => {
-          if (!list.id) {
-            throw Error('List ID is required') // this shouldn't happen with the above filter
-          }
-          return [list.id, list]
-        })
+        .filter((list) => list.id) // Skip lists without an ID
+        // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
+        .map((list) => [list.id as string, list])
     )
     this.componentDefMap = new Map(
       def.pages
@@ -165,10 +161,8 @@ export class FormModel {
         page.components
           .filter((component) => component.id) // Skip components without an ID
           .map((component) => {
-            if (!component.id) {
-              throw Error('Component ID is required') // this shouldn't happen with the above filter
-            }
-            return [component.id, component]
+            // eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
+            return [component.id as string, component]
           })
       )
     )
