@@ -25,7 +25,10 @@ import { Parser, type Value } from 'expr-eval'
 import joi from 'joi'
 
 import { type ListFormComponent } from '~/src/server/plugins/engine/components/ListFormComponent.js'
-import { yesNoListId } from '~/src/server/plugins/engine/components/YesNoField.js'
+import {
+  yesNoListId,
+  yesNoListName
+} from '~/src/server/plugins/engine/components/YesNoField.js'
 import {
   hasListFormField,
   type Component
@@ -109,7 +112,7 @@ export class FormModel {
 
     // Add default lists
     def.lists.push({
-      id: yesNoListId,
+      id: def.schema === SchemaVersion.V1 ? yesNoListName : yesNoListId,
       name: '__yesNo',
       title: 'Yes/No',
       type: 'boolean',
@@ -283,7 +286,7 @@ export class FormModel {
   }
 
   getList(nameOrId: string): List | undefined {
-    return this.schemaVersion === SchemaVersion.V1 && nameOrId !== yesNoListId
+    return this.schemaVersion === SchemaVersion.V1
       ? this.lists.find((list) => list.name === nameOrId)
       : this.lists.find((list) => list.id === nameOrId)
   }
