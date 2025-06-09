@@ -123,7 +123,6 @@
     homepageUrl: currentPath if context.isForceAccess else "https://www.gov.uk",
     containerClasses: "govuk-width-container",
     classes: "govuk-header--full-width-border",
-    rebrand: govukRebrand,
     productName: productName | safe | trim
   }) }}
   {{ govukServiceNavigation({
@@ -197,6 +196,6 @@
   } if slug %}
 
   {% if not context.isForceAccess %}
-    {{ govukFooter({ meta: meta, rebrand: govukRebrand }) }}
+    {{ govukFooter({ meta: meta }) }}
   {% endif %}
 {% endblock %}
