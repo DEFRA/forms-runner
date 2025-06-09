@@ -108,6 +108,7 @@ function evaluate(template) {
 }
 
 environment.addGlobal('evaluate', evaluate)
+environment.addGlobal('govukRebrand', config.get('showRebrand'))
 
 /**
  * @import { NunjucksContext } from '~/src/server/plugins/nunjucks/types.js'

@@ -21,4 +21,13 @@
       margin: 0 0 0 govuk-spacing(2);
     }
   }
+
+  &-rebrand {
+    vertical-align: middle;
+
+    // Align with product name
+    @include govuk-media-query($from: tablet) {
+      margin: -3px 0 2px;
+    }
+  }
 }
