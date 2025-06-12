@@ -270,11 +270,15 @@ export class FormModel {
     const context = { ...evaluationState }
 
     for (const key in conditions) {
-      Object.defineProperty(context, key, {
-        get() {
-          return conditions[key]?.fn(evaluationState)
-        }
-      })
+      const condition = conditions[key]
+
+      if (condition) {
+        Object.defineProperty(context, condition.displayName, {
+          get() {
+            return condition.fn(evaluationState)
+          }
+        })
+      }
     }
 
     return context as Extract<Value, Record<string, Value>>
