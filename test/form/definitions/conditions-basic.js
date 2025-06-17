@@ -167,10 +167,8 @@ export const V2 = /** @satisfies {FormDefinition} */ ({
           id: '4f7e1a9c-2b5d-8e3f-6c1a-7f9e2d4b5c8a',
           componentId: '717eb213-4e4b-4a2d-9cfd-2780f5e1e3e5',
           operator: OperatorName.Is,
-          value: {
-            type: ConditionType.StringValue,
-            value: 'false'
-          }
+          type: ConditionType.BooleanValue,
+          value: false
         }
       ]
     }
