@@ -14,6 +14,7 @@ import {
   getPageHref,
   proceed,
   safeGenerateCrumb,
+  stripTimeFromDate,
   type GlobalScope
 } from '~/src/server/plugins/engine/helpers.js'
 import { handleLegacyRedirect } from '~/src/server/plugins/engine/helpers.js'
@@ -837,6 +838,20 @@ describe('Helpers', () => {
       )
 
       expect(response).toBe(mockRedirectResponse)
+    })
+  })
+
+  describe('stripTimeFromDate', () => {
+    it('should strip time', () => {
+      expect(stripTimeFromDate(new Date(2000, 1, 1, 15, 12, 34))).toEqual(
+        new Date(2000, 1, 1)
+      )
+      expect(stripTimeFromDate(new Date(2012, 11, 29, 1, 2, 3))).toEqual(
+        new Date(2012, 11, 29)
+      )
+      expect(stripTimeFromDate(new Date(2012, 11, 29))).toEqual(
+        new Date(2012, 11, 29)
+      )
     })
   })
 })

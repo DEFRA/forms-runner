@@ -20,7 +20,7 @@ import {
   type List,
   type Page
 } from '@defra/forms-model'
-import { add } from 'date-fns'
+import { add, format } from 'date-fns'
 import { Parser, type Value } from 'expr-eval'
 import joi from 'joi'
 
@@ -37,7 +37,8 @@ import {
   findPage,
   getError,
   getPage,
-  setPageTitles
+  setPageTitles,
+  stripTimeFromDate
 } from '~/src/server/plugins/engine/helpers.js'
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
@@ -229,7 +230,10 @@ export class FormModel {
    * Instantiates a Condition based on {@link ConditionWrapper}
    * @param condition
    */
-  makeCondition(condition: ConditionWrapper): ExecutableCondition {
+  makeCondition(
+    condition: ConditionWrapper,
+    conditionDateFn?: () => Date
+  ): ExecutableCondition {
     const parser = new Parser({
       operators: {
         logical: true
@@ -238,7 +242,18 @@ export class FormModel {
 
     Object.assign(parser.functions, {
       dateForComparison(timePeriod: number, timeUnit: DateUnits) {
-        return add(new Date(), { [timeUnit]: timePeriod }).toISOString()
+        // The time element has to be stripped, then formatted as YYYY-MM-DD otherwise we can hit
+        // time element and BST issues giving the wrong date to compare against
+        // Do not use .toISOString() to format the date as that introduces BST errors.
+        return format(
+          add(
+            stripTimeFromDate(
+              conditionDateFn !== undefined ? conditionDateFn() : new Date()
+            ),
+            { [timeUnit]: timePeriod }
+          ),
+          'yyyy-MM-dd'
+        )
       }
     })
 

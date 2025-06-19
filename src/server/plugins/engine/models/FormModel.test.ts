@@ -9,6 +9,7 @@ import { type FormContextRequest } from '~/src/server/plugins/engine/types.js'
 import { V2 as definitionV2 } from '~/test/form/definitions/conditions-basic.js'
 import definition from '~/test/form/definitions/conditions-escaping.js'
 import conditionsListDefinition from '~/test/form/definitions/conditions-list.js'
+import relativeDatesDefinition from '~/test/form/definitions/conditions-relative-dates-v2.js'
 import fieldsRequiredDefinition from '~/test/form/definitions/fields-required.js'
 
 describe('FormModel', () => {
@@ -238,6 +239,52 @@ describe('FormModel', () => {
         QwcNsc: 'vegan',
         zeQDES: ['peppers', 'cheese', 'ham']
       })
+    })
+  })
+
+  describe('makeCondition', () => {
+    test('relative date condition', () => {
+      jest.mock('@defra/forms-model')
+      formDefinitionV2Schema.validate = jest
+        .fn()
+        .mockReturnValue({ value: relativeDatesDefinition })
+      const model = new FormModel(relativeDatesDefinition, { basePath: 'test' })
+
+      const allConditionsKeys = Object.keys(model.conditions)
+      expect(allConditionsKeys).toHaveLength(8)
+
+      // Only test releative date conditions
+      const relativeConditionsKeys = allConditionsKeys.slice(4)
+      expect(relativeConditionsKeys).toHaveLength(4)
+
+      const formState = {
+        ybMHIv: '2023-06-18'
+      }
+
+      const expectedResultsDayBefore = [true, false, false, true]
+
+      const expectedResultsDayOf = [true, true, false, false]
+
+      const expectedResultsDayAfter = [false, true, true, false]
+
+      // Only relative date conditions
+      for (let i = 0; i < relativeConditionsKeys.length; i++) {
+        const condition = model.conditions[relativeConditionsKeys[i]]
+        // @ts-expect-error - type doesnt need to match for this test
+        const conditionExec = model.makeCondition(
+          condition,
+          () => new Date(2025, 5, 19)
+        )
+        formState.ybMHIv = '2023-06-18'
+        expect(conditionExec.fn(formState)).toBe(expectedResultsDayBefore[i])
+
+        formState.ybMHIv = '2023-06-19'
+        expect(conditionExec.fn(formState)).toBe(expectedResultsDayOf[i])
+
+        formState.ybMHIv = '2023-06-20'
+        expect(conditionExec.fn(formState)).toBe(expectedResultsDayAfter[i])
+      }
+      expect(1).toBeTruthy()
     })
   })
 })

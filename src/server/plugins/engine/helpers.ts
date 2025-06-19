@@ -405,3 +405,11 @@ export function setPageTitles(def: FormDefinition) {
     }
   })
 }
+
+/**
+ * Strips the time component from a JS date object
+ * @param inDate - supplied date (potentially with a time component)
+ */
+export function stripTimeFromDate(inDate: Date) {
+  return new Date(inDate.getFullYear(), inDate.getMonth(), inDate.getDate())
+}
