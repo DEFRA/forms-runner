@@ -232,7 +232,7 @@ export class FormModel {
    */
   makeCondition(
     condition: ConditionWrapper,
-    conditionDateFn?: () => Date
+    currentTimeFn?: () => Date // For unit testing
   ): ExecutableCondition {
     const parser = new Parser({
       operators: {
@@ -248,7 +248,7 @@ export class FormModel {
         return format(
           add(
             stripTimeFromDate(
-              conditionDateFn !== undefined ? conditionDateFn() : new Date()
+              currentTimeFn !== undefined ? currentTimeFn() : new Date()
             ),
             { [timeUnit]: timePeriod }
           ),
