@@ -270,8 +270,8 @@ describe('FormModel', () => {
       // Only relative date conditions
       for (let i = 0; i < relativeConditionsKeys.length; i++) {
         const condition = model.conditions[relativeConditionsKeys[i]]
-        // @ts-expect-error - type doesnt need to match for this test
         const conditionExec = model.makeCondition(
+          // @ts-expect-error - type doesnt need to match for this test
           condition,
           () => new Date(2025, 5, 19)
         )
@@ -284,7 +284,6 @@ describe('FormModel', () => {
         formState.ybMHIv = '2023-06-20'
         expect(conditionExec.fn(formState)).toBe(expectedResultsDayAfter[i])
       }
-      expect(1).toBeTruthy()
     })
   })
 })
