@@ -20,7 +20,7 @@ import {
   type List,
   type Page
 } from '@defra/forms-model'
-import { add, format } from 'date-fns'
+import { add, format, startOfToday } from 'date-fns'
 import { Parser, type Value } from 'expr-eval'
 import joi from 'joi'
 
@@ -37,8 +37,7 @@ import {
   findPage,
   getError,
   getPage,
-  setPageTitles,
-  stripTimeFromDate
+  setPageTitles
 } from '~/src/server/plugins/engine/helpers.js'
 import { type ExecutableCondition } from '~/src/server/plugins/engine/models/types.js'
 import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
@@ -242,16 +241,14 @@ export class FormModel {
 
     Object.assign(parser.functions, {
       dateForComparison(timePeriod: number, timeUnit: DateUnits) {
-        // The time element has to be stripped, then formatted as YYYY-MM-DD otherwise we can hit
-        // time element and BST issues giving the wrong date to compare against
+        // The time element must be stripped (hence using startOfDay() which has no time element),
+        // then formatted as YYYY-MM-DD otherwise we can hit time element and BST issues giving the
+        // wrong date to compare against.
         // Do not use .toISOString() to format the date as that introduces BST errors.
         return format(
-          add(
-            stripTimeFromDate(
-              currentTimeFn !== undefined ? currentTimeFn() : new Date()
-            ),
-            { [timeUnit]: timePeriod }
-          ),
+          add(currentTimeFn !== undefined ? currentTimeFn() : startOfToday(), {
+            [timeUnit]: timePeriod
+          }),
           'yyyy-MM-dd'
         )
       }
