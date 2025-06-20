@@ -241,9 +241,26 @@ describe('DatePartsField', () => {
           })
         )
 
+        // Check a non-4-digit year shows as an error
+        const state4 = getFormState({
+          day: 1,
+          month: 2,
+          year: 20
+        })
+        const result4 = field.getContextValueFromState(state4)
+
+        const state5 = getFormState({
+          day: 1,
+          month: 2,
+          year: 2000
+        })
+        const result5 = field.getContextValueFromState(state5)
+
         expect(result1.errors).toBeTruthy()
         expect(result2.errors).toBeTruthy()
         expect(result3.errors).toBeTruthy()
+        expect(result4).toBeNull()
+        expect(result5).toBe('2000-02-01')
       })
     })
 

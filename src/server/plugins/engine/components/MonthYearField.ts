@@ -125,6 +125,10 @@ export class MonthYearField extends FormComponent {
       return null
     }
 
+    if (`${value.year}`.length !== 4) {
+      return null
+    }
+
     return format(`${value.year}-${value.month}-01`, 'yyyy-MM')
   }
 

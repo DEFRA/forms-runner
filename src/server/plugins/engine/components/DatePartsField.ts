@@ -131,6 +131,10 @@ export class DatePartsField extends FormComponent {
       return null
     }
 
+    if (`${value.year}`.length !== 4) {
+      return null
+    }
+
     return format(`${value.year}-${value.month}-${value.day}`, 'yyyy-MM-dd')
   }
 
