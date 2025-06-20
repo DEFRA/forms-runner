@@ -643,8 +643,9 @@ export const plugin = {
       method: 'get',
       path: '/upload-status/{uploadId}',
       handler: async (request, h) => {
+        const { uploadId } = request.params as { uploadId: string }
+
         try {
-          const { uploadId } = request.params as { uploadId: string }
           const status = await getUploadStatus(uploadId)
 
           if (!status) {
@@ -653,10 +654,11 @@ export const plugin = {
 
           return h.response(status)
         } catch (error) {
+          const err =
+            error instanceof Error ? error : new Error('Unknown error')
           request.logger.error(
-            ['upload-status'],
-            'Upload status check failed',
-            error
+            err,
+            `[uploadStatusFailed] Upload status check failed for uploadId: ${uploadId} - ${err.message}`
           )
           return h.response({ error: 'Status check error' }).code(500)
         }

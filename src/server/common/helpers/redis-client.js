@@ -53,17 +53,22 @@ export function buildRedisClient() {
   }
 
   redisClient.on('connect', () => {
-    logger.info('Connected to Redis server')
+    logger.info('[redisConnected] Connected to Redis server')
   })
 
   redisClient.on('close', () => {
     logger.warn(
-      'Redis connection closed attempting reconnect with default behavior'
+      '[redisDisconnected] Redis connection closed attempting reconnect with default behavior'
     )
   })
 
   redisClient.on('error', (error) => {
-    logger.error(error, `Redis connection error ${error}.`)
+    const err =
+      error instanceof Error ? error : new Error('Unknown Redis error')
+    logger.error(
+      err,
+      `[redisConnectionError] Redis connection error - ${err.message}`
+    )
   })
 
   return redisClient
