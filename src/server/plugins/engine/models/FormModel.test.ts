@@ -4,6 +4,7 @@ import {
   type FormDefinition
 } from '@defra/forms-model'
 
+import { todayAsDateOnly } from '~/src/server/plugins/engine/date-helper.js'
 import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import { type FormContextRequest } from '~/src/server/plugins/engine/types.js'
 import { V2 as definitionV2 } from '~/test/form/definitions/conditions-basic.js'
@@ -11,6 +12,8 @@ import definition from '~/test/form/definitions/conditions-escaping.js'
 import conditionsListDefinition from '~/test/form/definitions/conditions-list.js'
 import relativeDatesDefinition from '~/test/form/definitions/conditions-relative-dates-v2.js'
 import fieldsRequiredDefinition from '~/test/form/definitions/fields-required.js'
+
+jest.mock('~/src/server/plugins/engine/date-helper.ts')
 
 describe('FormModel', () => {
   beforeEach(() => {
@@ -270,10 +273,10 @@ describe('FormModel', () => {
       // Only relative date conditions
       for (let i = 0; i < relativeConditionsKeys.length; i++) {
         const condition = model.conditions[relativeConditionsKeys[i]]
+        jest.mocked(todayAsDateOnly).mockReturnValue(new Date(2025, 5, 19))
         const conditionExec = model.makeCondition(
           // @ts-expect-error - type doesnt need to match for this test
-          condition,
-          () => new Date(2025, 5, 19)
+          condition
         )
         formState.ybMHIv = '2023-06-18'
         expect(conditionExec.fn(formState)).toBe(expectedResultsDayBefore[i])

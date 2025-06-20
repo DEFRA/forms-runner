@@ -20,7 +20,7 @@ import {
   type List,
   type Page
 } from '@defra/forms-model'
-import { add, format, startOfToday } from 'date-fns'
+import { add, format } from 'date-fns'
 import { Parser, type Value } from 'expr-eval'
 import joi from 'joi'
 
@@ -33,6 +33,7 @@ import {
   hasListFormField,
   type Component
 } from '~/src/server/plugins/engine/components/helpers.js'
+import { todayAsDateOnly } from '~/src/server/plugins/engine/date-helper.js'
 import {
   findPage,
   getError,
@@ -229,10 +230,7 @@ export class FormModel {
    * Instantiates a Condition based on {@link ConditionWrapper}
    * @param condition
    */
-  makeCondition(
-    condition: ConditionWrapper,
-    currentTimeFn?: () => Date // For unit testing
-  ): ExecutableCondition {
+  makeCondition(condition: ConditionWrapper): ExecutableCondition {
     const parser = new Parser({
       operators: {
         logical: true
@@ -246,9 +244,7 @@ export class FormModel {
         // wrong date to compare against.
         // Do not use .toISOString() to format the date as that introduces BST errors.
         return format(
-          add(currentTimeFn !== undefined ? currentTimeFn() : startOfToday(), {
-            [timeUnit]: timePeriod
-          }),
+          add(todayAsDateOnly(), { [timeUnit]: timePeriod }),
           'yyyy-MM-dd'
         )
       }
