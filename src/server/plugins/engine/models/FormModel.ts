@@ -20,7 +20,7 @@ import {
   type List,
   type Page
 } from '@defra/forms-model'
-import { add } from 'date-fns'
+import { add, format } from 'date-fns'
 import { Parser, type Value } from 'expr-eval'
 import joi from 'joi'
 
@@ -33,6 +33,7 @@ import {
   hasListFormField,
   type Component
 } from '~/src/server/plugins/engine/components/helpers.js'
+import { todayAsDateOnly } from '~/src/server/plugins/engine/date-helper.js'
 import {
   findPage,
   getError,
@@ -238,7 +239,14 @@ export class FormModel {
 
     Object.assign(parser.functions, {
       dateForComparison(timePeriod: number, timeUnit: DateUnits) {
-        return add(new Date(), { [timeUnit]: timePeriod }).toISOString()
+        // The time element must be stripped (hence using startOfDay() which has no time element),
+        // then formatted as YYYY-MM-DD otherwise we can hit time element and BST issues giving the
+        // wrong date to compare against.
+        // Do not use .toISOString() to format the date as that introduces BST errors.
+        return format(
+          add(todayAsDateOnly(), { [timeUnit]: timePeriod }),
+          'yyyy-MM-dd'
+        )
       }
     })
 
