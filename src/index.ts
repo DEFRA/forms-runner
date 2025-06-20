@@ -5,8 +5,12 @@ import { createServer } from '~/src/server/index.js'
 const logger = createLogger()
 
 process.on('unhandledRejection', (error) => {
+  const err = error instanceof Error ? error : new Error('Unknown error')
   logger.info('Unhandled rejection')
-  logger.error(error)
+  logger.error(
+    err,
+    `[unhandledRejection] Unhandled promise rejection: ${err.message}`
+  )
   throw error
 })
 
@@ -26,6 +30,9 @@ async function startServer() {
 }
 
 startServer().catch((error: unknown) => {
+  const err =
+    error instanceof Error ? error : new Error('Unknown startup error')
   logger.info('Server failed to start :(')
-  logger.error(error)
+  logger.error(err, `[serverStartup] Server failed to start: ${err.message}`)
+  throw error
 })
