@@ -222,9 +222,18 @@ describe('MonthYearField', () => {
           })
         )
 
+        // Ensure non-4-digit year shows as an error
+        const result4 = collection.validate(
+          getFormData({
+            month: '1',
+            year: '20'
+          })
+        )
+
         expect(result1.errors).toBeTruthy()
         expect(result2.errors).toBeTruthy()
         expect(result3.errors).toBeTruthy()
+        expect(result4.errors).toBeTruthy()
       })
     })
 
