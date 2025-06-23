@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@defra/forms-model'
 import { Cluster, Redis } from 'ioredis'
 
 import { config } from '~/src/config/index.js'
@@ -63,12 +64,8 @@ export function buildRedisClient() {
   })
 
   redisClient.on('error', (error) => {
-    const err =
-      error instanceof Error ? error : new Error('Unknown Redis error')
-    logger.error(
-      err,
-      `[redisConnectionError] Redis connection error - ${err.message}`
-    )
+    const err = getErrorMessage(error)
+    logger.error(err, `[redisConnectionError] Redis connection error - ${err}`)
   })
 
   return redisClient

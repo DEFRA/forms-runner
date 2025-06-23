@@ -1,4 +1,8 @@
-import { hasFormComponents, slugSchema } from '@defra/forms-model'
+import {
+  getErrorMessage,
+  hasFormComponents,
+  slugSchema
+} from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type Plugin,
@@ -654,11 +658,10 @@ export const plugin = {
 
           return h.response(status)
         } catch (error) {
-          const err =
-            error instanceof Error ? error : new Error('Unknown error')
+          const errMsg = getErrorMessage(error)
           request.logger.error(
-            err,
-            `[uploadStatusFailed] Upload status check failed for uploadId: ${uploadId} - ${err.message}`
+            errMsg,
+            `[uploadStatusFailed] Upload status check failed for uploadId: ${uploadId} - ${errMsg}`
           )
           return h.response({ error: 'Status check error' }).code(500)
         }

@@ -1,6 +1,7 @@
 import {
   ControllerPath,
   Engine,
+  getErrorMessage,
   hasComponents,
   isFormType,
   type ComponentDef,
@@ -148,13 +149,12 @@ export function encodeUrl(link?: string) {
     try {
       return new URL(link).toString() // escape the search params without breaking the ? and & reserved characters in rfc2368
     } catch (err) {
-      const error =
-        err instanceof Error ? err : new Error('URL encoding failed')
+      const errMsg = getErrorMessage(err)
       logger.error(
-        error,
-        `[urlEncodingFailed] Failed to encode URL: ${link} - ${error.message}`
+        errMsg,
+        `[urlEncodingFailed] Failed to encode URL: ${link} - ${errMsg}`
       )
-      throw error
+      throw err
     }
   }
 }
