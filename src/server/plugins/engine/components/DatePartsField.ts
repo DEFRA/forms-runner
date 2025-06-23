@@ -10,6 +10,7 @@ import {
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
 import { type DateInputItem } from '~/src/server/plugins/engine/components/types.js'
+import { parseStrictDate } from '~/src/server/plugins/engine/date-helper.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
@@ -121,17 +122,14 @@ export class DatePartsField extends FormComponent {
     if (
       !value ||
       !isValid(
-        parse(
+        parseStrictDate(
+          value,
           `${value.year}-${value.month}-${value.day}`,
           'yyyy-MM-dd',
           new Date()
         )
       )
     ) {
-      return null
-    }
-
-    if (`${value.year}`.length !== 4) {
       return null
     }
 
