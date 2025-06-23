@@ -441,7 +441,6 @@ describe('QuestionPageController', () => {
       expect(filtered[1].model.label?.text).toBe('Select from the list')
       expect(filtered[1].model.items).toEqual([
         {
-          id: expect.any(String),
           checked: false,
           condition: 'isBarnOwl',
           selected: false,
@@ -449,7 +448,6 @@ describe('QuestionPageController', () => {
           value: '1'
         },
         {
-          id: expect.any(String),
           checked: false,
           condition: 'isBarnOwl',
           selected: false,
@@ -499,7 +497,6 @@ describe('QuestionPageController', () => {
       expect(filtered[1].model.label?.text).toBe('Select from the list')
       expect(filtered[1].model.items).toEqual([
         {
-          id: expect.any(String),
           checked: false,
           condition: 'notBarnOwl',
           selected: false,
@@ -507,7 +504,6 @@ describe('QuestionPageController', () => {
           value: '3'
         },
         {
-          id: expect.any(String),
           checked: false,
           condition: 'notBarnOwl',
           selected: false,
