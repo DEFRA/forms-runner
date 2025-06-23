@@ -16,8 +16,10 @@ import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   listNumber,
   listNumberExamples,
+  listNumberV2,
   listString,
-  listStringExamples
+  listStringExamples,
+  listStringV2
 } from '~/test/fixtures/list.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
@@ -72,6 +74,60 @@ describe.each([
     options: {
       label: 'number list',
       list: listNumber,
+      examples: listNumberExamples,
+      allow: [1, 2, 3, 4],
+      deny: [5, 6, 7, 8]
+    }
+  },
+  {
+    component: {
+      title: 'String list title v2',
+      shortDescription: 'String list',
+      name: 'myComponent',
+      type: ComponentType.CheckboxesField,
+      list: 'listString',
+      options: {}
+    } satisfies CheckboxesFieldComponent,
+
+    options: {
+      label: 'string list',
+      list: listStringV2,
+      examples: listStringExamples,
+      allow: ['1', '2', '3', '4'],
+      deny: ['5', '6', '7', '8']
+    }
+  },
+  {
+    component: {
+      title: 'String list title v2',
+      shortDescription: 'String list',
+      name: 'myComponent',
+      type: ComponentType.CheckboxesField,
+      list: 'listString',
+      options: {}
+    } satisfies CheckboxesFieldComponent,
+
+    options: {
+      label: 'string list',
+      list: listStringV2,
+      examples: listStringExamples,
+      allow: ['1', '2', '3', '4'],
+      deny: ['5', '6', '7', '8']
+    }
+  },
+  {
+    component: {
+      title: 'Number list title v2',
+      name: 'myComponent',
+      shortDescription: 'Number list',
+      type: ComponentType.CheckboxesField,
+      list: 'listNumber',
+      options: {}
+    } satisfies CheckboxesFieldComponent,
+
+    options: {
+      label: 'number list',
+      list: listNumberV2,
       examples: listNumberExamples,
       allow: [1, 2, 3, 4],
       deny: [5, 6, 7, 8]
