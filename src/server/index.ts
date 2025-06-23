@@ -126,7 +126,11 @@ export async function createServer(routeConfig?: RouteConfig) {
 
   await server.register(pluginViews)
   await server.register(pluginErrorPages)
-  await server.register(blipp)
+
+  if (config.get('cdpEnvironment') === 'local') {
+    await server.register(blipp)
+  }
+
   await server.register(requestTracing)
 
   server.state('cookieConsent', {
