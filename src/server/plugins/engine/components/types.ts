@@ -115,3 +115,14 @@ export interface ComponentViewModel {
   isFormComponent: boolean
   model: ViewModel
 }
+
+export interface DatePartsState extends Record<string, number> {
+  day: number
+  month: number
+  year: number
+}
+
+export interface MonthYearState extends Record<string, number> {
+  month: number
+  year: number
+}

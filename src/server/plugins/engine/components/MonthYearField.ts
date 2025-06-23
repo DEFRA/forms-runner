@@ -14,7 +14,10 @@ import {
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
-import { type DateInputItem } from '~/src/server/plugins/engine/components/types.js'
+import {
+  type DateInputItem,
+  type MonthYearState
+} from '~/src/server/plugins/engine/components/types.js'
 import { parseStrictDate } from '~/src/server/plugins/engine/date-helper.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
@@ -220,11 +223,6 @@ export class MonthYearField extends FormComponent {
       NumberField.isNumber(value.year)
     )
   }
-}
-
-export interface MonthYearState extends Record<string, number> {
-  month: number
-  year: number
 }
 
 export function getValidatorMonthYear(component: MonthYearField) {
