@@ -1,3 +1,5 @@
+import { randomUUID } from 'crypto'
+
 /**
  * Factory method for list Item
  * @param {Partial<Item>} partialListItem
@@ -5,6 +7,7 @@
  */
 export function createListItemFactory(partialListItem) {
   return {
+    id: randomUUID(),
     text: 'text',
     value: 1,
     description: 'Valid for 24 hours from the start time that you select',
@@ -19,6 +22,7 @@ export function createListItemFactory(partialListItem) {
  */
 export function createListFromFactory(partialList) {
   return {
+    id: randomUUID(),
     name: 'licenceLengthDays',
     title: 'Licence length (days)',
     type: 'number',
