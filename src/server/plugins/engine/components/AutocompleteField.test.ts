@@ -14,10 +14,8 @@ import { FormModel } from '~/src/server/plugins/engine/models/FormModel.js'
 import {
   listNumber,
   listNumberExamples,
-  listNumberV2,
   listString,
-  listStringExamples,
-  listStringV2
+  listStringExamples
 } from '~/test/fixtures/list.js'
 import definition from '~/test/form/definitions/blank.js'
 import { getFormData, getFormState } from '~/test/helpers/component-helpers.js'
@@ -50,38 +48,6 @@ describe.each([
 
     options: {
       list: listNumber,
-      examples: listNumberExamples,
-      allow: [1, 2, 3, 4],
-      shortDescription: 'My number list'
-    }
-  },
-  {
-    component: {
-      title: 'String list v2',
-      name: 'myComponent',
-      type: ComponentType.AutocompleteField,
-      list: 'listString',
-      options: {}
-    } satisfies AutocompleteFieldComponent,
-
-    options: {
-      list: listStringV2,
-      examples: listStringExamples,
-      allow: ['1', '2', '3', '4'],
-      shortDescription: 'My string list'
-    }
-  },
-  {
-    component: {
-      title: 'Number list v2',
-      name: 'myComponent',
-      type: ComponentType.AutocompleteField,
-      list: 'listNumber',
-      options: {}
-    } satisfies AutocompleteFieldComponent,
-
-    options: {
-      list: listNumberV2,
       examples: listNumberExamples,
       allow: [1, 2, 3, 4],
       shortDescription: 'My number list'
