@@ -1,5 +1,5 @@
 import { ComponentType, type MonthYearFieldComponent } from '@defra/forms-model'
-import { format, isValid, parse } from 'date-fns'
+import { format, isValid } from 'date-fns'
 import {
   type Context,
   type CustomValidator,
@@ -14,7 +14,11 @@ import {
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
-import { type DateInputItem } from '~/src/server/plugins/engine/components/types.js'
+import {
+  type DateInputItem,
+  type MonthYearState
+} from '~/src/server/plugins/engine/components/types.js'
+import { parseStrictDate } from '~/src/server/plugins/engine/date-helper.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
@@ -119,7 +123,12 @@ export class MonthYearField extends FormComponent {
     if (
       !value ||
       !isValid(
-        parse(`${value.year}-${value.month}-01`, 'yyyy-MM-dd', new Date())
+        parseStrictDate(
+          value,
+          `${value.year}-${value.month}-01`,
+          'yyyy-MM-dd',
+          new Date()
+        )
       )
     ) {
       return null
@@ -214,11 +223,6 @@ export class MonthYearField extends FormComponent {
       NumberField.isNumber(value.year)
     )
   }
-}
-
-export interface MonthYearState extends Record<string, number> {
-  month: number
-  year: number
 }
 
 export function getValidatorMonthYear(component: MonthYearField) {

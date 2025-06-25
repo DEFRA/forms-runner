@@ -1,10 +1,12 @@
 import { type SubmitResponsePayload } from '@defra/forms-model'
 
 import { config } from '~/src/config/index.js'
-import { type DatePartsState } from '~/src/server/plugins/engine/components/DatePartsField.js'
-import { type MonthYearState } from '~/src/server/plugins/engine/components/MonthYearField.js'
 import { type UkAddressState } from '~/src/server/plugins/engine/components/UkAddressField.js'
 import { FileUploadField } from '~/src/server/plugins/engine/components/index.js'
+import {
+  type DatePartsState,
+  type MonthYearState
+} from '~/src/server/plugins/engine/components/types.js'
 import { type checkFormStatus } from '~/src/server/plugins/engine/helpers.js'
 import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
 import {

@@ -9,7 +9,11 @@ import {
   isFormValue
 } from '~/src/server/plugins/engine/components/FormComponent.js'
 import { NumberField } from '~/src/server/plugins/engine/components/NumberField.js'
-import { type DateInputItem } from '~/src/server/plugins/engine/components/types.js'
+import {
+  type DateInputItem,
+  type DatePartsState
+} from '~/src/server/plugins/engine/components/types.js'
+import { parseStrictDate } from '~/src/server/plugins/engine/date-helper.js'
 import { messageTemplate } from '~/src/server/plugins/engine/pageControllers/validationOptions.js'
 import {
   type ErrorMessageTemplateList,
@@ -121,7 +125,8 @@ export class DatePartsField extends FormComponent {
     if (
       !value ||
       !isValid(
-        parse(
+        parseStrictDate(
+          value,
           `${value.year}-${value.month}-${value.day}`,
           'yyyy-MM-dd',
           new Date()
@@ -223,12 +228,6 @@ export class DatePartsField extends FormComponent {
       NumberField.isNumber(value.year)
     )
   }
-}
-
-export interface DatePartsState extends Record<string, number> {
-  day: number
-  month: number
-  year: number
 }
 
 export function getValidatorDate(component: DatePartsField) {
