@@ -1,3 +1,4 @@
+import { getErrorMessage } from '@defra/forms-model'
 import { Cluster, Redis } from 'ioredis'
 
 import { config } from '~/src/config/index.js'
@@ -53,17 +54,18 @@ export function buildRedisClient() {
   }
 
   redisClient.on('connect', () => {
-    logger.info('Connected to Redis server')
+    logger.info('[redisConnected] Connected to Redis server')
   })
 
   redisClient.on('close', () => {
     logger.warn(
-      'Redis connection closed attempting reconnect with default behavior'
+      '[redisDisconnected] Redis connection closed attempting reconnect with default behavior'
     )
   })
 
   redisClient.on('error', (error) => {
-    logger.error(error, `Redis connection error ${error}.`)
+    const err = getErrorMessage(error)
+    logger.error(err, `[redisConnectionError] Redis connection error - ${err}`)
   })
 
   return redisClient

@@ -1,6 +1,7 @@
 import {
   ControllerPath,
   Engine,
+  getErrorMessage,
   hasComponents,
   isFormType,
   type ComponentDef,
@@ -148,7 +149,11 @@ export function encodeUrl(link?: string) {
     try {
       return new URL(link).toString() // escape the search params without breaking the ? and & reserved characters in rfc2368
     } catch (err) {
-      logger.error(err, `Failed to encode ${link}`)
+      const errMsg = getErrorMessage(err)
+      logger.error(
+        errMsg,
+        `[urlEncodingFailed] Failed to encode URL: ${link} - ${errMsg}`
+      )
       throw err
     }
   }
@@ -400,7 +405,9 @@ export function setPageTitles(def: FormDefinition) {
       if (!page.title) {
         const formNameMsg = def.name ? ` in form '${def.name}'` : ''
 
-        logger.warn(`Page '${page.path}' has no title${formNameMsg}`)
+        logger.info(
+          `[pageTitleMissing] Page '${page.path}' has no title${formNameMsg}`
+        )
       }
     }
   })

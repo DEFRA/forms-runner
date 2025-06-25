@@ -1,3 +1,5 @@
+import { getErrorMessage } from '@defra/forms-model'
+
 import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { createServer } from '~/src/server/index.js'
@@ -5,8 +7,9 @@ import { createServer } from '~/src/server/index.js'
 const logger = createLogger()
 
 process.on('unhandledRejection', (error) => {
+  const err = getErrorMessage(error)
   logger.info('Unhandled rejection')
-  logger.error(error)
+  logger.error(err, `[unhandledRejection] Unhandled promise rejection: ${err}`)
   throw error
 })
 
@@ -26,6 +29,8 @@ async function startServer() {
 }
 
 startServer().catch((error: unknown) => {
+  const err = getErrorMessage(error)
   logger.info('Server failed to start :(')
-  logger.error(error)
+  logger.error(err, `[serverStartup] Server failed to start: ${err}`)
+  throw error
 })

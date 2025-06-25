@@ -246,8 +246,9 @@ describe('FileUploadPageController', () => {
         )
 
         expect(request.logger.error).toHaveBeenCalledWith(
+          expect.any(Error),
           expect.stringContaining(
-            'Exceeded cumulative retry delay for some-id (depth: 7). Re-initiating a new upload.'
+            '[uploadTimeout] Exceeded cumulative retry delay for uploadId: some-id at depth: 7 - re-initiating new upload'
           )
         )
 

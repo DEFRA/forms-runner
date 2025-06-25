@@ -1,4 +1,4 @@
-import { type SubmitResponsePayload } from '@defra/forms-model'
+import { getErrorMessage, type SubmitResponsePayload } from '@defra/forms-model'
 
 import { config } from '~/src/config/index.js'
 import { escapeMarkdown } from '~/src/server/plugins/engine/components/helpers.js'
@@ -56,7 +56,11 @@ export async function submit(
 
     request.logger.info(logTags, 'Email sent successfully')
   } catch (err) {
-    request.logger.error(logTags, 'Error sending email', err)
+    const errMsg = getErrorMessage(err)
+    request.logger.error(
+      errMsg,
+      `[emailSendFailed] Error sending notification email - templateId: ${templateId} - recipient: ${emailAddress} - ${errMsg}`
+    )
 
     throw err
   }
