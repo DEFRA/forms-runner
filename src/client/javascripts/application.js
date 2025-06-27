@@ -1,3 +1,3 @@
-import { initAll } from '@defra/forms-engine-plugin/application.js'
+import { initAll } from '@defra/forms-engine-plugin/shared.js'
 
 initAll()
