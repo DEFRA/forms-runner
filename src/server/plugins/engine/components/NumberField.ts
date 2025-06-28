@@ -80,6 +80,11 @@ export class NumberField extends FormComponent {
     this.schema = schema
   }
 
+  get precision() {
+    const { precision } = this.schema
+    return precision && precision > 0 ? precision : undefined
+  }
+
   getFormValueFromState(state: FormSubmissionState) {
     const { name } = this
     return this.getFormValue(state[name])
@@ -87,6 +92,32 @@ export class NumberField extends FormComponent {
 
   getFormValue(value?: FormStateValue | FormState) {
     return this.isValue(value) ? value : undefined
+  }
+
+  getDisplayStringFromState(state: FormSubmissionState) {
+    const { options } = this
+
+    const value = this.getFormValueFromState(state)
+    if (!this.isValue(value)) {
+      return ''
+    }
+
+    let formatted = new Intl.NumberFormat('en-GB', {
+      minimumFractionDigits: this.precision,
+      maximumFractionDigits: this.precision,
+      style: 'decimal',
+      useGrouping: false
+    }).format(value)
+
+    if (options.prefix) {
+      formatted = `${options.prefix} ${formatted}`
+    }
+
+    if (options.suffix) {
+      formatted = `${formatted} ${options.suffix}`
+    }
+
+    return formatted
   }
 
   getViewModel(payload: FormPayload, errors?: FormSubmissionError[]) {
@@ -156,26 +187,25 @@ export class NumberField extends FormComponent {
 
 export function getValidatorPrecision(component: NumberField) {
   const validator: CustomValidator = (value: number, helpers) => {
-    const { options, schema } = component
+    const { options } = component
 
     const { customValidationMessage: custom } = options
-    const { precision: limit } = schema
 
-    if (!limit || limit <= 0) {
+    if (!component.precision) {
       return value
     }
 
     const validationSchema = joi
       .number()
-      .precision(limit)
+      .precision(component.precision)
       .prefs({ convert: false })
 
     try {
       return joi.attempt(value, validationSchema)
     } catch {
       return custom
-        ? helpers.message({ custom }, { limit })
-        : helpers.error('number.precision', { limit })
+        ? helpers.message({ custom }, { limit: component.precision })
+        : helpers.error('number.precision', { limit: component.precision })
     }
   }
 
