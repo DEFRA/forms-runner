@@ -22,8 +22,7 @@ export default {
   entry: {
     application: {
       import: ['./javascripts/application.js', './stylesheets/application.scss']
-    },
-    'file-upload': './javascripts/file-upload.js'
+    }
   },
   experiments: {
     outputModule: true
