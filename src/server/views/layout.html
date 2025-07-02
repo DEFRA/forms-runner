@@ -9,6 +9,7 @@
 {% from "components/tag-env/macro.njk" import appTagEnv -%}
 {% from "govuk/components/cookie-banner/macro.njk" import govukCookieBanner -%}
 {% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner -%}
+{% from "govuk/components/service-navigation/macro.njk" import govukServiceNavigation %}
 
 {% set productName %}
   {% if config.cdpEnvironment !== "prod" %}
@@ -118,16 +119,17 @@
       text: config.serviceBannerText
     }) }}
   {% endif %}
-
   {{ govukHeader({
     homepageUrl: currentPath if context.isForceAccess else "https://www.gov.uk",
     containerClasses: "govuk-width-container",
-    productName: productName | safe | trim,
+    classes: "govuk-header--full-width-border",
+    productName: productName | safe | trim
+  }) }}
+  {{ govukServiceNavigation({
     serviceName: name if name else config.serviceName,
     serviceUrl: currentPath if context.isForceAccess else serviceUrl
   }) }}
 {% endblock %}
-
 {% block beforeContent %}
   {% set feedbackLink = feedbackLink or config.feedbackLink -%}
   {% set phaseTag = phaseTag or config.phaseTag -%}

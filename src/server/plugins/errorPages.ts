@@ -47,7 +47,14 @@ export default {
             stack: response.stack
           })
 
-          request.logger.error(response.stack)
+          const error = new Error(
+            `HTTP ${statusCode} error: ${response.message}`
+          )
+
+          request.logger.error(
+            error,
+            `[httpError] HTTP ${statusCode} error occurred - ${response.message} - path: ${request.path} - method: ${request.method}`
+          )
 
           // The return the `500` view
           return h.view('500', viewModel).code(statusCode)
