@@ -32,7 +32,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/XGovFormBuilder/digital-form-builder/tree/main/builder"
+    "url": "https://github.com/defra/forms-runner"
   },
   "engines": {
     "node": "^22.11.0",
@@ -40,6 +40,7 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
+    "@defra/forms-engine-plugin": "^0.1.27",
     "@defra/forms-model": "^3.0.490",
     "@defra/hapi-tracing": "^1.0.0",
     "@elastic/ecs-pino-format": "^1.5.0",
@@ -56,9 +57,7 @@
     "@hapi/vision": "^7.0.3",
     "@hapi/wreck": "^18.1.0",
     "@hapi/yar": "^11.0.2",
-    "@hapipal/schmervice": "^3.0.0",
     "@types/humanize-duration": "^3.27.4",
-    "accessible-autocomplete": "^3.0.1",
     "atob": "^2.1.2",
     "blankie": "^5.0.0",
     "blipp": "^4.0.2",
@@ -158,7 +157,7 @@
     "tsx": "^4.20.3",
     "typescript": "^5.7.2",
     "webpack": "^5.97.1",
-    "webpack-assets-manifest": "^5.2.1",
+    "webpack-assets-manifest": "^6.0.2",
     "webpack-cli": "^6.0.1"
   }
 }

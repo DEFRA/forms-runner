@@ -1,4 +1,4 @@
-import { type FormPayload } from '~/src/server/plugins/engine/types.ts'
+import { type FormPayload } from '@defra/forms-engine-plugin/engine/types.ts'
 
 declare module 'joi' {
   interface Context {

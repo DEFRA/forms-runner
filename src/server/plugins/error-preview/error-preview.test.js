@@ -2,7 +2,7 @@ import { createServer } from '~/src/server/index.js'
 import {
   getFormDefinition,
   getFormMetadata
-} from '~/src/server/plugins/engine/services/formsService.js'
+} from '~/src/server/services/formsService.js'
 import {
   componentId,
   definitionWithComponentId,
@@ -10,7 +10,7 @@ import {
 } from '~/test/fixtures/form.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
-jest.mock('~/src/server/plugins/engine/services/formsService.js')
+jest.mock('~/src/server/services/formsService.js')
 
 describe('Error preview route', () => {
   /** @type {Server} */

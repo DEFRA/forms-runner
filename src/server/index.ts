@@ -1,3 +1,13 @@
+import { join, parse } from 'path'
+
+import plugin from '@defra/forms-engine-plugin'
+import { FormModel } from '@defra/forms-engine-plugin/engine/models/FormModel.js'
+import { type PluginOptions } from '@defra/forms-engine-plugin/engine/plugin.js'
+import {
+  formSubmissionService,
+  outputService
+} from '@defra/forms-engine-plugin/services/index.js'
+import { type FormDefinition } from '@defra/forms-model'
 import { Engine as CatboxMemory } from '@hapi/catbox-memory'
 import { Engine as CatboxRedis } from '@hapi/catbox-redis'
 import hapi, {
@@ -8,7 +18,6 @@ import hapi, {
 import inert from '@hapi/inert'
 import Scooter from '@hapi/scooter'
 import Wreck from '@hapi/wreck'
-import Schmervice from '@hapipal/schmervice'
 import blipp from 'blipp'
 import { ProxyAgent } from 'proxy-agent'
 
@@ -16,16 +25,18 @@ import { config } from '~/src/config/index.js'
 import { requestLogger } from '~/src/server/common/helpers/logging/request-logger.js'
 import { requestTracing } from '~/src/server/common/helpers/logging/request-tracing.js'
 import { buildRedisClient } from '~/src/server/common/helpers/redis-client.js'
+import { FORM_PREFIX } from '~/src/server/constants.js'
 import { configureBlankiePlugin } from '~/src/server/plugins/blankie.js'
 import { configureCrumbPlugin } from '~/src/server/plugins/crumb.js'
-import { configureEnginePlugin } from '~/src/server/plugins/engine/index.js'
 import pluginErrorPages from '~/src/server/plugins/errorPages.js'
+import { context } from '~/src/server/plugins/nunjucks/context.js'
+import { paths } from '~/src/server/plugins/nunjucks/environment.js'
 import { plugin as pluginViews } from '~/src/server/plugins/nunjucks/index.js'
 import pluginPulse from '~/src/server/plugins/pulse.js'
 import pluginRouter from '~/src/server/plugins/router.js'
 import pluginSession from '~/src/server/plugins/session.js'
 import { prepareSecureContext } from '~/src/server/secure-context.js'
-import { CacheService } from '~/src/server/services/index.js'
+import * as formsService from '~/src/server/services/formsService.js'
 import { type RouteConfig } from '~/src/server/types.js'
 
 const proxyAgent = new ProxyAgent()
@@ -75,6 +86,68 @@ const serverOptions = (): ServerOptions => {
   return serverOptions
 }
 
+export async function getForm(importPath: string) {
+  const { ext } = parse(importPath)
+
+  const attributes: ImportAttributes = {
+    type: ext === '.json' ? 'json' : 'module'
+  }
+
+  const formImport = import(importPath, { with: attributes }) as Promise<{
+    default: FormDefinition
+  }>
+
+  const { default: definition } = await formImport
+  return definition
+}
+
+export const configureEnginePlugin = async ({
+  formFileName,
+  formFilePath
+}: RouteConfig = {}): Promise<
+  [
+    { plugin: typeof plugin; options: PluginOptions },
+    { routes: { prefix: string } }
+  ]
+> => {
+  const services = {
+    formsService,
+    formSubmissionService,
+    outputService
+  }
+
+  let model: FormModel | undefined
+
+  if (formFileName && formFilePath) {
+    // used for test where we want to test a single form definition
+    const definition = await getForm(join(formFilePath, formFileName))
+    const { name } = parse(formFileName)
+
+    const initialBasePath = `${FORM_PREFIX}/${name}`
+
+    model = new FormModel(definition, { basePath: initialBasePath }, services)
+  }
+
+  const pluginObject = {
+    plugin,
+    options: {
+      cacheName: 'session',
+      nunjucks: {
+        baseLayoutPath: 'layout.html',
+        paths
+      },
+      model,
+      services,
+      viewContext: context
+    }
+  }
+  const routeOptions = {
+    routes: { prefix: FORM_PREFIX }
+  }
+
+  return [pluginObject, routeOptions]
+}
+
 export async function createServer(routeConfig?: RouteConfig) {
   const server = hapi.server(serverOptions())
 
@@ -94,13 +167,6 @@ export async function createServer(routeConfig?: RouteConfig) {
   await server.register(Scooter)
   await server.register(pluginBlankie)
   await server.register(pluginCrumb)
-  await server.register(Schmervice)
-
-  server.registerService(CacheService)
-
-  await server.register(...pluginEngine)
-
-  await server.register(pluginRouter)
 
   server.ext('onPreResponse', (request: Request, h: ResponseToolkit) => {
     const { response } = request
@@ -125,6 +191,8 @@ export async function createServer(routeConfig?: RouteConfig) {
   })
 
   await server.register(pluginViews)
+  await server.register(...pluginEngine)
+  await server.register(pluginRouter)
   await server.register(pluginErrorPages)
 
   if (config.get('cdpEnvironment') === 'local') {

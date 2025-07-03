@@ -5,12 +5,12 @@ import { StatusCodes } from 'http-status-codes'
 
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
-import { getFormMetadata } from '~/src/server/plugins/engine/services/formsService.js'
+import { getFormMetadata } from '~/src/server/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
-jest.mock('~/src/server/plugins/engine/services/formsService.js')
+jest.mock('~/src/server/services/formsService.js')
 
 describe(`Cookie banner and analytics`, () => {
   /** @type {Server} */
@@ -218,7 +218,10 @@ describe(`Cookie preferences`, () => {
   ])(
     'selects the cookie preference automatically based on the user selection',
     async ({ text, value }) => {
-      server = await createServer()
+      server = await createServer({
+        formFileName: 'basic.js',
+        formFilePath: join(import.meta.dirname, 'definitions')
+      })
       await server.initialize()
 
       // set the cookie preferences
@@ -261,7 +264,10 @@ describe(`Cookie preferences`, () => {
   )
 
   test("doesn't show the success banner if the user hasn't been posted from the cookie preferences page", async () => {
-    server = await createServer()
+    server = await createServer({
+      formFileName: 'basic.js',
+      formFilePath: join(import.meta.dirname, 'definitions')
+    })
     await server.initialize()
 
     // set the cookie preferences
@@ -300,7 +306,10 @@ describe(`Cookie preferences`, () => {
   })
 
   test('defaults to no if one is not provided', async () => {
-    server = await createServer()
+    server = await createServer({
+      formFileName: 'basic.js',
+      formFilePath: join(import.meta.dirname, 'definitions')
+    })
     await server.initialize()
 
     const { container } = await renderResponse(server, {
@@ -316,7 +325,10 @@ describe(`Cookie preferences`, () => {
   })
 
   test('returns bad request for invalid redirect urls', async () => {
-    server = await createServer()
+    server = await createServer({
+      formFileName: 'basic.js',
+      formFilePath: join(import.meta.dirname, 'definitions')
+    })
     await server.initialize()
 
     const { response } = await renderResponse(server, {

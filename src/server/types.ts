@@ -1,3 +1,5 @@
+import { type FormModel } from '@defra/forms-engine-plugin/engine/models/index.js'
+import { type DetailItem } from '@defra/forms-engine-plugin/engine/models/types.js'
 import {
   type FormDefinition,
   type FormMetadata,
@@ -5,9 +7,6 @@ import {
   type SubmitResponsePayload
 } from '@defra/forms-model'
 
-import { type FormModel } from '~/src/server/plugins/engine/models/index.js'
-import { type DetailItem } from '~/src/server/plugins/engine/models/types.js'
-import { type PageController } from '~/src/server/plugins/engine/pageControllers/PageController.js'
 import {
   type FormRequestPayload,
   type FormStatus
@@ -39,8 +38,6 @@ export interface RouteConfig {
   formFileName?: string
   formFilePath?: string
   enforceCsrf?: boolean
-  services?: Services
-  controllers?: Record<string, typeof PageController>
 }
 
 export interface OutputService {
