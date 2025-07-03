@@ -138,7 +138,7 @@
     "eslint-plugin-promise": "^6.6.0",
     "global-jsdom": "^26.0.0",
     "husky": "^9.1.7",
-    "jest": "^30.0.2",
+    "jest": "^30.0.4",
     "jest-extended": "^4.0.2",
     "jsdom": "^26.1.0",
     "lint-staged": "^15.3.0",
