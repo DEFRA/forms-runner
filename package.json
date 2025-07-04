@@ -140,7 +140,7 @@
     "global-jsdom": "^26.0.0",
     "husky": "^9.1.7",
     "jest": "^30.0.4",
-    "jest-extended": "^4.0.2",
+    "jest-extended": "^6.0.0",
     "jsdom": "^26.1.0",
     "lint-staged": "^16.1.2",
     "outdent": "^0.8.0",
