@@ -24,15 +24,10 @@ export default {
       import: ['./javascripts/application.js', './stylesheets/application.scss']
     }
   },
-  experiments: {
-    outputModule: true
-  },
+  experiments: { outputModule: true },
   mode: NODE_ENV === 'production' ? 'production' : 'development',
   devtool: NODE_ENV === 'production' ? 'source-map' : 'inline-source-map',
-  watchOptions: {
-    aggregateTimeout: 200,
-    poll: 1000
-  },
+  watchOptions: { aggregateTimeout: 200, poll: 1000 },
   output: {
     filename:
       NODE_ENV === 'production'
@@ -49,17 +44,11 @@ export default {
     module: true
   },
   resolve: {
-    alias: {
-      '/assets': join(govukFrontendPath, 'dist/govuk/assets')
-    }
+    alias: { '/assets': join(govukFrontendPath, 'dist/govuk/assets') }
   },
   module: {
     rules: [
-      {
-        test: /\.(js|mjs|scss)$/,
-        loader: 'source-map-loader',
-        enforce: 'pre'
-      },
+      { test: /\.(js|mjs|scss)$/, loader: 'source-map-loader', enforce: 'pre' },
       {
         test: /\.js$/,
         loader: 'babel-loader',
@@ -116,23 +105,17 @@ export default {
       {
         test: /\.(png|svg|jpe?g|gif)$/,
         type: 'asset/resource',
-        generator: {
-          filename: 'assets/images/[name][ext]'
-        }
+        generator: { filename: 'assets/images/[name][ext]' }
       },
       {
         test: /\.(ico)$/,
         type: 'asset/resource',
-        generator: {
-          filename: 'assets/images/[name][ext]'
-        }
+        generator: { filename: 'assets/images/[name][ext]' }
       },
       {
         test: /\.(woff|woff2|eot|ttf|otf)$/,
         type: 'asset/resource',
-        generator: {
-          filename: 'assets/fonts/[name][ext]'
-        }
+        generator: { filename: 'assets/fonts/[name][ext]' }
       }
     ]
   },
@@ -149,9 +132,7 @@ export default {
           format: { comments: false },
 
           // Include sources content from dependency source maps
-          sourceMap: {
-            includeSources: true
-          },
+          sourceMap: { includeSources: true },
 
           // Compatibility workarounds
           safari10: true
@@ -161,17 +142,21 @@ export default {
     splitChunks: {
       cacheGroups: {
         defaultVendors: {
-          /**
-           * Use npm package names
-           * @param {NormalModule} module
-           */
-          name({ userRequest }) {
-            const [[modulePath, pkgName]] = userRequest.matchAll(
-              /node_modules\/([^\\/]+)/g
-            )
+          name(module) {
+            const packages = Array.from(
+              module.identifier().matchAll(/node_modules\/([^\\/]+)/g)
+            ).map((match) => {
+              return { modulePath: match[0], pkgName: match[1] }
+            })
+
+            const pkg = packages.pop()
+
+            if (!pkg) {
+              throw Error('Unknown package when splitting chunks')
+            }
 
             // Move into /javascripts/vendor
-            return join('vendor', pkgName || modulePath)
+            return join('vendor', pkg.pkgName || pkg.modulePath)
           }
         }
       }
@@ -187,10 +172,7 @@ export default {
     new WebpackAssetsManifest(),
     new CopyPlugin({
       patterns: [
-        {
-          from: join(govukFrontendPath, 'dist/govuk/assets'),
-          to: 'assets'
-        }
+        { from: join(govukFrontendPath, 'dist/govuk/assets'), to: 'assets' }
       ]
     })
   ],
