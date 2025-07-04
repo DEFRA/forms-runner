@@ -56,7 +56,7 @@
     "@hapi/scooter": "^7.0.0",
     "@hapi/vision": "^7.0.3",
     "@hapi/wreck": "^18.1.0",
-    "@hapi/yar": "^11.0.2",
+    "@hapi/yar": "^11.0.3",
     "@types/humanize-duration": "^3.27.4",
     "accessible-autocomplete": "^3.0.1",
     "atob": "^2.1.2",
