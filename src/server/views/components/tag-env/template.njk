@@ -1,9 +1,5 @@
 {%- from "govuk/components/tag/macro.njk" import govukTag -%}
-{% if govukRebrand %}
-  {% set tagEnv = " app-tag--env app-tag--env-rebrand" %}
-{% else %}
-  {% set tagEnv = " app-tag--env" %}
-{% endif %}
+{% set tagEnv = " app-tag--env" %}
 {%- switch params.env %}
   {% case "local" %}
     {% set text = "Local" %}

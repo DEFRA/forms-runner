@@ -33,3 +33,5 @@ environment.addFilter('markdown', (value) =>
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   markdownToHtml(value)
 )
+
+environment.addGlobal('govukRebrand', true)
