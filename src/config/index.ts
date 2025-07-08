@@ -79,16 +79,6 @@ export const config = convict({
   },
 
   /**
-   * Feature flags
-   */
-  showRebrand: {
-    doc: 'If this app should show the 2025 rebrand',
-    format: Boolean,
-    env: 'SHOW_GOVUK_REBRAND',
-    default: false
-  },
-
-  /**
    * Service
    */
   serviceName: {
