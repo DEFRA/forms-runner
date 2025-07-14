@@ -113,7 +113,7 @@
     "@types/url-parse": "^1.4.11",
     "@types/webpack-assets-manifest": "^5.1.4",
     "@types/wreck": "^14.0.4",
-    "@typescript-eslint/eslint-plugin": "^8.35.1",
+    "@typescript-eslint/eslint-plugin": "^8.36.0",
     "@typescript-eslint/parser": "^8.19.0",
     "autoprefixer": "^10.4.21",
     "babel-loader": "^10.0.0",
