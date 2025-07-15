@@ -179,6 +179,12 @@ export const config = convict({
   /**
    * API integrations
    */
+  baseUrl: {
+    format: String,
+    default: null,
+    env: 'BASE_URL'
+  } as SchemaObj<string>,
+
   managerUrl: {
     format: String,
     default: null,

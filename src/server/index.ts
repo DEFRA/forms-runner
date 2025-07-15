@@ -2,7 +2,7 @@ import { join, parse } from 'path'
 
 import plugin from '@defra/forms-engine-plugin'
 import { FormModel } from '@defra/forms-engine-plugin/engine/models/FormModel.js'
-import { type PluginOptions } from '@defra/forms-engine-plugin/engine/plugin.js'
+import { type PluginOptions } from '@defra/forms-engine-plugin/engine/types.js'
 import {
   formSubmissionService,
   outputService
@@ -138,7 +138,8 @@ export const configureEnginePlugin = async ({
       },
       model,
       services,
-      viewContext: context
+      viewContext: context,
+      baseUrl: config.get('baseUrl')
     }
   }
   const routeOptions = {
