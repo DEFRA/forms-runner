@@ -156,7 +156,7 @@
     "stylelint": "^16.21.1",
     "stylelint-config-gds": "^2.0.0",
     "terser-webpack-plugin": "^5.3.14",
-    "tsx": "^4.20.3",
+    "tsx": "^4.20.4",
     "typescript": "^5.8.3",
     "webpack": "^5.99.9",
     "webpack-assets-manifest": "^6.2.1",
