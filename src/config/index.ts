@@ -195,15 +195,10 @@ export const config = convict({
    * Email outputs
    * Email outputs will use notify to send an email to a single inbox.
    */
-  notifyTemplateId: {
+  snsSubmissionTopicArn: {
     format: String,
     default: null,
-    env: 'NOTIFY_TEMPLATE_ID'
-  } as SchemaObj<string>,
-  notifyAPIKey: {
-    format: String,
-    default: null,
-    env: 'NOTIFY_API_KEY'
+    env: 'SNS_TOPIC_ARN'
   } as SchemaObj<string>,
 
   /**
