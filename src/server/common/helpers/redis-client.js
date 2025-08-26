@@ -20,7 +20,7 @@ export function buildRedisClient() {
   const host = redisConfig.host
   let redisClient
 
-  if (!config.get('isProduction')) {
+  if (redisConfig.useSingleInstanceCache) {
     logger.info('Connecting to Redis using single instance')
 
     redisClient = new Redis({

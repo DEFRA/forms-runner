@@ -150,7 +150,13 @@ export const config = convict({
       format: String,
       default: null,
       env: 'REDIS_KEY_PREFIX'
-    } as SchemaObj<string>
+    } as SchemaObj<string>,
+    useSingleInstanceCache: {
+      doc: 'Redis use single cache (non-clustered)',
+      format: Boolean,
+      default: !isProduction,
+      env: 'USE_SINGLE_INSTANCE_CACHE'
+    } as SchemaObj<boolean>
   },
   tracing: {
     header: {
