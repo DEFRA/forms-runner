@@ -1,7 +1,7 @@
 import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { type FormModel } from '@defra/forms-engine-plugin/engine/models/FormModel.js'
 import { type DetailItem } from '@defra/forms-engine-plugin/engine/models/types.js'
-import { format as machineV3 } from '@defra/forms-engine-plugin/engine/outputFormatters/machine/v3.js'
+import { getFormatter } from '@defra/forms-engine-plugin/engine/outputFormatters/index.js'
 import {
   type FormAdapterSubmissionMessagePayload,
   type FormContext
@@ -50,7 +50,8 @@ export class OutputService implements IOutputService {
     try {
       const formStatus = checkFormStatus(request.params)
 
-      const submissionPayloadString = machineV3(
+      const formatter = getFormatter('adapter', '1')
+      const submissionPayloadString = formatter(
         context,
         items,
         model,
