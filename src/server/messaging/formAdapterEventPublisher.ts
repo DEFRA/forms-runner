@@ -9,11 +9,11 @@ const logger = createLogger()
 const snsTopicArn = config.get('snsTopicArn')
 
 /**
- * Publish notification event directly to SNS topic
+ * Publish form adapter event directly to SNS topic
  * @param submissionPayload - Form submission payload from engine
  * @returns Promise<string> - Message ID
  */
-export async function publishNotificationEvent(
+export async function publishFormAdapterEvent(
   submissionPayload: FormAdapterSubmissionMessagePayload
 ): Promise<string> {
   if (!snsTopicArn) {
@@ -31,12 +31,12 @@ export async function publishNotificationEvent(
 
   if (!result.MessageId) {
     throw new Error(
-      'Failed to publish notification event - no message ID returned'
+      'Failed to publish form adapter event - no message ID returned'
     )
   }
 
   logger.info(
-    `Published notification event for submission ${submissionPayload.meta.referenceNumber}. MessageId: ${result.MessageId}`
+    `Published form adapter event for submission ${submissionPayload.meta.referenceNumber}. MessageId: ${result.MessageId}`
   )
 
   return result.MessageId

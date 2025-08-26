@@ -13,7 +13,7 @@ import {
 } from '@defra/forms-model'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
-import { publishNotificationEvent } from '~/src/server/messaging/notificationPublisher.js'
+import { publishFormAdapterEvent } from '~/src/server/messaging/formAdapterEventPublisher.js'
 import { type FormRequestPayload } from '~/src/server/routes/types.js'
 
 const logger = createLogger()
@@ -67,7 +67,7 @@ export class OutputService implements IOutputService {
       const formId = submissionPayload.meta.formId
       const payloadRef = submissionPayload.meta.referenceNumber
 
-      const messageId = await publishNotificationEvent(submissionPayload)
+      const messageId = await publishFormAdapterEvent(submissionPayload)
 
       logger.info(
         `Form submission notification published - ref: ${payloadRef}, formId: ${formId}, messageId: ${messageId}`
