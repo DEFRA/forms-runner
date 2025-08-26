@@ -1,5 +1,6 @@
 import { type FormModel } from '@defra/forms-engine-plugin/engine/models/index.js'
 import { type DetailItem } from '@defra/forms-engine-plugin/engine/models/types.js'
+import { type FormContext } from '@defra/forms-engine-plugin/engine/types.js'
 import {
   type FormDefinition,
   type FormMetadata,
@@ -42,10 +43,12 @@ export interface RouteConfig {
 
 export interface OutputService {
   submit: (
+    context: FormContext,
     request: FormRequestPayload,
     model: FormModel,
     emailAddress: string,
     items: DetailItem[],
-    submitResponse: SubmitResponsePayload
+    submitResponse: SubmitResponsePayload,
+    formMetadata?: FormMetadata
   ) => Promise<void>
 }

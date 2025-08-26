@@ -3,10 +3,7 @@ import { join, parse } from 'path'
 import plugin from '@defra/forms-engine-plugin'
 import { FormModel } from '@defra/forms-engine-plugin/engine/models/FormModel.js'
 import { type PluginOptions } from '@defra/forms-engine-plugin/engine/types.js'
-import {
-  formSubmissionService,
-  outputService
-} from '@defra/forms-engine-plugin/services/index.js'
+import { formSubmissionService } from '@defra/forms-engine-plugin/services/index.js'
 import { type FormDefinition } from '@defra/forms-model'
 import { Engine as CatboxMemory } from '@hapi/catbox-memory'
 import { Engine as CatboxRedis } from '@hapi/catbox-redis'
@@ -37,6 +34,7 @@ import pluginRouter from '~/src/server/plugins/router.js'
 import pluginSession from '~/src/server/plugins/session.js'
 import { prepareSecureContext } from '~/src/server/secure-context.js'
 import * as formsService from '~/src/server/services/formsService.js'
+import { createOutputService } from '~/src/server/services/outputService.js'
 import { type RouteConfig } from '~/src/server/types.js'
 
 const proxyAgent = new ProxyAgent()
@@ -113,7 +111,7 @@ export const configureEnginePlugin = async ({
   const services = {
     formsService,
     formSubmissionService,
-    outputService
+    outputService: createOutputService()
   }
 
   let model: FormModel | undefined
