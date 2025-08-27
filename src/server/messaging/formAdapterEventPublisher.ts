@@ -1,5 +1,5 @@
 import { PublishCommand } from '@aws-sdk/client-sns'
-import { type FormAdapterSubmissionMessagePayload } from '@defra/forms-model'
+import { type FormAdapterSubmissionMessagePayload } from '@defra/forms-engine-plugin/engine/types.js'
 
 import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
@@ -25,7 +25,7 @@ export async function publishFormAdapterEvent(
     new PublishCommand({
       TopicArn: snsSubmissionTopicArn,
       Message: JSON.stringify(submissionPayload),
-      Subject: `Form submission: ${submissionPayload.meta.formName ?? submissionPayload.meta.formId}`
+      Subject: `Form submission: ${submissionPayload.meta.formName}`
     })
   )
 
