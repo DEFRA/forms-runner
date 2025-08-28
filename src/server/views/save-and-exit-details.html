@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+{% set mainClasses = "govuk-main-wrapper--l" %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if errorSummary %}
+        {{ govukErrorSummary(errorSummary) }}
+      {% endif %}
+
+      <h1 class="govuk-heading-l">Save your progress for later</h2>
+      <p class="govuk-body">
+        Provide your email address and answer a security question to save your progress for 28 days.
+      </p>
+      <p class="govuk-body">
+        We will email you with a link you can use to return to the form later.
+        You will be asked for the answer to the security question when you resume your form.
+      </p>
+      <form method="post">
+        {{ govukInput(fields.email) }}
+        {{ govukInput(fields.emailConfirmation) }}
+        {{ govukRadios(fields.securityQuestion) }}
+        {{ govukInput(fields.securityAnswer) }}
+
+        <div class="govuk-button-group">
+          {{ govukButton(buttons.continueButton) }}
+          {{ govukButton(buttons.cancelButton) }}
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}
