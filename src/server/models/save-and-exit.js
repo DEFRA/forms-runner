@@ -7,6 +7,8 @@ const emailConfirmation = 'emailConfirmation'
 const securityQuestion = 'securityQuestion'
 const securityAnswer = 'securityAnswer'
 
+const GOVUK_LABEL__M = 'govuk-label--m'
+
 /**
  * Build form errors
  * @param {Error} [err]
@@ -116,7 +118,7 @@ export function saveAndExitViewModel(params, payload, err) {
       name: email,
       label: {
         text: 'Your email address',
-        classes: 'govuk-label--m',
+        classes: GOVUK_LABEL__M,
         isPageHeading: false
       },
       hint: {
@@ -130,7 +132,7 @@ export function saveAndExitViewModel(params, payload, err) {
       name: emailConfirmation,
       label: {
         text: 'Confirm your email address',
-        classes: 'govuk-label--m',
+        classes: GOVUK_LABEL__M,
         isPageHeading: false
       },
       value: payload?.emailConfirmation,
@@ -159,7 +161,7 @@ export function saveAndExitViewModel(params, payload, err) {
       name: securityAnswer,
       label: {
         text: 'Your answer to the security question',
-        classes: 'govuk-label--m'
+        classes: GOVUK_LABEL__M
       },
       value: payload?.securityAnswer,
       errorMessage: securityAnswerError && {
