@@ -183,6 +183,25 @@ export const config = convict({
   } as SchemaObj<string>,
 
   /**
+   * SNS/SQS messaging
+   */
+  awsRegion: {
+    format: String,
+    default: 'eu-west-2',
+    env: 'AWS_REGION'
+  },
+  snsEndpoint: {
+    format: String,
+    default: null,
+    env: 'SNS_ENDPOINT'
+  } as SchemaObj<string>,
+  snsTopicArn: {
+    format: String,
+    default: null,
+    env: 'SNS_TOPIC_ARN'
+  } as SchemaObj<string>,
+
+  /**
    * API integrations
    */
   baseUrl: {

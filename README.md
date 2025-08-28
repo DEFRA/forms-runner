@@ -11,20 +11,28 @@ These projects has been adapted to run several configurations on a single instan
 
 The designer is no longer a plugin and is responsible for running itself on default port 3000.
 
-- [Requirements](#requirements)
-  - [Node.js](#nodejs)
-- [Local development](#local-development)
-  - [Setup](#setup)
-  - [Development](#development)
-  - [Local JSON API](#local-json-api)
-  - [Production](#production)
-  - [npm scripts](#npm-scripts)
-  - [File Uploads with Local Development](#file-uploads-with-local-development)
-- [Docker](#docker)
-  - [Development Image](#development-image)
-  - [Production Image](#production-image)
-- [Licence](#licence)
-  - [About the licence](#about-the-licence)
+- [forms-runner](#forms-runner)
+  - [Requirements](#requirements)
+    - [Node.js](#nodejs)
+  - [Local development](#local-development)
+    - [Setup](#setup)
+    - [Development](#development)
+    - [Production](#production)
+    - [npm scripts](#npm-scripts)
+    - [File Uploads with Local Development](#file-uploads-with-local-development)
+    - [Setting up the CDP Uploader Service](#setting-up-the-cdp-uploader-service)
+    - [Configuring the Uploader URL](#configuring-the-uploader-url)
+    - [How it Works](#how-it-works)
+    - [Troubleshooting](#troubleshooting)
+  - [Docker](#docker)
+    - [Development image](#development-image)
+    - [Production image](#production-image)
+- [Environment variables](#environment-variables)
+  - [⚠️ See config for default values for each environment](#️-see-config-for-default-values-for-each-environment)
+- [Testing](#testing)
+- [Outputs](#outputs)
+  - [Licence](#licence)
+    - [About the licence](#about-the-licence)
 
 ## Requirements
 
@@ -158,6 +166,8 @@ $ docker run -p 3000:3000 forms-runner
 
 If there is a .env file present, these will be loaded in.
 
+An example is shown at the bottom of this section.
+
 ### ⚠️ See [config](./src/config/index.ts) for default values for each environment
 
 Please use a config file instead. This will give you more control over each environment.
@@ -176,8 +186,40 @@ See [https://github.com/node-config/node-config#readme](https://github.com/node-
 | HTTP_PROXY         | HTTP proxy to use, e.g. the one from CDP. Currently used for Hapi Wreck.  |    no    |         |                             |
 | HTTPS_PROXY        | HTTPS proxy to use, e.g. the one from CDP. Currently used for Hapi Wreck. |    no    |         |                             |
 | NO_PROXY           | HTTP proxy to use, e.g. the one from CDP. Currently used for Hapi Wreck.  |    no    |         |                             |
+| SNS_ENDPOINT       | Endpoint for SNS messaging                                                |   yes    |         |                             |
+| SNS_TOPIC_ARN      | The SNS topic in Amazon Resource Name (ARN) format.                       |   yes    |         |                             |
 
 For proxy options, see https://www.npmjs.com/package/proxy-from-env which is used by https://github.com/TooTallNate/proxy-agents/tree/main/packages/proxy-agent.
+
+Example .env contents:
+
+```
+SESSION_COOKIE_PASSWORD="<cookie-password>"
+SESSION_COOKIE_TTL=2419200000
+REDIS_PASSWORD=my-password
+REDIS_USERNAME=default
+REDIS_HOST=localhost
+REDIS_KEY_PREFIX=forms-runner
+MANAGER_URL=http://localhost:3001
+BASE_URL=http://localhost:3009
+
+NOTIFY_TEMPLATE_ID=<notify-template-id>
+NOTIFY_API_KEY=<notify-api-key>
+FEEDBACK_LINK=http://test.com
+
+DESIGNER_URL=http://localhost:3000
+SUBMISSION_URL=http://localhost:3002
+UPLOADER_BUCKET_NAME=my-bucket
+UPLOADER_URL=http://uploader.127.0.0.1.sslip.io:7300
+
+GOOGLE_ANALYTICS_TRACKING_ID='12345'
+GOOGLE_ANALYTICS_CONTAINER_ID='abcd'
+
+USE_SINGLE_INSTANCE_CACHE=true
+
+SNS_ENDPOINT="http://localhost:4566"
+SNS_TOPIC_ARN="arn:aws:sns:eu-west-2:000000000000:forms_runner_events"
+```
 
 # Testing
 
