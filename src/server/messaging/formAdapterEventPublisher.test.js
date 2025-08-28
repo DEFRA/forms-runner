@@ -47,7 +47,7 @@ describe('formAdapterEventPublisher', () => {
       expect(result).toBe('msg-123')
       expect(getSNSClient).toHaveBeenCalled()
       expect(PublishCommand).toHaveBeenCalledWith({
-        TopicArn: 'arn:aws:sns:eu-west-2:123456789012:test-topic',
+        TopicArn: 'arn:aws:sns:eu-west-2:123456789012:test-adapter-topic',
         Message: JSON.stringify(mockPayload),
         Subject: 'Form submission: Test Form'
       })

@@ -175,10 +175,15 @@ export const config = convict({
     default: 'eu-west-2',
     env: 'AWS_REGION'
   } as SchemaObj<string>,
-  snsTopicArn: {
+  snsAdapterTopicArn: {
     format: String,
     default: null,
-    env: 'SNS_TOPIC_ARN'
+    env: 'SNS_ADAPTER_TOPIC_ARN'
+  } as SchemaObj<string>,
+  snsSaveTopicArn: {
+    format: String,
+    default: null,
+    env: 'SNS_SAVE_TOPIC_ARN'
   } as SchemaObj<string>,
   snsEndpoint: {
     format: String,

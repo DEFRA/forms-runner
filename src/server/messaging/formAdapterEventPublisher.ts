@@ -6,7 +6,7 @@ import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { getSNSClient } from '~/src/server/messaging/sns.js'
 
 const logger = createLogger()
-const snsTopicArn = config.get('snsTopicArn')
+const snsAdapterTopicArn = config.get('snsAdapterTopicArn')
 
 /**
  * Publish form adapter event directly to SNS topic
@@ -16,14 +16,14 @@ const snsTopicArn = config.get('snsTopicArn')
 export async function publishFormAdapterEvent(
   submissionPayload: FormAdapterSubmissionMessagePayload
 ): Promise<string> {
-  if (!snsTopicArn) {
-    throw new Error('SNS topic ARN is not configured')
+  if (!snsAdapterTopicArn) {
+    throw new Error('SNS adapter topic ARN is not configured')
   }
 
   const snsClient = getSNSClient()
   const result = await snsClient.send(
     new PublishCommand({
-      TopicArn: snsTopicArn,
+      TopicArn: snsAdapterTopicArn,
       Message: JSON.stringify(submissionPayload),
       Subject: `Form submission: ${submissionPayload.meta.formName}`
     })
