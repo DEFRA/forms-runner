@@ -34,7 +34,7 @@ export const securityQuestions = [
  * @param {Error} [err]
  */
 function buildErrors(err) {
-  const hasErrors = !!(Joi.isError(err) && err.details.length > 0)
+  const hasErrors = Joi.isError(err) && err.details.length > 0
 
   if (!hasErrors) {
     return {}
