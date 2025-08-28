@@ -168,18 +168,22 @@ export const config = convict({
   },
 
   /**
-   * Email outputs
-   * Email outputs will use notify to send an email to a single inbox.
+   * AWS SNS Configuration
    */
-  notifyTemplateId: {
+  awsRegion: {
     format: String,
-    default: null,
-    env: 'NOTIFY_TEMPLATE_ID'
+    default: 'eu-west-2',
+    env: 'AWS_REGION'
   } as SchemaObj<string>,
-  notifyAPIKey: {
+  snsTopicArn: {
     format: String,
     default: null,
-    env: 'NOTIFY_API_KEY'
+    env: 'SNS_TOPIC_ARN'
+  } as SchemaObj<string>,
+  snsEndpoint: {
+    format: String,
+    default: null,
+    env: 'SNS_ENDPOINT'
   } as SchemaObj<string>,
 
   /**
