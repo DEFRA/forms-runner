@@ -200,8 +200,3 @@ export function saveAndExitViewModel(params, payload, err) {
  * @property {string} securityQuestion - the security question
  * @property {string} securityAnswer - the security answer
  */
-
-/**
- * @import { Request } from '@hapi/hapi'
- * @import { CacheService } from '@defra/forms-engine-plugin/cache-service.js'
- */
