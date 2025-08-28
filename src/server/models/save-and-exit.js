@@ -184,7 +184,7 @@ export function getFlashKey(params) {
 }
 
 /**
- *
+ * The save and exit form view model
  * @param {SaveAndExitParams} params
  * @param {SaveAndExitPayload} [payload]
  * @param {Error} [err]
