@@ -24,9 +24,9 @@ async function validateAndPublishEvent(saveAndExitMessage) {
  * @param {FormState} state
  */
 export async function publishSaveAndExitEvent(formId, email, security, state) {
-  const auditMessage = saveAndExitMapper(formId, email, security, state)
+  const message = saveAndExitMapper(formId, email, security, state)
 
-  return validateAndPublishEvent(auditMessage)
+  return validateAndPublishEvent(message)
 }
 
 /**

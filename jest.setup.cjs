@@ -13,3 +13,6 @@ process.env.UPLOADER_URL = 'https://test-uploader.cdp-int.defra.cloud'
 process.env.UPLOADER_BUCKET_NAME = 'dummy-bucket'
 process.env.GOOGLE_ANALYTICS_TRACKING_ID = 'G-123456789'
 process.env.BASE_URL = 'http://localhost:3009'
+process.env.SNS_ENDPOINT = 'http://localhost:4566'
+process.env.SNS_TOPIC_ARN =
+  'arn:aws:sns:eu-west-2:000000000000:forms_runner_events'
