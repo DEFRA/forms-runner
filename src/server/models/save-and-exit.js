@@ -12,6 +12,24 @@ const securityAnswer = 'securityAnswer'
 const GOVUK_LABEL__M = 'govuk-label--m'
 
 /**
+ * @type { SecurityQuestion[]}
+ */
+export const securityQuestions = [
+  {
+    text: 'What is a memorable place you have visited?',
+    value: SecurityQuestionsEnum.MemorablePlace
+  },
+  {
+    text: 'What is the name of your favourite character from a story or TV show?',
+    value: SecurityQuestionsEnum.CharacterName
+  },
+  {
+    text: 'What album or song to you always recommend to others?',
+    value: SecurityQuestionsEnum.AudioRecommendation
+  }
+]
+
+/**
  * Build form errors
  * @param {Error} [err]
  */
@@ -69,22 +87,91 @@ function buildErrors(err) {
 }
 
 /**
- * @type { SecurityQuestion[]}
+ * Email Field
+ * @param {SaveAndExitPayload} [payload] - the form payload
+ * @param {Joi.ValidationErrorItem} [error] - the email error
  */
-export const securityQuestions = [
-  {
-    text: 'What is a memorable place you have visited?',
-    value: SecurityQuestionsEnum.MemorablePlace
-  },
-  {
-    text: 'What is the name of your favourite character from a story or TV show?',
-    value: SecurityQuestionsEnum.CharacterName
-  },
-  {
-    text: 'What album or song to you always recommend to others?',
-    value: SecurityQuestionsEnum.AudioRecommendation
+function buildEmailField(payload, error) {
+  return {
+    id: email,
+    name: email,
+    label: {
+      text: 'Your email address',
+      classes: GOVUK_LABEL__M,
+      isPageHeading: false
+    },
+    hint: {
+      text: 'Use the email address you want the link to go to'
+    },
+    value: payload?.email,
+    errorMessage: error && { text: error.message }
   }
-]
+}
+
+/**
+ * Email confirmation Field
+ * @param {SaveAndExitPayload} [payload] - the form payload
+ * @param {Joi.ValidationErrorItem} [error] - the email confirmation error
+ */
+function buildEmailConfirmationField(payload, error) {
+  return {
+    id: emailConfirmation,
+    name: emailConfirmation,
+    label: {
+      text: 'Confirm your email address',
+      classes: GOVUK_LABEL__M,
+      isPageHeading: false
+    },
+    value: payload?.emailConfirmation,
+    errorMessage: error && {
+      text: error.message
+    }
+  }
+}
+
+/**
+ * Security question field
+ * @param {SaveAndExitPayload} [payload] - the form payload
+ * @param {Joi.ValidationErrorItem} [error] - the security question error
+ */
+function buildSecurityQuestionField(payload, error) {
+  return {
+    id: securityQuestion,
+    name: securityQuestion,
+    fieldset: {
+      legend: {
+        text: 'Choose a security question to answer',
+        classes: 'govuk-fieldset__legend--m',
+        isPageHeading: false
+      }
+    },
+    items: securityQuestions,
+    value: payload?.securityQuestion,
+    errorMessage: error && {
+      text: error.message
+    }
+  }
+}
+
+/**
+ * Security answer field
+ * @param {SaveAndExitPayload} [payload] - the form payload
+ * @param {Joi.ValidationErrorItem} [error] - the security answer error
+ */
+function buildSecurityAnswerField(payload, error) {
+  return {
+    id: securityAnswer,
+    name: securityAnswer,
+    label: {
+      text: 'Your answer to the security question',
+      classes: GOVUK_LABEL__M
+    },
+    value: payload?.securityAnswer,
+    errorMessage: error && {
+      text: error.message
+    }
+  }
+}
 
 /**
  * Get save and exit session flash key
@@ -115,61 +202,16 @@ export function saveAndExitViewModel(params, payload, err) {
 
   // Model fields
   const fields = {
-    [email]: {
-      id: email,
-      name: email,
-      label: {
-        text: 'Your email address',
-        classes: GOVUK_LABEL__M,
-        isPageHeading: false
-      },
-      hint: {
-        text: 'Use the email address you want the link to go to'
-      },
-      value: payload?.email,
-      errorMessage: emailError && { text: emailError.message }
-    },
-    [emailConfirmation]: {
-      id: emailConfirmation,
-      name: emailConfirmation,
-      label: {
-        text: 'Confirm your email address',
-        classes: GOVUK_LABEL__M,
-        isPageHeading: false
-      },
-      value: payload?.emailConfirmation,
-      errorMessage: emailConfirmationError && {
-        text: emailConfirmationError.message
-      }
-    },
-    [securityQuestion]: {
-      id: securityQuestion,
-      name: securityQuestion,
-      fieldset: {
-        legend: {
-          text: 'Choose a security question to answer',
-          classes: 'govuk-fieldset__legend--m',
-          isPageHeading: false
-        }
-      },
-      items: securityQuestions,
-      value: payload?.securityQuestion,
-      errorMessage: securityQuestionError && {
-        text: securityQuestionError.message
-      }
-    },
-    [securityAnswer]: {
-      id: securityAnswer,
-      name: securityAnswer,
-      label: {
-        text: 'Your answer to the security question',
-        classes: GOVUK_LABEL__M
-      },
-      value: payload?.securityAnswer,
-      errorMessage: securityAnswerError && {
-        text: securityAnswerError.message
-      }
-    }
+    [email]: buildEmailField(payload, emailError),
+    [emailConfirmation]: buildEmailConfirmationField(
+      payload,
+      emailConfirmationError
+    ),
+    [securityQuestion]: buildSecurityQuestionField(
+      payload,
+      securityQuestionError
+    ),
+    [securityAnswer]: buildSecurityAnswerField(payload, securityAnswerError)
   }
 
   // Model buttons
