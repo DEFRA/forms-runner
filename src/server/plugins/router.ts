@@ -398,13 +398,13 @@ export default {
           // Get the flashed email
           const messages = request.yar.flash(getFlashKey(params))
 
-          if (Array.isArray(messages) && messages.length) {
-            const email = messages[0]
-
-            return h.view('save-and-exit-confirmation', { email })
+          if (messages.length === 0) {
+            return Boom.badRequest('No email found in flash cache')
           }
 
-          return Boom.badRequest('No email found in flash cache')
+          const email = messages[0]
+
+          return h.view('save-and-exit-confirmation', { email })
         },
         options: {
           validate: {
