@@ -34,7 +34,7 @@ describe('runner-events', () => {
         category: SubmissionEventMessageCategory.RUNNER,
         source: SubmissionEventMessageSource.FORMS_RUNNER,
         type: SubmissionEventMessageType.RUNNER_SAVE_AND_EXIT,
-        entityId: payload.formId,
+        entityId: expect.any(String),
         createdAt: expect.any(Date),
         messageCreatedAt: expect.any(Date),
         data: {

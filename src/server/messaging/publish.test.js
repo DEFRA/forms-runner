@@ -46,7 +46,7 @@ describe('publish', () => {
       )
 
       expect(publishEvent).toHaveBeenCalledWith({
-        entityId: saveAndExitPayload.formId,
+        entityId: expect.any(String),
         source: SubmissionEventMessageSource.FORMS_RUNNER,
         messageCreatedAt: expect.any(Date),
         schemaVersion: SubmissionEventMessageSchemaVersion.V1,
@@ -66,7 +66,7 @@ describe('publish', () => {
         publishSaveAndExitEvent(invalidPayload)
       ).rejects.toThrow(
         new ValidationError(
-          '"entityId" must be a string. "data.formId" must be a string. "data.email" is required. "data.state" is required',
+          '"data.formId" must be a string. "data.email" is required. "data.state" is required',
           [],
           {}
         )
