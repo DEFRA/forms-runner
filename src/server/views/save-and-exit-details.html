@@ -10,11 +10,14 @@
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      {% if errorSummary %}
-        {{ govukErrorSummary(errorSummary) }}
+      {% if errors | length %}
+        {{ govukErrorSummary({
+          titleText: "There is a problem",
+          errorList: errors
+        }) }}
       {% endif %}
 
-      <h1 class="govuk-heading-l">Save your progress for later</h2>
+      <h1 class="govuk-heading-l">{{ pageTitle }}</h2>
       <p class="govuk-body">
         Provide your email address and answer a security question to save your progress for 28 days.
       </p>

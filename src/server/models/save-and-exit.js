@@ -1,6 +1,8 @@
 import { SecurityQuestionsEnum } from '@defra/forms-model'
 import Joi from 'joi'
 
+const pageTitle = 'Save your progress for later'
+
 // Field names/ids
 const email = 'email'
 const emailConfirmation = 'emailConfirmation'
@@ -30,35 +32,35 @@ function buildErrors(err) {
   const securityAnswerError = err.details.find(
     (item) => item.path[0] === securityAnswer
   )
-  const errorList = []
+  const errors = []
 
   if (emailError) {
-    errorList.push({ text: emailError.message, href: `#${email}` })
+    errors.push({ text: emailError.message, href: `#${email}` })
   }
 
   if (emailConfirmationError) {
-    errorList.push({
+    errors.push({
       text: emailConfirmationError.message,
       href: `#${emailConfirmation}`
     })
   }
 
   if (securityQuestionError) {
-    errorList.push({
+    errors.push({
       text: securityQuestionError.message,
       href: `#${securityQuestion}`
     })
   }
 
   if (securityAnswerError) {
-    errorList.push({
+    errors.push({
       text: securityAnswerError.message,
       href: `#${securityAnswer}`
     })
   }
 
   return {
-    errorSummary: { titleText: 'There is a problem', errorList },
+    errors,
     emailError,
     emailConfirmationError,
     securityQuestionError,
@@ -104,7 +106,7 @@ export function saveAndExitViewModel(params, payload, err) {
   const { state, slug } = params
 
   const {
-    errorSummary,
+    errors,
     emailError,
     emailConfirmationError,
     securityQuestionError,
@@ -180,7 +182,12 @@ export function saveAndExitViewModel(params, payload, err) {
     href: `/${state}/${slug}`
   }
 
-  return { errorSummary, fields, buttons: { continueButton, cancelButton } }
+  return {
+    pageTitle,
+    errors,
+    fields,
+    buttons: { continueButton, cancelButton }
+  }
 }
 
 /**
