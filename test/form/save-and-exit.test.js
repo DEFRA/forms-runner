@@ -110,6 +110,17 @@ describe('Save and exit', () => {
 
     expect(response2.statusCode).toBe(StatusCodes.OK)
   })
+
+  it('confirmation page errors if no details are flashed', async () => {
+    const options = {
+      method: 'GET',
+      url: '/save-and-exit/draft/basic/confirmation'
+    }
+
+    const { response } = await renderResponse(server, options)
+
+    expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
+  })
 })
 
 /**
