@@ -84,13 +84,12 @@ export const securityQuestions = [
 
 /**
  * Get save and exit session flash key
- * @param { CacheService } cacheService
- * @param { Request } request
+ * @param { SaveAndExitParams } params
  */
-export function getFlashKey(cacheService, request) {
-  const key = cacheService.Key(request)
+export function getFlashKey(params) {
+  const { state, slug } = params
 
-  return `${key.id}save_and_exit_email`
+  return `${state}_${slug}_save_and_exit_email`
 }
 
 /**

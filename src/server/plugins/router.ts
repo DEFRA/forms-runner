@@ -334,8 +334,7 @@ export default {
           )
 
           // Flash the email over to the confirmation page
-          const key = getFlashKey(cacheService, request as unknown as Request)
-          request.yar.flash(key, email)
+          request.yar.flash(getFlashKey(params), email)
 
           // Redirect ot the save and exit confirmation page
           return h.redirect(`/save-and-exit/${state}/${slug}/confirmation`)
@@ -394,11 +393,10 @@ export default {
         method: 'GET',
         path: '/save-and-exit/{state}/{slug}/confirmation',
         handler(request, h) {
-          const cacheService = getCacheService(request.server)
+          const { params } = request
 
           // Get the flashed email
-          const key = getFlashKey(cacheService, request as unknown as Request)
-          const messages = request.yar.flash(key)
+          const messages = request.yar.flash(getFlashKey(params))
 
           if (Array.isArray(messages) && messages.length) {
             const email = messages[0]
