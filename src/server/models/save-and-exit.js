@@ -1,0 +1,253 @@
+import { SecurityQuestionsEnum } from '@defra/forms-model'
+import Joi from 'joi'
+
+const pageTitle = 'Save your progress for later'
+
+// Field names/ids
+const email = 'email'
+const emailConfirmation = 'emailConfirmation'
+const securityQuestion = 'securityQuestion'
+const securityAnswer = 'securityAnswer'
+
+const GOVUK_LABEL__M = 'govuk-label--m'
+
+/**
+ * @type { SecurityQuestion[]}
+ */
+export const securityQuestions = [
+  {
+    text: 'What is a memorable place you have visited?',
+    value: SecurityQuestionsEnum.MemorablePlace
+  },
+  {
+    text: 'What is the name of your favourite character from a story or TV show?',
+    value: SecurityQuestionsEnum.CharacterName
+  },
+  {
+    text: 'What album or song to you always recommend to others?',
+    value: SecurityQuestionsEnum.AudioRecommendation
+  }
+]
+
+/**
+ * Build form errors
+ * @param {Error} [err]
+ */
+function buildErrors(err) {
+  const hasErrors = Joi.isError(err) && err.details.length > 0
+
+  if (!hasErrors) {
+    return {}
+  }
+
+  const emailError = err.details.find((item) => item.path[0] === email)
+  const emailConfirmationError = err.details.find(
+    (item) => item.path[0] === emailConfirmation
+  )
+  const securityQuestionError = err.details.find(
+    (item) => item.path[0] === securityQuestion
+  )
+  const securityAnswerError = err.details.find(
+    (item) => item.path[0] === securityAnswer
+  )
+  const errors = []
+
+  if (emailError) {
+    errors.push({ text: emailError.message, href: `#${email}` })
+  }
+
+  if (emailConfirmationError) {
+    errors.push({
+      text: emailConfirmationError.message,
+      href: `#${emailConfirmation}`
+    })
+  }
+
+  if (securityQuestionError) {
+    errors.push({
+      text: securityQuestionError.message,
+      href: `#${securityQuestion}`
+    })
+  }
+
+  if (securityAnswerError) {
+    errors.push({
+      text: securityAnswerError.message,
+      href: `#${securityAnswer}`
+    })
+  }
+
+  return {
+    errors,
+    emailError,
+    emailConfirmationError,
+    securityQuestionError,
+    securityAnswerError
+  }
+}
+
+/**
+ * Email Field
+ * @param {SaveAndExitPayload} [payload] - the form payload
+ * @param {Joi.ValidationErrorItem} [error] - the email error
+ */
+function buildEmailField(payload, error) {
+  return {
+    id: email,
+    name: email,
+    label: {
+      text: 'Your email address',
+      classes: GOVUK_LABEL__M,
+      isPageHeading: false
+    },
+    hint: {
+      text: 'Use the email address you want the link to go to'
+    },
+    value: payload?.email,
+    errorMessage: error && { text: error.message }
+  }
+}
+
+/**
+ * Email confirmation Field
+ * @param {SaveAndExitPayload} [payload] - the form payload
+ * @param {Joi.ValidationErrorItem} [error] - the email confirmation error
+ */
+function buildEmailConfirmationField(payload, error) {
+  return {
+    id: emailConfirmation,
+    name: emailConfirmation,
+    label: {
+      text: 'Confirm your email address',
+      classes: GOVUK_LABEL__M,
+      isPageHeading: false
+    },
+    value: payload?.emailConfirmation,
+    errorMessage: error && {
+      text: error.message
+    }
+  }
+}
+
+/**
+ * Security question field
+ * @param {SaveAndExitPayload} [payload] - the form payload
+ * @param {Joi.ValidationErrorItem} [error] - the security question error
+ */
+function buildSecurityQuestionField(payload, error) {
+  return {
+    id: securityQuestion,
+    name: securityQuestion,
+    fieldset: {
+      legend: {
+        text: 'Choose a security question to answer',
+        classes: 'govuk-fieldset__legend--m',
+        isPageHeading: false
+      }
+    },
+    items: securityQuestions,
+    value: payload?.securityQuestion,
+    errorMessage: error && {
+      text: error.message
+    }
+  }
+}
+
+/**
+ * Security answer field
+ * @param {SaveAndExitPayload} [payload] - the form payload
+ * @param {Joi.ValidationErrorItem} [error] - the security answer error
+ */
+function buildSecurityAnswerField(payload, error) {
+  return {
+    id: securityAnswer,
+    name: securityAnswer,
+    label: {
+      text: 'Your answer to the security question',
+      classes: GOVUK_LABEL__M
+    },
+    value: payload?.securityAnswer,
+    errorMessage: error && {
+      text: error.message
+    }
+  }
+}
+
+/**
+ * Get save and exit session flash key
+ * @param { SaveAndExitParams } params
+ */
+export function getFlashKey(params) {
+  const { state, slug } = params
+
+  return `${state}_${slug}_save_and_exit_email`
+}
+
+/**
+ * The save and exit form view model
+ * @param {SaveAndExitParams} params
+ * @param {SaveAndExitPayload} [payload]
+ * @param {Error} [err]
+ */
+export function saveAndExitViewModel(params, payload, err) {
+  const { state, slug } = params
+
+  const {
+    errors,
+    emailError,
+    emailConfirmationError,
+    securityQuestionError,
+    securityAnswerError
+  } = buildErrors(err)
+
+  // Model fields
+  const fields = {
+    [email]: buildEmailField(payload, emailError),
+    [emailConfirmation]: buildEmailConfirmationField(
+      payload,
+      emailConfirmationError
+    ),
+    [securityQuestion]: buildSecurityQuestionField(
+      payload,
+      securityQuestionError
+    ),
+    [securityAnswer]: buildSecurityAnswerField(payload, securityAnswerError)
+  }
+
+  // Model buttons
+  const continueButton = {
+    text: 'Save progress'
+  }
+  const cancelButton = {
+    text: 'Cancel',
+    classes: 'govuk-button--secondary',
+    href: `/${state}/${slug}`
+  }
+
+  return {
+    pageTitle,
+    errors,
+    fields,
+    buttons: { continueButton, cancelButton }
+  }
+}
+
+/**
+ * @typedef {object} SecurityQuestion
+ * @property {string} text - the question text
+ * @property {SecurityQuestionsEnum} value - the question type value
+ */
+
+/**
+ * @typedef {Record<string, any>} SaveAndExitParams
+ * @property {string} state - the preview/live state
+ * @property {string} slug - the form slug
+ */
+
+/**
+ * @typedef {object} SaveAndExitPayload
+ * @property {string} email - email
+ * @property {string} emailConfirmation - email confirmation
+ * @property {string} securityQuestion - the security question
+ * @property {string} securityAnswer - the security answer
+ */

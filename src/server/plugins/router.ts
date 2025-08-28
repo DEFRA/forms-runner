@@ -1,4 +1,5 @@
 import {
+  getCacheService,
   handleLegacyRedirect,
   isPathRelative
 } from '@defra/forms-engine-plugin/engine/helpers.js'
@@ -21,8 +22,16 @@ import {
 import { type CookieConsent } from '~/src/common/types.js'
 import { config } from '~/src/config/index.js'
 import { FORM_PREFIX } from '~/src/server/constants.js'
+import {
+  getFlashKey,
+  saveAndExitViewModel,
+  securityQuestions,
+  type SaveAndExitParams,
+  type SaveAndExitPayload
+} from '~/src/server/models/save-and-exit.js'
 import { getErrorPreviewHandler } from '~/src/server/plugins/error-preview/error-preview.js'
 import { healthRoute, publicRoutes } from '~/src/server/routes/index.js'
+import { type FormRequestPayload } from '~/src/server/routes/types.js'
 import {
   crumbSchema,
   itemIdSchema,
@@ -276,6 +285,135 @@ export default {
               path: pathSchema,
               itemId: itemIdSchema
             })
+          }
+        }
+      })
+
+      server.route<{
+        Params: SaveAndExitParams
+        Payload: SaveAndExitPayload
+      }>({
+        method: 'GET',
+        path: '/save-and-exit/{state}/{slug}',
+        handler(request, h) {
+          const { params, payload } = request
+          const model = saveAndExitViewModel(params, payload)
+
+          return h.view('save-and-exit-details', model)
+        },
+        options: {
+          validate: {
+            params: Joi.object()
+              .keys({
+                state: stateSchema,
+                slug: slugSchema
+              })
+              .required()
+          }
+        }
+      })
+
+      server.route<{
+        Params: SaveAndExitParams
+        Payload: SaveAndExitPayload
+      }>({
+        method: 'POST',
+        path: '/save-and-exit/{state}/{slug}',
+        async handler(request, h) {
+          const { params, payload } = request
+          const { state, slug } = params
+          const { email, securityQuestion, securityAnswer } = payload
+
+          // TODO: Publish topic message
+          request.log([state, slug, email, securityQuestion, securityAnswer])
+
+          // Clear all form data
+          const cacheService = getCacheService(request.server)
+          await cacheService.clearState(
+            request as unknown as FormRequestPayload
+          )
+
+          // Flash the email over to the confirmation page
+          request.yar.flash(getFlashKey(params), email)
+
+          // Redirect to the save and exit confirmation page
+          return h.redirect(`/save-and-exit/${state}/${slug}/confirmation`)
+        },
+        options: {
+          validate: {
+            failAction: (request, h, err) => {
+              const { params, payload } = request
+              const model = saveAndExitViewModel(
+                params,
+                payload as SaveAndExitPayload,
+                err
+              )
+
+              return h.view('save-and-exit-details', model).takeover()
+            },
+            params: Joi.object()
+              .keys({
+                state: stateSchema,
+                slug: slugSchema
+              })
+              .required(),
+            payload: Joi.object()
+              .keys({
+                email: Joi.string().email().required().messages({
+                  'string.empty': 'Enter an email address',
+                  'string.email': 'Enter an email address in the correct format'
+                }),
+                emailConfirmation: Joi.string()
+                  .valid(Joi.ref('email'))
+                  .required()
+                  .messages({
+                    'any.only':
+                      'Your email address does not match. Check and try again.'
+                  }),
+                securityQuestion: Joi.string()
+                  .valid(
+                    ...securityQuestions.map(({ value }) => value.toString())
+                  )
+                  .required()
+                  .messages({
+                    '*': 'Choose a security question'
+                  }),
+                securityAnswer: Joi.string().required().messages({
+                  '*': 'Enter a security answer'
+                })
+              })
+              .required()
+          }
+        }
+      })
+
+      server.route<{
+        Params: SaveAndExitParams
+      }>({
+        method: 'GET',
+        path: '/save-and-exit/{state}/{slug}/confirmation',
+        handler(request, h) {
+          const { params } = request
+
+          // Get the flashed email
+          const messages = request.yar.flash(getFlashKey(params))
+
+          if (Array.isArray(messages) && messages.length) {
+            const email = messages[0]
+
+            return h.view('save-and-exit-confirmation', { email })
+          }
+
+          return Boom.badRequest('No email found in flash cache')
+        },
+        options: {
+          validate: {
+            params: Joi.object()
+              .keys({
+                state: stateSchema,
+                slug: slugSchema
+              })
+              .required()
           }
         }
       })
