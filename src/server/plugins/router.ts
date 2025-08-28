@@ -336,7 +336,7 @@ export default {
           // Flash the email over to the confirmation page
           request.yar.flash(getFlashKey(params), email)
 
-          // Redirect ot the save and exit confirmation page
+          // Redirect to the save and exit confirmation page
           return h.redirect(`/save-and-exit/${state}/${slug}/confirmation`)
         },
         options: {
