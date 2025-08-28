@@ -1,3 +1,5 @@
+import { randomUUID } from 'crypto'
+
 import {
   SubmissionEventMessageCategory,
   SubmissionEventMessageSchemaVersion,
@@ -26,7 +28,7 @@ export function saveAndExitMapper(formId, email, security, state) {
     category: SubmissionEventMessageCategory.RUNNER,
     source: SubmissionEventMessageSource.FORMS_RUNNER,
     type: SubmissionEventMessageType.RUNNER_SAVE_AND_EXIT,
-    entityId: formId,
+    entityId: randomUUID(),
     createdAt: now,
     data,
     messageCreatedAt: now

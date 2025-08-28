@@ -18,6 +18,7 @@ async function validateAndPublishEvent(saveAndExitMessage) {
 
 /**
  * Publish 'save and exit' event
+ * The returned entityId will be a newly-generated guid
  * @param {string} formId
  * @param {string} email
  * @param {{ question: string, answer: string }} security
