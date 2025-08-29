@@ -4,22 +4,32 @@ import { within } from '@testing-library/dom'
 import { StatusCodes } from 'http-status-codes'
 
 import { createServer } from '~/src/server/index.js'
+import { getFormMetadata } from '~/src/server/services/formsService.js'
+import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
+
+jest.mock('~/src/server/services/formsService.js')
 
 describe('Save and exit', () => {
   /** @type {Server} */
   let server
 
-  beforeEach(async () => {
+  // Create server before tests
+  beforeAll(async () => {
     server = await createServer({
       formFileName: 'basic.js',
       formFilePath: join(import.meta.dirname, 'definitions')
     })
+
     await server.initialize()
   })
 
-  afterEach(async () => {
+  beforeEach(() => {
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+  })
+
+  afterAll(async () => {
     await server.stop()
   })
 
