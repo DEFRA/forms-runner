@@ -10,6 +10,7 @@ import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 jest.mock('~/src/server/services/formsService.js')
+jest.mock('~/src/server/messaging/publish.js')
 
 describe('Save and exit', () => {
   /** @type {Server} */
