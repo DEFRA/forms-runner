@@ -1,5 +1,5 @@
 import { FormComponent } from '@defra/forms-engine-plugin/engine/components/FormComponent.js'
-import { createComponent } from '@defra/forms-engine-plugin/engine/components/helpers.js'
+import { createComponent } from '@defra/forms-engine-plugin/engine/components/helpers/components.js'
 import { FormModel } from '@defra/forms-engine-plugin/engine/models/index.js'
 import {
   ComponentType,
