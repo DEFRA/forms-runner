@@ -368,6 +368,7 @@ export default {
               .required(),
             payload: Joi.object()
               .keys({
+                crumb: crumbSchema,
                 email: Joi.string().email().required().messages({
                   'string.empty': 'Enter an email address',
                   'string.email': 'Enter an email address in the correct format'

@@ -26,6 +26,7 @@
         You will be asked for the answer to the security question when you resume your form.
       </p>
       <form method="post">
+        <input type="hidden" name="crumb" value="{{ crumb }}">
         {{ govukInput(fields.email) }}
         {{ govukInput(fields.emailConfirmation) }}
         {{ govukRadios(fields.securityQuestion) }}
