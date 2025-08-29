@@ -4,22 +4,32 @@ import { within } from '@testing-library/dom'
 import { StatusCodes } from 'http-status-codes'
 
 import { createServer } from '~/src/server/index.js'
+import { getFormMetadata } from '~/src/server/services/formsService.js'
+import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
+
+jest.mock('~/src/server/services/formsService.js')
 
 describe('Save and exit', () => {
   /** @type {Server} */
   let server
 
-  beforeEach(async () => {
+  // Create server before tests
+  beforeAll(async () => {
     server = await createServer({
       formFileName: 'basic.js',
       formFilePath: join(import.meta.dirname, 'definitions')
     })
+
     await server.initialize()
   })
 
-  afterEach(async () => {
+  beforeEach(() => {
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+  })
+
+  afterAll(async () => {
     await server.stop()
   })
 
@@ -109,6 +119,17 @@ describe('Save and exit', () => {
     })
 
     expect(response2.statusCode).toBe(StatusCodes.OK)
+  })
+
+  it('confirmation page errors if no details are flashed', async () => {
+    const options = {
+      method: 'GET',
+      url: '/save-and-exit/draft/basic/confirmation'
+    }
+
+    const { response } = await renderResponse(server, options)
+
+    expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
   })
 })
 

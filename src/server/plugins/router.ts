@@ -323,9 +323,17 @@ export default {
           const { params, payload } = request
           const { state, slug } = params
           const { email, securityQuestion, securityAnswer } = payload
+          const metadata = await getFormMetadata(slug)
 
           // TODO: Publish topic message
-          request.log([state, slug, email, securityQuestion, securityAnswer])
+          request.log([
+            state,
+            slug,
+            email,
+            securityQuestion,
+            securityAnswer,
+            metadata.id
+          ])
 
           // Clear all form data
           const cacheService = getCacheService(request.server)
@@ -334,7 +342,8 @@ export default {
           )
 
           // Flash the email over to the confirmation page
-          request.yar.flash(getFlashKey(params), email)
+          const key = getFlashKey(state, metadata.id)
+          request.yar.flash(key, email)
 
           // Redirect to the save and exit confirmation page
           return h.redirect(`/save-and-exit/${state}/${slug}/confirmation`)
@@ -344,7 +353,7 @@ export default {
             failAction: (request, h, err) => {
               const { params, payload } = request
               const model = saveAndExitViewModel(
-                params,
+                params as SaveAndExitParams,
                 payload as SaveAndExitPayload,
                 err
               )
@@ -392,19 +401,22 @@ export default {
       }>({
         method: 'GET',
         path: '/save-and-exit/{state}/{slug}/confirmation',
-        handler(request, h) {
+        async handler(request, h) {
           const { params } = request
+          const { state, slug } = params
+          const metadata = await getFormMetadata(slug)
 
           // Get the flashed email
-          const messages = request.yar.flash(getFlashKey(params))
+          const key = getFlashKey(state, metadata.id)
+          const messages = request.yar.flash(key)
 
-          if (Array.isArray(messages) && messages.length) {
-            const email = messages[0]
-
-            return h.view('save-and-exit-confirmation', { email })
+          if (messages.length === 0) {
+            return Boom.badRequest('No email found in flash cache')
           }
 
-          return Boom.badRequest('No email found in flash cache')
+          const email = messages[0]
+
+          return h.view('save-and-exit-confirmation', { email })
         },
         options: {
           validate: {

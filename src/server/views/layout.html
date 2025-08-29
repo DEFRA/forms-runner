@@ -163,14 +163,14 @@
   <script type="module" nonce="{{ cspNonce }}" src="{{ getAssetPath("application.js") }}"></script>
 
   {% if config.googleAnalyticsTrackingId and cookieConsent.analytics === true %}
-  <script id="ga-tag-js-main" nonce="{{ cspNonce }}" src="https://www.googletagmanager.com/gtag/js?id={{ config.googleAnalyticsTrackingId }}" defer></script>
-  <script id="ga-tag-js-init" nonce="{{ cspNonce }}">
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', '{{ config.googleAnalyticsTrackingId }}');
-  </script>
-{% endif %}
+    <script id="ga-tag-js-main" nonce="{{ cspNonce }}" src="https://www.googletagmanager.com/gtag/js?id={{ config.googleAnalyticsTrackingId }}" defer></script>
+    <script id="ga-tag-js-init" nonce="{{ cspNonce }}">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '{{ config.googleAnalyticsTrackingId }}');
+    </script>
+  {% endif %}
 {% endblock %}
 
 {% block footer %}

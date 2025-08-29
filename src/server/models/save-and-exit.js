@@ -175,12 +175,11 @@ function buildSecurityAnswerField(payload, error) {
 
 /**
  * Get save and exit session flash key
- * @param { SaveAndExitParams } params
+ * @param { string } state - the form state
+ * @param { string } formId - the form id
  */
-export function getFlashKey(params) {
-  const { state, slug } = params
-
-  return `${state}_${slug}_save_and_exit_email`
+export function getFlashKey(state, formId) {
+  return `${state}_${formId}_save_and_exit_email`
 }
 
 /**
@@ -239,7 +238,7 @@ export function saveAndExitViewModel(params, payload, err) {
  */
 
 /**
- * @typedef {Record<string, any>} SaveAndExitParams
+ * @typedef {object} SaveAndExitParams
  * @property {string} state - the preview/live state
  * @property {string} slug - the form slug
  */
