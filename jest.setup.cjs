@@ -12,8 +12,9 @@ process.env.SUBMISSION_URL = 'https://test-submission-api.cdp-int.defra.cloud'
 process.env.UPLOADER_URL = 'https://test-uploader.cdp-int.defra.cloud'
 process.env.UPLOADER_BUCKET_NAME = 'dummy-bucket'
 process.env.GOOGLE_ANALYTICS_TRACKING_ID = 'G-123456789'
+process.env.BASE_URL = 'http://localhost:3009'
 process.env.SNS_ADAPTER_TOPIC_ARN =
   'arn:aws:sns:eu-west-2:123456789012:test-adapter-topic'
 process.env.SNS_SAVE_TOPIC_ARN =
   'arn:aws:sns:eu-west-2:123456789012:test-save-topic'
-process.env.BASE_URL = 'http://localhost:3009'
+process.env.SNS_ENDPOINT = 'http://localhost:4566'
