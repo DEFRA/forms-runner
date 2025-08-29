@@ -22,6 +22,7 @@ import {
 import { type CookieConsent } from '~/src/common/types.js'
 import { config } from '~/src/config/index.js'
 import { FORM_PREFIX } from '~/src/server/constants.js'
+import { publishSaveAndExitEvent } from '~/src/server/messaging/publish.js'
 import {
   getFlashKey,
   saveAndExitViewModel,
@@ -325,18 +326,24 @@ export default {
           const { email, securityQuestion, securityAnswer } = payload
           const metadata = await getFormMetadata(slug)
 
-          // TODO: Publish topic message
-          request.log([
-            state,
-            slug,
+          const cacheService = getCacheService(request.server)
+
+          // Publish topic message
+          const security = {
+            question: securityQuestion,
+            answer: securityAnswer
+          }
+
+          await publishSaveAndExitEvent(
+            metadata.id,
             email,
-            securityQuestion,
-            securityAnswer,
-            metadata.id
-          ])
+            security,
+            await cacheService.getState(
+              request as unknown as FormRequestPayload
+            )
+          )
 
           // Clear all form data
-          const cacheService = getCacheService(request.server)
           await cacheService.clearState(
             request as unknown as FormRequestPayload
           )
