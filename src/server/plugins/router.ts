@@ -29,8 +29,8 @@ import { FORM_PREFIX } from '~/src/server/constants.js'
 import { publishSaveAndExitEvent } from '~/src/server/messaging/publish.js'
 import {
   getFlashKey,
-  saveAndExitViewModel,
-  securityQuestions,
+  payloadSchema as saveAndExitPayloadSchema,
+  viewModel as saveAndExitViewModel,
   type SaveAndExitParams,
   type SaveAndExitPayload
 } from '~/src/server/models/save-and-exit.js'
@@ -382,33 +382,7 @@ export default {
                 slug: slugSchema
               })
               .required(),
-            payload: Joi.object()
-              .keys({
-                crumb: crumbSchema,
-                email: Joi.string().email().required().messages({
-                  'string.empty': 'Enter an email address',
-                  'string.email': 'Enter an email address in the correct format'
-                }),
-                emailConfirmation: Joi.string()
-                  .valid(Joi.ref('email'))
-                  .required()
-                  .messages({
-                    'any.only':
-                      'Your email address does not match. Check and try again.'
-                  }),
-                securityQuestion: Joi.string()
-                  .valid(
-                    ...securityQuestions.map(({ value }) => value.toString())
-                  )
-                  .required()
-                  .messages({
-                    '*': 'Choose a security question'
-                  }),
-                securityAnswer: Joi.string().required().messages({
-                  '*': 'Enter a security answer'
-                })
-              })
-              .required()
+            payload: saveAndExitPayloadSchema
           }
         }
       })

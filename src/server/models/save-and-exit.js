@@ -1,6 +1,9 @@
 import { SecurityQuestionsEnum } from '@defra/forms-model'
 import Joi from 'joi'
 
+import { FORM_PREFIX } from '~/src/server/constants.js'
+import { crumbSchema } from '~/src/server/schemas/index.js'
+
 const pageTitle = 'Save your progress for later'
 
 // Field names/ids
@@ -14,7 +17,7 @@ const GOVUK_LABEL__M = 'govuk-label--m'
 /**
  * @type { SecurityQuestion[]}
  */
-export const securityQuestions = [
+const securityQuestions = [
   {
     text: 'What is a memorable place you have visited?',
     value: SecurityQuestionsEnum.MemorablePlace
@@ -174,6 +177,37 @@ function buildSecurityAnswerField(payload, error) {
 }
 
 /**
+ * Save and exit form payload schema
+ */
+export const payloadSchema = Joi.object()
+  .keys({
+    crumb: crumbSchema,
+    email: Joi.string().email().required().messages({
+      'string.email':
+        'Enter an email address in the correct format, for example, hello@example.com',
+      '*': 'Enter an email address'
+    }),
+    emailConfirmation: Joi.string()
+      .valid(Joi.ref('email'))
+      .required()
+      .messages({
+        '*': 'Your email address does not match. Check and try again.'
+      }),
+    securityQuestion: Joi.string()
+      .valid(...securityQuestions.map(({ value }) => value.toString()))
+      .required()
+      .messages({
+        '*': 'Choose a security question to answer'
+      }),
+    securityAnswer: Joi.string().min(3).max(40).required().messages({
+      'string.min': 'Your answer must be between 3 and 40 characters long',
+      'string.max': 'Your answer must be between 3 and 40 characters long',
+      '*': 'Enter an answer to the security question'
+    })
+  })
+  .required()
+
+/**
  * Get save and exit session flash key
  * @param { string } state - the form state
  * @param { string } formId - the form id
@@ -188,8 +222,13 @@ export function getFlashKey(state, formId) {
  * @param {SaveAndExitPayload} [payload]
  * @param {Error} [err]
  */
-export function saveAndExitViewModel(params, payload, err) {
+export function viewModel(params, payload, err) {
   const { state, slug } = params
+  const formPath = `/${FORM_PREFIX}/${state}/${slug}`
+
+  const backLink = {
+    href: formPath
+  }
 
   const {
     errors,
@@ -220,11 +259,12 @@ export function saveAndExitViewModel(params, payload, err) {
   const cancelButton = {
     text: 'Cancel',
     classes: 'govuk-button--secondary',
-    href: `/${state}/${slug}`
+    href: formPath
   }
 
   return {
     pageTitle,
+    backLink,
     errors,
     fields,
     buttons: { continueButton, cancelButton }
