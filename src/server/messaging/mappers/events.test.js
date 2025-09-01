@@ -1,4 +1,6 @@
 import {
+  FormStatus,
+  SecurityQuestionsEnum,
   SubmissionEventMessageCategory,
   SubmissionEventMessageSchemaVersion,
   SubmissionEventMessageSource,
@@ -14,8 +16,12 @@ describe('runner-events', () => {
         formId: 'formId',
         email: 'my-email@here.com',
         security: {
-          question: 'q3',
+          question: SecurityQuestionsEnum.CharacterName,
           answer: 'brown'
+        },
+        formStatus: {
+          status: FormStatus.Draft,
+          isPreview: false
         },
         state: {
           formVal1: '123',
@@ -27,6 +33,7 @@ describe('runner-events', () => {
           payload.formId,
           payload.email,
           payload.security,
+          payload.formStatus,
           payload.state
         )
       ).toEqual({
@@ -34,7 +41,6 @@ describe('runner-events', () => {
         category: SubmissionEventMessageCategory.RUNNER,
         source: SubmissionEventMessageSource.FORMS_RUNNER,
         type: SubmissionEventMessageType.RUNNER_SAVE_AND_EXIT,
-        entityId: expect.any(String),
         createdAt: expect.any(Date),
         messageCreatedAt: expect.any(Date),
         data: {
@@ -43,6 +49,10 @@ describe('runner-events', () => {
           security: {
             question: payload.security.question,
             answer: payload.security.answer
+          },
+          formStatus: {
+            status: payload.formStatus.status,
+            isPreview: payload.formStatus.isPreview
           },
           state: payload.state
         }

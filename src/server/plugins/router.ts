@@ -3,7 +3,11 @@ import {
   handleLegacyRedirect,
   isPathRelative
 } from '@defra/forms-engine-plugin/engine/helpers.js'
-import { slugSchema } from '@defra/forms-model'
+import {
+  slugSchema,
+  type FormStatus,
+  type SecurityQuestionsEnum
+} from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type Request,
@@ -329,8 +333,12 @@ export default {
           const cacheService = getCacheService(request.server)
 
           // Publish topic message
+          const formStatus = {
+            status: state as FormStatus,
+            isPreview: false
+          }
           const security = {
-            question: securityQuestion,
+            question: securityQuestion as SecurityQuestionsEnum,
             answer: securityAnswer
           }
 
@@ -338,6 +346,7 @@ export default {
             metadata.id,
             email,
             security,
+            formStatus,
             await cacheService.getState(
               request as unknown as FormRequestPayload
             )

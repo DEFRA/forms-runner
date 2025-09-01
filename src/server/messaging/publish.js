@@ -21,16 +21,23 @@ async function validateAndPublishEvent(saveAndExitMessage) {
  * The returned entityId will be a newly-generated guid
  * @param {string} formId
  * @param {string} email
- * @param {{ question: string, answer: string }} security
+ * @param {{ question: SecurityQuestionsEnum, answer: string }} security
+ * @param {{ status: FormStatus, isPreview: boolean }} formStatus
  * @param {FormState} state
  */
-export async function publishSaveAndExitEvent(formId, email, security, state) {
-  const message = saveAndExitMapper(formId, email, security, state)
+export async function publishSaveAndExitEvent(
+  formId,
+  email,
+  security,
+  formStatus,
+  state
+) {
+  const message = saveAndExitMapper(formId, email, security, formStatus, state)
 
   return validateAndPublishEvent(message)
 }
 
 /**
  * @import { FormState } from '@defra/forms-engine-plugin/engine/types.js'
- * @import { SaveAndExitMessage } from '@defra/forms-model'
+ * @import { FormStatus, SaveAndExitMessage, SecurityQuestionsEnum } from '@defra/forms-model'
  */

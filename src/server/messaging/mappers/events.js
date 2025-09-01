@@ -1,5 +1,3 @@
-import { randomUUID } from 'crypto'
-
 import {
   SubmissionEventMessageCategory,
   SubmissionEventMessageSchemaVersion,
@@ -10,16 +8,18 @@ import {
 /**
  * @param { string } formId
  * @param { string } email
- * @param {{ question: string, answer: string }} security
+ * @param {{ question: SecurityQuestionsEnum, answer: string }} security
+ * @param {{ status: FormStatus, isPreview: boolean }} formStatus
  * @param { FormState } state
  * @returns {SaveAndExitMessage}
  */
-export function saveAndExitMapper(formId, email, security, state) {
+export function saveAndExitMapper(formId, email, security, formStatus, state) {
   /** @type {SaveAndExitMessageData} */
   const data = {
     formId,
     email,
     security,
+    formStatus,
     state
   }
   const now = new Date()
@@ -28,7 +28,6 @@ export function saveAndExitMapper(formId, email, security, state) {
     category: SubmissionEventMessageCategory.RUNNER,
     source: SubmissionEventMessageSource.FORMS_RUNNER,
     type: SubmissionEventMessageType.RUNNER_SAVE_AND_EXIT,
-    entityId: randomUUID(),
     createdAt: now,
     data,
     messageCreatedAt: now
@@ -36,6 +35,6 @@ export function saveAndExitMapper(formId, email, security, state) {
 }
 
 /**
- * @import { SaveAndExitMessage, SaveAndExitMessageData } from '@defra/forms-model'
+ * @import { FormStatus, SaveAndExitMessage, SaveAndExitMessageData, SecurityQuestionsEnum } from '@defra/forms-model'
  * @import { FormState } from '@defra/forms-engine-plugin/engine/types.js'
  */

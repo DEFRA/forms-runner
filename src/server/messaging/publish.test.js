@@ -1,4 +1,6 @@
 import {
+  FormStatus,
+  SecurityQuestionsEnum,
   SubmissionEventMessageCategory,
   SubmissionEventMessageSchemaVersion,
   SubmissionEventMessageSource,
@@ -15,8 +17,12 @@ const saveAndExitPayload = {
   formId: 'formId',
   email: 'my-email@here.com',
   security: {
-    question: 'q3',
+    question: SecurityQuestionsEnum.CharacterName,
     answer: 'brown'
+  },
+  formStatus: {
+    status: FormStatus.Draft,
+    isPreview: true
   },
   state: {
     formVal1: '123',
@@ -42,11 +48,11 @@ describe('publish', () => {
         saveAndExitPayload.formId,
         saveAndExitPayload.email,
         saveAndExitPayload.security,
+        saveAndExitPayload.formStatus,
         saveAndExitPayload.state
       )
 
       expect(publishEvent).toHaveBeenCalledWith({
-        entityId: expect.any(String),
         source: SubmissionEventMessageSource.FORMS_RUNNER,
         messageCreatedAt: expect.any(Date),
         schemaVersion: SubmissionEventMessageSchemaVersion.V1,

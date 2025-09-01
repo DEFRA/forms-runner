@@ -1,4 +1,6 @@
 import {
+  FormStatus,
+  SecurityQuestionsEnum,
   SubmissionEventMessageCategory,
   SubmissionEventMessageSchemaVersion,
   SubmissionEventMessageType
@@ -16,10 +18,14 @@ export function buildSaveAndExitMessageData(
   return {
     formId: saveAndExitFormId,
     security: {
-      question: 'q1',
+      question: SecurityQuestionsEnum.MemorablePlace,
       answer: 'a1'
     },
     email: 'forms@example.com',
+    formStatus: {
+      status: FormStatus.Draft,
+      isPreview: false
+    },
     state: {},
     ...partialSaveAndExitMessageData
   }
