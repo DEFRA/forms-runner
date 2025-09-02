@@ -3,6 +3,20 @@ import { PublishCommand } from '@aws-sdk/client-sns'
 import { publishFormAdapterEvent } from '~/src/server/messaging/formAdapterEventPublisher.js'
 import { getSNSClient } from '~/src/server/messaging/sns.js'
 
+/**
+ * Helper function to test invalid payloads
+ * @param {unknown} invalidPayload - The invalid payload to test
+ * @returns {Promise<void>}
+ */
+async function expectValidationError(invalidPayload) {
+  const typedPayload = /** @type {FormAdapterSubmissionMessagePayload} */ (
+    invalidPayload
+  )
+  await expect(publishFormAdapterEvent(typedPayload)).rejects.toThrow(
+    'Invalid form adapter payload'
+  )
+}
+
 jest.mock('@aws-sdk/client-sns')
 jest.mock('~/src/server/messaging/sns.ts')
 
@@ -16,19 +30,28 @@ describe('formAdapterEventPublisher', () => {
   beforeEach(() => {
     jest.clearAllMocks()
 
-    mockPayload = /** @type {any} */ ({
+    mockPayload = /** @type {FormAdapterSubmissionMessagePayload} */ ({
       meta: {
-        schemaVersion: '1.0.0',
-        timestamp: new Date().toISOString(),
-        formId: 'form-123',
+        schemaVersion: 1,
+        timestamp: new Date(),
+        formId: '507f1f77bcf86cd799439011',
         formSlug: 'test-form',
         formName: 'Test Form',
-        referenceNumber: 'REF-123456'
+        referenceNumber: 'REF-123456',
+        status: 'live',
+        isPreview: false,
+        notificationEmail: 'test@example.com'
       },
       data: {
-        main: [{ name: 'field1', value: 'value1' }],
-        repeaters: [],
-        files: []
+        main: { field1: 'value1' },
+        repeaters: {},
+        files: {}
+      },
+      result: {
+        files: {
+          main: 'main-file-path',
+          repeaters: {}
+        }
       }
     })
 
@@ -82,13 +105,14 @@ describe('formAdapterEventPublisher', () => {
     it('uses correct subject format with form name', async () => {
       mockSnsClient.send.mockResolvedValue({ MessageId: 'msg-456' })
 
-      const customPayload = /** @type {any} */ ({
-        ...mockPayload,
-        meta: {
-          ...mockPayload.meta,
-          formName: 'Special & Characters Form!'
-        }
-      })
+      const customPayload =
+        /** @type {FormAdapterSubmissionMessagePayload} */ ({
+          ...mockPayload,
+          meta: {
+            ...mockPayload.meta,
+            formName: 'Special & Characters Form!'
+          }
+        })
 
       await publishFormAdapterEvent(customPayload)
 
@@ -102,24 +126,34 @@ describe('formAdapterEventPublisher', () => {
     it('serializes entire payload as JSON message', async () => {
       mockSnsClient.send.mockResolvedValue({ MessageId: 'msg-789' })
 
-      const complexPayload = /** @type {any} */ ({
-        meta: {
-          schemaVersion: '1.0.0',
-          timestamp: new Date().toISOString(),
-          formId: 'complex-form',
-          formSlug: 'complex-form',
-          formName: 'Complex Form',
-          referenceNumber: 'COMPLEX-REF'
-        },
-        data: {
-          main: [
-            { name: 'nested', value: { inner: 'value' } },
-            { name: 'array', value: [1, 2, 3] }
-          ],
-          repeaters: [],
-          files: []
-        }
-      })
+      const complexPayload =
+        /** @type {FormAdapterSubmissionMessagePayload} */ ({
+          meta: {
+            schemaVersion: 1,
+            timestamp: new Date(),
+            formId: '507f1f77bcf86cd799439012',
+            formSlug: 'complex-form',
+            formName: 'Complex Form',
+            referenceNumber: 'COMPLEX-REF',
+            status: 'live',
+            isPreview: false,
+            notificationEmail: 'complex@example.com'
+          },
+          data: {
+            main: {
+              nested: { inner: 'value' },
+              array: [1, 2, 3]
+            },
+            repeaters: {},
+            files: {}
+          },
+          result: {
+            files: {
+              main: 'complex-file-path',
+              repeaters: {}
+            }
+          }
+        })
 
       await publishFormAdapterEvent(complexPayload)
 
@@ -128,6 +162,106 @@ describe('formAdapterEventPublisher', () => {
           Message: JSON.stringify(complexPayload)
         })
       )
+    })
+
+    describe('payload validation', () => {
+      it('validates payload successfully with valid data', async () => {
+        mockSnsClient.send.mockResolvedValue({ MessageId: 'msg-valid' })
+
+        const result = await publishFormAdapterEvent(mockPayload)
+
+        expect(result).toBe('msg-valid')
+        expect(mockSnsClient.send).toHaveBeenCalled()
+      })
+
+      it('throws validation error when meta is missing', async () => {
+        const invalidPayload = {
+          data: mockPayload.data,
+          // Intentionally omit meta property
+          // @ts-expect-error - We have the result property from runtime schema
+          result: mockPayload.result
+        }
+
+        await expectValidationError(invalidPayload)
+        expect(mockSnsClient.send).not.toHaveBeenCalled()
+      })
+
+      it('throws validation error when required meta fields are missing', async () => {
+        const invalidPayload = {
+          meta: {
+            schemaVersion: 1
+            // Missing required fields like timestamp, formId, etc.
+          },
+          data: mockPayload.data,
+          // @ts-expect-error - We have the result property from runtime schema
+          result: mockPayload.result
+        }
+
+        await expectValidationError(invalidPayload)
+        expect(mockSnsClient.send).not.toHaveBeenCalled()
+      })
+
+      it('throws validation error when data is missing', async () => {
+        const invalidPayload = {
+          meta: mockPayload.meta,
+          // Intentionally omit data property
+          // @ts-expect-error - We have the result property from runtime schema
+          result: mockPayload.result
+        }
+
+        await expectValidationError(invalidPayload)
+        expect(mockSnsClient.send).not.toHaveBeenCalled()
+      })
+
+      it('throws validation error when result is missing', async () => {
+        const invalidPayload = {
+          meta: mockPayload.meta,
+          data: mockPayload.data
+          // Intentionally omit result property
+        }
+
+        await expectValidationError(invalidPayload)
+        expect(mockSnsClient.send).not.toHaveBeenCalled()
+      })
+
+      it('throws validation error with invalid email format', async () => {
+        const invalidPayload = {
+          ...mockPayload,
+          meta: {
+            ...mockPayload.meta,
+            notificationEmail: 'invalid-email'
+          }
+        }
+
+        await expectValidationError(invalidPayload)
+        expect(mockSnsClient.send).not.toHaveBeenCalled()
+      })
+
+      it('throws validation error with invalid status', async () => {
+        const invalidPayload = {
+          ...mockPayload,
+          meta: {
+            ...mockPayload.meta,
+            status: 'invalid-status'
+          }
+        }
+
+        await expectValidationError(invalidPayload)
+        expect(mockSnsClient.send).not.toHaveBeenCalled()
+      })
+
+      it('throws validation error with invalid schema version', async () => {
+        const invalidPayload = {
+          ...mockPayload,
+          meta: {
+            ...mockPayload.meta,
+            schemaVersion: 999
+          }
+        }
+
+        await expectValidationError(invalidPayload)
+        expect(mockSnsClient.send).not.toHaveBeenCalled()
+      })
     })
   })
 })
