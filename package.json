@@ -41,7 +41,7 @@
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
     "@aws-sdk/client-sns": "^3.864.0",
-    "@defra/forms-engine-plugin": "^2.1.5",
+    "@defra/forms-engine-plugin": "^2.1.9",
     "@defra/forms-model": "^3.0.545",
     "@defra/hapi-tracing": "^1.26.0",
     "@elastic/ecs-pino-format": "^1.5.0",
