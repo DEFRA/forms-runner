@@ -4,6 +4,10 @@ import { publishFormAdapterEvent } from '~/src/server/messaging/formAdapterEvent
 import { getSNSClient } from '~/src/server/messaging/sns.js'
 
 /**
+ * @typedef {import('@defra/forms-engine-plugin/engine/types.js').FormAdapterSubmissionMessagePayload} FormAdapterSubmissionMessagePayload
+ */
+
+/**
  * Helper function to test invalid payloads
  * @param {unknown} invalidPayload - The invalid payload to test
  * @returns {Promise<void>}
@@ -178,7 +182,6 @@ describe('formAdapterEventPublisher', () => {
         const invalidPayload = {
           data: mockPayload.data,
           // Intentionally omit meta property
-          // @ts-expect-error - We have the result property from runtime schema
           result: mockPayload.result
         }
 
@@ -193,7 +196,6 @@ describe('formAdapterEventPublisher', () => {
             // Missing required fields like timestamp, formId, etc.
           },
           data: mockPayload.data,
-          // @ts-expect-error - We have the result property from runtime schema
           result: mockPayload.result
         }
 
@@ -205,7 +207,6 @@ describe('formAdapterEventPublisher', () => {
         const invalidPayload = {
           meta: mockPayload.meta,
           // Intentionally omit data property
-          // @ts-expect-error - We have the result property from runtime schema
           result: mockPayload.result
         }
 
