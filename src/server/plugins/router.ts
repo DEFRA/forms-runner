@@ -3,7 +3,11 @@ import {
   handleLegacyRedirect,
   isPathRelative
 } from '@defra/forms-engine-plugin/engine/helpers.js'
-import { slugSchema } from '@defra/forms-model'
+import {
+  slugSchema,
+  type FormStatus,
+  type SecurityQuestionsEnum
+} from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type Request,
@@ -22,6 +26,7 @@ import {
 import { type CookieConsent } from '~/src/common/types.js'
 import { config } from '~/src/config/index.js'
 import { FORM_PREFIX } from '~/src/server/constants.js'
+import { publishSaveAndExitEvent } from '~/src/server/messaging/publish.js'
 import {
   getFlashKey,
   saveAndExitViewModel,
@@ -325,18 +330,29 @@ export default {
           const { email, securityQuestion, securityAnswer } = payload
           const metadata = await getFormMetadata(slug)
 
-          // TODO: Publish topic message
-          request.log([
-            state,
-            slug,
+          const cacheService = getCacheService(request.server)
+
+          // Publish topic message
+          const formStatus = {
+            status: state as FormStatus,
+            isPreview: false
+          }
+          const security = {
+            question: securityQuestion as SecurityQuestionsEnum,
+            answer: securityAnswer
+          }
+
+          await publishSaveAndExitEvent(
+            metadata.id,
             email,
-            securityQuestion,
-            securityAnswer,
-            metadata.id
-          ])
+            security,
+            formStatus,
+            await cacheService.getState(
+              request as unknown as FormRequestPayload
+            )
+          )
 
           // Clear all form data
-          const cacheService = getCacheService(request.server)
           await cacheService.clearState(
             request as unknown as FormRequestPayload
           )
