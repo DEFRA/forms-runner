@@ -34,11 +34,12 @@ import { config } from '~/src/config/index.js'
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { publishSaveAndExitEvent } from '~/src/server/messaging/publish.js'
 import {
+  confirmationViewModel as saveAndExitConfirmationViewModel,
+  detailsViewModel as saveAndExitDetailsViewModel,
   getKey,
   paramsSchema as saveAndExitParamsSchema,
   payloadSchema as saveAndExitPayloadSchema,
   querySchema as saveAndExitQuerySchema,
-  viewModel as saveAndExitViewModel,
   type SaveAndExitParams,
   type SaveAndExitPayload,
   type SaveAndExitQuery
@@ -48,7 +49,6 @@ import { healthRoute, publicRoutes } from '~/src/server/routes/index.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 
 const routes: ServerRoute[] = [...publicRoutes, healthRoute]
-const saveAndExitExpiryDays = config.get('saveAndExitExpiryDays')
 
 export default {
   plugin: {
@@ -304,10 +304,12 @@ export default {
       }>({
         method: 'GET',
         path: '/save-and-exit/{slug}',
-        handler(request, h) {
+        async handler(request, h) {
           const { params, query, payload } = request
-          const status = query.status
-          const model = saveAndExitViewModel(params, payload, status)
+          const { slug } = params
+          const { status } = query
+          const metadata = await getFormMetadata(slug)
+          const model = saveAndExitDetailsViewModel(metadata, payload, status)
 
           return h.view('save-and-exit-details', model)
         },
@@ -362,15 +364,19 @@ export default {
           request.yar.flash(getKey(slug), email)
 
           // Redirect to the save and exit confirmation page
-          return h.redirect(`/save-and-exit/${slug}/confirmation`)
+          return h.redirect(
+            `/save-and-exit/${slug}/confirmation${status ? `?status=${status}` : ''}`
+          )
         },
         options: {
           validate: {
-            failAction: (request, h, err) => {
+            async failAction(request, h, err) {
               const { params, query, payload } = request
+              const { slug } = params
               const { status } = query
-              const model = saveAndExitViewModel(
-                params as SaveAndExitParams,
+              const metadata = await getFormMetadata(slug)
+              const model = saveAndExitDetailsViewModel(
+                metadata,
                 payload as SaveAndExitPayload,
                 status as FormStatus,
                 err
@@ -390,9 +396,11 @@ export default {
       }>({
         method: 'GET',
         path: '/save-and-exit/{slug}/confirmation',
-        handler(request, h) {
-          const { params } = request
+        async handler(request, h) {
+          const { params, query } = request
           const { slug } = params
+          const { status } = query
+          const metadata = await getFormMetadata(slug)
 
           // Get the flashed email
           const messages = request.yar.flash(getKey(slug))
@@ -402,15 +410,18 @@ export default {
           }
 
           const email = messages[0]
-
-          return h.view('save-and-exit-confirmation', {
+          const model = saveAndExitConfirmationViewModel(
+            metadata,
             email,
-            saveAndExitExpiryDays
-          })
+            status
+          )
+
+          return h.view('save-and-exit-confirmation', model)
         },
         options: {
           validate: {
-            params: saveAndExitParamsSchema
+            params: saveAndExitParamsSchema,
+            query: saveAndExitQuerySchema
           }
         }
       })

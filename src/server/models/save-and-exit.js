@@ -2,9 +2,11 @@ import { crumbSchema, stateSchema } from '@defra/forms-engine-plugin/schema.js'
 import { SecurityQuestionsEnum, slugSchema } from '@defra/forms-model'
 import Joi from 'joi'
 
+import { config } from '~/src/config/index.js'
 import { FORM_PREFIX } from '~/src/server/constants.js'
 
-const pageTitle = 'Save your progress for later'
+const detailsPageTitle = 'Save your progress for later'
+const confirmationPageTitle = 'Your progress has been saved'
 
 // Field names/ids
 const email = 'email'
@@ -13,6 +15,7 @@ const securityQuestion = 'securityQuestion'
 const securityAnswer = 'securityAnswer'
 
 const GOVUK_LABEL__M = 'govuk-label--m'
+const saveAndExitExpiryDays = config.get('saveAndExitExpiryDays')
 
 /**
  * @type { SecurityQuestion[]}
@@ -228,14 +231,14 @@ export function getKey(slug) {
 }
 
 /**
- * The save and exit form view model
- * @param {SaveAndExitParams} params
+ * The save and exit details form view model
+ * @param {FormMetadata} metadata
  * @param {SaveAndExitPayload} [payload]
  * @param {FormStatus} [status]
  * @param {Error} [err]
  */
-export function viewModel(params, payload, status, err) {
-  const { slug } = params
+export function detailsViewModel(metadata, payload, status, err) {
+  const { slug, title } = metadata
   const isPreview = !!status
   const formPath = isPreview
     ? `${FORM_PREFIX}/preview/${status}/${slug}`
@@ -278,11 +281,35 @@ export function viewModel(params, payload, status, err) {
   }
 
   return {
-    pageTitle,
+    name: title,
+    serviceUrl: formPath,
+    pageTitle: detailsPageTitle,
     backLink,
     errors,
     fields,
     buttons: { continueButton, cancelButton }
+  }
+}
+
+/**
+ * The save and exit confirmation form view model
+ * @param {FormMetadata} metadata
+ * @param {string} email
+ * @param {FormStatus} [status]
+ */
+export function confirmationViewModel(metadata, email, status) {
+  const { slug, title } = metadata
+  const isPreview = !!status
+  const formPath = isPreview
+    ? `${FORM_PREFIX}/preview/${status}/${slug}`
+    : `${FORM_PREFIX}/${slug}`
+
+  return {
+    name: title,
+    serviceUrl: formPath,
+    pageTitle: confirmationPageTitle,
+    email,
+    saveAndExitExpiryDays
   }
 }
 
@@ -311,5 +338,6 @@ export function viewModel(params, payload, status, err) {
  */
 
 /**
+ * @import { FormMetadata } from '@defra/forms-model'
  * @import { FormStatus } from '@defra/forms-engine-plugin/types'
  */
