@@ -16,16 +16,18 @@ export function buildSaveAndExitMessageData(
   partialSaveAndExitMessageData = {}
 ) {
   return {
-    formId: saveAndExitFormId,
+    form: {
+      id: 'formId',
+      title: 'formId',
+      slug: 'my-form',
+      isPreview: false,
+      status: FormStatus.Draft
+    },
     security: {
       question: SecurityQuestionsEnum.MemorablePlace,
       answer: 'a1'
     },
     email: 'forms@example.com',
-    formStatus: {
-      status: FormStatus.Draft,
-      isPreview: false
-    },
     state: {},
     ...partialSaveAndExitMessageData
   }

@@ -23,7 +23,7 @@ export async function publishEvent(message) {
   const result = await client.send(command)
 
   logger.info(
-    `Published ${message.type} event for formId ${message.data.formId}. MessageId: ${result.MessageId}`
+    `Published ${message.type} event for formId ${message.data.form.id}. MessageId: ${result.MessageId}`
   )
 
   return result
