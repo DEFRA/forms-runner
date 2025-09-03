@@ -1,8 +1,8 @@
-import { SecurityQuestionsEnum } from '@defra/forms-model'
+import { crumbSchema, stateSchema } from '@defra/forms-engine-plugin/schema.js'
+import { SecurityQuestionsEnum, slugSchema } from '@defra/forms-model'
 import Joi from 'joi'
 
 import { FORM_PREFIX } from '~/src/server/constants.js'
-import { crumbSchema } from '~/src/server/schemas/index.js'
 
 const pageTitle = 'Save your progress for later'
 
@@ -177,6 +177,18 @@ function buildSecurityAnswerField(payload, error) {
 }
 
 /**
+ * Save and exit params
+ */
+export const paramsSchema = Joi.object().keys({ slug: slugSchema }).required()
+
+/**
+ * Save and exit query
+ */
+export const querySchema = Joi.object()
+  .keys({ status: stateSchema.optional() })
+  .optional()
+
+/**
  * Save and exit form payload schema
  */
 export const payloadSchema = Joi.object()
@@ -208,23 +220,26 @@ export const payloadSchema = Joi.object()
   .required()
 
 /**
- * Get save and exit session flash key
- * @param { string } state - the form state
- * @param { string } formId - the form id
+ * Get save and exit session key
+ * @param { string } slug - the form slug
  */
-export function getFlashKey(state, formId) {
-  return `${state}_${formId}_save_and_exit_email`
+export function getKey(slug) {
+  return `${slug}_save_and_exit`
 }
 
 /**
  * The save and exit form view model
  * @param {SaveAndExitParams} params
  * @param {SaveAndExitPayload} [payload]
+ * @param {FormStatus} [status]
  * @param {Error} [err]
  */
-export function viewModel(params, payload, err) {
-  const { state, slug } = params
-  const formPath = `/${FORM_PREFIX}/${state}/${slug}`
+export function viewModel(params, payload, status, err) {
+  const { slug } = params
+  const isPreview = !!status
+  const formPath = isPreview
+    ? `${FORM_PREFIX}/preview/${status}/${slug}`
+    : `${FORM_PREFIX}/${slug}`
 
   const backLink = {
     href: formPath
@@ -279,8 +294,12 @@ export function viewModel(params, payload, err) {
 
 /**
  * @typedef {object} SaveAndExitParams
- * @property {string} state - the preview/live state
  * @property {string} slug - the form slug
+ */
+
+/**
+ * @typedef {object} SaveAndExitQuery
+ * @property {FormStatus} [status] - the form status (draft/live) when in preview mode
  */
 
 /**
@@ -289,4 +308,8 @@ export function viewModel(params, payload, err) {
  * @property {string} emailConfirmation - email confirmation
  * @property {string} securityQuestion - the security question
  * @property {string} securityAnswer - the security answer
+ */
+
+/**
+ * @import { FormStatus } from '@defra/forms-engine-plugin/types'
  */

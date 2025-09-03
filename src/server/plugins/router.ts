@@ -4,10 +4,16 @@ import {
   isPathRelative
 } from '@defra/forms-engine-plugin/engine/helpers.js'
 import {
-  slugSchema,
-  type FormStatus,
-  type SecurityQuestionsEnum
-} from '@defra/forms-model'
+  crumbSchema,
+  itemIdSchema,
+  pathSchema,
+  stateSchema
+} from '@defra/forms-engine-plugin/schema.js'
+import {
+  type FormRequestPayload,
+  type FormStatus
+} from '@defra/forms-engine-plugin/types'
+import { slugSchema, type SecurityQuestionsEnum } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type Request,
@@ -28,21 +34,17 @@ import { config } from '~/src/config/index.js'
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { publishSaveAndExitEvent } from '~/src/server/messaging/publish.js'
 import {
-  getFlashKey,
+  getKey,
+  paramsSchema as saveAndExitParamsSchema,
   payloadSchema as saveAndExitPayloadSchema,
+  querySchema as saveAndExitQuerySchema,
   viewModel as saveAndExitViewModel,
   type SaveAndExitParams,
-  type SaveAndExitPayload
+  type SaveAndExitPayload,
+  type SaveAndExitQuery
 } from '~/src/server/models/save-and-exit.js'
 import { getErrorPreviewHandler } from '~/src/server/plugins/error-preview/error-preview.js'
 import { healthRoute, publicRoutes } from '~/src/server/routes/index.js'
-import { type FormRequestPayload } from '~/src/server/routes/types.js'
-import {
-  crumbSchema,
-  itemIdSchema,
-  pathSchema,
-  stateSchema
-} from '~/src/server/schemas/index.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 
 const routes: ServerRoute[] = [...publicRoutes, healthRoute]
@@ -296,60 +298,58 @@ export default {
 
       server.route<{
         Params: SaveAndExitParams
+        Query: SaveAndExitQuery
         Payload: SaveAndExitPayload
       }>({
         method: 'GET',
-        path: '/save-and-exit/{state}/{slug}',
+        path: '/save-and-exit/{slug}',
         handler(request, h) {
-          const { params, payload } = request
-          const model = saveAndExitViewModel(params, payload)
+          const { params, query, payload } = request
+          const status = query.status
+          const model = saveAndExitViewModel(params, payload, status)
 
           return h.view('save-and-exit-details', model)
         },
         options: {
           validate: {
-            params: Joi.object()
-              .keys({
-                state: stateSchema,
-                slug: slugSchema
-              })
-              .required()
+            query: saveAndExitQuerySchema,
+            params: saveAndExitParamsSchema
           }
         }
       })
 
       server.route<{
         Params: SaveAndExitParams
+        Query: SaveAndExitQuery
         Payload: SaveAndExitPayload
       }>({
         method: 'POST',
-        path: '/save-and-exit/{state}/{slug}',
+        path: '/save-and-exit/{slug}',
         async handler(request, h) {
-          const { params, payload } = request
-          const { state, slug } = params
+          const { params, query, payload } = request
+          const { slug } = params
+          const { status } = query
           const { email, securityQuestion, securityAnswer } = payload
           const metadata = await getFormMetadata(slug)
-
           const cacheService = getCacheService(request.server)
 
           // Publish topic message
-          const formStatus = {
-            status: state as FormStatus,
-            isPreview: false
-          }
           const security = {
             question: securityQuestion as SecurityQuestionsEnum,
             answer: securityAnswer
           }
+          const state = await cacheService.getState(
+            request as unknown as FormRequestPayload
+          )
 
           await publishSaveAndExitEvent(
             metadata.id,
+            metadata.slug,
+            metadata.title,
             email,
             security,
-            formStatus,
-            await cacheService.getState(
-              request as unknown as FormRequestPayload
-            )
+            state,
+            status
           )
 
           // Clear all form data
@@ -358,30 +358,27 @@ export default {
           )
 
           // Flash the email over to the confirmation page
-          const key = getFlashKey(state, metadata.id)
-          request.yar.flash(key, email)
+          request.yar.flash(getKey(slug), email)
 
           // Redirect to the save and exit confirmation page
-          return h.redirect(`/save-and-exit/${state}/${slug}/confirmation`)
+          return h.redirect(`/save-and-exit/${slug}/confirmation`)
         },
         options: {
           validate: {
             failAction: (request, h, err) => {
-              const { params, payload } = request
+              const { params, query, payload } = request
+              const { status } = query
               const model = saveAndExitViewModel(
                 params as SaveAndExitParams,
                 payload as SaveAndExitPayload,
+                status as FormStatus,
                 err
               )
 
               return h.view('save-and-exit-details', model).takeover()
             },
-            params: Joi.object()
-              .keys({
-                state: stateSchema,
-                slug: slugSchema
-              })
-              .required(),
+            params: saveAndExitParamsSchema,
+            query: saveAndExitQuerySchema,
             payload: saveAndExitPayloadSchema
           }
         }
@@ -391,15 +388,13 @@ export default {
         Params: SaveAndExitParams
       }>({
         method: 'GET',
-        path: '/save-and-exit/{state}/{slug}/confirmation',
-        async handler(request, h) {
+        path: '/save-and-exit/{slug}/confirmation',
+        handler(request, h) {
           const { params } = request
-          const { state, slug } = params
-          const metadata = await getFormMetadata(slug)
+          const { slug } = params
 
           // Get the flashed email
-          const key = getFlashKey(state, metadata.id)
-          const messages = request.yar.flash(key)
+          const messages = request.yar.flash(getKey(slug))
 
           if (messages.length === 0) {
             return Boom.badRequest('No email found in flash cache')
@@ -411,12 +406,7 @@ export default {
         },
         options: {
           validate: {
-            params: Joi.object()
-              .keys({
-                state: stateSchema,
-                slug: slugSchema
-              })
-              .required()
+            params: saveAndExitParamsSchema
           }
         }
       })
