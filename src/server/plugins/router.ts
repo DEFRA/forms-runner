@@ -40,7 +40,8 @@ import {
   paramsSchema as saveAndExitParamsSchema,
   payloadSchema as saveAndExitPayloadSchema,
   type SaveAndExitParams,
-  type SaveAndExitPayload
+  type SaveAndExitPayload,
+  type SaveAndExitQuery
 } from '~/src/server/models/save-and-exit.js'
 import { getErrorPreviewHandler } from '~/src/server/plugins/error-preview/error-preview.js'
 import { healthRoute, publicRoutes } from '~/src/server/routes/index.js'
@@ -297,6 +298,7 @@ export default {
 
       server.route<{
         Params: SaveAndExitParams
+        Query: SaveAndExitQuery
         Payload: SaveAndExitPayload
       }>({
         method: 'GET',
@@ -318,6 +320,7 @@ export default {
 
       server.route<{
         Params: SaveAndExitParams
+        Query: SaveAndExitQuery
         Payload: SaveAndExitPayload
       }>({
         method: 'POST',

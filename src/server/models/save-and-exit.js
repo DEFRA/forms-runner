@@ -325,6 +325,11 @@ export function confirmationViewModel(metadata, email, status) {
  */
 
 /**
+ * @typedef {object} SaveAndExitQuery
+ * @property {FormStatus} [status] - the form status (draft/live) when in preview mode
+ */
+
+/**
  * @typedef {object} SaveAndExitPayload
  * @property {string} email - email
  * @property {string} emailConfirmation - email confirmation
