@@ -48,6 +48,7 @@ import { healthRoute, publicRoutes } from '~/src/server/routes/index.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 
 const routes: ServerRoute[] = [...publicRoutes, healthRoute]
+const saveAndExitExpiryDays = config.get('saveAndExitExpiryDays')
 
 export default {
   plugin: {
@@ -402,7 +403,10 @@ export default {
 
           const email = messages[0]
 
-          return h.view('save-and-exit-confirmation', { email })
+          return h.view('save-and-exit-confirmation', {
+            email,
+            saveAndExitExpiryDays
+          })
         },
         options: {
           validate: {
