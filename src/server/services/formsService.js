@@ -1,7 +1,7 @@
+import { FormStatus } from '@defra/forms-engine-plugin/types'
 import { formMetadataSchema } from '@defra/forms-model'
 
 import { config } from '~/src/config/index.js'
-import { FormStatus } from '~/src/server/routes/types.js'
 import { getJson } from '~/src/server/services/httpService.js'
 
 /**

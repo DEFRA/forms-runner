@@ -85,5 +85,5 @@ export function context(request) {
 
 /**
  * @import { ViewContext } from '~/src/server/plugins/nunjucks/types.js'
- * @import { FormRequest, FormRequestPayload } from '~/src/server/routes/types.js'
+ * @import { FormRequest, FormRequestPayload } from '@defra/forms-engine-plugin/types'
  */

@@ -4,12 +4,12 @@ import {
   UploadStatus,
   type UploadStatusResponse
 } from '@defra/forms-engine-plugin/engine/types.js'
+import { FormStatus } from '@defra/forms-engine-plugin/types'
 import { type Server } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
-import { FormStatus } from '~/src/server/routes/types.js'
 import {
   getFormDefinition,
   getFormMetadata
