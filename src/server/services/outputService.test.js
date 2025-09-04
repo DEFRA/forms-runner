@@ -117,7 +117,8 @@ describe('OutputService', () => {
         meta: {
           formId: 'form-123',
           referenceNumber: 'REF-123456',
-          formName: 'Test Form'
+          formName: 'Test Form',
+          notificationEmail: 'notify@example.com'
         },
         data: mockItems
       }
@@ -152,7 +153,8 @@ describe('OutputService', () => {
         meta: {
           formId: 'unknown',
           referenceNumber: 'REF-123456',
-          formName: 'Test Form'
+          formName: 'Test Form',
+          notificationEmail: 'notify@example.com'
         },
         data: mockItems
       }
@@ -229,7 +231,8 @@ describe('OutputService', () => {
         meta: {
           formId: 'form-123',
           referenceNumber: 'REF-123456',
-          formName: 'Test Form'
+          formName: 'Test Form',
+          notificationEmail: 'notify@example.com'
         },
         data: mockItems
       }
@@ -352,6 +355,127 @@ describe('OutputService', () => {
         { isPreview: false, state: FormStatus.Live },
         mockFormMetadata
       )
+    })
+
+    it('skips publishing when notificationEmail is not present', async () => {
+      const mockPayload = {
+        meta: {
+          formId: 'form-123',
+          referenceNumber: 'REF-123456',
+          formName: 'Test Form'
+          // notificationEmail is missing
+        },
+        data: mockItems
+      }
+
+      mockFormatter.mockReturnValue(JSON.stringify(mockPayload))
+
+      await outputService.submit(
+        mockContext,
+        mockRequest,
+        mockModel,
+        'test@example.com',
+        mockItems,
+        mockSubmitResponse,
+        mockFormMetadata
+      )
+
+      expect(checkFormStatus).toHaveBeenCalledWith(mockRequest.params)
+      expect(getFormatter).toHaveBeenCalledWith('adapter', '1')
+      expect(mockFormatter).toHaveBeenCalledWith(
+        mockContext,
+        mockItems,
+        mockModel,
+        mockSubmitResponse,
+        { isPreview: false, state: FormStatus.Live },
+        mockFormMetadata
+      )
+      expect(publishFormAdapterEvent).not.toHaveBeenCalled()
+    })
+
+    it('skips publishing when notificationEmail is null', async () => {
+      const mockPayload = {
+        meta: {
+          formId: 'form-123',
+          referenceNumber: 'REF-123456',
+          formName: 'Test Form',
+          notificationEmail: null
+        },
+        data: mockItems
+      }
+
+      mockFormatter.mockReturnValue(JSON.stringify(mockPayload))
+
+      await outputService.submit(
+        mockContext,
+        mockRequest,
+        mockModel,
+        'test@example.com',
+        mockItems,
+        mockSubmitResponse,
+        mockFormMetadata
+      )
+
+      expect(checkFormStatus).toHaveBeenCalledWith(mockRequest.params)
+      expect(getFormatter).toHaveBeenCalledWith('adapter', '1')
+      expect(publishFormAdapterEvent).not.toHaveBeenCalled()
+    })
+
+    it('skips publishing when notificationEmail is empty string', async () => {
+      const mockPayload = {
+        meta: {
+          formId: 'form-123',
+          referenceNumber: 'REF-123456',
+          formName: 'Test Form',
+          notificationEmail: ''
+        },
+        data: mockItems
+      }
+
+      mockFormatter.mockReturnValue(JSON.stringify(mockPayload))
+
+      await outputService.submit(
+        mockContext,
+        mockRequest,
+        mockModel,
+        'test@example.com',
+        mockItems,
+        mockSubmitResponse,
+        mockFormMetadata
+      )
+
+      expect(checkFormStatus).toHaveBeenCalledWith(mockRequest.params)
+      expect(getFormatter).toHaveBeenCalledWith('adapter', '1')
+      expect(publishFormAdapterEvent).not.toHaveBeenCalled()
+    })
+
+    it('publishes when notificationEmail is present', async () => {
+      const mockPayload = {
+        meta: {
+          formId: 'form-123',
+          referenceNumber: 'REF-123456',
+          formName: 'Test Form',
+          notificationEmail: 'notify@example.com'
+        },
+        data: mockItems
+      }
+
+      mockFormatter.mockReturnValue(JSON.stringify(mockPayload))
+      jest.mocked(publishFormAdapterEvent).mockResolvedValue('message-id-123')
+
+      await outputService.submit(
+        mockContext,
+        mockRequest,
+        mockModel,
+        'test@example.com',
+        mockItems,
+        mockSubmitResponse,
+        mockFormMetadata
+      )
+
+      expect(checkFormStatus).toHaveBeenCalledWith(mockRequest.params)
+      expect(getFormatter).toHaveBeenCalledWith('adapter', '1')
+      expect(publishFormAdapterEvent).toHaveBeenCalledWith(mockPayload)
     })
   })
 
