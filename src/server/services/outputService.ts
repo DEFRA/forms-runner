@@ -66,11 +66,19 @@ export class OutputService implements IOutputService {
 
       const formId = submissionPayload.meta.formId
       const payloadRef = submissionPayload.meta.referenceNumber
+      const notificationEmail = submissionPayload.meta.notificationEmail
+
+      if (!notificationEmail) {
+        logger.info(
+          `Skipping form submission notification - no notification email configured - ref: ${payloadRef}, formId: ${formId}`
+        )
+        return
+      }
 
       const messageId = await publishFormAdapterEvent(submissionPayload)
 
       logger.info(
-        `Form submission notification published - ref: ${payloadRef}, formId: ${formId}, messageId: ${messageId}`
+        `Form submission notification published - ref: ${payloadRef}, formId: ${formId}, email: ${notificationEmail}, messageId: ${messageId}`
       )
     } catch (error) {
       logger.error(
