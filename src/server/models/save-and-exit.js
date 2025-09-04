@@ -182,14 +182,12 @@ function buildSecurityAnswerField(payload, error) {
 /**
  * Save and exit params
  */
-export const paramsSchema = Joi.object().keys({ slug: slugSchema }).required()
-
-/**
- * Save and exit query
- */
-export const querySchema = Joi.object()
-  .keys({ status: stateSchema.optional() })
-  .optional()
+export const paramsSchema = Joi.object()
+  .keys({
+    slug: slugSchema,
+    state: stateSchema.optional()
+  })
+  .required()
 
 /**
  * Save and exit form payload schema
@@ -224,10 +222,11 @@ export const payloadSchema = Joi.object()
 
 /**
  * Get save and exit session key
- * @param { string } slug - the form slug
+ * @param {string} slug
+ * @param {FormStatus} [state]
  */
-export function getKey(slug) {
-  return `${slug}_save_and_exit`
+export function getKey(slug, state) {
+  return `save-and-exit-${slug}-${state ?? ''}`
 }
 
 /**
@@ -322,11 +321,7 @@ export function confirmationViewModel(metadata, email, status) {
 /**
  * @typedef {object} SaveAndExitParams
  * @property {string} slug - the form slug
- */
-
-/**
- * @typedef {object} SaveAndExitQuery
- * @property {FormStatus} [status] - the form status (draft/live) when in preview mode
+ * @property {FormStatus} [state] - the form status (draft/live) when in preview mode
  */
 
 /**

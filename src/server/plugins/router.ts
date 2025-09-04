@@ -39,10 +39,8 @@ import {
   getKey,
   paramsSchema as saveAndExitParamsSchema,
   payloadSchema as saveAndExitPayloadSchema,
-  querySchema as saveAndExitQuerySchema,
   type SaveAndExitParams,
-  type SaveAndExitPayload,
-  type SaveAndExitQuery
+  type SaveAndExitPayload
 } from '~/src/server/models/save-and-exit.js'
 import { getErrorPreviewHandler } from '~/src/server/plugins/error-preview/error-preview.js'
 import { healthRoute, publicRoutes } from '~/src/server/routes/index.js'
@@ -299,15 +297,13 @@ export default {
 
       server.route<{
         Params: SaveAndExitParams
-        Query: SaveAndExitQuery
         Payload: SaveAndExitPayload
       }>({
         method: 'GET',
-        path: '/save-and-exit/{slug}',
+        path: '/save-and-exit/{slug}/{state?}',
         async handler(request, h) {
-          const { params, query, payload } = request
-          const { slug } = params
-          const { status } = query
+          const { params, payload } = request
+          const { slug, state: status } = params
           const metadata = await getFormMetadata(slug)
           const model = saveAndExitDetailsViewModel(metadata, payload, status)
 
@@ -315,7 +311,6 @@ export default {
         },
         options: {
           validate: {
-            query: saveAndExitQuerySchema,
             params: saveAndExitParamsSchema
           }
         }
@@ -323,15 +318,13 @@ export default {
 
       server.route<{
         Params: SaveAndExitParams
-        Query: SaveAndExitQuery
         Payload: SaveAndExitPayload
       }>({
         method: 'POST',
-        path: '/save-and-exit/{slug}',
+        path: '/save-and-exit/{slug}/{state?}',
         async handler(request, h) {
-          const { params, query, payload } = request
-          const { slug } = params
-          const { status } = query
+          const { params, payload } = request
+          const { slug, state: status } = params
           const { email, securityQuestion, securityAnswer } = payload
           const metadata = await getFormMetadata(slug)
           const cacheService = getCacheService(request.server)
@@ -361,19 +354,18 @@ export default {
           )
 
           // Flash the email over to the confirmation page
-          request.yar.flash(getKey(slug), email)
+          request.yar.flash(getKey(slug, status), email)
 
           // Redirect to the save and exit confirmation page
           return h.redirect(
-            `/save-and-exit/${slug}/confirmation${status ? `?status=${status}` : ''}`
+            `/save-and-exit/${slug}/confirmation${status ? `/${status}` : ''}`
           )
         },
         options: {
           validate: {
             async failAction(request, h, err) {
-              const { params, query, payload } = request
-              const { slug } = params
-              const { status } = query
+              const { params, payload } = request
+              const { slug, state: status } = params
               const metadata = await getFormMetadata(slug)
               const model = saveAndExitDetailsViewModel(
                 metadata,
@@ -385,7 +377,6 @@ export default {
               return h.view('save-and-exit-details', model).takeover()
             },
             params: saveAndExitParamsSchema,
-            query: saveAndExitQuerySchema,
             payload: saveAndExitPayloadSchema
           }
         }
@@ -395,15 +386,14 @@ export default {
         Params: SaveAndExitParams
       }>({
         method: 'GET',
-        path: '/save-and-exit/{slug}/confirmation',
+        path: '/save-and-exit/{slug}/confirmation/{state?}',
         async handler(request, h) {
-          const { params, query } = request
-          const { slug } = params
-          const { status } = query
+          const { params } = request
+          const { slug, state: status } = params
           const metadata = await getFormMetadata(slug)
 
           // Get the flashed email
-          const messages = request.yar.flash(getKey(slug))
+          const messages = request.yar.flash(getKey(slug, status))
 
           if (messages.length === 0) {
             return Boom.badRequest('No email found in flash cache')
@@ -420,8 +410,7 @@ export default {
         },
         options: {
           validate: {
-            params: saveAndExitParamsSchema,
-            query: saveAndExitQuerySchema
+            params: saveAndExitParamsSchema
           }
         }
       })

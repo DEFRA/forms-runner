@@ -156,7 +156,7 @@ export const configureEnginePlugin = async ({
         return h.redirect(
           !isPreview
             ? `/save-and-exit/${slug}`
-            : `/save-and-exit/${slug}?status=${state}`
+            : `/save-and-exit/${slug}/${state}`
         )
       }
     }
