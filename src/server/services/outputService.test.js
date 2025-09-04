@@ -374,7 +374,9 @@ describe('OutputService', () => {
         mockContext,
         mockRequest,
         mockModel,
-        'test@example.com',
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        undefined, // This parameter is ignored, using undefined to match test intent
         mockItems,
         mockSubmitResponse,
         mockFormMetadata
@@ -410,7 +412,9 @@ describe('OutputService', () => {
         mockContext,
         mockRequest,
         mockModel,
-        'test@example.com',
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        null, // This parameter is ignored, using null to match test intent
         mockItems,
         mockSubmitResponse,
         mockFormMetadata
@@ -438,7 +442,7 @@ describe('OutputService', () => {
         mockContext,
         mockRequest,
         mockModel,
-        'test@example.com',
+        '',
         mockItems,
         mockSubmitResponse,
         mockFormMetadata
