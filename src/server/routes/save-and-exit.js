@@ -1,7 +1,6 @@
 import { getCacheService } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { crumbSchema } from '@defra/forms-engine-plugin/schema.js'
 import { FormStatus } from '@defra/forms-model'
-import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
@@ -155,7 +154,7 @@ export default [
         return h
           .redirect(
             // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-            `/save-and-exit-resume-success/${validatedLink.form.status ?? FormStatus.Live}/${form.slug}/${magicLinkId}`
+            `/save-and-exit-resume-success/${validatedLink.form.status ?? FormStatus.Live}/${form.slug}/${params.formId}`
           )
           .takeover()
       }
@@ -214,17 +213,12 @@ export default [
   /** @type {ServerRoute} */
   ({
     method: 'GET',
-    path: '/save-and-exit-resume-success/{state}/{slug}/{magicLinkId}',
+    path: '/save-and-exit-resume-success/{state}/{slug}/{formId}',
     async handler(request, h) {
       const { params } = request
 
-      const details = await getSaveAndExitDetails(params.magicLinkId)
-      if (!details) {
-        return Boom.badRequest('No save-and-exit record found')
-      }
-
-      const form = await getFormMetadataById(details.form.id)
-      const model = saveAndExitResumeSuccessViewModel(form)
+      const form = await getFormMetadataById(params.formId)
+      const model = saveAndExitResumeSuccessViewModel(form, params.state)
       return h.view('save-and-exit/resume-success', model)
     }
   })

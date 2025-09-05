@@ -419,11 +419,13 @@ export function constructFormUrl(slug, status) {
 /**
  * The save and exit form view model
  * @param {FormMetadata} form
+ * @param {FormStatus} status
  */
-export function saveAndExitResumeSuccessViewModel(form) {
+export function saveAndExitResumeSuccessViewModel(form, status) {
   // Model buttons
   const continueButton = {
-    text: 'Resume form'
+    text: 'Resume form',
+    href: constructFormUrl(form.slug, status)
   }
 
   return {
