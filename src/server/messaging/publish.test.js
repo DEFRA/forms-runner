@@ -19,10 +19,10 @@ jest.mock('~/src/server/messaging/publish-base.js')
 const saveAndExitPayload = {
   form: {
     id: 'formId',
-    title: 'formId',
-    slug: 'my-form',
+    title: 'My First Form',
     isPreview: true,
-    status: FormStatus.Draft
+    status: FormStatus.Draft,
+    baseUrl: 'http://localhost:3009'
   },
   email: 'my-email@here.com',
   security: {
@@ -51,7 +51,6 @@ describe('publish', () => {
     it('should publish SAVE_AND_EXIT event', async () => {
       await publishSaveAndExitEvent(
         saveAndExitPayload.form.id,
-        saveAndExitPayload.form.slug,
         saveAndExitPayload.form.title,
         saveAndExitPayload.email,
         saveAndExitPayload.security,
@@ -79,7 +78,7 @@ describe('publish', () => {
         publishSaveAndExitEvent(invalidPayload)
       ).rejects.toThrow(
         new ValidationError(
-          '"data.form.id" must be a string. "data.form.slug" is required. "data.form.title" is required. "data.email" is required. "data.state" is required',
+          '"data.form.id" must be a string. "data.form.title" is required. "data.email" is required. "data.state" is required',
           [],
           {}
         )

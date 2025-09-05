@@ -18,10 +18,10 @@ describe('runner-events', () => {
       const payload = {
         form: {
           id: 'formId',
-          title: 'formId',
-          slug: 'my-form',
+          title: 'My First Form',
           isPreview: true,
-          status: FormStatus.Draft
+          status: FormStatus.Draft,
+          baseUrl: 'http://localhost:3009'
         },
         email: 'my-email@here.com',
         security: {
@@ -37,7 +37,6 @@ describe('runner-events', () => {
       expect(
         saveAndExitMapper(
           payload.form.id,
-          payload.form.slug,
           payload.form.title,
           payload.email,
           payload.security,
@@ -55,9 +54,9 @@ describe('runner-events', () => {
           form: {
             id: payload.form.id,
             title: payload.form.title,
-            slug: payload.form.slug,
             isPreview: payload.form.isPreview,
-            status: payload.form.status
+            status: payload.form.status,
+            baseUrl: 'http://localhost:3009'
           },
           email: payload.email,
           security: {

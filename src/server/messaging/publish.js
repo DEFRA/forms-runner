@@ -20,7 +20,6 @@ async function validateAndPublishEvent(saveAndExitMessage) {
  * Publish 'save and exit' event
  * The returned entityId will be a newly-generated guid
  * @param {string} formId
- * @param {string} formSlug
  * @param {string} formTitle
  * @param {string} email
  * @param {{ question: SecurityQuestionsEnum, answer: string }} security
@@ -29,7 +28,6 @@ async function validateAndPublishEvent(saveAndExitMessage) {
  */
 export async function publishSaveAndExitEvent(
   formId,
-  formSlug,
   formTitle,
   email,
   security,
@@ -38,7 +36,6 @@ export async function publishSaveAndExitEvent(
 ) {
   const message = saveAndExitMapper(
     formId,
-    formSlug,
     formTitle,
     email,
     security,

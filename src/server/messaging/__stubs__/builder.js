@@ -18,10 +18,10 @@ export function buildSaveAndExitMessageData(
   return {
     form: {
       id: 'formId',
-      title: 'formId',
-      slug: 'my-form',
+      title: 'My First Form',
       isPreview: false,
-      status: FormStatus.Draft
+      status: FormStatus.Draft,
+      baseUrl: 'http://localhost:3009'
     },
     security: {
       question: SecurityQuestionsEnum.MemorablePlace,

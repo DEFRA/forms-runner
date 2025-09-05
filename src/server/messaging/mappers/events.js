@@ -6,9 +6,12 @@ import {
   SubmissionEventMessageType
 } from '@defra/forms-model'
 
+import { config } from '~/src/config/index.js'
+
+const baseUrl = config.get('baseUrl')
+
 /**
  * @param { string } formId
- * @param { string } formSlug
  * @param { string } formTitle
  * @param { string } email
  * @param {{ question: SecurityQuestionsEnum, answer: string }} security
@@ -18,7 +21,6 @@ import {
  */
 export function saveAndExitMapper(
   formId,
-  formSlug,
   formTitle,
   email,
   security,
@@ -29,10 +31,10 @@ export function saveAndExitMapper(
   const data = {
     form: {
       id: formId,
-      slug: formSlug,
       title: formTitle,
       status: status ?? FormStatus.Live,
-      isPreview: !!status
+      isPreview: !!status,
+      baseUrl
     },
     email,
     security,
