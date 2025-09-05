@@ -6,7 +6,10 @@ import {
   type FormAdapterSubmissionMessagePayload,
   type FormContext
 } from '@defra/forms-engine-plugin/engine/types.js'
-import { type OutputService as IOutputService } from '@defra/forms-engine-plugin/types'
+import {
+  type FormRequestPayload,
+  type OutputService as IOutputService
+} from '@defra/forms-engine-plugin/types'
 import {
   type FormMetadata,
   type SubmitResponsePayload
@@ -14,7 +17,6 @@ import {
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { publishFormAdapterEvent } from '~/src/server/messaging/formAdapterEventPublisher.js'
-import { type FormRequestPayload } from '~/src/server/routes/types.js'
 
 const logger = createLogger()
 

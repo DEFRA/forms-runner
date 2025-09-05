@@ -1,8 +1,8 @@
+import { FormStatus } from '@defra/forms-engine-plugin/types'
 import { StatusCodes } from 'http-status-codes'
 
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
-import { FormStatus } from '~/src/server/routes/types.js'
 
 describe('Legacy Redirect Routes', () => {
   /** @type {import('@hapi/hapi').Server} */

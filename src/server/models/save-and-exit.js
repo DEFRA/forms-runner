@@ -1,7 +1,12 @@
-import { SecurityQuestionsEnum } from '@defra/forms-model'
+import { crumbSchema, stateSchema } from '@defra/forms-engine-plugin/schema.js'
+import { SecurityQuestionsEnum, slugSchema } from '@defra/forms-model'
 import Joi from 'joi'
 
-const pageTitle = 'Save your progress for later'
+import { config } from '~/src/config/index.js'
+import { FORM_PREFIX } from '~/src/server/constants.js'
+
+const detailsPageTitle = 'Save your progress for later'
+const confirmationPageTitle = 'Your progress has been saved'
 
 // Field names/ids
 const email = 'email'
@@ -10,11 +15,12 @@ const securityQuestion = 'securityQuestion'
 const securityAnswer = 'securityAnswer'
 
 const GOVUK_LABEL__M = 'govuk-label--m'
+const saveAndExitExpiryDays = config.get('saveAndExitExpiryDays')
 
 /**
  * @type { SecurityQuestion[]}
  */
-export const securityQuestions = [
+const securityQuestions = [
   {
     text: 'What is a memorable place you have visited?',
     value: SecurityQuestionsEnum.MemorablePlace
@@ -174,22 +180,72 @@ function buildSecurityAnswerField(payload, error) {
 }
 
 /**
- * Get save and exit session flash key
- * @param { string } state - the form state
- * @param { string } formId - the form id
+ * Save and exit params
  */
-export function getFlashKey(state, formId) {
-  return `${state}_${formId}_save_and_exit_email`
+export const paramsSchema = Joi.object()
+  .keys({
+    slug: slugSchema,
+    state: stateSchema.optional()
+  })
+  .required()
+
+/**
+ * Save and exit form payload schema
+ */
+export const payloadSchema = Joi.object()
+  .keys({
+    crumb: crumbSchema,
+    email: Joi.string().email().required().messages({
+      'string.email':
+        'Enter an email address in the correct format, for example, hello@example.com',
+      '*': 'Enter an email address'
+    }),
+    emailConfirmation: Joi.string()
+      .valid(Joi.ref('email'))
+      .required()
+      .messages({
+        '*': 'Your email address does not match. Check and try again.'
+      }),
+    securityQuestion: Joi.string()
+      .valid(...securityQuestions.map(({ value }) => value.toString()))
+      .required()
+      .messages({
+        '*': 'Choose a security question to answer'
+      }),
+    securityAnswer: Joi.string().min(3).max(40).required().messages({
+      'string.min': 'Your answer must be between 3 and 40 characters long',
+      'string.max': 'Your answer must be between 3 and 40 characters long',
+      '*': 'Enter an answer to the security question'
+    })
+  })
+  .required()
+
+/**
+ * Get save and exit session key
+ * @param {string} slug
+ * @param {FormStatus} [state]
+ */
+export function getKey(slug, state) {
+  return `save-and-exit-${slug}-${state ?? ''}`
 }
 
 /**
- * The save and exit form view model
- * @param {SaveAndExitParams} params
+ * The save and exit details form view model
+ * @param {FormMetadata} metadata
  * @param {SaveAndExitPayload} [payload]
+ * @param {FormStatus} [status]
  * @param {Error} [err]
  */
-export function saveAndExitViewModel(params, payload, err) {
-  const { state, slug } = params
+export function detailsViewModel(metadata, payload, status, err) {
+  const { slug, title } = metadata
+  const isPreview = !!status
+  const formPath = isPreview
+    ? `${FORM_PREFIX}/preview/${status}/${slug}`
+    : `${FORM_PREFIX}/${slug}`
+
+  const backLink = {
+    href: formPath
+  }
 
   const {
     errors,
@@ -220,14 +276,39 @@ export function saveAndExitViewModel(params, payload, err) {
   const cancelButton = {
     text: 'Cancel',
     classes: 'govuk-button--secondary',
-    href: `/${state}/${slug}`
+    href: formPath
   }
 
   return {
-    pageTitle,
+    name: title,
+    serviceUrl: formPath,
+    pageTitle: detailsPageTitle,
+    backLink,
     errors,
     fields,
     buttons: { continueButton, cancelButton }
+  }
+}
+
+/**
+ * The save and exit confirmation form view model
+ * @param {FormMetadata} metadata
+ * @param {string} email
+ * @param {FormStatus} [status]
+ */
+export function confirmationViewModel(metadata, email, status) {
+  const { slug, title } = metadata
+  const isPreview = !!status
+  const formPath = isPreview
+    ? `${FORM_PREFIX}/preview/${status}/${slug}`
+    : `${FORM_PREFIX}/${slug}`
+
+  return {
+    name: title,
+    serviceUrl: formPath,
+    pageTitle: confirmationPageTitle,
+    email,
+    saveAndExitExpiryDays
   }
 }
 
@@ -239,8 +320,8 @@ export function saveAndExitViewModel(params, payload, err) {
 
 /**
  * @typedef {object} SaveAndExitParams
- * @property {string} state - the preview/live state
  * @property {string} slug - the form slug
+ * @property {FormStatus} [state] - the form status (draft/live) when in preview mode
  */
 
 /**
@@ -249,4 +330,9 @@ export function saveAndExitViewModel(params, payload, err) {
  * @property {string} emailConfirmation - email confirmation
  * @property {string} securityQuestion - the security question
  * @property {string} securityAnswer - the security answer
+ */
+
+/**
+ * @import { FormMetadata } from '@defra/forms-model'
+ * @import { FormStatus } from '@defra/forms-engine-plugin/types'
  */

@@ -13,16 +13,21 @@ import { publishSaveAndExitEvent } from '~/src/server/messaging/publish.js'
 
 jest.mock('~/src/server/messaging/publish-base.js')
 
+/**
+ * @type {import('@defra/forms-model').SaveAndExitMessageData}
+ */
 const saveAndExitPayload = {
-  formId: 'formId',
+  form: {
+    id: 'formId',
+    title: 'formId',
+    slug: 'my-form',
+    isPreview: true,
+    status: FormStatus.Draft
+  },
   email: 'my-email@here.com',
   security: {
     question: SecurityQuestionsEnum.CharacterName,
     answer: 'brown'
-  },
-  formStatus: {
-    status: FormStatus.Draft,
-    isPreview: true
   },
   state: {
     formVal1: '123',
@@ -45,11 +50,13 @@ describe('publish', () => {
   describe('publishSaveAndExitEvent', () => {
     it('should publish SAVE_AND_EXIT event', async () => {
       await publishSaveAndExitEvent(
-        saveAndExitPayload.formId,
+        saveAndExitPayload.form.id,
+        saveAndExitPayload.form.slug,
+        saveAndExitPayload.form.title,
         saveAndExitPayload.email,
         saveAndExitPayload.security,
-        saveAndExitPayload.formStatus,
-        saveAndExitPayload.state
+        saveAndExitPayload.state,
+        saveAndExitPayload.form.status
       )
 
       expect(publishEvent).toHaveBeenCalledWith({
@@ -72,7 +79,7 @@ describe('publish', () => {
         publishSaveAndExitEvent(invalidPayload)
       ).rejects.toThrow(
         new ValidationError(
-          '"data.formId" must be a string. "data.email" is required. "data.state" is required',
+          '"data.form.id" must be a string. "data.form.slug" is required. "data.form.title" is required. "data.email" is required. "data.state" is required',
           [],
           {}
         )

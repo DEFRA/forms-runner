@@ -37,7 +37,7 @@ describe('Save and exit', () => {
   it('shows the details page', async () => {
     const options = {
       method: 'GET',
-      url: '/save-and-exit/draft/basic'
+      url: '/save-and-exit/basic'
     }
 
     const { container } = await renderResponse(server, options)
@@ -68,7 +68,7 @@ describe('Save and exit', () => {
   it('shows the details page with errors', async () => {
     const options = {
       method: 'POST',
-      url: '/save-and-exit/draft/basic',
+      url: '/save-and-exit/basic',
       payload: {
         email: '',
         emailConfirmation: '',
@@ -89,13 +89,15 @@ describe('Save and exit', () => {
     expect($heading).toBeInTheDocument()
     expect($errorItems[0]).toHaveTextContent('Enter an email address')
     expect($errorItems[1]).toHaveTextContent('Choose a security question')
-    expect($errorItems[2]).toHaveTextContent('Enter a security answer')
+    expect($errorItems[2]).toHaveTextContent(
+      'Enter an answer to the security question'
+    )
   })
 
   it('posts details page successfully', async () => {
     const options = {
       method: 'POST',
-      url: '/save-and-exit/draft/basic',
+      url: '/save-and-exit/basic',
       payload: {
         email: 'enrique.chase@defra.gov.uk',
         emailConfirmation: 'enrique.chase@defra.gov.uk',
@@ -107,15 +109,13 @@ describe('Save and exit', () => {
     const { response } = await renderResponse(server, options)
 
     expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-    expect(response.headers.location).toBe(
-      '/save-and-exit/draft/basic/confirmation'
-    )
+    expect(response.headers.location).toBe('/save-and-exit/basic/confirmation')
 
     const headers = getCookieHeader(response, ['session', 'crumb'])
 
     const { response: response2 } = await renderResponse(server, {
       method: 'get',
-      url: '/save-and-exit/draft/basic/confirmation',
+      url: '/save-and-exit/basic/confirmation',
       headers
     })
 
@@ -125,7 +125,7 @@ describe('Save and exit', () => {
   it('confirmation page errors if no details are flashed', async () => {
     const options = {
       method: 'GET',
-      url: '/save-and-exit/draft/basic/confirmation'
+      url: '/save-and-exit/basic/confirmation'
     }
 
     const { response } = await renderResponse(server, options)

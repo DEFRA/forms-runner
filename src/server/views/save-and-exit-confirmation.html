@@ -2,8 +2,6 @@
 
 {% from "govuk/components/panel/macro.njk" import govukPanel %}
 
-{% set mainClasses = "govuk-main-wrapper--l" %}
-
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
@@ -12,7 +10,7 @@
       }) }}
       <h1 class="govuk-heading-l">What happens next</h2>
       <p class="govuk-body">
-        We have sent a one-off link to {{ email }} which you can use to resume this form within 28 days.
+        We have sent a one-off link to {{ email }} which you can use to resume this form within {{ saveAndExitExpiryDays }} days.
       </p>
       <p class="govuk-body">
         This link will only work once.

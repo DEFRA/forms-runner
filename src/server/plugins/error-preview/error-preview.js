@@ -1,7 +1,7 @@
+import { FormStatus } from '@defra/forms-engine-plugin/types'
 import Boom from '@hapi/boom'
 
 import { createErrorPreviewModel } from '~/src/server/plugins/error-preview/error-preview-helper.js'
-import { FormStatus } from '~/src/server/routes/types.js'
 import {
   getFormDefinition,
   getFormMetadata
@@ -34,5 +34,5 @@ export async function getErrorPreviewHandler(request, h) {
 
 /**
  * @import { ResponseToolkit } from '@hapi/hapi'
- * @import { FormRequest } from '~/src/server/routes/types.js'
+ * @import { FormRequest } from '@defra/forms-engine-plugin/engine/types/index.js'
  */

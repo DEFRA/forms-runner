@@ -1,4 +1,5 @@
 import {
+  FormStatus,
   SubmissionEventMessageCategory,
   SubmissionEventMessageSchemaVersion,
   SubmissionEventMessageSource,
@@ -7,19 +8,34 @@ import {
 
 /**
  * @param { string } formId
+ * @param { string } formSlug
+ * @param { string } formTitle
  * @param { string } email
  * @param {{ question: SecurityQuestionsEnum, answer: string }} security
- * @param {{ status: FormStatus, isPreview: boolean }} formStatus
  * @param { FormState } state
+ * @param { FormStatus } [status]
  * @returns {SaveAndExitMessage}
  */
-export function saveAndExitMapper(formId, email, security, formStatus, state) {
+export function saveAndExitMapper(
+  formId,
+  formSlug,
+  formTitle,
+  email,
+  security,
+  state,
+  status
+) {
   /** @type {SaveAndExitMessageData} */
   const data = {
-    formId,
+    form: {
+      id: formId,
+      slug: formSlug,
+      title: formTitle,
+      status: status ?? FormStatus.Live,
+      isPreview: !!status
+    },
     email,
     security,
-    formStatus,
     state
   }
   const now = new Date()
@@ -35,6 +51,6 @@ export function saveAndExitMapper(formId, email, security, formStatus, state) {
 }
 
 /**
- * @import { FormStatus, SaveAndExitMessage, SaveAndExitMessageData, SecurityQuestionsEnum } from '@defra/forms-model'
+ * @import { SaveAndExitMessage, SaveAndExitMessageData, SecurityQuestionsEnum } from '@defra/forms-model'
  * @import { FormState } from '@defra/forms-engine-plugin/engine/types.js'
  */

@@ -2,16 +2,15 @@ import { type FormModel } from '@defra/forms-engine-plugin/engine/models/index.j
 import { type DetailItem } from '@defra/forms-engine-plugin/engine/models/types.js'
 import { type FormContext } from '@defra/forms-engine-plugin/engine/types.js'
 import {
+  type FormRequestPayload,
+  type FormStatus
+} from '@defra/forms-engine-plugin/types'
+import {
   type FormDefinition,
   type FormMetadata,
   type SubmitPayload,
   type SubmitResponsePayload
 } from '@defra/forms-model'
-
-import {
-  type FormRequestPayload,
-  type FormStatus
-} from '~/src/server/routes/types.js'
 
 export interface FormsService {
   getFormMetadata: (slug: string) => Promise<FormMetadata>

@@ -139,5 +139,5 @@ describe('Nunjucks context', () => {
 })
 
 /**
- * @import { FormRequest } from '~/src/server/routes/types.js'
+ * @import { FormRequest } from '@defra/forms-engine-plugin/types'
  */

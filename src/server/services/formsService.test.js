@@ -1,6 +1,6 @@
+import { FormStatus } from '@defra/forms-engine-plugin/types'
 import { StatusCodes } from 'http-status-codes'
 
-import { FormStatus } from '~/src/server/routes/types.js'
 import {
   getFormDefinition,
   getFormMetadata
