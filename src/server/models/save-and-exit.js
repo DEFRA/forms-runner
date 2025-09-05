@@ -4,6 +4,7 @@ import Joi from 'joi'
 
 import { config } from '~/src/config/index.js'
 import { FORM_PREFIX } from '~/src/server/constants.js'
+import { createJoiError } from '~/src/server/helpers/error-helper.js'
 
 const detailsPageTitle = 'Save your progress for later'
 const confirmationPageTitle = 'Your progress has been saved'
@@ -238,10 +239,7 @@ export function getKey(slug, state) {
  */
 export function detailsViewModel(metadata, payload, status, err) {
   const { slug, title } = metadata
-  const isPreview = !!status
-  const formPath = isPreview
-    ? `${FORM_PREFIX}/preview/${status}/${slug}`
-    : `${FORM_PREFIX}/${slug}`
+  const formPath = constructFormUrl(slug, status)
 
   const backLink = {
     href: formPath
@@ -298,10 +296,7 @@ export function detailsViewModel(metadata, payload, status, err) {
  */
 export function confirmationViewModel(metadata, email, status) {
   const { slug, title } = metadata
-  const isPreview = !!status
-  const formPath = isPreview
-    ? `${FORM_PREFIX}/preview/${status}/${slug}`
-    : `${FORM_PREFIX}/${slug}`
+  const formPath = constructFormUrl(slug, status)
 
   return {
     name: title,
@@ -309,6 +304,125 @@ export function confirmationViewModel(metadata, email, status) {
     pageTitle: confirmationPageTitle,
     email,
     saveAndExitExpiryDays
+  }
+}
+
+/**
+ * The save and exit form view model
+ * @param {SaveAndExitResumePasswordPayload} payload
+ * @param {string} formTitle
+ * @param {Error} [err]
+ */
+export function saveAndExitPasswordViewModel(payload, formTitle, err) {
+  const pageTitle = 'Continue with your form'
+  const { errors, securityAnswerError } = buildErrors(err)
+
+  // Model fields
+  const fields = {
+    [securityAnswer]: {
+      id: securityAnswer,
+      name: securityAnswer,
+      label: {
+        text: securityQuestions.find(
+          (x) => x.value === payload.securityQuestion
+        )?.text,
+        classes: GOVUK_LABEL__M
+      },
+      value: payload.securityAnswer,
+      errorMessage: securityAnswerError && {
+        text: securityAnswerError.message
+      }
+    }
+  }
+
+  // Model buttons
+  const continueButton = {
+    text: 'Continue'
+  }
+
+  return {
+    name: formTitle,
+    pageTitle,
+    errors,
+    fields,
+    slug: payload.slug,
+    buttons: { continueButton }
+  }
+}
+
+/**
+ * The save and exit form view model
+ * @param {{ slug: string }} payload
+ */
+export function saveAndExitResumeErrorViewModel(payload) {
+  const pageTitle = 'You cannot resume your form'
+
+  // Model buttons
+  const continueButton = {
+    text: 'Start form again',
+    href: `/form/${payload.slug}`
+  }
+
+  return {
+    pageTitle,
+    buttons: payload.slug ? { continueButton } : {}
+  }
+}
+
+/**
+ * @param {number} attemptsRemaining
+ */
+export function createInvalidPasswordError(attemptsRemaining) {
+  return createJoiError(
+    securityAnswer,
+    `Your answer is incorrect. You have ${attemptsRemaining} ${attemptsRemaining === 1 ? 'attempt' : 'attempts'} remaining.`
+  )
+}
+
+/**
+ * The save and exit form view model when user is locked out
+ * @param {FormMetadata} form
+ * @param {SaveAndExitResumeDetails} validatedLink
+ */
+export function saveAndExitLockedOutViewModel(form, validatedLink) {
+  return {
+    name: form.title,
+    buttons: {
+      continueButton: {
+        text: 'Start form again',
+        href: constructFormUrl(form.slug, validatedLink.form.status)
+      }
+    }
+  }
+}
+
+/**
+ * @param {string} slug
+ * @param {FormStatus} [status]
+ */
+export function constructFormUrl(slug, status) {
+  if (!status) {
+    return `${FORM_PREFIX}/${slug}`
+  }
+
+  return `${FORM_PREFIX}/preview/${status}/${slug}`
+}
+
+/**
+ * The save and exit form view model
+ * @param {FormMetadata} form
+ * @param {FormStatus} status
+ */
+export function saveAndExitResumeSuccessViewModel(form, status) {
+  // Model buttons
+  const continueButton = {
+    text: 'Resume form',
+    href: constructFormUrl(form.slug, status)
+  }
+
+  return {
+    name: form.title,
+    buttons: { continueButton }
   }
 }
 
@@ -333,6 +447,22 @@ export function confirmationViewModel(metadata, email, status) {
  */
 
 /**
+ * @typedef {object} SaveAndExitResumeParams
+ * @property {string} slug - the form slug
+ * @property {string} magicLinkId - the link parameter provided in the magic link
+ */
+
+/**
+ * @typedef {object} SaveAndExitResumePasswordPayload
+ * @property {string} magicLinkId - the id of the magic link
+ * @property {SecurityQuestionsEnum} securityQuestion - the security question
+ * @property {string} securityAnswer - the security answer
+ * @property {string} formTitle - the title of the form
+ * @property {string} slug - the slug of the form
+ */
+
+/**
  * @import { FormMetadata } from '@defra/forms-model'
  * @import { FormStatus } from '@defra/forms-engine-plugin/types'
+ * @import { SaveAndExitResumeDetails } from '~/src/server/types.js'
  */
