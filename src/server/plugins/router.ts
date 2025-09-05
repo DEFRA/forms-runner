@@ -47,6 +47,7 @@ import { healthRoute, publicRoutes } from '~/src/server/routes/index.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 
 const routes: ServerRoute[] = [...publicRoutes, healthRoute]
+const saveAndExitExpiryDays = config.get('saveAndExitExpiryDays')
 
 export default {
   plugin: {
@@ -138,7 +139,7 @@ export default {
           const { slug } = request.params
           const form = await getFormMetadata(slug)
 
-          return h.view('help/privacy-notice', { form })
+          return h.view('help/privacy-notice', { form, saveAndExitExpiryDays })
         },
         options
       })
