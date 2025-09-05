@@ -6,10 +6,6 @@ import {
   type FormStatus
 } from '@defra/forms-engine-plugin/types'
 import {
-  type FormRequestPayload,
-  type FormStatus
-} from '@defra/forms-engine-plugin/types'
-import {
   type FormDefinition,
   type FormMetadata,
   type SecurityQuestionsEnum,
@@ -60,27 +56,15 @@ export interface OutputService {
 export interface SaveAndExitDetails {
   form: {
     id: string
-    slug: string
-    title: string
-    isPreview: boolean
     status: FormStatus
+    isPreview: boolean
+    baseUrl: string
   }
   question: SecurityQuestionsEnum
   invalidPasswordAttempts: number
   state: object
 }
 
-export interface SaveAndExitResumeDetails {
+export interface SaveAndExitResumeDetails extends SaveAndExitDetails {
   result: string
-  form: {
-    id: string
-    title: string
-    slug: string
-    status: FormStatus
-    isPreview: boolean
-    baseUrl: string
-  }
-  state: object
-  securityQuestion: string
-  invalidPasswordAttempts: number
 }

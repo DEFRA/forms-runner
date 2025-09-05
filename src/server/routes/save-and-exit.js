@@ -170,7 +170,7 @@ export default [
           const error = createInvalidPasswordError(attemptsRemaining)
 
           payload.securityQuestion = /** @type {SecurityQuestionsEnum} */ (
-            validatedLink.securityQuestion
+            validatedLink.question
           )
 
           const model = saveAndExitPasswordViewModel(payload, form.title, error)

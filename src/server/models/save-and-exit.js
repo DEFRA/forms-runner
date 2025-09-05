@@ -169,7 +169,6 @@ function buildSecurityAnswerField(payload, error) {
   return {
     id: securityAnswer,
     name: securityAnswer,
-    type: 'password',
     label: {
       text: 'Your answer to the security question',
       classes: GOVUK_LABEL__M
@@ -240,10 +239,7 @@ export function getKey(slug, state) {
  */
 export function detailsViewModel(metadata, payload, status, err) {
   const { slug, title } = metadata
-  const isPreview = !!status
-  const formPath = isPreview
-    ? `${FORM_PREFIX}/preview/${status}/${slug}`
-    : `${FORM_PREFIX}/${slug}`
+  const formPath = constructFormUrl(slug, status)
 
   const backLink = {
     href: formPath
@@ -300,10 +296,7 @@ export function detailsViewModel(metadata, payload, status, err) {
  */
 export function confirmationViewModel(metadata, email, status) {
   const { slug, title } = metadata
-  const isPreview = !!status
-  const formPath = isPreview
-    ? `${FORM_PREFIX}/preview/${status}/${slug}`
-    : `${FORM_PREFIX}/${slug}`
+  const formPath = constructFormUrl(slug, status)
 
   return {
     name: title,
@@ -329,7 +322,6 @@ export function saveAndExitPasswordViewModel(payload, formTitle, err) {
     [securityAnswer]: {
       id: securityAnswer,
       name: securityAnswer,
-      type: 'password',
       label: {
         text: securityQuestions.find(
           (x) => x.value === payload.securityQuestion
@@ -410,10 +402,10 @@ export function saveAndExitLockedOutViewModel(form, validatedLink) {
  */
 export function constructFormUrl(slug, status) {
   if (!status) {
-    return `/form/${slug}`
+    return `${FORM_PREFIX}/${slug}`
   }
 
-  return `/form/preview/${status}/${slug}`
+  return `${FORM_PREFIX}/preview/${status}/${slug}`
 }
 
 /**
