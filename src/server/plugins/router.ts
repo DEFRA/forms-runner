@@ -361,9 +361,9 @@ export default {
           request.yar.flash(getKey(slug, status), email)
 
           // Redirect to the save and exit confirmation page
-          return h.redirect(
-            `/save-and-exit/${slug}/confirmation${status ? `/${status}` : ''}`
-          )
+          const statusPath = status ? `/${status}` : ''
+
+          return h.redirect(`/save-and-exit/${slug}/confirmation${statusPath}`)
         },
         options: {
           validate: {
