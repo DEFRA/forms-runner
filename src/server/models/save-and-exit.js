@@ -183,16 +183,6 @@ function buildSecurityAnswerField(payload, error) {
   }
 }
 
-/**
- * Save and exit params
- */
-export const paramsSchema = Joi.object()
-  .keys({
-    slug: slugSchema,
-    state: stateSchema.optional()
-  })
-  .required()
-
 export const securityAnswerSchema = Joi.string()
   .min(MIN_PASSWORD_LENGTH)
   .max(MAX_PASSWORD_LENGTH)
@@ -202,6 +192,16 @@ export const securityAnswerSchema = Joi.string()
     'string.max': 'Your answer must be between 3 and 40 characters long',
     '*': 'Enter an answer to the security question'
   })
+
+/**
+ * Save and exit params schema
+ */
+export const paramsSchema = Joi.object()
+  .keys({
+    slug: slugSchema,
+    state: stateSchema.optional()
+  })
+  .required()
 
 /**
  * Save and exit form payload schema
@@ -229,6 +229,26 @@ export const payloadSchema = Joi.object()
     securityAnswer: securityAnswerSchema
   })
   .required()
+
+/**
+ * Save and exit resume params schema
+ */
+export const resumeParamsSchema = Joi.object()
+  .keys({
+    formId: Joi.string().required(),
+    magicLinkId: Joi.string().uuid().required(),
+    slug: slugSchema,
+    state: stateSchema.optional()
+  })
+  .required()
+
+/**
+ * Save and exit validate payload schema
+ */
+export const validatePayloadSchema = Joi.object().keys({
+  crumb: crumbSchema,
+  securityAnswer: securityAnswerSchema
+})
 
 /**
  * Get save and exit session key
@@ -457,7 +477,7 @@ export function saveAndExitResumeSuccessViewModel(form, status) {
  * @typedef {object} SaveAndExitPayload
  * @property {string} email - email
  * @property {string} emailConfirmation - email confirmation
- * @property {string} securityQuestion - the security question
+ * @property {SecurityQuestionsEnum} securityQuestion - the security question
  * @property {string} securityAnswer - the security answer
  */
 
