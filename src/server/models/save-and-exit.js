@@ -13,7 +13,7 @@ const MIN_PASSWORD_LENGTH = 3
 const MAX_PASSWORD_LENGTH = 40
 
 // Field names/ids
-const email = 'email'
+const emailFieldName = 'email'
 const emailConfirmationFieldName = 'emailConfirmation'
 const securityQuestionFieldName = 'securityQuestion'
 const securityAnswerFieldName = 'securityAnswer'
@@ -50,7 +50,7 @@ function buildErrors(err) {
     return {}
   }
 
-  const emailError = err.details.find((item) => item.path[0] === email)
+  const emailError = err.details.find((item) => item.path[0] === emailFieldName)
   const emailConfirmationError = err.details.find(
     (item) => item.path[0] === emailConfirmationFieldName
   )
@@ -63,7 +63,7 @@ function buildErrors(err) {
   const errors = []
 
   if (emailError) {
-    errors.push({ text: emailError.message, href: `#${email}` })
+    errors.push({ text: emailError.message, href: `#${emailFieldName}` })
   }
 
   if (emailConfirmationError) {
@@ -103,8 +103,8 @@ function buildErrors(err) {
  */
 function buildEmailField(payload, error) {
   return {
-    id: email,
-    name: email,
+    id: emailFieldName,
+    name: emailFieldName,
     label: {
       text: 'Your email address',
       classes: GOVUK_LABEL__M,
@@ -264,7 +264,7 @@ export function detailsViewModel(metadata, status, payload, err) {
 
   // Model fields
   const fields = {
-    [email]: buildEmailField(payload, emailError),
+    [emailFieldName]: buildEmailField(payload, emailError),
     [emailConfirmationFieldName]: buildEmailConfirmationField(
       payload,
       emailConfirmationError
