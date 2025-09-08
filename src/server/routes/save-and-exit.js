@@ -106,7 +106,12 @@ export default [
           const { params, payload } = request
           const { slug, state: status } = params
           const metadata = await getFormMetadata(slug)
-          const model = detailsViewModel(metadata, payload, status, err)
+          const model = detailsViewModel(
+            metadata,
+            status,
+            /** @type {SaveAndExitPayload} */ (payload),
+            err
+          )
 
           return h.view('save-and-exit-details', model).takeover()
         },
