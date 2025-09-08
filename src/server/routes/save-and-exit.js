@@ -38,8 +38,9 @@ const saveAndExitParamsSchema = Joi.object()
   })
   .required()
 
+const ERROR_BASE_URL = '/resume-form-error'
+
 // View paths
-const ERROR_BASE_URL = '/save-and-exit-resume-error'
 const RESUME_ERROR = 'save-and-exit/resume-error'
 const RESUME_ERROR_LOCKED = 'save-and-exit/resume-error-locked'
 const RESUME_PASSWORD_PATH = 'save-and-exit/resume-password'
@@ -51,7 +52,7 @@ export default [
    */
   ({
     method: 'GET',
-    path: '/save-and-exit-resume/{formId}/{magicLinkId}',
+    path: '/resume-form/{formId}/{magicLinkId}',
     async handler(request, h) {
       const { params } = request
       const { formId, magicLinkId } = params
@@ -81,6 +82,9 @@ export default [
           err,
           `Invalid magic link id ${magicLinkId} with form id ${formId}`
         )
+      }
+
+      if (!linkDetails || form.id !== linkDetails.form.id) {
         return h
           .redirect(`${ERROR_BASE_URL}/${form.slug}`)
           .code(StatusCodes.SEE_OTHER)
@@ -91,7 +95,7 @@ export default [
       const slugAndState = isPreview ? `/${status}` : ''
 
       return h.redirect(
-        `/save-and-exit-resume-verify/${formId}/${magicLinkId}/${form.slug}${slugAndState}`
+        `/resume-form-verify/${formId}/${magicLinkId}/${form.slug}${slugAndState}`
       )
     },
     options: {
@@ -110,7 +114,7 @@ export default [
    */
   ({
     method: 'GET',
-    path: '/save-and-exit-resume-verify/{formId}/{magicLinkId}/{slug}/{state?}',
+    path: '/resume-form-verify/{formId}/{magicLinkId}/{slug}/{state?}',
     async handler(request, h) {
       const { params } = request
       const { formId, magicLinkId } = params
@@ -150,7 +154,7 @@ export default [
    */
   ({
     method: 'GET',
-    path: '/save-and-exit-resume-error/{slug?}',
+    path: '/resume-form-error/{slug?}',
     handler(request, h) {
       const { params } = request
       const { slug } = params
@@ -173,7 +177,7 @@ export default [
    */
   ({
     method: 'POST',
-    path: '/save-and-exit-resume-verify/{formId}/{magicLinkId}/{slug}/{state?}',
+    path: '/resume-form-verify/{formId}/{magicLinkId}/{slug}/{state?}',
     async handler(request, h) {
       const { params, payload } = request
       const { formId, magicLinkId } = params
@@ -197,9 +201,7 @@ export default [
 
         const slugAndState = isPreview ? `/${status}` : ''
 
-        return h.redirect(
-          `/save-and-exit-resume-success/${form.slug}${slugAndState}`
-        )
+        return h.redirect(`/resume-form-success/${form.slug}${slugAndState}`)
       }
 
       const attemptsRemaining =
@@ -261,7 +263,7 @@ export default [
    */
   ({
     method: 'GET',
-    path: '/save-and-exit-resume-success/{slug}/{state?}',
+    path: '/resume-form-success/{slug}/{state?}',
     async handler(request, h) {
       const { params } = request
       const { slug, state } = params

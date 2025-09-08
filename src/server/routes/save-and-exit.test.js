@@ -26,7 +26,7 @@ describe('Save-and-exit check routes', () => {
   const FORM_ID = 'eab6ac6c-79b6-439f-bd94-d93eb121b3f1'
   const MAGIC_LINK_ID = 'fd4e6453-fb32-43e4-b4cf-12b381a713de'
 
-  describe('GET /save-and-exit-resume/{formId}/{magicLinkId}', () => {
+  describe('GET /resume-form/{formId}/{magicLinkId}', () => {
     test('/route forwards correctly on success', async () => {
       jest
         .mocked(getFormMetadataById)
@@ -42,14 +42,14 @@ describe('Save-and-exit check routes', () => {
 
       const options = {
         method: 'GET',
-        url: `/save-and-exit-resume/${FORM_ID}/${MAGIC_LINK_ID}`
+        url: `/resume-form/${FORM_ID}/${MAGIC_LINK_ID}`
       }
 
       const { response } = await renderResponse(server, options)
 
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
       expect(response.headers.location).toBe(
-        `/save-and-exit-resume-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume/draft`
+        `/resume-form-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume/draft`
       )
     })
 
@@ -67,13 +67,13 @@ describe('Save-and-exit check routes', () => {
 
       const options = {
         method: 'GET',
-        url: `/save-and-exit-resume/${FORM_ID}/${MAGIC_LINK_ID}`
+        url: `/resume-form/${FORM_ID}/${MAGIC_LINK_ID}`
       }
 
       const { response } = await renderResponse(server, options)
 
       expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
-      expect(response.headers.location).toBe('/save-and-exit-resume-error')
+      expect(response.headers.location).toBe('/resume-form-error')
     })
 
     test('/route forwards correctly on magic link error', async () => {
@@ -87,14 +87,14 @@ describe('Save-and-exit check routes', () => {
 
       const options = {
         method: 'GET',
-        url: `/save-and-exit-resume/${FORM_ID}/${MAGIC_LINK_ID}`
+        url: `/resume-form/${FORM_ID}/${MAGIC_LINK_ID}`
       }
 
       const { response } = await renderResponse(server, options)
 
       expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
       expect(response.headers.location).toBe(
-        '/save-and-exit-resume-error/my-form-to-resume'
+        '/resume-form-error/my-form-to-resume'
       )
     })
 
@@ -107,19 +107,19 @@ describe('Save-and-exit check routes', () => {
 
       const options = {
         method: 'GET',
-        url: `/save-and-exit-resume/${FORM_ID}/${MAGIC_LINK_ID}`
+        url: `/resume-form/${FORM_ID}/${MAGIC_LINK_ID}`
       }
 
       const { response } = await renderResponse(server, options)
 
       expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
       expect(response.headers.location).toBe(
-        '/save-and-exit-resume-error/my-form-to-resume'
+        '/resume-form-error/my-form-to-resume'
       )
     })
   })
 
-  describe('GET /save-and-exit-resume-verify/{formId}/{magicLinkId}/{slug}/state?}', () => {
+  describe('GET /resume-form-verify/{formId}/{magicLinkId}/{slug}/state?}', () => {
     test('/route renders page', async () => {
       jest
         .mocked(getFormMetadataById)
@@ -138,7 +138,7 @@ describe('Save-and-exit check routes', () => {
 
       const options = {
         method: 'GET',
-        url: `/save-and-exit-resume-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume/draft`
+        url: `/resume-form-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume/draft`
       }
 
       const { response, container } = await renderResponse(server, options)
@@ -163,13 +163,13 @@ describe('Save-and-exit check routes', () => {
 
       const options = {
         method: 'GET',
-        url: `/save-and-exit-resume-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume/draft`
+        url: `/resume-form-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume/draft`
       }
 
       const { response } = await renderResponse(server, options)
 
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-      expect(response.headers.location).toBe('/save-and-exit-resume-error')
+      expect(response.headers.location).toBe('/resume-form-error')
     })
 
     test('/route forwards correctly on magic link error', async () => {
@@ -182,21 +182,21 @@ describe('Save-and-exit check routes', () => {
 
       const options = {
         method: 'GET',
-        url: `/save-and-exit-resume-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume/draft`
+        url: `/resume-form-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume/draft`
       }
 
       const { response } = await renderResponse(server, options)
 
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-      expect(response.headers.location).toBe('/save-and-exit-resume-error')
+      expect(response.headers.location).toBe('/resume-form-error')
     })
   })
 
-  describe('GET /save-and-exit-resume-error', () => {
+  describe('GET /resume-form-error', () => {
     test('/route renders page without slug', async () => {
       const options = {
         method: 'GET',
-        url: '/save-and-exit-resume-error'
+        url: '/resume-form-error'
       }
 
       const { response, container } = await renderResponse(server, options)
@@ -218,7 +218,7 @@ describe('Save-and-exit check routes', () => {
     test('/route renders page with slug', async () => {
       const options = {
         method: 'GET',
-        url: '/save-and-exit-resume-error/my-slug'
+        url: '/resume-form-error/my-slug'
       }
 
       const { response, container } = await renderResponse(server, options)
@@ -239,7 +239,7 @@ describe('Save-and-exit check routes', () => {
     })
   })
 
-  describe('GET /save-and-exit-resume-success', () => {
+  describe('GET /resume-form-success', () => {
     test('/route renders page without state', async () => {
       jest
         .mocked(getFormMetadata)
@@ -251,7 +251,7 @@ describe('Save-and-exit check routes', () => {
 
       const options = {
         method: 'GET',
-        url: '/save-and-exit-resume-success/my-slug'
+        url: '/resume-form-success/my-slug'
       }
 
       const { response, container } = await renderResponse(server, options)
@@ -280,7 +280,7 @@ describe('Save-and-exit check routes', () => {
 
       const options = {
         method: 'GET',
-        url: '/save-and-exit-resume-success/my-slug/draft'
+        url: '/resume-form-success/my-slug/draft'
       }
 
       const { response, container } = await renderResponse(server, options)
