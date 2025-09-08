@@ -22,8 +22,6 @@ import {
 
 const logger = createLogger()
 
-const errorBaseUrl = '/save-and-exit-resume-error'
-
 const maxInvalidPasswordAttempts = 3
 
 const validateSaveAndExitSchema = Joi.object().keys({
@@ -39,6 +37,22 @@ const saveAndExitParamsSchema = Joi.object()
     state: stateSchema.optional()
   })
   .required()
+
+// View paths
+const ERROR_BASE_URL = '/save-and-exit-resume-error'
+const RESUME_ERROR = 'save-and-exit/resume-error'
+const RESUME_ERROR_LOCKED = 'save-and-exit/resume-error-locked'
+const RESUME_PASSWORD_PATH = 'save-and-exit/resume-password'
+const RESUME_SUCCESS = 'save-and-exit/resume-success'
+
+/**
+ * @param {boolean} isPreview
+ * @param {FormStatus} status
+ * @returns
+ */
+export function slugAndState(isPreview, status) {
+  return isPreview ? `/${status}` : ''
+}
 
 export default [
   /**
@@ -60,7 +74,7 @@ export default [
           err,
           `Invalid formId ${formId} in magic link id ${magicLinkId}`
         )
-        return h.redirect(errorBaseUrl).code(StatusCodes.SEE_OTHER)
+        return h.redirect(ERROR_BASE_URL).code(StatusCodes.SEE_OTHER)
       }
 
       // Check magic link id
@@ -77,14 +91,14 @@ export default [
           `Invalid magic link id ${magicLinkId} with form id ${formId}`
         )
         return h
-          .redirect(`${errorBaseUrl}/${form.slug}`)
+          .redirect(`${ERROR_BASE_URL}/${form.slug}`)
           .code(StatusCodes.SEE_OTHER)
       }
 
       const { isPreview, status } = linkDetails.form
 
       return h.redirect(
-        `/save-and-exit-resume-verify/${formId}/${magicLinkId}/${form.slug}${isPreview ? `/${status}` : ''}`
+        `/save-and-exit-resume-verify/${formId}/${magicLinkId}/${form.slug}${slugAndState(isPreview, status)}`
       )
     },
     options: {
@@ -110,7 +124,7 @@ export default [
       const resumeDetails = await getSaveAndExitDetails(magicLinkId)
 
       if (!resumeDetails) {
-        return h.redirect(errorBaseUrl)
+        return h.redirect(ERROR_BASE_URL)
       }
 
       // Check form id
@@ -122,7 +136,7 @@ export default [
           err,
           `Invalid formId ${formId} in magic link id ${magicLinkId}`
         )
-        return h.redirect(errorBaseUrl)
+        return h.redirect(ERROR_BASE_URL)
       }
 
       const model = saveAndExitPasswordViewModel(
@@ -130,7 +144,7 @@ export default [
         resumeDetails.question
       )
 
-      return h.view('save-and-exit/resume-password', model)
+      return h.view(RESUME_PASSWORD_PATH, model)
     },
     options: {
       validate: {
@@ -149,7 +163,7 @@ export default [
       const { slug } = params
       const model = saveAndExitResumeErrorViewModel({ slug })
 
-      return h.view('save-and-exit/resume-error', model)
+      return h.view(RESUME_ERROR, model)
     },
     options: {
       validate: {
@@ -189,7 +203,7 @@ export default [
         const { isPreview, status } = validatedLink.form
 
         return h.redirect(
-          `/save-and-exit-resume-success/${form.slug}${isPreview ? `/${status}` : ''}`
+          `/save-and-exit-resume-success/${form.slug}${slugAndState(isPreview, status)}`
         )
       }
 
@@ -209,11 +223,11 @@ export default [
           error
         )
 
-        return h.view('save-and-exit/resume-password', model)
+        return h.view(RESUME_PASSWORD_PATH, model)
       } else {
         // Locked out
         const model = saveAndExitLockedOutViewModel(form, validatedLink)
-        return h.view('save-and-exit/resume-error-locked', model)
+        return h.view(RESUME_ERROR_LOCKED, model)
       }
     },
     options: {
@@ -230,7 +244,7 @@ export default [
           const resumeDetails = await getSaveAndExitDetails(params.magicLinkId)
 
           if (!resumeDetails) {
-            return h.redirect(errorBaseUrl).takeover()
+            return h.redirect(ERROR_BASE_URL).takeover()
           }
 
           const form = await getFormMetadataById(resumeDetails.form.id)
@@ -242,7 +256,7 @@ export default [
             error
           )
 
-          return h.view('save-and-exit/resume-password', model).takeover()
+          return h.view(RESUME_PASSWORD_PATH, model).takeover()
         }
       }
     }
@@ -259,7 +273,7 @@ export default [
       const form = await getFormMetadata(slug)
       const model = saveAndExitResumeSuccessViewModel(form, state)
 
-      return h.view('save-and-exit/resume-success', model)
+      return h.view(RESUME_SUCCESS, model)
     },
     options: {
       validate: {
@@ -276,5 +290,6 @@ export default [
 
 /**
  * @import { ServerRoute } from '@hapi/hapi'
+ * @import { FormStatus } from '@defra/forms-model'
  * @import { SaveAndExitResumePasswordPayload, SaveAndExitResumePasswordParams } from '~/src/server/models/save-and-exit.js'
  */

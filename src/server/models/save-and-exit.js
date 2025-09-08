@@ -9,11 +9,14 @@ import { createJoiError } from '~/src/server/helpers/error-helper.js'
 const detailsPageTitle = 'Save your progress for later'
 const confirmationPageTitle = 'Your progress has been saved'
 
+const MIN_PASSWORD_LENGTH = 3
+const MAX_PASSWORD_LENGTH = 40
+
 // Field names/ids
 const email = 'email'
-const emailConfirmation = 'emailConfirmation'
-const securityQuestion = 'securityQuestion'
-const securityAnswer = 'securityAnswer'
+const emailConfirmationFieldName = 'emailConfirmation'
+const securityQuestionFieldName = 'securityQuestion'
+const securityAnswerFieldName = 'securityAnswer'
 
 const GOVUK_LABEL__M = 'govuk-label--m'
 const saveAndExitExpiryDays = config.get('saveAndExitExpiryDays')
@@ -49,13 +52,13 @@ function buildErrors(err) {
 
   const emailError = err.details.find((item) => item.path[0] === email)
   const emailConfirmationError = err.details.find(
-    (item) => item.path[0] === emailConfirmation
+    (item) => item.path[0] === emailConfirmationFieldName
   )
   const securityQuestionError = err.details.find(
-    (item) => item.path[0] === securityQuestion
+    (item) => item.path[0] === securityQuestionFieldName
   )
   const securityAnswerError = err.details.find(
-    (item) => item.path[0] === securityAnswer
+    (item) => item.path[0] === securityAnswerFieldName
   )
   const errors = []
 
@@ -66,21 +69,21 @@ function buildErrors(err) {
   if (emailConfirmationError) {
     errors.push({
       text: emailConfirmationError.message,
-      href: `#${emailConfirmation}`
+      href: `#${emailConfirmationFieldName}`
     })
   }
 
   if (securityQuestionError) {
     errors.push({
       text: securityQuestionError.message,
-      href: `#${securityQuestion}`
+      href: `#${securityQuestionFieldName}`
     })
   }
 
   if (securityAnswerError) {
     errors.push({
       text: securityAnswerError.message,
-      href: `#${securityAnswer}`
+      href: `#${securityAnswerFieldName}`
     })
   }
 
@@ -122,8 +125,8 @@ function buildEmailField(payload, error) {
  */
 function buildEmailConfirmationField(payload, error) {
   return {
-    id: emailConfirmation,
-    name: emailConfirmation,
+    id: emailConfirmationFieldName,
+    name: emailConfirmationFieldName,
     label: {
       text: 'Confirm your email address',
       classes: GOVUK_LABEL__M,
@@ -143,8 +146,8 @@ function buildEmailConfirmationField(payload, error) {
  */
 function buildSecurityQuestionField(payload, error) {
   return {
-    id: securityQuestion,
-    name: securityQuestion,
+    id: securityQuestionFieldName,
+    name: securityQuestionFieldName,
     fieldset: {
       legend: {
         text: 'Choose a security question to answer',
@@ -167,8 +170,8 @@ function buildSecurityQuestionField(payload, error) {
  */
 function buildSecurityAnswerField(payload, error) {
   return {
-    id: securityAnswer,
-    name: securityAnswer,
+    id: securityAnswerFieldName,
+    name: securityAnswerFieldName,
     label: {
       text: 'Your answer to the security question',
       classes: GOVUK_LABEL__M
@@ -191,8 +194,8 @@ export const paramsSchema = Joi.object()
   .required()
 
 export const securityAnswerSchema = Joi.string()
-  .min(3)
-  .max(40)
+  .min(MIN_PASSWORD_LENGTH)
+  .max(MAX_PASSWORD_LENGTH)
   .required()
   .messages({
     'string.min': 'Your answer must be between 3 and 40 characters long',
@@ -262,15 +265,18 @@ export function detailsViewModel(metadata, status, payload, err) {
   // Model fields
   const fields = {
     [email]: buildEmailField(payload, emailError),
-    [emailConfirmation]: buildEmailConfirmationField(
+    [emailConfirmationFieldName]: buildEmailConfirmationField(
       payload,
       emailConfirmationError
     ),
-    [securityQuestion]: buildSecurityQuestionField(
+    [securityQuestionFieldName]: buildSecurityQuestionField(
       payload,
       securityQuestionError
     ),
-    [securityAnswer]: buildSecurityAnswerField(payload, securityAnswerError)
+    [securityAnswerFieldName]: buildSecurityAnswerField(
+      payload,
+      securityAnswerError
+    )
   }
 
   // Model buttons
@@ -331,9 +337,9 @@ export function saveAndExitPasswordViewModel(
 
   // Model fields
   const fields = {
-    [securityAnswer]: {
-      id: securityAnswer,
-      name: securityAnswer,
+    [securityAnswerFieldName]: {
+      id: securityAnswerFieldName,
+      name: securityAnswerFieldName,
       label: {
         text: securityQuestions.find((x) => x.value === securityQuestion)?.text,
         classes: GOVUK_LABEL__M
@@ -383,7 +389,7 @@ export function saveAndExitResumeErrorViewModel(payload) {
  */
 export function createInvalidPasswordError(attemptsRemaining) {
   return createJoiError(
-    securityAnswer,
+    securityAnswerFieldName,
     `Your answer is incorrect. You have ${attemptsRemaining} ${attemptsRemaining === 1 ? 'attempt' : 'attempts'} remaining.`
   )
 }
