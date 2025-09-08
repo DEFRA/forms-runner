@@ -415,6 +415,47 @@ describe('Save-and-exit check routes', () => {
       )
       expect($errorMessage).toBeInTheDocument()
     })
+
+    test('/route handles missing password', async () => {
+      jest
+        .mocked(getFormMetadataById)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce({
+          slug: 'my-form-to-resume',
+          title: 'My Form To Resume'
+        })
+      jest.mocked(validateSaveAndExitCredentials).mockResolvedValueOnce({
+        validPassword: false,
+        invalidPasswordAttempts: 1,
+        // @ts-expect-error - allow partial objects for tests
+        form: {
+          id: FORM_ID
+        }
+      })
+      jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce({
+        // @ts-expect-error - allow partial objects for tests
+        form: {
+          isPreview: true,
+          status: 'draft'
+        }
+      })
+
+      const options = {
+        method: 'POST',
+        url: `/resume-form-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume`,
+        payload: {
+          securityAnswer: ''
+        }
+      }
+
+      const { response, container } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.OK)
+
+      const $mastheadHeading = container.getByText('Continue with your form')
+      expect($mastheadHeading).toBeInTheDocument()
+      expect(createJoiError).not.toHaveBeenCalled()
+    })
   })
 })
 

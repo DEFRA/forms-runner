@@ -346,12 +346,7 @@ export function confirmationViewModel(metadata, email, status) {
  * @param {SaveAndExitResumePasswordPayload} [payload]
  * @param {Error} [err]
  */
-export function saveAndExitPasswordViewModel(
-  formTitle,
-  securityQuestion,
-  payload,
-  err
-) {
+export function passwordViewModel(formTitle, securityQuestion, payload, err) {
   const pageTitle = 'Continue with your form'
   const { errors, securityAnswerError } = buildErrors(err)
 
@@ -389,7 +384,7 @@ export function saveAndExitPasswordViewModel(
  * The save and exit error form view model
  * @param {{ slug: string }} payload
  */
-export function saveAndExitResumeErrorViewModel(payload) {
+export function resumeErrorViewModel(payload) {
   const pageTitle = 'You cannot resume your form'
 
   // Model buttons
@@ -419,7 +414,7 @@ export function createInvalidPasswordError(attemptsRemaining) {
  * @param {FormMetadata} form
  * @param {SaveAndExitResumeDetails} validatedLink
  */
-export function saveAndExitLockedOutViewModel(form, validatedLink) {
+export function lockedOutViewModel(form, validatedLink) {
   return {
     name: form.title,
     buttons: {
@@ -448,7 +443,7 @@ export function constructFormUrl(slug, status) {
  * @param {FormMetadata} form
  * @param {FormStatus} [status]
  */
-export function saveAndExitResumeSuccessViewModel(form, status) {
+export function resumeSuccessViewModel(form, status) {
   // Model buttons
   const continueButton = {
     text: 'Resume form',

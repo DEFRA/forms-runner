@@ -12,13 +12,13 @@ import {
   createInvalidPasswordError,
   detailsViewModel,
   getKey,
+  lockedOutViewModel,
   paramsSchema,
+  passwordViewModel,
   payloadSchema,
+  resumeErrorViewModel,
   resumeParamsSchema,
-  saveAndExitLockedOutViewModel,
-  saveAndExitPasswordViewModel,
-  saveAndExitResumeErrorViewModel,
-  saveAndExitResumeSuccessViewModel,
+  resumeSuccessViewModel,
   validatePayloadSchema
 } from '~/src/server/models/save-and-exit.js'
 import {
@@ -238,10 +238,7 @@ export default [
         return h.redirect(ERROR_BASE_URL)
       }
 
-      const model = saveAndExitPasswordViewModel(
-        form.title,
-        resumeDetails.question
-      )
+      const model = passwordViewModel(form.title, resumeDetails.question)
 
       return h.view(RESUME_PASSWORD_PATH, model)
     },
@@ -260,7 +257,7 @@ export default [
     handler(request, h) {
       const { params } = request
       const { slug } = params
-      const model = saveAndExitResumeErrorViewModel({ slug })
+      const model = resumeErrorViewModel({ slug })
 
       return h.view(RESUME_ERROR, model)
     },
@@ -315,7 +312,7 @@ export default [
         )
         const error = createInvalidPasswordError(attemptsRemaining)
 
-        const model = saveAndExitPasswordViewModel(
+        const model = passwordViewModel(
           form.title,
           validatedLink.question,
           undefined,
@@ -325,7 +322,7 @@ export default [
         return h.view(RESUME_PASSWORD_PATH, model)
       } else {
         // Locked out
-        const model = saveAndExitLockedOutViewModel(form, validatedLink)
+        const model = lockedOutViewModel(form, validatedLink)
         return h.view(RESUME_ERROR_LOCKED, model)
       }
     },
@@ -348,7 +345,7 @@ export default [
 
           const form = await getFormMetadataById(resumeDetails.form.id)
 
-          const model = saveAndExitPasswordViewModel(
+          const model = passwordViewModel(
             form.title,
             resumeDetails.question,
             payload,
@@ -370,7 +367,7 @@ export default [
       const { params } = request
       const { slug, state } = params
       const form = await getFormMetadata(slug)
-      const model = saveAndExitResumeSuccessViewModel(form, state)
+      const model = resumeSuccessViewModel(form, state)
 
       return h.view(RESUME_SUCCESS, model)
     },
