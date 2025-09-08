@@ -189,7 +189,7 @@ export default [
         const { isPreview, status } = validatedLink.form
 
         return h.redirect(
-          `/save-and-exit-resume-success/${form.slug}/${isPreview ? `/${status}` : ''}`
+          `/save-and-exit-resume-success/${form.slug}${isPreview ? `/${status}` : ''}`
         )
       }
 
