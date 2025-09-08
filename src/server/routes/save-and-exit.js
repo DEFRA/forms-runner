@@ -8,9 +8,9 @@ import Joi from 'joi'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { publishSaveAndExitEvent } from '~/src/server/messaging/publish.js'
 import {
-  confirmationViewModel as saveAndExitConfirmationViewModel,
+  confirmationViewModel,
   createInvalidPasswordError,
-  detailsViewModel as saveAndExitDetailsViewModel,
+  detailsViewModel,
   getKey,
   paramsSchema,
   payloadSchema,
@@ -50,7 +50,7 @@ export default [
       const { params } = request
       const { slug, state: status } = params
       const metadata = await getFormMetadata(slug)
-      const model = saveAndExitDetailsViewModel(metadata, status)
+      const model = detailsViewModel(metadata, status)
 
       return h.view('save-and-exit-details', model)
     },
@@ -106,12 +106,7 @@ export default [
           const { params, payload } = request
           const { slug, state: status } = params
           const metadata = await getFormMetadata(slug)
-          const model = saveAndExitDetailsViewModel(
-            metadata,
-            payload,
-            status,
-            err
-          )
+          const model = detailsViewModel(metadata, payload, status, err)
 
           return h.view('save-and-exit-details', model).takeover()
         },
@@ -139,7 +134,7 @@ export default [
       }
 
       const email = messages[0]
-      const model = saveAndExitConfirmationViewModel(metadata, email, status)
+      const model = confirmationViewModel(metadata, email, status)
 
       return h.view('save-and-exit-confirmation', model)
     },
