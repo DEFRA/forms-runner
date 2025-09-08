@@ -14,7 +14,7 @@ import { publishSaveAndExitEvent } from '~/src/server/messaging/publish.js'
 jest.mock('~/src/server/messaging/publish-base.js')
 
 /**
- * @type {import('@defra/forms-model').SaveAndExitMessageData}
+ * @type {SaveAndExitMessageData}
  */
 const saveAndExitPayload = {
   form: {
@@ -86,3 +86,7 @@ describe('publish', () => {
     })
   })
 })
+
+/**
+ * @import { SaveAndExitMessageData } from '@defra/forms-model'
+ */

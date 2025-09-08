@@ -1,5 +1,4 @@
 import {
-  getCacheService,
   handleLegacyRedirect,
   isPathRelative
 } from '@defra/forms-engine-plugin/engine/helpers.js'
@@ -9,11 +8,7 @@ import {
   pathSchema,
   stateSchema
 } from '@defra/forms-engine-plugin/schema.js'
-import {
-  type FormRequestPayload,
-  type FormStatus
-} from '@defra/forms-engine-plugin/types'
-import { slugSchema, type SecurityQuestionsEnum } from '@defra/forms-model'
+import { slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type Request,
@@ -32,16 +27,6 @@ import {
 import { type CookieConsent } from '~/src/common/types.js'
 import { config } from '~/src/config/index.js'
 import { FORM_PREFIX } from '~/src/server/constants.js'
-import { publishSaveAndExitEvent } from '~/src/server/messaging/publish.js'
-import {
-  confirmationViewModel as saveAndExitConfirmationViewModel,
-  detailsViewModel as saveAndExitDetailsViewModel,
-  getKey,
-  paramsSchema as saveAndExitParamsSchema,
-  payloadSchema as saveAndExitPayloadSchema,
-  type SaveAndExitParams,
-  type SaveAndExitPayload
-} from '~/src/server/models/save-and-exit.js'
 import { getErrorPreviewHandler } from '~/src/server/plugins/error-preview/error-preview.js'
 import {
   healthRoute,
@@ -297,124 +282,6 @@ export default {
               path: pathSchema,
               itemId: itemIdSchema
             })
-          }
-        }
-      })
-
-      server.route<{
-        Params: SaveAndExitParams
-      }>({
-        method: 'GET',
-        path: '/save-and-exit/{slug}/{state?}',
-        async handler(request, h) {
-          const { params } = request
-          const { slug, state: status } = params
-          const metadata = await getFormMetadata(slug)
-          const model = saveAndExitDetailsViewModel(metadata, status)
-
-          return h.view('save-and-exit-details', model)
-        },
-        options: {
-          validate: {
-            params: saveAndExitParamsSchema
-          }
-        }
-      })
-
-      server.route<{
-        Params: SaveAndExitParams
-        Payload: SaveAndExitPayload
-      }>({
-        method: 'POST',
-        path: '/save-and-exit/{slug}/{state?}',
-        async handler(request, h) {
-          const { params, payload } = request
-          const { slug, state: status } = params
-          const { email, securityQuestion, securityAnswer } = payload
-          const metadata = await getFormMetadata(slug)
-          const cacheService = getCacheService(request.server)
-
-          // Publish topic message
-          const security = {
-            question: securityQuestion as SecurityQuestionsEnum,
-            answer: securityAnswer
-          }
-          const state = await cacheService.getState(
-            request as unknown as FormRequestPayload
-          )
-
-          await publishSaveAndExitEvent(
-            metadata.id,
-            metadata.title,
-            email,
-            security,
-            state,
-            status
-          )
-
-          // Clear all form data
-          await cacheService.clearState(
-            request as unknown as FormRequestPayload
-          )
-
-          // Flash the email over to the confirmation page
-          request.yar.flash(getKey(slug, status), email)
-
-          // Redirect to the save and exit confirmation page
-          const statusPath = status ? `/${status}` : ''
-
-          return h.redirect(`/save-and-exit/${slug}/confirmation${statusPath}`)
-        },
-        options: {
-          validate: {
-            async failAction(request, h, err) {
-              const { params, payload } = request
-              const { slug, state: status } = params
-              const metadata = await getFormMetadata(slug)
-              const model = saveAndExitDetailsViewModel(
-                metadata,
-                payload as SaveAndExitPayload,
-                status as FormStatus,
-                err
-              )
-
-              return h.view('save-and-exit-details', model).takeover()
-            },
-            params: saveAndExitParamsSchema,
-            payload: saveAndExitPayloadSchema
-          }
-        }
-      })
-
-      server.route<{
-        Params: SaveAndExitParams
-      }>({
-        method: 'GET',
-        path: '/save-and-exit/{slug}/confirmation/{state?}',
-        async handler(request, h) {
-          const { params } = request
-          const { slug, state: status } = params
-          const metadata = await getFormMetadata(slug)
-
-          // Get the flashed email
-          const messages = request.yar.flash(getKey(slug, status))
-
-          if (messages.length === 0) {
-            return Boom.badRequest('No email found in flash cache')
-          }
-
-          const email = messages[0]
-          const model = saveAndExitConfirmationViewModel(
-            metadata,
-            email,
-            status
-          )
-
-          return h.view('save-and-exit-confirmation', model)
-        },
-        options: {
-          validate: {
-            params: saveAndExitParamsSchema
           }
         }
       })

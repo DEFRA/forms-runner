@@ -1,17 +1,25 @@
 import { getCacheService } from '@defra/forms-engine-plugin/engine/helpers.js'
-import { crumbSchema, stateSchema } from '@defra/forms-engine-plugin/schema.js'
+import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
 import { slugSchema } from '@defra/forms-model'
+import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { publishSaveAndExitEvent } from '~/src/server/messaging/publish.js'
 import {
+  confirmationViewModel,
   createInvalidPasswordError,
+  detailsViewModel,
+  getKey,
+  paramsSchema,
+  payloadSchema,
+  resumeParamsSchema,
   saveAndExitLockedOutViewModel,
   saveAndExitPasswordViewModel,
   saveAndExitResumeErrorViewModel,
   saveAndExitResumeSuccessViewModel,
-  securityAnswerSchema
+  validatePayloadSchema
 } from '~/src/server/models/save-and-exit.js'
 import {
   getFormMetadata,
@@ -19,24 +27,9 @@ import {
   getSaveAndExitDetails,
   validateSaveAndExitCredentials
 } from '~/src/server/services/formsService.js'
-
 const logger = createLogger()
 
 const maxInvalidPasswordAttempts = 3
-
-const validateSaveAndExitSchema = Joi.object().keys({
-  crumb: crumbSchema,
-  securityAnswer: securityAnswerSchema
-})
-
-const saveAndExitParamsSchema = Joi.object()
-  .keys({
-    formId: Joi.string().required(),
-    magicLinkId: Joi.string().uuid().required(),
-    slug: slugSchema,
-    state: stateSchema.optional()
-  })
-  .required()
 
 const ERROR_BASE_URL = '/resume-form-error'
 
@@ -47,6 +40,110 @@ const RESUME_PASSWORD_PATH = 'save-and-exit/resume-password'
 const RESUME_SUCCESS = 'save-and-exit/resume-success'
 
 export default [
+  /**
+   * @satisfies {ServerRoute<{ Params: SaveAndExitParams }>}
+   */
+  ({
+    method: 'GET',
+    path: '/save-and-exit/{slug}/{state?}',
+    async handler(request, h) {
+      const { params } = request
+      const { slug, state: status } = params
+      const metadata = await getFormMetadata(slug)
+      const model = detailsViewModel(metadata, status)
+
+      return h.view('save-and-exit-details', model)
+    },
+    options: {
+      validate: {
+        params: paramsSchema
+      }
+    }
+  }),
+  /**
+   * @satisfies {ServerRoute<{ Params: SaveAndExitParams, Payload: SaveAndExitPayload }>}
+   */
+  ({
+    method: 'POST',
+    path: '/save-and-exit/{slug}/{state?}',
+    async handler(request, h) {
+      const { params, payload } = request
+      const { slug, state: status } = params
+      const { email, securityQuestion, securityAnswer } = payload
+      const metadata = await getFormMetadata(slug)
+      const cacheService = getCacheService(request.server)
+
+      // Publish topic message
+      const security = {
+        question: securityQuestion,
+        answer: securityAnswer
+      }
+      const state = await cacheService.getState(request)
+
+      await publishSaveAndExitEvent(
+        metadata.id,
+        metadata.title,
+        email,
+        security,
+        state,
+        status
+      )
+
+      // Clear all form data
+      await cacheService.clearState(request)
+
+      // Flash the email over to the confirmation page
+      request.yar.flash(getKey(slug, status), email)
+
+      // Redirect to the save and exit confirmation page
+      const statusPath = status ? `/${status}` : ''
+
+      return h.redirect(`/save-and-exit/${slug}/confirmation${statusPath}`)
+    },
+    options: {
+      validate: {
+        async failAction(request, h, err) {
+          const { params, payload } = request
+          const { slug, state: status } = params
+          const metadata = await getFormMetadata(slug)
+          const model = detailsViewModel(metadata, payload, status, err)
+
+          return h.view('save-and-exit-details', model).takeover()
+        },
+        params: paramsSchema,
+        payload: payloadSchema
+      }
+    }
+  }),
+  /**
+   * @satisfies {ServerRoute<{ Params: SaveAndExitParams }>}
+   */
+  ({
+    method: 'GET',
+    path: '/save-and-exit/{slug}/confirmation/{state?}',
+    async handler(request, h) {
+      const { params } = request
+      const { slug, state: status } = params
+      const metadata = await getFormMetadata(slug)
+
+      // Get the flashed email
+      const messages = request.yar.flash(getKey(slug, status))
+
+      if (messages.length === 0) {
+        return Boom.badRequest('No email found in flash cache')
+      }
+
+      const email = messages[0]
+      const model = confirmationViewModel(metadata, email, status)
+
+      return h.view('save-and-exit-confirmation', model)
+    },
+    options: {
+      validate: {
+        params: paramsSchema
+      }
+    }
+  }),
   /**
    * @satisfies {ServerRoute<{ Params: { formId: string, magicLinkId: string } }>}
    */
@@ -110,7 +207,7 @@ export default [
     }
   }),
   /**
-   * @satisfies {ServerRoute<{ Params: { formId: string, magicLinkId: string, slug: string, state?: string } }>}
+   * @satisfies {ServerRoute<{ Params: SaveAndExitResumePasswordParams }>}
    */
   ({
     method: 'GET',
@@ -145,7 +242,7 @@ export default [
     },
     options: {
       validate: {
-        params: saveAndExitParamsSchema
+        params: resumeParamsSchema
       }
     }
   }),
@@ -229,8 +326,8 @@ export default [
     },
     options: {
       validate: {
-        params: saveAndExitParamsSchema,
-        payload: validateSaveAndExitSchema,
+        params: resumeParamsSchema,
+        payload: validatePayloadSchema,
         failAction: async (request, h, error) => {
           const params = /** @type {SaveAndExitResumePasswordParams} */ (
             request.params
@@ -287,6 +384,5 @@ export default [
 
 /**
  * @import { ServerRoute } from '@hapi/hapi'
- * @import { FormStatus } from '@defra/forms-model'
- * @import { SaveAndExitResumePasswordPayload, SaveAndExitResumePasswordParams } from '~/src/server/models/save-and-exit.js'
+ * @import { SaveAndExitParams, SaveAndExitPayload, SaveAndExitResumePasswordPayload, SaveAndExitResumePasswordParams } from '~/src/server/models/save-and-exit.js'
  */
