@@ -8,6 +8,7 @@ import {
 import {
   type FormDefinition,
   type FormMetadata,
+  type SecurityQuestionsEnum,
   type SubmitPayload,
   type SubmitResponsePayload
 } from '@defra/forms-model'
@@ -50,4 +51,20 @@ export interface OutputService {
     submitResponse: SubmitResponsePayload,
     formMetadata?: FormMetadata
   ) => Promise<void>
+}
+
+export interface SaveAndExitDetails {
+  form: {
+    id: string
+    status: FormStatus
+    isPreview: boolean
+    baseUrl: string
+  }
+  question: SecurityQuestionsEnum
+  invalidPasswordAttempts: number
+  state: object
+}
+
+export interface SaveAndExitResumeDetails extends SaveAndExitDetails {
+  validPassword: boolean
 }

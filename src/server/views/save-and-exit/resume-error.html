@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-l">{{ pageTitle }}</h1>
+      <p class="govuk-body">
+        The link we emailed to you has expired or is invalid. Your information will be securely deleted.
+      </p>
+      <p class="govuk-body">
+        You will need to start the form again.
+      </p>
+      {% if buttons.continueButton %}
+        <div class="govuk-button-group">
+          {{ govukButton(buttons.continueButton) }}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

@@ -43,7 +43,11 @@ import {
   type SaveAndExitPayload
 } from '~/src/server/models/save-and-exit.js'
 import { getErrorPreviewHandler } from '~/src/server/plugins/error-preview/error-preview.js'
-import { healthRoute, publicRoutes } from '~/src/server/routes/index.js'
+import {
+  healthRoute,
+  publicRoutes,
+  saveAndExitRoutes
+} from '~/src/server/routes/index.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 
 const routes: ServerRoute[] = [...publicRoutes, healthRoute]
@@ -54,6 +58,7 @@ export default {
     name: 'router',
     register: (server) => {
       server.route(routes)
+      server.route(saveAndExitRoutes as ServerRoute[])
 
       // /preview/{state}/{slug} -> {FORM_PREFIX}/preview/{state}/{slug}
       server.route({
@@ -298,15 +303,14 @@ export default {
 
       server.route<{
         Params: SaveAndExitParams
-        Payload: SaveAndExitPayload
       }>({
         method: 'GET',
         path: '/save-and-exit/{slug}/{state?}',
         async handler(request, h) {
-          const { params, payload } = request
+          const { params } = request
           const { slug, state: status } = params
           const metadata = await getFormMetadata(slug)
-          const model = saveAndExitDetailsViewModel(metadata, payload, status)
+          const model = saveAndExitDetailsViewModel(metadata, status)
 
           return h.view('save-and-exit-details', model)
         },
@@ -341,7 +345,6 @@ export default {
 
           await publishSaveAndExitEvent(
             metadata.id,
-            metadata.slug,
             metadata.title,
             email,
             security,

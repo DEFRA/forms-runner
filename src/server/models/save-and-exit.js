@@ -4,15 +4,19 @@ import Joi from 'joi'
 
 import { config } from '~/src/config/index.js'
 import { FORM_PREFIX } from '~/src/server/constants.js'
+import { createJoiError } from '~/src/server/helpers/error-helper.js'
 
 const detailsPageTitle = 'Save your progress for later'
 const confirmationPageTitle = 'Your progress has been saved'
 
+const MIN_PASSWORD_LENGTH = 3
+const MAX_PASSWORD_LENGTH = 40
+
 // Field names/ids
 const email = 'email'
-const emailConfirmation = 'emailConfirmation'
-const securityQuestion = 'securityQuestion'
-const securityAnswer = 'securityAnswer'
+const emailConfirmationFieldName = 'emailConfirmation'
+const securityQuestionFieldName = 'securityQuestion'
+const securityAnswerFieldName = 'securityAnswer'
 
 const GOVUK_LABEL__M = 'govuk-label--m'
 const saveAndExitExpiryDays = config.get('saveAndExitExpiryDays')
@@ -48,13 +52,13 @@ function buildErrors(err) {
 
   const emailError = err.details.find((item) => item.path[0] === email)
   const emailConfirmationError = err.details.find(
-    (item) => item.path[0] === emailConfirmation
+    (item) => item.path[0] === emailConfirmationFieldName
   )
   const securityQuestionError = err.details.find(
-    (item) => item.path[0] === securityQuestion
+    (item) => item.path[0] === securityQuestionFieldName
   )
   const securityAnswerError = err.details.find(
-    (item) => item.path[0] === securityAnswer
+    (item) => item.path[0] === securityAnswerFieldName
   )
   const errors = []
 
@@ -65,21 +69,21 @@ function buildErrors(err) {
   if (emailConfirmationError) {
     errors.push({
       text: emailConfirmationError.message,
-      href: `#${emailConfirmation}`
+      href: `#${emailConfirmationFieldName}`
     })
   }
 
   if (securityQuestionError) {
     errors.push({
       text: securityQuestionError.message,
-      href: `#${securityQuestion}`
+      href: `#${securityQuestionFieldName}`
     })
   }
 
   if (securityAnswerError) {
     errors.push({
       text: securityAnswerError.message,
-      href: `#${securityAnswer}`
+      href: `#${securityAnswerFieldName}`
     })
   }
 
@@ -121,8 +125,8 @@ function buildEmailField(payload, error) {
  */
 function buildEmailConfirmationField(payload, error) {
   return {
-    id: emailConfirmation,
-    name: emailConfirmation,
+    id: emailConfirmationFieldName,
+    name: emailConfirmationFieldName,
     label: {
       text: 'Confirm your email address',
       classes: GOVUK_LABEL__M,
@@ -142,8 +146,8 @@ function buildEmailConfirmationField(payload, error) {
  */
 function buildSecurityQuestionField(payload, error) {
   return {
-    id: securityQuestion,
-    name: securityQuestion,
+    id: securityQuestionFieldName,
+    name: securityQuestionFieldName,
     fieldset: {
       legend: {
         text: 'Choose a security question to answer',
@@ -166,8 +170,8 @@ function buildSecurityQuestionField(payload, error) {
  */
 function buildSecurityAnswerField(payload, error) {
   return {
-    id: securityAnswer,
-    name: securityAnswer,
+    id: securityAnswerFieldName,
+    name: securityAnswerFieldName,
     label: {
       text: 'Your answer to the security question',
       classes: GOVUK_LABEL__M
@@ -188,6 +192,16 @@ export const paramsSchema = Joi.object()
     state: stateSchema.optional()
   })
   .required()
+
+export const securityAnswerSchema = Joi.string()
+  .min(MIN_PASSWORD_LENGTH)
+  .max(MAX_PASSWORD_LENGTH)
+  .required()
+  .messages({
+    'string.min': 'Your answer must be between 3 and 40 characters long',
+    'string.max': 'Your answer must be between 3 and 40 characters long',
+    '*': 'Enter an answer to the security question'
+  })
 
 /**
  * Save and exit form payload schema
@@ -212,11 +226,7 @@ export const payloadSchema = Joi.object()
       .messages({
         '*': 'Choose a security question to answer'
       }),
-    securityAnswer: Joi.string().min(3).max(40).required().messages({
-      'string.min': 'Your answer must be between 3 and 40 characters long',
-      'string.max': 'Your answer must be between 3 and 40 characters long',
-      '*': 'Enter an answer to the security question'
-    })
+    securityAnswer: securityAnswerSchema
   })
   .required()
 
@@ -232,16 +242,13 @@ export function getKey(slug, state) {
 /**
  * The save and exit details form view model
  * @param {FormMetadata} metadata
- * @param {SaveAndExitPayload} [payload]
  * @param {FormStatus} [status]
+ * @param {SaveAndExitPayload} [payload]
  * @param {Error} [err]
  */
-export function detailsViewModel(metadata, payload, status, err) {
+export function detailsViewModel(metadata, status, payload, err) {
   const { slug, title } = metadata
-  const isPreview = !!status
-  const formPath = isPreview
-    ? `${FORM_PREFIX}/preview/${status}/${slug}`
-    : `${FORM_PREFIX}/${slug}`
+  const formPath = constructFormUrl(slug, status)
 
   const backLink = {
     href: formPath
@@ -258,15 +265,18 @@ export function detailsViewModel(metadata, payload, status, err) {
   // Model fields
   const fields = {
     [email]: buildEmailField(payload, emailError),
-    [emailConfirmation]: buildEmailConfirmationField(
+    [emailConfirmationFieldName]: buildEmailConfirmationField(
       payload,
       emailConfirmationError
     ),
-    [securityQuestion]: buildSecurityQuestionField(
+    [securityQuestionFieldName]: buildSecurityQuestionField(
       payload,
       securityQuestionError
     ),
-    [securityAnswer]: buildSecurityAnswerField(payload, securityAnswerError)
+    [securityAnswerFieldName]: buildSecurityAnswerField(
+      payload,
+      securityAnswerError
+    )
   }
 
   // Model buttons
@@ -298,10 +308,7 @@ export function detailsViewModel(metadata, payload, status, err) {
  */
 export function confirmationViewModel(metadata, email, status) {
   const { slug, title } = metadata
-  const isPreview = !!status
-  const formPath = isPreview
-    ? `${FORM_PREFIX}/preview/${status}/${slug}`
-    : `${FORM_PREFIX}/${slug}`
+  const formPath = constructFormUrl(slug, status)
 
   return {
     name: title,
@@ -309,6 +316,128 @@ export function confirmationViewModel(metadata, email, status) {
     pageTitle: confirmationPageTitle,
     email,
     saveAndExitExpiryDays
+  }
+}
+
+/**
+ * The save and exit password form view model
+ * @param {string} formTitle
+ * @param {SecurityQuestionsEnum} securityQuestion - the security question
+ * @param {SaveAndExitResumePasswordPayload} [payload]
+ * @param {Error} [err]
+ */
+export function saveAndExitPasswordViewModel(
+  formTitle,
+  securityQuestion,
+  payload,
+  err
+) {
+  const pageTitle = 'Continue with your form'
+  const { errors, securityAnswerError } = buildErrors(err)
+
+  // Model fields
+  const fields = {
+    [securityAnswerFieldName]: {
+      id: securityAnswerFieldName,
+      name: securityAnswerFieldName,
+      label: {
+        text: securityQuestions.find((x) => x.value === securityQuestion)?.text,
+        classes: GOVUK_LABEL__M
+      },
+      value: payload?.securityAnswer ?? '',
+      errorMessage: securityAnswerError && {
+        text: securityAnswerError.message
+      }
+    }
+  }
+
+  // Model buttons
+  const continueButton = {
+    text: 'Continue'
+  }
+
+  return {
+    name: formTitle,
+    pageTitle,
+    errors,
+    fields,
+    buttons: { continueButton }
+  }
+}
+
+/**
+ * The save and exit error form view model
+ * @param {{ slug: string }} payload
+ */
+export function saveAndExitResumeErrorViewModel(payload) {
+  const pageTitle = 'You cannot resume your form'
+
+  // Model buttons
+  const continueButton = {
+    text: 'Start form again',
+    href: `/form/${payload.slug}`
+  }
+
+  return {
+    pageTitle,
+    buttons: payload.slug ? { continueButton } : {}
+  }
+}
+
+/**
+ * @param {number} attemptsRemaining
+ */
+export function createInvalidPasswordError(attemptsRemaining) {
+  return createJoiError(
+    securityAnswerFieldName,
+    `Your answer is incorrect. You have ${attemptsRemaining} ${attemptsRemaining === 1 ? 'attempt' : 'attempts'} remaining.`
+  )
+}
+
+/**
+ * The save and exit form view model when user is locked out
+ * @param {FormMetadata} form
+ * @param {SaveAndExitResumeDetails} validatedLink
+ */
+export function saveAndExitLockedOutViewModel(form, validatedLink) {
+  return {
+    name: form.title,
+    buttons: {
+      continueButton: {
+        text: 'Start form again',
+        href: constructFormUrl(form.slug, validatedLink.form.status)
+      }
+    }
+  }
+}
+
+/**
+ * @param {string} slug
+ * @param {FormStatus} [status]
+ */
+export function constructFormUrl(slug, status) {
+  if (!status) {
+    return `${FORM_PREFIX}/${slug}`
+  }
+
+  return `${FORM_PREFIX}/preview/${status}/${slug}`
+}
+
+/**
+ * The save and exit success form view model
+ * @param {FormMetadata} form
+ * @param {FormStatus} [status]
+ */
+export function saveAndExitResumeSuccessViewModel(form, status) {
+  // Model buttons
+  const continueButton = {
+    text: 'Resume form',
+    href: constructFormUrl(form.slug, status)
+  }
+
+  return {
+    name: form.title,
+    buttons: { continueButton }
   }
 }
 
@@ -333,6 +462,26 @@ export function confirmationViewModel(metadata, email, status) {
  */
 
 /**
+ * @typedef {object} SaveAndExitResumeParams
+ * @property {string} slug - the form slug
+ * @property {string} magicLinkId - the link parameter provided in the magic link
+ */
+
+/**
+ * @typedef {object} SaveAndExitResumePasswordParams
+ * @property {string} formId - the form id answer
+ * @property {string} magicLinkId - the magic link id
+ * @property {string} slug - the form slug
+ * @property {FormStatus} [state] - the form status
+ */
+
+/**
+ * @typedef {object} SaveAndExitResumePasswordPayload
+ * @property {string} securityAnswer - the security answer
+ */
+
+/**
  * @import { FormMetadata } from '@defra/forms-model'
  * @import { FormStatus } from '@defra/forms-engine-plugin/types'
+ * @import { SaveAndExitResumeDetails } from '~/src/server/types.js'
  */

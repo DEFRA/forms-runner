@@ -135,7 +135,7 @@ export const configureEnginePlugin = async ({
   const pluginObject = {
     plugin,
     options: {
-      cacheName: 'session',
+      cache: 'session',
       nunjucks: {
         baseLayoutPath: 'layout.html',
         paths
