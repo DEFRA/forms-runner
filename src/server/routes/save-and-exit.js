@@ -45,15 +45,6 @@ const RESUME_ERROR_LOCKED = 'save-and-exit/resume-error-locked'
 const RESUME_PASSWORD_PATH = 'save-and-exit/resume-password'
 const RESUME_SUCCESS = 'save-and-exit/resume-success'
 
-/**
- * @param {boolean} isPreview
- * @param {FormStatus} status
- * @returns
- */
-export function slugAndState(isPreview, status) {
-  return isPreview ? `/${status}` : ''
-}
-
 export default [
   /**
    * @satisfies {ServerRoute<{ Params: { formId: string, magicLinkId: string } }>}
@@ -97,8 +88,10 @@ export default [
 
       const { isPreview, status } = linkDetails.form
 
+      const slugAndState = isPreview ? `/${status}` : ''
+
       return h.redirect(
-        `/save-and-exit-resume-verify/${formId}/${magicLinkId}/${form.slug}${slugAndState(isPreview, status)}`
+        `/save-and-exit-resume-verify/${formId}/${magicLinkId}/${form.slug}${slugAndState}`
       )
     },
     options: {
@@ -169,7 +162,7 @@ export default [
       validate: {
         params: Joi.object()
           .keys({
-            slug: slugSchema
+            slug: slugSchema.optional()
           })
           .required()
       }
@@ -202,8 +195,10 @@ export default [
 
         const { isPreview, status } = validatedLink.form
 
+        const slugAndState = isPreview ? `/${status}` : ''
+
         return h.redirect(
-          `/save-and-exit-resume-success/${form.slug}${slugAndState(isPreview, status)}`
+          `/save-and-exit-resume-success/${form.slug}${slugAndState}`
         )
       }
 

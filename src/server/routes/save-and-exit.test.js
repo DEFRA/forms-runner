@@ -2,6 +2,7 @@ import { StatusCodes } from 'http-status-codes'
 
 import { createServer } from '~/src/server/index.js'
 import {
+  getFormMetadata,
   getFormMetadataById,
   getSaveAndExitDetails
 } from '~/src/server/services/formsService.js'
@@ -114,6 +115,189 @@ describe('Save-and-exit check routes', () => {
       expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
       expect(response.headers.location).toBe(
         '/save-and-exit-resume-error/my-form-to-resume'
+      )
+    })
+  })
+
+  describe('GET /save-and-exit-resume-verify/{formId}/{magicLinkId}/{slug}/state?}', () => {
+    test('/route renders page', async () => {
+      jest
+        .mocked(getFormMetadataById)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce({
+          slug: 'my-form-to-resume',
+          title: 'My Form To Resume'
+        })
+      jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce({
+        // @ts-expect-error - allow partial objects for tests
+        form: {
+          isPreview: true,
+          status: 'draft'
+        }
+      })
+
+      const options = {
+        method: 'GET',
+        url: `/save-and-exit-resume-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume/draft`
+      }
+
+      const { response, container } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.OK)
+
+      const $mastheadHeading = container.getByText('Continue with your form')
+      expect($mastheadHeading).toBeInTheDocument()
+    })
+
+    test('/route forwards correctly on invalid form error', async () => {
+      jest.mocked(getFormMetadataById).mockImplementationOnce(() => {
+        throw new Error('form not found')
+      })
+      jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce({
+        // @ts-expect-error - allow partial objects for tests
+        form: {
+          isPreview: true,
+          status: 'draft'
+        }
+      })
+
+      const options = {
+        method: 'GET',
+        url: `/save-and-exit-resume-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume/draft`
+      }
+
+      const { response } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe('/save-and-exit-resume-error')
+    })
+
+    test('/route forwards correctly on magic link error', async () => {
+      jest
+        .mocked(getFormMetadataById)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce({ slug: 'my-form-to-resume' })
+      // @ts-expect-error - allow partial objects for tests
+      jest.mocked(getSaveAndExitDetails).mockImplementationOnce(undefined)
+
+      const options = {
+        method: 'GET',
+        url: `/save-and-exit-resume-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume/draft`
+      }
+
+      const { response } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe('/save-and-exit-resume-error')
+    })
+  })
+
+  describe('GET /save-and-exit-resume-error', () => {
+    test('/route renders page without slug', async () => {
+      const options = {
+        method: 'GET',
+        url: '/save-and-exit-resume-error'
+      }
+
+      const { response, container } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.OK)
+
+      const $mastheadHeading = container.getByText(
+        'You cannot resume your form'
+      )
+
+      const $button = container.queryByRole('button', {
+        name: 'Start form again'
+      })
+
+      expect($mastheadHeading).toBeInTheDocument()
+      expect($button).not.toBeInTheDocument()
+    })
+
+    test('/route renders page with slug', async () => {
+      const options = {
+        method: 'GET',
+        url: '/save-and-exit-resume-error/my-slug'
+      }
+
+      const { response, container } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.OK)
+
+      const $mastheadHeading = container.getByText(
+        'You cannot resume your form'
+      )
+
+      const $button = container.queryByRole('button', {
+        name: 'Start form again'
+      })
+
+      expect($mastheadHeading).toBeInTheDocument()
+      expect($button).toBeInTheDocument()
+      expect($button).toHaveAttribute('href', '/form/my-slug')
+    })
+  })
+
+  describe('GET /save-and-exit-resume-success', () => {
+    test('/route renders page without state', async () => {
+      jest
+        .mocked(getFormMetadata)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce({
+          slug: 'my-form-to-resume',
+          title: 'My Form To Resume'
+        })
+
+      const options = {
+        method: 'GET',
+        url: '/save-and-exit-resume-success/my-slug'
+      }
+
+      const { response, container } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.OK)
+
+      const $mastheadHeading = container.getByText('Welcome back to your form')
+
+      const $button = container.queryByRole('button', {
+        name: 'Resume form'
+      })
+
+      expect($mastheadHeading).toBeInTheDocument()
+      expect($button).toBeInTheDocument()
+      expect($button).toHaveAttribute('href', '/form/my-form-to-resume')
+    })
+
+    test('/route renders page with slug', async () => {
+      jest
+        .mocked(getFormMetadata)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce({
+          slug: 'my-form-to-resume',
+          title: 'My Form To Resume'
+        })
+
+      const options = {
+        method: 'GET',
+        url: '/save-and-exit-resume-success/my-slug/draft'
+      }
+
+      const { response, container } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.OK)
+
+      const $mastheadHeading = container.getByText('Welcome back to your form')
+
+      const $button = container.queryByRole('button', {
+        name: 'Resume form'
+      })
+
+      expect($mastheadHeading).toBeInTheDocument()
+      expect($button).toBeInTheDocument()
+      expect($button).toHaveAttribute(
+        'href',
+        '/form/preview/draft/my-form-to-resume'
       )
     })
   })
