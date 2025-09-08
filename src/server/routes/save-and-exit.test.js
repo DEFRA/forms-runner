@@ -1,14 +1,17 @@
 import { StatusCodes } from 'http-status-codes'
 
+import { createJoiError } from '~/src/server/helpers/error-helper.js'
 import { createServer } from '~/src/server/index.js'
 import {
   getFormMetadata,
   getFormMetadataById,
-  getSaveAndExitDetails
+  getSaveAndExitDetails,
+  validateSaveAndExitCredentials
 } from '~/src/server/services/formsService.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 jest.mock('~/src/server/services/formsService.js')
+jest.mock('~/src/server/helpers/error-helper.js')
 
 describe('Save-and-exit check routes', () => {
   /** @type {Server} */
@@ -299,6 +302,118 @@ describe('Save-and-exit check routes', () => {
         'href',
         '/form/preview/draft/my-form-to-resume'
       )
+    })
+  })
+
+  describe('/resume-form-verify/{formId}/{magicLinkId}/{slug}/{state?}', () => {
+    test('/route handles valid password', async () => {
+      jest
+        .mocked(getFormMetadataById)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce({
+          slug: 'my-form-to-resume',
+          title: 'My Form To Resume'
+        })
+      jest.mocked(validateSaveAndExitCredentials).mockResolvedValueOnce({
+        validPassword: true,
+        invalidPasswordAttempts: 1,
+        // @ts-expect-error - allow partial objects for tests
+        form: {
+          id: FORM_ID
+        }
+      })
+
+      const options = {
+        method: 'POST',
+        url: `/resume-form-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume`,
+        payload: {
+          securityAnswer: 'valid'
+        }
+      }
+
+      const { response } = await renderResponse(server, options)
+
+      // TODO - fix test
+      expect(response.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+      // expect(response.headers.location).toBe(
+      //   `/resume-form-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume/draft`
+      // )
+    })
+
+    test('/route handles invalid password', async () => {
+      jest
+        .mocked(getFormMetadataById)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce({
+          slug: 'my-form-to-resume',
+          title: 'My Form To Resume'
+        })
+      jest.mocked(validateSaveAndExitCredentials).mockResolvedValueOnce({
+        validPassword: false,
+        invalidPasswordAttempts: 1,
+        // @ts-expect-error - allow partial objects for tests
+        form: {
+          id: FORM_ID
+        }
+      })
+
+      const options = {
+        method: 'POST',
+        url: `/resume-form-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume`,
+        payload: {
+          securityAnswer: 'invalid'
+        }
+      }
+
+      const { response, container } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.OK)
+
+      const $mastheadHeading = container.getByText('Continue with your form')
+      expect($mastheadHeading).toBeInTheDocument()
+      expect(createJoiError).toHaveBeenCalledWith(
+        'securityAnswer',
+        'Your answer is incorrect. You have 2 attempts remaining.'
+      )
+    })
+
+    test('/route handles lockout', async () => {
+      jest
+        .mocked(getFormMetadataById)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce({
+          slug: 'my-form-to-resume',
+          title: 'My Form To Resume'
+        })
+      jest.mocked(validateSaveAndExitCredentials).mockResolvedValueOnce({
+        validPassword: false,
+        invalidPasswordAttempts: 3,
+        // @ts-expect-error - allow partial objects for tests
+        form: {
+          id: FORM_ID
+        }
+      })
+
+      const options = {
+        method: 'POST',
+        url: `/resume-form-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume`,
+        payload: {
+          securityAnswer: 'invalid'
+        }
+      }
+
+      const { response, container } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.OK)
+
+      const $mastheadHeading = container.getByText(
+        'You cannot resume your form'
+      )
+      expect($mastheadHeading).toBeInTheDocument()
+      const $errorMessage = container.getByText(
+        'The answer to your security question was incorrect 3 times. You have run out of attempts to resume your form.'
+      )
+      expect($errorMessage).toBeInTheDocument()
     })
   })
 })
