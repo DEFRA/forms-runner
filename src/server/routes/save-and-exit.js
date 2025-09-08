@@ -1,5 +1,6 @@
 import { getCacheService } from '@defra/forms-engine-plugin/engine/helpers.js'
-import { crumbSchema } from '@defra/forms-engine-plugin/schema.js'
+import { crumbSchema, stateSchema } from '@defra/forms-engine-plugin/schema.js'
+import { slugSchema } from '@defra/forms-model'
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
@@ -29,6 +30,15 @@ const validateSaveAndExitSchema = Joi.object().keys({
   crumb: crumbSchema,
   securityAnswer: securityAnswerSchema
 })
+
+const saveAndExitParamsSchema = Joi.object()
+  .keys({
+    formId: Joi.string().required(),
+    magicLinkId: Joi.string().uuid().required(),
+    slug: slugSchema,
+    state: stateSchema.optional()
+  })
+  .required()
 
 export default [
   /**
@@ -76,6 +86,16 @@ export default [
       return h.redirect(
         `/save-and-exit-resume-verify/${formId}/${magicLinkId}/${form.slug}${isPreview ? `/${status}` : ''}`
       )
+    },
+    options: {
+      validate: {
+        params: Joi.object()
+          .keys({
+            formId: Joi.string().required(),
+            magicLinkId: Joi.string().uuid().required()
+          })
+          .required()
+      }
     }
   }),
   /**
@@ -111,6 +131,11 @@ export default [
       )
 
       return h.view('save-and-exit/resume-password', model)
+    },
+    options: {
+      validate: {
+        params: saveAndExitParamsSchema
+      }
     }
   }),
   /**
@@ -125,6 +150,15 @@ export default [
       const model = saveAndExitResumeErrorViewModel({ slug })
 
       return h.view('save-and-exit/resume-error', model)
+    },
+    options: {
+      validate: {
+        params: Joi.object()
+          .keys({
+            slug: slugSchema
+          })
+          .required()
+      }
     }
   }),
   /**
@@ -155,7 +189,7 @@ export default [
         const { isPreview, status } = validatedLink.form
 
         return h.redirect(
-          `/save-and-exit-resume-success/${form.slug}/${formId}${isPreview ? `/${status}` : ''}`
+          `/save-and-exit-resume-success/${form.slug}/${isPreview ? `/${status}` : ''}`
         )
       }
 
@@ -184,6 +218,7 @@ export default [
     },
     options: {
       validate: {
+        params: saveAndExitParamsSchema,
         payload: validateSaveAndExitSchema,
         failAction: async (request, h, error) => {
           const params = /** @type {SaveAndExitResumePasswordParams} */ (
@@ -212,10 +247,12 @@ export default [
       }
     }
   }),
-  /** @type {ServerRoute} */
+  /**
+   * @satisfies {ServerRoute<{ Params: { slug: string, state?: string} }>}
+   */
   ({
     method: 'GET',
-    path: '/save-and-exit-resume-success/{slug}/{formId}/{state?}',
+    path: '/save-and-exit-resume-success/{slug}/{state?}',
     async handler(request, h) {
       const { params } = request
       const { slug, state } = params
@@ -223,6 +260,16 @@ export default [
       const model = saveAndExitResumeSuccessViewModel(form, state)
 
       return h.view('save-and-exit/resume-success', model)
+    },
+    options: {
+      validate: {
+        params: Joi.object()
+          .keys({
+            slug: slugSchema,
+            state: stateSchema.optional()
+          })
+          .required()
+      }
     }
   })
 ]
