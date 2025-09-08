@@ -1,33 +1,120 @@
+import { StatusCodes } from 'http-status-codes'
+
 import { createServer } from '~/src/server/index.js'
+import {
+  getFormMetadataById,
+  getSaveAndExitDetails
+} from '~/src/server/services/formsService.js'
+import { renderResponse } from '~/test/helpers/component-helpers.js'
+
+jest.mock('~/src/server/services/formsService.js')
 
 describe('Save-and-exit check routes', () => {
-  const startServer = async () => {
-    const server = await createServer()
-    await server.initialize()
-    return server
-  }
-
   /** @type {Server} */
   let server
 
-  afterEach(async () => {
-    await server.stop()
+  beforeAll(async () => {
+    server = await createServer()
+    await server.initialize()
   })
 
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  const FORM_ID = 'eab6ac6c-79b6-439f-bd94-d93eb121b3f1'
+  const MAGIC_LINK_ID = 'fd4e6453-fb32-43e4-b4cf-12b381a713de'
+
   describe('GET /save-and-exit-resume/{formId}/{magicLinkId}', () => {
-    test('/health route response is correct', async () => {
-      server = await startServer()
+    test('/route forwards correctly on success', async () => {
+      jest
+        .mocked(getFormMetadataById)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce({ slug: 'my-form-to-resume' })
+      jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce({
+        // @ts-expect-error - allow partial objects for tests
+        form: {
+          isPreview: true,
+          status: 'draft'
+        }
+      })
 
       const options = {
         method: 'GET',
-        url: '/health'
+        url: `/save-and-exit-resume/${FORM_ID}/${MAGIC_LINK_ID}`
       }
 
-      const { result } = await server.inject(options)
+      const { response } = await renderResponse(server, options)
 
-      expect(result).toMatchObject({
-        message: 'success'
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe(
+        `/save-and-exit-resume-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume/draft`
+      )
+    })
+
+    test('/route forwards correctly on invalid form error', async () => {
+      jest.mocked(getFormMetadataById).mockImplementationOnce(() => {
+        throw new Error('form not found')
       })
+      jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce({
+        // @ts-expect-error - allow partial objects for tests
+        form: {
+          isPreview: true,
+          status: 'draft'
+        }
+      })
+
+      const options = {
+        method: 'GET',
+        url: `/save-and-exit-resume/${FORM_ID}/${MAGIC_LINK_ID}`
+      }
+
+      const { response } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
+      expect(response.headers.location).toBe('/save-and-exit-resume-error')
+    })
+
+    test('/route forwards correctly on magic link error', async () => {
+      jest
+        .mocked(getFormMetadataById)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce({ slug: 'my-form-to-resume' })
+      jest.mocked(getSaveAndExitDetails).mockImplementationOnce(() => {
+        throw new Error('magic link not found')
+      })
+
+      const options = {
+        method: 'GET',
+        url: `/save-and-exit-resume/${FORM_ID}/${MAGIC_LINK_ID}`
+      }
+
+      const { response } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
+      expect(response.headers.location).toBe(
+        '/save-and-exit-resume-error/my-form-to-resume'
+      )
+    })
+
+    test('/route forwards correctly on magic link error 2', async () => {
+      jest
+        .mocked(getFormMetadataById)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce({ slug: 'my-form-to-resume' })
+      jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce(undefined)
+
+      const options = {
+        method: 'GET',
+        url: `/save-and-exit-resume/${FORM_ID}/${MAGIC_LINK_ID}`
+      }
+
+      const { response } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
+      expect(response.headers.location).toBe(
+        '/save-and-exit-resume-error/my-form-to-resume'
+      )
     })
   })
 })
