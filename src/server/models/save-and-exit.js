@@ -190,6 +190,16 @@ export const paramsSchema = Joi.object()
   })
   .required()
 
+export const securityAnswerSchema = Joi.string()
+  .min(3)
+  .max(40)
+  .required()
+  .messages({
+    'string.min': 'Your answer must be between 3 and 40 characters long',
+    'string.max': 'Your answer must be between 3 and 40 characters long',
+    '*': 'Enter an answer to the security question'
+  })
+
 /**
  * Save and exit form payload schema
  */
@@ -213,11 +223,7 @@ export const payloadSchema = Joi.object()
       .messages({
         '*': 'Choose a security question to answer'
       }),
-    securityAnswer: Joi.string().min(3).max(40).required().messages({
-      'string.min': 'Your answer must be between 3 and 40 characters long',
-      'string.max': 'Your answer must be between 3 and 40 characters long',
-      '*': 'Enter an answer to the security question'
-    })
+    securityAnswer: securityAnswerSchema
   })
   .required()
 
@@ -233,11 +239,11 @@ export function getKey(slug, state) {
 /**
  * The save and exit details form view model
  * @param {FormMetadata} metadata
- * @param {SaveAndExitPayload} [payload]
  * @param {FormStatus} [status]
+ * @param {SaveAndExitPayload} [payload]
  * @param {Error} [err]
  */
-export function detailsViewModel(metadata, payload, status, err) {
+export function detailsViewModel(metadata, status, payload, err) {
   const { slug, title } = metadata
   const formPath = constructFormUrl(slug, status)
 
@@ -308,12 +314,18 @@ export function confirmationViewModel(metadata, email, status) {
 }
 
 /**
- * The save and exit form view model
- * @param {SaveAndExitResumePasswordPayload} payload
+ * The save and exit password form view model
  * @param {string} formTitle
+ * @param {SecurityQuestionsEnum} securityQuestion - the security question
+ * @param {SaveAndExitResumePasswordPayload} [payload]
  * @param {Error} [err]
  */
-export function saveAndExitPasswordViewModel(payload, formTitle, err) {
+export function saveAndExitPasswordViewModel(
+  formTitle,
+  securityQuestion,
+  payload,
+  err
+) {
   const pageTitle = 'Continue with your form'
   const { errors, securityAnswerError } = buildErrors(err)
 
@@ -323,12 +335,10 @@ export function saveAndExitPasswordViewModel(payload, formTitle, err) {
       id: securityAnswer,
       name: securityAnswer,
       label: {
-        text: securityQuestions.find(
-          (x) => x.value === payload.securityQuestion
-        )?.text,
+        text: securityQuestions.find((x) => x.value === securityQuestion)?.text,
         classes: GOVUK_LABEL__M
       },
-      value: payload.securityAnswer,
+      value: payload?.securityAnswer ?? '',
       errorMessage: securityAnswerError && {
         text: securityAnswerError.message
       }
@@ -345,13 +355,12 @@ export function saveAndExitPasswordViewModel(payload, formTitle, err) {
     pageTitle,
     errors,
     fields,
-    slug: payload.slug,
     buttons: { continueButton }
   }
 }
 
 /**
- * The save and exit form view model
+ * The save and exit error form view model
  * @param {{ slug: string }} payload
  */
 export function saveAndExitResumeErrorViewModel(payload) {
@@ -409,9 +418,9 @@ export function constructFormUrl(slug, status) {
 }
 
 /**
- * The save and exit form view model
+ * The save and exit success form view model
  * @param {FormMetadata} form
- * @param {FormStatus} status
+ * @param {FormStatus} [status]
  */
 export function saveAndExitResumeSuccessViewModel(form, status) {
   // Model buttons
@@ -453,12 +462,16 @@ export function saveAndExitResumeSuccessViewModel(form, status) {
  */
 
 /**
+ * @typedef {object} SaveAndExitResumePasswordParams
+ * @property {string} formId - the form id answer
+ * @property {string} magicLinkId - the magic link id
+ * @property {string} slug - the form slug
+ * @property {FormStatus} [state] - the form status
+ */
+
+/**
  * @typedef {object} SaveAndExitResumePasswordPayload
- * @property {string} magicLinkId - the id of the magic link
- * @property {SecurityQuestionsEnum} securityQuestion - the security question
  * @property {string} securityAnswer - the security answer
- * @property {string} formTitle - the title of the form
- * @property {string} slug - the slug of the form
  */
 
 /**

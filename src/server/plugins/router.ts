@@ -302,15 +302,14 @@ export default {
 
       server.route<{
         Params: SaveAndExitParams
-        Payload: SaveAndExitPayload
       }>({
         method: 'GET',
         path: '/save-and-exit/{slug}/{state?}',
         async handler(request, h) {
-          const { params, payload } = request
+          const { params } = request
           const { slug, state: status } = params
           const metadata = await getFormMetadata(slug)
-          const model = saveAndExitDetailsViewModel(metadata, payload, status)
+          const model = saveAndExitDetailsViewModel(metadata, status)
 
           return h.view('save-and-exit-details', model)
         },

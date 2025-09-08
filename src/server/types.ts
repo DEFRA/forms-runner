@@ -66,5 +66,5 @@ export interface SaveAndExitDetails {
 }
 
 export interface SaveAndExitResumeDetails extends SaveAndExitDetails {
-  result: string
+  validPassword: boolean
 }

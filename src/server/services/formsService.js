@@ -4,15 +4,18 @@ import { formMetadataSchema } from '@defra/forms-model'
 import { config } from '~/src/config/index.js'
 import { getJson, postJson } from '~/src/server/services/httpService.js'
 
+const managerUrl = config.get('managerUrl')
+const submissionUrl = config.get('submissionUrl')
+
 /**
- * Retrieves a form definition from the form manager for a given slug
+ * Retrieves a form metadata from the form manager for a given slug
  * @param {string} slug - the slug of the form
  */
 export async function getFormMetadata(slug) {
   const getJsonByType = /** @type {typeof getJson<FormMetadata>} */ (getJson)
 
   const { payload: metadata } = await getJsonByType(
-    `${config.get('managerUrl')}/forms/slug/${slug}`
+    `${managerUrl}/forms/slug/${slug}`
   )
 
   // Run it through the schema to coerce dates
@@ -33,7 +36,7 @@ export async function getFormMetadataById(formId) {
   const getJsonByType = /** @type {typeof getJson<FormMetadata>} */ (getJson)
 
   const { payload: metadata } = await getJsonByType(
-    `${config.get('managerUrl')}/forms/${formId}`
+    `${managerUrl}/forms/${formId}`
   )
 
   // Run it through the schema to coerce dates
@@ -56,7 +59,7 @@ export async function getFormDefinition(id, state) {
 
   const suffix = state === FormStatus.Draft ? `/${state}` : ''
   const { payload: definition } = await getJsonByType(
-    `${config.get('managerUrl')}/forms/${id}/definition${suffix}`
+    `${managerUrl}/forms/${id}/definition${suffix}`
   )
 
   return definition
@@ -72,7 +75,7 @@ export async function getSaveAndExitDetails(magicLinkId) {
   )
 
   const { payload: results } = await getJsonByType(
-    `${config.get('submissionUrl')}/save-and-exit/${magicLinkId}`
+    `${submissionUrl}/save-and-exit/${magicLinkId}`
   )
 
   return results
@@ -91,14 +94,19 @@ export async function validateSaveAndExitCredentials(
     /** @type {typeof postJson<SaveAndExitResumeDetails>} */ (postJson)
 
   const { payload: results } = await postJsonByType(
-    `${config.get('submissionUrl')}/save-and-exit`,
+    `${submissionUrl}/save-and-exit/${magicLinkId}`,
     {
       payload: {
-        magicLinkId,
         securityAnswer
       }
     }
   )
+
+  if (!results) {
+    throw new Error(
+      'Unexpected empty response in validateSaveAndExitCredentials'
+    )
+  }
 
   return results
 }
