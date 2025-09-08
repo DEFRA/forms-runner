@@ -82,7 +82,7 @@ export async function getSaveAndExitDetails(magicLinkId) {
 }
 
 /**
- * Retrieves a save-and-exit record from the form submission api for a given magic link
+ * Validates correct password for a save-and-exit record from the form submission api for a given magic link
  * @param {string} magicLinkId - the id of the magic link
  * @param {string} securityAnswer - the security answer provided by the user
  */
