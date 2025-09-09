@@ -286,6 +286,11 @@ export const config = convict({
     format: String,
     default: '',
     env: 'GOOGLE_ANALYTICS_TRACKING_ID'
+  },
+  saveAndExitExpiryDays: {
+    format: Number,
+    default: 30,
+    env: 'SAVE_AND_EXIT_EXPIRY_IN_DAYS'
   }
 })
 

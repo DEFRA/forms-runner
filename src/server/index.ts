@@ -1,9 +1,15 @@
 import { join, parse } from 'path'
 
 import plugin from '@defra/forms-engine-plugin'
+import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { FormModel } from '@defra/forms-engine-plugin/engine/models/FormModel.js'
-import { type PluginOptions } from '@defra/forms-engine-plugin/engine/types.js'
 import { formSubmissionService } from '@defra/forms-engine-plugin/services/index.js'
+import {
+  type FormContext,
+  type FormRequestPayload,
+  type FormResponseToolkit,
+  type PluginOptions
+} from '@defra/forms-engine-plugin/types'
 import { type FormDefinition } from '@defra/forms-model'
 import { Engine as CatboxMemory } from '@hapi/catbox-memory'
 import { Engine as CatboxRedis } from '@hapi/catbox-redis'
@@ -129,7 +135,7 @@ export const configureEnginePlugin = async ({
   const pluginObject = {
     plugin,
     options: {
-      cacheName: 'session',
+      cache: 'session',
       nunjucks: {
         baseLayoutPath: 'layout.html',
         paths
@@ -137,7 +143,22 @@ export const configureEnginePlugin = async ({
       model,
       services,
       viewContext: context,
-      baseUrl: config.get('baseUrl')
+      baseUrl: config.get('baseUrl'),
+      saveAndExit: (
+        request: FormRequestPayload,
+        h: FormResponseToolkit,
+        _context: FormContext
+      ) => {
+        const { params } = request
+        const { slug } = params
+        const { isPreview, state } = checkFormStatus(params)
+
+        return h.redirect(
+          !isPreview
+            ? `/save-and-exit/${slug}`
+            : `/save-and-exit/${slug}/${state}`
+        )
+      }
     }
   }
   const routeOptions = {

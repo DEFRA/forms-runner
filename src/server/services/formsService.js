@@ -1,18 +1,42 @@
+import { FormStatus } from '@defra/forms-engine-plugin/types'
 import { formMetadataSchema } from '@defra/forms-model'
 
 import { config } from '~/src/config/index.js'
-import { FormStatus } from '~/src/server/routes/types.js'
-import { getJson } from '~/src/server/services/httpService.js'
+import { getJson, postJson } from '~/src/server/services/httpService.js'
+
+const managerUrl = config.get('managerUrl')
+const submissionUrl = config.get('submissionUrl')
 
 /**
- * Retrieves a form definition from the form manager for a given slug
+ * Retrieves a form metadata from the form manager for a given slug
  * @param {string} slug - the slug of the form
  */
 export async function getFormMetadata(slug) {
   const getJsonByType = /** @type {typeof getJson<FormMetadata>} */ (getJson)
 
   const { payload: metadata } = await getJsonByType(
-    `${config.get('managerUrl')}/forms/slug/${slug}`
+    `${managerUrl}/forms/slug/${slug}`
+  )
+
+  // Run it through the schema to coerce dates
+  const result = formMetadataSchema.validate(metadata)
+
+  if (result.error) {
+    throw result.error
+  }
+
+  return result.value
+}
+
+/**
+ * Retrieves a form metadata from the form manager for a given form id
+ * @param {string} formId - the slug of the form
+ */
+export async function getFormMetadataById(formId) {
+  const getJsonByType = /** @type {typeof getJson<FormMetadata>} */ (getJson)
+
+  const { payload: metadata } = await getJsonByType(
+    `${managerUrl}/forms/${formId}`
   )
 
   // Run it through the schema to coerce dates
@@ -35,12 +59,59 @@ export async function getFormDefinition(id, state) {
 
   const suffix = state === FormStatus.Draft ? `/${state}` : ''
   const { payload: definition } = await getJsonByType(
-    `${config.get('managerUrl')}/forms/${id}/definition${suffix}`
+    `${managerUrl}/forms/${id}/definition${suffix}`
   )
 
   return definition
 }
 
 /**
+ * Retrieves a save-and-exit record from the form submission api for a given magic link
+ * @param {string} magicLinkId - the id of the magic link
+ */
+export async function getSaveAndExitDetails(magicLinkId) {
+  const getJsonByType = /** @type {typeof getJson<SaveAndExitDetails>} */ (
+    getJson
+  )
+
+  const { payload: results } = await getJsonByType(
+    `${submissionUrl}/save-and-exit/${magicLinkId}`
+  )
+
+  return results
+}
+
+/**
+ * Validates correct password for a save-and-exit record from the form submission api for a given magic link
+ * @param {string} magicLinkId - the id of the magic link
+ * @param {string} securityAnswer - the security answer provided by the user
+ */
+export async function validateSaveAndExitCredentials(
+  magicLinkId,
+  securityAnswer
+) {
+  const postJsonByType =
+    /** @type {typeof postJson<SaveAndExitResumeDetails>} */ (postJson)
+
+  const { payload: results } = await postJsonByType(
+    `${submissionUrl}/save-and-exit/${magicLinkId}`,
+    {
+      payload: {
+        securityAnswer
+      }
+    }
+  )
+
+  if (!results) {
+    throw new Error(
+      'Unexpected empty response in validateSaveAndExitCredentials'
+    )
+  }
+
+  return results
+}
+
+/**
  * @import { FormDefinition, FormMetadata } from '@defra/forms-model'
+ * @import { SaveAndExitDetails, SaveAndExitResumeDetails } from '~/src/server/types.js'
  */

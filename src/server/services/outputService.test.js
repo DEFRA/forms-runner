@@ -1,8 +1,8 @@
 import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { getFormatter } from '@defra/forms-engine-plugin/engine/outputFormatters/index.js'
+import { FormStatus } from '@defra/forms-engine-plugin/types'
 
 import { publishFormAdapterEvent } from '~/src/server/messaging/formAdapterEventPublisher.js'
-import { FormStatus } from '~/src/server/routes/types.js'
 import {
   OutputService,
   createOutputService
@@ -504,5 +504,5 @@ describe('OutputService', () => {
  * @import { FormModel } from '@defra/forms-engine-plugin/engine/models/FormModel.js'
  * @import { DetailItem } from '@defra/forms-engine-plugin/engine/models/types.js'
  * @import { SubmitResponsePayload, FormMetadata } from '@defra/forms-model'
- * @import { FormRequestPayload } from '~/src/server/routes/types.js'
+ * @import { FormRequestPayload } from '@defra/forms-engine-plugin/types'
  */

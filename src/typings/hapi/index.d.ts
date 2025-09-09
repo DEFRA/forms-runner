@@ -5,10 +5,6 @@ import { type Plugin } from '@hapi/hapi'
 import { type ServerYar, type Yar } from '@hapi/yar'
 import { type Logger } from 'pino'
 
-import {
-  type FormRequest,
-  type FormRequestPayload
-} from '~/src/server/routes/types.js'
 import { type CacheService } from '~/src/server/services/index.js'
 
 declare module '@hapi/hapi' {
@@ -16,7 +12,7 @@ declare module '@hapi/hapi' {
   // props from plugins which doesn't export @types
   interface PluginProperties {
     crumb: {
-      generate?: (request: Request | FormRequest | FormRequestPayload) => string
+      generate?: (request: Request) => string
     }
   }
 

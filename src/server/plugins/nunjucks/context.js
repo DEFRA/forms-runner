@@ -20,7 +20,7 @@ const logger = createLogger()
 let webpackManifest
 
 /**
- * @param {FormRequest | FormRequestPayload | null} request
+ * @param {AnyFormRequest | null} request
  */
 export function context(request) {
   const manifestPath = join(config.get('publicDir'), 'assets-manifest.json')
@@ -85,5 +85,5 @@ export function context(request) {
 
 /**
  * @import { ViewContext } from '~/src/server/plugins/nunjucks/types.js'
- * @import { FormRequest, FormRequestPayload } from '~/src/server/routes/types.js'
+ * @import { AnyFormRequest } from '@defra/forms-engine-plugin/types'
  */
