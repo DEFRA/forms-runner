@@ -5,7 +5,6 @@ import { type Plugin } from '@hapi/hapi'
 import { type ServerYar, type Yar } from '@hapi/yar'
 import { type Logger } from 'pino'
 
-import {} from '~/src/server/routes/types.js'
 import { type CacheService } from '~/src/server/services/index.js'
 
 declare module '@hapi/hapi' {
