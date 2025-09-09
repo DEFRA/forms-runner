@@ -343,10 +343,17 @@ export function confirmationViewModel(metadata, email, status) {
  * The save and exit password form view model
  * @param {string} formTitle
  * @param {SecurityQuestionsEnum} securityQuestion - the security question
+ * @param {number} attemptsLeft
  * @param {SaveAndExitResumePasswordPayload} [payload]
  * @param {Error} [err]
  */
-export function passwordViewModel(formTitle, securityQuestion, payload, err) {
+export function passwordViewModel(
+  formTitle,
+  securityQuestion,
+  attemptsLeft,
+  payload,
+  err
+) {
   const pageTitle = 'Continue with your form'
   const { errors, securityAnswerError } = buildErrors(err)
 
@@ -376,6 +383,7 @@ export function passwordViewModel(formTitle, securityQuestion, payload, err) {
     pageTitle,
     errors,
     fields,
+    attemptsLeft,
     buttons: { continueButton }
   }
 }
@@ -413,10 +421,12 @@ export function createInvalidPasswordError(attemptsRemaining) {
  * The save and exit form view model when user is locked out
  * @param {FormMetadata} form
  * @param {SaveAndExitResumeDetails} validatedLink
+ * @param {number} maxPasswordAttempts
  */
-export function lockedOutViewModel(form, validatedLink) {
+export function lockedOutViewModel(form, validatedLink, maxPasswordAttempts) {
   return {
     name: form.title,
+    maxPasswordAttempts,
     buttons: {
       continueButton: {
         text: 'Start form again',

@@ -339,7 +339,7 @@ describe('Save-and-exit check routes', () => {
       expect($mastheadHeading).toBeInTheDocument()
       expect(createJoiError).toHaveBeenCalledWith(
         'securityAnswer',
-        'Your answer is incorrect. You have 2 attempts remaining.'
+        'Your answer is incorrect. You have 4 attempts remaining.'
       )
     })
 
@@ -353,7 +353,7 @@ describe('Save-and-exit check routes', () => {
         })
       jest.mocked(validateSaveAndExitCredentials).mockResolvedValueOnce({
         validPassword: false,
-        invalidPasswordAttempts: 3,
+        invalidPasswordAttempts: 5,
         // @ts-expect-error - allow partial objects for tests
         form: {
           id: FORM_ID
@@ -377,7 +377,7 @@ describe('Save-and-exit check routes', () => {
       )
       expect($mastheadHeading).toBeInTheDocument()
       const $errorMessage = container.getByText(
-        'The answer to your security question was incorrect 3 times. You have run out of attempts to resume your form.'
+        'The answer to your security question was incorrect 5 times. You have run out of attempts to resume your form.'
       )
       expect($errorMessage).toBeInTheDocument()
     })

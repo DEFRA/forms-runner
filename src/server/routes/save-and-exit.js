@@ -29,7 +29,7 @@ import {
 } from '~/src/server/services/formsService.js'
 const logger = createLogger()
 
-const maxInvalidPasswordAttempts = 3
+const maxInvalidPasswordAttempts = 5
 
 const ERROR_BASE_URL = '/resume-form-error'
 
@@ -38,6 +38,13 @@ const RESUME_ERROR = 'save-and-exit/resume-error'
 const RESUME_ERROR_LOCKED = 'save-and-exit/resume-error-locked'
 const RESUME_PASSWORD_PATH = 'save-and-exit/resume-password'
 const RESUME_SUCCESS = 'save-and-exit/resume-success'
+
+/**
+ * @param {number} attemptsSoFar
+ */
+export function getPasswordAttemptsLeft(attemptsSoFar) {
+  return maxInvalidPasswordAttempts - attemptsSoFar
+}
 
 export default [
   /**
@@ -238,7 +245,11 @@ export default [
         return h.redirect(ERROR_BASE_URL)
       }
 
-      const model = passwordViewModel(form.title, resumeDetails.question)
+      const model = passwordViewModel(
+        form.title,
+        resumeDetails.question,
+        getPasswordAttemptsLeft(resumeDetails.invalidPasswordAttempts)
+      )
 
       return h.view(RESUME_PASSWORD_PATH, model)
     },
@@ -303,8 +314,9 @@ export default [
         return h.redirect(`/resume-form-success/${form.slug}${slugAndState}`)
       }
 
-      const attemptsRemaining =
-        maxInvalidPasswordAttempts - validatedLink.invalidPasswordAttempts
+      const attemptsRemaining = getPasswordAttemptsLeft(
+        validatedLink.invalidPasswordAttempts
+      )
       if (attemptsRemaining > 0) {
         // User has more password attempts left
         logger.info(
@@ -315,6 +327,7 @@ export default [
         const model = passwordViewModel(
           form.title,
           validatedLink.question,
+          attemptsRemaining,
           undefined,
           error
         )
@@ -322,7 +335,11 @@ export default [
         return h.view(RESUME_PASSWORD_PATH, model)
       } else {
         // Locked out
-        const model = lockedOutViewModel(form, validatedLink)
+        const model = lockedOutViewModel(
+          form,
+          validatedLink,
+          maxInvalidPasswordAttempts
+        )
         return h.view(RESUME_ERROR_LOCKED, model)
       }
     },
@@ -348,6 +365,7 @@ export default [
           const model = passwordViewModel(
             form.title,
             resumeDetails.question,
+            getPasswordAttemptsLeft(resumeDetails.invalidPasswordAttempts),
             payload,
             error
           )
