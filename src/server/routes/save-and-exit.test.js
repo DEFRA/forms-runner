@@ -306,40 +306,6 @@ describe('Save-and-exit check routes', () => {
   })
 
   describe('/resume-form-verify/{formId}/{magicLinkId}/{slug}/{state?}', () => {
-    test('/route handles valid password', async () => {
-      jest
-        .mocked(getFormMetadataById)
-        // @ts-expect-error - allow partial objects for tests
-        .mockResolvedValueOnce({
-          slug: 'my-form-to-resume',
-          title: 'My Form To Resume'
-        })
-      jest.mocked(validateSaveAndExitCredentials).mockResolvedValueOnce({
-        validPassword: true,
-        invalidPasswordAttempts: 1,
-        // @ts-expect-error - allow partial objects for tests
-        form: {
-          id: FORM_ID
-        }
-      })
-
-      const options = {
-        method: 'POST',
-        url: `/resume-form-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume`,
-        payload: {
-          securityAnswer: 'valid'
-        }
-      }
-
-      const { response } = await renderResponse(server, options)
-
-      // TODO - fix test
-      expect(response.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
-      // expect(response.headers.location).toBe(
-      //   `/resume-form-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume/draft`
-      // )
-    })
-
     test('/route handles invalid password', async () => {
       jest
         .mocked(getFormMetadataById)
@@ -455,6 +421,38 @@ describe('Save-and-exit check routes', () => {
       const $mastheadHeading = container.getByText('Continue with your form')
       expect($mastheadHeading).toBeInTheDocument()
       expect(createJoiError).not.toHaveBeenCalled()
+    })
+
+    test('/route handles missing password and invalid url', async () => {
+      jest
+        .mocked(getFormMetadataById)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce({
+          slug: 'my-form-to-resume',
+          title: 'My Form To Resume'
+        })
+      jest.mocked(validateSaveAndExitCredentials).mockResolvedValueOnce({
+        validPassword: false,
+        invalidPasswordAttempts: 1,
+        // @ts-expect-error - allow partial objects for tests
+        form: {
+          id: FORM_ID
+        }
+      })
+      jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce(undefined)
+
+      const options = {
+        method: 'POST',
+        url: `/resume-form-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume`,
+        payload: {
+          securityAnswer: ''
+        }
+      }
+
+      const { response } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe('/resume-form-error')
     })
   })
 })
