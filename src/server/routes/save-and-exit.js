@@ -59,7 +59,7 @@ export default [
       const metadata = await getFormMetadata(slug)
       const model = detailsViewModel(metadata, status)
 
-      return h.view('save-and-exit-details', model)
+      return h.view('save-and-exit/details', model)
     },
     options: {
       validate: {
@@ -120,7 +120,7 @@ export default [
             err
           )
 
-          return h.view('save-and-exit-details', model).takeover()
+          return h.view('save-and-exit/details', model).takeover()
         },
         params: paramsSchema,
         payload: payloadSchema
@@ -148,7 +148,7 @@ export default [
       const email = messages[0]
       const model = confirmationViewModel(metadata, email, status)
 
-      return h.view('save-and-exit-confirmation', model)
+      return h.view('save-and-exit/confirmation', model)
     },
     options: {
       validate: {
