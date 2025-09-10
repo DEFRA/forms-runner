@@ -454,6 +454,8 @@ export function constructFormUrl(slug, status) {
  * @param {FormStatus} [status]
  */
 export function resumeSuccessViewModel(form, status) {
+  const pageTitle = 'Welcome back to your form'
+
   // Model buttons
   const continueButton = {
     text: 'Resume form',
@@ -461,6 +463,7 @@ export function resumeSuccessViewModel(form, status) {
   }
 
   return {
+    pageTitle,
     name: form.title,
     buttons: { continueButton }
   }
