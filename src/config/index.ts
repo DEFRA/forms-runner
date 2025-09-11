@@ -289,7 +289,7 @@ export const config = convict({
   },
   saveAndExitExpiryDays: {
     format: Number,
-    default: 30,
+    default: 28,
     env: 'SAVE_AND_EXIT_EXPIRY_IN_DAYS'
   }
 })
