@@ -1,5 +1,9 @@
 import { crumbSchema, stateSchema } from '@defra/forms-engine-plugin/schema.js'
-import { SecurityQuestionsEnum, slugSchema } from '@defra/forms-model'
+import {
+  ControllerPath,
+  SecurityQuestionsEnum,
+  slugSchema
+} from '@defra/forms-model'
 import Joi from 'joi'
 
 import { config } from '~/src/config/index.js'
@@ -183,6 +187,25 @@ function buildSecurityAnswerField(payload, error) {
   }
 }
 
+/**
+ * @param {string} slug
+ * @param {FormStatus} [status]
+ */
+function constructFormUrl(slug, status) {
+  if (!status) {
+    return `${FORM_PREFIX}/${slug}`
+  }
+
+  return `${FORM_PREFIX}/preview/${status}/${slug}`
+}
+
+/**
+ * @param {string} formPath
+ */
+function constructFormSummaryUrl(formPath) {
+  return `${formPath}${ControllerPath.Summary}`
+}
+
 export const securityAnswerSchema = Joi.string()
   .min(MIN_PASSWORD_LENGTH)
   .max(MAX_PASSWORD_LENGTH)
@@ -269,9 +292,10 @@ export function getKey(slug, state) {
 export function detailsViewModel(metadata, status, payload, err) {
   const { slug, title } = metadata
   const formPath = constructFormUrl(slug, status)
+  const formSummaryPath = constructFormSummaryUrl(formPath)
 
   const backLink = {
-    href: formPath
+    href: formSummaryPath
   }
 
   const {
@@ -306,7 +330,7 @@ export function detailsViewModel(metadata, status, payload, err) {
   const cancelButton = {
     text: 'Cancel',
     classes: 'govuk-button--secondary',
-    href: formPath
+    href: formSummaryPath
   }
 
   return {
@@ -437,34 +461,25 @@ export function lockedOutViewModel(form, validatedLink, maxPasswordAttempts) {
 }
 
 /**
- * @param {string} slug
- * @param {FormStatus} [status]
- */
-export function constructFormUrl(slug, status) {
-  if (!status) {
-    return `${FORM_PREFIX}/${slug}`
-  }
-
-  return `${FORM_PREFIX}/preview/${status}/${slug}`
-}
-
-/**
  * The save and exit success form view model
  * @param {FormMetadata} form
  * @param {FormStatus} [status]
  */
 export function resumeSuccessViewModel(form, status) {
   const pageTitle = 'Welcome back to your form'
+  const formPath = constructFormUrl(form.slug, status)
+  const formSummaryPath = constructFormSummaryUrl(formPath)
 
   // Model buttons
   const continueButton = {
     text: 'Resume form',
-    href: constructFormUrl(form.slug, status)
+    href: formSummaryPath
   }
 
   return {
     pageTitle,
     name: form.title,
+    serviceUrl: formPath,
     buttons: { continueButton }
   }
 }

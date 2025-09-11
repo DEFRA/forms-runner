@@ -269,7 +269,7 @@ describe('Save-and-exit check routes', () => {
 
       expect($mastheadHeading).toBeInTheDocument()
       expect($button).toBeInTheDocument()
-      expect($button).toHaveAttribute('href', '/form/my-form-to-resume')
+      expect($button).toHaveAttribute('href', '/form/my-form-to-resume/summary')
     })
 
     test('/route renders page with slug', async () => {
@@ -300,7 +300,7 @@ describe('Save-and-exit check routes', () => {
       expect($button).toBeInTheDocument()
       expect($button).toHaveAttribute(
         'href',
-        '/form/preview/draft/my-form-to-resume'
+        '/form/preview/draft/my-form-to-resume/summary'
       )
     })
   })
