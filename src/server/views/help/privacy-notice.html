@@ -39,10 +39,11 @@
       <p class="govuk-body">If you email us feedback about a form that uses <strong>{{ config.serviceName }}</strong>, we’ll send your email address and any other personal information you choose to include in your email to the controller for review. The controller may use your personal data to reply to your query to update a form based on your feedback where it is appropriate.</p>
 
       <h3 class="govuk-heading-m">Save and return to a form</h3>
-      <p class="govuk-body">You can save your form progress and return within {{ saveAndExitExpiryDays }} days. When saving your progress we ask you for:</p>
+      <p class="govuk-body">You can save your form progress and return within {{ saveAndExitExpiryDays }} days. When saving your progress, you need to tell us:</p>
       <ul class="govuk-list govuk-list--bullet">
         <li>your email address</li>
-        <li>an answer to a security question</li>
+        <li>the security question you want to answer</li>
+        <li>the answer to the security question</li>
       </ul>
 
       <h2 class="govuk-heading-m">Lawful basis for processing your personal data</h2>
@@ -52,7 +53,7 @@
       <p class="govuk-body">We use cookies to make this form work. Read about the <a href="/help/cookies/{{ slug }}" class="govuk-link">cookies we use to make this form work</a>.</p>
 
       <h2 class="govuk-heading-m">How long we keep your data</h2>
-      <p class="govuk-body">Defra will keep tracking cookies on your device for up to 1 year.</p>
+      <p class="govuk-body"><strong>{{ config.serviceName }}</strong> does not store your data unless you decide to save your form to return to later. If you decide to save your form to return to later, we store your data securely for {{ saveAndExitExpiryDays }} days.</p>
 
       <h2 class="govuk-heading-m">Transfer of your personal data outside of the UK</h2>
       <p class="govuk-body">We will only transfer your personal data to another country that is deemed adequate for data protection purposes.</p>
@@ -75,7 +76,7 @@
 
       <h2 class="govuk-heading-m">Personal information charter</h2>
       <p class="govuk-body">Our <a href="https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs/about/personal-information-charter" class="govuk-link">personal information charter</a> explains more about your rights over your personal data.</p>
-      <p class="govuk-body">Last updated: 29 August 2025</p>
+      <p class="govuk-body">Last updated: 11 September 2025</p>
     </div>
   </div>
 {% endblock %}
