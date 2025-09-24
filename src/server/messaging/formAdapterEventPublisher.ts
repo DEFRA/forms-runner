@@ -60,8 +60,7 @@ export async function publishFormAdapterEvent(
   const result = await snsClient.send(
     new PublishCommand({
       TopicArn: snsAdapterTopicArn,
-      Message: JSON.stringify(validatedPayload),
-      Subject: `Form submission: ${validatedPayload.meta.formName}`
+      Message: JSON.stringify(validatedPayload)
     })
   )
 
