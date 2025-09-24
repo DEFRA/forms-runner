@@ -82,13 +82,13 @@ export class OutputService implements IOutputService {
       logger.info(
         `Form submission notification published - ref: ${payloadRef}, formId: ${formId}, email: ${notificationEmail}, messageId: ${messageId}`
       )
-    } catch (error) {
+    } catch (err) {
       logger.error(
-        error,
+        err,
         `Failed to publish form submission notification - ref: ${submissionRef}, form: ${model.name}, id: ${formMetadata?.id}`
       )
 
-      throw error
+      throw err
     }
   }
 }

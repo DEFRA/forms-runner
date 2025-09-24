@@ -63,9 +63,11 @@ export function buildRedisClient() {
     )
   })
 
-  redisClient.on('error', (error) => {
-    const err = getErrorMessage(error)
-    logger.error(err, `[redisConnectionError] Redis connection error - ${err}`)
+  redisClient.on('error', (err) => {
+    logger.error(
+      err,
+      `[redisConnectionError] Redis connection error - ${getErrorMessage(err)}`
+    )
   })
 
   return redisClient

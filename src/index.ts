@@ -6,11 +6,13 @@ import { createServer } from '~/src/server/index.js'
 
 const logger = createLogger()
 
-process.on('unhandledRejection', (error) => {
-  const err = getErrorMessage(error)
+process.on('unhandledRejection', (err) => {
   logger.info('Unhandled rejection')
-  logger.error(err, `[unhandledRejection] Unhandled promise rejection: ${err}`)
-  throw error
+  logger.error(
+    err,
+    `[unhandledRejection] Unhandled promise rejection: ${getErrorMessage(err)}`
+  )
+  throw err
 })
 
 /**
