@@ -454,7 +454,10 @@ export function lockedOutViewModel(form, validatedLink, maxPasswordAttempts) {
     buttons: {
       continueButton: {
         text: 'Start form again',
-        href: constructFormUrl(form.slug, validatedLink.form.status)
+        href: constructFormUrl(
+          form.slug,
+          validatedLink.form.isPreview ? validatedLink.form.status : undefined
+        )
       }
     }
   }
