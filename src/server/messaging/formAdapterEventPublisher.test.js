@@ -75,8 +75,7 @@ describe('formAdapterEventPublisher', () => {
       expect(getSNSClient).toHaveBeenCalled()
       expect(PublishCommand).toHaveBeenCalledWith({
         TopicArn: 'arn:aws:sns:eu-west-2:123456789012:test-adapter-topic',
-        Message: JSON.stringify(mockPayload),
-        Subject: 'Form submission: Test Form'
+        Message: JSON.stringify(mockPayload)
       })
       expect(mockSnsClient.send).toHaveBeenCalledWith(
         expect.any(PublishCommand)
@@ -104,27 +103,6 @@ describe('formAdapterEventPublisher', () => {
 
       expect(getSNSClient).toHaveBeenCalled()
       expect(mockSnsClient.send).toHaveBeenCalled()
-    })
-
-    it('uses correct subject format with form name', async () => {
-      mockSnsClient.send.mockResolvedValue({ MessageId: 'msg-456' })
-
-      const customPayload =
-        /** @type {FormAdapterSubmissionMessagePayload} */ ({
-          ...mockPayload,
-          meta: {
-            ...mockPayload.meta,
-            formName: 'Special & Characters Form!'
-          }
-        })
-
-      await publishFormAdapterEvent(customPayload)
-
-      expect(PublishCommand).toHaveBeenCalledWith(
-        expect.objectContaining({
-          Subject: 'Form submission: Special & Characters Form!'
-        })
-      )
     })
 
     it('serializes entire payload as JSON message', async () => {
