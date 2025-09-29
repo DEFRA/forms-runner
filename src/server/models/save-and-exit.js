@@ -38,7 +38,7 @@ const securityQuestions = [
     value: SecurityQuestionsEnum.CharacterName
   },
   {
-    text: 'What album or song to you always recommend to others?',
+    text: 'What album or song do you always recommend to others?',
     value: SecurityQuestionsEnum.AudioRecommendation
   }
 ]
