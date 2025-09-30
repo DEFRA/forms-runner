@@ -59,6 +59,9 @@ export default [
       const metadata = await getFormMetadata(slug)
       const model = detailsViewModel(metadata, status)
 
+      // Clear any previous save and exit session state
+      request.yar.clear(getKey(slug, status))
+
       return h.view('save-and-exit/details', model)
     },
     options: {
@@ -99,8 +102,8 @@ export default [
       // Clear all form data
       await cacheService.clearState(request)
 
-      // Flash the email over to the confirmation page
-      request.yar.flash(getKey(slug, status), email)
+      // Add email to session for the confirmation page
+      request.yar.set(getKey(slug, status), email)
 
       // Redirect to the save and exit confirmation page
       const statusPath = status ? `/${status}` : ''
@@ -138,14 +141,13 @@ export default [
       const { slug, state: status } = params
       const metadata = await getFormMetadata(slug)
 
-      // Get the flashed email
-      const messages = request.yar.flash(getKey(slug, status))
+      // Get the email from session
+      const email = request.yar.get(getKey(slug, status))
 
-      if (messages.length === 0) {
-        return Boom.badRequest('No email found in flash cache')
+      if (!email) {
+        return Boom.badRequest('No email found in session cache')
       }
 
-      const email = messages[0]
       const model = confirmationViewModel(metadata, email, status)
 
       return h.view('save-and-exit/confirmation', model)
