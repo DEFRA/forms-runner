@@ -29,7 +29,9 @@ export class OutputService implements IOutputService {
    * @param context - Form context from engine
    * @param request - Form request payload
    * @param model - Form model
-   * @param emailAddresses: - { submissionEmailAddress: string, userConfirmationEmailAddress: string } - Email address (ignored)
+   * @param options - availableoptions
+   * @param options.submissionEmailAddress - email address for submission to be sent to
+   * @param options.userConfirmationEmailAddress - email address for user confirmation to be sent to
    * @param items - Detail items from submission
    * @param submitResponse - Response from forms-submission-api
    * @param formMetadata - Form metadata (optional)
@@ -38,8 +40,8 @@ export class OutputService implements IOutputService {
     context: FormContext,
     request: FormRequestPayload,
     model: FormModel,
-    emailAddresses: {
-      submissionEmailAddress: string
+    options: {
+      submissionEmailAddress?: string
       userConfirmationEmailAddress?: string
     },
     items: DetailItem[],
@@ -78,6 +80,11 @@ export class OutputService implements IOutputService {
           `Skipping form submission notification - no notification email configured - ref: ${payloadRef}, formId: ${formId}`
         )
         return
+      }
+
+      const confirmationEmail = options.userConfirmationEmailAddress
+      if (confirmationEmail) {
+        submissionPayload.meta.userConfirmationEmail = confirmationEmail
       }
 
       const messageId = await publishFormAdapterEvent(submissionPayload)
