@@ -43,6 +43,8 @@ describe('OutputService', () => {
   /** @type {jest.Mock} */
   let mockFormatter
 
+  const emailAddresses = { submissionEmailAddress: 'test@example.com' }
+
   beforeEach(() => {
     jest.clearAllMocks()
 
@@ -129,7 +131,7 @@ describe('OutputService', () => {
         mockContext,
         mockRequest,
         mockModel,
-        'test@example.com',
+        emailAddresses,
         mockItems,
         mockSubmitResponse,
         mockFormMetadata
@@ -165,7 +167,7 @@ describe('OutputService', () => {
         mockContext,
         mockRequest,
         mockModel,
-        'test@example.com',
+        emailAddresses,
         mockItems,
         mockSubmitResponse
       )
@@ -194,7 +196,7 @@ describe('OutputService', () => {
           mockContext,
           mockRequest,
           mockModel,
-          'test@example.com',
+          emailAddresses,
           mockItems,
           mockSubmitResponse,
           mockFormMetadata
@@ -214,7 +216,7 @@ describe('OutputService', () => {
           mockContext,
           mockRequest,
           mockModel,
-          'test@example.com',
+          emailAddresses,
           mockItems,
           mockSubmitResponse,
           mockFormMetadata
@@ -247,7 +249,7 @@ describe('OutputService', () => {
           mockContext,
           mockRequest,
           mockModel,
-          'test@example.com',
+          emailAddresses,
           mockItems,
           mockSubmitResponse,
           mockFormMetadata
@@ -278,7 +280,7 @@ describe('OutputService', () => {
           mockContext,
           mockRequest,
           mockModel,
-          'test@example.com',
+          emailAddresses,
           mockItems,
           mockSubmitResponse
         )
@@ -309,7 +311,7 @@ describe('OutputService', () => {
         mockContext,
         mockRequest,
         mockModel,
-        'test@example.com',
+        emailAddresses,
         mockItems,
         mockSubmitResponse,
         mockFormMetadata
@@ -341,7 +343,7 @@ describe('OutputService', () => {
         mockContext,
         mockRequest,
         mockModel,
-        'different@email.com',
+        { submissionEmailAddress: 'different@email.com' },
         mockItems,
         mockSubmitResponse,
         mockFormMetadata
@@ -442,7 +444,7 @@ describe('OutputService', () => {
         mockContext,
         mockRequest,
         mockModel,
-        '',
+        { submissionEmailAddress: '' },
         mockItems,
         mockSubmitResponse,
         mockFormMetadata
@@ -471,7 +473,7 @@ describe('OutputService', () => {
         mockContext,
         mockRequest,
         mockModel,
-        'test@example.com',
+        emailAddresses,
         mockItems,
         mockSubmitResponse,
         mockFormMetadata

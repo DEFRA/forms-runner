@@ -29,7 +29,7 @@ export class OutputService implements IOutputService {
    * @param context - Form context from engine
    * @param request - Form request payload
    * @param model - Form model
-   * @param _emailAddress - Email address (ignored)
+   * @param emailAddresses: - { submissionEmailAddress: string, userConfirmationEmailAddress: string } - Email address (ignored)
    * @param items - Detail items from submission
    * @param submitResponse - Response from forms-submission-api
    * @param formMetadata - Form metadata (optional)
@@ -38,7 +38,10 @@ export class OutputService implements IOutputService {
     context: FormContext,
     request: FormRequestPayload,
     model: FormModel,
-    _emailAddress: string,
+    emailAddresses: {
+      submissionEmailAddress: string
+      userConfirmationEmailAddress?: string
+    },
     items: DetailItem[],
     submitResponse: SubmitResponsePayload,
     formMetadata?: FormMetadata
