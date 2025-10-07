@@ -22,7 +22,7 @@ export const CONFIRMATION_EMAIL_FIELD_NAME = 'userConfirmationEmailAddress'
 const schema = Joi.object().keys({
   crumb: crumbSchema,
   action: actionSchema,
-  userConfirmationEmailAddress: Joi.string().email().messages({
+  userConfirmationEmailAddress: Joi.string().email().allow('').messages({
     '*': 'Enter an email address in the correct format'
   })
 })
