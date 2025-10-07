@@ -43,7 +43,7 @@ describe('OutputService', () => {
   /** @type {jest.Mock} */
   let mockFormatter
 
-  const emailAddresses = { submissionEmailAddress: 'test@example.com' }
+  const options = { submissionEmailAddress: 'test@example.com' }
 
   beforeEach(() => {
     jest.clearAllMocks()
@@ -131,7 +131,7 @@ describe('OutputService', () => {
         mockContext,
         mockRequest,
         mockModel,
-        emailAddresses,
+        options,
         mockItems,
         mockSubmitResponse,
         mockFormMetadata
@@ -167,7 +167,7 @@ describe('OutputService', () => {
         mockContext,
         mockRequest,
         mockModel,
-        emailAddresses,
+        options,
         mockItems,
         mockSubmitResponse
       )
@@ -196,7 +196,7 @@ describe('OutputService', () => {
           mockContext,
           mockRequest,
           mockModel,
-          emailAddresses,
+          options,
           mockItems,
           mockSubmitResponse,
           mockFormMetadata
@@ -216,7 +216,7 @@ describe('OutputService', () => {
           mockContext,
           mockRequest,
           mockModel,
-          emailAddresses,
+          options,
           mockItems,
           mockSubmitResponse,
           mockFormMetadata
@@ -249,7 +249,7 @@ describe('OutputService', () => {
           mockContext,
           mockRequest,
           mockModel,
-          emailAddresses,
+          options,
           mockItems,
           mockSubmitResponse,
           mockFormMetadata
@@ -280,7 +280,7 @@ describe('OutputService', () => {
           mockContext,
           mockRequest,
           mockModel,
-          emailAddresses,
+          options,
           mockItems,
           mockSubmitResponse
         )
@@ -311,7 +311,7 @@ describe('OutputService', () => {
         mockContext,
         mockRequest,
         mockModel,
-        emailAddresses,
+        options,
         mockItems,
         mockSubmitResponse,
         mockFormMetadata
@@ -473,7 +473,7 @@ describe('OutputService', () => {
         mockContext,
         mockRequest,
         mockModel,
-        emailAddresses,
+        options,
         mockItems,
         mockSubmitResponse,
         mockFormMetadata
