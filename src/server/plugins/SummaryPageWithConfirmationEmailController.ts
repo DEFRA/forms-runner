@@ -8,11 +8,7 @@ import {
   type FormPayload,
   type FormSubmissionError
 } from '@defra/forms-engine-plugin/engine/types.js'
-import {
-  actionSchema,
-  crumbSchema,
-  userConfirmationEmailSchema
-} from '@defra/forms-engine-plugin/schema.js'
+import { actionSchema, crumbSchema } from '@defra/forms-engine-plugin/schema.js'
 import {
   FormAction,
   type FormRequestPayload,
@@ -26,7 +22,7 @@ export const CONFIRMATION_EMAIL_FIELD_NAME = 'userConfirmationEmailAddress'
 const schema = Joi.object().keys({
   crumb: crumbSchema,
   action: actionSchema,
-  userConfirmationEmailAddress: userConfirmationEmailSchema.messages({
+  userConfirmationEmailAddress: Joi.string().email().messages({
     '*': 'Enter an email address in the correct format'
   })
 })
@@ -80,7 +76,11 @@ export class SummaryPageWithConfirmationEmailController extends SummaryPageContr
         return h.view(viewName, viewModel)
       }
 
-      return this.handleFormSubmit(request, context, h)
+      return (this as unknown as SummaryPageController).handleFormSubmit(
+        request,
+        context,
+        h
+      )
     }
   }
 }
