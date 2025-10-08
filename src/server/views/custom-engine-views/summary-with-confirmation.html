@@ -1,0 +1,7 @@
+{% extends 'summary.html' %}
+
+{% block customPageContent %}
+  {% if userConfirmationEmailField %}
+    {{ govukInput(userConfirmationEmailField) }}
+  {% endif %}
+{% endblock %}

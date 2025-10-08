@@ -28,6 +28,8 @@ const schema = Joi.object().keys({
 })
 
 export class SummaryPageWithConfirmationEmailController extends SummaryPageController {
+  viewName = 'summary-with-confirmation'
+
   getSummaryViewModel(
     request: FormContextRequest,
     context: FormContext

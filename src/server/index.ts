@@ -139,7 +139,10 @@ export const configureEnginePlugin = async ({
       cache: 'session',
       nunjucks: {
         baseLayoutPath: 'layout.html',
-        paths
+        paths: [
+          ...paths,
+          join(config.get('appDir'), 'views', 'custom-engine-views')
+        ]
       },
       model,
       services,
