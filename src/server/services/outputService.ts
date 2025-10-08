@@ -77,8 +77,11 @@ export class OutputService implements IOutputService {
         return
       }
 
-      submissionPayload.meta.userConfirmationEmail =
-        request.payload?.userConfirmationEmailAddress
+      if (request.payload?.userConfirmationEmailAddress) {
+        submissionPayload.meta.custom = {
+          userConfirmationEmail: request.payload?.userConfirmationEmailAddress
+        }
+      }
 
       const messageId = await publishFormAdapterEvent(submissionPayload)
       logger.info(
