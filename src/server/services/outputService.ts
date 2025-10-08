@@ -29,9 +29,7 @@ export class OutputService implements IOutputService {
    * @param context - Form context from engine
    * @param request - Form request payload
    * @param model - Form model
-   * @param options - availableoptions
-   * @param options.submissionEmailAddress - email address for submission to be sent to
-   * @param options.userConfirmationEmailAddress - email address for user confirmation to be sent to
+   * @param emailAddress - email address for submission to be sent to
    * @param items - Detail items from submission
    * @param submitResponse - Response from forms-submission-api
    * @param formMetadata - Form metadata (optional)
@@ -40,10 +38,7 @@ export class OutputService implements IOutputService {
     context: FormContext,
     request: FormRequestPayload,
     model: FormModel,
-    options: {
-      submissionEmailAddress?: string
-      userConfirmationEmailAddress?: string
-    },
+    emailAddress: string,
     items: DetailItem[],
     submitResponse: SubmitResponsePayload,
     formMetadata?: FormMetadata
@@ -82,13 +77,10 @@ export class OutputService implements IOutputService {
         return
       }
 
-      const confirmationEmail = options.userConfirmationEmailAddress
-      if (confirmationEmail) {
-        submissionPayload.meta.userConfirmationEmail = confirmationEmail
-      }
+      submissionPayload.meta.userConfirmationEmail =
+        request.payload.userConfirmationEmailAddress
 
       const messageId = await publishFormAdapterEvent(submissionPayload)
-
       logger.info(
         `Form submission notification published - ref: ${payloadRef}, formId: ${formId}, email: ${notificationEmail}, messageId: ${messageId}`
       )
