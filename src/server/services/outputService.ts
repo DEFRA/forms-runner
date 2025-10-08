@@ -29,7 +29,7 @@ export class OutputService implements IOutputService {
    * @param context - Form context from engine
    * @param request - Form request payload
    * @param model - Form model
-   * @param emailAddress - email address for submission to be sent to
+   * @param _emailAddress - email address for submission to be sent to (not used)
    * @param items - Detail items from submission
    * @param submitResponse - Response from forms-submission-api
    * @param formMetadata - Form metadata (optional)
@@ -38,7 +38,7 @@ export class OutputService implements IOutputService {
     context: FormContext,
     request: FormRequestPayload,
     model: FormModel,
-    emailAddress: string,
+    _emailAddress: string,
     items: DetailItem[],
     submitResponse: SubmitResponsePayload,
     formMetadata?: FormMetadata
@@ -78,7 +78,7 @@ export class OutputService implements IOutputService {
       }
 
       submissionPayload.meta.userConfirmationEmail =
-        request.payload.userConfirmationEmailAddress
+        request.payload?.userConfirmationEmailAddress
 
       const messageId = await publishFormAdapterEvent(submissionPayload)
       logger.info(

@@ -85,7 +85,10 @@ describe('SummaryPageWithConfirmationEmailController', () => {
 
       const viewModel = controller.getSummaryViewModel(request, context)
 
-      expect(h.view).toHaveBeenCalledWith('summary', expect.anything())
+      expect(h.view).toHaveBeenCalledWith(
+        'summary-with-confirmation',
+        expect.anything()
+      )
       expect(viewModel.errors).toHaveLength(1)
       const errorText = viewModel.errors ? viewModel.errors[0].text : ''
       expect(errorText).toBe('"invalid" is not allowed')
