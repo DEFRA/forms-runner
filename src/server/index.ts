@@ -29,6 +29,7 @@ import { requestLogger } from '~/src/server/common/helpers/logging/request-logge
 import { requestTracing } from '~/src/server/common/helpers/logging/request-tracing.js'
 import { buildRedisClient } from '~/src/server/common/helpers/redis-client.js'
 import { FORM_PREFIX } from '~/src/server/constants.js'
+import { SummaryPageWithConfirmationEmailController } from '~/src/server/plugins/SummaryPageWithConfirmationEmailController.js'
 import { configureBlankiePlugin } from '~/src/server/plugins/blankie.js'
 import { configureCrumbPlugin } from '~/src/server/plugins/crumb.js'
 import pluginErrorPages from '~/src/server/plugins/errorPages.js'
@@ -138,7 +139,10 @@ export const configureEnginePlugin = async ({
       cache: 'session',
       nunjucks: {
         baseLayoutPath: 'layout.html',
-        paths
+        paths: [
+          ...paths,
+          join(config.get('appDir'), 'views', 'custom-engine-views')
+        ]
       },
       model,
       services,
@@ -158,6 +162,9 @@ export const configureEnginePlugin = async ({
             ? `/save-and-exit/${slug}`
             : `/save-and-exit/${slug}/${state}`
         )
+      },
+      controllers: {
+        SummaryPageWithConfirmationEmailController
       }
     }
   }

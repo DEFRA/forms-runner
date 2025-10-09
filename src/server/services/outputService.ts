@@ -29,7 +29,7 @@ export class OutputService implements IOutputService {
    * @param context - Form context from engine
    * @param request - Form request payload
    * @param model - Form model
-   * @param _emailAddress - Email address (ignored)
+   * @param _emailAddress - email address for submission to be sent to (not used)
    * @param items - Detail items from submission
    * @param submitResponse - Response from forms-submission-api
    * @param formMetadata - Form metadata (optional)
@@ -77,8 +77,13 @@ export class OutputService implements IOutputService {
         return
       }
 
-      const messageId = await publishFormAdapterEvent(submissionPayload)
+      if (request.payload?.userConfirmationEmailAddress) {
+        submissionPayload.meta.custom = {
+          userConfirmationEmail: request.payload?.userConfirmationEmailAddress
+        }
+      }
 
+      const messageId = await publishFormAdapterEvent(submissionPayload)
       logger.info(
         `Form submission notification published - ref: ${payloadRef}, formId: ${formId}, email: ${notificationEmail}, messageId: ${messageId}`
       )

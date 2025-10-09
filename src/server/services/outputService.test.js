@@ -148,6 +148,54 @@ describe('OutputService', () => {
       expect(publishFormAdapterEvent).toHaveBeenCalledWith(mockPayload)
     })
 
+    it('successfully processes form submission and publishes event with extra custom property', async () => {
+      const mockPayload = {
+        meta: {
+          formId: 'form-123',
+          referenceNumber: 'REF-123456',
+          formName: 'Test Form',
+          notificationEmail: 'notify@example.com'
+        },
+        data: mockItems
+      }
+
+      const mockRequestWithEmail = {
+        ...mockRequest,
+        payload: {
+          userConfirmationEmailAddress: 'my-email@test123.com'
+        }
+      }
+
+      mockFormatter.mockReturnValue(JSON.stringify(mockPayload))
+
+      await outputService.submit(
+        mockContext,
+        mockRequestWithEmail,
+        mockModel,
+        'test@example.com',
+        mockItems,
+        mockSubmitResponse,
+        mockFormMetadata
+      )
+
+      expect(checkFormStatus).toHaveBeenCalledWith(mockRequest.params)
+      expect(getFormatter).toHaveBeenCalledWith('adapter', '1')
+      expect(mockFormatter).toHaveBeenCalledWith(
+        mockContext,
+        mockItems,
+        mockModel,
+        mockSubmitResponse,
+        { isPreview: false, state: FormStatus.Live },
+        mockFormMetadata
+      )
+      const expectedPayload = structuredClone(mockPayload)
+      // @ts-expect-error - dynamic property
+      expectedPayload.meta.custom = {
+        userConfirmationEmail: 'my-email@test123.com'
+      }
+      expect(publishFormAdapterEvent).toHaveBeenCalledWith(expectedPayload)
+    })
+
     it('successfully processes form submission without form metadata', async () => {
       const mockPayload = {
         meta: {
@@ -341,7 +389,7 @@ describe('OutputService', () => {
         mockContext,
         mockRequest,
         mockModel,
-        'different@email.com',
+        'test@example.com',
         mockItems,
         mockSubmitResponse,
         mockFormMetadata
@@ -442,7 +490,7 @@ describe('OutputService', () => {
         mockContext,
         mockRequest,
         mockModel,
-        '',
+        'test@example.com',
         mockItems,
         mockSubmitResponse,
         mockFormMetadata
