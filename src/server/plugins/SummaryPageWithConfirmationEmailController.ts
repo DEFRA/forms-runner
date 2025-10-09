@@ -52,12 +52,14 @@ export class SummaryPageWithConfirmationEmailController extends SummaryPageContr
       context: FormContext,
       h: FormResponseToolkit
     ) => {
+      // Should not have to coerce the type - ticket to resolve later https://eaflood.atlassian.net/browse/DF-555
       const viewName = (this as unknown as PageController).viewName
       const { isForceAccess } = context
 
       // Check if this is a save-and-exit action
       const { action } = request.payload
       if (action === FormAction.SaveAndExit) {
+        // Should not have to coerce the type - ticket to resolve later https://eaflood.atlassian.net/browse/DF-555
         return (this as unknown as QuestionPageController).handleSaveAndExit(
           request,
           context,
@@ -71,6 +73,7 @@ export class SummaryPageWithConfirmationEmailController extends SummaryPageContr
        */
       const { error } = schema.validate(request.payload, { abortEarly: false })
       if (error || isForceAccess) {
+        // Should not have to coerce the type - ticket to resolve later https://eaflood.atlassian.net/browse/DF-555
         context.errors = (this as unknown as QuestionPageController).getErrors(
           error?.details
         )
@@ -78,6 +81,7 @@ export class SummaryPageWithConfirmationEmailController extends SummaryPageContr
         return h.view(viewName, viewModel)
       }
 
+      // Should not have to coerce the type - ticket to resolve later https://eaflood.atlassian.net/browse/DF-555
       return (this as unknown as SummaryPageController).handleFormSubmit(
         request,
         context,
