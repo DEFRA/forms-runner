@@ -295,7 +295,7 @@ export const config = convict({
   },
 
   ordnanceSurveyApiKey: {
-    doc: 'The ordnance survey api key use by the postcode lookup plugin',
+    doc: 'The ordnance survey api key used by the postcode lookup plugin',
     format: String,
     nullable: true,
     default: undefined,
