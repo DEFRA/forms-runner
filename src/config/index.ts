@@ -287,11 +287,20 @@ export const config = convict({
     default: '',
     env: 'GOOGLE_ANALYTICS_TRACKING_ID'
   },
+
   saveAndExitExpiryDays: {
     format: Number,
     default: 28,
     env: 'SAVE_AND_EXIT_EXPIRY_IN_DAYS'
-  }
+  },
+
+  ordnanceSurveyApiKey: {
+    doc: 'The ordnance survey api key used by the postcode lookup plugin',
+    format: String,
+    nullable: true,
+    default: undefined,
+    env: 'ORDNANCE_SURVEY_API_KEY'
+  } as SchemaObj<string | undefined>
 })
 
 config.validate({ allowed: 'strict' })
