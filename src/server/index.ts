@@ -10,7 +10,7 @@ import {
   type FormResponseToolkit,
   type PluginOptions
 } from '@defra/forms-engine-plugin/types'
-import { getErrorMessage, type FormDefinition } from '@defra/forms-model'
+import { type FormDefinition } from '@defra/forms-model'
 import { Engine as CatboxMemory } from '@hapi/catbox-memory'
 import { Engine as CatboxRedis } from '@hapi/catbox-redis'
 import hapi, {
@@ -25,6 +25,7 @@ import blipp from 'blipp'
 import { ProxyAgent } from 'proxy-agent'
 
 import { config } from '~/src/config/index.js'
+import forwardLogs from '~/src/server/common/helpers/logging/forward-logs.js'
 import { requestLogger } from '~/src/server/common/helpers/logging/request-logger.js'
 import { requestTracing } from '~/src/server/common/helpers/logging/request-tracing.js'
 import { buildRedisClient } from '~/src/server/common/helpers/redis-client.js'
@@ -180,6 +181,7 @@ export async function createServer(routeConfig?: RouteConfig) {
   const server = hapi.server(serverOptions())
 
   await server.register(requestLogger)
+  await server.register(forwardLogs)
 
   if (config.get('isProduction')) {
     prepareSecureContext(server)
@@ -216,24 +218,6 @@ export async function createServer(routeConfig?: RouteConfig) {
     }
 
     return h.continue
-  })
-
-  server.events.on('log', (event, tags) => {
-    if ('error' in tags) {
-      server.logger.error(event.error, getErrorMessage(event.error))
-      return
-    }
-
-    server.logger.info(event.data)
-  })
-
-  server.events.on('request', (request, event, tags) => {
-    if ('error' in tags) {
-      request.logger.error(event.error, getErrorMessage(event.error))
-      return
-    }
-
-    request.logger.info(event.data)
   })
 
   await server.register(pluginViews)
