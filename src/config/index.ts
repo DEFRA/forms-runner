@@ -55,7 +55,7 @@ export const config = convict({
   },
   enforceCsrf: {
     format: Boolean,
-    default: isProduction,
+    default: true,
     env: 'ENFORCE_CSRF'
   },
 
