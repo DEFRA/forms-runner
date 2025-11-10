@@ -18,7 +18,9 @@ describe('Save-and-exit check routes', () => {
   let server
 
   beforeAll(async () => {
-    server = await createServer()
+    server = await createServer({
+      enforceCsrf: false
+    })
     await server.initialize()
   })
 
