@@ -30,7 +30,8 @@ describe(`Cookie banner and analytics`, () => {
   ])('shows the cookie banner by default', async (path) => {
     server = await createServer({
       formFileName: 'basic.js',
-      formFilePath: join(import.meta.dirname, 'definitions')
+      formFilePath: join(import.meta.dirname, 'definitions'),
+      enforceCsrf: false
     })
     await server.initialize()
 
@@ -59,7 +60,8 @@ describe(`Cookie banner and analytics`, () => {
   ])('confirms when the user has accepted analytics cookies', async (path) => {
     server = await createServer({
       formFileName: 'basic.js',
-      formFilePath: join(import.meta.dirname, 'definitions')
+      formFilePath: join(import.meta.dirname, 'definitions'),
+      enforceCsrf: false
     })
 
     await server.initialize()
@@ -111,7 +113,8 @@ describe(`Cookie banner and analytics`, () => {
   ])('confirms when the user has rejected analytics cookies', async (path) => {
     server = await createServer({
       formFileName: 'basic.js',
-      formFilePath: join(import.meta.dirname, 'definitions')
+      formFilePath: join(import.meta.dirname, 'definitions'),
+      enforceCsrf: false
     })
 
     await server.initialize()
@@ -163,7 +166,8 @@ describe(`Cookie banner and analytics`, () => {
   ])('hides the cookie banner once dismissed', async (path) => {
     server = await createServer({
       formFileName: 'basic.js',
-      formFilePath: join(import.meta.dirname, 'definitions')
+      formFilePath: join(import.meta.dirname, 'definitions'),
+      enforceCsrf: false
     })
 
     await server.initialize()
@@ -220,7 +224,8 @@ describe(`Cookie preferences`, () => {
     async ({ text, value }) => {
       server = await createServer({
         formFileName: 'basic.js',
-        formFilePath: join(import.meta.dirname, 'definitions')
+        formFilePath: join(import.meta.dirname, 'definitions'),
+        enforceCsrf: false
       })
       await server.initialize()
 
@@ -266,7 +271,8 @@ describe(`Cookie preferences`, () => {
   test("doesn't show the success banner if the user hasn't been posted from the cookie preferences page", async () => {
     server = await createServer({
       formFileName: 'basic.js',
-      formFilePath: join(import.meta.dirname, 'definitions')
+      formFilePath: join(import.meta.dirname, 'definitions'),
+      enforceCsrf: false
     })
     await server.initialize()
 
@@ -308,7 +314,8 @@ describe(`Cookie preferences`, () => {
   test('defaults to no if one is not provided', async () => {
     server = await createServer({
       formFileName: 'basic.js',
-      formFilePath: join(import.meta.dirname, 'definitions')
+      formFilePath: join(import.meta.dirname, 'definitions'),
+      enforceCsrf: false
     })
     await server.initialize()
 
@@ -327,7 +334,8 @@ describe(`Cookie preferences`, () => {
   test('returns bad request for invalid redirect urls', async () => {
     server = await createServer({
       formFileName: 'basic.js',
-      formFilePath: join(import.meta.dirname, 'definitions')
+      formFilePath: join(import.meta.dirname, 'definitions'),
+      enforceCsrf: false
     })
     await server.initialize()
 

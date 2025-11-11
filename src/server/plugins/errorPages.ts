@@ -39,14 +39,6 @@ export default {
             return h.view('404', viewModel).code(statusCode)
           }
 
-          request.log('error', {
-            statusCode,
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            data: response.data,
-            message: response.message,
-            stack: response.stack
-          })
-
           const error = new Error(
             `HTTP ${statusCode} error: ${response.message}`
           )

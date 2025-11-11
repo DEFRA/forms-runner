@@ -20,7 +20,8 @@ describe('Save and exit', () => {
   beforeAll(async () => {
     server = await createServer({
       formFileName: 'basic.js',
-      formFilePath: join(import.meta.dirname, 'definitions')
+      formFilePath: join(import.meta.dirname, 'definitions'),
+      enforceCsrf: false
     })
 
     await server.initialize()
