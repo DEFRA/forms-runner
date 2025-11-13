@@ -131,7 +131,10 @@ export const configureEnginePlugin = async ({
 
     const initialBasePath = `${FORM_PREFIX}/${name}`
 
-    model = new FormModel(definition, { basePath: initialBasePath }, services)
+    model = new FormModel(definition, { basePath: initialBasePath }, services, {
+      // Custom controllers
+      SummaryPageWithConfirmationEmailController
+    })
   }
 
   const pluginObject = {
@@ -165,6 +168,7 @@ export const configureEnginePlugin = async ({
         )
       },
       controllers: {
+        // Custom controllers
         SummaryPageWithConfirmationEmailController
       },
       ordnanceSurveyApiKey: config.get('ordnanceSurveyApiKey')
