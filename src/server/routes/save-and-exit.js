@@ -142,7 +142,9 @@ export default [
       const metadata = await getFormMetadata(slug)
 
       // Get the email from session
-      const email = request.yar.get(getKey(slug, status))
+      const email = /** @type {string} */ (
+        request.yar.get(getKey(slug, status))
+      )
 
       if (!email) {
         return Boom.badRequest('No email found in session cache')
