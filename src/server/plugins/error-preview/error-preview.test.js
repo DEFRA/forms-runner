@@ -42,14 +42,14 @@ describe('Error preview route', () => {
       const $headings = container.getAllByRole('heading')
       const $links = container.getAllByRole('link')
 
-      expect($headings[2].textContent?.trim()).toBe('There is a problem')
+      expect($headings[2].textContent.trim()).toBe('There is a problem')
       expect($headings[2]).toHaveClass(
         'govuk-error-summary__title govuk-!-margin-bottom-2'
       )
 
       expect($links[4].textContent).toBe('Enter [short description]')
 
-      expect($headings[3].textContent?.trim()).toBe('If you set answer limits')
+      expect($headings[3].textContent.trim()).toBe('If you set answer limits')
       expect($headings[3]).toHaveClass(
         'govuk-error-summary__title govuk-!-margin-bottom-2'
       )

@@ -33,6 +33,6 @@ async function startServer() {
 startServer().catch((error: unknown) => {
   const err = getErrorMessage(error)
   logger.info('Server failed to start :(')
-  logger.error(err, `[serverStartup] Server failed to start: ${err}`)
+  logger.error(`[serverStartup] Server failed to start: ${err}`)
   throw error
 })
