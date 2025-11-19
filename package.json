@@ -54,7 +54,6 @@
     "@hapi/hoek": "^11.0.7",
     "@hapi/inert": "^7.1.0",
     "@hapi/jwt": "^3.2.1",
-    "@hapi/scooter": "^7.0.0",
     "@hapi/vision": "^7.0.3",
     "@hapi/wreck": "^18.1.0",
     "@hapi/yar": "^11.0.3",
