@@ -56,6 +56,14 @@ declare module '@hapipal/schmervice' {
   }
 }
 
+declare module '@hapi/scooter' {
+  declare const hapiScooter: {
+    plugin: Plugin
+  }
+
+  export = hapiScooter
+}
+
 declare module 'blankie' {
   declare const blankie: {
     plugin: Plugin<Record<string, boolean | string | string[]>>
