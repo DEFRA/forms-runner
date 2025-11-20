@@ -294,6 +294,18 @@ export const config = convict({
     env: 'SAVE_AND_EXIT_EXPIRY_IN_DAYS'
   },
 
+  storeCompletedApplicationsFor: {
+    format: String,
+    default: '9 months',
+    env: 'STORE_COMPLETED_APPLICATIONS_FOR'
+  },
+
+  storeFeedbackFor: {
+    format: String,
+    default: '9 months',
+    env: 'STORE_FEEDBACK_FOR'
+  },
+
   ordnanceSurveyApiKey: {
     doc: 'The ordnance survey api key used by the postcode lookup plugin',
     format: String,
