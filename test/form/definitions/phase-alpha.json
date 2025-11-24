@@ -24,9 +24,6 @@
   "sections": [],
   "conditions": [],
   "name": "Alpha form",
-  "feedback": {
-    "feedbackForm": false
-  },
   "phaseBanner": {
     "phase": "alpha"
   }
