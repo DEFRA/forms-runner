@@ -131,8 +131,7 @@
   }) }}
 {% endblock %}
 {% block beforeContent %}
-  {% set phaseTag = phaseTag or config.phaseTag -%}
-  {% set feedbackLink = '/form/csat?src=' + slug %}
+  {% set feedbackLink = feedbackLink or config.feedbackLink %}
   {% if phaseTag %}
     {% set feedbackLinkHtml -%}
       <a href="{{ currentPath if context.isForceAccess else feedbackLink }}" class="govuk-link" {%- if not context.isForceAccess %} target="_blank" rel="noopener noreferrer" {%- endif %}>
