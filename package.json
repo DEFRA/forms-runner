@@ -40,7 +40,7 @@
   },
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
-    "@aws-sdk/client-sns": "^3.934.0",
+    "@aws-sdk/client-sns": "^3.939.0",
     "@defra/forms-engine-plugin": "^4.0.25",
     "@defra/forms-model": "^3.0.583",
     "@defra/hapi-tracing": "^1.29.0",
