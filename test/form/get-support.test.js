@@ -60,7 +60,7 @@ describe('Get support page', () => {
     expect(telHeading.nextElementSibling?.outerHTML)
       .toBe(`<div class="app-prose-scope">
               <p>Telephone: <strong>020 7946 0101</strong></p>
-<h3>Opening hours</h3>
+<h5>Opening hours</h5>
 <p>Monday to Friday, <em>8am to 6pm</em></p>
 
             </div>`)

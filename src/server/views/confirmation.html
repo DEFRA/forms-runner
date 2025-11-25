@@ -12,7 +12,7 @@
       }) }}
       <h2 class="govuk-heading-m">What happens next</h2>
       <div class="app-prose-scope">
-        {{ submissionGuidance | markdown | safe }}
+        {{ submissionGuidance | markdown(3) | safe }}
       </div>
     </div>
   </div>
