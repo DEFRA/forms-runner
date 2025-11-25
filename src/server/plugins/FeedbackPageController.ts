@@ -26,10 +26,6 @@ export class FeedbackPageController extends QuestionPageController {
     }
   }
 
-  getStatusPath() {
-    return '/feedback-status'
-  }
-
   /**
    * Returns an async function. This is called in plugin.ts when there is a POST request at `/{id}/{path*}`.
    * If a form is incomplete, a user will be redirected to the start page.
@@ -70,7 +66,6 @@ export class FeedbackPageController extends QuestionPageController {
         model,
         context.pageMap.get(context.paths[0])
       )
-      // Should not have to coerce the type - ticket to resolve later https://eaflood.atlassian.net/browse/DF-555
       return summary.handleFormSubmit(request, context, h)
     }
   }

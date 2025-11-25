@@ -4,19 +4,40 @@
 
 {% set mainClasses = "govuk-main-wrapper--l" %}
 
+{% set subTitle = "What happens next" %}
+
+{% set controllers = "" %}
+{% for page in page.model.def.pages %}
+  {% set controllers = controllers + page.controller + ", " %}
+{% endfor %}
+
+{# Override values if this is a submission from a feedback form i.e. it uses FeedbacpPageController #}
+{% if "FeedbackPageController," in controllers %}
+  {% set pageTitle = "Feedback submitted"%}
+  {% set submissionGuidance = "Thank you for leaving feedback.\n\nYou can close this screen now."%}
+  {% set subTitle = undefined %}
+  {% set feedbackLink = undefined %}
+  {% set name = formName if formName else name %}
+  {% set phaseTag = undefined %}
+{% endif %}
+
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       {{ govukPanel({
         titleText: pageTitle
       }) }}
-      <h2 class="govuk-heading-m">What happens next</h2>
+      {% if subTitle %}
+        <h2 class="govuk-heading-m">{{ subTitle }}</h2>
+      {% endif %}
       <div class="app-prose-scope">
         {{ submissionGuidance | markdown | safe }}
       </div>
-      <p class="govuk-body">
-        <a href="{{ feedbackLink }}" class="govuk-link govuk-link--no-visited-state">What do you think of this service?</a> (takes 30 seconds)
-      </p>
+      {% if feedbackLink %}
+        <p class="govuk-body">
+          <a href="{{ feedbackLink }}" class="govuk-link govuk-link--no-visited-state">What do you think of this service?</a> (takes 30 seconds)
+        </p>
+      {% endif %}
     </div>
   </div>
 {% endblock %}
