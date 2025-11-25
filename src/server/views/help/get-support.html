@@ -11,7 +11,7 @@
           {% if form.contact.phone %}
             <h2 class="govuk-heading-m">Telephone</h2>
             <div class="app-prose-scope">
-              {{ form.contact.phone | markdown | safe }}
+              {{ form.contact.phone | markdown(3) | safe }}
             </div>
             <p class="govuk-body"><a href="https://www.gov.uk/call-charges" class="govuk-link govuk-link--no-visited-state">Find out about call charges</a></p>
           {% endif %}

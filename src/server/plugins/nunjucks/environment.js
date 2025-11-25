@@ -29,9 +29,9 @@ export const environment = nunjucks.configure(
 */
 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
 environment.addFilter('evaluate', (value) => value)
-environment.addFilter('markdown', (value) =>
+environment.addFilter('markdown', (value, startingHeaderLevel = 1) =>
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-  markdownToHtml(value)
+  markdownToHtml(value, { startingHeaderLevel })
 )
 
 environment.addGlobal('govukRebrand', true)
