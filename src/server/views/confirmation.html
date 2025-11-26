@@ -31,7 +31,7 @@
         <h2 class="govuk-heading-m">{{ subTitle }}</h2>
       {% endif %}
       <div class="app-prose-scope">
-        {{ submissionGuidance | markdown | safe }}
+        {{ submissionGuidance | markdown(3) | safe }}
       </div>
       {% if feedbackLink %}
         <p class="govuk-body">
