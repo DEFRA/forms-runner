@@ -20,7 +20,7 @@ export class FeedbackPageController extends QuestionPageController {
     return {
       ...viewModel,
       allowSaveAndExit: false,
-      phaseTag: undefined,
+      hidePhaseBanner: true,
       submitButtonText: 'Send feedback',
       name: context.state.formName
     }

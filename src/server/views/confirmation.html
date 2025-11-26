@@ -11,14 +11,16 @@
   {% set controllers = controllers + page.controller + ", " %}
 {% endfor %}
 
+{% set phaseTag = phaseTag or config.phaseTag %}
+
 {# Override values if this is a submission from a feedback form i.e. it uses FeedbacpPageController #}
 {% if "FeedbackPageController," in controllers %}
   {% set pageTitle = "Feedback submitted"%}
   {% set submissionGuidance = "Thank you for leaving feedback.\n\nYou can close this screen now."%}
   {% set subTitle = undefined %}
   {% set feedbackLink = undefined %}
-  {% set name = formName if formName else name %}
-  {% set phaseTag = undefined %}
+  {% set name = formName if formName else "Submit a form to Defra" %}
+  {% set hidePhaseBanner = true %}
 {% endif %}
 
 {% block content %}

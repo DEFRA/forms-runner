@@ -8,6 +8,7 @@ import {
   pathSchema,
   stateSchema
 } from '@defra/forms-engine-plugin/schema.js'
+import { FormStatus } from '@defra/forms-engine-plugin/types'
 import { slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
@@ -33,7 +34,10 @@ import {
   publicRoutes,
   saveAndExitRoutes
 } from '~/src/server/routes/index.js'
-import { getFormMetadata } from '~/src/server/services/formsService.js'
+import {
+  getFormDefinition,
+  getFormMetadata
+} from '~/src/server/services/formsService.js'
 
 const routes: ServerRoute[] = [...publicRoutes, healthRoute]
 const saveAndExitExpiryDays = config.get('saveAndExitExpiryDays')
@@ -146,16 +150,35 @@ export default {
       server.route<{ Params: { slug: string } }>({
         method: 'get',
         path: '/help/cookies/{slug}',
-        handler(_request, h) {
+        async handler(request, h) {
           const sessionTimeout = config.get('sessionTimeout')
 
           const sessionDurationPretty = humanizeDuration(sessionTimeout)
+
+          const { slug } = request.params
+
+          let formId = ''
+          let formTitle
+
+          if (slug) {
+            try {
+              const meta = await getFormMetadata(request.params.slug)
+              const definition = await getFormDefinition(
+                meta.id,
+                FormStatus.Draft
+              )
+              formId = meta.id
+              formTitle = definition?.name
+            } catch {}
+          }
 
           return h.view('help/cookies', {
             googleAnalyticsContainerId: config
               .get('googleAnalyticsTrackingId')
               .replace(/^G-/, ''),
-            sessionDurationPretty
+            sessionDurationPretty,
+            name: formTitle,
+            feedbackLink: `/form/csat?formId=${formId}`
           })
         },
         options
