@@ -20,14 +20,14 @@ jest.mock('~/src/server/messaging/publish.js')
 jest.mock('@defra/forms-engine-plugin/services/formSubmissionService.js')
 jest.mock('@defra/forms-engine-plugin/controllers/SummaryPageController.js')
 
-const basePath = `${FORM_PREFIX}/csat-with-custom-controller`
+const basePath = `${FORM_PREFIX}/user-feedback-with-custom-controller`
 
 const metadata = {
   ...fixtures.form.metadata,
   notificationEmail: undefined
 }
 
-describe('CSAT journey', () => {
+describe('User feedback journey', () => {
   const journey = [
     /**
      * Question page 1
@@ -89,7 +89,7 @@ describe('CSAT journey', () => {
   // Create server before each test
   beforeAll(async () => {
     server = await createServer({
-      formFileName: 'csat-with-custom-controller.js',
+      formFileName: 'user-feedback-with-custom-controller.js',
       formFilePath: join(import.meta.dirname, 'definitions'),
       enforceCsrf: true
     })

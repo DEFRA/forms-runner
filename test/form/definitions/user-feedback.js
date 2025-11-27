@@ -6,7 +6,7 @@ import {
 } from '@defra/forms-model'
 
 export default /** @satisfies {FormDefinition} */ ({
-  name: 'CSAT',
+  name: 'User feedback',
   engine: Engine.V2,
   schema: SchemaVersion.V2,
   startPage: '/give-feedback',

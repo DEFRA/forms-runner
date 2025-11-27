@@ -36,7 +36,7 @@ describe('Feedback link', () => {
     })
 
     const name = 'give your feedback (opens in new tab)'
-    const href = '/form/csat?formId=661e4ca5039739ef2902b214'
+    const href = '/form/feedback?formId=661e4ca5039739ef2902b214'
 
     const $phaseBanner = document.querySelector('.govuk-phase-banner')
     const $link = container.getByRole('link', { name })

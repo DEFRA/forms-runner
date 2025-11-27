@@ -178,7 +178,7 @@ export default {
               .replace(/^G-/, ''),
             sessionDurationPretty,
             name: formTitle,
-            feedbackLink: `/form/csat?formId=${formId}`
+            feedbackLink: `/form/feedback?formId=${formId}`
           })
         },
         options

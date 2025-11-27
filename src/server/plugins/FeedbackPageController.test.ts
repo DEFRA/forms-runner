@@ -11,7 +11,7 @@ import {
 import { type PageQuestion } from '@defra/forms-model'
 
 import { FeedbackPageController } from '~/src/server/plugins/FeedbackPageController.js'
-import definition from '~/test/form/definitions/csat.js'
+import definition from '~/test/form/definitions/user-feedback.js'
 
 describe('FeedbackPageController', () => {
   let model: FormModel
