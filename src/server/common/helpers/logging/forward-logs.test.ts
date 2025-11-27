@@ -96,9 +96,6 @@ describe('forwardLogs', () => {
       { a: true, b: true, c: true, error: true }
     )
 
-    expect(logger.error).toHaveBeenCalledWith(
-      error,
-      'Channel: internal, Tags: [a,b,c,error], Error: Some error'
-    )
+    expect(logger.error).not.toHaveBeenCalled()
   })
 })
