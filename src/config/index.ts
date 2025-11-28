@@ -93,12 +93,6 @@ export const config = convict({
     default: null,
     env: 'SERVICE_VERSION'
   } as SchemaObj<string>,
-  feedbackLink: {
-    doc: 'Used in your phase banner. Can be a URL or more commonly mailto mailto:feedback@department.gov.uk',
-    format: String,
-    default: null,
-    env: 'FEEDBACK_LINK'
-  } as SchemaObj<string>,
   phaseTag: {
     format: String,
     default: 'beta', // Accepts "alpha" |"beta" | ""

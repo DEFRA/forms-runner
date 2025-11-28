@@ -1,7 +1,5 @@
 import { tmpdir } from 'node:os'
 
-import { encodeUrl } from '@defra/forms-engine-plugin/engine/helpers.js'
-
 import { config } from '~/src/config/index.js'
 import { context } from '~/src/server/plugins/nunjucks/context.js'
 
@@ -63,7 +61,6 @@ describe('Nunjucks context', () => {
       expect(ctx.config).toEqual(
         expect.objectContaining({
           cdpEnvironment: config.get('cdpEnvironment'),
-          feedbackLink: encodeUrl(config.get('feedbackLink')),
           googleAnalyticsTrackingId: config.get('googleAnalyticsTrackingId'),
           phaseTag: config.get('phaseTag'),
           serviceBannerText: config.get('serviceBannerText'),

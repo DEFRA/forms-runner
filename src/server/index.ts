@@ -30,6 +30,7 @@ import { requestLogger } from '~/src/server/common/helpers/logging/request-logge
 import { requestTracing } from '~/src/server/common/helpers/logging/request-tracing.js'
 import { buildRedisClient } from '~/src/server/common/helpers/redis-client.js'
 import { FORM_PREFIX } from '~/src/server/constants.js'
+import { FeedbackPageController } from '~/src/server/plugins/FeedbackPageController.js'
 import { SummaryPageWithConfirmationEmailController } from '~/src/server/plugins/SummaryPageWithConfirmationEmailController.js'
 import { configureBlankiePlugin } from '~/src/server/plugins/blankie.js'
 import { configureCrumbPlugin } from '~/src/server/plugins/crumb.js'
@@ -133,7 +134,8 @@ export const configureEnginePlugin = async ({
 
     model = new FormModel(definition, { basePath: initialBasePath }, services, {
       // Custom controllers
-      SummaryPageWithConfirmationEmailController
+      SummaryPageWithConfirmationEmailController,
+      FeedbackPageController
     })
   }
 
@@ -169,7 +171,8 @@ export const configureEnginePlugin = async ({
       },
       controllers: {
         // Custom controllers
-        SummaryPageWithConfirmationEmailController
+        SummaryPageWithConfirmationEmailController,
+        FeedbackPageController
       },
       ordnanceSurveyApiKey: config.get('ordnanceSurveyApiKey')
     }

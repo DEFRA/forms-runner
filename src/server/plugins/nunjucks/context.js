@@ -1,10 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { basename, join } from 'node:path'
 
-import {
-  checkFormStatus,
-  encodeUrl
-} from '@defra/forms-engine-plugin/engine/helpers.js'
+import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
 import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
 
@@ -52,7 +49,6 @@ export function context(request) {
     config: {
       cdpEnvironment: config.get('cdpEnvironment'),
       designerUrl: config.get('designerUrl'),
-      feedbackLink: encodeUrl(config.get('feedbackLink')),
       phaseTag: config.get('phaseTag'),
       serviceBannerText: config.get('serviceBannerText'),
       serviceName: config.get('serviceName'),

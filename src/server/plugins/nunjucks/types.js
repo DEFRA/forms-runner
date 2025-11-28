@@ -20,6 +20,7 @@
  * @property {string} [currentPath] - Current path
  * @property {string} [previewMode] - Preview mode
  * @property {string} [slug] - Form slug
+ * @property {string} [formId] - Form id
  * @property {(asset?: string) => string} getAssetPath - Asset path resolver
  * @property {FormContext} [context] - the current form context
  */
