@@ -14,7 +14,7 @@ export const forwardLogs = (
   const tagstr = event.tags.join(',')
   const message = `Channel: ${event.channel}, Tags: [${tagstr}]`
 
-  if ('error' in tags) {
+  if ('error' in tags && event.channel !== 'internal') {
     logger.error(
       event.error,
       `${message}, Error: ${getErrorMessage(event.error)}`
