@@ -30,9 +30,22 @@ const metadata = {
 describe('User feedback journey', () => {
   const journey = [
     /**
+     * Pre-page
+     */
+    {
+      // No title/name yet as URL saves param state and forwards to proper start page
+
+      paths: {
+        current: '/give-feedback?formId=some-form-id'
+      }
+    },
+
+    /**
      * Question page 1
      */
     {
+      formName: 'Test form',
+
       heading1: 'Give feedback',
 
       paths: {
@@ -65,6 +78,8 @@ describe('User feedback journey', () => {
      * Submitted
      */
     {
+      formName: 'Test form',
+
       heading1: 'Feedback submitted',
 
       paths: {
@@ -88,6 +103,8 @@ describe('User feedback journey', () => {
 
   // Create server before each test
   beforeAll(async () => {
+    jest.mocked(getFormMetadataById).mockResolvedValue(metadata)
+    jest.mocked(getFormMetadata).mockResolvedValue(metadata)
     server = await createServer({
       formFileName: 'user-feedback-with-custom-controller.js',
       formFilePath: join(import.meta.dirname, 'definitions'),
@@ -132,7 +149,7 @@ describe('User feedback journey', () => {
 
   describe.each(journey)(
     'Page: $paths.current',
-    ({ heading1, paths, fields = [] }) => {
+    ({ formName, heading1, paths, fields = [] }) => {
       beforeEach(async () => {
         ;({ container } = await renderResponse(server, {
           url: `${basePath}${paths.current}`,
@@ -140,14 +157,30 @@ describe('User feedback journey', () => {
         }))
       })
 
-      it('should render the page heading', () => {
-        const $heading = container.getByRole('heading', {
-          name: heading1,
-          level: 1
-        })
-
-        expect($heading).toBeInTheDocument()
+      it('dummy test in case no activated tests in this beforeEach loop', () => {
+        expect(paths.current).toBeDefined()
       })
+
+      if (heading1) {
+        it('should render the page heading', () => {
+          const $heading = container.getByRole('heading', {
+            name: heading1,
+            level: 1
+          })
+
+          expect($heading).toBeInTheDocument()
+        })
+      }
+
+      if (formName) {
+        it('should render the form title', () => {
+          const $title = container.getByRole('link', {
+            name: formName
+          })
+
+          expect($title).toBeInTheDocument()
+        })
+      }
 
       if (paths.next) {
         it('should show errors when invalid on submit', async () => {

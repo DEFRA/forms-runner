@@ -13,7 +13,7 @@
 
 {% set phaseTag = phaseTag or config.phaseTag %}
 
-{# Override values if this is a submission from a feedback form i.e. it uses FeedbacpPageController #}
+{# Override values if this is a submission from a feedback form i.e. it uses FeedbackPageController #}
 {% if "FeedbackPageController," in controllers %}
   {% set pageTitle = "Feedback submitted"%}
   {% set submissionGuidance = "Thank you for leaving feedback.\n\nYou can close this screen now."%}
