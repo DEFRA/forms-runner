@@ -37,7 +37,7 @@ export class SummaryPageWithConfirmationEmailController extends SummaryPageContr
     const viewModel = super.getSummaryViewModel(request, context)
     viewModel.userConfirmationEmailField = getUserConfirmationEmailAddress(
       request.payload,
-      context.errors
+      context.errors?.filter((e) => e.name === CONFIRMATION_EMAIL_FIELD_NAME)
     )
     return viewModel
   }
