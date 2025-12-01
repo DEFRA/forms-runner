@@ -1,11 +1,17 @@
 import { join } from 'node:path'
 
+import {
+  checkFormStatus,
+  getCacheService
+} from '@defra/forms-engine-plugin/engine/helpers.js'
+
 import { createServer } from '~/src/server/index.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 jest.mock('~/src/server/services/formsService.js')
+jest.mock('@defra/forms-engine-plugin/engine/helpers.js')
 
 describe('Feedback link', () => {
   /** @type {Server} */
@@ -30,6 +36,14 @@ describe('Feedback link', () => {
   })
 
   it('should match route', async () => {
+    // @ts-expect-error - not all method mocked
+    jest.mocked(getCacheService).mockImplementationOnce(() => ({
+      setState: jest.fn(),
+      getState: jest
+        .fn()
+        .mockResolvedValue({ formId: '661e4ca5039739ef2902b214' })
+    }))
+    jest.mocked(checkFormStatus).mockReturnValue({ isPreview: true, state: {} })
     const { container } = await renderResponse(server, {
       method: 'GET',
       url: '/help/cookies/feedback'

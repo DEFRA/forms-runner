@@ -1,4 +1,5 @@
 import {
+  getCacheService,
   handleLegacyRedirect,
   isPathRelative
 } from '@defra/forms-engine-plugin/engine/helpers.js'
@@ -8,7 +9,6 @@ import {
   pathSchema,
   stateSchema
 } from '@defra/forms-engine-plugin/schema.js'
-import { FormStatus } from '@defra/forms-engine-plugin/types'
 import { slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
@@ -34,10 +34,7 @@ import {
   publicRoutes,
   saveAndExitRoutes
 } from '~/src/server/routes/index.js'
-import {
-  getFormDefinition,
-  getFormMetadata
-} from '~/src/server/services/formsService.js'
+import { getFormMetadata } from '~/src/server/services/formsService.js'
 
 const routes: ServerRoute[] = [...publicRoutes, healthRoute]
 const saveAndExitExpiryDays = config.get('saveAndExitExpiryDays')
@@ -155,29 +152,17 @@ export default {
 
           const sessionDurationPretty = humanizeDuration(sessionTimeout)
 
-          const { slug } = request.params
+          const cacheService = getCacheService(request.server)
 
-          let formId = ''
-          let formTitle
+          const state = await cacheService.getState(request)
 
-          if (slug) {
-            try {
-              const meta = await getFormMetadata(request.params.slug)
-              const definition = await getFormDefinition(
-                meta.id,
-                FormStatus.Draft
-              )
-              formId = meta.id
-              formTitle = definition?.name
-            } catch {}
-          }
+          const formId = state?.formId ?? ''
 
           return h.view('help/cookies', {
             googleAnalyticsContainerId: config
               .get('googleAnalyticsTrackingId')
               .replace(/^G-/, ''),
             sessionDurationPretty,
-            name: formTitle,
             feedbackLink: `/form/feedback?formId=${formId}`
           })
         },

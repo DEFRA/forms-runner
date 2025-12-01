@@ -12,6 +12,8 @@ import {
 } from '@defra/forms-engine-plugin/types'
 
 export class FeedbackPageController extends QuestionPageController {
+  allowSaveAndExit = false
+
   getViewModel(
     request: FormContextRequest,
     context: FormContext
@@ -19,7 +21,6 @@ export class FeedbackPageController extends QuestionPageController {
     const viewModel = super.getViewModel(request, context)
     return {
       ...viewModel,
-      allowSaveAndExit: false,
       hidePhaseBanner: true,
       submitButtonText: 'Send feedback',
       name: context.state.formName
