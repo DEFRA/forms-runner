@@ -45,6 +45,8 @@
   }) }}
 {% endblock %}
 
+{% set phaseTag = phaseTag or config.phaseTag %}
+
 {% block header %}
   {% if config.googleAnalyticsTrackingId and slug %}
     <form method="post" action="/help/cookie-preferences/{{ slug }}?returnUrl={{ currentPath | urlencode }}">
@@ -131,17 +133,11 @@
   }) }}
 {% endblock %}
 {% block beforeContent %}
-  {% set feedbackLink = feedbackLink or config.feedbackLink -%}
-  {% set phaseTag = phaseTag or config.phaseTag -%}
-
-  {% if phaseTag %}
+  {% set feedbackLink = feedbackLink or config.feedbackLink %}
+  {% if phaseTag and  not hidePhaseBanner %}
     {% set feedbackLinkHtml -%}
       <a href="{{ currentPath if context.isForceAccess else feedbackLink }}" class="govuk-link" {%- if not context.isForceAccess %} target="_blank" rel="noopener noreferrer" {%- endif %}>
-        {%- if "mailto:" in feedbackLink -%}
-          give your feedback by email
-        {%- else -%}
-          give your feedback (opens in new tab)
-        {%- endif -%}
+        give your feedback (opens in new tab)
       </a>
     {%- endset %}
 

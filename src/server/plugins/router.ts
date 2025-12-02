@@ -1,4 +1,5 @@
 import {
+  getCacheService,
   handleLegacyRedirect,
   isPathRelative
 } from '@defra/forms-engine-plugin/engine/helpers.js'
@@ -146,16 +147,23 @@ export default {
       server.route<{ Params: { slug: string } }>({
         method: 'get',
         path: '/help/cookies/{slug}',
-        handler(_request, h) {
+        async handler(request, h) {
           const sessionTimeout = config.get('sessionTimeout')
 
           const sessionDurationPretty = humanizeDuration(sessionTimeout)
+
+          const cacheService = getCacheService(request.server)
+
+          const state = await cacheService.getState(request)
+
+          const formId = state?.formId ?? ''
 
           return h.view('help/cookies', {
             googleAnalyticsContainerId: config
               .get('googleAnalyticsTrackingId')
               .replace(/^G-/, ''),
-            sessionDurationPretty
+            sessionDurationPretty,
+            feedbackLink: `/form/feedback?formId=${formId}`
           })
         },
         options

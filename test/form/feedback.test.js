@@ -1,15 +1,17 @@
 import { join } from 'node:path'
 
-import { FORM_PREFIX } from '~/src/server/constants.js'
+import {
+  checkFormStatus,
+  getCacheService
+} from '@defra/forms-engine-plugin/engine/helpers.js'
+
 import { createServer } from '~/src/server/index.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
-const { FEEDBACK_LINK } = process.env
-const basePath = `${FORM_PREFIX}/feedback`
-
 jest.mock('~/src/server/services/formsService.js')
+jest.mock('@defra/forms-engine-plugin/engine/helpers.js')
 
 describe('Feedback link', () => {
   /** @type {Server} */
@@ -33,23 +35,22 @@ describe('Feedback link', () => {
     await server.stop()
   })
 
-  it.each([
-    {
-      url: `${FORM_PREFIX}/help/cookies`,
-      name: 'give your feedback (opens in new tab)',
-      href: FEEDBACK_LINK
-    },
-    {
-      // Email address from feedback.json
-      url: `${basePath}/uk-passport`,
-      name: 'give your feedback by email',
-      href: 'mailto:test@feedback.cat'
-    }
-  ])("should match route '$url'", async ({ url, name, href }) => {
+  it('should match route', async () => {
+    // @ts-expect-error - not all method mocked
+    jest.mocked(getCacheService).mockImplementationOnce(() => ({
+      setState: jest.fn(),
+      getState: jest
+        .fn()
+        .mockResolvedValue({ formId: '661e4ca5039739ef2902b214' })
+    }))
+    jest.mocked(checkFormStatus).mockReturnValue({ isPreview: true, state: {} })
     const { container } = await renderResponse(server, {
       method: 'GET',
-      url
+      url: '/help/cookies/feedback'
     })
+
+    const name = 'give your feedback (opens in new tab)'
+    const href = '/form/feedback?formId=661e4ca5039739ef2902b214'
 
     const $phaseBanner = document.querySelector('.govuk-phase-banner')
     const $link = container.getByRole('link', { name })
