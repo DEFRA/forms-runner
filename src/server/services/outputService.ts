@@ -11,6 +11,7 @@ import {
   type OutputService as IOutputService
 } from '@defra/forms-engine-plugin/types'
 import {
+  isFeedbackForm,
   type FormMetadata,
   type SubmitResponsePayload
 } from '@defra/forms-model'
@@ -48,6 +49,11 @@ export class OutputService implements IOutputService {
     logger.info(
       `Processing form submission output - ref: ${submissionRef}, form: ${model.name}, id: ${formMetadata?.id}`
     )
+
+    if (isFeedbackForm(model.def)) {
+      // Dont send submission email if a feedback form
+      return
+    }
 
     try {
       const formStatus = checkFormStatus(request.params)

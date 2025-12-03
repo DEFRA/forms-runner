@@ -501,6 +501,44 @@ describe('OutputService', () => {
       expect(publishFormAdapterEvent).not.toHaveBeenCalled()
     })
 
+    it('skips publishing when its a feedback form', async () => {
+      const mockPayload = {
+        meta: {
+          formId: 'form-123',
+          referenceNumber: 'REF-123456',
+          formName: 'Test Form',
+          notificationEmail: 'notify@example.com'
+        },
+        data: mockItems
+      }
+
+      mockFormatter.mockReturnValue(JSON.stringify(mockPayload))
+
+      const mockFeedbackModel = /** @type {unknown} */ ({
+        def: {
+          name: 'Test form',
+          pages: [{ controller: 'FeedbackPageController' }]
+        }
+      })
+
+      await outputService.submit(
+        mockContext,
+        mockRequest,
+        /** @type {FormModel} */ (mockFeedbackModel),
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        undefined, // This parameter is ignored, using undefined to match test intent
+        mockItems,
+        mockSubmitResponse,
+        mockFormMetadata
+      )
+
+      expect(checkFormStatus).not.toHaveBeenCalled()
+      expect(getFormatter).not.toHaveBeenCalled()
+      expect(mockFormatter).not.toHaveBeenCalled()
+      expect(publishFormAdapterEvent).not.toHaveBeenCalled()
+    })
+
     it('publishes when notificationEmail is present', async () => {
       const mockPayload = {
         meta: {
