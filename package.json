@@ -126,7 +126,7 @@
     "babel-plugin-transform-import-meta": "^2.3.3",
     "clean-webpack-plugin": "^4.0.0",
     "concurrently": "^9.2.1",
-    "cookie": "^1.0.2",
+    "cookie": "^1.1.1",
     "copy-webpack-plugin": "^13.0.1",
     "core-js": "^3.47.0",
     "cssnano": "^7.1.2",
