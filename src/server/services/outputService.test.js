@@ -3,6 +3,7 @@ import { getFormatter } from '@defra/forms-engine-plugin/engine/outputFormatters
 import { FormStatus } from '@defra/forms-engine-plugin/types'
 
 import { publishFormAdapterEvent } from '~/src/server/messaging/formAdapterEventPublisher.js'
+import { getFormMetadataById } from '~/src/server/services/formsService.js'
 import {
   OutputService,
   createOutputService
@@ -17,6 +18,7 @@ jest.mock('~/src/server/common/helpers/logging/logger.ts', () => ({
   }))
 }))
 jest.mock('~/src/server/messaging/formAdapterEventPublisher.ts')
+jest.mock('~/src/server/services/formsService.js')
 
 describe('OutputService', () => {
   /** @type {OutputService} */
@@ -88,10 +90,14 @@ describe('OutputService', () => {
       name: 'Test Form'
     })
 
-    mockItems = /** @type {any} */ ([
-      { name: 'field1', value: 'value1' },
-      { name: 'field2', value: 'value2' }
-    ])
+    mockItems = /** @type {any} */ ({
+      main: {
+        items: [
+          { name: 'field1', value: 'value1' },
+          { name: 'field2', value: 'value2' }
+        ]
+      }
+    })
 
     mockSubmitResponse = /** @type {any} */ ({
       retrievalKey: 'SUB-789'
@@ -501,7 +507,7 @@ describe('OutputService', () => {
       expect(publishFormAdapterEvent).not.toHaveBeenCalled()
     })
 
-    it('skips publishing when its a feedback form', async () => {
+    it('skips override email target when its a feedback form', async () => {
       const mockPayload = {
         meta: {
           formId: 'form-123',
@@ -512,7 +518,17 @@ describe('OutputService', () => {
         data: mockItems
       }
 
+      // @ts-expect-error - dynamic payload
+      mockPayload.data.main.formId = 'source-form'
+
       mockFormatter.mockReturnValue(JSON.stringify(mockPayload))
+
+      jest
+        .mocked(getFormMetadataById)
+        // @ts-expect-error - mocked partial return object
+        .mockResolvedValueOnce({
+          notificationEmail: 'group-inbox@defra.gov.uk'
+        })
 
       const mockFeedbackModel = /** @type {unknown} */ ({
         def: {
@@ -533,10 +549,23 @@ describe('OutputService', () => {
         mockFormMetadata
       )
 
-      expect(checkFormStatus).not.toHaveBeenCalled()
-      expect(getFormatter).not.toHaveBeenCalled()
-      expect(mockFormatter).not.toHaveBeenCalled()
-      expect(publishFormAdapterEvent).not.toHaveBeenCalled()
+      expect(publishFormAdapterEvent).toHaveBeenCalledWith({
+        data: {
+          main: {
+            items: [
+              { name: 'field1', value: 'value1' },
+              { name: 'field2', value: 'value2' }
+            ],
+            formId: 'source-form'
+          }
+        },
+        meta: {
+          formId: 'form-123',
+          formName: 'Test Form',
+          notificationEmail: 'group-inbox@defra.gov.uk',
+          referenceNumber: 'REF-123456'
+        }
+      })
     })
 
     it('publishes when notificationEmail is present', async () => {

@@ -18,6 +18,7 @@ import {
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { publishFormAdapterEvent } from '~/src/server/messaging/formAdapterEventPublisher.js'
+import { getFormMetadataById } from '~/src/server/services/formsService.js'
 
 const logger = createLogger()
 
@@ -50,11 +51,6 @@ export class OutputService implements IOutputService {
       `Processing form submission output - ref: ${submissionRef}, form: ${model.name}, id: ${formMetadata?.id}`
     )
 
-    if (isFeedbackForm(model.def)) {
-      // Dont send submission email if a feedback form
-      return
-    }
-
     try {
       const formStatus = checkFormStatus(request.params)
 
@@ -74,6 +70,15 @@ export class OutputService implements IOutputService {
 
       const formId = submissionPayload.meta.formId
       const payloadRef = submissionPayload.meta.referenceNumber
+
+      if (isFeedbackForm(model.def) && submissionPayload.data.main.formId) {
+        // Override notification email to that of the related form (not the feedback form)
+        const relatedFormId = submissionPayload.data.main.formId
+        const relatedMetadata = await getFormMetadataById(relatedFormId)
+        submissionPayload.meta.notificationEmail =
+          relatedMetadata.notificationEmail ?? 'unknown'
+      }
+
       const notificationEmail = submissionPayload.meta.notificationEmail
 
       if (!notificationEmail) {
