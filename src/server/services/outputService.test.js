@@ -523,9 +523,9 @@ describe('OutputService', () => {
 
       mockFormatter.mockReturnValue(JSON.stringify(mockPayload))
 
-      // @ts-expect-error - mocked partial return object
       jest
         .mocked(getFormMetadataById)
+        // @ts-expect-error - mocked partial return object
         .mockResolvedValueOnce({
           notificationEmail: 'group-inbox@defra.gov.uk'
         })
