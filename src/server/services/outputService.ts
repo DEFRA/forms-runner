@@ -75,8 +75,14 @@ export class OutputService implements IOutputService {
         // Override notification email to that of the related form (not the feedback form)
         const relatedFormId = submissionPayload.data.main.formId
         const relatedMetadata = await getFormMetadataById(relatedFormId)
+        if (!relatedMetadata.notificationEmail) {
+          logger.info(
+            `Skipping form submission notification - no notification email configured - ref: ${payloadRef}, formId: ${relatedFormId}`
+          )
+          return
+        }
         submissionPayload.meta.notificationEmail =
-          relatedMetadata.notificationEmail ?? 'unknown'
+          relatedMetadata.notificationEmail
       }
 
       const notificationEmail = submissionPayload.meta.notificationEmail
