@@ -103,7 +103,7 @@ export function getUserConfirmationEmailAddress(
     id: CONFIRMATION_EMAIL_FIELD_NAME,
     name: CONFIRMATION_EMAIL_FIELD_NAME,
     hint: {
-      text: 'Enter your email address to get an email confirming your form has been submitted'
+      text: 'Enter your email address to receive a confirmation email and a copy of your answers'
     },
     value: payload ? payload[CONFIRMATION_EMAIL_FIELD_NAME] : undefined,
     errorMessage: errors?.length ? errors[0].text : undefined
