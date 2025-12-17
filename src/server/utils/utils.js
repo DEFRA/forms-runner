@@ -22,3 +22,11 @@ export function applyTraceHeaders(
 
   return existingHeaders ? Object.assign(existingHeaders, headers) : headers
 }
+
+/**
+ * @param {string} formId - the source form id (not the feedback form id)
+ * @returns {{ feedbackLink: string }}
+ */
+export function getFeedbackFormLink(formId) {
+  return { feedbackLink: `/form/feedback?formId=${formId}` }
+}

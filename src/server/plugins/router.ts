@@ -35,6 +35,7 @@ import {
   saveAndExitRoutes
 } from '~/src/server/routes/index.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
+import { getFeedbackFormLink } from '~/src/server/utils/utils.js'
 
 const routes: ServerRoute[] = [...publicRoutes, healthRoute]
 const saveAndExitExpiryDays = config.get('saveAndExitExpiryDays')
@@ -163,7 +164,7 @@ export default {
               .get('googleAnalyticsTrackingId')
               .replace(/^G-/, ''),
             sessionDurationPretty,
-            feedbackLink: `/form/feedback?formId=${formId}`
+            ...getFeedbackFormLink(formId)
           })
         },
         options
