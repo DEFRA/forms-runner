@@ -250,7 +250,7 @@ export default [
       }
 
       const model = passwordViewModel(
-        form.title,
+        form,
         resumeDetails.question,
         getPasswordAttemptsLeft(resumeDetails.invalidPasswordAttempts)
       )
@@ -329,7 +329,7 @@ export default [
         const error = createInvalidPasswordError(attemptsRemaining)
 
         const model = passwordViewModel(
-          form.title,
+          form,
           validatedLink.question,
           attemptsRemaining,
           undefined,
@@ -367,7 +367,7 @@ export default [
           const form = await getFormMetadataById(resumeDetails.form.id)
 
           const model = passwordViewModel(
-            form.title,
+            form,
             resumeDetails.question,
             getPasswordAttemptsLeft(resumeDetails.invalidPasswordAttempts),
             payload,

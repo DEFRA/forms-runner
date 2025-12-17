@@ -9,6 +9,7 @@ import Joi from 'joi'
 import { config } from '~/src/config/index.js'
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
+import { getFeedbackFormLink } from '~/src/server/utils/utils.js'
 
 const detailsPageTitle = 'Save your progress for later'
 const confirmationPageTitle = 'Your progress has been saved'
@@ -290,7 +291,7 @@ export function getKey(slug, state) {
  * @param {Error} [err]
  */
 export function detailsViewModel(metadata, status, payload, err) {
-  const { slug, title } = metadata
+  const { slug, title, id } = metadata
   const formPath = constructFormUrl(slug, status)
   const formSummaryPath = constructFormSummaryUrl(formPath)
 
@@ -340,7 +341,8 @@ export function detailsViewModel(metadata, status, payload, err) {
     backLink,
     errors,
     fields,
-    buttons: { continueButton, cancelButton }
+    buttons: { continueButton, cancelButton },
+    ...getFeedbackFormLink(id)
   }
 }
 
@@ -351,7 +353,7 @@ export function detailsViewModel(metadata, status, payload, err) {
  * @param {FormStatus} [status]
  */
 export function confirmationViewModel(metadata, email, status) {
-  const { slug, title } = metadata
+  const { slug, title, id } = metadata
   const formPath = constructFormUrl(slug, status)
 
   return {
@@ -359,20 +361,21 @@ export function confirmationViewModel(metadata, email, status) {
     serviceUrl: formPath,
     pageTitle: confirmationPageTitle,
     email,
-    saveAndExitExpiryDays
+    saveAndExitExpiryDays,
+    ...getFeedbackFormLink(id)
   }
 }
 
 /**
  * The save and exit password form view model
- * @param {string} formTitle
+ * @param {FormMetadata} metadata - the metadata of the form
  * @param {SecurityQuestionsEnum} securityQuestion - the security question
  * @param {number} attemptsLeft
  * @param {SaveAndExitResumePasswordPayload} [payload]
  * @param {Error} [err]
  */
 export function passwordViewModel(
-  formTitle,
+  metadata,
   securityQuestion,
   attemptsLeft,
   payload,
@@ -403,12 +406,13 @@ export function passwordViewModel(
   }
 
   return {
-    name: formTitle,
+    name: metadata.title,
     pageTitle,
     errors,
     fields,
     attemptsLeft,
-    buttons: { continueButton }
+    buttons: { continueButton },
+    ...getFeedbackFormLink(metadata.id)
   }
 }
 
@@ -427,7 +431,8 @@ export function resumeErrorViewModel(payload) {
 
   return {
     pageTitle,
-    buttons: payload.slug ? { continueButton } : {}
+    buttons: payload.slug ? { continueButton } : {},
+    ...getFeedbackFormLink('')
   }
 }
 
@@ -459,7 +464,8 @@ export function lockedOutViewModel(form, validatedLink, maxPasswordAttempts) {
           validatedLink.form.isPreview ? validatedLink.form.status : undefined
         )
       }
-    }
+    },
+    ...getFeedbackFormLink(form.id)
   }
 }
 
@@ -483,7 +489,8 @@ export function resumeSuccessViewModel(form, status) {
     pageTitle,
     name: form.title,
     serviceUrl: formPath,
-    buttons: { continueButton }
+    buttons: { continueButton },
+    ...getFeedbackFormLink(form.id)
   }
 }
 

@@ -1,10 +1,13 @@
 import { lockedOutViewModel } from '~/src/server/models/save-and-exit.js'
 
+const formId = '6c45dbc1-d6bb-4d30-8d68-2e708e5310b9'
+
 describe('Save and exit models', () => {
   describe('lockedOutViewModel', () => {
     const form = /** @type {FormMetadata} */ ({
       title: 'My Form Title',
-      slug: 'my-form'
+      slug: 'my-form',
+      id: formId
     })
 
     test('should construct live resume url', () => {
@@ -22,7 +25,9 @@ describe('Save and exit models', () => {
             text: 'Start form again',
             href: '/form/my-form'
           }
-        }
+        },
+        feedbackLink:
+          '/form/feedback?formId=6c45dbc1-d6bb-4d30-8d68-2e708e5310b9'
       })
     })
 
@@ -41,7 +46,9 @@ describe('Save and exit models', () => {
             text: 'Start form again',
             href: '/form/preview/live/my-form'
           }
-        }
+        },
+        feedbackLink:
+          '/form/feedback?formId=6c45dbc1-d6bb-4d30-8d68-2e708e5310b9'
       })
     })
 
@@ -60,7 +67,9 @@ describe('Save and exit models', () => {
             text: 'Start form again',
             href: '/form/preview/draft/my-form'
           }
-        }
+        },
+        feedbackLink:
+          '/form/feedback?formId=6c45dbc1-d6bb-4d30-8d68-2e708e5310b9'
       })
     })
   })
