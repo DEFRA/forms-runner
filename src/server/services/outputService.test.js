@@ -507,6 +507,53 @@ describe('OutputService', () => {
       expect(publishFormAdapterEvent).not.toHaveBeenCalled()
     })
 
+    it('skips publishing when feedback form and notificationEmail is missing', async () => {
+      const mockPayload = {
+        meta: {
+          formId: 'form-123',
+          referenceNumber: 'REF-123456',
+          formName: 'Test Form',
+          notificationEmail: 'notify@example.com'
+        },
+        data: mockItems
+      }
+
+      // @ts-expect-error - dynamic payload
+      mockPayload.data.main.formId = 'source-form'
+
+      mockFormatter.mockReturnValue(JSON.stringify(mockPayload))
+
+      jest
+        .mocked(getFormMetadataById)
+        // @ts-expect-error - mocked partial return object
+        .mockResolvedValueOnce({
+          notificationEmail: undefined
+        })
+
+      const mockFeedbackModel = /** @type {unknown} */ ({
+        def: {
+          name: 'Test form',
+          pages: [{ controller: 'FeedbackPageController' }]
+        }
+      })
+
+      await outputService.submit(
+        mockContext,
+        mockRequest,
+        /** @type {FormModel} */ (mockFeedbackModel),
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        undefined, // This parameter is ignored, using undefined to match test intent
+        mockItems,
+        mockSubmitResponse,
+        mockFormMetadata
+      )
+
+      expect(checkFormStatus).toHaveBeenCalledWith(mockRequest.params)
+      expect(getFormatter).toHaveBeenCalledWith('adapter', '1')
+      expect(publishFormAdapterEvent).not.toHaveBeenCalled()
+    })
+
     it('skips override email target when its a feedback form', async () => {
       const mockPayload = {
         meta: {
