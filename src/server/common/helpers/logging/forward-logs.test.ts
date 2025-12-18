@@ -82,6 +82,26 @@ describe('forwardLogs', () => {
     )
   })
 
+  it('logs application errors', () => {
+    const error = new Error('Some error')
+
+    forwardLogs(
+      logger,
+      {
+        channel: 'app',
+        timestamp: Date.now().toString(),
+        tags: ['a', 'b', 'c', 'error'],
+        error
+      } as RequestEvent,
+      { a: true, b: true, c: true, error: true }
+    )
+
+    expect(logger.error).toHaveBeenCalledWith(
+      error,
+      'Channel: app, Tags: [a,b,c,error], Error: Some error'
+    )
+  })
+
   it('does not log internal errors', () => {
     const error = new Error('Some error')
 
