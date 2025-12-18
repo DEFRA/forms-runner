@@ -82,7 +82,7 @@ describe('forwardLogs', () => {
     )
   })
 
-  it('logs error with string data', () => {
+  it('does not log internal errors', () => {
     const error = new Error('Some error')
 
     forwardLogs(
@@ -97,5 +97,6 @@ describe('forwardLogs', () => {
     )
 
     expect(logger.error).not.toHaveBeenCalled()
+    expect(logger.info).not.toHaveBeenCalled()
   })
 })
