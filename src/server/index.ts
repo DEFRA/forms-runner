@@ -29,7 +29,7 @@ import forwardLogs from '~/src/server/common/helpers/logging/forward-logs.js'
 import { requestLogger } from '~/src/server/common/helpers/logging/request-logger.js'
 import { requestTracing } from '~/src/server/common/helpers/logging/request-tracing.js'
 import { buildRedisClient } from '~/src/server/common/helpers/redis-client.js'
-import { FORM_PREFIX } from '~/src/server/constants.js'
+import { FORM_PREFIX, SAVE_AND_EXIT_PAYLOAD } from '~/src/server/constants.js'
 import { FeedbackPageController } from '~/src/server/plugins/FeedbackPageController.js'
 import { SummaryPageWithConfirmationEmailController } from '~/src/server/plugins/SummaryPageWithConfirmationEmailController.js'
 import { configureBlankiePlugin } from '~/src/server/plugins/blankie.js'
@@ -159,9 +159,19 @@ export const configureEnginePlugin = async ({
         h: FormResponseToolkit,
         _context: FormContext
       ) => {
-        const { params } = request
+        const { params, yar } = request
         const { slug } = params
         const { isPreview, state } = checkFormStatus(params)
+
+        // Payload from current page without crumb and action
+        // (in case current page is not saved to state yet i.e. only partially completed)
+        const pagePayload = {
+          ...request.payload,
+          crumb: undefined,
+          action: undefined
+        }
+
+        yar.flash(SAVE_AND_EXIT_PAYLOAD, pagePayload, true)
 
         return h.redirect(
           !isPreview
