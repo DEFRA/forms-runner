@@ -36,7 +36,7 @@ export function getFeedbackFormLink(formId) {
  * @param {AnyFormRequest} request
  */
 export function getCallingPath(request) {
-  const url = new URL(request.headers.referer)
+  const url = new URL(request.headers?.referer ?? request.url)
   return url.pathname
 }
 

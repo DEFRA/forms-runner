@@ -71,5 +71,9 @@ describe('utils', () => {
       const mockRequest = { headers: { referer: 'http:/my-site.com/my-path' } }
       expect(getCallingPath(mockRequest)).toBe('/my-path')
     })
+    it('should fallback to current url if no referer', () => {
+      const mockRequest = { url: 'http:/my-site.com/my-path' }
+      expect(getCallingPath(mockRequest)).toBe('/my-path')
+    })
   })
 })
