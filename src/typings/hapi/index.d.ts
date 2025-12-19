@@ -5,6 +5,7 @@ import { type Plugin } from '@hapi/hapi'
 import { type ServerYar, type Yar } from '@hapi/yar'
 import { type Logger } from 'pino'
 
+import { type SAVE_AND_EXIT_PAYLOAD } from '~/src/server/constants.js'
 import { type CacheService } from '~/src/server/services/index.js'
 
 declare module '@hapi/hapi' {
@@ -88,4 +89,10 @@ declare module 'hapi-pulse' {
   }
 
   export = hapiPulse
+}
+
+declare module '@hapi/yar' {
+  interface YarFlashes {
+    [SAVE_AND_EXIT_PAYLOAD]: object
+  }
 }
