@@ -1,3 +1,7 @@
+import {
+  CURRENT_PAGE_PATH,
+  STATE_POTENTIALLY_INVALID
+} from '@defra/forms-engine-plugin'
 import { getCacheService } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
 import { slugSchema } from '@defra/forms-model'
@@ -29,6 +33,7 @@ import {
   getSaveAndExitDetails,
   validateSaveAndExitCredentials
 } from '~/src/server/services/formsService.js'
+import { getCallingPath } from '~/src/server/utils/utils.js'
 const logger = createLogger()
 
 const maxInvalidPasswordAttempts = 5
@@ -61,17 +66,28 @@ export default [
       const metadata = await getFormMetadata(slug)
       const model = detailsViewModel(metadata, status)
 
-      // Merge current form state with any outstanding data from the current page
-      // (in case the current page wasn't yet validated and saved)
+      // Store any outstanding data from the current page in a special attribute
+      // (in case the current page wasn't yet validated and saved).
+      // The current page state may be invalid so we don't want to push into the cache as normal properties.
       const cacheService = getCacheService(request.server)
       const formState = await cacheService.getState(request)
       const pagePayload = request.yar.flash(SAVE_AND_EXIT_PAYLOAD)
-      const stashedPayload = Array.isArray(pagePayload)
+      const currentPagePayload = Array.isArray(pagePayload)
         ? {}
         : /** @type {FormPayload} */ (pagePayload)
-      const combinedState = Hoek.merge(formState, stashedPayload, {
-        mergeArrays: false
-      })
+
+      const combinedState = Hoek.merge(
+        formState,
+        {
+          [STATE_POTENTIALLY_INVALID]: {
+            ...currentPagePayload,
+            [CURRENT_PAGE_PATH]: getCallingPath(request)
+          }
+        },
+        {
+          mergeArrays: false
+        }
+      )
       await cacheService.setState(request, combinedState)
 
       // Clear any previous save and exit session state
