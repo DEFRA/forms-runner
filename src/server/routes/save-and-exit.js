@@ -1,6 +1,6 @@
 import {
   CURRENT_PAGE_PATH,
-  STATE_POTENTIALLY_INVALID
+  STATE_NOT_YET_VALIDATED
 } from '@defra/forms-engine-plugin'
 import { getCacheService } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
@@ -79,7 +79,7 @@ export default [
       const combinedState = Hoek.merge(
         formState,
         {
-          [STATE_POTENTIALLY_INVALID]: {
+          [STATE_NOT_YET_VALIDATED]: {
             ...currentPagePayload,
             [CURRENT_PAGE_PATH]: getCallingPath(request)
           }
