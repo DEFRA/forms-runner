@@ -40,8 +40,7 @@ export default /** @satisfies {FormDefinition} */ ({
   ]),
   sections: [],
   conditions: [],
-  lists: [],
-  outputEmail: 'enrique.chase@defra.gov.uk'
+  lists: []
 })
 
 /**
