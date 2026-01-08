@@ -498,7 +498,10 @@ describe('Model cache', () => {
       params: {
         slug: 'test-form'
       },
-      yar: mockYar
+      yar: mockYar,
+      url: {
+        pathname: '/my-path'
+      }
     }
     const mockH = {
       redirect: jest.fn()
@@ -511,7 +514,7 @@ describe('Model cache', () => {
       saveAndExitFunc(mockRequest, mockH, undefined)
       expect(mockFlash).toHaveBeenCalledWith(
         'SAVE_AND_EXIT_PAYLOAD',
-        { action: undefined, crumb: undefined },
+        { action: undefined, crumb: undefined, __currentPagePath: '/my-path' },
         true
       )
       expect(mockH.redirect).toHaveBeenCalledWith('/save-and-exit/test-form')

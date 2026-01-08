@@ -33,7 +33,6 @@ import {
   getSaveAndExitDetails,
   validateSaveAndExitCredentials
 } from '~/src/server/services/formsService.js'
-import { getCallingPath } from '~/src/server/utils/utils.js'
 const logger = createLogger()
 
 const maxInvalidPasswordAttempts = 5
@@ -75,13 +74,15 @@ export default [
       const currentPagePayload = Array.isArray(pagePayload)
         ? {}
         : /** @type {FormPayload} */ (pagePayload)
+      const currentPagePath =
+        CURRENT_PAGE_PATH in pagePayload ? pagePayload[CURRENT_PAGE_PATH] : '/'
 
       const combinedState = Hoek.merge(
         formState,
         {
           [STATE_NOT_YET_VALIDATED]: {
             ...currentPagePayload,
-            [CURRENT_PAGE_PATH]: getCallingPath(request)
+            [CURRENT_PAGE_PATH]: currentPagePath
           }
         },
         {

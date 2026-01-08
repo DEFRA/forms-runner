@@ -32,14 +32,5 @@ export function getFeedbackFormLink(formId) {
 }
 
 /**
- * Extracts the path of the calling page
- * @param {AnyFormRequest} request
- */
-export function getCallingPath(request) {
-  const url = new URL(request.headers?.referer ?? request.url)
-  return url.pathname
-}
-
-/**
  * @import { AnyFormRequest } from '@defra/forms-engine-plugin/engine/types.js'
  */

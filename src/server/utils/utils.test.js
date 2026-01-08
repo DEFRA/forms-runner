@@ -3,7 +3,6 @@ import { getTraceId } from '@defra/hapi-tracing'
 import { config } from '~/src/config/index.js'
 import {
   applyTraceHeaders,
-  getCallingPath,
   getFeedbackFormLink
 } from '~/src/server/utils/utils.js'
 
@@ -63,17 +62,6 @@ describe('utils', () => {
       expect(getFeedbackFormLink('source-form-id')).toEqual({
         feedbackLink: '/form/feedback?formId=source-form-id'
       })
-    })
-  })
-
-  describe('getCallingPath', () => {
-    it('should return path', () => {
-      const mockRequest = { headers: { referer: 'http:/my-site.com/my-path' } }
-      expect(getCallingPath(mockRequest)).toBe('/my-path')
-    })
-    it('should fallback to current url if no referer', () => {
-      const mockRequest = { url: 'http:/my-site.com/my-path' }
-      expect(getCallingPath(mockRequest)).toBe('/my-path')
     })
   })
 })
