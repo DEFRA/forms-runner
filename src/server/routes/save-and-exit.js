@@ -79,19 +79,21 @@ export default [
           ? pagePayload[CURRENT_PAGE_PATH]
           : undefined
 
-      const combinedState = Hoek.merge(
-        formState,
-        {
-          [STATE_NOT_YET_VALIDATED]: {
-            ...currentPagePayload,
-            [CURRENT_PAGE_PATH]: currentPagePath
+      if (currentPagePath) {
+        const combinedState = Hoek.merge(
+          formState,
+          {
+            [STATE_NOT_YET_VALIDATED]: {
+              ...currentPagePayload,
+              [CURRENT_PAGE_PATH]: currentPagePath
+            }
+          },
+          {
+            mergeArrays: false
           }
-        },
-        {
-          mergeArrays: false
-        }
-      )
-      await cacheService.setState(request, combinedState)
+        )
+        await cacheService.setState(request, combinedState)
+      }
 
       // Clear any previous save and exit session state
       request.yar.clear(getKey(slug, status))
