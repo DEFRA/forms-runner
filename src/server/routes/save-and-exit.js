@@ -75,7 +75,9 @@ export default [
         ? {}
         : /** @type {FormPayload} */ (pagePayload)
       const currentPagePath =
-        CURRENT_PAGE_PATH in pagePayload ? pagePayload[CURRENT_PAGE_PATH] : '/'
+        CURRENT_PAGE_PATH in pagePayload
+          ? pagePayload[CURRENT_PAGE_PATH]
+          : undefined
 
       const combinedState = Hoek.merge(
         formState,
