@@ -1,6 +1,6 @@
 import { join, parse } from 'path'
 
-import plugin, { CURRENT_PAGE_PATH } from '@defra/forms-engine-plugin'
+import plugin, { CURRENT_PAGE_PATH_KEY } from '@defra/forms-engine-plugin'
 import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { FormModel } from '@defra/forms-engine-plugin/engine/models/FormModel.js'
 import { formSubmissionService } from '@defra/forms-engine-plugin/services/index.js'
@@ -169,7 +169,7 @@ export const configureEnginePlugin = async ({
           ...request.payload,
           crumb: undefined,
           action: undefined,
-          [CURRENT_PAGE_PATH]: request.url.pathname
+          [CURRENT_PAGE_PATH_KEY]: request.url.pathname
         }
 
         yar.flash(SAVE_AND_EXIT_PAYLOAD, pagePayload, true)

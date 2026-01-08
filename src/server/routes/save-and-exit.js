@@ -1,5 +1,5 @@
 import {
-  CURRENT_PAGE_PATH,
+  CURRENT_PAGE_PATH_KEY,
   STATE_NOT_YET_VALIDATED
 } from '@defra/forms-engine-plugin'
 import { getCacheService } from '@defra/forms-engine-plugin/engine/helpers.js'
@@ -75,8 +75,8 @@ export default [
         ? {}
         : /** @type {FormPayload} */ (pagePayload)
       const currentPagePath =
-        CURRENT_PAGE_PATH in pagePayload
-          ? pagePayload[CURRENT_PAGE_PATH]
+        CURRENT_PAGE_PATH_KEY in pagePayload
+          ? pagePayload[CURRENT_PAGE_PATH_KEY]
           : undefined
 
       if (currentPagePath) {
@@ -85,7 +85,7 @@ export default [
           {
             [STATE_NOT_YET_VALIDATED]: {
               ...currentPagePayload,
-              [CURRENT_PAGE_PATH]: currentPagePath
+              [CURRENT_PAGE_PATH_KEY]: currentPagePath
             }
           },
           {
