@@ -3,7 +3,7 @@ import { type Server } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 
 import { FORM_PREFIX } from '~/src/server/constants.js'
-import { createServer } from '~/src/server/index.js'
+import { configureEnginePlugin, createServer } from '~/src/server/index.js'
 import {
   getFormDefinition,
   getFormMetadata
@@ -486,6 +486,38 @@ describe('Model cache', () => {
       const res = await server.inject(options)
 
       expect(res.statusCode).toBe(StatusCodes.OK)
+    })
+  })
+
+  describe('configureEnginePlugin', () => {
+    const mockFlash = jest.fn()
+    const mockYar = {
+      flash: mockFlash
+    }
+    const mockRequest = /** @type {any} */ {
+      params: {
+        slug: 'test-form'
+      },
+      yar: mockYar,
+      url: {
+        pathname: '/my-path'
+      }
+    }
+    const mockH = {
+      redirect: jest.fn()
+    }
+    test('should handle save and exit', async () => {
+      const [pluginObject] = await configureEnginePlugin({})
+      expect(pluginObject).toBeDefined()
+      const saveAndExitFunc = pluginObject.options.saveAndExit
+      expect(saveAndExitFunc).toBeDefined()
+      saveAndExitFunc(mockRequest, mockH, undefined)
+      expect(mockFlash).toHaveBeenCalledWith(
+        'SAVE_AND_EXIT_PAYLOAD',
+        { action: undefined, crumb: undefined, __currentPagePath: '/my-path' },
+        true
+      )
+      expect(mockH.redirect).toHaveBeenCalledWith('/save-and-exit/test-form')
     })
   })
 })
