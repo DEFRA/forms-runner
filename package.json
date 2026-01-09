@@ -64,7 +64,7 @@
     "blankie": "^5.0.0",
     "blipp": "^4.0.2",
     "btoa": "^1.2.1",
-    "chokidar": "^3.6.0",
+    "chokidar": "^5.0.0",
     "convict": "^6.2.4",
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
