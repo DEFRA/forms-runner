@@ -74,9 +74,9 @@ describe('Save and exit', () => {
       url: '/save-and-exit/basic'
     }
 
-    // @ts-expect-error - partial mock of payload
     jest
       .mocked(getPayloadFromFlash)
+      // @ts-expect-error - partial mock of payload
       .mockReturnValueOnce({ __currentPagePath: '/the-current-path' })
 
     const { container } = await renderResponse(server, options)
