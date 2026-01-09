@@ -233,7 +233,13 @@ export default [
         )
       }
 
-      if (!linkDetails || form.id !== linkDetails.form.id) {
+      if (!linkDetails) {
+        return h
+          .redirect(`${ERROR_BASE_URL}/${form.slug}`)
+          .code(StatusCodes.SEE_OTHER)
+      }
+
+      if (form.id !== linkDetails.form.id) {
         return h
           .redirect(`${ERROR_BASE_URL}/${form.slug}`)
           .code(StatusCodes.SEE_OTHER)

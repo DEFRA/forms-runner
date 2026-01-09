@@ -103,6 +103,29 @@ describe('Save-and-exit check routes', () => {
       )
     })
 
+    test('/route forwards correctly on magic link error - wrong form id', async () => {
+      jest
+        .mocked(getFormMetadataById)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce({ slug: 'my-form-to-resume' })
+      jest
+        .mocked(getSaveAndExitDetails)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce({ form: { id: 'wrong-form' } })
+
+      const options = {
+        method: 'GET',
+        url: `/resume-form/${FORM_ID}/${MAGIC_LINK_ID}`
+      }
+
+      const { response } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
+      expect(response.headers.location).toBe(
+        '/resume-form-error/my-form-to-resume'
+      )
+    })
+
     test('/route forwards correctly on magic link error 2', async () => {
       jest
         .mocked(getFormMetadataById)
