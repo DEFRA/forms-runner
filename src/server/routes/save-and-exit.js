@@ -197,6 +197,7 @@ export default [
         )
       }
 
+      // eslint-disable-next-line @typescript-eslint/prefer-optional-chain
       if (!linkDetails || form.id !== linkDetails.form.id) {
         return h
           .redirect(`${ERROR_BASE_URL}/${form.slug}`)
