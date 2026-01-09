@@ -4,6 +4,7 @@ import { within } from '@testing-library/dom'
 import { StatusCodes } from 'http-status-codes'
 
 import { createServer } from '~/src/server/index.js'
+import { getPayloadFromFlash } from '~/src/server/routes/save-and-exit-helper.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
@@ -11,6 +12,7 @@ import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 jest.mock('~/src/server/services/formsService.js')
 jest.mock('~/src/server/messaging/publish.js')
+jest.mock('~/src/server/routes/save-and-exit-helper.js')
 
 describe('Save and exit', () => {
   /** @type {Server} */
@@ -40,6 +42,42 @@ describe('Save and exit', () => {
       method: 'GET',
       url: '/save-and-exit/basic'
     }
+
+    const { container } = await renderResponse(server, options)
+
+    const $heading = container.getByRole('heading', {
+      name: 'Save your progress for later',
+      level: 1
+    })
+
+    const $emailLabel = container.getByLabelText('Your email address')
+    const $emailConfirmationLabel = container.getByLabelText(
+      'Confirm your email address'
+    )
+    const $securityQuestionLegend = container.getByRole('group', {
+      name: 'Choose a security question to answer'
+    })
+    const $securityAnswerLabel = container.getByLabelText(
+      'Your answer to the security question'
+    )
+
+    expect($heading).toBeInTheDocument()
+    expect($emailLabel).toBeInTheDocument()
+    expect($emailConfirmationLabel).toBeInTheDocument()
+    expect($securityQuestionLegend).toBeInTheDocument()
+    expect($securityAnswerLabel).toBeInTheDocument()
+  })
+
+  it('shows the details page when current path is stored', async () => {
+    const options = {
+      method: 'GET',
+      url: '/save-and-exit/basic'
+    }
+
+    // @ts-expect-error - partial mock of payload
+    jest
+      .mocked(getPayloadFromFlash)
+      .mockReturnValueOnce({ __currentPagePath: '/the-current-path' })
 
     const { container } = await renderResponse(server, options)
 

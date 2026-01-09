@@ -11,7 +11,6 @@ import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
-import { SAVE_AND_EXIT_PAYLOAD } from '~/src/server/constants.js'
 import { publishSaveAndExitEvent } from '~/src/server/messaging/publish.js'
 import {
   confirmationViewModel,
@@ -27,6 +26,7 @@ import {
   resumeSuccessViewModel,
   validatePayloadSchema
 } from '~/src/server/models/save-and-exit.js'
+import { getPayloadFromFlash } from '~/src/server/routes/save-and-exit-helper.js'
 import {
   getFormMetadata,
   getFormMetadataById,
@@ -70,13 +70,13 @@ export default [
       // The current page state may be invalid so we don't want to push into the cache as normal properties.
       const cacheService = getCacheService(request.server)
       const formState = await cacheService.getState(request)
-      const pagePayload = request.yar.flash(SAVE_AND_EXIT_PAYLOAD)
+      const pagePayload = getPayloadFromFlash(request)
       const currentPagePayload = Array.isArray(pagePayload)
         ? {}
-        : /** @type {FormPayload} */ (pagePayload)
+        : /** @type { FormPayload | undefined } */ (pagePayload)
       const currentPagePath =
-        CURRENT_PAGE_PATH_KEY in pagePayload
-          ? pagePayload[CURRENT_PAGE_PATH_KEY]
+        currentPagePayload && CURRENT_PAGE_PATH_KEY in currentPagePayload
+          ? currentPagePayload[CURRENT_PAGE_PATH_KEY]
           : undefined
 
       if (currentPagePath) {
