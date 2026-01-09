@@ -31,9 +31,8 @@ describe('Nunjucks context', () => {
         const { config } = await import('~/src/config/index.js')
 
         // Import when isolated to avoid cache
-        const { context } = await import(
-          '~/src/server/plugins/nunjucks/context.js'
-        )
+        const { context } =
+          await import('~/src/server/plugins/nunjucks/context.js')
 
         // Update config for missing manifest
         config.set('publicDir', tmpdir())

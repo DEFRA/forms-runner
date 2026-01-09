@@ -14,6 +14,7 @@ import { getCookie, getCookieHeader } from '~/test/utils/get-cookie.js'
 
 jest.mock('~/src/server/services/formsService.js')
 jest.mock('~/src/server/messaging/publish.js')
+jest.mock('~/src/server/messaging/formAdapterEventPublisher.ts')
 jest.mock('@defra/forms-engine-plugin/services/formSubmissionService.js')
 
 const basePath = `${FORM_PREFIX}/confirmation-email`
@@ -224,7 +225,19 @@ describe('Confirmation email', () => {
         )
     })
 
-    it('should render the page heading with email notification warning', () => {
+    it('should render the page heading with email notification warning', async () => {
+      // Mock metadata without notificationEmail to trigger the warning
+      const metadataWithoutEmail = {
+        ...fixtures.form.metadata,
+        notificationEmail: undefined
+      }
+      jest.mocked(getFormMetadata).mockResolvedValueOnce(metadataWithoutEmail)
+
+      const { container } = await renderResponse(server, {
+        url: `${basePath}/summary`,
+        headers
+      })
+
       const $heading = container.getByRole('heading', {
         name: 'Summary',
         level: 1
