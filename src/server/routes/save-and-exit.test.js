@@ -108,9 +108,9 @@ describe('Save-and-exit check routes', () => {
         .mocked(getFormMetadataById)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({ slug: 'my-form-to-resume' })
-      // @ts-expect-error - allow partial objects for tests
       jest
         .mocked(getSaveAndExitDetails)
+        // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({ form: { id: 'wrong-form' } })
 
       const options = {
