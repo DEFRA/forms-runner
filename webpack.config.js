@@ -14,6 +14,10 @@ const govukFrontendPath = dirname(
   require.resolve('govuk-frontend/package.json')
 )
 
+const pluginPath = dirname(
+  require.resolve('@defra/forms-engine-plugin/package.json')
+)
+
 /**
  * @type {Configuration}
  */
@@ -172,7 +176,23 @@ export default {
     new WebpackAssetsManifest(),
     new CopyPlugin({
       patterns: [
-        { from: join(govukFrontendPath, 'dist/govuk/assets'), to: 'assets' }
+        { from: join(govukFrontendPath, 'dist/govuk/assets'), to: 'assets' },
+        {
+          from: join(pluginPath, 'node_modules/@defra/defra-map/dist'),
+          to: 'assets/defra-map'
+        },
+        {
+          from: join(pluginPath, 'node_modules/@defra/defra-map/providers'),
+          to: 'assets/defra-map/providers'
+        },
+        {
+          from: join(pluginPath, 'node_modules/@defra/defra-map/plugins'),
+          to: 'assets/defra-map/plugins'
+        },
+        {
+          from: join(pluginPath, 'node_modules/@defra/defra-map/assets'),
+          to: 'assets/defra-map/assets'
+        }
       ]
     })
   ],
@@ -185,5 +205,5 @@ export default {
 }
 
 /**
- * @import { Configuration, NormalModule } from 'webpack'
+ * @import { Configuration } from 'webpack'
  */
