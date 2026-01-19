@@ -87,10 +87,10 @@
     "semver": "^7.7.3"
   },
   "devDependencies": {
-    "@babel/cli": "^7.28.3",
-    "@babel/core": "^7.28.5",
-    "@babel/plugin-syntax-import-attributes": "^7.27.1",
-    "@babel/preset-env": "^7.28.5",
+    "@babel/cli": "^7.28.6",
+    "@babel/core": "^7.28.6",
+    "@babel/plugin-syntax-import-attributes": "^7.28.6",
+    "@babel/preset-env": "^7.28.6",
     "@babel/preset-typescript": "^7.28.5",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
