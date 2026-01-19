@@ -29,7 +29,7 @@ export const configureBlankiePlugin = (): ServerRegisterPluginObject<
       fontSrc: ['self', 'data:'],
       connectSrc: [
         ['self'],
-        ['https://raw.githubusercontent.com', 'https://api.os.uk'],
+        ['https://api.os.uk'],
         gaTrackingId ? googleAnalyticsOptions.connectSrc : [],
         uploaderUrl ? [uploaderUrl] : []
       ].flat(),
