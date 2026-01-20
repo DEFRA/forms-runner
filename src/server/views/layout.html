@@ -162,17 +162,20 @@
 {% endblock %}
 
 {% block bodyEnd %}
-  <script nonce="{{ cspNonce }}" src="{{assetPath}}/defra-map/umd/index.js"></script>
-  <script nonce="{{ cspNonce }}" src="{{assetPath}}/defra-map/providers/maplibre/dist/umd/index.js"></script>
-  <script nonce="{{ cspNonce }}" src="{{assetPath}}/defra-map/providers/open-names/dist/umd/index.js"></script>
-  <script nonce="{{ cspNonce }}" src="{{assetPath}}/defra-map/plugins/map-styles/dist/umd/index.js"></script>
-  <script nonce="{{ cspNonce }}" src="{{assetPath}}/defra-map/plugins/search/dist/umd/index.js"></script>
-  <script nonce="{{ cspNonce }}" src="{{assetPath}}/defra-map/plugins/zoom-controls/dist/umd/index.js"></script>
-  <script nonce="{{ cspNonce }}" src="{{assetPath}}/defra-map/plugins/scale-bar/dist/umd/index.js"></script>
-  <script nonce="{{ cspNonce }}" src="{{assetPath}}/defra-map/plugins/data-layers-ml/dist/umd/index.js"></script>
-  <script nonce="{{ cspNonce }}" src="{{assetPath}}/defra-map/plugins/interact/dist/umd/index.js"></script>
-
   <script type="module" nonce="{{ cspNonce }}" src="{{ getAssetPath("application.js") }}"></script>
+
+  {% if config.useMapsFeature %}
+    <script nonce="{{ cspNonce }}" src="{{assetPath}}/defra-map/umd/index.js"></script>
+    <script nonce="{{ cspNonce }}" src="{{assetPath}}/defra-map/providers/maplibre/dist/umd/index.js"></script>
+    <script nonce="{{ cspNonce }}" src="{{assetPath}}/defra-map/providers/open-names/dist/umd/index.js"></script>
+    <script nonce="{{ cspNonce }}" src="{{assetPath}}/defra-map/plugins/map-styles/dist/umd/index.js"></script>
+    <script nonce="{{ cspNonce }}" src="{{assetPath}}/defra-map/plugins/search/dist/umd/index.js"></script>
+    <script nonce="{{ cspNonce }}" src="{{assetPath}}/defra-map/plugins/zoom-controls/dist/umd/index.js"></script>
+    <script nonce="{{ cspNonce }}" src="{{assetPath}}/defra-map/plugins/scale-bar/dist/umd/index.js"></script>
+    <script nonce="{{ cspNonce }}" src="{{assetPath}}/defra-map/plugins/data-layers-ml/dist/umd/index.js"></script>
+    <script nonce="{{ cspNonce }}" src="{{assetPath}}/defra-map/plugins/interact/dist/umd/index.js"></script>
+    <script type="module" nonce="{{ cspNonce }}" src="{{ getAssetPath("maps.js") }}"></script>
+  {% endif %}
 
   {% if config.googleAnalyticsTrackingId and cookieConsent.analytics === true %}
     <script id="ga-tag-js-main" nonce="{{ cspNonce }}" src="https://www.googletagmanager.com/gtag/js?id={{ config.googleAnalyticsTrackingId }}" defer></script>

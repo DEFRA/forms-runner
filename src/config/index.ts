@@ -306,7 +306,14 @@ export const config = convict({
     nullable: true,
     default: undefined,
     env: 'ORDNANCE_SURVEY_API_KEY'
-  } as SchemaObj<string | undefined>
+  } as SchemaObj<string | undefined>,
+
+  useMapsFeature: {
+    doc: 'Feature flag to control maps',
+    format: Boolean,
+    default: false,
+    env: 'USE_MAPS_FEATURE'
+  }
 })
 
 config.validate({ allowed: 'strict' })

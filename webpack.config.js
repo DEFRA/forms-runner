@@ -26,6 +26,9 @@ export default {
   entry: {
     application: {
       import: ['./javascripts/application.js', './stylesheets/application.scss']
+    },
+    maps: {
+      import: ['./javascripts/maps.js']
     }
   },
   experiments: { outputModule: true },
