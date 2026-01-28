@@ -156,7 +156,7 @@
     "sass-embedded": "^1.97.2",
     "sass-loader": "^16.0.6",
     "source-map-loader": "^5.0.0",
-    "stylelint": "^16.26.1",
+    "stylelint": "^17.0.0",
     "stylelint-config-gds": "^2.0.0",
     "terser-webpack-plugin": "^5.3.16",
     "tsx": "^4.21.0",
