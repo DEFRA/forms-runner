@@ -23,6 +23,7 @@ export default {
     '<rootDir>/.server',
     '<rootDir>/src/client/(?!javascripts)',
     '<rootDir>/src/client/javascripts/application.js',
+    '<rootDir>/src/client/javascripts/maps.js',
     '<rootDir>/test'
   ],
   coverageDirectory: '<rootDir>/coverage',
