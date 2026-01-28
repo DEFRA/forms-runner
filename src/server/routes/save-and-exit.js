@@ -1,7 +1,12 @@
+import {
+  CURRENT_PAGE_PATH_KEY,
+  STATE_NOT_YET_VALIDATED
+} from '@defra/forms-engine-plugin'
 import { getCacheService } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
 import { slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
+import * as Hoek from '@hapi/hoek'
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
@@ -21,6 +26,7 @@ import {
   resumeSuccessViewModel,
   validatePayloadSchema
 } from '~/src/server/models/save-and-exit.js'
+import { getPayloadFromFlash } from '~/src/server/routes/save-and-exit-helper.js'
 import {
   getFormMetadata,
   getFormMetadataById,
@@ -58,6 +64,36 @@ export default [
       const { slug, state: status } = params
       const metadata = await getFormMetadata(slug)
       const model = detailsViewModel(metadata, status)
+
+      // Store any outstanding data from the current page in a special attribute
+      // (in case the current page wasn't yet validated and saved).
+      // The current page state may be invalid so we don't want to push into the cache as normal properties.
+      const cacheService = getCacheService(request.server)
+      const formState = await cacheService.getState(request)
+      const pagePayload = getPayloadFromFlash(request)
+      const currentPagePayload = Array.isArray(pagePayload)
+        ? {}
+        : /** @type { FormPayload | undefined } */ (pagePayload)
+      const currentPagePath =
+        currentPagePayload && CURRENT_PAGE_PATH_KEY in currentPagePayload
+          ? currentPagePayload[CURRENT_PAGE_PATH_KEY]
+          : undefined
+
+      if (currentPagePath) {
+        const combinedState = Hoek.merge(
+          formState,
+          {
+            [STATE_NOT_YET_VALIDATED]: {
+              ...currentPagePayload,
+              [CURRENT_PAGE_PATH_KEY]: currentPagePath
+            }
+          },
+          {
+            mergeArrays: false
+          }
+        )
+        await cacheService.setState(request, combinedState)
+      }
 
       // Clear any previous save and exit session state
       request.yar.clear(getKey(slug, status))
@@ -197,7 +233,13 @@ export default [
         )
       }
 
-      if (!linkDetails || form.id !== linkDetails.form.id) {
+      if (!linkDetails) {
+        return h
+          .redirect(`${ERROR_BASE_URL}/${form.slug}`)
+          .code(StatusCodes.SEE_OTHER)
+      }
+
+      if (form.id !== linkDetails.form.id) {
         return h
           .redirect(`${ERROR_BASE_URL}/${form.slug}`)
           .code(StatusCodes.SEE_OTHER)
@@ -408,5 +450,6 @@ export default [
 
 /**
  * @import { ServerRoute } from '@hapi/hapi'
+ * @import { FormPayload } from '@defra/forms-engine-plugin/engine/types.js'
  * @import { SaveAndExitParams, SaveAndExitPayload, SaveAndExitResumePasswordPayload, SaveAndExitResumePasswordParams } from '~/src/server/models/save-and-exit.js'
  */

@@ -27,7 +27,8 @@
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       {{ govukPanel({
-        titleText: pageTitle
+        titleText: pageTitle,
+        html: "Your reference number<br><strong>" + referenceNumber + "</strong>" if showReferenceNumber
       }) }}
       {% if subTitle %}
         <h2 class="govuk-heading-m">{{ subTitle }}</h2>

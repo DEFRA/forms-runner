@@ -34,6 +34,7 @@ export const metadata = {
   organisation: 'Defra',
   teamName: 'Defra Forms',
   teamEmail: 'defraforms@defra.gov.uk',
+  notificationEmail: 'enrique.chase@defra.gov.uk',
   createdAt: now,
   createdBy: author,
   updatedAt: now,
@@ -77,8 +78,7 @@ export const definition = {
     }
   ],
   conditions: [],
-  lists: [],
-  outputEmail: 'enrique.chase@defra.gov.uk'
+  lists: []
 }
 
 export const componentId = '1491981d-99cd-485e-ab4a-f88275edeadc'
@@ -121,8 +121,7 @@ export const definitionWithComponentId = {
     }
   ],
   conditions: [],
-  lists: [],
-  outputEmail: 'enrique.chase@defra.gov.uk'
+  lists: []
 }
 
 /**
