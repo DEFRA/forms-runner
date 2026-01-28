@@ -301,12 +301,19 @@ export const config = convict({
   },
 
   ordnanceSurveyApiKey: {
-    doc: 'The ordnance survey api key used by the postcode lookup plugin',
+    doc: 'The ordnance survey api key used by the postcode lookup and maps plugin',
     format: String,
     nullable: true,
     default: undefined,
     env: 'ORDNANCE_SURVEY_API_KEY'
-  } as SchemaObj<string | undefined>
+  } as SchemaObj<string | undefined>,
+
+  useMapsFeature: {
+    doc: 'Feature flag to control maps',
+    format: Boolean,
+    default: false,
+    env: 'USE_MAPS_FEATURE'
+  }
 })
 
 config.validate({ allowed: 'strict' })

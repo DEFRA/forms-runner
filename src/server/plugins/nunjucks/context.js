@@ -52,7 +52,8 @@ export function context(request) {
       phaseTag: config.get('phaseTag'),
       serviceBannerText: config.get('serviceBannerText'),
       serviceName: config.get('serviceName'),
-      serviceVersion: config.get('serviceVersion')
+      serviceVersion: config.get('serviceVersion'),
+      useMapsFeature: config.get('useMapsFeature')
     },
     cspNonce: request?.plugins.blankie?.nonces?.script,
     currentPath: request ? `${request.path}${request.url.search}` : undefined,

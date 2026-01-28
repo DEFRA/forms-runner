@@ -29,6 +29,7 @@ export const configureBlankiePlugin = (): ServerRegisterPluginObject<
       fontSrc: ['self', 'data:'],
       connectSrc: [
         ['self'],
+        ['https://api.os.uk'],
         gaTrackingId ? googleAnalyticsOptions.connectSrc : [],
         uploaderUrl ? [uploaderUrl] : []
       ].flat(),
@@ -38,10 +39,11 @@ export const configureBlankiePlugin = (): ServerRegisterPluginObject<
       ].flat(),
       styleSrc: ['self', 'unsafe-inline'],
       imgSrc: [
-        ['self'],
+        ['self', 'data:'],
         gaTrackingId ? googleAnalyticsOptions.imgSrc : []
       ].flat(),
       frameSrc: ['self', 'data:'],
+      workerSrc: ['self', 'blob:'],
       generateNonces: true
     }
   }
