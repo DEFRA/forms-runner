@@ -181,22 +181,19 @@ export default {
       patterns: [
         { from: join(govukFrontendPath, 'dist/govuk/assets'), to: 'assets' },
         {
-          from: join(pluginPath, 'node_modules/@defra/interactive-map/dist'),
+          from: join(pluginPath, '../interactive-map/dist'),
           to: 'assets/interactive-map'
         },
         {
-          from: join(
-            pluginPath,
-            'node_modules/@defra/interactive-map/providers'
-          ),
+          from: join(pluginPath, '../interactive-map/providers'),
           to: 'assets/interactive-map/providers'
         },
         {
-          from: join(pluginPath, 'node_modules/@defra/interactive-map/plugins'),
+          from: join(pluginPath, '../interactive-map/plugins'),
           to: 'assets/interactive-map/plugins'
         },
         {
-          from: join(pluginPath, 'node_modules/@defra/interactive-map/assets'),
+          from: join(pluginPath, '../interactive-map/assets'),
           to: 'assets/interactive-map/assets'
         }
       ]
