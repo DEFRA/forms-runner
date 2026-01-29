@@ -159,7 +159,7 @@ describe('SummaryPageWithConfirmationEmailController', () => {
           uuid: 'ee501106-4ce1-4947-91a7-7cc1a335ccd8',
           formId: 'form-id',
           isLivePayment: false
-        }
+        } as unknown as string // Force the type to satisy the linting
       }
       const request = {
         ...requestPage,
