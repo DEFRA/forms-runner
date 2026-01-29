@@ -14,6 +14,10 @@ const govukFrontendPath = dirname(
   require.resolve('govuk-frontend/package.json')
 )
 
+const pluginPath = dirname(
+  require.resolve('@defra/forms-engine-plugin/package.json')
+)
+
 /**
  * @type {Configuration}
  */
@@ -22,6 +26,9 @@ export default {
   entry: {
     application: {
       import: ['./javascripts/application.js', './stylesheets/application.scss']
+    },
+    maps: {
+      import: ['./javascripts/maps.js']
     }
   },
   experiments: { outputModule: true },
@@ -172,7 +179,23 @@ export default {
     new WebpackAssetsManifest(),
     new CopyPlugin({
       patterns: [
-        { from: join(govukFrontendPath, 'dist/govuk/assets'), to: 'assets' }
+        { from: join(govukFrontendPath, 'dist/govuk/assets'), to: 'assets' },
+        {
+          from: join(pluginPath, '../interactive-map/dist'),
+          to: 'assets/interactive-map'
+        },
+        {
+          from: join(pluginPath, '../interactive-map/providers'),
+          to: 'assets/interactive-map/providers'
+        },
+        {
+          from: join(pluginPath, '../interactive-map/plugins'),
+          to: 'assets/interactive-map/plugins'
+        },
+        {
+          from: join(pluginPath, '../interactive-map/assets'),
+          to: 'assets/interactive-map/assets'
+        }
       ]
     })
   ],
@@ -185,5 +208,5 @@ export default {
 }
 
 /**
- * @import { Configuration, NormalModule } from 'webpack'
+ * @import { Configuration } from 'webpack'
  */
