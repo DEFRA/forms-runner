@@ -255,6 +255,7 @@ export async function createServer(routeConfig?: RouteConfig) {
     isHttpOnly: false,
     isSecure: config.get('isProduction'),
     path: '/',
+    isSameSite: 'Lax',
     encoding: 'none' // handle this inside the application so we can share frontend/backend cookie modification
   })
 

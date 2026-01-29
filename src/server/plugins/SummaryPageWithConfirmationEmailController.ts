@@ -35,6 +35,14 @@ export class SummaryPageWithConfirmationEmailController extends SummaryPageContr
     context: FormContext
   ): SummaryViewModel {
     const viewModel = super.getSummaryViewModel(request, context)
+    const payerEmail = viewModel?.paymentState?.payerEmail
+    // Fill in user confirmation email, if supplied from payment journey
+    if (payerEmail) {
+      const payload = (request.payload ?? {}) as FormPayload
+      payload[CONFIRMATION_EMAIL_FIELD_NAME] ??= payerEmail
+      request.payload = payload
+    }
+
     viewModel.userConfirmationEmailField = getUserConfirmationEmailAddress(
       request.payload,
       context.errors?.filter((e) => e.name === CONFIRMATION_EMAIL_FIELD_NAME)
