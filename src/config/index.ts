@@ -308,6 +308,14 @@ export const config = convict({
     env: 'ORDNANCE_SURVEY_API_KEY'
   } as SchemaObj<string | undefined>,
 
+  ordnanceSurveyApiSecret: {
+    doc: 'The ordnance survey api secret used by the maps plugin',
+    format: String,
+    nullable: true,
+    default: undefined,
+    env: 'ORDNANCE_SURVEY_API_SECRET'
+  } as SchemaObj<string | undefined>,
+
   useMapsFeature: {
     doc: 'Feature flag to control maps',
     format: Boolean,

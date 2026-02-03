@@ -11,11 +11,7 @@ describe('Server Blankie Plugin', () => {
       defaultSrc: ['self'],
       fontSrc: ['self', 'data:'],
       frameSrc: ['self', 'data:'],
-      connectSrc: [
-        'self',
-        'https://api.os.uk',
-        'https://test-uploader.cdp-int.defra.cloud'
-      ],
+      connectSrc: ['self', 'https://test-uploader.cdp-int.defra.cloud'],
       scriptSrc: ['self', 'strict-dynamic', 'unsafe-inline'],
       styleSrc: ['self', 'unsafe-inline'],
       imgSrc: ['self', 'data:'],
@@ -35,7 +31,6 @@ describe('Server Blankie Plugin', () => {
       frameSrc: ['self', 'data:'],
       connectSrc: [
         'self',
-        'https://api.os.uk',
         'https://*.google-analytics.com',
         'https://*.analytics.google.com',
         'https://*.googletagmanager.com',
@@ -76,6 +71,6 @@ describe('Server Blankie Plugin', () => {
 
     const { options } = configureBlankiePlugin()
 
-    expect(options?.connectSrc).toEqual(['self', 'https://api.os.uk'])
+    expect(options?.connectSrc).toEqual(['self'])
   })
 })

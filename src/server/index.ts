@@ -185,7 +185,8 @@ export const configureEnginePlugin = async ({
         SummaryPageWithConfirmationEmailController,
         FeedbackPageController
       },
-      ordnanceSurveyApiKey: config.get('ordnanceSurveyApiKey')
+      ordnanceSurveyApiKey: config.get('ordnanceSurveyApiKey'),
+      ordnanceSurveyApiSecret: config.get('ordnanceSurveyApiSecret')
     }
   }
   const routeOptions = {
