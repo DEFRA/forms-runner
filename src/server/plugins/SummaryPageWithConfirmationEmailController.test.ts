@@ -183,5 +183,44 @@ describe('SummaryPageWithConfirmationEmailController', () => {
         'payer-email@test.com'
       )
     })
+
+    test('should prepopulate user confirmation email even if empty payload', () => {
+      const state: FormSubmissionState = {
+        $$__referenceNumber: 'foobar',
+        licenceLength: 365,
+        fullName: 'John Smith',
+        paymentField: {
+          payerEmail: 'payer-email@test.com',
+          paymentId: 'payment-id',
+          reference: 'payment-ref',
+          amount: 150,
+          description: 'payment description',
+          uuid: 'ee501106-4ce1-4947-91a7-7cc1a335ccd8',
+          formId: 'form-id',
+          isLivePayment: false
+        } as unknown as string // Force the type to satisy the linting
+      }
+      const request = {
+        ...requestPage,
+        server: {
+          plugins: {
+            'forms-engine-plugin': {
+              cacheService: {
+                clearState: jest.fn()
+              } as unknown as CacheService
+            }
+          }
+        },
+        method: 'post',
+        payload: undefined
+      } as unknown as FormRequestPayload
+
+      const context = model.getFormContext(request, state)
+      const viewModel = controller.getSummaryViewModel(request, context)
+      // @ts-expect-error - dynamic field name
+      expect(viewModel.userConfirmationEmailField.value).toBe(
+        'payer-email@test.com'
+      )
+    })
   })
 })
