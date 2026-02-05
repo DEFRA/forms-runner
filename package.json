@@ -87,10 +87,10 @@
     "semver": "^7.7.3"
   },
   "devDependencies": {
-    "@babel/cli": "^7.28.3",
-    "@babel/core": "^7.28.5",
-    "@babel/plugin-syntax-import-attributes": "^7.27.1",
-    "@babel/preset-env": "^7.28.5",
+    "@babel/cli": "^7.28.6",
+    "@babel/core": "^7.29.0",
+    "@babel/plugin-syntax-import-attributes": "^7.28.6",
+    "@babel/preset-env": "^7.29.0",
     "@babel/preset-typescript": "^7.28.5",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
@@ -117,7 +117,7 @@
     "@types/wreck": "^14.0.5",
     "@typescript-eslint/eslint-plugin": "^8.52.0",
     "@typescript-eslint/parser": "^8.52.0",
-    "autoprefixer": "^10.4.23",
+    "autoprefixer": "^10.4.24",
     "aws-sdk-client-mock": "^4.1.0",
     "aws-sdk-client-mock-jest": "^4.1.0",
     "babel-loader": "^10.0.0",
@@ -128,7 +128,7 @@
     "concurrently": "^9.2.1",
     "cookie": "^1.1.1",
     "copy-webpack-plugin": "^13.0.1",
-    "core-js": "^3.47.0",
+    "core-js": "^3.48.0",
     "cssnano": "^7.1.2",
     "cssnano-preset-default": "^7.0.10",
     "editorconfig-checker": "^6.1.1",
@@ -161,7 +161,7 @@
     "terser-webpack-plugin": "^5.3.16",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "webpack": "^5.104.1",
+    "webpack": "^5.105.0",
     "webpack-assets-manifest": "^6.5.0",
     "webpack-cli": "^6.0.1"
   }
