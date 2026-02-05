@@ -185,12 +185,37 @@ export default {
           to: 'assets/interactive-map'
         },
         {
-          from: join(pluginPath, '../interactive-map/providers'),
-          to: 'assets/interactive-map/providers'
+          from: join(pluginPath, '../interactive-map/providers/maplibre'),
+          to: 'assets/interactive-map/providers/maplibre'
         },
         {
-          from: join(pluginPath, '../interactive-map/plugins'),
-          to: 'assets/interactive-map/plugins'
+          from: join(
+            pluginPath,
+            '../interactive-map/providers/beta/open-names'
+          ),
+          to: 'assets/interactive-map/providers/open-names'
+        },
+        {
+          from: join(
+            pluginPath,
+            '../interactive-map/plugins/beta/map-styles/dist'
+          ),
+          to: 'assets/interactive-map/plugins/map-styles/dist'
+        },
+        {
+          from: join(
+            pluginPath,
+            '../interactive-map/plugins/beta/scale-bar/dist'
+          ),
+          to: 'assets/interactive-map/plugins/scale-bar/dist'
+        },
+        {
+          from: join(pluginPath, '../interactive-map/plugins/interact/dist'),
+          to: 'assets/interactive-map/plugins/interact/dist'
+        },
+        {
+          from: join(pluginPath, '../interactive-map/plugins/search/dist'),
+          to: 'assets/interactive-map/plugins/search/dist'
         },
         {
           from: join(pluginPath, '../interactive-map/assets'),
