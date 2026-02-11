@@ -321,7 +321,15 @@ export const config = convict({
     format: Boolean,
     default: false,
     env: 'USE_MAPS_FEATURE'
-  }
+  },
+
+  feedbackViaEmail: {
+    doc: 'The email address (not including the mailto prefix) for feedback when the built-in CSAT form is disabled.',
+    format: String,
+    nullable: false,
+    default: 'defraforms@defra.gov.uk',
+    env: 'FEEDBACK_VIA_EMAIL'
+  } as SchemaObj<string | undefined>
 })
 
 config.validate({ allowed: 'strict' })
