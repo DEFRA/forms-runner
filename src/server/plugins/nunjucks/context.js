@@ -53,7 +53,8 @@ export function context(request) {
       serviceBannerText: config.get('serviceBannerText'),
       serviceName: config.get('serviceName'),
       serviceVersion: config.get('serviceVersion'),
-      useMapsFeature: config.get('useMapsFeature')
+      useMapsFeature: config.get('useMapsFeature'),
+      feedbackViaEmail: config.get('feedbackViaEmail')
     },
     cspNonce: request?.plugins.blankie?.nonces?.script,
     currentPath: request ? `${request.path}${request.url.search}` : undefined,
