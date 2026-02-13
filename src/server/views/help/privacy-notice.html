@@ -2,6 +2,7 @@
 
 {% set pageTitle = config.serviceName + " privacy notice" %}
 
+{% set privacyNoticeUrl = '/help/privacy-specific/' + form.slug if form.privacyNoticeType == 'text' else form.privacyNoticeUrl %}
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
@@ -10,7 +11,7 @@
 
       <h2 class="govuk-heading-m">Who collects your personal data</h2>
       <p class="govuk-body">The organisation that created the <strong>{{ form.title }}</strong> form using <strong>{{ config.serviceName }}</strong> is the controller of personal data they collect. If the controller is outside the Defra legal entity, then Defra is the processor.</p>
-      <p class="govuk-body">Read the <a href="{{ form.privacyNoticeUrl }}" class="govuk-link">specific privacy notice for the {{ form.title }} form</a>.</p>
+      <p class="govuk-body">Read the <a href="{{ privacyNoticeUrl }}" class="govuk-link">specific privacy notice for the {{ form.title }} form</a>.</p>
       <p class="govuk-body">Defra also collects some data as a controller. This privacy notice explains what personal data Defra collects and processes as a controller through forms made with <strong>{{ config.serviceName }}</strong>.</p>
       <p class="govuk-body">If you need further information about how Defra uses your personal data, email <a href="mailto:defraforms@defra.gov.uk" class="govuk-link">defraforms@defra.gov.uk</a>.</p>
       <p class="govuk-body">If you want information and your associated rights you can email: <a href="mailto:data.protection@defra.gov.uk" class="govuk-link">data.protection@defra.gov.uk</a>.</p>

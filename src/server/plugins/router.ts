@@ -147,6 +147,20 @@ export default {
 
       server.route<{ Params: { slug: string } }>({
         method: 'get',
+        path: '/help/privacy-specific/{slug}',
+        async handler(request, h) {
+          const { slug } = request.params
+          const form = await getFormMetadata(slug)
+
+          return h.view('help/privacy-notice-specific', {
+            form
+          })
+        },
+        options
+      })
+
+      server.route<{ Params: { slug: string } }>({
+        method: 'get',
         path: '/help/cookies/{slug}',
         async handler(request, h) {
           const sessionTimeout = config.get('sessionTimeout')
