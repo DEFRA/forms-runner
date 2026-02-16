@@ -57,7 +57,8 @@ describe('Forms service', () => {
       await expect(getFormMetadata(metadata.slug)).resolves.toEqual({
         ...metadata,
         createdAt: expect.any(Date),
-        updatedAt: expect.any(Date)
+        updatedAt: expect.any(Date),
+        privacyNoticeType: 'link'
       })
     })
   })
@@ -99,7 +100,8 @@ describe('Forms service', () => {
       await expect(getFormMetadataById(metadata.id)).resolves.toEqual({
         ...metadata,
         createdAt: expect.any(Date),
-        updatedAt: expect.any(Date)
+        updatedAt: expect.any(Date),
+        privacyNoticeType: 'link'
       })
     })
   })
