@@ -162,4 +162,42 @@ describe('Routes', () => {
 
     expect($banner).toHaveTextContent('Hello world')
   })
+
+  test('privacy notice (general) page is served', async () => {
+    const options = {
+      method: 'GET',
+      url: '/help/privacy/slug'
+    }
+
+    const { container } = await renderResponse(server, options)
+
+    const $heading = container.getByRole('heading', {
+      name: 'Submit a form to Defra - privacy notice',
+      level: 1
+    })
+
+    expect($heading).toBeInTheDocument()
+    expect($heading).toHaveClass('govuk-heading-l')
+  })
+
+  test('privacy notice (specific) page is served', async () => {
+    jest.mocked(getFormMetadata).mockResolvedValue({
+      ...fixtures.form.metadata,
+      privacyNoticeType: 'text',
+      privacyNoticeText: '# Privacy markdown heading'
+    })
+    const options = {
+      method: 'GET',
+      url: '/help/privacy-specific/slug'
+    }
+
+    const { container } = await renderResponse(server, options)
+
+    const $heading = container.getByRole('heading', {
+      name: 'Privacy markdown heading',
+      level: 1
+    })
+
+    expect($heading).toBeInTheDocument()
+  })
 })
