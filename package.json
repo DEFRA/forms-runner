@@ -68,7 +68,7 @@
     "convict": "^6.2.4",
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.4",
-    "govuk-frontend": "^5.13.0",
+    "govuk-frontend": "^6.0.0",
     "hapi-pino": "^13.0.0",
     "hapi-pulse": "^3.0.1",
     "highlight.js": "^11.11.1",
