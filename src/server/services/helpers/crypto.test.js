@@ -9,7 +9,9 @@ jest.mock('~/src/config/index.ts', () => ({
     })
   }
 }))
-jest.mock('node:crypto')
+jest.mock('node:crypto', () => ({
+  privateDecrypt: () => 'decrypted-secret'
+}))
 
 describe('crypto helpers', () => {
   describe('decryptSecret', () => {
@@ -21,6 +23,14 @@ describe('crypto helpers', () => {
       expect(() => decryptSecret('some-string')).toThrow(
         'Private key is missing'
       )
+    })
+
+    it('should return decrypted value', () => {
+      jest.mocked(config.get).mockImplementationOnce((key) => {
+        if (key === 'privateKeyForSecrets') return 'private-key'
+        return 'mock-value'
+      })
+      expect(decryptSecret('some-string')).toBe('decrypted-secret')
     })
   })
 })
