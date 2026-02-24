@@ -117,6 +117,19 @@ describe('Forms service', () => {
         privacyNoticeType: 'link'
       })
     })
+
+    it('throws when validation error', async () => {
+      jest.mocked(getJson).mockResolvedValue({
+        res: /** @type {IncomingMessage} */ ({
+          statusCode: StatusCodes.OK
+        }),
+        payload: { invalid: '123' }
+      })
+
+      await expect(() => getFormMetadataById(metadata.id)).rejects.toThrow(
+        '"title" is required'
+      )
+    })
   })
 
   describe('getFormDefinition', () => {
