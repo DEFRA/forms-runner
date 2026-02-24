@@ -19,3 +19,4 @@ process.env.SNS_SAVE_TOPIC_ARN =
 process.env.SNS_ADAPTER_TOPIC_ARN =
   'arn:aws:sns:eu-west-2:123456789012:test-adapter-topic'
 process.env.SNS_ENDPOINT = 'http://localhost:4566'
+process.env.PRIVATE_KEY_FOR_SECRETS = 'dummy-private-key'
