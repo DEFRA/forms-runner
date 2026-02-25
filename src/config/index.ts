@@ -329,6 +329,14 @@ export const config = convict({
     nullable: false,
     default: 'defraforms@defra.gov.uk',
     env: 'FEEDBACK_VIA_EMAIL'
+  } as SchemaObj<string | undefined>,
+
+  privateKeyForSecrets: {
+    doc: 'The private key used to decrypt secret values',
+    format: String,
+    nullable: true,
+    default: undefined,
+    env: 'PRIVATE_KEY_FOR_SECRETS'
   } as SchemaObj<string | undefined>
 })
 

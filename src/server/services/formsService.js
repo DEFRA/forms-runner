@@ -2,6 +2,7 @@ import { FormStatus } from '@defra/forms-engine-plugin/types'
 import { formMetadataSchema } from '@defra/forms-model'
 
 import { config } from '~/src/config/index.js'
+import { decryptSecret } from '~/src/server/services/helpers/crypto.js'
 import { getJson, postJson } from '~/src/server/services/httpService.js'
 
 const managerUrl = config.get('managerUrl')
@@ -109,6 +110,18 @@ export async function validateSaveAndExitCredentials(
   }
 
   return results
+}
+
+/**
+ * Retrieves a form secret and decrypts the value
+ * @param {string} formId - the id of the form
+ * @param {string} secretName - the name of the secret
+ */
+export async function getFormSecret(formId, secretName) {
+  const response = await fetch(
+    `${managerUrl}/forms/${formId}/secrets/${secretName}`
+  )
+  return decryptSecret(await response.text())
 }
 
 /**
