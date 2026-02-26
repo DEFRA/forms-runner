@@ -42,7 +42,7 @@
   "dependencies": {
     "@aws-sdk/client-sns": "^3.985.0",
     "@defra/forms-engine-plugin": "^4.0.59",
-    "@defra/forms-model": "^3.0.615",
+    "@defra/forms-model": "^3.0.625",
     "@defra/hapi-tracing": "^1.30.0",
     "@elastic/ecs-pino-format": "^1.5.0",
     "@hapi/boom": "^10.0.1",
