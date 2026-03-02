@@ -69,7 +69,9 @@ export default [
       // (in case the current page wasn't yet validated and saved).
       // The current page state may be invalid so we don't want to push into the cache as normal properties.
       const cacheService = getCacheService(request.server)
-      const formState = await cacheService.getState(request)
+      const formState = await cacheService.getState(
+        /** @type {CacheRequest} */ (request)
+      )
       const pagePayload = getPayloadFromFlash(request)
       const currentPagePayload = Array.isArray(pagePayload)
         ? {}
@@ -92,7 +94,10 @@ export default [
             mergeArrays: false
           }
         )
-        await cacheService.setState(request, combinedState)
+        await cacheService.setState(
+          /** @type {CacheRequest} */ (request),
+          combinedState
+        )
       }
 
       // Clear any previous save and exit session state
@@ -124,7 +129,9 @@ export default [
         question: securityQuestion,
         answer: securityAnswer
       }
-      const state = await cacheService.getState(request)
+      const state = await cacheService.getState(
+        /** @type {CacheRequest} */ (request)
+      )
 
       await publishSaveAndExitEvent(
         metadata.id,
@@ -136,7 +143,7 @@ export default [
       )
 
       // Clear all form data
-      await cacheService.clearState(request)
+      await cacheService.clearState(/** @type {CacheRequest} */ (request))
 
       // Add email to session for the confirmation page
       request.yar.set(getKey(slug, status), email)
@@ -351,7 +358,10 @@ export default [
       if (validatedLink.validPassword) {
         // Restore state
         const cacheService = getCacheService(request.server)
-        await cacheService.setState(request, validatedLink.state)
+        await cacheService.setState(
+          /** @type {CacheRequest} */ (request),
+          validatedLink.state
+        )
 
         const { isPreview, status } = validatedLink.form
 
@@ -431,7 +441,10 @@ export default [
       const { params } = request
       const { slug, state } = params
       const form = await getFormMetadata(slug)
-      const model = resumeSuccessViewModel(form, state)
+      const model = resumeSuccessViewModel(
+        form,
+        /** @type {FormStatus | undefined} */ (state)
+      )
 
       return h.view(RESUME_SUCCESS, model)
     },
@@ -450,6 +463,7 @@ export default [
 
 /**
  * @import { ServerRoute } from '@hapi/hapi'
- * @import { FormPayload } from '@defra/forms-engine-plugin/engine/types.js'
+ * @import { CacheRequest, FormPayload } from '@defra/forms-engine-plugin/engine/types.js'
+ * @import { FormStatus } from '@defra/forms-model'
  * @import { SaveAndExitParams, SaveAndExitPayload, SaveAndExitResumePasswordPayload, SaveAndExitResumePasswordParams } from '~/src/server/models/save-and-exit.js'
  */

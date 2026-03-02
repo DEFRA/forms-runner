@@ -1,3 +1,4 @@
+import { FormStatus } from '@defra/forms-model'
 import { StatusCodes } from 'http-status-codes'
 
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
@@ -41,7 +42,7 @@ describe('Save-and-exit check routes', () => {
         // @ts-expect-error - allow partial objects for tests
         form: {
           isPreview: true,
-          status: 'draft'
+          status: FormStatus.Draft
         }
       })
 
@@ -66,7 +67,7 @@ describe('Save-and-exit check routes', () => {
         // @ts-expect-error - allow partial objects for tests
         form: {
           isPreview: true,
-          status: 'draft'
+          status: FormStatus.Draft
         }
       })
 
@@ -160,7 +161,7 @@ describe('Save-and-exit check routes', () => {
         // @ts-expect-error - allow partial objects for tests
         form: {
           isPreview: true,
-          status: 'draft'
+          status: FormStatus.Draft
         }
       })
 
@@ -185,7 +186,7 @@ describe('Save-and-exit check routes', () => {
         // @ts-expect-error - allow partial objects for tests
         form: {
           isPreview: true,
-          status: 'draft'
+          status: FormStatus.Draft
         }
       })
 
@@ -427,7 +428,7 @@ describe('Save-and-exit check routes', () => {
         // @ts-expect-error - allow partial objects for tests
         form: {
           isPreview: true,
-          status: 'draft'
+          status: FormStatus.Draft
         }
       })
 
