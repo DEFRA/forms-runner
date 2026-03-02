@@ -199,11 +199,9 @@ describe('Routes', () => {
     jest
       .mocked(getFormMetadata)
       .mockResolvedValueOnce({ id: '123' } as unknown as FormMetadata)
-    jest
-      .mocked(getFormDefinition)
-      .mockResolvedValueOnce({
-        options: { disableUserFeedback: true }
-      } as unknown as FormDefinition)
+    jest.mocked(getFormDefinition).mockResolvedValueOnce({
+      options: { disableUserFeedback: true }
+    } as unknown as FormDefinition)
     const options = {
       method: 'GET',
       url: '/help/privacy/slug'
@@ -255,11 +253,9 @@ describe('Routes', () => {
   })
 
   test('privacy notice (specific) page is served with feedback by email link', async () => {
-    jest
-      .mocked(getFormDefinition)
-      .mockResolvedValueOnce({
-        options: { disableUserFeedback: true }
-      } as unknown as FormDefinition)
+    jest.mocked(getFormDefinition).mockResolvedValueOnce({
+      options: { disableUserFeedback: true }
+    } as unknown as FormDefinition)
     jest.mocked(getFormMetadata).mockResolvedValue({
       ...fixtures.form.metadata,
       privacyNoticeType: 'text',
