@@ -145,11 +145,11 @@
   {% if phaseTag and  not hidePhaseBanner %}
     {% set feedbackLinkHtml -%}
       {% if feedbackLink %}
-        <a href="{{ currentPath if context.isForceAccess else feedbackLink }}" class="govuk-link" {%- if not context.isForceAccess %} target="_blank" rel="noopener noreferrer" {%- endif %}>
+        <a href="{{ currentPath if context.isForceAccess else feedbackLink }}" class="govuk-link govuk-link--no-visited-state" {%- if not context.isForceAccess %} target="_blank" rel="noopener noreferrer" {%- endif %}>
           give your feedback (opens in new tab)
         </a>
       {% else %}
-        <a href="mailto:{{ config.feedbackViaEmail }}" class="govuk-link">
+        <a href="mailto:{{ config.feedbackViaEmail }}" class="govuk-link govuk-link--no-visited-state">
           give your feedback by email
         </a>
       {% endif %}
