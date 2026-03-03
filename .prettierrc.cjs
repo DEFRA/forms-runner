@@ -1,6 +1,5 @@
 /**
  * Prettier config
- *
  * @type {import('prettier').Config}
  */
 module.exports = {
