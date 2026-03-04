@@ -121,6 +121,9 @@ export async function getFormSecret(formId, secretName) {
   const response = await fetch(
     `${managerUrl}/forms/${formId}/secrets/${secretName}`
   )
+  if (response.statusText !== 'OK') {
+    return ''
+  }
   return decryptSecret(await response.text())
 }
 
