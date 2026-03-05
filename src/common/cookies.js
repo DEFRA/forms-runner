@@ -17,7 +17,6 @@ export function parseCookieConsent(value) {
   try {
     const encodedValue = decodeURIComponent(value)
 
-    // eslint-disable-next-line -- Allow JSON type 'any'
     const decodedValue = JSON.parse(encodedValue)
 
     if (isValidConsent(decodedValue)) {
