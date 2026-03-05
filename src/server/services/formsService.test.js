@@ -236,6 +236,22 @@ describe('Forms service', () => {
       )
       expect(res).toBe('decrypted-secret')
     })
+
+    it('handles missing secret', async () => {
+      // @ts-expect-error - mock fetch
+      global.fetch = jest.fn(() =>
+        Promise.resolve({
+          text: () => Promise.resolve('secret-value'),
+          statusText: 'Error'
+        })
+      )
+      const res = await getFormSecret(metadata.id, 'secret-name')
+
+      expect(fetch).toHaveBeenCalledWith(
+        `${MANAGER_URL}/forms/${metadata.id}/secrets/secret-name`
+      )
+      expect(res).toBe('')
+    })
   })
 })
 
