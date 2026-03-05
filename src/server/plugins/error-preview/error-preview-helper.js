@@ -284,7 +284,6 @@ export function expandTemplate(template, local = {}) {
     typeof template === 'string' ? createJoiExpression(template) : template
 
   // @ts-expect-error Joi types are messed up
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
   return templateExpression.render('', {}, prefs, local, options)
 }
 

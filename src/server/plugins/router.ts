@@ -9,7 +9,7 @@ import {
   pathSchema,
   stateSchema
 } from '@defra/forms-engine-plugin/schema.js'
-import { slugSchema } from '@defra/forms-model'
+import { FormStatus, slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
   type Request,
@@ -34,7 +34,10 @@ import {
   publicRoutes,
   saveAndExitRoutes
 } from '~/src/server/routes/index.js'
-import { getFormMetadata } from '~/src/server/services/formsService.js'
+import {
+  getFormDefinition,
+  getFormMetadata
+} from '~/src/server/services/formsService.js'
 import { getFeedbackFormLink } from '~/src/server/utils/utils.js'
 
 const routes: ServerRoute[] = [...publicRoutes, healthRoute]
@@ -134,12 +137,16 @@ export default {
         async handler(request, h) {
           const { slug } = request.params
           const form = await getFormMetadata(slug)
+          const definition = await getFormDefinition(form.id, FormStatus.Draft)
 
           return h.view('help/privacy-notice', {
             form,
             saveAndExitExpiryDays,
             storeCompletedApplicationsFor,
-            storeFeedbackFor
+            storeFeedbackFor,
+            ...(definition?.options?.disableUserFeedback
+              ? {}
+              : getFeedbackFormLink(form.id))
           })
         },
         options
@@ -151,9 +158,13 @@ export default {
         async handler(request, h) {
           const { slug } = request.params
           const form = await getFormMetadata(slug)
+          const definition = await getFormDefinition(form.id, FormStatus.Draft)
 
           return h.view('help/privacy-notice-specific', {
-            form
+            form,
+            ...(definition?.options?.disableUserFeedback
+              ? {}
+              : getFeedbackFormLink(form.id))
           })
         },
         options

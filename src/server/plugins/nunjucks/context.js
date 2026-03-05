@@ -23,7 +23,6 @@ export function context(request) {
 
   if (!webpackManifest) {
     try {
-      // eslint-disable-next-line -- Allow JSON type 'any'
       webpackManifest = JSON.parse(readFileSync(manifestPath, 'utf-8'))
     } catch {
       logger.info(
