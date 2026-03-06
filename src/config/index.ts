@@ -184,6 +184,12 @@ export const config = convict({
     default: null,
     env: 'SNS_ENDPOINT'
   } as SchemaObj<string>,
+  snsFormTopicArnMap: {
+    doc: 'JSON object mapping formId to SNS topic ARN for per-form additional topic routing',
+    format: String,
+    default: '',
+    env: 'SNS_FORM_TOPIC_ARN_MAP'
+  } as SchemaObj<string>,
 
   /**
    * API integrations

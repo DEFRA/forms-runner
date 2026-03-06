@@ -20,3 +20,5 @@ process.env.SNS_ADAPTER_TOPIC_ARN =
   'arn:aws:sns:eu-west-2:123456789012:test-adapter-topic'
 process.env.SNS_ENDPOINT = 'http://localhost:4566'
 process.env.PRIVATE_KEY_FOR_SECRETS = 'dummy-private-key'
+process.env.SNS_FORM_TOPIC_ARN_MAP =
+  '{"507f1f77bcf86cd799439099":"arn:aws:sns:eu-west-2:123456789012:form-specific-topic"}'
