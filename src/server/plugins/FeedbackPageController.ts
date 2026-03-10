@@ -6,10 +6,11 @@ import {
   type FormContextRequest
 } from '@defra/forms-engine-plugin/engine/types.js'
 import {
-  type FormPageViewModel,
   type FormRequestPayload,
   type FormResponseToolkit
 } from '@defra/forms-engine-plugin/types'
+
+import { type FeedbackPageViewModel } from '~/src/server/models/FeedbackPageViewModel.js'
 
 export class FeedbackPageController extends QuestionPageController {
   allowSaveAndExit = false
@@ -17,13 +18,13 @@ export class FeedbackPageController extends QuestionPageController {
   getViewModel(
     request: FormContextRequest,
     context: FormContext
-  ): FormPageViewModel {
+  ): FeedbackPageViewModel {
     const viewModel = super.getViewModel(request, context)
     return {
       ...viewModel,
       hidePhaseBanner: true,
       submitButtonText: 'Send feedback',
-      name: context.state.formName
+      name: context.state.formName as string | undefined
     }
   }
 
@@ -63,10 +64,11 @@ export class FeedbackPageController extends QuestionPageController {
       // Save state
       await this.setState(request, state)
 
-      const summary = new SummaryPageController(
-        model,
-        context.pageMap.get(context.paths[0])
-      )
+      const pageController = context.pageMap.get(context.paths[0])
+      if (!pageController) {
+        throw new Error('Summary page controller not found')
+      }
+      const summary = new SummaryPageController(model, pageController.pageDef)
       return summary.handleFormSubmit(request, context, h)
     }
   }

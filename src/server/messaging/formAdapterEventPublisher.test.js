@@ -54,7 +54,7 @@ describe('formAdapterEventPublisher', () => {
   /** @type {FormAdapterSubmissionMessagePayload} */
   let mockPayload
 
-  /** @type {any} */
+  /** @type {{ send: jest.Mock }} */
   let mockSnsClient
 
   beforeEach(() => {
@@ -65,10 +65,14 @@ describe('formAdapterEventPublisher', () => {
       meta: { ...basePayload.meta }
     })
 
-    mockSnsClient = {
-      send: jest.fn()
-    }
-    jest.mocked(getSNSClient).mockReturnValue(mockSnsClient)
+    mockSnsClient = { send: jest.fn() }
+    jest
+      .mocked(getSNSClient)
+      .mockReturnValue(
+        /** @type {import('@aws-sdk/client-sns').SNSClient} */ (
+          /** @type {unknown} */ (mockSnsClient)
+        )
+      )
   })
 
   describe('publishFormAdapterEvent', () => {

@@ -27,10 +27,11 @@ describe('SummaryPageWithConfirmationEmailController', () => {
   const response = {
     code: jest.fn().mockImplementation(() => response)
   }
-  const h: FormResponseToolkit = {
+  const h = {
     redirect: jest.fn().mockReturnValue(response),
-    view: jest.fn()
-  }
+    view: jest.fn(),
+    continue: Symbol('continue')
+  } as unknown as FormResponseToolkit
 
   beforeEach(() => {
     model = new FormModel(definition, {

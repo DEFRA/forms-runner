@@ -170,7 +170,7 @@ export default {
         options
       })
 
-      server.route<{ Params: { slug: string } }>({
+      server.route({
         method: 'get',
         path: '/help/cookies/{slug}',
         async handler(request, h) {
@@ -182,7 +182,7 @@ export default {
 
           const state = await cacheService.getState(request)
 
-          const formId = state?.formId ?? ''
+          const formId = (state.formId ?? '') as string
 
           return h.view('help/cookies', {
             googleAnalyticsContainerId: config

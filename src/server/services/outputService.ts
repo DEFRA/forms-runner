@@ -73,7 +73,7 @@ export class OutputService implements IOutputService {
 
       if (isFeedbackForm(model.def) && submissionPayload.data.main.formId) {
         // Override notification email to that of the related form (not the feedback form)
-        const relatedFormId = submissionPayload.data.main.formId
+        const relatedFormId = submissionPayload.data.main.formId as string
         const relatedMetadata = await getFormMetadataById(relatedFormId)
         if (!relatedMetadata.notificationEmail) {
           logger.info(
@@ -94,9 +94,9 @@ export class OutputService implements IOutputService {
         return
       }
 
-      if (request.payload?.userConfirmationEmailAddress) {
+      if (request.payload.userConfirmationEmailAddress) {
         submissionPayload.meta.custom = {
-          userConfirmationEmail: request.payload?.userConfirmationEmailAddress
+          userConfirmationEmail: request.payload.userConfirmationEmailAddress
         }
       }
 
