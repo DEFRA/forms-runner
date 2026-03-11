@@ -137,6 +137,9 @@ function buildEmailConfirmationField(payload, error) {
       classes: GOVUK_LABEL__M,
       isPageHeading: false
     },
+    hint: {
+      text: 'Check you have entered the correct email address'
+    },
     value: payload?.emailConfirmation,
     errorMessage: error && {
       text: error.message
