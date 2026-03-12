@@ -1,3 +1,4 @@
+import { MAGIC_LINK_GROUP_ID } from '@defra/forms-engine-plugin'
 import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { type FormModel } from '@defra/forms-engine-plugin/engine/models/FormModel.js'
 import { type DetailItem } from '@defra/forms-engine-plugin/engine/models/types.js'
@@ -97,6 +98,14 @@ export class OutputService implements IOutputService {
       if (request.payload?.userConfirmationEmailAddress) {
         submissionPayload.meta.custom = {
           userConfirmationEmail: request.payload?.userConfirmationEmailAddress
+        }
+      }
+
+      // Add magic link group id if user resumed the form with a save-and-exit magic link
+      const magicLinkGroupId = context.state[MAGIC_LINK_GROUP_ID]
+      if (magicLinkGroupId) {
+        submissionPayload.meta.custom = {
+          magicLinkGroupId
         }
       }
 

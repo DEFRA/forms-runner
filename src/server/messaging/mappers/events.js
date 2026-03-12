@@ -1,3 +1,4 @@
+import { MAGIC_LINK_GROUP_ID } from '@defra/forms-engine-plugin'
 import {
   FormStatus,
   SubmissionEventMessageCategory,
@@ -7,7 +8,6 @@ import {
 } from '@defra/forms-model'
 
 import { config } from '~/src/config/index.js'
-import { SOURCE_MAGIC_LINK_ID } from '~/src/server/routes/save-and-exit.js'
 
 const baseUrl = config.get('baseUrl')
 
@@ -28,7 +28,10 @@ export function saveAndExitMapper(
   state,
   status
 ) {
-  const sourceMagicLinkId = state[SOURCE_MAGIC_LINK_ID]
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  const magicLinkGroupId = state ? state[MAGIC_LINK_GROUP_ID] : undefined
+  const extraProp =
+    typeof magicLinkGroupId === 'string' ? { magicLinkGroupId } : {}
 
   /** @type {SaveAndExitMessageData} */
   const data = {
@@ -42,8 +45,7 @@ export function saveAndExitMapper(
     email,
     security,
     state,
-    sourceMagicLinkId:
-      typeof sourceMagicLinkId === 'string' ? sourceMagicLinkId : ''
+    ...extraProp
   }
   const now = new Date()
   return {

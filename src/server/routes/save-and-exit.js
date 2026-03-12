@@ -1,5 +1,6 @@
 import {
   CURRENT_PAGE_PATH_KEY,
+  MAGIC_LINK_GROUP_ID,
   STATE_NOT_YET_VALIDATED
 } from '@defra/forms-engine-plugin'
 import { getCacheService } from '@defra/forms-engine-plugin/engine/helpers.js'
@@ -44,8 +45,6 @@ const RESUME_ERROR = 'save-and-exit/resume-error'
 const RESUME_ERROR_LOCKED = 'save-and-exit/resume-error-locked'
 const RESUME_PASSWORD_PATH = 'save-and-exit/resume-password'
 const RESUME_SUCCESS = 'save-and-exit/resume-success'
-
-export const SOURCE_MAGIC_LINK_ID = '__sourceMagicLinkId'
 
 /**
  * @param {number} attemptsSoFar
@@ -355,7 +354,7 @@ export default [
         const cacheService = getCacheService(request.server)
         await cacheService.setState(request, {
           ...validatedLink.state,
-          [SOURCE_MAGIC_LINK_ID]: magicLinkId
+          [MAGIC_LINK_GROUP_ID]: validatedLink.magicLinkGroupId
         })
 
         const { isPreview, status } = validatedLink.form
