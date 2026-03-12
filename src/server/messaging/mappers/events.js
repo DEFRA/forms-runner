@@ -7,6 +7,7 @@ import {
 } from '@defra/forms-model'
 
 import { config } from '~/src/config/index.js'
+import { SOURCE_MAGIC_LINK_ID } from '~/src/server/routes/save-and-exit.js'
 
 const baseUrl = config.get('baseUrl')
 
@@ -27,6 +28,8 @@ export function saveAndExitMapper(
   state,
   status
 ) {
+  const sourceMagicLinkId = state[SOURCE_MAGIC_LINK_ID]
+
   /** @type {SaveAndExitMessageData} */
   const data = {
     form: {
@@ -38,7 +41,9 @@ export function saveAndExitMapper(
     },
     email,
     security,
-    state
+    state,
+    sourceMagicLinkId:
+      typeof sourceMagicLinkId === 'string' ? sourceMagicLinkId : ''
   }
   const now = new Date()
   return {

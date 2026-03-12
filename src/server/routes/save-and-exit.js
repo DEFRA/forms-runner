@@ -45,6 +45,8 @@ const RESUME_ERROR_LOCKED = 'save-and-exit/resume-error-locked'
 const RESUME_PASSWORD_PATH = 'save-and-exit/resume-password'
 const RESUME_SUCCESS = 'save-and-exit/resume-success'
 
+export const SOURCE_MAGIC_LINK_ID = '__sourceMagicLinkId'
+
 /**
  * @param {number} attemptsSoFar
  */
@@ -351,7 +353,10 @@ export default [
       if (validatedLink.validPassword) {
         // Restore state
         const cacheService = getCacheService(request.server)
-        await cacheService.setState(request, validatedLink.state)
+        await cacheService.setState(request, {
+          ...validatedLink.state,
+          [SOURCE_MAGIC_LINK_ID]: magicLinkId
+        })
 
         const { isPreview, status } = validatedLink.form
 
