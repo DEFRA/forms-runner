@@ -9,6 +9,28 @@ export function getPayloadFromFlash(request) {
 }
 
 /**
+ * Check that the form has state
+ * @param {FormSubmissionState} formState
+ * @param {Partial<{ errors?: { text: string, href: string }[]}>} model
+ */
+export function checkStateIsNotMissing(formState, model) {
+  if (Object.keys(formState).length === 0) {
+    const error = {
+      text: 'There is no data held for this form. Please restart your submission.',
+      href: '#'
+    }
+    if (model.errors) {
+      model.errors.push(error)
+    } else {
+      model.errors = [error]
+    }
+    return model
+  }
+  return undefined
+}
+
+/**
  * @import { Request } from '@hapi/hapi'
  * @import { SaveAndExitParams } from '~/src/server/models/save-and-exit.js'
+ * @import { FormSubmissionState } from '@defra/forms-engine-plugin/engine/types.js'
  */

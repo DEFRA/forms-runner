@@ -4,7 +4,10 @@ import { within } from '@testing-library/dom'
 import { StatusCodes } from 'http-status-codes'
 
 import { createServer } from '~/src/server/index.js'
-import { getPayloadFromFlash } from '~/src/server/routes/save-and-exit-helper.js'
+import {
+  checkStateIsNotMissing,
+  getPayloadFromFlash
+} from '~/src/server/routes/save-and-exit-helper.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
@@ -159,6 +162,25 @@ describe('Save and exit', () => {
     })
 
     expect(response2.statusCode).toBe(StatusCodes.OK)
+  })
+
+  it('posts details page catches error if no state', async () => {
+    const options = {
+      method: 'POST',
+      url: '/save-and-exit/basic',
+      payload: {
+        email: 'enrique.chase@defra.gov.uk',
+        emailConfirmation: 'enrique.chase@defra.gov.uk',
+        securityQuestion: 'audio-recommendation',
+        securityAnswer: 'Chase & Status'
+      }
+    }
+
+    jest.mocked(checkStateIsNotMissing).mockReturnValueOnce({})
+    const { response } = await renderResponse(server, options)
+
+    expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(response.headers.location).toBe('/save-and-exit/basic/')
   })
 
   it('confirmation page errors if no details are flashed', async () => {

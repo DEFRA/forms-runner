@@ -26,7 +26,10 @@ import {
   resumeSuccessViewModel,
   validatePayloadSchema
 } from '~/src/server/models/save-and-exit.js'
-import { getPayloadFromFlash } from '~/src/server/routes/save-and-exit-helper.js'
+import {
+  checkStateIsNotMissing,
+  getPayloadFromFlash
+} from '~/src/server/routes/save-and-exit-helper.js'
 import {
   getFormMetadata,
   getFormMetadataById,
@@ -70,6 +73,14 @@ export default [
       // The current page state may be invalid so we don't want to push into the cache as normal properties.
       const cacheService = getCacheService(request.server)
       const formState = await cacheService.getState(request)
+
+      // Handle the user navigating back from previously submitting a save-and-exit. The state has been cleared
+      // so we need to warn the user
+      const noStateModel = checkStateIsNotMissing(formState, model)
+      if (noStateModel) {
+        return h.view('save-and-exit/details', model)
+      }
+
       const pagePayload = getPayloadFromFlash(request)
       const currentPagePayload = Array.isArray(pagePayload)
         ? {}
@@ -126,6 +137,15 @@ export default [
       }
       const state = await cacheService.getState(request)
 
+      const statusPath = status ? `/${status}` : ''
+
+      // Handle the user navigating back from previously submitting a save-and-exit. The state has been cleared
+      // so we need to warn the user
+      const noStateModel = checkStateIsNotMissing(state, { errors: [] })
+      if (noStateModel) {
+        return h.redirect(`/save-and-exit/${slug}/${statusPath}`)
+      }
+
       await publishSaveAndExitEvent(
         metadata.id,
         metadata.title,
@@ -142,8 +162,6 @@ export default [
       request.yar.set(getKey(slug, status), email)
 
       // Redirect to the save and exit confirmation page
-      const statusPath = status ? `/${status}` : ''
-
       return h.redirect(`/save-and-exit/${slug}/confirmation${statusPath}`)
     },
     options: {
