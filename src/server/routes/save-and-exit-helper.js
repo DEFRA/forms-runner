@@ -13,10 +13,10 @@ export function getPayloadFromFlash(request) {
  * @param {FormSubmissionState} formState
  * @param {Partial<{ errors?: { text: string, href: string }[]}>} model
  */
-export function checkStateIsNotMissing(formState, model) {
+export function shouldShowStateError(formState, model) {
   if (Object.keys(formState).length === 0) {
     const error = {
-      text: 'There is no data held for this form. Please restart your submission.',
+      text: "There is no data held for this form. Please restart your submission or use a previous 'Save and exit' link.",
       href: '#'
     }
     if (model.errors) {

@@ -27,8 +27,8 @@ import {
   validatePayloadSchema
 } from '~/src/server/models/save-and-exit.js'
 import {
-  checkStateIsNotMissing,
-  getPayloadFromFlash
+  getPayloadFromFlash,
+  shouldShowStateError
 } from '~/src/server/routes/save-and-exit-helper.js'
 import {
   getFormMetadata,
@@ -43,6 +43,7 @@ const maxInvalidPasswordAttempts = 5
 const ERROR_BASE_URL = '/resume-form-error'
 
 // View paths
+const SAVE_AND_EXIT_DETAILS = 'save-and-exit/details'
 const RESUME_ERROR = 'save-and-exit/resume-error'
 const RESUME_ERROR_LOCKED = 'save-and-exit/resume-error-locked'
 const RESUME_PASSWORD_PATH = 'save-and-exit/resume-password'
@@ -76,9 +77,9 @@ export default [
 
       // Handle the user navigating back from previously submitting a save-and-exit. The state has been cleared
       // so we need to warn the user
-      const noStateModel = checkStateIsNotMissing(formState, model)
+      const noStateModel = shouldShowStateError(formState, model)
       if (noStateModel) {
-        return h.view('save-and-exit/details', model)
+        return h.view(SAVE_AND_EXIT_DETAILS, model)
       }
 
       const pagePayload = getPayloadFromFlash(request)
@@ -109,7 +110,7 @@ export default [
       // Clear any previous save and exit session state
       request.yar.clear(getKey(slug, status))
 
-      return h.view('save-and-exit/details', model)
+      return h.view(SAVE_AND_EXIT_DETAILS, model)
     },
     options: {
       validate: {
@@ -141,7 +142,7 @@ export default [
 
       // Handle the user navigating back from previously submitting a save-and-exit. The state has been cleared
       // so we need to warn the user
-      const noStateModel = checkStateIsNotMissing(state, { errors: [] })
+      const noStateModel = shouldShowStateError(state, { errors: [] })
       if (noStateModel) {
         return h.redirect(`/save-and-exit/${slug}/${statusPath}`)
       }
@@ -177,7 +178,7 @@ export default [
             err
           )
 
-          return h.view('save-and-exit/details', model).takeover()
+          return h.view(SAVE_AND_EXIT_DETAILS, model).takeover()
         },
         params: paramsSchema,
         payload: payloadSchema

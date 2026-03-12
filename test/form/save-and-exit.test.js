@@ -5,8 +5,8 @@ import { StatusCodes } from 'http-status-codes'
 
 import { createServer } from '~/src/server/index.js'
 import {
-  checkStateIsNotMissing,
-  getPayloadFromFlash
+  getPayloadFromFlash,
+  shouldShowStateError
 } from '~/src/server/routes/save-and-exit-helper.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
@@ -176,7 +176,7 @@ describe('Save and exit', () => {
       }
     }
 
-    jest.mocked(checkStateIsNotMissing).mockReturnValueOnce({})
+    jest.mocked(shouldShowStateError).mockReturnValueOnce({})
     const { response } = await renderResponse(server, options)
 
     expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
