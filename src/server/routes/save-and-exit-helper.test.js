@@ -1,6 +1,6 @@
 import {
-  getPayloadFromFlash,
-  shouldShowStateError
+  generateStateError,
+  getPayloadFromFlash
 } from '~/src/server/routes/save-and-exit-helper.js'
 
 describe('save-and-exit-helper tests', () => {
@@ -15,22 +15,16 @@ describe('save-and-exit-helper tests', () => {
     })
   })
 
-  describe('shouldShowStateError', () => {
+  describe('generateStateError', () => {
     test('returns error message if no state', () => {
-      expect(shouldShowStateError({}, { errors: [] })).toEqual({
-        errors: [
-          {
-            href: '#',
-            text: "There is no data held for this form. Please restart your submission or use a previous 'Save and exit' link."
-          }
-        ]
+      expect(generateStateError({})).toEqual({
+        href: '#',
+        text: "There is no data held for this form. Please restart your submission or use a previous 'Save and exit' link."
       })
     })
 
     test('returns undefined if some state', () => {
-      expect(
-        shouldShowStateError({ formId: 'abc' }, { errors: [] })
-      ).toBeUndefined()
+      expect(generateStateError({ formId: 'abc' })).toBeUndefined()
     })
   })
 })

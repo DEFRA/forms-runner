@@ -27,8 +27,8 @@ import {
   validatePayloadSchema
 } from '~/src/server/models/save-and-exit.js'
 import {
-  getPayloadFromFlash,
-  shouldShowStateError
+  generateStateError,
+  getPayloadFromFlash
 } from '~/src/server/routes/save-and-exit-helper.js'
 import {
   getFormMetadata,
@@ -56,6 +56,19 @@ export function getPasswordAttemptsLeft(attemptsSoFar) {
   return maxInvalidPasswordAttempts - attemptsSoFar
 }
 
+/**
+ * @param {Partial<{ errors?: { text: string, href: string }[]}>} model
+ * @param {{ href: string, text: string}} error
+ */
+export function addError(model, error) {
+  if (model.errors) {
+    model.errors.push(error)
+  } else {
+    model.errors = [error]
+  }
+  return model
+}
+
 export default [
   /**
    * @satisfies {ServerRoute<{ Params: SaveAndExitParams }>}
@@ -77,8 +90,9 @@ export default [
 
       // Handle the user navigating back from previously submitting a save-and-exit. The state has been cleared
       // so we need to warn the user
-      const noStateModel = shouldShowStateError(formState, model)
-      if (noStateModel) {
+      const stateError = generateStateError(formState)
+      if (stateError) {
+        addError(model, stateError)
         return h.view(SAVE_AND_EXIT_DETAILS, model)
       }
 
@@ -142,8 +156,8 @@ export default [
 
       // Handle the user navigating back from previously submitting a save-and-exit. The state has been cleared
       // so we need to warn the user
-      const noStateModel = shouldShowStateError(state, { errors: [] })
-      if (noStateModel) {
+      const stateError = generateStateError(state)
+      if (stateError) {
         return h.redirect(`/save-and-exit/${slug}/${statusPath}`)
       }
 

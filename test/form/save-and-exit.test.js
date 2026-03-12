@@ -5,8 +5,8 @@ import { StatusCodes } from 'http-status-codes'
 
 import { createServer } from '~/src/server/index.js'
 import {
-  getPayloadFromFlash,
-  shouldShowStateError
+  generateStateError,
+  getPayloadFromFlash
 } from '~/src/server/routes/save-and-exit-helper.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
@@ -107,6 +107,30 @@ describe('Save and exit', () => {
     expect($securityAnswerLabel).toBeInTheDocument()
   })
 
+  it('shows the details page with error when missing state', async () => {
+    const options = {
+      method: 'GET',
+      url: '/save-and-exit/basic'
+    }
+
+    jest
+      .mocked(generateStateError)
+      .mockReturnValueOnce({ href: '#', text: 'Some error text' })
+
+    const { container } = await renderResponse(server, options)
+
+    const $errorSummary = container.getByRole('alert')
+    const $heading = within($errorSummary).getByRole('heading', {
+      name: 'There is a problem',
+      level: 2
+    })
+    const $errorItems = within($errorSummary).getAllByRole('listitem')
+
+    expect($errorSummary).toBeInTheDocument()
+    expect($heading).toBeInTheDocument()
+    expect($errorItems[0]).toHaveTextContent('Some error text')
+  })
+
   it('shows the details page with errors', async () => {
     const options = {
       method: 'POST',
@@ -176,7 +200,9 @@ describe('Save and exit', () => {
       }
     }
 
-    jest.mocked(shouldShowStateError).mockReturnValueOnce({})
+    jest
+      .mocked(generateStateError)
+      .mockReturnValueOnce({ href: '#', text: 'Some error text' })
     const { response } = await renderResponse(server, options)
 
     expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
