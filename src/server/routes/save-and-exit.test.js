@@ -2,6 +2,7 @@ import { StatusCodes } from 'http-status-codes'
 
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
 import { createServer } from '~/src/server/index.js'
+import { addError } from '~/src/server/routes/save-and-exit.js'
 import {
   getFormMetadata,
   getFormMetadataById,
@@ -478,6 +479,22 @@ describe('Save-and-exit check routes', () => {
 
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
       expect(response.headers.location).toBe('/resume-form-error')
+    })
+  })
+
+  describe('addError', () => {
+    test('adds error to existing array', () => {
+      const model = { errors: [{ href: '#', text: 'Some error text1' }] }
+      const error = { href: '#', text: 'Some error text2' }
+      const newModel = addError(model, error)
+      expect(newModel.errors).toHaveLength(2)
+    })
+
+    test('adds error to new error array', () => {
+      const model = {}
+      const error = { href: '#', text: 'Some error text' }
+      const newModel = addError(model, error)
+      expect(newModel.errors).toHaveLength(1)
     })
   })
 })

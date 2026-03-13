@@ -11,6 +11,7 @@ import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { createJoiError } from '~/src/server/helpers/error-helper.js'
 import { publishSaveAndExitEvent } from '~/src/server/messaging/publish.js'
 import {
   confirmationViewModel,
@@ -26,7 +27,10 @@ import {
   resumeSuccessViewModel,
   validatePayloadSchema
 } from '~/src/server/models/save-and-exit.js'
-import { getPayloadFromFlash } from '~/src/server/routes/save-and-exit-helper.js'
+import {
+  getPayloadFromFlash,
+  hasState
+} from '~/src/server/routes/save-and-exit-helper.js'
 import {
   getFormMetadata,
   getFormMetadataById,
@@ -40,6 +44,7 @@ const maxInvalidPasswordAttempts = 5
 const ERROR_BASE_URL = '/resume-form-error'
 
 // View paths
+const SAVE_AND_EXIT_DETAILS = 'save-and-exit/details'
 const RESUME_ERROR = 'save-and-exit/resume-error'
 const RESUME_ERROR_LOCKED = 'save-and-exit/resume-error-locked'
 const RESUME_PASSWORD_PATH = 'save-and-exit/resume-password'
@@ -50,6 +55,19 @@ const RESUME_SUCCESS = 'save-and-exit/resume-success'
  */
 export function getPasswordAttemptsLeft(attemptsSoFar) {
   return maxInvalidPasswordAttempts - attemptsSoFar
+}
+
+/**
+ * @param {Partial<{ errors?: { text: string, href: string }[]}>} model
+ * @param {{ href: string, text: string }} error
+ */
+export function addError(model, error) {
+  if (model.errors) {
+    model.errors.push(error)
+  } else {
+    model.errors = [error]
+  }
+  return model
 }
 
 export default [
@@ -70,6 +88,13 @@ export default [
       // The current page state may be invalid so we don't want to push into the cache as normal properties.
       const cacheService = getCacheService(request.server)
       const formState = await cacheService.getState(request)
+
+      // Handle the user navigating back from previously submitting a save-and-exit. The state has been cleared
+      // so just show the form from the start
+      if (!hasState(formState)) {
+        return h.redirect(model.serviceUrl)
+      }
+
       const pagePayload = getPayloadFromFlash(request)
       const currentPagePayload = Array.isArray(pagePayload)
         ? {}
@@ -98,7 +123,9 @@ export default [
       // Clear any previous save and exit session state
       request.yar.clear(getKey(slug, status))
 
-      return h.view('save-and-exit/details', model)
+      return h
+        .view(SAVE_AND_EXIT_DETAILS, model)
+        .header('Cache-Control', 'no-cache, no-store, must-revalidate')
     },
     options: {
       validate: {
@@ -126,6 +153,23 @@ export default [
       }
       const state = await cacheService.getState(request)
 
+      const statusPath = status ? `/${status}` : ''
+
+      // Handle the user navigating back from previously submitting a save-and-exit. The state has been cleared
+      // so we need to warn the user
+      if (!hasState(state)) {
+        const model = detailsViewModel(
+          metadata,
+          status,
+          /** @type {SaveAndExitPayload} */ (payload),
+          createJoiError(
+            'general',
+            'Your information is no longer available. Return to the start of the form.'
+          )
+        )
+        return h.view(SAVE_AND_EXIT_DETAILS, model).takeover()
+      }
+
       await publishSaveAndExitEvent(
         metadata.id,
         metadata.title,
@@ -142,8 +186,6 @@ export default [
       request.yar.set(getKey(slug, status), email)
 
       // Redirect to the save and exit confirmation page
-      const statusPath = status ? `/${status}` : ''
-
       return h.redirect(`/save-and-exit/${slug}/confirmation${statusPath}`)
     },
     options: {
@@ -159,7 +201,7 @@ export default [
             err
           )
 
-          return h.view('save-and-exit/details', model).takeover()
+          return h.view(SAVE_AND_EXIT_DETAILS, model).takeover()
         },
         params: paramsSchema,
         payload: payloadSchema
