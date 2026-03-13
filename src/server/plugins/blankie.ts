@@ -43,7 +43,7 @@ export const configureBlankiePlugin = (): ServerRegisterPluginObject<
       ].flat(),
       frameSrc: ['self', 'data:'],
       workerSrc: ['self', 'blob:'],
-      generateNonces: true
+      generateNonces: 'script'
     }
   }
 }
