@@ -46,12 +46,12 @@ describe(`Cookie banner and analytics`, () => {
       name: 'Cookies on Submit a form to Defra'
     })
 
-    const $gaScriptMain = document.getElementById('ga-tag-js-main')
-    const $gaScriptInit = document.getElementById('ga-tag-js-init')
+    const $gtmScript = document.getElementById('gtm-init')
+    const $gtmNoscript = document.getElementById('gtm-noscript')
 
     expect($cookieBanner).toBeInTheDocument()
-    expect($gaScriptMain).not.toBeInTheDocument()
-    expect($gaScriptInit).not.toBeInTheDocument()
+    expect($gtmScript).not.toBeInTheDocument()
+    expect($gtmNoscript).not.toBeInTheDocument()
   })
 
   test.each([
@@ -96,13 +96,13 @@ describe(`Cookie banner and analytics`, () => {
       { exact: false }
     )
 
-    const $gaScriptMain = document.getElementById('ga-tag-js-main')
-    const $gaScriptInit = document.getElementById('ga-tag-js-init')
+    const $gtmScript = document.getElementById('gtm-init')
+    const $gtmNoscript = document.getElementById('gtm-noscript')
 
     expect($cookieBanner).toBeInTheDocument()
     expect($confirmationText).toBeInTheDocument()
-    expect($gaScriptMain).toBeInTheDocument()
-    expect($gaScriptInit).toBeInTheDocument()
+    expect($gtmScript).toBeInTheDocument()
+    expect($gtmNoscript).toBeInTheDocument()
   })
 
   test.each([
@@ -149,14 +149,14 @@ describe(`Cookie banner and analytics`, () => {
       { exact: false }
     )
 
-    const $gaScriptMain = document.getElementById('ga-tag-js-main')
-    const $gaScriptInit = document.getElementById('ga-tag-js-init')
+    const $gtmScript = document.getElementById('gtm-init')
+    const $gtmNoscript = document.getElementById('gtm-noscript')
 
     expect($cookieBanner).toBeInTheDocument()
     expect($confirmationText).toBeInTheDocument()
 
-    expect($gaScriptMain).not.toBeInTheDocument()
-    expect($gaScriptInit).not.toBeInTheDocument()
+    expect($gtmScript).not.toBeInTheDocument()
+    expect($gtmNoscript).not.toBeInTheDocument()
   })
 
   test.each([

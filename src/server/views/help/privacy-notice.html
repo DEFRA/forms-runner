@@ -19,7 +19,7 @@
 
       <h2 class="govuk-heading-m">Data we collect from you and what we do with it</h2>
 
-      {% if config.googleAnalyticsTrackingId %}
+      {% if config.googleTagManagerContainerId %}
         <div id="ga-analytics-segment">
           <p class="govuk-body">If you give your consent, we use Google Analytics cookies to collect information about how you use <strong>{{ config.serviceName }}</strong>. Read the <a href="https://support.google.com/analytics/topic/2919631" class="govuk-link">data privacy and security policy for Google Analytics</a>.</p>
           <p class="govuk-body">Google Analytics processes information about:</p>
@@ -36,7 +36,7 @@
       {% endif %}
 
       <p class="govuk-body">We use system logs to collect information about the usage of forms.</p>
-      <p class="govuk-body">We use the system logs {% if config.googleAnalyticsTrackingId %}and Google Analytics data{% endif %} to create anonymised reports about the performance of forms that use <strong>{{ config.serviceName }}</strong>. We use this data to improve forms, for example, if we discover a high number of incomplete forms.</p>
+      <p class="govuk-body">We use the system logs {% if config.googleTagManagerContainerId %}and Google Analytics data{% endif %} to create anonymised reports about the performance of forms that use <strong>{{ config.serviceName }}</strong>. We use this data to improve forms, for example, if we discover a high number of incomplete forms.</p>
       <p class="govuk-body">If you email us feedback about a form that uses <strong>{{ config.serviceName }}</strong>, we’ll send your email address and any other personal information you choose to include in your email to the controller for review. The controller may use your personal data to reply to your query to update a form based on your feedback where it is appropriate.</p>
 
       <h3 class="govuk-heading-m">Save and return to a form</h3>
