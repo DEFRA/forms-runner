@@ -1,3 +1,4 @@
+import { MAGIC_LINK_GROUP_ID } from '@defra/forms-engine-plugin'
 import {
   FormStatus,
   SubmissionEventMessageCategory,
@@ -27,6 +28,11 @@ export function saveAndExitMapper(
   state,
   status
 ) {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  const magicLinkGroupId = state ? state[MAGIC_LINK_GROUP_ID] : undefined
+  const extraProp =
+    typeof magicLinkGroupId === 'string' ? { magicLinkGroupId } : {}
+
   /** @type {SaveAndExitMessageData} */
   const data = {
     form: {
@@ -38,7 +44,8 @@ export function saveAndExitMapper(
     },
     email,
     security,
-    state
+    state,
+    ...extraProp
   }
   const now = new Date()
   return {
