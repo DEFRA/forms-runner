@@ -158,7 +158,7 @@ export default [
       // so we need to warn the user
       const stateError = generateStateError(state)
       if (stateError) {
-        return h.redirect(`/save-and-exit/${slug}/${statusPath}`)
+        return h.redirect(`/save-and-exit/${slug}${statusPath}`)
       }
 
       await publishSaveAndExitEvent(
