@@ -25,7 +25,7 @@ describe(`Privacy policy`, () => {
   })
 
   it('shows the GA text when enabled', async () => {
-    config.set('googleAnalyticsTrackingId', '12345')
+    config.set('googleTagManagerContainerId', 'GTM-XXXXXXXX')
     config.set('serviceName', 'Submit a form to Defra')
 
     server = await createServer({
@@ -50,7 +50,7 @@ describe(`Privacy policy`, () => {
   })
 
   it('hides the GA text when disabled', async () => {
-    config.set('googleAnalyticsTrackingId', '')
+    config.set('googleTagManagerContainerId', '')
 
     server = await createServer({
       formFileName: 'basic.js',
