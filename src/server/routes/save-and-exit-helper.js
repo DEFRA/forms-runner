@@ -17,16 +17,6 @@ export function hasState(formState) {
 }
 
 /**
- * Create an error when no state
- */
-export function generateStateError() {
-  return {
-    text: 'Your information is no longer available. Return to the start of the form.',
-    href: '#'
-  }
-}
-
-/**
  * @import { Request } from '@hapi/hapi'
  * @import { SaveAndExitParams } from '~/src/server/models/save-and-exit.js'
  * @import { FormSubmissionState } from '@defra/forms-engine-plugin/engine/types.js'

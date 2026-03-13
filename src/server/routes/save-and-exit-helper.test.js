@@ -1,5 +1,4 @@
 import {
-  generateStateError,
   getPayloadFromFlash,
   hasState
 } from '~/src/server/routes/save-and-exit-helper.js'
@@ -13,15 +12,6 @@ describe('save-and-exit-helper tests', () => {
       // @ts-expect-error - partial mock of request
       const res = getPayloadFromFlash(mockRequest)
       expect(res).toBe('flash-content')
-    })
-  })
-
-  describe('generateStateError', () => {
-    test('returns error message', () => {
-      expect(generateStateError()).toEqual({
-        href: '#',
-        text: 'Your information is no longer available. Return to the start of the form.'
-      })
     })
   })
 

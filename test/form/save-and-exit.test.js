@@ -5,8 +5,8 @@ import { StatusCodes } from 'http-status-codes'
 
 import { createServer } from '~/src/server/index.js'
 import {
-  generateStateError,
-  getPayloadFromFlash
+  getPayloadFromFlash,
+  hasState
 } from '~/src/server/routes/save-and-exit-helper.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
@@ -34,6 +34,7 @@ describe('Save and exit', () => {
 
   beforeEach(() => {
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+    jest.mocked(hasState).mockReturnValue(true)
   })
 
   afterAll(async () => {
@@ -107,28 +108,18 @@ describe('Save and exit', () => {
     expect($securityAnswerLabel).toBeInTheDocument()
   })
 
-  it('shows the details page with error when missing state', async () => {
+  it('redirects to first page of form when missing state', async () => {
     const options = {
       method: 'GET',
       url: '/save-and-exit/basic'
     }
 
-    jest
-      .mocked(generateStateError)
-      .mockReturnValueOnce({ href: '#', text: 'Some error text' })
+    jest.mocked(hasState).mockReturnValue(false)
 
-    const { container } = await renderResponse(server, options)
+    const { response } = await renderResponse(server, options)
 
-    const $errorSummary = container.getByRole('alert')
-    const $heading = within($errorSummary).getByRole('heading', {
-      name: 'There is a problem',
-      level: 2
-    })
-    const $errorItems = within($errorSummary).getAllByRole('listitem')
-
-    expect($errorSummary).toBeInTheDocument()
-    expect($heading).toBeInTheDocument()
-    expect($errorItems[0]).toHaveTextContent('Some error text')
+    expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(response.headers.location).toBe('/form/test-form')
   })
 
   it('shows the details page with errors', async () => {
@@ -200,13 +191,22 @@ describe('Save and exit', () => {
       }
     }
 
-    jest
-      .mocked(generateStateError)
-      .mockReturnValueOnce({ href: '#', text: 'Some error text' })
-    const { response } = await renderResponse(server, options)
+    jest.mocked(hasState).mockReturnValue(false)
 
-    expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-    expect(response.headers.location).toBe('/save-and-exit/basic/')
+    const { container } = await renderResponse(server, options)
+
+    const $errorSummary = container.getByRole('alert')
+    const $heading = within($errorSummary).getByRole('heading', {
+      name: 'There is a problem',
+      level: 2
+    })
+    const $errorItems = within($errorSummary).getAllByRole('listitem')
+
+    expect($errorSummary).toBeInTheDocument()
+    expect($heading).toBeInTheDocument()
+    expect($errorItems[0]).toHaveTextContent(
+      'Your information is no longer available. Return to the start of the form.'
+    )
   })
 
   it('confirmation page errors if no details are flashed', async () => {

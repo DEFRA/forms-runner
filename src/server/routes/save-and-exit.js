@@ -11,6 +11,7 @@ import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { createJoiError } from '~/src/server/helpers/error-helper.js'
 import { publishSaveAndExitEvent } from '~/src/server/messaging/publish.js'
 import {
   confirmationViewModel,
@@ -27,7 +28,6 @@ import {
   validatePayloadSchema
 } from '~/src/server/models/save-and-exit.js'
 import {
-  generateStateError,
   getPayloadFromFlash,
   hasState
 } from '~/src/server/routes/save-and-exit-helper.js'
@@ -90,10 +90,9 @@ export default [
       const formState = await cacheService.getState(request)
 
       // Handle the user navigating back from previously submitting a save-and-exit. The state has been cleared
-      // so we need to warn the user
+      // so just show the form from the start
       if (!hasState(formState)) {
-        addError(model, generateStateError())
-        return h.view(SAVE_AND_EXIT_DETAILS, model)
+        return h.redirect(model.serviceUrl)
       }
 
       const pagePayload = getPayloadFromFlash(request)
@@ -124,7 +123,9 @@ export default [
       // Clear any previous save and exit session state
       request.yar.clear(getKey(slug, status))
 
-      return h.view(SAVE_AND_EXIT_DETAILS, model)
+      return h
+        .view(SAVE_AND_EXIT_DETAILS, model)
+        .header('Cache-Control', 'no-cache, no-store, must-revalidate')
     },
     options: {
       validate: {
@@ -157,7 +158,16 @@ export default [
       // Handle the user navigating back from previously submitting a save-and-exit. The state has been cleared
       // so we need to warn the user
       if (!hasState(state)) {
-        return h.redirect(`/save-and-exit/${slug}${statusPath}`)
+        const model = detailsViewModel(
+          metadata,
+          status,
+          /** @type {SaveAndExitPayload} */ (payload),
+          createJoiError(
+            'general',
+            'Your information is no longer available. Return to the start of the form.'
+          )
+        )
+        return h.view(SAVE_AND_EXIT_DETAILS, model).takeover()
       }
 
       await publishSaveAndExitEvent(
