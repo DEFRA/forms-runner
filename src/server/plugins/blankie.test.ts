@@ -16,7 +16,7 @@ describe('Server Blankie Plugin', () => {
       styleSrc: ['self', 'unsafe-inline'],
       imgSrc: ['self', 'data:'],
       workerSrc: ['self', 'blob:'],
-      generateNonces: true
+      generateNonces: 'script'
     })
   })
 
@@ -50,7 +50,7 @@ describe('Server Blankie Plugin', () => {
         'https://*.googletagmanager.com'
       ],
       workerSrc: ['self', 'blob:'],
-      generateNonces: true
+      generateNonces: 'script'
     })
   })
 
