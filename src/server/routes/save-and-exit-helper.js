@@ -12,15 +12,18 @@ export function getPayloadFromFlash(request) {
  * Check that the form has state
  * @param {FormSubmissionState} formState
  */
-export function generateStateError(formState) {
-  if (Object.keys(formState).length === 0) {
-    return {
-      text: "There is no data held for this form. Please restart your submission or use a previous 'Save and exit' link.",
-      href: '#'
-    }
-  }
+export function hasState(formState) {
+  return Object.keys(formState).length > 0
+}
 
-  return undefined
+/**
+ * Create an error when no state
+ */
+export function generateStateError() {
+  return {
+    text: "There is no data held for this form. Please restart your submission or use a previous 'Save and exit' link.",
+    href: '#'
+  }
 }
 
 /**

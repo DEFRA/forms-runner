@@ -28,7 +28,8 @@ import {
 } from '~/src/server/models/save-and-exit.js'
 import {
   generateStateError,
-  getPayloadFromFlash
+  getPayloadFromFlash,
+  hasState
 } from '~/src/server/routes/save-and-exit-helper.js'
 import {
   getFormMetadata,
@@ -90,9 +91,8 @@ export default [
 
       // Handle the user navigating back from previously submitting a save-and-exit. The state has been cleared
       // so we need to warn the user
-      const stateError = generateStateError(formState)
-      if (stateError) {
-        addError(model, stateError)
+      if (!hasState(formState)) {
+        addError(model, generateStateError())
         return h.view(SAVE_AND_EXIT_DETAILS, model)
       }
 
@@ -156,8 +156,7 @@ export default [
 
       // Handle the user navigating back from previously submitting a save-and-exit. The state has been cleared
       // so we need to warn the user
-      const stateError = generateStateError(state)
-      if (stateError) {
+      if (!hasState(state)) {
         return h.redirect(`/save-and-exit/${slug}${statusPath}`)
       }
 

@@ -1,6 +1,7 @@
 import {
   generateStateError,
-  getPayloadFromFlash
+  getPayloadFromFlash,
+  hasState
 } from '~/src/server/routes/save-and-exit-helper.js'
 
 describe('save-and-exit-helper tests', () => {
@@ -16,20 +17,21 @@ describe('save-and-exit-helper tests', () => {
   })
 
   describe('generateStateError', () => {
-    test('returns error message if no state', () => {
-      expect(generateStateError({})).toEqual({
+    test('returns error message', () => {
+      expect(generateStateError()).toEqual({
         href: '#',
         text: "There is no data held for this form. Please restart your submission or use a previous 'Save and exit' link."
       })
     })
+  })
 
-    test('returns undefined if some state', () => {
-      expect(generateStateError({ formId: 'abc' })).toBeUndefined()
+  describe('hasState', () => {
+    test('returns true if some state', () => {
+      expect(hasState({ field1: 'val1' })).toBe(true)
+    })
+
+    test('returns false if no state', () => {
+      expect(hasState({})).toBe(false)
     })
   })
 })
-
-/**
- * @import { Request } from '@hapi/hapi'
- * @import { SaveAndExitParams } from '~/src/server/models/save-and-exit.js'
- */
