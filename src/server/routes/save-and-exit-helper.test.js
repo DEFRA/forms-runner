@@ -20,7 +20,7 @@ describe('save-and-exit-helper tests', () => {
     test('returns error message', () => {
       expect(generateStateError()).toEqual({
         href: '#',
-        text: "There is no data held for this form. Please restart your submission or use a previous 'Save and exit' link."
+        text: 'Your information is no longer available. Return to the start of the form.'
       })
     })
   })

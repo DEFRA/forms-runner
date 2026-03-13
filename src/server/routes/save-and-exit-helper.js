@@ -21,7 +21,7 @@ export function hasState(formState) {
  */
 export function generateStateError() {
   return {
-    text: "There is no data held for this form. Please restart your submission or use a previous 'Save and exit' link.",
+    text: 'Your information is no longer available. Return to the start of the form.',
     href: '#'
   }
 }
