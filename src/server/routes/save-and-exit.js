@@ -59,7 +59,7 @@ export function getPasswordAttemptsLeft(attemptsSoFar) {
 
 /**
  * @param {Partial<{ errors?: { text: string, href: string }[]}>} model
- * @param {{ href: string, text: string}} error
+ * @param {{ href: string, text: string }} error
  */
 export function addError(model, error) {
   if (model.errors) {
