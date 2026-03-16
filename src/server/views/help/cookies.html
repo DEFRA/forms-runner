@@ -25,7 +25,7 @@
         { text: "When you close the browser" }
       ]
     ] %}
-    {% if googleAnalyticsContainerId %}
+    {% if config.googleTagManagerContainerId %}
     {% set essentialTableRows = (essentialTableRows.unshift([
           { text: "cookieConsent" },
           { text: "Remembers your cookie preferences" },
@@ -44,7 +44,7 @@
       rows: essentialTableRows
     }) }}
 
-    {% if googleAnalyticsContainerId %}
+    {% if config.googleTagManagerContainerId %}
       <h2 class="govuk-heading-m">Analytics cookies</h2>
       <p class="govuk-body">We use Google Analytics software to understand how people use our forms. We do this to help make sure the site is meeting the needs of its users and to help us make improvements.</p>
       {{ govukTable({

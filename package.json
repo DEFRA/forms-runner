@@ -46,8 +46,13 @@
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
     "@aws-sdk/client-sns": "^3.997.0",
+<<<<<<< feat/df-870-unlimited-save-and-exit
     "@defra/forms-engine-plugin": "^4.1.1",
     "@defra/forms-model": "^3.0.635",
+=======
+    "@defra/forms-engine-plugin": "^4.1.4",
+    "@defra/forms-model": "^3.0.629",
+>>>>>>> main
     "@defra/hapi-tracing": "^1.30.0",
     "@elastic/ecs-pino-format": "^1.5.0",
     "@hapi/boom": "^10.0.1",
