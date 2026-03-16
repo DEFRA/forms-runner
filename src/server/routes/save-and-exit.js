@@ -1,5 +1,6 @@
 import {
   CURRENT_PAGE_PATH_KEY,
+  MAGIC_LINK_GROUP_ID,
   STATE_NOT_YET_VALIDATED
 } from '@defra/forms-engine-plugin'
 import { getCacheService } from '@defra/forms-engine-plugin/engine/helpers.js'
@@ -393,7 +394,10 @@ export default [
       if (validatedLink.validPassword) {
         // Restore state
         const cacheService = getCacheService(request.server)
-        await cacheService.setState(request, validatedLink.state)
+        await cacheService.setState(request, {
+          ...validatedLink.state,
+          [MAGIC_LINK_GROUP_ID]: validatedLink.magicLinkGroupId
+        })
 
         const { isPreview, status } = validatedLink.form
 
