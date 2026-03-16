@@ -4,7 +4,10 @@ import { within } from '@testing-library/dom'
 import { StatusCodes } from 'http-status-codes'
 
 import { createServer } from '~/src/server/index.js'
-import { getPayloadFromFlash } from '~/src/server/routes/save-and-exit-helper.js'
+import {
+  getPayloadFromFlash,
+  hasState
+} from '~/src/server/routes/save-and-exit-helper.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
@@ -31,6 +34,7 @@ describe('Save and exit', () => {
 
   beforeEach(() => {
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+    jest.mocked(hasState).mockReturnValue(true)
   })
 
   afterAll(async () => {
@@ -104,6 +108,20 @@ describe('Save and exit', () => {
     expect($securityAnswerLabel).toBeInTheDocument()
   })
 
+  it('redirects to first page of form when missing state', async () => {
+    const options = {
+      method: 'GET',
+      url: '/save-and-exit/basic'
+    }
+
+    jest.mocked(hasState).mockReturnValue(false)
+
+    const { response } = await renderResponse(server, options)
+
+    expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(response.headers.location).toBe('/form/test-form')
+  })
+
   it('shows the details page with errors', async () => {
     const options = {
       method: 'POST',
@@ -159,6 +177,36 @@ describe('Save and exit', () => {
     })
 
     expect(response2.statusCode).toBe(StatusCodes.OK)
+  })
+
+  it('posts details page catches error if no state', async () => {
+    const options = {
+      method: 'POST',
+      url: '/save-and-exit/basic',
+      payload: {
+        email: 'enrique.chase@defra.gov.uk',
+        emailConfirmation: 'enrique.chase@defra.gov.uk',
+        securityQuestion: 'audio-recommendation',
+        securityAnswer: 'Chase & Status'
+      }
+    }
+
+    jest.mocked(hasState).mockReturnValue(false)
+
+    const { container } = await renderResponse(server, options)
+
+    const $errorSummary = container.getByRole('alert')
+    const $heading = within($errorSummary).getByRole('heading', {
+      name: 'There is a problem',
+      level: 2
+    })
+    const $errorItems = within($errorSummary).getAllByRole('listitem')
+
+    expect($errorSummary).toBeInTheDocument()
+    expect($heading).toBeInTheDocument()
+    expect($errorItems[0]).toHaveTextContent(
+      'Your information is no longer available. Return to the start of the form.'
+    )
   })
 
   it('confirmation page errors if no details are flashed', async () => {

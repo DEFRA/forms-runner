@@ -10,13 +10,14 @@ const googleAnalyticsOptions = {
     'https://*.google-analytics.com',
     'https://*.analytics.google.com',
     'https://*.googletagmanager.com'
-  ]
+  ],
+  frameSrc: ['https://www.googletagmanager.com']
 }
 
 export const configureBlankiePlugin = (): ServerRegisterPluginObject<
   Record<string, boolean | string | string[]>
 > => {
-  const gaTrackingId = config.get('googleAnalyticsTrackingId')
+  const gtmContainerId = config.get('googleTagManagerContainerId')
   const uploaderUrl = config.get('uploaderUrl')
 
   /*
@@ -29,19 +30,22 @@ export const configureBlankiePlugin = (): ServerRegisterPluginObject<
       fontSrc: ['self', 'data:'],
       connectSrc: [
         ['self'],
-        gaTrackingId ? googleAnalyticsOptions.connectSrc : [],
+        gtmContainerId ? googleAnalyticsOptions.connectSrc : [],
         uploaderUrl ? [uploaderUrl] : []
       ].flat(),
       scriptSrc: [
         ['self', 'strict-dynamic', 'unsafe-inline'],
-        gaTrackingId ? googleAnalyticsOptions.scriptSrc : []
+        gtmContainerId ? googleAnalyticsOptions.scriptSrc : []
       ].flat(),
       styleSrc: ['self', 'unsafe-inline'],
       imgSrc: [
         ['self', 'data:'],
-        gaTrackingId ? googleAnalyticsOptions.imgSrc : []
+        gtmContainerId ? googleAnalyticsOptions.imgSrc : []
       ].flat(),
-      frameSrc: ['self', 'data:'],
+      frameSrc: [
+        ['self', 'data:'],
+        gtmContainerId ? googleAnalyticsOptions.frameSrc : []
+      ].flat(),
       workerSrc: ['self', 'blob:'],
       generateNonces: true
     }

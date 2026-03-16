@@ -60,7 +60,9 @@ describe('Nunjucks context', () => {
       expect(ctx.config).toEqual(
         expect.objectContaining({
           cdpEnvironment: config.get('cdpEnvironment'),
-          googleAnalyticsTrackingId: config.get('googleAnalyticsTrackingId'),
+          googleTagManagerContainerId: config.get(
+            'googleTagManagerContainerId'
+          ),
           phaseTag: config.get('phaseTag'),
           serviceBannerText: config.get('serviceBannerText'),
           serviceName: config.get('serviceName'),

@@ -56,7 +56,7 @@
 {% set phaseTag = phaseTag or config.phaseTag %}
 
 {% block header %}
-  {% if config.googleAnalyticsTrackingId and slug %}
+  {% if config.googleTagManagerContainerId and slug %}
     <form method="post" action="/help/cookie-preferences/{{ slug }}?returnUrl={{ currentPath | urlencode }}">
       <input type="hidden" name="crumb" value="{{ crumb }}">
 
@@ -183,14 +183,18 @@
     <script type="module" nonce="{{ cspNonce }}" src="{{ getAssetPath("maps.js") }}"></script>
   {% endif %}
 
-  {% if config.googleAnalyticsTrackingId and cookieConsent.analytics === true %}
-    <script id="ga-tag-js-main" nonce="{{ cspNonce }}" src="https://www.googletagmanager.com/gtag/js?id={{ config.googleAnalyticsTrackingId }}" defer></script>
-    <script id="ga-tag-js-init" nonce="{{ cspNonce }}">
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', '{{ config.googleAnalyticsTrackingId }}');
+  {% if config.googleTagManagerContainerId and cookieConsent.analytics === true %}
+    <!-- Google Tag Manager -->
+    <script id="gtm-init" nonce="{{ cspNonce }}">
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','{{ config.googleTagManagerContainerId }}');
     </script>
+    <noscript id="gtm-noscript"><iframe title="Google Analytics tracking" src="https://www.googletagmanager.com/ns.html?id={{ config.googleTagManagerContainerId }}"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager -->
   {% endif %}
 {% endblock %}
 

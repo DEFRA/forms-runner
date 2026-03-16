@@ -9,6 +9,15 @@ export function getPayloadFromFlash(request) {
 }
 
 /**
+ * Check that the form has state
+ * @param {FormSubmissionState} formState
+ */
+export function hasState(formState) {
+  return Object.keys(formState).length > 0
+}
+
+/**
  * @import { Request } from '@hapi/hapi'
  * @import { SaveAndExitParams } from '~/src/server/models/save-and-exit.js'
+ * @import { FormSubmissionState } from '@defra/forms-engine-plugin/engine/types.js'
  */

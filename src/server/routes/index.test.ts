@@ -27,7 +27,8 @@ describe('Routes', () => {
 
   test('cookies page is served with 24 hour duration and GA info', async () => {
     config.set('sessionTimeout', 86400000)
-    config.set('googleAnalyticsContainerId', '12345')
+    config.set('googleTagManagerContainerId', 'GTM-XXXXXXXX')
+    config.set('googleAnalyticsContainerId', 'YYYYYYYYYY')
 
     const options = {
       method: 'GET',
@@ -42,7 +43,7 @@ describe('Routes', () => {
     })
 
     const $googleAnalyticsRowheader = container.getByRole('rowheader', {
-      name: '_ga_123456789'
+      name: '_ga_YYYYYYYYYY'
     })
 
     const $sessionDurationRow = container.getByRole('row', {
@@ -62,7 +63,8 @@ describe('Routes', () => {
 
   test('cookies page is served without GA info', async () => {
     config.set('sessionTimeout', 86400000)
-    config.reset('googleAnalyticsTrackingId')
+    config.set('googleTagManagerContainerId', '')
+    config.set('googleAnalyticsContainerId', '')
 
     const options = {
       method: 'GET',
@@ -76,7 +78,7 @@ describe('Routes', () => {
       level: 1
     })
     const $googleAnalyticsRowheader = container.queryByRole('rowheader', {
-      name: '_ga_123456789'
+      name: '_ga_YYYYYYYYYY'
     })
 
     const $sessionDurationRow = container.getByRole('row', {
