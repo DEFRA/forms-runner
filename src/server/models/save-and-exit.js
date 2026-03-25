@@ -22,6 +22,7 @@ const emailFieldName = 'email'
 const emailConfirmationFieldName = 'emailConfirmation'
 const securityQuestionFieldName = 'securityQuestion'
 const securityAnswerFieldName = 'securityAnswer'
+const general = 'general'
 
 const GOVUK_LABEL__M = 'govuk-label--m'
 const saveAndExitExpiryDays = config.get('saveAndExitExpiryDays')
@@ -55,6 +56,7 @@ function buildErrors(err) {
     return {}
   }
 
+  const generalError = err.details.find((item) => item.path[0] === general)
   const emailError = err.details.find((item) => item.path[0] === emailFieldName)
   const emailConfirmationError = err.details.find(
     (item) => item.path[0] === emailConfirmationFieldName
@@ -65,7 +67,12 @@ function buildErrors(err) {
   const securityAnswerError = err.details.find(
     (item) => item.path[0] === securityAnswerFieldName
   )
+
   const errors = []
+
+  if (generalError) {
+    errors.push({ text: generalError.message, href: '#' })
+  }
 
   if (emailError) {
     errors.push({ text: emailError.message, href: `#${emailFieldName}` })
@@ -136,6 +143,9 @@ function buildEmailConfirmationField(payload, error) {
       text: 'Confirm your email address',
       classes: GOVUK_LABEL__M,
       isPageHeading: false
+    },
+    hint: {
+      text: 'Check you have entered the correct email address'
     },
     value: payload?.emailConfirmation,
     errorMessage: error && {

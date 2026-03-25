@@ -63,6 +63,7 @@ export interface SaveAndExitDetails {
   question: SecurityQuestionsEnum
   invalidPasswordAttempts: number
   state: object
+  magicLinkGroupId: string
 }
 
 export interface SaveAndExitResumeDetails extends SaveAndExitDetails {

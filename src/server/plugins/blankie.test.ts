@@ -3,7 +3,7 @@ import { configureBlankiePlugin } from '~/src/server/plugins/blankie.js'
 
 describe('Server Blankie Plugin', () => {
   test('configuration default options are provided', () => {
-    config.set('googleAnalyticsTrackingId', '')
+    config.set('googleTagManagerContainerId', '')
 
     const { options } = configureBlankiePlugin()
 
@@ -20,15 +20,15 @@ describe('Server Blankie Plugin', () => {
     })
   })
 
-  test('configuration default and GA options are provided', () => {
-    config.set('googleAnalyticsTrackingId', '12345')
+  test('configuration default and GTM options are provided', () => {
+    config.set('googleTagManagerContainerId', 'GTM-XXXXXXXX')
 
     const { options } = configureBlankiePlugin()
 
     expect(options).toEqual({
       defaultSrc: ['self'],
       fontSrc: ['self', 'data:'],
-      frameSrc: ['self', 'data:'],
+      frameSrc: ['self', 'data:', 'https://www.googletagmanager.com'],
       connectSrc: [
         'self',
         'https://*.google-analytics.com',
@@ -55,7 +55,7 @@ describe('Server Blankie Plugin', () => {
   })
 
   test('configuration includes uploaderUrl when provided', () => {
-    config.set('googleAnalyticsTrackingId', '')
+    config.set('googleTagManagerContainerId', '')
     config.set('uploaderUrl', 'https://some-random-uploader.example.com')
 
     const { options } = configureBlankiePlugin()
@@ -66,7 +66,7 @@ describe('Server Blankie Plugin', () => {
   })
 
   test('configuration does not include uploaderUrl when not provided', () => {
-    config.set('googleAnalyticsTrackingId', '')
+    config.set('googleTagManagerContainerId', '')
     config.set('uploaderUrl', '')
 
     const { options } = configureBlankiePlugin()

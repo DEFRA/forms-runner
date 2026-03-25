@@ -66,8 +66,8 @@ export function context(request) {
   }
 
   if (!isForceAccess) {
-    ctx.config.googleAnalyticsTrackingId = config.get(
-      'googleAnalyticsTrackingId'
+    ctx.config.googleTagManagerContainerId = config.get(
+      'googleTagManagerContainerId'
     )
 
     if (typeof state?.cookieConsent === 'string') {

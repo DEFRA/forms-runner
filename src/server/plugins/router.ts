@@ -185,9 +185,9 @@ export default {
           const formId = state?.formId ?? ''
 
           return h.view('help/cookies', {
-            googleAnalyticsContainerId: config
-              .get('googleAnalyticsTrackingId')
-              .replace(/^G-/, ''),
+            googleAnalyticsContainerId: config.get(
+              'googleAnalyticsContainerId'
+            ),
             sessionDurationPretty,
             ...getFeedbackFormLink(formId)
           })
