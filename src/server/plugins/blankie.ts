@@ -47,7 +47,7 @@ export const configureBlankiePlugin = (): ServerRegisterPluginObject<
         gtmContainerId ? googleAnalyticsOptions.frameSrc : []
       ].flat(),
       workerSrc: ['self', 'blob:'],
-      generateNonces: true
+      generateNonces: 'script'
     }
   }
 }

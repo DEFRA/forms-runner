@@ -218,6 +218,13 @@ export default {
           to: 'assets/interactive-map/plugins/search/dist'
         },
         {
+          from: join(
+            pluginPath,
+            '../interactive-map/plugins/beta/draw-ml/dist'
+          ),
+          to: 'assets/interactive-map/plugins/draw-ml/dist'
+        },
+        {
           from: join(pluginPath, '../interactive-map/assets'),
           to: 'assets/interactive-map/assets'
         }
