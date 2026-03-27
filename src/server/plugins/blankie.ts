@@ -4,12 +4,15 @@ import Blankie from 'blankie'
 import { config } from '~/src/config/index.js'
 
 const googleAnalyticsOptions = {
-  scriptSrc: ['https://*.googletagmanager.com'],
-  imgSrc: ['https://*.google-analytics.com', 'https://*.googletagmanager.com'],
+  scriptSrc: ['https://www.googletagmanager.com'],
+  imgSrc: [
+    'https://www.google-analytics.com',
+    'https://www.googletagmanager.com'
+  ],
   connectSrc: [
-    'https://*.google-analytics.com',
-    'https://*.analytics.google.com',
-    'https://*.googletagmanager.com'
+    'https://www.google-analytics.com',
+    'https://analytics.google.com',
+    'https://www.googletagmanager.com'
   ],
   frameSrc: ['https://www.googletagmanager.com']
 }
@@ -20,13 +23,11 @@ export const configureBlankiePlugin = (): ServerRegisterPluginObject<
   const gtmContainerId = config.get('googleTagManagerContainerId')
   const uploaderUrl = config.get('uploaderUrl')
 
-  /*
-  Note that unsafe-inline is a fallback for old browsers that don't support nonces. It will be ignored by modern browsers as the nonce is provided.
-  */
   return {
     plugin: Blankie,
     options: {
       defaultSrc: ['self'],
+      baseUri: ['none'],
       fontSrc: ['self', 'data:'],
       connectSrc: [
         ['self'],
@@ -34,7 +35,7 @@ export const configureBlankiePlugin = (): ServerRegisterPluginObject<
         uploaderUrl ? [uploaderUrl] : []
       ].flat(),
       scriptSrc: [
-        ['self', 'strict-dynamic', 'unsafe-inline'],
+        ['self'],
         gtmContainerId ? googleAnalyticsOptions.scriptSrc : []
       ].flat(),
       styleSrc: ['self', 'unsafe-inline'],
@@ -43,10 +44,13 @@ export const configureBlankiePlugin = (): ServerRegisterPluginObject<
         gtmContainerId ? googleAnalyticsOptions.imgSrc : []
       ].flat(),
       frameSrc: [
-        ['self', 'data:'],
+        ['self'],
         gtmContainerId ? googleAnalyticsOptions.frameSrc : []
       ].flat(),
       workerSrc: ['self', 'blob:'],
+      formAction: ['self'],
+      frameAncestors: ['none'],
+      objectSrc: ['none'],
       generateNonces: true
     }
   }
