@@ -70,7 +70,7 @@
     "blipp": "^4.0.2",
     "btoa": "^1.2.1",
     "chokidar": "^3.6.0",
-    "convict": "^6.2.4",
+    "convict": "^6.2.5",
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.4",
     "govuk-frontend": "^5.13.0",
