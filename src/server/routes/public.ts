@@ -23,7 +23,7 @@ export default [
   {
     from: '/assets/{path*}',
     to: join(config.get('publicDir'), 'assets'),
-    immutable: true
+    immutable: config.get('isProduction')
   }
 ].map((options) => {
   return {
