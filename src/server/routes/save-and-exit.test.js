@@ -114,9 +114,7 @@ describe('Save-and-exit check routes', () => {
         const boomError = Boom.resourceGone('magic link consumed')
         boomError.data = {
           payload: {
-            custom: {
-              latestId: 'latest-link-id'
-            }
+            latestId: 'latest-link-id'
           }
         }
         throw boomError

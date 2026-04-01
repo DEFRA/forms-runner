@@ -550,8 +550,8 @@ export function resumeSuccessViewModel(form, status) {
 
 /**
  * @typedef {object} BoomErrorCustomSaveAndExit
- * @property {{ statusCode?: StatusCodes, payload?: CustomErrorPayload }} [output] - contains status code and payload
- * @property {{ payload?: CustomErrorPayload }} [data] - custom payload for save-and-exit
+ * @property {{ statusCode?: StatusCodes }} [output] - contains status code
+ * @property {{ payload?: { latestId?: string }}} [data] - custom payload for save-and-exit
  */
 
 /**

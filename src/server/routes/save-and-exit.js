@@ -272,7 +272,7 @@ export default [
       } catch (err) {
         const error = /** @type {BoomErrorCustomSaveAndExit} */ (err)
         if (error.output?.statusCode === StatusCodes.GONE) {
-          const latestLinkId = error.data?.payload?.custom?.latestId
+          const latestLinkId = error.data?.payload?.latestId
           if (latestLinkId) {
             logger.info(
               `Old link ${magicLinkId} used but redirected to ${latestLinkId}`
