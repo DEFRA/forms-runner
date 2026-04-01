@@ -1,3 +1,4 @@
+import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
 
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
@@ -101,6 +102,32 @@ describe('Save-and-exit check routes', () => {
       expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
       expect(response.headers.location).toBe(
         '/resume-form-error/my-form-to-resume'
+      )
+    })
+
+    test('/route forwards correctly on magic link consumed but redirects to latest link', async () => {
+      jest
+        .mocked(getFormMetadataById)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce({ slug: 'my-form-to-resume' })
+      jest.mocked(getSaveAndExitDetails).mockImplementationOnce(() => {
+        const boomError = Boom.resourceGone('magic link consumed')
+        boomError.output.payload.custom = {
+          latestId: 'latest-link-id'
+        }
+        throw boomError
+      })
+
+      const options = {
+        method: 'GET',
+        url: `/resume-form/${FORM_ID}/${MAGIC_LINK_ID}`
+      }
+
+      const { response } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
+      expect(response.headers.location).toBe(
+        '/resume-form/eab6ac6c-79b6-439f-bd94-d93eb121b3f1/latest-link-id'
       )
     })
 

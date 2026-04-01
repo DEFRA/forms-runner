@@ -270,6 +270,22 @@ export default [
           throw new Error('No link found')
         }
       } catch (err) {
+        const error = /** @type {BoomErrorCustomSaveAndExit} */ (err)
+        if (error.output?.statusCode === StatusCodes.GONE) {
+          const latestLinkId =
+            error.data?.payload?.custom?.latestId ??
+            error.output.payload?.custom?.latestId
+          if (latestLinkId) {
+            logger.info(
+              `Old link ${magicLinkId} used but redirected to ${latestLinkId}`
+            )
+            return h
+              .redirect(`/resume-form/${formId}/${latestLinkId}`)
+              .code(StatusCodes.SEE_OTHER)
+          } else {
+            throw new Error('Consumed link found but then no latest in group')
+          }
+        }
         logger.error(
           err,
           `Invalid magic link id ${magicLinkId} with form id ${formId}`
@@ -497,5 +513,5 @@ export default [
 /**
  * @import { ServerRoute } from '@hapi/hapi'
  * @import { FormPayload } from '@defra/forms-engine-plugin/engine/types.js'
- * @import { SaveAndExitParams, SaveAndExitPayload, SaveAndExitResumePasswordPayload, SaveAndExitResumePasswordParams } from '~/src/server/models/save-and-exit.js'
+ * @import { BoomErrorCustomSaveAndExit, SaveAndExitParams, SaveAndExitPayload, SaveAndExitResumePasswordPayload, SaveAndExitResumePasswordParams } from '~/src/server/models/save-and-exit.js'
  */

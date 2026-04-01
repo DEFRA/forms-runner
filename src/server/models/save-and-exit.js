@@ -544,7 +544,19 @@ export function resumeSuccessViewModel(form, status) {
  */
 
 /**
+ * @typedef {object} CustomErrorPayload
+ * @property {{ latestId?: string }} [custom] - custom payload
+ */
+
+/**
+ * @typedef {object} BoomErrorCustomSaveAndExit
+ * @property {{ statusCode?: StatusCodes, payload?: CustomErrorPayload }} [output] - contains status code and payload
+ * @property {{ payload?: CustomErrorPayload }} [data] - custom payload for save-and-exit
+ */
+
+/**
  * @import { FormMetadata } from '@defra/forms-model'
+ * @import { StatusCodes } from 'http-status-codes'
  * @import { FormStatus } from '@defra/forms-engine-plugin/types'
  * @import { SaveAndExitResumeDetails } from '~/src/server/types.js'
  */
