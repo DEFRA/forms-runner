@@ -283,7 +283,9 @@ export default [
               .redirect(`/resume-form/${formId}/${latestLinkId}`)
               .code(StatusCodes.SEE_OTHER)
           } else {
-            throw new Error('Consumed link found but then no latest in group')
+            return h
+              .redirect(`${ERROR_BASE_URL}/${form.slug}`)
+              .code(StatusCodes.SEE_OTHER)
           }
         }
         logger.error(
