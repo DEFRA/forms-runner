@@ -16,6 +16,7 @@ jest.mock('node:crypto', () => ({
 describe('crypto helpers', () => {
   describe('decryptSecret', () => {
     it('should throw is private key is missing', () => {
+      // @ts-expect-error - testing behaviour when the private key is missing
       jest.mocked(config.get).mockImplementationOnce((key) => {
         if (key === 'privateKeyForSecrets') return undefined
         return 'mock-value'
