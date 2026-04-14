@@ -51,7 +51,7 @@ export const configureBlankiePlugin = (): ServerRegisterPluginObject<
       formAction: ['self'],
       frameAncestors: ['none'],
       objectSrc: ['none'],
-      generateNonces: true
+      generateNonces: 'script'
     }
   }
 }

@@ -20,7 +20,7 @@ describe('Server Blankie Plugin', () => {
       formAction: ['self'],
       frameAncestors: ['none'],
       objectSrc: ['none'],
-      generateNonces: true
+      generateNonces: 'script'
     })
   })
 
@@ -53,7 +53,7 @@ describe('Server Blankie Plugin', () => {
       formAction: ['self'],
       frameAncestors: ['none'],
       objectSrc: ['none'],
-      generateNonces: true
+      generateNonces: 'script'
     })
   })
 
