@@ -4,7 +4,6 @@ import Blankie from 'blankie'
 import { config } from '~/src/config/index.js'
 
 const googleAnalyticsOptions = {
-  scriptSrc: ['https://www.googletagmanager.com'],
   imgSrc: [
     'https://www.google-analytics.com',
     'https://www.googletagmanager.com'
@@ -12,7 +11,8 @@ const googleAnalyticsOptions = {
   connectSrc: [
     'https://www.google-analytics.com',
     'https://analytics.google.com',
-    'https://www.googletagmanager.com'
+    'https://www.googletagmanager.com',
+    'https://region1.google-analytics.com'
   ],
   frameSrc: ['https://www.googletagmanager.com']
 }
@@ -34,20 +34,14 @@ export const configureBlankiePlugin = (): ServerRegisterPluginObject<
         gtmContainerId ? googleAnalyticsOptions.connectSrc : [],
         uploaderUrl ? [uploaderUrl] : []
       ].flat(),
-      scriptSrc: [
-        ['self'],
-        gtmContainerId ? googleAnalyticsOptions.scriptSrc : []
-      ].flat(),
+      scriptSrc: ['strict-dynamic'],
       styleSrc: ['self', 'unsafe-inline'],
       imgSrc: [
         ['self', 'data:'],
         gtmContainerId ? googleAnalyticsOptions.imgSrc : []
       ].flat(),
-      frameSrc: [
-        ['self'],
-        gtmContainerId ? googleAnalyticsOptions.frameSrc : []
-      ].flat(),
-      workerSrc: ['self', 'blob:'],
+      frameSrc: gtmContainerId ? googleAnalyticsOptions.frameSrc : ['none'],
+      workerSrc: ['blob:'],
       formAction: ['self'],
       frameAncestors: ['none'],
       objectSrc: ['none'],
