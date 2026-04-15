@@ -2,6 +2,8 @@ import { crumbSchema, stateSchema } from '@defra/forms-engine-plugin/schema.js'
 import {
   ControllerPath,
   SecurityQuestionsEnum,
+  UNICODE_EMAIL_ERROR_MESSAGE,
+  preventUnicodeInEmail,
   slugSchema
 } from '@defra/forms-model'
 import Joi from 'joi'
@@ -243,11 +245,17 @@ export const paramsSchema = Joi.object()
 export const payloadSchema = Joi.object()
   .keys({
     crumb: crumbSchema,
-    email: Joi.string().email().required().messages({
-      'string.email':
-        'Enter an email address in the correct format, for example, hello@example.com',
-      '*': 'Enter an email address'
-    }),
+    email: Joi.string()
+      .trim()
+      .email()
+      .custom((value, helpers) => preventUnicodeInEmail(value, helpers))
+      .required()
+      .messages({
+        'string.email':
+          'Enter an email address in the correct format, for example, hello@example.com',
+        'string.unicode': UNICODE_EMAIL_ERROR_MESSAGE,
+        '*': 'Enter an email address'
+      }),
     emailConfirmation: Joi.string()
       .valid(Joi.ref('email'))
       .required()

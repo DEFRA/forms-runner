@@ -14,17 +14,26 @@ import {
   type FormRequestPayload,
   type FormResponseToolkit
 } from '@defra/forms-engine-plugin/types'
-import { type GovukField } from '@defra/forms-model'
-import Joi from 'joi'
+import { preventUnicodeInEmail, type GovukField } from '@defra/forms-model'
+import Joi, { type CustomHelpers } from 'joi'
 
 export const CONFIRMATION_EMAIL_FIELD_NAME = 'userConfirmationEmailAddress'
 
 const schema = Joi.object().keys({
   crumb: crumbSchema,
   action: actionSchema,
-  userConfirmationEmailAddress: Joi.string().email().allow('').messages({
-    '*': 'Enter an email address in the correct format'
-  })
+  userConfirmationEmailAddress: Joi.string()
+    .email()
+    .trim()
+    .custom((value, helpers: CustomHelpers<string>) =>
+      preventUnicodeInEmail(value, helpers)
+    )
+    .allow('')
+    .messages({
+      '*': 'Enter an email address in the correct format',
+      'string.unicode':
+        'The email address you entered includes invalid characters, for example, long dashes'
+    })
 })
 
 export class SummaryPageWithConfirmationEmailController extends SummaryPageController {
