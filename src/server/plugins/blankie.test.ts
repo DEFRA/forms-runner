@@ -9,13 +9,17 @@ describe('Server Blankie Plugin', () => {
 
     expect(options).toEqual({
       defaultSrc: ['self'],
+      baseUri: ['none'],
       fontSrc: ['self', 'data:'],
-      frameSrc: ['self', 'data:'],
+      frameSrc: ['none'],
       connectSrc: ['self', 'https://test-uploader.cdp-int.defra.cloud'],
-      scriptSrc: ['self', 'strict-dynamic', 'unsafe-inline'],
+      scriptSrc: ['strict-dynamic'],
       styleSrc: ['self', 'unsafe-inline'],
       imgSrc: ['self', 'data:'],
-      workerSrc: ['self', 'blob:'],
+      workerSrc: ['blob:'],
+      formAction: ['self'],
+      frameAncestors: ['none'],
+      objectSrc: ['none'],
       generateNonces: 'script'
     })
   })
@@ -27,29 +31,29 @@ describe('Server Blankie Plugin', () => {
 
     expect(options).toEqual({
       defaultSrc: ['self'],
+      baseUri: ['none'],
       fontSrc: ['self', 'data:'],
-      frameSrc: ['self', 'data:', 'https://www.googletagmanager.com'],
+      frameSrc: ['https://www.googletagmanager.com'],
       connectSrc: [
         'self',
-        'https://*.google-analytics.com',
-        'https://*.analytics.google.com',
-        'https://*.googletagmanager.com',
+        'https://www.google-analytics.com',
+        'https://analytics.google.com',
+        'https://www.googletagmanager.com',
+        'https://region1.google-analytics.com',
         'https://test-uploader.cdp-int.defra.cloud'
       ],
-      scriptSrc: [
-        'self',
-        'strict-dynamic',
-        'unsafe-inline',
-        'https://*.googletagmanager.com'
-      ],
+      scriptSrc: ['strict-dynamic'],
       styleSrc: ['self', 'unsafe-inline'],
       imgSrc: [
         'self',
         'data:',
-        'https://*.google-analytics.com',
-        'https://*.googletagmanager.com'
+        'https://www.google-analytics.com',
+        'https://www.googletagmanager.com'
       ],
-      workerSrc: ['self', 'blob:'],
+      workerSrc: ['blob:'],
+      formAction: ['self'],
+      frameAncestors: ['none'],
+      objectSrc: ['none'],
       generateNonces: 'script'
     })
   })
