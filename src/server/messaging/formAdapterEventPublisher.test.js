@@ -1,4 +1,5 @@
 import { PublishCommand } from '@aws-sdk/client-sns'
+import { FormStatus } from '@defra/forms-model'
 
 import { publishFormAdapterEvent } from '~/src/server/messaging/formAdapterEventPublisher.js'
 import { getSNSClient } from '~/src/server/messaging/sns.js'
@@ -33,7 +34,7 @@ const basePayload = {
     formSlug: 'test-form',
     formName: 'Test Form',
     referenceNumber: 'REF-123456',
-    status: 'live',
+    status: FormStatus.Live,
     isPreview: false,
     notificationEmail: 'test@example.com'
   },
@@ -127,7 +128,7 @@ describe('formAdapterEventPublisher', () => {
             formSlug: 'complex-form',
             formName: 'Complex Form',
             referenceNumber: 'COMPLEX-REF',
-            status: 'live',
+            status: FormStatus.Live,
             isPreview: false,
             notificationEmail: 'complex@example.com'
           },
