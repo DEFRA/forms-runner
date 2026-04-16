@@ -266,6 +266,12 @@ export const config = convict({
     }
   },
 
+  // safelist: {
+  //   format: Array,
+  //   default: null,
+  //   env: 'SAFELIST'
+  // } as SchemaObj<string[]>,
+
   stagingPrefix: {
     doc: 'Prefix for staging files in S3',
     format: String,
@@ -277,22 +283,25 @@ export const config = convict({
     doc: 'Service banner text used to show a maintenance message on all pages when set',
     format: String,
     default: null,
+    nullable: true,
     env: 'SERVICE_BANNER_TEXT'
-  } as SchemaObj<string>,
+  } as SchemaObj<string | null>,
 
   googleTagManagerContainerId: {
     doc: 'Google Tag Manager container ID to be used when a user has opted in to additional cookies',
     format: String,
     default: null,
+    nullable: true,
     env: 'GOOGLE_TAG_MANAGER_CONTAINER_ID'
-  } as SchemaObj<string>,
+  } as SchemaObj<string | null>,
 
   googleAnalyticsContainerId: {
     doc: 'Google Analytics container ID suffix (from the GA4 measurement ID, without the G- prefix) used to display the exact cookie name on the cookies page',
     format: String,
     default: null,
+    nullable: true,
     env: 'GOOGLE_ANALYTICS_CONTAINER_ID'
-  } as SchemaObj<string>,
+  } as SchemaObj<string | null>,
 
   saveAndExitExpiryDays: {
     format: Number,
