@@ -9,9 +9,6 @@ const isProduction = process.env.NODE_ENV === 'production'
 const isDev = process.env.NODE_ENV !== 'production'
 const isTest = process.env.NODE_ENV === 'test'
 
-const oneMinute = 1000 * 60
-const oneHour = oneMinute * 60
-
 export const config = convict({
   appDir: {
     format: String,
@@ -64,7 +61,7 @@ export const config = convict({
   >,
   enforceCsrf: {
     format: Boolean,
-    default: true,
+    default: null,
     env: 'ENFORCE_CSRF'
   } as SchemaObj<boolean>,
 
@@ -113,12 +110,12 @@ export const config = convict({
    */
   sessionTimeout: {
     format: Number,
-    default: oneHour * 24,
+    default: null,
     env: 'SESSION_TIMEOUT'
   } as SchemaObj<number>,
   confirmationSessionTimeout: {
     format: Number,
-    default: oneMinute * 20,
+    default: null,
     env: 'CONFIRMATION_SESSION_TIMEOUT'
   } as SchemaObj<number>,
   sessionCookiePassword: {
