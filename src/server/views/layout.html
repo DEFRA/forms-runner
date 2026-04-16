@@ -39,6 +39,7 @@
     <link href="{{assetPath}}/interactive-map/plugins/search/dist/css/index.css" rel="stylesheet" type="text/css">
     <link href="{{assetPath}}/interactive-map/plugins/scale-bar/dist/css/index.css" rel="stylesheet" type="text/css">
     <link href="{{assetPath}}/interactive-map/plugins/interact/dist/css/index.css" rel="stylesheet" type="text/css">
+    <link href="{{assetPath}}/interactive-map/plugins/draw-ml/dist/css/index.css" rel="stylesheet" type="text/css">
   {% endif %}
 {% endblock %}
 
@@ -56,7 +57,7 @@
 {% set phaseTag = phaseTag or config.phaseTag %}
 
 {% block header %}
-  {% if config.googleAnalyticsTrackingId and slug %}
+  {% if config.googleTagManagerContainerId and slug %}
     <form method="post" action="/help/cookie-preferences/{{ slug }}?returnUrl={{ currentPath | urlencode }}">
       <input type="hidden" name="crumb" value="{{ crumb }}">
 
@@ -145,11 +146,11 @@
   {% if phaseTag and  not hidePhaseBanner %}
     {% set feedbackLinkHtml -%}
       {% if feedbackLink %}
-        <a href="{{ currentPath if context.isForceAccess else feedbackLink }}" class="govuk-link" {%- if not context.isForceAccess %} target="_blank" rel="noopener noreferrer" {%- endif %}>
+        <a href="{{ currentPath if context.isForceAccess else feedbackLink }}" class="govuk-link govuk-link--no-visited-state" {%- if not context.isForceAccess %} target="_blank" rel="noopener noreferrer" {%- endif %}>
           give your feedback (opens in new tab)
         </a>
       {% else %}
-        <a href="mailto:{{ config.feedbackViaEmail }}" class="govuk-link">
+        <a href="mailto:{{ config.feedbackViaEmail }}" class="govuk-link govuk-link--no-visited-state">
           give your feedback by email
         </a>
       {% endif %}
@@ -180,17 +181,24 @@
     <script nonce="{{ cspNonce }}" src="{{assetPath}}/interactive-map/plugins/search/dist/umd/index.js"></script>
     <script nonce="{{ cspNonce }}" src="{{assetPath}}/interactive-map/plugins/scale-bar/dist/umd/index.js"></script>
     <script nonce="{{ cspNonce }}" src="{{assetPath}}/interactive-map/plugins/interact/dist/umd/index.js"></script>
+    <script nonce="{{ cspNonce }}" src="{{assetPath}}/interactive-map/plugins/draw-ml/dist/umd/index.js"></script>
     <script type="module" nonce="{{ cspNonce }}" src="{{ getAssetPath("maps.js") }}"></script>
   {% endif %}
 
-  {% if config.googleAnalyticsTrackingId and cookieConsent.analytics === true %}
-    <script id="ga-tag-js-main" nonce="{{ cspNonce }}" src="https://www.googletagmanager.com/gtag/js?id={{ config.googleAnalyticsTrackingId }}" defer></script>
-    <script id="ga-tag-js-init" nonce="{{ cspNonce }}">
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', '{{ config.googleAnalyticsTrackingId }}');
+  {% if config.googleTagManagerContainerId and cookieConsent.analytics === true %}
+    <!-- Google Tag Manager -->
+    <script id="gtm-init" nonce="{{ cspNonce }}">
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;var n=d.querySelector('[nonce]');
+      n&&j.setAttribute('nonce',n.nonce||n.getAttribute('nonce'));f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','{{ config.googleTagManagerContainerId }}');
     </script>
+    <!-- End Google Tag Manager -->
+    <noscript id="gtm-noscript"><iframe title="Google Analytics tracking" src="https://www.googletagmanager.com/ns.html?id={{ config.googleTagManagerContainerId }}"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager -->
   {% endif %}
 {% endblock %}
 

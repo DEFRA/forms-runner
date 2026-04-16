@@ -1,3 +1,4 @@
+import { MAGIC_LINK_GROUP_ID } from '@defra/forms-engine-plugin'
 import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { getFormatter } from '@defra/forms-engine-plugin/engine/outputFormatters/index.js'
 import { FormStatus } from '@defra/forms-engine-plugin/types'
@@ -211,6 +212,52 @@ describe('OutputService', () => {
       // @ts-expect-error - dynamic property
       expectedPayload.meta.custom = {
         userConfirmationEmail: 'my-email@test123.com'
+      }
+      expect(publishFormAdapterEvent).toHaveBeenCalledWith(expectedPayload)
+    })
+
+    it('successfully processes form submission and publishes event with custom property fro magicLinkGroupId', async () => {
+      const mockPayload = {
+        meta: {
+          formId: 'form-123',
+          referenceNumber: 'REF-123456',
+          formName: 'Test Form',
+          notificationEmail: 'notify@example.com'
+        },
+        data: mockItems
+      }
+
+      const mockContextWithGroupId = {
+        ...mockContext
+      }
+      mockContextWithGroupId.state = { [MAGIC_LINK_GROUP_ID]: 'group-id' }
+
+      mockFormatter.mockReturnValue(JSON.stringify(mockPayload))
+
+      await outputService.submit(
+        mockContextWithGroupId,
+        mockRequest,
+        mockModel,
+        'test@example.com',
+        mockItems,
+        mockSubmitResponse,
+        mockFormMetadata
+      )
+
+      expect(checkFormStatus).toHaveBeenCalledWith(mockRequest.params)
+      expect(getFormatter).toHaveBeenCalledWith('adapter', '1')
+      expect(mockFormatter).toHaveBeenCalledWith(
+        mockContextWithGroupId,
+        mockItems,
+        mockModel,
+        mockSubmitResponse,
+        { isPreview: false, state: FormStatus.Live },
+        mockFormMetadata
+      )
+      const expectedPayload = structuredClone(mockPayload)
+      // @ts-expect-error - dynamic property
+      expectedPayload.meta.custom = {
+        magicLinkGroupId: 'group-id'
       }
       expect(publishFormAdapterEvent).toHaveBeenCalledWith(expectedPayload)
     })

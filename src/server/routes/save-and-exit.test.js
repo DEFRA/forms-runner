@@ -1,8 +1,10 @@
 import { FormStatus } from '@defra/forms-model'
+import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
 
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
 import { createServer } from '~/src/server/index.js'
+import { addError } from '~/src/server/routes/save-and-exit.js'
 import {
   getFormMetadata,
   getFormMetadataById,
@@ -33,7 +35,7 @@ describe('Save-and-exit check routes', () => {
   const MAGIC_LINK_ID = 'fd4e6453-fb32-43e4-b4cf-12b381a713de'
 
   describe('GET /resume-form/{formId}/{magicLinkId}', () => {
-    test('/route forwards correctly on success', async () => {
+    test('route forwards correctly on success', async () => {
       jest
         .mocked(getFormMetadataById)
         // @ts-expect-error - allow partial objects for tests
@@ -59,7 +61,7 @@ describe('Save-and-exit check routes', () => {
       )
     })
 
-    test('/route forwards correctly on invalid form error', async () => {
+    test('route forwards correctly on invalid form error', async () => {
       jest.mocked(getFormMetadataById).mockImplementationOnce(() => {
         throw new Error('form not found')
       })
@@ -82,7 +84,7 @@ describe('Save-and-exit check routes', () => {
       expect(response.headers.location).toBe('/resume-form-error')
     })
 
-    test('/route forwards correctly on magic link error', async () => {
+    test('route forwards correctly on magic link error', async () => {
       jest
         .mocked(getFormMetadataById)
         // @ts-expect-error - allow partial objects for tests
@@ -104,7 +106,61 @@ describe('Save-and-exit check routes', () => {
       )
     })
 
-    test('/route forwards correctly on magic link error - wrong form id', async () => {
+    test('route forwards correctly on magic link consumed but redirects to latest link', async () => {
+      jest
+        .mocked(getFormMetadataById)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce({ slug: 'my-form-to-resume' })
+      jest.mocked(getSaveAndExitDetails).mockImplementationOnce(() => {
+        const boomError = Boom.resourceGone('magic link consumed')
+        boomError.data = {
+          payload: {
+            latestId: 'latest-link-id'
+          }
+        }
+        throw boomError
+      })
+
+      const options = {
+        method: 'GET',
+        url: `/resume-form/${FORM_ID}/${MAGIC_LINK_ID}`
+      }
+
+      const { response } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
+      expect(response.headers.location).toBe(
+        '/resume-form/eab6ac6c-79b6-439f-bd94-d93eb121b3f1/latest-link-id'
+      )
+    })
+
+    test('throws if trying to redirect to latest in group, but none found', async () => {
+      jest
+        .mocked(getFormMetadataById)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce({ slug: 'my-form-to-resume' })
+      jest.mocked(getSaveAndExitDetails).mockImplementationOnce(() => {
+        const boomError = Boom.resourceGone('magic link consumed')
+        boomError.output.payload.custom = {
+          latestId: undefined
+        }
+        throw boomError
+      })
+
+      const options = {
+        method: 'GET',
+        url: `/resume-form/${FORM_ID}/${MAGIC_LINK_ID}`
+      }
+
+      const { response } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
+      expect(response.headers.location).toBe(
+        '/resume-form-error/my-form-to-resume'
+      )
+    })
+
+    test('route forwards correctly on magic link error - wrong form id', async () => {
       jest
         .mocked(getFormMetadataById)
         // @ts-expect-error - allow partial objects for tests
@@ -127,7 +183,7 @@ describe('Save-and-exit check routes', () => {
       )
     })
 
-    test('/route forwards correctly on magic link error 2', async () => {
+    test('route forwards correctly on magic link error 2', async () => {
       jest
         .mocked(getFormMetadataById)
         // @ts-expect-error - allow partial objects for tests
@@ -149,7 +205,7 @@ describe('Save-and-exit check routes', () => {
   })
 
   describe('GET /resume-form-verify/{formId}/{magicLinkId}/{slug}/state?}', () => {
-    test('/route renders page', async () => {
+    test('route renders page', async () => {
       jest
         .mocked(getFormMetadataById)
         // @ts-expect-error - allow partial objects for tests
@@ -178,7 +234,7 @@ describe('Save-and-exit check routes', () => {
       expect($mastheadHeading).toBeInTheDocument()
     })
 
-    test('/route forwards correctly on invalid form error', async () => {
+    test('route forwards correctly on invalid form error', async () => {
       jest.mocked(getFormMetadataById).mockImplementationOnce(() => {
         throw new Error('form not found')
       })
@@ -201,7 +257,7 @@ describe('Save-and-exit check routes', () => {
       expect(response.headers.location).toBe('/resume-form-error')
     })
 
-    test('/route forwards correctly on magic link error', async () => {
+    test('route forwards correctly on magic link error', async () => {
       jest
         .mocked(getFormMetadataById)
         // @ts-expect-error - allow partial objects for tests
@@ -222,7 +278,7 @@ describe('Save-and-exit check routes', () => {
   })
 
   describe('GET /resume-form-error', () => {
-    test('/route renders page without slug', async () => {
+    test('route renders page without slug', async () => {
       const options = {
         method: 'GET',
         url: '/resume-form-error'
@@ -244,7 +300,7 @@ describe('Save-and-exit check routes', () => {
       expect($button).not.toBeInTheDocument()
     })
 
-    test('/route renders page with slug', async () => {
+    test('route renders page with slug', async () => {
       const options = {
         method: 'GET',
         url: '/resume-form-error/my-slug'
@@ -269,7 +325,7 @@ describe('Save-and-exit check routes', () => {
   })
 
   describe('GET /resume-form-success', () => {
-    test('/route renders page without state', async () => {
+    test('route renders page without state', async () => {
       jest
         .mocked(getFormMetadata)
         // @ts-expect-error - allow partial objects for tests
@@ -298,7 +354,7 @@ describe('Save-and-exit check routes', () => {
       expect($button).toHaveAttribute('href', '/form/my-form-to-resume/summary')
     })
 
-    test('/route renders page with slug', async () => {
+    test('route renders page with slug', async () => {
       jest
         .mocked(getFormMetadata)
         // @ts-expect-error - allow partial objects for tests
@@ -332,7 +388,7 @@ describe('Save-and-exit check routes', () => {
   })
 
   describe('/resume-form-verify/{formId}/{magicLinkId}/{slug}/{state?}', () => {
-    test('/route handles invalid password', async () => {
+    test('route handles invalid password', async () => {
       jest
         .mocked(getFormMetadataById)
         // @ts-expect-error - allow partial objects for tests
@@ -369,7 +425,7 @@ describe('Save-and-exit check routes', () => {
       )
     })
 
-    test('/route handles lockout', async () => {
+    test('route handles lockout', async () => {
       jest
         .mocked(getFormMetadataById)
         // @ts-expect-error - allow partial objects for tests
@@ -408,7 +464,7 @@ describe('Save-and-exit check routes', () => {
       expect($errorMessage).toBeInTheDocument()
     })
 
-    test('/route handles missing password', async () => {
+    test('route handles missing password', async () => {
       jest
         .mocked(getFormMetadataById)
         // @ts-expect-error - allow partial objects for tests
@@ -449,7 +505,7 @@ describe('Save-and-exit check routes', () => {
       expect(createJoiError).not.toHaveBeenCalled()
     })
 
-    test('/route handles missing password and invalid url', async () => {
+    test('route handles missing password and invalid url', async () => {
       jest
         .mocked(getFormMetadataById)
         // @ts-expect-error - allow partial objects for tests
@@ -479,6 +535,22 @@ describe('Save-and-exit check routes', () => {
 
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
       expect(response.headers.location).toBe('/resume-form-error')
+    })
+  })
+
+  describe('addError', () => {
+    test('adds error to existing array', () => {
+      const model = { errors: [{ href: '#', text: 'Some error text1' }] }
+      const error = { href: '#', text: 'Some error text2' }
+      const newModel = addError(model, error)
+      expect(newModel.errors).toHaveLength(2)
+    })
+
+    test('adds error to new error array', () => {
+      const model = {}
+      const error = { href: '#', text: 'Some error text' }
+      const newModel = addError(model, error)
+      expect(newModel.errors).toHaveLength(1)
     })
   })
 })

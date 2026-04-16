@@ -27,10 +27,8 @@ export const environment = nunjucks.configure(
   The engine provides its own implementation of evaluate filter, which is used on pages served by the engine.
   On other pages hosted by runner, we still require the filter but it's not dynamic so we can return the initial value.
 */
-// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 environment.addFilter('evaluate', (value) => value)
 environment.addFilter('markdown', (value, startingHeaderLevel = 1) =>
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   markdownToHtml(value, { startingHeaderLevel })
 )
 

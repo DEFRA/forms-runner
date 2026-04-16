@@ -24,6 +24,32 @@ async function expectValidationError(invalidPayload) {
 jest.mock('@aws-sdk/client-sns')
 jest.mock('~/src/server/messaging/sns.ts')
 
+/** @type {FormAdapterSubmissionMessagePayload} */
+const basePayload = {
+  meta: {
+    schemaVersion: 1,
+    timestamp: new Date(),
+    formId: '507f1f77bcf86cd799439011',
+    formSlug: 'test-form',
+    formName: 'Test Form',
+    referenceNumber: 'REF-123456',
+    status: 'live',
+    isPreview: false,
+    notificationEmail: 'test@example.com'
+  },
+  data: {
+    main: { field1: 'value1' },
+    repeaters: {},
+    files: {}
+  },
+  result: {
+    files: {
+      main: 'main-file-path',
+      repeaters: {}
+    }
+  }
+}
+
 describe('formAdapterEventPublisher', () => {
   /** @type {FormAdapterSubmissionMessagePayload} */
   let mockPayload
@@ -35,28 +61,8 @@ describe('formAdapterEventPublisher', () => {
     jest.clearAllMocks()
 
     mockPayload = /** @type {FormAdapterSubmissionMessagePayload} */ ({
-      meta: {
-        schemaVersion: 1,
-        timestamp: new Date(),
-        formId: '507f1f77bcf86cd799439011',
-        formSlug: 'test-form',
-        formName: 'Test Form',
-        referenceNumber: 'REF-123456',
-        status: 'live',
-        isPreview: false,
-        notificationEmail: 'test@example.com'
-      },
-      data: {
-        main: { field1: 'value1' },
-        repeaters: {},
-        files: {}
-      },
-      result: {
-        files: {
-          main: 'main-file-path',
-          repeaters: {}
-        }
-      }
+      ...basePayload,
+      meta: { ...basePayload.meta }
     })
 
     mockSnsClient = { send: jest.fn() }
@@ -109,7 +115,7 @@ describe('formAdapterEventPublisher', () => {
       expect(mockSnsClient.send).toHaveBeenCalled()
     })
 
-    it('serializes entire payload as JSON message', async () => {
+    it('serialises entire payload as JSON message', async () => {
       mockSnsClient.send.mockResolvedValue({ MessageId: 'msg-789' })
 
       const complexPayload =
@@ -246,6 +252,76 @@ describe('formAdapterEventPublisher', () => {
         expect(mockSnsClient.send).not.toHaveBeenCalled()
       })
     })
+  })
+})
+
+describe('per-form topic routing (SNS_FORM_TOPIC_ARN_MAP)', () => {
+  // formId must match the entry in jest.setup.cjs SNS_FORM_TOPIC_ARN_MAP
+  const formSpecificArn =
+    'arn:aws:sns:eu-west-2:123456789012:form-specific-topic'
+  const mappedFormId = '507f1f77bcf86cd799439099'
+
+  /** @type {FormAdapterSubmissionMessagePayload} */
+  const mappedPayload = {
+    ...basePayload,
+    meta: { ...basePayload.meta, formId: mappedFormId }
+  }
+
+  /** @type {any} */
+  let mockSnsClient
+
+  beforeEach(() => {
+    mockSnsClient = { send: jest.fn() }
+    jest.mocked(getSNSClient).mockReturnValue(mockSnsClient)
+  })
+
+  it('publishes to form-specific topic in addition to global topic when formId is mapped', async () => {
+    mockSnsClient.send
+      .mockResolvedValueOnce({ MessageId: 'global-msg-id' })
+      .mockResolvedValueOnce({ MessageId: 'form-specific-msg-id' })
+
+    const result = await publishFormAdapterEvent(mappedPayload)
+
+    expect(result).toBe('global-msg-id')
+    expect(mockSnsClient.send).toHaveBeenCalledTimes(2)
+    expect(PublishCommand).toHaveBeenNthCalledWith(1, {
+      TopicArn: 'arn:aws:sns:eu-west-2:123456789012:test-adapter-topic',
+      Message: JSON.stringify(mappedPayload)
+    })
+    expect(PublishCommand).toHaveBeenNthCalledWith(2, {
+      TopicArn: formSpecificArn,
+      Message: JSON.stringify(mappedPayload)
+    })
+  })
+
+  it('does not publish to form-specific topic when formId is not in the map', async () => {
+    mockSnsClient.send.mockResolvedValueOnce({ MessageId: 'global-msg-id' })
+
+    // basePayload uses formId 507f1f77bcf86cd799439011 which is not in the map
+    await publishFormAdapterEvent(basePayload)
+
+    expect(mockSnsClient.send).toHaveBeenCalledTimes(1)
+  })
+
+  it('throws when form-specific publish returns no MessageId', async () => {
+    mockSnsClient.send
+      .mockResolvedValueOnce({ MessageId: 'global-msg-id' })
+      .mockResolvedValueOnce({})
+
+    await expect(publishFormAdapterEvent(mappedPayload)).rejects.toThrow(
+      'Failed to publish form adapter event to form-specific topic - no message ID returned'
+    )
+  })
+
+  it('sends the exact same message string to both topics', async () => {
+    mockSnsClient.send
+      .mockResolvedValueOnce({ MessageId: 'global-msg-id' })
+      .mockResolvedValueOnce({ MessageId: 'form-specific-msg-id' })
+
+    await publishFormAdapterEvent(mappedPayload)
+
+    const calls = jest.mocked(PublishCommand).mock.calls
+    expect(calls[0][0].Message).toBe(calls[1][0].Message)
   })
 })
 

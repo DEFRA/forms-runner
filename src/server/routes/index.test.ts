@@ -1,9 +1,13 @@
+import { type FormDefinition, type FormMetadata } from '@defra/forms-model'
 import { type Server } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 
 import { config } from '~/src/config/index.js'
 import { createServer } from '~/src/server/index.js'
-import { getFormMetadata } from '~/src/server/services/formsService.js'
+import {
+  getFormDefinition,
+  getFormMetadata
+} from '~/src/server/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
@@ -23,7 +27,8 @@ describe('Routes', () => {
 
   test('cookies page is served with 24 hour duration and GA info', async () => {
     config.set('sessionTimeout', 86400000)
-    config.set('googleAnalyticsContainerId', '12345')
+    config.set('googleTagManagerContainerId', 'GTM-XXXXXXXX')
+    config.set('googleAnalyticsContainerId', 'YYYYYYYYYY')
 
     const options = {
       method: 'GET',
@@ -38,7 +43,7 @@ describe('Routes', () => {
     })
 
     const $googleAnalyticsRowheader = container.getByRole('rowheader', {
-      name: '_ga_123456789'
+      name: '_ga_YYYYYYYYYY'
     })
 
     const $sessionDurationRow = container.getByRole('row', {
@@ -58,7 +63,8 @@ describe('Routes', () => {
 
   test('cookies page is served without GA info', async () => {
     config.set('sessionTimeout', 86400000)
-    config.reset('googleAnalyticsTrackingId')
+    config.set('googleTagManagerContainerId', '')
+    config.set('googleAnalyticsContainerId', '')
 
     const options = {
       method: 'GET',
@@ -72,7 +78,7 @@ describe('Routes', () => {
       level: 1
     })
     const $googleAnalyticsRowheader = container.queryByRole('rowheader', {
-      name: '_ga_123456789'
+      name: '_ga_YYYYYYYYYY'
     })
 
     const $sessionDurationRow = container.getByRole('row', {
@@ -163,7 +169,13 @@ describe('Routes', () => {
     expect($banner).toHaveTextContent('Hello world')
   })
 
-  test('privacy notice (general) page is served', async () => {
+  test('privacy notice (general) page is served with feedback form link', async () => {
+    jest
+      .mocked(getFormMetadata)
+      .mockResolvedValueOnce({ id: '123' } as unknown as FormMetadata)
+    jest
+      .mocked(getFormDefinition)
+      .mockResolvedValueOnce({} as unknown as FormDefinition)
     const options = {
       method: 'GET',
       url: '/help/privacy/slug'
@@ -176,11 +188,47 @@ describe('Routes', () => {
       level: 1
     })
 
+    const $link = container.getByRole('link', {
+      name: 'give your feedback (opens in new tab)'
+    })
+
     expect($heading).toBeInTheDocument()
     expect($heading).toHaveClass('govuk-heading-l')
+    expect($link).toBeInTheDocument()
   })
 
-  test('privacy notice (specific) page is served', async () => {
+  test('privacy notice (general) page is served with feedback by email link', async () => {
+    jest
+      .mocked(getFormMetadata)
+      .mockResolvedValueOnce({ id: '123' } as unknown as FormMetadata)
+    jest.mocked(getFormDefinition).mockResolvedValueOnce({
+      options: { disableUserFeedback: true }
+    } as unknown as FormDefinition)
+    const options = {
+      method: 'GET',
+      url: '/help/privacy/slug'
+    }
+
+    const { container } = await renderResponse(server, options)
+
+    const $heading = container.getByRole('heading', {
+      name: 'Submit a form to Defra - privacy notice',
+      level: 1
+    })
+
+    const $link = container.getByRole('link', {
+      name: 'give your feedback by email'
+    })
+
+    expect($heading).toBeInTheDocument()
+    expect($heading).toHaveClass('govuk-heading-l')
+    expect($link).toBeInTheDocument()
+  })
+
+  test('privacy notice (specific) page is served with feedback form link', async () => {
+    jest
+      .mocked(getFormDefinition)
+      .mockResolvedValueOnce({} as unknown as FormDefinition)
     jest.mocked(getFormMetadata).mockResolvedValue({
       ...fixtures.form.metadata,
       privacyNoticeType: 'text',
@@ -198,6 +246,40 @@ describe('Routes', () => {
       level: 1
     })
 
+    const $link = container.getByRole('link', {
+      name: 'give your feedback (opens in new tab)'
+    })
+
     expect($heading).toBeInTheDocument()
+    expect($link).toBeInTheDocument()
+  })
+
+  test('privacy notice (specific) page is served with feedback by email link', async () => {
+    jest.mocked(getFormDefinition).mockResolvedValueOnce({
+      options: { disableUserFeedback: true }
+    } as unknown as FormDefinition)
+    jest.mocked(getFormMetadata).mockResolvedValue({
+      ...fixtures.form.metadata,
+      privacyNoticeType: 'text',
+      privacyNoticeText: '# Privacy markdown heading'
+    })
+    const options = {
+      method: 'GET',
+      url: '/help/privacy-specific/slug'
+    }
+
+    const { container } = await renderResponse(server, options)
+
+    const $heading = container.getByRole('heading', {
+      name: 'Privacy markdown heading',
+      level: 1
+    })
+
+    const $link = container.getByRole('link', {
+      name: 'give your feedback by email'
+    })
+
+    expect($heading).toBeInTheDocument()
+    expect($link).toBeInTheDocument()
   })
 })

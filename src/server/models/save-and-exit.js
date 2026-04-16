@@ -2,6 +2,8 @@ import { crumbSchema, stateSchema } from '@defra/forms-engine-plugin/schema.js'
 import {
   ControllerPath,
   SecurityQuestionsEnum,
+  UNICODE_EMAIL_ERROR_MESSAGE,
+  preventUnicodeInEmail,
   slugSchema
 } from '@defra/forms-model'
 import Joi from 'joi'
@@ -22,6 +24,7 @@ const emailFieldName = 'email'
 const emailConfirmationFieldName = 'emailConfirmation'
 const securityQuestionFieldName = 'securityQuestion'
 const securityAnswerFieldName = 'securityAnswer'
+const general = 'general'
 
 const GOVUK_LABEL__M = 'govuk-label--m'
 const saveAndExitExpiryDays = config.get('saveAndExitExpiryDays')
@@ -55,6 +58,7 @@ function buildErrors(err) {
     return {}
   }
 
+  const generalError = err.details.find((item) => item.path[0] === general)
   const emailError = err.details.find((item) => item.path[0] === emailFieldName)
   const emailConfirmationError = err.details.find(
     (item) => item.path[0] === emailConfirmationFieldName
@@ -65,7 +69,12 @@ function buildErrors(err) {
   const securityAnswerError = err.details.find(
     (item) => item.path[0] === securityAnswerFieldName
   )
+
   const errors = []
+
+  if (generalError) {
+    errors.push({ text: generalError.message, href: '#' })
+  }
 
   if (emailError) {
     errors.push({ text: emailError.message, href: `#${emailFieldName}` })
@@ -136,6 +145,9 @@ function buildEmailConfirmationField(payload, error) {
       text: 'Confirm your email address',
       classes: GOVUK_LABEL__M,
       isPageHeading: false
+    },
+    hint: {
+      text: 'Check you have entered the correct email address'
     },
     value: payload?.emailConfirmation,
     errorMessage: error && {
@@ -233,11 +245,17 @@ export const paramsSchema = Joi.object()
 export const payloadSchema = Joi.object()
   .keys({
     crumb: crumbSchema,
-    email: Joi.string().email().required().messages({
-      'string.email':
-        'Enter an email address in the correct format, for example, hello@example.com',
-      '*': 'Enter an email address'
-    }),
+    email: Joi.string()
+      .trim()
+      .email()
+      .custom((value, helpers) => preventUnicodeInEmail(value, helpers))
+      .required()
+      .messages({
+        'string.email':
+          'Enter an email address in the correct format, for example, hello@example.com',
+        'string.unicode': UNICODE_EMAIL_ERROR_MESSAGE,
+        '*': 'Enter an email address'
+      }),
     emailConfirmation: Joi.string()
       .valid(Joi.ref('email'))
       .required()
@@ -534,7 +552,19 @@ export function resumeSuccessViewModel(form, status) {
  */
 
 /**
+ * @typedef {object} CustomErrorPayload
+ * @property {{ latestId?: string }} [custom] - custom payload
+ */
+
+/**
+ * @typedef {object} BoomErrorCustomSaveAndExit
+ * @property {{ statusCode?: StatusCodes }} [output] - contains status code
+ * @property {{ payload?: { latestId?: string }}} [data] - custom payload for save-and-exit
+ */
+
+/**
  * @import { FormMetadata } from '@defra/forms-model'
+ * @import { StatusCodes } from 'http-status-codes'
  * @import { FormStatus } from '@defra/forms-engine-plugin/types'
  * @import { SaveAndExitResumeDetails } from '~/src/server/types.js'
  */

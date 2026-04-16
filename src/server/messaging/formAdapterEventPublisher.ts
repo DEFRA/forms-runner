@@ -8,6 +8,10 @@ import { getSNSClient } from '~/src/server/messaging/sns.js'
 
 const logger = createLogger()
 const snsAdapterTopicArn = config.get('snsAdapterTopicArn')
+const snsFormTopicArnMapRaw = config.get('snsFormTopicArnMap')
+const snsFormTopicArnMap: Record<string, string> = snsFormTopicArnMapRaw
+  ? (JSON.parse(snsFormTopicArnMapRaw) as Record<string, string>)
+  : {}
 
 /**
  * Validate form adapter submission payload against schema
@@ -55,12 +59,13 @@ export async function publishFormAdapterEvent(
   }
 
   const validatedPayload = validateFormAdapterPayload(submissionPayload)
+  const message = JSON.stringify(validatedPayload)
 
   const snsClient = getSNSClient()
   const result = await snsClient.send(
     new PublishCommand({
       TopicArn: snsAdapterTopicArn,
-      Message: JSON.stringify(validatedPayload)
+      Message: message
     })
   )
 
@@ -73,6 +78,26 @@ export async function publishFormAdapterEvent(
   logger.info(
     `Published form adapter event for submission ${validatedPayload.meta.referenceNumber}. MessageId: ${result.MessageId}`
   )
+
+  const formSpecificTopicArn = snsFormTopicArnMap[validatedPayload.meta.formId]
+  if (formSpecificTopicArn) {
+    const formSpecificResult = await snsClient.send(
+      new PublishCommand({
+        TopicArn: formSpecificTopicArn,
+        Message: message
+      })
+    )
+
+    if (!formSpecificResult.MessageId) {
+      throw new Error(
+        'Failed to publish form adapter event to form-specific topic - no message ID returned'
+      )
+    }
+
+    logger.info(
+      `Published form adapter event to form-specific topic for submission ${validatedPayload.meta.referenceNumber}. MessageId: ${formSpecificResult.MessageId}`
+    )
+  }
 
   return result.MessageId
 }
