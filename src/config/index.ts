@@ -9,9 +9,6 @@ const isProduction = process.env.NODE_ENV === 'production'
 const isDev = process.env.NODE_ENV !== 'production'
 const isTest = process.env.NODE_ENV === 'test'
 
-const oneMinute = 1000 * 60
-const oneHour = oneMinute * 60
-
 export const config = convict({
   appDir: {
     format: String,
@@ -29,15 +26,15 @@ export const config = convict({
    */
   port: {
     format: 'port',
-    default: 3009,
+    default: null,
     env: 'PORT'
-  },
+  } as SchemaObj<number>,
   env: {
     doc: 'The application environment.',
     format: ['production', 'development', 'test'],
-    default: 'development',
+    default: null,
     env: 'NODE_ENV'
-  },
+  } as SchemaObj<'production' | 'development' | 'test'>,
   cdpEnvironment: {
     doc: 'The CDP environment the app is currently in, with the addition of "local"',
     format: [
@@ -50,14 +47,23 @@ export const config = convict({
       'ext-test',
       'prod'
     ],
-    default: 'local',
+    default: null,
     env: 'ENVIRONMENT'
-  },
+  } as SchemaObj<
+    | 'local'
+    | 'infra-dev'
+    | 'management'
+    | 'dev'
+    | 'test'
+    | 'perf-test'
+    | 'ext-test'
+    | 'prod'
+  >,
   enforceCsrf: {
     format: Boolean,
-    default: true,
+    default: null,
     env: 'ENFORCE_CSRF'
-  },
+  } as SchemaObj<boolean>,
 
   /**
    * Helper flags
@@ -89,15 +95,14 @@ export const config = convict({
   serviceVersion: {
     doc: 'The service version, this variable is injected into your docker container in CDP environments',
     format: String,
-    nullable: true,
     default: null,
     env: 'SERVICE_VERSION'
   } as SchemaObj<string>,
   phaseTag: {
     format: String,
-    default: 'beta', // Accepts "alpha" |"beta" | ""
+    default: null, // Accepts "alpha" |"beta" | ""
     env: 'PHASE_TAG'
-  },
+  } as SchemaObj<string>,
 
   /**
    * Session storage
@@ -105,14 +110,14 @@ export const config = convict({
    */
   sessionTimeout: {
     format: Number,
-    default: oneHour * 24, // 1 day
+    default: null,
     env: 'SESSION_TIMEOUT'
-  },
+  } as SchemaObj<number>,
   confirmationSessionTimeout: {
     format: Number,
-    default: oneMinute * 20,
+    default: null,
     env: 'CONFIRMATION_SESSION_TIMEOUT'
-  },
+  } as SchemaObj<number>,
   sessionCookiePassword: {
     format: String,
     default: null,
@@ -148,7 +153,7 @@ export const config = convict({
     useSingleInstanceCache: {
       doc: 'Redis use single cache (non-clustered)',
       format: Boolean,
-      default: !isProduction,
+      default: null,
       env: 'USE_SINGLE_INSTANCE_CACHE'
     } as SchemaObj<boolean>
   },
@@ -156,7 +161,7 @@ export const config = convict({
     header: {
       doc: 'Tracing header name',
       format: String,
-      default: 'x-cdp-request-id',
+      default: null,
       env: 'TRACING_HEADER'
     } as SchemaObj<string>
   },
@@ -166,7 +171,7 @@ export const config = convict({
    */
   awsRegion: {
     format: String,
-    default: 'eu-west-2',
+    default: null,
     env: 'AWS_REGION'
   } as SchemaObj<string>,
   snsAdapterTopicArn: {
@@ -187,7 +192,7 @@ export const config = convict({
   snsFormTopicArnMap: {
     doc: 'JSON object mapping formId to SNS topic ARN for per-form additional topic routing',
     format: String,
-    default: '',
+    default: null,
     env: 'SNS_FORM_TOPIC_ARN_MAP'
   } as SchemaObj<string>,
 
@@ -226,9 +231,9 @@ export const config = convict({
 
   uploaderBucketName: {
     format: String,
-    default: 'files',
+    default: null,
     env: 'UPLOADER_BUCKET_NAME'
-  },
+  } as SchemaObj<string>,
 
   /**
    * Logging
@@ -237,19 +242,19 @@ export const config = convict({
     enabled: {
       doc: 'Is logging enabled',
       format: Boolean,
-      default: !isTest,
+      default: null,
       env: 'LOG_ENABLED'
-    },
+    } as SchemaObj<boolean>,
     level: {
       doc: 'Logging level',
       format: ['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'],
-      default: 'info',
+      default: null,
       env: 'LOG_LEVEL'
     } as SchemaObj<LevelWithSilent>,
     format: {
       doc: 'Format to output logs in.',
       format: ['ecs', 'pino-pretty'],
-      default: isProduction ? 'ecs' : 'pino-pretty',
+      default: null,
       env: 'LOG_FORMAT'
     } as SchemaObj<'ecs' | 'pino-pretty'>,
     redact: {
@@ -261,96 +266,86 @@ export const config = convict({
     }
   },
 
-  safelist: {
-    format: Array,
-    default: ['61bca17e-fe74-40e0-9c15-a901ad120eca.mock.pstmn.io'],
-    env: 'SAFELIST'
-  },
-
   stagingPrefix: {
     doc: 'Prefix for staging files in S3',
     format: String,
-    default: 'staging',
+    default: null,
     env: 'STAGING_PREFIX'
-  },
+  } as SchemaObj<string>,
 
   serviceBannerText: {
     doc: 'Service banner text used to show a maintenance message on all pages when set',
     format: String,
-    default: '',
+    default: null,
     env: 'SERVICE_BANNER_TEXT'
-  },
+  } as SchemaObj<string>,
 
   googleTagManagerContainerId: {
     doc: 'Google Tag Manager container ID to be used when a user has opted in to additional cookies',
     format: String,
-    default: '',
+    default: null,
     env: 'GOOGLE_TAG_MANAGER_CONTAINER_ID'
-  },
+  } as SchemaObj<string>,
 
   googleAnalyticsContainerId: {
     doc: 'Google Analytics container ID suffix (from the GA4 measurement ID, without the G- prefix) used to display the exact cookie name on the cookies page',
     format: String,
-    default: '',
+    default: null,
     env: 'GOOGLE_ANALYTICS_CONTAINER_ID'
-  },
+  } as SchemaObj<string>,
 
   saveAndExitExpiryDays: {
     format: Number,
-    default: 28,
+    default: null,
     env: 'SAVE_AND_EXIT_EXPIRY_IN_DAYS'
-  },
+  } as SchemaObj<number>,
 
   storeCompletedApplicationsFor: {
     format: String,
-    default: '9 months',
+    default: null,
     env: 'STORE_COMPLETED_APPLICATIONS_FOR'
-  },
+  } as SchemaObj<string>,
 
   storeFeedbackFor: {
     format: String,
-    default: '9 months',
+    default: null,
     env: 'STORE_FEEDBACK_FOR'
-  },
+  } as SchemaObj<string>,
 
   ordnanceSurveyApiKey: {
     doc: 'The ordnance survey api key used by the postcode lookup and maps plugin',
     format: String,
-    nullable: true,
-    default: undefined,
+    default: null,
     env: 'ORDNANCE_SURVEY_API_KEY'
-  } as SchemaObj<string | undefined>,
+  } as SchemaObj<string>,
 
   ordnanceSurveyApiSecret: {
     doc: 'The ordnance survey api secret used by the maps plugin',
     format: String,
-    nullable: true,
-    default: undefined,
+    default: null,
     env: 'ORDNANCE_SURVEY_API_SECRET'
-  } as SchemaObj<string | undefined>,
+  } as SchemaObj<string>,
 
   useMapsFeature: {
     doc: 'Feature flag to control maps',
     format: Boolean,
-    default: false,
+    default: null,
     env: 'USE_MAPS_FEATURE'
-  },
+  } as SchemaObj<boolean>,
 
   feedbackViaEmail: {
     doc: 'The email address (not including the mailto prefix) for feedback when the built-in CSAT form is disabled.',
     format: String,
-    nullable: false,
-    default: 'defraforms@defra.gov.uk',
+    default: null,
     env: 'FEEDBACK_VIA_EMAIL'
-  } as SchemaObj<string | undefined>,
+  } as SchemaObj<string>,
 
   privateKeyForSecrets: {
     doc: 'The private key used to decrypt secret values',
     format: String,
-    nullable: true,
-    default: undefined,
+    default: null,
     env: 'PRIVATE_KEY_FOR_SECRETS'
-  } as SchemaObj<string | undefined>
+  } as SchemaObj<string>
 })
 
 config.validate({ allowed: 'strict' })
