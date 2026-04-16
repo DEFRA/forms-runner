@@ -266,11 +266,11 @@ export const config = convict({
     }
   },
 
-  safelist: {
-    format: Array,
-    default: null,
-    env: 'SAFELIST'
-  } as SchemaObj<string[]>,
+  // safelist: {
+  //   format: Array,
+  //   default: null,
+  //   env: 'SAFELIST'
+  // } as SchemaObj<string[]>,
 
   stagingPrefix: {
     doc: 'Prefix for staging files in S3',
