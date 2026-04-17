@@ -1,4 +1,4 @@
-import  { type FormMetadata } from '@defra/forms-model'
+import { type FormMetadata } from '@defra/forms-model'
 
 import { resolveLanguage, t } from '~/src/server/i18n/index.js'
 
