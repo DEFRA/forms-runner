@@ -178,6 +178,10 @@ export default {
         method: 'get',
         path: '/help/cookies/{slug}',
         async handler(request, h) {
+          const { slug } = request.params
+          const form = await getFormMetadata(slug)
+          request.app.language = resolveLanguage(form)
+
           const sessionTimeout = config.get('sessionTimeout')
 
           const sessionDurationPretty = humanizeDuration(sessionTimeout)
@@ -281,9 +285,11 @@ export default {
       server.route<{ Params: { slug: string } }>({
         method: 'get',
         path: '/help/cookie-preferences/{slug}',
-        handler(request, h) {
+        async handler(request, h) {
           const { params } = request
           const { slug } = params
+          const form = await getFormMetadata(slug)
+          request.app.language = resolveLanguage(form)
           let cookieConsentDismissed = false
 
           if (typeof request.state.cookieConsent === 'string') {
@@ -311,7 +317,11 @@ export default {
       server.route<{ Params: { slug: string } }>({
         method: 'get',
         path: '/help/accessibility-statement/{slug}',
-        handler(_request, h) {
+        async handler(request, h) {
+          const { slug } = request.params
+          const form = await getFormMetadata(slug)
+          request.app.language = resolveLanguage(form)
+
           return h.view('help/accessibility-statement')
         },
         options
