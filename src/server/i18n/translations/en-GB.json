@@ -190,7 +190,10 @@
     }
   },
   "confirmation": {
-    "feedbackLink": "What do you think of this service? (takes 30 seconds)"
+    "feedbackLink": "What do you think of this service? (takes 30 seconds)",
+    "whatHappensNext": "What happens next",
+    "feedbackSubmitted": "Feedback submitted",
+    "submissionGuidance": "Thank you for leaving feedback.\n\nYou can close this screen now."
   },
   "errors": {
     "notFound": {
