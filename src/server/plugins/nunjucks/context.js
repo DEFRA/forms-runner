@@ -9,6 +9,7 @@ import pkg from '~/package.json' with { type: 'json' }
 import { parseCookieConsent } from '~/src/common/cookies.js'
 import { config } from '~/src/config/index.js'
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { t as runnerT } from '~/src/server/i18n/index.js'
 
 const logger = createLogger()
 
@@ -32,6 +33,8 @@ export function context(request) {
   }
 
   const { params, query = {}, response, state } = request ?? {}
+
+  const language = request?.app?.language ?? 'en-GB'
 
   const isForceAccess = 'force' in query
   const { isPreview: isPreviewMode, state: formState } = checkFormStatus(params)
@@ -59,6 +62,8 @@ export function context(request) {
     currentPath: request ? `${request.path}${request.url.search}` : undefined,
     previewMode: isPreviewMode ? formState : undefined,
     slug: isResponseOK ? params?.slug : undefined,
+
+    t: (key, opts) => runnerT(key, language, opts),
 
     getAssetPath: (asset = '') => {
       return `/${webpackManifest?.[asset] ?? asset}`

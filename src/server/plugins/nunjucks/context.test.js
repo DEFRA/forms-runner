@@ -104,8 +104,37 @@ describe('Nunjucks context', () => {
       ).not.toHaveBeenCalled()
     })
   })
+
+  describe('Translation helper', () => {
+    it('should include t as a function', () => {
+      const { t } = context(null)
+      expect(typeof t).toBe('function')
+    })
+
+    it('should default to en-GB when no request provided', () => {
+      const { t } = context(null)
+      expect(t('errors.notFound.heading')).toBe('Page not found')
+    })
+
+    it('should use language from request.app when set', () => {
+      const mockRequest = /** @type {AnyFormRequest} */ (
+        /** @type {unknown} */ ({
+          params: {},
+          query: {},
+          response: { statusCode: 200 },
+          state: {},
+          app: { language: 'en-GB' },
+          path: '/test',
+          url: { search: '' },
+          plugins: {}
+        })
+      )
+      const { t: tHelper } = context(mockRequest)
+      expect(tHelper('errors.notFound.heading')).toBe('Page not found')
+    })
+  })
 })
 
 /**
- * @import { FormRequest } from '@defra/forms-engine-plugin/types'
+ * @import { FormRequest, AnyFormRequest } from '@defra/forms-engine-plugin/types'
  */
