@@ -11,23 +11,22 @@
     <div class="govuk-grid-column-two-thirds">
       {% if errors | length %}
         {{ govukErrorSummary({
-          titleText: "There is a problem",
+          titleText: t('saveAndExit.details.errorTitle'),
           errorList: errors
         }) }}
       {% endif %}
 
       <h1 class="govuk-heading-l">{{ pageTitle }}</h1>
       <p class="govuk-body">
-        Provide your email address and answer a security question to save your progress for 28 days.
+        {{ t('saveAndExit.details.intro1') }}
       </p>
       <p class="govuk-body">
-        We will email you with a link you can use to return to the form later.
-        You will be asked for the answer to the security question when you resume your form.
+        {{ t('saveAndExit.details.intro2') }}
       </p>
 
       {{ govukWarningText({
-        text: "Enter your email address carefully. You cannot return to the form later if your email is incorrect.",
-        iconFallbackText: "Warning"
+        text: t('saveAndExit.details.warning'),
+        iconFallbackText: t('saveAndExit.details.warningIconFallback')
       }) }}
 
       <form method="post">

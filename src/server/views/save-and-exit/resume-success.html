@@ -8,16 +8,16 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-l">{{ pageTitle }}</h1>
       <p class="govuk-body">
-        You will return to the page where you saved your progress unless new questions have been added to the form.
+        {{ t('saveAndExit.resumeSuccess.body1') }}
       </p>
 
       {{ govukWarningText({
-        text: "If new questions have been added to the form, you will be taken to the earliest new question.",
-        iconFallbackText: "Warning"
+        text: t('saveAndExit.resumeSuccess.warning'),
+        iconFallbackText: t('saveAndExit.resumeSuccess.warningIconFallback')
       }) }}
 
       <p class="govuk-body">
-        You will need to repeat the save process again and generate a new link if you want to save your progress in the future.
+        {{ t('saveAndExit.resumeSuccess.body2') }}
       </p>
       <form method="post">
         <div class="govuk-button-group">

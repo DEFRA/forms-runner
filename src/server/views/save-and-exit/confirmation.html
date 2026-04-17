@@ -8,18 +8,18 @@
       {{ govukPanel({
         titleText: pageTitle
       }) }}
-      <h1 class="govuk-heading-l">What happens next</h2>
+      <h1 class="govuk-heading-l">{{ t('saveAndExit.confirmation.whatHappensNext') }}</h2>
       <p class="govuk-body">
-        We have sent a link to {{ email }} which you can use to resume this form within {{ saveAndExitExpiryDays }} days.
+        {{ t('saveAndExit.confirmation.linkSent', { email: email, saveAndExitExpiryDays: saveAndExitExpiryDays }) }}
       </p>
       <p class="govuk-body">
-        If you want to save your progress again after resuming your form, you will need to repeat the save process to generate a new link.
+        {{ t('saveAndExit.confirmation.repeatSave') }}
       </p>
       <p class="govuk-body">
-        Check your spam folder if you have not received an email after a few minutes.
+        {{ t('saveAndExit.confirmation.checkSpam') }}
       </p>
       <p class="govuk-body">
-        You can close this window.
+        {{ t('saveAndExit.confirmation.closeWindow') }}
       </p>
     </div>
   </div>

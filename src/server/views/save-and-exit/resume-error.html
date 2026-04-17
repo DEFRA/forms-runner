@@ -7,10 +7,10 @@
     <div class="govuk-grid-column-two-thirds">
       <h1 class="govuk-heading-l">{{ pageTitle }}</h1>
       <p class="govuk-body">
-        The link we emailed to you has expired or is invalid. Your information will be securely deleted.
+        {{ t('saveAndExit.resumeError.body1') }}
       </p>
       <p class="govuk-body">
-        You will need to start the form again.
+        {{ t('saveAndExit.resumeError.body2') }}
       </p>
       {% if buttons.continueButton %}
         <div class="govuk-button-group">
