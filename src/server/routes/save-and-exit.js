@@ -13,6 +13,7 @@ import Joi from 'joi'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
+import { resolveLanguage } from '~/src/server/i18n/index.js'
 import { publishSaveAndExitEvent } from '~/src/server/messaging/publish.js'
 import {
   confirmationViewModel,
@@ -82,6 +83,7 @@ export default [
       const { params } = request
       const { slug, state: status } = params
       const metadata = await getFormMetadata(slug)
+      request.app.language = resolveLanguage(metadata)
       const model = detailsViewModel(metadata, status)
 
       // Store any outstanding data from the current page in a special attribute
@@ -145,6 +147,7 @@ export default [
       const { slug, state: status } = params
       const { email, securityQuestion, securityAnswer } = payload
       const metadata = await getFormMetadata(slug)
+      request.app.language = resolveLanguage(metadata)
       const cacheService = getCacheService(request.server)
 
       // Publish topic message
@@ -195,6 +198,7 @@ export default [
           const { params, payload } = request
           const { slug, state: status } = params
           const metadata = await getFormMetadata(slug)
+          request.app.language = resolveLanguage(metadata)
           const model = detailsViewModel(
             metadata,
             status,
@@ -219,6 +223,7 @@ export default [
       const { params } = request
       const { slug, state: status } = params
       const metadata = await getFormMetadata(slug)
+      request.app.language = resolveLanguage(metadata)
 
       // Get the email from session
       const email = /** @type {string} */ (
@@ -253,6 +258,7 @@ export default [
       let form
       try {
         form = await getFormMetadataById(formId)
+        request.app.language = resolveLanguage(form)
       } catch (err) {
         logger.error(
           err,
@@ -342,6 +348,7 @@ export default [
       let form
       try {
         form = await getFormMetadataById(resumeDetails.form.id)
+        request.app.language = resolveLanguage(form)
       } catch (err) {
         logger.error(
           err,
@@ -406,6 +413,7 @@ export default [
 
       // Reload form title in case it has changed
       const form = await getFormMetadataById(formId)
+      request.app.language = resolveLanguage(form)
 
       if (validatedLink.validPassword) {
         // Restore state
@@ -469,6 +477,7 @@ export default [
           }
 
           const form = await getFormMetadataById(resumeDetails.form.id)
+          request.app.language = resolveLanguage(form)
 
           const model = passwordViewModel(
             form,
@@ -493,6 +502,7 @@ export default [
       const { params } = request
       const { slug, state } = params
       const form = await getFormMetadata(slug)
+      request.app.language = resolveLanguage(form)
       const model = resumeSuccessViewModel(form, state)
 
       return h.view(RESUME_SUCCESS, model)

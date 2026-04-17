@@ -4,7 +4,7 @@
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner -%}
 
-{% set pageTitle = "Cookies" %}
+{% set pageTitle = t('help.cookiePreferences.title') %}
 
 {% block content %}
   <div class="govuk-grid-row">
@@ -12,7 +12,7 @@
       {% if cookieConsentUpdated %}
         {% set notificationHtml %}
           <p class="govuk-notification-banner__heading">
-            You’ve set your cookie preferences.
+            {{ t('help.cookiePreferences.successMessage') }}
           </p>
         {% endset %}
 
@@ -22,7 +22,7 @@
         }) }}
       {% endif %}
 
-      <h2 class="govuk-heading-l">Change your cookie settings</h2>
+      <h2 class="govuk-heading-l">{{ t('help.cookiePreferences.heading') }}</h2>
 
       <form method="post" novalidate>
         <input type="hidden" name="crumb" value="{{ crumb }}">
@@ -31,25 +31,25 @@
           name: "cookies[analytics]",
           fieldset: {
             legend: {
-              text: "Do you want to accept analytics cookies?",
+              text: t('help.cookiePreferences.analyticsQuestion'),
               classes: "govuk-fieldset__legend--s"
             }
           },
           items: [
             {
               value: "yes",
-              text: "Yes"
+              text: t('help.cookiePreferences.yes')
             },
             {
               value: "no",
-              text: "No"
+              text: t('help.cookiePreferences.no')
             }
           ],
           value: "yes" if cookieConsent.analytics === true else "no"
         }) }}
 
         {{ govukButton({
-          text: "Save cookie settings"
+          text: t('help.cookiePreferences.saveButton')
         }) }}
       </form>
     </div>

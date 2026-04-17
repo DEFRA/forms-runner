@@ -4,7 +4,7 @@
 
 {% set mainClasses = "govuk-main-wrapper--l" %}
 
-{% set subTitle = "What happens next" %}
+{% set subTitle = t('confirmation.whatHappensNext') %}
 
 {% set controllers = "" %}
 {% for page in page.model.def.pages %}
@@ -15,8 +15,8 @@
 
 {# Override values if this is a submission from a feedback form i.e. it uses FeedbackPageController #}
 {% if "FeedbackPageController," in controllers %}
-  {% set pageTitle = "Feedback submitted"%}
-  {% set submissionGuidance = "Thank you for leaving feedback.\n\nYou can close this screen now."%}
+  {% set pageTitle = t('confirmation.feedbackSubmitted') %}
+  {% set submissionGuidance = t('confirmation.submissionGuidance') %}
   {% set subTitle = undefined %}
   {% set feedbackLink = undefined %}
   {% set name = formName if formName else "Submit a form to Defra" %}
@@ -38,7 +38,7 @@
       </div>
       {% if feedbackLink %}
         <p class="govuk-body">
-          <a href="{{ feedbackLink }}" class="govuk-link govuk-link--no-visited-state">What do you think of this service?</a> (takes 30 seconds)
+          <a href="{{ feedbackLink }}" class="govuk-link govuk-link--no-visited-state">{{ t('confirmation.feedbackLink') }}</a>
         </p>
       {% endif %}
     </div>

@@ -1,0 +1,218 @@
+{
+  "help": {
+    "getSupport": {
+      "title": "Get help with yer form",
+      "telephone": "By the ship's horn",
+      "callCharges": "Find out about call charges, arrr",
+      "email": "By raven post",
+      "onlineContactForm": "Online contact form, if ye prefer"
+    },
+    "cookies": {
+      "title": "Cookies",
+      "heading": "Cookies",
+      "intro": "Cookies be small files stowed on yer device when ye visit a website, arrr.",
+      "essentialIntro": "We use essential cookies to make this form sail smooth.",
+      "essentialHeading": "Essential cookies",
+      "essentialBody": "Essential cookies keep yer information locked in the hold. We do not need yer permission to use them.",
+      "analyticsHeading": "Analytics cookies",
+      "analyticsBody": "We use Google Analytics to spy on how pirates use our forms — to help make sure the site be meetin' the needs of its crew.",
+      "changeSettingsHeading": "Change yer settings",
+      "changeSettingsBody": "Ye can <a class=\"govuk-link\" href=\"/help/cookie-preferences/[[slug]]\">change which cookies ye be happy for us to use</a>.",
+      "tableCaption": {
+        "essential": "Essential cookies we use, arrr",
+        "analytics": "Analytics cookies we use, arrr"
+      },
+      "tableHead": {
+        "name": "Name",
+        "purpose": "Purpose",
+        "expires": "Expires"
+      },
+      "cookies": {
+        "session": {
+          "purpose": "Remembers the plunder ye enter",
+          "expires": "When ye close the browser, or after [[sessionDurationPretty]]"
+        },
+        "crumb": {
+          "purpose": "Ensures forms can only be submitted from this ship",
+          "expires": "When ye close the browser"
+        },
+        "cookieConsent": {
+          "purpose": "Remembers yer cookie preferences, arrr",
+          "expires": "1 year"
+        },
+        "ga": {
+          "purpose": "Used by Google Analytics to count how many pirates visit our forms by trackin' if ye've been here before",
+          "expires": "2 years"
+        },
+        "gaSession": {
+          "purpose": "Used by Google Analytics to find and track yer individual voyage",
+          "expires": "2 years"
+        }
+      }
+    },
+    "cookiePreferences": {
+      "title": "Cookies",
+      "heading": "Change yer cookie settings",
+      "successMessage": "Ye've set yer cookie preferences, arrr.",
+      "analyticsQuestion": "Do ye want to accept analytics cookies?",
+      "yes": "Aye",
+      "no": "Nay",
+      "saveButton": "Save cookie settings"
+    },
+    "accessibilityStatement": {
+      "title": "Accessibility statement",
+      "heading": "Accessibility statement for this form",
+      "intro": "This accessibility statement applies to online forms with a URL that starts with https://submit-forms-to-defra.service.gov.uk.",
+      "technicalHeading": "Technical information about this website's accessibility",
+      "technicalBody": "Defra be committed to making its forms accessible, in accordance with the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018.",
+      "complianceHeading": "Compliance status",
+      "complianceBody": "Forms created by Defra be fully compliant with the Web Content Accessibility Guidelines (WCAG) version 2.2 AA standard.",
+      "howAccessibleHeading": "How accessible this website be",
+      "howAccessibleIntro": "This section lists accessibility issues with content found in Defra forms.",
+      "nonComplianceHeading": "Non-compliance with the accessibility regulations",
+      "nonComplianceBody": "Defra forms do not have accessibility issues that fail the WCAG 2.2 accessibility regulations.",
+      "outOfScopeHeading": "Content that's not within the scope of the accessibility regulations",
+      "outOfScopeIntro": "The accessibility issues listed in this section do not fail the accessibility regulations. We plan to fix them as soon as possible, arrr.",
+      "outOfScopeItems": [
+        "Forms do not default to a dark or light theme based on the 'prefers-color-scheme'.",
+        "The email field allows for the entry of values that are not formatted as an email address.",
+        "The summary screen for each form does not display the question asked. Instead, it displays a summarised version of the question.",
+        "Some optional questions are not marked as optional.",
+        "Section titles in some forms are formatted as H2 level headings. These headings are shown before page titles which are formatted as H1 level headings (skipped heading hierarchy)."
+      ],
+      "preparationHeading": "Preparation of this accessibility statement",
+      "preparationBody1": "This statement was prepared on 24 June 2024. It was last reviewed on 14 March 2025.",
+      "preparationBody2": "The Defra Accessibility team tested 2 online forms against the WCAG 2.2 AA standard on 17 June 2024. The tests were done using automated testing tools.",
+      "preparationBody3": "We will commission a full accessibility audit of forms created by Defra before June 2025.",
+      "feedbackHeading": "Feedback and contact information",
+      "feedbackBody": "If ye find any problems not listed on this page or think we're not meetin' accessibility requirements, email the Defra Forms crew on <a class=\"govuk-link\" href=\"mailto:defraforms@defra.gov.uk\">defraforms@defra.gov.uk</a>.",
+      "enforcementHeading": "Enforcement procedure",
+      "enforcementBody": "The Equality and Human Rights Commission (EHRC) is responsible for enforcin' the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 (the 'accessibility regulations'). If ye're not happy with how we respond to yer complaint, contact the <a class=\"govuk-link\" href=\"https://www.equalityadvisoryservice.com/\" rel=\"external\">Equality Advisory and Support Service (EASS)</a>."
+    },
+    "privacyNotice": {
+      "pageTitle": "[[serviceName]] privacy notice",
+      "heading": "[[serviceName]] - privacy notice",
+      "intro": "The <strong>[[formTitle]]</strong> form was created usin' the <strong>[[serviceName]]</strong> service. This service be owned and operated by the Department for Environment, Food & Rural Affairs (Defra).",
+      "whoCollectsHeading": "Who collects yer personal plunder",
+      "whoCollectsBody1": "The organisation that created the <strong>[[formTitle]]</strong> form usin' <strong>[[serviceName]]</strong> be the controller of personal plunder they collect. If the controller be outside the Defra legal entity, then Defra be the processor.",
+      "whoCollectsBody2": "Read the <a href=\"[[privacyNoticeUrl]]\" class=\"govuk-link\">specific privacy notice for the [[formTitle]] form</a>.",
+      "whoCollectsBody3": "Defra also collects some plunder as a controller. This privacy notice explains what personal plunder Defra collects and processes as a controller through forms made with <strong>[[serviceName]]</strong>.",
+      "whoCollectsBody4": "If ye need further information about how Defra uses yer personal plunder, email <a href=\"mailto:defraforms@defra.gov.uk\" class=\"govuk-link\">defraforms@defra.gov.uk</a>.",
+      "whoCollectsBody5": "If ye want information and yer associated rights ye can email: <a href=\"mailto:data.protection@defra.gov.uk\" class=\"govuk-link\">data.protection@defra.gov.uk</a>.",
+      "whoCollectsBody6": "The data protection officer for Defra be responsible for checkin' that Defra complies with legislation. Ye can contact them at <a href=\"mailto:DefraGroupDataProtectionOfficer@defra.gov.uk\" class=\"govuk-link\">DefraGroupDataProtectionOfficer@defra.gov.uk</a>.",
+      "dataWeCollectHeading": "Plunder we collect from ye and what we do with it",
+      "analyticsBody1": "If ye give yer consent, we use Google Analytics cookies to collect information about how ye use <strong>[[serviceName]]</strong>. Read the <a href=\"https://support.google.com/analytics/topic/2919631\" class=\"govuk-link\">data privacy and security policy for Google Analytics</a>.",
+      "analyticsBody2": "Google Analytics processes information about:",
+      "analyticsItems": [
+        "yer IP address",
+        "the pages ye visit on <strong>[[serviceName]]</strong>",
+        "how long ye spend on each <strong>[[serviceName]]</strong> page",
+        "how ye got to the site",
+        "what ye select while ye're visitin' the site"
+      ],
+      "analyticsBody3": "Defra will make sure ye cannot be directly identified by Google Analytics plunder. We do this by usin' <a href=\"https://support.google.com/analytics/answer/2763052\" class=\"govuk-link\">Google Analytics' IP address anonymisation</a> feature and by removin' any other personal plunder from the titles or URLs of the pages ye visit.",
+      "analyticsBody4": "Defra will not combine analytics information with other plunder in a way that would directly identify who ye are.",
+      "systemLogsBody1": "We use system logs to collect information about the usage of forms.",
+      "systemLogsBody2": "We use the system logs to create anonymised reports about the performance of forms that use <strong>[[serviceName]]</strong>. We use this plunder to improve forms, for example, if we discover a high number of incomplete forms.",
+      "systemLogsBody2WithAnalytics": "We use the system logs and Google Analytics plunder to create anonymised reports about the performance of forms that use <strong>[[serviceName]]</strong>. We use this plunder to improve forms, for example, if we discover a high number of incomplete forms.",
+      "feedbackBody": "If ye email us feedback about a form that uses <strong>[[serviceName]]</strong>, we'll send yer email address and any other personal information ye choose to include to the controller for review.",
+      "saveAndReturnHeading": "Save and return to a form",
+      "saveAndReturnBody": "Ye can stow yer form progress and return within [[saveAndExitExpiryDays]] days. When stowin' yer progress, ye need to tell us:",
+      "saveAndReturnItems": [
+        "yer email address",
+        "the security question ye want to answer",
+        "the answer to the security question"
+      ],
+      "lawfulBasisHeading": "Lawful basis for processin' yer personal plunder",
+      "lawfulBasisBody": "The lawful basis for processin' yer personal plunder be yer consent.",
+      "cookiesHeading": "Cookies",
+      "cookiesBody": "We use cookies to make this form sail. Read about the <a href=\"/help/cookies/[[slug]]\" class=\"govuk-link\">cookies we use to make this form work</a>.",
+      "howLongHeading": "How long we keep yer plunder",
+      "howLongBody": "<strong>[[serviceName]]</strong> will store yer plunder for [[storeCompletedApplicationsFor]] for completed applications and [[saveAndExitExpiryDays]] days if ye stow and exit and do not submit an application.",
+      "feedbackStorageBody": "Any feedback ye provide be stored for [[storeFeedbackFor]].",
+      "transferHeading": "Transfer of yer personal plunder outside of the UK",
+      "transferBody": "We will only transfer yer personal plunder to another country that be deemed adequate for plunder protection purposes.",
+      "rightsHeading": "What be yer rights",
+      "rightsIntro": "Based on the lawful processin' above, yer individual rights be:",
+      "rightsItems": [
+        "the right to be informed",
+        "the right of access",
+        "the right to rectification",
+        "the right to erasure",
+        "the right to restrict processin'",
+        "the right to plunder portability",
+        "rights in relation to automated decision makin' and profilin'"
+      ],
+      "rightsBody": "Get more information about yer <a href=\"https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/individual-rights/\" class=\"govuk-link\">individual rights</a> under the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018 (DPA 2018).",
+      "complaintsHeading": "Complaints",
+      "complaintsBody": "Ye have the right to <a href=\"https://ico.org.uk/make-a-complaint/\" class=\"govuk-link\">make a complaint</a> to the Information Commissioner's Office at any time.",
+      "personalInfoHeading": "Personal information charter",
+      "personalInfoBody": "Our <a href=\"https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs/about/personal-information-charter\" class=\"govuk-link\">personal information charter</a> explains more about yer rights over yer personal plunder.",
+      "lastUpdated": "Last updated: 11 September 2025"
+    }
+  },
+  "saveAndExit": {
+    "details": {
+      "intro1": "Provide yer email address and answer a security question to stow yer progress for 28 days, arrr.",
+      "intro2": "We will send ye a raven with a link ye can use to return to the form later. Ye will be asked for the answer to the security question when ye resume yer voyage.",
+      "warning": "Enter yer email address carefully, ye scallywag. Ye cannot return to the form later if yer email be wrong.",
+      "warningIconFallback": "Warnin'!",
+      "errorTitle": "Blimey! There be a problem"
+    },
+    "confirmation": {
+      "whatHappensNext": "What happens next on yer voyage",
+      "linkSent": "We have sent a link by raven to [[email]] which ye can use to resume this form within [[saveAndExitExpiryDays]] days.",
+      "repeatSave": "If ye want to stow yer progress again after resumin' yer form, ye will need to repeat the save process to generate a new link.",
+      "checkSpam": "Check yer spam chest if ye have not received a raven after a few minutes.",
+      "closeWindow": "Ye can close this window and return to yer ship."
+    },
+    "resumeError": {
+      "body1": "The link we sent by raven has expired or be invalid. Yer information will be cast into Davy Jones' locker.",
+      "body2": "Ye will need to start the form again, arrr."
+    },
+    "resumeErrorLocked": {
+      "heading": "Ye cannot resume yer form",
+      "incorrectAnswer": "The answer to yer security question was incorrect [[maxPasswordAttempts]] times. Ye have run out of attempts — walk the plank!",
+      "startAgain": "Ye will need to start the form again. Yer information will be cast into Davy Jones' locker."
+    },
+    "resumeSuccess": {
+      "body1": "Ye will return to the page where ye stowed yer progress unless new questions have been added to the form.",
+      "warning": "If new questions have been added to the form, ye will be taken to the earliest new question.",
+      "warningIconFallback": "Warnin'!",
+      "body2": "Ye will need to repeat the save process again and generate a new link if ye want to stow yer progress in the future."
+    },
+    "resumePassword": {
+      "body1": "Enter the most recent security answer to retrieve yer information and continue yer voyage.",
+      "attemptsLeft": "Ye have [[attemptsLeft]] attempts to enter the correct answer before ye walk the plank.",
+      "warning": "To stow progress again, ye will need to repeat the save process and generate another link.",
+      "warningIconFallback": "Warnin'!",
+      "errorTitle": "Blimey! There be a problem"
+    }
+  },
+  "confirmation": {
+    "feedbackLink": "What do ye think of this service? (takes 30 seconds, even for a pirate)",
+    "whatHappensNext": "What happens next on yer voyage",
+    "feedbackSubmitted": "Feedback submitted, arrr",
+    "submissionGuidance": "Thank ye for leavin' feedback, matey.\n\nYe can close this screen and return to yer ship."
+  },
+  "errors": {
+    "notFound": {
+      "heading": "Page not found, arrr",
+      "body1": "If ye typed the web address, check it be correct.",
+      "body2": "If ye pasted the web address, check ye copied the entire address.",
+      "body3": "If the web address be correct or ye selected a link or button, <a href=\"https://www.gov.uk/guidance/contact-defra\" class=\"govuk-link\">contact the Defra Helpline</a> if ye need to speak to someone about yer form."
+    },
+    "serverError": {
+      "heading": "Shiver me timbers! There be a problem with the service",
+      "canYou": "Ye can:",
+      "tryBack": "try yer browser back button as yer plunder may be saved",
+      "contact": "<a class=\"govuk-link\" href=\"https://www.gov.uk/guidance/contact-defra\">contact the Defra Helpline</a> if ye have any questions"
+    }
+  },
+  "errorPreview": {
+    "bannerHeading": "This be a preview of the error messages for page [[pageNum]] in a draft form ye are editin'.",
+    "bannerClose": "Close this tab to go back to the editor, arrr.",
+    "errorSummaryHeading": "Blimey! There be a problem",
+    "advancedSettingsHeading": "If ye set answer limits"
+  }
+}

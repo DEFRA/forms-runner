@@ -2,75 +2,75 @@
 
 {% from "govuk/components/table/macro.njk" import govukTable %}
 
-{% set pageTitle = "Cookies" %}
+{% set pageTitle = t('help.cookies.title') %}
 
 {% block content %}
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
-    <h1 class="govuk-heading-l">Cookies</h1>
-    <p class="govuk-body">Cookies are small files saved on your phone, tablet or computer when you visit a website.</p>
-    <p class="govuk-body">We use essential cookies to make this form work.</p>
+    <h1 class="govuk-heading-l">{{ t('help.cookies.heading') }}</h1>
+    <p class="govuk-body">{{ t('help.cookies.intro') }}</p>
+    <p class="govuk-body">{{ t('help.cookies.essentialIntro') }}</p>
 
-    <h2 class="govuk-heading-m">Essential cookies</h2>
-    <p class="govuk-body">Essential cookies keep your information secure. We do not need to ask your permission to use them.</p>
+    <h2 class="govuk-heading-m">{{ t('help.cookies.essentialHeading') }}</h2>
+    <p class="govuk-body">{{ t('help.cookies.essentialBody') }}</p>
     {% set essentialTableRows = [
       [
         { text: "session" },
-        { text: "Remembers the information you enter" },
-        { text: "When you close the browser, or after " + sessionDurationPretty }
+        { text: t('help.cookies.cookies.session.purpose') },
+        { text: t('help.cookies.cookies.session.expires', { sessionDurationPretty: sessionDurationPretty }) }
       ],
       [
         { text: "crumb" },
-        { text: "Ensures forms can only be submitted from this website" },
-        { text: "When you close the browser" }
+        { text: t('help.cookies.cookies.crumb.purpose') },
+        { text: t('help.cookies.cookies.crumb.expires') }
       ]
     ] %}
     {% if config.googleTagManagerContainerId %}
     {% set essentialTableRows = (essentialTableRows.unshift([
           { text: "cookieConsent" },
-          { text: "Remembers your cookie preferences" },
-          { text: "1 year" }
+          { text: t('help.cookies.cookies.cookieConsent.purpose') },
+          { text: t('help.cookies.cookies.cookieConsent.expires') }
         ]), essentialTableRows)
     %}
     {% endif %}
     {{ govukTable({
       firstCellIsHeader: true,
-      caption: "Essential cookies we use",
+      caption: t('help.cookies.tableCaption.essential'),
       head: [
-        { text: "Name" },
-        { text: "Purpose" },
-        { text: "Expires" }
+        { text: t('help.cookies.tableHead.name') },
+        { text: t('help.cookies.tableHead.purpose') },
+        { text: t('help.cookies.tableHead.expires') }
       ],
       rows: essentialTableRows
     }) }}
 
     {% if config.googleTagManagerContainerId %}
-      <h2 class="govuk-heading-m">Analytics cookies</h2>
-      <p class="govuk-body">We use Google Analytics software to understand how people use our forms. We do this to help make sure the site is meeting the needs of its users and to help us make improvements.</p>
+      <h2 class="govuk-heading-m">{{ t('help.cookies.analyticsHeading') }}</h2>
+      <p class="govuk-body">{{ t('help.cookies.analyticsBody') }}</p>
       {{ govukTable({
         firstCellIsHeader: true,
-        caption: "Analytics cookies we use",
+        caption: t('help.cookies.tableCaption.analytics'),
         head: [
-          { text: "Name" },
-          { text: "Purpose" },
-          { text: "Expires" }
+          { text: t('help.cookies.tableHead.name') },
+          { text: t('help.cookies.tableHead.purpose') },
+          { text: t('help.cookies.tableHead.expires') }
         ],
         rows: [
           [
             { text: "_ga" },
-            { text: "Used by Google Analytics to help us count how many people visit our forms by tracking if you’ve visited before" },
-            { text: "2 years" }
+            { text: t('help.cookies.cookies.ga.purpose') },
+            { text: t('help.cookies.cookies.ga.expires') }
           ],
           [
             { text: "_ga_" + googleAnalyticsContainerId },
-            { text: "Used by Google Analytics to find and track an individual session with your device" },
-            { text: "2 years" }
+            { text: t('help.cookies.cookies.gaSession.purpose') },
+            { text: t('help.cookies.cookies.gaSession.expires') }
           ]
         ]
       }) }}
 
-      <h2 class="govuk-heading-m">Change your settings</h2>
-      <p class="govuk-body">You can <a class="govuk-link" href="/help/cookie-preferences/{{ slug }}">change which cookies you’re happy for us to use</a>.</p>
+      <h2 class="govuk-heading-m">{{ t('help.cookies.changeSettingsHeading') }}</h2>
+      <p class="govuk-body">{{ t('help.cookies.changeSettingsBody', { slug: slug }) | safe }}</p>
     {% endif %}
   </div>
 </div>
