@@ -1,0 +1,215 @@
+{
+  "help": {
+    "getSupport": {
+      "title": "Get help with your form",
+      "telephone": "Telephone",
+      "callCharges": "Find out about call charges",
+      "email": "Email",
+      "onlineContactForm": "Online contact form"
+    },
+    "cookies": {
+      "title": "Cookies",
+      "heading": "Cookies",
+      "intro": "Cookies are small files saved on your phone, tablet or computer when you visit a website.",
+      "essentialIntro": "We use essential cookies to make this form work.",
+      "essentialHeading": "Essential cookies",
+      "essentialBody": "Essential cookies keep your information secure. We do not need to ask your permission to use them.",
+      "analyticsHeading": "Analytics cookies",
+      "analyticsBody": "We use Google Analytics software to understand how people use our forms. We do this to help make sure the site is meeting the needs of its users and to help us make improvements.",
+      "changeSettingsHeading": "Change your settings",
+      "changeSettingsBody": "You can <a class=\"govuk-link\" href=\"/help/cookie-preferences/[[slug]]\">change which cookies you're happy for us to use</a>.",
+      "tableCaption": {
+        "essential": "Essential cookies we use",
+        "analytics": "Analytics cookies we use"
+      },
+      "tableHead": {
+        "name": "Name",
+        "purpose": "Purpose",
+        "expires": "Expires"
+      },
+      "cookies": {
+        "session": {
+          "purpose": "Remembers the information you enter",
+          "expires": "When you close the browser, or after [[sessionDurationPretty]]"
+        },
+        "crumb": {
+          "purpose": "Ensures forms can only be submitted from this website",
+          "expires": "When you close the browser"
+        },
+        "cookieConsent": {
+          "purpose": "Remembers your cookie preferences",
+          "expires": "1 year"
+        },
+        "ga": {
+          "purpose": "Used by Google Analytics to help us count how many people visit our forms by tracking if you've visited before",
+          "expires": "2 years"
+        },
+        "gaSession": {
+          "purpose": "Used by Google Analytics to find and track an individual session with your device",
+          "expires": "2 years"
+        }
+      }
+    },
+    "cookiePreferences": {
+      "title": "Cookies",
+      "heading": "Change your cookie settings",
+      "successMessage": "You've set your cookie preferences.",
+      "analyticsQuestion": "Do you want to accept analytics cookies?",
+      "yes": "Yes",
+      "no": "No",
+      "saveButton": "Save cookie settings"
+    },
+    "accessibilityStatement": {
+      "title": "Accessibility statement",
+      "heading": "Accessibility statement for this form",
+      "intro": "This accessibility statement applies to online forms with a URL that starts with https://submit-forms-to-defra.service.gov.uk.",
+      "technicalHeading": "Technical information about this website's accessibility",
+      "technicalBody": "Defra is committed to making its forms accessible, in accordance with the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018.",
+      "complianceHeading": "Compliance status",
+      "complianceBody": "Forms created by Defra are fully compliant with the Web Content Accessibility Guidelines (WCAG) version 2.2 AA standard.",
+      "howAccessibleHeading": "How accessible this website is",
+      "howAccessibleIntro": "This section lists accessibility issues with content found in Defra forms.",
+      "nonComplianceHeading": "Non-compliance with the accessibility regulations",
+      "nonComplianceBody": "Defra forms do not have accessibility issues that fail the WCAG 2.2 accessibility regulations.",
+      "outOfScopeHeading": "Content that's not within the scope of the accessibility regulations",
+      "outOfScopeIntro": "The accessibility issues listed in this section do not fail the accessibility regulations. We plan to fix them as soon as possible.",
+      "outOfScopeItems": [
+        "Forms do not default to a dark or light theme based on the 'prefers-color-scheme'.",
+        "The email field allows for the entry of values that are not formatted as an email address.",
+        "The summary screen for each form does not display the question asked. Instead, it displays a summarised version of the question.",
+        "Some optional questions are not marked as optional.",
+        "Section titles in some forms are formatted as H2 level headings. These headings are shown before page titles which are formatted as H1 level headings (skipped heading hierarchy)."
+      ],
+      "preparationHeading": "Preparation of this accessibility statement",
+      "preparationBody1": "This statement was prepared on 24 June 2024. It was last reviewed on 14 March 2025.",
+      "preparationBody2": "The Defra Accessibility team tested 2 online forms against the WCAG 2.2 AA standard on 17 June 2024. The tests were done using automated testing tools.",
+      "preparationBody3": "We will commission a full accessibility audit of forms created by Defra before June 2025.",
+      "feedbackHeading": "Feedback and contact information",
+      "feedbackBody": "If you find any problems not listed on this page or think we're not meeting accessibility requirements, email the Defra Forms team on <a class=\"govuk-link\" href=\"mailto:defraforms@defra.gov.uk\">defraforms@defra.gov.uk</a>.",
+      "enforcementHeading": "Enforcement procedure",
+      "enforcementBody": "The Equality and Human Rights Commission (EHRC) is responsible for enforcing the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 (the 'accessibility regulations'). If you're not happy with how we respond to your complaint, contact the <a class=\"govuk-link\" href=\"https://www.equalityadvisoryservice.com/\" rel=\"external\">Equality Advisory and Support Service (EASS)</a>."
+    },
+    "privacyNotice": {
+      "pageTitle": "[[serviceName]] privacy notice",
+      "heading": "[[serviceName]] - privacy notice",
+      "intro": "The <strong>[[formTitle]]</strong> form was created using the <strong>[[serviceName]]</strong> service. This service is owned and operated by the Department for Environment, Food & Rural Affairs (Defra).",
+      "whoCollectsHeading": "Who collects your personal data",
+      "whoCollectsBody1": "The organisation that created the <strong>[[formTitle]]</strong> form using <strong>[[serviceName]]</strong> is the controller of personal data they collect. If the controller is outside the Defra legal entity, then Defra is the processor.",
+      "whoCollectsBody2": "Read the <a href=\"[[privacyNoticeUrl]]\" class=\"govuk-link\">specific privacy notice for the [[formTitle]] form</a>.",
+      "whoCollectsBody3": "Defra also collects some data as a controller. This privacy notice explains what personal data Defra collects and processes as a controller through forms made with <strong>[[serviceName]]</strong>.",
+      "whoCollectsBody4": "If you need further information about how Defra uses your personal data, email <a href=\"mailto:defraforms@defra.gov.uk\" class=\"govuk-link\">defraforms@defra.gov.uk</a>.",
+      "whoCollectsBody5": "If you want information and your associated rights you can email: <a href=\"mailto:data.protection@defra.gov.uk\" class=\"govuk-link\">data.protection@defra.gov.uk</a>.",
+      "whoCollectsBody6": "The data protection officer for Defra is responsible for checking that Defra complies with legislation. You can contact them at <a href=\"mailto:DefraGroupDataProtectionOfficer@defra.gov.uk\" class=\"govuk-link\">DefraGroupDataProtectionOfficer@defra.gov.uk</a>.",
+      "dataWeCollectHeading": "Data we collect from you and what we do with it",
+      "analyticsBody1": "If you give your consent, we use Google Analytics cookies to collect information about how you use <strong>[[serviceName]]</strong>. Read the <a href=\"https://support.google.com/analytics/topic/2919631\" class=\"govuk-link\">data privacy and security policy for Google Analytics</a>.",
+      "analyticsBody2": "Google Analytics processes information about:",
+      "analyticsItems": [
+        "your IP address",
+        "the pages you visit on <strong>[[serviceName]]</strong>",
+        "how long you spend on each <strong>[[serviceName]]</strong> page",
+        "how you got to the site",
+        "what you select while you're visiting the site"
+      ],
+      "analyticsBody3": "Defra will make sure you cannot be directly identified by Google Analytics data. We do this by using <a href=\"https://support.google.com/analytics/answer/2763052\" class=\"govuk-link\">Google Analytics' IP address anonymisation</a> feature and by removing any other personal data from the titles or URLs of the pages you visit.",
+      "analyticsBody4": "Defra will not combine analytics information with other data sets in a way that would directly identify who you are.",
+      "systemLogsBody1": "We use system logs to collect information about the usage of forms.",
+      "systemLogsBody2": "We use the system logs to create anonymised reports about the performance of forms that use <strong>[[serviceName]]</strong>. We use this data to improve forms, for example, if we discover a high number of incomplete forms.",
+      "systemLogsBody2WithAnalytics": "We use the system logs and Google Analytics data to create anonymised reports about the performance of forms that use <strong>[[serviceName]]</strong>. We use this data to improve forms, for example, if we discover a high number of incomplete forms.",
+      "feedbackBody": "If you email us feedback about a form that uses <strong>[[serviceName]]</strong>, we'll send your email address and any other personal information you choose to include in your email to the controller for review. The controller may use your personal data to reply to your query to update a form based on your feedback where it is appropriate.",
+      "saveAndReturnHeading": "Save and return to a form",
+      "saveAndReturnBody": "You can save your form progress and return within [[saveAndExitExpiryDays]] days. When saving your progress, you need to tell us:",
+      "saveAndReturnItems": [
+        "your email address",
+        "the security question you want to answer",
+        "the answer to the security question"
+      ],
+      "lawfulBasisHeading": "Lawful basis for processing your personal data",
+      "lawfulBasisBody": "The lawful basis for processing your personal data is your consent.",
+      "cookiesHeading": "Cookies",
+      "cookiesBody": "We use cookies to make this form work. Read about the <a href=\"/help/cookies/[[slug]]\" class=\"govuk-link\">cookies we use to make this form work</a>.",
+      "howLongHeading": "How long we keep your data",
+      "howLongBody": "<strong>[[serviceName]]</strong> will store your data for [[storeCompletedApplicationsFor]] for completed applications and [[saveAndExitExpiryDays]] days if you save and exit and do not submit an application.",
+      "feedbackStorageBody": "Any feedback you provide is stored for [[storeFeedbackFor]].",
+      "transferHeading": "Transfer of your personal data outside of the UK",
+      "transferBody": "We will only transfer your personal data to another country that is deemed adequate for data protection purposes.",
+      "rightsHeading": "What are your rights",
+      "rightsIntro": "Based on the lawful processing above, your individual rights are:",
+      "rightsItems": [
+        "the right to be informed",
+        "the right of access",
+        "the right to rectification",
+        "the right to erasure",
+        "the right to restrict processing",
+        "the right to data portability",
+        "rights in relation to automated decision making and profiling"
+      ],
+      "rightsBody": "Get more information about your <a href=\"https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/individual-rights/\" class=\"govuk-link\">individual rights</a> under the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018 (DPA 2018).",
+      "complaintsHeading": "Complaints",
+      "complaintsBody": "You have the right to <a href=\"https://ico.org.uk/make-a-complaint/\" class=\"govuk-link\">make a complaint</a> to the Information Commissioner's Office at any time.",
+      "personalInfoHeading": "Personal information charter",
+      "personalInfoBody": "Our <a href=\"https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs/about/personal-information-charter\" class=\"govuk-link\">personal information charter</a> explains more about your rights over your personal data.",
+      "lastUpdated": "Last updated: 11 September 2025"
+    }
+  },
+  "saveAndExit": {
+    "details": {
+      "intro1": "Provide your email address and answer a security question to save your progress for 28 days.",
+      "intro2": "We will email you with a link you can use to return to the form later. You will be asked for the answer to the security question when you resume your form.",
+      "warning": "Enter your email address carefully. You cannot return to the form later if your email is incorrect.",
+      "warningIconFallback": "Warning",
+      "errorTitle": "There is a problem"
+    },
+    "confirmation": {
+      "whatHappensNext": "What happens next",
+      "linkSent": "We have sent a link to [[email]] which you can use to resume this form within [[saveAndExitExpiryDays]] days.",
+      "repeatSave": "If you want to save your progress again after resuming your form, you will need to repeat the save process to generate a new link.",
+      "checkSpam": "Check your spam folder if you have not received an email after a few minutes.",
+      "closeWindow": "You can close this window."
+    },
+    "resumeError": {
+      "body1": "The link we emailed to you has expired or is invalid. Your information will be securely deleted.",
+      "body2": "You will need to start the form again."
+    },
+    "resumeErrorLocked": {
+      "heading": "You cannot resume your form",
+      "incorrectAnswer": "The answer to your security question was incorrect [[maxPasswordAttempts]] times. You have run out of attempts to resume your form.",
+      "startAgain": "You will need to start the form again. Your information will be securely deleted."
+    },
+    "resumeSuccess": {
+      "body1": "You will return to the page where you saved your progress unless new questions have been added to the form.",
+      "warning": "If new questions have been added to the form, you will be taken to the earliest new question.",
+      "warningIconFallback": "Warning",
+      "body2": "You will need to repeat the save process again and generate a new link if you want to save your progress in the future."
+    },
+    "resumePassword": {
+      "body1": "Enter the most recent security answer to your security question to retrieve your information and continue with your form.",
+      "attemptsLeft": "You have [[attemptsLeft]] attempts to enter the correct answer.",
+      "warning": "To save progress again, you will need to repeat the save process and generate another link.",
+      "warningIconFallback": "Warning",
+      "errorTitle": "There is a problem"
+    }
+  },
+  "confirmation": {
+    "feedbackLink": "What do you think of this service? (takes 30 seconds)"
+  },
+  "errors": {
+    "notFound": {
+      "heading": "Page not found",
+      "body1": "If you typed the web address, check it is correct.",
+      "body2": "If you pasted the web address, check you copied the entire address.",
+      "body3": "If the web address is correct or you selected a link or button, <a href=\"https://www.gov.uk/guidance/contact-defra\" class=\"govuk-link\">contact the Defra Helpline</a> if you need to speak to someone about your form."
+    },
+    "serverError": {
+      "heading": "Sorry, there is a problem with the service",
+      "canYou": "You can:",
+      "tryBack": "try your browser back button as your data may be saved",
+      "contact": "<a class=\"govuk-link\" href=\"https://www.gov.uk/guidance/contact-defra\">contact the Defra Helpline</a> if you have any questions"
+    }
+  },
+  "errorPreview": {
+    "bannerHeading": "This is a preview of the error messages for page [[pageNum]] in a draft form you are editing.",
+    "bannerClose": "Close this tab to go back to the editor.",
+    "errorSummaryHeading": "There is a problem",
+    "advancedSettingsHeading": "If you set answer limits"
+  }
+}
