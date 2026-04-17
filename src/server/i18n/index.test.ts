@@ -8,6 +8,12 @@ describe('Runner i18n', () => {
       expect(t('errors.notFound.heading', 'en-GB')).toBe('Page not found')
     })
 
+    it('returns the x-pirate string for a known key', () => {
+      expect(t('errors.notFound.heading', 'x-pirate')).toBe(
+        'Page not found, arrr'
+      )
+    })
+
     it('falls back to en-GB for an unknown language', () => {
       expect(t('errors.notFound.heading', 'cy')).toBe('Page not found')
     })
