@@ -42,4 +42,4 @@ jobs:
         uses: DEFRA/cdp-build-action/build@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          version: '0.0.4'
+          version: '0.0.5'
