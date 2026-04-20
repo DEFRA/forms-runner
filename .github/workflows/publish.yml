@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - feat/DF-927-CSP-issue
 
     paths:
       - '.browserslistrc'
@@ -15,10 +16,6 @@ on:
       - '!**/*.test.*'
 
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version number manual override'
-        required: false
 
 concurrency:
   group: publish
@@ -45,4 +42,4 @@ jobs:
         uses: DEFRA/cdp-build-action/build@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          version: ${{ inputs.version }}
+          version: '0.0.4'
