@@ -46,6 +46,7 @@ process.env.ORDNANCE_SURVEY_API_SECRET = 'dummy-ordnance-survey-api-secret'
 process.env.USE_MAPS_FEATURE = 'false'
 process.env.FEEDBACK_VIA_EMAIL = 'defraforms@defra.gov.uk'
 process.env.PRIVATE_KEY_FOR_SECRETS = 'dummy-private-key'
+process.env.PAYMENT_PROVIDER_URL = 'https://test-card.payments.service.gov.uk'
 process.env.SNS_FORM_TOPIC_ARN_MAP =
   '{"507f1f77bcf86cd799439099":"arn:aws:sns:eu-west-2:123456789012:form-specific-topic"}'
 process.env.SESSION_TIMEOUT = '86400000'

@@ -17,7 +17,7 @@ describe('Server Blankie Plugin', () => {
       styleSrc: ['self', 'unsafe-inline'],
       imgSrc: ['self', 'data:'],
       workerSrc: ['blob:'],
-      formAction: ['self'],
+      formAction: ['self', 'https://test-card.payments.service.gov.uk'],
       frameAncestors: ['none'],
       objectSrc: ['none'],
       generateNonces: 'script'
@@ -51,7 +51,7 @@ describe('Server Blankie Plugin', () => {
         'https://www.googletagmanager.com'
       ],
       workerSrc: ['blob:'],
-      formAction: ['self'],
+      formAction: ['self', 'https://test-card.payments.service.gov.uk'],
       frameAncestors: ['none'],
       objectSrc: ['none'],
       generateNonces: 'script'
@@ -76,5 +76,26 @@ describe('Server Blankie Plugin', () => {
     const { options } = configureBlankiePlugin()
 
     expect(options?.connectSrc).toEqual(['self'])
+  })
+
+  test('configuration includes paymentProviderUrl in formAction when provided', () => {
+    config.set('googleTagManagerContainerId', '')
+    config.set('paymentProviderUrl', 'https://card.payments.service.gov.uk')
+
+    const { options } = configureBlankiePlugin()
+
+    expect(options?.formAction).toEqual([
+      'self',
+      'https://card.payments.service.gov.uk'
+    ])
+  })
+
+  test('configuration falls back to self-only formAction when paymentProviderUrl not provided', () => {
+    config.set('googleTagManagerContainerId', '')
+    config.set('paymentProviderUrl', '')
+
+    const { options } = configureBlankiePlugin()
+
+    expect(options?.formAction).toEqual(['self'])
   })
 })
