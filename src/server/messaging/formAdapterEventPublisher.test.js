@@ -268,12 +268,18 @@ describe('per-form topic routing (SNS_FORM_TOPIC_ARN_MAP)', () => {
     meta: { ...basePayload.meta, formId: mappedFormId }
   }
 
-  /** @type {any} */
+  /** @type {{ send: jest.Mock }} */
   let mockSnsClient
 
   beforeEach(() => {
     mockSnsClient = { send: jest.fn() }
-    jest.mocked(getSNSClient).mockReturnValue(mockSnsClient)
+    jest
+      .mocked(getSNSClient)
+      .mockReturnValue(
+        /** @type {import('@aws-sdk/client-sns').SNSClient} */ (
+          /** @type {unknown} */ (mockSnsClient)
+        )
+      )
   })
 
   it('publishes to form-specific topic in addition to global topic when formId is mapped', async () => {
