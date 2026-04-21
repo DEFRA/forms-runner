@@ -22,6 +22,7 @@ export const configureBlankiePlugin = (): ServerRegisterPluginObject<
 > => {
   const gtmContainerId = config.get('googleTagManagerContainerId')
   const uploaderUrl = config.get('uploaderUrl')
+  const paymentProviderUrl = config.get('paymentProviderUrl')
 
   return {
     plugin: Blankie,
@@ -42,7 +43,10 @@ export const configureBlankiePlugin = (): ServerRegisterPluginObject<
       ].flat(),
       frameSrc: gtmContainerId ? googleAnalyticsOptions.frameSrc : ['none'],
       workerSrc: ['blob:'],
-      formAction: ['self'],
+      formAction: [
+        ['self'],
+        paymentProviderUrl ? [paymentProviderUrl] : []
+      ].flat(),
       frameAncestors: ['none'],
       objectSrc: ['none'],
       generateNonces: 'script'

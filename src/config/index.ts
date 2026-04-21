@@ -235,6 +235,13 @@ export const config = convict({
     env: 'UPLOADER_BUCKET_NAME'
   } as SchemaObj<string>,
 
+  paymentProviderUrl: {
+    doc: 'Base URL of the hosted payment provider (GOV.UK Pay) users are redirected to after submitting the payment form. Used to allow the redirect target in the form-action CSP directive.',
+    format: String,
+    default: null,
+    env: 'PAYMENT_PROVIDER_URL'
+  } as SchemaObj<string>,
+
   /**
    * Logging
    */
