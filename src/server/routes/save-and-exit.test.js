@@ -1,3 +1,4 @@
+import { FormStatus } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
 
@@ -43,7 +44,7 @@ describe('Save-and-exit check routes', () => {
         // @ts-expect-error - allow partial objects for tests
         form: {
           isPreview: true,
-          status: 'draft'
+          status: FormStatus.Draft
         }
       })
 
@@ -68,7 +69,7 @@ describe('Save-and-exit check routes', () => {
         // @ts-expect-error - allow partial objects for tests
         form: {
           isPreview: true,
-          status: 'draft'
+          status: FormStatus.Draft
         }
       })
 
@@ -216,7 +217,7 @@ describe('Save-and-exit check routes', () => {
         // @ts-expect-error - allow partial objects for tests
         form: {
           isPreview: true,
-          status: 'draft'
+          status: FormStatus.Draft
         }
       })
 
@@ -241,7 +242,7 @@ describe('Save-and-exit check routes', () => {
         // @ts-expect-error - allow partial objects for tests
         form: {
           isPreview: true,
-          status: 'draft'
+          status: FormStatus.Draft
         }
       })
 
@@ -483,7 +484,7 @@ describe('Save-and-exit check routes', () => {
         // @ts-expect-error - allow partial objects for tests
         form: {
           isPreview: true,
-          status: 'draft'
+          status: FormStatus.Draft
         }
       })
 

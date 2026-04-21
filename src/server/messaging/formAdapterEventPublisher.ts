@@ -17,7 +17,7 @@ const snsFormTopicArnMap: Record<string, string> = snsFormTopicArnMapRaw
  * Validate form adapter submission payload against schema
  * @param submissionPayload - Form submission payload to validate
  * @returns Validated payload
- * @throws Error if validation fails
+ * @throws {Error} if validation fails
  */
 function validateFormAdapterPayload(
   submissionPayload: FormAdapterSubmissionMessagePayload

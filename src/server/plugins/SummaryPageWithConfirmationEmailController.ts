@@ -1,7 +1,6 @@
 import { type PageController } from '@defra/forms-engine-plugin/controllers/PageController.js'
 import { type QuestionPageController } from '@defra/forms-engine-plugin/controllers/QuestionPageController.js'
 import { SummaryPageController } from '@defra/forms-engine-plugin/controllers/SummaryPageController.js'
-import { type SummaryViewModel } from '@defra/forms-engine-plugin/engine/models/SummaryViewModel.js'
 import {
   type FormContext,
   type FormContextRequest,
@@ -16,6 +15,8 @@ import {
 } from '@defra/forms-engine-plugin/types'
 import { preventUnicodeInEmail, type GovukField } from '@defra/forms-model'
 import Joi, { type CustomHelpers } from 'joi'
+
+import { type SummaryViewModelWithEmail } from '~/src/server/models/SummaryViewModelWithEmail.js'
 
 export const CONFIRMATION_EMAIL_FIELD_NAME = 'userConfirmationEmailAddress'
 
@@ -42,9 +43,12 @@ export class SummaryPageWithConfirmationEmailController extends SummaryPageContr
   getSummaryViewModel(
     request: FormContextRequest,
     context: FormContext
-  ): SummaryViewModel {
-    const viewModel = super.getSummaryViewModel(request, context)
-    const payerEmail = viewModel?.paymentState?.payerEmail
+  ): SummaryViewModelWithEmail {
+    const viewModel = super.getSummaryViewModel(
+      request,
+      context
+    ) as SummaryViewModelWithEmail
+    const payerEmail = viewModel.paymentState?.payerEmail
     // Fill in user confirmation email, if supplied from payment journey
     if (payerEmail) {
       const payload = (request.payload ?? {}) as FormPayload

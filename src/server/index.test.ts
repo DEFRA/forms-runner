@@ -494,7 +494,7 @@ describe('Model cache', () => {
     const mockYar = {
       flash: mockFlash
     }
-    const mockRequest = /** @type {any} */ {
+    const mockRequest = {
       params: {
         slug: 'test-form'
       },
@@ -511,6 +511,7 @@ describe('Model cache', () => {
       expect(pluginObject).toBeDefined()
       const saveAndExitFunc = pluginObject.options.saveAndExit
       expect(saveAndExitFunc).toBeDefined()
+      // @ts-expect-error - partial mock objects for tests
       saveAndExitFunc(mockRequest, mockH, undefined)
       expect(mockFlash).toHaveBeenCalledWith(
         'SAVE_AND_EXIT_PAYLOAD',

@@ -74,7 +74,7 @@ export class OutputService implements IOutputService {
 
       if (isFeedbackForm(model.def) && submissionPayload.data.main.formId) {
         // Override notification email to that of the related form (not the feedback form)
-        const relatedFormId = submissionPayload.data.main.formId
+        const relatedFormId = submissionPayload.data.main.formId as string
         const relatedMetadata = await getFormMetadataById(relatedFormId)
         if (!relatedMetadata.notificationEmail) {
           logger.info(
@@ -101,9 +101,10 @@ export class OutputService implements IOutputService {
       }
 
       // Add user confirmation email if supplied
-      if (request.payload?.userConfirmationEmailAddress) {
-        customMeta.userConfirmationEmail =
-          request.payload?.userConfirmationEmailAddress
+      const userConfirmationEmailAddress =
+        request.payload.userConfirmationEmailAddress
+      if (typeof userConfirmationEmailAddress === 'string') {
+        customMeta.userConfirmationEmail = userConfirmationEmailAddress
       }
 
       // Add magic link group id if user resumed the form with a save-and-exit magic link
