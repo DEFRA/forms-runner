@@ -227,6 +227,10 @@ export default {
         {
           from: join(pluginPath, '../interactive-map/assets'),
           to: 'assets/interactive-map/assets'
+        },
+        {
+          from: join(pluginPath, './.server/client/images/esri-logo.png'),
+          to: 'assets/interactive-map/assets/images'
         }
       ]
     })
