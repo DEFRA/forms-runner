@@ -229,7 +229,7 @@ export default {
           to: 'assets/interactive-map/assets'
         },
         {
-          from: join(pluginPath, './.server/images/esri-logo.png'),
+          from: join(pluginPath, './.server/client/images/esri-logo.png'),
           to: 'assets/interactive-map/assets/images'
         }
       ]
