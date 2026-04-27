@@ -50,7 +50,7 @@ jobs:
 
     steps:
       - name: Build Slack JSON
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         id: payload
         if: github.event.action != 'submitted' || github.event.review.state == 'approved'
 
@@ -89,7 +89,7 @@ jobs:
             }
 
       - name: Post to Slack
-        uses: slackapi/slack-github-action@v2.1.1
+        uses: slackapi/slack-github-action@v3.0.1
         if: github.event.action != 'submitted' || github.event.review.state == 'approved'
 
         with:
