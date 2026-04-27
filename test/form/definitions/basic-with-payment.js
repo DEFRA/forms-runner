@@ -61,7 +61,7 @@ export default /** @satisfies {FormDefinition} */ ({
       components: [
         {
           options: {
-            amount: 125,
+            amount: 150,
             description: 'Pay for your licence'
           },
           type: ComponentType.PaymentField,
