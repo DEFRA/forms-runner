@@ -100,7 +100,7 @@ export class OutputService implements IOutputService {
 
       // Add user confirmation email if supplied
       const userConfirmationEmailAddress =
-        request.payload.userConfirmationEmailAddress
+        context.state.userConfirmationEmailAddress
       if (typeof userConfirmationEmailAddress === 'string') {
         customMeta.userConfirmationEmail = userConfirmationEmailAddress
       }

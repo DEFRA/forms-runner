@@ -177,20 +177,16 @@ describe('OutputService', () => {
         data: mockItems
       }
 
-      const mockRequestWithEmail = /** @type {FormRequestPayload} */ (
-        /** @type {unknown} */ ({
-          ...mockRequest,
-          payload: {
-            userConfirmationEmailAddress: 'my-email@test123.com'
-          }
-        })
-      )
+      const mockContextWithEmail = {
+        ...mockContext,
+        state: { userConfirmationEmailAddress: 'my-email@test123.com' }
+      }
 
       mockFormatter.mockReturnValue(JSON.stringify(mockPayload))
 
       await outputService.submit(
-        mockContext,
-        mockRequestWithEmail,
+        mockContextWithEmail,
+        mockRequest,
         mockModel,
         'test@example.com',
         mockItems,
@@ -201,7 +197,7 @@ describe('OutputService', () => {
       expect(checkFormStatus).toHaveBeenCalledWith(mockRequest.params)
       expect(getFormatter).toHaveBeenCalledWith('adapter', '1')
       expect(mockFormatter).toHaveBeenCalledWith(
-        mockContext,
+        mockContextWithEmail,
         mockItems,
         mockModel,
         mockSubmitResponse,
