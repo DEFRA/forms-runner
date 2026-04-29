@@ -11,7 +11,7 @@ import * as Hoek from '@hapi/hoek'
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
-import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
 import { publishSaveAndExitEvent } from '~/src/server/messaging/publish.js'
 import {
@@ -38,7 +38,6 @@ import {
   getSaveAndExitDetails,
   validateSaveAndExitCredentials
 } from '~/src/server/services/formsService.js'
-const logger = createLogger()
 
 const maxInvalidPasswordAttempts = 5
 
