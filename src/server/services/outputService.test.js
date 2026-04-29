@@ -13,10 +13,10 @@ import {
 jest.mock('@defra/forms-engine-plugin/engine/helpers.js')
 jest.mock('@defra/forms-engine-plugin/engine/outputFormatters/index.js')
 jest.mock('~/src/server/common/helpers/logging/logger.ts', () => ({
-  createLogger: jest.fn(() => ({
+  logger: {
     info: jest.fn(),
     error: jest.fn()
-  }))
+  }
 }))
 jest.mock('~/src/server/messaging/formAdapterEventPublisher.ts')
 jest.mock('~/src/server/services/formsService.js')
