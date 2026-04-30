@@ -102,6 +102,19 @@ export class SummaryPageWithConfirmationEmailController extends SummaryPageContr
         return h.view(viewName, viewModel)
       }
 
+      const userConfirmationEmailAddress =
+        request.payload[CONFIRMATION_EMAIL_FIELD_NAME]
+      if (
+        typeof userConfirmationEmailAddress === 'string' &&
+        userConfirmationEmailAddress
+      ) {
+        context.state = await (
+          this as unknown as QuestionPageController
+        ).mergeState(request, context.state, {
+          [CONFIRMATION_EMAIL_FIELD_NAME]: userConfirmationEmailAddress
+        })
+      }
+
       // Should not have to coerce the type - ticket to resolve later https://eaflood.atlassian.net/browse/DF-555
       return (this as unknown as SummaryPageController).handleFormSubmit(
         request,

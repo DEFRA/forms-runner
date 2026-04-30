@@ -12,6 +12,7 @@ import {
   ControllerType,
   type PageSummaryWithConfirmationEmail
 } from '@defra/forms-model'
+import { type ResponseObject } from '@hapi/hapi'
 
 import {
   SummaryPageWithConfirmationEmailController,
@@ -126,6 +127,125 @@ describe('SummaryPageWithConfirmationEmailController', () => {
       await postHandler(request, context, h)
 
       expect(saveAndExitMock).toHaveBeenCalledWith(request, h, context)
+    })
+  })
+
+  describe('persists userConfirmationEmailAddress to state', () => {
+    const responseStub = {} as ResponseObject
+
+    it('should mergeState with the email when payload provides it', async () => {
+      const state: FormSubmissionState = {
+        $$__referenceNumber: 'foobar',
+        licenceLength: 365,
+        fullName: 'John Smith'
+      }
+      const mergedState: FormSubmissionState = {
+        $$__referenceNumber: 'foobar',
+        licenceLength: 365,
+        fullName: 'John Smith',
+        userConfirmationEmailAddress: 'cya@example.com'
+      }
+      const request = {
+        ...requestPage,
+        method: 'post',
+        payload: {
+          action: 'send',
+          userConfirmationEmailAddress: 'cya@example.com'
+        }
+      } as unknown as FormRequestPayload
+
+      const context = model.getFormContext(request, state)
+
+      const mergeStateSpy = jest
+        .spyOn(controller, 'mergeState')
+        .mockResolvedValue(mergedState)
+      jest.spyOn(controller, 'handleFormSubmit').mockResolvedValue(responseStub)
+
+      const postHandler = controller.makePostRouteHandler()
+      await postHandler(request, context, h)
+
+      expect(mergeStateSpy).toHaveBeenCalledWith(request, expect.any(Object), {
+        userConfirmationEmailAddress: 'cya@example.com'
+      })
+      expect(context.state.userConfirmationEmailAddress).toBe('cya@example.com')
+    })
+
+    it('should not mergeState when payload omits the email', async () => {
+      const state: FormSubmissionState = {
+        $$__referenceNumber: 'foobar',
+        licenceLength: 365,
+        fullName: 'John Smith'
+      }
+      const request = {
+        ...requestPage,
+        method: 'post',
+        payload: { action: 'send' }
+      } as unknown as FormRequestPayload
+
+      const context = model.getFormContext(request, state)
+
+      const mergeStateSpy = jest
+        .spyOn(controller, 'mergeState')
+        .mockResolvedValue(state)
+      jest.spyOn(controller, 'handleFormSubmit').mockResolvedValue(responseStub)
+
+      const postHandler = controller.makePostRouteHandler()
+      await postHandler(request, context, h)
+
+      expect(mergeStateSpy).not.toHaveBeenCalled()
+    })
+
+    it('should not mergeState when payload provides an empty email', async () => {
+      const state: FormSubmissionState = {
+        $$__referenceNumber: 'foobar',
+        licenceLength: 365,
+        fullName: 'John Smith'
+      }
+      const request = {
+        ...requestPage,
+        method: 'post',
+        payload: { action: 'send', userConfirmationEmailAddress: '' }
+      } as unknown as FormRequestPayload
+
+      const context = model.getFormContext(request, state)
+
+      const mergeStateSpy = jest
+        .spyOn(controller, 'mergeState')
+        .mockResolvedValue(state)
+      jest.spyOn(controller, 'handleFormSubmit').mockResolvedValue(responseStub)
+
+      const postHandler = controller.makePostRouteHandler()
+      await postHandler(request, context, h)
+
+      expect(mergeStateSpy).not.toHaveBeenCalled()
+    })
+
+    it('should propagate the error when mergeState rejects', async () => {
+      const state: FormSubmissionState = {
+        $$__referenceNumber: 'foobar',
+        licenceLength: 365,
+        fullName: 'John Smith'
+      }
+      const request = {
+        ...requestPage,
+        method: 'post',
+        payload: {
+          action: 'send',
+          userConfirmationEmailAddress: 'cya@example.com'
+        }
+      } as unknown as FormRequestPayload
+
+      const context = model.getFormContext(request, state)
+
+      const cacheError = new Error('cache unavailable')
+      jest.spyOn(controller, 'mergeState').mockRejectedValue(cacheError)
+      const handleFormSubmitSpy = jest
+        .spyOn(controller, 'handleFormSubmit')
+        .mockResolvedValue(responseStub)
+
+      const postHandler = controller.makePostRouteHandler()
+      await expect(postHandler(request, context, h)).rejects.toBe(cacheError)
+      expect(handleFormSubmitSpy).not.toHaveBeenCalled()
     })
   })
 
