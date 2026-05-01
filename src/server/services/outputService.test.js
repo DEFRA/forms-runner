@@ -13,10 +13,10 @@ import {
 jest.mock('@defra/forms-engine-plugin/engine/helpers.js')
 jest.mock('@defra/forms-engine-plugin/engine/outputFormatters/index.js')
 jest.mock('~/src/server/common/helpers/logging/logger.ts', () => ({
-  createLogger: jest.fn(() => ({
+  logger: {
     info: jest.fn(),
     error: jest.fn()
-  }))
+  }
 }))
 jest.mock('~/src/server/messaging/formAdapterEventPublisher.ts')
 jest.mock('~/src/server/services/formsService.js')
@@ -177,20 +177,16 @@ describe('OutputService', () => {
         data: mockItems
       }
 
-      const mockRequestWithEmail = /** @type {FormRequestPayload} */ (
-        /** @type {unknown} */ ({
-          ...mockRequest,
-          payload: {
-            userConfirmationEmailAddress: 'my-email@test123.com'
-          }
-        })
-      )
+      const mockContextWithEmail = {
+        ...mockContext,
+        state: { userConfirmationEmailAddress: 'my-email@test123.com' }
+      }
 
       mockFormatter.mockReturnValue(JSON.stringify(mockPayload))
 
       await outputService.submit(
-        mockContext,
-        mockRequestWithEmail,
+        mockContextWithEmail,
+        mockRequest,
         mockModel,
         'test@example.com',
         mockItems,
@@ -201,7 +197,7 @@ describe('OutputService', () => {
       expect(checkFormStatus).toHaveBeenCalledWith(mockRequest.params)
       expect(getFormatter).toHaveBeenCalledWith('adapter', '1')
       expect(mockFormatter).toHaveBeenCalledWith(
-        mockContext,
+        mockContextWithEmail,
         mockItems,
         mockModel,
         mockSubmitResponse,

@@ -17,11 +17,9 @@ import {
   type SubmitResponsePayload
 } from '@defra/forms-model'
 
-import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { publishFormAdapterEvent } from '~/src/server/messaging/formAdapterEventPublisher.js'
 import { getFormMetadataById } from '~/src/server/services/formsService.js'
-
-const logger = createLogger()
 
 /**
  * Output service for handling form submission notifications
@@ -102,7 +100,7 @@ export class OutputService implements IOutputService {
 
       // Add user confirmation email if supplied
       const userConfirmationEmailAddress =
-        request.payload.userConfirmationEmailAddress
+        context.state.userConfirmationEmailAddress
       if (typeof userConfirmationEmailAddress === 'string') {
         customMeta.userConfirmationEmail = userConfirmationEmailAddress
       }
