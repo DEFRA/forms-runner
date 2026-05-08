@@ -239,6 +239,32 @@ export async function createServer(routeConfig?: RouteConfig) {
     return h.continue
   })
 
+  server.ext('onPostAuth', (request: Request, h: ResponseToolkit) => {
+    if (request.method.toLowerCase() === 'post' && request.payload) {
+      request.logger.info(
+        {
+          payload: request.payload
+        },
+        'XXX onPostAuth request payload XXX'
+      )
+    }
+
+    return h.continue
+  })
+
+  server.ext('onPreHandler', (request: Request, h: ResponseToolkit) => {
+    if (request.method.toLowerCase() === 'post' && request.payload) {
+      request.logger.info(
+        {
+          payload: request.payload
+        },
+        'XXX onPreHandler request payload XXX'
+      )
+    }
+
+    return h.continue
+  })
+
   await server.register(pluginViews)
   await server.register(...pluginEngine)
   await server.register(pluginRouter)
