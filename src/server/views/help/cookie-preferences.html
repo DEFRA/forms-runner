@@ -4,7 +4,7 @@
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner -%}
 
-{% set pageTitle = t('help.cookiePreferences.title') %}
+{% set pageTitle = tR('help.cookiePreferences.title') %}
 
 {% block content %}
   <div class="govuk-grid-row">
@@ -12,7 +12,7 @@
       {% if cookieConsentUpdated %}
         {% set notificationHtml %}
           <p class="govuk-notification-banner__heading">
-            {{ t('help.cookiePreferences.successMessage') }}
+            {{ tR('help.cookiePreferences.successMessage') }}
           </p>
         {% endset %}
 
@@ -22,7 +22,7 @@
         }) }}
       {% endif %}
 
-      <h2 class="govuk-heading-l">{{ t('help.cookiePreferences.heading') }}</h2>
+      <h2 class="govuk-heading-l">{{ tR('help.cookiePreferences.heading') }}</h2>
 
       <form method="post" novalidate>
         <input type="hidden" name="crumb" value="{{ crumb }}">
@@ -31,25 +31,25 @@
           name: "cookies[analytics]",
           fieldset: {
             legend: {
-              text: t('help.cookiePreferences.analyticsQuestion'),
+              text: tR('help.cookiePreferences.analyticsQuestion'),
               classes: "govuk-fieldset__legend--s"
             }
           },
           items: [
             {
               value: "yes",
-              text: t('help.cookiePreferences.yes')
+              text: tR('help.cookiePreferences.yes')
             },
             {
               value: "no",
-              text: t('help.cookiePreferences.no')
+              text: tR('help.cookiePreferences.no')
             }
           ],
           value: "yes" if cookieConsent.analytics === true else "no"
         }) }}
 
         {{ govukButton({
-          text: t('help.cookiePreferences.saveButton')
+          text: tR('help.cookiePreferences.saveButton')
         }) }}
       </form>
     </div>

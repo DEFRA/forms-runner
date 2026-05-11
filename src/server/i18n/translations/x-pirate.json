@@ -153,13 +153,40 @@
   },
   "saveAndExit": {
     "details": {
+      "pageTitle": "Stow yer progress for later",
       "intro1": "Provide yer email address and answer a security question to stow yer progress for 28 days, arrr.",
       "intro2": "We will send ye a raven with a link ye can use to return to the form later. Ye will be asked for the answer to the security question when ye resume yer voyage.",
       "warning": "Enter yer email address carefully, ye scallywag. Ye cannot return to the form later if yer email be wrong.",
       "warningIconFallback": "Warnin'!",
-      "errorTitle": "Blimey! There be a problem"
+      "errorTitle": "Blimey! There be a problem",
+      "emailLabel": "Yer email address",
+      "emailHint": "Use the email address ye want the link sent to",
+      "emailConfirmationLabel": "Confirm yer email address",
+      "emailConfirmationHint": "Check ye have entered the correct email address, arrr",
+      "securityQuestionLegend": "Choose a security question to answer, matey",
+      "securityAnswerLabel": "Yer answer to the security question",
+      "saveButton": "Stow progress",
+      "cancelButton": "Abandon ship",
+      "securityQuestions": {
+        "memorablePlace": "What be a memorable place ye have visited?",
+        "characterName": "What be the name of yer favourite character from a story or sea shanty?",
+        "audioRecommendation": "What shanty or song do ye always recommend to yer crew?"
+      },
+      "validation": {
+        "emailRequired": "Enter an email address, arrr",
+        "emailFormat": "Enter an email address in the correct format, for example, hello@example.com",
+        "emailUnicode": "Yer email address contains invalid characters, for example, long dashes, arrr",
+        "emailConfirmation": "Yer email address does not match. Check and try again, arrr.",
+        "securityQuestionRequired": "Choose a security question to answer, arrr",
+        "securityAnswerRequired": "Enter an answer to the security question, ye scallywag",
+        "securityAnswerLength": "Yer answer must be between 3 and 40 characters long",
+        "invalidPassword_one": "Blimey! Yer answer be wrong. Ye have [[count]] attempt remainin'.",
+        "invalidPassword_other": "Blimey! Yer answer be wrong. Ye have [[count]] attempts remainin'.",
+        "stateExpired": "Yer information be no longer available. Ye must start the form again from the bow."
+      }
     },
     "confirmation": {
+      "pageTitle": "Yer progress has been stowed",
       "whatHappensNext": "What happens next on yer voyage",
       "linkSent": "We have sent a link by raven to [[email]] which ye can use to resume this form within [[saveAndExitExpiryDays]] days.",
       "repeatSave": "If ye want to stow yer progress again after resumin' yer form, ye will need to repeat the save process to generate a new link.",
@@ -167,21 +194,28 @@
       "closeWindow": "Ye can close this window and return to yer ship."
     },
     "resumeError": {
+      "pageTitle": "Ye cannot resume yer form",
+      "continueButton": "Start form again, arrr",
       "body1": "The link we sent by raven has expired or be invalid. Yer information will be cast into Davy Jones' locker.",
       "body2": "Ye will need to start the form again, arrr."
     },
     "resumeErrorLocked": {
+      "continueButton": "Start form again, arrr",
       "heading": "Ye cannot resume yer form",
       "incorrectAnswer": "The answer to yer security question was incorrect [[maxPasswordAttempts]] times. Ye have run out of attempts — walk the plank!",
       "startAgain": "Ye will need to start the form again. Yer information will be cast into Davy Jones' locker."
     },
     "resumeSuccess": {
+      "pageTitle": "Welcome back aboard, matey",
+      "continueButton": "Resume yer voyage",
       "body1": "Ye will return to the page where ye stowed yer progress unless new questions have been added to the form.",
       "warning": "If new questions have been added to the form, ye will be taken to the earliest new question.",
       "warningIconFallback": "Warnin'!",
       "body2": "Ye will need to repeat the save process again and generate a new link if ye want to stow yer progress in the future."
     },
     "resumePassword": {
+      "pageTitle": "Continue yer voyage",
+      "continueButton": "Sail on",
       "body1": "Enter the most recent security answer to retrieve yer information and continue yer voyage.",
       "attemptsLeft": "Ye have [[attemptsLeft]] attempts to enter the correct answer before ye walk the plank.",
       "warning": "To stow progress again, ye will need to repeat the save process and generate another link.",
@@ -190,6 +224,7 @@
     }
   },
   "confirmation": {
+    "referenceNumber": "Yer reference number",
     "feedbackLink": "What do ye think of this service? (takes 30 seconds, even for a pirate)",
     "whatHappensNext": "What happens next on yer voyage",
     "feedbackSubmitted": "Feedback submitted, arrr",
@@ -214,5 +249,35 @@
     "bannerClose": "Close this tab to go back to the editor, arrr.",
     "errorSummaryHeading": "Blimey! There be a problem",
     "advancedSettingsHeading": "If ye set answer limits"
+  },
+  "layout": {
+    "errorPrefix": "Error, arrr: ",
+    "skipLink": "Skip to main plunder",
+    "cookieBanner": {
+      "ariaLabel": "Cookies on [[serviceName]], arrr",
+      "acceptedHtml": "Ye've accepted analytics cookies, arrr. Ye can [[link]] at any time.",
+      "rejectedHtml": "Ye've rejected analytics cookies. Ye can [[link]] at any time.",
+      "changeSettings": "change yer cookie settings",
+      "essential": "We use some essential cookies to make this service sail, arrr.",
+      "analytics": "We'd like to set analytics cookies so we can spy on how the crew uses the service and make improvements.",
+      "acceptButton": "Accept analytics cookies, arrr",
+      "rejectButton": "Reject analytics cookies, nay",
+      "viewCookies": "View cookies, arrr",
+      "hideCookieMessage": "Hide cookie message, arrr"
+    },
+    "serviceBanner": {
+      "title": "Ship status"
+    },
+    "phaseBanner": {
+      "feedbackLinkNewTab": "give yer feedback (opens in new tab)",
+      "feedbackLinkEmail": "give yer feedback by raven post",
+      "text": "This be a new service. Help us improve it and [[feedbackLink]], arrr."
+    },
+    "footer": {
+      "getHelp": "Get help with this form, matey",
+      "privacy": "Privacy",
+      "cookies": "Cookies",
+      "accessibilityStatement": "Accessibility Statement"
+    }
   }
 }

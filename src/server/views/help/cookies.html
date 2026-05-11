@@ -2,75 +2,75 @@
 
 {% from "govuk/components/table/macro.njk" import govukTable %}
 
-{% set pageTitle = t('help.cookies.title') %}
+{% set pageTitle = tR('help.cookies.title') %}
 
 {% block content %}
 <div class="govuk-grid-row">
   <div class="govuk-grid-column-two-thirds">
-    <h1 class="govuk-heading-l">{{ t('help.cookies.heading') }}</h1>
-    <p class="govuk-body">{{ t('help.cookies.intro') }}</p>
-    <p class="govuk-body">{{ t('help.cookies.essentialIntro') }}</p>
+    <h1 class="govuk-heading-l">{{ tR('help.cookies.heading') }}</h1>
+    <p class="govuk-body">{{ tR('help.cookies.intro') }}</p>
+    <p class="govuk-body">{{ tR('help.cookies.essentialIntro') }}</p>
 
-    <h2 class="govuk-heading-m">{{ t('help.cookies.essentialHeading') }}</h2>
-    <p class="govuk-body">{{ t('help.cookies.essentialBody') }}</p>
+    <h2 class="govuk-heading-m">{{ tR('help.cookies.essentialHeading') }}</h2>
+    <p class="govuk-body">{{ tR('help.cookies.essentialBody') }}</p>
     {% set essentialTableRows = [
       [
         { text: "session" },
-        { text: t('help.cookies.cookies.session.purpose') },
-        { text: t('help.cookies.cookies.session.expires', { sessionDurationPretty: sessionDurationPretty }) }
+        { text: tR('help.cookies.cookies.session.purpose') },
+        { text: tR('help.cookies.cookies.session.expires', { sessionDurationPretty: sessionDurationPretty }) }
       ],
       [
         { text: "crumb" },
-        { text: t('help.cookies.cookies.crumb.purpose') },
-        { text: t('help.cookies.cookies.crumb.expires') }
+        { text: tR('help.cookies.cookies.crumb.purpose') },
+        { text: tR('help.cookies.cookies.crumb.expires') }
       ]
     ] %}
     {% if config.googleTagManagerContainerId %}
     {% set essentialTableRows = (essentialTableRows.unshift([
           { text: "cookieConsent" },
-          { text: t('help.cookies.cookies.cookieConsent.purpose') },
-          { text: t('help.cookies.cookies.cookieConsent.expires') }
+          { text: tR('help.cookies.cookies.cookieConsent.purpose') },
+          { text: tR('help.cookies.cookies.cookieConsent.expires') }
         ]), essentialTableRows)
     %}
     {% endif %}
     {{ govukTable({
       firstCellIsHeader: true,
-      caption: t('help.cookies.tableCaption.essential'),
+      caption: tR('help.cookies.tableCaption.essential'),
       head: [
-        { text: t('help.cookies.tableHead.name') },
-        { text: t('help.cookies.tableHead.purpose') },
-        { text: t('help.cookies.tableHead.expires') }
+        { text: tR('help.cookies.tableHead.name') },
+        { text: tR('help.cookies.tableHead.purpose') },
+        { text: tR('help.cookies.tableHead.expires') }
       ],
       rows: essentialTableRows
     }) }}
 
     {% if config.googleTagManagerContainerId %}
-      <h2 class="govuk-heading-m">{{ t('help.cookies.analyticsHeading') }}</h2>
-      <p class="govuk-body">{{ t('help.cookies.analyticsBody') }}</p>
+      <h2 class="govuk-heading-m">{{ tR('help.cookies.analyticsHeading') }}</h2>
+      <p class="govuk-body">{{ tR('help.cookies.analyticsBody') }}</p>
       {{ govukTable({
         firstCellIsHeader: true,
-        caption: t('help.cookies.tableCaption.analytics'),
+        caption: tR('help.cookies.tableCaption.analytics'),
         head: [
-          { text: t('help.cookies.tableHead.name') },
-          { text: t('help.cookies.tableHead.purpose') },
-          { text: t('help.cookies.tableHead.expires') }
+          { text: tR('help.cookies.tableHead.name') },
+          { text: tR('help.cookies.tableHead.purpose') },
+          { text: tR('help.cookies.tableHead.expires') }
         ],
         rows: [
           [
             { text: "_ga" },
-            { text: t('help.cookies.cookies.ga.purpose') },
-            { text: t('help.cookies.cookies.ga.expires') }
+            { text: tR('help.cookies.cookies.ga.purpose') },
+            { text: tR('help.cookies.cookies.ga.expires') }
           ],
           [
             { text: "_ga_" + googleAnalyticsContainerId },
-            { text: t('help.cookies.cookies.gaSession.purpose') },
-            { text: t('help.cookies.cookies.gaSession.expires') }
+            { text: tR('help.cookies.cookies.gaSession.purpose') },
+            { text: tR('help.cookies.cookies.gaSession.expires') }
           ]
         ]
       }) }}
 
-      <h2 class="govuk-heading-m">{{ t('help.cookies.changeSettingsHeading') }}</h2>
-      <p class="govuk-body">{{ t('help.cookies.changeSettingsBody', { slug: slug }) | safe }}</p>
+      <h2 class="govuk-heading-m">{{ tR('help.cookies.changeSettingsHeading') }}</h2>
+      <p class="govuk-body">{{ tR('help.cookies.changeSettingsBody', { slug: slug }) | safe }}</p>
     {% endif %}
   </div>
 </div>

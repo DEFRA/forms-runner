@@ -23,6 +23,7 @@
  * @property {string} [formId] - Form id
  * @property {(asset?: string) => string} getAssetPath - Asset path resolver
  * @property {(key: string, opts?: Record<string, unknown>) => string | string[]} t
+ * @property {(key: string, opts?: Record<string, unknown>) => string | string[]} tR
  * @property {FormContext} [context] - the current form context
  */
 

@@ -19,14 +19,15 @@ export async function getFormMetadata(slug) {
     `${managerUrl}/forms/slug/${slug}`
   )
 
-  // Run it through the schema to coerce dates
-  const result = formMetadataSchema.validate(metadata)
+  // Run it through the schema to coerce dates, allowing unknown fields (e.g. language)
+  const result = formMetadataSchema.validate(metadata, { allowUnknown: true })
 
   if (result.error) {
     throw result.error
   }
 
-  return result.value
+  // TODO: temporary override for i18n testing — remove before merging
+  return { ...result.value, language: 'x-pirate' }
 }
 
 /**
@@ -40,14 +41,15 @@ export async function getFormMetadataById(formId) {
     `${managerUrl}/forms/${formId}`
   )
 
-  // Run it through the schema to coerce dates
-  const result = formMetadataSchema.validate(metadata)
+  // Run it through the schema to coerce dates, allowing unknown fields (e.g. language)
+  const result = formMetadataSchema.validate(metadata, { allowUnknown: true })
 
   if (result.error) {
     throw result.error
   }
 
-  return result.value
+  // TODO: temporary override for i18n testing — remove before merging
+  return { ...result.value, language: 'x-pirate' }
 }
 
 /**

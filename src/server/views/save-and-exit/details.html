@@ -11,22 +11,22 @@
     <div class="govuk-grid-column-two-thirds">
       {% if errors | length %}
         {{ govukErrorSummary({
-          titleText: t('saveAndExit.details.errorTitle'),
+          titleText: tR('saveAndExit.details.errorTitle'),
           errorList: errors
         }) }}
       {% endif %}
 
       <h1 class="govuk-heading-l">{{ pageTitle }}</h1>
       <p class="govuk-body">
-        {{ t('saveAndExit.details.intro1') }}
+        {{ tR('saveAndExit.details.intro1') }}
       </p>
       <p class="govuk-body">
-        {{ t('saveAndExit.details.intro2') }}
+        {{ tR('saveAndExit.details.intro2') }}
       </p>
 
       {{ govukWarningText({
-        text: t('saveAndExit.details.warning'),
-        iconFallbackText: t('saveAndExit.details.warningIconFallback')
+        text: tR('saveAndExit.details.warning'),
+        iconFallbackText: tR('saveAndExit.details.warningIconFallback')
       }) }}
 
       <form method="post">

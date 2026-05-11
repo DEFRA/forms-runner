@@ -13,7 +13,7 @@ import Joi from 'joi'
 
 import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
-import { resolveLanguage } from '~/src/server/i18n/index.js'
+import { resolveLanguage, t } from '~/src/server/i18n/index.js'
 import { publishSaveAndExitEvent } from '~/src/server/messaging/publish.js'
 import {
   confirmationViewModel,
@@ -84,7 +84,7 @@ export default [
       const { slug, state: status } = params
       const metadata = await getFormMetadata(slug)
       request.app.language = resolveLanguage(metadata)
-      const model = detailsViewModel(metadata, status)
+      const model = detailsViewModel(metadata, status, undefined, undefined, request.app.language)
 
       // Store any outstanding data from the current page in a special attribute
       // (in case the current page wasn't yet validated and saved).
@@ -162,14 +162,18 @@ export default [
       // Handle the user navigating back from previously submitting a save-and-exit. The state has been cleared
       // so we need to warn the user
       if (!hasState(state)) {
+        const language = request.app.language
         const model = detailsViewModel(
           metadata,
           status,
           /** @type {SaveAndExitPayload} */ (payload),
           createJoiError(
             'general',
-            'Your information is no longer available. Return to the start of the form.'
-          )
+            /** @type {string} */ (
+              t('saveAndExit.details.validation.stateExpired', language)
+            )
+          ),
+          language
         )
         return h.view(SAVE_AND_EXIT_DETAILS, model).takeover()
       }
@@ -203,7 +207,8 @@ export default [
             metadata,
             status,
             /** @type {SaveAndExitPayload} */ (payload),
-            err
+            err,
+            request.app.language
           )
 
           return h.view(SAVE_AND_EXIT_DETAILS, model).takeover()
@@ -234,7 +239,7 @@ export default [
         return Boom.badRequest('No email found in session cache')
       }
 
-      const model = confirmationViewModel(metadata, email, status)
+      const model = confirmationViewModel(metadata, email, status, request.app.language)
 
       return h.view('save-and-exit/confirmation', model)
     },
@@ -360,7 +365,10 @@ export default [
       const model = passwordViewModel(
         form,
         resumeDetails.question,
-        getPasswordAttemptsLeft(resumeDetails.invalidPasswordAttempts)
+        getPasswordAttemptsLeft(resumeDetails.invalidPasswordAttempts),
+        undefined,
+        undefined,
+        request.app.language
       )
 
       return h.view(RESUME_PASSWORD_PATH, model)
@@ -380,7 +388,7 @@ export default [
     handler(request, h) {
       const { params } = request
       const { slug } = params
-      const model = resumeErrorViewModel({ slug })
+      const model = resumeErrorViewModel({ slug }, request.app.language)
 
       return h.view(RESUME_ERROR, model)
     },
@@ -438,14 +446,15 @@ export default [
         logger.info(
           `Invalid password attempt for form id ${validatedLink.form.id}`
         )
-        const error = createInvalidPasswordError(attemptsRemaining)
+        const error = createInvalidPasswordError(attemptsRemaining, request.app.language)
 
         const model = passwordViewModel(
           form,
           validatedLink.question,
           attemptsRemaining,
           undefined,
-          error
+          error,
+          request.app.language
         )
 
         return h.view(RESUME_PASSWORD_PATH, model)
@@ -454,7 +463,8 @@ export default [
         const model = lockedOutViewModel(
           form,
           validatedLink,
-          maxInvalidPasswordAttempts
+          maxInvalidPasswordAttempts,
+          request.app.language
         )
         return h.view(RESUME_ERROR_LOCKED, model)
       }
@@ -484,7 +494,8 @@ export default [
             resumeDetails.question,
             getPasswordAttemptsLeft(resumeDetails.invalidPasswordAttempts),
             payload,
-            error
+            error,
+            request.app.language
           )
 
           return h.view(RESUME_PASSWORD_PATH, model).takeover()
@@ -503,7 +514,7 @@ export default [
       const { slug, state } = params
       const form = await getFormMetadata(slug)
       request.app.language = resolveLanguage(form)
-      const model = resumeSuccessViewModel(form, state)
+      const model = resumeSuccessViewModel(form, state, request.app.language)
 
       return h.view(RESUME_SUCCESS, model)
     },

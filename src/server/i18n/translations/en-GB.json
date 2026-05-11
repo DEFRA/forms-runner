@@ -153,13 +153,40 @@
   },
   "saveAndExit": {
     "details": {
+      "pageTitle": "Save your progress for later",
       "intro1": "Provide your email address and answer a security question to save your progress for 28 days.",
       "intro2": "We will email you with a link you can use to return to the form later. You will be asked for the answer to the security question when you resume your form.",
       "warning": "Enter your email address carefully. You cannot return to the form later if your email is incorrect.",
       "warningIconFallback": "Warning",
-      "errorTitle": "There is a problem"
+      "errorTitle": "There is a problem",
+      "emailLabel": "Your email address",
+      "emailHint": "Use the email address you want the link to go to",
+      "emailConfirmationLabel": "Confirm your email address",
+      "emailConfirmationHint": "Check you have entered the correct email address",
+      "securityQuestionLegend": "Choose a security question to answer",
+      "securityAnswerLabel": "Your answer to the security question",
+      "saveButton": "Save progress",
+      "cancelButton": "Cancel",
+      "securityQuestions": {
+        "memorablePlace": "What is a memorable place you have visited?",
+        "characterName": "What is the name of your favourite character from a story or TV show?",
+        "audioRecommendation": "What album or song do you always recommend to others?"
+      },
+      "validation": {
+        "emailRequired": "Enter an email address",
+        "emailFormat": "Enter an email address in the correct format, for example, hello@example.com",
+        "emailUnicode": "The email address you entered includes invalid characters, for example, long dashes",
+        "emailConfirmation": "Your email address does not match. Check and try again.",
+        "securityQuestionRequired": "Choose a security question to answer",
+        "securityAnswerRequired": "Enter an answer to the security question",
+        "securityAnswerLength": "Your answer must be between 3 and 40 characters long",
+        "invalidPassword_one": "Your answer is incorrect. You have [[count]] attempt remaining.",
+        "invalidPassword_other": "Your answer is incorrect. You have [[count]] attempts remaining.",
+        "stateExpired": "Your information is no longer available. Return to the start of the form."
+      }
     },
     "confirmation": {
+      "pageTitle": "Your progress has been saved",
       "whatHappensNext": "What happens next",
       "linkSent": "We have sent a link to [[email]] which you can use to resume this form within [[saveAndExitExpiryDays]] days.",
       "repeatSave": "If you want to save your progress again after resuming your form, you will need to repeat the save process to generate a new link.",
@@ -167,21 +194,28 @@
       "closeWindow": "You can close this window."
     },
     "resumeError": {
+      "pageTitle": "You cannot resume your form",
+      "continueButton": "Start form again",
       "body1": "The link we emailed to you has expired or is invalid. Your information will be securely deleted.",
       "body2": "You will need to start the form again."
     },
     "resumeErrorLocked": {
+      "continueButton": "Start form again",
       "heading": "You cannot resume your form",
       "incorrectAnswer": "The answer to your security question was incorrect [[maxPasswordAttempts]] times. You have run out of attempts to resume your form.",
       "startAgain": "You will need to start the form again. Your information will be securely deleted."
     },
     "resumeSuccess": {
+      "pageTitle": "Welcome back to your form",
+      "continueButton": "Resume form",
       "body1": "You will return to the page where you saved your progress unless new questions have been added to the form.",
       "warning": "If new questions have been added to the form, you will be taken to the earliest new question.",
       "warningIconFallback": "Warning",
       "body2": "You will need to repeat the save process again and generate a new link if you want to save your progress in the future."
     },
     "resumePassword": {
+      "pageTitle": "Continue with your form",
+      "continueButton": "Continue",
       "body1": "Enter the most recent security answer to your security question to retrieve your information and continue with your form.",
       "attemptsLeft": "You have [[attemptsLeft]] attempts to enter the correct answer.",
       "warning": "To save progress again, you will need to repeat the save process and generate another link.",
@@ -190,6 +224,7 @@
     }
   },
   "confirmation": {
+    "referenceNumber": "Your reference number",
     "feedbackLink": "What do you think of this service? (takes 30 seconds)",
     "whatHappensNext": "What happens next",
     "feedbackSubmitted": "Feedback submitted",
@@ -214,5 +249,35 @@
     "bannerClose": "Close this tab to go back to the editor.",
     "errorSummaryHeading": "There is a problem",
     "advancedSettingsHeading": "If you set answer limits"
+  },
+  "layout": {
+    "errorPrefix": "Error: ",
+    "skipLink": "Skip to main content",
+    "cookieBanner": {
+      "ariaLabel": "Cookies on [[serviceName]]",
+      "acceptedHtml": "You've accepted analytics cookies. You can [[link]] at any time.",
+      "rejectedHtml": "You've rejected analytics cookies. You can [[link]] at any time.",
+      "changeSettings": "change your cookie settings",
+      "essential": "We use some essential cookies to make this service work.",
+      "analytics": "We'd like to set analytics cookies so we can understand how people use the service and make improvements.",
+      "acceptButton": "Accept analytics cookies",
+      "rejectButton": "Reject analytics cookies",
+      "viewCookies": "View cookies",
+      "hideCookieMessage": "Hide cookie message"
+    },
+    "serviceBanner": {
+      "title": "Service status"
+    },
+    "phaseBanner": {
+      "feedbackLinkNewTab": "give your feedback (opens in new tab)",
+      "feedbackLinkEmail": "give your feedback by email",
+      "text": "This is a new service. Help us improve it and [[feedbackLink]]."
+    },
+    "footer": {
+      "getHelp": "Get help with this form",
+      "privacy": "Privacy",
+      "cookies": "Cookies",
+      "accessibilityStatement": "Accessibility Statement"
+    }
   }
 }

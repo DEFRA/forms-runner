@@ -34,7 +34,8 @@ export function context(request) {
 
   const { params, query = {}, response, state } = request ?? {}
 
-  const language = request?.app?.language ?? 'en-GB'
+  const language =
+    request?.app?.language ?? request?.app?.model?.language ?? 'en-GB'
 
   const isForceAccess = 'force' in query
   const { isPreview: isPreviewMode, state: formState } = checkFormStatus(params)
@@ -64,6 +65,7 @@ export function context(request) {
     slug: isResponseOK ? params?.slug : undefined,
 
     t: (key, opts) => runnerT(key, language, opts),
+    tR: (key, opts) => runnerT(key, language, opts),
 
     getAssetPath: (asset = '') => {
       return `/${webpackManifest?.[asset] ?? asset}`

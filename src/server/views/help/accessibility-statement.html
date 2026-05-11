@@ -1,43 +1,43 @@
 {% extends 'layout.html' %}
 
-{% set pageTitle = t('help.accessibilityStatement.title') %}
+{% set pageTitle = tR('help.accessibilityStatement.title') %}
 
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-l">{{ t('help.accessibilityStatement.heading') }}</h1>
-      <p class="govuk-body">{{ t('help.accessibilityStatement.intro') }}</p>
+      <h1 class="govuk-heading-l">{{ tR('help.accessibilityStatement.heading') }}</h1>
+      <p class="govuk-body">{{ tR('help.accessibilityStatement.intro') }}</p>
 
-      <h2 class="govuk-heading-m">{{ t('help.accessibilityStatement.technicalHeading') }}</h2>
-      <p class="govuk-body">{{ t('help.accessibilityStatement.technicalBody') }}</p>
+      <h2 class="govuk-heading-m">{{ tR('help.accessibilityStatement.technicalHeading') }}</h2>
+      <p class="govuk-body">{{ tR('help.accessibilityStatement.technicalBody') }}</p>
 
-      <h2 class="govuk-heading-m">{{ t('help.accessibilityStatement.complianceHeading') }}</h2>
-      <p class="govuk-body">{{ t('help.accessibilityStatement.complianceBody') }}</p>
+      <h2 class="govuk-heading-m">{{ tR('help.accessibilityStatement.complianceHeading') }}</h2>
+      <p class="govuk-body">{{ tR('help.accessibilityStatement.complianceBody') }}</p>
 
-      <h2 class="govuk-heading-m">{{ t('help.accessibilityStatement.howAccessibleHeading') }}</h2>
-      <p class="govuk-body">{{ t('help.accessibilityStatement.howAccessibleIntro') }}</p>
+      <h2 class="govuk-heading-m">{{ tR('help.accessibilityStatement.howAccessibleHeading') }}</h2>
+      <p class="govuk-body">{{ tR('help.accessibilityStatement.howAccessibleIntro') }}</p>
 
-      <h3 class="govuk-heading-s">{{ t('help.accessibilityStatement.nonComplianceHeading') }}</h3>
-      <p class="govuk-body">{{ t('help.accessibilityStatement.nonComplianceBody') }}</p>
+      <h3 class="govuk-heading-s">{{ tR('help.accessibilityStatement.nonComplianceHeading') }}</h3>
+      <p class="govuk-body">{{ tR('help.accessibilityStatement.nonComplianceBody') }}</p>
 
-      <h3 class="govuk-heading-s">{{ t('help.accessibilityStatement.outOfScopeHeading') }}</h3>
-      <p class="govuk-body">{{ t('help.accessibilityStatement.outOfScopeIntro') }}</p>
+      <h3 class="govuk-heading-s">{{ tR('help.accessibilityStatement.outOfScopeHeading') }}</h3>
+      <p class="govuk-body">{{ tR('help.accessibilityStatement.outOfScopeIntro') }}</p>
       <ul class="govuk-list govuk-list--number">
-        {% for item in t('help.accessibilityStatement.outOfScopeItems') %}
+        {% for item in tR('help.accessibilityStatement.outOfScopeItems') %}
           <li>{{ item }}</li>
         {% endfor %}
       </ul>
 
-      <h2 class="govuk-heading-m">{{ t('help.accessibilityStatement.preparationHeading') }}</h2>
-      <p class="govuk-body">{{ t('help.accessibilityStatement.preparationBody1') }}</p>
-      <p class="govuk-body">{{ t('help.accessibilityStatement.preparationBody2') }}</p>
-      <p class="govuk-body">{{ t('help.accessibilityStatement.preparationBody3') }}</p>
+      <h2 class="govuk-heading-m">{{ tR('help.accessibilityStatement.preparationHeading') }}</h2>
+      <p class="govuk-body">{{ tR('help.accessibilityStatement.preparationBody1') }}</p>
+      <p class="govuk-body">{{ tR('help.accessibilityStatement.preparationBody2') }}</p>
+      <p class="govuk-body">{{ tR('help.accessibilityStatement.preparationBody3') }}</p>
 
-      <h2 class="govuk-heading-m">{{ t('help.accessibilityStatement.feedbackHeading') }}</h2>
-      <p class="govuk-body">{{ t('help.accessibilityStatement.feedbackBody') | safe }}</p>
+      <h2 class="govuk-heading-m">{{ tR('help.accessibilityStatement.feedbackHeading') }}</h2>
+      <p class="govuk-body">{{ tR('help.accessibilityStatement.feedbackBody') | safe }}</p>
 
-      <h2 class="govuk-heading-m">{{ t('help.accessibilityStatement.enforcementHeading') }}</h2>
-      <p class="govuk-body">{{ t('help.accessibilityStatement.enforcementBody') | safe }}</p>
+      <h2 class="govuk-heading-m">{{ tR('help.accessibilityStatement.enforcementHeading') }}</h2>
+      <p class="govuk-body">{{ tR('help.accessibilityStatement.enforcementBody') | safe }}</p>
     </div>
   </div>
 {% endblock %}
