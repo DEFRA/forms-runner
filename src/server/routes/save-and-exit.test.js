@@ -2,17 +2,22 @@ import { FormStatus } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
 
+import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
 import { createServer } from '~/src/server/index.js'
 import { addError } from '~/src/server/routes/save-and-exit.js'
 import {
   getFormMetadata,
   getFormMetadataById,
+  isOfflineBoom
+} from '~/src/server/services/formMetadataGuards.js'
+import {
   getSaveAndExitDetails,
   validateSaveAndExitCredentials
 } from '~/src/server/services/formsService.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
+jest.mock('~/src/server/services/formMetadataGuards.js')
 jest.mock('~/src/server/services/formsService.js')
 jest.mock('~/src/server/helpers/error-helper.js')
 
@@ -29,6 +34,12 @@ describe('Save-and-exit check routes', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    jest.spyOn(logger, 'error').mockImplementation(() => {
+      /* mock */
+    })
+    jest.spyOn(logger, 'info').mockImplementation(() => {
+      /* mock */
+    })
   })
 
   const FORM_ID = 'eab6ac6c-79b6-439f-bd94-d93eb121b3f1'
@@ -202,6 +213,43 @@ describe('Save-and-exit check routes', () => {
         '/resume-form-error/my-form-to-resume'
       )
     })
+
+    test('throws if form is offline', async () => {
+      const offlineErr = Boom.boomify(new Error('offline'), {
+        statusCode: 503,
+        data: { offline: true }
+      })
+      jest.mocked(getFormMetadataById).mockRejectedValueOnce(offlineErr)
+      jest.mocked(isOfflineBoom).mockReturnValueOnce(true)
+
+      const options = {
+        method: 'GET',
+        url: `/resume-form/${FORM_ID}/${MAGIC_LINK_ID}`
+      }
+
+      const response = await server.inject(options)
+      expect(response.statusCode).toBe(StatusCodes.SERVICE_UNAVAILABLE)
+    })
+
+    test('logs error and redirects on other metadata fetch error', async () => {
+      const otherErr = new Error('fetch failed')
+      jest.mocked(getFormMetadataById).mockRejectedValueOnce(otherErr)
+      jest.mocked(isOfflineBoom).mockReturnValueOnce(false)
+
+      const options = {
+        method: 'GET',
+        url: `/resume-form/${FORM_ID}/${MAGIC_LINK_ID}`
+      }
+
+      const { response } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
+      expect(response.headers.location).toBe('/resume-form-error')
+      expect(logger.error).toHaveBeenCalledWith(
+        otherErr,
+        `Invalid formId ${FORM_ID} in magic link id ${MAGIC_LINK_ID}`
+      )
+    })
   })
 
   describe('GET /resume-form-verify/{formId}/{magicLinkId}/{slug}/state?}', () => {
@@ -275,6 +323,43 @@ describe('Save-and-exit check routes', () => {
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
       expect(response.headers.location).toBe('/resume-form-error')
     })
+
+    test('throws if form is offline', async () => {
+      const offlineErr = Boom.boomify(new Error('offline'), {
+        statusCode: 503,
+        data: { offline: true }
+      })
+      jest.mocked(getFormMetadataById).mockRejectedValueOnce(offlineErr)
+      jest.mocked(isOfflineBoom).mockReturnValueOnce(true)
+
+      const options = {
+        method: 'GET',
+        url: `/resume-form-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume/draft`
+      }
+
+      const response = await server.inject(options)
+      expect(response.statusCode).toBe(StatusCodes.SERVICE_UNAVAILABLE)
+    })
+
+    test('logs error and redirects on other metadata fetch error', async () => {
+      const otherErr = new Error('fetch failed')
+      jest.mocked(getFormMetadataById).mockRejectedValueOnce(otherErr)
+      jest.mocked(isOfflineBoom).mockReturnValueOnce(false)
+
+      const options = {
+        method: 'GET',
+        url: `/resume-form-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume/draft`
+      }
+
+      const { response } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe('/resume-form-error')
+      expect(logger.error).toHaveBeenCalledWith(
+        otherErr,
+        `Invalid formId ${FORM_ID} in magic link id ${MAGIC_LINK_ID}`
+      )
+    })
   })
 
   describe('GET /resume-form-error', () => {
@@ -321,6 +406,42 @@ describe('Save-and-exit check routes', () => {
       expect($mastheadHeading).toBeInTheDocument()
       expect($button).toBeInTheDocument()
       expect($button).toHaveAttribute('href', '/form/my-slug')
+    })
+
+    test('throws if form is offline', async () => {
+      const offlineErr = Boom.boomify(new Error('offline'), {
+        statusCode: 503,
+        data: { offline: true }
+      })
+      jest.mocked(getFormMetadata).mockRejectedValueOnce(offlineErr)
+      jest.mocked(isOfflineBoom).mockReturnValueOnce(true)
+
+      const options = {
+        method: 'GET',
+        url: '/resume-form-error/my-slug'
+      }
+
+      const response = await server.inject(options)
+      expect(response.statusCode).toBe(StatusCodes.SERVICE_UNAVAILABLE)
+    })
+
+    test('logs info on other metadata fetch error', async () => {
+      const otherErr = new Error('fetch failed')
+      jest.mocked(getFormMetadata).mockRejectedValueOnce(otherErr)
+      jest.mocked(isOfflineBoom).mockReturnValueOnce(false)
+
+      const options = {
+        method: 'GET',
+        url: '/resume-form-error/my-slug'
+      }
+
+      const { response } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.OK)
+      expect(logger.info).toHaveBeenCalledWith(
+        { err: otherErr },
+        'Could not load metadata for resume-form-error slug my-slug; rendering generic error view'
+      )
     })
   })
 
@@ -535,6 +656,45 @@ describe('Save-and-exit check routes', () => {
 
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
       expect(response.headers.location).toBe('/resume-form-error')
+    })
+
+    test('throws if form is offline', async () => {
+      const offlineErr = Boom.boomify(new Error('offline'), {
+        statusCode: 503,
+        data: { offline: true }
+      })
+      jest.mocked(getFormMetadataById).mockRejectedValueOnce(offlineErr)
+      jest.mocked(isOfflineBoom).mockReturnValueOnce(true)
+
+      const options = {
+        method: 'POST',
+        url: `/resume-form-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume`,
+        payload: { securityAnswer: 'any' }
+      }
+
+      const response = await server.inject(options)
+      expect(response.statusCode).toBe(StatusCodes.SERVICE_UNAVAILABLE)
+    })
+
+    test('logs error and redirects on other metadata fetch error', async () => {
+      const otherErr = new Error('fetch failed')
+      jest.mocked(getFormMetadataById).mockRejectedValueOnce(otherErr)
+      jest.mocked(isOfflineBoom).mockReturnValueOnce(false)
+
+      const options = {
+        method: 'POST',
+        url: `/resume-form-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume`,
+        payload: { securityAnswer: 'any' }
+      }
+
+      const { response } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe('/resume-form-error')
+      expect(logger.error).toHaveBeenCalledWith(
+        otherErr,
+        `Invalid formId ${FORM_ID} in magic link id ${MAGIC_LINK_ID}`
+      )
     })
   })
 
