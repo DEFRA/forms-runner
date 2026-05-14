@@ -61,6 +61,7 @@ describe('Forms service', () => {
 
       await expect(getFormMetadata(metadata.slug)).resolves.toEqual({
         ...metadata,
+        offline: false,
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date)
       })
@@ -116,6 +117,7 @@ describe('Forms service', () => {
 
       await expect(getFormMetadataById(metadata.id)).resolves.toEqual({
         ...metadata,
+        offline: false,
         createdAt: expect.any(Date),
         updatedAt: expect.any(Date)
       })
