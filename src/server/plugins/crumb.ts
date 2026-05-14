@@ -10,7 +10,7 @@ export const configureCrumbPlugin = (
   return {
     plugin: crumb,
     options: {
-      logUnauthorized: true,
+      logUnauthorized: false,
       enforce: routeConfig?.enforceCsrf ?? config.get('enforceCsrf'),
       cookieOptions: {
         isSecure: config.get('isProduction')
