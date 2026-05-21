@@ -137,7 +137,11 @@ export default {
         async handler(request, h) {
           const { slug } = request.params
           const form = await getFormMetadata(slug)
-          const definition = await getFormDefinition(form.id, FormStatus.Draft)
+          // It's most likely that we come into this route from a live version of the form
+          // so prefer that and fallback to draft if no live version (it is possible to have
+          // a live version and no draft version, so we cannot just default to 'draft').
+          const formStatus = form.live ? FormStatus.Live : FormStatus.Draft
+          const definition = await getFormDefinition(form.id, formStatus)
 
           return h.view('help/privacy-notice', {
             form,
