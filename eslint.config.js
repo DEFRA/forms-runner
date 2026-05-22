@@ -13,6 +13,8 @@ export default defineConfig([
     '.public/**',
     '.server',
     '.server/**',
+    '.worktrees',
+    '.worktrees/**',
     'coverage',
     'coverage/**'
   ]),
