@@ -46,7 +46,11 @@ export default {
       'nanoid', // Supports ESM only
       'slug', // Supports ESM only
       '@defra/hapi-tracing', // Supports ESM only|,
-      '@defra/forms-engine-plugin'
+      '@defra/forms-engine-plugin',
+      'proxy-agent', // ESM only from v8
+      'agent-base', // ESM only (nested in proxy-agent v8)
+      'https-proxy-agent', // ESM only (nested in proxy-agent v8)
+      'http-proxy-agent' // ESM only (nested in proxy-agent v8)
     ].join('|')}/)`
   ],
   testEnvironment: 'node',
