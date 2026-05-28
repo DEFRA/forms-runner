@@ -34,7 +34,9 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Check out code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Depth 0 is required for branch-based versioning
 
       - name: Build and Publish Hot Fix
         uses: DEFRA/cdp-build-action/build-hotfix@main
