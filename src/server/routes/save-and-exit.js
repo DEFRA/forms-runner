@@ -203,7 +203,7 @@ export default [
           const metadata = await getFormMetadata(slug)
           const model = detailsViewModel(
             metadata,
-            status,
+            /** @type {FormStatus | undefined} */ (status),
             /** @type {SaveAndExitPayload} */ (payload),
             err
           )
