@@ -38,7 +38,7 @@
   {{ "Error: " if errors | length }}{{ pageTitle | evaluate }} - {{ name if name else config.serviceName }} - GOV.UK
 {%- endblock %}
 
-{% block skipLink %}
+{% block govukSkipLink %}
   {{ govukSkipLink({
     href: '#main-content',
     text: 'Skip to main content'
@@ -131,27 +131,29 @@
     serviceName: name if name else config.serviceName,
     serviceUrl: currentPath if context.isForceAccess else serviceUrl
   }) }}
-{% endblock %}
-{% block beforeContent %}
-  {% set feedbackLink = feedbackLink or config.feedbackLink %}
-  {% if phaseTag and  not hidePhaseBanner %}
-    {% set feedbackLinkHtml -%}
-      {% if feedbackLink %}
-        <a href="{{ currentPath if context.isForceAccess else feedbackLink }}" class="govuk-link govuk-link--no-visited-state" {%- if not context.isForceAccess %} target="_blank" rel="noopener noreferrer" {%- endif %}>
-          give your feedback (opens in new tab)
-        </a>
-      {% else %}
-        <a href="mailto:{{ config.feedbackViaEmail }}" class="govuk-link govuk-link--no-visited-state">
-          give your feedback by email
-        </a>
-      {% endif %}
-    {%- endset %}
+  {% block headerEnd %}
+    {% set feedbackLink = feedbackLink or config.feedbackLink %}
+    {% if phaseTag and not hidePhaseBanner %}
+      {% set feedbackLinkHtml -%}
+        {% if feedbackLink %}
+          <a href="{{ currentPath if context.isForceAccess else feedbackLink }}" class="govuk-link govuk-link--no-visited-state" {%- if not context.isForceAccess %} target="_blank" rel="noopener noreferrer" {%- endif %}>
+            give your feedback (opens in new tab)
+          </a>
+        {% else %}
+          <a href="mailto:{{ config.feedbackViaEmail }}" class="govuk-link govuk-link--no-visited-state">
+            give your feedback by email
+          </a>
+        {% endif %}
+      {%- endset %}
 
-    {{ govukPhaseBanner({
-      tag: { text: phaseTag | capitalize },
-      html: "This is a new service. Help us improve it and " + feedbackLinkHtml | safe + "."
-    }) }}
-  {% endif %}
+      {{ govukPhaseBanner({
+        tag: { text: phaseTag | capitalize },
+        html: "This is a new service. Help us improve it and " + feedbackLinkHtml | safe + "."
+      }) }}
+    {% endif %}
+  {% endblock %}
+{% endblock %}
+{% block containerStart %}
   {% if backLink %}
     {{ govukBackLink(backLink) }}
   {% endif %}
