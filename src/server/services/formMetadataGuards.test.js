@@ -1,9 +1,6 @@
-import Boom from '@hapi/boom'
-
 import {
   getFormMetadata,
-  getFormMetadataById,
-  isOfflineBoom
+  getFormMetadataById
 } from '~/src/server/services/formMetadataGuards.js'
 import {
   getFormMetadata as rawGetFormMetadata,
@@ -60,24 +57,6 @@ describe('formMetadataGuards', () => {
         isBoom: true,
         data: { offline: true }
       })
-    })
-  })
-
-  describe('isOfflineBoom', () => {
-    it('returns true for the offline-marker Boom', () => {
-      const err = Boom.boomify(new Error('offline'), {
-        statusCode: 503,
-        data: { offline: true, metadata: offlineForm }
-      })
-      expect(isOfflineBoom(err)).toBe(true)
-    })
-
-    it('returns false for a non-Boom error', () => {
-      expect(isOfflineBoom(new Error('boom'))).toBe(false)
-    })
-
-    it('returns false for a Boom without the offline marker', () => {
-      expect(isOfflineBoom(Boom.notFound('nope'))).toBe(false)
     })
   })
 })

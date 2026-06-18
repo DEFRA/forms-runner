@@ -1,7 +1,8 @@
 import {
   CURRENT_PAGE_PATH_KEY,
   MAGIC_LINK_GROUP_ID,
-  STATE_NOT_YET_VALIDATED
+  STATE_NOT_YET_VALIDATED,
+  isOfflineBoom
 } from '@defra/forms-engine-plugin'
 import { getCacheService } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
@@ -34,8 +35,7 @@ import {
 } from '~/src/server/routes/save-and-exit-helper.js'
 import {
   getFormMetadata,
-  getFormMetadataById,
-  isOfflineBoom
+  getFormMetadataById
 } from '~/src/server/services/formMetadataGuards.js'
 import {
   getSaveAndExitDetails,

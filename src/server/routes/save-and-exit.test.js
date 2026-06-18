@@ -1,3 +1,4 @@
+import { isOfflineBoom } from '@defra/forms-engine-plugin'
 import { FormStatus } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
@@ -8,8 +9,7 @@ import { createServer } from '~/src/server/index.js'
 import { addError } from '~/src/server/routes/save-and-exit.js'
 import {
   getFormMetadata,
-  getFormMetadataById,
-  isOfflineBoom
+  getFormMetadataById
 } from '~/src/server/services/formMetadataGuards.js'
 import {
   getSaveAndExitDetails,
@@ -20,6 +20,7 @@ import { renderResponse } from '~/test/helpers/component-helpers.js'
 jest.mock('~/src/server/services/formMetadataGuards.js')
 jest.mock('~/src/server/services/formsService.js')
 jest.mock('~/src/server/helpers/error-helper.js')
+jest.mock('@defra/forms-engine-plugin/engine/form-availability.js')
 
 describe('Save-and-exit check routes', () => {
   /** @type {Server} */
