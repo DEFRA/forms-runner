@@ -34,10 +34,8 @@ import {
   publicRoutes,
   saveAndExitRoutes
 } from '~/src/server/routes/index.js'
-import {
-  getFormDefinition,
-  getFormMetadata
-} from '~/src/server/services/formsService.js'
+import { getFormMetadata } from '~/src/server/services/formMetadataGuards.js'
+import { getFormDefinition } from '~/src/server/services/formsService.js'
 import { getFeedbackFormLink } from '~/src/server/utils/utils.js'
 
 const routes: ServerRoute[] = [...publicRoutes, healthRoute]
@@ -174,10 +172,13 @@ export default {
         options
       })
 
-      server.route({
+      server.route<{ Params: { slug: string } }>({
         method: 'get',
         path: '/help/cookies/{slug}',
         async handler(request, h) {
+          const { slug } = request.params
+          await getFormMetadata(slug)
+
           const sessionTimeout = config.get('sessionTimeout')
 
           const sessionDurationPretty = humanizeDuration(sessionTimeout)
@@ -311,7 +312,10 @@ export default {
       server.route<{ Params: { slug: string } }>({
         method: 'get',
         path: '/help/accessibility-statement/{slug}',
-        handler(_request, h) {
+        async handler(request, h) {
+          const { slug } = request.params
+          await getFormMetadata(slug)
+
           return h.view('help/accessibility-statement')
         },
         options
