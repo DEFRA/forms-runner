@@ -1,6 +1,9 @@
+import { FormStatus } from '@defra/forms-model'
+
 import {
   getFormMetadata,
-  getFormMetadataById
+  getFormMetadataById,
+  getFormMetadataWithGuard
 } from '~/src/server/services/formMetadataGuards.js'
 import {
   getFormMetadata as rawGetFormMetadata,
@@ -18,7 +21,7 @@ describe('formMetadataGuards', () => {
   })
 
   describe('getFormMetadata', () => {
-    it('returns metadata when the form is not offline', async () => {
+    it('returns metadata', async () => {
       jest
         .mocked(rawGetFormMetadata)
         // @ts-expect-error - allow partial objects for tests
@@ -26,12 +29,24 @@ describe('formMetadataGuards', () => {
       await expect(getFormMetadata('my-form')).resolves.toBe(onlineForm)
     })
 
+    it('returns metadata when the form is not offline', async () => {
+      jest
+        .mocked(rawGetFormMetadata)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValue(onlineForm)
+      await expect(
+        getFormMetadataWithGuard('my-form', FormStatus.Live)
+      ).resolves.toBe(onlineForm)
+    })
+
     it('throws an offline-marker Boom when the form is offline', async () => {
       jest
         .mocked(rawGetFormMetadata)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValue(offlineForm)
-      await expect(getFormMetadata('my-form')).rejects.toMatchObject({
+      await expect(
+        getFormMetadataWithGuard('my-form', FormStatus.Live)
+      ).rejects.toMatchObject({
         isBoom: true,
         output: { statusCode: 503 },
         data: { offline: true, metadata: offlineForm }
