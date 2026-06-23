@@ -160,7 +160,8 @@ export default {
         async handler(request, h) {
           const { slug } = request.params
           const form = await getFormMetadata(slug)
-          const definition = await getFormDefinition(form.id, FormStatus.Draft)
+          const formStatus = form.live ? FormStatus.Live : FormStatus.Draft
+          const definition = await getFormDefinition(form.id, formStatus)
 
           return h.view('help/privacy-notice-specific', {
             form,
