@@ -229,13 +229,50 @@ describe('Routes', () => {
   })
 
   test('privacy notice (specific) page is served with feedback form link', async () => {
+    const metadata = fixtures.form.metadata
     jest
       .mocked(getFormDefinition)
       .mockResolvedValueOnce({} as unknown as FormDefinition)
     jest.mocked(getFormMetadata).mockResolvedValue({
-      ...fixtures.form.metadata,
+      ...metadata,
       privacyNoticeType: 'text',
       privacyNoticeText: '# Privacy markdown heading'
+    })
+    const options = {
+      method: 'GET',
+      url: '/help/privacy-specific/slug'
+    }
+
+    const { container } = await renderResponse(server, options)
+
+    const $heading = container.getByRole('heading', {
+      name: 'Privacy markdown heading',
+      level: 1
+    })
+
+    const $link = container.getByRole('link', {
+      name: 'give your feedback (opens in new tab)'
+    })
+
+    expect($heading).toBeInTheDocument()
+    expect($link).toBeInTheDocument()
+  })
+
+  test('privacy notice (specific) page is served with feedback form link (live)', async () => {
+    const metadata = fixtures.form.metadata
+    jest
+      .mocked(getFormDefinition)
+      .mockResolvedValueOnce({} as unknown as FormDefinition)
+    jest.mocked(getFormMetadata).mockResolvedValue({
+      ...metadata,
+      privacyNoticeType: 'text',
+      privacyNoticeText: '# Privacy markdown heading',
+      live: {
+        createdAt: metadata.createdAt,
+        createdBy: metadata.createdBy,
+        updatedAt: metadata.updatedAt,
+        updatedBy: metadata.updatedBy
+      }
     })
     const options = {
       method: 'GET',
