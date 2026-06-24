@@ -354,7 +354,13 @@ export function getKey(slug, state) {
  * @param {Error} [err]
  * @param {string} [language]
  */
-export function detailsViewModel(metadata, status, payload, err, language = 'en-GB') {
+export function detailsViewModel(
+  metadata,
+  status,
+  payload,
+  err,
+  language = 'en-GB'
+) {
   const { slug, title, id } = metadata
   const formPath = constructFormUrl(slug, status)
   const formSummaryPath = constructFormSummaryUrl(formPath)
@@ -420,7 +426,12 @@ export function detailsViewModel(metadata, status, payload, err, language = 'en-
  * @param {FormStatus} [status]
  * @param {string} [language]
  */
-export function confirmationViewModel(metadata, email, status, language = 'en-GB') {
+export function confirmationViewModel(
+  metadata,
+  email,
+  status,
+  language = 'en-GB'
+) {
   const { slug, title, id } = metadata
   const formPath = constructFormUrl(slug, status)
 
@@ -453,7 +464,7 @@ export function passwordViewModel(
 ) {
   const { errors, securityAnswerError } = buildErrors(err, language)
 
-  const questionKey = securityQuestionKeyMap[String(securityQuestion)]
+  const questionKey = securityQuestionKeyMap[securityQuestion]
   const questionText = questionKey
     ? /** @type {string} */ (t(questionKey, language))
     : undefined
@@ -513,7 +524,10 @@ export function resumeErrorViewModel(payload, language = 'en-GB') {
  * @param {number} attemptsRemaining
  * @param {string} [language]
  */
-export function createInvalidPasswordError(attemptsRemaining, language = 'en-GB') {
+export function createInvalidPasswordError(
+  attemptsRemaining,
+  language = 'en-GB'
+) {
   const message = /** @type {string} */ (
     t('saveAndExit.details.validation.invalidPassword', language, {
       count: attemptsRemaining
@@ -529,7 +543,12 @@ export function createInvalidPasswordError(attemptsRemaining, language = 'en-GB'
  * @param {number} maxPasswordAttempts
  * @param {string} [language]
  */
-export function lockedOutViewModel(form, validatedLink, maxPasswordAttempts, language = 'en-GB') {
+export function lockedOutViewModel(
+  form,
+  validatedLink,
+  maxPasswordAttempts,
+  language = 'en-GB'
+) {
   return {
     name: form.title,
     maxPasswordAttempts,

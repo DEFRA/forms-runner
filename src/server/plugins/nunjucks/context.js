@@ -33,7 +33,7 @@ export function context(request) {
   const { params, query = {}, response, state } = request ?? {}
 
   const language =
-    request?.app?.language ?? request?.app?.model?.language ?? 'en-GB'
+    request?.app.language ?? request?.app.model?.language ?? 'en-GB'
 
   const isForceAccess = 'force' in query
   const { isPreview: isPreviewMode, state: formState } = checkFormStatus(params)
