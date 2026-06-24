@@ -6,7 +6,7 @@ import {
 } from '@defra/forms-engine-plugin'
 import { getCacheService } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
-import { slugSchema } from '@defra/forms-model'
+import { FormStatus, slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import * as Hoek from '@hapi/hoek'
 import { StatusCodes } from 'http-status-codes'
@@ -34,8 +34,8 @@ import {
   hasState
 } from '~/src/server/routes/save-and-exit-helper.js'
 import {
-  getFormMetadata,
-  getFormMetadataById
+  getFormMetadataById,
+  getFormMetadataWithGuard
 } from '~/src/server/services/formMetadataGuards.js'
 import {
   getSaveAndExitDetails,
@@ -83,7 +83,7 @@ export default [
     async handler(request, h) {
       const { params } = request
       const { slug, state: status } = params
-      const metadata = await getFormMetadata(slug)
+      const metadata = await getFormMetadataWithGuard(slug, status)
       const model = detailsViewModel(metadata, status)
 
       // Store any outstanding data from the current page in a special attribute
@@ -153,7 +153,7 @@ export default [
       const { email, securityQuestion, securityAnswer } = payload
       // Throws the offline marker BEFORE publishSaveAndExitEvent so we never
       // emit a magic-link email for a form the user can no longer reach.
-      const metadata = await getFormMetadata(slug)
+      const metadata = await getFormMetadataWithGuard(slug, status)
 
       const cacheService = getCacheService(request.server)
 
@@ -206,7 +206,7 @@ export default [
         async failAction(request, h, err) {
           const { params, payload } = request
           const { slug, state: status } = params
-          const metadata = await getFormMetadata(slug)
+          const metadata = await getFormMetadataWithGuard(slug, status)
 
           const model = detailsViewModel(
             metadata,
@@ -231,7 +231,7 @@ export default [
     async handler(request, h) {
       const { params } = request
       const { slug, state: status } = params
-      const metadata = await getFormMetadata(slug)
+      const metadata = await getFormMetadataWithGuard(slug, status)
 
       // Get the email from session
       const email = /** @type {string} */ (
@@ -348,13 +348,13 @@ export default [
     path: '/resume-form-verify/{formId}/{magicLinkId}/{slug}/{state?}',
     async handler(request, h) {
       const { params } = request
-      const { formId, magicLinkId } = params
+      const { formId, magicLinkId, state } = params
 
       // Assert the form is online BEFORE looking up save-and-exit details so
       // we don't leak magic-link validity timing for offline forms.
       let form
       try {
-        form = await getFormMetadataById(formId)
+        form = await getFormMetadataById(formId, state)
       } catch (err) {
         if (isOfflineBoom(err)) {
           throw err
@@ -398,7 +398,7 @@ export default [
 
       if (slug) {
         try {
-          await getFormMetadata(slug)
+          await getFormMetadataWithGuard(slug, FormStatus.Live)
         } catch (err) {
           if (isOfflineBoom(err)) {
             throw err
@@ -433,12 +433,12 @@ export default [
     path: '/resume-form-verify/{formId}/{magicLinkId}/{slug}/{state?}',
     async handler(request, h) {
       const { params, payload } = request
-      const { formId, magicLinkId } = params
+      const { formId, magicLinkId, state } = params
       const { securityAnswer } = payload
 
       let form
       try {
-        form = await getFormMetadataById(formId)
+        form = await getFormMetadataById(formId, state)
       } catch (err) {
         if (isOfflineBoom(err)) {
           throw err
@@ -516,7 +516,10 @@ export default [
             return h.redirect(ERROR_BASE_URL).takeover()
           }
 
-          const form = await getFormMetadataById(resumeDetails.form.id)
+          const form = await getFormMetadataById(
+            resumeDetails.form.id,
+            params.state
+          )
 
           const model = passwordViewModel(
             form,
@@ -532,7 +535,7 @@ export default [
     }
   }),
   /**
-   * @satisfies {ServerRoute<{ Params: { slug: string, state?: string} }>}
+   * @satisfies {ServerRoute<{ Params: { slug: string, state?: FormStatus} }>}
    */
   ({
     method: 'GET',
@@ -540,7 +543,7 @@ export default [
     async handler(request, h) {
       const { params } = request
       const { slug, state } = params
-      const form = await getFormMetadata(slug)
+      const form = await getFormMetadataWithGuard(slug, state)
 
       const model = resumeSuccessViewModel(
         form,
@@ -565,6 +568,5 @@ export default [
 /**
  * @import { ServerRoute } from '@hapi/hapi'
  * @import { CacheRequest, FormPayload } from '@defra/forms-engine-plugin/engine/types.js'
- * @import { FormStatus } from '@defra/forms-model'
  * @import { BoomErrorCustomSaveAndExit, SaveAndExitParams, SaveAndExitPayload, SaveAndExitResumePasswordPayload, SaveAndExitResumePasswordParams } from '~/src/server/models/save-and-exit.js'
  */

@@ -2,7 +2,7 @@ import { FormStatus } from '@defra/forms-engine-plugin/types'
 import Boom from '@hapi/boom'
 
 import { createErrorPreviewModel } from '~/src/server/plugins/error-preview/error-preview-helper.js'
-import { getFormMetadata } from '~/src/server/services/formMetadataGuards.js'
+import { getFormMetadataWithoutGuard } from '~/src/server/services/formMetadataGuards.js'
 import { getFormDefinition } from '~/src/server/services/formsService.js'
 
 /**
@@ -13,7 +13,7 @@ export async function getErrorPreviewHandler(request, h) {
   const { params } = request
   const { slug, path, itemId } = params
 
-  const metadata = await getFormMetadata(slug)
+  const metadata = await getFormMetadataWithoutGuard(slug)
   const definition = await getFormDefinition(metadata.id, FormStatus.Draft)
   if (!definition) {
     throw Boom.notFound(

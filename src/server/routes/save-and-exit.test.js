@@ -8,8 +8,8 @@ import { createJoiError } from '~/src/server/helpers/error-helper.js'
 import { createServer } from '~/src/server/index.js'
 import { addError } from '~/src/server/routes/save-and-exit.js'
 import {
-  getFormMetadata,
-  getFormMetadataById
+  getFormMetadataById,
+  getFormMetadataWithGuard
 } from '~/src/server/services/formMetadataGuards.js'
 import {
   getSaveAndExitDetails,
@@ -414,7 +414,7 @@ describe('Save-and-exit check routes', () => {
         statusCode: 503,
         data: { offline: true }
       })
-      jest.mocked(getFormMetadata).mockRejectedValueOnce(offlineErr)
+      jest.mocked(getFormMetadataWithGuard).mockRejectedValueOnce(offlineErr)
       jest.mocked(isOfflineBoom).mockReturnValueOnce(true)
 
       const options = {
@@ -428,7 +428,7 @@ describe('Save-and-exit check routes', () => {
 
     test('logs info on other metadata fetch error', async () => {
       const otherErr = new Error('fetch failed')
-      jest.mocked(getFormMetadata).mockRejectedValueOnce(otherErr)
+      jest.mocked(getFormMetadataWithGuard).mockRejectedValueOnce(otherErr)
       jest.mocked(isOfflineBoom).mockReturnValueOnce(false)
 
       const options = {
@@ -449,7 +449,7 @@ describe('Save-and-exit check routes', () => {
   describe('GET /resume-form-success', () => {
     test('route renders page without state', async () => {
       jest
-        .mocked(getFormMetadata)
+        .mocked(getFormMetadataWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({
           slug: 'my-form-to-resume',
@@ -478,7 +478,7 @@ describe('Save-and-exit check routes', () => {
 
     test('route renders page with slug', async () => {
       jest
-        .mocked(getFormMetadata)
+        .mocked(getFormMetadataWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({
           slug: 'my-form-to-resume',
