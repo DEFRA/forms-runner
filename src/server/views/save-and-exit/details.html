@@ -29,7 +29,7 @@
         iconFallbackText: tR('saveAndExit.details.warningIconFallback')
       }) }}
 
-      <form method="post">
+      <form method="post" action="#">
         <input type="hidden" name="crumb" value="{{ crumb }}">
         {{ govukInput(fields.email) }}
         {{ govukInput(fields.emailConfirmation) }}

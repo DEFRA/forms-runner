@@ -22,6 +22,7 @@ export const configureBlankiePlugin = (): ServerRegisterPluginObject<
 > => {
   const gtmContainerId = config.get('googleTagManagerContainerId')
   const uploaderUrl = config.get('uploaderUrl')
+  const paymentProviderUrl = config.get('paymentProviderUrl')
 
   return {
     plugin: Blankie,
@@ -30,7 +31,7 @@ export const configureBlankiePlugin = (): ServerRegisterPluginObject<
       baseUri: ['none'],
       fontSrc: ['self', 'data:'],
       connectSrc: [
-        ['self'],
+        ['self', 'https://services.arcgisonline.com'],
         gtmContainerId ? googleAnalyticsOptions.connectSrc : [],
         uploaderUrl ? [uploaderUrl] : []
       ].flat(),
@@ -42,7 +43,10 @@ export const configureBlankiePlugin = (): ServerRegisterPluginObject<
       ].flat(),
       frameSrc: gtmContainerId ? googleAnalyticsOptions.frameSrc : ['none'],
       workerSrc: ['blob:'],
-      formAction: ['self'],
+      formAction: [
+        ['self'],
+        paymentProviderUrl ? [paymentProviderUrl] : []
+      ].flat(),
       frameAncestors: ['none'],
       objectSrc: ['none'],
       generateNonces: 'script'

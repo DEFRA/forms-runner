@@ -1,10 +1,8 @@
 import { getErrorMessage } from '@defra/forms-model'
 
 import { config } from '~/src/config/index.js'
-import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { createServer } from '~/src/server/index.js'
-
-const logger = createLogger()
 
 process.on('unhandledRejection', (err) => {
   logger.info('Unhandled rejection')

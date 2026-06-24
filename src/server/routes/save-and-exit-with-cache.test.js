@@ -1,4 +1,5 @@
 import { getCacheService } from '@defra/forms-engine-plugin/engine/helpers.js'
+import { FormStatus } from '@defra/forms-model'
 import { StatusCodes } from 'http-status-codes'
 
 import { createServer } from '~/src/server/index.js'
@@ -82,7 +83,7 @@ describe('Save-and-exit check routes', () => {
         // @ts-expect-error - allow partial objects for tests
         form: {
           id: FORM_ID,
-          status: 'draft',
+          status: FormStatus.Draft,
           isPreview: true
         }
       })

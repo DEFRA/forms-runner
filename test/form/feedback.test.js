@@ -4,6 +4,7 @@ import {
   checkFormStatus,
   getCacheService
 } from '@defra/forms-engine-plugin/engine/helpers.js'
+import { FormStatus } from '@defra/forms-model'
 
 import { createServer } from '~/src/server/index.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
@@ -43,7 +44,9 @@ describe('Feedback link', () => {
         .fn()
         .mockResolvedValue({ formId: '661e4ca5039739ef2902b214' })
     }))
-    jest.mocked(checkFormStatus).mockReturnValue({ isPreview: true, state: {} })
+    jest
+      .mocked(checkFormStatus)
+      .mockReturnValue({ isPreview: true, state: FormStatus.Live })
     const { container } = await renderResponse(server, {
       method: 'GET',
       url: '/help/cookies/feedback'

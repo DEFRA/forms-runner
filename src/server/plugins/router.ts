@@ -35,10 +35,8 @@ import {
   publicRoutes,
   saveAndExitRoutes
 } from '~/src/server/routes/index.js'
-import {
-  getFormDefinition,
-  getFormMetadata
-} from '~/src/server/services/formsService.js'
+import { getFormMetadataWithoutGuard } from '~/src/server/services/formMetadataGuards.js'
+import { getFormDefinition } from '~/src/server/services/formsService.js'
 import { getFeedbackFormLink } from '~/src/server/utils/utils.js'
 
 const routes: ServerRoute[] = [...publicRoutes, healthRoute]
@@ -125,7 +123,7 @@ export default {
         path: '/help/get-support/{slug}',
         async handler(request, h) {
           const { slug } = request.params
-          const form = await getFormMetadata(slug)
+          const form = await getFormMetadataWithoutGuard(slug)
           request.app.language = resolveLanguage(form)
 
           return h.view('help/get-support', { form })
@@ -138,9 +136,13 @@ export default {
         path: '/help/privacy/{slug}',
         async handler(request, h) {
           const { slug } = request.params
-          const form = await getFormMetadata(slug)
+          const form = await getFormMetadataWithoutGuard(slug)
           request.app.language = resolveLanguage(form)
-          const definition = await getFormDefinition(form.id, FormStatus.Draft)
+          // It's most likely that we come into this route from a live version of the form
+          // so prefer that and fallback to draft if no live version (it is possible to have
+          // a live version and no draft version, so we cannot just default to 'draft').
+          const formStatus = form.live ? FormStatus.Live : FormStatus.Draft
+          const definition = await getFormDefinition(form.id, formStatus)
 
           return h.view('help/privacy-notice', {
             form,
@@ -160,9 +162,10 @@ export default {
         path: '/help/privacy-specific/{slug}',
         async handler(request, h) {
           const { slug } = request.params
-          const form = await getFormMetadata(slug)
+          const form = await getFormMetadataWithoutGuard(slug)
           request.app.language = resolveLanguage(form)
-          const definition = await getFormDefinition(form.id, FormStatus.Draft)
+          const formStatus = form.live ? FormStatus.Live : FormStatus.Draft
+          const definition = await getFormDefinition(form.id, formStatus)
 
           return h.view('help/privacy-notice-specific', {
             form,
@@ -179,7 +182,7 @@ export default {
         path: '/help/cookies/{slug}',
         async handler(request, h) {
           const { slug } = request.params
-          const form = await getFormMetadata(slug)
+          const form = await getFormMetadataWithoutGuard(slug)
           request.app.language = resolveLanguage(form)
 
           const sessionTimeout = config.get('sessionTimeout')
@@ -190,7 +193,7 @@ export default {
 
           const state = await cacheService.getState(request)
 
-          const formId = state?.formId ?? ''
+          const formId = (state.formId ?? '') as string
 
           return h.view('help/cookies', {
             googleAnalyticsContainerId: config.get(
@@ -288,7 +291,7 @@ export default {
         async handler(request, h) {
           const { params } = request
           const { slug } = params
-          const form = await getFormMetadata(slug)
+          const form = await getFormMetadataWithoutGuard(slug)
           request.app.language = resolveLanguage(form)
           let cookieConsentDismissed = false
 
@@ -319,7 +322,7 @@ export default {
         path: '/help/accessibility-statement/{slug}',
         async handler(request, h) {
           const { slug } = request.params
-          const form = await getFormMetadata(slug)
+          const form = await getFormMetadataWithoutGuard(slug)
           request.app.language = resolveLanguage(form)
 
           return h.view('help/accessibility-statement')

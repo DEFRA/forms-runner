@@ -3,10 +3,9 @@ import { formAdapterSubmissionMessagePayloadSchema } from '@defra/forms-engine-p
 import { type FormAdapterSubmissionMessagePayload } from '@defra/forms-engine-plugin/engine/types.js'
 
 import { config } from '~/src/config/index.js'
-import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { getSNSClient } from '~/src/server/messaging/sns.js'
 
-const logger = createLogger()
 const snsAdapterTopicArn = config.get('snsAdapterTopicArn')
 const snsFormTopicArnMapRaw = config.get('snsFormTopicArnMap')
 const snsFormTopicArnMap: Record<string, string> = snsFormTopicArnMapRaw
@@ -17,7 +16,7 @@ const snsFormTopicArnMap: Record<string, string> = snsFormTopicArnMapRaw
  * Validate form adapter submission payload against schema
  * @param submissionPayload - Form submission payload to validate
  * @returns Validated payload
- * @throws Error if validation fails
+ * @throws {Error} if validation fails
  */
 function validateFormAdapterPayload(
   submissionPayload: FormAdapterSubmissionMessagePayload

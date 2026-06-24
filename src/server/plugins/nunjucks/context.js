@@ -8,10 +8,8 @@ import { StatusCodes } from 'http-status-codes'
 import pkg from '~/package.json' with { type: 'json' }
 import { parseCookieConsent } from '~/src/common/cookies.js'
 import { config } from '~/src/config/index.js'
-import { createLogger } from '~/src/server/common/helpers/logging/logger.js'
+import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { t as runnerT } from '~/src/server/i18n/index.js'
-
-const logger = createLogger()
 
 /** @type {Record<string, string> | undefined} */
 let webpackManifest

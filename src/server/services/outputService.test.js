@@ -13,10 +13,10 @@ import {
 jest.mock('@defra/forms-engine-plugin/engine/helpers.js')
 jest.mock('@defra/forms-engine-plugin/engine/outputFormatters/index.js')
 jest.mock('~/src/server/common/helpers/logging/logger.ts', () => ({
-  createLogger: jest.fn(() => ({
+  logger: {
     info: jest.fn(),
     error: jest.fn()
-  }))
+  }
 }))
 jest.mock('~/src/server/messaging/formAdapterEventPublisher.ts')
 jest.mock('~/src/server/services/formsService.js')
@@ -61,48 +61,59 @@ describe('OutputService', () => {
 
     outputService = new OutputService()
 
-    mockContext = /** @type {any} */ ({
-      referenceNumber: 'REF-123456',
-      evaluationState: {},
-      relevantState: {},
-      relevantPages: [],
-      payload: {},
-      state: {},
-      errors: undefined,
-      paths: [],
-      isForceAccess: false,
-      data: {},
-      pageDefMap: new Map(),
-      listDefMap: new Map(),
-      componentDefMap: new Map(),
-      pageMap: new Map(),
-      componentMap: new Map()
-    })
+    mockContext = /** @type {FormContext} */ (
+      /** @type {unknown} */ ({
+        referenceNumber: 'REF-123456',
+        evaluationState: {},
+        relevantState: {},
+        relevantPages: [],
+        payload: {},
+        state: {},
+        errors: undefined,
+        paths: [],
+        isForceAccess: false,
+        data: {},
+        pageDefMap: new Map(),
+        listDefMap: new Map(),
+        componentDefMap: new Map(),
+        pageMap: new Map(),
+        componentMap: new Map()
+      })
+    )
 
-    mockRequest = /** @type {any} */ ({
-      params: {
-        formSlug: 'test-form',
-        path: '/test-form',
-        slug: 'test-form'
-      }
-    })
+    mockRequest = /** @type {FormRequestPayload} */ (
+      /** @type {unknown} */ ({
+        params: {
+          formSlug: 'test-form',
+          path: '/test-form',
+          slug: 'test-form'
+        },
+        payload: {}
+      })
+    )
 
-    mockModel = /** @type {any} */ ({
-      name: 'Test Form'
-    })
+    mockModel = /** @type {FormModel} */ (
+      /** @type {unknown} */ ({
+        name: 'Test Form'
+      })
+    )
 
-    mockItems = /** @type {any} */ ({
-      main: {
-        items: [
-          { name: 'field1', value: 'value1' },
-          { name: 'field2', value: 'value2' }
-        ]
-      }
-    })
+    mockItems = /** @type {DetailItem[]} */ (
+      /** @type {unknown} */ ({
+        main: {
+          items: [
+            { name: 'field1', value: 'value1' },
+            { name: 'field2', value: 'value2' }
+          ]
+        }
+      })
+    )
 
-    mockSubmitResponse = /** @type {any} */ ({
-      retrievalKey: 'SUB-789'
-    })
+    mockSubmitResponse = /** @type {SubmitResponsePayload} */ (
+      /** @type {unknown} */ ({
+        retrievalKey: 'SUB-789'
+      })
+    )
 
     mockFormMetadata = {
       id: 'form-123',
@@ -166,18 +177,16 @@ describe('OutputService', () => {
         data: mockItems
       }
 
-      const mockRequestWithEmail = {
-        ...mockRequest,
-        payload: {
-          userConfirmationEmailAddress: 'my-email@test123.com'
-        }
+      const mockContextWithEmail = {
+        ...mockContext,
+        state: { userConfirmationEmailAddress: 'my-email@test123.com' }
       }
 
       mockFormatter.mockReturnValue(JSON.stringify(mockPayload))
 
       await outputService.submit(
-        mockContext,
-        mockRequestWithEmail,
+        mockContextWithEmail,
+        mockRequest,
         mockModel,
         'test@example.com',
         mockItems,
@@ -188,7 +197,7 @@ describe('OutputService', () => {
       expect(checkFormStatus).toHaveBeenCalledWith(mockRequest.params)
       expect(getFormatter).toHaveBeenCalledWith('adapter', '1')
       expect(mockFormatter).toHaveBeenCalledWith(
-        mockContext,
+        mockContextWithEmail,
         mockItems,
         mockModel,
         mockSubmitResponse,

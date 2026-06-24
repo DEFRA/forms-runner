@@ -21,10 +21,11 @@ describe('FeedbackPageController', () => {
   const response = {
     code: jest.fn().mockImplementation(() => response)
   }
-  const h: FormResponseToolkit = {
+  const h = {
     redirect: jest.fn().mockReturnValue(response),
-    view: jest.fn()
-  }
+    view: jest.fn(),
+    continue: Symbol('continue')
+  } as unknown as FormResponseToolkit
 
   beforeEach(() => {
     model = new FormModel(definition, {
@@ -70,11 +71,12 @@ describe('FeedbackPageController', () => {
         errors: [
           {
             name: 'PMPyjg',
-            path: '/feedback',
-            text: 'Select how you feel about this service'
+            path: ['feedback'],
+            text: 'Select how you feel about this service',
+            href: '#PMPyjg'
           }
         ]
-      } as FormContext
+      } as unknown as FormContext
 
       jest
         .spyOn(controller as unknown as QuestionPageController, 'getState')
