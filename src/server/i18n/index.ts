@@ -1,6 +1,7 @@
 import { type FormMetadata } from '@defra/forms-model'
 import i18next from 'i18next'
 
+import cy from '~/src/server/i18n/translations/cy.json' with { type: 'json' }
 import enGB from '~/src/server/i18n/translations/en-GB.json' with { type: 'json' }
 import xPirate from '~/src/server/i18n/translations/x-pirate.json' with { type: 'json' }
 
@@ -10,7 +11,8 @@ runnerI18n
   .init({
     resources: {
       'en-GB': { translation: enGB },
-      'x-pirate': { translation: xPirate }
+      'x-pirate': { translation: xPirate },
+      cy: { translation: cy }
     },
     fallbackLng: 'en-GB',
     returnObjects: true,

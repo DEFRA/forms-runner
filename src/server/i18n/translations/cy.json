@@ -1,0 +1,493 @@
+{
+  "help": {
+    "getSupport": {
+      "title": "xxGet help with your form",
+      "telephone": "xxTelephone",
+      "callCharges": "xxFind out about call charges",
+      "email": "xxEmail",
+      "onlineContactForm": "xxOnline contact form"
+    },
+    "cookies": {
+      "title": "Cookies",
+      "heading": "Cookies",
+      "intro": "Cookies are small files saved on your phone, tablet or computer when you visit a website.",
+      "essentialIntro": "We use essential cookies to make this form work.",
+      "essentialHeading": "Essential cookies",
+      "essentialBody": "Essential cookies keep your information secure. We do not need to ask your permission to use them.",
+      "analyticsHeading": "Analytics cookies",
+      "analyticsBody": "We use Google Analytics software to understand how people use our forms. We do this to help make sure the site is meeting the needs of its users and to help us make improvements.",
+      "changeSettingsHeading": "Change your settings",
+      "changeSettingsBody": "You can <a class=\"govuk-link\" href=\"/help/cookie-preferences/[[slug]]\">change which cookies you're happy for us to use</a>.",
+      "tableCaption": {
+        "essential": "Essential cookies we use",
+        "analytics": "Analytics cookies we use"
+      },
+      "tableHead": {
+        "name": "Name",
+        "purpose": "Purpose",
+        "expires": "Expires"
+      },
+      "cookies": {
+        "session": {
+          "purpose": "Remembers the information you enter",
+          "expires": "When you close the browser, or after [[sessionDurationPretty]]"
+        },
+        "crumb": {
+          "purpose": "Ensures forms can only be submitted from this website",
+          "expires": "When you close the browser"
+        },
+        "cookieConsent": {
+          "purpose": "Remembers your cookie preferences",
+          "expires": "1 year"
+        },
+        "ga": {
+          "purpose": "Used by Google Analytics to help us count how many people visit our forms by tracking if you've visited before",
+          "expires": "2 years"
+        },
+        "gaSession": {
+          "purpose": "Used by Google Analytics to find and track an individual session with your device",
+          "expires": "2 years"
+        }
+      }
+    },
+    "cookiePreferences": {
+      "title": "Cookies",
+      "heading": "Change your cookie settings",
+      "successMessage": "You've set your cookie preferences.",
+      "analyticsQuestion": "Do you want to accept analytics cookies?",
+      "yes": "Yes",
+      "no": "No",
+      "saveButton": "Save cookie settings"
+    },
+    "accessibilityStatement": {
+      "title": "Accessibility statement",
+      "heading": "Accessibility statement for this form",
+      "intro": "This accessibility statement applies to online forms with a URL that starts with https://submit-forms-to-defra.service.gov.uk.",
+      "technicalHeading": "Technical information about this website's accessibility",
+      "technicalBody": "Defra is committed to making its forms accessible, in accordance with the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018.",
+      "complianceHeading": "Compliance status",
+      "complianceBody": "Forms created by Defra are fully compliant with the Web Content Accessibility Guidelines (WCAG) version 2.2 AA standard.",
+      "howAccessibleHeading": "How accessible this website is",
+      "howAccessibleIntro": "This section lists accessibility issues with content found in Defra forms.",
+      "nonComplianceHeading": "Non-compliance with the accessibility regulations",
+      "nonComplianceBody": "Defra forms do not have accessibility issues that fail the WCAG 2.2 accessibility regulations.",
+      "outOfScopeHeading": "Content that's not within the scope of the accessibility regulations",
+      "outOfScopeIntro": "The accessibility issues listed in this section do not fail the accessibility regulations. We plan to fix them as soon as possible.",
+      "outOfScopeItems": [
+        "Forms do not default to a dark or light theme based on the 'prefers-color-scheme'.",
+        "The email field allows for the entry of values that are not formatted as an email address.",
+        "The summary screen for each form does not display the question asked. Instead, it displays a summarised version of the question.",
+        "Some optional questions are not marked as optional.",
+        "Section titles in some forms are formatted as H2 level headings. These headings are shown before page titles which are formatted as H1 level headings (skipped heading hierarchy)."
+      ],
+      "preparationHeading": "Preparation of this accessibility statement",
+      "preparationBody1": "This statement was prepared on 24 June 2024. It was last reviewed on 14 March 2025.",
+      "preparationBody2": "The Defra Accessibility team tested 2 online forms against the WCAG 2.2 AA standard on 17 June 2024. The tests were done using automated testing tools.",
+      "preparationBody3": "We will commission a full accessibility audit of forms created by Defra before June 2025.",
+      "feedbackHeading": "Feedback and contact information",
+      "feedbackBody": "If you find any problems not listed on this page or think we're not meeting accessibility requirements, email the Defra Forms team on <a class=\"govuk-link\" href=\"mailto:defraforms@defra.gov.uk\">defraforms@defra.gov.uk</a>.",
+      "enforcementHeading": "Enforcement procedure",
+      "enforcementBody": "The Equality and Human Rights Commission (EHRC) is responsible for enforcing the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 (the 'accessibility regulations'). If you're not happy with how we respond to your complaint, contact the <a class=\"govuk-link\" href=\"https://www.equalityadvisoryservice.com/\" rel=\"external\">Equality Advisory and Support Service (EASS)</a>."
+    },
+    "privacyNotice": {
+      "pageTitle": "[[serviceName]] privacy notice",
+      "heading": "[[serviceName]] - privacy notice",
+      "intro": "The <strong>[[formTitle]]</strong> form was created using the <strong>[[serviceName]]</strong> service. This service is owned and operated by the Department for Environment, Food & Rural Affairs (Defra).",
+      "whoCollectsHeading": "Who collects your personal data",
+      "whoCollectsBody1": "The organisation that created the <strong>[[formTitle]]</strong> form using <strong>[[serviceName]]</strong> is the controller of personal data they collect. If the controller is outside the Defra legal entity, then Defra is the processor.",
+      "whoCollectsBody2": "Read the <a href=\"[[privacyNoticeUrl]]\" class=\"govuk-link\">specific privacy notice for the [[formTitle]] form</a>.",
+      "whoCollectsBody3": "Defra also collects some data as a controller. This privacy notice explains what personal data Defra collects and processes as a controller through forms made with <strong>[[serviceName]]</strong>.",
+      "whoCollectsBody4": "If you need further information about how Defra uses your personal data, email <a href=\"mailto:defraforms@defra.gov.uk\" class=\"govuk-link\">defraforms@defra.gov.uk</a>.",
+      "whoCollectsBody5": "If you want information and your associated rights you can email: <a href=\"mailto:data.protection@defra.gov.uk\" class=\"govuk-link\">data.protection@defra.gov.uk</a>.",
+      "whoCollectsBody6": "The data protection officer for Defra is responsible for checking that Defra complies with legislation. You can contact them at <a href=\"mailto:DefraGroupDataProtectionOfficer@defra.gov.uk\" class=\"govuk-link\">DefraGroupDataProtectionOfficer@defra.gov.uk</a>.",
+      "dataWeCollectHeading": "Data we collect from you and what we do with it",
+      "analyticsBody1": "If you give your consent, we use Google Analytics cookies to collect information about how you use <strong>[[serviceName]]</strong>. Read the <a href=\"https://support.google.com/analytics/topic/2919631\" class=\"govuk-link\">data privacy and security policy for Google Analytics</a>.",
+      "analyticsBody2": "Google Analytics processes information about:",
+      "analyticsItems": [
+        "your IP address",
+        "the pages you visit on <strong>[[serviceName]]</strong>",
+        "how long you spend on each <strong>[[serviceName]]</strong> page",
+        "how you got to the site",
+        "what you select while you're visiting the site"
+      ],
+      "analyticsBody3": "Defra will make sure you cannot be directly identified by Google Analytics data. We do this by using <a href=\"https://support.google.com/analytics/answer/2763052\" class=\"govuk-link\">Google Analytics' IP address anonymisation</a> feature and by removing any other personal data from the titles or URLs of the pages you visit.",
+      "analyticsBody4": "Defra will not combine analytics information with other data sets in a way that would directly identify who you are.",
+      "systemLogsBody1": "We use system logs to collect information about the usage of forms.",
+      "systemLogsBody2": "We use the system logs to create anonymised reports about the performance of forms that use <strong>[[serviceName]]</strong>. We use this data to improve forms, for example, if we discover a high number of incomplete forms.",
+      "systemLogsBody2WithAnalytics": "We use the system logs and Google Analytics data to create anonymised reports about the performance of forms that use <strong>[[serviceName]]</strong>. We use this data to improve forms, for example, if we discover a high number of incomplete forms.",
+      "feedbackBody": "If you email us feedback about a form that uses <strong>[[serviceName]]</strong>, we'll send your email address and any other personal information you choose to include in your email to the controller for review. The controller may use your personal data to reply to your query to update a form based on your feedback where it is appropriate.",
+      "saveAndReturnHeading": "Save and return to a form",
+      "saveAndReturnBody": "You can save your form progress and return within [[saveAndExitExpiryDays]] days. When saving your progress, you need to tell us:",
+      "saveAndReturnItems": [
+        "your email address",
+        "the security question you want to answer",
+        "the answer to the security question"
+      ],
+      "lawfulBasisHeading": "Lawful basis for processing your personal data",
+      "lawfulBasisBody": "The lawful basis for processing your personal data is your consent.",
+      "cookiesHeading": "Cookies",
+      "cookiesBody": "We use cookies to make this form work. Read about the <a href=\"/help/cookies/[[slug]]\" class=\"govuk-link\">cookies we use to make this form work</a>.",
+      "howLongHeading": "How long we keep your data",
+      "howLongBody": "<strong>[[serviceName]]</strong> will store your data for [[storeCompletedApplicationsFor]] for completed applications and [[saveAndExitExpiryDays]] days if you save and exit and do not submit an application.",
+      "feedbackStorageBody": "Any feedback you provide is stored for [[storeFeedbackFor]].",
+      "transferHeading": "Transfer of your personal data outside of the UK",
+      "transferBody": "We will only transfer your personal data to another country that is deemed adequate for data protection purposes.",
+      "rightsHeading": "What are your rights",
+      "rightsIntro": "Based on the lawful processing above, your individual rights are:",
+      "rightsItems": [
+        "the right to be informed",
+        "the right of access",
+        "the right to rectification",
+        "the right to erasure",
+        "the right to restrict processing",
+        "the right to data portability",
+        "rights in relation to automated decision making and profiling"
+      ],
+      "rightsBody": "Get more information about your <a href=\"https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/individual-rights/\" class=\"govuk-link\">individual rights</a> under the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018 (DPA 2018).",
+      "complaintsHeading": "Complaints",
+      "complaintsBody": "You have the right to <a href=\"https://ico.org.uk/make-a-complaint/\" class=\"govuk-link\">make a complaint</a> to the Information Commissioner's Office at any time.",
+      "personalInfoHeading": "Personal information charter",
+      "personalInfoBody": "Our <a href=\"https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs/about/personal-information-charter\" class=\"govuk-link\">personal information charter</a> explains more about your rights over your personal data.",
+      "lastUpdated": "Last updated: 11 September 2025"
+    }
+  },
+  "saveAndExit": {
+    "details": {
+      "pageTitle": "Save your progress for later",
+      "intro1": "Provide your email address and answer a security question to save your progress for 28 days.",
+      "intro2": "We will email you with a link you can use to return to the form later. You will be asked for the answer to the security question when you resume your form.",
+      "warning": "Enter your email address carefully. You cannot return to the form later if your email is incorrect.",
+      "warningIconFallback": "Warning",
+      "errorTitle": "There is a problem",
+      "emailLabel": "Your email address",
+      "emailHint": "Use the email address you want the link to go to",
+      "emailConfirmationLabel": "Confirm your email address",
+      "emailConfirmationHint": "Check you have entered the correct email address",
+      "securityQuestionLegend": "Choose a security question to answer",
+      "securityAnswerLabel": "Your answer to the security question",
+      "saveButton": "Save progress",
+      "cancelButton": "Cancel",
+      "securityQuestions": {
+        "memorablePlace": "What is a memorable place you have visited?",
+        "characterName": "What is the name of your favourite character from a story or TV show?",
+        "audioRecommendation": "What album or song do you always recommend to others?"
+      },
+      "validation": {
+        "emailRequired": "Enter an email address",
+        "emailFormat": "Enter an email address in the correct format, for example, hello@example.com",
+        "emailUnicode": "The email address you entered includes invalid characters, for example, long dashes",
+        "emailConfirmation": "Your email address does not match. Check and try again.",
+        "securityQuestionRequired": "Choose a security question to answer",
+        "securityAnswerRequired": "Enter an answer to the security question",
+        "securityAnswerLength": "Your answer must be between 3 and 40 characters long",
+        "invalidPassword_one": "Your answer is incorrect. You have [[count]] attempt remaining.",
+        "invalidPassword_other": "Your answer is incorrect. You have [[count]] attempts remaining.",
+        "stateExpired": "Your information is no longer available. Return to the start of the form."
+      }
+    },
+    "confirmation": {
+      "pageTitle": "Your progress has been saved",
+      "whatHappensNext": "What happens next",
+      "linkSent": "We have sent a link to [[email]] which you can use to resume this form within [[saveAndExitExpiryDays]] days.",
+      "repeatSave": "If you want to save your progress again after resuming your form, you will need to repeat the save process to generate a new link.",
+      "checkSpam": "Check your spam folder if you have not received an email after a few minutes.",
+      "closeWindow": "You can close this window."
+    },
+    "resumeError": {
+      "pageTitle": "You cannot resume your form",
+      "continueButton": "Start form again",
+      "body1": "The link we emailed to you has expired or is invalid. Your information will be securely deleted.",
+      "body2": "You will need to start the form again."
+    },
+    "resumeErrorLocked": {
+      "continueButton": "Start form again",
+      "heading": "You cannot resume your form",
+      "incorrectAnswer": "The answer to your security question was incorrect [[maxPasswordAttempts]] times. You have run out of attempts to resume your form.",
+      "startAgain": "You will need to start the form again. Your information will be securely deleted."
+    },
+    "resumeSuccess": {
+      "pageTitle": "Welcome back to your form",
+      "continueButton": "Resume form",
+      "body1": "You will return to the page where you saved your progress unless new questions have been added to the form.",
+      "warning": "If new questions have been added to the form, you will be taken to the earliest new question.",
+      "warningIconFallback": "Warning",
+      "body2": "You will need to repeat the save process again and generate a new link if you want to save your progress in the future."
+    },
+    "resumePassword": {
+      "pageTitle": "Continue with your form",
+      "continueButton": "Continue",
+      "body1": "Enter the most recent security answer to your security question to retrieve your information and continue with your form.",
+      "attemptsLeft": "You have [[attemptsLeft]] attempts to enter the correct answer.",
+      "warning": "To save progress again, you will need to repeat the save process and generate another link.",
+      "warningIconFallback": "Warning",
+      "errorTitle": "There is a problem"
+    }
+  },
+  "confirmation": {
+    "referenceNumber": "Your reference number",
+    "feedbackLink": "What do you think of this service? (takes 30 seconds)",
+    "whatHappensNext": "What happens next",
+    "feedbackSubmitted": "Feedback submitted",
+    "submissionGuidance": "Thank you for leaving feedback.\n\nYou can close this screen now."
+  },
+
+  "validation": {
+    "required": "Nodwch {{lowerFirst(#label)}}",
+    "selectRequired": "Dewiswch {{lowerFirst(#label)}}",
+    "pattern": "Nodwch {{lowerFirst(#label)}} dilys",
+    "format": "Nodwch {{lowerFirst(#label)}} yn y fformat cywir",
+    "objectRequired": "Nodwch {{#label}}",
+    "objectMissing": "Rhaid i {{#title}} gynnwys {{lowerFirst(#label)}}",
+    "max": "Rhaid i {{#label}} fod yn {{#limit}} o nodau neu lai",
+    "min": "Rhaid i {{#label}} fod yn {{#limit}} o nodau neu fwy",
+    "minMax": "Rhaid i {{#label}} fod rhwng {{#min}} a {{#max}} o nodau",
+    "number": "Rhaid i {{#label}} fod yn rhif",
+    "numberPrecision": "Rhaid i {{#label}} beidio â chael mwy na {{#limit}} lle degol",
+    "numberInteger": "Rhaid i {{#label}} fod yn rhif cyfan",
+    "numberMin": "Rhaid i {{#label}} fod yn {{#limit}} neu uwch",
+    "numberMax": "Rhaid i {{#label}} fod yn {{#limit}} neu is",
+    "maxWords": "Rhaid i {{#label}} fod yn {{#limit}} o eiriau neu lai"
+  },
+
+  "errors": {
+    "title": "Mae problem",
+    "optionsMismatch": "Mae'r opsiynau'n wahanol oherwydd i chi newid ateb blaenorol"
+  },
+
+  "common": {
+    "optional": "(dewisol)",
+    "warningIconFallback": "Rhybudd",
+    "back": "Yn ôl",
+    "continue": "Parhau",
+    "saveAndExit": "Cadw a gadael"
+  },
+
+  "pages": {
+    "question": {
+      "paymentCancelledBannerTitle": "Pwysig",
+      "paymentCancelledTitle": "Mae eich taliad wedi'i ganslo",
+      "paymentCancelledBody": "Cafodd eich manylion talu eu dileu oherwydd bod y ffurflen yn anweithredol am 5 diwrnod.",
+      "paymentCancelledAction": "Ychwanegwch eich manylion talu eto.",
+      "backToAddAnother": "Ewch yn ôl i ychwanegu un arall",
+      "backToCheckAnswers": "Ewch yn ôl i wirio'ch atebion",
+      "startNow": "Dechrau nawr"
+    },
+
+    "summary": {
+      "title": "Gwiriwch eich atebion cyn anfon eich ffurflen",
+      "change": "Newid",
+      "notProvided": "Heb ei ddarparu",
+      "declaration": "Datganiad",
+      "acceptAndSubmit": "Derbyn a chyflwyno",
+      "submit": "Cyflwyno",
+      "saveAndExit": "Cadw a gadael",
+      "paymentSuccessBannerTitle": "Llwyddiant",
+      "paymentSuccessTitle": "Mae gennym eich manylion talu",
+      "paymentSuccessBody": "Mae eich taliad ar ddal. Byddwn yn codi tâl arnoch pan fyddwch yn cyflwyno'r ffurflen.",
+      "paymentDetailsTitle": "Manylion talu",
+      "paymentFor": "Taliad am",
+      "totalAmount": "Cyfanswm",
+      "reference": "Cyfeirnod",
+      "dateOfPayment": "Dyddiad talu",
+      "submissionFailed": "Roedd problem ac ni chyflwynwyd eich ffurflen. Ceisiwch gyflwyno'r ffurflen eto",
+      "submissionFailedContactSuffix": " neu gallwch [[contactUsLink]] a dyfynnu'ch cyfeirnod i drefnu ad-daliad",
+      "contactUsLinkText": "cysylltu â ni (yn agor mewn tab newydd)"
+    },
+
+    "repeater": {
+      "removeAnswer": "Ydych chi'n siŵr eich bod am dynnu'r ateb hwn?",
+      "remove": "Tynnu",
+      "cancel": "Canslo",
+      "lastItemCannotBeRemoved": "Ni ellir tynnu eitem olaf y rhestr",
+      "itemToRemoveNotFound": "Ni chanfuwyd eitem y rhestr i'w thynnu",
+      "continue": "Parhau",
+      "addAnother": "Ychwanegu un arall",
+      "saveAndExit": "Cadw a gadael",
+      "change": "Newid",
+      "notProvided": "Heb ei ddarparu",
+      "visuallyHiddenItem": "eitem [[index]]",
+      "pageTitle_one": "Rydych wedi ychwanegu [[count]] ateb",
+      "pageTitle_other": "Rydych wedi ychwanegu [[count]] ateb",
+      "tooMany_one": "Dim ond hyd at [[count]] ateb y gallwch ei ychwanegu",
+      "tooMany_other": "Dim ond hyd at [[count]] ateb y gallwch eu hychwanegu",
+      "tooFew_one": "Rhaid i chi ychwanegu o leiaf [[count]] ateb",
+      "tooFew_other": "Rhaid i chi ychwanegu o leiaf [[count]] ateb"
+    },
+
+    "fileUpload": {
+      "upload": "Uwchlwytho ffeil",
+      "maxFilesReached": "Rydych wedi cyrraedd nifer uchaf y ffeiliau. Tynnwch ffeil i uwchlwytho rhagor."
+    },
+
+    "exit": {
+      "defaultTitle": "Mae eich cynnydd wedi'i gadw",
+      "whatHappensNext": "Beth sy'n digwydd nesaf",
+      "body": "Mae cynnydd eich ffurflen wedi'i gadw. Gallwch ddychwelyd i gwblhau eich cais ar unrhyw adeg gan ddefnyddio'r ddolen a ddarperir.",
+      "returnToApplication": "Dychwelyd i'r cais"
+    },
+
+    "confirmation": {
+      "whatHappensNext": "Beth sy'n digwydd nesaf",
+      "referenceNumber": "Eich cyfeirnod",
+      "feedbackLink": "Beth yw eich barn am y gwasanaeth hwn? (yn cymryd 30 eiliad)"
+    },
+
+    "preview": {
+      "warnMissingNotificationEmail": {
+        "body": "Os hoffech dderbyn e-bost prawf, [[link]] yr hoffech i gyflwyniadau ffurflen fynd iddo.",
+        "linkText": "nodwch y cyfeiriad e-bost (yn agor mewn tab newydd)"
+      }
+    }
+  },
+
+  "postcodeLookup": {
+    "postcodeLabel": "Cod post",
+    "postcodeHint": "Er enghraifft, AA3 1AB",
+    "buildingNameLabel": "Enw neu rif yr adeilad (dewisol)",
+    "buildingNameHint": "Er enghraifft, 15 neu Bryn Melyn",
+    "selectAddress": "Dewiswch gyfeiriad",
+    "addressLine1Label": "Llinell cyfeiriad 1",
+    "addressLine2Label": "Llinell cyfeiriad 2 (dewisol)",
+    "townLabel": "Tref neu ddinas",
+    "countyLabel": "Sir (dewisol)",
+    "findAddress": "Dod o hyd i gyfeiriad",
+    "enterManually": "nodwch gyfeiriad â llaw",
+    "searchAgain": "Chwilio eto",
+    "useThisAddress": "Defnyddio'r cyfeiriad hwn",
+    "findAnAddressInstead": "dod o hyd i gyfeiriad yn lle hynny",
+    "noAddressFoundTitle": "Ni chanfuwyd cyfeiriad",
+    "noAddressFoundBody": "Ni allem ddod o hyd i gyfeiriad cyfatebol",
+    "addressFound_one": "Canfuwyd [[count]] cyfeiriad ar gyfer",
+    "addressFound_other": "Canfuwyd [[count]] cyfeiriad ar gyfer",
+    "validation": {
+      "invalidPostcode": "Nodwch god post dilys neu nodwch gyfeiriad â llaw",
+      "requiredPostcode": "Nodwch god post",
+      "selectAddress": "Dewiswch gyfeiriad",
+      "requiredAddressLine1": "Nodwch linell cyfeiriad 1",
+      "requiredTown": "Nodwch dref neu ddinas",
+      "invalidManualPostcode": "Nodwch god post dilys",
+      "requiredManualPostcode": "Nodwch god post"
+    }
+  },
+
+  "components": {
+    "dateField": {
+      "day": "Diwrnod",
+      "month": "Mis",
+      "year": "Blwyddyn",
+      "validation": {
+        "dateFormat": "Rhaid i {{#title}} fod yn ddyddiad go iawn",
+        "dateMin": "Rhaid i {{#title}} fod yr un fath â neu ar ôl {{#limit}}",
+        "dateMax": "Rhaid i {{#title}} fod yr un fath â neu cyn {{#limit}}"
+      }
+    },
+
+    "monthYearField": {
+      "month": "Mis",
+      "year": "Blwyddyn"
+    },
+
+    "addressField": {
+      "uprn": "UPRN",
+      "line1": "Llinell cyfeiriad 1",
+      "line2": "Llinell cyfeiriad 2",
+      "town": "Tref neu ddinas",
+      "county": "Sir",
+      "postcode": "Cod post",
+      "enterAddress": "Nodwch [[shortDescription]]",
+      "findAddress": "Dod o hyd i gyfeiriad",
+      "selectedAddress": "Cyfeiriad a ddewiswyd:",
+      "useDifferentAddress": "Defnyddio cyfeiriad gwahanol",
+      "enterManually": "nodwch gyfeiriad â llaw"
+    },
+
+    "latLongField": {
+      "latitude": "Lledred",
+      "longitude": "Hydred",
+      "latitudeRequired": "Nodwch ledred",
+      "longitudeRequired": "Nodwch hydred",
+      "precision": "Rhaid i {{#label}} beidio â chael mwy na 7 lle degol",
+      "notANumber": "Rhaid i {{#label}} fod yn rif dilys",
+      "latitudeBase": "Nodwch ledred dilys ar gyfer [[fieldLabel]] fel 51.519450",
+      "longitudeBase": "Nodwch hydred dilys ar gyfer [[fieldLabel]] fel -0.127758",
+      "latitudeRange": "Rhaid i ledred [[fieldLabel]] fod rhwng [[min]] a [[max]]",
+      "longitudeRange": "Rhaid i hydred [[fieldLabel]] fod rhwng [[min]] a [[max]]"
+    },
+
+    "eastingNorthingField": {
+      "easting": "Dwyreiniannau",
+      "northing": "Gogleddiannau",
+      "eastingRequired": "Nodwch ddwyreiniannau",
+      "northingRequired": "Nodwch ogleddiannau",
+      "eastingDigits": "Rhaid i {{#label}} ar gyfer [[fieldLabel]] fod rhwng 1 a 6 digid",
+      "northingDigits": "Rhaid i {{#label}} ar gyfer [[fieldLabel]] fod rhwng 1 a 7 digid",
+      "eastingRange": "Rhaid i {{#label}} ar gyfer [[fieldLabel]] fod rhwng [[min]] a [[max]]",
+      "northingRange": "Rhaid i {{#label}} ar gyfer [[fieldLabel]] fod rhwng [[min]] a [[max]]"
+    },
+
+    "nationalGridField": {
+      "required": "Nodwch {{lowerFirst(#title)}}",
+      "pattern": "Nodwch rif maes Grid Cenedlaethol dilys ar gyfer {{lowerFirst(#title)}} fel NG 1234 5678",
+      "howToFind": "Sut i ddod o hyd i fanylion lleoliad"
+    },
+
+    "osGridRefField": {
+      "required": "Nodwch {{lowerFirst(#title)}}",
+      "pattern": "Nodwch gyfeirnod grid AO dilys ar gyfer {{lowerFirst(#title)}} fel TQ123456",
+      "howToFind": "Sut i ddod o hyd i fanylion lleoliad"
+    },
+
+    "locationFieldBase": {
+      "howToFind": "Sut i ddod o hyd i fanylion lleoliad"
+    },
+
+    "yesNoField": {
+      "yes": "Ie",
+      "no": "Na",
+      "validation": {
+        "selectYesNoRequired": "{{#label}} - dewiswch ie neu na"
+      }
+    },
+
+    "declarationField": {
+      "defaultLabel": "Rwy'n deall ac yn cytuno",
+      "defaultConfirmationLabel": "Rwy'n cadarnhau fy mod yn deall ac yn derbyn y datganiad hwn",
+      "notProvided": "Heb ei ddarparu",
+      "validation": {
+        "declarationRequired": "Rhaid i chi gadarnhau eich bod yn deall ac yn cytuno â'r {{lowerFirst(#label)}} i barhau"
+      }
+    },
+
+    "geospatialField": {
+      "added_one": "Ychwanegwyd [[count]] lleoliad",
+      "added_other": "Ychwanegwyd [[count]] lleoliad",
+      "validation": {
+        "descriptionRequired": "Rhowch ddisgrifiad ar gyfer lleoliad [[count]]"
+      }
+    },
+
+    "paymentField": {
+      "detailsRequired": "Angen manylion talu",
+      "pendingTransaction": "Mae'n bosibl y gwelwch drafodiad ar y gweill yn eich cyfrif banc ond dim ond pan fyddwch yn cyflwyno'r ffurflen y codir tâl arnoch.",
+      "addPaymentDetails": "Ychwanegu manylion talu",
+      "cannotTakePayment": "Mae problem ac ni allwn dderbyn taliad. Cysylltwch â ni (manylion yn nhroedyn y ffurflen hon) neu cadwch eich cynnydd a dychwelyd at y ffurflen yn ddiweddarach.",
+      "testApiKey": "Ychwanegwch allwedd API prawf ddilys cyn i chi allu rhagolwg y daith talu.",
+      "completePayment": "Cwblhewch y taliad i barhau",
+      "paymentExpired": "Mae awdurdodiad eich taliad wedi dod i ben. Ychwanegwch eich manylion talu eto.",
+      "submissionFailed": "Roedd problem ac ni chyflwynwyd eich ffurflen. Ceisiwch gyflwyno'r ffurflen eto.",
+      "canSubmitAfterPayment": "Gallwch gyflwyno'r ffurflen ar ôl i chi ychwanegu eich manylion talu.",
+      "preAuthorisedTitle": "Rydych eisoes wedi awdurdodi taliad ar gyfer y ffurflen hon",
+      "preAuthorisedBody": "Parhewch i gyflwyno'r ffurflen. Ni chodir tâl arnoch ddwywaith.",
+      "totalAmountLabel": "Cyfanswm:",
+      "paymentAmountMismatch": "Mae swm y taliad a rhaganrhuddhawyd rywsut yn wahanol i'r hyn a ofynnwyd amdano. Ceisiwch ychwanegu manylion talu eto."
+    },
+
+    "fileUploadField": {
+      "uploaded": "Wedi'i uwchlwytho",
+      "uploadFailed": "Roedd problem gyda'ch ffeiliau a uwchlwythwyd. Uwchlwythwch nhw eto cyn cyflwyno'r ffurflen.",
+      "uploadedFilesHeading": "Ffeiliau a uwchlwythwyd",
+      "filesCount_one": "Uwchlwythwyd [[count]] ffeil",
+      "filesCount_other": "Uwchlwythwyd [[count]] ffeil"
+    }
+  }
+}
