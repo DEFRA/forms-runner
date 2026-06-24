@@ -153,24 +153,24 @@
   },
   "saveAndExit": {
     "details": {
-      "pageTitle": "Save your progress for later",
-      "intro1": "Provide your email address and answer a security question to save your progress for 28 days.",
-      "intro2": "We will email you with a link you can use to return to the form later. You will be asked for the answer to the security question when you resume your form.",
-      "warning": "Enter your email address carefully. You cannot return to the form later if your email is incorrect.",
-      "warningIconFallback": "Warning",
-      "errorTitle": "There is a problem",
-      "emailLabel": "Your email address",
-      "emailHint": "Use the email address you want the link to go to",
-      "emailConfirmationLabel": "Confirm your email address",
-      "emailConfirmationHint": "Check you have entered the correct email address",
-      "securityQuestionLegend": "Choose a security question to answer",
-      "securityAnswerLabel": "Your answer to the security question",
-      "saveButton": "Save progress",
-      "cancelButton": "Cancel",
+      "pageTitle": "welsh Save your progress for later",
+      "intro1": "welsh Provide your email address and answer a security question to save your progress for 28 days.",
+      "intro2": "welsh We will email you with a link you can use to return to the form later. You will be asked for the answer to the security question when you resume your form.",
+      "warning": "welsh Enter your email address carefully. You cannot return to the form later if your email is incorrect.",
+      "warningIconFallback": "welsh Warning",
+      "errorTitle": "welsh There is a problem",
+      "emailLabel": "welsh Your email address",
+      "emailHint": "welsh Use the email address you want the link to go to",
+      "emailConfirmationLabel": "welsh Confirm your email address",
+      "emailConfirmationHint": "welsh Check you have entered the correct email address",
+      "securityQuestionLegend": "welsh Choose a security question to answer",
+      "securityAnswerLabel": "welsh Your answer to the security question",
+      "saveButton": "welsh Save progress",
+      "cancelButton": "welsh Cancel",
       "securityQuestions": {
-        "memorablePlace": "What is a memorable place you have visited?",
-        "characterName": "What is the name of your favourite character from a story or TV show?",
-        "audioRecommendation": "What album or song do you always recommend to others?"
+        "memorablePlace": "welsh What is a memorable place you have visited?",
+        "characterName": "welsh What is the name of your favourite character from a story or TV show?",
+        "audioRecommendation": "welsh What album or song do you always recommend to others?"
       },
       "validation": {
         "emailRequired": "Enter an email address",
@@ -186,7 +186,7 @@
       }
     },
     "confirmation": {
-      "pageTitle": "Your progress has been saved",
+      "pageTitle": "welsh Your progress has been saved",
       "whatHappensNext": "What happens next",
       "linkSent": "We have sent a link to [[email]] which you can use to resume this form within [[saveAndExitExpiryDays]] days.",
       "repeatSave": "If you want to save your progress again after resuming your form, you will need to repeat the save process to generate a new link.",
@@ -224,270 +224,60 @@
     }
   },
   "confirmation": {
-    "referenceNumber": "Your reference number",
-    "feedbackLink": "What do you think of this service? (takes 30 seconds)",
-    "whatHappensNext": "What happens next",
-    "feedbackSubmitted": "Feedback submitted",
-    "submissionGuidance": "Thank you for leaving feedback.\n\nYou can close this screen now."
+    "referenceNumber": "welsh Your reference number",
+    "feedbackLink": "welsh What do you think of this service? (takes 30 seconds)",
+    "whatHappensNext": "welsh What happens next",
+    "feedbackSubmitted": "welsh Feedback submitted",
+    "submissionGuidance": "welsh Thank you for leaving feedback.\n\nYou can close this screen now."
   },
-
-  "validation": {
-    "required": "Nodwch {{lowerFirst(#label)}}",
-    "selectRequired": "Dewiswch {{lowerFirst(#label)}}",
-    "pattern": "Nodwch {{lowerFirst(#label)}} dilys",
-    "format": "Nodwch {{lowerFirst(#label)}} yn y fformat cywir",
-    "objectRequired": "Nodwch {{#label}}",
-    "objectMissing": "Rhaid i {{#title}} gynnwys {{lowerFirst(#label)}}",
-    "max": "Rhaid i {{#label}} fod yn {{#limit}} o nodau neu lai",
-    "min": "Rhaid i {{#label}} fod yn {{#limit}} o nodau neu fwy",
-    "minMax": "Rhaid i {{#label}} fod rhwng {{#min}} a {{#max}} o nodau",
-    "number": "Rhaid i {{#label}} fod yn rhif",
-    "numberPrecision": "Rhaid i {{#label}} beidio â chael mwy na {{#limit}} lle degol",
-    "numberInteger": "Rhaid i {{#label}} fod yn rhif cyfan",
-    "numberMin": "Rhaid i {{#label}} fod yn {{#limit}} neu uwch",
-    "numberMax": "Rhaid i {{#label}} fod yn {{#limit}} neu is",
-    "maxWords": "Rhaid i {{#label}} fod yn {{#limit}} o eiriau neu lai"
-  },
-
   "errors": {
-    "title": "Mae problem",
-    "optionsMismatch": "Mae'r opsiynau'n wahanol oherwydd i chi newid ateb blaenorol"
-  },
-
-  "common": {
-    "optional": "(dewisol)",
-    "warningIconFallback": "Rhybudd",
-    "back": "Yn ôl",
-    "continue": "Parhau",
-    "saveAndExit": "Cadw a gadael"
-  },
-
-  "pages": {
-    "question": {
-      "paymentCancelledBannerTitle": "Pwysig",
-      "paymentCancelledTitle": "Mae eich taliad wedi'i ganslo",
-      "paymentCancelledBody": "Cafodd eich manylion talu eu dileu oherwydd bod y ffurflen yn anweithredol am 5 diwrnod.",
-      "paymentCancelledAction": "Ychwanegwch eich manylion talu eto.",
-      "backToAddAnother": "Ewch yn ôl i ychwanegu un arall",
-      "backToCheckAnswers": "Ewch yn ôl i wirio'ch atebion",
-      "startNow": "Dechrau nawr"
+    "notFound": {
+      "heading": "welsh Page not found",
+      "body1": "welsh If you typed the web address, check it is correct.",
+      "body2": "welsh If you pasted the web address, check you copied the entire address.",
+      "body3": "welsh If the web address is correct or you selected a link or button, <a href=\"https://www.gov.uk/guidance/contact-defra\" class=\"govuk-link\">contact the Defra Helpline</a> if you need to speak to someone about your form."
     },
-
-    "summary": {
-      "title": "Gwiriwch eich atebion cyn anfon eich ffurflen",
-      "change": "Newid",
-      "notProvided": "Heb ei ddarparu",
-      "declaration": "Datganiad",
-      "acceptAndSubmit": "Derbyn a chyflwyno",
-      "submit": "Cyflwyno",
-      "saveAndExit": "Cadw a gadael",
-      "paymentSuccessBannerTitle": "Llwyddiant",
-      "paymentSuccessTitle": "Mae gennym eich manylion talu",
-      "paymentSuccessBody": "Mae eich taliad ar ddal. Byddwn yn codi tâl arnoch pan fyddwch yn cyflwyno'r ffurflen.",
-      "paymentDetailsTitle": "Manylion talu",
-      "paymentFor": "Taliad am",
-      "totalAmount": "Cyfanswm",
-      "reference": "Cyfeirnod",
-      "dateOfPayment": "Dyddiad talu",
-      "submissionFailed": "Roedd problem ac ni chyflwynwyd eich ffurflen. Ceisiwch gyflwyno'r ffurflen eto",
-      "submissionFailedContactSuffix": " neu gallwch [[contactUsLink]] a dyfynnu'ch cyfeirnod i drefnu ad-daliad",
-      "contactUsLinkText": "cysylltu â ni (yn agor mewn tab newydd)"
-    },
-
-    "repeater": {
-      "removeAnswer": "Ydych chi'n siŵr eich bod am dynnu'r ateb hwn?",
-      "remove": "Tynnu",
-      "cancel": "Canslo",
-      "lastItemCannotBeRemoved": "Ni ellir tynnu eitem olaf y rhestr",
-      "itemToRemoveNotFound": "Ni chanfuwyd eitem y rhestr i'w thynnu",
-      "continue": "Parhau",
-      "addAnother": "Ychwanegu un arall",
-      "saveAndExit": "Cadw a gadael",
-      "change": "Newid",
-      "notProvided": "Heb ei ddarparu",
-      "visuallyHiddenItem": "eitem [[index]]",
-      "pageTitle_one": "Rydych wedi ychwanegu [[count]] ateb",
-      "pageTitle_other": "Rydych wedi ychwanegu [[count]] ateb",
-      "tooMany_one": "Dim ond hyd at [[count]] ateb y gallwch ei ychwanegu",
-      "tooMany_other": "Dim ond hyd at [[count]] ateb y gallwch eu hychwanegu",
-      "tooFew_one": "Rhaid i chi ychwanegu o leiaf [[count]] ateb",
-      "tooFew_other": "Rhaid i chi ychwanegu o leiaf [[count]] ateb"
-    },
-
-    "fileUpload": {
-      "upload": "Uwchlwytho ffeil",
-      "maxFilesReached": "Rydych wedi cyrraedd nifer uchaf y ffeiliau. Tynnwch ffeil i uwchlwytho rhagor."
-    },
-
-    "exit": {
-      "defaultTitle": "Mae eich cynnydd wedi'i gadw",
-      "whatHappensNext": "Beth sy'n digwydd nesaf",
-      "body": "Mae cynnydd eich ffurflen wedi'i gadw. Gallwch ddychwelyd i gwblhau eich cais ar unrhyw adeg gan ddefnyddio'r ddolen a ddarperir.",
-      "returnToApplication": "Dychwelyd i'r cais"
-    },
-
-    "confirmation": {
-      "whatHappensNext": "Beth sy'n digwydd nesaf",
-      "referenceNumber": "Eich cyfeirnod",
-      "feedbackLink": "Beth yw eich barn am y gwasanaeth hwn? (yn cymryd 30 eiliad)"
-    },
-
-    "preview": {
-      "warnMissingNotificationEmail": {
-        "body": "Os hoffech dderbyn e-bost prawf, [[link]] yr hoffech i gyflwyniadau ffurflen fynd iddo.",
-        "linkText": "nodwch y cyfeiriad e-bost (yn agor mewn tab newydd)"
-      }
+    "serverError": {
+      "heading": "welsh Sorry, there is a problem with the service",
+      "canYou": "welsh You can:",
+      "tryBack": "welsh try your browser back button as your data may be saved",
+      "contact": "<a class=\"govuk-link\" href=\"https://www.gov.uk/guidance/contact-defra\">welsh contact the Defra Helpline</a> if you have any questions"
     }
   },
-
-  "postcodeLookup": {
-    "postcodeLabel": "Cod post",
-    "postcodeHint": "Er enghraifft, AA3 1AB",
-    "buildingNameLabel": "Enw neu rif yr adeilad (dewisol)",
-    "buildingNameHint": "Er enghraifft, 15 neu Bryn Melyn",
-    "selectAddress": "Dewiswch gyfeiriad",
-    "addressLine1Label": "Llinell cyfeiriad 1",
-    "addressLine2Label": "Llinell cyfeiriad 2 (dewisol)",
-    "townLabel": "Tref neu ddinas",
-    "countyLabel": "Sir (dewisol)",
-    "findAddress": "Dod o hyd i gyfeiriad",
-    "enterManually": "nodwch gyfeiriad â llaw",
-    "searchAgain": "Chwilio eto",
-    "useThisAddress": "Defnyddio'r cyfeiriad hwn",
-    "findAnAddressInstead": "dod o hyd i gyfeiriad yn lle hynny",
-    "noAddressFoundTitle": "Ni chanfuwyd cyfeiriad",
-    "noAddressFoundBody": "Ni allem ddod o hyd i gyfeiriad cyfatebol",
-    "addressFound_one": "Canfuwyd [[count]] cyfeiriad ar gyfer",
-    "addressFound_other": "Canfuwyd [[count]] cyfeiriad ar gyfer",
-    "validation": {
-      "invalidPostcode": "Nodwch god post dilys neu nodwch gyfeiriad â llaw",
-      "requiredPostcode": "Nodwch god post",
-      "selectAddress": "Dewiswch gyfeiriad",
-      "requiredAddressLine1": "Nodwch linell cyfeiriad 1",
-      "requiredTown": "Nodwch dref neu ddinas",
-      "invalidManualPostcode": "Nodwch god post dilys",
-      "requiredManualPostcode": "Nodwch god post"
-    }
+  "errorPreview": {
+    "bannerHeading": "welsh This is a preview of the error messages for page [[pageNum]] in a draft form you are editing.",
+    "bannerClose": "welsh Close this tab to go back to the editor.",
+    "errorSummaryHeading": "welsh There is a problem",
+    "advancedSettingsHeading": "welsh If you set answer limits"
   },
-
-  "components": {
-    "dateField": {
-      "day": "Diwrnod",
-      "month": "Mis",
-      "year": "Blwyddyn",
-      "validation": {
-        "dateFormat": "Rhaid i {{#title}} fod yn ddyddiad go iawn",
-        "dateMin": "Rhaid i {{#title}} fod yr un fath â neu ar ôl {{#limit}}",
-        "dateMax": "Rhaid i {{#title}} fod yr un fath â neu cyn {{#limit}}"
-      }
+  "layout": {
+    "errorPrefix": "welsh Error: ",
+    "skipLink": "welsh Skip to main content",
+    "cookieBanner": {
+      "ariaLabel": "welsh Cookies on [[serviceName]]",
+      "acceptedHtml": "welsh You've accepted analytics cookies. You can [[link]] at any time.",
+      "rejectedHtml": "welsh You've rejected analytics cookies. You can [[link]] at any time.",
+      "changeSettings": "welsh change your cookie settings",
+      "essential": "welsh We use some essential cookies to make this service work.",
+      "analytics": "welsh We'd like to set analytics cookies so we can understand how people use the service and make improvements.",
+      "acceptButton": "welsh Accept analytics cookies",
+      "rejectButton": "welsh Reject analytics cookies",
+      "viewCookies": "welsh View cookies",
+      "hideCookieMessage": "welsh Hide cookie message"
     },
-
-    "monthYearField": {
-      "month": "Mis",
-      "year": "Blwyddyn"
+    "serviceBanner": {
+      "title": "welsh Service status"
     },
-
-    "addressField": {
-      "uprn": "UPRN",
-      "line1": "Llinell cyfeiriad 1",
-      "line2": "Llinell cyfeiriad 2",
-      "town": "Tref neu ddinas",
-      "county": "Sir",
-      "postcode": "Cod post",
-      "enterAddress": "Nodwch [[shortDescription]]",
-      "findAddress": "Dod o hyd i gyfeiriad",
-      "selectedAddress": "Cyfeiriad a ddewiswyd:",
-      "useDifferentAddress": "Defnyddio cyfeiriad gwahanol",
-      "enterManually": "nodwch gyfeiriad â llaw"
+    "phaseBanner": {
+      "feedbackLinkNewTab": "welsh give your feedback (opens in new tab)",
+      "feedbackLinkEmail": "welsh give your feedback by email",
+      "text": "welsh This is a new service. Help us improve it and [[feedbackLink]]."
     },
-
-    "latLongField": {
-      "latitude": "Lledred",
-      "longitude": "Hydred",
-      "latitudeRequired": "Nodwch ledred",
-      "longitudeRequired": "Nodwch hydred",
-      "precision": "Rhaid i {{#label}} beidio â chael mwy na 7 lle degol",
-      "notANumber": "Rhaid i {{#label}} fod yn rif dilys",
-      "latitudeBase": "Nodwch ledred dilys ar gyfer [[fieldLabel]] fel 51.519450",
-      "longitudeBase": "Nodwch hydred dilys ar gyfer [[fieldLabel]] fel -0.127758",
-      "latitudeRange": "Rhaid i ledred [[fieldLabel]] fod rhwng [[min]] a [[max]]",
-      "longitudeRange": "Rhaid i hydred [[fieldLabel]] fod rhwng [[min]] a [[max]]"
-    },
-
-    "eastingNorthingField": {
-      "easting": "Dwyreiniannau",
-      "northing": "Gogleddiannau",
-      "eastingRequired": "Nodwch ddwyreiniannau",
-      "northingRequired": "Nodwch ogleddiannau",
-      "eastingDigits": "Rhaid i {{#label}} ar gyfer [[fieldLabel]] fod rhwng 1 a 6 digid",
-      "northingDigits": "Rhaid i {{#label}} ar gyfer [[fieldLabel]] fod rhwng 1 a 7 digid",
-      "eastingRange": "Rhaid i {{#label}} ar gyfer [[fieldLabel]] fod rhwng [[min]] a [[max]]",
-      "northingRange": "Rhaid i {{#label}} ar gyfer [[fieldLabel]] fod rhwng [[min]] a [[max]]"
-    },
-
-    "nationalGridField": {
-      "required": "Nodwch {{lowerFirst(#title)}}",
-      "pattern": "Nodwch rif maes Grid Cenedlaethol dilys ar gyfer {{lowerFirst(#title)}} fel NG 1234 5678",
-      "howToFind": "Sut i ddod o hyd i fanylion lleoliad"
-    },
-
-    "osGridRefField": {
-      "required": "Nodwch {{lowerFirst(#title)}}",
-      "pattern": "Nodwch gyfeirnod grid AO dilys ar gyfer {{lowerFirst(#title)}} fel TQ123456",
-      "howToFind": "Sut i ddod o hyd i fanylion lleoliad"
-    },
-
-    "locationFieldBase": {
-      "howToFind": "Sut i ddod o hyd i fanylion lleoliad"
-    },
-
-    "yesNoField": {
-      "yes": "Ie",
-      "no": "Na",
-      "validation": {
-        "selectYesNoRequired": "{{#label}} - dewiswch ie neu na"
-      }
-    },
-
-    "declarationField": {
-      "defaultLabel": "Rwy'n deall ac yn cytuno",
-      "defaultConfirmationLabel": "Rwy'n cadarnhau fy mod yn deall ac yn derbyn y datganiad hwn",
-      "notProvided": "Heb ei ddarparu",
-      "validation": {
-        "declarationRequired": "Rhaid i chi gadarnhau eich bod yn deall ac yn cytuno â'r {{lowerFirst(#label)}} i barhau"
-      }
-    },
-
-    "geospatialField": {
-      "added_one": "Ychwanegwyd [[count]] lleoliad",
-      "added_other": "Ychwanegwyd [[count]] lleoliad",
-      "validation": {
-        "descriptionRequired": "Rhowch ddisgrifiad ar gyfer lleoliad [[count]]"
-      }
-    },
-
-    "paymentField": {
-      "detailsRequired": "Angen manylion talu",
-      "pendingTransaction": "Mae'n bosibl y gwelwch drafodiad ar y gweill yn eich cyfrif banc ond dim ond pan fyddwch yn cyflwyno'r ffurflen y codir tâl arnoch.",
-      "addPaymentDetails": "Ychwanegu manylion talu",
-      "cannotTakePayment": "Mae problem ac ni allwn dderbyn taliad. Cysylltwch â ni (manylion yn nhroedyn y ffurflen hon) neu cadwch eich cynnydd a dychwelyd at y ffurflen yn ddiweddarach.",
-      "testApiKey": "Ychwanegwch allwedd API prawf ddilys cyn i chi allu rhagolwg y daith talu.",
-      "completePayment": "Cwblhewch y taliad i barhau",
-      "paymentExpired": "Mae awdurdodiad eich taliad wedi dod i ben. Ychwanegwch eich manylion talu eto.",
-      "submissionFailed": "Roedd problem ac ni chyflwynwyd eich ffurflen. Ceisiwch gyflwyno'r ffurflen eto.",
-      "canSubmitAfterPayment": "Gallwch gyflwyno'r ffurflen ar ôl i chi ychwanegu eich manylion talu.",
-      "preAuthorisedTitle": "Rydych eisoes wedi awdurdodi taliad ar gyfer y ffurflen hon",
-      "preAuthorisedBody": "Parhewch i gyflwyno'r ffurflen. Ni chodir tâl arnoch ddwywaith.",
-      "totalAmountLabel": "Cyfanswm:",
-      "paymentAmountMismatch": "Mae swm y taliad a rhaganrhuddhawyd rywsut yn wahanol i'r hyn a ofynnwyd amdano. Ceisiwch ychwanegu manylion talu eto."
-    },
-
-    "fileUploadField": {
-      "uploaded": "Wedi'i uwchlwytho",
-      "uploadFailed": "Roedd problem gyda'ch ffeiliau a uwchlwythwyd. Uwchlwythwch nhw eto cyn cyflwyno'r ffurflen.",
-      "uploadedFilesHeading": "Ffeiliau a uwchlwythwyd",
-      "filesCount_one": "Uwchlwythwyd [[count]] ffeil",
-      "filesCount_other": "Uwchlwythwyd [[count]] ffeil"
+    "footer": {
+      "getHelp": "welsh Get help with this form",
+      "privacy": "welsh Privacy",
+      "cookies": "welsh Cookies",
+      "accessibilityStatement": "welsh Accessibility Statement"
     }
   }
 }

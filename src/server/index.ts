@@ -186,7 +186,16 @@ export const configureEnginePlugin = async ({
         FeedbackPageController
       },
       ordnanceSurveyApiKey: config.get('ordnanceSurveyApiKey'),
-      ordnanceSurveyApiSecret: config.get('ordnanceSurveyApiSecret')
+      ordnanceSurveyApiSecret: config.get('ordnanceSurveyApiSecret'),
+      getLanguage: (request) => {
+        if ('language' in request.query) {
+          console.log('***RUNNER setting language', request.query.language)
+          request.yar.set('language', request.query.language)
+        }
+
+        console.log('***RUNNER got language', request.yar.get('language') ?? 'en-GB')
+        return request.yar.get('language') ?? 'en-GB'
+      }
     }
   }
   const routeOptions = {

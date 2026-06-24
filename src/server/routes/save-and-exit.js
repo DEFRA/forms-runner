@@ -82,10 +82,13 @@ export default [
     method: 'GET',
     path: '/save-and-exit/{slug}/{state?}',
     async handler(request, h) {
-      const { params } = request
+      const { params, query, yar } = request
       const { slug, state: status } = params
       const metadata = await getFormMetadataWithGuard(slug, status)
-      request.app.language = resolveLanguage(metadata)
+      const language = /** @type {string} */ (yar.get('language'))
+      request.app.language = query.language ?? language ?? resolveLanguage(metadata)
+      yar.set('language', request.app.language)
+
       const model = detailsViewModel(
         metadata,
         status,
