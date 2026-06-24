@@ -4,17 +4,17 @@ import { FormStatus } from '@defra/forms-model'
 import * as rawFormsService from '~/src/server/services/formsService.js'
 
 /**
- * Fetch form metadata by slug.
+ * Fetch form metadata by slug without the 'unavailable' guard.
  * @param {string} slug
  */
-export async function getFormMetadata(slug) {
+export async function getFormMetadataWithoutGuard(slug) {
   const metadata = await rawFormsService.getFormMetadata(slug)
   return metadata
 }
 
 /**
- * Fetch form metadata by slug. Throws the offline marker when the form has
- * been taken offline so route handlers don't have to check.
+ * Fetch form metadata by slug with 'unavailable' guard (throws the offline marker when the form has
+ * been taken offline so route handlers don't have to check).
  * @param {string} slug
  * @param { FormStatus | undefined } formStatus
  */

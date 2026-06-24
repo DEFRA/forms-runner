@@ -1,9 +1,9 @@
 import { FormStatus } from '@defra/forms-model'
 
 import {
-  getFormMetadata,
   getFormMetadataById,
-  getFormMetadataWithGuard
+  getFormMetadataWithGuard,
+  getFormMetadataWithoutGuard
 } from '~/src/server/services/formMetadataGuards.js'
 import {
   getFormMetadata as rawGetFormMetadata,
@@ -20,13 +20,15 @@ describe('formMetadataGuards', () => {
     jest.clearAllMocks()
   })
 
-  describe('getFormMetadata', () => {
+  describe('getFormMetadataWithoutGuard', () => {
     it('returns metadata', async () => {
       jest
         .mocked(rawGetFormMetadata)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValue(onlineForm)
-      await expect(getFormMetadata('my-form')).resolves.toBe(onlineForm)
+      await expect(getFormMetadataWithoutGuard('my-form')).resolves.toBe(
+        onlineForm
+      )
     })
 
     it('returns metadata when the form is not offline', async () => {
