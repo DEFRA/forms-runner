@@ -5,6 +5,7 @@ import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { FormModel } from '@defra/forms-engine-plugin/engine/models/FormModel.js'
 import { formSubmissionService } from '@defra/forms-engine-plugin/services/index.js'
 import {
+  type AnyFormRequest,
   type FormContext,
   type FormRequestPayload,
   type FormResponseToolkit,
@@ -187,13 +188,11 @@ export const configureEnginePlugin = async ({
       },
       ordnanceSurveyApiKey: config.get('ordnanceSurveyApiKey'),
       ordnanceSurveyApiSecret: config.get('ordnanceSurveyApiSecret'),
-      getLanguage: (request) => {
+      getLanguage: (request: AnyFormRequest) => {
         if ('language' in request.query) {
-          console.log('***RUNNER setting language', request.query.language)
           request.yar.set('language', request.query.language)
         }
 
-        console.log('***RUNNER got language', request.yar.get('language') ?? 'en-GB')
         return request.yar.get('language') ?? 'en-GB'
       }
     }

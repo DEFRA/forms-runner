@@ -1,7 +1,10 @@
 import { readFileSync } from 'node:fs'
 import { basename, join } from 'node:path'
 
-import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
+import {
+  checkFormStatus,
+  getPluginOptions
+} from '@defra/forms-engine-plugin/engine/helpers.js'
 import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
 
@@ -32,8 +35,8 @@ export function context(request) {
 
   const { params, query = {}, response, state } = request ?? {}
 
-  const language =
-    request?.app.language ?? request?.app.model?.language ?? 'en-GB'
+  const { getLanguage } = getPluginOptions(request.server)
+  const language = getLanguage?.(request) ?? 'en-GB'
 
   const isForceAccess = 'force' in query
   const { isPreview: isPreviewMode, state: formState } = checkFormStatus(params)
