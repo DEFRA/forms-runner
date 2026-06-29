@@ -55,7 +55,7 @@
     {% set changeSettingsLink %}<a class="govuk-link" href="/help/cookies/{{ slug }}">{{ tR('layout.cookieBanner.changeSettings') }}</a>{% endset %}
 
     {% set acceptHtml %}
-      <p class="govuk-body">{{ tR(layout.cookieBanner.acceptedHtml', { link: changeSettingsLink }) | safe }}</p>
+      <p class="govuk-body">{{ tR('layout.cookieBanner.acceptedHtml', { link: changeSettingsLink }) | safe }}</p>
     {% endset %}
 
     {% set rejectedHtml %}
@@ -131,7 +131,7 @@
   }) }}
   <span style="float: right; margin-top: 20px; margin-right: 5px;"><a href='?language=en-GB' class="govuk-link govuk-link--no-visited-state">English</a> | <a href='?language=cy' class="govuk-link govuk-link--no-visited-state">Welsh</a></span>
   {{ govukServiceNavigation({
-    serviceName: t('form.name') if name else config.serviceName,
+    serviceName: name if name else config.serviceName,
     serviceUrl: currentPath if context.isForceAccess else serviceUrl
   }) }}
 {% endblock %}

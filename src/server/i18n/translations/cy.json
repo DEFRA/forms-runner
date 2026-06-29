@@ -231,6 +231,7 @@
     "submissionGuidance": "welsh Thank you for leaving feedback.\n\nYou can close this screen now."
   },
   "errors": {
+    "title": "welsh There is a problem",
     "notFound": {
       "heading": "welsh Page not found",
       "body1": "welsh If you typed the web address, check it is correct.",
@@ -269,15 +270,15 @@
       "title": "welsh Service status"
     },
     "phaseBanner": {
-      "feedbackLinkNewTab": "welsh give your feedback (opens in new tab)",
-      "feedbackLinkEmail": "welsh give your feedback by email",
-      "text": "welsh This is a new service. Help us improve it and [[feedbackLink]]."
+      "feedbackLinkNewTab": "Rhowch eich adborth (yn agor mewn tab newydd)",
+      "feedbackLinkEmail": "Rhowch eich adborth drwy e-bost",
+      "text": "Mae hwn yn wasanaeth newydd. Helpwch ni i'w wella a [[feedbackLink]]."
     },
     "footer": {
-      "getHelp": "welsh Get help with this form",
-      "privacy": "welsh Privacy",
-      "cookies": "welsh Cookies",
-      "accessibilityStatement": "welsh Accessibility Statement",
+      "getHelp": "Cael cymorth gyda'r ffurflen hon",
+      "privacy": "Hysbysiad preifatrwydd",
+      "cookies": "Cwcis",
+      "accessibilityStatement": "Datganiad hygyrchedd",
       "contentLicenceHtml": "Mae’r holl gynnwys ar gael o dan <a class=\"govuk-footer__link\" href=\"https://www.nationalarchives.gov.uk/doc/open-government-licence-cymraeg/version/3/\" rel=\"licence\">Trwydded Llywodraeth Agored v3.0</a>, oni nodir yn wahanol</span>",
       "copyright": "© Hawlfraint y goron"
     }

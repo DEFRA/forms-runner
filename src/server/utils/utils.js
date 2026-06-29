@@ -37,7 +37,9 @@ export function getFeedbackFormLink(formId) {
  * @param {FormMetadata} [metadata]
  */
 export function resolveLanguage(request, metadata) {
-  if (!request) {
+  // @ts-expect-error - dynamic lookup of plugin
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (!request?.server?.['forms-engine-plugin']) {
     return metadata?.language ?? 'en-GB'
   }
   const { getLanguage } = getPluginOptions(request.server)

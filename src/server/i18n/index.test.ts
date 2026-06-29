@@ -1,6 +1,8 @@
+import { type AnyFormRequest } from '@defra/forms-engine-plugin/types'
 import { type FormMetadata } from '@defra/forms-model'
 
-import { resolveLanguage, t } from '~/src/server/i18n/index.js'
+import { t } from '~/src/server/i18n/index.js'
+import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 describe('Runner i18n', () => {
   describe('t()', () => {
@@ -15,7 +17,7 @@ describe('Runner i18n', () => {
     })
 
     it('falls back to en-GB for an unknown language', () => {
-      expect(t('errors.notFound.heading', 'cy')).toBe('Page not found')
+      expect(t('errors.notFound.heading', 'unkno')).toBe('Page not found')
     })
 
     it('interpolates values into the string', () => {
@@ -30,17 +32,28 @@ describe('Runner i18n', () => {
   })
 
   describe('resolveLanguage()', () => {
+    const request = {
+      server: {
+        plugins: {
+          // eslint-disable-next-line no-useless-computed-key
+          ['forms-engine-plugin']: {
+            getLanguage: () => 'en-GB'
+          }
+        }
+      }
+    } as unknown as AnyFormRequest
     it('returns en-GB when no metadata is provided', () => {
-      expect(resolveLanguage()).toBe('en-GB')
+      expect(resolveLanguage(request)).toBe('en-GB')
     })
 
     it('returns en-GB when metadata has no language field', () => {
-      expect(resolveLanguage({} as FormMetadata)).toBe('en-GB')
+      expect(resolveLanguage(request, {} as FormMetadata)).toBe('en-GB')
     })
 
     it('returns the language from metadata when present', () => {
       const metadata = { language: 'cy' } as unknown as FormMetadata
-      expect(resolveLanguage(metadata)).toBe('cy')
+      const blankRequest = {} as unknown as AnyFormRequest
+      expect(resolveLanguage(blankRequest, metadata)).toBe('cy')
     })
   })
 })

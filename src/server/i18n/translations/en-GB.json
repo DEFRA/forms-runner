@@ -231,6 +231,7 @@
     "submissionGuidance": "Thank you for leaving feedback.\n\nYou can close this screen now."
   },
   "errors": {
+    "title": "There is a problem",
     "notFound": {
       "heading": "Page not found",
       "body1": "If you typed the web address, check it is correct.",
