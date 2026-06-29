@@ -61,7 +61,7 @@ describe('SummaryPageWithConfirmationEmailController', () => {
       },
       query: {},
       app: { model }
-    } as FormRequest)
+    } as unknown as FormRequest)
   })
 
   describe('handle errors', () => {
@@ -89,7 +89,7 @@ describe('SummaryPageWithConfirmationEmailController', () => {
       const postHandler = controller.makePostRouteHandler()
       await postHandler(request, context, h)
 
-      const viewModel = controller.getSummaryViewModel(request, context)
+      const viewModel = controller.getSummaryViewModel(request, context, translator)
 
       expect(h.view).toHaveBeenCalledWith(
         'summary-with-confirmation',

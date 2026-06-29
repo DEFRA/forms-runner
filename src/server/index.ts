@@ -11,7 +11,7 @@ import {
   type FormResponseToolkit,
   type PluginOptions
 } from '@defra/forms-engine-plugin/types'
-import { type FormDefinition } from '@defra/forms-model'
+import { type FormDefinition, type FormMetadata } from '@defra/forms-model'
 import { Engine as CatboxMemory } from '@hapi/catbox-memory'
 import { Engine as CatboxRedis } from '@hapi/catbox-redis'
 import hapi, {
@@ -188,12 +188,13 @@ export const configureEnginePlugin = async ({
       },
       ordnanceSurveyApiKey: config.get('ordnanceSurveyApiKey'),
       ordnanceSurveyApiSecret: config.get('ordnanceSurveyApiSecret'),
-      getLanguage: (request: AnyFormRequest) => {
+      getLanguage: (request: AnyFormRequest, metadata?: FormMetadata) => {
         if ('language' in request.query) {
           request.yar.set('language', request.query.language)
         }
 
-        return request.yar.get('language') ?? 'en-GB'
+        // @ts-expect-error - 'language' not part of FormMetadata yet
+        return request.yar.get('language') ?? metadata?.language ?? 'en-GB'
       }
     }
   }

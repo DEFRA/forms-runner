@@ -1,4 +1,3 @@
-import { type FormMetadata } from '@defra/forms-model'
 import i18next from 'i18next'
 
 import cy from '~/src/server/i18n/translations/cy.json' with { type: 'json' }
@@ -32,10 +31,4 @@ export function t(
   opts?: Record<string, unknown>
 ): string | string[] {
   return runnerI18n.t(key, { lng: lang, ...opts }) as string | string[]
-}
-
-export function resolveLanguage(metadata?: FormMetadata): string {
-  // @ts-expect-error -- language not yet on FormMetadata type
-  const lang = metadata?.language as string | undefined
-  return lang ?? 'en-GB'
 }

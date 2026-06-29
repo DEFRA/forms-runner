@@ -50,7 +50,7 @@ describe('FeedbackPageController', () => {
       },
       query: {},
       app: { model }
-    } as FormRequest)
+    } as unknown as FormRequest)
   })
 
   describe('handle errors', () => {

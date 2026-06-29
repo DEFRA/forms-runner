@@ -1,3 +1,4 @@
+import { getPluginOptions } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { getTraceId } from '@defra/hapi-tracing'
 
 import { config } from '~/src/config/index.js'
@@ -32,5 +33,18 @@ export function getFeedbackFormLink(formId) {
 }
 
 /**
- * @import { FormStatus } from '@defra/forms-model'
+ * @param {AnyFormRequest} request
+ * @param {FormMetadata} [metadata]
+ */
+export function resolveLanguage(request, metadata) {
+  if (!request) {
+    return metadata?.language ?? 'en-GB'
+  }
+  const { getLanguage } = getPluginOptions(request.server)
+  return getLanguage?.(request, metadata) ?? 'en-GB'
+}
+
+/**
+ * @import { FormMetadata } from '@defra/forms-model'
+ * @import { AnyFormRequest } from '@defra/forms-engine-plugin/types'
  */

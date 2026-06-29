@@ -52,43 +52,43 @@
     <form method="post" action="/help/cookie-preferences/{{ slug }}?returnUrl={{ currentPath | urlencode }}">
       <input type="hidden" name="crumb" value="{{ crumb }}">
 
-    {% set changeSettingsLink %}<a class="govuk-link" href="/help/cookies/{{ slug }}">{{ tR(‘layout.cookieBanner.changeSettings’) }}</a>{% endset %}
+    {% set changeSettingsLink %}<a class="govuk-link" href="/help/cookies/{{ slug }}">{{ tR('layout.cookieBanner.changeSettings') }}</a>{% endset %}
 
     {% set acceptHtml %}
-      <p class="govuk-body">{{ tR(‘layout.cookieBanner.acceptedHtml’, { link: changeSettingsLink }) | safe }}</p>
+      <p class="govuk-body">{{ tR(layout.cookieBanner.acceptedHtml', { link: changeSettingsLink }) | safe }}</p>
     {% endset %}
 
     {% set rejectedHtml %}
-      <p class="govuk-body">{{ tR(‘layout.cookieBanner.rejectedHtml’, { link: changeSettingsLink }) | safe }}</p>
+      <p class="govuk-body">{{ tR('layout.cookieBanner.rejectedHtml', { link: changeSettingsLink }) | safe }}</p>
     {% endset %}
 
     {% if cookieConsent.analytics !== true and cookieConsent.analytics !== false and cookieConsent.dismissed !== true %}
       {% set html %}
-        <p class="govuk-body">{{ tR(‘layout.cookieBanner.essential’) }}</p>
-        <p class="govuk-body">{{ tR(‘layout.cookieBanner.analytics’) }}</p>
+        <p class="govuk-body">{{ tR('layout.cookieBanner.essential') }}</p>
+        <p class="govuk-body">{{ tR('layout.cookieBanner.analytics') }}</p>
       {% endset %}
 
       {{ govukCookieBanner({
-        ariaLabel: tR(‘layout.cookieBanner.ariaLabel’, { serviceName: config.serviceName }),
+        ariaLabel: tR('layout.cookieBanner.ariaLabel', { serviceName: config.serviceName }),
         messages: [
           {
             headingText: config.serviceName,
             html: html,
             actions: [
               {
-                text: tR(‘layout.cookieBanner.acceptButton’),
+                text: tR('layout.cookieBanner.acceptButton'),
                 type: "submit",
                 name: "cookies[analytics]",
                 value: "yes"
               },
               {
-                text: tR(‘layout.cookieBanner.rejectButton’),
+                text: tR('layout.cookieBanner.rejectButton'),
                 type: "submit",
                 name: "cookies[analytics]",
                 value: "no"
               },
               {
-                text: tR(‘layout.cookieBanner.viewCookies’),
+                text: tR('layout.cookieBanner.viewCookies'),
                 href: "/help/cookies/" + slug
               }
             ]
@@ -97,13 +97,13 @@
       }) }}
     {% elif cookieConsent.dismissed === false %}
       {{ govukCookieBanner({
-        ariaLabel: tR(‘layout.cookieBanner.ariaLabel’, { serviceName: config.serviceName }),
+        ariaLabel: tR('layout.cookieBanner.ariaLabel', { serviceName: config.serviceName }),
         messages: [
           {
             html: acceptHtml if cookieConsent.analytics === true else rejectedHtml,
             actions: [
               {
-                text: tR(‘layout.cookieBanner.hideCookieMessage’),
+                text: tR('layout.cookieBanner.hideCookieMessage'),
                 type: "submit",
                 name: "cookies[dismissed]",
                 value: "yes"
@@ -131,7 +131,7 @@
   }) }}
   <span style="float: right; margin-top: 20px; margin-right: 5px;"><a href='?language=en-GB' class="govuk-link govuk-link--no-visited-state">English</a> | <a href='?language=cy' class="govuk-link govuk-link--no-visited-state">Welsh</a></span>
   {{ govukServiceNavigation({
-    serviceName: name if name else config.serviceName,
+    serviceName: t('form.name') if name else config.serviceName,
     serviceUrl: currentPath if context.isForceAccess else serviceUrl
   }) }}
 {% endblock %}
@@ -211,6 +211,14 @@
   } if slug %}
 
   {% if not context.isForceAccess %}
-    {{ govukFooter({ meta: meta }) }}
+    {{ govukFooter({
+      meta: meta,
+      contentLicence: {
+        html: tR('layout.footer.contentLicenceHtml')
+      },
+      copyright: {
+        text: tR('layout.footer.copyright')
+      }
+      }) }}
   {% endif %}
 {% endblock %}

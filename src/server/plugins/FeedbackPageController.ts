@@ -19,7 +19,7 @@ export class FeedbackPageController extends QuestionPageController {
     request: FormContextRequest,
     context: FormContext
   ): FeedbackPageViewModel {
-    const viewModel = super.getViewModel(request, context)
+    const viewModel = super.getViewModel(request, context, this.getTranslator(request))
     return {
       ...viewModel,
       hidePhaseBanner: true,
@@ -49,7 +49,7 @@ export class FeedbackPageController extends QuestionPageController {
        */
       if (context.errors || isForceAccess) {
         const viewModel = this.getViewModel(request, context)
-        viewModel.errors = collection.getViewErrors(viewModel.errors)
+        viewModel.errors = collection.getViewErrors(this.getTranslator(request), viewModel.errors)
 
         // Filter our components based on their conditions using our evaluated state
         viewModel.components = this.filterConditionalComponents(

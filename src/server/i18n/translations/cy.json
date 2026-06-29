@@ -277,7 +277,9 @@
       "getHelp": "welsh Get help with this form",
       "privacy": "welsh Privacy",
       "cookies": "welsh Cookies",
-      "accessibilityStatement": "welsh Accessibility Statement"
+      "accessibilityStatement": "welsh Accessibility Statement",
+      "contentLicenceHtml": "Mae’r holl gynnwys ar gael o dan <a class=\"govuk-footer__link\" href=\"https://www.nationalarchives.gov.uk/doc/open-government-licence-cymraeg/version/3/\" rel=\"licence\">Trwydded Llywodraeth Agored v3.0</a>, oni nodir yn wahanol</span>",
+      "copyright": "© Hawlfraint y goron"
     }
   }
 }

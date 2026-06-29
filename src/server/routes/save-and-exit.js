@@ -14,7 +14,7 @@ import Joi from 'joi'
 
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
-import { resolveLanguage, t } from '~/src/server/i18n/index.js'
+import { t } from '~/src/server/i18n/index.js'
 import { publishSaveAndExitEvent } from '~/src/server/messaging/publish.js'
 import {
   confirmationViewModel,
@@ -42,6 +42,7 @@ import {
   getSaveAndExitDetails,
   validateSaveAndExitCredentials
 } from '~/src/server/services/formsService.js'
+import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 const maxInvalidPasswordAttempts = 5
 
@@ -82,12 +83,11 @@ export default [
     method: 'GET',
     path: '/save-and-exit/{slug}/{state?}',
     async handler(request, h) {
-      const { params, query, yar } = request
+      const { params } = request
       const { slug, state: status } = params
       const metadata = await getFormMetadataWithGuard(slug, status)
-      const language = /** @type {string} */ (yar.get('language'))
-      request.app.language = query.language ?? language ?? resolveLanguage(metadata)
-      yar.set('language', request.app.language)
+
+      request.app.language = resolveLanguage(request, metadata)
 
       const model = detailsViewModel(
         metadata,
@@ -166,7 +166,7 @@ export default [
       // Throws the offline marker BEFORE publishSaveAndExitEvent so we never
       // emit a magic-link email for a form the user can no longer reach.
       const metadata = await getFormMetadataWithGuard(slug, status)
-      request.app.language = resolveLanguage(metadata)
+      request.app.language = resolveLanguage(request, metadata)
 
       const cacheService = getCacheService(request.server)
 
@@ -225,7 +225,7 @@ export default [
           const { slug, state: status } = params
 
           const metadata = await getFormMetadataWithGuard(slug, status)
-          request.app.language = resolveLanguage(metadata)
+          request.app.language = resolveLanguage(request, metadata)
 
           const model = detailsViewModel(
             metadata,
@@ -253,7 +253,7 @@ export default [
       const { slug, state: status } = params
 
       const metadata = await getFormMetadataWithGuard(slug, status)
-      request.app.language = resolveLanguage(metadata)
+      request.app.language = resolveLanguage(request, metadata)
 
       // Get the email from session
       const email = /** @type {string} */ (
@@ -294,7 +294,7 @@ export default [
       let form
       try {
         form = await getFormMetadataById(formId)
-        request.app.language = resolveLanguage(form)
+        request.app.language = resolveLanguage(request, form)
       } catch (err) {
         if (isOfflineBoom(err)) {
           throw err
@@ -383,7 +383,7 @@ export default [
       let form
       try {
         form = await getFormMetadataById(formId, state)
-        request.app.language = resolveLanguage(form)
+        request.app.language = resolveLanguage(request, form)
       } catch (err) {
         if (isOfflineBoom(err)) {
           throw err
@@ -487,7 +487,7 @@ export default [
         securityAnswer
       )
 
-      request.app.language = resolveLanguage(form)
+      request.app.language = resolveLanguage(request, form)
 
       if (validatedLink.validPassword) {
         // Restore state
@@ -559,7 +559,7 @@ export default [
             resumeDetails.form.id,
             params.state
           )
-          request.app.language = resolveLanguage(form)
+          request.app.language = resolveLanguage(request, form)
 
           const model = passwordViewModel(
             form,
@@ -585,7 +585,7 @@ export default [
       const { params } = request
       const { slug, state } = params
       const form = await getFormMetadataWithGuard(slug, state)
-      request.app.language = resolveLanguage(form)
+      request.app.language = resolveLanguage(request, form)
       const model = resumeSuccessViewModel(form, state, request.app.language)
 
       return h.view(RESUME_SUCCESS, model)

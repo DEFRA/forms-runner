@@ -17,7 +17,7 @@
       "analyticsHeading": "Analytics cookies",
       "analyticsBody": "We use Google Analytics software to understand how people use our forms. We do this to help make sure the site is meeting the needs of its users and to help us make improvements.",
       "changeSettingsHeading": "Change your settings",
-      "changeSettingsBody": "You can <a class=\"govuk-link\" href=\"/help/cookie-preferences/[[slug]]\">change which cookies you're happy for us to use</a>.",
+      "changeSettingsBody": "You can <a class=\"govuk-link\" href=\"/help/cookie-preferences/[[slug]]\">change which cookies you’re happy for us to use</a>.",
       "tableCaption": {
         "essential": "Essential cookies we use",
         "analytics": "Analytics cookies we use"
@@ -41,7 +41,7 @@
           "expires": "1 year"
         },
         "ga": {
-          "purpose": "Used by Google Analytics to help us count how many people visit our forms by tracking if you've visited before",
+          "purpose": "Used by Google Analytics to help us count how many people visit our forms by tracking if you’ve visited before",
           "expires": "2 years"
         },
         "gaSession": {
@@ -53,7 +53,7 @@
     "cookiePreferences": {
       "title": "Cookies",
       "heading": "Change your cookie settings",
-      "successMessage": "You've set your cookie preferences.",
+      "successMessage": "You’ve set your cookie preferences.",
       "analyticsQuestion": "Do you want to accept analytics cookies?",
       "yes": "Yes",
       "no": "No",
@@ -63,7 +63,7 @@
       "title": "Accessibility statement",
       "heading": "Accessibility statement for this form",
       "intro": "This accessibility statement applies to online forms with a URL that starts with https://submit-forms-to-defra.service.gov.uk.",
-      "technicalHeading": "Technical information about this website's accessibility",
+      "technicalHeading": "Technical information about this website’s accessibility",
       "technicalBody": "Defra is committed to making its forms accessible, in accordance with the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018.",
       "complianceHeading": "Compliance status",
       "complianceBody": "Forms created by Defra are fully compliant with the Web Content Accessibility Guidelines (WCAG) version 2.2 AA standard.",
@@ -71,7 +71,7 @@
       "howAccessibleIntro": "This section lists accessibility issues with content found in Defra forms.",
       "nonComplianceHeading": "Non-compliance with the accessibility regulations",
       "nonComplianceBody": "Defra forms do not have accessibility issues that fail the WCAG 2.2 accessibility regulations.",
-      "outOfScopeHeading": "Content that's not within the scope of the accessibility regulations",
+      "outOfScopeHeading": "Content that’s not within the scope of the accessibility regulations",
       "outOfScopeIntro": "The accessibility issues listed in this section do not fail the accessibility regulations. We plan to fix them as soon as possible.",
       "outOfScopeItems": [
         "Forms do not default to a dark or light theme based on the 'prefers-color-scheme'.",
@@ -85,9 +85,9 @@
       "preparationBody2": "The Defra Accessibility team tested 2 online forms against the WCAG 2.2 AA standard on 17 June 2024. The tests were done using automated testing tools.",
       "preparationBody3": "We will commission a full accessibility audit of forms created by Defra before June 2025.",
       "feedbackHeading": "Feedback and contact information",
-      "feedbackBody": "If you find any problems not listed on this page or think we're not meeting accessibility requirements, email the Defra Forms team on <a class=\"govuk-link\" href=\"mailto:defraforms@defra.gov.uk\">defraforms@defra.gov.uk</a>.",
+      "feedbackBody": "If you find any problems not listed on this page or think we’re not meeting accessibility requirements, email the Defra Forms team on <a class=\"govuk-link\" href=\"mailto:defraforms@defra.gov.uk\">defraforms@defra.gov.uk</a>.",
       "enforcementHeading": "Enforcement procedure",
-      "enforcementBody": "The Equality and Human Rights Commission (EHRC) is responsible for enforcing the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 (the 'accessibility regulations'). If you're not happy with how we respond to your complaint, contact the <a class=\"govuk-link\" href=\"https://www.equalityadvisoryservice.com/\" rel=\"external\">Equality Advisory and Support Service (EASS)</a>."
+      "enforcementBody": "The Equality and Human Rights Commission (EHRC) is responsible for enforcing the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 (the 'accessibility regulations'). If you’re not happy with how we respond to your complaint, contact the <a class=\"govuk-link\" href=\"https://www.equalityadvisoryservice.com/\" rel=\"external\">Equality Advisory and Support Service (EASS)</a>."
     },
     "privacyNotice": {
       "pageTitle": "[[serviceName]] privacy notice",
@@ -108,14 +108,14 @@
         "the pages you visit on <strong>[[serviceName]]</strong>",
         "how long you spend on each <strong>[[serviceName]]</strong> page",
         "how you got to the site",
-        "what you select while you're visiting the site"
+        "what you select while you’re visiting the site"
       ],
       "analyticsBody3": "Defra will make sure you cannot be directly identified by Google Analytics data. We do this by using <a href=\"https://support.google.com/analytics/answer/2763052\" class=\"govuk-link\">Google Analytics' IP address anonymisation</a> feature and by removing any other personal data from the titles or URLs of the pages you visit.",
       "analyticsBody4": "Defra will not combine analytics information with other data sets in a way that would directly identify who you are.",
       "systemLogsBody1": "We use system logs to collect information about the usage of forms.",
       "systemLogsBody2": "We use the system logs to create anonymised reports about the performance of forms that use <strong>[[serviceName]]</strong>. We use this data to improve forms, for example, if we discover a high number of incomplete forms.",
       "systemLogsBody2WithAnalytics": "We use the system logs and Google Analytics data to create anonymised reports about the performance of forms that use <strong>[[serviceName]]</strong>. We use this data to improve forms, for example, if we discover a high number of incomplete forms.",
-      "feedbackBody": "If you email us feedback about a form that uses <strong>[[serviceName]]</strong>, we'll send your email address and any other personal information you choose to include in your email to the controller for review. The controller may use your personal data to reply to your query to update a form based on your feedback where it is appropriate.",
+      "feedbackBody": "If you email us feedback about a form that uses <strong>[[serviceName]]</strong>, we’ll send your email address and any other personal information you choose to include in your email to the controller for review. The controller may use your personal data to reply to your query to update a form based on your feedback where it is appropriate.",
       "saveAndReturnHeading": "Save and return to a form",
       "saveAndReturnBody": "You can save your form progress and return within [[saveAndExitExpiryDays]] days. When saving your progress, you need to tell us:",
       "saveAndReturnItems": [
@@ -145,7 +145,7 @@
       ],
       "rightsBody": "Get more information about your <a href=\"https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/individual-rights/\" class=\"govuk-link\">individual rights</a> under the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018 (DPA 2018).",
       "complaintsHeading": "Complaints",
-      "complaintsBody": "You have the right to <a href=\"https://ico.org.uk/make-a-complaint/\" class=\"govuk-link\">make a complaint</a> to the Information Commissioner's Office at any time.",
+      "complaintsBody": "You have the right to <a href=\"https://ico.org.uk/make-a-complaint/\" class=\"govuk-link\">make a complaint</a> to the Information Commissioner’s Office at any time.",
       "personalInfoHeading": "Personal information charter",
       "personalInfoBody": "Our <a href=\"https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs/about/personal-information-charter\" class=\"govuk-link\">personal information charter</a> explains more about your rights over your personal data.",
       "lastUpdated": "Last updated: 11 September 2025"
@@ -255,11 +255,11 @@
     "skipLink": "Skip to main content",
     "cookieBanner": {
       "ariaLabel": "Cookies on [[serviceName]]",
-      "acceptedHtml": "You've accepted analytics cookies. You can [[link]] at any time.",
-      "rejectedHtml": "You've rejected analytics cookies. You can [[link]] at any time.",
+      "acceptedHtml": "You’ve accepted analytics cookies. You can [[link]] at any time.",
+      "rejectedHtml": "You’ve rejected analytics cookies. You can [[link]] at any time.",
       "changeSettings": "change your cookie settings",
       "essential": "We use some essential cookies to make this service work.",
-      "analytics": "We'd like to set analytics cookies so we can understand how people use the service and make improvements.",
+      "analytics": "We’d like to set analytics cookies so we can understand how people use the service and make improvements.",
       "acceptButton": "Accept analytics cookies",
       "rejectButton": "Reject analytics cookies",
       "viewCookies": "View cookies",
@@ -277,7 +277,9 @@
       "getHelp": "Get help with this form",
       "privacy": "Privacy",
       "cookies": "Cookies",
-      "accessibilityStatement": "Accessibility Statement"
+      "accessibilityStatement": "Accessibility Statement",
+      "contentLicenceHtml": "All content is available under the <a class=\"govuk-footer__link\" href=\"https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/\" rel=\"license\">Open Government Licence v3.0</a>, except where otherwise stated</span>",
+      "copyright": "© Crown copyright"
     }
   }
 }

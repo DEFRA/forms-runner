@@ -1,10 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { basename, join } from 'node:path'
 
-import {
-  checkFormStatus,
-  getPluginOptions
-} from '@defra/forms-engine-plugin/engine/helpers.js'
+import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
 import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
 
@@ -13,6 +10,7 @@ import { parseCookieConsent } from '~/src/common/cookies.js'
 import { config } from '~/src/config/index.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { t as runnerT } from '~/src/server/i18n/index.js'
+import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 /** @type {Record<string, string> | undefined} */
 let webpackManifest
@@ -35,8 +33,7 @@ export function context(request) {
 
   const { params, query = {}, response, state } = request ?? {}
 
-  const { getLanguage } = getPluginOptions(request.server)
-  const language = getLanguage?.(request) ?? 'en-GB'
+  const language = resolveLanguage(request)
 
   const isForceAccess = 'force' in query
   const { isPreview: isPreviewMode, state: formState } = checkFormStatus(params)
