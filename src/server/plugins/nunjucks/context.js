@@ -62,7 +62,6 @@ export function context(request) {
     previewMode: isPreviewMode ? formState : undefined,
     slug: isResponseOK ? params?.slug : undefined,
 
-    t: (key, opts) => runnerT(key, language, opts),
     tR: (key, opts) => runnerT(key, language, opts),
 
     getAssetPath: (asset = '') => {

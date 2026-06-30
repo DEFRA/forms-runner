@@ -32,16 +32,21 @@ export function getFeedbackFormLink(formId) {
 }
 
 /**
- * @param {AnyFormRequest} request
+ * @param {AnyFormRequest} [request]
  * @param {FormMetadata} [metadata]
  */
 export function resolveLanguage(request, metadata) {
-  if ('language' in request.query) {
+  if (request?.query && 'language' in request.query && 'yar' in request) {
+    // @ts-expect-error - fix todo
     request.yar.set('language', request.query.language)
   }
 
   // @ts-expect-error - 'language' not part of FormMetadata yet
-  return request.yar.get('language') ?? metadata?.language ?? 'en-GB'
+  return (
+    (request && 'yar' in request && request.yar.get('language')) ??
+    metadata?.language ??
+    'en-GB'
+  )
 }
 
 /**

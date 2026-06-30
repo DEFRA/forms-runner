@@ -107,13 +107,13 @@ describe('Nunjucks context', () => {
 
   describe('Translation helper', () => {
     it('should include t as a function', () => {
-      const { t } = context(null)
-      expect(typeof t).toBe('function')
+      const { tR } = context(null)
+      expect(typeof tR).toBe('function')
     })
 
     it('should default to en-GB when no request provided', () => {
-      const { t } = context(null)
-      expect(t('errors.notFound.heading')).toBe('Page not found')
+      const { tR } = context(null)
+      expect(tR('errors.notFound.heading')).toBe('Page not found')
     })
 
     it('should use language from request.app when set', () => {
@@ -129,8 +129,8 @@ describe('Nunjucks context', () => {
           plugins: {}
         })
       )
-      const { t: tHelper } = context(mockRequest)
-      expect(tHelper('errors.notFound.heading')).toBe('Page not found')
+      const { tR } = context(mockRequest)
+      expect(tR('errors.notFound.heading')).toBe('Page not found')
     })
   })
 })
