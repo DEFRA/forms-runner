@@ -129,9 +129,8 @@
     classes: "govuk-header--full-width-border",
     productName: productName | safe | trim
   }) }}
-  <span style="float: right; margin-top: 20px; margin-right: 5px;"><a href='?language=en-GB' class="govuk-link govuk-link--no-visited-state">English</a> | <a href='?language=cy' class="govuk-link govuk-link--no-visited-state">Welsh</a></span>
   {{ govukServiceNavigation({
-    serviceName: name if name else config.serviceName,
+    serviceName: context.translator.tForm('name') if name else config.serviceName,
     serviceUrl: currentPath if context.isForceAccess else serviceUrl
   }) }}
 {% endblock %}
@@ -157,6 +156,18 @@
   {% endif %}
   {% if backLink %}
     {{ govukBackLink(backLink) }}
+  {% endif %}
+
+  {% if context.languages | length %}
+    {% set languages = [] %}
+    {% for language in context.languages %}
+      {% if language.code === context.translator.language %}
+        {% set languages = (languages.push("<span class=\"govuk-body-s\">" + language.name + "</span>"), languages) %}
+      {% else %}
+        {% set languages = (languages.push("<a href='?language=" + language.code + "' class=\"govuk-link govuk-link--no-visited-state\">" + language.name + "</a>"), languages) %}
+      {% endif %}
+    {% endfor %}
+    <span class="app-language-options">{{ languages | join(" | ") | safe }}</span>
   {% endif %}
 {% endblock %}
 
