@@ -5,13 +5,12 @@ import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { FormModel } from '@defra/forms-engine-plugin/engine/models/FormModel.js'
 import { formSubmissionService } from '@defra/forms-engine-plugin/services/index.js'
 import {
-  type AnyFormRequest,
   type FormContext,
   type FormRequestPayload,
   type FormResponseToolkit,
   type PluginOptions
 } from '@defra/forms-engine-plugin/types'
-import { type FormDefinition, type FormMetadata } from '@defra/forms-model'
+import { type FormDefinition } from '@defra/forms-model'
 import { Engine as CatboxMemory } from '@hapi/catbox-memory'
 import { Engine as CatboxRedis } from '@hapi/catbox-redis'
 import hapi, {
@@ -46,6 +45,7 @@ import { prepareSecureContext } from '~/src/server/secure-context.js'
 import * as formsService from '~/src/server/services/formsService.js'
 import { createOutputService } from '~/src/server/services/outputService.js'
 import { type RouteConfig } from '~/src/server/types.js'
+import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 const proxyAgent = new ProxyAgent()
 
@@ -188,14 +188,7 @@ export const configureEnginePlugin = async ({
       },
       ordnanceSurveyApiKey: config.get('ordnanceSurveyApiKey'),
       ordnanceSurveyApiSecret: config.get('ordnanceSurveyApiSecret'),
-      getLanguage: (request: AnyFormRequest, metadata?: FormMetadata) => {
-        if ('language' in request.query) {
-          request.yar.set('language', request.query.language)
-        }
-
-        // @ts-expect-error - 'language' not part of FormMetadata yet
-        return request.yar.get('language') ?? metadata?.language ?? 'en-GB'
-      }
+      getLanguage: resolveLanguage
     }
   }
   const routeOptions = {

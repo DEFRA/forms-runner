@@ -1,4 +1,3 @@
-import { getPluginOptions } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { getTraceId } from '@defra/hapi-tracing'
 
 import { config } from '~/src/config/index.js'
@@ -37,13 +36,12 @@ export function getFeedbackFormLink(formId) {
  * @param {FormMetadata} [metadata]
  */
 export function resolveLanguage(request, metadata) {
-  // @ts-expect-error - dynamic lookup of plugin
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  if (!request?.server?.['forms-engine-plugin']) {
-    return metadata?.language ?? 'en-GB'
+  if ('language' in request.query) {
+    request.yar.set('language', request.query.language)
   }
-  const { getLanguage } = getPluginOptions(request.server)
-  return getLanguage?.(request, metadata) ?? 'en-GB'
+
+  // @ts-expect-error - 'language' not part of FormMetadata yet
+  return request.yar.get('language') ?? metadata?.language ?? 'en-GB'
 }
 
 /**
