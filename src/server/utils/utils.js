@@ -32,24 +32,27 @@ export function getFeedbackFormLink(formId) {
 }
 
 /**
- * @param {AnyFormRequest} [request]
- * @param {FormMetadata} [metadata]
+ * @param {RequestQuery} [query] - the request query parameters
+ * @param {Yar} [yar] - the yar instance from the request
+ * @param {FormMetadata} [metadata] - the form metadata
  */
-export function resolveLanguage(request, metadata) {
-  if (request?.query && 'language' in request.query && 'yar' in request) {
-    // @ts-expect-error - fix todo
-    request.yar.set('language', request.query.language)
+export function resolveLanguage(query = {}, yar, metadata) {
+  const defaultLang = 'en-GB'
+
+  if (yar && 'language' in query) {
+    yar.set('language', query.language)
   }
 
-  // @ts-expect-error - 'language' not part of FormMetadata yet
   return (
-    (request && 'yar' in request && request.yar.get('language')) ??
+    yar?.get('language') ??
+    // @ts-expect-error - 'language' not part of FormMetadata yet
     metadata?.language ??
-    'en-GB'
+    defaultLang
   )
 }
 
 /**
+ * @import { RequestQuery } from '@hapi/hapi'
+ * @import { Yar } from '@hapi/yar'
  * @import { FormMetadata } from '@defra/forms-model'
- * @import { AnyFormRequest } from '@defra/forms-engine-plugin/types'
  */

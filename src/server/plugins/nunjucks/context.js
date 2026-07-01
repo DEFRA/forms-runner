@@ -33,7 +33,7 @@ export function context(request) {
 
   const { params, query = {}, response, state } = request ?? {}
 
-  const language = resolveLanguage(request)
+  const language = resolveLanguage(request?.query, request?.yar)
 
   const isForceAccess = 'force' in query
   const { isPreview: isPreviewMode, state: formState } = checkFormStatus(params)

@@ -2,6 +2,7 @@ import { type PageController } from '@defra/forms-engine-plugin/controllers/Page
 import { QuestionPageController } from '@defra/forms-engine-plugin/controllers/QuestionPageController.js'
 import { SummaryPageController } from '@defra/forms-engine-plugin/controllers/SummaryPageController.js'
 import {
+  type AnyFormRequest,
   type FormContext,
   type FormContextRequest
 } from '@defra/forms-engine-plugin/engine/types.js'
@@ -19,7 +20,11 @@ export class FeedbackPageController extends QuestionPageController {
     request: FormContextRequest,
     context: FormContext
   ): FeedbackPageViewModel {
-    const viewModel = super.getViewModel(request, context, this.getTranslator(request))
+    const viewModel = super.getViewModel(
+      request,
+      context,
+      this.getTranslator(request as unknown as AnyFormRequest)
+    ) as FeedbackPageViewModel
     return {
       ...viewModel,
       hidePhaseBanner: true,
@@ -49,7 +54,10 @@ export class FeedbackPageController extends QuestionPageController {
        */
       if (context.errors || isForceAccess) {
         const viewModel = this.getViewModel(request, context)
-        viewModel.errors = collection.getViewErrors(this.getTranslator(request), viewModel.errors)
+        viewModel.errors = collection.getViewErrors(
+          this.getTranslator(request),
+          viewModel.errors
+        )
 
         // Filter our components based on their conditions using our evaluated state
         viewModel.components = this.filterConditionalComponents(

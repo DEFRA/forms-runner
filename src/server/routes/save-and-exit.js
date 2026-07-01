@@ -87,7 +87,11 @@ export default [
       const { slug, state: status } = params
       const metadata = await getFormMetadataWithGuard(slug, status)
 
-      request.app.language = resolveLanguage(request, metadata)
+      request.app.language = resolveLanguage(
+        request.query,
+        request.yar,
+        metadata
+      )
 
       const model = detailsViewModel(
         metadata,
@@ -100,7 +104,9 @@ export default [
       // Store any outstanding data from the current page in a special attribute
       // (in case the current page wasn't yet validated and saved).
       // The current page state may be invalid so we don't want to push into the cache as normal properties.
-      const cacheService = getCacheService(request.server)
+      const cacheService = getCacheService(
+        /** @type {AnyRequest} */ (/** @type {unknown} */ (request)).server
+      )
       const formState = await cacheService.getState(
         /** @type {CacheRequest} */ (request)
       )
@@ -166,7 +172,11 @@ export default [
       // Throws the offline marker BEFORE publishSaveAndExitEvent so we never
       // emit a magic-link email for a form the user can no longer reach.
       const metadata = await getFormMetadataWithGuard(slug, status)
-      request.app.language = resolveLanguage(request, metadata)
+      request.app.language = resolveLanguage(
+        request.query,
+        request.yar,
+        metadata
+      )
 
       const cacheService = getCacheService(request.server)
 
@@ -184,7 +194,7 @@ export default [
       // Handle the user navigating back from previously submitting a save-and-exit. The state has been cleared
       // so we need to warn the user
       if (!hasState(state)) {
-        const language = request.app.language
+        const language = request.app.language ?? 'en-GB'
         const model = detailsViewModel(
           metadata,
           status,
@@ -225,7 +235,11 @@ export default [
           const { slug, state: status } = params
 
           const metadata = await getFormMetadataWithGuard(slug, status)
-          request.app.language = resolveLanguage(request, metadata)
+          request.app.language = resolveLanguage(
+            request.query,
+            request.yar,
+            metadata
+          )
 
           const model = detailsViewModel(
             metadata,
@@ -253,7 +267,11 @@ export default [
       const { slug, state: status } = params
 
       const metadata = await getFormMetadataWithGuard(slug, status)
-      request.app.language = resolveLanguage(request, metadata)
+      request.app.language = resolveLanguage(
+        request.query,
+        request.yar,
+        metadata
+      )
 
       // Get the email from session
       const email = /** @type {string} */ (
@@ -294,7 +312,7 @@ export default [
       let form
       try {
         form = await getFormMetadataById(formId)
-        request.app.language = resolveLanguage(request, form)
+        request.app.language = resolveLanguage(request.query, request.yar, form)
       } catch (err) {
         if (isOfflineBoom(err)) {
           throw err
@@ -383,7 +401,7 @@ export default [
       let form
       try {
         form = await getFormMetadataById(formId, state)
-        request.app.language = resolveLanguage(request, form)
+        request.app.language = resolveLanguage(request.query, request.yar, form)
       } catch (err) {
         if (isOfflineBoom(err)) {
           throw err
@@ -487,7 +505,7 @@ export default [
         securityAnswer
       )
 
-      request.app.language = resolveLanguage(request, form)
+      request.app.language = resolveLanguage(request.query, request.yar, form)
 
       if (validatedLink.validPassword) {
         // Restore state
@@ -559,7 +577,11 @@ export default [
             resumeDetails.form.id,
             params.state
           )
-          request.app.language = resolveLanguage(request, form)
+          request.app.language = resolveLanguage(
+            request.query,
+            request.yar,
+            form
+          )
 
           const model = passwordViewModel(
             form,
@@ -585,7 +607,7 @@ export default [
       const { params } = request
       const { slug, state } = params
       const form = await getFormMetadataWithGuard(slug, state)
-      request.app.language = resolveLanguage(request, form)
+      request.app.language = resolveLanguage(request.query, request.yar, form)
       const model = resumeSuccessViewModel(form, state, request.app.language)
 
       return h.view(RESUME_SUCCESS, model)
@@ -604,7 +626,7 @@ export default [
 ]
 
 /**
- * @import { ServerRoute } from '@hapi/hapi'
- * @import { CacheRequest, FormPayload } from '@defra/forms-engine-plugin/engine/types.js'
+ * @import { ServerRoute, Request } from '@hapi/hapi'
+ * @import { AnyRequest, CacheRequest, FormPayload } from '@defra/forms-engine-plugin/engine/types.js'
  * @import { BoomErrorCustomSaveAndExit, SaveAndExitParams, SaveAndExitPayload, SaveAndExitResumePasswordPayload, SaveAndExitResumePasswordParams } from '~/src/server/models/save-and-exit.js'
  */
