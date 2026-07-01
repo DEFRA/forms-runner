@@ -1,273 +1,273 @@
 {
   "help": {
     "getSupport": {
-      "title": "xxGet help with your form",
-      "telephone": "xxTelephone",
-      "callCharges": "xxFind out about call charges",
-      "email": "xxEmail",
-      "onlineContactForm": "xxOnline contact form"
+      "title": "Cael cymorth gyda'ch ffeil",
+      "telephone": "Ffôn",
+      "callCharges": "Dysgwch am gostau galwadau",
+      "email": "E-bost",
+      "onlineContactForm": "Ffurflen gyswllt ar-lein"
     },
     "cookies": {
-      "title": "Cookies",
-      "heading": "Cookies",
-      "intro": "Cookies are small files saved on your phone, tablet or computer when you visit a website.",
-      "essentialIntro": "We use essential cookies to make this form work.",
-      "essentialHeading": "Essential cookies",
-      "essentialBody": "Essential cookies keep your information secure. We do not need to ask your permission to use them.",
-      "analyticsHeading": "Analytics cookies",
-      "analyticsBody": "We use Google Analytics software to understand how people use our forms. We do this to help make sure the site is meeting the needs of its users and to help us make improvements.",
-      "changeSettingsHeading": "Change your settings",
-      "changeSettingsBody": "You can <a class=\"govuk-link\" href=\"/help/cookie-preferences/[[slug]]\">change which cookies you're happy for us to use</a>.",
+      "title": "Cwcis",
+      "heading": "Cwcis",
+      "intro": "Ffeiliau bach sy'n cael eu cadw ar eich ffôn, eich llechen neu'ch cyfrifiadur pan fyddwch yn ymweld â gwefan yw cwcis.",
+      "essentialIntro": "Rydym yn defnyddio cwcis hanfodol i wneud i'r ffurflen hon weithio.",
+      "essentialHeading": "Cwcis hanfodol",
+      "essentialBody": "Mae cwcis hanfodol yn cadw eich gwybodaeth yn ddiogel. Nid oes angen i ni ofyn am eich caniatâd i'w defnyddio.",
+      "analyticsHeading": "Cwcis dadansoddeg",
+      "analyticsBody": "Rydym yn defnyddio meddalwedd Google Analytics i ddeall sut mae pobl yn defnyddio ein ffurflenni. Rydym yn gwneud hyn er mwyn helpu i wneud yn siŵr bod y wefan yn diwallu anghenion ei defnyddwyr ac i'n helpu i wneud gwelliannau.",
+      "changeSettingsHeading": "Newid eich gosodiadau",
+      "changeSettingsBody": "Gallwch <a class=\"govuk-link\" href=\"/help/cookie-preferences/[[slug]]\">newid pa gwcis rydych yn hapus i ni eu defnyddio</a>.",
       "tableCaption": {
-        "essential": "Essential cookies we use",
-        "analytics": "Analytics cookies we use"
+        "essential": "Cwcis hanfodol rydym yn eu defnyddio",
+        "analytics": "Cwcis dadansoddeg rydym yn eu defnyddio"
       },
       "tableHead": {
-        "name": "Name",
-        "purpose": "Purpose",
-        "expires": "Expires"
+        "name": "Enw",
+        "purpose": "Diben",
+        "expires": "Daw i ben"
       },
       "cookies": {
         "session": {
-          "purpose": "Remembers the information you enter",
-          "expires": "When you close the browser, or after [[sessionDurationPretty]]"
+          "purpose": "Yn cofio'r wybodaeth rydych yn ei darparu",
+          "expires": "Pan fyddwch yn cau'r porwr, neu ar ôl [[sessionDurationPretty]]"
         },
         "crumb": {
-          "purpose": "Ensures forms can only be submitted from this website",
-          "expires": "When you close the browser"
+          "purpose": "Yn sicrhau mai dim ond o'r wefan hon y gellir cyflwyno ffurflenni",
+          "expires": "Pan fyddwch yn cau'r porwr"
         },
         "cookieConsent": {
-          "purpose": "Remembers your cookie preferences",
-          "expires": "1 year"
+          "purpose": "Yn cofio eich dewisiadau cwcis",
+          "expires": "Blwyddyn"
         },
         "ga": {
-          "purpose": "Used by Google Analytics to help us count how many people visit our forms by tracking if you've visited before",
-          "expires": "2 years"
+          "purpose": "Defnyddir gan Google Analytics i'n helpu i gyfrif faint o bobl sy'n ymweld â'n ffurflenni drwy olrhain a ydych wedi edrych arnynt o'r blaen",
+          "expires": "2 flynedd"
         },
         "gaSession": {
-          "purpose": "Used by Google Analytics to find and track an individual session with your device",
-          "expires": "2 years"
+          "purpose": "Defnyddir gan Google Analytics i ddod o hyd i sesiwn unigol gyda'ch dyfais a'i holrhain",
+          "expires": "2 flynedd"
         }
       }
     },
     "cookiePreferences": {
-      "title": "Cookies",
-      "heading": "Change your cookie settings",
-      "successMessage": "You've set your cookie preferences.",
-      "analyticsQuestion": "Do you want to accept analytics cookies?",
-      "yes": "Yes",
-      "no": "No",
-      "saveButton": "Save cookie settings"
+      "title": "Cwcis",
+      "heading": "Newid eich gosodiadau cwcis",
+      "successMessage": "Rydych wedi gosod eich dewisiadau cwcis.",
+      "analyticsQuestion": "Ydych chi am dderbyn cwcis dadansoddeg?",
+      "yes": "Ydw",
+      "no": "Nac ydw",
+      "saveButton": "Cadw gosodiadau cwcis"
     },
     "accessibilityStatement": {
-      "title": "Accessibility statement",
-      "heading": "Accessibility statement for this form",
-      "intro": "This accessibility statement applies to online forms with a URL that starts with https://submit-forms-to-defra.service.gov.uk.",
-      "technicalHeading": "Technical information about this website's accessibility",
-      "technicalBody": "Defra is committed to making its forms accessible, in accordance with the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018.",
-      "complianceHeading": "Compliance status",
-      "complianceBody": "Forms created by Defra are fully compliant with the Web Content Accessibility Guidelines (WCAG) version 2.2 AA standard.",
-      "howAccessibleHeading": "How accessible this website is",
-      "howAccessibleIntro": "This section lists accessibility issues with content found in Defra forms.",
-      "nonComplianceHeading": "Non-compliance with the accessibility regulations",
-      "nonComplianceBody": "Defra forms do not have accessibility issues that fail the WCAG 2.2 accessibility regulations.",
-      "outOfScopeHeading": "Content that's not within the scope of the accessibility regulations",
-      "outOfScopeIntro": "The accessibility issues listed in this section do not fail the accessibility regulations. We plan to fix them as soon as possible.",
+      "title": "Datganiad hygyrchedd",
+      "heading": "Datganiad hygyrchedd ar gyfer y ffurflen hon",
+      "intro": "Mae'r datganiad hygyrchedd hwn yn berthnasol i ffurflenni ar-lein sydd ag URL sy'n dechrau gyda https://submit-forms-to-defra.service.gov.uk.",
+      "technicalHeading": "Gwybodaeth dechnegol am hygyrchedd y wefan hon",
+      "technicalBody": "Mae Defra yn ymrwymedig i sicrhau bod ei ffurflenni'n hygyrch, yn unol â Rheoliadau Hygyrchedd Cyrff y Sector Cyhoeddus (Gwefannau ac Apiau Symudol) (Rhif 2) 2018.",
+      "complianceHeading": "Statws cydymffurfiaeth",
+      "complianceBody": "Mae ffurflenni a grëwyd gan Defra yn cydymffurfio'n llwyr â safon AA Canllawiau Hygyrchedd Cynnwys y We (WCAG) fersiwn 2.2.",
+      "howAccessibleHeading": "Pa mor hygyrch yw'r wefan hon",
+      "howAccessibleIntro": "Mae'r adran hon yn rhestru problemau hygyrchedd gyda chynnwys a geir yn ffurflenni Defra.",
+      "nonComplianceHeading": "Diffyg cydymffurfiaeth â'r rheoliadau hygyrchedd",
+      "nonComplianceBody": "Nid oes gan ffurflenni Defra broblemau hygyrchedd sy'n methu â chydymffurfio â rheoliadau hygyrchedd WCAG 2.2.",
+      "outOfScopeHeading": "Cynnwys nad yw o fewn cwmpas y rheoliadau hygyrchedd",
+      "outOfScopeIntro": "Nid yw'r materion hygyrchedd a restrir yn yr adran hon yn methu â chydymffurfio â'r rheoliadau hygyrchedd. Rydym yn bwriadu mynd i'r afael â nhw cyn gynted â phosibl.",
       "outOfScopeItems": [
-        "Forms do not default to a dark or light theme based on the 'prefers-color-scheme'.",
-        "The email field allows for the entry of values that are not formatted as an email address.",
-        "The summary screen for each form does not display the question asked. Instead, it displays a summarised version of the question.",
-        "Some optional questions are not marked as optional.",
-        "Section titles in some forms are formatted as H2 level headings. These headings are shown before page titles which are formatted as H1 level headings (skipped heading hierarchy)."
+        "Nid yw ffurflenni'n defnyddio thema dywyll neu olau yn ddiofyn yn seiliedig ar y 'prefers-color-scheme'.",
+        "Mae'r maes e-bost yn caniatáu i werthoedd gael eu nodi nad ydynt wedi'u fformatio fel cyfeiriad e-bost.",
+        "Nid yw sgrin crynodeb pob ffurflen yn dangos y cwestiwn a ofynnwyd. Yn hytrach, mae'n dangos fersiwn gryno o'r cwestiwn.",
+        "Nid yw rhai cwestiynau dewisol wedi'u marcio fel rhai dewisol.",
+        "Mae teitlau adrannau mewn rhai ffurflenni wedi'u fformatio fel penawdau lefel H2. Dangosir y penawdau hyn cyn teitlau tudalennau sydd wedi'u fformatio fel penawdau lefel H1 (hierarchaeth penawdau wedi'u hepgor)."
       ],
-      "preparationHeading": "Preparation of this accessibility statement",
-      "preparationBody1": "This statement was prepared on 24 June 2024. It was last reviewed on 14 March 2025.",
-      "preparationBody2": "The Defra Accessibility team tested 2 online forms against the WCAG 2.2 AA standard on 17 June 2024. The tests were done using automated testing tools.",
-      "preparationBody3": "We will commission a full accessibility audit of forms created by Defra before June 2025.",
-      "feedbackHeading": "Feedback and contact information",
-      "feedbackBody": "If you find any problems not listed on this page or think we're not meeting accessibility requirements, email the Defra Forms team on <a class=\"govuk-link\" href=\"mailto:defraforms@defra.gov.uk\">defraforms@defra.gov.uk</a>.",
-      "enforcementHeading": "Enforcement procedure",
-      "enforcementBody": "The Equality and Human Rights Commission (EHRC) is responsible for enforcing the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 (the 'accessibility regulations'). If you're not happy with how we respond to your complaint, contact the <a class=\"govuk-link\" href=\"https://www.equalityadvisoryservice.com/\" rel=\"external\">Equality Advisory and Support Service (EASS)</a>."
+      "preparationHeading": "Llunio'r datganiad hygyrchedd hwn",
+      "preparationBody1": "Lluniwyd y datganiad hwn ar 24 Mehefin 2024. Fe'i hadolygwyd ddiwethaf ar 14 Mawrth 2025.",
+      "preparationBody2": "Profodd tîm Hygyrchedd Defra 2 ffurflen ar-lein yn erbyn safon AA WCAG 2.2 ar 17 Mehefin 2024. Cynhaliwyd y profion gan ddefnyddio offer profi awtomataidd.",
+      "preparationBody3": "Byddwn yn comisiynu archwiliad hygyrchedd llawn o ffurflenni a grëwyd gan Defra cyn mis Mehefin 2025.",
+      "feedbackHeading": "Adborth a gwybodaeth gyswllt",
+      "feedbackBody": "Os byddwch yn dod o hyd i unrhyw broblemau nad ydynt wedi'u rhestru ar y dudalen hon neu'n credu nad ydym yn bodloni gofynion hygyrchedd, anfonwch e-bost at dîm Ffurflenni Defra yn <a class=\"govuk-link\" href=\"mailto:defraforms@defra.gov.uk\">defraforms@defra.gov.uk</a>.",
+      "enforcementHeading": "Gweithdrefn orfodi",
+      "enforcementBody": "Y Comisiwn Cydraddoldeb a Hawliau Dynol (EHRC) sy'n gyfrifol am orfodi Rheoliadau Hygyrchedd Cyrff y Sector Cyhoeddus (Gwefannau ac Apiau Symudol) (Rhif 2) 2018 (y 'rheoliadau hygyrchedd'). Os byddwch yn anfodlon ar y ffordd rydym yn ymateb i'ch cwyn, cysylltwch â'r <a class=\"govuk-link\" href=\"https://www.equalityadvisoryservice.com/\" rel=\"external\"> Gwasanaeth Cymorth a Chyngor ar Gydraddoldeb (EASS)</a>."
     },
     "privacyNotice": {
-      "pageTitle": "[[serviceName]] privacy notice",
-      "heading": "[[serviceName]] - privacy notice",
-      "intro": "The <strong>[[formTitle]]</strong> form was created using the <strong>[[serviceName]]</strong> service. This service is owned and operated by the Department for Environment, Food & Rural Affairs (Defra).",
-      "whoCollectsHeading": "Who collects your personal data",
-      "whoCollectsBody1": "The organisation that created the <strong>[[formTitle]]</strong> form using <strong>[[serviceName]]</strong> is the controller of personal data they collect. If the controller is outside the Defra legal entity, then Defra is the processor.",
-      "whoCollectsBody2": "Read the <a href=\"[[privacyNoticeUrl]]\" class=\"govuk-link\">specific privacy notice for the [[formTitle]] form</a>.",
-      "whoCollectsBody3": "Defra also collects some data as a controller. This privacy notice explains what personal data Defra collects and processes as a controller through forms made with <strong>[[serviceName]]</strong>.",
-      "whoCollectsBody4": "If you need further information about how Defra uses your personal data, email <a href=\"mailto:defraforms@defra.gov.uk\" class=\"govuk-link\">defraforms@defra.gov.uk</a>.",
-      "whoCollectsBody5": "If you want information and your associated rights you can email: <a href=\"mailto:data.protection@defra.gov.uk\" class=\"govuk-link\">data.protection@defra.gov.uk</a>.",
-      "whoCollectsBody6": "The data protection officer for Defra is responsible for checking that Defra complies with legislation. You can contact them at <a href=\"mailto:DefraGroupDataProtectionOfficer@defra.gov.uk\" class=\"govuk-link\">DefraGroupDataProtectionOfficer@defra.gov.uk</a>.",
-      "dataWeCollectHeading": "Data we collect from you and what we do with it",
-      "analyticsBody1": "If you give your consent, we use Google Analytics cookies to collect information about how you use <strong>[[serviceName]]</strong>. Read the <a href=\"https://support.google.com/analytics/topic/2919631\" class=\"govuk-link\">data privacy and security policy for Google Analytics</a>.",
-      "analyticsBody2": "Google Analytics processes information about:",
+      "pageTitle": "Hysbysiad preifatrwydd [[serviceName]]",
+      "heading": "[[serviceName]] - hysbysiad preifatrwydd",
+      "intro": "Crëwyd ffurflen <strong>[[formTitle]]</strong> gan ddefnyddio'r gwasanaeth <strong>[[serviceName]]</strong>. Adran yr Amgylchedd, Bwyd a Materion Gwledig (Defra) sy'n berchen ar y gwasanaeth hwn ac yn ei weithredu.",
+      "whoCollectsHeading": "Pwy sy'n casglu eich data personol",
+      "whoCollectsBody1": "Y sefydliad a greodd ffurflen <strong>[[formTitle]]</strong> gan ddefnyddio <strong>[[serviceName]]</strong> yw rheolydd y data personol a gesglir. Os yw'r rheolydd y tu allan i endid cyfreithiol Defra, yna Defra yw'r prosesydd.",
+      "whoCollectsBody2": "Darllenwch yr <a href=\"[[privacyNoticeUrl]]\" class=\"govuk-link\">hysbysiad preifatrwydd penodol ar gyfer ffurflen [[formTitle]]</a>.",
+      "whoCollectsBody3": "Mae Defra hefyd yn casglu rhywfaint o ddata fel rheolydd. Mae'r hysbysiad preifatrwydd hwn yn esbonio pa ddata personol y mae Defra yn eu casglu a'u prosesu fel rheolydd drwy ffurflenni a grëwyd gan ddefnyddio <strong>[[serviceName]]</strong>.",
+      "whoCollectsBody4": "Os oes angen rhagor o wybodaeth arnoch am sut mae Defra yn defnyddio eich data personol, e-bostiwch <a href=\"mailto:defraforms@defra.gov.uk\" class=\"govuk-link\">defraforms@defra.gov.uk</a>.",
+      "whoCollectsBody5": "Os hoffech gael gwybodaeth a'ch hawliau cysylltiedig, gallwch e-bostio: <a href=\"mailto:data.protection@defra.gov.uk\" class=\"govuk-link\">data.protection@defra.gov.uk</a>.",
+      "whoCollectsBody6": "Mae swyddog diogelu data Defra yn gyfrifol am gadarnhau bod Defra yn cydymffurfio â deddfwriaeth. Gallwch gysylltu â'r swyddog yn <a href=\"mailto:DefraGroupDataProtectionOfficer@defra.gov.uk\" class=\"govuk-link\">DefraGroupDataProtectionOfficer@defra.gov.uk</a>.",
+      "dataWeCollectHeading": "Data rydym yn eu casglu gennych a'r hyn rydym yn ei wneud gydag ef",
+      "analyticsBody1": "Os byddwch yn cydsynio, byddwn yn defnyddio cwcis Google Analytics i gasglu gwybodaeth am y ffordd rydych yn defnyddio <strong>[[serviceName]]</strong>. Darllenwch y <a href=\"https://support.google.com/analytics/topic/2919631\" class=\"govuk-link\">polisi preifatrwydd a diogelwch data ar gyfer Google Analytics</a>.",
+      "analyticsBody2": "Mae Google Analytics yn prosesu gwybodaeth am y canlynol:",
       "analyticsItems": [
-        "your IP address",
-        "the pages you visit on <strong>[[serviceName]]</strong>",
-        "how long you spend on each <strong>[[serviceName]]</strong> page",
-        "how you got to the site",
-        "what you select while you're visiting the site"
+        "eich cyfeiriad IP",
+        "y tudalennau rydych yn ymweld â nhw ar <strong>[[serviceName]]</strong>",
+        "faint o amser rydych yn ei dreulio ar bob tudalen o <strong>[[serviceName]]</strong>",
+        "sut y gwnaethoch gyrraedd y wefan",
+        "beth rydych yn ei ddewis wrth ymweld â'r wefan"
       ],
-      "analyticsBody3": "Defra will make sure you cannot be directly identified by Google Analytics data. We do this by using <a href=\"https://support.google.com/analytics/answer/2763052\" class=\"govuk-link\">Google Analytics' IP address anonymisation</a> feature and by removing any other personal data from the titles or URLs of the pages you visit.",
-      "analyticsBody4": "Defra will not combine analytics information with other data sets in a way that would directly identify who you are.",
-      "systemLogsBody1": "We use system logs to collect information about the usage of forms.",
-      "systemLogsBody2": "We use the system logs to create anonymised reports about the performance of forms that use <strong>[[serviceName]]</strong>. We use this data to improve forms, for example, if we discover a high number of incomplete forms.",
-      "systemLogsBody2WithAnalytics": "We use the system logs and Google Analytics data to create anonymised reports about the performance of forms that use <strong>[[serviceName]]</strong>. We use this data to improve forms, for example, if we discover a high number of incomplete forms.",
-      "feedbackBody": "If you email us feedback about a form that uses <strong>[[serviceName]]</strong>, we'll send your email address and any other personal information you choose to include in your email to the controller for review. The controller may use your personal data to reply to your query to update a form based on your feedback where it is appropriate.",
-      "saveAndReturnHeading": "Save and return to a form",
-      "saveAndReturnBody": "You can save your form progress and return within [[saveAndExitExpiryDays]] days. When saving your progress, you need to tell us:",
+      "analyticsBody3": "Bydd Defra yn sicrhau na all data Google Analytics eich adnabod yn uniongyrchol. Rydym yn gwneud hyn drwy ddefnyddio nodwedd <a href=\"https://support.google.com/analytics/answer/2763052\" class=\"govuk-link\">anonymeiddio cyfeiriad IP Google Analytics</a> a thrwy ddileu unrhyw ddata personol eraill o deitlau neu gyfeiriadau URL y tudalennau rydych yn ymweld â nhw.",
+      "analyticsBody4": "Ni fydd Defra yn cyfuno gwybodaeth ddadansoddeg â setiau data eraill mewn ffordd a fyddai'n nodi pwy ydych chi yn uniongyrchol.",
+      "systemLogsBody1": "Rydym yn defnyddio logiau system i gasglu gwybodaeth ynglŷn â'r ffordd y caiff ffurflenni eu defnyddio.",
+      "systemLogsBody2": "Rydym yn defnyddio'r logiau system i greu adroddiadau dienw am berfformiad ffurflenni sy'n defnyddio <strong>[[serviceName]]</strong>. Rydym yn defnyddio'r data hyn i wella ffurflenni, er enghraifft, os byddwn yn darganfod nifer uchel o ffurflenni anghyflawn.",
+      "systemLogsBody2WithAnalytics": "Rydym yn defnyddio'r logiau system a data Google Analytics i greu adroddiadau dienw am berfformiad ffurflenni sy'n defnyddio <strong>[[serviceName]]</strong>. Rydym yn defnyddio'r data hyn i wella ffurflenni, er enghraifft, os byddwn yn darganfod nifer uchel o ffurflenni anghyflawn.",
+      "feedbackBody": "Os byddwch yn anfon adborth atom drwy e-bost am ffurflen sy'n defnyddio <strong>[[serviceName]]</strong>, byddwn yn anfon eich cyfeiriad e-bost ac unrhyw wybodaeth bersonol arall rydych yn dewis ei chynnwys yn eich e-bost at y rheolydd i'w hadolygu. Gall y rheolydd ddefnyddio eich data personol i ymateb i'ch ymholiad i ddiweddaru ffurflen yn seiliedig ar eich adborth lle bo'n briodol.",
+      "saveAndReturnHeading": "Cadw a dychwelyd at ffurflen",
+      "saveAndReturnBody": "Gallwch arbed cynnydd eich ffurflen a dychwelyd o fewn [[saveAndExitExpiryDays]] diwrnod. Pan fyddwch yn cadw eich cynnydd, mae angen i chi rannu'r wybodaeth ganlynol â ni:",
       "saveAndReturnItems": [
-        "your email address",
-        "the security question you want to answer",
-        "the answer to the security question"
+        "eich cyfeiriad e-bost",
+        "y cwestiwn diogelwch yr hoffech ei ateb",
+        "yr ateb i'r cwestiwn diogelwch"
       ],
-      "lawfulBasisHeading": "Lawful basis for processing your personal data",
-      "lawfulBasisBody": "The lawful basis for processing your personal data is your consent.",
-      "cookiesHeading": "Cookies",
-      "cookiesBody": "We use cookies to make this form work. Read about the <a href=\"/help/cookies/[[slug]]\" class=\"govuk-link\">cookies we use to make this form work</a>.",
-      "howLongHeading": "How long we keep your data",
-      "howLongBody": "<strong>[[serviceName]]</strong> will store your data for [[storeCompletedApplicationsFor]] for completed applications and [[saveAndExitExpiryDays]] days if you save and exit and do not submit an application.",
-      "feedbackStorageBody": "Any feedback you provide is stored for [[storeFeedbackFor]].",
-      "transferHeading": "Transfer of your personal data outside of the UK",
-      "transferBody": "We will only transfer your personal data to another country that is deemed adequate for data protection purposes.",
-      "rightsHeading": "What are your rights",
-      "rightsIntro": "Based on the lawful processing above, your individual rights are:",
+      "lawfulBasisHeading": "Y sail gyfreithlon dros brosesu eich data personol",
+      "lawfulBasisBody": "Y sail gyfreithlon dros brosesu eich data personol yw eich cydsyniad.",
+      "cookiesHeading": "Cwcis",
+      "cookiesBody": "Rydym yn defnyddio cwcis i wneud i'r ffurflen hon weithio. Darllenwch am y cwcis <a href=\"/help/cookies/[[slug]]\" class=\"govuk-link\">rydym yn eu defnyddio i wneud i'r ffurflen hon weithio</a>.",
+      "howLongHeading": "Am ba hyd y byddwn yn cadw eich data ",
+      "howLongBody": "Bydd <strong>[[serviceName]]</strong> yn storio eich data am [[storeCompletedApplicationsFor]] ar gyfer ceisiadau wedi'u cwblhau a [[saveAndExitExpiryDays]] diwrnod os byddwch yn cadw ac yn gadael ac yn peidio â chyflwyno cais.",
+      "feedbackStorageBody": "Caiff unrhyw adborth y byddwch yn ei roi ei storio am [[storeFeedbackFor]].",
+      "transferHeading": "Trosglwyddo eich data personol y tu allan i'r DU",
+      "transferBody": "Dim ond i wlad arall y tybir ei bod yn ddigonol at ddibenion diogelu data y byddwn yn trosglwyddo eich data personol.",
+      "rightsHeading": "Beth yw eich hawliau",
+      "rightsIntro": "Ar sail y prosesu cyfreithlon uchod, mae eich hawliau unigol fel a ganlyn:",
       "rightsItems": [
-        "the right to be informed",
-        "the right of access",
-        "the right to rectification",
-        "the right to erasure",
-        "the right to restrict processing",
-        "the right to data portability",
-        "rights in relation to automated decision making and profiling"
+        "yr hawl i gael gwybod",
+        "yr hawl i gael mynediad",
+        "yr hawl i gywiro",
+        "yr hawl i ddileu",
+        "yr hawl i gyfyngu ar brosesu",
+        "yr hawl i gludadwyedd data",
+        "hawliau mewn perthynas â gwneud penderfyniadau awtomataidd a phroffilio"
       ],
-      "rightsBody": "Get more information about your <a href=\"https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/individual-rights/\" class=\"govuk-link\">individual rights</a> under the UK General Data Protection Regulation (UK GDPR) and the Data Protection Act 2018 (DPA 2018).",
-      "complaintsHeading": "Complaints",
-      "complaintsBody": "You have the right to <a href=\"https://ico.org.uk/make-a-complaint/\" class=\"govuk-link\">make a complaint</a> to the Information Commissioner's Office at any time.",
-      "personalInfoHeading": "Personal information charter",
-      "personalInfoBody": "Our <a href=\"https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs/about/personal-information-charter\" class=\"govuk-link\">personal information charter</a> explains more about your rights over your personal data.",
-      "lastUpdated": "Last updated: 11 September 2025"
+      "rightsBody": "Cael rhagor o wybodaeth am eich <a href=\"https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/individual-rights/\" class=\"govuk-link\">hawliau unigol</a> o dan Reoliad Cyffredinol y DU ar Ddiogelu Data a Deddf Diogelu Data 2018.",
+      "complaintsHeading": "Cwynion",
+      "complaintsBody": "Mae gennych yr hawl i <a href=\"https://ico.org.uk/make-a-complaint/\" class=\"govuk-link\">wneud cwyn</a> i Swyddfa'r Comisiynydd Gwybodaeth ar unrhyw adeg.",
+      "personalInfoHeading": "Siarter gwybodaeth bersonol",
+      "personalInfoBody": "Mae ein <a href=\"https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs/about/personal-information-charter\" class=\"govuk-link\">siarter gwybodaeth bersonol</a> yn esbonio mwy am eich hawliau dros eich data personol.",
+      "lastUpdated": "Diweddarwyd ddiwethaf: 11 Medi 2025"
     }
   },
   "saveAndExit": {
     "details": {
-      "pageTitle": "welsh Save your progress for later",
-      "intro1": "welsh Provide your email address and answer a security question to save your progress for 28 days.",
-      "intro2": "welsh We will email you with a link you can use to return to the form later. You will be asked for the answer to the security question when you resume your form.",
-      "warning": "welsh Enter your email address carefully. You cannot return to the form later if your email is incorrect.",
-      "warningIconFallback": "welsh Warning",
-      "errorTitle": "welsh There is a problem",
-      "emailLabel": "welsh Your email address",
-      "emailHint": "welsh Use the email address you want the link to go to",
-      "emailConfirmationLabel": "welsh Confirm your email address",
-      "emailConfirmationHint": "welsh Check you have entered the correct email address",
-      "securityQuestionLegend": "welsh Choose a security question to answer",
-      "securityAnswerLabel": "welsh Your answer to the security question",
-      "saveButton": "welsh Save progress",
-      "cancelButton": "welsh Cancel",
+      "pageTitle": "Cadw eich cynnydd tan nes ymlaen",
+      "intro1": "Rhowch eich cyfeiriad e-bost ac atebwch gwestiwn diogelwch i gadw eich cynnydd am 28 diwrnod.",
+      "intro2": "Byddwn yn e-bostio dolen atoch y gallwch ei defnyddio i ddychwelyd at y ffurflen yn ddiweddarach. Yna gofynnir i chi am yr ateb i'r cwestiwn diogelwch pan fyddwch yn ailafael yn eich ffurflen.",
+      "warning": "Rhowch eich cyfeiriad e-bost yn ofalus. Ni allwch ddychwelyd at y ffurflen yn ddiweddarach os yw eich cyfeiriad e-bost yn anghywir.",
+      "warningIconFallback": "Rhybudd",
+      "errorTitle": "Mae problem wedi codi",
+      "emailLabel": "Eich cyfeiriad e-bost",
+      "emailHint": "Defnyddiwch y cyfeiriad e-bost yr hoffech i'r ddolen gael ei hanfon iddo",
+      "emailConfirmationLabel": "Cadarnhewch eich cyfeiriad e-bost",
+      "emailConfirmationHint": "Cadarnhewch eich bod wedi rhoi'r cyfeiriad e-bost cywir",
+      "securityQuestionLegend": "Dewiswch gwestiwn diogelwch i'w ateb",
+      "securityAnswerLabel": "Eich ateb i'r cwestiwn diogelwch",
+      "saveButton": "Cadw cynnydd",
+      "cancelButton": "Canslo",
       "securityQuestions": {
-        "memorablePlace": "welsh What is a memorable place you have visited?",
-        "characterName": "welsh What is the name of your favourite character from a story or TV show?",
-        "audioRecommendation": "welsh What album or song do you always recommend to others?"
+        "memorablePlace": "Pa le cofiadwy rydych wedi ymweld ag ef?",
+        "characterName": "Beth yw enw eich hoff gymeriad o stori neu raglen deledu?",
+        "audioRecommendation": "Pa albwm neu gân rydych yn ei (h)argymell i eraill bob amser?"
       },
       "validation": {
-        "emailRequired": "Enter an email address",
-        "emailFormat": "Enter an email address in the correct format, for example, hello@example.com",
-        "emailUnicode": "The email address you entered includes invalid characters, for example, long dashes",
-        "emailConfirmation": "Your email address does not match. Check and try again.",
-        "securityQuestionRequired": "Choose a security question to answer",
-        "securityAnswerRequired": "Enter an answer to the security question",
-        "securityAnswerLength": "Your answer must be between 3 and 40 characters long",
-        "invalidPassword_one": "Your answer is incorrect. You have [[count]] attempt remaining.",
-        "invalidPassword_other": "Your answer is incorrect. You have [[count]] attempts remaining.",
-        "stateExpired": "Your information is no longer available. Return to the start of the form."
+        "emailRequired": "Rhowch gyfeiriad e-bost",
+        "emailFormat": "Rhowch gyfeiriad e-bost yn y fformat cywir, er enghraifft, helo@enghraifft.com",
+        "emailUnicode": "Mae'r cyfeiriad e-bost rydych wedi'i roi yn cynnwys nodau annilys, er enghraifft, llinellau toriad hir",
+        "emailConfirmation": "Nid yw eich cyfeiriad e-bost yn cyfateb. Gwiriwch y cyfeiriad a rhowch gynnig arall arni.",
+        "securityQuestionRequired": "Dewiswch gwestiwn diogelwch i'w ateb",
+        "securityAnswerRequired": "Rhowch ateb i'r cwestiwn diogelwch",
+        "securityAnswerLength": "Rhaid i'ch ateb fod rhwng 3 a 40 o nodau o hyd",
+        "invalidPassword_one": "Mae eich ateb yn anghywir. Mae gennych [[count]] ymgais ar ôl.",
+        "invalidPassword_other": "Mae eich ateb yn anghywir. Mae gennych [[count]] ymgais ar ôl. ",
+        "stateExpired": "Nid yw eich gwybodaeth ar gael mwyach. Dychwelyd i ddechrau'r ffurflen."
       }
     },
     "confirmation": {
-      "pageTitle": "welsh Your progress has been saved",
-      "whatHappensNext": "What happens next",
-      "linkSent": "We have sent a link to [[email]] which you can use to resume this form within [[saveAndExitExpiryDays]] days.",
-      "repeatSave": "If you want to save your progress again after resuming your form, you will need to repeat the save process to generate a new link.",
-      "checkSpam": "Check your spam folder if you have not received an email after a few minutes.",
-      "closeWindow": "You can close this window."
+      "pageTitle": "Mae eich cynnydd wedi'i gadw",
+      "whatHappensNext": "Beth sy'n digwydd nesaf",
+      "linkSent": "Rydym wedi anfon dolen i [[email]] y gallwch ei defnyddio i ailafael yn y ffurflen hon o fewn [[saveAndExitExpiryDays]] diwrnod.",
+      "repeatSave": "Os hoffech gadw eich cynnydd eto ar ôl ailafael yn eich ffurflen, bydd angen i chi ailadrodd y broses gadw er mwyn cynhyrchu dolen newydd.",
+      "checkSpam": "Gwiriwch eich ffolder sbam os na fyddwch wedi cael e-bost ar ôl ychydig funudau.",
+      "closeWindow": "Gallwch gau'r ffenestr hon."
     },
     "resumeError": {
-      "pageTitle": "You cannot resume your form",
-      "continueButton": "Start form again",
-      "body1": "The link we emailed to you has expired or is invalid. Your information will be securely deleted.",
-      "body2": "You will need to start the form again."
+      "pageTitle": "Ni allwch ailafael yn eich ffurflen",
+      "continueButton": "Dechrau'r ffurflen eto",
+      "body1": "Mae'r ddolen y gwnaethom ei hanfon atoch drwy e-bost wedi dod i ben neu mae'n annilys. Caiff eich gwybodaeth ei dileu'n ddiogel.",
+      "body2": "Bydd angen i chi ddechrau'r ffurflen eto."
     },
     "resumeErrorLocked": {
-      "continueButton": "Start form again",
-      "heading": "You cannot resume your form",
-      "incorrectAnswer": "The answer to your security question was incorrect [[maxPasswordAttempts]] times. You have run out of attempts to resume your form.",
-      "startAgain": "You will need to start the form again. Your information will be securely deleted."
+      "continueButton": "Dechrau'r ffurflen eto",
+      "heading": "Ni allwch ailafael yn eich ffurflen",
+      "incorrectAnswer": "Roedd yr ateb i'ch cwestiwn diogelwch yn anghywir [[maxPasswordAttempts]] gwaith.  Nid oes ymgeisiau ar ôl gennych i ailafael yn eich ffurflen.",
+      "startAgain": "Bydd angen i chi ddechrau'r ffurflen eto. Caiff eich gwybodaeth ei dileu'n ddiogel."
     },
     "resumeSuccess": {
-      "pageTitle": "Welcome back to your form",
-      "continueButton": "Resume form",
-      "body1": "You will return to the page where you saved your progress unless new questions have been added to the form.",
-      "warning": "If new questions have been added to the form, you will be taken to the earliest new question.",
-      "warningIconFallback": "Warning",
-      "body2": "You will need to repeat the save process again and generate a new link if you want to save your progress in the future."
+      "pageTitle": "Croeso'n ôl i'ch ffurflen",
+      "continueButton": "Ailafael yn y ffurflen",
+      "body1": "Byddwch yn dychwelyd i'r dudalen lle gwnaethoch gadw eich cynnydd oni bai bod cwestiynau newydd wedi'u hychwanegu at y ffurflen.",
+      "warning": "Os bydd cwestiynau newydd wedi'u hychwanegu at y ffurflen, byddwch yn cael eich tywys i'r cwestiwn newydd cyntaf.",
+      "warningIconFallback": "Rhybudd",
+      "body2": "Bydd angen i chi ailadrodd y broses gadw eto a chynhyrchu dolen newydd os byddwch am gadw eich cynnydd yn y dyfodol."
     },
     "resumePassword": {
-      "pageTitle": "Continue with your form",
-      "continueButton": "Continue",
-      "body1": "Enter the most recent security answer to your security question to retrieve your information and continue with your form.",
-      "attemptsLeft": "You have [[attemptsLeft]] attempts to enter the correct answer.",
-      "warning": "To save progress again, you will need to repeat the save process and generate another link.",
-      "warningIconFallback": "Warning",
-      "errorTitle": "There is a problem"
+      "pageTitle": "Parhau gyda'ch ffurflen",
+      "continueButton": "Parhau",
+      "body1": "Rhowch yr ateb diogelwch diweddaraf i'ch cwestiwn diogelwch i adalw eich gwybodaeth a pharhau gyda'ch ffurflen.",
+      "attemptsLeft": "Mae gennych [[attemptsLeft]] ymgais i nodi'r ateb cywir.",
+      "warning": "I gadw eich cynnydd eto, bydd angen i chi ailadrodd y broses gadw a chynhyrchu dolen arall.",
+      "warningIconFallback": "Rhybudd",
+      "errorTitle": "Mae problem wedi codi"
     }
   },
   "confirmation": {
-    "referenceNumber": "welsh Your reference number",
-    "feedbackLink": "welsh What do you think of this service? (takes 30 seconds)",
-    "whatHappensNext": "welsh What happens next",
-    "feedbackSubmitted": "welsh Feedback submitted",
-    "submissionGuidance": "welsh Thank you for leaving feedback.\n\nYou can close this screen now."
+    "referenceNumber": "Eich rhif cyfeirnod",
+    "feedbackLink": "Beth yw eich barn am y gwasanaeth hwn? (mae'n cymryd 30 eiliad)",
+    "whatHappensNext": "Beth sy'n digwydd nesaf",
+    "feedbackSubmitted": "Adborth wedi'i gyflwyno",
+    "submissionGuidance": "Diolch am adael adborth.\n\nGallwch gau'r sgrin hon nawr."
   },
   "errors": {
-    "title": "welsh There is a problem",
+    "title": "Mae problem wedi codi",
     "notFound": {
-      "heading": "welsh Page not found",
-      "body1": "welsh If you typed the web address, check it is correct.",
-      "body2": "welsh If you pasted the web address, check you copied the entire address.",
-      "body3": "welsh If the web address is correct or you selected a link or button, <a href=\"https://www.gov.uk/guidance/contact-defra\" class=\"govuk-link\">contact the Defra Helpline</a> if you need to speak to someone about your form."
+      "heading": "Tudalen heb ei chanfod",
+      "body1": "Os gwnaethoch deipio’r cyfeiriad gwe, gwnewch yn siŵr ei fod yn gywir.",
+      "body2": "Os gwnaethoch ludo’r cyfeiriad gwe, gwnewch yn siŵr eich bod wedi copïo’r cyfeiriad cyfan.",
+      "body3": "Os yw’r cyfeiriad gwe yn gywir neu os gwnaethoch ddewis dolen neu fotwm, <a href=\"https://www.gov.uk/guidance/contact-defra\" class=\"govuk-link\">cysylltwch â Llinell Gymorth Defra</a> os oes angen i chi siarad â rhywun am eich ffurflen."
     },
     "serverError": {
-      "heading": "welsh Sorry, there is a problem with the service",
-      "canYou": "welsh You can:",
-      "tryBack": "welsh try your browser back button as your data may be saved",
-      "contact": "<a class=\"govuk-link\" href=\"https://www.gov.uk/guidance/contact-defra\">welsh contact the Defra Helpline</a> if you have any questions"
+      "heading": "Mae'n ddrwg gennym, mae problem gyda'r gwasanaeth",
+      "canYou": "Gallwch wneud y canlynol:",
+      "tryBack": "rhoi cynnig ar fotwm yn ôl eich porwr oherwydd gall eich data fod wedi'u cadw",
+      "contact": "<a class=\"govuk-link\" href=\"https://www.gov.uk/guidance/contact-defra\">cysylltu â Llinell Gymorth Defra</a> os oes gennych unrhyw gwestiynau"
     }
   },
   "errorPreview": {
-    "bannerHeading": "welsh This is a preview of the error messages for page [[pageNum]] in a draft form you are editing.",
-    "bannerClose": "welsh Close this tab to go back to the editor.",
-    "errorSummaryHeading": "welsh There is a problem",
-    "advancedSettingsHeading": "welsh If you set answer limits"
+    "bannerHeading": "Dyma ragolwg o'r negeseuon gwall ar gyfer tudalen [[pageNum]] mewn ffurflen ddrafft rydych yn ei golygu.",
+    "bannerClose": "Caewch y tab hwn i fynd yn ôl i'r golygydd. ",
+    "errorSummaryHeading": "Mae problem wedi codi",
+    "advancedSettingsHeading": "Os ydych yn gosod terfynau ateb"
   },
   "layout": {
-    "errorPrefix": "welsh Error: ",
-    "skipLink": "welsh Skip to main content",
+    "errorPrefix": "Gwall:",
+    "skipLink": "Neidio i'r prif gynnwys",
     "cookieBanner": {
-      "ariaLabel": "welsh Cookies on [[serviceName]]",
-      "acceptedHtml": "welsh You've accepted analytics cookies. You can [[link]] at any time.",
-      "rejectedHtml": "welsh You've rejected analytics cookies. You can [[link]] at any time.",
-      "changeSettings": "welsh change your cookie settings",
-      "essential": "welsh We use some essential cookies to make this service work.",
-      "analytics": "welsh We'd like to set analytics cookies so we can understand how people use the service and make improvements.",
-      "acceptButton": "welsh Accept analytics cookies",
-      "rejectButton": "welsh Reject analytics cookies",
-      "viewCookies": "welsh View cookies",
-      "hideCookieMessage": "welsh Hide cookie message"
+      "ariaLabel": "Cwcis ar [[serviceName]]",
+      "acceptedHtml": "Rydych wedi derbyn cwcis dadansoddeg. Gallwch [[link]] unrhyw bryd. ",
+      "rejectedHtml": "Rydych wedi gwrthod cwcis dadansoddeg. Gallwch [[link]] unrhyw bryd.",
+      "changeSettings": "newid eich gosodiadau cwcis",
+      "essential": "Rydym yn defnyddio rhai cwcis hanfodol i wneud i'r gwasanaeth hwn weithio.",
+      "analytics": "Hoffem osod cwcis dadansoddeg fel y gallwn ddeall sut mae pobl yn defnyddio'r gwasanaeth a gwneud gwelliannau.",
+      "acceptButton": "Derbyn cwcis dadansoddeg",
+      "rejectButton": "Gwrthod cwcis dadansoddeg",
+      "viewCookies": "Gweld y cwcis",
+      "hideCookieMessage": "Cuddio'r neges cwcis"
     },
     "serviceBanner": {
-      "title": "welsh Service status"
+      "title": "Statws y gwasanaeth"
     },
     "phaseBanner": {
       "feedbackLinkNewTab": "Rhowch eich adborth (yn agor mewn tab newydd)",
