@@ -134,6 +134,7 @@ describe('User feedback journey', () => {
         // Should be able to void this but linter still doesnt like it
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const dummy = Promise.resolve(
+          // @ts-expect-error - partial mock of request
           cacheService.setConfirmationState(request, {
             confirmed: true,
             formId: 'dummyId'
@@ -242,4 +243,5 @@ describe('User feedback journey', () => {
 /**
  * @import { Server } from '@hapi/hapi'
  * @import { BoundFunctions, queries } from '@testing-library/dom'
+ * @import { CacheRequest } from '@defra/forms-engine-plugin/engine/types.js'
  */

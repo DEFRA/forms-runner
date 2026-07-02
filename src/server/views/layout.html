@@ -35,13 +35,13 @@
 {% endblock %}
 
 {% block pageTitle -%}
-  {{ "Error: " if errors | length }}{{ pageTitle | evaluate }} - {{ name if name else config.serviceName }} - GOV.UK
+  {{ tR('layout.errorPrefix') if errors | length }}{{ pageTitle | evaluate }} - {{ name if name else config.serviceName }} - GOV.UK
 {%- endblock %}
 
 {% block skipLink %}
   {{ govukSkipLink({
     href: '#main-content',
-    text: 'Skip to main content'
+    text: tR('layout.skipLink')
   }) }}
 {% endblock %}
 
@@ -52,41 +52,43 @@
     <form method="post" action="/help/cookie-preferences/{{ slug }}?returnUrl={{ currentPath | urlencode }}">
       <input type="hidden" name="crumb" value="{{ crumb }}">
 
+    {% set changeSettingsLink %}<a class="govuk-link" href="/help/cookies/{{ slug }}">{{ tR('layout.cookieBanner.changeSettings') }}</a>{% endset %}
+
     {% set acceptHtml %}
-      <p class="govuk-body">You’ve accepted analytics cookies. You can <a class="govuk-link" href="/help/cookies/{{ slug }}">change your cookie settings</a> at any time.</p>
+      <p class="govuk-body">{{ tR('layout.cookieBanner.acceptedHtml', { link: changeSettingsLink }) | safe }}</p>
     {% endset %}
 
     {% set rejectedHtml %}
-      <p class="govuk-body">You’ve rejected analytics cookies. You can <a class="govuk-link" href="/help/cookies/{{ slug }}">change your cookie settings</a> at any time.</p>
+      <p class="govuk-body">{{ tR('layout.cookieBanner.rejectedHtml', { link: changeSettingsLink }) | safe }}</p>
     {% endset %}
 
     {% if cookieConsent.analytics !== true and cookieConsent.analytics !== false and cookieConsent.dismissed !== true %}
       {% set html %}
-        <p class="govuk-body">We use some essential cookies to make this service work.</p>
-        <p class="govuk-body">We’d like to set analytics cookies so we can understand how people use the service and make improvements.</p>
+        <p class="govuk-body">{{ tR('layout.cookieBanner.essential') }}</p>
+        <p class="govuk-body">{{ tR('layout.cookieBanner.analytics') }}</p>
       {% endset %}
 
       {{ govukCookieBanner({
-        ariaLabel: "Cookies on " + config.serviceName,
+        ariaLabel: tR('layout.cookieBanner.ariaLabel', { serviceName: config.serviceName }),
         messages: [
           {
             headingText: config.serviceName,
             html: html,
             actions: [
               {
-                text: "Accept analytics cookies",
+                text: tR('layout.cookieBanner.acceptButton'),
                 type: "submit",
                 name: "cookies[analytics]",
                 value: "yes"
               },
               {
-                text: "Reject analytics cookies",
+                text: tR('layout.cookieBanner.rejectButton'),
                 type: "submit",
                 name: "cookies[analytics]",
                 value: "no"
               },
               {
-                text: "View cookies",
+                text: tR('layout.cookieBanner.viewCookies'),
                 href: "/help/cookies/" + slug
               }
             ]
@@ -95,13 +97,13 @@
       }) }}
     {% elif cookieConsent.dismissed === false %}
       {{ govukCookieBanner({
-        ariaLabel: "Cookies on " + config.serviceName,
+        ariaLabel: tR('layout.cookieBanner.ariaLabel', { serviceName: config.serviceName }),
         messages: [
           {
             html: acceptHtml if cookieConsent.analytics === true else rejectedHtml,
             actions: [
               {
-                text: "Hide cookie message",
+                text: tR('layout.cookieBanner.hideCookieMessage'),
                 type: "submit",
                 name: "cookies[dismissed]",
                 value: "yes"
@@ -117,7 +119,7 @@
 
   {% if config.serviceBannerText | length %}
     {{ appServiceBanner({
-      title: "Service status",
+      title: tR('layout.serviceBanner.title'),
       text: config.serviceBannerText
     }) }}
   {% endif %}
@@ -128,7 +130,7 @@
     productName: productName | safe | trim
   }) }}
   {{ govukServiceNavigation({
-    serviceName: name if name else config.serviceName,
+    serviceName: context.translator.tForm('name') if name else config.serviceName,
     serviceUrl: currentPath if context.isForceAccess else serviceUrl
   }) }}
 {% endblock %}
@@ -138,22 +140,34 @@
     {% set feedbackLinkHtml -%}
       {% if feedbackLink %}
         <a href="{{ currentPath if context.isForceAccess else feedbackLink }}" class="govuk-link govuk-link--no-visited-state" {%- if not context.isForceAccess %} target="_blank" rel="noopener noreferrer" {%- endif %}>
-          give your feedback (opens in new tab)
+          {{- tR('layout.phaseBanner.feedbackLinkNewTab') -}}
         </a>
       {% else %}
         <a href="mailto:{{ config.feedbackViaEmail }}" class="govuk-link govuk-link--no-visited-state">
-          give your feedback by email
+          {{- tR('layout.phaseBanner.feedbackLinkEmail') -}}
         </a>
       {% endif %}
     {%- endset %}
 
     {{ govukPhaseBanner({
       tag: { text: phaseTag | capitalize },
-      html: "This is a new service. Help us improve it and " + feedbackLinkHtml | safe + "."
+      html: tR('layout.phaseBanner.text', { feedbackLink: feedbackLinkHtml })
     }) }}
   {% endif %}
   {% if backLink %}
     {{ govukBackLink(backLink) }}
+  {% endif %}
+
+  {% if context.languages | length %}
+    {% set languages = [] %}
+    {% for language in context.languages %}
+      {% if language.code === context.translator.language %}
+        {% set languages = (languages.push("<span class=\"govuk-body-s\">" + language.name + "</span>"), languages) %}
+      {% else %}
+        {% set languages = (languages.push("<a href='?language=" + language.code + "' class=\"govuk-link govuk-link--no-visited-state\">" + language.name + "</a>"), languages) %}
+      {% endif %}
+    {% endfor %}
+    <span class="app-language-options">{{ languages | join(" | ") | safe }}</span>
   {% endif %}
 {% endblock %}
 
@@ -190,24 +204,32 @@
     items: [
       {
         href: '/help/get-support/' + slug,
-        text: 'Get help with this form'
+        text: tR('layout.footer.getHelp')
       },
       {
         href: '/help/privacy/' + slug,
-        text: 'Privacy'
+        text: tR('layout.footer.privacy')
       },
       {
         href: '/help/cookies/' + slug,
-        text: 'Cookies'
+        text: tR('layout.footer.cookies')
       },
       {
         href: '/help/accessibility-statement/' + slug,
-        text: 'Accessibility Statement'
+        text: tR('layout.footer.accessibilityStatement')
       }
     ]
   } if slug %}
 
   {% if not context.isForceAccess %}
-    {{ govukFooter({ meta: meta }) }}
+    {{ govukFooter({
+      meta: meta,
+      contentLicence: {
+        html: tR('layout.footer.contentLicenceHtml')
+      },
+      copyright: {
+        text: tR('layout.footer.copyright')
+      }
+      }) }}
   {% endif %}
 {% endblock %}

@@ -1,6 +1,7 @@
 import { type PageController } from '@defra/forms-engine-plugin/controllers/PageController.js'
 import { type QuestionPageController } from '@defra/forms-engine-plugin/controllers/QuestionPageController.js'
 import { SummaryPageController } from '@defra/forms-engine-plugin/controllers/SummaryPageController.js'
+import { type Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'
 import {
   type FormContext,
   type FormContextRequest,
@@ -42,11 +43,13 @@ export class SummaryPageWithConfirmationEmailController extends SummaryPageContr
 
   getSummaryViewModel(
     request: FormContextRequest,
-    context: FormContext
+    context: FormContext,
+    translator: Translator
   ): SummaryViewModelWithEmail {
     const viewModel = super.getSummaryViewModel(
       request,
-      context
+      context,
+      translator
     ) as SummaryViewModelWithEmail
     const payerEmail = viewModel.paymentState?.payerEmail
     // Fill in user confirmation email, if supplied from payment journey
@@ -57,6 +60,7 @@ export class SummaryPageWithConfirmationEmailController extends SummaryPageContr
     }
 
     viewModel.userConfirmationEmailField = getUserConfirmationEmailAddress(
+      translator,
       request.payload,
       context.errors?.filter((e) => e.name === CONFIRMATION_EMAIL_FIELD_NAME)
     )
@@ -98,7 +102,8 @@ export class SummaryPageWithConfirmationEmailController extends SummaryPageContr
         context.errors = (this as unknown as QuestionPageController).getErrors(
           error?.details
         )
-        const viewModel = this.getSummaryViewModel(request, context)
+        const translator = this.getTranslator(request);
+        const viewModel = this.getSummaryViewModel(request, context, translator)
         return h.view(viewName, viewModel)
       }
 
@@ -126,18 +131,20 @@ export class SummaryPageWithConfirmationEmailController extends SummaryPageContr
 }
 
 export function getUserConfirmationEmailAddress(
+  translator: Translator,
   payload?: FormPayload,
   errors?: FormSubmissionError[]
 ) {
+  const { t } = translator
   return {
     label: {
-      text: 'Confirmation email (optional)',
+      text: t('pages.summary.confirmationEmail'),
       classes: 'govuk-label--m'
     },
     id: CONFIRMATION_EMAIL_FIELD_NAME,
     name: CONFIRMATION_EMAIL_FIELD_NAME,
     hint: {
-      text: 'Enter your email address to receive a confirmation email and a copy of your answers'
+      text: t('pages.summary.confirmationEmailHint')
     },
     value: payload ? payload[CONFIRMATION_EMAIL_FIELD_NAME] : undefined,
     errorMessage: errors?.length ? errors[0].text : undefined

@@ -83,6 +83,8 @@ describe('Confirmation email', () => {
 
     await server.initialize()
 
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+
     // Navigate to start
     const response = await server.inject({
       url: `${basePath}${journey[0].paths.current}`

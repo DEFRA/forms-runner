@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 
-{% set pageTitle = "Get help with your form" %}
+{% set pageTitle = tR('help.getSupport.title') %}
 
 {% block content %}
   {% if form.contact %}
@@ -9,15 +9,15 @@
         <div class="govuk-grid-column-two-thirds">
           <h1 class="govuk-heading-l">{{ pageTitle }}</h1>
           {% if form.contact.phone %}
-            <h2 class="govuk-heading-m">Telephone</h2>
+            <h2 class="govuk-heading-m">{{ tR('help.getSupport.telephone') }}</h2>
             <div class="app-prose-scope">
               {{ form.contact.phone | markdown(3) | safe }}
             </div>
-            <p class="govuk-body"><a href="https://www.gov.uk/call-charges" class="govuk-link govuk-link--no-visited-state">Find out about call charges</a></p>
+            <p class="govuk-body"><a href="https://www.gov.uk/call-charges" class="govuk-link govuk-link--no-visited-state">{{ tR('help.getSupport.callCharges') }}</a></p>
           {% endif %}
 
           {% if form.contact.email %}
-            <h2 class="govuk-heading-m">Email</h2>
+            <h2 class="govuk-heading-m">{{ tR('help.getSupport.email') }}</h2>
             <ul class="govuk-list">
               <li><a class="govuk-link govuk-link--no-visited-state" href="mailto:{{ form.contact.email.address }}">{{ form.contact.email.address }}</a></li>
               <li>{{ form.contact.email.responseTime }}</li>
@@ -25,7 +25,7 @@
           {% endif %}
 
           {% if form.contact.online %}
-            <h2 class="govuk-heading-m">Online contact form</h2>
+            <h2 class="govuk-heading-m">{{ tR('help.getSupport.onlineContactForm') }}</h2>
             <ul class="govuk-list">
               <li><a class="govuk-link govuk-link--no-visited-state" href="{{ form.contact.online.url }}">{{ form.contact.online.text }}</a></li>
             </ul>

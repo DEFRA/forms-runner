@@ -1,5 +1,6 @@
 import { type CacheService } from '@defra/forms-engine-plugin/cache-service.js'
 import { type QuestionPageController } from '@defra/forms-engine-plugin/controllers/QuestionPageController.js'
+import { type Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'
 import { FormModel } from '@defra/forms-engine-plugin/engine/models/FormModel.js'
 import { buildFormRequest } from '@defra/forms-engine-plugin/engine/pageControllers/__stubs__/request.js'
 import { type FormSubmissionState } from '@defra/forms-engine-plugin/engine/types.js'
@@ -24,6 +25,7 @@ describe('SummaryPageWithConfirmationEmailController', () => {
   let model: FormModel
   let controller: SummaryPageWithConfirmationEmailController
   let requestPage: FormRequest
+  let translator: Translator
 
   const response = {
     code: jest.fn().mockImplementation(() => response)
@@ -38,6 +40,8 @@ describe('SummaryPageWithConfirmationEmailController', () => {
     model = new FormModel(definition, {
       basePath: 'test'
     })
+
+    translator = model.createTranslator('en-GB')
 
     // Create a mock page for SummaryPageWithConfirmationEmailController
     const mockPage = {
@@ -57,7 +61,7 @@ describe('SummaryPageWithConfirmationEmailController', () => {
       },
       query: {},
       app: { model }
-    } as FormRequest)
+    } as unknown as FormRequest)
   })
 
   describe('handle errors', () => {
@@ -85,7 +89,7 @@ describe('SummaryPageWithConfirmationEmailController', () => {
       const postHandler = controller.makePostRouteHandler()
       await postHandler(request, context, h)
 
-      const viewModel = controller.getSummaryViewModel(request, context)
+      const viewModel = controller.getSummaryViewModel(request, context, translator)
 
       expect(h.view).toHaveBeenCalledWith(
         'summary-with-confirmation',
@@ -251,13 +255,13 @@ describe('SummaryPageWithConfirmationEmailController', () => {
 
   describe('getUserConfirmationEmailAddress', () => {
     test('should get confirmation email', () => {
-      const field = getUserConfirmationEmailAddress()
+      const field = getUserConfirmationEmailAddress(translator)
       expect(field.name).toBe('userConfirmationEmailAddress')
       expect(field.value).toBeUndefined()
     })
 
     test('should get confirmation email with retained value', () => {
-      const field = getUserConfirmationEmailAddress({
+      const field = getUserConfirmationEmailAddress(translator, {
         userConfirmationEmailAddress: 'emailval'
       })
       expect(field.name).toBe('userConfirmationEmailAddress')
@@ -298,7 +302,11 @@ describe('SummaryPageWithConfirmationEmailController', () => {
       } as unknown as FormRequestPayload
 
       const context = model.getFormContext(request, state)
-      const viewModel = controller.getSummaryViewModel(request, context)
+      const viewModel = controller.getSummaryViewModel(
+        request,
+        context,
+        translator
+      )
       // @ts-expect-error - dynamic field name
       expect(viewModel.userConfirmationEmailField.value).toBe(
         'payer-email@test.com'
@@ -337,7 +345,11 @@ describe('SummaryPageWithConfirmationEmailController', () => {
       } as unknown as FormRequestPayload
 
       const context = model.getFormContext(request, state)
-      const viewModel = controller.getSummaryViewModel(request, context)
+      const viewModel = controller.getSummaryViewModel(
+        request,
+        context,
+        translator
+      )
       // @ts-expect-error - dynamic field name
       expect(viewModel.userConfirmationEmailField.value).toBe(
         'payer-email@test.com'

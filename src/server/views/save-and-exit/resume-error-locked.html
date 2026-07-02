@@ -5,12 +5,12 @@
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <h1 class="govuk-heading-l">You cannot resume your form</h1>
+      <h1 class="govuk-heading-l">{{ tR('saveAndExit.resumeErrorLocked.heading') }}</h1>
       <p class="govuk-body">
-        The answer to your security question was incorrect {{ maxPasswordAttempts }} times. You have run out of attempts to resume your form.
+        {{ tR('saveAndExit.resumeErrorLocked.incorrectAnswer', { maxPasswordAttempts: maxPasswordAttempts }) }}
       </p>
       <p class="govuk-body">
-        You will need to start the form again. Your information will be securely deleted.
+        {{ tR('saveAndExit.resumeErrorLocked.startAgain') }}
       </p>
       <div class="govuk-button-group">
         {{ govukButton(buttons.continueButton) }}
