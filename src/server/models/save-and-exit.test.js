@@ -10,6 +10,28 @@ describe('Save and exit models', () => {
       id: formId
     })
 
+    const mockTranslator = {
+      language: 'en-GB',
+      t: function () {
+        throw new Error('Function not implemented.')
+      },
+      tForm: function () {
+        throw new Error('Function not implemented.')
+      },
+      tPage: function () {
+        throw new Error('Function not implemented.')
+      },
+      tComponent: function () {
+        throw new Error('Function not implemented.')
+      },
+      tSection: function () {
+        throw new Error('Function not implemented.')
+      },
+      tListItem: function () {
+        throw new Error('Function not implemented.')
+      }
+    }
+
     test('should construct live resume url', () => {
       const link = /** @type {SaveAndExitResumeDetails} */ ({
         form: {
@@ -17,7 +39,7 @@ describe('Save and exit models', () => {
           status: 'live'
         }
       })
-      expect(lockedOutViewModel(form, link, 5)).toEqual({
+      expect(lockedOutViewModel(form, link, 5, mockTranslator)).toEqual({
         name: 'My Form Title',
         maxPasswordAttempts: 5,
         buttons: {
@@ -26,6 +48,7 @@ describe('Save and exit models', () => {
             href: '/form/my-form'
           }
         },
+        context: { translator: expect.any(Object) },
         feedbackLink:
           '/form/feedback?formId=6c45dbc1-d6bb-4d30-8d68-2e708e5310b9'
       })
@@ -38,7 +61,7 @@ describe('Save and exit models', () => {
           status: 'live'
         }
       })
-      expect(lockedOutViewModel(form, link, 5)).toEqual({
+      expect(lockedOutViewModel(form, link, 5, mockTranslator)).toEqual({
         name: 'My Form Title',
         maxPasswordAttempts: 5,
         buttons: {
@@ -47,6 +70,7 @@ describe('Save and exit models', () => {
             href: '/form/preview/live/my-form'
           }
         },
+        context: { translator: expect.any(Object) },
         feedbackLink:
           '/form/feedback?formId=6c45dbc1-d6bb-4d30-8d68-2e708e5310b9'
       })
@@ -59,7 +83,7 @@ describe('Save and exit models', () => {
           status: 'draft'
         }
       })
-      expect(lockedOutViewModel(form, link, 5)).toEqual({
+      expect(lockedOutViewModel(form, link, 5, mockTranslator)).toEqual({
         name: 'My Form Title',
         maxPasswordAttempts: 5,
         buttons: {
@@ -68,6 +92,7 @@ describe('Save and exit models', () => {
             href: '/form/preview/draft/my-form'
           }
         },
+        context: { translator: expect.any(Object) },
         feedbackLink:
           '/form/feedback?formId=6c45dbc1-d6bb-4d30-8d68-2e708e5310b9'
       })
