@@ -36,10 +36,7 @@ import {
 } from '~/src/server/routes/index.js'
 import { getFormMetadataWithoutGuard } from '~/src/server/services/formMetadataGuards.js'
 import { getFormDefinition } from '~/src/server/services/formsService.js'
-import {
-  getFeedbackFormLink,
-  resolveLanguage
-} from '~/src/server/utils/utils.js'
+import { getFeedbackFormLink } from '~/src/server/utils/utils.js'
 
 const routes: ServerRoute[] = [...publicRoutes, healthRoute]
 const saveAndExitExpiryDays = config.get('saveAndExitExpiryDays')
@@ -127,12 +124,6 @@ export default {
           const { slug } = request.params
           const form = await getFormMetadataWithoutGuard(slug)
 
-          request.app.language = resolveLanguage(
-            request.query,
-            request.yar,
-            form
-          )
-
           return h.view('help/get-support', { form })
         },
         options
@@ -144,12 +135,6 @@ export default {
         async handler(request, h) {
           const { slug } = request.params
           const form = await getFormMetadataWithoutGuard(slug)
-
-          request.app.language = resolveLanguage(
-            request.query,
-            request.yar,
-            form
-          )
 
           // It's most likely that we come into this route from a live version of the form
           // so prefer that and fallback to draft if no live version (it is possible to have
@@ -177,12 +162,6 @@ export default {
           const { slug } = request.params
           const form = await getFormMetadataWithoutGuard(slug)
 
-          request.app.language = resolveLanguage(
-            request.query,
-            request.yar,
-            form
-          )
-
           const formStatus = form.live ? FormStatus.Live : FormStatus.Draft
           const definition = await getFormDefinition(form.id, formStatus)
 
@@ -201,13 +180,7 @@ export default {
         path: '/help/cookies/{slug}',
         async handler(request, h) {
           const { slug } = request.params
-          const form = await getFormMetadataWithoutGuard(slug)
-
-          request.app.language = resolveLanguage(
-            request.query,
-            request.yar,
-            form
-          )
+          await getFormMetadataWithoutGuard(slug)
 
           const sessionTimeout = config.get('sessionTimeout')
 
@@ -312,16 +285,9 @@ export default {
       server.route<{ Params: { slug: string } }>({
         method: 'get',
         path: '/help/cookie-preferences/{slug}',
-        async handler(request, h) {
+        handler(request, h) {
           const { params } = request
           const { slug } = params
-          const form = await getFormMetadataWithoutGuard(slug)
-
-          request.app.language = resolveLanguage(
-            request.query,
-            request.yar,
-            form
-          )
 
           let cookieConsentDismissed = false
 
@@ -352,13 +318,7 @@ export default {
         path: '/help/accessibility-statement/{slug}',
         async handler(request, h) {
           const { slug } = request.params
-          const form = await getFormMetadataWithoutGuard(slug)
-
-          request.app.language = resolveLanguage(
-            request.query,
-            request.yar,
-            form
-          )
+          await getFormMetadataWithoutGuard(slug)
 
           return h.view('help/accessibility-statement')
         },

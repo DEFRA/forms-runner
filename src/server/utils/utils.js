@@ -35,6 +35,7 @@ export function getFeedbackFormLink(formId) {
  * @param {RequestQuery} [query] - the request query parameters
  * @param {Yar} [yar] - the yar instance from the request
  * @param {FormMetadata} [metadata] - the form metadata
+ * @returns {string} - the resolved language code
  */
 export function resolveLanguage(query = {}, yar, metadata) {
   const defaultLang = 'en-GB'

@@ -89,7 +89,11 @@ describe('SummaryPageWithConfirmationEmailController', () => {
       const postHandler = controller.makePostRouteHandler()
       await postHandler(request, context, h)
 
-      const viewModel = controller.getSummaryViewModel(request, context, translator)
+      const viewModel = controller.getSummaryViewModel(
+        request,
+        context,
+        translator
+      )
 
       expect(h.view).toHaveBeenCalledWith(
         'summary-with-confirmation',

@@ -102,7 +102,7 @@ export class SummaryPageWithConfirmationEmailController extends SummaryPageContr
         context.errors = (this as unknown as QuestionPageController).getErrors(
           error?.details
         )
-        const translator = this.getTranslator(request);
+        const translator = this.getTranslator(request)
         const viewModel = this.getSummaryViewModel(request, context, translator)
         return h.view(viewName, viewModel)
       }

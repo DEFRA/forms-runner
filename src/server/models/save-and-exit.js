@@ -349,21 +349,16 @@ export function getKey(slug, state) {
 /**
  * The save and exit details form view model
  * @param {FormMetadata} metadata
+ * @param {Translator} translator
  * @param {FormStatus} [status]
  * @param {SaveAndExitPayload} [payload]
  * @param {Error} [err]
- * @param {string} [language]
  */
-export function detailsViewModel(
-  metadata,
-  status,
-  payload,
-  err,
-  language = 'en-GB'
-) {
+export function detailsViewModel(metadata, translator, status, payload, err) {
   const { slug, title, id } = metadata
   const formPath = constructFormUrl(slug, status)
   const formSummaryPath = constructFormSummaryUrl(formPath)
+  const { language } = translator
 
   const backLink = {
     href: formSummaryPath
@@ -415,6 +410,7 @@ export function detailsViewModel(
     errors,
     fields,
     buttons: { continueButton, cancelButton },
+    context: { translator },
     ...getFeedbackFormLink(id)
   }
 }
@@ -423,12 +419,14 @@ export function detailsViewModel(
  * The save and exit confirmation form view model
  * @param {FormMetadata} metadata
  * @param {string} email
+ * @param {Translator} translator
  * @param {FormStatus} [status]
  * @param {string} [language]
  */
 export function confirmationViewModel(
   metadata,
   email,
+  translator,
   status,
   language = 'en-GB'
 ) {
@@ -441,6 +439,7 @@ export function confirmationViewModel(
     pageTitle: t('saveAndExit.confirmation.pageTitle', language),
     email,
     saveAndExitExpiryDays,
+    context: { translator },
     ...getFeedbackFormLink(id)
   }
 }
@@ -450,18 +449,19 @@ export function confirmationViewModel(
  * @param {FormMetadata} metadata - the metadata of the form
  * @param {SecurityQuestionsEnum} securityQuestion - the security question
  * @param {number} attemptsLeft
+ * @param {Translator} translator
  * @param {SaveAndExitResumePasswordPayload} [payload]
  * @param {Error} [err]
- * @param {string} [language]
  */
 export function passwordViewModel(
   metadata,
   securityQuestion,
   attemptsLeft,
+  translator,
   payload,
-  err,
-  language = 'en-GB'
+  err
 ) {
+  const { language } = translator
   const { errors, securityAnswerError } = buildErrors(err, language)
 
   const questionKey = securityQuestionKeyMap[securityQuestion]
@@ -497,6 +497,7 @@ export function passwordViewModel(
     fields,
     attemptsLeft,
     buttons: { continueButton },
+    context: { translator },
     ...getFeedbackFormLink(metadata.id)
   }
 }
@@ -504,9 +505,11 @@ export function passwordViewModel(
 /**
  * The save and exit error form view model
  * @param {{ slug: string }} payload
- * @param {string} [language]
+ * @param {Translator} [translator] - the translator instance
  */
-export function resumeErrorViewModel(payload, language = 'en-GB') {
+export function resumeErrorViewModel(payload, translator) {
+  const { language = 'en-GB' } = translator ?? {}
+
   // Model buttons
   const continueButton = {
     text: t('saveAndExit.resumeError.continueButton', language),
@@ -516,6 +519,7 @@ export function resumeErrorViewModel(payload, language = 'en-GB') {
   return {
     pageTitle: t('saveAndExit.resumeError.pageTitle', language),
     buttons: payload.slug ? { continueButton } : {},
+    context: { translator },
     ...getFeedbackFormLink('')
   }
 }
@@ -541,14 +545,16 @@ export function createInvalidPasswordError(
  * @param {FormMetadata} form
  * @param {SaveAndExitResumeDetails} validatedLink
  * @param {number} maxPasswordAttempts
- * @param {string} [language]
+ * @param {Translator} translator - the translator instance
  */
 export function lockedOutViewModel(
   form,
   validatedLink,
   maxPasswordAttempts,
-  language = 'en-GB'
+  translator
 ) {
+  const { language } = translator
+
   return {
     name: form.title,
     maxPasswordAttempts,
@@ -561,6 +567,7 @@ export function lockedOutViewModel(
         )
       }
     },
+    context: { translator },
     ...getFeedbackFormLink(form.id)
   }
 }
@@ -568,10 +575,11 @@ export function lockedOutViewModel(
 /**
  * The save and exit success form view model
  * @param {FormMetadata} form
+ * @param {Translator} translator - the translator instance
  * @param {FormStatus} [status]
- * @param {string} [language]
  */
-export function resumeSuccessViewModel(form, status, language = 'en-GB') {
+export function resumeSuccessViewModel(form, translator, status) {
+  const { language } = translator
   const formPath = constructFormUrl(form.slug, status)
   const formSummaryPath = constructFormSummaryUrl(formPath)
 
@@ -586,6 +594,7 @@ export function resumeSuccessViewModel(form, status, language = 'en-GB') {
     name: form.title,
     serviceUrl: formPath,
     buttons: { continueButton },
+    context: { translator },
     ...getFeedbackFormLink(form.id)
   }
 }
@@ -644,5 +653,6 @@ export function resumeSuccessViewModel(form, status, language = 'en-GB') {
  * @import { FormMetadata } from '@defra/forms-model'
  * @import { StatusCodes } from 'http-status-codes'
  * @import { FormStatus } from '@defra/forms-engine-plugin/types'
+ * @import { Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'
  * @import { SaveAndExitResumeDetails } from '~/src/server/types.js'
  */
