@@ -367,6 +367,7 @@ describe('Confirmation email', () => {
             value: 'Firstname Lastname'
           }
         ],
+        referenceNumber: expect.any(String),
         repeaters: [],
         retrievalKey: 'enrique.chase@defra.gov.uk',
         sessionId: expect.any(String)

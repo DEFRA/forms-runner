@@ -1,5 +1,6 @@
 import { defineConfig, globalIgnores } from 'eslint/config'
 import prettierConfig from 'eslint-config-prettier'
+import importX from 'eslint-plugin-import-x'
 import jest from 'eslint-plugin-jest'
 import jsdocPlugin from 'eslint-plugin-jsdoc'
 import globals from 'globals'
@@ -21,6 +22,11 @@ export default defineConfig([
 
   // Base neostandard config (includes n, promise, import-x)
   ...neostandard({ ts: true, noStyle: true }),
+  {
+    plugins: {
+      'import-x': importX
+    }
+  },
 
   // Main override for all source files
   {
