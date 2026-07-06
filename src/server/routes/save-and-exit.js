@@ -212,7 +212,7 @@ export default [
 
           const model = detailsViewModel(
             metadata,
-            /** @type {FormStatus | undefined} */ (status),
+            status,
             /** @type {SaveAndExitPayload} */ (payload),
             err
           )
