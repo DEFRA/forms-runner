@@ -1,3 +1,5 @@
+import http from 'node:http'
+import https from 'node:https'
 import { join, parse } from 'path'
 
 import plugin, { CURRENT_PAGE_PATH_KEY } from '@defra/forms-engine-plugin'
@@ -22,7 +24,6 @@ import inert from '@hapi/inert'
 import Scooter from '@hapi/scooter'
 import Wreck from '@hapi/wreck'
 import blipp from 'blipp'
-import { ProxyAgent } from 'proxy-agent'
 
 import { config } from '~/src/config/index.js'
 import forwardLogs from '~/src/server/common/helpers/logging/forward-logs.js'
@@ -46,12 +47,12 @@ import * as formsService from '~/src/server/services/formsService.js'
 import { createOutputService } from '~/src/server/services/outputService.js'
 import { type RouteConfig } from '~/src/server/types.js'
 
-const proxyAgent = new ProxyAgent()
-
-Wreck.agents = {
-  https: proxyAgent,
-  http: proxyAgent,
-  httpsAllowUnauthorized: proxyAgent
+if (process.env.HTTP_PROXY) {
+  Wreck.agents = {
+    http: http.globalAgent,
+    https: https.globalAgent,
+    httpsAllowUnauthorized: https.globalAgent
+  }
 }
 
 const serverOptions = (): ServerOptions => {
