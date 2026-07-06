@@ -11,5 +11,5 @@ export function convertToLanguageMessages(
 }
 
 export function createJoiExpression(expr: string): JoiExpression {
-  return Joi.expression(expr) as unknown as JoiExpression
+  return Joi.expression(expr)
 }

@@ -205,7 +205,9 @@ export default [
       validate: {
         async failAction(request, h, err) {
           const { params, payload } = request
-          const { slug, state: status } = params
+          const { slug, state: status } = /** @type {SaveAndExitParams} */ (
+            params
+          )
           const metadata = await getFormMetadataWithGuard(slug, status)
 
           const model = detailsViewModel(
