@@ -101,6 +101,6 @@ describe('Save and exit models', () => {
 })
 
 /**
- * @import { FormMetadata, } from '@defra/forms-model'
+ * @import { FormMetadata } from '@defra/forms-model'
  * @import { SaveAndExitResumeDetails } from '~/src/server/types.js'
  */
