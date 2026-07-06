@@ -34,10 +34,8 @@ import {
   publicRoutes,
   saveAndExitRoutes
 } from '~/src/server/routes/index.js'
-import {
-  getFormDefinition,
-  getFormMetadata
-} from '~/src/server/services/formsService.js'
+import { getFormMetadataWithoutGuard } from '~/src/server/services/formMetadataGuards.js'
+import { getFormDefinition } from '~/src/server/services/formsService.js'
 import { getFeedbackFormLink } from '~/src/server/utils/utils.js'
 
 const routes: ServerRoute[] = [...publicRoutes, healthRoute]
@@ -124,7 +122,7 @@ export default {
         path: '/help/get-support/{slug}',
         async handler(request, h) {
           const { slug } = request.params
-          const form = await getFormMetadata(slug)
+          const form = await getFormMetadataWithoutGuard(slug)
 
           return h.view('help/get-support', { form })
         },
@@ -136,7 +134,7 @@ export default {
         path: '/help/privacy/{slug}',
         async handler(request, h) {
           const { slug } = request.params
-          const form = await getFormMetadata(slug)
+          const form = await getFormMetadataWithoutGuard(slug)
           // It's most likely that we come into this route from a live version of the form
           // so prefer that and fallback to draft if no live version (it is possible to have
           // a live version and no draft version, so we cannot just default to 'draft').
@@ -161,8 +159,9 @@ export default {
         path: '/help/privacy-specific/{slug}',
         async handler(request, h) {
           const { slug } = request.params
-          const form = await getFormMetadata(slug)
-          const definition = await getFormDefinition(form.id, FormStatus.Draft)
+          const form = await getFormMetadataWithoutGuard(slug)
+          const formStatus = form.live ? FormStatus.Live : FormStatus.Draft
+          const definition = await getFormDefinition(form.id, formStatus)
 
           return h.view('help/privacy-notice-specific', {
             form,
@@ -174,10 +173,13 @@ export default {
         options
       })
 
-      server.route({
+      server.route<{ Params: { slug: string } }>({
         method: 'get',
         path: '/help/cookies/{slug}',
         async handler(request, h) {
+          const { slug } = request.params
+          await getFormMetadataWithoutGuard(slug)
+
           const sessionTimeout = config.get('sessionTimeout')
 
           const sessionDurationPretty = humanizeDuration(sessionTimeout)
@@ -311,7 +313,10 @@ export default {
       server.route<{ Params: { slug: string } }>({
         method: 'get',
         path: '/help/accessibility-statement/{slug}',
-        handler(_request, h) {
+        async handler(request, h) {
+          const { slug } = request.params
+          await getFormMetadataWithoutGuard(slug)
+
           return h.view('help/accessibility-statement')
         },
         options

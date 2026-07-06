@@ -26,6 +26,7 @@ describe('Routes', () => {
   })
 
   test('cookies page is served with 24 hour duration and GA info', async () => {
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
     config.set('sessionTimeout', 86400000)
     config.set('googleTagManagerContainerId', 'GTM-XXXXXXXX')
     config.set('googleAnalyticsContainerId', 'YYYYYYYYYY')
@@ -62,6 +63,7 @@ describe('Routes', () => {
   })
 
   test('cookies page is served without GA info', async () => {
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
     config.set('sessionTimeout', 86400000)
     config.set('googleTagManagerContainerId', '')
     config.set('googleAnalyticsContainerId', '')
@@ -97,6 +99,7 @@ describe('Routes', () => {
   })
 
   test('accessibility statement page is served', async () => {
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
     const options = {
       method: 'GET',
       url: '/help/accessibility-statement/slug'
@@ -226,13 +229,50 @@ describe('Routes', () => {
   })
 
   test('privacy notice (specific) page is served with feedback form link', async () => {
+    const metadata = fixtures.form.metadata
     jest
       .mocked(getFormDefinition)
       .mockResolvedValueOnce({} as unknown as FormDefinition)
     jest.mocked(getFormMetadata).mockResolvedValue({
-      ...fixtures.form.metadata,
+      ...metadata,
       privacyNoticeType: 'text',
       privacyNoticeText: '# Privacy markdown heading'
+    })
+    const options = {
+      method: 'GET',
+      url: '/help/privacy-specific/slug'
+    }
+
+    const { container } = await renderResponse(server, options)
+
+    const $heading = container.getByRole('heading', {
+      name: 'Privacy markdown heading',
+      level: 1
+    })
+
+    const $link = container.getByRole('link', {
+      name: 'give your feedback (opens in new tab)'
+    })
+
+    expect($heading).toBeInTheDocument()
+    expect($link).toBeInTheDocument()
+  })
+
+  test('privacy notice (specific) page is served with feedback form link (live)', async () => {
+    const metadata = fixtures.form.metadata
+    jest
+      .mocked(getFormDefinition)
+      .mockResolvedValueOnce({} as unknown as FormDefinition)
+    jest.mocked(getFormMetadata).mockResolvedValue({
+      ...metadata,
+      privacyNoticeType: 'text',
+      privacyNoticeText: '# Privacy markdown heading',
+      live: {
+        createdAt: metadata.createdAt,
+        createdBy: metadata.createdBy,
+        updatedAt: metadata.updatedAt,
+        updatedBy: metadata.updatedBy
+      }
     })
     const options = {
       method: 'GET',
