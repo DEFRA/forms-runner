@@ -224,6 +224,7 @@
     }
   },
   "confirmation": {
+    "formSubmitted": "Ffurflen wedi'i chyflwyno",
     "referenceNumber": "Eich rhif cyfeirnod",
     "feedbackLink": "Beth yw eich barn am y gwasanaeth hwn? (mae'n cymryd 30 eiliad)",
     "whatHappensNext": "Beth sy'n digwydd nesaf",

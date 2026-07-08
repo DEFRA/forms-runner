@@ -224,6 +224,7 @@
     }
   },
   "confirmation": {
+    "formSubmitted": "Form submitted",
     "referenceNumber": "Your reference number",
     "feedbackLink": "What do you think of this service? (takes 30 seconds)",
     "whatHappensNext": "What happens next",

@@ -130,7 +130,7 @@
     productName: productName | safe | trim
   }) }}
   {{ govukServiceNavigation({
-    serviceName: context.translator.tForm('name') if name else config.serviceName,
+    serviceName: context.translator.tMetadata('title') if name and context else config.serviceName,
     serviceUrl: currentPath if context.isForceAccess else serviceUrl
   }) }}
 {% endblock %}

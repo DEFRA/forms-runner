@@ -15,7 +15,7 @@ describe('Save and exit models', () => {
       t: function () {
         throw new Error('Function not implemented.')
       },
-      tForm: function () {
+      tMetadata: function () {
         throw new Error('Function not implemented.')
       },
       tPage: function () {
