@@ -35,6 +35,7 @@ export const metadata = {
   teamName: 'Defra Forms',
   teamEmail: 'defraforms@defra.gov.uk',
   notificationEmail: 'enrique.chase@defra.gov.uk',
+  offline: false,
   createdAt: now,
   createdBy: author,
   updatedAt: now,

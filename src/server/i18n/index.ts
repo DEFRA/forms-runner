@@ -30,5 +30,5 @@ export function t(
   lang: string,
   opts?: Record<string, unknown>
 ): string | string[] {
-  return runnerI18n.t(key, { lng: lang, ...opts }) as string | string[]
+  return runnerI18n.t(key, { lng: lang, ...opts })
 }
