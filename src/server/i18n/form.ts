@@ -1,6 +1,6 @@
 import { createFormTranslator } from '@defra/forms-engine-plugin/engine/i18n/createFormTranslator.js'
 import { type Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'
-import { type FormStatus } from '@defra/forms-model'
+import { type FormMetadata, type FormStatus } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { LRUCache } from 'lru-cache'
 
@@ -12,23 +12,23 @@ const cache = new LRUCache({
 })
 
 /**
- * Get translator for a form definition, given the form id, status and language.
- * @param {string} id - the form id to retrieve the definition for
+ * Get translator for a form definition, given the form metadata, status and language.
+ * @param {FormMetadata} metadata - the form metadata to retrieve the definition for
  * @param {FormStatus} status - the form status to use when retrieving the definition
  * @param {string} language - the language to use for the translator
  */
 export async function getCachedFormTranslator(
-  id: string,
+  metadata: FormMetadata,
   status: FormStatus,
   language: string
 ) {
-  const key = `${id}-${status}-${language}`
+  const key = `${metadata.id}-${status}-${language}`
 
   if (cache.has(key)) {
     return cache.get(key) as unknown as Translator
   }
 
-  const translator = await getFormTranslator(id, status, language)
+  const translator = await getFormTranslator(metadata, status, language)
 
   cache.set(key, translator)
 
@@ -36,25 +36,25 @@ export async function getCachedFormTranslator(
 }
 
 /**
- * Get translator for a form definition, given the form id, status and language.
- * @param {string} id - the form id to retrieve the definition for
+ * Get translator for a form definition, given the form metadata, status and language.
+ * @param {FormMetadata} metadata - the form metadata to retrieve the definition for
  * @param {FormStatus} status - the form status to use when retrieving the definition
  * @param {string} language - the language to use for the translator
  */
 export async function getFormTranslator(
-  id: string,
+  metadata: FormMetadata,
   status: FormStatus,
   language: string
 ) {
-  const def = await getFormDefinition(id, status)
+  const def = await getFormDefinition(metadata.id, status)
 
   if (!def) {
     throw Boom.notFound(
-      `No definition found for form metadata ${id} (${status})`
+      `No definition found for form metadata ${metadata.id} (${status})`
     )
   }
 
-  const translator = createFormTranslator(def, language)
+  const translator = createFormTranslator(def, metadata, language)
 
   return translator
 }

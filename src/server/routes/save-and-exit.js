@@ -89,11 +89,7 @@ export async function getFormTranslator(
   status = FormStatus.Live
 ) {
   const language = resolveLanguage(request.query, request.yar, metadata)
-  const translator = await getCachedFormTranslator(
-    metadata.id,
-    status,
-    language
-  )
+  const translator = await getCachedFormTranslator(metadata, status, language)
 
   return { translator, language }
 }

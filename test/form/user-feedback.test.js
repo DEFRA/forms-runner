@@ -108,7 +108,10 @@ describe('User feedback journey', () => {
     server = await createServer({
       formFileName: 'user-feedback-with-custom-controller.js',
       formFilePath: join(import.meta.dirname, 'definitions'),
-      enforceCsrf: true
+      enforceCsrf: true,
+      metadata: /** @type {import('@defra/forms-model').FormMetadata} */ ({
+        title: 'User feedback'
+      })
     })
 
     await server.initialize()
@@ -134,7 +137,6 @@ describe('User feedback journey', () => {
         // Should be able to void this but linter still doesnt like it
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const dummy = Promise.resolve(
-          // @ts-expect-error - partial mock of request
           cacheService.setConfirmationState(request, {
             confirmed: true,
             formId: 'dummyId'

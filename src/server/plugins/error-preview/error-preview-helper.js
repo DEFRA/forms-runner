@@ -249,6 +249,7 @@ export function createErrorPreviewModel(definition, path, questionId) {
 
   const dummyFormModel = new FormModel(
     { pages: [], conditions: [], lists: [], sections: [] },
+    /** @type {import('@defra/forms-model').FormMetadata} */ ({}),
     { basePath: '' }
   )
   const componentClass = createComponent(component, { model: dummyFormModel })

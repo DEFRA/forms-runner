@@ -12,7 +12,7 @@ import {
   type FormResponseToolkit,
   type PluginOptions
 } from '@defra/forms-engine-plugin/types'
-import { type FormDefinition } from '@defra/forms-model'
+import { type FormDefinition, type FormMetadata } from '@defra/forms-model'
 import { Engine as CatboxMemory } from '@hapi/catbox-memory'
 import { Engine as CatboxRedis } from '@hapi/catbox-redis'
 import hapi, {
@@ -112,7 +112,8 @@ export async function getForm(importPath: string) {
 
 export const configureEnginePlugin = async ({
   formFileName,
-  formFilePath
+  formFilePath,
+  metadata
 }: RouteConfig = {}): Promise<
   [
     { plugin: typeof plugin; options: PluginOptions },
@@ -134,11 +135,17 @@ export const configureEnginePlugin = async ({
 
     const initialBasePath = `${FORM_PREFIX}/${name}`
 
-    model = new FormModel(definition, { basePath: initialBasePath }, services, {
-      // Custom controllers
-      SummaryPageWithConfirmationEmailController,
-      FeedbackPageController
-    })
+    model = new FormModel(
+      definition,
+      metadata ?? ({} as unknown as FormMetadata),
+      { basePath: initialBasePath },
+      services,
+      {
+        // Custom controllers
+        SummaryPageWithConfirmationEmailController,
+        FeedbackPageController
+      }
+    )
   }
 
   const pluginObject = {

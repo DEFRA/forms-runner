@@ -39,6 +39,7 @@ export interface RouteConfig {
   formFileName?: string
   formFilePath?: string
   enforceCsrf?: boolean
+  metadata?: FormMetadata
 }
 
 export interface OutputService {
