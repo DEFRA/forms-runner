@@ -8,7 +8,7 @@ import {
   type FormRequestPayload,
   type FormResponseToolkit
 } from '@defra/forms-engine-plugin/types'
-import { type FormMetadata, type PageQuestion } from '@defra/forms-model'
+import { type PageQuestion } from '@defra/forms-model'
 
 import { FeedbackPageController } from '~/src/server/plugins/FeedbackPageController.js'
 import definition from '~/test/form/definitions/user-feedback.js'
@@ -28,7 +28,7 @@ describe('FeedbackPageController', () => {
   } as unknown as FormResponseToolkit
 
   beforeEach(() => {
-    model = new FormModel(definition, {} as unknown as FormMetadata, {
+    model = new FormModel(definition, {
       basePath: 'test'
     })
 

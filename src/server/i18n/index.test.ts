@@ -1,4 +1,3 @@
-import { type FormMetadata } from '@defra/forms-model'
 import { type Request } from '@hapi/hapi'
 
 import { t } from '~/src/server/i18n/index.js'
@@ -8,12 +7,6 @@ describe('Runner i18n', () => {
   describe('t()', () => {
     it('returns the en-GB string for a known key', () => {
       expect(t('errors.notFound.heading', 'en-GB')).toBe('Page not found')
-    })
-
-    it('returns the x-pirate string for a known key', () => {
-      expect(t('errors.notFound.heading', 'x-pirate')).toBe(
-        'Page not found, arrr'
-      )
     })
 
     it('falls back to en-GB for an unknown language', () => {
@@ -32,32 +25,35 @@ describe('Runner i18n', () => {
   })
 
   describe('resolveLanguage()', () => {
-    const request = {
-      server: {
-        plugins: {
-          // eslint-disable-next-line no-useless-computed-key
-          ['forms-engine-plugin']: {
-            getLanguage: () => 'en-GB'
-          }
-        }
-      }
-    } as unknown as Request
-    it('returns en-GB when no metadata is provided', () => {
-      expect(resolveLanguage(request.query, request.yar)).toBe('en-GB')
-    })
-
-    it('returns en-GB when metadata has no language field', () => {
-      expect(
-        resolveLanguage(request.query, request.yar, {} as FormMetadata)
-      ).toBe('en-GB')
-    })
-
-    it('returns the language from metadata when present', () => {
-      const metadata = { language: 'cy' } as unknown as FormMetadata
+    it('returns the default language', () => {
       const blankRequest = {} as unknown as Request
-      expect(
-        resolveLanguage(blankRequest.query, blankRequest.yar, metadata)
-      ).toBe('cy')
+      expect(resolveLanguage(blankRequest.query, blankRequest.yar)).toBe(
+        'en-GB'
+      )
+    })
+
+    it('returns the language set in the session', () => {
+      const blankRequest = {
+        yar: {
+          get: jest.fn().mockReturnValue('cy')
+        }
+      } as unknown as Request
+      expect(resolveLanguage(blankRequest.query, blankRequest.yar)).toBe('cy')
+    })
+
+    it('should set the language if passed as a param', () => {
+      const mockYarSet = jest.fn()
+      const blankRequest = {
+        yar: {
+          get: jest.fn(),
+          set: mockYarSet
+        },
+        query: {
+          language: 'cy'
+        }
+      } as unknown as Request
+      resolveLanguage(blankRequest.query, blankRequest.yar)
+      expect(mockYarSet).toHaveBeenCalledWith('language', 'cy')
     })
   })
 })

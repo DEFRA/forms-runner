@@ -34,22 +34,16 @@ export function getFeedbackFormLink(formId) {
 /**
  * @param {RequestQuery} [query] - the request query parameters
  * @param {Yar} [yar] - the yar instance from the request
- * @param {FormMetadata} [metadata] - the form metadata
  * @returns {string} - the resolved language code
  */
-export function resolveLanguage(query = {}, yar, metadata) {
+export function resolveLanguage(query = {}, yar) {
   const defaultLang = 'en-GB'
 
   if (yar && 'language' in query) {
     yar.set('language', query.language)
   }
 
-  return (
-    yar?.get('language') ??
-    // @ts-expect-error - 'language' not part of FormMetadata yet
-    metadata?.language ??
-    defaultLang
-  )
+  return yar?.get('language') ?? defaultLang
 }
 
 /**

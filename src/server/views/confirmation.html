@@ -14,7 +14,7 @@
 {% set phaseTag = phaseTag or config.phaseTag %}
 
 {% set pageTitle = tR('confirmation.formSubmitted') %}
-{% set submissionGuidance = context.translator.tMetadata('submissionGuidance') if context else '' %}
+{% set submissionGuidance = context.translator.tR('form.submissionGuidance') if context.translator.tR else '' %}
 
 {# Override values if this is a submission from a feedback form i.e. it uses FeedbackPageController #}
 {% if "FeedbackPageController," in controllers %}

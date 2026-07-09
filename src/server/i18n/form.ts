@@ -54,7 +54,7 @@ export async function getFormTranslator(
     )
   }
 
-  const translator = createFormTranslator(def, metadata, language)
+  const translator = createFormTranslator(def, language)
 
   return translator
 }

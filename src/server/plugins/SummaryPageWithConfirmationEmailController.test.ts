@@ -11,7 +11,6 @@ import {
 } from '@defra/forms-engine-plugin/types'
 import {
   ControllerType,
-  type FormMetadata,
   type PageSummaryWithConfirmationEmail
 } from '@defra/forms-model'
 import { type ResponseObject } from '@hapi/hapi'
@@ -38,7 +37,7 @@ describe('SummaryPageWithConfirmationEmailController', () => {
   } as unknown as FormResponseToolkit
 
   beforeEach(() => {
-    model = new FormModel(definition, {} as unknown as FormMetadata, {
+    model = new FormModel(definition, {
       basePath: 'test'
     })
 

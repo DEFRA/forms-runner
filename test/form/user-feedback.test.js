@@ -108,10 +108,7 @@ describe('User feedback journey', () => {
     server = await createServer({
       formFileName: 'user-feedback-with-custom-controller.js',
       formFilePath: join(import.meta.dirname, 'definitions'),
-      enforceCsrf: true,
-      metadata: /** @type {import('@defra/forms-model').FormMetadata} */ ({
-        title: 'User feedback'
-      })
+      enforceCsrf: true
     })
 
     await server.initialize()
