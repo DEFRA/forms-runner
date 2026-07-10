@@ -242,5 +242,4 @@ describe('User feedback journey', () => {
 /**
  * @import { Server } from '@hapi/hapi'
  * @import { BoundFunctions, queries } from '@testing-library/dom'
- * @import { CacheRequest } from '@defra/forms-engine-plugin/engine/types.js'
  */

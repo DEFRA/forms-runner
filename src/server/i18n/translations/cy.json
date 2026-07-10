@@ -1,4 +1,7 @@
 {
+  "common": {
+    "back": "Yn ôl"
+  },
   "help": {
     "getSupport": {
       "title": "Cael cymorth gyda'ch ffeil",
@@ -225,10 +228,10 @@
   },
   "confirmation": {
     "formSubmitted": "Ffurflen wedi'i chyflwyno",
+    "feedbackSubmitted": "Adborth wedi'i gyflwyno",
     "referenceNumber": "Eich rhif cyfeirnod",
     "feedbackLink": "Beth yw eich barn am y gwasanaeth hwn? (mae'n cymryd 30 eiliad)",
     "whatHappensNext": "Beth sy'n digwydd nesaf",
-    "feedbackSubmitted": "Adborth wedi'i gyflwyno",
     "submissionGuidance": "Diolch am adael adborth.\n\nGallwch gau'r sgrin hon nawr."
   },
   "errors": {

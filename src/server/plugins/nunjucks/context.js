@@ -9,7 +9,8 @@ import pkg from '~/package.json' with { type: 'json' }
 import { parseCookieConsent } from '~/src/common/cookies.js'
 import { config } from '~/src/config/index.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
-import { t as runnerT } from '~/src/server/i18n/index.js'
+import { getCachedFormTranslator } from '~/src/server/i18n/form.js'
+import { t as runnerT, tForm as runnerTForm } from '~/src/server/i18n/index.js'
 import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 /** @type {Record<string, string> | undefined} */
@@ -38,6 +39,21 @@ export function context(request) {
   const isForceAccess = 'force' in query
   const { isPreview: isPreviewMode, state: formState } = checkFormStatus(params)
 
+  const app =
+    /** @type {{ model?: { def: FormDefinition, formId: string } } | undefined } */ (
+      request?.app
+    )
+
+  const formId = app?.model?.formId
+  if (formId && app.model?.def) {
+    getCachedFormTranslator(
+      /** @type {FormMetadata} */ ({ id: formId }),
+      app.model.def,
+      formState,
+      language
+    )
+  }
+
   // Only add the slug in to the context if the response is OK.
   // Footer meta links are not rendered when the slug is missing.
   const isResponseOK =
@@ -63,6 +79,8 @@ export function context(request) {
     slug: isResponseOK ? params?.slug : undefined,
 
     tR: (key, opts) => runnerT(key, language, opts),
+    tForm: (key, opts) => runnerTForm(key, language, opts),
+    language,
 
     getAssetPath: (asset = '') => {
       return `/${webpackManifest?.[asset] ?? asset}`
@@ -83,6 +101,7 @@ export function context(request) {
 }
 
 /**
+ * @import { FormDefinition, FormMetadata } from '@defra/forms-model'
  * @import { ViewContext } from '~/src/server/plugins/nunjucks/types.js'
  * @import { AnyFormRequest } from '@defra/forms-engine-plugin/types'
  */

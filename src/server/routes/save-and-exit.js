@@ -14,7 +14,10 @@ import Joi from 'joi'
 
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
-import { getCachedFormTranslator } from '~/src/server/i18n/form.js'
+import {
+  getCachedFormTranslator,
+  hasCachedFormTranslator
+} from '~/src/server/i18n/form.js'
 import { t } from '~/src/server/i18n/index.js'
 import { publishSaveAndExitEvent } from '~/src/server/messaging/publish.js'
 import {
@@ -40,6 +43,7 @@ import {
   getFormMetadataWithGuard
 } from '~/src/server/services/formMetadataGuards.js'
 import {
+  getFormDefinition,
   getSaveAndExitDetails,
   validateSaveAndExitCredentials
 } from '~/src/server/services/formsService.js'
@@ -89,7 +93,17 @@ export async function getFormTranslator(
   status = FormStatus.Live
 ) {
   const language = resolveLanguage(request.query, request.yar)
-  const translator = await getCachedFormTranslator(metadata, status, language)
+
+  const definition = hasCachedFormTranslator(metadata, status, language)
+    ? {}
+    : await getFormDefinition(metadata.id, status)
+
+  const translator = getCachedFormTranslator(
+    metadata,
+    /** @type {FormDefinition} */ (definition),
+    status,
+    language
+  )
 
   return { translator, language }
 }
@@ -645,7 +659,7 @@ export default [
 /**
  * @import { ServerRoute, RequestQuery } from '@hapi/hapi'
  * @import { Yar } from '@hapi/yar'
- * @import { FormMetadata } from '@defra/forms-model'
+ * @import { FormDefinition, FormMetadata } from '@defra/forms-model'
  * @import { Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'
  * @import { AnyRequest, CacheRequest, FormPayload } from '@defra/forms-engine-plugin/engine/types.js'
  * @import { BoomErrorCustomSaveAndExit, SaveAndExitParams, SaveAndExitPayload, SaveAndExitResumePasswordPayload, SaveAndExitResumePasswordParams } from '~/src/server/models/save-and-exit.js'

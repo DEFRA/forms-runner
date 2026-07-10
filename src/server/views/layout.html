@@ -158,17 +158,8 @@
     {{ govukBackLink(backLink) }}
   {% endif %}
 
-  {% if context.languages | length %}
-    {% set languages = [] %}
-    {% for language in context.languages %}
-      {% if language.code === context.translator.language %}
-        {% set languages = (languages.push("<span class=\"govuk-body-s\">" + language.name + "</span>"), languages) %}
-      {% else %}
-        {% set languages = (languages.push("<a href='?language=" + language.code + "' class=\"govuk-link govuk-link--no-visited-state\">" + language.name + "</a>"), languages) %}
-      {% endif %}
-    {% endfor %}
-    <span class="app-language-options">{{ languages | join(" | ") | safe }}</span>
-  {% endif %}
+  {% include "partials/language-selector.html" %}
+
 {% endblock %}
 
 {% block content %}

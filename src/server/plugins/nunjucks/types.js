@@ -23,6 +23,8 @@
  * @property {string} [formId] - Form id
  * @property {(asset?: string) => string} getAssetPath - Asset path resolver
  * @property {(key: string, opts?: Record<string, unknown>) => string | string[]} tR - translation function for `forms-runner`
+ * @property {(key: string, opts?: Record<string, unknown>) => string | string[]} tForm - translation function for `FormMetadata`
+ * @property {string} [language] - the current language
  * @property {FormContext} [context] - the current form context
  */
 
