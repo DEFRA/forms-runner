@@ -15,8 +15,8 @@ import Joi from 'joi'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
 import {
-  getCachedFormTranslator,
-  hasCachedFormTranslator
+  getCachedFormTranslatorBase,
+  getCachedFormTranslatorExternalRoute
 } from '~/src/server/i18n/form.js'
 import { t } from '~/src/server/i18n/index.js'
 import { publishSaveAndExitEvent } from '~/src/server/messaging/publish.js'
@@ -43,7 +43,6 @@ import {
   getFormMetadataWithGuard
 } from '~/src/server/services/formMetadataGuards.js'
 import {
-  getFormDefinition,
   getSaveAndExitDetails,
   validateSaveAndExitCredentials
 } from '~/src/server/services/formsService.js'
@@ -83,7 +82,7 @@ export function addError(model, error) {
 /**
  *
  * @param {{ query: RequestQuery, yar: Yar }} request
- * @param {FormMetadata} metadata
+ * @param {FormMetadata} metadata - the metadata of the form
  * @param {FormStatus} status
  * @returns {Promise<{ translator: Translator, language: string }>}
  */
@@ -94,13 +93,8 @@ export async function getFormTranslator(
 ) {
   const language = resolveLanguage(request.query, request.yar)
 
-  const definition = hasCachedFormTranslator(metadata, status, language)
-    ? {}
-    : await getFormDefinition(metadata.id, status)
-
-  const translator = getCachedFormTranslator(
+  const translator = await getCachedFormTranslatorExternalRoute(
     metadata,
-    /** @type {FormDefinition} */ (definition),
     status,
     language
   )
@@ -487,6 +481,16 @@ export default [
           metadata,
           FormStatus.Live
         ))
+      } else {
+        // If no metadata, fallback to the base translator
+        const language = resolveLanguage(request.query, request.yar)
+
+        translator = getCachedFormTranslatorBase(
+          'unknown',
+          undefined,
+          FormStatus.Live,
+          language
+        )
       }
 
       const model = resumeErrorViewModel({ slug }, translator)

@@ -34,6 +34,7 @@ import {
   publicRoutes,
   saveAndExitRoutes
 } from '~/src/server/routes/index.js'
+import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadataWithoutGuard } from '~/src/server/services/formMetadataGuards.js'
 import { getFormDefinition } from '~/src/server/services/formsService.js'
 import { getFeedbackFormLink } from '~/src/server/utils/utils.js'
@@ -123,8 +124,13 @@ export default {
         async handler(request, h) {
           const { slug } = request.params
           const form = await getFormMetadataWithoutGuard(slug)
+          const { translator } = await getFormTranslator(
+            request,
+            form,
+            FormStatus.Draft
+          )
 
-          return h.view('help/get-support', { form })
+          return h.view('help/get-support', { form, context: { translator } })
         },
         options
       })
@@ -142,8 +148,15 @@ export default {
           const formStatus = form.live ? FormStatus.Live : FormStatus.Draft
           const definition = await getFormDefinition(form.id, formStatus)
 
+          const { translator } = await getFormTranslator(
+            request,
+            form,
+            FormStatus.Draft
+          )
+
           return h.view('help/privacy-notice', {
             form,
+            context: { translator },
             saveAndExitExpiryDays,
             storeCompletedApplicationsFor,
             storeFeedbackFor,

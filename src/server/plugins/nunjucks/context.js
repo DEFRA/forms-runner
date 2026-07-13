@@ -9,7 +9,7 @@ import pkg from '~/package.json' with { type: 'json' }
 import { parseCookieConsent } from '~/src/common/cookies.js'
 import { config } from '~/src/config/index.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
-import { getCachedFormTranslator } from '~/src/server/i18n/form.js'
+import { getCachedFormTranslatorBase } from '~/src/server/i18n/form.js'
 import { t as runnerT, tForm as runnerTForm } from '~/src/server/i18n/index.js'
 import { resolveLanguage } from '~/src/server/utils/utils.js'
 
@@ -40,15 +40,16 @@ export function context(request) {
   const { isPreview: isPreviewMode, state: formState } = checkFormStatus(params)
 
   const app =
-    /** @type {{ model?: { def: FormDefinition, formId: string } } | undefined } */ (
+    /** @type {{ model?: { def?: FormDefinition, formId: string } } | undefined } */ (
       request?.app
     )
 
+  let translator
   const formId = app?.model?.formId
   if (formId && app.model?.def) {
-    getCachedFormTranslator(
-      /** @type {FormMetadata} */ ({ id: formId }),
-      app.model.def,
+    translator = getCachedFormTranslatorBase(
+      formId,
+      app.model.def.name,
       formState,
       language
     )
@@ -81,6 +82,7 @@ export function context(request) {
     tR: (key, opts) => runnerT(key, language, opts),
     tForm: (key, opts) => runnerTForm(key, language, opts),
     language,
+    translator,
 
     getAssetPath: (asset = '') => {
       return `/${webpackManifest?.[asset] ?? asset}`
@@ -101,7 +103,7 @@ export function context(request) {
 }
 
 /**
- * @import { FormDefinition, FormMetadata } from '@defra/forms-model'
+ * @import { FormDefinition } from '@defra/forms-model'
  * @import { ViewContext } from '~/src/server/plugins/nunjucks/types.js'
  * @import { AnyFormRequest } from '@defra/forms-engine-plugin/types'
  */

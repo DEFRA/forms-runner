@@ -25,6 +25,7 @@
  * @property {(key: string, opts?: Record<string, unknown>) => string | string[]} tR - translation function for `forms-runner`
  * @property {(key: string, opts?: Record<string, unknown>) => string | string[]} tForm - translation function for `FormMetadata`
  * @property {string} [language] - the current language
+ * @property {Translator} [translator] - the translator for the current language
  * @property {FormContext} [context] - the current form context
  */
 
@@ -41,4 +42,5 @@
  * @import { CookieConsent } from '~/src/common/types.js'
  * @import { config } from '~/src/config/index.js'
  * @import { FormContext } from '@defra/forms-engine-plugin/engine/types.js'
+ * @import { Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'
  */

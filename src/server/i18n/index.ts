@@ -40,23 +40,27 @@ export function extractMetadataBaseTranslations(
   if (metadata) {
     const translations = {
       'form.title': metadata.title,
-      'contact.email.address': metadata.contact?.email?.address ?? '',
-      'contact.email.responseTime': metadata.contact?.email?.responseTime ?? '',
-      'contact.online.url': metadata.contact?.online?.url ?? '',
-      'contact.online.text': metadata.contact?.online?.url ?? '',
-      'contact.phone': metadata.contact?.phone ?? '',
-      submissionGuidance: metadata.submissionGuidance ?? '',
-      privacyNoticeText: metadata.privacyNoticeText ?? '',
-      privacyNoticeUrl: metadata.privacyNoticeUrl ?? ''
+      'form.contact.email.address': metadata.contact?.email?.address ?? '',
+      'form.contact.email.responseTime':
+        metadata.contact?.email?.responseTime ?? '',
+      'form.contact.online.url': metadata.contact?.online?.url ?? '',
+      'form.contact.online.text': metadata.contact?.online?.text ?? '',
+      'form.contact.phone': metadata.contact?.phone ?? '',
+      'form.submissionGuidance': metadata.submissionGuidance ?? '',
+      'form.privacyNoticeText': metadata.privacyNoticeText ?? '',
+      'form.privacyNoticeUrl': metadata.privacyNoticeUrl ?? ''
     }
     i18nInstance.addResourceBundle('en-GB', 'form', translations, true, true)
   }
 }
 
-export function extractMetadataTranslations(
-  def: FormDefinition,
+export function extractTranslations(
+  def: FormDefinition | undefined,
   i18nInstance: i18n
 ) {
+  if (!def) {
+    return
+  }
   const formTranslations = def.metadata?.translations as
     FormDefinitionTranslations | undefined
 

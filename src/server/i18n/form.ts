@@ -9,9 +9,10 @@ import { LRUCache } from 'lru-cache'
 
 import {
   extractMetadataBaseTranslations,
-  extractMetadataTranslations,
+  extractTranslations,
   runnerI18n
 } from '~/src/server/i18n/index.js'
+import { getFormDefinitionWithFallback } from '~/src/server/services/helpers/formsServiceHelper.js'
 
 const cache = new LRUCache({
   max: 100,
@@ -19,28 +20,27 @@ const cache = new LRUCache({
 })
 
 /**
- * Get translator for a form definition, given the form metadata, status and language.
- * @param {FormMetadata} metadata - the form metadata
- * @param {FormDefinition} definition - the form definition
+ * Get translator for runner, to include form name (synchronous method).
+ * @param {string} id - the id of the form
+ * @param { string | undefined } title - the title of the form
  * @param {FormStatus} status - the form status to use when retrieving the definition
  * @param {string} language - the language to use for the translator
  */
-export function getCachedFormTranslator(
-  metadata: FormMetadata,
-  definition: FormDefinition,
+export function getCachedFormTranslatorBase(
+  id: string,
+  title: string | undefined,
   status: FormStatus,
   language: string
 ) {
-  const key = `${metadata.id}-${status}-${language}`
+  const key = `${id}-${status}-${language}-runner-base`
 
   if (cache.has(key)) {
     return cache.get(key) as unknown as Translator
   }
 
   const translator = createFormTranslator(
-    metadata,
-    definition,
-    status,
+    { id, title: title ?? '' } as FormMetadata,
+    undefined,
     language
   )
 
@@ -50,37 +50,45 @@ export function getCachedFormTranslator(
 }
 
 /**
- * Get translator for a form definition, given the form metadata, status and language.
- * @param {FormMetadata} metadata - the form metadata
+ * Get translator for a form's metadata.
+ * @param {FormMetadata} metadata - the metadata of the form
  * @param {FormStatus} status - the form status to use when retrieving the definition
  * @param {string} language - the language to use for the translator
  */
-export function hasCachedFormTranslator(
+export async function getCachedFormTranslatorExternalRoute(
   metadata: FormMetadata,
   status: FormStatus,
   language: string
 ) {
-  const key = `${metadata.id}-${status}-${language}`
+  const key = `${metadata.id}-${status}-${language}-runner-meta`
 
-  return cache.has(key)
+  if (cache.has(key)) {
+    return cache.get(key) as unknown as Translator
+  }
+
+  const definition = await getFormDefinitionWithFallback(metadata.id, status)
+
+  const translator = createFormTranslator(metadata, definition, language)
+
+  cache.set(key, translator)
+
+  return translator
 }
 
 /**
  * Get translator for a form metadata.
  * @param {FormMetadata} metadata - the form metadata
- * @param {FormDefinition} definition - the form definition
- * @param {FormStatus} status - the form status to use when retrieving the definition
+ * @param { FormDefinition | undefined } definition - the form definition
  * @param {string} language - the language to use for the translator
  */
 export function createFormTranslator(
   metadata: FormMetadata,
-  definition: FormDefinition,
-  status: FormStatus,
+  definition: FormDefinition | undefined,
   language: string
 ) {
   const translator = createTranslator(runnerI18n, language)
 
-  extractMetadataTranslations(definition, runnerI18n)
+  extractTranslations(definition, runnerI18n)
   extractMetadataBaseTranslations(metadata, runnerI18n)
 
   return translator
