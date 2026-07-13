@@ -20,13 +20,14 @@ const cache = new LRUCache({
 })
 
 /**
- * Get translator for runner, to include form name (synchronous method).
+ * Get translator for runner, for runner-specific boilerplate, plus current form name (synchronous method).
+ * This is for routes served by the plugin. The translator is injected into the Nunjucks context.
  * @param {string} id - the id of the form
  * @param { string | undefined } title - the title of the form
  * @param {FormStatus} status - the form status to use when retrieving the definition
  * @param {string} language - the language to use for the translator
  */
-export function getCachedFormTranslatorBase(
+export function getCachedFormTranslatorBasic(
   id: string,
   title: string | undefined,
   status: FormStatus,
@@ -50,12 +51,14 @@ export function getCachedFormTranslatorBase(
 }
 
 /**
- * Get translator for a form's metadata.
+ * Get translator for runner, for the current form's metadata (as well as the runner-specific boilerplate).
+ * This is for external routes such as save-and-exit or privacy/help (not for routes served by the plugin).
+ * This is an async call so we can read the form definition inside this call.
  * @param {FormMetadata} metadata - the metadata of the form
  * @param {FormStatus} status - the form status to use when retrieving the definition
  * @param {string} language - the language to use for the translator
  */
-export async function getCachedFormTranslatorExternalRoute(
+export async function getCachedFormTranslatorExternalRoutes(
   metadata: FormMetadata,
   status: FormStatus,
   language: string

@@ -9,7 +9,7 @@ import pkg from '~/package.json' with { type: 'json' }
 import { parseCookieConsent } from '~/src/common/cookies.js'
 import { config } from '~/src/config/index.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
-import { getCachedFormTranslatorBase } from '~/src/server/i18n/form.js'
+import { getCachedFormTranslatorBasic } from '~/src/server/i18n/form.js'
 import { t as runnerT, tForm as runnerTForm } from '~/src/server/i18n/index.js'
 import { resolveLanguage } from '~/src/server/utils/utils.js'
 
@@ -47,7 +47,7 @@ export function context(request) {
   let translator
   const formId = app?.model?.formId
   if (formId && app.model?.def) {
-    translator = getCachedFormTranslatorBase(
+    translator = getCachedFormTranslatorBasic(
       formId,
       app.model.def.name,
       formState,

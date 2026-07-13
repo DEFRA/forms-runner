@@ -15,8 +15,8 @@ import Joi from 'joi'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
 import {
-  getCachedFormTranslatorBase,
-  getCachedFormTranslatorExternalRoute
+  getCachedFormTranslatorBasic,
+  getCachedFormTranslatorExternalRoutes
 } from '~/src/server/i18n/form.js'
 import { t } from '~/src/server/i18n/index.js'
 import { publishSaveAndExitEvent } from '~/src/server/messaging/publish.js'
@@ -93,7 +93,7 @@ export async function getFormTranslator(
 ) {
   const language = resolveLanguage(request.query, request.yar)
 
-  const translator = await getCachedFormTranslatorExternalRoute(
+  const translator = await getCachedFormTranslatorExternalRoutes(
     metadata,
     status,
     language
@@ -485,7 +485,7 @@ export default [
         // If no metadata, fallback to the base translator
         const language = resolveLanguage(request.query, request.yar)
 
-        translator = getCachedFormTranslatorBase(
+        translator = getCachedFormTranslatorBasic(
           'unknown',
           undefined,
           FormStatus.Live,

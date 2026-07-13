@@ -31,6 +31,7 @@ The designer is no longer a plugin and is responsible for running itself on defa
   - [⚠️ See config for default values for each environment](#️-see-config-for-default-values-for-each-environment)
 - [Testing](#testing)
 - [Outputs](#outputs)
+- [Multi-language support](#multi-language-support)
   - [Licence](#licence)
     - [About the licence](#about-the-licence)
 
@@ -232,6 +233,11 @@ Additional steps are required for the different output types.
 - Notify
   - A GOV.UK [notify](https://www.notifications.service.gov.uk) is required
   - For each notification you wish to send, a template must be set up. If there are 'personalisations' they must match the configuration
+
+# Multi-language support
+
+The runner can support multiple languages, specifically English and Welsh.
+See [multi-language](./docs/multi-language.md) for more information.
 
 ## Licence
 
