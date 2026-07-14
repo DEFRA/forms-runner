@@ -1,4 +1,5 @@
 import { type Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'
+import { getAvailableLanguages } from '@defra/forms-engine-plugin/engine/models/FormModel.js'
 import {
   type FormDefinition,
   type FormMetadata,
@@ -89,7 +90,11 @@ export function createFormTranslator(
   definition: FormDefinition | undefined,
   language: string
 ) {
-  const translator = createTranslator(runnerI18n, language)
+  const languages = getAvailableLanguages(
+    definition ??
+      ({ metadata: { translations: { cy: {} } } } as unknown as FormDefinition)
+  )
+  const translator = createTranslator(runnerI18n, languages, language)
 
   extractTranslations(definition, runnerI18n)
   extractMetadataBaseTranslations(metadata, runnerI18n)
@@ -99,6 +104,7 @@ export function createFormTranslator(
 
 export function createTranslator(
   i18nInstance: i18n,
+  languages: { name: string; code: string }[],
   language = 'en-GB'
 ): Translator {
   const t = (key: string, opts?: Record<string, unknown>): string =>
@@ -112,6 +118,7 @@ export function createTranslator(
   return {
     t,
     tForm: (prop: string) => resolveFormContent(prop),
-    language
+    language,
+    languages
   } as unknown as Translator
 }

@@ -81,7 +81,6 @@ export function context(request) {
 
     tR: (key, opts) => runnerT(key, language, opts),
     tForm: (key, opts) => runnerTForm(key, language, opts),
-    language,
     translator,
 
     getAssetPath: (asset = '') => {
