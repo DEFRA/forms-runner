@@ -10,7 +10,7 @@ import { parseCookieConsent } from '~/src/common/cookies.js'
 import { config } from '~/src/config/index.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { getCachedFormTranslatorBasic } from '~/src/server/i18n/form.js'
-import { t as runnerT, tForm as runnerTForm } from '~/src/server/i18n/index.js'
+import { t as runnerT } from '~/src/server/i18n/index.js'
 import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 /** @type {Record<string, string> | undefined} */
@@ -80,7 +80,6 @@ export function context(request) {
     slug: isResponseOK ? params?.slug : undefined,
 
     tR: (key, opts) => runnerT(key, language, opts),
-    tForm: (key, opts) => runnerTForm(key, language, opts),
     translator,
 
     getAssetPath: (asset = '') => {

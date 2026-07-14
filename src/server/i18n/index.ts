@@ -4,7 +4,7 @@ import {
   type FormDefinition,
   type FormMetadata
 } from '@defra/forms-model'
-import i18next, { type i18n } from 'i18next'
+import i18next, { createInstance, type i18n } from 'i18next'
 
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import cy from '~/src/server/i18n/translations/cy.json' with { type: 'json' }
@@ -32,6 +32,42 @@ runnerI18n
     // init with inline resources completes synchronously — unreachable
     logger.error(`Fatal init for translator instance: ${getErrorMessage(err)}`)
   })
+
+/**
+ * Creates an instance of i18next with base (boilerplate) translation files loaded (en-GB.json and cy.json),
+ * and appropriate namespaces for loading of form-specific translations later
+ */
+export function createFormI18nInstance() {
+  const instance = createInstance()
+
+  instance
+    .init({
+      resources: {
+        'en-GB': {
+          runner: enGB
+        },
+        cy: {
+          runner: cy
+        }
+      },
+      fallbackLng: 'en-GB',
+      ns: ['runner', 'form'],
+      defaultNS: 'runner',
+      interpolation: {
+        prefix: '[[',
+        suffix: ']]',
+        escapeValue: false
+      }
+    })
+    .catch((err: unknown) => {
+      // init with inline resources completes synchronously — unreachable
+      logger.error(
+        `Fatal init for translator instance: ${getErrorMessage(err)}`
+      )
+    })
+
+  return instance
+}
 
 export function extractMetadataBaseTranslations(
   metadata: FormMetadata | undefined,

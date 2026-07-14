@@ -210,7 +210,7 @@ export default {
 
           const state = await cacheService.getState(request)
 
-          const formId = (state.formId ?? '') as string
+          const formId = (state.formId ?? form.id) as string
 
           const { translator } = await getFormTranslator(
             request,
@@ -343,7 +343,8 @@ export default {
 
           return h.view('help/cookie-preferences', {
             cookieConsentUpdated: showConsentSuccess,
-            context: { translator }
+            context: { translator },
+            form
           })
         },
         options

@@ -9,9 +9,9 @@ import { type i18n } from 'i18next'
 import { LRUCache } from 'lru-cache'
 
 import {
+  createFormI18nInstance,
   extractMetadataBaseTranslations,
-  extractTranslations,
-  runnerI18n
+  extractTranslations
 } from '~/src/server/i18n/index.js'
 import { getFormDefinitionWithFallback } from '~/src/server/services/helpers/formsServiceHelper.js'
 
@@ -94,10 +94,12 @@ export function createFormTranslator(
     definition ??
       ({ metadata: { translations: { cy: {} } } } as unknown as FormDefinition)
   )
-  const translator = createTranslator(runnerI18n, languages, language)
+  const i18nInstance = createFormI18nInstance()
 
-  extractTranslations(definition, runnerI18n)
-  extractMetadataBaseTranslations(metadata, runnerI18n)
+  extractTranslations(definition, i18nInstance)
+  extractMetadataBaseTranslations(metadata, i18nInstance)
+
+  const translator = createTranslator(i18nInstance, languages, language)
 
   return translator
 }
