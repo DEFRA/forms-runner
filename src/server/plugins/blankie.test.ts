@@ -15,6 +15,9 @@ describe('Server Blankie Plugin', () => {
       connectSrc: [
         'self',
         'https://services.arcgisonline.com',
+        'https://environment.data.gov.uk',
+        'https://datamap.gov.wales',
+        'https://services1.arcgis.com',
         'https://test-uploader.cdp-int.defra.cloud'
       ],
       scriptSrc: ['strict-dynamic'],
@@ -41,6 +44,9 @@ describe('Server Blankie Plugin', () => {
       connectSrc: [
         'self',
         'https://services.arcgisonline.com',
+        'https://environment.data.gov.uk',
+        'https://datamap.gov.wales',
+        'https://services1.arcgis.com',
         'https://www.google-analytics.com',
         'https://analytics.google.com',
         'https://www.googletagmanager.com',
@@ -82,7 +88,10 @@ describe('Server Blankie Plugin', () => {
 
     expect(options?.connectSrc).toEqual([
       'self',
-      'https://services.arcgisonline.com'
+      'https://services.arcgisonline.com',
+      'https://environment.data.gov.uk',
+      'https://datamap.gov.wales',
+      'https://services1.arcgis.com'
     ])
   })
 
