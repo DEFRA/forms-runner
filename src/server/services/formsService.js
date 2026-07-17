@@ -26,8 +26,7 @@ export async function getFormMetadata(slug) {
     throw result.error
   }
 
-  // TODO: temporary override for i18n testing — remove before merging
-  return { ...result.value } // , language: 'cy' }
+  return result.value
 }
 
 /**
