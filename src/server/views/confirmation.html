@@ -14,7 +14,7 @@
 {% set phaseTag = phaseTag or config.phaseTag %}
 
 {% set pageTitle = tR('confirmation.formSubmitted') %}
-{% if language !== 'en-GB' %}
+{% if context.translator.language and context.translator.language !== 'en-GB' %}
   {% set submissionGuidance = context.translator.tForm('submissionGuidance') if context.translator.tForm else '' %}
 {% endif %}
 
