@@ -358,11 +358,11 @@ export function detailsViewModel(metadata, translator, status, payload, err) {
   const { slug, title, id } = metadata
   const formPath = constructFormUrl(slug, status)
   const formSummaryPath = constructFormSummaryUrl(formPath)
-  const { language, t } = translator
+  const { language, t: tLocal } = translator
 
   const backLink = {
     href: formSummaryPath,
-    text: t('common.back')
+    text: tLocal('common.back')
   }
 
   const {
@@ -395,10 +395,10 @@ export function detailsViewModel(metadata, translator, status, payload, err) {
 
   // Model buttons
   const continueButton = {
-    text: t('saveAndExit.details.saveButton')
+    text: tLocal('saveAndExit.details.saveButton')
   }
   const cancelButton = {
-    text: t('saveAndExit.details.cancelButton'),
+    text: tLocal('saveAndExit.details.cancelButton'),
     classes: 'govuk-button--secondary',
     href: formSummaryPath
   }
@@ -406,7 +406,7 @@ export function detailsViewModel(metadata, translator, status, payload, err) {
   return {
     name: title,
     serviceUrl: formPath,
-    pageTitle: t('saveAndExit.details.pageTitle'),
+    pageTitle: tLocal('saveAndExit.details.pageTitle'),
     backLink,
     errors,
     fields,
