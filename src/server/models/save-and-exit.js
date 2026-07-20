@@ -83,7 +83,6 @@ function resolveMessage(detail, language) {
  * Build form errors
  * @param {string} language
  * @param {Error} [err]
- * @param {string} [language]
  */
 function buildErrors(language, err) {
   const hasErrors = Joi.isError(err) && err.details.length > 0
@@ -423,7 +422,6 @@ export function detailsViewModel(metadata, translator, status, payload, err) {
  * @param {string} email
  * @param {Translator} translator
  * @param {FormStatus} [status]
- * @param {string} [language]
  */
 export function confirmationViewModel(metadata, email, translator, status) {
   const { slug, title, id } = metadata
