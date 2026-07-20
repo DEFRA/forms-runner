@@ -426,12 +426,12 @@ export function detailsViewModel(metadata, translator, status, payload, err) {
 export function confirmationViewModel(metadata, email, translator, status) {
   const { slug, title, id } = metadata
   const formPath = constructFormUrl(slug, status)
-  const { t } = translator
+  const { t: tLocal } = translator
 
   return {
     name: title,
     serviceUrl: formPath,
-    pageTitle: t('saveAndExit.confirmation.pageTitle'),
+    pageTitle: tLocal('saveAndExit.confirmation.pageTitle'),
     email,
     saveAndExitExpiryDays,
     context: { translator },
