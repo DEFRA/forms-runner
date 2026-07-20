@@ -127,7 +127,7 @@ export default {
           const { translator } = await getFormTranslator(
             request,
             form,
-            FormStatus.Draft
+            form.live ? FormStatus.Live : FormStatus.Draft
           )
 
           return h.view('help/get-support', { form, context: { translator } })
@@ -151,7 +151,7 @@ export default {
           const { translator } = await getFormTranslator(
             request,
             form,
-            FormStatus.Draft
+            form.live ? FormStatus.Live : FormStatus.Draft
           )
 
           return h.view('help/privacy-notice', {
@@ -181,7 +181,7 @@ export default {
           const { translator } = await getFormTranslator(
             request,
             form,
-            FormStatus.Draft
+            form.live ? FormStatus.Live : FormStatus.Draft
           )
 
           return h.view('help/privacy-notice-specific', {
@@ -215,7 +215,7 @@ export default {
           const { translator } = await getFormTranslator(
             request,
             form,
-            FormStatus.Draft
+            form.live ? FormStatus.Live : FormStatus.Draft
           )
 
           return h.view('help/cookies', {
@@ -338,7 +338,7 @@ export default {
           const { translator } = await getFormTranslator(
             request,
             form,
-            FormStatus.Draft
+            form.live ? FormStatus.Live : FormStatus.Draft
           )
 
           return h.view('help/cookie-preferences', {
@@ -360,7 +360,7 @@ export default {
           const { translator } = await getFormTranslator(
             request,
             form,
-            FormStatus.Draft
+            form.live ? FormStatus.Live : FormStatus.Draft
           )
 
           return h.view('help/accessibility-statement', {

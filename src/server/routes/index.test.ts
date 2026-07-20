@@ -26,7 +26,7 @@ describe('Routes', () => {
   })
 
   test('cookies page is served with 24 hour duration and GA info', async () => {
-    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+    jest.mocked(getFormMetadata).mockResolvedValueOnce(fixtures.form.metadata)
     config.set('sessionTimeout', 86400000)
     config.set('googleTagManagerContainerId', 'GTM-XXXXXXXX')
     config.set('googleAnalyticsContainerId', 'YYYYYYYYYY')
@@ -63,7 +63,7 @@ describe('Routes', () => {
   })
 
   test('cookies page is served without GA info', async () => {
-    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+    jest.mocked(getFormMetadata).mockResolvedValueOnce(fixtures.form.metadata)
     config.set('sessionTimeout', 86400000)
     config.set('googleTagManagerContainerId', '')
     config.set('googleAnalyticsContainerId', '')
@@ -99,7 +99,7 @@ describe('Routes', () => {
   })
 
   test('accessibility statement page is served', async () => {
-    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+    jest.mocked(getFormMetadata).mockResolvedValueOnce(fixtures.form.metadata)
     const options = {
       method: 'GET',
       url: '/help/accessibility-statement/slug'
@@ -117,7 +117,7 @@ describe('Routes', () => {
   })
 
   test('Help page is served', async () => {
-    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+    jest.mocked(getFormMetadata).mockResolvedValueOnce(fixtures.form.metadata)
 
     const options = {
       method: 'GET',
@@ -233,7 +233,7 @@ describe('Routes', () => {
     jest
       .mocked(getFormDefinition)
       .mockResolvedValueOnce({} as unknown as FormDefinition)
-    jest.mocked(getFormMetadata).mockResolvedValue({
+    jest.mocked(getFormMetadata).mockResolvedValueOnce({
       ...metadata,
       privacyNoticeType: 'text',
       privacyNoticeText: '# Privacy markdown heading'
@@ -263,7 +263,7 @@ describe('Routes', () => {
     jest
       .mocked(getFormDefinition)
       .mockResolvedValueOnce({} as unknown as FormDefinition)
-    jest.mocked(getFormMetadata).mockResolvedValue({
+    jest.mocked(getFormMetadata).mockResolvedValueOnce({
       ...metadata,
       privacyNoticeType: 'text',
       privacyNoticeText: '# Privacy markdown heading',
@@ -298,7 +298,7 @@ describe('Routes', () => {
     jest.mocked(getFormDefinition).mockResolvedValueOnce({
       options: { disableUserFeedback: true }
     } as unknown as FormDefinition)
-    jest.mocked(getFormMetadata).mockResolvedValue({
+    jest.mocked(getFormMetadata).mockResolvedValueOnce({
       ...fixtures.form.metadata,
       privacyNoticeType: 'text',
       privacyNoticeText: '# Privacy markdown heading'

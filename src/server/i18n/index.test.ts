@@ -1,6 +1,8 @@
+import { type FormDefinition } from '@defra/forms-model'
 import { type Request } from '@hapi/hapi'
+import { type i18n } from 'i18next'
 
-import { t } from '~/src/server/i18n/index.js'
+import { extractTranslations, t } from '~/src/server/i18n/index.js'
 import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 describe('Runner i18n', () => {
@@ -54,6 +56,47 @@ describe('Runner i18n', () => {
       } as unknown as Request
       resolveLanguage(blankRequest.query, blankRequest.yar)
       expect(mockYarSet).toHaveBeenCalledWith('language', 'cy')
+    })
+  })
+
+  describe('extractTranslations()', () => {
+    it('ignores if no translations', () => {
+      const mockAddResourceBundle = jest.fn()
+      const mockInstance = {
+        addResourceBundle: mockAddResourceBundle
+      } as unknown as i18n
+      const definition = undefined as unknown as FormDefinition
+      extractTranslations(definition, mockInstance)
+      expect(mockInstance.addResourceBundle).not.toHaveBeenCalled()
+    })
+
+    it('call addResourceBundle for each set of translations', () => {
+      const mockAddResourceBundle = jest.fn()
+      const mockInstance = {
+        addResourceBundle: mockAddResourceBundle
+      } as unknown as i18n
+      const definition = {
+        metadata: {
+          translations: {
+            cy: {
+              abc: 'def'
+            },
+            de: {
+              ghi: 'jkl'
+            }
+          }
+        }
+      } as unknown as FormDefinition
+      extractTranslations(definition, mockInstance)
+      expect(mockInstance.addResourceBundle).toHaveBeenCalledTimes(2)
+      expect(mockInstance.addResourceBundle).toHaveBeenNthCalledWith(
+        1,
+        'cy',
+        'form',
+        { abc: 'def' },
+        true,
+        true
+      )
     })
   })
 })
