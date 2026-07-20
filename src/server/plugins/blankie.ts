@@ -31,7 +31,13 @@ export const configureBlankiePlugin = (): ServerRegisterPluginObject<
       baseUri: ['none'],
       fontSrc: ['self', 'data:'],
       connectSrc: [
-        ['self', 'https://services.arcgisonline.com'],
+        [
+          'self',
+          'https://services.arcgisonline.com',
+          'https://environment.data.gov.uk',
+          'https://datamap.gov.wales',
+          'https://services1.arcgis.com'
+        ],
         gtmContainerId ? googleAnalyticsOptions.connectSrc : [],
         uploaderUrl ? [uploaderUrl] : []
       ].flat(),
