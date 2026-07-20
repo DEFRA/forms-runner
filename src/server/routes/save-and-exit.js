@@ -479,7 +479,7 @@ export default [
         ;({ translator } = await getFormTranslator(
           request,
           metadata,
-          FormStatus.Live
+          metadata.live ? FormStatus.Live : FormStatus.Draft
         ))
       } else {
         // If no metadata, fallback to the base translator
