@@ -81,10 +81,10 @@ function resolveMessage(detail, language) {
 
 /**
  * Build form errors
+ * @param {string} language
  * @param {Error} [err]
- * @param {string} [language]
  */
-function buildErrors(err, language = 'en-GB') {
+function buildErrors(language, err) {
   const hasErrors = Joi.isError(err) && err.details.length > 0
 
   if (!hasErrors) {
@@ -371,7 +371,7 @@ export function detailsViewModel(metadata, translator, status, payload, err) {
     emailConfirmationError,
     securityQuestionError,
     securityAnswerError
-  } = buildErrors(err, language)
+  } = buildErrors(language, err)
 
   // Model fields
   const fields = {
@@ -422,22 +422,15 @@ export function detailsViewModel(metadata, translator, status, payload, err) {
  * @param {string} email
  * @param {Translator} translator
  * @param {FormStatus} [status]
- * @param {string} [language]
  */
-export function confirmationViewModel(
-  metadata,
-  email,
-  translator,
-  status,
-  language = 'en-GB'
-) {
+export function confirmationViewModel(metadata, email, translator, status) {
   const { slug, title, id } = metadata
   const formPath = constructFormUrl(slug, status)
 
   return {
     name: title,
     serviceUrl: formPath,
-    pageTitle: t('saveAndExit.confirmation.pageTitle', language),
+    pageTitle: t('saveAndExit.confirmation.pageTitle', translator.language),
     email,
     saveAndExitExpiryDays,
     context: { translator },
@@ -463,7 +456,7 @@ export function passwordViewModel(
   err
 ) {
   const { language } = translator
-  const { errors, securityAnswerError } = buildErrors(err, language)
+  const { errors, securityAnswerError } = buildErrors(language, err)
 
   const questionKey = securityQuestionKeyMap[securityQuestion]
   const questionText = questionKey
@@ -506,10 +499,10 @@ export function passwordViewModel(
 /**
  * The save and exit error form view model
  * @param {{ slug: string }} payload
- * @param {Translator} [translator] - the translator instance
+ * @param {Translator} translator - the translator instance
  */
 export function resumeErrorViewModel(payload, translator) {
-  const { language = 'en-GB' } = translator ?? {}
+  const { language } = translator
 
   // Model buttons
   const continueButton = {
@@ -527,12 +520,9 @@ export function resumeErrorViewModel(payload, translator) {
 
 /**
  * @param {number} attemptsRemaining
- * @param {string} [language]
+ * @param {string} language
  */
-export function createInvalidPasswordError(
-  attemptsRemaining,
-  language = 'en-GB'
-) {
+export function createInvalidPasswordError(attemptsRemaining, language) {
   const message = /** @type {string} */ (
     t('saveAndExit.details.validation.invalidPassword', language, {
       count: attemptsRemaining

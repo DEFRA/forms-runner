@@ -89,7 +89,7 @@ export function addError(model, error) {
 export async function getFormTranslator(
   request,
   metadata,
-  status = FormStatus.Live
+  status = metadata.live ? FormStatus.Live : FormStatus.Draft
 ) {
   const language = resolveLanguage(request.query, request.yar)
 
