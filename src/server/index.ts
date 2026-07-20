@@ -46,6 +46,7 @@ import { prepareSecureContext } from '~/src/server/secure-context.js'
 import * as formsService from '~/src/server/services/formsService.js'
 import { createOutputService } from '~/src/server/services/outputService.js'
 import { type RouteConfig } from '~/src/server/types.js'
+import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 if (process.env.HTTP_PROXY) {
   Wreck.agents = {
@@ -187,7 +188,8 @@ export const configureEnginePlugin = async ({
         FeedbackPageController
       },
       ordnanceSurveyApiKey: config.get('ordnanceSurveyApiKey'),
-      ordnanceSurveyApiSecret: config.get('ordnanceSurveyApiSecret')
+      ordnanceSurveyApiSecret: config.get('ordnanceSurveyApiSecret'),
+      getLanguage: resolveLanguage
     }
   }
   const routeOptions = {

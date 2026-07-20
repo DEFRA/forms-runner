@@ -33,6 +33,7 @@ declare module '@hapi/hapi' {
 
   interface RequestApplicationState {
     model?: FormModel
+    language?: string
   }
 
   interface Server {

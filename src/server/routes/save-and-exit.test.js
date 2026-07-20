@@ -12,9 +12,11 @@ import {
   getFormMetadataWithGuard
 } from '~/src/server/services/formMetadataGuards.js'
 import {
+  getFormDefinition,
   getSaveAndExitDetails,
   validateSaveAndExitCredentials
 } from '~/src/server/services/formsService.js'
+import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 jest.mock('~/src/server/services/formMetadataGuards.js')
@@ -269,6 +271,9 @@ describe('Save-and-exit check routes', () => {
           status: FormStatus.Draft
         }
       })
+      jest
+        .mocked(getFormDefinition)
+        .mockResolvedValueOnce(fixtures.form.definition)
 
       const options = {
         method: 'GET',
@@ -455,6 +460,9 @@ describe('Save-and-exit check routes', () => {
           slug: 'my-form-to-resume',
           title: 'My Form To Resume'
         })
+      jest
+        .mocked(getFormDefinition)
+        .mockResolvedValueOnce(fixtures.form.definition)
 
       const options = {
         method: 'GET',
@@ -526,6 +534,9 @@ describe('Save-and-exit check routes', () => {
           id: FORM_ID
         }
       })
+      jest
+        .mocked(getFormDefinition)
+        .mockResolvedValueOnce(fixtures.form.definition)
 
       const options = {
         method: 'POST',
@@ -563,6 +574,9 @@ describe('Save-and-exit check routes', () => {
           id: FORM_ID
         }
       })
+      jest
+        .mocked(getFormDefinition)
+        .mockResolvedValueOnce(fixtures.form.definition)
 
       const options = {
         method: 'POST',
@@ -609,6 +623,9 @@ describe('Save-and-exit check routes', () => {
           status: FormStatus.Draft
         }
       })
+      jest
+        .mocked(getFormDefinition)
+        .mockResolvedValueOnce(fixtures.form.definition)
 
       const options = {
         method: 'POST',

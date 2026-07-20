@@ -206,6 +206,10 @@ describe(`Cookie preferences`, () => {
   /** @type {Server} */
   let server
 
+  beforeEach(() => {
+    jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+  })
+
   afterEach(async () => {
     await server.stop()
   })

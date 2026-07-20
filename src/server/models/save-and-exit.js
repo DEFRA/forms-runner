@@ -2,7 +2,6 @@ import { crumbSchema, stateSchema } from '@defra/forms-engine-plugin/schema.js'
 import {
   ControllerPath,
   SecurityQuestionsEnum,
-  UNICODE_EMAIL_ERROR_MESSAGE,
   preventUnicodeInEmail,
   slugSchema
 } from '@defra/forms-model'
@@ -11,10 +10,8 @@ import Joi from 'joi'
 import { config } from '~/src/config/index.js'
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
+import { t } from '~/src/server/i18n/index.js'
 import { getFeedbackFormLink } from '~/src/server/utils/utils.js'
-
-const detailsPageTitle = 'Save your progress for later'
-const confirmationPageTitle = 'Your progress has been saved'
 
 const MIN_PASSWORD_LENGTH = 3
 const MAX_PASSWORD_LENGTH = 40
@@ -30,28 +27,64 @@ const GOVUK_LABEL__M = 'govuk-label--m'
 const saveAndExitExpiryDays = config.get('saveAndExitExpiryDays')
 
 /**
- * @type { SecurityQuestion[]}
+ * Map from SecurityQuestionsEnum value to i18n key suffix
  */
-const securityQuestions = [
-  {
-    text: 'What is a memorable place you have visited?',
-    value: SecurityQuestionsEnum.MemorablePlace
-  },
-  {
-    text: 'What is the name of your favourite character from a story or TV show?',
-    value: SecurityQuestionsEnum.CharacterName
-  },
-  {
-    text: 'What album or song do you always recommend to others?',
-    value: SecurityQuestionsEnum.AudioRecommendation
+const securityQuestionKeyMap = /** @type {Record<string, string>} */ ({
+  [SecurityQuestionsEnum.MemorablePlace]:
+    'saveAndExit.details.securityQuestions.memorablePlace',
+  [SecurityQuestionsEnum.CharacterName]:
+    'saveAndExit.details.securityQuestions.characterName',
+  [SecurityQuestionsEnum.AudioRecommendation]:
+    'saveAndExit.details.securityQuestions.audioRecommendation'
+})
+
+/**
+ * Returns the translated list of security questions
+ * @param {string} language
+ * @returns {SecurityQuestion[]}
+ */
+function getSecurityQuestions(language) {
+  return [
+    {
+      text: /** @type {string} */ (
+        t('saveAndExit.details.securityQuestions.memorablePlace', language)
+      ),
+      value: SecurityQuestionsEnum.MemorablePlace
+    },
+    {
+      text: /** @type {string} */ (
+        t('saveAndExit.details.securityQuestions.characterName', language)
+      ),
+      value: SecurityQuestionsEnum.CharacterName
+    },
+    {
+      text: /** @type {string} */ (
+        t('saveAndExit.details.securityQuestions.audioRecommendation', language)
+      ),
+      value: SecurityQuestionsEnum.AudioRecommendation
+    }
+  ]
+}
+
+/**
+ * Resolve an error message: i18n key for Joi schema errors, raw string for
+ * errors already built via createJoiError (type === 'custom').
+ * @param {Joi.ValidationErrorItem} detail
+ * @param {string} language
+ */
+function resolveMessage(detail, language) {
+  if (detail.type === 'custom') {
+    return detail.message
   }
-]
+  return /** @type {string} */ (t(detail.message, language))
+}
 
 /**
  * Build form errors
+ * @param {string} language
  * @param {Error} [err]
  */
-function buildErrors(err) {
+function buildErrors(language, err) {
   const hasErrors = Joi.isError(err) && err.details.length > 0
 
   if (!hasErrors) {
@@ -73,30 +106,33 @@ function buildErrors(err) {
   const errors = []
 
   if (generalError) {
-    errors.push({ text: generalError.message, href: '#' })
+    errors.push({ text: resolveMessage(generalError, language), href: '#' })
   }
 
   if (emailError) {
-    errors.push({ text: emailError.message, href: `#${emailFieldName}` })
+    errors.push({
+      text: resolveMessage(emailError, language),
+      href: `#${emailFieldName}`
+    })
   }
 
   if (emailConfirmationError) {
     errors.push({
-      text: emailConfirmationError.message,
+      text: resolveMessage(emailConfirmationError, language),
       href: `#${emailConfirmationFieldName}`
     })
   }
 
   if (securityQuestionError) {
     errors.push({
-      text: securityQuestionError.message,
+      text: resolveMessage(securityQuestionError, language),
       href: `#${securityQuestionFieldName}`
     })
   }
 
   if (securityAnswerError) {
     errors.push({
-      text: securityAnswerError.message,
+      text: resolveMessage(securityAnswerError, language),
       href: `#${securityAnswerFieldName}`
     })
   }
@@ -112,90 +148,94 @@ function buildErrors(err) {
 
 /**
  * Email Field
+ * @param {string} language
  * @param {SaveAndExitPayload} [payload] - the form payload
  * @param {Joi.ValidationErrorItem} [error] - the email error
  */
-function buildEmailField(payload, error) {
+function buildEmailField(language, payload, error) {
   return {
     id: emailFieldName,
     name: emailFieldName,
     label: {
-      text: 'Your email address',
+      text: t('saveAndExit.details.emailLabel', language),
       classes: GOVUK_LABEL__M,
       isPageHeading: false
     },
     hint: {
-      text: 'Use the email address you want the link to go to'
+      text: t('saveAndExit.details.emailHint', language)
     },
     value: payload?.email,
-    errorMessage: error && { text: error.message }
+    errorMessage: error && { text: resolveMessage(error, language) }
   }
 }
 
 /**
  * Email confirmation Field
+ * @param {string} language
  * @param {SaveAndExitPayload} [payload] - the form payload
  * @param {Joi.ValidationErrorItem} [error] - the email confirmation error
  */
-function buildEmailConfirmationField(payload, error) {
+function buildEmailConfirmationField(language, payload, error) {
   return {
     id: emailConfirmationFieldName,
     name: emailConfirmationFieldName,
     label: {
-      text: 'Confirm your email address',
+      text: t('saveAndExit.details.emailConfirmationLabel', language),
       classes: GOVUK_LABEL__M,
       isPageHeading: false
     },
     hint: {
-      text: 'Check you have entered the correct email address'
+      text: t('saveAndExit.details.emailConfirmationHint', language)
     },
     value: payload?.emailConfirmation,
     errorMessage: error && {
-      text: error.message
+      text: resolveMessage(error, language)
     }
   }
 }
 
 /**
  * Security question field
+ * @param {string} language
  * @param {SaveAndExitPayload} [payload] - the form payload
  * @param {Joi.ValidationErrorItem} [error] - the security question error
  */
-function buildSecurityQuestionField(payload, error) {
+function buildSecurityQuestionField(language, payload, error) {
   return {
     id: securityQuestionFieldName,
     name: securityQuestionFieldName,
     fieldset: {
       legend: {
-        text: 'Choose a security question to answer',
+        text: t('saveAndExit.details.securityQuestionLegend', language),
         classes: 'govuk-fieldset__legend--m',
         isPageHeading: false
       }
     },
-    items: securityQuestions,
+    items: getSecurityQuestions(language),
     value: payload?.securityQuestion,
     errorMessage: error && {
-      text: error.message
+      text: resolveMessage(error, language)
     }
   }
 }
 
 /**
  * Security answer field
+ * @param {string} language
  * @param {SaveAndExitPayload} [payload] - the form payload
  * @param {Joi.ValidationErrorItem} [error] - the security answer error
  */
-function buildSecurityAnswerField(payload, error) {
+function buildSecurityAnswerField(language, payload, error) {
   return {
     id: securityAnswerFieldName,
     name: securityAnswerFieldName,
     label: {
-      text: 'Your answer to the security question',
+      text: t('saveAndExit.details.securityAnswerLabel', language),
       classes: GOVUK_LABEL__M
     },
     value: payload?.securityAnswer,
     errorMessage: error && {
-      text: error.message
+      text: resolveMessage(error, language)
     }
   }
 }
@@ -224,9 +264,9 @@ export const securityAnswerSchema = Joi.string()
   .max(MAX_PASSWORD_LENGTH)
   .required()
   .messages({
-    'string.min': 'Your answer must be between 3 and 40 characters long',
-    'string.max': 'Your answer must be between 3 and 40 characters long',
-    '*': 'Enter an answer to the security question'
+    'string.min': 'saveAndExit.details.validation.securityAnswerLength',
+    'string.max': 'saveAndExit.details.validation.securityAnswerLength',
+    '*': 'saveAndExit.details.validation.securityAnswerRequired'
   })
 
 /**
@@ -251,22 +291,27 @@ export const payloadSchema = Joi.object()
       .custom((value, helpers) => preventUnicodeInEmail(value, helpers))
       .required()
       .messages({
-        'string.email':
-          'Enter an email address in the correct format, for example, hello@example.com',
-        'string.unicode': UNICODE_EMAIL_ERROR_MESSAGE,
-        '*': 'Enter an email address'
+        'string.email': 'saveAndExit.details.validation.emailFormat',
+        'string.unicode': 'saveAndExit.details.validation.emailUnicode',
+        '*': 'saveAndExit.details.validation.emailRequired'
       }),
     emailConfirmation: Joi.string()
       .valid(Joi.ref('email'))
       .required()
       .messages({
-        '*': 'Your email address does not match. Check and try again.'
+        '*': 'saveAndExit.details.validation.emailConfirmation'
       }),
     securityQuestion: Joi.string()
-      .valid(...securityQuestions.map(({ value }) => value.toString()))
+      .valid(
+        ...[
+          SecurityQuestionsEnum.MemorablePlace,
+          SecurityQuestionsEnum.CharacterName,
+          SecurityQuestionsEnum.AudioRecommendation
+        ].map((v) => v.toString())
+      )
       .required()
       .messages({
-        '*': 'Choose a security question to answer'
+        '*': 'saveAndExit.details.validation.securityQuestionRequired'
       }),
     securityAnswer: securityAnswerSchema
   })
@@ -304,17 +349,20 @@ export function getKey(slug, state) {
 /**
  * The save and exit details form view model
  * @param {FormMetadata} metadata
+ * @param {Translator} translator
  * @param {FormStatus} [status]
  * @param {SaveAndExitPayload} [payload]
  * @param {Error} [err]
  */
-export function detailsViewModel(metadata, status, payload, err) {
+export function detailsViewModel(metadata, translator, status, payload, err) {
   const { slug, title, id } = metadata
   const formPath = constructFormUrl(slug, status)
   const formSummaryPath = constructFormSummaryUrl(formPath)
+  const { language, t: tLocal } = translator
 
   const backLink = {
-    href: formSummaryPath
+    href: formSummaryPath,
+    text: tLocal('common.back')
   }
 
   const {
@@ -323,20 +371,23 @@ export function detailsViewModel(metadata, status, payload, err) {
     emailConfirmationError,
     securityQuestionError,
     securityAnswerError
-  } = buildErrors(err)
+  } = buildErrors(language, err)
 
   // Model fields
   const fields = {
-    [emailFieldName]: buildEmailField(payload, emailError),
+    [emailFieldName]: buildEmailField(language, payload, emailError),
     [emailConfirmationFieldName]: buildEmailConfirmationField(
+      language,
       payload,
       emailConfirmationError
     ),
     [securityQuestionFieldName]: buildSecurityQuestionField(
+      language,
       payload,
       securityQuestionError
     ),
     [securityAnswerFieldName]: buildSecurityAnswerField(
+      language,
       payload,
       securityAnswerError
     )
@@ -344,10 +395,10 @@ export function detailsViewModel(metadata, status, payload, err) {
 
   // Model buttons
   const continueButton = {
-    text: 'Save progress'
+    text: tLocal('saveAndExit.details.saveButton')
   }
   const cancelButton = {
-    text: 'Cancel',
+    text: tLocal('saveAndExit.details.cancelButton'),
     classes: 'govuk-button--secondary',
     href: formSummaryPath
   }
@@ -355,11 +406,12 @@ export function detailsViewModel(metadata, status, payload, err) {
   return {
     name: title,
     serviceUrl: formPath,
-    pageTitle: detailsPageTitle,
+    pageTitle: tLocal('saveAndExit.details.pageTitle'),
     backLink,
     errors,
     fields,
     buttons: { continueButton, cancelButton },
+    context: { translator },
     ...getFeedbackFormLink(id)
   }
 }
@@ -368,18 +420,21 @@ export function detailsViewModel(metadata, status, payload, err) {
  * The save and exit confirmation form view model
  * @param {FormMetadata} metadata
  * @param {string} email
+ * @param {Translator} translator
  * @param {FormStatus} [status]
  */
-export function confirmationViewModel(metadata, email, status) {
+export function confirmationViewModel(metadata, email, translator, status) {
   const { slug, title, id } = metadata
   const formPath = constructFormUrl(slug, status)
+  const { t: tLocal } = translator
 
   return {
     name: title,
     serviceUrl: formPath,
-    pageTitle: confirmationPageTitle,
+    pageTitle: tLocal('saveAndExit.confirmation.pageTitle'),
     email,
     saveAndExitExpiryDays,
+    context: { translator },
     ...getFeedbackFormLink(id)
   }
 }
@@ -389,6 +444,7 @@ export function confirmationViewModel(metadata, email, status) {
  * @param {FormMetadata} metadata - the metadata of the form
  * @param {SecurityQuestionsEnum} securityQuestion - the security question
  * @param {number} attemptsLeft
+ * @param {Translator} translator
  * @param {SaveAndExitResumePasswordPayload} [payload]
  * @param {Error} [err]
  */
@@ -396,11 +452,17 @@ export function passwordViewModel(
   metadata,
   securityQuestion,
   attemptsLeft,
+  translator,
   payload,
   err
 ) {
-  const pageTitle = 'Continue with your form'
-  const { errors, securityAnswerError } = buildErrors(err)
+  const { language } = translator
+  const { errors, securityAnswerError } = buildErrors(language, err)
+
+  const questionKey = securityQuestionKeyMap[securityQuestion]
+  const questionText = questionKey
+    ? /** @type {string} */ (t(questionKey, language))
+    : undefined
 
   // Model fields
   const fields = {
@@ -408,28 +470,29 @@ export function passwordViewModel(
       id: securityAnswerFieldName,
       name: securityAnswerFieldName,
       label: {
-        text: securityQuestions.find((x) => x.value === securityQuestion)?.text,
+        text: questionText,
         classes: GOVUK_LABEL__M
       },
       value: payload?.securityAnswer ?? '',
       errorMessage: securityAnswerError && {
-        text: securityAnswerError.message
+        text: resolveMessage(securityAnswerError, language)
       }
     }
   }
 
   // Model buttons
   const continueButton = {
-    text: 'Continue'
+    text: t('saveAndExit.resumePassword.continueButton', language)
   }
 
   return {
     name: metadata.title,
-    pageTitle,
+    pageTitle: t('saveAndExit.resumePassword.pageTitle', language),
     errors,
     fields,
     attemptsLeft,
     buttons: { continueButton },
+    context: { translator },
     ...getFeedbackFormLink(metadata.id)
   }
 }
@@ -437,31 +500,36 @@ export function passwordViewModel(
 /**
  * The save and exit error form view model
  * @param {{ slug: string }} payload
+ * @param {Translator} translator - the translator instance
  */
-export function resumeErrorViewModel(payload) {
-  const pageTitle = 'You cannot resume your form'
+export function resumeErrorViewModel(payload, translator) {
+  const { language } = translator
 
   // Model buttons
   const continueButton = {
-    text: 'Start form again',
+    text: t('saveAndExit.resumeError.continueButton', language),
     href: `/form/${payload.slug}`
   }
 
   return {
-    pageTitle,
+    pageTitle: t('saveAndExit.resumeError.pageTitle', language),
     buttons: payload.slug ? { continueButton } : {},
+    context: { translator },
     ...getFeedbackFormLink('')
   }
 }
 
 /**
  * @param {number} attemptsRemaining
+ * @param {string} language
  */
-export function createInvalidPasswordError(attemptsRemaining) {
-  return createJoiError(
-    securityAnswerFieldName,
-    `Your answer is incorrect. You have ${attemptsRemaining} ${attemptsRemaining === 1 ? 'attempt' : 'attempts'} remaining.`
+export function createInvalidPasswordError(attemptsRemaining, language) {
+  const message = /** @type {string} */ (
+    t('saveAndExit.details.validation.invalidPassword', language, {
+      count: attemptsRemaining
+    })
   )
+  return createJoiError(securityAnswerFieldName, message)
 }
 
 /**
@@ -469,20 +537,29 @@ export function createInvalidPasswordError(attemptsRemaining) {
  * @param {FormMetadata} form
  * @param {SaveAndExitResumeDetails} validatedLink
  * @param {number} maxPasswordAttempts
+ * @param {Translator} translator - the translator instance
  */
-export function lockedOutViewModel(form, validatedLink, maxPasswordAttempts) {
+export function lockedOutViewModel(
+  form,
+  validatedLink,
+  maxPasswordAttempts,
+  translator
+) {
+  const { language } = translator
+
   return {
     name: form.title,
     maxPasswordAttempts,
     buttons: {
       continueButton: {
-        text: 'Start form again',
+        text: t('saveAndExit.resumeErrorLocked.continueButton', language),
         href: constructFormUrl(
           form.slug,
           validatedLink.form.isPreview ? validatedLink.form.status : undefined
         )
       }
     },
+    context: { translator },
     ...getFeedbackFormLink(form.id)
   }
 }
@@ -490,24 +567,26 @@ export function lockedOutViewModel(form, validatedLink, maxPasswordAttempts) {
 /**
  * The save and exit success form view model
  * @param {FormMetadata} form
+ * @param {Translator} translator - the translator instance
  * @param {FormStatus} [status]
  */
-export function resumeSuccessViewModel(form, status) {
-  const pageTitle = 'Welcome back to your form'
+export function resumeSuccessViewModel(form, translator, status) {
+  const { language } = translator
   const formPath = constructFormUrl(form.slug, status)
   const formSummaryPath = constructFormSummaryUrl(formPath)
 
   // Model buttons
   const continueButton = {
-    text: 'Resume form',
+    text: t('saveAndExit.resumeSuccess.continueButton', language),
     href: formSummaryPath
   }
 
   return {
-    pageTitle,
+    pageTitle: t('saveAndExit.resumeSuccess.pageTitle', language),
     name: form.title,
     serviceUrl: formPath,
     buttons: { continueButton },
+    context: { translator },
     ...getFeedbackFormLink(form.id)
   }
 }
@@ -566,5 +645,6 @@ export function resumeSuccessViewModel(form, status) {
  * @import { FormMetadata } from '@defra/forms-model'
  * @import { StatusCodes } from 'http-status-codes'
  * @import { FormStatus } from '@defra/forms-engine-plugin/types'
+ * @import { Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'
  * @import { SaveAndExitResumeDetails } from '~/src/server/types.js'
  */

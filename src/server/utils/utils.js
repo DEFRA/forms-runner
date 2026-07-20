@@ -32,5 +32,24 @@ export function getFeedbackFormLink(formId) {
 }
 
 /**
- * @import { AnyFormRequest } from '@defra/forms-engine-plugin/engine/types.js'
+ * @param { RequestQuery | undefined } query - the request query parameters
+ * @param {Yar} [yar] - the yar instance from the request
+ * @returns {string} - the resolved language code
+ */
+export function resolveLanguage(query, yar) {
+  const defaultLang = 'en-GB'
+
+  query ??= {}
+
+  if (yar && 'language' in query) {
+    yar.set('language', query.language)
+  }
+
+  return yar?.get('language') ?? defaultLang
+}
+
+/**
+ * @import { RequestQuery } from '@hapi/hapi'
+ * @import { Yar } from '@hapi/yar'
+ * @import { FormMetadata } from '@defra/forms-model'
  */

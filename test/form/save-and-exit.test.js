@@ -8,7 +8,10 @@ import {
   getPayloadFromFlash,
   hasState
 } from '~/src/server/routes/save-and-exit-helper.js'
-import { getFormMetadata } from '~/src/server/services/formsService.js'
+import {
+  getFormDefinition,
+  getFormMetadata
+} from '~/src/server/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
@@ -34,6 +37,7 @@ describe('Save and exit', () => {
 
   beforeEach(() => {
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+    jest.mocked(getFormDefinition).mockResolvedValue(fixtures.form.definition)
     jest.mocked(hasState).mockReturnValue(true)
   })
 

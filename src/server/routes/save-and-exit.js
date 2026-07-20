@@ -14,6 +14,11 @@ import Joi from 'joi'
 
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
+import {
+  getCachedFormTranslatorBasic,
+  getCachedFormTranslatorExternalRoutes
+} from '~/src/server/i18n/form.js'
+import { t } from '~/src/server/i18n/index.js'
 import { publishSaveAndExitEvent } from '~/src/server/messaging/publish.js'
 import {
   confirmationViewModel,
@@ -41,6 +46,7 @@ import {
   getSaveAndExitDetails,
   validateSaveAndExitCredentials
 } from '~/src/server/services/formsService.js'
+import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 const maxInvalidPasswordAttempts = 5
 
@@ -73,6 +79,29 @@ export function addError(model, error) {
   return model
 }
 
+/**
+ *
+ * @param {{ query: RequestQuery, yar: Yar }} request
+ * @param {FormMetadata} metadata - the metadata of the form
+ * @param {FormStatus} status
+ * @returns {Promise<{ translator: Translator, language: string }>}
+ */
+export async function getFormTranslator(
+  request,
+  metadata,
+  status = metadata.live ? FormStatus.Live : FormStatus.Draft
+) {
+  const language = resolveLanguage(request.query, request.yar)
+
+  const translator = await getCachedFormTranslatorExternalRoutes(
+    metadata,
+    status,
+    language
+  )
+
+  return { translator, language }
+}
+
 export default [
   /**
    * @satisfies {ServerRoute<{ Params: SaveAndExitParams }>}
@@ -84,12 +113,22 @@ export default [
       const { params } = request
       const { slug, state: status } = params
       const metadata = await getFormMetadataWithGuard(slug, status)
-      const model = detailsViewModel(metadata, status)
+      const { translator } = await getFormTranslator(request, metadata, status)
+
+      const model = detailsViewModel(
+        metadata,
+        translator,
+        status,
+        undefined,
+        undefined
+      )
 
       // Store any outstanding data from the current page in a special attribute
       // (in case the current page wasn't yet validated and saved).
       // The current page state may be invalid so we don't want to push into the cache as normal properties.
-      const cacheService = getCacheService(request.server)
+      const cacheService = getCacheService(
+        /** @type {AnyRequest} */ (/** @type {unknown} */ (request)).server
+      )
       const formState = await cacheService.getState(
         /** @type {CacheRequest} */ (request)
       )
@@ -151,10 +190,10 @@ export default [
       const { params, payload } = request
       const { slug, state: status } = params
       const { email, securityQuestion, securityAnswer } = payload
+
       // Throws the offline marker BEFORE publishSaveAndExitEvent so we never
       // emit a magic-link email for a form the user can no longer reach.
       const metadata = await getFormMetadataWithGuard(slug, status)
-
       const cacheService = getCacheService(request.server)
 
       // Publish topic message
@@ -171,13 +210,21 @@ export default [
       // Handle the user navigating back from previously submitting a save-and-exit. The state has been cleared
       // so we need to warn the user
       if (!hasState(state)) {
+        const { translator, language } = await getFormTranslator(
+          request,
+          metadata,
+          status
+        )
         const model = detailsViewModel(
           metadata,
+          translator,
           status,
           /** @type {SaveAndExitPayload} */ (payload),
           createJoiError(
             'general',
-            'Your information is no longer available. Return to the start of the form.'
+            /** @type {string} */ (
+              t('saveAndExit.details.validation.stateExpired', language)
+            )
           )
         )
         return h.view(SAVE_AND_EXIT_DETAILS, model).takeover()
@@ -209,9 +256,15 @@ export default [
             params
           )
           const metadata = await getFormMetadataWithGuard(slug, status)
+          const { translator } = await getFormTranslator(
+            request,
+            metadata,
+            status
+          )
 
           const model = detailsViewModel(
             metadata,
+            translator,
             status,
             /** @type {SaveAndExitPayload} */ (payload),
             err
@@ -233,7 +286,9 @@ export default [
     async handler(request, h) {
       const { params } = request
       const { slug, state: status } = params
+
       const metadata = await getFormMetadataWithGuard(slug, status)
+      const { translator } = await getFormTranslator(request, metadata, status)
 
       // Get the email from session
       const email = /** @type {string} */ (
@@ -244,7 +299,7 @@ export default [
         return Boom.badRequest('No email found in session cache')
       }
 
-      const model = confirmationViewModel(metadata, email, status)
+      const model = confirmationViewModel(metadata, email, translator, status)
 
       return h.view('save-and-exit/confirmation', model)
     },
@@ -350,13 +405,13 @@ export default [
     path: '/resume-form-verify/{formId}/{magicLinkId}/{slug}/{state?}',
     async handler(request, h) {
       const { params } = request
-      const { formId, magicLinkId, state } = params
+      const { formId, magicLinkId, state: status } = params
 
       // Assert the form is online BEFORE looking up save-and-exit details so
       // we don't leak magic-link validity timing for offline forms.
       let form
       try {
-        form = await getFormMetadataById(formId, state)
+        form = await getFormMetadataById(formId, status)
       } catch (err) {
         if (isOfflineBoom(err)) {
           throw err
@@ -374,10 +429,15 @@ export default [
         return h.redirect(ERROR_BASE_URL)
       }
 
+      const { translator } = await getFormTranslator(request, form, status)
+
       const model = passwordViewModel(
         form,
         resumeDetails.question,
-        getPasswordAttemptsLeft(resumeDetails.invalidPasswordAttempts)
+        getPasswordAttemptsLeft(resumeDetails.invalidPasswordAttempts),
+        translator,
+        undefined,
+        undefined
       )
 
       return h.view(RESUME_PASSWORD_PATH, model)
@@ -397,10 +457,11 @@ export default [
     async handler(request, h) {
       const { params } = request
       const { slug } = params
+      let metadata
 
       if (slug) {
         try {
-          await getFormMetadataWithGuard(slug, FormStatus.Live)
+          metadata = await getFormMetadataWithGuard(slug, FormStatus.Live)
         } catch (err) {
           if (isOfflineBoom(err)) {
             throw err
@@ -413,7 +474,26 @@ export default [
         }
       }
 
-      const model = resumeErrorViewModel({ slug })
+      let translator
+      if (metadata) {
+        ;({ translator } = await getFormTranslator(
+          request,
+          metadata,
+          metadata.live ? FormStatus.Live : FormStatus.Draft
+        ))
+      } else {
+        // If no metadata, fallback to the base translator
+        const language = resolveLanguage(request.query, request.yar)
+
+        translator = getCachedFormTranslatorBasic(
+          'unknown',
+          undefined,
+          FormStatus.Live,
+          language
+        )
+      }
+
+      const model = resumeErrorViewModel({ slug }, translator)
 
       return h.view(RESUME_ERROR, model)
     },
@@ -475,18 +555,26 @@ export default [
       const attemptsRemaining = getPasswordAttemptsLeft(
         validatedLink.invalidPasswordAttempts
       )
+
+      const { translator, language } = await getFormTranslator(
+        request,
+        form,
+        state
+      )
+
       if (attemptsRemaining > 0) {
         // User has more password attempts left
         logger.info(
           `Invalid password attempt for form id ${validatedLink.form.id}`
         )
-        const error = createInvalidPasswordError(attemptsRemaining)
+        const error = createInvalidPasswordError(attemptsRemaining, language)
 
         const model = passwordViewModel(
           form,
           validatedLink.question,
           attemptsRemaining,
-          undefined,
+          translator,
+          payload,
           error
         )
 
@@ -496,8 +584,10 @@ export default [
         const model = lockedOutViewModel(
           form,
           validatedLink,
-          maxInvalidPasswordAttempts
+          maxInvalidPasswordAttempts,
+          translator
         )
+
         return h.view(RESUME_ERROR_LOCKED, model)
       }
     },
@@ -522,11 +612,17 @@ export default [
             resumeDetails.form.id,
             params.state
           )
+          const { translator } = await getFormTranslator(
+            request,
+            form,
+            params.state
+          )
 
           const model = passwordViewModel(
             form,
             resumeDetails.question,
             getPasswordAttemptsLeft(resumeDetails.invalidPasswordAttempts),
+            translator,
             payload,
             error
           )
@@ -546,11 +642,8 @@ export default [
       const { params } = request
       const { slug, state } = params
       const form = await getFormMetadataWithGuard(slug, state)
-
-      const model = resumeSuccessViewModel(
-        form,
-        /** @type {FormStatus | undefined} */ (state)
-      )
+      const { translator } = await getFormTranslator(request, form, state)
+      const model = resumeSuccessViewModel(form, translator, state)
 
       return h.view(RESUME_SUCCESS, model)
     },
@@ -568,7 +661,10 @@ export default [
 ]
 
 /**
- * @import { ServerRoute } from '@hapi/hapi'
- * @import { CacheRequest, FormPayload } from '@defra/forms-engine-plugin/engine/types.js'
+ * @import { ServerRoute, RequestQuery } from '@hapi/hapi'
+ * @import { Yar } from '@hapi/yar'
+ * @import { FormDefinition, FormMetadata } from '@defra/forms-model'
+ * @import { Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'
+ * @import { AnyRequest, CacheRequest, FormPayload } from '@defra/forms-engine-plugin/engine/types.js'
  * @import { BoomErrorCustomSaveAndExit, SaveAndExitParams, SaveAndExitPayload, SaveAndExitResumePasswordPayload, SaveAndExitResumePasswordParams } from '~/src/server/models/save-and-exit.js'
  */

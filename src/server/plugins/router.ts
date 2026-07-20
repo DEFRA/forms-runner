@@ -34,6 +34,7 @@ import {
   publicRoutes,
   saveAndExitRoutes
 } from '~/src/server/routes/index.js'
+import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadataWithoutGuard } from '~/src/server/services/formMetadataGuards.js'
 import { getFormDefinition } from '~/src/server/services/formsService.js'
 import { getFeedbackFormLink } from '~/src/server/utils/utils.js'
@@ -123,8 +124,13 @@ export default {
         async handler(request, h) {
           const { slug } = request.params
           const form = await getFormMetadataWithoutGuard(slug)
+          const { translator } = await getFormTranslator(
+            request,
+            form,
+            form.live ? FormStatus.Live : FormStatus.Draft
+          )
 
-          return h.view('help/get-support', { form })
+          return h.view('help/get-support', { form, context: { translator } })
         },
         options
       })
@@ -135,14 +141,22 @@ export default {
         async handler(request, h) {
           const { slug } = request.params
           const form = await getFormMetadataWithoutGuard(slug)
+
           // It's most likely that we come into this route from a live version of the form
           // so prefer that and fallback to draft if no live version (it is possible to have
           // a live version and no draft version, so we cannot just default to 'draft').
           const formStatus = form.live ? FormStatus.Live : FormStatus.Draft
           const definition = await getFormDefinition(form.id, formStatus)
 
+          const { translator } = await getFormTranslator(
+            request,
+            form,
+            form.live ? FormStatus.Live : FormStatus.Draft
+          )
+
           return h.view('help/privacy-notice', {
             form,
+            context: { translator },
             saveAndExitExpiryDays,
             storeCompletedApplicationsFor,
             storeFeedbackFor,
@@ -160,11 +174,19 @@ export default {
         async handler(request, h) {
           const { slug } = request.params
           const form = await getFormMetadataWithoutGuard(slug)
+
           const formStatus = form.live ? FormStatus.Live : FormStatus.Draft
           const definition = await getFormDefinition(form.id, formStatus)
 
+          const { translator } = await getFormTranslator(
+            request,
+            form,
+            form.live ? FormStatus.Live : FormStatus.Draft
+          )
+
           return h.view('help/privacy-notice-specific', {
             form,
+            context: { translator },
             ...(definition?.options?.disableUserFeedback
               ? {}
               : getFeedbackFormLink(form.id))
@@ -178,7 +200,7 @@ export default {
         path: '/help/cookies/{slug}',
         async handler(request, h) {
           const { slug } = request.params
-          await getFormMetadataWithoutGuard(slug)
+          const form = await getFormMetadataWithoutGuard(slug)
 
           const sessionTimeout = config.get('sessionTimeout')
 
@@ -188,13 +210,20 @@ export default {
 
           const state = await cacheService.getState(request)
 
-          const formId = (state.formId ?? '') as string
+          const formId = (state.formId ?? form.id) as string
+
+          const { translator } = await getFormTranslator(
+            request,
+            form,
+            form.live ? FormStatus.Live : FormStatus.Draft
+          )
 
           return h.view('help/cookies', {
             googleAnalyticsContainerId: config.get(
               'googleAnalyticsContainerId'
             ),
             sessionDurationPretty,
+            context: { translator },
             ...getFeedbackFormLink(formId)
           })
         },
@@ -283,9 +312,10 @@ export default {
       server.route<{ Params: { slug: string } }>({
         method: 'get',
         path: '/help/cookie-preferences/{slug}',
-        handler(request, h) {
+        async handler(request, h) {
           const { params } = request
           const { slug } = params
+
           let cookieConsentDismissed = false
 
           if (typeof request.state.cookieConsent === 'string') {
@@ -303,8 +333,18 @@ export default {
             cookieConsentDismissed &&
             request.info.referrer.endsWith(`/help/cookie-preferences/${slug}`)
 
+          const form = await getFormMetadataWithoutGuard(slug)
+
+          const { translator } = await getFormTranslator(
+            request,
+            form,
+            form.live ? FormStatus.Live : FormStatus.Draft
+          )
+
           return h.view('help/cookie-preferences', {
-            cookieConsentUpdated: showConsentSuccess
+            cookieConsentUpdated: showConsentSuccess,
+            context: { translator },
+            form
           })
         },
         options
@@ -315,9 +355,17 @@ export default {
         path: '/help/accessibility-statement/{slug}',
         async handler(request, h) {
           const { slug } = request.params
-          await getFormMetadataWithoutGuard(slug)
+          const form = await getFormMetadataWithoutGuard(slug)
 
-          return h.view('help/accessibility-statement')
+          const { translator } = await getFormTranslator(
+            request,
+            form,
+            form.live ? FormStatus.Live : FormStatus.Draft
+          )
+
+          return h.view('help/accessibility-statement', {
+            context: { translator }
+          })
         },
         options
       })

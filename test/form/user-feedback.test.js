@@ -44,7 +44,7 @@ describe('User feedback journey', () => {
      * Question page 1
      */
     {
-      formName: 'Test form',
+      formName: 'User feedback',
 
       heading1: 'Give feedback',
 
@@ -78,7 +78,7 @@ describe('User feedback journey', () => {
      * Submitted
      */
     {
-      formName: 'Test form',
+      formName: 'User feedback',
 
       heading1: 'Feedback submitted',
 

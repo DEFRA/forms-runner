@@ -1,11 +1,14 @@
 {% extends "layout.html" %}
 
-{% set pageTitle = config.serviceName + " privacy notice" %}
+{% set pageTitle = tR('help.privacyNotice.pageTitle', { serviceName: config.serviceName }) %}
+{% set tForm = context.translator.tForm %}
+{% set markdownTranslatedContent = tForm('privacyNoticeText') %}
+{% set markdownContent = markdownTranslatedContent if markdownTranslatedContent else form.privacyNoticeText %}
 
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds govuk-body">
-      {{ form.privacyNoticeText | markdown | safe }}
+      {{ markdownContent | markdown | safe }}
     </div>
   </div>
 {% endblock %}
