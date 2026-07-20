@@ -18,7 +18,6 @@ import {
   getCachedFormTranslatorBasic,
   getCachedFormTranslatorExternalRoutes
 } from '~/src/server/i18n/form.js'
-import { t } from '~/src/server/i18n/index.js'
 import { publishSaveAndExitEvent } from '~/src/server/messaging/publish.js'
 import {
   confirmationViewModel,
@@ -210,11 +209,12 @@ export default [
       // Handle the user navigating back from previously submitting a save-and-exit. The state has been cleared
       // so we need to warn the user
       if (!hasState(state)) {
-        const { translator, language } = await getFormTranslator(
+        const { translator } = await getFormTranslator(
           request,
           metadata,
           status
         )
+        const { t } = translator
         const model = detailsViewModel(
           metadata,
           translator,
@@ -223,7 +223,7 @@ export default [
           createJoiError(
             'general',
             /** @type {string} */ (
-              t('saveAndExit.details.validation.stateExpired', language)
+              t('saveAndExit.details.validation.stateExpired')
             )
           )
         )
@@ -556,18 +556,14 @@ export default [
         validatedLink.invalidPasswordAttempts
       )
 
-      const { translator, language } = await getFormTranslator(
-        request,
-        form,
-        state
-      )
+      const { translator } = await getFormTranslator(request, form, state)
 
       if (attemptsRemaining > 0) {
         // User has more password attempts left
         logger.info(
           `Invalid password attempt for form id ${validatedLink.form.id}`
         )
-        const error = createInvalidPasswordError(attemptsRemaining, language)
+        const error = createInvalidPasswordError(attemptsRemaining, translator)
 
         const model = passwordViewModel(
           form,
