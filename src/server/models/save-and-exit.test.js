@@ -1,3 +1,4 @@
+import { createFormTranslator } from '~/src/server/i18n/form.js'
 import { lockedOutViewModel } from '~/src/server/models/save-and-exit.js'
 
 const formId = '6c45dbc1-d6bb-4d30-8d68-2e708e5310b9'
@@ -10,27 +11,8 @@ describe('Save and exit models', () => {
       id: formId
     })
 
-    const mockTranslator = {
-      language: 'en-GB',
-      t: function () {
-        throw new Error('Function not implemented.')
-      },
-      tForm: function () {
-        throw new Error('Function not implemented.')
-      },
-      tPage: function () {
-        throw new Error('Function not implemented.')
-      },
-      tComponent: function () {
-        throw new Error('Function not implemented.')
-      },
-      tSection: function () {
-        throw new Error('Function not implemented.')
-      },
-      tListItem: function () {
-        throw new Error('Function not implemented.')
-      }
-    }
+    const definition = /** @type {FormDefinition} */ ({})
+    const translator = createFormTranslator(form, definition, 'en-GB')
 
     test('should construct live resume url', () => {
       const link = /** @type {SaveAndExitResumeDetails} */ ({
@@ -39,7 +21,7 @@ describe('Save and exit models', () => {
           status: 'live'
         }
       })
-      expect(lockedOutViewModel(form, link, 5, mockTranslator)).toEqual({
+      expect(lockedOutViewModel(form, link, 5, translator)).toEqual({
         name: 'My Form Title',
         maxPasswordAttempts: 5,
         buttons: {
@@ -61,7 +43,7 @@ describe('Save and exit models', () => {
           status: 'live'
         }
       })
-      expect(lockedOutViewModel(form, link, 5, mockTranslator)).toEqual({
+      expect(lockedOutViewModel(form, link, 5, translator)).toEqual({
         name: 'My Form Title',
         maxPasswordAttempts: 5,
         buttons: {
@@ -83,7 +65,7 @@ describe('Save and exit models', () => {
           status: 'draft'
         }
       })
-      expect(lockedOutViewModel(form, link, 5, mockTranslator)).toEqual({
+      expect(lockedOutViewModel(form, link, 5, translator)).toEqual({
         name: 'My Form Title',
         maxPasswordAttempts: 5,
         buttons: {
@@ -101,6 +83,6 @@ describe('Save and exit models', () => {
 })
 
 /**
- * @import { FormMetadata } from '@defra/forms-model'
+ * @import { FormDefinition, FormMetadata } from '@defra/forms-model'
  * @import { SaveAndExitResumeDetails } from '~/src/server/types.js'
  */

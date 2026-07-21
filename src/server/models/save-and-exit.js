@@ -10,7 +10,6 @@ import Joi from 'joi'
 import { config } from '~/src/config/index.js'
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
-import { t } from '~/src/server/i18n/index.js'
 import { getFeedbackFormLink } from '~/src/server/utils/utils.js'
 
 const MIN_PASSWORD_LENGTH = 3
@@ -40,26 +39,27 @@ const securityQuestionKeyMap = /** @type {Record<string, string>} */ ({
 
 /**
  * Returns the translated list of security questions
- * @param {string} language
+ * @param {Translator} translator
  * @returns {SecurityQuestion[]}
  */
-function getSecurityQuestions(language) {
+function getSecurityQuestions(translator) {
+  const { t } = translator
   return [
     {
       text: /** @type {string} */ (
-        t('saveAndExit.details.securityQuestions.memorablePlace', language)
+        t('saveAndExit.details.securityQuestions.memorablePlace')
       ),
       value: SecurityQuestionsEnum.MemorablePlace
     },
     {
       text: /** @type {string} */ (
-        t('saveAndExit.details.securityQuestions.characterName', language)
+        t('saveAndExit.details.securityQuestions.characterName')
       ),
       value: SecurityQuestionsEnum.CharacterName
     },
     {
       text: /** @type {string} */ (
-        t('saveAndExit.details.securityQuestions.audioRecommendation', language)
+        t('saveAndExit.details.securityQuestions.audioRecommendation')
       ),
       value: SecurityQuestionsEnum.AudioRecommendation
     }
@@ -70,21 +70,22 @@ function getSecurityQuestions(language) {
  * Resolve an error message: i18n key for Joi schema errors, raw string for
  * errors already built via createJoiError (type === 'custom').
  * @param {Joi.ValidationErrorItem} detail
- * @param {string} language
+ * @param {Translator} translator
  */
-function resolveMessage(detail, language) {
+function resolveMessage(detail, translator) {
   if (detail.type === 'custom') {
     return detail.message
   }
-  return /** @type {string} */ (t(detail.message, language))
+  const { t } = translator
+  return /** @type {string} */ (t(detail.message))
 }
 
 /**
  * Build form errors
- * @param {string} language
+ * @param {Translator} translator
  * @param {Error} [err]
  */
-function buildErrors(language, err) {
+function buildErrors(translator, err) {
   const hasErrors = Joi.isError(err) && err.details.length > 0
 
   if (!hasErrors) {
@@ -106,33 +107,33 @@ function buildErrors(language, err) {
   const errors = []
 
   if (generalError) {
-    errors.push({ text: resolveMessage(generalError, language), href: '#' })
+    errors.push({ text: resolveMessage(generalError, translator), href: '#' })
   }
 
   if (emailError) {
     errors.push({
-      text: resolveMessage(emailError, language),
+      text: resolveMessage(emailError, translator),
       href: `#${emailFieldName}`
     })
   }
 
   if (emailConfirmationError) {
     errors.push({
-      text: resolveMessage(emailConfirmationError, language),
+      text: resolveMessage(emailConfirmationError, translator),
       href: `#${emailConfirmationFieldName}`
     })
   }
 
   if (securityQuestionError) {
     errors.push({
-      text: resolveMessage(securityQuestionError, language),
+      text: resolveMessage(securityQuestionError, translator),
       href: `#${securityQuestionFieldName}`
     })
   }
 
   if (securityAnswerError) {
     errors.push({
-      text: resolveMessage(securityAnswerError, language),
+      text: resolveMessage(securityAnswerError, translator),
       href: `#${securityAnswerFieldName}`
     })
   }
@@ -148,94 +149,98 @@ function buildErrors(language, err) {
 
 /**
  * Email Field
- * @param {string} language
+ * @param {Translator} translator
  * @param {SaveAndExitPayload} [payload] - the form payload
  * @param {Joi.ValidationErrorItem} [error] - the email error
  */
-function buildEmailField(language, payload, error) {
+function buildEmailField(translator, payload, error) {
+  const { t } = translator
   return {
     id: emailFieldName,
     name: emailFieldName,
     label: {
-      text: t('saveAndExit.details.emailLabel', language),
+      text: t('saveAndExit.details.emailLabel'),
       classes: GOVUK_LABEL__M,
       isPageHeading: false
     },
     hint: {
-      text: t('saveAndExit.details.emailHint', language)
+      text: t('saveAndExit.details.emailHint')
     },
     value: payload?.email,
-    errorMessage: error && { text: resolveMessage(error, language) }
+    errorMessage: error && { text: resolveMessage(error, translator) }
   }
 }
 
 /**
  * Email confirmation Field
- * @param {string} language
+ * @param {Translator} translator
  * @param {SaveAndExitPayload} [payload] - the form payload
  * @param {Joi.ValidationErrorItem} [error] - the email confirmation error
  */
-function buildEmailConfirmationField(language, payload, error) {
+function buildEmailConfirmationField(translator, payload, error) {
+  const { t } = translator
   return {
     id: emailConfirmationFieldName,
     name: emailConfirmationFieldName,
     label: {
-      text: t('saveAndExit.details.emailConfirmationLabel', language),
+      text: t('saveAndExit.details.emailConfirmationLabel'),
       classes: GOVUK_LABEL__M,
       isPageHeading: false
     },
     hint: {
-      text: t('saveAndExit.details.emailConfirmationHint', language)
+      text: t('saveAndExit.details.emailConfirmationHint')
     },
     value: payload?.emailConfirmation,
     errorMessage: error && {
-      text: resolveMessage(error, language)
+      text: resolveMessage(error, translator)
     }
   }
 }
 
 /**
  * Security question field
- * @param {string} language
+ * @param {Translator} translator
  * @param {SaveAndExitPayload} [payload] - the form payload
  * @param {Joi.ValidationErrorItem} [error] - the security question error
  */
-function buildSecurityQuestionField(language, payload, error) {
+function buildSecurityQuestionField(translator, payload, error) {
+  const { t } = translator
   return {
     id: securityQuestionFieldName,
     name: securityQuestionFieldName,
     fieldset: {
       legend: {
-        text: t('saveAndExit.details.securityQuestionLegend', language),
+        text: t('saveAndExit.details.securityQuestionLegend'),
         classes: 'govuk-fieldset__legend--m',
         isPageHeading: false
       }
     },
-    items: getSecurityQuestions(language),
+    items: getSecurityQuestions(translator),
     value: payload?.securityQuestion,
     errorMessage: error && {
-      text: resolveMessage(error, language)
+      text: resolveMessage(error, translator)
     }
   }
 }
 
 /**
  * Security answer field
- * @param {string} language
+ * @param {Translator} translator
  * @param {SaveAndExitPayload} [payload] - the form payload
  * @param {Joi.ValidationErrorItem} [error] - the security answer error
  */
-function buildSecurityAnswerField(language, payload, error) {
+function buildSecurityAnswerField(translator, payload, error) {
+  const { t } = translator
   return {
     id: securityAnswerFieldName,
     name: securityAnswerFieldName,
     label: {
-      text: t('saveAndExit.details.securityAnswerLabel', language),
+      text: t('saveAndExit.details.securityAnswerLabel'),
       classes: GOVUK_LABEL__M
     },
     value: payload?.securityAnswer,
     errorMessage: error && {
-      text: resolveMessage(error, language)
+      text: resolveMessage(error, translator)
     }
   }
 }
@@ -358,11 +363,11 @@ export function detailsViewModel(metadata, translator, status, payload, err) {
   const { slug, title, id } = metadata
   const formPath = constructFormUrl(slug, status)
   const formSummaryPath = constructFormSummaryUrl(formPath)
-  const { language, t: tLocal } = translator
+  const { t } = translator
 
   const backLink = {
     href: formSummaryPath,
-    text: tLocal('common.back')
+    text: t('common.back')
   }
 
   const {
@@ -371,23 +376,23 @@ export function detailsViewModel(metadata, translator, status, payload, err) {
     emailConfirmationError,
     securityQuestionError,
     securityAnswerError
-  } = buildErrors(language, err)
+  } = buildErrors(translator, err)
 
   // Model fields
   const fields = {
-    [emailFieldName]: buildEmailField(language, payload, emailError),
+    [emailFieldName]: buildEmailField(translator, payload, emailError),
     [emailConfirmationFieldName]: buildEmailConfirmationField(
-      language,
+      translator,
       payload,
       emailConfirmationError
     ),
     [securityQuestionFieldName]: buildSecurityQuestionField(
-      language,
+      translator,
       payload,
       securityQuestionError
     ),
     [securityAnswerFieldName]: buildSecurityAnswerField(
-      language,
+      translator,
       payload,
       securityAnswerError
     )
@@ -395,10 +400,10 @@ export function detailsViewModel(metadata, translator, status, payload, err) {
 
   // Model buttons
   const continueButton = {
-    text: tLocal('saveAndExit.details.saveButton')
+    text: t('saveAndExit.details.saveButton')
   }
   const cancelButton = {
-    text: tLocal('saveAndExit.details.cancelButton'),
+    text: t('saveAndExit.details.cancelButton'),
     classes: 'govuk-button--secondary',
     href: formSummaryPath
   }
@@ -406,7 +411,7 @@ export function detailsViewModel(metadata, translator, status, payload, err) {
   return {
     name: title,
     serviceUrl: formPath,
-    pageTitle: tLocal('saveAndExit.details.pageTitle'),
+    pageTitle: t('saveAndExit.details.pageTitle'),
     backLink,
     errors,
     fields,
@@ -426,12 +431,12 @@ export function detailsViewModel(metadata, translator, status, payload, err) {
 export function confirmationViewModel(metadata, email, translator, status) {
   const { slug, title, id } = metadata
   const formPath = constructFormUrl(slug, status)
-  const { t: tLocal } = translator
+  const { t } = translator
 
   return {
     name: title,
     serviceUrl: formPath,
-    pageTitle: tLocal('saveAndExit.confirmation.pageTitle'),
+    pageTitle: t('saveAndExit.confirmation.pageTitle'),
     email,
     saveAndExitExpiryDays,
     context: { translator },
@@ -456,12 +461,12 @@ export function passwordViewModel(
   payload,
   err
 ) {
-  const { language } = translator
-  const { errors, securityAnswerError } = buildErrors(language, err)
+  const { t } = translator
+  const { errors, securityAnswerError } = buildErrors(translator, err)
 
   const questionKey = securityQuestionKeyMap[securityQuestion]
   const questionText = questionKey
-    ? /** @type {string} */ (t(questionKey, language))
+    ? /** @type {string} */ (t(questionKey))
     : undefined
 
   // Model fields
@@ -475,19 +480,19 @@ export function passwordViewModel(
       },
       value: payload?.securityAnswer ?? '',
       errorMessage: securityAnswerError && {
-        text: resolveMessage(securityAnswerError, language)
+        text: resolveMessage(securityAnswerError, translator)
       }
     }
   }
 
   // Model buttons
   const continueButton = {
-    text: t('saveAndExit.resumePassword.continueButton', language)
+    text: t('saveAndExit.resumePassword.continueButton')
   }
 
   return {
     name: metadata.title,
-    pageTitle: t('saveAndExit.resumePassword.pageTitle', language),
+    pageTitle: t('saveAndExit.resumePassword.pageTitle'),
     errors,
     fields,
     attemptsLeft,
@@ -503,16 +508,16 @@ export function passwordViewModel(
  * @param {Translator} translator - the translator instance
  */
 export function resumeErrorViewModel(payload, translator) {
-  const { language } = translator
+  const { t } = translator
 
   // Model buttons
   const continueButton = {
-    text: t('saveAndExit.resumeError.continueButton', language),
+    text: t('saveAndExit.resumeError.continueButton'),
     href: `/form/${payload.slug}`
   }
 
   return {
-    pageTitle: t('saveAndExit.resumeError.pageTitle', language),
+    pageTitle: t('saveAndExit.resumeError.pageTitle'),
     buttons: payload.slug ? { continueButton } : {},
     context: { translator },
     ...getFeedbackFormLink('')
@@ -521,11 +526,12 @@ export function resumeErrorViewModel(payload, translator) {
 
 /**
  * @param {number} attemptsRemaining
- * @param {string} language
+ * @param {Translator} translator
  */
-export function createInvalidPasswordError(attemptsRemaining, language) {
+export function createInvalidPasswordError(attemptsRemaining, translator) {
+  const { t } = translator
   const message = /** @type {string} */ (
-    t('saveAndExit.details.validation.invalidPassword', language, {
+    t('saveAndExit.details.validation.invalidPassword', {
       count: attemptsRemaining
     })
   )
@@ -545,14 +551,14 @@ export function lockedOutViewModel(
   maxPasswordAttempts,
   translator
 ) {
-  const { language } = translator
+  const { t } = translator
 
   return {
     name: form.title,
     maxPasswordAttempts,
     buttons: {
       continueButton: {
-        text: t('saveAndExit.resumeErrorLocked.continueButton', language),
+        text: t('saveAndExit.resumeErrorLocked.continueButton'),
         href: constructFormUrl(
           form.slug,
           validatedLink.form.isPreview ? validatedLink.form.status : undefined
@@ -571,18 +577,18 @@ export function lockedOutViewModel(
  * @param {FormStatus} [status]
  */
 export function resumeSuccessViewModel(form, translator, status) {
-  const { language } = translator
+  const { t } = translator
   const formPath = constructFormUrl(form.slug, status)
   const formSummaryPath = constructFormSummaryUrl(formPath)
 
   // Model buttons
   const continueButton = {
-    text: t('saveAndExit.resumeSuccess.continueButton', language),
+    text: t('saveAndExit.resumeSuccess.continueButton'),
     href: formSummaryPath
   }
 
   return {
-    pageTitle: t('saveAndExit.resumeSuccess.pageTitle', language),
+    pageTitle: t('saveAndExit.resumeSuccess.pageTitle'),
     name: form.title,
     serviceUrl: formPath,
     buttons: { continueButton },
