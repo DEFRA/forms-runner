@@ -8,6 +8,7 @@ import {
 import { type i18n } from 'i18next'
 import { LRUCache } from 'lru-cache'
 
+import { EN_GB } from '~/src/server/constants.js'
 import {
   createFormI18nInstance,
   extractMetadataBaseTranslations,
@@ -107,7 +108,7 @@ export function createFormTranslator(
 export function createTranslator(
   i18nInstance: i18n,
   languages: { name: string; code: string }[],
-  language = 'en-GB'
+  language = EN_GB
 ): Translator {
   const t = (key: string, opts?: Record<string, unknown>): string =>
     i18nInstance.t(key, { lng: language, ...opts })

@@ -15,6 +15,7 @@ import {
 } from '@defra/forms-model'
 import { type ResponseObject } from '@hapi/hapi'
 
+import { EN_GB } from '~/src/server/constants.js'
 import {
   SummaryPageWithConfirmationEmailController,
   getUserConfirmationEmailAddress
@@ -41,7 +42,7 @@ describe('SummaryPageWithConfirmationEmailController', () => {
       basePath: 'test'
     })
 
-    translator = model.createTranslator('en-GB')
+    translator = model.createTranslator(EN_GB)
 
     // Create a mock page for SummaryPageWithConfirmationEmailController
     const mockPage = {
@@ -61,7 +62,7 @@ describe('SummaryPageWithConfirmationEmailController', () => {
       },
       query: {},
       app: { model }
-    } as unknown as FormRequest)
+    })
   })
 
   describe('handle errors', () => {

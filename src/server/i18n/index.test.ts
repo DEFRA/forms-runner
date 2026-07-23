@@ -2,6 +2,7 @@ import { type FormDefinition } from '@defra/forms-model'
 import { type Request } from '@hapi/hapi'
 import { type i18n } from 'i18next'
 
+import { EN_GB } from '~/src/server/constants.js'
 import { extractTranslations, t } from '~/src/server/i18n/index.js'
 import { resolveLanguage } from '~/src/server/utils/utils.js'
 
@@ -29,9 +30,7 @@ describe('Runner i18n', () => {
   describe('resolveLanguage()', () => {
     it('returns the default language', () => {
       const blankRequest = {} as unknown as Request
-      expect(resolveLanguage(blankRequest.query, blankRequest.yar)).toBe(
-        'en-GB'
-      )
+      expect(resolveLanguage(blankRequest.query, blankRequest.yar)).toBe(EN_GB)
     })
 
     it('returns the language set in the session', () => {

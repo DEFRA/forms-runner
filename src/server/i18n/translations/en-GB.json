@@ -274,6 +274,8 @@
       "title": "Service status"
     },
     "phaseBanner": {
+      "alphaStage": "Alpha",
+      "betaStage": "Beta",
       "feedbackLinkNewTab": "give your feedback (opens in new tab)",
       "feedbackLinkEmail": "give your feedback by email",
       "text": "This is a new service. Help us improve it and [[feedbackLink]]."

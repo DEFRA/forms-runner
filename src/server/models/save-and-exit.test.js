@@ -1,3 +1,4 @@
+import { EN_GB } from '~/src/server/constants.js'
 import { createFormTranslator } from '~/src/server/i18n/form.js'
 import { lockedOutViewModel } from '~/src/server/models/save-and-exit.js'
 
@@ -12,7 +13,7 @@ describe('Save and exit models', () => {
     })
 
     const definition = /** @type {FormDefinition} */ ({})
-    const translator = createFormTranslator(form, definition, 'en-GB')
+    const translator = createFormTranslator(form, definition, EN_GB)
 
     test('should construct live resume url', () => {
       const link = /** @type {SaveAndExitResumeDetails} */ ({
