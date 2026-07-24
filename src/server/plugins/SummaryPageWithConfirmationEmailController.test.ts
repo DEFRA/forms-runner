@@ -62,7 +62,7 @@ describe('SummaryPageWithConfirmationEmailController', () => {
       },
       query: {},
       app: { model }
-    })
+    } as FormRequest)
   })
 
   describe('handle errors', () => {
