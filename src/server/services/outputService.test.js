@@ -3,7 +3,6 @@ import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { getFormatter } from '@defra/forms-engine-plugin/engine/outputFormatters/index.js'
 import { FormStatus } from '@defra/forms-engine-plugin/types'
 
-import { EN_GB } from '~/src/server/constants.js'
 import { publishFormAdapterEvent } from '~/src/server/messaging/formAdapterEventPublisher.js'
 import { getFormMetadataById } from '~/src/server/services/formsService.js'
 import {
@@ -151,7 +150,6 @@ describe('OutputService', () => {
         'test@example.com',
         mockItems,
         mockSubmitResponse,
-        EN_GB,
         mockFormMetadata
       )
 
@@ -193,7 +191,6 @@ describe('OutputService', () => {
         'test@example.com',
         mockItems,
         mockSubmitResponse,
-        EN_GB,
         mockFormMetadata
       )
 
@@ -240,7 +237,6 @@ describe('OutputService', () => {
         'test@example.com',
         mockItems,
         mockSubmitResponse,
-        EN_GB,
         mockFormMetadata
       )
 
@@ -281,8 +277,7 @@ describe('OutputService', () => {
         mockModel,
         'test@example.com',
         mockItems,
-        mockSubmitResponse,
-        EN_GB
+        mockSubmitResponse
       )
 
       expect(checkFormStatus).toHaveBeenCalledWith(mockRequest.params)
@@ -312,7 +307,6 @@ describe('OutputService', () => {
           'test@example.com',
           mockItems,
           mockSubmitResponse,
-          EN_GB,
           mockFormMetadata
         )
       ).rejects.toThrow('Formatter failed')
@@ -333,7 +327,6 @@ describe('OutputService', () => {
           'test@example.com',
           mockItems,
           mockSubmitResponse,
-          EN_GB,
           mockFormMetadata
         )
       ).rejects.toThrow(SyntaxError)
@@ -367,7 +360,6 @@ describe('OutputService', () => {
           'test@example.com',
           mockItems,
           mockSubmitResponse,
-          EN_GB,
           mockFormMetadata
         )
       ).rejects.toThrow('SNS publish failed')
@@ -398,8 +390,7 @@ describe('OutputService', () => {
           mockModel,
           'test@example.com',
           mockItems,
-          mockSubmitResponse,
-          EN_GB
+          mockSubmitResponse
         )
       ).rejects.toThrow('Formatter failed')
 
@@ -431,7 +422,6 @@ describe('OutputService', () => {
         'test@example.com',
         mockItems,
         mockSubmitResponse,
-        EN_GB,
         mockFormMetadata
       )
 
@@ -464,7 +454,6 @@ describe('OutputService', () => {
         'test@example.com',
         mockItems,
         mockSubmitResponse,
-        EN_GB,
         mockFormMetadata
       )
 
@@ -500,7 +489,6 @@ describe('OutputService', () => {
         undefined, // This parameter is ignored, using undefined to match test intent
         mockItems,
         mockSubmitResponse,
-        EN_GB,
         mockFormMetadata
       )
 
@@ -567,7 +555,6 @@ describe('OutputService', () => {
         'test@example.com',
         mockItems,
         mockSubmitResponse,
-        EN_GB,
         mockFormMetadata
       )
 
@@ -705,7 +692,6 @@ describe('OutputService', () => {
         'test@example.com',
         mockItems,
         mockSubmitResponse,
-        EN_GB,
         mockFormMetadata
       )
 

@@ -42,7 +42,6 @@ export class OutputService implements IOutputService {
     _emailAddress: string,
     items: DetailItem[],
     submitResponse: SubmitResponsePayload,
-    _language: string,
     formMetadata?: FormMetadata
   ): Promise<void> {
     const submissionRef = context.referenceNumber

@@ -5,7 +5,7 @@ import { FormAction } from '@defra/forms-engine-plugin/types'
 import { within } from '@testing-library/dom'
 import { StatusCodes } from 'http-status-codes'
 
-import { EN_GB, FORM_PREFIX } from '~/src/server/constants.js'
+import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
@@ -373,7 +373,7 @@ describe('Confirmation email', () => {
         retrievalKey: 'enrique.chase@defra.gov.uk',
         sessionId: expect.any(String),
         referenceNumber: expect.any(String),
-        language: EN_GB
+        language: undefined
       })
 
       expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
