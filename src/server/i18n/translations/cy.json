@@ -274,6 +274,8 @@
       "title": "Statws y gwasanaeth"
     },
     "phaseBanner": {
+      "alphaStage": "Alffa",
+      "betaStage": "Beta",
       "feedbackLinkNewTab": "rhowch eich adborth (yn agor mewn tab newydd)",
       "feedbackLinkEmail": "rhowch eich adborth drwy e-bost",
       "text": "Gwasanaeth newydd yw hwn. Helpwch ni i'w wella a [[feedbackLink]]."

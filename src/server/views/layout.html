@@ -149,8 +149,9 @@
       {% endif %}
     {%- endset %}
 
+    {% set stageKey = 'layout.phaseBanner.' + phaseTag + 'Stage' %}
     {{ govukPhaseBanner({
-      tag: { text: phaseTag | capitalize },
+      tag: { text: tR(stageKey) | capitalize },
       html: tR('layout.phaseBanner.text', { feedbackLink: feedbackLinkHtml })
     }) }}
   {% endif %}

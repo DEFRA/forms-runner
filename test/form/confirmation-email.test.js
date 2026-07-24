@@ -372,7 +372,8 @@ describe('Confirmation email', () => {
         repeaters: [],
         retrievalKey: 'enrique.chase@defra.gov.uk',
         sessionId: expect.any(String),
-        referenceNumber: expect.any(String)
+        referenceNumber: expect.any(String),
+        language: undefined
       })
 
       expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)

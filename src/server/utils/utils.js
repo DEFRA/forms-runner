@@ -1,6 +1,7 @@
 import { getTraceId } from '@defra/hapi-tracing'
 
 import { config } from '~/src/config/index.js'
+import { EN_GB } from '~/src/server/constants.js'
 
 /**
  * Returns a set of headers to use in an HTTP request, merging them with any existing headers in options.
@@ -37,7 +38,7 @@ export function getFeedbackFormLink(formId) {
  * @returns {string} - the resolved language code
  */
 export function resolveLanguage(query, yar) {
-  const defaultLang = 'en-GB'
+  const defaultLang = EN_GB
 
   query ??= {}
 

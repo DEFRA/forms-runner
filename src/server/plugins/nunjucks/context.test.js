@@ -1,6 +1,7 @@
 import { tmpdir } from 'node:os'
 
 import { config } from '~/src/config/index.js'
+import { EN_GB } from '~/src/server/constants.js'
 import { context } from '~/src/server/plugins/nunjucks/context.js'
 
 describe('Nunjucks context', () => {
@@ -123,7 +124,7 @@ describe('Nunjucks context', () => {
           query: {},
           response: { statusCode: 200 },
           state: {},
-          app: { language: 'en-GB' },
+          app: { language: EN_GB },
           path: '/test',
           url: { search: '' },
           plugins: {}
