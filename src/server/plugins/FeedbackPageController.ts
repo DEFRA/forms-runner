@@ -1,4 +1,3 @@
-import { type PageController } from '@defra/forms-engine-plugin/controllers/PageController.js'
 import { QuestionPageController } from '@defra/forms-engine-plugin/controllers/QuestionPageController.js'
 import { SummaryPageController } from '@defra/forms-engine-plugin/controllers/SummaryPageController.js'
 import {
@@ -43,9 +42,7 @@ export class FeedbackPageController extends QuestionPageController {
       context: FormContext,
       h: FormResponseToolkit
     ) => {
-      // Should not have to coerce the type - ticket to resolve later https://eaflood.atlassian.net/browse/DF-555
-      const { viewName, model } = this as unknown as PageController
-      const { collection } = this
+      const { collection, viewName, model } = this
       const { isForceAccess, state, evaluationState } = context
 
       /**

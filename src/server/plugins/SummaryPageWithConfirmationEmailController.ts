@@ -1,5 +1,3 @@
-import { type PageController } from '@defra/forms-engine-plugin/controllers/PageController.js'
-import { type QuestionPageController } from '@defra/forms-engine-plugin/controllers/QuestionPageController.js'
 import { SummaryPageController } from '@defra/forms-engine-plugin/controllers/SummaryPageController.js'
 import { type Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'
 import {
@@ -77,19 +75,13 @@ export class SummaryPageWithConfirmationEmailController extends SummaryPageContr
       context: FormContext,
       h: FormResponseToolkit
     ) => {
-      // Should not have to coerce the type - ticket to resolve later https://eaflood.atlassian.net/browse/DF-555
-      const viewName = (this as unknown as PageController).viewName
+      const viewName = this.viewName
       const { isForceAccess } = context
 
       // Check if this is a save-and-exit action
       const { action } = request.payload
       if (action === FormAction.SaveAndExit) {
-        // Should not have to coerce the type - ticket to resolve later https://eaflood.atlassian.net/browse/DF-555
-        return (this as unknown as QuestionPageController).handleSaveAndExit(
-          request,
-          context,
-          h
-        )
+        return this.handleSaveAndExit(request, context, h)
       }
 
       /**
@@ -98,10 +90,7 @@ export class SummaryPageWithConfirmationEmailController extends SummaryPageContr
        */
       const { error } = schema.validate(request.payload, { abortEarly: false })
       if (error || isForceAccess) {
-        // Should not have to coerce the type - ticket to resolve later https://eaflood.atlassian.net/browse/DF-555
-        context.errors = (this as unknown as QuestionPageController).getErrors(
-          error?.details
-        )
+        context.errors = this.getErrors(error?.details)
         const translator = this.getTranslator(request)
         const viewModel = this.getSummaryViewModel(request, context, translator)
         return h.view(viewName, viewModel)
@@ -113,19 +102,12 @@ export class SummaryPageWithConfirmationEmailController extends SummaryPageContr
         typeof userConfirmationEmailAddress === 'string' &&
         userConfirmationEmailAddress
       ) {
-        context.state = await (
-          this as unknown as QuestionPageController
-        ).mergeState(request, context.state, {
+        context.state = await this.mergeState(request, context.state, {
           [CONFIRMATION_EMAIL_FIELD_NAME]: userConfirmationEmailAddress
         })
       }
 
-      // Should not have to coerce the type - ticket to resolve later https://eaflood.atlassian.net/browse/DF-555
-      return (this as unknown as SummaryPageController).handleFormSubmit(
-        request,
-        context,
-        h
-      )
+      return this.handleFormSubmit(request, context, h)
     }
   }
 }
