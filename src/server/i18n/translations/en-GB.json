@@ -1,6 +1,8 @@
 {
   "common": {
-    "back": "Back"
+    "back": "Back",
+    "or": "or",
+    "and": "and"
   },
   "help": {
     "getSupport": {

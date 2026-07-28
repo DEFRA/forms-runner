@@ -1,5 +1,5 @@
+import { getAvailableLanguages } from '@defra/forms-engine-plugin/engine/i18n/languages.js'
 import { type Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'
-import { getAvailableLanguages } from '@defra/forms-engine-plugin/engine/models/FormModel.js'
 import {
   type FormDefinition,
   type FormMetadata,
