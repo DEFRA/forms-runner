@@ -1,3 +1,3 @@
-import { initMaps } from '@defra/forms-engine-plugin/shared.js'
+import { initMaps } from '@defra/forms-engine-plugin/maps'
 
 initMaps()
