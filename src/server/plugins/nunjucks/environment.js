@@ -31,5 +31,6 @@ environment.addFilter('evaluate', (value) => value)
 environment.addFilter('markdown', (value, startingHeaderLevel = 1) =>
   markdownToHtml(value, { startingHeaderLevel })
 )
+environment.addFilter('applyUrlParam', (value) => value)
 
 environment.addGlobal('govukRebrand', true)
