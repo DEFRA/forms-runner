@@ -9,6 +9,7 @@ import {
   pathSchema,
   stateSchema
 } from '@defra/forms-engine-plugin/schema.js'
+import { type Translator } from '@defra/forms-engine-plugin/types'
 import { FormStatus, slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import {
@@ -28,6 +29,7 @@ import {
 import { type CookieConsent } from '~/src/common/types.js'
 import { config } from '~/src/config/index.js'
 import { FORM_PREFIX } from '~/src/server/constants.js'
+import { t as runnerT } from '~/src/server/i18n/index.js'
 import { getErrorPreviewHandler } from '~/src/server/plugins/error-preview/error-preview.js'
 import {
   healthRoute,
@@ -45,6 +47,14 @@ const storeCompletedApplicationsFor = config.get(
   'storeCompletedApplicationsFor'
 )
 const storeFeedbackFor = config.get('storeFeedbackFor')
+
+function addTranslatorFuncs(translator: Translator) {
+  return {
+    context: { translator },
+    tR: (key: string, opts: Record<string, unknown> | undefined) =>
+      runnerT(key, translator.language, opts)
+  }
+}
 
 export default {
   plugin: {
@@ -130,7 +140,10 @@ export default {
             form.live ? FormStatus.Live : FormStatus.Draft
           )
 
-          return h.view('help/get-support', { form, context: { translator } })
+          return h.view('help/get-support', {
+            form,
+            ...addTranslatorFuncs(translator)
+          })
         },
         options
       })
@@ -156,7 +169,7 @@ export default {
 
           return h.view('help/privacy-notice', {
             form,
-            context: { translator },
+            ...addTranslatorFuncs(translator),
             saveAndExitExpiryDays,
             storeCompletedApplicationsFor,
             storeFeedbackFor,
@@ -186,7 +199,7 @@ export default {
 
           return h.view('help/privacy-notice-specific', {
             form,
-            context: { translator },
+            ...addTranslatorFuncs(translator),
             ...(definition?.options?.disableUserFeedback
               ? {}
               : getFeedbackFormLink(form.id))
@@ -223,7 +236,7 @@ export default {
               'googleAnalyticsContainerId'
             ),
             sessionDurationPretty,
-            context: { translator },
+            ...addTranslatorFuncs(translator),
             ...getFeedbackFormLink(formId)
           })
         },
@@ -343,7 +356,7 @@ export default {
 
           return h.view('help/cookie-preferences', {
             cookieConsentUpdated: showConsentSuccess,
-            context: { translator },
+            ...addTranslatorFuncs(translator),
             form
           })
         },
@@ -364,7 +377,7 @@ export default {
           )
 
           return h.view('help/accessibility-statement', {
-            context: { translator }
+            ...addTranslatorFuncs(translator)
           })
         },
         options

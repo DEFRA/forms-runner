@@ -13,6 +13,7 @@ import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
+import { EN_GB } from '~/src/server/constants.js'
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
 import {
   getCachedFormTranslatorBasic,
@@ -45,6 +46,7 @@ import {
   getSaveAndExitDetails,
   validateSaveAndExitCredentials
 } from '~/src/server/services/formsService.js'
+import { getFormDefinitionWithFallback } from '~/src/server/services/helpers/formsServiceHelper.js'
 import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 const maxInvalidPasswordAttempts = 5
@@ -90,7 +92,17 @@ export async function getFormTranslator(
   metadata,
   status = metadata.live ? FormStatus.Live : FormStatus.Draft
 ) {
-  const language = resolveLanguage(request.query, request.yar)
+  let language = resolveLanguage(request.query, request.yar)
+
+  if (language !== EN_GB) {
+    const definition = await getFormDefinitionWithFallback(metadata.id, status)
+
+    // @ts-expect-error - dynamic language lookup
+    if (!definition.metadata?.translations?.cy) {
+      // If not translations defined in the FormDefinition, always default to English
+      language = EN_GB
+    }
+  }
 
   const translator = await getCachedFormTranslatorExternalRoutes(
     metadata,

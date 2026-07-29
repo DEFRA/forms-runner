@@ -9,6 +9,7 @@ import pkg from '~/package.json' with { type: 'json' }
 import { parseCookieConsent } from '~/src/common/cookies.js'
 import { config } from '~/src/config/index.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
+import { EN_GB } from '~/src/server/constants.js'
 import { getCachedFormTranslatorBasic } from '~/src/server/i18n/form.js'
 import { t as runnerT } from '~/src/server/i18n/index.js'
 import { resolveLanguage } from '~/src/server/utils/utils.js'
@@ -34,7 +35,7 @@ export function context(request) {
 
   const { params, query = {}, response, state } = request ?? {}
 
-  const language = resolveLanguage(request?.query, request?.yar)
+  let language = resolveLanguage(request?.query, request?.yar)
 
   const isForceAccess = 'force' in query
   const { isPreview: isPreviewMode, state: formState } = checkFormStatus(params)
@@ -47,6 +48,12 @@ export function context(request) {
   let translator
   const formId = app?.model?.formId
   if (formId && app.model?.def) {
+    // @ts-expect-error - dynamic language lookup
+    if (!app.model.def.metadata?.translations?.cy) {
+      // If not translations defined in the FormDefinition, always default to English
+      language = EN_GB
+    }
+
     translator = getCachedFormTranslatorBasic(
       formId,
       app.model.def.name,
