@@ -1,49 +1,146 @@
-# Multi-language (specifically English and Welsh)
+# English/Welsh translations
 
-The `engine-plugin` and `runner` support multi-languages (if configured).
-Additional languages are configured by adding translations json files and adding a `translations` property under the `metadata` property of the form definition.
-You can use the Designer to edit Welsh translations for your form (to insert the necessary values in the `metadata.translations` property).
+This project supports multi-language forms (English and Welsh) across both the **engine-plugin** and the **runner**.
 
-Currently only English and Welsh are configured but other languages could be added if desired.
+## How translation data is stored
 
-## Forms engine plugin
+Translations come from two places:
 
-The `engine-plugin` handles translations at two levels:
+1. **Boilerplate translation files** (static UI text)
+   - English: `en-GB.json`
+   - Welsh: `cy.json`
+2. **Form definition metadata** (dynamic form content)
+   - English content is read directly from the form definition
+   - Welsh content is read from `metadata.translations.cy`
 
-1. Boilerplate text - a translation file per language exists in `plugin` (`en-GB.json` and `cy.json`). These provide English and Welsh for each boilerplate text element, such as the feedback link url and text, or the error summary etc.
-2. Dynamic form text - English translations are read from the form definition (such as component title, short description etc), whereas Welsh translations are read from the `metadata.translations.cy` property of the form definition.
+In practice, Welsh values are configured in the form definition under `metadata.translations.cy` (for example via Designer).
 
-The translator provides a series of functions:
+---
 
-- t(key) - a general translation function that takes a key (for example 'validation.numberMax') and returns either the appropriate English text or Welsh text deending on which is the current language
-- tPage(key) - returns the appropriate translations for page elements, such as title, guidance etc.
-- tComponent(key) - returns the appropriate translations for components, such as question text, hint, short description etc.
-- tSection(key) - returns the appropriate translations for sections
-- tListItem(key) - returns the appropriate translations for list items since each list value (e.g from a radio/checkbox etc) must have a translated equivalent
-- tForm(key) - returns the appropriate translations for form-level elements. Currently this only handles the form name.
+## Engine plugin translations
 
-## Forms runner
+The `engine-plugin` handles:
 
-The `runner` handles translations at two levels and sits on top of the translations from `engine-plugin`:
+1. **Boilerplate plugin text**  
+   Examples: error summary text, feedback link text/URL, validation messages.
+2. **Dynamic form text**  
+   Examples: page titles, component labels, hints, short descriptions, section names, list item labels.
 
-1. Boilerplate text - a translation file per language exists in `runner` (`en-GB.json` and `cy.json`). These provide English and Welsh for each boilerplate text element that lives outside of the `engine-plugin`, such as the footer links and 'save and exit' pages.
-2. Dynamic form overview text - English translations are read from the form metadata (such as 'what happens next' or contact information), whereas Welsh translations are read from the `metadata.translations.cy` property of the form definition (specifically entries starting with `form.`).
+### Engine plugin translator functions
 
-The translator provides a series of functions:
+- `t(key)`  
+  General translation lookup (for example `validation.numberMax`).
+- `tPage(key)`  
+  Page-level text (title, guidance, etc.).
+- `tComponent(key)`  
+  Component-level text (question, hint, short description).
+- `tSection(key)`  
+  Section text.
+- `tListItem(key)`  
+  List option text (radio/checkbox/select item values).
+- `tForm(key)`  
+  Form-level values (currently includes form title/name).
 
-- t(key) - a general translation function that takes a key and returns either the appropriate English text or Welsh text deending on which is the current language
-- tR(key) - returns the appropriate translations for elements specific to the `runner` (to avoid confusion with the `engine-plugin` translator functions)
-- tForm(key) - returns the appropriate translations for the form-level metadata elements (such as 'what happens next' or contact information), and also the form name.
+---
 
-## Language selector
+## Runner translations
 
-If additional languages are defined, a language selector is displayed in the top-right of the form.
-Additional languages must be set within the Nunjucks/Vision global `context` in order for the language selector to display.
-The language selector should be shown for all plugin routes as well as all external routes (such as save-and-exit and static pages) when additional languages have been defined for the form.
+The `runner` sits on top of `engine-plugin` translations and handles:
 
-## Accessing the translator
+1. **Runner boilerplate text**  
+   Examples: footer links, save-and-exit pages.
+2. **Dynamic overview metadata text**  
+   Examples: “what happens next”, contact details, and other form-level metadata.
 
-The translator should be available from the Nunjucks/Vision global `context` (for `engine-plugin` routes) and from the `context` attribute within the model for external routes. Either way, the translator should be accessible in a Nunjucks/Vision page using the attribute `context.translator`. This is particularly important for rendering `layout.html` since it references `context.translator.tForm('title')`. This must be available for both plugin routes and external routes alike.
+### Runner translator functions
 
-If you wanted to translate a runner-spcific piece of text, for example the footer links, you would call `context.translator.tR('my-translation-element-name')`.
-If you wanted to translate form-spcific metadtaa values, for example contact information, you would call `context.translator.tForm('contact.oneline.url')` to get the translation of for the key `form.contact.online.url` under `metatdata.translations.cy` - not the extra `form.` in the key name inside the form definition.
+- `t(key)`  
+  General translation lookup.
+- `tR(key)`  
+  Runner-specific translation lookup.
+- `tForm(key)`  
+  Form metadata lookup (including form title/name).
+
+For Welsh form metadata values, `tForm('contact.online.url')` maps to:
+
+```
+  metadata.translations.cy: {
+    'form.contact.online.url': 'My Welsh translation for online url'
+  }
+```
+
+> Note: pass keys to `tForm(...)` **without** the leading `form.` prefix.
+
+---
+
+## Cached translator helpers
+
+Two helper functions are used to build and reuse translator instances per request/context:
+
+### `getCachedFormTranslatorBasic`
+
+Use this for **plugin/internal form routes** (standard engine-driven pages).
+
+What it does:
+
+- Creates a translator for the active form + selected language
+- Reuses a cached instance where possible (to avoid rebuilding translator objects repeatedly)
+- Provides the standard translator methods used by most form pages (`t`, `tPage`, `tComponent`, `tSection`, `tListItem`, `tForm`)
+
+This is the default translator path for normal form journey pages.
+
+### `getCachedFormTranslatorExternalRoutes`
+
+Use this for **external/non-engine routes** (for example save-and-exit, static or custom runner routes).
+
+What it does:
+
+- Creates/reuses a cached translator in the same way as the basic helper
+- Ensures external routes still get the same translation behavior as plugin routes
+- Makes translated form metadata and runner text available in route models/templates (for example `context.translator.tForm(...)` and `context.translator.tR(...)`)
+
+This avoids translation mismatches between engine pages and external pages.
+
+### Why both exist
+
+Although both helpers cache translator creation, they are used in different route contexts:
+
+- **Basic**: engine/plugin form pages
+- **ExternalRoutes**: runner-managed external pages
+
+Using the correct helper ensures language selection, metadata translation, and template access work consistently across the whole app.
+
+---
+
+## Language selector behavior
+
+A language selector appears when additional languages are configured.
+
+To display it correctly:
+
+- Include language data in the global Nunjucks/Vision `context`.
+- Ensure this is done for:
+  - Plugin routes
+  - External routes (for example save-and-exit and static pages)
+
+---
+
+## Accessing the translator in templates
+
+The translator must be available as:
+
+- `context.translator` in Nunjucks/Vision global context (plugin routes)
+- `context.translator` in the route model context (external routes)
+
+This is required because shared templates (for example `layout.html`) call:
+
+- `context.translator.tForm('title')`
+
+### Examples
+
+- Runner-specific text:
+  - `context.translator.tR('footer.terms')`
+- Form metadata text:
+  - `context.translator.tForm('contact.online.url')`
+- General text:
+  - `context.translator.t('validation.required')`
