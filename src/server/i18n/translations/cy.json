@@ -1,6 +1,8 @@
 {
   "common": {
-    "back": "Yn ôl"
+    "back": "Yn ôl",
+    "or": "neu",
+    "and": "a"
   },
   "help": {
     "getSupport": {

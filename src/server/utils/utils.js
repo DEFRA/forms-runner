@@ -50,7 +50,17 @@ export function resolveLanguage(query, yar) {
 }
 
 /**
+ *
+ * @param {string} language
+ * @param { FormDefinition | undefined } definition
+ */
+export function isLanguageSupported(language, definition) {
+  // @ts-expect-error - dynamic language lookup
+  return definition?.metadata?.translations?.[language] !== undefined
+}
+
+/**
  * @import { RequestQuery } from '@hapi/hapi'
  * @import { Yar } from '@hapi/yar'
- * @import { FormMetadata } from '@defra/forms-model'
+ * @import { FormDefinition } from '@defra/forms-model'
  */

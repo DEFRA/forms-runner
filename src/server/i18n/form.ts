@@ -1,5 +1,6 @@
+import { extractMetadataBaseTranslations } from '@defra/forms-engine-plugin/engine/i18n/createFormTranslator.js'
+import { getAvailableLanguages } from '@defra/forms-engine-plugin/engine/i18n/languages.js'
 import { type Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'
-import { getAvailableLanguages } from '@defra/forms-engine-plugin/engine/models/FormModel.js'
 import {
   type FormDefinition,
   type FormMetadata,
@@ -11,7 +12,6 @@ import { LRUCache } from 'lru-cache'
 import { EN_GB } from '~/src/server/constants.js'
 import {
   createFormI18nInstance,
-  extractMetadataBaseTranslations,
   extractTranslations
 } from '~/src/server/i18n/index.js'
 import { getFormDefinitionWithFallback } from '~/src/server/services/helpers/formsServiceHelper.js'
@@ -24,6 +24,7 @@ const cache = new LRUCache({
 /**
  * Get translator for runner, for runner-specific boilerplate, plus current form name (synchronous method).
  * This is for routes served by the plugin. The translator is injected into the Nunjucks context.
+ * See docs/multi-language.md for the language and translation flow overview.
  * @param {string} id - the id of the form
  * @param { string | undefined } title - the title of the form
  * @param {FormStatus} status - the form status to use when retrieving the definition
@@ -56,6 +57,7 @@ export function getCachedFormTranslatorBasic(
  * Get translator for runner, for the current form's metadata (as well as the runner-specific boilerplate).
  * This is for external routes such as save-and-exit or privacy/help (not for routes served by the plugin).
  * This is an async call so we can read the form definition inside this call.
+ * See docs/multi-language.md for the language and translation flow overview.
  * @param {FormMetadata} metadata - the metadata of the form
  * @param {FormStatus} status - the form status to use when retrieving the definition
  * @param {string} language - the language to use for the translator
