@@ -1,12 +1,12 @@
-{% set appendParam = "?force=&language=" if '?force' in currentPath else "?language=" %}
-{% set availableLanguages = context.translator.languages if context.translator.languages | length else context.languages %}
+{% set availableLanguages = context.translator.languages | default(context.languages) | default(languages) %}
 {% if availableLanguages | length %}
   {% set languages = [] %}
-  {% for language in availableLanguages %}
-    {% if language.code === context.translator.language %}
-      {% set languages = (languages.push("<span class=\"govuk-body-s\">" + language.name + "</span>"), languages) %}
+  {% for lang in availableLanguages %}
+    {% if lang.code === context.translator.language or lang.code === language %}
+      {% set languages = (languages.push("<span class=\"govuk-body-s\">" + lang.name + "</span>"), languages) %}
     {% else %}
-      {% set languages = (languages.push("<a href='" + appendParam + language.code + "' class=\"govuk-link govuk-link--no-visited-state\">" + language.name + "</a>"), languages) %}
+      {% set newPath = currentPath | applyUrlParam('language', lang.code) %}
+      {% set languages = (languages.push("<a href='" + newPath + "' class=\"govuk-link govuk-link--no-visited-state\">" + lang.name + "</a>"), languages) %}
     {% endif %}
   {% endfor %}
   <span class="app-language-options">{{ languages | join(" | ") | safe }}</span>
