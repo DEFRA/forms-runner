@@ -1,5 +1,6 @@
+import { extractMetadataBaseTranslations } from '@defra/forms-engine-plugin/engine/i18n/createFormTranslator.js'
+import { getAvailableLanguages } from '@defra/forms-engine-plugin/engine/i18n/languages.js'
 import { type Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'
-import { getAvailableLanguages } from '@defra/forms-engine-plugin/engine/models/FormModel.js'
 import {
   type FormDefinition,
   type FormMetadata,
@@ -11,7 +12,6 @@ import { LRUCache } from 'lru-cache'
 import { EN_GB } from '~/src/server/constants.js'
 import {
   createFormI18nInstance,
-  extractMetadataBaseTranslations,
   extractTranslations
 } from '~/src/server/i18n/index.js'
 import { getFormDefinitionWithFallback } from '~/src/server/services/helpers/formsServiceHelper.js'

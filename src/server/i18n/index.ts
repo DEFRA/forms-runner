@@ -1,9 +1,5 @@
 import { type FormDefinitionTranslations } from '@defra/forms-engine-plugin/engine/i18n/types.js'
-import {
-  getErrorMessage,
-  type FormDefinition,
-  type FormMetadata
-} from '@defra/forms-model'
+import { getErrorMessage, type FormDefinition } from '@defra/forms-model'
 import i18next, { createInstance, type i18n } from 'i18next'
 
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
@@ -67,27 +63,6 @@ export function createFormI18nInstance() {
     })
 
   return instance
-}
-
-export function extractMetadataBaseTranslations(
-  metadata: FormMetadata | undefined,
-  i18nInstance: i18n
-) {
-  if (metadata) {
-    const translations = {
-      'form.title': metadata.title,
-      'form.contact.email.address': metadata.contact?.email?.address ?? '',
-      'form.contact.email.responseTime':
-        metadata.contact?.email?.responseTime ?? '',
-      'form.contact.online.url': metadata.contact?.online?.url ?? '',
-      'form.contact.online.text': metadata.contact?.online?.text ?? '',
-      'form.contact.phone': metadata.contact?.phone ?? '',
-      'form.submissionGuidance': metadata.submissionGuidance ?? '',
-      'form.privacyNoticeText': metadata.privacyNoticeText ?? '',
-      'form.privacyNoticeUrl': metadata.privacyNoticeUrl ?? ''
-    }
-    i18nInstance.addResourceBundle('en-GB', 'form', translations, true, true)
-  }
 }
 
 export function extractTranslations(
