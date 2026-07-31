@@ -25,9 +25,9 @@ In practice, Welsh values are configured in the form definition under `metadata.
 The `engine-plugin` handles:
 
 1. **Boilerplate plugin text**
-   Examples: error summary text, feedback link text/URL, validation messages.
+  Examples: error summary text, feedback link text/URL, validation messages.
 2. **Dynamic form text**
-   Examples: page titles, component labels, hints, short descriptions, section names, list item labels.
+  Examples: page titles, component labels, hints, short descriptions, section names, list item labels.
 
 ### Engine plugin translator functions
 
@@ -51,9 +51,9 @@ The `engine-plugin` handles:
 The `runner` sits on top of `engine-plugin` translations and handles:
 
 1. **Runner boilerplate text**
-   Examples: footer links, save-and-exit pages.
+  Examples: footer links, save-and-exit pages.
 2. **Dynamic overview metadata text**
-   Examples: “what happens next”, contact details, and other form-level metadata.
+  Examples: “what happens next”, contact details, and other form-level metadata.
 
 ### Runner translator functions
 
