@@ -12,7 +12,10 @@ import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { EN_GB } from '~/src/server/constants.js'
 import { getCachedFormTranslatorBasic } from '~/src/server/i18n/form.js'
 import { t as runnerT } from '~/src/server/i18n/index.js'
-import { resolveLanguage } from '~/src/server/utils/utils.js'
+import {
+  isLanguageSupported,
+  resolveLanguage
+} from '~/src/server/utils/utils.js'
 
 /** @type {Record<string, string> | undefined} */
 let webpackManifest
@@ -48,8 +51,7 @@ export function context(request) {
   let translator
   const formId = app?.model?.formId
   if (formId && app.model?.def) {
-    // @ts-expect-error - dynamic language lookup
-    if (!app.model.def.metadata?.translations?.cy) {
+    if (isLanguageSupported(language, app.model.def)) {
       // If not translations defined in the FormDefinition, always default to English
       language = EN_GB
     }

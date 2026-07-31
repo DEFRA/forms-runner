@@ -47,7 +47,10 @@ import {
   validateSaveAndExitCredentials
 } from '~/src/server/services/formsService.js'
 import { getFormDefinitionWithFallback } from '~/src/server/services/helpers/formsServiceHelper.js'
-import { resolveLanguage } from '~/src/server/utils/utils.js'
+import {
+  isLanguageSupported,
+  resolveLanguage
+} from '~/src/server/utils/utils.js'
 
 const maxInvalidPasswordAttempts = 5
 
@@ -97,8 +100,7 @@ export async function getFormTranslator(
   if (language !== EN_GB) {
     const definition = await getFormDefinitionWithFallback(metadata.id, status)
 
-    // @ts-expect-error - dynamic language lookup
-    if (!definition.metadata?.translations?.cy) {
+    if (isLanguageSupported(language, definition)) {
       // If not translations defined in the FormDefinition, always default to English
       language = EN_GB
     }
