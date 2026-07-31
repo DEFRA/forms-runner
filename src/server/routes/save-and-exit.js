@@ -100,7 +100,7 @@ export async function getFormTranslator(
   if (language !== EN_GB) {
     const definition = await getFormDefinitionWithFallback(metadata.id, status)
 
-    if (isLanguageSupported(language, definition)) {
+    if (!isLanguageSupported(language, definition)) {
       // If not translations defined in the FormDefinition, always default to English
       language = EN_GB
     }

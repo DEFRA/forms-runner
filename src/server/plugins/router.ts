@@ -56,6 +56,19 @@ function addTranslatorFuncs(translator: Translator) {
   }
 }
 
+function legacyRedirect(
+  request: Request,
+  h: ResponseToolkit,
+  error: Joi.ValidationError | undefined
+) {
+  if (error) {
+    throw Boom.notFound()
+  }
+
+  const targetUrl = `${FORM_PREFIX}${request.path}${request.url.search}`
+  return handleLegacyRedirect(h, targetUrl)
+}
+
 export default {
   plugin: {
     name: 'router',
@@ -72,12 +85,7 @@ export default {
           const { error: stateError } = stateSchema.validate(state)
           const { error: slugError } = slugSchema.validate(slug)
 
-          if (stateError || slugError) {
-            throw Boom.notFound()
-          }
-
-          const targetUrl = `${FORM_PREFIX}${request.path}${request.url.search}`
-          return handleLegacyRedirect(h, targetUrl)
+          return legacyRedirect(request, h, stateError ?? slugError)
         }
       })
 
@@ -89,12 +97,7 @@ export default {
           const { slug } = request.params
           const { error } = slugSchema.validate(slug)
 
-          if (error) {
-            throw Boom.notFound()
-          }
-
-          const targetUrl = `${FORM_PREFIX}${request.path}${request.url.search}`
-          return handleLegacyRedirect(h, targetUrl)
+          return legacyRedirect(request, h, error)
         }
       })
 
@@ -106,12 +109,7 @@ export default {
           const { slug } = request.params
           const { error } = slugSchema.validate(slug)
 
-          if (error) {
-            throw Boom.notFound()
-          }
-          // Note: Target URL is slightly different for this specific route
-          const targetUrl = `${FORM_PREFIX}${request.path}${request.url.search}`
-          return handleLegacyRedirect(h, targetUrl)
+          return legacyRedirect(request, h, error)
         }
       })
 

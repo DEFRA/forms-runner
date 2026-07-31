@@ -51,7 +51,7 @@ export function context(request) {
   let translator
   const formId = app?.model?.formId
   if (formId && app.model?.def) {
-    if (isLanguageSupported(language, app.model.def)) {
+    if (!isLanguageSupported(language, app.model.def)) {
       // If not translations defined in the FormDefinition, always default to English
       language = EN_GB
     }

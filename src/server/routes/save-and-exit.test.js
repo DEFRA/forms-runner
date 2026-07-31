@@ -6,7 +6,10 @@ import { StatusCodes } from 'http-status-codes'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
 import { createServer } from '~/src/server/index.js'
-import { addError } from '~/src/server/routes/save-and-exit.js'
+import {
+  addError,
+  getFormTranslator
+} from '~/src/server/routes/save-and-exit.js'
 import {
   getFormMetadataById,
   getFormMetadataWithGuard
@@ -731,8 +734,48 @@ describe('Save-and-exit check routes', () => {
       expect(newModel.errors).toHaveLength(1)
     })
   })
+
+  describe('getFormTranslator', () => {
+    test('should return translator', async () => {
+      const mockRequest = /** @type {{ query: RequestQuery, yar: Yar }} */ (
+        /** @type {unknown} */ ({
+          query: { language: 'en-GB' },
+          yar: {
+            set: jest.fn(),
+            get: jest.fn()
+          }
+        })
+      )
+      const metadata = /** @type {FormMetadata} */ ({
+        id: 'form-id'
+      })
+      const translator = await getFormTranslator(mockRequest, metadata)
+      expect(translator).toBeDefined()
+      expect(translator.language).toBe('en-GB')
+    })
+
+    test('should default translator to english if no translations defined', async () => {
+      const mockRequest = /** @type {{ query: RequestQuery, yar: Yar }} */ (
+        /** @type {unknown} */ ({
+          query: { language: 'cy' },
+          yar: {
+            set: jest.fn(),
+            get: jest.fn().mockReturnValueOnce('cy')
+          }
+        })
+      )
+      const metadata = /** @type {FormMetadata} */ ({
+        id: 'form-id'
+      })
+      const translator = await getFormTranslator(mockRequest, metadata)
+      expect(translator).toBeDefined()
+      expect(translator.language).toBe('en-GB')
+    })
+  })
 })
 
 /**
- * @import { Server } from '@hapi/hapi'
+ * @import { RequestQuery, Server } from '@hapi/hapi'
+ * @import { Yar } from '@hapi/yar'
+ * @import { FormMetadata } from '@defra/forms-model'
  */

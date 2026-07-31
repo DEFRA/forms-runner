@@ -7,11 +7,14 @@ This project supports multi-language forms (English and Welsh) across both the *
 Translations come from two places:
 
 1. **Boilerplate translation files** (static UI text)
-   - English: `en-GB.json`
-   - Welsh: `cy.json`
-2. **Form definition metadata** (dynamic form content)
-   - English content is read directly from the form definition
-   - Welsh content is read from `metadata.translations.cy`
+
+- English: `en-GB.json`
+- Welsh: `cy.json`
+
+1. **Form definition metadata** (dynamic form content)
+
+- English content is read directly from the form definition
+- Welsh content is read from `metadata.translations.cy`
 
 In practice, Welsh values are configured in the form definition under `metadata.translations.cy` (for example via Designer).
 
@@ -21,24 +24,24 @@ In practice, Welsh values are configured in the form definition under `metadata.
 
 The `engine-plugin` handles:
 
-1. **Boilerplate plugin text**  
+1. **Boilerplate plugin text**
    Examples: error summary text, feedback link text/URL, validation messages.
-2. **Dynamic form text**  
+2. **Dynamic form text**
    Examples: page titles, component labels, hints, short descriptions, section names, list item labels.
 
 ### Engine plugin translator functions
 
-- `t(key)`  
+- `t(key)`
   General translation lookup (for example `validation.numberMax`).
-- `tPage(key)`  
+- `tPage(key)`
   Page-level text (title, guidance, etc.).
-- `tComponent(key)`  
+- `tComponent(key)`
   Component-level text (question, hint, short description).
-- `tSection(key)`  
+- `tSection(key)`
   Section text.
-- `tListItem(key)`  
+- `tListItem(key)`
   List option text (radio/checkbox/select item values).
-- `tForm(key)`  
+- `tForm(key)`
   Form-level values (currently includes form title/name).
 
 ---
@@ -47,18 +50,18 @@ The `engine-plugin` handles:
 
 The `runner` sits on top of `engine-plugin` translations and handles:
 
-1. **Runner boilerplate text**  
+1. **Runner boilerplate text**
    Examples: footer links, save-and-exit pages.
-2. **Dynamic overview metadata text**  
+2. **Dynamic overview metadata text**
    Examples: “what happens next”, contact details, and other form-level metadata.
 
 ### Runner translator functions
 
-- `t(key)`  
+- `t(key)`
   General translation lookup.
-- `tR(key)`  
+- `tR(key)`
   Runner-specific translation lookup.
-- `tForm(key)`  
+- `tForm(key)`
   Form metadata lookup (including form title/name).
 
 For Welsh form metadata values, `tForm('contact.online.url')` maps to:
