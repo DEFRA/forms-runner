@@ -1,6 +1,6 @@
 const mockInitMaps = jest.fn()
 
-jest.mock('@defra/forms-engine-plugin/shared.js', () => ({
+jest.mock('@defra/forms-engine-plugin/maps', () => ({
   initMaps: mockInitMaps
 }))
 
