@@ -13,6 +13,7 @@
 
       <h2 class="govuk-heading-m">{{ tR('help.accessibilityStatement.complianceHeading') }}</h2>
       <p class="govuk-body">{{ tR('help.accessibilityStatement.complianceBody') }}</p>
+      <p class="govuk-body">{{ tR('help.accessibilityStatement.certificateBody') | safe }}</p>
 
       <h2 class="govuk-heading-m">{{ tR('help.accessibilityStatement.howAccessibleHeading') }}</h2>
       <p class="govuk-body">{{ tR('help.accessibilityStatement.howAccessibleIntro') }}</p>
@@ -20,18 +21,9 @@
       <h3 class="govuk-heading-s">{{ tR('help.accessibilityStatement.nonComplianceHeading') }}</h3>
       <p class="govuk-body">{{ tR('help.accessibilityStatement.nonComplianceBody') }}</p>
 
-      <h3 class="govuk-heading-s">{{ tR('help.accessibilityStatement.outOfScopeHeading') }}</h3>
-      <p class="govuk-body">{{ tR('help.accessibilityStatement.outOfScopeIntro') }}</p>
-      <ul class="govuk-list govuk-list--number">
-        {% for item in tR('help.accessibilityStatement.outOfScopeItems') %}
-          <li>{{ item }}</li>
-        {% endfor %}
-      </ul>
-
       <h2 class="govuk-heading-m">{{ tR('help.accessibilityStatement.preparationHeading') }}</h2>
       <p class="govuk-body">{{ tR('help.accessibilityStatement.preparationBody1') }}</p>
-      <p class="govuk-body">{{ tR('help.accessibilityStatement.preparationBody2') }}</p>
-      <p class="govuk-body">{{ tR('help.accessibilityStatement.preparationBody3') }}</p>
+      <p class="govuk-body">{{ tR('help.accessibilityStatement.preparationBody2') | safe }}</p>
 
       <h2 class="govuk-heading-m">{{ tR('help.accessibilityStatement.feedbackHeading') }}</h2>
       <p class="govuk-body">{{ tR('help.accessibilityStatement.feedbackBody') | safe }}</p>
