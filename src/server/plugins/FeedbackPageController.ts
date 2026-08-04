@@ -19,16 +19,18 @@ export class FeedbackPageController extends QuestionPageController {
     request: FormContextRequest,
     context: FormContext
   ): FeedbackPageViewModel {
+    const translator = this.getTranslator(request as unknown as AnyFormRequest)
     const viewModel = super.getViewModel(
       request,
       context,
-      this.getTranslator(request as unknown as AnyFormRequest)
+      translator
     ) as FeedbackPageViewModel
     return {
       ...viewModel,
       hidePhaseBanner: true,
-      submitButtonText: 'Send feedback',
-      name: context.state.formName as string | undefined
+      submitButtonText: translator.t('common.sendFeedback'),
+      name: context.state.formName as string | undefined,
+      t: translator.t
     }
   }
 

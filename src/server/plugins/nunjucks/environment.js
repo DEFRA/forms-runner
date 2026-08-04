@@ -1,5 +1,6 @@
 import { dirname, join } from 'node:path'
 
+import { applyUrlParam } from '@defra/forms-engine-plugin'
 import { markdownToHtml } from '@defra/forms-model'
 import nunjucks from 'nunjucks'
 import resolvePkg from 'resolve'
@@ -31,6 +32,6 @@ environment.addFilter('evaluate', (value) => value)
 environment.addFilter('markdown', (value, startingHeaderLevel = 1) =>
   markdownToHtml(value, { startingHeaderLevel })
 )
-environment.addFilter('applyUrlParam', (value) => value)
+environment.addFilter('applyUrlParam', applyUrlParam)
 
 environment.addGlobal('govukRebrand', true)

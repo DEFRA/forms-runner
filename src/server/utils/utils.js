@@ -1,3 +1,4 @@
+import { getAvailableLanguages } from '@defra/forms-engine-plugin'
 import { getTraceId } from '@defra/hapi-tracing'
 
 import { config } from '~/src/config/index.js'
@@ -50,13 +51,26 @@ export function resolveLanguage(query, yar) {
 }
 
 /**
- *
+ * Determine if the specified language has any translations available
  * @param {string} language
  * @param { FormDefinition | undefined } definition
  */
 export function isLanguageSupported(language, definition) {
   // @ts-expect-error - dynamic language lookup
   return definition?.metadata?.translations?.[language] !== undefined
+}
+
+/**
+ * Get a list of all languages supported by the system.
+ * Primarily for pages that are not form-specific e.g. error pages
+ */
+export function getAllLanguages() {
+  return getAvailableLanguages(
+    /** @type {FormDefinition} */ (
+      /** @type {unknown} */
+      ({ metadata: { translations: { cy: {} } } })
+    )
+  )
 }
 
 /**
