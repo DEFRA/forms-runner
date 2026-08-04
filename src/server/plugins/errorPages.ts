@@ -5,6 +5,8 @@ import {
 } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 
+import { getAllLanguages, resolveLanguage } from '~/src/server/utils/utils.js'
+
 /*
  * Add an `onPreResponse` listener to return error pages
  */
@@ -26,12 +28,24 @@ export default {
           // happening inside a "form" level request, the header
           // then displays the contextual form text and href
           const model = request.app.model
-          const viewModel = model
+          const language = resolveLanguage(request.query, request.yar)
+          const languages = getAllLanguages()
+          const viewModelBase = model
             ? {
                 name: model.name,
                 serviceUrl: `/${model.basePath}`
               }
-            : undefined
+            : {}
+          const viewModel = {
+            ...viewModelBase,
+            languages,
+            language,
+            currentPath: request.path,
+            translator: {
+              language,
+              languages
+            }
+          }
 
           // In the event of 404
           // return the `404` view
