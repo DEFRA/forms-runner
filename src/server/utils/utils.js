@@ -65,6 +65,8 @@ export function isLanguageSupported(language, definition) {
  * Primarily for pages that are not form-specific e.g. error pages
  */
 export function getAllLanguages() {
+  // Passing metadata that contains a Welsh translation construct will
+  // cause both English and Welsh to be returned
   return getAvailableLanguages(
     /** @type {FormDefinition} */ (
       /** @type {unknown} */
