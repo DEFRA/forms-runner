@@ -16,7 +16,7 @@
 
           {% if errorDetails %}
             {% set errorDetailsHtml %}
-              <p class="govuk-body-s">{{ tR('errors.serverError.details.intro') }}</p>
+              <p class="govuk-body">{{ tR('errors.serverError.details.intro') }}</p>
               {% if errorDetails.causes | length %}
                 <ul class="govuk-list govuk-list--bullet">
                   {% for cause in errorDetails.causes %}
@@ -25,7 +25,7 @@
                 </ul>
               {% endif %}
               <h2 class="govuk-heading-s">{{ tR('errors.serverError.details.technicalHeading') }}</h2>
-              <pre><code class="govuk-!-font-size-16">{{ errorDetails.technical }}</code></pre>
+              <pre style="background-color: #f3f2f1; border: 1px solid #b1b4b6; padding: 15px; overflow-x: auto;"><code class="govuk-!-font-size-16">{{ errorDetails.technical }}</code></pre>
             {% endset %}
             {{ govukDetails({
               summaryText: tR('errors.serverError.details.summary'),

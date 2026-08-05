@@ -241,7 +241,7 @@
       "tryBack": "try your browser back button as your data may be saved",
       "contact": "<a class=\"govuk-link\" href=\"https://www.gov.uk/guidance/contact-defra\">contact the Defra Helpline</a> if you have any questions",
       "details": {
-        "summary": "What went wrong (preview only)",
+        "summary": "What went wrong",
         "intro": "This information is shown because you are previewing this form. Members of the public will not see it.",
         "technicalHeading": "Technical details"
       }

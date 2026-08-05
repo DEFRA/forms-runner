@@ -156,7 +156,7 @@ describe('preview error details (drift canary)', () => {
 
       expect(res.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
       expect(res.payload).toContain('govuk-details')
-      expect(res.payload).toContain('What went wrong (preview only)')
+      expect(res.payload).toContain('What went wrong')
       expect(res.payload).toContain(expectedText)
     }
   )
@@ -177,7 +177,7 @@ describe('preview error details (drift canary)', () => {
 
     expect(res.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
     expect(res.payload).not.toContain('govuk-details')
-    expect(res.payload).not.toContain('What went wrong (preview only)')
+    expect(res.payload).not.toContain('What went wrong')
   })
 
   test('404 pages are unaffected', async () => {
@@ -192,7 +192,7 @@ describe('preview error details (drift canary)', () => {
     })
 
     expect(res.statusCode).toBe(StatusCodes.NOT_FOUND)
-    expect(res.payload).not.toContain('What went wrong (preview only)')
+    expect(res.payload).not.toContain('What went wrong')
   })
 })
 
