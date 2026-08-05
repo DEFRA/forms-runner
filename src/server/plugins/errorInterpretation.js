@@ -3,6 +3,7 @@ import os from 'node:os'
 import {
   ConditionBuildError,
   InvalidFormDefinitionError,
+  SchemaValidationError,
   UnknownComponentTypeError,
   UnknownPageControllerError
 } from '@defra/forms-engine-plugin/engine/errors.js'
@@ -48,7 +49,10 @@ function buildTechnicalText(error) {
 }
 
 /**
- * Checks for a Joi validation error.
+ * Checks for a raw Joi validation error — thrown untyped by paths that
+ * predate the InvalidFormDefinitionError family (e.g. metadata validation in
+ * formsService). Definition schema failures arrive typed as
+ * SchemaValidationError instead and never need this duck-typing.
  * @param {Error} error
  * @returns {error is import('joi').ValidationError}
  */
@@ -59,26 +63,6 @@ function isJoiError(error) {
     error.isJoi === true &&
     Array.isArray(error.details)
   )
-}
-
-/**
- * Finds the Joi validation error carried by `error`: the error itself (raw
- * throws, e.g. metadata validation in formsService), or its direct `cause`
- * (the engine wraps definition schema failures in SchemaValidationError with
- * the raw Joi error as the cause).
- * @param {Error} error
- * @returns {import('joi').ValidationError | undefined}
- */
-function findJoiError(error) {
-  if (isJoiError(error)) {
-    return error
-  }
-
-  if (error.cause instanceof Error && isJoiError(error.cause)) {
-    return error.cause
-  }
-
-  return undefined
 }
 
 /**
@@ -112,7 +96,12 @@ export function interpretError(error) {
   /** @type {string[]} */
   const causes = []
 
-  const joiError = findJoiError(error)
+  const joiError =
+    error instanceof SchemaValidationError
+      ? /** @type {import('joi').ValidationError} */ (error.cause)
+      : isJoiError(error)
+        ? error
+        : undefined
 
   if (joiError) {
     for (const cause of getErrors(joiError)) {
