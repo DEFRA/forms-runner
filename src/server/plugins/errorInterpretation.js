@@ -63,13 +63,13 @@ function isJoiError(error) {
 }
 
 /**
- * Friendly cause builders for known InvalidFormDefinitionError subclasses,
+ * Cause builders for known InvalidFormDefinitionError subclasses,
  * keyed by error class name (each class sets `this.name` to its own name).
  * Adding a new error type means adding one entry here. Subclasses without an
  * entry fall back to their own message in {@link interpretError}.
  * @type {Record<string, ((error: InvalidFormDefinitionError) => string) | undefined>}
  */
-const friendlyCauseBuilders = {
+const causeBuildersByErrorName = {
   [ConditionBuildError.name]: (error) => {
     const { conditionName } = /** @type {ConditionBuildError} */ (error)
     return `The condition '${conditionName}' could not be understood. Check that it refers to the right question and answer option.`
@@ -101,7 +101,7 @@ export function interpretError(error) {
       causes.push(`${cause.message}${path}`)
     }
   } else if (error instanceof InvalidFormDefinitionError) {
-    const buildCause = friendlyCauseBuilders[error.name]
+    const buildCause = causeBuildersByErrorName[error.name]
     causes.push(buildCause ? buildCause(error) : error.message)
   }
 
