@@ -63,6 +63,26 @@ function isJoiError(error) {
 }
 
 /**
+ * Friendly cause builders for known InvalidFormDefinitionError subclasses,
+ * keyed by error class name (each class sets `this.name` to its own name).
+ * Adding a new error type means adding one entry here. Subclasses without an
+ * entry fall back to their own message in {@link interpretError}.
+ * @type {Record<string, ((error: InvalidFormDefinitionError) => string) | undefined>}
+ */
+const friendlyCauseBuilders = {
+  [ConditionBuildError.name]: (error) => {
+    const { conditionName } = /** @type {ConditionBuildError} */ (error)
+    return `The condition '${conditionName}' could not be understood. Check that it refers to the right question and answer option.`
+  },
+  [UnknownPageControllerError.name]: () =>
+    'This form uses a page type this version of the service does not recognise.',
+  [UnknownComponentTypeError.name]: (error) => {
+    const { componentType } = /** @type {UnknownComponentTypeError} */ (error)
+    return `This form uses a question type ('${componentType}') this version of the service does not recognise.`
+  }
+}
+
+/**
  * Interprets an error raised while loading or rendering a form into
  * designer-friendly causes plus a sanitized technical message. Used by the
  * error pages plugin for preview requests only.
@@ -80,20 +100,9 @@ export function interpretError(error) {
         : ''
       causes.push(`${cause.message}${path}`)
     }
-  } else if (error instanceof ConditionBuildError) {
-    causes.push(
-      `The condition '${error.conditionName}' could not be understood. Check that it refers to the right question and answer option.`
-    )
-  } else if (error instanceof UnknownPageControllerError) {
-    causes.push(
-      'This form uses a page type this version of the service does not recognise.'
-    )
-  } else if (error instanceof UnknownComponentTypeError) {
-    causes.push(
-      `This form uses a question type ('${error.componentType}') this version of the service does not recognise.`
-    )
   } else if (error instanceof InvalidFormDefinitionError) {
-    causes.push(error.message)
+    const buildCause = friendlyCauseBuilders[error.name]
+    causes.push(buildCause ? buildCause(error) : error.message)
   }
 
   return { causes, technical: buildTechnicalText(error) }
