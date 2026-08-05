@@ -1,5 +1,7 @@
 {% extends 'layout.html' %}
 
+{% from "govuk/components/details/macro.njk" import govukDetails %}
+
 {% block content %}
   <div class="govuk-width-container">
     <div class="govuk-main-wrapper">
@@ -11,6 +13,25 @@
             <li>{{ tR('errors.serverError.tryBack') }}</li>
             <li>{{ tR('errors.serverError.contact') | safe }}</li>
           </ul>
+
+          {% if errorDetails %}
+            {% set errorDetailsHtml %}
+              <p class="govuk-body-s">{{ tR('errors.serverError.details.intro') }}</p>
+              {% if errorDetails.causes | length %}
+                <ul class="govuk-list govuk-list--bullet">
+                  {% for cause in errorDetails.causes %}
+                    <li>{{ cause }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+              <h2 class="govuk-heading-s">{{ tR('errors.serverError.details.technicalHeading') }}</h2>
+              <pre><code class="govuk-!-font-size-16">{{ errorDetails.technical }}</code></pre>
+            {% endset %}
+            {{ govukDetails({
+              summaryText: tR('errors.serverError.details.summary'),
+              html: errorDetailsHtml
+            }) }}
+          {% endif %}
         </div>
       </div>
     </div>

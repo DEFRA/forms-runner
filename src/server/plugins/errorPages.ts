@@ -1,3 +1,4 @@
+import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
 import {
   type Request,
   type ResponseToolkit,
@@ -5,6 +6,7 @@ import {
 } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 
+import { interpretError } from '~/src/server/plugins/errorInterpretation.js'
 import { getAllLanguages, resolveLanguage } from '~/src/server/utils/utils.js'
 
 /*
@@ -62,8 +64,18 @@ export default {
             `[httpError] HTTP ${statusCode} error occurred - ${response.message} - path: ${request.path} - method: ${request.method}`
           )
 
+          const { isPreview } = checkFormStatus(
+            request.params as Parameters<typeof checkFormStatus>[0]
+          )
+
+          const errorDetails =
+            isPreview &&
+            statusCode >= StatusCodes.INTERNAL_SERVER_ERROR.valueOf()
+              ? interpretError(response)
+              : undefined
+
           // The return the `500` view
-          return h.view('500', viewModel).code(statusCode)
+          return h.view('500', { ...viewModel, errorDetails }).code(statusCode)
         }
         return h.continue
       })
