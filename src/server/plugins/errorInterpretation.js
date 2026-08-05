@@ -86,7 +86,7 @@ export function interpretError(error) {
     )
   } else if (error instanceof UnknownPageControllerError) {
     causes.push(
-      `This form uses a page type ('${error.controllerName}') this version of the service does not recognise.`
+      'This form uses a page type this version of the service does not recognise.'
     )
   } else if (error instanceof UnknownComponentTypeError) {
     causes.push(

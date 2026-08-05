@@ -137,7 +137,11 @@ describe('preview error details (drift canary)', () => {
       brokenConditionDef,
       'The condition &#39;Existing user&#39; could not be understood'
     ],
-    ['unknown page controller', unknownControllerDef, 'NoSuchPageController'],
+    [
+      'unknown page controller',
+      unknownControllerDef,
+      'uses a page type this version of the service does not recognise'
+    ],
     [
       'schema-invalid definition',
       schemaInvalidDef,

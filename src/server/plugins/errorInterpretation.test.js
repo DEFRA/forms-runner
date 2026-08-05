@@ -45,7 +45,7 @@ describe('interpretError', () => {
     )
 
     expect(result.causes).toEqual([
-      "This form uses a page type ('NoSuchPageController') this version of the service does not recognise."
+      'This form uses a page type this version of the service does not recognise.'
     ])
   })
 
