@@ -48,8 +48,7 @@ function buildTechnicalText(error) {
 }
 
 /**
- * Checks for a Joi validation error (the engine throws the raw ValidationError
- * when a definition fails schema validation).
+ * Checks for a Joi validation error.
  * @param {Error} error
  * @returns {error is import('joi').ValidationError}
  */
@@ -60,6 +59,26 @@ function isJoiError(error) {
     error.isJoi === true &&
     Array.isArray(error.details)
   )
+}
+
+/**
+ * Finds the Joi validation error carried by `error`: the error itself (raw
+ * throws, e.g. metadata validation in formsService), or its direct `cause`
+ * (the engine wraps definition schema failures in SchemaValidationError with
+ * the raw Joi error as the cause).
+ * @param {Error} error
+ * @returns {import('joi').ValidationError | undefined}
+ */
+function findJoiError(error) {
+  if (isJoiError(error)) {
+    return error
+  }
+
+  if (error.cause instanceof Error && isJoiError(error.cause)) {
+    return error.cause
+  }
+
+  return undefined
 }
 
 /**
@@ -93,8 +112,10 @@ export function interpretError(error) {
   /** @type {string[]} */
   const causes = []
 
-  if (isJoiError(error)) {
-    for (const cause of getErrors(error)) {
+  const joiError = findJoiError(error)
+
+  if (joiError) {
+    for (const cause of getErrors(joiError)) {
       const path = Array.isArray(cause.detail?.path)
         ? ` (${cause.detail.path.join(' → ')})`
         : ''

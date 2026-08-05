@@ -3,6 +3,7 @@ import os from 'node:os'
 import {
   ConditionBuildError,
   InvalidFormDefinitionError,
+  SchemaValidationError,
   UnknownComponentTypeError,
   UnknownPageControllerError
 } from '@defra/forms-engine-plugin/engine/errors.js'
@@ -19,6 +20,17 @@ describe('interpretError', () => {
 
     expect(result.causes.length).toBeGreaterThan(0)
     expect(result.technical).toContain('required')
+  })
+
+  test('SchemaValidationError-wrapped Joi errors produce the same causes as raw ones', () => {
+    const { error } = formDefinitionV2Schema.validate({}, { abortEarly: false })
+    if (!error) throw new Error('expected validation error')
+
+    const raw = interpretError(error)
+    const wrapped = interpretError(new SchemaValidationError(error))
+
+    expect(wrapped.causes).toEqual(raw.causes)
+    expect(wrapped.technical).toContain('Invalid form definition:')
   })
 
   test('ConditionBuildError names the condition', () => {
