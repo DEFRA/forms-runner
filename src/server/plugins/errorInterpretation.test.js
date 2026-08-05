@@ -13,6 +13,7 @@ import { interpretError } from '~/src/server/plugins/errorInterpretation.js'
 describe('interpretError', () => {
   test('Joi definition validation errors produce getErrors-derived causes', () => {
     const { error } = formDefinitionV2Schema.validate({}, { abortEarly: false })
+    if (!error) throw new Error('expected validation error')
 
     const result = interpretError(error)
 

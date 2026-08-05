@@ -55,7 +55,10 @@ function buildTechnicalText(error) {
  */
 function isJoiError(error) {
   return (
-    'isJoi' in error && error.isJoi === true && Array.isArray(error.details)
+    'isJoi' in error &&
+    'details' in error &&
+    error.isJoi === true &&
+    Array.isArray(error.details)
   )
 }
 
