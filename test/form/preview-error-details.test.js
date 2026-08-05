@@ -103,7 +103,7 @@ const brokenConditionDef = {
 const unknownControllerDef = structuredClone(brokenConditionDef)
 unknownControllerDef.name = 'Unknown controller fixture'
 unknownControllerDef.conditions = []
-delete unknownControllerDef.pages[0].components[0].list
+Reflect.deleteProperty(unknownControllerDef.pages[0].components[0], 'list')
 unknownControllerDef.pages[0].controller = 'NoSuchPageController'
 
 const schemaInvalidDef = structuredClone(brokenConditionDef)
@@ -142,7 +142,11 @@ describe('preview error details (drift canary)', () => {
   ])(
     'preview URL renders details for a %s',
     async (_label, definition, expectedText) => {
-      jest.mocked(getFormDefinition).mockResolvedValue(definition)
+      jest
+        .mocked(getFormDefinition)
+        .mockResolvedValue(
+          /** @type {FormDefinition} */ (/** @type {unknown} */ (definition))
+        )
 
       const res = await server.inject({ method: 'GET', url: PREVIEW_URL })
 
@@ -154,7 +158,13 @@ describe('preview error details (drift canary)', () => {
   )
 
   test('public URL renders the 500 page without details', async () => {
-    jest.mocked(getFormDefinition).mockResolvedValue(brokenConditionDef)
+    jest
+      .mocked(getFormDefinition)
+      .mockResolvedValue(
+        /** @type {FormDefinition} */ (
+          /** @type {unknown} */ (brokenConditionDef)
+        )
+      )
 
     const res = await server.inject({
       method: 'GET',
@@ -181,3 +191,7 @@ describe('preview error details (drift canary)', () => {
     expect(res.payload).not.toContain('What went wrong (preview only)')
   })
 })
+
+/**
+ * @import { FormDefinition } from '@defra/forms-model'
+ */
