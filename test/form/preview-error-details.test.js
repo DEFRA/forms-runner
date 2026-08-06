@@ -7,6 +7,11 @@ import {
   getFormDefinition,
   getFormMetadata
 } from '~/src/server/services/formsService.js'
+import {
+  buildBrokenConditionDefinition,
+  buildSchemaInvalidDefinition,
+  buildUnknownControllerDefinition
+} from '~/test/fixtures/definitions.js'
 import * as fixtures from '~/test/fixtures/index.js'
 
 jest.mock('~/src/server/services/formsService.js')
@@ -26,91 +31,6 @@ const metadata = {
   draft: stateStamp,
   live: stateStamp
 }
-
-const brokenConditionDef = {
-  name: 'Broken condition fixture',
-  engine: 'V2',
-  schema: 2,
-  startPage: '/summary',
-  pages: [
-    {
-      id: '449c053b-9201-4312-9a75-187afc6ba48b',
-      path: '/licence',
-      title: 'Licence',
-      components: [
-        {
-          id: 'a7c0242f-2a31-45b2-8c71-ff2ac7f53288',
-          name: 'xVrYaJ',
-          type: 'YesNoField',
-          title: 'Do you have a licence?',
-          shortDescription: 'Licence',
-          options: { required: true },
-          schema: {},
-          list: '4fa26e9c-07cf-47cd-a9dd-5cec0dd3f544'
-        }
-      ],
-      next: []
-    },
-    {
-      id: '449c053b-9201-4312-9a75-187afc6ba48c',
-      path: '/summary',
-      title: 'Summary',
-      controller: 'SummaryPageController',
-      components: [],
-      next: []
-    }
-  ],
-  lists: [
-    {
-      id: '4fa26e9c-07cf-47cd-a9dd-5cec0dd3f544',
-      name: 'XtfRYR',
-      title: 'User type list',
-      type: 'string',
-      items: [
-        {
-          id: '55fe0067-d011-4d33-886c-e1aa266637c3',
-          text: 'existing user',
-          value: 'existing user'
-        },
-        {
-          id: '2277c7e5-7fef-46c6-993b-d294116d6d6b',
-          text: 'new user',
-          value: 'new user'
-        }
-      ]
-    }
-  ],
-  sections: [],
-  conditions: [
-    {
-      id: '3f9d3a35-6dee-4706-806c-3f776129f631',
-      displayName: 'Existing user',
-      items: [
-        {
-          id: '7d7f58ee-c860-4d24-8a13-de5cb9af53d8',
-          componentId: 'a7c0242f-2a31-45b2-8c71-ff2ac7f53288',
-          operator: 'is',
-          type: 'ListItemRef',
-          value: {
-            listId: '4fa26e9c-07cf-47cd-a9dd-5cec0dd3f544',
-            itemId: ['55fe0067-d011-4d33-886c-e1aa266637c3']
-          }
-        }
-      ]
-    }
-  ]
-}
-
-const unknownControllerDef = structuredClone(brokenConditionDef)
-unknownControllerDef.name = 'Unknown controller fixture'
-unknownControllerDef.conditions = []
-Reflect.deleteProperty(unknownControllerDef.pages[0].components[0], 'list')
-unknownControllerDef.pages[0].controller = 'NoSuchPageController'
-
-const schemaInvalidDef = structuredClone(brokenConditionDef)
-schemaInvalidDef.name = 'Schema invalid fixture'
-// pages must be unique by path — duplicate to force a Joi validation error
-schemaInvalidDef.pages.push(structuredClone(schemaInvalidDef.pages[0]))
 
 const SLUG = fixtures.form.metadata.slug
 const PREVIEW_URL = `${FORM_PREFIX}/preview/draft/${SLUG}`
@@ -135,17 +55,17 @@ describe('preview error details (drift canary)', () => {
   test.each([
     [
       'broken condition',
-      brokenConditionDef,
+      buildBrokenConditionDefinition(),
       'The condition &#39;Existing user&#39; is invalid'
     ],
     [
       'unknown page controller',
-      unknownControllerDef,
+      buildUnknownControllerDefinition(),
       'uses a page type this version of the service does not recognise'
     ],
     [
       'schema-invalid definition',
-      schemaInvalidDef,
+      buildSchemaInvalidDefinition(),
       'Each page must have a unique'
     ]
   ])(
@@ -211,7 +131,7 @@ describe('preview error details (drift canary)', () => {
       .mocked(getFormDefinition)
       .mockResolvedValue(
         /** @type {FormDefinition} */ (
-          /** @type {unknown} */ (brokenConditionDef)
+          /** @type {unknown} */ (buildBrokenConditionDefinition())
         )
       )
 
