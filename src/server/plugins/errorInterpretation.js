@@ -96,12 +96,18 @@ export function interpretError(error) {
   /** @type {string[]} */
   const causes = []
 
-  const joiError =
-    error instanceof SchemaValidationError
-      ? /** @type {import('joi').ValidationError} */ (error.cause)
-      : isJoiError(error)
-        ? error
-        : undefined
+  /** @type {import('joi').ValidationError | undefined} */
+  let joiError
+
+  if (error instanceof SchemaValidationError) {
+    // The engine wraps definition schema failures; the raw Joi error is
+    // carried as the (typed) cause
+    joiError = error.cause
+  } else if (isJoiError(error)) {
+    // A raw Joi error can only arrive from the metadata validation in
+    // formsService, which predates the typed InvalidFormDefinitionError family
+    joiError = error
+  }
 
   if (joiError) {
     // Set-dedupe: several schema rules can share one message
