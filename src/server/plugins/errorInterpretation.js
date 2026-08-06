@@ -1,5 +1,3 @@
-import os from 'node:os'
-
 import {
   ConditionBuildError,
   InvalidFormDefinitionError,
@@ -13,17 +11,6 @@ import { MetadataValidationError } from '~/src/server/services/errors.js'
 
 const MAX_TECHNICAL_LENGTH = 2000
 const MAX_CAUSE_DEPTH = 5
-
-/**
- * Hides server file paths. Only the two prefixes we know about are replaced
- * (the app directory and the home directory) — plain text substitution, so
- * text that is not a path is never touched.
- * @param {string} text
- * @returns {string}
- */
-function redactBasePaths(text) {
-  return text.replaceAll(process.cwd(), '.').replaceAll(os.homedir(), '~')
-}
 
 /**
  * Builds the text for the "Technical details" block: the error message,
@@ -44,7 +31,7 @@ function buildTechnicalText(error) {
     depth++
   }
 
-  const text = redactBasePaths(parts.join('\n'))
+  const text = parts.join('\n')
 
   return text.length > MAX_TECHNICAL_LENGTH
     ? `${text.slice(0, MAX_TECHNICAL_LENGTH)}… (truncated)`

@@ -1,5 +1,3 @@
-import os from 'node:os'
-
 import {
   ConditionBuildError,
   InvalidFormDefinitionError,
@@ -165,24 +163,6 @@ describe('interpretError', () => {
 
     expect(result.causes).toEqual([])
     expect(result.technical).toBe('something else entirely')
-  })
-
-  test('cwd and homedir are redacted by literal replacement', () => {
-    const error = new Error(
-      `Cannot find module '${process.cwd()}/node_modules/x' from '${os.homedir()}/y'`
-    )
-
-    const result = interpretError(error)
-
-    expect(result.technical).toBe(
-      "Cannot find module './node_modules/x' from '~/y'"
-    )
-  })
-
-  test('path-like text outside the known prefixes is left untouched', () => {
-    const result = interpretError(new Error('open /etc/whatever failed'))
-
-    expect(result.technical).toBe('open /etc/whatever failed')
   })
 
   test('long technical text is truncated at 2000 characters', () => {
