@@ -6,8 +6,7 @@
 
 {% set technicalDetails %}
 <p>{{ tR('errors.previewError.technical.support') }}</p>
-<pre
-  style="background-color: #f3f2f1; border: 1px solid #b1b4b6; padding: 15px; overflow-x: auto;"><code class="govuk-!-font-size-16">{{ errorDetails.technical }}</code></pre>
+<pre class="app-error-details__technical"><code class="govuk-!-font-size-16">{{ errorDetails.technical }}</code></pre>
 {% endset %}
 
 {% set multipleCauses %}

@@ -1,0 +1,11 @@
+@use "govuk-frontend" as *;
+
+// Technical details block on the preview error page. Mirrors the engine
+// plugin's .app-code__container styling with GOV.UK design tokens.
+.app-error-details__technical {
+  margin: 0;
+  padding: govuk-spacing(3);
+  overflow-x: auto;
+  border: 1px solid $govuk-border-colour;
+  background-color: govuk-colour("light-grey");
+}
