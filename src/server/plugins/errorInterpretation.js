@@ -9,6 +9,8 @@ import {
 } from '@defra/forms-engine-plugin/engine/errors.js'
 import { formErrorsToMessages, getErrors } from '@defra/forms-model'
 
+import { MetadataValidationError } from '~/src/server/services/errors.js'
+
 const MAX_TECHNICAL_LENGTH = 2000
 const MAX_CAUSE_DEPTH = 5
 
@@ -19,7 +21,7 @@ const MAX_CAUSE_DEPTH = 5
  * @param {string} text
  * @returns {string}
  */
-function redactKnownPrefixes(text) {
+function redactBasePaths(text) {
   return text.replaceAll(process.cwd(), '.').replaceAll(os.homedir(), '~')
 }
 
@@ -42,27 +44,11 @@ function buildTechnicalText(error) {
     depth++
   }
 
-  const text = redactKnownPrefixes(parts.join('\n'))
+  const text = redactBasePaths(parts.join('\n'))
 
   return text.length > MAX_TECHNICAL_LENGTH
     ? `${text.slice(0, MAX_TECHNICAL_LENGTH)}… (truncated)`
     : text
-}
-
-/**
- * Checks whether an error is a raw Joi validation error. Only the metadata
- * check in formsService still throws these — invalid form definitions arrive
- * as SchemaValidationError instead.
- * @param {Error} error
- * @returns {error is import('joi').ValidationError}
- */
-function isJoiError(error) {
-  return (
-    'isJoi' in error &&
-    'details' in error &&
-    error.isJoi === true &&
-    Array.isArray(error.details)
-  )
 }
 
 /**
@@ -99,19 +85,6 @@ function buildDefinitionCauses(joiError) {
 }
 
 /**
- * The metadata schema has no friendly-message codes (formErrorsToMessages
- * only covers the definition) and its raw messages are too technical to show
- * as causes, so point the author at the right place instead. The field-level
- * detail still appears in the technical block.
- * @returns {string[]}
- */
-function buildMetadataCauses() {
-  return [
-    "Some of the form's overview details are invalid. Go back to the form overview and check details such as contact information and email addresses."
-  ]
-}
-
-/**
  * Works out the human-readable reasons an error happened.
  * @param {Error} error
  * @returns {string[]}
@@ -122,9 +95,13 @@ function buildCauses(error) {
     return buildDefinitionCauses(error.cause)
   }
 
-  // Raw Joi errors only come from the metadata check in formsService
-  if (isJoiError(error)) {
-    return buildMetadataCauses()
+  // The metadata check in formsService throws this; the raw messages are too
+  // technical to show as causes, so point the author at the right place. The
+  // field-level detail still appears in the technical block.
+  if (error instanceof MetadataValidationError) {
+    return [
+      "Some of the form's overview details are invalid. Go back to the form overview and check details such as contact information and email addresses."
+    ]
   }
 
   if (error instanceof InvalidFormDefinitionError) {

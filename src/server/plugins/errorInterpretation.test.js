@@ -10,13 +10,14 @@ import {
 import { formDefinitionV2Schema, formMetadataSchema } from '@defra/forms-model'
 
 import { interpretError } from '~/src/server/plugins/errorInterpretation.js'
+import { MetadataValidationError } from '~/src/server/services/errors.js'
 
 describe('interpretError', () => {
   test('metadata validation errors point the author at the form overview', () => {
     const { error } = formMetadataSchema.validate({}, { abortEarly: false })
     if (!error) throw new Error('expected validation error')
 
-    const result = interpretError(error)
+    const result = interpretError(new MetadataValidationError(error))
 
     expect(result.causes).toEqual([
       "Some of the form's overview details are invalid. Go back to the form overview and check details such as contact information and email addresses."

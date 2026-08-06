@@ -3,6 +3,7 @@ import { StatusCodes } from 'http-status-codes'
 
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
+import { MetadataValidationError } from '~/src/server/services/errors.js'
 import {
   getFormDefinition,
   getFormMetadata
@@ -160,7 +161,9 @@ describe('Server error pages', () => {
       )
       if (!error) throw new Error('expected metadata validation error')
 
-      jest.mocked(getFormMetadata).mockRejectedValue(error)
+      jest
+        .mocked(getFormMetadata)
+        .mockRejectedValue(new MetadataValidationError(error))
 
       const { container, response } = await renderResponse(server, {
         method: 'GET',

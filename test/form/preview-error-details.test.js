@@ -3,6 +3,7 @@ import { StatusCodes } from 'http-status-codes'
 
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
+import { MetadataValidationError } from '~/src/server/services/errors.js'
 import {
   getFormDefinition,
   getFormMetadata
@@ -110,7 +111,9 @@ describe('preview error details (drift canary)', () => {
 
       // formsService throws the raw Joi error when the manager response
       // fails metadata validation
-      jest.mocked(getFormMetadata).mockRejectedValue(error)
+      jest
+        .mocked(getFormMetadata)
+        .mockRejectedValue(new MetadataValidationError(error))
 
       const res = await server.inject({ method: 'GET', url: PREVIEW_URL })
 

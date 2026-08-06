@@ -78,7 +78,7 @@ export default {
               .code(statusCode)
           }
 
-          return h.view('500', { ...viewModel }).code(statusCode)
+          return h.view('500', viewModel).code(statusCode)
         }
         return h.continue
       })
