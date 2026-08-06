@@ -121,3 +121,17 @@ function buildCauses(error) {
 export function interpretError(error) {
   return { causes: buildCauses(error), technical: buildTechnicalText(error) }
 }
+
+/**
+ * Whether the error is a known form-configuration problem (form definition
+ * or form metadata). Anything else — an outage, a bug — must not be
+ * presented as a problem with the form.
+ * @param {Error} error
+ * @returns {boolean}
+ */
+export function isFormConfigurationError(error) {
+  return (
+    error instanceof InvalidFormDefinitionError ||
+    error instanceof MetadataValidationError
+  )
+}

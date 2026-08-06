@@ -154,6 +154,33 @@ describe('Server error pages', () => {
       expect($technical.closest('details')).not.toBeNull()
     })
 
+    it('shows the generic error page when the failure is not form configuration', async () => {
+      // e.g. a backend outage while fetching the definition
+      jest
+        .mocked(getFormDefinition)
+        .mockRejectedValue(new Error('socket hang up'))
+
+      const { container, response } = await renderResponse(server, {
+        method: 'GET',
+        url: PREVIEW_URL
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+
+      const $heading = container.getByRole('heading', {
+        name: 'Sorry, there is a problem with the service',
+        level: 1
+      })
+      expect($heading).toBeInTheDocument()
+
+      expect(
+        container.queryByRole('heading', {
+          name: 'This form cannot be previewed'
+        })
+      ).not.toBeInTheDocument()
+      expect(container.queryByText('Technical details')).not.toBeInTheDocument()
+    })
+
     it('points the author at the form overview when metadata is invalid', async () => {
       const { error } = formMetadataSchema.validate(
         { ...fixtures.form.metadata, notificationEmail: 'not-an-email' },

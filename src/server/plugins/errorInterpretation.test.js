@@ -9,7 +9,10 @@ import {
 } from '@defra/forms-engine-plugin/engine/errors.js'
 import { formDefinitionV2Schema, formMetadataSchema } from '@defra/forms-model'
 
-import { interpretError } from '~/src/server/plugins/errorInterpretation.js'
+import {
+  interpretError,
+  isFormConfigurationError
+} from '~/src/server/plugins/errorInterpretation.js'
 import { MetadataValidationError } from '~/src/server/services/errors.js'
 
 describe('interpretError', () => {
@@ -195,5 +198,26 @@ describe('interpretError', () => {
     const result = interpretError(error)
 
     expect(result.technical).not.toContain('at ')
+  })
+})
+
+describe('isFormConfigurationError', () => {
+  test('recognises definition, engine and metadata errors', () => {
+    const { error } = formMetadataSchema.validate({}, { abortEarly: false })
+    if (!error) throw new Error('expected validation error')
+
+    expect(isFormConfigurationError(new SchemaValidationError(error))).toBe(
+      true
+    )
+    expect(
+      isFormConfigurationError(new UnknownPageControllerError('Nope'))
+    ).toBe(true)
+    expect(isFormConfigurationError(new MetadataValidationError(error))).toBe(
+      true
+    )
+  })
+
+  test('rejects generic errors, such as an outage', () => {
+    expect(isFormConfigurationError(new Error('socket hang up'))).toBe(false)
   })
 })

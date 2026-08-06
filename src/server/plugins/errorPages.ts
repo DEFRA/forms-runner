@@ -7,7 +7,10 @@ import {
 } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 
-import { interpretError } from '~/src/server/plugins/errorInterpretation.js'
+import {
+  interpretError,
+  isFormConfigurationError
+} from '~/src/server/plugins/errorInterpretation.js'
 import { getAllLanguages, resolveLanguage } from '~/src/server/utils/utils.js'
 
 /*
@@ -67,14 +70,19 @@ export default {
 
           const { isPreview } = checkFormStatus(request.params as FormParams)
 
-          // The return the `500` view
-          if (isPreview) {
-            const errorDetails =
-              statusCode >= StatusCodes.INTERNAL_SERVER_ERROR.valueOf()
-                ? interpretError(response)
-                : undefined
+          // Only show the preview error page for known form-configuration
+          // problems. A generic failure (an outage, a bug) must not be
+          // dressed up as a problem with the form.
+          if (
+            isPreview &&
+            statusCode >= StatusCodes.INTERNAL_SERVER_ERROR.valueOf() &&
+            isFormConfigurationError(response)
+          ) {
             return h
-              .view('500-preview', { ...viewModel, errorDetails })
+              .view('500-preview', {
+                ...viewModel,
+                errorDetails: interpretError(response)
+              })
               .code(statusCode)
           }
 
