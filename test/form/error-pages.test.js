@@ -71,6 +71,11 @@ describe('Server error pages', () => {
       })
       expect($heading).toBeInTheDocument()
 
+      // the <title> lives in <head>, which renderResponse does not mount
+      expect(response.result).toContain(
+        '<title>Sorry, there is a problem with the service - '
+      )
+
       expect(
         container.queryByRole('heading', { name: 'What went wrong' })
       ).not.toBeInTheDocument()
@@ -123,6 +128,11 @@ describe('Server error pages', () => {
         level: 1
       })
       expect($heading).toBeInTheDocument()
+
+      // the <title> lives in <head>, which renderResponse does not mount
+      expect(response.result).toContain(
+        '<title>This form cannot be previewed - '
+      )
 
       const $causesHeading = container.getByRole('heading', {
         name: 'What went wrong',
