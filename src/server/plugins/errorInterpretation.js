@@ -13,9 +13,9 @@ const MAX_TECHNICAL_LENGTH = 2000
 const MAX_CAUSE_DEPTH = 5
 
 /**
- * Redacts known filesystem prefixes by literal replacement. Deliberately not
- * heuristic path detection: literal replacement cannot misfire on non-path
- * text, and it removes the sensitive part (the container's filesystem layout).
+ * Hides server file paths. Only the two prefixes we know about are replaced
+ * (the app directory and the home directory) — plain text substitution, so
+ * text that is not a path is never touched.
  * @param {string} text
  * @returns {string}
  */
@@ -24,8 +24,9 @@ function redactKnownPrefixes(text) {
 }
 
 /**
- * Builds the sanitized technical text: the error message plus its `cause`
- * chain. Never includes stack traces.
+ * Builds the text for the "Technical details" block: the error message,
+ * followed by the messages of the errors that caused it. Never includes
+ * stack traces.
  * @param {Error} error
  * @returns {string}
  */
@@ -49,10 +50,9 @@ function buildTechnicalText(error) {
 }
 
 /**
- * Checks for a raw Joi validation error — thrown untyped by paths that
- * predate the InvalidFormDefinitionError family (e.g. metadata validation in
- * formsService). Definition schema failures arrive typed as
- * SchemaValidationError instead and never need this duck-typing.
+ * Checks whether an error is a raw Joi validation error. Only the metadata
+ * check in formsService still throws these — invalid form definitions arrive
+ * as SchemaValidationError instead.
  * @param {Error} error
  * @returns {error is import('joi').ValidationError}
  */
@@ -66,10 +66,9 @@ function isJoiError(error) {
 }
 
 /**
- * Cause builders for known InvalidFormDefinitionError subclasses,
- * keyed by error class name (each class sets `this.name` to its own name).
- * Adding a new error type means adding one entry here. Subclasses without an
- * entry fall back to their own message in {@link interpretError}.
+ * One message builder per known error type, keyed by the error's class name.
+ * To support a new error type, add an entry here. Errors without an entry
+ * fall back to their own message.
  * @type {Record<string, ((error: InvalidFormDefinitionError) => string) | undefined>}
  */
 const causeBuildersByErrorName = {
@@ -86,38 +85,49 @@ const causeBuildersByErrorName = {
 }
 
 /**
- * Interprets an error raised while loading or rendering a form into
- * designer-friendly causes plus a sanitized technical message. Used by the
- * error pages plugin for preview requests only.
+ * One message per Joi validation failure. A Set removes repeats, because
+ * several schema rules can produce the same message.
+ * @param {import('joi').ValidationError} joiError
+ * @returns {string[]}
+ */
+function buildJoiCauses(joiError) {
+  return [
+    ...new Set(
+      getErrors(joiError).map((cause) => formErrorsToMessages[cause.id])
+    )
+  ]
+}
+
+/**
+ * Works out the human-readable reasons an error happened.
+ * @param {Error} error
+ * @returns {string[]}
+ */
+function buildCauses(error) {
+  // Invalid form definitions arrive wrapped, with the Joi error as the cause
+  if (error instanceof SchemaValidationError) {
+    return buildJoiCauses(error.cause)
+  }
+
+  // Raw Joi errors only come from the metadata check in formsService
+  if (isJoiError(error)) {
+    return buildJoiCauses(error)
+  }
+
+  if (error instanceof InvalidFormDefinitionError) {
+    const buildCause = causeBuildersByErrorName[error.name]
+    return [buildCause ? buildCause(error) : error.message]
+  }
+
+  return []
+}
+
+/**
+ * Turns an error raised while loading a form into human-readable causes plus
+ * a short technical description. Used by the preview error page only.
  * @param {Error} error
  * @returns {{ causes: string[], technical: string }}
  */
 export function interpretError(error) {
-  /** @type {string[]} */
-  const causes = []
-
-  /** @type {import('joi').ValidationError | undefined} */
-  let joiError
-
-  if (error instanceof SchemaValidationError) {
-    // The engine wraps definition schema failures; the raw Joi error is
-    // carried as the (typed) cause
-    joiError = error.cause
-  } else if (isJoiError(error)) {
-    // A raw Joi error can only arrive from the metadata validation in
-    // formsService, which predates the typed InvalidFormDefinitionError family
-    joiError = error
-  }
-
-  if (joiError) {
-    // Set-dedupe: several schema rules can share one message
-    causes.push(
-      ...new Set(getErrors(joiError).map((c) => formErrorsToMessages[c.id]))
-    )
-  } else if (error instanceof InvalidFormDefinitionError) {
-    const buildCause = causeBuildersByErrorName[error.name]
-    causes.push(buildCause ? buildCause(error) : error.message)
-  }
-
-  return { causes, technical: buildTechnicalText(error) }
+  return { causes: buildCauses(error), technical: buildTechnicalText(error) }
 }
