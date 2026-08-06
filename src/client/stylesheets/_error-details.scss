@@ -1,7 +1,6 @@
 @use "govuk-frontend" as *;
 
-// Technical details block on the preview error page. Mirrors the engine
-// plugin's .app-code__container styling with GOV.UK design tokens.
+// Technical details block on the preview error page
 .app-error-details__technical {
   margin: 0;
   padding: govuk-spacing(3);
