@@ -87,7 +87,7 @@ function buildCauses(error) {
   // field-level detail still appears in the technical block.
   if (error instanceof MetadataValidationError) {
     return [
-      "Some of the form's overview details are invalid. Go back to the form overview and check details such as contact information and email addresses."
+      "Some of the form's details are invalid. Go back to the form overview and check details such as contact information and email addresses."
     ]
   }
 

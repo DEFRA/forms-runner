@@ -237,7 +237,7 @@ describe('Server error pages', () => {
       expect(response.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
 
       const $cause = container.getByText(
-        "Some of the form's overview details are invalid. Go back to the form overview and check details such as contact information and email addresses."
+        "Some of the form's details are invalid. Go back to the form overview and check details such as contact information and email addresses."
       )
       expect($cause).toBeInTheDocument()
 

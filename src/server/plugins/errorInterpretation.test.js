@@ -21,7 +21,7 @@ describe('interpretError', () => {
     const result = interpretError(new MetadataValidationError(error))
 
     expect(result.causes).toEqual([
-      "Some of the form's overview details are invalid. Go back to the form overview and check details such as contact information and email addresses."
+      "Some of the form's details are invalid. Go back to the form overview and check details such as contact information and email addresses."
     ])
     // the field-level detail still appears in the technical text
     expect(result.technical).toContain('"title" is required')
