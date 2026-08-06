@@ -239,11 +239,15 @@
       "heading": "Sorry, there is a problem with the service",
       "canYou": "You can:",
       "tryBack": "try your browser back button as your data may be saved",
-      "contact": "<a class=\"govuk-link\" href=\"https://www.gov.uk/guidance/contact-defra\">contact the Defra Helpline</a> if you have any questions",
-      "details": {
-        "summary": "What went wrong",
-        "intro": "This information is shown because you are previewing this form. Members of the public will not see it.",
-        "technicalHeading": "Technical details"
+      "contact": "<a class=\"govuk-link\" href=\"https://www.gov.uk/guidance/contact-defra\">contact the Defra Helpline</a> if you have any questions"
+    },
+    "previewError": {
+      "heading": "This form cannot be previewed",
+      "summary": "What went wrong",
+      "intro": "The form contains configuration errors that need to be resolved before it can be viewed by the public.",
+      "technical": {
+        "revealText": "Technical details",
+        "support": "If you're unable to fix this error yourself, send the information below to the Defra Forms support team."
       }
     }
   },

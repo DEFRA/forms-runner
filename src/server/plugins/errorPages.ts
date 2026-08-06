@@ -1,4 +1,5 @@
 import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
+import { type FormParams } from '@defra/forms-engine-plugin/types'
 import {
   type Request,
   type ResponseToolkit,
@@ -64,18 +65,20 @@ export default {
             `[httpError] HTTP ${statusCode} error occurred - ${response.message} - path: ${request.path} - method: ${request.method}`
           )
 
-          const { isPreview } = checkFormStatus(
-            request.params as Parameters<typeof checkFormStatus>[0]
-          )
-
-          const errorDetails =
-            isPreview &&
-            statusCode >= StatusCodes.INTERNAL_SERVER_ERROR.valueOf()
-              ? interpretError(response)
-              : undefined
+          const { isPreview } = checkFormStatus(request.params as FormParams)
 
           // The return the `500` view
-          return h.view('500', { ...viewModel, errorDetails }).code(statusCode)
+          if (isPreview) {
+            const errorDetails =
+              statusCode >= StatusCodes.INTERNAL_SERVER_ERROR.valueOf()
+                ? interpretError(response)
+                : undefined
+            return h
+              .view('500-preview', { ...viewModel, errorDetails })
+              .code(statusCode)
+          }
+
+          return h.view('500', { ...viewModel }).code(statusCode)
         }
         return h.continue
       })
