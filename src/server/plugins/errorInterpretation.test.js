@@ -69,8 +69,8 @@ describe('interpretError', () => {
     const result = interpretError(error)
 
     expect(result.causes).toEqual([
-      'Two pages have the same ID (entries 1 and 3)',
-      'Two pages have the same path (entries 1 and 3)'
+      'Each page must have a unique ID. Change the page ID to one that is not already used.',
+      'Each page must have a unique path. Change the page path to one that is not already used.'
     ])
   })
 
@@ -99,19 +99,20 @@ describe('interpretError', () => {
     )
 
     expect(result.causes).toEqual([
-      'A condition refers to a question that does not exist'
+      'Remove the condition before deleting this page'
     ])
   })
 
-  test('unmapped schema errors fall back to the cleaned Joi message, deduplicated', () => {
+  test('uncoded schema errors collapse to a single generic cause', () => {
+    // an empty object fails several rules that all map to the Other code
     const { error } = formDefinitionV2Schema.validate({}, { abortEarly: false })
     if (!error) throw new Error('expected validation error')
 
     const result = interpretError(error)
 
-    expect(result.causes).toContain("'pages' is required")
-    expect(result.causes).not.toContain('"pages" is required')
-    expect(new Set(result.causes).size).toBe(result.causes.length)
+    expect(result.causes).toEqual([
+      'There is a problem with the form definition. Check your changes and try again.'
+    ])
   })
 
   test('ConditionBuildError names the condition', () => {

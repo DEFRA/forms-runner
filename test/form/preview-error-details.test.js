@@ -142,7 +142,11 @@ describe('preview error details (drift canary)', () => {
       unknownControllerDef,
       'uses a page type this version of the service does not recognise'
     ],
-    ['schema-invalid definition', schemaInvalidDef, 'Two pages have the same']
+    [
+      'schema-invalid definition',
+      schemaInvalidDef,
+      'Each page must have a unique'
+    ]
   ])(
     'preview URL renders details for a %s',
     async (_label, definition, expectedText) => {
