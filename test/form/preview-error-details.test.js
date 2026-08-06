@@ -11,6 +11,7 @@ import {
 import {
   buildBrokenConditionDefinition,
   buildSchemaInvalidDefinition,
+  buildUnknownComponentDefinition,
   buildUnknownControllerDefinition
 } from '~/test/fixtures/definitions.js'
 import * as fixtures from '~/test/fixtures/index.js'
@@ -63,6 +64,11 @@ describe('preview error details (drift canary)', () => {
       'unknown page controller',
       buildUnknownControllerDefinition(),
       'uses a page type this version of the service does not recognise'
+    ],
+    [
+      'unknown component type',
+      buildUnknownComponentDefinition(),
+      'uses a question type (&#39;MyUnknownField&#39;) this version of the service does not recognise'
     ],
     [
       'schema-invalid definition',

@@ -131,6 +131,23 @@ export function buildUnknownControllerDefinition() {
 }
 
 /**
+ * Schema-valid (component types are free strings in the schema), but the
+ * question uses a type the engine has no component class for.
+ * @returns {FormDefinition}
+ */
+export function buildUnknownComponentDefinition() {
+  const definition = buildDefinition()
+
+  definition.name = 'Unknown component fixture'
+  const questionPage = /** @type {PageQuestion} */ (definition.pages[0])
+  questionPage.components[0].type = /** @type {ComponentType} */ (
+    'MyUnknownField'
+  )
+
+  return definition
+}
+
+/**
  * Fails schema validation: the question page appears twice, violating the
  * pages uniqueness rules.
  * @returns {FormDefinition}
@@ -145,5 +162,5 @@ export function buildSchemaInvalidDefinition() {
 }
 
 /**
- * @import { ConditionType, ControllerType, FormDefinition, OperatorName, PageQuestion } from '@defra/forms-model'
+ * @import { ComponentType, ConditionType, ControllerType, FormDefinition, OperatorName, PageQuestion } from '@defra/forms-model'
  */
