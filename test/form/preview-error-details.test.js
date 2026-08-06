@@ -1,3 +1,4 @@
+import { formMetadataSchema } from '@defra/forms-model'
 import { StatusCodes } from 'http-status-codes'
 
 import { FORM_PREFIX } from '~/src/server/constants.js'
@@ -162,6 +163,42 @@ describe('preview error details (drift canary)', () => {
       expect(res.payload).toContain('govuk-details')
       expect(res.payload).toContain('What went wrong')
       expect(res.payload).toContain(expectedText)
+    }
+  )
+
+  test.each([
+    [
+      'an invalid notification email',
+      {
+        ...fixtures.form.metadata,
+        notificationEmail: 'wildlife@naturalengland'
+      },
+      '&#39;notificationEmail&#39; must be a valid email'
+    ],
+    [
+      'an invalid contact structure',
+      { ...fixtures.form.metadata, contact: { phone: 12345 } },
+      '&#39;contact.phone&#39; must be a string'
+    ]
+  ])(
+    'preview URL renders metadata causes for %s',
+    async (_label, badMetadata, expectedText) => {
+      const { error } = formMetadataSchema.validate(badMetadata, {
+        abortEarly: false
+      })
+      if (!error) throw new Error('expected metadata validation error')
+
+      // formsService throws the raw Joi error when the manager response
+      // fails metadata validation
+      jest.mocked(getFormMetadata).mockRejectedValue(error)
+
+      const res = await server.inject({ method: 'GET', url: PREVIEW_URL })
+
+      expect(res.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+      expect(res.payload).toContain('What went wrong')
+      expect(res.payload).toContain(expectedText)
+      // metadata failures must not claim the form definition is broken
+      expect(res.payload).not.toContain('form definition')
     }
   )
 
