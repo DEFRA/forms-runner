@@ -76,6 +76,33 @@ describe('Server error pages', () => {
       ).not.toBeInTheDocument()
       expect(container.queryByText('Technical details')).not.toBeInTheDocument()
     })
+
+    it('shows the generic error page for generic failures too', async () => {
+      // e.g. a backend outage while fetching the definition
+      jest
+        .mocked(getFormDefinition)
+        .mockRejectedValue(new Error('socket hang up'))
+
+      const { container, response } = await renderResponse(server, {
+        method: 'GET',
+        url: `${FORM_PREFIX}/${SLUG}`
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+
+      const $heading = container.getByRole('heading', {
+        name: 'Sorry, there is a problem with the service',
+        level: 1
+      })
+      expect($heading).toBeInTheDocument()
+
+      expect(
+        container.queryByRole('heading', {
+          name: 'This form cannot be previewed'
+        })
+      ).not.toBeInTheDocument()
+      expect(container.queryByText('Technical details')).not.toBeInTheDocument()
+    })
   })
 
   describe('Preview 500 page', () => {
