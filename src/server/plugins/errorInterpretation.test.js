@@ -33,6 +33,87 @@ describe('interpretError', () => {
     expect(wrapped.technical).toContain('Invalid form definition:')
   })
 
+  test('duplicate-value schema errors become distinct friendly causes with positions', () => {
+    const definition = {
+      name: 'x',
+      engine: 'V2',
+      schema: 2,
+      startPage: '/summary',
+      pages: [
+        {
+          id: '449c053b-9201-4312-9a75-187afc6ba48b',
+          path: '/one',
+          title: 'One',
+          components: [],
+          next: []
+        },
+        {
+          id: '449c053b-9201-4312-9a75-187afc6ba48c',
+          path: '/summary',
+          title: 'Summary',
+          controller: 'SummaryPageController',
+          components: []
+        }
+      ],
+      lists: [],
+      sections: [],
+      conditions: []
+    }
+    definition.pages.push(structuredClone(definition.pages[0]))
+
+    const { error } = formDefinitionV2Schema.validate(definition, {
+      abortEarly: false
+    })
+    if (!error) throw new Error('expected validation error')
+
+    const result = interpretError(error)
+
+    expect(result.causes).toEqual([
+      'Two pages have the same ID (entries 1 and 3)',
+      'Two pages have the same path (entries 1 and 3)'
+    ])
+  })
+
+  test('reference schema errors become friendly causes', () => {
+    const joiLikeCause = {
+      isJoi: true,
+      message: 'x',
+      details: [
+        {
+          message:
+            '"conditions[0].items[0].componentId" must be [ref:root:pages]',
+          path: ['conditions', 0, 'items', 0, 'componentId'],
+          context: {
+            errorType: 'ref',
+            errorCode: 'ref_condition_component_id',
+            key: 'componentId'
+          }
+        }
+      ]
+    }
+
+    const result = interpretError(
+      /** @type {import('joi').ValidationError} */ (
+        /** @type {unknown} */ (joiLikeCause)
+      )
+    )
+
+    expect(result.causes).toEqual([
+      'A condition refers to a question that does not exist'
+    ])
+  })
+
+  test('unmapped schema errors fall back to the cleaned Joi message, deduplicated', () => {
+    const { error } = formDefinitionV2Schema.validate({}, { abortEarly: false })
+    if (!error) throw new Error('expected validation error')
+
+    const result = interpretError(error)
+
+    expect(result.causes).toContain("'pages' is required")
+    expect(result.causes).not.toContain('"pages" is required')
+    expect(new Set(result.causes).size).toBe(result.causes.length)
+  })
+
   test('ConditionBuildError names the condition', () => {
     const error = new ConditionBuildError('Existing user', {
       cause: new Error('parse error [1:24]: Expected EOF')
@@ -41,7 +122,7 @@ describe('interpretError', () => {
     const result = interpretError(error)
 
     expect(result.causes).toEqual([
-      "The condition 'Existing user' could not be understood. Check that it refers to the right question and answer option."
+      "The condition 'Existing user' is invalid. Check that it refers to the right question and answer option."
     ])
     expect(result.technical).toContain(
       "Failed to build condition 'Existing user'"

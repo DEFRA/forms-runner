@@ -135,18 +135,14 @@ describe('preview error details (drift canary)', () => {
     [
       'broken condition',
       brokenConditionDef,
-      'The condition &#39;Existing user&#39; could not be understood'
+      'The condition &#39;Existing user&#39; is invalid'
     ],
     [
       'unknown page controller',
       unknownControllerDef,
       'uses a page type this version of the service does not recognise'
     ],
-    [
-      'schema-invalid definition',
-      schemaInvalidDef,
-      'contains a duplicate value'
-    ]
+    ['schema-invalid definition', schemaInvalidDef, 'Two pages have the same']
   ])(
     'preview URL renders details for a %s',
     async (_label, definition, expectedText) => {
