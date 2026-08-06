@@ -7,30 +7,32 @@ import {
   UnknownComponentTypeError,
   UnknownPageControllerError
 } from '@defra/forms-engine-plugin/engine/errors.js'
-import { formDefinitionV2Schema } from '@defra/forms-model'
+import { formDefinitionV2Schema, formMetadataSchema } from '@defra/forms-model'
 
 import { interpretError } from '~/src/server/plugins/errorInterpretation.js'
 
 describe('interpretError', () => {
-  test('Joi definition validation errors produce getErrors-derived causes', () => {
-    const { error } = formDefinitionV2Schema.validate({}, { abortEarly: false })
+  test("metadata validation errors use Joi's own messages", () => {
+    const { error } = formMetadataSchema.validate({}, { abortEarly: false })
     if (!error) throw new Error('expected validation error')
 
     const result = interpretError(error)
 
-    expect(result.causes.length).toBeGreaterThan(0)
-    expect(result.technical).toContain('required')
+    expect(result.causes).toContain("'title' is required")
+    // metadata failures must not claim the form definition is broken
+    expect(result.causes.join(' ')).not.toContain('form definition')
   })
 
-  test('SchemaValidationError-wrapped Joi errors produce the same causes as raw ones', () => {
+  test('definition validation errors produce coded causes', () => {
     const { error } = formDefinitionV2Schema.validate({}, { abortEarly: false })
     if (!error) throw new Error('expected validation error')
 
-    const raw = interpretError(error)
-    const wrapped = interpretError(new SchemaValidationError(error))
+    const result = interpretError(new SchemaValidationError(error))
 
-    expect(wrapped.causes).toEqual(raw.causes)
-    expect(wrapped.technical).toContain('Invalid form definition:')
+    expect(result.causes).toEqual([
+      'There is a problem with the form definition. Check your changes and try again.'
+    ])
+    expect(result.technical).toContain('Invalid form definition:')
   })
 
   test('duplicate-value schema errors become distinct friendly causes with positions', () => {
@@ -66,7 +68,7 @@ describe('interpretError', () => {
     })
     if (!error) throw new Error('expected validation error')
 
-    const result = interpretError(error)
+    const result = interpretError(new SchemaValidationError(error))
 
     expect(result.causes).toEqual([
       'Each page must have a unique ID. Change the page ID to one that is not already used.',
@@ -93,25 +95,15 @@ describe('interpretError', () => {
     }
 
     const result = interpretError(
-      /** @type {import('joi').ValidationError} */ (
-        /** @type {unknown} */ (joiLikeCause)
+      new SchemaValidationError(
+        /** @type {import('joi').ValidationError} */ (
+          /** @type {unknown} */ (joiLikeCause)
+        )
       )
     )
 
     expect(result.causes).toEqual([
       'Remove the condition before deleting this page'
-    ])
-  })
-
-  test('uncoded schema errors collapse to a single generic cause', () => {
-    // an empty object fails several rules that all map to the Other code
-    const { error } = formDefinitionV2Schema.validate({}, { abortEarly: false })
-    if (!error) throw new Error('expected validation error')
-
-    const result = interpretError(error)
-
-    expect(result.causes).toEqual([
-      'There is a problem with the form definition. Check your changes and try again.'
     ])
   })
 

@@ -85,16 +85,29 @@ const causeBuildersByErrorName = {
 }
 
 /**
- * One message per Joi validation failure. A Set removes repeats, because
- * several schema rules can produce the same message.
+ * One message per validation failure in the form definition. A Set removes
+ * repeats, because several schema rules can produce the same message.
  * @param {import('joi').ValidationError} joiError
  * @returns {string[]}
  */
-function buildJoiCauses(joiError) {
+function buildDefinitionCauses(joiError) {
   return [
     ...new Set(
       getErrors(joiError).map((cause) => formErrorsToMessages[cause.id])
     )
+  ]
+}
+
+/**
+ * One message per validation failure in the form metadata. The metadata
+ * schema has no friendly-message codes (formErrorsToMessages only covers the
+ * definition), so use Joi's own messages with the quote noise removed.
+ * @param {import('joi').ValidationError} joiError
+ * @returns {string[]}
+ */
+function buildMetadataCauses(joiError) {
+  return [
+    ...new Set(joiError.details.map((d) => d.message.replaceAll('"', "'")))
   ]
 }
 
@@ -106,12 +119,12 @@ function buildJoiCauses(joiError) {
 function buildCauses(error) {
   // Invalid form definitions arrive wrapped, with the Joi error as the cause
   if (error instanceof SchemaValidationError) {
-    return buildJoiCauses(error.cause)
+    return buildDefinitionCauses(error.cause)
   }
 
   // Raw Joi errors only come from the metadata check in formsService
   if (isJoiError(error)) {
-    return buildJoiCauses(error)
+    return buildMetadataCauses(error)
   }
 
   if (error instanceof InvalidFormDefinitionError) {
