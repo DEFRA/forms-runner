@@ -99,15 +99,15 @@ function buildDefinitionCauses(joiError) {
 }
 
 /**
- * One message per validation failure in the form metadata. The metadata
- * schema has no friendly-message codes (formErrorsToMessages only covers the
- * definition), so use Joi's own messages with the quote noise removed.
- * @param {import('joi').ValidationError} joiError
+ * The metadata schema has no friendly-message codes (formErrorsToMessages
+ * only covers the definition) and its raw messages are too technical to show
+ * as causes, so point the author at the right place instead. The field-level
+ * detail still appears in the technical block.
  * @returns {string[]}
  */
-function buildMetadataCauses(joiError) {
+function buildMetadataCauses() {
   return [
-    ...new Set(joiError.details.map((d) => d.message.replaceAll('"', "'")))
+    "Some of the form's overview details are invalid. Go back to the form overview and check details such as contact information and email addresses."
   ]
 }
 
@@ -124,7 +124,7 @@ function buildCauses(error) {
 
   // Raw Joi errors only come from the metadata check in formsService
   if (isJoiError(error)) {
-    return buildMetadataCauses(error)
+    return buildMetadataCauses()
   }
 
   if (error instanceof InvalidFormDefinitionError) {

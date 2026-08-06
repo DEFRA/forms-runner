@@ -12,13 +12,17 @@ import { formDefinitionV2Schema, formMetadataSchema } from '@defra/forms-model'
 import { interpretError } from '~/src/server/plugins/errorInterpretation.js'
 
 describe('interpretError', () => {
-  test("metadata validation errors use Joi's own messages", () => {
+  test('metadata validation errors point the author at the form overview', () => {
     const { error } = formMetadataSchema.validate({}, { abortEarly: false })
     if (!error) throw new Error('expected validation error')
 
     const result = interpretError(error)
 
-    expect(result.causes).toContain("'title' is required")
+    expect(result.causes).toEqual([
+      "Some of the form's overview details are invalid. Go back to the form overview and check details such as contact information and email addresses."
+    ])
+    // the field-level detail still appears in the technical text
+    expect(result.technical).toContain('"title" is required')
     // metadata failures must not claim the form definition is broken
     expect(result.causes.join(' ')).not.toContain('form definition')
   })

@@ -173,16 +173,16 @@ describe('preview error details (drift canary)', () => {
         ...fixtures.form.metadata,
         notificationEmail: 'wildlife@naturalengland'
       },
-      '&#39;notificationEmail&#39; must be a valid email'
+      '&quot;notificationEmail&quot; must be a valid email'
     ],
     [
       'an invalid contact structure',
       { ...fixtures.form.metadata, contact: { phone: 12345 } },
-      '&#39;contact.phone&#39; must be a string'
+      '&quot;contact.phone&quot; must be a string'
     ]
   ])(
     'preview URL renders metadata causes for %s',
-    async (_label, badMetadata, expectedText) => {
+    async (_label, badMetadata, expectedTechnicalText) => {
       const { error } = formMetadataSchema.validate(badMetadata, {
         abortEarly: false
       })
@@ -196,7 +196,11 @@ describe('preview error details (drift canary)', () => {
 
       expect(res.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
       expect(res.payload).toContain('What went wrong')
-      expect(res.payload).toContain(expectedText)
+      expect(res.payload).toContain(
+        'Go back to the form overview and check details'
+      )
+      // the field-level detail still appears in the technical block
+      expect(res.payload).toContain(expectedTechnicalText)
       // metadata failures must not claim the form definition is broken
       expect(res.payload).not.toContain('form definition')
     }
