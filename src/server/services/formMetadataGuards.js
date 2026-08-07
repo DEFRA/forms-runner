@@ -20,7 +20,7 @@ export async function getFormMetadataWithoutGuard(slug) {
  */
 export async function getFormMetadataWithGuard(slug, formStatus) {
   const metadata = await rawFormsService.getFormMetadata(slug)
-  assertFormAvailable(metadata, formStatus ?? FormStatus.Live, false)
+  assertFormAvailable(metadata, undefined, formStatus ?? FormStatus.Live, false)
   return metadata
 }
 
@@ -32,6 +32,6 @@ export async function getFormMetadataWithGuard(slug, formStatus) {
  */
 export async function getFormMetadataById(formId, formStatus) {
   const metadata = await rawFormsService.getFormMetadataById(formId)
-  assertFormAvailable(metadata, formStatus ?? FormStatus.Live, false)
+  assertFormAvailable(metadata, undefined, formStatus ?? FormStatus.Live, false)
   return metadata
 }
