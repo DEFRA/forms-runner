@@ -242,9 +242,9 @@
       "contact": "<a class=\"govuk-link\" href=\"https://www.gov.uk/guidance/contact-defra\">contact the Defra Helpline</a> if you have any questions"
     },
     "previewError": {
-      "heading": "This form cannot be previewed",
+      "heading": "This form can't be previewed",
       "summary": "What went wrong",
-      "intro": "The form contains configuration errors that need to be resolved before it can be viewed by the public.",
+      "intro": "Something in the form setup needs attention before you can preview it.",
       "technical": {
         "revealText": "Technical details",
         "support": "If you're unable to fix this error yourself, send the information below to the Defra Forms support team."

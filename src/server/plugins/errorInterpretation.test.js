@@ -21,12 +21,22 @@ describe('interpretError', () => {
     const result = interpretError(new MetadataValidationError(error))
 
     expect(result.causes).toEqual([
-      "Some of the form's details are invalid. Go back to the form overview and check details such as contact information and email addresses."
+      {
+        text: "Some of the form's details are not configured correctly. Go back to the form overview and check details such as contact information and email addresses.",
+        itemsIntro: 'Check that:',
+        items: [
+          'notification email addresses are entered correctly',
+          'contact information has been completed',
+          'any recent changes to the form details have been saved'
+        ]
+      }
     ])
     // the field-level detail still appears in the technical text
     expect(result.technical).toContain('"title" is required')
     // metadata failures must not claim the form definition is broken
-    expect(result.causes.join(' ')).not.toContain('form definition')
+    expect(result.causes.map((cause) => cause.text).join(' ')).not.toContain(
+      'form definition'
+    )
   })
 
   test('definition validation errors produce coded causes', () => {
@@ -36,7 +46,9 @@ describe('interpretError', () => {
     const result = interpretError(new SchemaValidationError(error))
 
     expect(result.causes).toEqual([
-      'There is a problem with the form definition. Check your changes and try again.'
+      {
+        text: 'There is a problem with the form definition. Check your changes and try again.'
+      }
     ])
     expect(result.technical).toContain('Invalid form definition:')
   })
@@ -77,8 +89,12 @@ describe('interpretError', () => {
     const result = interpretError(new SchemaValidationError(error))
 
     expect(result.causes).toEqual([
-      'Each page must have a unique ID. Change the page ID to one that is not already used.',
-      'Each page must have a unique path. Change the page path to one that is not already used.'
+      {
+        text: 'Each page must have a unique ID. Change the page ID to one that is not already used.'
+      },
+      {
+        text: 'Each page must have a unique path. Change the page path to one that is not already used.'
+      }
     ])
   })
 
@@ -109,7 +125,7 @@ describe('interpretError', () => {
     )
 
     expect(result.causes).toEqual([
-      'Remove the condition before deleting this page'
+      { text: 'Remove the condition before deleting this page' }
     ])
   })
 
@@ -121,7 +137,14 @@ describe('interpretError', () => {
     const result = interpretError(error)
 
     expect(result.causes).toEqual([
-      "The condition 'Existing user' is invalid. Check that it refers to the right question and answer option."
+      {
+        text: `The condition "Existing user" isn't configured correctly. Open the condition and check that:`,
+        items: [
+          'the question it refers to still exists',
+          'the correct answer option is selected',
+          'the condition has been completed and saved'
+        ]
+      }
     ])
     expect(result.technical).toContain(
       "Failed to build condition 'Existing user'"
@@ -137,7 +160,9 @@ describe('interpretError', () => {
     )
 
     expect(result.causes).toEqual([
-      'This form uses a page type this version of the service does not recognise.'
+      {
+        text: 'This form uses a page type this version of the service does not recognise.'
+      }
     ])
   })
 
@@ -145,7 +170,9 @@ describe('interpretError', () => {
     const result = interpretError(new UnknownComponentTypeError('NopeField'))
 
     expect(result.causes).toEqual([
-      "This form uses a question type ('NopeField') this version of the service does not recognise."
+      {
+        text: "This form uses a question type ('NopeField') this version of the service does not recognise."
+      }
     ])
   })
 
@@ -155,7 +182,7 @@ describe('interpretError', () => {
       new FutureDefinitionError('a future failure mode')
     )
 
-    expect(result.causes).toEqual(['a future failure mode'])
+    expect(result.causes).toEqual([{ text: 'a future failure mode' }])
   })
 
   test('unknown errors produce no causes, technical only', () => {

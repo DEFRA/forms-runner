@@ -39,15 +39,22 @@ function buildTechnicalText(error) {
 }
 
 /**
- * One message builder per known error type, keyed by the error's class name.
+ * One cause builder per known error type, keyed by the error's class name.
  * To support a new error type, add an entry here. Errors without an entry
  * fall back to their own message.
- * @type {Record<string, ((error: InvalidFormDefinitionError) => string) | undefined>}
+ * @type {Record<string, ((error: InvalidFormDefinitionError) => string | ErrorCause) | undefined>}
  */
 const causeBuildersByErrorName = {
   [ConditionBuildError.name]: (error) => {
     const { conditionName } = /** @type {ConditionBuildError} */ (error)
-    return `The condition '${conditionName}' is invalid. Check that it refers to the right question and answer option.`
+    return {
+      text: `The condition "${conditionName}" isn't configured correctly. Open the condition and check that:`,
+      items: [
+        'the question it refers to still exists',
+        'the correct answer option is selected',
+        'the condition has been completed and saved'
+      ]
+    }
   },
   [UnknownPageControllerError.name]: () =>
     'This form uses a page type this version of the service does not recognise.',
@@ -72,9 +79,16 @@ function buildDefinitionCauses(joiError) {
 }
 
 /**
+ * @typedef {object} ErrorCause
+ * @property {string} text - summary sentence
+ * @property {string} [itemsIntro] - optional lead-in shown before the bullets
+ * @property {string[]} [items] - optional bullet points shown under the text
+ */
+
+/**
  * Works out the human-readable reasons an error happened.
  * @param {Error} error
- * @returns {string[]}
+ * @returns {(string | ErrorCause)[]}
  */
 function buildCauses(error) {
   // Invalid form definitions arrive wrapped, with the Joi error as the cause
@@ -87,7 +101,15 @@ function buildCauses(error) {
   // field-level detail still appears in the technical block.
   if (error instanceof MetadataValidationError) {
     return [
-      "Some of the form's details are invalid. Go back to the form overview and check details such as contact information and email addresses."
+      {
+        text: "Some of the form's details are not configured correctly. Go back to the form overview and check details such as contact information and email addresses.",
+        itemsIntro: 'Check that:',
+        items: [
+          'notification email addresses are entered correctly',
+          'contact information has been completed',
+          'any recent changes to the form details have been saved'
+        ]
+      }
     ]
   }
 
@@ -103,10 +125,14 @@ function buildCauses(error) {
  * Turns an error raised while loading a form into human-readable causes plus
  * a short technical description. Used by the preview error page only.
  * @param {Error} error
- * @returns {{ causes: string[], technical: string }}
+ * @returns {{ causes: ErrorCause[], technical: string }}
  */
 export function interpretError(error) {
-  return { causes: buildCauses(error), technical: buildTechnicalText(error) }
+  const causes = buildCauses(error).map((cause) =>
+    typeof cause === 'string' ? { text: cause } : cause
+  )
+
+  return { causes, technical: buildTechnicalText(error) }
 }
 
 /**

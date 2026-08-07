@@ -58,7 +58,7 @@ describe('preview error details (drift canary)', () => {
     [
       'broken condition',
       buildBrokenConditionDefinition(),
-      'The condition &#39;Existing user&#39; is invalid'
+      'The condition &quot;Existing user&quot; isn&#39;t configured correctly'
     ],
     [
       'unknown page controller',

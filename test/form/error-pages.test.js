@@ -103,7 +103,7 @@ describe('Server error pages', () => {
 
       expect(
         container.queryByRole('heading', {
-          name: 'This form cannot be previewed'
+          name: "This form can't be previewed"
         })
       ).not.toBeInTheDocument()
       expect(container.queryByText('Technical details')).not.toBeInTheDocument()
@@ -124,14 +124,14 @@ describe('Server error pages', () => {
       expect(response.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
 
       const $heading = container.getByRole('heading', {
-        name: 'This form cannot be previewed',
+        name: "This form can't be previewed",
         level: 1
       })
       expect($heading).toBeInTheDocument()
 
       // the <title> lives in <head>, which renderResponse does not mount
       expect(response.result).toContain(
-        '<title>This form cannot be previewed - '
+        '<title>This form can&#39;t be previewed - '
       )
 
       const $causesHeading = container.getByRole('heading', {
@@ -141,10 +141,21 @@ describe('Server error pages', () => {
       expect($causesHeading).toBeInTheDocument()
 
       const $cause = container.getByText(
-        "The condition 'Existing user' is invalid. Check that it refers to the right question and answer option."
+        `The condition "Existing user" isn't configured correctly. Open the condition and check that:`
       )
       expect($cause).toBeInTheDocument()
       expect($cause.tagName).toBe('P')
+
+      const checks = container
+        .getAllByRole('listitem')
+        .map(($item) => $item.textContent.trim())
+      expect(checks).toEqual(
+        expect.arrayContaining([
+          'the question it refers to still exists',
+          'the correct answer option is selected',
+          'the condition has been completed and saved'
+        ])
+      )
     })
 
     it('shows multiple causes as a bulleted list', async () => {
@@ -212,7 +223,7 @@ describe('Server error pages', () => {
 
       expect(
         container.queryByRole('heading', {
-          name: 'This form cannot be previewed'
+          name: "This form can't be previewed"
         })
       ).not.toBeInTheDocument()
       expect(container.queryByText('Technical details')).not.toBeInTheDocument()
@@ -237,9 +248,21 @@ describe('Server error pages', () => {
       expect(response.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
 
       const $cause = container.getByText(
-        "Some of the form's details are invalid. Go back to the form overview and check details such as contact information and email addresses."
+        "Some of the form's details are not configured correctly. Go back to the form overview and check details such as contact information and email addresses."
       )
       expect($cause).toBeInTheDocument()
+
+      expect(container.getByText('Check that:')).toBeInTheDocument()
+      const checks = container
+        .getAllByRole('listitem')
+        .map(($item) => $item.textContent.trim())
+      expect(checks).toEqual(
+        expect.arrayContaining([
+          'notification email addresses are entered correctly',
+          'contact information has been completed',
+          'any recent changes to the form details have been saved'
+        ])
+      )
 
       const $technical = container.getByText(
         /"notificationEmail" must be a valid email/
