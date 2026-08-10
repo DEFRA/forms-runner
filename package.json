@@ -62,7 +62,6 @@
     "@hapi/wreck": "^18.1.2",
     "@hapi/yar": "^11.0.3",
     "@types/humanize-duration": "^3.27.4",
-    "accessible-autocomplete": "^3.0.1",
     "babel-plugin-transform-import-meta": "^2.3.3",
     "blankie": "^5.0.0",
     "blipp": "^4.0.2",
