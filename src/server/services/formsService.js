@@ -2,6 +2,7 @@ import { FormStatus } from '@defra/forms-engine-plugin/types'
 import { formMetadataSchema } from '@defra/forms-model'
 
 import { config } from '~/src/config/index.js'
+import { MetadataValidationError } from '~/src/server/services/errors.js'
 import { decryptSecret } from '~/src/server/services/helpers/crypto.js'
 import { getJson, postJson } from '~/src/server/services/httpService.js'
 
@@ -23,7 +24,7 @@ export async function getFormMetadata(slug) {
   const result = formMetadataSchema.validate(metadata, { allowUnknown: true })
 
   if (result.error) {
-    throw result.error
+    throw new MetadataValidationError(result.error)
   }
 
   return result.value
@@ -44,7 +45,7 @@ export async function getFormMetadataById(formId) {
   const result = formMetadataSchema.validate(metadata, { allowUnknown: true })
 
   if (result.error) {
-    throw result.error
+    throw new MetadataValidationError(result.error)
   }
 
   return result.value

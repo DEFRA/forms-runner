@@ -1,0 +1,10 @@
+@use "govuk-frontend" as *;
+
+// Technical details block on the preview error page
+.app-error-details__technical {
+  margin: 0;
+  padding: govuk-spacing(3);
+  overflow-x: auto;
+  border: 1px solid $govuk-border-colour;
+  background-color: govuk-colour("light-grey");
+}

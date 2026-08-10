@@ -1,0 +1,230 @@
+import {
+  ConditionBuildError,
+  InvalidFormDefinitionError,
+  SchemaValidationError,
+  UnknownComponentTypeError,
+  UnknownPageControllerError
+} from '@defra/forms-engine-plugin/engine/errors.js'
+import { formDefinitionV2Schema, formMetadataSchema } from '@defra/forms-model'
+
+import {
+  interpretError,
+  isFormConfigurationError
+} from '~/src/server/plugins/errorInterpretation.js'
+import { MetadataValidationError } from '~/src/server/services/errors.js'
+
+describe('interpretError', () => {
+  test('metadata validation errors point the author at the form overview', () => {
+    const { error } = formMetadataSchema.validate({}, { abortEarly: false })
+    if (!error) throw new Error('expected validation error')
+
+    const result = interpretError(new MetadataValidationError(error))
+
+    expect(result.causes).toEqual([
+      {
+        text: "Some of the form's details are not configured correctly. Go back to the form overview and check details such as contact information and email addresses.",
+        itemsIntro: 'Check that:',
+        items: [
+          'notification email addresses are entered correctly',
+          'contact information has been completed',
+          'any recent changes to the form details have been saved'
+        ]
+      }
+    ])
+    // the field-level detail still appears in the technical text
+    expect(result.technical).toContain('"title" is required')
+    // metadata failures must not claim the form definition is broken
+    expect(result.causes.map((cause) => cause.text).join(' ')).not.toContain(
+      'form definition'
+    )
+  })
+
+  test('definition validation errors produce coded causes', () => {
+    const { error } = formDefinitionV2Schema.validate({}, { abortEarly: false })
+    if (!error) throw new Error('expected validation error')
+
+    const result = interpretError(new SchemaValidationError(error))
+
+    expect(result.causes).toEqual([
+      {
+        text: 'There is a problem with the form definition. Check your changes and try again.'
+      }
+    ])
+    expect(result.technical).toContain('Invalid form definition:')
+  })
+
+  test('duplicate-value schema errors become distinct friendly causes with positions', () => {
+    const definition = {
+      name: 'x',
+      engine: 'V2',
+      schema: 2,
+      startPage: '/summary',
+      pages: [
+        {
+          id: '449c053b-9201-4312-9a75-187afc6ba48b',
+          path: '/one',
+          title: 'One',
+          components: [],
+          next: []
+        },
+        {
+          id: '449c053b-9201-4312-9a75-187afc6ba48c',
+          path: '/summary',
+          title: 'Summary',
+          controller: 'SummaryPageController',
+          components: []
+        }
+      ],
+      lists: [],
+      sections: [],
+      conditions: []
+    }
+    definition.pages.push(structuredClone(definition.pages[0]))
+
+    const { error } = formDefinitionV2Schema.validate(definition, {
+      abortEarly: false
+    })
+    if (!error) throw new Error('expected validation error')
+
+    const result = interpretError(new SchemaValidationError(error))
+
+    expect(result.causes).toEqual([
+      {
+        text: 'Each page must have a unique ID. Change the page ID to one that is not already used.'
+      },
+      {
+        text: 'Each page must have a unique path. Change the page path to one that is not already used.'
+      }
+    ])
+  })
+
+  test('reference schema errors become friendly causes', () => {
+    const joiLikeCause = {
+      isJoi: true,
+      message: 'x',
+      details: [
+        {
+          message:
+            '"conditions[0].items[0].componentId" must be [ref:root:pages]',
+          path: ['conditions', 0, 'items', 0, 'componentId'],
+          context: {
+            errorType: 'ref',
+            errorCode: 'ref_condition_component_id',
+            key: 'componentId'
+          }
+        }
+      ]
+    }
+
+    const result = interpretError(
+      new SchemaValidationError(
+        /** @type {import('joi').ValidationError} */ (
+          /** @type {unknown} */ (joiLikeCause)
+        )
+      )
+    )
+
+    expect(result.causes).toEqual([
+      { text: 'Remove the condition before deleting this page' }
+    ])
+  })
+
+  test('ConditionBuildError names the condition', () => {
+    const error = new ConditionBuildError('Existing user', {
+      cause: new Error('parse error [1:24]: Expected EOF')
+    })
+
+    const result = interpretError(error)
+
+    expect(result.causes).toEqual([
+      {
+        text: `The condition "Existing user" isn't configured correctly. Open the condition and check that:`,
+        items: [
+          'the question it refers to still exists',
+          'the correct answer option is selected',
+          'the condition has been completed and saved'
+        ]
+      }
+    ])
+    expect(result.technical).toContain(
+      "Failed to build condition 'Existing user'"
+    )
+    expect(result.technical).toContain(
+      'Caused by: parse error [1:24]: Expected EOF'
+    )
+  })
+
+  test('UnknownPageControllerError names the controller', () => {
+    const result = interpretError(
+      new UnknownPageControllerError('NoSuchPageController')
+    )
+
+    expect(result.causes).toEqual([
+      {
+        text: 'This form uses a page type this version of the service does not recognise.'
+      }
+    ])
+  })
+
+  test('UnknownComponentTypeError names the component type', () => {
+    const result = interpretError(new UnknownComponentTypeError('NopeField'))
+
+    expect(result.causes).toEqual([
+      {
+        text: "This form uses a question type ('NopeField') this version of the service does not recognise."
+      }
+    ])
+  })
+
+  test('unrecognised InvalidFormDefinitionError subclasses fall back to their message', () => {
+    class FutureDefinitionError extends InvalidFormDefinitionError {}
+    const result = interpretError(
+      new FutureDefinitionError('a future failure mode')
+    )
+
+    expect(result.causes).toEqual([{ text: 'a future failure mode' }])
+  })
+
+  test('unknown errors produce no causes, technical only', () => {
+    const result = interpretError(new Error('something else entirely'))
+
+    expect(result.causes).toEqual([])
+    expect(result.technical).toBe('something else entirely')
+  })
+
+  test('long technical text is truncated at 2000 characters', () => {
+    const result = interpretError(new Error('x'.repeat(3000)))
+
+    expect(result.technical).toHaveLength(2000 + '… (truncated)'.length)
+    expect(result.technical.endsWith('… (truncated)')).toBe(true)
+  })
+
+  test('stack content never appears in technical text', () => {
+    const error = new Error('boom')
+
+    const result = interpretError(error)
+
+    expect(result.technical).not.toContain('at ')
+  })
+})
+
+describe('isFormConfigurationError', () => {
+  test('recognises definition, engine and metadata errors', () => {
+    const { error } = formMetadataSchema.validate({}, { abortEarly: false })
+    if (!error) throw new Error('expected validation error')
+
+    expect(isFormConfigurationError(new SchemaValidationError(error))).toBe(
+      true
+    )
+    expect(
+      isFormConfigurationError(new UnknownPageControllerError('Nope'))
+    ).toBe(true)
+    expect(isFormConfigurationError(new MetadataValidationError(error))).toBe(
+      true
+    )
+  })
+
+  test('rejects generic errors, such as an outage', () => {
+    expect(isFormConfigurationError(new Error('socket hang up'))).toBe(false)
+  })
+})

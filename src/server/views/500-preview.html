@@ -1,0 +1,71 @@
+{% extends 'layout.html' %}
+
+{% set pageTitle = tR('errors.previewError.heading') %}
+
+{% from "govuk/components/details/macro.njk" import govukDetails %}
+
+{% set technicalDetails %}
+<p>{{ tR('errors.previewError.technical.support') }}</p>
+<pre class="app-error-details__technical"><code class="govuk-!-font-size-16">{{ errorDetails.technical }}</code></pre>
+{% endset %}
+
+{% set causeItems %}
+{% if errorDetails.causes[0].itemsIntro %}
+<p class="govuk-body">{{ errorDetails.causes[0].itemsIntro }}</p>
+{% endif %}
+{% if errorDetails.causes[0].items | length %}
+<ul class="govuk-list govuk-list--bullet">
+  {% for item in errorDetails.causes[0].items %}
+  <li>{{ item }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% endset %}
+
+{% set multipleCauses %}
+<ul class="govuk-list govuk-list--bullet">
+  {% for cause in errorDetails.causes %}
+  <li>
+    {{ cause.text }}
+    {% if cause.itemsIntro %}<p class="govuk-body">{{ cause.itemsIntro }}</p>{% endif %}
+    {% if cause.items | length %}
+    <ul class="govuk-list govuk-list--bullet">
+      {% for item in cause.items %}
+      <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% endset %}
+
+{% block content %}
+<div class="govuk-width-container">
+  <div class="govuk-main-wrapper">
+    <div class="govuk-grid-row">
+      <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-l">{{ tR('errors.previewError.heading') }}</h1>
+
+        <p class="govuk-body">{{ tR('errors.previewError.intro') }}</p>
+
+        {% if errorDetails.causes | length %}
+        <h2 class="govuk-heading-m">{{ tR('errors.previewError.summary') }}</h2>
+          {% if errorDetails.causes | length > 1 %}
+            {{ multipleCauses | safe }}
+          {% else %}
+            <p class="govuk-body">{{ errorDetails.causes[0].text }}</p>
+            {{ causeItems | safe }}
+          {% endif %}
+        {% endif %}
+
+        {{ govukDetails({
+        summaryText: tR('errors.previewError.technical.revealText'),
+        html: technicalDetails
+        }) }}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

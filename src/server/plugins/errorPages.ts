@@ -1,3 +1,5 @@
+import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
+import { type FormParams } from '@defra/forms-engine-plugin/types'
 import {
   type Request,
   type ResponseToolkit,
@@ -5,6 +7,10 @@ import {
 } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 
+import {
+  interpretError,
+  isFormConfigurationError
+} from '~/src/server/plugins/errorInterpretation.js'
 import { getAllLanguages, resolveLanguage } from '~/src/server/utils/utils.js'
 
 /*
@@ -62,7 +68,27 @@ export default {
             `[httpError] HTTP ${statusCode} error occurred - ${response.message} - path: ${request.path} - method: ${request.method}`
           )
 
-          // The return the `500` view
+          const { isPreview } = checkFormStatus(request.params as FormParams)
+
+          // Only show the preview error page for known form-configuration
+          // problems. A generic failure (an outage, a bug) must not be
+          // dressed up as a problem with the form.
+          if (
+            isPreview &&
+            statusCode >= StatusCodes.INTERNAL_SERVER_ERROR.valueOf() &&
+            isFormConfigurationError(response)
+          ) {
+            // This page is English-only, so hide the language toggle
+            return h
+              .view('500-preview', {
+                ...viewModel,
+                errorDetails: interpretError(response),
+                languages: [],
+                translator: undefined
+              })
+              .code(statusCode)
+          }
+
           return h.view('500', viewModel).code(statusCode)
         }
         return h.continue
