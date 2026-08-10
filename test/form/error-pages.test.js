@@ -168,10 +168,20 @@ describe('Server error pages', () => {
         .mocked(getFormDefinition)
         .mockResolvedValue(buildBrokenConditionDefinition())
 
-      const { container } = await renderResponse(server, {
+      const { container, response } = await renderResponse(server, {
         method: 'GET',
         url: PREVIEW_URL
       })
+
+      // anchor on the preview error page itself, so the absence assertions
+      // below cannot pass against some other page
+      expect(response.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+      expect(
+        container.getByRole('heading', {
+          name: "This form can't be previewed",
+          level: 1
+        })
+      ).toBeInTheDocument()
 
       expect(
         container.queryByRole('link', { name: 'Cymraeg' })
@@ -190,6 +200,12 @@ describe('Server error pages', () => {
       })
 
       expect(response.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+      expect(
+        container.getByRole('heading', {
+          name: "This form can't be previewed",
+          level: 1
+        })
+      ).toBeInTheDocument()
 
       const causes = container
         .getAllByRole('listitem')
@@ -208,10 +224,18 @@ describe('Server error pages', () => {
         .mocked(getFormDefinition)
         .mockResolvedValue(buildBrokenConditionDefinition())
 
-      const { container } = await renderResponse(server, {
+      const { container, response } = await renderResponse(server, {
         method: 'GET',
         url: PREVIEW_URL
       })
+
+      expect(response.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+      expect(
+        container.getByRole('heading', {
+          name: "This form can't be previewed",
+          level: 1
+        })
+      ).toBeInTheDocument()
 
       const $reveal = container.getByText('Technical details')
       expect($reveal).toBeInTheDocument()
@@ -267,6 +291,12 @@ describe('Server error pages', () => {
       })
 
       expect(response.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+      expect(
+        container.getByRole('heading', {
+          name: "This form can't be previewed",
+          level: 1
+        })
+      ).toBeInTheDocument()
 
       const $cause = container.getByText(
         "Some of the form's details are not configured correctly. Go back to the form overview and check details such as contact information and email addresses."
