@@ -80,6 +80,11 @@ describe('Server error pages', () => {
         container.queryByRole('heading', { name: 'What went wrong' })
       ).not.toBeInTheDocument()
       expect(container.queryByText('Technical details')).not.toBeInTheDocument()
+
+      // the language toggle stays on public error pages
+      expect(
+        container.getByRole('link', { name: 'Cymraeg' })
+      ).toBeInTheDocument()
     })
 
     it('shows the generic error page for generic failures too', async () => {
@@ -156,6 +161,22 @@ describe('Server error pages', () => {
           'the condition has been completed and saved'
         ])
       )
+    })
+
+    it('hides the language toggle (the page is English-only)', async () => {
+      jest
+        .mocked(getFormDefinition)
+        .mockResolvedValue(buildBrokenConditionDefinition())
+
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: PREVIEW_URL
+      })
+
+      expect(
+        container.queryByRole('link', { name: 'Cymraeg' })
+      ).not.toBeInTheDocument()
+      expect(container.queryByText('English')).not.toBeInTheDocument()
     })
 
     it('shows multiple causes as a bulleted list', async () => {

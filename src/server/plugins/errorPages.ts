@@ -78,10 +78,13 @@ export default {
             statusCode >= StatusCodes.INTERNAL_SERVER_ERROR.valueOf() &&
             isFormConfigurationError(response)
           ) {
+            // This page is English-only, so hide the language toggle
             return h
               .view('500-preview', {
                 ...viewModel,
-                errorDetails: interpretError(response)
+                errorDetails: interpretError(response),
+                languages: [],
+                translator: undefined
               })
               .code(statusCode)
           }
