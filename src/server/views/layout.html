@@ -128,12 +128,13 @@
     serviceName: context.translator.tForm('title') if context else name | default(config.serviceName),
     serviceUrl: currentPath if context.isForceAccess else serviceUrl
   } %}
-  {% if config.useSignInFeature and user and slug %}
+  {% if config.useSignInFeature %}
     {#
-      The account header replaces the standard one rather than sitting beside
-      it: it carries its own GOV.UK logo and renders the service navigation
-      itself. It has no signed-out state, so everyone else keeps the header
-      this service has always shown.
+      One header for every page the feature reaches, signed in or not: it
+      carries its own GOV.UK logo and renders the service navigation itself,
+      so it replaces the standard header rather than sitting beside it. The
+      account menu is what varies — a signed-out citizen has no account to
+      name, so it is left out and they see the bar alone.
 
       No signOutLink is passed, so the menu leaves sign out out: the provider
       has yet to register where to return the citizen afterwards, and sending
@@ -141,12 +142,13 @@
       works and is covered by its own tests.
     #}
     {{ appServiceHeader({
-      accountName: user.email,
-      accountLink: "/homepage/" + slug,
+      accountName: user.email if user and slug,
+      accountLink: ("/homepage/" + slug) if user and slug,
       menuText: tR('signIn.header.menuText'),
-      menuLabelShow: tR('signIn.header.menuLabelShow', { name: user.email }),
-      menuLabelHide: tR('signIn.header.menuLabelHide', { name: user.email }),
+      menuLabelShow: tR('signIn.header.menuLabelShow', { name: user.email }) if user,
+      menuLabelHide: tR('signIn.header.menuLabelHide', { name: user.email }) if user,
       homepageLink: currentPath if context.isForceAccess else "https://www.gov.uk",
+      productNameHtml: productName | safe | trim,
       lng: language,
       serviceNavigationParams: serviceNavigationParams
     }) }}
