@@ -3,6 +3,7 @@
 import { type FormModel } from '@defra/forms-engine-plugin/engine/models/index.js'
 import { type Plugin } from '@hapi/hapi'
 import { type ServerYar, type Yar } from '@hapi/yar'
+import { type Configuration } from 'openid-client'
 import { type Logger } from 'pino'
 
 import { type SAVE_AND_EXIT_PAYLOAD } from '~/src/server/constants.js'
@@ -44,6 +45,9 @@ declare module '@hapi/hapi' {
   interface ServerApplicationState {
     model?: FormModel
     models: Map<string, { model: FormModel; updatedAt: Date }>
+    oidc: {
+      getConfig: () => Promise<Configuration>
+    }
   }
 }
 
