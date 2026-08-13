@@ -104,6 +104,46 @@ describe('per-form homepage', () => {
       '/logout?slug=test-form'
     )
   })
+
+  it('shows a signed-out citizen the sign-in button, and nothing else, on a page that does not gate on auth', async () => {
+    const { container } = await renderResponse(server, {
+      method: 'GET',
+      url: '/help/accessibility-statement/test-form'
+    })
+
+    expect(container.getByRole('link', { name: 'Sign in' })).toHaveAttribute(
+      'href',
+      '/login?returnTo=/homepage/test-form'
+    )
+
+    expect(
+      container.queryByRole('link', { name: 'Sign out' })
+    ).not.toBeInTheDocument()
+    expect(
+      container.queryByRole('link', { name: 'citizen@example.com' })
+    ).not.toBeInTheDocument()
+  })
+
+  it('shows no account control at all when the sign-in feature is off', async () => {
+    config.set('useSignInFeature', false)
+
+    const { container } = await renderResponse(server, {
+      method: 'GET',
+      url: '/help/accessibility-statement/test-form'
+    })
+
+    config.set('useSignInFeature', true)
+
+    expect(
+      container.getByRole('heading', {
+        name: 'Accessibility statement for this form',
+        level: 1
+      })
+    ).toBeInTheDocument()
+    expect(
+      container.queryByRole('link', { name: 'Sign in' })
+    ).not.toBeInTheDocument()
+  })
 })
 
 /**
