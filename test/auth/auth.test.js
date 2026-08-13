@@ -153,6 +153,66 @@ describe('sign in routes', () => {
     expect(client.authorizationCodeGrant).not.toHaveBeenCalled()
   })
 
+  it('leaves the transaction intact when a callback state does not match, so the genuine callback still completes', async () => {
+    const login = await server.inject({
+      method: 'GET',
+      url: '/login?returnTo=/homepage/test-form'
+    })
+    const cookie = getCookieHeader(login, ['session'])
+
+    const mismatched = await server.inject({
+      method: 'GET',
+      url: '/callback?code=attacker-code&state=someone-elses-state',
+      headers: cookie
+    })
+
+    expect(mismatched.statusCode).toBe(403)
+    expect(client.authorizationCodeGrant).not.toHaveBeenCalled()
+
+    jest.mocked(client.authorizationCodeGrant).mockResolvedValue(mockTokens())
+    jest
+      .mocked(client.fetchUserInfo)
+      .mockResolvedValue({ sub: 'sub-1', email: 'citizen@example.com' })
+
+    const genuine = await server.inject({
+      method: 'GET',
+      url: '/callback?code=code-1&state=state-1',
+      headers: cookie
+    })
+
+    expect(genuine.statusCode).toBe(302)
+    expect(genuine.headers.location).toBe('/homepage/test-form')
+  })
+
+  it('consumes the transaction on a successful callback, so a replay of the same URL finds nothing', async () => {
+    const login = await server.inject({
+      method: 'GET',
+      url: '/login?returnTo=/homepage/test-form'
+    })
+    const cookie = getCookieHeader(login, ['session'])
+
+    jest.mocked(client.authorizationCodeGrant).mockResolvedValue(mockTokens())
+    jest
+      .mocked(client.fetchUserInfo)
+      .mockResolvedValue({ sub: 'sub-1', email: 'citizen@example.com' })
+
+    const first = await server.inject({
+      method: 'GET',
+      url: '/callback?code=code-1&state=state-1',
+      headers: cookie
+    })
+
+    expect(first.statusCode).toBe(302)
+
+    const replay = await server.inject({
+      method: 'GET',
+      url: '/callback?code=code-1&state=state-1',
+      headers: cookie
+    })
+
+    expect(replay.statusCode).toBe(403)
+  })
+
   it('refuses a sign in when the provider gives no email, because the identity would be incomplete', async () => {
     const login = await server.inject({
       method: 'GET',

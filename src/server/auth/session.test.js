@@ -1,10 +1,11 @@
 import {
   clearIdentity,
+  clearTransaction,
   getIdentity,
+  getTransaction,
   isLocalPath,
   setIdentity,
-  setTransaction,
-  takeTransaction
+  setTransaction
 } from '~/src/server/auth/session.js'
 
 /** Minimal stand-in for yar — a map with the three methods we use */
@@ -52,7 +53,7 @@ describe('citizen session', () => {
     expect(getIdentity(yar)).toBeNull()
   })
 
-  it('hands out the transaction once, so a replayed callback finds nothing', () => {
+  it('reads the transaction without consuming it, so a mismatched callback can be checked without destroying it', () => {
     const yar = fakeYar()
     const transaction = {
       state: 'state-1',
@@ -63,8 +64,23 @@ describe('citizen session', () => {
 
     setTransaction(yar, transaction)
 
-    expect(takeTransaction(yar)).toEqual(transaction)
-    expect(takeTransaction(yar)).toBeNull()
+    expect(getTransaction(yar)).toEqual(transaction)
+    expect(getTransaction(yar)).toEqual(transaction)
+  })
+
+  it('consumes the transaction once cleared, so a replayed callback finds nothing', () => {
+    const yar = fakeYar()
+    const transaction = {
+      state: 'state-1',
+      nonce: 'nonce-1',
+      codeVerifier: 'verifier-1',
+      returnTo: '/homepage/test-form'
+    }
+
+    setTransaction(yar, transaction)
+    clearTransaction(yar)
+
+    expect(getTransaction(yar)).toBeNull()
   })
 
   it('accepts a local path', () => {

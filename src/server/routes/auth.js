@@ -6,10 +6,11 @@ import * as client from 'openid-client'
 import { config } from '~/src/config/index.js'
 import {
   SIGNED_OUT_FROM_KEY,
+  clearTransaction,
+  getTransaction,
   isLocalPath,
   setIdentity,
-  setTransaction,
-  takeTransaction
+  setTransaction
 } from '~/src/server/auth/session.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 
@@ -64,10 +65,13 @@ export default [
     method: 'GET',
     path: '/callback',
     async handler(request, h) {
-      const transaction = takeTransaction(request.yar)
+      // Read without consuming: a callback whose state does not match is
+      // not the sign-in this transaction belongs to — a second tab, a
+      // forged link, a replay — and must not destroy it, or the genuine
+      // callback that arrives afterwards finds nothing to complete.
+      const transaction = getTransaction(request.yar)
 
       if (!transaction || transaction.state !== request.query.state) {
-        // Either nothing was in flight, or this is not the sign-in we started.
         throw Boom.forbidden('Sign in could not be completed')
       }
 
@@ -117,6 +121,11 @@ export default [
           email: userinfo.email,
           idToken: tokens.id_token
         })
+
+        // Consume the transaction only once sign in has actually completed,
+        // so a failed exchange leaves it in place for a retry with the same
+        // state rather than needing a fresh /login.
+        clearTransaction(request.yar)
       } catch (err) {
         logger.error(err, '[signInFailed] Could not complete sign in')
         throw Boom.forbidden('Sign in could not be completed')

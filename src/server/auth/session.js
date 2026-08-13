@@ -35,14 +35,25 @@ export function setTransaction(yar, transaction) {
 }
 
 /**
- * Read the in-flight sign-in and clear it, so one authorisation code redemption
- * corresponds to exactly one attempt. `get`'s second argument is yar's own
- * read-and-clear.
+ * Read the in-flight sign-in without consuming it, so a caller can check
+ * `state` before deciding whether this callback is the one that should
+ * consume it. There is one transaction slot per session, so a callback that
+ * turns out not to match must leave it untouched for the genuine callback
+ * to still find.
  * @param {Yar} yar
  * @returns {Transaction | null}
  */
-export function takeTransaction(yar) {
-  return yar.get(TX_KEY, true) ?? null
+export function getTransaction(yar) {
+  return yar.get(TX_KEY) ?? null
+}
+
+/**
+ * Consume the in-flight sign-in once it has been used, so one authorisation
+ * code redemption corresponds to exactly one attempt.
+ * @param {Yar} yar
+ */
+export function clearTransaction(yar) {
+  yar.clear(TX_KEY)
 }
 
 /**
