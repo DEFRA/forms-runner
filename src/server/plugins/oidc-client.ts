@@ -38,9 +38,7 @@ export default {
             config.get('oidc.clientId'),
             undefined,
             client.PrivateKeyJwt(await clientKey()),
-            // A local issuer is served over plain http. The library flags this
-            // to keep it out of deployed environments, which is why it is
-            // reached for only when the issuer itself is insecure.
+            // A local development issuer is served over plain http.
             issuer.startsWith('http://')
               ? // eslint-disable-next-line @typescript-eslint/no-deprecated -- deliberate, local development only
                 { execute: [client.allowInsecureRequests] }
