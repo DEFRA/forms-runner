@@ -72,9 +72,17 @@ export default [
       const oidcConfig = await request.server.app.oidc.getConfig()
 
       try {
+        // Built from configuration, not from the inbound request, so a proxy
+        // that rewrites the host or scheme can't change the redirect_uri this
+        // sends to the token endpoint — it must equal the one /login gave the
+        // provider, byte for byte. Only the query string (code, state) comes
+        // from the request.
+        const callbackUrl = new URL(config.get('oidc.redirectUri'))
+        callbackUrl.search = request.url.search
+
         const tokens = await client.authorizationCodeGrant(
           oidcConfig,
-          new URL(request.url.href),
+          callbackUrl,
           {
             pkceCodeVerifier: transaction.codeVerifier,
             expectedState: transaction.state,

@@ -108,6 +108,34 @@ describe('sign in routes', () => {
     expect(response.headers.location).toBe('/homepage/test-form')
   })
 
+  it('exchanges the code against the configured redirect URI, not whatever the request claims its host is', async () => {
+    const login = await server.inject({
+      method: 'GET',
+      url: '/login?returnTo=/homepage/test-form'
+    })
+
+    jest.mocked(client.authorizationCodeGrant).mockResolvedValue(mockTokens())
+    jest
+      .mocked(client.fetchUserInfo)
+      .mockResolvedValue({ sub: 'sub-1', email: 'citizen@example.com' })
+
+    await server.inject({
+      method: 'GET',
+      url: '/callback?code=code-1&state=state-1',
+      headers: {
+        ...getCookieHeader(login, ['session']),
+        host: 'evil.example'
+      }
+    })
+
+    const [, calledUrl] = jest.mocked(client.authorizationCodeGrant).mock
+      .calls[0]
+
+    expect(calledUrl).toBeInstanceOf(URL)
+    expect(/** @type {URL} */ (calledUrl).origin).toBe('http://localhost:3009')
+    expect(/** @type {URL} */ (calledUrl).pathname).toBe('/callback')
+  })
+
   it('refuses a callback whose state does not match the one it issued', async () => {
     const login = await server.inject({
       method: 'GET',
