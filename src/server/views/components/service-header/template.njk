@@ -10,7 +10,8 @@
   Options:
     - accountName (string): the signed-in citizen, shown as the account link
     - accountLink (string): where that link goes
-    - signOutLink (string): this service's sign out endpoint
+    - signOutLink (string): this service's sign out endpoint. Omit it and the
+      sign out link is left out of the menu
     - menuText (string): label on the toggle at small screen sizes
     - menuLabelShow / menuLabelHide (string): screen reader labels for it
     - homepageLink (string): the GOV.UK logo destination
@@ -26,7 +27,10 @@
 {%- set accountLink = params.accountLink -%}
 {%- set accountName = params.accountName -%}
 {%- set homepageLink = params.homepageLink if params.homepageLink else "https://www.gov.uk/" -%}
-{%- set signOutLink = params.signOutLink if params.signOutLink else (["https://home.account.gov.uk/sign-out", lngQueryString] | join) -%}
+{#- No fallback: this service signs citizens out at its own endpoint, and the
+    published component's default points at One Login. Left unset, the sign out
+    link is omitted rather than sent somewhere that cannot serve it. -#}
+{%- set signOutLink = params.signOutLink -%}
 
 {%- macro oneLoginIcon(modifier="default") -%}
   {%- set class = "rebranded-cross-service-header__logo--nav" if modifier == "nav" else "" %}
@@ -90,6 +94,7 @@
               </span>
             </a>
           </li>
+          {% if signOutLink or params.signOutFormAction %}
           <li class="rebranded-one-login-header__nav__list-item">
             {% if params.signOutFormAction %}
               <form method="post" class="rebranded-one-login-header__nav__form" action="{{ params.signOutFormAction }}">
@@ -105,6 +110,7 @@
             </a>
             {% endif %}
           </li>
+          {% endif %}
         </ul>
       </nav>
     </div>

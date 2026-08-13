@@ -134,11 +134,15 @@
       it: it carries its own GOV.UK logo and renders the service navigation
       itself. It has no signed-out state, so everyone else keeps the header
       this service has always shown.
+
+      No signOutLink is passed, so the menu leaves sign out out: the provider
+      has yet to register where to return the citizen afterwards, and sending
+      them there today strands them on an error. The /logout route itself
+      works and is covered by its own tests.
     #}
     {{ appServiceHeader({
       accountName: user.email,
       accountLink: "/homepage/" + slug,
-      signOutLink: "/logout?slug=" + slug,
       menuText: tR('signIn.header.menuText'),
       menuLabelShow: tR('signIn.header.menuLabelShow', { name: user.email }),
       menuLabelHide: tR('signIn.header.menuLabelHide', { name: user.email }),

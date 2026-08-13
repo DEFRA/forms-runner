@@ -99,10 +99,12 @@ describe('per-form homepage', () => {
     expect(
       container.getByRole('link', { name: 'citizen@example.com' })
     ).toHaveAttribute('href', '/homepage/test-form')
-    expect(container.getByRole('link', { name: 'Sign out' })).toHaveAttribute(
-      'href',
-      '/logout?slug=test-form'
-    )
+
+    // Sign out is held back until the provider registers where to return the
+    // citizen afterwards. The /logout route exists and is covered separately.
+    expect(
+      container.queryByRole('link', { name: 'Sign out' })
+    ).not.toBeInTheDocument()
   })
 
   it('shows a signed-out citizen no account control, on a page that does not gate on auth', async () => {
