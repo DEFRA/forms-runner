@@ -1,0 +1,21 @@
+{% extends 'layout.html' %}
+
+{% set pageTitle = tR('signIn.signedOut.title') %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <h1 class="govuk-heading-xl">{{ tR('signIn.signedOut.heading') }}</h1>
+
+      {% if signedOutFrom %}
+        <p class="govuk-body">
+          {{ tR('signIn.signedOut.signInAgainPrefix') }}<a class="govuk-link" href="/homepage/{{ signedOutFrom }}">{{ tR('signIn.signedOut.signInAgainLink') }}</a>
+        </p>
+      {% endif %}
+
+      <p class="govuk-body">
+        {{ tR('signIn.signedOut.govukPrefix') }}<a class="govuk-link" href="https://www.gov.uk">{{ tR('signIn.signedOut.govukLink') }}</a>
+      </p>
+    </div>
+  </div>
+{% endblock %}

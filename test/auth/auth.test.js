@@ -4,6 +4,7 @@ import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
 import { createServer } from '~/src/server/index.js'
+import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 jest.mock('openid-client')
@@ -189,6 +190,143 @@ describe('sign in routes', () => {
 
     expect(response.headers.location).toBe('/')
   })
+
+  it('ends the provider session with the token it was given, then clears its own', async () => {
+    jest
+      .mocked(client.buildEndSessionUrl)
+      .mockReturnValue(new URL('http://localhost:3011/session/end'))
+
+    const response = await server.inject({
+      method: 'GET',
+      url: '/logout?slug=test-form',
+      auth: {
+        strategy: 'citizen-session',
+        credentials: {
+          iss: 'http://localhost:3011',
+          sub: 'sub-1',
+          email: 'citizen@example.com',
+          idToken: 'header.payload.signature'
+        }
+      }
+    })
+
+    const [, params] = jest.mocked(client.buildEndSessionUrl).mock.calls[0]
+
+    expect(params).toMatchObject({
+      id_token_hint: 'header.payload.signature',
+      post_logout_redirect_uri: 'http://localhost:3009/signed-out'
+    })
+    expect(response.statusCode).toBe(302)
+    expect(response.headers.location).toBe('http://localhost:3011/session/end')
+  })
+
+  it('still ends the provider session for a citizen who was never signed in', async () => {
+    jest
+      .mocked(client.buildEndSessionUrl)
+      .mockReturnValue(new URL('http://localhost:3011/session/end'))
+
+    const response = await server.inject({
+      method: 'GET',
+      url: '/logout'
+    })
+
+    const [, params] = jest.mocked(client.buildEndSessionUrl).mock.calls[0]
+
+    expect(params).not.toHaveProperty('id_token_hint')
+    expect(response.statusCode).toBe(302)
+  })
+
+  it('offers a way back to the form and a way out to GOV.UK', async () => {
+    jest
+      .mocked(client.buildEndSessionUrl)
+      .mockReturnValue(new URL('http://localhost:3011/session/end'))
+
+    const logout = await server.inject({
+      method: 'GET',
+      url: '/logout?slug=test-form',
+      auth: {
+        strategy: 'citizen-session',
+        credentials: {
+          iss: 'http://localhost:3011',
+          sub: 'sub-1',
+          email: 'citizen@example.com',
+          idToken: 'header.payload.signature'
+        }
+      }
+    })
+
+    const { container } = await renderResponse(server, {
+      method: 'GET',
+      url: '/signed-out',
+      headers: getCookieHeader(logout, ['session'])
+    })
+
+    expect(
+      container.getByRole('heading', { name: 'You have signed out', level: 1 })
+    ).toBeInTheDocument()
+    expect(
+      container.getByRole('link', { name: 'sign in again' })
+    ).toHaveAttribute('href', '/homepage/test-form')
+    expect(
+      container.getByRole('link', { name: 'go to the GOV.UK homepage' })
+    ).toHaveAttribute('href', 'https://www.gov.uk')
+  })
+
+  it('omits the way back when it does not know which form it was', async () => {
+    const { container } = await renderResponse(server, {
+      method: 'GET',
+      url: '/signed-out'
+    })
+
+    expect(
+      container.queryByRole('link', { name: 'sign in again' })
+    ).not.toBeInTheDocument()
+    expect(
+      container.getByRole('link', { name: 'go to the GOV.UK homepage' })
+    ).toBeInTheDocument()
+  })
+})
+
+describe('sign in routes, feature flag off', () => {
+  /** @type {Server} */
+  let server
+
+  beforeAll(async () => {
+    // Read inside the plugin's `register`, not at module scope, so the flag
+    // must already be false before the server — and its router — is built.
+    config.set('useSignInFeature', false)
+
+    server = await createServer({
+      formFileName: 'basic.js',
+      formFilePath: join(import.meta.dirname, '..', 'form', 'definitions'),
+      enforceCsrf: false
+    })
+
+    await server.initialize()
+  })
+
+  afterAll(async () => {
+    await server.stop()
+    config.set('useSignInFeature', false)
+  })
+
+  it.each([
+    ['/login', '/login'],
+    ['/callback', '/callback'],
+    ['/logout', '/logout'],
+    ['/signed-out', '/signed-out'],
+    ['/homepage/test-form', '/homepage/{slug}']
+  ])(
+    'is not registered when the sign-in feature is off (%s)',
+    (path, ownRouteTemplate) => {
+      // A catch-all legacy redirect answers every short path this service
+      // has ever served, so an unregistered route is not visible as "no
+      // route matched" — it's visible as some other route being the one
+      // that matched. Comparing against the route each handler would own
+      // proves this one didn't.
+      expect(server.match('get', path)?.path).not.toBe(ownRouteTemplate)
+    }
+  )
 })
 
 /**
