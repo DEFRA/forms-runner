@@ -16,6 +16,17 @@ import { logger } from '~/src/server/common/helpers/logging/logger.js'
 
 const SCOPES = 'openid email'
 
+/**
+ * Cookie names only, never their values. A sign-in that fails because the
+ * session did not come back with the citizen is indistinguishable, from the
+ * logs alone, from one that failed for any other reason — the names say which
+ * of the two happened without putting a session id or a token in the log.
+ * @param {Record<string, unknown>} state `request.state`
+ */
+function cookieNames(state) {
+  return Object.keys(state).sort()
+}
+
 export default [
   /**
    * @satisfies {ServerRoute<{ Query: { returnTo?: string } }>}
@@ -38,6 +49,15 @@ export default [
         codeVerifier,
         returnTo: localReturnPath(returnTo) ?? '/'
       })
+
+      logger.info(
+        {
+          sessionId: request.yar.id,
+          state,
+          cookiesReceived: cookieNames(request.state)
+        },
+        '[signInStarted] Stored the sign-in transaction'
+      )
 
       const authorizationUrl = client.buildAuthorizationUrl(oidcConfig, {
         redirect_uri: config.get('oidc.redirectUri'),
@@ -72,6 +92,17 @@ export default [
       const transaction = getTransaction(request.yar)
 
       if (!transaction || transaction.state !== request.query.state) {
+        logger.warn(
+          {
+            sessionId: request.yar.id,
+            reason: transaction ? 'stateMismatch' : 'noTransactionInSession',
+            stateFromProvider: request.query.state,
+            stateInSession: transaction?.state ?? null,
+            cookiesReceived: cookieNames(request.state)
+          },
+          '[signInRejected] Callback did not match a sign-in this session started'
+        )
+
         throw Boom.forbidden('Sign in could not be completed')
       }
 

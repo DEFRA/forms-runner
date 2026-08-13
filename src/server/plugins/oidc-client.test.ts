@@ -43,6 +43,13 @@ describe('oidc client plugin', () => {
     )
     unset.forEach((key) => Reflect.deleteProperty(process.env, key))
 
+    // The config module imports `dotenv/config`, which would put these back
+    // from a developer's own `.env` the moment it reloads. Pointing dotenv at
+    // a path that does not exist keeps them unset, so this asserts the same
+    // thing on a developer machine as it does on a clean checkout.
+    const savedDotenvPath = process.env.DOTENV_CONFIG_PATH
+    process.env.DOTENV_CONFIG_PATH = '/nonexistent/.env'
+
     try {
       await jest.isolateModulesAsync(async () => {
         const { default: freshPlugin } =
@@ -55,6 +62,12 @@ describe('oidc client plugin', () => {
         )
       })
     } finally {
+      if (savedDotenvPath === undefined) {
+        Reflect.deleteProperty(process.env, 'DOTENV_CONFIG_PATH')
+      } else {
+        process.env.DOTENV_CONFIG_PATH = savedDotenvPath
+      }
+
       unset.forEach((key) => {
         const value = saved[key]
         if (value !== undefined) {
