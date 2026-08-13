@@ -100,4 +100,20 @@ declare module '@hapi/yar' {
   interface YarFlashes {
     [SAVE_AND_EXIT_PAYLOAD]: object
   }
+
+  interface YarValues {
+    citizen: {
+      iss: string
+      sub: string
+      email: string
+      idToken: string
+    }
+    'oidc:tx': {
+      state: string
+      nonce: string
+      codeVerifier: string
+      returnTo: string
+    }
+    'auth:signedOutFrom': string
+  }
 }
