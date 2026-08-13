@@ -87,17 +87,17 @@ describe('utils', () => {
     })
 
     it('should return specified language if yar session up and language passed as query param', () => {
-      // @ts-expect-error - partial mock of methods
       expect(
         resolveLanguage(
           { language: 'cy' },
+          // @ts-expect-error - partial mock of methods
           { id: 'session-id', set: yarSet, get: yarGet }
         )
       ).toBe('cy')
 
       // Should retrieve session value when language not passed
-      // @ts-expect-error - partial mock of methods
       expect(
+        // @ts-expect-error - partial mock of methods
         resolveLanguage({}, { id: 'session-id', set: yarSet, get: yarGet })
       ).toBe('cy')
     })
