@@ -29,4 +29,38 @@ describe('oidc client plugin', () => {
     expect(client.PrivateKeyJwt).toHaveBeenCalled()
     expect(jest.mocked(client.discovery).mock.calls[0][1]).toBe('runner')
   })
+
+  it('fails registration when the sign-in flag is on but a required OIDC setting is unset, naming it', async () => {
+    const unset = [
+      'OIDC_ISSUER',
+      'OIDC_REDIRECT_URI',
+      'OIDC_LOGOUT_REDIRECT_URI',
+      'OIDC_CLIENT_PRIVATE_JWKS'
+    ] as const
+
+    const saved = Object.fromEntries(
+      unset.map((key) => [key, process.env[key]])
+    )
+    unset.forEach((key) => Reflect.deleteProperty(process.env, key))
+
+    try {
+      await jest.isolateModulesAsync(async () => {
+        const { default: freshPlugin } =
+          await import('~/src/server/plugins/oidc-client.js')
+
+        const server = hapi.server()
+
+        await expect(server.register(freshPlugin)).rejects.toThrow(
+          'Sign-in is enabled but missing configuration: oidc.issuer, oidc.redirectUri, oidc.logoutRedirectUri, oidc.privateJwks'
+        )
+      })
+    } finally {
+      unset.forEach((key) => {
+        const value = saved[key]
+        if (value !== undefined) {
+          process.env[key] = value
+        }
+      })
+    }
+  })
 })

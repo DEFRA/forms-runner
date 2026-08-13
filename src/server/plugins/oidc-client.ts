@@ -23,10 +23,40 @@ async function clientKey() {
   }
 }
 
+/**
+ * The settings sign-in cannot work without. Each maps its config key to the
+ * configured value, so a missing one can be reported by the same key an
+ * operator would set in the environment.
+ */
+function requiredSettings() {
+  return {
+    'oidc.issuer': config.get('oidc.issuer'),
+    'oidc.redirectUri': config.get('oidc.redirectUri'),
+    'oidc.logoutRedirectUri': config.get('oidc.logoutRedirectUri'),
+    'oidc.privateJwks': config.get('oidc.privateJwks')
+  }
+}
+
 export default {
   plugin: {
     name: 'oidc-client',
     register(server) {
+      // The flag defaults off and these settings default to '' so a
+      // deployment without them still boots — but only with the flag off.
+      // Registering this plugin means the flag is on, so a service that
+      // reaches here without them would otherwise boot healthy and fail
+      // every sign-in with an unnamed error; naming the gap here instead
+      // lets an operator fix it before routing citizens to it.
+      const missing = Object.entries(requiredSettings())
+        .filter(([, value]) => !value)
+        .map(([key]) => key)
+
+      if (missing.length > 0) {
+        throw new Error(
+          `Sign-in is enabled but missing configuration: ${missing.join(', ')}`
+        )
+      }
+
       const issuer = config.get('oidc.issuer')
 
       let discovered: client.Configuration | undefined
