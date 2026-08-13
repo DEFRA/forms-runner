@@ -46,17 +46,36 @@ export function takeTransaction(yar) {
 }
 
 /**
- * True for a path that stays on this service. A single leading slash is the
- * whole test: `//host` is protocol-relative and leaves, and anything without a
- * leading slash is either absolute or resolved against the current directory.
+ * A throwaway origin to resolve candidate paths against, so isLocalPath can
+ * compare the result's origin rather than pattern-match the input. The host
+ * is on the reserved `.invalid` TLD, so it can never name a real service and
+ * a redirect target that happened to match it could never be genuine.
+ */
+const LOCAL_ORIGIN = 'https://runner.invalid'
+
+/**
+ * True for a path that stays on this service. A leading slash rules out a
+ * value that is relative to the current directory, and resolving the rest
+ * against a fixed origin keeps only the values whose resolved origin is
+ * unchanged — which is what a URL parser actually sends elsewhere despite a
+ * single leading `/`, including a leading `\` and a tab or newline anywhere
+ * in the string, all of which the parser normalises before resolving.
  * @param {string} [value]
  */
 export function isLocalPath(value) {
-  return (
-    typeof value === 'string' &&
-    value.startsWith('/') &&
-    !value.startsWith('//')
-  )
+  if (
+    typeof value !== 'string' ||
+    !value.startsWith('/') ||
+    value.startsWith('//')
+  ) {
+    return false
+  }
+
+  try {
+    return new URL(value, LOCAL_ORIGIN).origin === LOCAL_ORIGIN
+  } catch {
+    return false
+  }
 }
 
 /**

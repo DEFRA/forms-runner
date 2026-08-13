@@ -71,12 +71,24 @@ describe('citizen session', () => {
     expect(isLocalPath('/homepage/test-form')).toBe(true)
   })
 
+  it('accepts a local path carrying a query string', () => {
+    expect(isLocalPath('/homepage/test-form?a=1&b=2')).toBe(true)
+  })
+
   it('rejects anything that could leave the service', () => {
     expect(isLocalPath('//evil.example')).toBe(false)
     expect(isLocalPath('https://evil.example')).toBe(false)
     expect(isLocalPath('homepage/test-form')).toBe(false)
     expect(isLocalPath('')).toBe(false)
     expect(isLocalPath(undefined)).toBe(false)
+    // A URL parser treats a leading backslash as a slash, so this resolves
+    // to protocol-relative `//evil.example` even though the raw string
+    // starts with a single `/`.
+    expect(isLocalPath('/\\evil.example')).toBe(false)
+    // A URL parser strips ASCII tab and newline anywhere in the input before
+    // resolving, so these also collapse to `//evil.example`.
+    expect(isLocalPath('/\t/evil.example')).toBe(false)
+    expect(isLocalPath('/\n/evil.example')).toBe(false)
   })
 })
 
