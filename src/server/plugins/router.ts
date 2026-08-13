@@ -34,6 +34,7 @@ import { getErrorPreviewHandler } from '~/src/server/plugins/error-preview/error
 import {
   authRoutes,
   healthRoute,
+  homepageRoutes,
   publicRoutes,
   saveAndExitRoutes
 } from '~/src/server/routes/index.js'
@@ -78,6 +79,7 @@ export default {
       // flag before building the server.
       if (config.get('useSignInFeature')) {
         server.route(authRoutes as ServerRoute[])
+        server.route(homepageRoutes)
       }
 
       server.route(routes)

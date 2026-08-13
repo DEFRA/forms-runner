@@ -257,6 +257,24 @@
     "errorSummaryHeading": "There is a problem",
     "advancedSettingsHeading": "If you set answer limits"
   },
+  "signIn": {
+    "homepage": {
+      "caption": "Manage your form",
+      "startButton": "Start a new form"
+    },
+    "signedOut": {
+      "title": "You have signed out",
+      "heading": "You have signed out",
+      "signInAgainPrefix": "To go back, ",
+      "signInAgainLink": "sign in again",
+      "govukPrefix": "Or ",
+      "govukLink": "go to the GOV.UK homepage"
+    },
+    "header": {
+      "signIn": "Sign in",
+      "signOut": "Sign out"
+    }
+  },
   "layout": {
     "errorPrefix": "Error: ",
     "skipLink": "Skip to main content",
