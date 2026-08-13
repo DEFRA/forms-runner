@@ -280,20 +280,26 @@ describe('sign in routes', () => {
     expect(response.headers.location).toBe('http://localhost:3011/session/end')
   })
 
-  it('still ends the provider session for a citizen who was never signed in', async () => {
-    jest
-      .mocked(client.buildEndSessionUrl)
-      .mockReturnValue(new URL('http://localhost:3011/session/end'))
+  it('does not touch the session for a citizen who was never signed in, so their form answers survive', async () => {
+    const response = await server.inject({
+      method: 'GET',
+      url: '/logout?slug=test-form'
+    })
 
+    expect(client.buildEndSessionUrl).not.toHaveBeenCalled()
+    expect(response.statusCode).toBe(302)
+    expect(response.headers.location).toBe('/homepage/test-form')
+  })
+
+  it('sends a never-signed-in citizen home when it does not know which form they came from', async () => {
     const response = await server.inject({
       method: 'GET',
       url: '/logout'
     })
 
-    const [, params] = jest.mocked(client.buildEndSessionUrl).mock.calls[0]
-
-    expect(params).not.toHaveProperty('id_token_hint')
+    expect(client.buildEndSessionUrl).not.toHaveBeenCalled()
     expect(response.statusCode).toBe(302)
+    expect(response.headers.location).toBe('/')
   })
 
   it('offers a way back to the form and a way out to GOV.UK', async () => {

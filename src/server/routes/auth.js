@@ -149,20 +149,27 @@ export default [
     method: 'GET',
     path: '/logout',
     async handler(request, h) {
+      const { slug } = request.query
+
+      if (!request.auth.isAuthenticated) {
+        // Nothing to end at the provider and no session to reset — the
+        // forms engine keys in-progress answers on the session id, and
+        // resetting it here would orphan them for a citizen who followed a
+        // stale link or bookmark without ever signing in.
+        return h.redirect(slug ? `/homepage/${slug}` : '/')
+      }
+
       // Read before resetting: request.auth.credentials carries the ID token
       // the citizen-session strategy took from this session at the start of
-      // the request, which the reset below is about to throw away. Hapi sets
-      // it to null for a citizen who was never signed in, despite its own
-      // types calling it required.
-      const credentials = /** @type {AuthCredentials | null} */ (
+      // the request, which the reset below is about to throw away.
+      const credentials = /** @type {AuthCredentials} */ (
         request.auth.credentials
       )
-      const { slug } = request.query
 
       const oidcConfig = await request.server.app.oidc.getConfig()
 
       const endSessionUrl = client.buildEndSessionUrl(oidcConfig, {
-        ...(credentials?.idToken && { id_token_hint: credentials.idToken }),
+        ...(credentials.idToken && { id_token_hint: credentials.idToken }),
         client_id: config.get('oidc.clientId'),
         post_logout_redirect_uri: config.get('oidc.logoutRedirectUri')
       })
