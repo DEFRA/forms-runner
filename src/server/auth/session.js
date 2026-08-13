@@ -48,8 +48,11 @@ export function getTransaction(yar) {
 }
 
 /**
- * Consume the in-flight sign-in once it has been used, so one authorisation
- * code redemption corresponds to exactly one attempt.
+ * Consume the in-flight sign-in once the code exchange succeeds, so a
+ * repeat submission of the same callback finds nothing to redeem. A failed
+ * exchange leaves the transaction in place, so the same state can still
+ * reach the token endpoint again — the provider enforces single-use codes,
+ * which is what makes that retry safe.
  * @param {Yar} yar
  */
 export function clearTransaction(yar) {
