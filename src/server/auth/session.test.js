@@ -3,7 +3,6 @@ import {
   clearTransaction,
   getIdentity,
   getTransaction,
-  isLocalPath,
   localReturnPath,
   setIdentity,
   setTransaction
@@ -84,30 +83,6 @@ describe('citizen session', () => {
     expect(getTransaction(yar)).toBeNull()
   })
 
-  it('accepts a local path', () => {
-    expect(isLocalPath('/homepage/test-form')).toBe(true)
-  })
-
-  it('accepts a local path carrying a query string', () => {
-    expect(isLocalPath('/homepage/test-form?a=1&b=2')).toBe(true)
-  })
-
-  it('rejects anything that could leave the service', () => {
-    expect(isLocalPath('//evil.example')).toBe(false)
-    expect(isLocalPath('https://evil.example')).toBe(false)
-    expect(isLocalPath('homepage/test-form')).toBe(false)
-    expect(isLocalPath('')).toBe(false)
-    expect(isLocalPath(undefined)).toBe(false)
-    // A URL parser treats a leading backslash as a slash, so this resolves
-    // to protocol-relative `//evil.example` even though the raw string
-    // starts with a single `/`.
-    expect(isLocalPath('/\\evil.example')).toBe(false)
-    // A URL parser strips ASCII tab and newline anywhere in the input before
-    // resolving, so these also collapse to `//evil.example`.
-    expect(isLocalPath('/\t/evil.example')).toBe(false)
-    expect(isLocalPath('/\n/evil.example')).toBe(false)
-  })
-
   it('resolves a local path to itself', () => {
     expect(localReturnPath('/homepage/test-form')).toBe('/homepage/test-form')
     expect(localReturnPath('/homepage/test-form?a=1&b=2')).toBe(
@@ -131,7 +106,14 @@ describe('citizen session', () => {
     expect(localReturnPath('homepage/test-form')).toBeNull()
     expect(localReturnPath('')).toBeNull()
     expect(localReturnPath(undefined)).toBeNull()
+    // A URL parser treats a leading backslash as a slash, so this resolves
+    // to protocol-relative `//evil.example` even though the raw string
+    // starts with a single `/`.
     expect(localReturnPath('/\\evil.example')).toBeNull()
+    // A URL parser strips ASCII tab and newline anywhere in the input before
+    // resolving, so these also collapse to `//evil.example`.
+    expect(localReturnPath('/\t/evil.example')).toBeNull()
+    expect(localReturnPath('/\n/evil.example')).toBeNull()
   })
 })
 

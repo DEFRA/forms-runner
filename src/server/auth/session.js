@@ -60,8 +60,8 @@ export function clearTransaction(yar) {
 }
 
 /**
- * A throwaway origin to resolve candidate paths against, so isLocalPath can
- * compare the result's origin rather than pattern-match the input. The host
+ * A throwaway origin to resolve candidate paths against, so parseLocalPath
+ * can compare the result's origin rather than pattern-match the input. The host
  * is on the reserved `.invalid` TLD, so it can never name a real service and
  * a redirect target that happened to match it could never be genuine.
  */
@@ -94,14 +94,6 @@ function parseLocalPath(value) {
   } catch {
     return null
   }
-}
-
-/**
- * True for a path that stays on this service.
- * @param {string} [value]
- */
-export function isLocalPath(value) {
-  return parseLocalPath(value) !== null
 }
 
 /**
