@@ -1,0 +1,8 @@
+<div class="govuk-!-text-align-right">
+  {% if params.user %}
+    <a class="govuk-link govuk-link--inverse" href="/homepage/{{ params.slug }}">{{ params.user.email }}</a>
+    <a class="govuk-link govuk-link--inverse govuk-!-margin-left-3" href="/logout?slug={{ params.slug }}">{{ params.signOutText }}</a>
+  {% else %}
+    <a class="govuk-link govuk-link--inverse" href="/login?returnTo=/homepage/{{ params.slug }}">{{ params.signInText }}</a>
+  {% endif %}
+</div>

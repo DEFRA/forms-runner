@@ -5,6 +5,7 @@
 {% from "govuk/components/phase-banner/macro.njk" import govukPhaseBanner -%}
 {% from "govuk/components/skip-link/macro.njk" import govukSkipLink -%}
 {% from "govuk/macros/attributes.njk" import govukAttributes -%}
+{% from "components/account-control/macro.njk" import appAccountControl -%}
 {% from "components/service-banner/macro.njk" import appServiceBanner -%}
 {% from "components/tag-env/macro.njk" import appTagEnv -%}
 {% from "govuk/components/cookie-banner/macro.njk" import govukCookieBanner -%}
@@ -133,6 +134,14 @@
     serviceName: context.translator.tForm('title') if context else name | default(config.serviceName),
     serviceUrl: currentPath if context.isForceAccess else serviceUrl
   }) }}
+  {% if config.useSignInFeature and slug %}
+    {{ appAccountControl({
+      user: user,
+      slug: slug,
+      signInText: tR('signIn.header.signIn'),
+      signOutText: tR('signIn.header.signOut')
+    }) }}
+  {% endif %}
 {% endblock %}
 {% block beforeContent %}
   {% set feedbackLink = feedbackLink or config.feedbackLink %}

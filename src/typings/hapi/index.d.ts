@@ -12,6 +12,17 @@ import { type CacheService } from '~/src/server/services/index.js'
 declare module '@hapi/hapi' {
   // Here we are decorating Hapi interface types with
   // props from plugins which doesn't export @types
+
+  // The citizen-session scheme puts the signed-in identity straight on
+  // request.auth.credentials, so this is the credentials shape for every
+  // authenticated request in the app.
+  interface AuthCredentials {
+    iss?: string
+    sub?: string
+    email?: string
+    idToken?: string
+  }
+
   interface PluginProperties {
     crumb: {
       generate?: (request: Request) => string
