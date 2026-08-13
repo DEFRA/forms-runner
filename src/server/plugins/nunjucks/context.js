@@ -98,6 +98,8 @@ export function context(request) {
       ? { email: /** @type {string} */ (credentials.email) }
       : null,
 
+    language,
+
     tR: (key, opts) => runnerT(key, language, opts),
     translator,
 

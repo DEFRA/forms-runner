@@ -272,7 +272,10 @@
     },
     "header": {
       "signIn": "Sign in",
-      "signOut": "Sign out"
+      "signOut": "Sign out",
+      "menuText": "Account",
+      "menuLabelShow": "Show [[name]] menu",
+      "menuLabelHide": "Hide [[name]] menu"
     }
   },
   "layout": {

@@ -48,6 +48,7 @@ export default {
       '@defra/hapi-tracing', // Supports ESM only|,
       '@defra/forms-engine-plugin',
       'geodesy',
+      '@govuk-one-login/service-header', // Supports ESM only
       'openid-client', // Supports ESM only
       'oauth4webapi', // Supports ESM only, openid-client dependency
       'jose' // Supports ESM only, openid-client dependency

@@ -6,6 +6,7 @@
 {% from "govuk/components/skip-link/macro.njk" import govukSkipLink -%}
 {% from "govuk/macros/attributes.njk" import govukAttributes -%}
 {% from "components/service-banner/macro.njk" import appServiceBanner -%}
+{% from "components/service-header/macro.njk" import appServiceHeader -%}
 {% from "components/tag-env/macro.njk" import appTagEnv -%}
 {% from "govuk/components/cookie-banner/macro.njk" import govukCookieBanner -%}
 {% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner -%}
@@ -123,38 +124,37 @@
       text: config.serviceBannerText
     }) }}
   {% endif %}
+  {% set serviceNavigationParams = {
+    serviceName: context.translator.tForm('title') if context else name | default(config.serviceName),
+    serviceUrl: currentPath if context.isForceAccess else serviceUrl
+  } %}
+  {% if config.useSignInFeature and user and slug %}
+    {#
+      The account header replaces the standard one rather than sitting beside
+      it: it carries its own GOV.UK logo and renders the service navigation
+      itself. It has no signed-out state, so everyone else keeps the header
+      this service has always shown.
+    #}
+    {{ appServiceHeader({
+      accountName: user.email,
+      accountLink: "/homepage/" + slug,
+      signOutLink: "/logout?slug=" + slug,
+      menuText: tR('signIn.header.menuText'),
+      menuLabelShow: tR('signIn.header.menuLabelShow', { name: user.email }),
+      menuLabelHide: tR('signIn.header.menuLabelHide', { name: user.email }),
+      homepageLink: currentPath if context.isForceAccess else "https://www.gov.uk",
+      lng: language,
+      serviceNavigationParams: serviceNavigationParams
+    }) }}
+  {% else %}
   {{ govukHeader({
     homepageUrl: currentPath if context.isForceAccess else "https://www.gov.uk",
     containerClasses: "govuk-width-container",
     classes: "govuk-header--full-width-border",
     productName: productName | safe | trim
   }) }}
-  {#
-    The citizen's account links belong in the service navigation, which is
-    where GOV.UK puts them and the only place they are legible — rendered
-    loose after this bar they sit on the white page body, and the inverse
-    link style they need inside a dark bar makes them white on white.
-    The service navigation takes items rather than markup, so this is a set
-    block rather than a macro call.
-  #}
-  {% set accountNav = [] %}
-  {% if config.useSignInFeature and slug %}
-    {% if user %}
-      {% set accountNav = [
-        { href: "/homepage/" + slug, text: user.email },
-        { href: "/logout?slug=" + slug, text: tR('signIn.header.signOut') }
-      ] %}
-    {% else %}
-      {% set accountNav = [
-        { href: "/login?returnTo=/homepage/" + slug, text: tR('signIn.header.signIn') }
-      ] %}
-    {% endif %}
+  {{ govukServiceNavigation(serviceNavigationParams) }}
   {% endif %}
-  {{ govukServiceNavigation({
-    serviceName: context.translator.tForm('title') if context else name | default(config.serviceName),
-    serviceUrl: currentPath if context.isForceAccess else serviceUrl,
-    navigation: accountNav
-  }) }}
 {% endblock %}
 {% block beforeContent %}
   {% set feedbackLink = feedbackLink or config.feedbackLink %}

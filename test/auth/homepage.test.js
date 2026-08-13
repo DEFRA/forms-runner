@@ -105,16 +105,14 @@ describe('per-form homepage', () => {
     )
   })
 
-  it('shows a signed-out citizen the sign-in button, and nothing else, on a page that does not gate on auth', async () => {
+  it('shows a signed-out citizen no account control, on a page that does not gate on auth', async () => {
+    // The account header has no signed-out state — it exists to say who is
+    // signed in — so a signed-out citizen gets the header this service has
+    // always shown. They reach sign in through a page that requires it.
     const { container } = await renderResponse(server, {
       method: 'GET',
       url: '/help/accessibility-statement/test-form'
     })
-
-    expect(container.getByRole('link', { name: 'Sign in' })).toHaveAttribute(
-      'href',
-      '/login?returnTo=/homepage/test-form'
-    )
 
     expect(
       container.queryByRole('link', { name: 'Sign out' })
