@@ -8,7 +8,7 @@ import {
   SIGNED_OUT_FROM_KEY,
   clearTransaction,
   getTransaction,
-  isLocalPath,
+  localReturnPath,
   setIdentity,
   setTransaction
 } from '~/src/server/auth/session.js'
@@ -36,7 +36,7 @@ export default [
         state,
         nonce,
         codeVerifier,
-        returnTo: isLocalPath(returnTo) ? /** @type {string} */ (returnTo) : '/'
+        returnTo: localReturnPath(returnTo) ?? '/'
       })
 
       const authorizationUrl = client.buildAuthorizationUrl(oidcConfig, {

@@ -4,6 +4,7 @@ import {
   getIdentity,
   getTransaction,
   isLocalPath,
+  localReturnPath,
   setIdentity,
   setTransaction
 } from '~/src/server/auth/session.js'
@@ -105,6 +106,32 @@ describe('citizen session', () => {
     // resolving, so these also collapse to `//evil.example`.
     expect(isLocalPath('/\t/evil.example')).toBe(false)
     expect(isLocalPath('/\n/evil.example')).toBe(false)
+  })
+
+  it('resolves a local path to itself', () => {
+    expect(localReturnPath('/homepage/test-form')).toBe('/homepage/test-form')
+    expect(localReturnPath('/homepage/test-form?a=1&b=2')).toBe(
+      '/homepage/test-form?a=1&b=2'
+    )
+  })
+
+  it('resolves a path carrying a control character to the parser’s own normalised form, rather than the raw input', () => {
+    // Storing and redirecting to the raw string would carry the newline
+    // into an HTTP header and Node would refuse to send it. Resolving to
+    // the parser's own output — which already dropped the newline — keeps
+    // the destination the parser sees, safely.
+    expect(localReturnPath('/foo\nSet-Cookie: a=b')).toBe(
+      '/fooSet-Cookie:%20a=b'
+    )
+  })
+
+  it('has no resolved path for anything that could leave the service', () => {
+    expect(localReturnPath('//evil.example')).toBeNull()
+    expect(localReturnPath('https://evil.example')).toBeNull()
+    expect(localReturnPath('homepage/test-form')).toBeNull()
+    expect(localReturnPath('')).toBeNull()
+    expect(localReturnPath(undefined)).toBeNull()
+    expect(localReturnPath('/\\evil.example')).toBeNull()
   })
 })
 

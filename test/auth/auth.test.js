@@ -251,6 +251,33 @@ describe('sign in routes', () => {
     expect(response.headers.location).toBe('/')
   })
 
+  it('normalises a return target carrying a control character before storing it, so the eventual redirect does not carry it raw', async () => {
+    const login = await server.inject({
+      method: 'GET',
+      url: `/login?returnTo=${encodeURIComponent('/homepage/test-form\nSet-Cookie: a=b')}`
+    })
+
+    jest.mocked(client.authorizationCodeGrant).mockResolvedValue(mockTokens())
+    jest
+      .mocked(client.fetchUserInfo)
+      .mockResolvedValue({ sub: 'sub-1', email: 'citizen@example.com' })
+
+    const response = await server.inject({
+      method: 'GET',
+      url: '/callback?code=code-1&state=state-1',
+      headers: getCookieHeader(login, ['session'])
+    })
+
+    // Before the fix, redirecting to the raw string here threw inside
+    // Node's header validation, outside the route's own try/catch, and
+    // surfaced as an unhandled 500 to a citizen who had just signed in
+    // successfully.
+    expect(response.statusCode).toBe(302)
+    expect(response.headers.location).toBe(
+      '/homepage/test-formSet-Cookie:%20a=b'
+    )
+  })
+
   it('ends the provider session with the token it was given, then clears its own', async () => {
     jest
       .mocked(client.buildEndSessionUrl)

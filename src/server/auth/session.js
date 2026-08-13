@@ -65,28 +65,55 @@ export function clearTransaction(yar) {
 const LOCAL_ORIGIN = 'https://runner.invalid'
 
 /**
- * True for a path that stays on this service. A leading slash rules out a
- * value that is relative to the current directory, and resolving the rest
- * against a fixed origin keeps only the values whose resolved origin is
- * unchanged — which is what a URL parser actually sends elsewhere despite a
- * single leading `/`, including a leading `\` and a tab or newline anywhere
- * in the string, all of which the parser normalises before resolving.
+ * The candidate resolved against the local origin, or null if it would leave
+ * the service. A leading slash rules out a value that is relative to the
+ * current directory, and resolving the rest against a fixed origin keeps
+ * only the values whose resolved origin is unchanged. A URL parser can send
+ * a value elsewhere despite its single leading `/` — a leading `\` is one
+ * way — and it also strips a stray tab or newline before resolving, so a
+ * value carrying one is rejected only when that stripping is what moves it
+ * off-origin, not simply for containing the character.
  * @param {string} [value]
+ * @returns {URL | null}
  */
-export function isLocalPath(value) {
+function parseLocalPath(value) {
   if (
     typeof value !== 'string' ||
     !value.startsWith('/') ||
     value.startsWith('//')
   ) {
-    return false
+    return null
   }
 
   try {
-    return new URL(value, LOCAL_ORIGIN).origin === LOCAL_ORIGIN
+    const url = new URL(value, LOCAL_ORIGIN)
+    return url.origin === LOCAL_ORIGIN ? url : null
   } catch {
-    return false
+    return null
   }
+}
+
+/**
+ * True for a path that stays on this service.
+ * @param {string} [value]
+ */
+export function isLocalPath(value) {
+  return parseLocalPath(value) !== null
+}
+
+/**
+ * The local path (pathname and search) a candidate resolves to, or null if
+ * it would leave the service. Returns the parser's own result rather than
+ * the input string, so storing and redirecting to it lands on the
+ * destination a URL parser already resolved it to — not a raw value a
+ * parser normalises on the way through, which some consumers of it, an
+ * HTTP header for one, would reject outright rather than normalise.
+ * @param {string} [value]
+ * @returns {string | null}
+ */
+export function localReturnPath(value) {
+  const url = parseLocalPath(value)
+  return url ? `${url.pathname}${url.search}` : null
 }
 
 /**
