@@ -343,6 +343,47 @@ export const config = convict({
     env: 'USE_MAPS_FEATURE'
   } as SchemaObj<boolean>,
 
+  useSignInFeature: {
+    doc: 'Feature flag to control citizen sign in',
+    format: Boolean,
+    default: null,
+    env: 'USE_SIGN_IN_FEATURE'
+  } as SchemaObj<boolean>,
+
+  oidc: {
+    issuer: {
+      doc: 'OIDC provider issuer, must match the provider exactly',
+      format: String,
+      default: null,
+      env: 'OIDC_ISSUER'
+    } as SchemaObj<string>,
+    clientId: {
+      doc: 'This service’s client id at the provider',
+      format: String,
+      default: 'runner',
+      env: 'OIDC_CLIENT_ID'
+    } as SchemaObj<string>,
+    redirectUri: {
+      doc: 'Where the provider returns the citizen after authorising',
+      format: String,
+      default: null,
+      env: 'OIDC_REDIRECT_URI'
+    } as SchemaObj<string>,
+    logoutRedirectUri: {
+      doc: 'Where the provider returns the citizen after signing out',
+      format: String,
+      default: null,
+      env: 'OIDC_LOGOUT_REDIRECT_URI'
+    } as SchemaObj<string>,
+    privateJwks: {
+      doc: 'This service’s private assertion key, as a JWKS',
+      format: String,
+      default: null,
+      env: 'OIDC_CLIENT_PRIVATE_JWKS',
+      sensitive: true
+    } as SchemaObj<string>
+  },
+
   feedbackViaEmail: {
     doc: 'The email address (not including the mailto prefix) for feedback when the built-in CSAT form is disabled.',
     format: String,
