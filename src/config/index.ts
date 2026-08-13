@@ -346,7 +346,10 @@ export const config = convict({
   useSignInFeature: {
     doc: 'Feature flag to control citizen sign in',
     format: Boolean,
-    default: null,
+    // Off by default, unlike most flags here, so a deployment that merges
+    // this feature but has not yet set the OIDC_* variables still starts —
+    // it just can't sign anyone in until it does.
+    default: false,
     env: 'USE_SIGN_IN_FEATURE'
   } as SchemaObj<boolean>,
 
@@ -354,7 +357,7 @@ export const config = convict({
     issuer: {
       doc: 'OIDC provider issuer, must match the provider exactly',
       format: String,
-      default: null,
+      default: '',
       env: 'OIDC_ISSUER'
     } as SchemaObj<string>,
     clientId: {
@@ -366,19 +369,19 @@ export const config = convict({
     redirectUri: {
       doc: 'Where the provider returns the citizen after authorising',
       format: String,
-      default: null,
+      default: '',
       env: 'OIDC_REDIRECT_URI'
     } as SchemaObj<string>,
     logoutRedirectUri: {
       doc: 'Where the provider returns the citizen after signing out',
       format: String,
-      default: null,
+      default: '',
       env: 'OIDC_LOGOUT_REDIRECT_URI'
     } as SchemaObj<string>,
     privateJwks: {
       doc: 'This service’s private assertion key, as a JWKS',
       format: String,
-      default: null,
+      default: '',
       env: 'OIDC_CLIENT_PRIVATE_JWKS',
       sensitive: true
     } as SchemaObj<string>
