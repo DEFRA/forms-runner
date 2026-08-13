@@ -9,6 +9,38 @@ const isProduction = process.env.NODE_ENV === 'production'
 const isDev = process.env.NODE_ENV !== 'production'
 const isTest = process.env.NODE_ENV === 'test'
 
+/**
+ * A convict format that pins a URL setting to a fixed route path. The token
+ * exchange and the post-logout return are sent to the URI this config holds,
+ * not to whichever route the request arrived on, so a value whose path
+ * doesn't match the route that will actually handle it fails at boot — where
+ * it names its own cause — rather than only once deployed, where it surfaces
+ * as `invalid_grant` from the provider. An empty value stays valid, so the
+ * feature-off default of '' still passes.
+ */
+function pinnedToPath(pathname: string) {
+  return (val: unknown) => {
+    if (typeof val !== 'string') {
+      throw new TypeError('must be of type String')
+    }
+
+    if (val === '') {
+      return
+    }
+
+    let url
+    try {
+      url = new URL(val)
+    } catch {
+      throw new Error('must be a valid URL')
+    }
+
+    if (url.pathname !== pathname) {
+      throw new Error(`must be a URL whose path is ${pathname}`)
+    }
+  }
+}
+
 export const config = convict({
   appDir: {
     format: String,
@@ -367,14 +399,14 @@ export const config = convict({
       env: 'OIDC_CLIENT_ID'
     } as SchemaObj<string>,
     redirectUri: {
-      doc: 'Where the provider returns the citizen after authorising',
-      format: String,
+      doc: 'Where the provider returns the citizen after authorising, must be the /callback route',
+      format: pinnedToPath('/callback'),
       default: '',
       env: 'OIDC_REDIRECT_URI'
     } as SchemaObj<string>,
     logoutRedirectUri: {
-      doc: 'Where the provider returns the citizen after signing out',
-      format: String,
+      doc: 'Where the provider returns the citizen after signing out, must be the /signed-out route',
+      format: pinnedToPath('/signed-out'),
       default: '',
       env: 'OIDC_LOGOUT_REDIRECT_URI'
     } as SchemaObj<string>,

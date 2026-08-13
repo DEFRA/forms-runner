@@ -49,4 +49,27 @@ describe('sign in configuration', () => {
       })
     }
   })
+
+  it.each([
+    ['OIDC_REDIRECT_URI', 'http://localhost:3009/wrong-path'],
+    ['OIDC_LOGOUT_REDIRECT_URI', 'http://localhost:3009/wrong-path']
+  ])(
+    'fails to load when %s points somewhere other than the route that handles it',
+    async (envVar, badValue) => {
+      const previous = process.env[envVar]
+      process.env[envVar] = badValue
+
+      try {
+        await expect(
+          jest.isolateModulesAsync(async () => {
+            await import('~/src/config/index.js')
+          })
+        ).rejects.toThrow('must be a URL whose path is')
+      } finally {
+        if (previous !== undefined) {
+          process.env[envVar] = previous
+        }
+      }
+    }
+  )
 })
