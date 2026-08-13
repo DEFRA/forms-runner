@@ -36,6 +36,7 @@ describe('Runner i18n', () => {
     it('returns the language set in the session', () => {
       const blankRequest = {
         yar: {
+          id: 'session-id',
           get: jest.fn().mockReturnValue('cy')
         }
       } as unknown as Request
@@ -46,6 +47,7 @@ describe('Runner i18n', () => {
       const mockYarSet = jest.fn()
       const blankRequest = {
         yar: {
+          id: 'session-id',
           get: jest.fn(),
           set: mockYarSet
         },

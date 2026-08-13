@@ -43,11 +43,16 @@ export function resolveLanguage(query, yar) {
 
   query ??= {}
 
-  if (yar && 'language' in query) {
+  // yar.id is only set once yar's session has been initialised (onPreAuth),
+  // so calling yar.get/set beforehand (e.g. for a 404 raised pre-routing)
+  // would throw as its internal store is still null
+  const sessionReady = yar && Boolean(yar.id)
+
+  if (sessionReady && 'language' in query) {
     yar.set('language', query.language)
   }
 
-  return yar?.get('language') ?? defaultLang
+  return (sessionReady ? yar.get('language') : null) ?? defaultLang
 }
 
 /**

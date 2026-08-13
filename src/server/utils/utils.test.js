@@ -3,7 +3,8 @@ import { getTraceId } from '@defra/hapi-tracing'
 import { config } from '~/src/config/index.js'
 import {
   applyTraceHeaders,
-  getFeedbackFormLink
+  getFeedbackFormLink,
+  resolveLanguage
 } from '~/src/server/utils/utils.js'
 
 jest.mock('@defra/hapi-tracing')
@@ -62,6 +63,43 @@ describe('utils', () => {
       expect(getFeedbackFormLink('source-form-id')).toEqual({
         feedbackLink: '/form/feedback?formId=source-form-id'
       })
+    })
+  })
+
+  describe('resolveLanguage', () => {
+    const mockYarStore = /** @type {Record<string,string>} */ ({})
+    /**
+     * @param {string} name
+     * @param {string} value
+     */
+    function yarSet(name, value) {
+      mockYarStore[name] = value
+    }
+    /**
+     * @param {string} name
+     */
+    function yarGet(name) {
+      return mockYarStore[name]
+    }
+
+    it('should return default language if yar session not properly constructed yet', () => {
+      expect(resolveLanguage({}, undefined)).toBe('en-GB')
+    })
+
+    it('should return specified language if yar session up and language passed as query param', () => {
+      expect(
+        resolveLanguage(
+          { language: 'cy' },
+          // @ts-expect-error - partial mock of methods
+          { id: 'session-id', set: yarSet, get: yarGet }
+        )
+      ).toBe('cy')
+
+      // Should retrieve session value when language not passed
+      expect(
+        // @ts-expect-error - partial mock of methods
+        resolveLanguage({}, { id: 'session-id', set: yarSet, get: yarGet })
+      ).toBe('cy')
     })
   })
 })
