@@ -32,6 +32,7 @@ import { FORM_PREFIX } from '~/src/server/constants.js'
 import { t as runnerT } from '~/src/server/i18n/index.js'
 import { getErrorPreviewHandler } from '~/src/server/plugins/error-preview/error-preview.js'
 import {
+  authRoutes,
   healthRoute,
   publicRoutes,
   saveAndExitRoutes
@@ -73,6 +74,12 @@ export default {
   plugin: {
     name: 'router',
     register: (server) => {
+      // Read inside `register`, not at module scope, so a test can flip the
+      // flag before building the server.
+      if (config.get('useSignInFeature')) {
+        server.route(authRoutes as ServerRoute[])
+      }
+
       server.route(routes)
       server.route(saveAndExitRoutes as ServerRoute[])
 
