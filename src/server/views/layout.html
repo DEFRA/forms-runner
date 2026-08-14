@@ -10,7 +10,6 @@
 {% from "components/tag-env/macro.njk" import appTagEnv -%}
 {% from "govuk/components/cookie-banner/macro.njk" import govukCookieBanner -%}
 {% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner -%}
-{% from "govuk/components/service-navigation/macro.njk" import govukServiceNavigation %}
 
 {% set productName %}
   {% if config.cdpEnvironment !== "prod" %}
@@ -128,39 +127,32 @@
     serviceName: context.translator.tForm('title') if context else name | default(config.serviceName),
     serviceUrl: currentPath if context.isForceAccess else serviceUrl
   } %}
-  {% if config.useSignInFeature %}
-    {#
-      One header for every page the feature reaches, signed in or not: it
-      carries its own GOV.UK logo and renders the service navigation itself,
-      so it replaces the standard header rather than sitting beside it. The
-      account menu is what varies — a signed-out citizen has no account to
-      name, so it is left out and they see the bar alone.
+  {#
+    One header for every page. It carries its own GOV.UK logo and renders the
+    service navigation itself, and it is visually the same bar the standard
+    header gives — what varies is the account menu.
 
-      No signOutLink is passed, so the menu leaves sign out out: the provider
-      has yet to register where to return the citizen afterwards, and sending
-      them there today strands them on an error. The /logout route itself
-      works and is covered by its own tests.
-    #}
-    {{ appServiceHeader({
-      accountName: user.email if user and slug,
-      accountLink: ("/homepage/" + slug) if user and slug,
-      menuText: tR('signIn.header.menuText'),
-      menuLabelShow: tR('signIn.header.menuLabelShow', { name: user.email }) if user,
-      menuLabelHide: tR('signIn.header.menuLabelHide', { name: user.email }) if user,
-      homepageLink: currentPath if context.isForceAccess else "https://www.gov.uk",
-      productNameHtml: productName | safe | trim,
-      lng: language,
-      serviceNavigationParams: serviceNavigationParams
-    }) }}
-  {% else %}
-  {{ govukHeader({
-    homepageUrl: currentPath if context.isForceAccess else "https://www.gov.uk",
-    containerClasses: "govuk-width-container",
-    classes: "govuk-header--full-width-border",
-    productName: productName | safe | trim
+    The account properties are the feature: unset, the menu and its toggle are
+    left out entirely, which is what a citizen sees with sign in switched off
+    or simply not signed in. So the flag decides what the header is told, not
+    which header renders.
+
+    No signOutLink is passed yet: the provider has still to register where to
+    return the citizen afterwards, and sending them there today strands them
+    on an error. The /logout route works and is covered by its own tests.
+  #}
+  {% set isSignedIn = config.useSignInFeature and user and slug %}
+  {{ appServiceHeader({
+    accountName: user.email if isSignedIn,
+    accountLink: ("/homepage/" + slug) if isSignedIn,
+    menuText: tR('signIn.header.menuText') if isSignedIn,
+    menuLabelShow: tR('signIn.header.menuLabelShow', { name: user.email }) if isSignedIn,
+    menuLabelHide: tR('signIn.header.menuLabelHide', { name: user.email }) if isSignedIn,
+    homepageLink: currentPath if context.isForceAccess else "https://www.gov.uk",
+    productNameHtml: productName | safe | trim,
+    lng: language,
+    serviceNavigationParams: serviceNavigationParams
   }) }}
-  {{ govukServiceNavigation(serviceNavigationParams) }}
-  {% endif %}
 {% endblock %}
 {% block beforeContent %}
   {% set feedbackLink = feedbackLink or config.feedbackLink %}
