@@ -263,25 +263,25 @@ describe('sign in routes', () => {
     expect(response.statusCode).toBe(403)
   })
 
-  it('does not follow a return target that leaves the service', async () => {
-    const login = await server.inject({
-      method: 'GET',
-      url: '/auth/sign-in?returnTo=//evil.example'
-    })
+  it.each([
+    ['leaves the service', '?returnTo=//evil.example'],
+    ['names another site outright', '?returnTo=https://evil.example'],
+    ['is missing', '']
+  ])(
+    'refuses to start a sign in whose return target %s, before the citizen spends one',
+    async (_case, query) => {
+      const response = await server.inject({
+        method: 'GET',
+        url: `/auth/sign-in${query}`
+      })
 
-    jest.mocked(client.authorizationCodeGrant).mockResolvedValue(mockTokens())
-    jest
-      .mocked(client.fetchUserInfo)
-      .mockResolvedValue({ sub: 'sub-1', email: 'citizen@example.com' })
-
-    const response = await server.inject({
-      method: 'GET',
-      url: '/auth/callback?code=code-1&state=state-1',
-      headers: getCookieHeader(login, ['session'])
-    })
-
-    expect(response.headers.location).toBe('/')
-  })
+      // Refused at the entry, so the provider is never involved. Completing
+      // the sign in first would leave the citizen genuinely signed in on a
+      // page that cannot be reached.
+      expect(response.statusCode).toBe(400)
+      expect(client.buildAuthorizationUrl).not.toHaveBeenCalled()
+    }
+  )
 
   it('normalises a return target carrying a control character before storing it, so the eventual redirect does not carry it raw', async () => {
     const login = await server.inject({

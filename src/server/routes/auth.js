@@ -33,19 +33,26 @@ export default [
     method: 'GET',
     path: SIGN_IN_PATH,
     async handler(request, h) {
+      // Checked before the round trip starts. A return target this service
+      // cannot reach has only one ending, and reaching it costs the citizen a
+      // full sign in first, so it is worth saying so now.
+      const returnPath = localReturnPath(request.query.returnTo)
+
+      if (!returnPath) {
+        throw Boom.badRequest('Sign in needs a return path within this service')
+      }
+
       const oidcConfig = await request.server.app.oidc.getConfig()
 
       const codeVerifier = client.randomPKCECodeVerifier()
       const state = client.randomState()
       const nonce = client.randomNonce()
 
-      const { returnTo } = request.query
-
       setSignInTransaction(request.yar, {
         state,
         nonce,
         codeVerifier,
-        returnTo: localReturnPath(returnTo) ?? '/'
+        returnTo: returnPath
       })
 
       logger.info(
