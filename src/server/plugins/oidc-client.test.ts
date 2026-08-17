@@ -30,6 +30,36 @@ describe('oidc client plugin', () => {
     expect(jest.mocked(client.discovery).mock.calls[0][1]).toBe('runner')
   })
 
+  it.each([
+    ['no ES256 signing key', '{"keys":[]}', 0],
+    [
+      'more than one',
+      '{"keys":[{"use":"sig","alg":"ES256","kid":"a"},{"use":"sig","alg":"ES256","kid":"b"}]}',
+      2
+    ]
+  ])(
+    'fails registration when the JWKS holds %s, saying how many it found',
+    async (_case, jwks, found) => {
+      const previous = process.env.OIDC_CLIENT_PRIVATE_JWKS
+      process.env.OIDC_CLIENT_PRIVATE_JWKS = jwks
+
+      try {
+        await jest.isolateModulesAsync(async () => {
+          const { default: freshPlugin } =
+            await import('~/src/server/plugins/oidc-client.js')
+
+          const server = hapi.server()
+
+          await expect(server.register(freshPlugin)).rejects.toThrow(
+            `oidc.privateJwks must hold exactly one ES256 signing key, found ${found}`
+          )
+        })
+      } finally {
+        process.env.OIDC_CLIENT_PRIVATE_JWKS = previous
+      }
+    }
+  )
+
   it('fails registration when the sign-in flag is on but a required OIDC setting is unset, naming it', async () => {
     const unset = [
       'OIDC_ISSUER',
