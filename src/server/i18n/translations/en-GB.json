@@ -262,17 +262,7 @@
       "caption": "Manage your form",
       "startButton": "Start a new form"
     },
-    "signedOut": {
-      "title": "You have signed out",
-      "heading": "You have signed out",
-      "signInAgainPrefix": "To go back, ",
-      "signInAgainLink": "sign in again",
-      "govukPrefix": "Or ",
-      "govukLink": "go to the GOV.UK homepage"
-    },
     "header": {
-      "signIn": "Sign in",
-      "signOut": "Sign out",
       "menuText": "Account",
       "menuLabelShow": "Show [[name]] menu",
       "menuLabelHide": "Hide [[name]] menu"

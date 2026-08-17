@@ -1,6 +1,5 @@
 export const CITIZEN_KEY = 'citizen'
 export const TX_KEY = 'oidc:tx'
-export const SIGNED_OUT_FROM_KEY = 'auth:signedOutFrom'
 
 /**
  * @param {Yar} yar
@@ -16,13 +15,6 @@ export function setIdentity(yar, identity) {
  */
 export function getIdentity(yar) {
   return yar.get(CITIZEN_KEY) ?? null
-}
-
-/**
- * @param {Yar} yar
- */
-export function clearIdentity(yar) {
-  yar.clear(CITIZEN_KEY)
 }
 
 /**

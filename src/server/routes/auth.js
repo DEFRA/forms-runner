@@ -1,11 +1,9 @@
-import { slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import Joi from 'joi'
 import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
 import {
-  SIGNED_OUT_FROM_KEY,
   clearTransaction,
   getTransaction,
   localReturnPath,
@@ -172,71 +170,9 @@ export default [
         }).unknown(true)
       }
     }
-  }),
-  /**
-   * @satisfies {ServerRoute<{ Query: { slug?: string } }>}
-   */
-  ({
-    method: 'GET',
-    path: '/logout',
-    async handler(request, h) {
-      const { slug } = request.query
-
-      if (!request.auth.isAuthenticated) {
-        // Nothing to end at the provider and no session to reset — the
-        // forms engine keys in-progress answers on the session id, and
-        // resetting it here would orphan them for a citizen who followed a
-        // stale link or bookmark without ever signing in.
-        return h.redirect(slug ? `/homepage/${slug}` : '/')
-      }
-
-      // Read before resetting: request.auth.credentials carries the ID token
-      // the citizen-session strategy took from this session at the start of
-      // the request, which the reset below is about to throw away.
-      const credentials = /** @type {AuthCredentials} */ (
-        request.auth.credentials
-      )
-
-      const oidcConfig = await request.server.app.oidc.getConfig()
-
-      const endSessionUrl = client.buildEndSessionUrl(oidcConfig, {
-        ...(credentials.idToken && { id_token_hint: credentials.idToken }),
-        client_id: config.get('oidc.clientId'),
-        post_logout_redirect_uri: config.get('oidc.logoutRedirectUri')
-      })
-
-      request.yar.reset()
-
-      if (slug) {
-        // Survives the reset so /signed-out can offer a way back in.
-        request.yar.set(SIGNED_OUT_FROM_KEY, slug)
-      }
-
-      return h.redirect(endSessionUrl.href)
-    },
-    options: {
-      validate: {
-        query: Joi.object({
-          slug: slugSchema.optional()
-        }).unknown(true)
-      }
-    }
-  }),
-  /**
-   * @satisfies {ServerRoute}
-   */
-  ({
-    method: 'GET',
-    path: '/signed-out',
-    handler(request, h) {
-      const signedOutFrom = request.yar.get(SIGNED_OUT_FROM_KEY)
-      request.yar.clear(SIGNED_OUT_FROM_KEY)
-
-      return h.view('signed-out', { signedOutFrom })
-    }
   })
 ]
 
 /**
- * @import { AuthCredentials, ServerRoute } from '@hapi/hapi'
+ * @import { ServerRoute } from '@hapi/hapi'
  */

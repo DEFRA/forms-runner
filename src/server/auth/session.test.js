@@ -1,5 +1,4 @@
 import {
-  clearIdentity,
   clearTransaction,
   getIdentity,
   getTransaction,
@@ -43,14 +42,8 @@ describe('citizen session', () => {
     expect(getIdentity(yar)).toEqual(identity)
   })
 
-  it('has no identity before sign in, or after clearing one', () => {
-    const yar = fakeYar()
-    expect(getIdentity(yar)).toBeNull()
-
-    setIdentity(yar, identity)
-    clearIdentity(yar)
-
-    expect(getIdentity(yar)).toBeNull()
+  it('has no identity before sign in', () => {
+    expect(getIdentity(fakeYar())).toBeNull()
   })
 
   it('reads the transaction without consuming it, so a mismatched callback can be checked without destroying it', () => {

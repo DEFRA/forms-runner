@@ -34,7 +34,6 @@ describe('oidc client plugin', () => {
     const unset = [
       'OIDC_ISSUER',
       'OIDC_REDIRECT_URI',
-      'OIDC_LOGOUT_REDIRECT_URI',
       'OIDC_CLIENT_PRIVATE_JWKS'
     ] as const
 
@@ -58,7 +57,7 @@ describe('oidc client plugin', () => {
         const server = hapi.server()
 
         await expect(server.register(freshPlugin)).rejects.toThrow(
-          'Sign-in is enabled but missing configuration: oidc.issuer, oidc.redirectUri, oidc.logoutRedirectUri, oidc.privateJwks'
+          'Sign-in is enabled but missing configuration: oidc.issuer, oidc.redirectUri, oidc.privateJwks'
         )
       })
     } finally {

@@ -11,9 +11,6 @@ describe('sign in configuration', () => {
     expect(config.get('oidc.redirectUri')).toBe(
       'http://localhost:3009/callback'
     )
-    expect(config.get('oidc.logoutRedirectUri')).toBe(
-      'http://localhost:3009/signed-out'
-    )
   })
 
   it('loads with the flag and every OIDC variable unset, so a deployment with the feature off still starts', async () => {
@@ -21,7 +18,6 @@ describe('sign in configuration', () => {
       'USE_SIGN_IN_FEATURE',
       'OIDC_ISSUER',
       'OIDC_REDIRECT_URI',
-      'OIDC_LOGOUT_REDIRECT_URI',
       'OIDC_CLIENT_PRIVATE_JWKS'
     ] as const
 
@@ -44,7 +40,6 @@ describe('sign in configuration', () => {
         expect(freshConfig.get('useSignInFeature')).toBe(false)
         expect(freshConfig.get('oidc.issuer')).toBe('')
         expect(freshConfig.get('oidc.redirectUri')).toBe('')
-        expect(freshConfig.get('oidc.logoutRedirectUri')).toBe('')
         expect(freshConfig.get('oidc.privateJwks')).toBe('')
       })
     } finally {
@@ -63,10 +58,7 @@ describe('sign in configuration', () => {
     }
   })
 
-  it.each([
-    ['OIDC_REDIRECT_URI', 'http://localhost:3009/wrong-path'],
-    ['OIDC_LOGOUT_REDIRECT_URI', 'http://localhost:3009/wrong-path']
-  ])(
+  it.each([['OIDC_REDIRECT_URI', 'http://localhost:3009/wrong-path']])(
     'fails to load when %s points somewhere other than the route that handles it',
     async (envVar, badValue) => {
       const previous = process.env[envVar]

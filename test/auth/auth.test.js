@@ -4,7 +4,6 @@ import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
 import { createServer } from '~/src/server/index.js'
-import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 jest.mock('openid-client')
@@ -277,107 +276,6 @@ describe('sign in routes', () => {
       '/homepage/test-formSet-Cookie:%20a=b'
     )
   })
-
-  it('ends the provider session with the token it was given, then clears its own', async () => {
-    jest
-      .mocked(client.buildEndSessionUrl)
-      .mockReturnValue(new URL('http://localhost:3011/session/end'))
-
-    const response = await server.inject({
-      method: 'GET',
-      url: '/logout?slug=test-form',
-      auth: {
-        strategy: 'citizen-session',
-        credentials: {
-          iss: 'http://localhost:3011',
-          sub: 'sub-1',
-          email: 'citizen@example.com',
-          idToken: 'header.payload.signature'
-        }
-      }
-    })
-
-    const [, params] = jest.mocked(client.buildEndSessionUrl).mock.calls[0]
-
-    expect(params).toMatchObject({
-      id_token_hint: 'header.payload.signature',
-      post_logout_redirect_uri: 'http://localhost:3009/signed-out'
-    })
-    expect(response.statusCode).toBe(302)
-    expect(response.headers.location).toBe('http://localhost:3011/session/end')
-  })
-
-  it('does not touch the session for a citizen who was never signed in, so their form answers survive', async () => {
-    const response = await server.inject({
-      method: 'GET',
-      url: '/logout?slug=test-form'
-    })
-
-    expect(client.buildEndSessionUrl).not.toHaveBeenCalled()
-    expect(response.statusCode).toBe(302)
-    expect(response.headers.location).toBe('/homepage/test-form')
-  })
-
-  it('sends a never-signed-in citizen home when it does not know which form they came from', async () => {
-    const response = await server.inject({
-      method: 'GET',
-      url: '/logout'
-    })
-
-    expect(client.buildEndSessionUrl).not.toHaveBeenCalled()
-    expect(response.statusCode).toBe(302)
-    expect(response.headers.location).toBe('/')
-  })
-
-  it('offers a way back to the form and a way out to GOV.UK', async () => {
-    jest
-      .mocked(client.buildEndSessionUrl)
-      .mockReturnValue(new URL('http://localhost:3011/session/end'))
-
-    const logout = await server.inject({
-      method: 'GET',
-      url: '/logout?slug=test-form',
-      auth: {
-        strategy: 'citizen-session',
-        credentials: {
-          iss: 'http://localhost:3011',
-          sub: 'sub-1',
-          email: 'citizen@example.com',
-          idToken: 'header.payload.signature'
-        }
-      }
-    })
-
-    const { container } = await renderResponse(server, {
-      method: 'GET',
-      url: '/signed-out',
-      headers: getCookieHeader(logout, ['session'])
-    })
-
-    expect(
-      container.getByRole('heading', { name: 'You have signed out', level: 1 })
-    ).toBeInTheDocument()
-    expect(
-      container.getByRole('link', { name: 'sign in again' })
-    ).toHaveAttribute('href', '/homepage/test-form')
-    expect(
-      container.getByRole('link', { name: 'go to the GOV.UK homepage' })
-    ).toHaveAttribute('href', 'https://www.gov.uk')
-  })
-
-  it('omits the way back when it does not know which form it was', async () => {
-    const { container } = await renderResponse(server, {
-      method: 'GET',
-      url: '/signed-out'
-    })
-
-    expect(
-      container.queryByRole('link', { name: 'sign in again' })
-    ).not.toBeInTheDocument()
-    expect(
-      container.getByRole('link', { name: 'go to the GOV.UK homepage' })
-    ).toBeInTheDocument()
-  })
 })
 
 describe('sign in routes, feature flag off', () => {
@@ -406,8 +304,6 @@ describe('sign in routes, feature flag off', () => {
   it.each([
     ['/login', '/login'],
     ['/callback', '/callback'],
-    ['/logout', '/logout'],
-    ['/signed-out', '/signed-out'],
     ['/homepage/test-form', '/homepage/{slug}']
   ])(
     'is not registered when the sign-in feature is off (%s)',

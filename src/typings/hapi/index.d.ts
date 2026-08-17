@@ -125,6 +125,5 @@ declare module '@hapi/yar' {
       codeVerifier: string
       returnTo: string
     }
-    'auth:signedOutFrom': string
   }
 }

@@ -409,12 +409,6 @@ export const config = convict({
       default: '',
       env: 'OIDC_REDIRECT_URI'
     } as SchemaObj<string>,
-    logoutRedirectUri: {
-      doc: 'Where the provider returns the citizen after signing out, must be the /signed-out route',
-      format: pinnedToPath('/signed-out'),
-      default: '',
-      env: 'OIDC_LOGOUT_REDIRECT_URI'
-    } as SchemaObj<string>,
     privateJwks: {
       doc: 'This service’s private assertion key, as a JWKS',
       format: String,

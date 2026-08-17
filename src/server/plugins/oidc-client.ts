@@ -32,7 +32,6 @@ function requiredSettings() {
   return {
     'oidc.issuer': config.get('oidc.issuer'),
     'oidc.redirectUri': config.get('oidc.redirectUri'),
-    'oidc.logoutRedirectUri': config.get('oidc.logoutRedirectUri'),
     'oidc.privateJwks': config.get('oidc.privateJwks')
   }
 }
