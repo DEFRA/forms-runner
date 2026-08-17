@@ -13,8 +13,11 @@ const identity = {
   idToken: 'header.payload.signature'
 }
 
-/** Reports what `request.auth` holds, which is what the strategy decides */
-function probeRoute(server: hapi.Server, path = '/probe') {
+/**
+ * Registers an endpoint that reports what `request.auth` holds, which is what
+ * the strategy decides.
+ */
+function setupProbeEndpoint(server: hapi.Server, path = '/probe') {
   server.route({
     method: 'GET',
     path,
@@ -31,7 +34,7 @@ describe('citizen-session strategy', () => {
 
     const server = hapi.server()
     await server.register(pluginAuth)
-    probeRoute(server)
+    setupProbeEndpoint(server)
 
     const response = await server.inject({ method: 'GET', url: '/probe' })
 
@@ -44,7 +47,7 @@ describe('citizen-session strategy', () => {
 
     const server = hapi.server()
     await server.register(pluginAuth)
-    probeRoute(server)
+    setupProbeEndpoint(server)
 
     const response = await server.inject({ method: 'GET', url: '/probe' })
 
@@ -58,7 +61,7 @@ describe('citizen-session strategy', () => {
     jest.mocked(getIdentity).mockReturnValue(identity)
 
     const server = hapi.server()
-    probeRoute(server, '/registered-first')
+    setupProbeEndpoint(server, '/registered-first')
 
     await server.register(pluginAuth)
 
