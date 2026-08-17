@@ -154,7 +154,7 @@ describe('OutputService', () => {
       )
 
       expect(checkFormStatus).toHaveBeenCalledWith(mockRequest.params)
-      expect(getFormatter).toHaveBeenCalledWith('adapter', '1')
+      expect(getFormatter).toHaveBeenCalledWith('adapter', '2')
       expect(mockFormatter).toHaveBeenCalledWith(
         mockContext,
         mockItems,
@@ -195,7 +195,7 @@ describe('OutputService', () => {
       )
 
       expect(checkFormStatus).toHaveBeenCalledWith(mockRequest.params)
-      expect(getFormatter).toHaveBeenCalledWith('adapter', '1')
+      expect(getFormatter).toHaveBeenCalledWith('adapter', '2')
       expect(mockFormatter).toHaveBeenCalledWith(
         mockContextWithEmail,
         mockItems,
@@ -241,7 +241,7 @@ describe('OutputService', () => {
       )
 
       expect(checkFormStatus).toHaveBeenCalledWith(mockRequest.params)
-      expect(getFormatter).toHaveBeenCalledWith('adapter', '1')
+      expect(getFormatter).toHaveBeenCalledWith('adapter', '2')
       expect(mockFormatter).toHaveBeenCalledWith(
         mockContextWithGroupId,
         mockItems,
@@ -281,7 +281,7 @@ describe('OutputService', () => {
       )
 
       expect(checkFormStatus).toHaveBeenCalledWith(mockRequest.params)
-      expect(getFormatter).toHaveBeenCalledWith('adapter', '1')
+      expect(getFormatter).toHaveBeenCalledWith('adapter', '2')
       expect(mockFormatter).toHaveBeenCalledWith(
         mockContext,
         mockItems,
@@ -312,7 +312,7 @@ describe('OutputService', () => {
       ).rejects.toThrow('Formatter failed')
 
       expect(checkFormStatus).toHaveBeenCalledWith(mockRequest.params)
-      expect(getFormatter).toHaveBeenCalledWith('adapter', '1')
+      expect(getFormatter).toHaveBeenCalledWith('adapter', '2')
       expect(publishFormAdapterEvent).not.toHaveBeenCalled()
     })
 
@@ -332,7 +332,7 @@ describe('OutputService', () => {
       ).rejects.toThrow(SyntaxError)
 
       expect(checkFormStatus).toHaveBeenCalledWith(mockRequest.params)
-      expect(getFormatter).toHaveBeenCalledWith('adapter', '1')
+      expect(getFormatter).toHaveBeenCalledWith('adapter', '2')
       expect(publishFormAdapterEvent).not.toHaveBeenCalled()
     })
 
@@ -365,7 +365,7 @@ describe('OutputService', () => {
       ).rejects.toThrow('SNS publish failed')
 
       expect(checkFormStatus).toHaveBeenCalledWith(mockRequest.params)
-      expect(getFormatter).toHaveBeenCalledWith('adapter', '1')
+      expect(getFormatter).toHaveBeenCalledWith('adapter', '2')
       expect(mockFormatter).toHaveBeenCalledWith(
         mockContext,
         mockItems,
@@ -395,7 +395,7 @@ describe('OutputService', () => {
       ).rejects.toThrow('Formatter failed')
 
       expect(checkFormStatus).toHaveBeenCalledWith(mockRequest.params)
-      expect(getFormatter).toHaveBeenCalledWith('adapter', '1')
+      expect(getFormatter).toHaveBeenCalledWith('adapter', '2')
       expect(publishFormAdapterEvent).not.toHaveBeenCalled()
     })
 
@@ -493,7 +493,7 @@ describe('OutputService', () => {
       )
 
       expect(checkFormStatus).toHaveBeenCalledWith(mockRequest.params)
-      expect(getFormatter).toHaveBeenCalledWith('adapter', '1')
+      expect(getFormatter).toHaveBeenCalledWith('adapter', '2')
       expect(mockFormatter).toHaveBeenCalledWith(
         mockContext,
         mockItems,
@@ -531,7 +531,7 @@ describe('OutputService', () => {
       )
 
       expect(checkFormStatus).toHaveBeenCalledWith(mockRequest.params)
-      expect(getFormatter).toHaveBeenCalledWith('adapter', '1')
+      expect(getFormatter).toHaveBeenCalledWith('adapter', '2')
       expect(publishFormAdapterEvent).not.toHaveBeenCalled()
     })
 
@@ -559,7 +559,7 @@ describe('OutputService', () => {
       )
 
       expect(checkFormStatus).toHaveBeenCalledWith(mockRequest.params)
-      expect(getFormatter).toHaveBeenCalledWith('adapter', '1')
+      expect(getFormatter).toHaveBeenCalledWith('adapter', '2')
       expect(publishFormAdapterEvent).not.toHaveBeenCalled()
     })
 
@@ -606,8 +606,85 @@ describe('OutputService', () => {
       )
 
       expect(checkFormStatus).toHaveBeenCalledWith(mockRequest.params)
-      expect(getFormatter).toHaveBeenCalledWith('adapter', '1')
+      expect(getFormatter).toHaveBeenCalledWith('adapter', '2')
       expect(publishFormAdapterEvent).not.toHaveBeenCalled()
+    })
+
+    it('redirects the notification target when a feedback form overrides the email', async () => {
+      const mockPayload = {
+        meta: {
+          formId: 'form-123',
+          referenceNumber: 'REF-123456',
+          formName: 'Test Form',
+          notificationEmail: 'notify@example.com'
+        },
+        data: mockItems,
+        notificationTargets: [
+          {
+            emailAddress: 'NOTIFY@example.com',
+            audience: 'human',
+            version: '2'
+          },
+          {
+            emailAddress: 'casework@example.com',
+            audience: 'machine',
+            version: '2'
+          }
+        ]
+      }
+
+      // @ts-expect-error - dynamic payload
+      mockPayload.data.main.formId = 'source-form'
+
+      mockFormatter.mockReturnValue(JSON.stringify(mockPayload))
+
+      jest
+        .mocked(getFormMetadataById)
+        // @ts-expect-error - mocked partial return object
+        .mockResolvedValueOnce({
+          notificationEmail: 'group-inbox@defra.gov.uk'
+        })
+
+      const mockFeedbackModel = /** @type {unknown} */ ({
+        def: {
+          name: 'Test form',
+          pages: [{ controller: 'FeedbackPageController' }]
+        }
+      })
+
+      await outputService.submit(
+        mockContext,
+        mockRequest,
+        /** @type {FormModel} */ (mockFeedbackModel),
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        undefined, // This parameter is ignored, using undefined to match test intent
+        mockItems,
+        mockSubmitResponse,
+        mockFormMetadata
+      )
+
+      expect(publishFormAdapterEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          meta: expect.objectContaining({
+            notificationEmail: 'group-inbox@defra.gov.uk'
+          }),
+          // The feedback form's own address follows the override, whatever case
+          // it was configured in. An output pointed somewhere else is left be.
+          notificationTargets: [
+            {
+              emailAddress: 'group-inbox@defra.gov.uk',
+              audience: 'human',
+              version: '2'
+            },
+            {
+              emailAddress: 'casework@example.com',
+              audience: 'machine',
+              version: '2'
+            }
+          ]
+        })
+      )
     })
 
     it('skips override email target when its a feedback form', async () => {
@@ -696,7 +773,7 @@ describe('OutputService', () => {
       )
 
       expect(checkFormStatus).toHaveBeenCalledWith(mockRequest.params)
-      expect(getFormatter).toHaveBeenCalledWith('adapter', '1')
+      expect(getFormatter).toHaveBeenCalledWith('adapter', '2')
       expect(publishFormAdapterEvent).toHaveBeenCalledWith(mockPayload)
     })
   })

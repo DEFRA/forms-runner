@@ -53,7 +53,11 @@ export class OutputService implements IOutputService {
     try {
       const formStatus = checkFormStatus(request.params)
 
-      const formatter = getFormatter('adapter', '1')
+      // Adapter v2 carries the resolved notification targets, with any output
+      // conditions already evaluated against the answers as they stood at
+      // submission. Every consumer of this topic has to understand the V2
+      // schema version before this is bumped again.
+      const formatter = getFormatter('adapter', '2')
       const submissionPayloadString = formatter(
         context,
         items,
@@ -80,6 +84,16 @@ export class OutputService implements IOutputService {
           )
           return
         }
+        // The engine resolved the notification targets against this form's own
+        // notification email, so they have to follow the override too. Left
+        // alone, the message would name one address in `meta` and a different
+        // one in the list the recipients are actually taken from.
+        redirectNotificationTargets(
+          submissionPayload,
+          submissionPayload.meta.notificationEmail,
+          relatedMetadata.notificationEmail
+        )
+
         submissionPayload.meta.notificationEmail =
           relatedMetadata.notificationEmail
       }
@@ -126,6 +140,35 @@ export class OutputService implements IOutputService {
       )
 
       throw err
+    }
+  }
+}
+
+/**
+ * Repoints every notification target at `from` to `to`, keeping each target's
+ * audience and version.
+ *
+ * Only targets that match are touched: an output configured against a different
+ * address is a deliberate choice on the form, not something the feedback
+ * override should redirect. Nothing is added when no target matches, as the
+ * address the engine resolved is the one it decided should receive this
+ * submission.
+ * @param payload - mutated in place
+ * @param from - address to replace, absent if the form has no notification email
+ * @param to - address to replace it with
+ */
+function redirectNotificationTargets(
+  payload: FormAdapterSubmissionMessagePayload,
+  from: string | undefined,
+  to: string
+): void {
+  if (!from) {
+    return
+  }
+
+  for (const target of payload.notificationTargets ?? []) {
+    if (target.emailAddress.toLowerCase() === from.toLowerCase()) {
+      target.emailAddress = to
     }
   }
 }
