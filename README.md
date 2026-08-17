@@ -29,6 +29,7 @@ The designer is no longer a plugin and is responsible for running itself on defa
     - [Production image](#production-image)
 - [Environment variables](#environment-variables)
   - [⚠️ See config for default values for each environment](#️-see-config-for-default-values-for-each-environment)
+  - [Citizen sign in](#citizen-sign-in)
 - [Testing](#testing)
 - [Outputs](#outputs)
 - [Multi-language support](#multi-language-support)
@@ -175,23 +176,44 @@ Please use a config file instead. This will give you more control over each envi
 The defaults can be found in [config](./src/config/index.ts). Place your config files in `runner/config`
 See [https://github.com/node-config/node-config#readme](https://github.com/node-config/node-config#readme) for more info.
 
-| name                    | description                                                                                           | required | default |            valid            |                                                          notes                                                          |
-| ----------------------- | ----------------------------------------------------------------------------------------------------- | :------: | ------- | :-------------------------: | :---------------------------------------------------------------------------------------------------------------------: |
-| NODE_ENV                | Node environment                                                                                      |    no    |         | development,test,production |                                                                                                                         |
-| PORT                    | Port number                                                                                           |    no    | 3009    |                             |                                                                                                                         |
-| NOTIFY_TEMPLATE_ID      | Notify api key                                                                                        |   yes    |         |                             | Template ID required to send form payloads via [GOV.UK Notify](https://www.notifications.service.gov.uk) email service. |
-| NOTIFY_API_KEY          | Notify api key                                                                                        |   yes    |         |                             |   API KEY required to send form payloads via [GOV.UK Notify](https://www.notifications.service.gov.uk) email service.   |
-| LOG_LEVEL               | Log level                                                                                             |    no    | debug   |   trace,debug,info,error    |                                                                                                                         |
-| PHASE_TAG               | Tag to use for phase banner                                                                           |    no    | beta    |  alpha, beta, empty string  |                                                                                                                         |
-| HTTP_PROXY              | HTTP proxy to use, e.g. the one from CDP. Currently used for Hapi Wreck.                              |    no    |         |                             |                                                                                                                         |
-| HTTPS_PROXY             | HTTPS proxy to use, e.g. the one from CDP. Currently used for Hapi Wreck.                             |    no    |         |                             |                                                                                                                         |
-| NO_PROXY                | HTTP proxy to use, e.g. the one from CDP. Currently used for Hapi Wreck.                              |    no    |         |                             |                                                                                                                         |
-| AWS_ACCESS_KEY_ID       | AWS key id                                                                                            |   yes    | dummy   |                             |                                                                                                                         |
-| AWS_SECRET_ACCESS_KEY   | AWS access key                                                                                        |   yes    | dummy   |                             |                                                                                                                         |
-| SNS_ENDPOINT            | Endpoint for SNS messaging                                                                            |   yes    |         |                             |                                                                                                                         |
-| SNS_ADAPTER_TOPIC_ARN   | The SNS topic for the submission adapter - in Amazon Resource Name (ARN) format.                      |   yes    |         |                             |                                                                                                                         |
-| SNS_SAVE_TOPIC_ARN      | The SNS topic for the save-and-exit - in Amazon Resource Name (ARN) format.                           |   yes    |         |                             |                                                                                                                         |
-| PRIVATE_KEY_FOR_SECRETS | Base64-encoded private key (paired witht he public key from forms-manager) for decryption of secrets. |   yes    |         |                             |                                                                                                                         |
+| name                    | description                                                                                           |    required     | default |            valid            |                                                          notes                                                          |
+| ----------------------- | ----------------------------------------------------------------------------------------------------- | :-------------: | ------- | :-------------------------: | :---------------------------------------------------------------------------------------------------------------------: |
+| NODE_ENV                | Node environment                                                                                      |       no        |         | development,test,production |                                                                                                                         |
+| PORT                    | Port number                                                                                           |       no        | 3009    |                             |                                                                                                                         |
+| NOTIFY_TEMPLATE_ID      | Notify api key                                                                                        |       yes       |         |                             | Template ID required to send form payloads via [GOV.UK Notify](https://www.notifications.service.gov.uk) email service. |
+| NOTIFY_API_KEY          | Notify api key                                                                                        |       yes       |         |                             |   API KEY required to send form payloads via [GOV.UK Notify](https://www.notifications.service.gov.uk) email service.   |
+| LOG_LEVEL               | Log level                                                                                             |       no        | debug   |   trace,debug,info,error    |                                                                                                                         |
+| PHASE_TAG               | Tag to use for phase banner                                                                           |       no        | beta    |  alpha, beta, empty string  |                                                                                                                         |
+| HTTP_PROXY              | HTTP proxy to use, e.g. the one from CDP. Currently used for Hapi Wreck.                              |       no        |         |                             |                                                                                                                         |
+| HTTPS_PROXY             | HTTPS proxy to use, e.g. the one from CDP. Currently used for Hapi Wreck.                             |       no        |         |                             |                                                                                                                         |
+| NO_PROXY                | HTTP proxy to use, e.g. the one from CDP. Currently used for Hapi Wreck.                              |       no        |         |                             |                                                                                                                         |
+| AWS_ACCESS_KEY_ID       | AWS key id                                                                                            |       yes       | dummy   |                             |                                                                                                                         |
+| AWS_SECRET_ACCESS_KEY   | AWS access key                                                                                        |       yes       | dummy   |                             |                                                                                                                         |
+| SNS_ENDPOINT            | Endpoint for SNS messaging                                                                            |       yes       |         |                             |                                                                                                                         |
+| SNS_ADAPTER_TOPIC_ARN   | The SNS topic for the submission adapter - in Amazon Resource Name (ARN) format.                      |       yes       |         |                             |                                                                                                                         |
+| SNS_SAVE_TOPIC_ARN      | The SNS topic for the save-and-exit - in Amazon Resource Name (ARN) format.                           |       yes       |         |                             |                                                                                                                         |
+| PRIVATE_KEY_FOR_SECRETS | Base64-encoded private key (paired witht he public key from forms-manager) for decryption of secrets. |       yes       |         |                             |                                                                                                                         |
+| USE_SIGN_IN_FEATURE     | Serves citizen sign in and the per-form homepage.                                                     |       no        | false   |         true, false         |                                        See [Citizen sign in](#citizen-sign-in).                                         |
+| OIDC_ISSUER             | Identity provider issuer, matching the provider exactly.                                              | when signing in |         |                             |                                                                                                                         |
+| OIDC_CLIENT_ID          | This service's client id at the provider.                                                             | when signing in |         |                             |                                                                                                                         |
+| OIDC_REDIRECT_URI       | Where the provider returns the citizen.                                                               | when signing in |         |                             |           The provider registers this value, so it must match this service's `/auth/callback` byte for byte.            |
+| OIDC_CLIENT_PRIVATE_JWK | This service's private assertion key, as a single ES256 JWK.                                          | when signing in |         |                             |                                       Secret. The provider holds the public half.                                       |
+
+## Citizen sign in
+
+`USE_SIGN_IN_FEATURE` gates citizen sign in. It defaults to off, and with it off this
+service behaves as it did before the feature existed: the sign-in routes and the per-form
+homepage go unregistered, and the header shows no account menu.
+
+Turn it on and the four `OIDC_*` settings above become required. The service reads them at
+boot and refuses to start while any is unset, naming the ones it wants.
+
+Sign in is an OpenID Connect authorization code flow with PKCE, against
+[forms-identity-ui](https://github.com/DEFRA/forms-identity-ui) as the provider. This
+service proves itself with a signed assertion (`private_key_jwt`) rather than a shared
+secret, so `OIDC_CLIENT_PRIVATE_JWK` holds one private key and the provider is registered
+with the matching public half. The key's `kid` travels in the assertion header, which lets
+the provider hold both halves of a key rotation while this service signs with one.
 
 For proxy options, see https://www.npmjs.com/package/proxy-from-env which is used by https://github.com/TooTallNate/proxy-agents/tree/main/packages/proxy-agent.
 
@@ -219,6 +241,11 @@ SNS_ENDPOINT="http://localhost:4566"
 SNS_ADAPTER_TOPIC_ARN="arn:aws:sns:eu-west-2:000000000000:forms_runner_submission_events"
 SNS_SAVE_TOPIC_ARN="arn:aws:sns:eu-west-2:000000000000:forms_runner_events"
 PRIVATE_KEY_FOR_SECRETS="<base64-encoded-private-key>"
+USE_SIGN_IN_FEATURE=false
+OIDC_ISSUER=http://localhost:3011
+OIDC_CLIENT_ID=runner
+OIDC_REDIRECT_URI=http://localhost:3009/auth/callback
+OIDC_CLIENT_PRIVATE_JWK=<single-es256-jwk>
 ```
 
 # Testing
