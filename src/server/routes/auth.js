@@ -15,15 +15,6 @@ import { returnUrlSchema } from '~/src/server/models/common.js'
 
 const SCOPES = 'openid email'
 
-/**
- * The names of the cookies a request arrived with, for the logs. Names are
- * safe to log and show whether the session cookie came back.
- * @param {Record<string, unknown>} state `request.state`
- */
-function cookieNames(state) {
-  return Object.keys(state).sort()
-}
-
 export default [
   /**
    * @satisfies {ServerRoute<{ Query: { returnUrl: string } }>}
@@ -50,8 +41,7 @@ export default [
       logger.info(
         {
           sessionId: request.yar.id,
-          state,
-          cookiesReceived: cookieNames(request.state)
+          state
         },
         '[signInStarted] Stored the sign-in transaction'
       )
@@ -98,8 +88,7 @@ export default [
             sessionId: request.yar.id,
             reason: transaction ? 'stateMismatch' : 'noTransactionInSession',
             stateFromProvider: request.query.state,
-            stateInSession: transaction?.state ?? null,
-            cookiesReceived: cookieNames(request.state)
+            stateInSession: transaction?.state ?? null
           },
           '[signInRejected] Callback did not match a sign-in this session started'
         )
