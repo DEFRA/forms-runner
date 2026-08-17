@@ -18,13 +18,13 @@ export default [
     async handler(request, h) {
       const { slug } = request.params
 
-      // Resolve the form before the sign-in gate, so an unknown slug answers
-      // straight away with the 404 the error pages plugin renders for it.
+      // Look up the form before the sign-in check, so an unknown slug gets a
+      // 404 instead of a trip through sign in.
       const form = await getFormMetadata(slug)
 
       if (!request.auth.isAuthenticated) {
-        const returnTo = encodeURIComponent(`${HOMEPAGE_PREFIX}/${slug}`)
-        return h.redirect(`${SIGN_IN_PATH}?returnTo=${returnTo}`)
+        const returnUrl = encodeURIComponent(`${HOMEPAGE_PREFIX}/${slug}`)
+        return h.redirect(`${SIGN_IN_PATH}?returnUrl=${returnUrl}`)
       }
 
       return h.view('homepage', {

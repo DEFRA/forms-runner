@@ -127,8 +127,8 @@
     serviceName: context.translator.tForm('title') if context else name | default(config.serviceName),
     serviceUrl: currentPath if context.isForceAccess else serviceUrl
   } %}
-  {# The account properties render the account menu, so a signed-in citizen
-    sees it and everyone else sees the plain bar. #}
+  {# The account details render the account menu. Without them the header
+    shows the plain bar. #}
   {% set isSignedIn = config.useSignInFeature and user and slug %}
   {{ appServiceHeader({
     accountName: user.email if isSignedIn,

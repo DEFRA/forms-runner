@@ -81,6 +81,46 @@ export function getAllLanguages() {
 }
 
 /**
+ * An origin to resolve candidate paths against. `new URL` needs a base to
+ * resolve a path, and this one is on the reserved `.invalid` TLD so it names
+ * no real host. It is only used for the comparison below and is dropped from
+ * the returned value.
+ */
+const LOCAL_ORIGIN = 'https://runner.invalid'
+
+/**
+ * The path (pathname and search) a value resolves to when it stays inside
+ * this service, or null. The returned value comes from the URL parser, so it
+ * is already escaped for use in a Location header.
+ *
+ * The final check is on the resolved path, not the input. A dot segment
+ * resolves inside the origin, so `/.//host` has one leading slash and keeps
+ * the local origin, but resolves to the path `//host`. Browsers read that as
+ * protocol-relative and go to `host`.
+ * @param {string} [value]
+ * @returns {string | null}
+ */
+export function localReturnPath(value) {
+  if (typeof value !== 'string' || !value.startsWith('/')) {
+    return null
+  }
+
+  try {
+    const url = new URL(value, LOCAL_ORIGIN)
+
+    if (url.origin !== LOCAL_ORIGIN) {
+      return null
+    }
+
+    const path = `${url.pathname}${url.search}`
+
+    return path.startsWith('//') ? null : path
+  } catch {
+    return null
+  }
+}
+
+/**
  * @import { RequestQuery } from '@hapi/hapi'
  * @import { Yar } from '@hapi/yar'
  * @import { FormDefinition } from '@defra/forms-model'

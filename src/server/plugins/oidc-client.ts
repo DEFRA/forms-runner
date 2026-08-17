@@ -8,11 +8,11 @@ type JWK = JsonWebKey & { kid?: string }
 /**
  * The provider accepts one client authentication method, `private_key_jwt`.
  * We hold the private half of an EC P-256 pair and sign a short-lived
- * assertion with it; the provider holds the public half. There is no secret.
+ * assertion with it. The provider holds the public half. There is no secret.
  *
- * The `kid` travels in the assertion header, which is how the provider picks
- * the public half to verify against. That is what lets it hold both keys
- * across a rotation while this service signs with one.
+ * The `kid` goes in the assertion header and tells the provider which public
+ * key to verify with. It can hold two keys during a rotation while this
+ * service signs with one.
  */
 async function clientKey() {
   const jwk = JSON.parse(config.get('oidc.privateJwk')) as JWK
@@ -30,9 +30,8 @@ async function clientKey() {
 }
 
 /**
- * The settings sign-in needs. Each maps its config key to the configured
- * value, so a missing one is reported by the same key an operator sets in
- * the environment.
+ * The settings sign in needs, keyed by config path so a missing one is
+ * reported by the name it is set under.
  */
 function requiredSettings() {
   return {
@@ -47,9 +46,8 @@ export default {
     name: 'oidc-client',
     async register(server) {
       // These settings default to '' so a deployment with the flag off still
-      // boots. Registering this plugin means the flag is on, so the check
-      // belongs here: it names any gap at boot, while an operator can still
-      // fix it before citizens are routed to sign in.
+      // boots. This plugin is only registered when the flag is on, so the
+      // check belongs here. It names what is missing at boot.
       const missing = Object.entries(requiredSettings())
         .filter(([, value]) => !value)
         .map(([key]) => key)
@@ -62,20 +60,20 @@ export default {
 
       const issuer = config.get('oidc.issuer')
 
-      // Imported here rather than at first sign-in, so a key this service
-      // cannot sign with is named at boot alongside the settings above.
+      // Imported at boot, not at the first sign in, so a key that cannot
+      // sign fails here with the settings above.
       const key = await clientKey()
 
-      // A local development provider is served over plain http. This is keyed
-      // on the environment, so every deployed environment requires https.
+      // The local provider runs over plain http. Keyed on the environment,
+      // so every deployed environment needs https.
       const isLocal = config.get('cdpEnvironment') === 'local'
 
       let discovered: client.Configuration | undefined
 
       server.app.oidc = {
         async getConfig() {
-          // Discovery is one round trip to the provider, so the first
-          // sign-in pays for it and the rest of the process reuses it.
+          // Discovery is one request to the provider. The first sign in pays
+          // for it and the rest reuse the result.
           if (discovered) {
             return discovered
           }

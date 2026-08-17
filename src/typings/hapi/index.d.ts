@@ -123,7 +123,7 @@ declare module '@hapi/yar' {
       state: string
       nonce: string
       codeVerifier: string
-      returnTo: string
+      returnUrl: string
     }
   }
 }

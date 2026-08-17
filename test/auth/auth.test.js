@@ -63,7 +63,7 @@ describe('sign in routes', () => {
   it('sends the citizen to the provider with PKCE, state and nonce', async () => {
     const response = await server.inject({
       method: 'GET',
-      url: '/auth/sign-in?returnTo=/homepage/test-form'
+      url: '/auth/sign-in?returnUrl=/homepage/test-form'
     })
 
     expect(response.statusCode).toBe(302)
@@ -85,7 +85,7 @@ describe('sign in routes', () => {
   it('takes the email from userinfo, because the ID token does not carry it', async () => {
     const login = await server.inject({
       method: 'GET',
-      url: '/auth/sign-in?returnTo=/homepage/test-form'
+      url: '/auth/sign-in?returnUrl=/homepage/test-form'
     })
 
     jest.mocked(client.authorizationCodeGrant).mockResolvedValue(mockTokens())
@@ -111,7 +111,7 @@ describe('sign in routes', () => {
   it('exchanges the code against the configured redirect URI, not whatever the request claims its host is', async () => {
     const login = await server.inject({
       method: 'GET',
-      url: '/auth/sign-in?returnTo=/homepage/test-form'
+      url: '/auth/sign-in?returnUrl=/homepage/test-form'
     })
 
     jest.mocked(client.authorizationCodeGrant).mockResolvedValue(mockTokens())
@@ -139,7 +139,7 @@ describe('sign in routes', () => {
   it('refuses a callback whose state does not match the one it issued', async () => {
     const login = await server.inject({
       method: 'GET',
-      url: '/auth/sign-in?returnTo=/homepage/test-form'
+      url: '/auth/sign-in?returnUrl=/homepage/test-form'
     })
 
     const response = await server.inject({
@@ -155,7 +155,7 @@ describe('sign in routes', () => {
   it('leaves the transaction intact when a callback state does not match, so the genuine callback still completes', async () => {
     const login = await server.inject({
       method: 'GET',
-      url: '/auth/sign-in?returnTo=/homepage/test-form'
+      url: '/auth/sign-in?returnUrl=/homepage/test-form'
     })
     const cookie = getCookieHeader(login, ['session'])
 
@@ -186,7 +186,7 @@ describe('sign in routes', () => {
   it('consumes the transaction on a successful callback, so a replay of the same URL finds nothing', async () => {
     const login = await server.inject({
       method: 'GET',
-      url: '/auth/sign-in?returnTo=/homepage/test-form'
+      url: '/auth/sign-in?returnUrl=/homepage/test-form'
     })
     const cookie = getCookieHeader(login, ['session'])
 
@@ -215,7 +215,7 @@ describe('sign in routes', () => {
   it('consumes the transaction when the exchange fails, so the same callback cannot be tried again', async () => {
     const login = await server.inject({
       method: 'GET',
-      url: '/auth/sign-in?returnTo=/homepage/test-form'
+      url: '/auth/sign-in?returnUrl=/homepage/test-form'
     })
     const cookie = getCookieHeader(login, ['session'])
 
@@ -248,7 +248,7 @@ describe('sign in routes', () => {
   it('refuses a sign in when the provider gives no email, because the identity would be incomplete', async () => {
     const login = await server.inject({
       method: 'GET',
-      url: '/auth/sign-in?returnTo=/homepage/test-form'
+      url: '/auth/sign-in?returnUrl=/homepage/test-form'
     })
 
     jest.mocked(client.authorizationCodeGrant).mockResolvedValue(mockTokens())
@@ -264,8 +264,8 @@ describe('sign in routes', () => {
   })
 
   it.each([
-    ['leaves the service', '?returnTo=//evil.example'],
-    ['names another site outright', '?returnTo=https://evil.example'],
+    ['leaves the service', '?returnUrl=//evil.example'],
+    ['names another site outright', '?returnUrl=https://evil.example'],
     ['is missing', '']
   ])(
     'refuses to start a sign in whose return target %s, before the citizen spends one',
@@ -275,9 +275,8 @@ describe('sign in routes', () => {
         url: `/auth/sign-in${query}`
       })
 
-      // Refused at the entry, so the provider is never involved. Completing
-      // the sign in first would leave the citizen genuinely signed in on a
-      // page that cannot be reached.
+      // Refused before the provider is involved. Otherwise the user signs in
+      // and lands on a page that does not exist.
       expect(response.statusCode).toBe(400)
       expect(client.buildAuthorizationUrl).not.toHaveBeenCalled()
     }
@@ -286,7 +285,7 @@ describe('sign in routes', () => {
   it('normalises a return target carrying a control character before storing it, so the eventual redirect does not carry it raw', async () => {
     const login = await server.inject({
       method: 'GET',
-      url: `/auth/sign-in?returnTo=${encodeURIComponent('/homepage/test-form\nSet-Cookie: a=b')}`
+      url: `/auth/sign-in?returnUrl=${encodeURIComponent('/homepage/test-form\nSet-Cookie: a=b')}`
     })
 
     jest.mocked(client.authorizationCodeGrant).mockResolvedValue(mockTokens())
@@ -300,10 +299,8 @@ describe('sign in routes', () => {
       headers: getCookieHeader(login, ['session'])
     })
 
-    // Before the fix, redirecting to the raw string here threw inside
-    // Node's header validation, outside the route's own try/catch, and
-    // surfaced as an unhandled 500 to a citizen who had just signed in
-    // successfully.
+    // The raw string would throw in Node's header validation, outside the
+    // route's try/catch, giving a 500 after a successful sign in.
     expect(response.statusCode).toBe(302)
     expect(response.headers.location).toBe(
       '/homepage/test-formSet-Cookie:%20a=b'

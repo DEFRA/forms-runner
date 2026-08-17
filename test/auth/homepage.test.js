@@ -43,7 +43,7 @@ describe('per-form homepage', () => {
 
     expect(response.statusCode).toBe(302)
     expect(response.headers.location).toBe(
-      '/auth/sign-in?returnTo=%2Fhomepage%2Ftest-form'
+      '/auth/sign-in?returnUrl=%2Fhomepage%2Ftest-form'
     )
   })
 
@@ -102,9 +102,8 @@ describe('per-form homepage', () => {
   })
 
   it('shows a signed-out citizen no account control, on a page that does not gate on auth', async () => {
-    // The account header has no signed-out state — it exists to say who is
-    // signed in — so a signed-out citizen gets the header this service has
-    // always shown. They reach sign in through a page that requires it.
+    // The account menu only says who is signed in, so a signed-out user sees
+    // the plain header. They reach sign in through a page that requires it.
     const { container } = await renderResponse(server, {
       method: 'GET',
       url: '/help/accessibility-statement/test-form'

@@ -49,8 +49,8 @@ describe('oidc client plugin', () => {
 
           const server = hapi.server()
 
-          // The message comes from JSON.parse or WebCrypto, so this asserts
-          // that registration rejects rather than pinning their wording.
+          // The message comes from JSON.parse or WebCrypto, so only check
+          // that registration rejects.
           await expect(server.register(freshPlugin)).rejects.toThrow()
         })
       } finally {

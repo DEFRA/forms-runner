@@ -335,7 +335,17 @@ describe(`Cookie preferences`, () => {
     expect($input).toBeChecked()
   })
 
-  test('returns bad request for invalid redirect urls', async () => {
+  test.each([
+    ['names another site', 'https://my-malicious-url.com'],
+    // Protocol-relative. A browser reads the first segment as a host.
+    ['is protocol-relative', '//my-malicious-url.com'],
+    // The dot segment resolves inside the origin, so this has one leading
+    // slash and still resolves to the path //my-malicious-url.com.
+    ['hides a host behind a dot segment', '/.//my-malicious-url.com'],
+    // The layout builds this from currentPath, which always has a path, so
+    // an empty value is not something this service sends.
+    ['is empty', '']
+  ])('returns bad request for a redirect url that %s', async (_case, url) => {
     server = await createServer({
       formFileName: 'basic.js',
       formFilePath: join(import.meta.dirname, 'definitions'),
@@ -345,13 +355,33 @@ describe(`Cookie preferences`, () => {
 
     const { response } = await renderResponse(server, {
       method: 'POST',
-      url: `/help/cookie-preferences/basic?returnUrl=${encodeURIComponent('https://my-malicious-url.com')}`,
+      url: `/help/cookie-preferences/basic?returnUrl=${encodeURIComponent(url)}`,
       payload: {
         'cookies[analytics]': 'yes'
       }
     })
 
     expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
+  })
+
+  test('redirects to this page when no return url is given', async () => {
+    server = await createServer({
+      formFileName: 'basic.js',
+      formFilePath: join(import.meta.dirname, 'definitions'),
+      enforceCsrf: false
+    })
+    await server.initialize()
+
+    const { response } = await renderResponse(server, {
+      method: 'POST',
+      url: '/help/cookie-preferences/basic',
+      payload: {
+        'cookies[analytics]': 'yes'
+      }
+    })
+
+    expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(response.headers.location).toBe('/help/cookie-preferences/basic')
   })
 })
 

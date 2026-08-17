@@ -11,14 +11,13 @@ import {
 } from '~/src/server/auth/accountSession.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { CALLBACK_PATH, SIGN_IN_PATH } from '~/src/server/constants.js'
-import { returnToSchema } from '~/src/server/models/auth.js'
+import { returnUrlSchema } from '~/src/server/models/common.js'
 
 const SCOPES = 'openid email'
 
 /**
- * The names of the cookies a request arrived with, for the logs. Names alone
- * are safe to log and are enough to tell a session that came back from the
- * provider apart from one that did not.
+ * The names of the cookies a request arrived with, for the logs. Names are
+ * safe to log and show whether the session cookie came back.
  * @param {Record<string, unknown>} state `request.state`
  */
 function cookieNames(state) {
@@ -27,13 +26,13 @@ function cookieNames(state) {
 
 export default [
   /**
-   * @satisfies {ServerRoute<{ Query: { returnTo: string } }>}
+   * @satisfies {ServerRoute<{ Query: { returnUrl: string } }>}
    */
   ({
     method: 'GET',
     path: SIGN_IN_PATH,
     async handler(request, h) {
-      const { returnTo } = request.query
+      const { returnUrl } = request.query
 
       const oidcConfig = await request.server.app.oidc.getConfig()
 
@@ -45,7 +44,7 @@ export default [
         state,
         nonce,
         codeVerifier,
-        returnTo
+        returnUrl
       })
 
       logger.info(
@@ -71,7 +70,7 @@ export default [
     options: {
       validate: {
         query: Joi.object({
-          returnTo: returnToSchema
+          returnUrl: returnUrlSchema.required()
         }).unknown(true)
       }
     }
@@ -85,11 +84,10 @@ export default [
     async handler(request, h) {
       const transaction = getSignInTransaction(request.yar)
 
-      // `state` is the random value sign in generated and the provider echoes
-      // back untouched. Matching it against the one this session stored is
-      // what identifies the callback as the completion of this session's own
-      // sign in. Reading the transaction without consuming it leaves it for
-      // the genuine callback when some other one arrives first.
+      // `state` is the random value sign in generated and the provider sends
+      // back. It matches the one in this session when the callback belongs to
+      // this session's sign in. The transaction is read but not cleared, so a
+      // callback that does not match leaves it for the one that does.
       if (!transaction || transaction.state !== request.query.state) {
         logger.warn(
           {
@@ -108,10 +106,10 @@ export default [
       const oidcConfig = await request.server.app.oidc.getConfig()
 
       try {
-        // Built from configuration so the redirect_uri sent to the token
-        // endpoint equals the one sign in gave the provider, byte for byte,
-        // whatever host or scheme a proxy in front of this service presents.
-        // The query string (code, state) comes from the request itself.
+        // Built from config so the redirect_uri matches the one sign in sent,
+        // byte for byte. The request host and scheme come from the proxy, so
+        // they cannot be used. Only the query string (code, state) is taken
+        // from the request.
         const callbackUrl = new URL(config.get('oidc.redirectUri'))
         callbackUrl.search = request.url.search
 
@@ -154,13 +152,13 @@ export default [
         logger.error(err, '[signInFailed] Could not complete sign in')
         throw Boom.forbidden('Sign in could not be completed')
       } finally {
-        // One attempt per transaction, whatever the outcome. A citizen whose
-        // sign in failed starts a fresh one from the beginning, which gives
-        // them a new state, nonce and code verifier.
+        // One attempt per transaction, whether it succeeded or not. To try
+        // again the user starts a new sign in and gets a new state, nonce and
+        // code verifier.
         clearSignInTransaction(request.yar)
       }
 
-      return h.redirect(transaction.returnTo)
+      return h.redirect(transaction.returnUrl)
     },
     options: {
       validate: {

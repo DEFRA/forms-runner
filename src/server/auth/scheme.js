@@ -5,9 +5,8 @@ import { getIdentity } from '~/src/server/auth/accountSession.js'
 export const CITIZEN_SESSION = 'citizen-session'
 
 /**
- * Turns a signed-in session into request credentials. It is a read alone,
- * which is what makes it safe as the server-wide default: one session read
- * on any route.
+ * Turns a signed-in session into request credentials. It only reads, so it
+ * is safe as the server-wide default: one session read per request.
  */
 export function citizenSessionScheme() {
   return {
@@ -19,8 +18,8 @@ export function citizenSessionScheme() {
       const identity = getIdentity(request.yar)
 
       if (!identity) {
-        // A null message marks the credentials as absent rather than wrong,
-        // which is what lets `try` mode continue with no credentials.
+        // A null message means credentials are absent rather than wrong, so
+        // `try` mode continues without them.
         return h.unauthenticated(Boom.unauthorized(null, CITIZEN_SESSION))
       }
 
