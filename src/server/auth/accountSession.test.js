@@ -1,4 +1,6 @@
 import {
+  CITIZEN_KEY,
+  SIGN_IN_TRANSACTION_KEY,
   clearSignInTransaction,
   getIdentity,
   getSignInTransaction,
@@ -6,25 +8,18 @@ import {
   setSignInTransaction
 } from '~/src/server/auth/accountSession.js'
 
-/** Minimal stand-in for yar — a map with the three methods we use */
-function fakeYar() {
-  const store = new Map()
+/** @type {Yar} */
+let yar
 
-  return /** @type {Yar} */ (
+beforeEach(() => {
+  yar = /** @type {Yar} */ (
     /** @type {unknown} */ ({
-      get: (/** @type {string} */ key, /** @type {boolean} */ clear) => {
-        const value = store.get(key) ?? null
-        if (clear) {
-          store.delete(key)
-        }
-        return value
-      },
-      set: (/** @type {string} */ key, /** @type {unknown} */ value) =>
-        store.set(key, value),
-      clear: (/** @type {string} */ key) => store.delete(key)
+      get: jest.fn(),
+      set: jest.fn(),
+      clear: jest.fn()
     })
   )
-}
+})
 
 describe('citizen session', () => {
   const identity = {
@@ -34,45 +29,59 @@ describe('citizen session', () => {
     idToken: 'header.payload.signature'
   }
 
-  it('round-trips an identity', () => {
-    const yar = fakeYar()
+  it('holds the identity under the citizen key', () => {
     setIdentity(yar, identity)
 
+    expect(yar.set).toHaveBeenCalledWith(CITIZEN_KEY, identity)
+  })
+
+  it('reads the identity back from that key', () => {
+    jest.mocked(yar.get).mockReturnValue(identity)
+
     expect(getIdentity(yar)).toEqual(identity)
+    expect(yar.get).toHaveBeenCalledWith(CITIZEN_KEY)
   })
 
   it('has no identity before sign in', () => {
-    expect(getIdentity(fakeYar())).toBeNull()
+    jest.mocked(yar.get).mockReturnValue(undefined)
+
+    expect(getIdentity(yar)).toBeNull()
   })
+})
 
-  it('reads the transaction without consuming it, so a mismatched callback can be checked without destroying it', () => {
-    const yar = fakeYar()
-    const transaction = {
-      state: 'state-1',
-      nonce: 'nonce-1',
-      codeVerifier: 'verifier-1',
-      returnUrl: '/homepage/test-form'
-    }
+describe('sign-in transaction', () => {
+  const transaction = {
+    state: 'state-1',
+    nonce: 'nonce-1',
+    codeVerifier: 'verifier-1',
+    returnUrl: '/homepage/test-form'
+  }
 
+  it('holds the transaction under its own key', () => {
     setSignInTransaction(yar, transaction)
 
-    expect(getSignInTransaction(yar)).toEqual(transaction)
-    expect(getSignInTransaction(yar)).toEqual(transaction)
+    expect(yar.set).toHaveBeenCalledWith(SIGN_IN_TRANSACTION_KEY, transaction)
   })
 
-  it('consumes the transaction once cleared, so a replayed callback finds nothing', () => {
-    const yar = fakeYar()
-    const transaction = {
-      state: 'state-1',
-      nonce: 'nonce-1',
-      codeVerifier: 'verifier-1',
-      returnUrl: '/homepage/test-form'
-    }
+  it('reads the transaction without consuming it, so a mismatched callback can be checked and the genuine one still completes', () => {
+    jest.mocked(yar.get).mockReturnValue(transaction)
 
-    setSignInTransaction(yar, transaction)
-    clearSignInTransaction(yar)
+    expect(getSignInTransaction(yar)).toEqual(transaction)
+    // yar clears on read when the second argument says so. Passing the key
+    // alone leaves the transaction in the session.
+    expect(yar.get).toHaveBeenCalledWith(SIGN_IN_TRANSACTION_KEY)
+  })
+
+  it('has no transaction before a sign in starts', () => {
+    jest.mocked(yar.get).mockReturnValue(undefined)
 
     expect(getSignInTransaction(yar)).toBeNull()
+  })
+
+  it('clears the transaction on its own key, so a replayed callback finds nothing', () => {
+    clearSignInTransaction(yar)
+
+    expect(yar.clear).toHaveBeenCalledWith(SIGN_IN_TRANSACTION_KEY)
   })
 })
 
