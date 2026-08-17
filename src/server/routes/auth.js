@@ -151,14 +151,14 @@ export default [
           email: userinfo.email,
           idToken: tokens.id_token
         })
-
-        // Consume the transaction only once sign in has actually completed,
-        // so a failed exchange leaves it in place for a retry with the same
-        // state rather than needing a fresh /login.
-        clearSignInTransaction(request.yar)
       } catch (err) {
         logger.error(err, '[signInFailed] Could not complete sign in')
         throw Boom.forbidden('Sign in could not be completed')
+      } finally {
+        // One attempt per transaction, whatever the outcome. A citizen whose
+        // sign in failed starts a fresh one from the beginning, which gives
+        // them a new state, nonce and code verifier.
+        clearSignInTransaction(request.yar)
       }
 
       return h.redirect(transaction.returnTo)

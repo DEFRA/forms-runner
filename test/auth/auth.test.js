@@ -212,6 +212,39 @@ describe('sign in routes', () => {
     expect(replay.statusCode).toBe(403)
   })
 
+  it('consumes the transaction when the exchange fails, so the same callback cannot be tried again', async () => {
+    const login = await server.inject({
+      method: 'GET',
+      url: '/auth/sign-in?returnTo=/homepage/test-form'
+    })
+    const cookie = getCookieHeader(login, ['session'])
+
+    jest
+      .mocked(client.authorizationCodeGrant)
+      .mockRejectedValue(new Error('provider rejected the code'))
+
+    const failed = await server.inject({
+      method: 'GET',
+      url: '/auth/callback?code=code-1&state=state-1',
+      headers: cookie
+    })
+
+    expect(failed.statusCode).toBe(403)
+
+    jest.mocked(client.authorizationCodeGrant).mockResolvedValue(mockTokens())
+    jest
+      .mocked(client.fetchUserInfo)
+      .mockResolvedValue({ sub: 'sub-1', email: 'citizen@example.com' })
+
+    const retry = await server.inject({
+      method: 'GET',
+      url: '/auth/callback?code=code-1&state=state-1',
+      headers: cookie
+    })
+
+    expect(retry.statusCode).toBe(403)
+  })
+
   it('refuses a sign in when the provider gives no email, because the identity would be incomplete', async () => {
     const login = await server.inject({
       method: 'GET',
