@@ -108,6 +108,15 @@ describe('citizen session', () => {
     expect(localReturnPath('/\t/evil.example')).toBeNull()
     expect(localReturnPath('/\n/evil.example')).toBeNull()
   })
+
+  it('takes a path, so a fully qualified URL on this service’s own origin is not one', () => {
+    // BASE_URL in the test environment. Accepting this would mean the return
+    // target could name a host, and the guard would then rest on comparing
+    // hosts rather than on the value being a path in the first place.
+    expect(
+      localReturnPath('http://localhost:3009/homepage/test-form')
+    ).toBeNull()
+  })
 })
 
 /**

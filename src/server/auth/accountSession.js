@@ -1,3 +1,5 @@
+import { config } from '~/src/config/index.js'
+
 export const CITIZEN_KEY = 'citizen'
 export const SIGN_IN_TRANSACTION_KEY = 'auth:signInTransaction'
 
@@ -49,21 +51,19 @@ export function clearSignInTransaction(yar) {
 }
 
 /**
- * A throwaway origin to resolve candidate paths against, so parseLocalPath
- * can compare the result's origin rather than pattern-match the input. The
- * host is on the reserved `.invalid` TLD, which the DNS standard keeps free
- * of real services, so a value resolving to it is always a local path.
+ * This service's own origin, which a return target has to resolve to for the
+ * citizen to still be inside this service. Read once, so a BASE_URL that is
+ * not a URL stops the boot rather than quietly sending every sign-in home.
  */
-const LOCAL_ORIGIN = 'https://runner.invalid'
+const SERVICE_ORIGIN = new URL(config.get('baseUrl')).origin
 
 /**
- * The candidate resolved against the local origin, for a value that stays
- * within this service; null for anything else. A leading slash keeps the
- * value absolute within the service, and resolving the rest against a fixed
- * origin keeps only the values whose resolved origin is still that one. The
- * origin comparison is what decides it, so a value a URL parser sends
- * elsewhere despite its single leading `/` — a leading `\`, or a stray tab
- * or newline the parser strips first — is judged on where it lands.
+ * The candidate resolved against this service's origin, for a value that
+ * lands back inside it; null for anything else. A leading slash keeps the
+ * value absolute within the service, and the origin comparison is what
+ * decides the rest, so a value a URL parser sends elsewhere despite its
+ * single leading `/` — a leading `\`, or a stray tab or newline the parser
+ * strips first — is judged on where it lands.
  * @param {string} [value]
  * @returns {URL | null}
  */
@@ -77,8 +77,8 @@ function parseLocalPath(value) {
   }
 
   try {
-    const url = new URL(value, LOCAL_ORIGIN)
-    return url.origin === LOCAL_ORIGIN ? url : null
+    const url = new URL(value, SERVICE_ORIGIN)
+    return url.origin === SERVICE_ORIGIN ? url : null
   } catch {
     return null
   }
