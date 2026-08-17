@@ -11,6 +11,7 @@ import {
   setTransaction
 } from '~/src/server/auth/session.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
+import { CALLBACK_PATH, SIGN_IN_PATH } from '~/src/server/constants.js'
 
 const SCOPES = 'openid email'
 
@@ -31,7 +32,7 @@ export default [
    */
   ({
     method: 'GET',
-    path: '/login',
+    path: SIGN_IN_PATH,
     async handler(request, h) {
       const oidcConfig = await request.server.app.oidc.getConfig()
 
@@ -81,7 +82,7 @@ export default [
    */
   ({
     method: 'GET',
-    path: '/callback',
+    path: CALLBACK_PATH,
     async handler(request, h) {
       // Read without consuming: a callback whose state does not match is
       // not the sign-in this transaction belongs to — a second tab, a

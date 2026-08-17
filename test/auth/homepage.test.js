@@ -43,7 +43,7 @@ describe('per-form homepage', () => {
 
     expect(response.statusCode).toBe(302)
     expect(response.headers.location).toBe(
-      '/login?returnTo=%2Fhomepage%2Ftest-form'
+      '/auth/sign-in?returnTo=%2Fhomepage%2Ftest-form'
     )
   })
 

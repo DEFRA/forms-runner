@@ -404,8 +404,8 @@ export const config = convict({
       env: 'OIDC_CLIENT_ID'
     } as SchemaObj<string>,
     redirectUri: {
-      doc: 'Where the provider returns the citizen after authorising, must be the /callback route',
-      format: pinnedToPath('/callback'),
+      doc: 'Where the provider returns the citizen after authorising, must be the /auth/callback route',
+      format: pinnedToPath('/auth/callback'),
       default: '',
       env: 'OIDC_REDIRECT_URI'
     } as SchemaObj<string>,

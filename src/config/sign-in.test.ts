@@ -9,7 +9,7 @@ describe('sign in configuration', () => {
     expect(config.get('oidc.issuer')).toBe('http://localhost:3011')
     expect(config.get('oidc.clientId')).toBe('runner')
     expect(config.get('oidc.redirectUri')).toBe(
-      'http://localhost:3009/callback'
+      'http://localhost:3009/auth/callback'
     )
   })
 
