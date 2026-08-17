@@ -6,12 +6,12 @@ import { config } from '~/src/config/index.js'
 import {
   clearSignInTransaction,
   getSignInTransaction,
-  localReturnPath,
   setIdentity,
   setSignInTransaction
 } from '~/src/server/auth/accountSession.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { CALLBACK_PATH, SIGN_IN_PATH } from '~/src/server/constants.js'
+import { returnToSchema } from '~/src/server/models/auth.js'
 
 const SCOPES = 'openid email'
 
@@ -71,19 +71,7 @@ export default [
     options: {
       validate: {
         query: Joi.object({
-          // Resolved here rather than in the handler, so the value the
-          // handler stores is already the path it will redirect to. A target
-          // this service cannot reach answers 400 before the round trip
-          // starts, which is a sign in the citizen keeps.
-          returnTo: Joi.string()
-            .required()
-            .custom(
-              (value, helpers) =>
-                localReturnPath(value) ?? helpers.error('any.invalid')
-            )
-            .messages({
-              'any.invalid': '"returnTo" must be a path within this service'
-            })
+          returnTo: returnToSchema
         }).unknown(true)
       }
     }
