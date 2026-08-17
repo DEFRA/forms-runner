@@ -112,6 +112,9 @@ declare module '@hapi/yar' {
     [SAVE_AND_EXIT_PAYLOAD]: object
   }
 
+  // Why the session holds each of these is on the `Identity` and
+  // `SignInTransaction` typedefs in src/server/auth/accountSession.js, which
+  // is the only place that reads or writes them.
   interface YarValues {
     citizen: {
       iss: string
