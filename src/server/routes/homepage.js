@@ -1,12 +1,9 @@
 import { slugSchema } from '@defra/forms-model'
 import Joi from 'joi'
 
-import {
-  FORM_PREFIX,
-  HOMEPAGE_PREFIX,
-  SIGN_IN_PATH
-} from '~/src/server/constants.js'
+import { FORM_PREFIX, HOMEPAGE_PREFIX } from '~/src/server/constants.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
+import { signInUrl } from '~/src/server/utils/utils.js'
 
 /**
  * @type {ServerRoute[]}
@@ -23,8 +20,7 @@ export default [
       const form = await getFormMetadata(slug)
 
       if (!request.auth.isAuthenticated) {
-        const returnUrl = encodeURIComponent(`${HOMEPAGE_PREFIX}/${slug}`)
-        return h.redirect(`${SIGN_IN_PATH}?returnUrl=${returnUrl}`)
+        return h.redirect(signInUrl(`${HOMEPAGE_PREFIX}/${slug}`))
       }
 
       return h.view('homepage', {

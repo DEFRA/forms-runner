@@ -2,7 +2,7 @@ import { getAvailableLanguages } from '@defra/forms-engine-plugin'
 import { getTraceId } from '@defra/hapi-tracing'
 
 import { config } from '~/src/config/index.js'
-import { EN_GB } from '~/src/server/constants.js'
+import { EN_GB, SIGN_IN_PATH } from '~/src/server/constants.js'
 
 /**
  * Returns a set of headers to use in an HTTP request, merging them with any existing headers in options.
@@ -118,6 +118,17 @@ export function localReturnPath(value) {
   } catch {
     return null
   }
+}
+
+/**
+ * Where to send a citizen who has to sign in before they can see `path`. The
+ * sign-in route reads the return target from the query string and puts it
+ * through `localReturnPath`, so it takes a path this service can reach.
+ * @param {string} path
+ * @returns {string}
+ */
+export function signInUrl(path) {
+  return `${SIGN_IN_PATH}?returnUrl=${encodeURIComponent(path)}`
 }
 
 /**

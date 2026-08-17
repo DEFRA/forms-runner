@@ -5,7 +5,8 @@ import {
   applyTraceHeaders,
   getFeedbackFormLink,
   localReturnPath,
-  resolveLanguage
+  resolveLanguage,
+  signInUrl
 } from '~/src/server/utils/utils.js'
 
 jest.mock('@defra/hapi-tracing')
@@ -187,5 +188,16 @@ describe('localReturnPath', () => {
     expect(
       localReturnPath('http://localhost:3009/homepage/test-form')
     ).toBeNull()
+  })
+})
+
+describe('signInUrl', () => {
+  it('carries the return path as an escaped query parameter, so its own slashes and query stay in it', () => {
+    expect(signInUrl('/homepage/test-form')).toBe(
+      '/auth/sign-in?returnUrl=%2Fhomepage%2Ftest-form'
+    )
+    expect(signInUrl('/form/test-form/page-one?lang=cy')).toBe(
+      '/auth/sign-in?returnUrl=%2Fform%2Ftest-form%2Fpage-one%3Flang%3Dcy'
+    )
   })
 })
