@@ -1,4 +1,5 @@
 import hapi from '@hapi/hapi'
+import { StatusCodes } from 'http-status-codes'
 
 import pluginAuth from '~/src/server/plugins/auth.js'
 
@@ -39,7 +40,7 @@ describe('citizen-session strategy', () => {
 
     const response = await server.inject({ method: 'GET', url: '/probe' })
 
-    expect(response.statusCode).toBe(200)
+    expect(response.statusCode).toBe(StatusCodes.OK)
     expect(response.result).toEqual({ isAuthenticated: false })
   })
 

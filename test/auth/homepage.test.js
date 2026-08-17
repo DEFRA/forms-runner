@@ -1,6 +1,7 @@
 import { join } from 'node:path'
 
 import Boom from '@hapi/boom'
+import { StatusCodes } from 'http-status-codes'
 
 import { config } from '~/src/config/index.js'
 import { createServer } from '~/src/server/index.js'
@@ -9,6 +10,18 @@ import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 jest.mock('~/src/server/services/formsService.js')
+
+const HOMEPAGE_URL = '/homepage/test-form'
+const NO_AUTH_URL = '/help/accessibility-statement/test-form'
+const EMAIL = 'citizen@example.com'
+
+/** A citizen who has signed in, as the citizen-session scheme presents them */
+const credentials = {
+  iss: 'http://localhost:3011',
+  sub: 'sub-1',
+  email: EMAIL,
+  idToken: 'header.payload.signature'
+}
 
 describe('per-form homepage', () => {
   /** @type {Server} */
@@ -38,16 +51,16 @@ describe('per-form homepage', () => {
   it('sends a signed-out citizen to sign in first', async () => {
     const response = await server.inject({
       method: 'GET',
-      url: '/homepage/test-form'
+      url: HOMEPAGE_URL
     })
 
-    expect(response.statusCode).toBe(302)
+    expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
     expect(response.headers.location).toBe(
       '/auth/sign-in?returnUrl=%2Fhomepage%2Ftest-form'
     )
   })
 
-  it('answers 404 for a form that does not exist', async () => {
+  it('answers not found for a form that does not exist', async () => {
     jest.mocked(getFormMetadata).mockRejectedValue(Boom.notFound())
 
     const response = await server.inject({
@@ -55,22 +68,14 @@ describe('per-form homepage', () => {
       url: '/homepage/no-such-form'
     })
 
-    expect(response.statusCode).toBe(404)
+    expect(response.statusCode).toBe(StatusCodes.NOT_FOUND)
   })
 
   it('shows the caption, the form name and the start button to a signed-in citizen', async () => {
     const { container } = await renderResponse(server, {
       method: 'GET',
-      url: '/homepage/test-form',
-      auth: {
-        strategy: 'citizen-session',
-        credentials: {
-          iss: 'http://localhost:3011',
-          sub: 'sub-1',
-          email: 'citizen@example.com',
-          idToken: 'header.payload.signature'
-        }
-      }
+      url: HOMEPAGE_URL,
+      auth: { strategy: 'citizen-session', credentials }
     })
 
     expect(
@@ -84,21 +89,14 @@ describe('per-form homepage', () => {
   it('shows the signed-in citizen’s email, linked to their homepage', async () => {
     const { container } = await renderResponse(server, {
       method: 'GET',
-      url: '/homepage/test-form',
-      auth: {
-        strategy: 'citizen-session',
-        credentials: {
-          iss: 'http://localhost:3011',
-          sub: 'sub-1',
-          email: 'citizen@example.com',
-          idToken: 'header.payload.signature'
-        }
-      }
+      url: HOMEPAGE_URL,
+      auth: { strategy: 'citizen-session', credentials }
     })
 
-    expect(
-      container.getByRole('link', { name: 'citizen@example.com' })
-    ).toHaveAttribute('href', '/homepage/test-form')
+    expect(container.getByRole('link', { name: EMAIL })).toHaveAttribute(
+      'href',
+      HOMEPAGE_URL
+    )
   })
 
   it('shows a signed-out citizen no account control, on a page that does not gate on auth', async () => {
@@ -106,11 +104,11 @@ describe('per-form homepage', () => {
     // the plain header. They reach sign in through a page that requires it.
     const { container } = await renderResponse(server, {
       method: 'GET',
-      url: '/help/accessibility-statement/test-form'
+      url: NO_AUTH_URL
     })
 
     expect(
-      container.queryByRole('link', { name: 'citizen@example.com' })
+      container.queryByRole('link', { name: EMAIL })
     ).not.toBeInTheDocument()
   })
 
@@ -119,7 +117,7 @@ describe('per-form homepage', () => {
 
     const { container } = await renderResponse(server, {
       method: 'GET',
-      url: '/help/accessibility-statement/test-form'
+      url: NO_AUTH_URL
     })
 
     config.set('useSignInFeature', true)

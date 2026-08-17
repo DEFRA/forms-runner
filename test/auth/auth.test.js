@@ -1,5 +1,6 @@
 import { join } from 'node:path'
 
+import { StatusCodes } from 'http-status-codes'
 import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
@@ -7,6 +8,14 @@ import { createServer } from '~/src/server/index.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 jest.mock('openid-client')
+
+const RETURN_PATH = '/homepage/test-form'
+const SIGN_IN_URL = `/auth/sign-in?returnUrl=${RETURN_PATH}`
+const CALLBACK_URL = '/auth/callback?code=code-1&state=state-1'
+const AUTHORIZATION_URL = 'http://localhost:3011/auth?state=state-1'
+const ISSUER = 'http://localhost:3011'
+const SUB = 'sub-1'
+const EMAIL = 'citizen@example.com'
 
 /**
  * A token response carrying just the fields the callback route reads. Cast
@@ -19,14 +28,27 @@ function mockTokens() {
     /** @type {unknown} */ ({
       id_token: 'header.payload.signature',
       access_token: 'access-1',
-      claims: () => ({ iss: 'http://localhost:3011', sub: 'sub-1' })
+      claims: () => ({ iss: ISSUER, sub: SUB })
     })
   )
+}
+
+/** The provider accepts the code and names the citizen */
+function mockSuccessfulExchange() {
+  jest.mocked(client.authorizationCodeGrant).mockResolvedValue(mockTokens())
+  jest
+    .mocked(client.fetchUserInfo)
+    .mockResolvedValue({ sub: SUB, email: EMAIL })
 }
 
 describe('sign in routes', () => {
   /** @type {Server} */
   let server
+
+  /** Starts a sign in, so the session carries a transaction to come back to */
+  function startSignIn() {
+    return server.inject({ method: 'GET', url: SIGN_IN_URL })
+  }
 
   beforeAll(async () => {
     config.set('useSignInFeature', true)
@@ -57,19 +79,14 @@ describe('sign in routes', () => {
       .mockResolvedValue('challenge-1')
     jest
       .mocked(client.buildAuthorizationUrl)
-      .mockReturnValue(new URL('http://localhost:3011/auth?state=state-1'))
+      .mockReturnValue(new URL(AUTHORIZATION_URL))
   })
 
   it('sends the citizen to the provider with PKCE, state and nonce', async () => {
-    const response = await server.inject({
-      method: 'GET',
-      url: '/auth/sign-in?returnUrl=/homepage/test-form'
-    })
+    const response = await startSignIn()
 
-    expect(response.statusCode).toBe(302)
-    expect(response.headers.location).toBe(
-      'http://localhost:3011/auth?state=state-1'
-    )
+    expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(response.headers.location).toBe(AUTHORIZATION_URL)
 
     const [, params] = jest.mocked(client.buildAuthorizationUrl).mock.calls[0]
 
@@ -83,45 +100,33 @@ describe('sign in routes', () => {
   })
 
   it('takes the email from userinfo, because the ID token does not carry it', async () => {
-    const login = await server.inject({
-      method: 'GET',
-      url: '/auth/sign-in?returnUrl=/homepage/test-form'
-    })
+    const login = await startSignIn()
 
-    jest.mocked(client.authorizationCodeGrant).mockResolvedValue(mockTokens())
-    jest
-      .mocked(client.fetchUserInfo)
-      .mockResolvedValue({ sub: 'sub-1', email: 'citizen@example.com' })
+    mockSuccessfulExchange()
 
     const response = await server.inject({
       method: 'GET',
-      url: '/auth/callback?code=code-1&state=state-1',
+      url: CALLBACK_URL,
       headers: getCookieHeader(login, ['session'])
     })
 
     expect(client.fetchUserInfo).toHaveBeenCalledWith(
       expect.anything(),
       'access-1',
-      'sub-1'
+      SUB
     )
-    expect(response.statusCode).toBe(302)
-    expect(response.headers.location).toBe('/homepage/test-form')
+    expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(response.headers.location).toBe(RETURN_PATH)
   })
 
   it('exchanges the code against the configured redirect URI, not whatever the request claims its host is', async () => {
-    const login = await server.inject({
-      method: 'GET',
-      url: '/auth/sign-in?returnUrl=/homepage/test-form'
-    })
+    const login = await startSignIn()
 
-    jest.mocked(client.authorizationCodeGrant).mockResolvedValue(mockTokens())
-    jest
-      .mocked(client.fetchUserInfo)
-      .mockResolvedValue({ sub: 'sub-1', email: 'citizen@example.com' })
+    mockSuccessfulExchange()
 
     await server.inject({
       method: 'GET',
-      url: '/auth/callback?code=code-1&state=state-1',
+      url: CALLBACK_URL,
       headers: {
         ...getCookieHeader(login, ['session']),
         host: 'evil.example'
@@ -137,10 +142,7 @@ describe('sign in routes', () => {
   })
 
   it('refuses a callback whose state does not match the one it issued', async () => {
-    const login = await server.inject({
-      method: 'GET',
-      url: '/auth/sign-in?returnUrl=/homepage/test-form'
-    })
+    const login = await startSignIn()
 
     const response = await server.inject({
       method: 'GET',
@@ -148,15 +150,12 @@ describe('sign in routes', () => {
       headers: getCookieHeader(login, ['session'])
     })
 
-    expect(response.statusCode).toBe(403)
+    expect(response.statusCode).toBe(StatusCodes.FORBIDDEN)
     expect(client.authorizationCodeGrant).not.toHaveBeenCalled()
   })
 
   it('leaves the transaction intact when a callback state does not match, so the genuine callback still completes', async () => {
-    const login = await server.inject({
-      method: 'GET',
-      url: '/auth/sign-in?returnUrl=/homepage/test-form'
-    })
+    const login = await startSignIn()
     const cookie = getCookieHeader(login, ['session'])
 
     const mismatched = await server.inject({
@@ -165,58 +164,46 @@ describe('sign in routes', () => {
       headers: cookie
     })
 
-    expect(mismatched.statusCode).toBe(403)
+    expect(mismatched.statusCode).toBe(StatusCodes.FORBIDDEN)
     expect(client.authorizationCodeGrant).not.toHaveBeenCalled()
 
-    jest.mocked(client.authorizationCodeGrant).mockResolvedValue(mockTokens())
-    jest
-      .mocked(client.fetchUserInfo)
-      .mockResolvedValue({ sub: 'sub-1', email: 'citizen@example.com' })
+    mockSuccessfulExchange()
 
     const genuine = await server.inject({
       method: 'GET',
-      url: '/auth/callback?code=code-1&state=state-1',
+      url: CALLBACK_URL,
       headers: cookie
     })
 
-    expect(genuine.statusCode).toBe(302)
-    expect(genuine.headers.location).toBe('/homepage/test-form')
+    expect(genuine.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(genuine.headers.location).toBe(RETURN_PATH)
   })
 
   it('consumes the transaction on a successful callback, so a replay of the same URL finds nothing', async () => {
-    const login = await server.inject({
-      method: 'GET',
-      url: '/auth/sign-in?returnUrl=/homepage/test-form'
-    })
+    const login = await startSignIn()
     const cookie = getCookieHeader(login, ['session'])
 
-    jest.mocked(client.authorizationCodeGrant).mockResolvedValue(mockTokens())
-    jest
-      .mocked(client.fetchUserInfo)
-      .mockResolvedValue({ sub: 'sub-1', email: 'citizen@example.com' })
+    mockSuccessfulExchange()
 
     const first = await server.inject({
       method: 'GET',
-      url: '/auth/callback?code=code-1&state=state-1',
+      url: CALLBACK_URL,
       headers: cookie
     })
 
-    expect(first.statusCode).toBe(302)
+    expect(first.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
 
     const replay = await server.inject({
       method: 'GET',
-      url: '/auth/callback?code=code-1&state=state-1',
+      url: CALLBACK_URL,
       headers: cookie
     })
 
-    expect(replay.statusCode).toBe(403)
+    expect(replay.statusCode).toBe(StatusCodes.FORBIDDEN)
   })
 
   it('consumes the transaction when the exchange fails, so the same callback cannot be tried again', async () => {
-    const login = await server.inject({
-      method: 'GET',
-      url: '/auth/sign-in?returnUrl=/homepage/test-form'
-    })
+    const login = await startSignIn()
     const cookie = getCookieHeader(login, ['session'])
 
     jest
@@ -225,42 +212,36 @@ describe('sign in routes', () => {
 
     const failed = await server.inject({
       method: 'GET',
-      url: '/auth/callback?code=code-1&state=state-1',
+      url: CALLBACK_URL,
       headers: cookie
     })
 
-    expect(failed.statusCode).toBe(403)
+    expect(failed.statusCode).toBe(StatusCodes.FORBIDDEN)
 
-    jest.mocked(client.authorizationCodeGrant).mockResolvedValue(mockTokens())
-    jest
-      .mocked(client.fetchUserInfo)
-      .mockResolvedValue({ sub: 'sub-1', email: 'citizen@example.com' })
+    mockSuccessfulExchange()
 
     const retry = await server.inject({
       method: 'GET',
-      url: '/auth/callback?code=code-1&state=state-1',
+      url: CALLBACK_URL,
       headers: cookie
     })
 
-    expect(retry.statusCode).toBe(403)
+    expect(retry.statusCode).toBe(StatusCodes.FORBIDDEN)
   })
 
   it('refuses a sign in when the provider gives no email, because the identity would be incomplete', async () => {
-    const login = await server.inject({
-      method: 'GET',
-      url: '/auth/sign-in?returnUrl=/homepage/test-form'
-    })
+    const login = await startSignIn()
 
     jest.mocked(client.authorizationCodeGrant).mockResolvedValue(mockTokens())
-    jest.mocked(client.fetchUserInfo).mockResolvedValue({ sub: 'sub-1' })
+    jest.mocked(client.fetchUserInfo).mockResolvedValue({ sub: SUB })
 
     const response = await server.inject({
       method: 'GET',
-      url: '/auth/callback?code=code-1&state=state-1',
+      url: CALLBACK_URL,
       headers: getCookieHeader(login, ['session'])
     })
 
-    expect(response.statusCode).toBe(403)
+    expect(response.statusCode).toBe(StatusCodes.FORBIDDEN)
   })
 
   it.each([
@@ -277,7 +258,7 @@ describe('sign in routes', () => {
 
       // Refused before the provider is involved. Otherwise the user signs in
       // and lands on a page that does not exist.
-      expect(response.statusCode).toBe(400)
+      expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
       expect(client.buildAuthorizationUrl).not.toHaveBeenCalled()
     }
   )
@@ -285,23 +266,20 @@ describe('sign in routes', () => {
   it('normalises a return target carrying a control character before storing it, so the eventual redirect does not carry it raw', async () => {
     const login = await server.inject({
       method: 'GET',
-      url: `/auth/sign-in?returnUrl=${encodeURIComponent('/homepage/test-form\nSet-Cookie: a=b')}`
+      url: `/auth/sign-in?returnUrl=${encodeURIComponent(`${RETURN_PATH}\nSet-Cookie: a=b`)}`
     })
 
-    jest.mocked(client.authorizationCodeGrant).mockResolvedValue(mockTokens())
-    jest
-      .mocked(client.fetchUserInfo)
-      .mockResolvedValue({ sub: 'sub-1', email: 'citizen@example.com' })
+    mockSuccessfulExchange()
 
     const response = await server.inject({
       method: 'GET',
-      url: '/auth/callback?code=code-1&state=state-1',
+      url: CALLBACK_URL,
       headers: getCookieHeader(login, ['session'])
     })
 
     // The raw string would throw in Node's header validation, outside the
     // route's try/catch, giving a 500 after a successful sign in.
-    expect(response.statusCode).toBe(302)
+    expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
     expect(response.headers.location).toBe(
       '/homepage/test-formSet-Cookie:%20a=b'
     )
@@ -334,7 +312,7 @@ describe('sign in routes, feature flag off', () => {
   it.each([
     ['/auth/sign-in', '/auth/sign-in'],
     ['/auth/callback', '/auth/callback'],
-    ['/homepage/test-form', '/homepage/{slug}']
+    [RETURN_PATH, '/homepage/{slug}']
   ])(
     'is not registered when the sign-in feature is off (%s)',
     (path, ownRouteTemplate) => {
