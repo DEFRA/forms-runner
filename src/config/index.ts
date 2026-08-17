@@ -346,9 +346,6 @@ export const config = convict({
   useSignInFeature: {
     doc: 'Feature flag to control citizen sign in',
     format: Boolean,
-    // Off by default, unlike most flags here, so a deployment that merges
-    // this feature but has not yet set the OIDC_* variables still starts —
-    // it just can't sign anyone in until it does.
     default: false,
     env: 'USE_SIGN_IN_FEATURE'
   } as SchemaObj<boolean>,
