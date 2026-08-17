@@ -1,6 +1,6 @@
 import Boom from '@hapi/boom'
 
-import { getIdentity } from '~/src/server/auth/session.js'
+import { getIdentity } from '~/src/server/auth/accountSession.js'
 
 export const CITIZEN_SESSION = 'citizen-session'
 

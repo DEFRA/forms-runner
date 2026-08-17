@@ -119,7 +119,7 @@ declare module '@hapi/yar' {
       email: string
       idToken: string
     }
-    'oidc:tx': {
+    'auth:signInTransaction': {
       state: string
       nonce: string
       codeVerifier: string

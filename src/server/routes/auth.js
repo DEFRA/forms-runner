@@ -4,12 +4,12 @@ import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
 import {
-  clearTransaction,
-  getTransaction,
+  clearSignInTransaction,
+  getSignInTransaction,
   localReturnPath,
   setIdentity,
-  setTransaction
-} from '~/src/server/auth/session.js'
+  setSignInTransaction
+} from '~/src/server/auth/accountSession.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { CALLBACK_PATH, SIGN_IN_PATH } from '~/src/server/constants.js'
 
@@ -42,7 +42,7 @@ export default [
 
       const { returnTo } = request.query
 
-      setTransaction(request.yar, {
+      setSignInTransaction(request.yar, {
         state,
         nonce,
         codeVerifier,
@@ -88,7 +88,7 @@ export default [
       // not the sign-in this transaction belongs to — a second tab, a
       // forged link, a replay — and must not destroy it, or the genuine
       // callback that arrives afterwards finds nothing to complete.
-      const transaction = getTransaction(request.yar)
+      const transaction = getSignInTransaction(request.yar)
 
       if (!transaction || transaction.state !== request.query.state) {
         logger.warn(
@@ -155,7 +155,7 @@ export default [
         // Consume the transaction only once sign in has actually completed,
         // so a failed exchange leaves it in place for a retry with the same
         // state rather than needing a fresh /login.
-        clearTransaction(request.yar)
+        clearSignInTransaction(request.yar)
       } catch (err) {
         logger.error(err, '[signInFailed] Could not complete sign in')
         throw Boom.forbidden('Sign in could not be completed')

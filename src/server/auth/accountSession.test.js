@@ -1,11 +1,11 @@
 import {
-  clearTransaction,
+  clearSignInTransaction,
   getIdentity,
-  getTransaction,
+  getSignInTransaction,
   localReturnPath,
   setIdentity,
-  setTransaction
-} from '~/src/server/auth/session.js'
+  setSignInTransaction
+} from '~/src/server/auth/accountSession.js'
 
 /** Minimal stand-in for yar — a map with the three methods we use */
 function fakeYar() {
@@ -55,10 +55,10 @@ describe('citizen session', () => {
       returnTo: '/homepage/test-form'
     }
 
-    setTransaction(yar, transaction)
+    setSignInTransaction(yar, transaction)
 
-    expect(getTransaction(yar)).toEqual(transaction)
-    expect(getTransaction(yar)).toEqual(transaction)
+    expect(getSignInTransaction(yar)).toEqual(transaction)
+    expect(getSignInTransaction(yar)).toEqual(transaction)
   })
 
   it('consumes the transaction once cleared, so a replayed callback finds nothing', () => {
@@ -70,10 +70,10 @@ describe('citizen session', () => {
       returnTo: '/homepage/test-form'
     }
 
-    setTransaction(yar, transaction)
-    clearTransaction(yar)
+    setSignInTransaction(yar, transaction)
+    clearSignInTransaction(yar)
 
-    expect(getTransaction(yar)).toBeNull()
+    expect(getSignInTransaction(yar)).toBeNull()
   })
 
   it('resolves a local path to itself', () => {

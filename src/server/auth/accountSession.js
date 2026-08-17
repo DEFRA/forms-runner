@@ -1,5 +1,5 @@
 export const CITIZEN_KEY = 'citizen'
-export const TX_KEY = 'oidc:tx'
+export const SIGN_IN_TRANSACTION_KEY = 'auth:signInTransaction'
 
 /**
  * @param {Yar} yar
@@ -20,10 +20,10 @@ export function getIdentity(yar) {
 /**
  * Stash the values the callback needs to finish the sign-in it did not start.
  * @param {Yar} yar
- * @param {Transaction} transaction
+ * @param {SignInTransaction} transaction
  */
-export function setTransaction(yar, transaction) {
-  yar.set(TX_KEY, transaction)
+export function setSignInTransaction(yar, transaction) {
+  yar.set(SIGN_IN_TRANSACTION_KEY, transaction)
 }
 
 /**
@@ -33,10 +33,10 @@ export function setTransaction(yar, transaction) {
  * turns out not to match must leave it untouched for the genuine callback
  * to still find.
  * @param {Yar} yar
- * @returns {Transaction | null}
+ * @returns {SignInTransaction | null}
  */
-export function getTransaction(yar) {
-  return yar.get(TX_KEY) ?? null
+export function getSignInTransaction(yar) {
+  return yar.get(SIGN_IN_TRANSACTION_KEY) ?? null
 }
 
 /**
@@ -47,8 +47,8 @@ export function getTransaction(yar) {
  * which is what makes that retry safe.
  * @param {Yar} yar
  */
-export function clearTransaction(yar) {
-  yar.clear(TX_KEY)
+export function clearSignInTransaction(yar) {
+  yar.clear(SIGN_IN_TRANSACTION_KEY)
 }
 
 /**
@@ -105,7 +105,7 @@ export function localReturnPath(value) {
 
 /**
  * @typedef {{ iss: string, sub: string, email: string, idToken: string }} Identity
- * @typedef {{ state: string, nonce: string, codeVerifier: string, returnTo: string }} Transaction
+ * @typedef {{ state: string, nonce: string, codeVerifier: string, returnTo: string }} SignInTransaction
  */
 
 /**
