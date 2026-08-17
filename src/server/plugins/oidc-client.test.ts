@@ -1,9 +1,25 @@
 import hapi from '@hapi/hapi'
 import * as client from 'openid-client'
 
+import { config } from '~/src/config/index.js'
 import pluginOidcClient from '~/src/server/plugins/oidc-client.js'
 
 jest.mock('openid-client')
+
+/**
+ * Answers `override` for the named setting and leaves the rest as configured.
+ * The plugin reads its settings inside `register`, so a spy on the config it
+ * shares is enough — the module does not need reloading.
+ */
+function withSetting(path: 'oidc.privateJwk', override: string) {
+  const configured = config.get.bind(config)
+
+  jest
+    .spyOn(config, 'get')
+    .mockImplementation((name) =>
+      name === path ? override : configured(name as 'oidc.issuer')
+    )
+}
 
 describe('oidc client plugin', () => {
   it('discovers the provider once and reuses the configuration', async () => {
@@ -39,69 +55,26 @@ describe('oidc client plugin', () => {
   ])(
     'fails registration when the configured key %s, so it surfaces at boot rather than at the first sign in',
     async (_case, jwk) => {
-      const previous = process.env.OIDC_CLIENT_PRIVATE_JWK
-      process.env.OIDC_CLIENT_PRIVATE_JWK = jwk
+      withSetting('oidc.privateJwk', jwk)
 
-      try {
-        await jest.isolateModulesAsync(async () => {
-          const { default: freshPlugin } =
-            await import('~/src/server/plugins/oidc-client.js')
+      const server = hapi.server()
 
-          const server = hapi.server()
-
-          // The message comes from JSON.parse or WebCrypto, so only check
-          // that registration rejects.
-          await expect(server.register(freshPlugin)).rejects.toThrow()
-        })
-      } finally {
-        process.env.OIDC_CLIENT_PRIVATE_JWK = previous
-      }
+      // The message comes from JSON.parse or WebCrypto, so only check that
+      // registration rejects.
+      await expect(server.register(pluginOidcClient)).rejects.toThrow()
     }
   )
 
   it('fails registration when the sign-in flag is on but a required OIDC setting is unset, naming it', async () => {
-    const unset = [
-      'OIDC_ISSUER',
-      'OIDC_REDIRECT_URI',
-      'OIDC_CLIENT_PRIVATE_JWK'
-    ] as const
+    // Every setting reads back empty, which is what the flag being on with
+    // none of them set looks like. Registration throws before it reads
+    // anything else, so this needs no finer a stub.
+    jest.spyOn(config, 'get').mockReturnValue('')
 
-    const saved = Object.fromEntries(
-      unset.map((key) => [key, process.env[key]])
+    const server = hapi.server()
+
+    await expect(server.register(pluginOidcClient)).rejects.toThrow(
+      'Sign-in is enabled but missing configuration: oidc.issuer, oidc.redirectUri, oidc.privateJwk'
     )
-    unset.forEach((key) => Reflect.deleteProperty(process.env, key))
-
-    // The config module imports `dotenv/config`, which would put these back
-    // from a developer's own `.env` the moment it reloads. Pointing dotenv at
-    // a path that does not exist keeps them unset, so this asserts the same
-    // thing on a developer machine as it does on a clean checkout.
-    const savedDotenvPath = process.env.DOTENV_CONFIG_PATH
-    process.env.DOTENV_CONFIG_PATH = '/nonexistent/.env'
-
-    try {
-      await jest.isolateModulesAsync(async () => {
-        const { default: freshPlugin } =
-          await import('~/src/server/plugins/oidc-client.js')
-
-        const server = hapi.server()
-
-        await expect(server.register(freshPlugin)).rejects.toThrow(
-          'Sign-in is enabled but missing configuration: oidc.issuer, oidc.redirectUri, oidc.privateJwk'
-        )
-      })
-    } finally {
-      if (savedDotenvPath === undefined) {
-        Reflect.deleteProperty(process.env, 'DOTENV_CONFIG_PATH')
-      } else {
-        process.env.DOTENV_CONFIG_PATH = savedDotenvPath
-      }
-
-      unset.forEach((key) => {
-        const value = saved[key]
-        if (value !== undefined) {
-          process.env[key] = value
-        }
-      })
-    }
   })
 })
