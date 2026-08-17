@@ -16,10 +16,9 @@ import { CALLBACK_PATH, SIGN_IN_PATH } from '~/src/server/constants.js'
 const SCOPES = 'openid email'
 
 /**
- * Cookie names only, never their values. A sign-in that fails because the
- * session did not come back with the citizen is indistinguishable, from the
- * logs alone, from one that failed for any other reason — the names say which
- * of the two happened without putting a session id or a token in the log.
+ * The names of the cookies a request arrived with, for the logs. Names alone
+ * are safe to log and are enough to tell a session that came back from the
+ * provider apart from one that did not.
  * @param {Record<string, unknown>} state `request.state`
  */
 function cookieNames(state) {
@@ -84,12 +83,13 @@ export default [
     method: 'GET',
     path: CALLBACK_PATH,
     async handler(request, h) {
-      // Read without consuming: a callback whose state does not match is
-      // not the sign-in this transaction belongs to — a second tab, a
-      // forged link, a replay — and must not destroy it, or the genuine
-      // callback that arrives afterwards finds nothing to complete.
       const transaction = getSignInTransaction(request.yar)
 
+      // `state` is the random value sign in generated and the provider echoes
+      // back untouched. Matching it against the one this session stored is
+      // what identifies the callback as the completion of this session's own
+      // sign in. Reading the transaction without consuming it leaves it for
+      // the genuine callback when some other one arrives first.
       if (!transaction || transaction.state !== request.query.state) {
         logger.warn(
           {
@@ -108,11 +108,10 @@ export default [
       const oidcConfig = await request.server.app.oidc.getConfig()
 
       try {
-        // Built from configuration, not from the inbound request, so a proxy
-        // that rewrites the host or scheme can't change the redirect_uri this
-        // sends to the token endpoint — it must equal the one /login gave the
-        // provider, byte for byte. Only the query string (code, state) comes
-        // from the request.
+        // Built from configuration so the redirect_uri sent to the token
+        // endpoint equals the one sign in gave the provider, byte for byte,
+        // whatever host or scheme a proxy in front of this service presents.
+        // The query string (code, state) comes from the request itself.
         const callbackUrl = new URL(config.get('oidc.redirectUri'))
         callbackUrl.search = request.url.search
 

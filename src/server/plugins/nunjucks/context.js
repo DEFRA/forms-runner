@@ -38,11 +38,7 @@ export function context(request) {
 
   const { params, query = {}, response, state, auth } = request ?? {}
 
-  // Hapi sets `auth.credentials` to null for an unauthenticated request, so
-  // treat it as nullable here even though its own types call it required.
-  const credentials = /** @type {AuthCredentials | null | undefined} */ (
-    auth?.credentials
-  )
+  const credentials = auth?.credentials
 
   let language = resolveLanguage(request?.query, request?.yar)
 
@@ -94,9 +90,7 @@ export function context(request) {
     currentPath: request ? `${request.path}${request.url.search}` : undefined,
     previewMode: isPreviewMode ? formState : undefined,
     slug: isResponseOK ? params?.slug : undefined,
-    user: credentials?.email
-      ? { email: /** @type {string} */ (credentials.email) }
-      : null,
+    user: credentials?.email ? { email: credentials.email } : null,
 
     language,
 
@@ -122,7 +116,6 @@ export function context(request) {
 }
 
 /**
- * @import { AuthCredentials } from '@hapi/hapi'
  * @import { FormDefinition } from '@defra/forms-model'
  * @import { ViewContext } from '~/src/server/plugins/nunjucks/types.js'
  * @import { AnyFormRequest } from '@defra/forms-engine-plugin/types'

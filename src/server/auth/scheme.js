@@ -5,9 +5,9 @@ import { getIdentity } from '~/src/server/auth/accountSession.js'
 export const CITIZEN_SESSION = 'citizen-session'
 
 /**
- * Turns a signed-in session into request credentials. It reads; it never
- * writes, redirects or calls the provider, so it is safe as the server-wide
- * default and costs one session read on any route.
+ * Turns a signed-in session into request credentials. It is a read alone,
+ * which is what makes it safe as the server-wide default: one session read
+ * on any route.
  */
 export function citizenSessionScheme() {
   return {

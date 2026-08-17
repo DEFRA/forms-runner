@@ -127,20 +127,8 @@
     serviceName: context.translator.tForm('title') if context else name | default(config.serviceName),
     serviceUrl: currentPath if context.isForceAccess else serviceUrl
   } %}
-  {#
-    One header for every page. It carries its own GOV.UK logo and renders the
-    service navigation itself, and it is visually the same bar the standard
-    header gives — what varies is the account menu.
-
-    The account properties are the feature: unset, the menu and its toggle are
-    left out entirely, which is what a citizen sees with sign in switched off
-    or simply not signed in. So the flag decides what the header is told, not
-    which header renders.
-
-    No signOutLink is passed yet: the provider has still to register where to
-    return the citizen afterwards, and sending them there today strands them
-    on an error. The /logout route works and is covered by its own tests.
-  #}
+  {# The account properties render the account menu, so a signed-in citizen
+    sees it and everyone else sees the plain bar. #}
   {% set isSignedIn = config.useSignInFeature and user and slug %}
   {{ appServiceHeader({
     accountName: user.email if isSignedIn,

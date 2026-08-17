@@ -12,9 +12,7 @@
     margin: -3px 0 2px;
   }
 
-  // Override service header alignment. Both class names are listed because
-  // the rebranded header carries its own prefix.
-  .cross-service-header &,
+  // Override service header alignment
   .rebranded-cross-service-header & {
     margin: -2px 0 0 govuk-spacing(1);
 

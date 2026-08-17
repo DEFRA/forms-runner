@@ -19,7 +19,7 @@ export default [
       const { slug } = request.params
 
       // Resolve the form before the sign-in gate, so an unknown slug answers
-      // straight away with the 404 the error pages plugin renders.
+      // straight away with the 404 the error pages plugin renders for it.
       const form = await getFormMetadata(slug)
 
       if (!request.auth.isAuthenticated) {

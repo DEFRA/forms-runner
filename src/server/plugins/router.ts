@@ -75,8 +75,6 @@ export default {
   plugin: {
     name: 'router',
     register: (server) => {
-      // Read inside `register`, not at module scope, so a test can flip the
-      // flag before building the server.
       if (config.get('useSignInFeature')) {
         server.route(authRoutes as ServerRoute[])
         server.route(homepageRoutes)

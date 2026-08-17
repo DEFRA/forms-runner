@@ -27,11 +27,10 @@ export function setSignInTransaction(yar, transaction) {
 }
 
 /**
- * Read the in-flight sign-in without consuming it, so a caller can check
+ * Read the in-flight sign-in and leave it in place, so a caller can check
  * `state` before deciding whether this callback is the one that should
- * consume it. There is one transaction slot per session, so a callback that
- * turns out not to match must leave it untouched for the genuine callback
- * to still find.
+ * consume it. There is one transaction slot per session, and leaving it
+ * intact keeps it available to the genuine callback.
  * @param {Yar} yar
  * @returns {SignInTransaction | null}
  */
@@ -51,21 +50,20 @@ export function clearSignInTransaction(yar) {
 
 /**
  * A throwaway origin to resolve candidate paths against, so parseLocalPath
- * can compare the result's origin rather than pattern-match the input. The host
- * is on the reserved `.invalid` TLD, so it can never name a real service and
- * a redirect target that happened to match it could never be genuine.
+ * can compare the result's origin rather than pattern-match the input. The
+ * host is on the reserved `.invalid` TLD, which the DNS standard keeps free
+ * of real services, so a value resolving to it is always a local path.
  */
 const LOCAL_ORIGIN = 'https://runner.invalid'
 
 /**
- * The candidate resolved against the local origin, or null if it would leave
- * the service. A leading slash rules out a value that is relative to the
- * current directory, and resolving the rest against a fixed origin keeps
- * only the values whose resolved origin is unchanged. A URL parser can send
- * a value elsewhere despite its single leading `/` — a leading `\` is one
- * way — and it also strips a stray tab or newline before resolving, so a
- * value carrying one is rejected only when that stripping is what moves it
- * off-origin, not simply for containing the character.
+ * The candidate resolved against the local origin, for a value that stays
+ * within this service; null for anything else. A leading slash keeps the
+ * value absolute within the service, and resolving the rest against a fixed
+ * origin keeps only the values whose resolved origin is still that one. The
+ * origin comparison is what decides it, so a value a URL parser sends
+ * elsewhere despite its single leading `/` — a leading `\`, or a stray tab
+ * or newline the parser strips first — is judged on where it lands.
  * @param {string} [value]
  * @returns {URL | null}
  */
@@ -87,12 +85,10 @@ function parseLocalPath(value) {
 }
 
 /**
- * The local path (pathname and search) a candidate resolves to, or null if
- * it would leave the service. Returns the parser's own result rather than
- * the input string, so storing and redirecting to it lands on the
- * destination a URL parser already resolved it to — not a raw value a
- * parser normalises on the way through, which some consumers of it, an
- * HTTP header for one, would reject outright rather than normalise.
+ * The local path (pathname and search) a candidate resolves to, for a value
+ * that stays within this service; null for anything else. It returns the
+ * parser's own result, so the stored value is already in the normalised form
+ * an HTTP header will accept.
  * @param {string} [value]
  * @returns {string | null}
  */

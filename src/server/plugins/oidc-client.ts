@@ -46,9 +46,9 @@ async function clientKey(jwk: JWK) {
 }
 
 /**
- * The settings sign-in cannot work without. Each maps its config key to the
- * configured value, so a missing one can be reported by the same key an
- * operator would set in the environment.
+ * The settings sign-in needs. Each maps its config key to the configured
+ * value, so a missing one is reported by the same key an operator sets in
+ * the environment.
  */
 function requiredSettings() {
   return {
@@ -62,12 +62,10 @@ export default {
   plugin: {
     name: 'oidc-client',
     register(server) {
-      // The flag defaults off and these settings default to '' so a
-      // deployment without them still boots — but only with the flag off.
-      // Registering this plugin means the flag is on, so a service that
-      // reaches here without them would otherwise boot healthy and fail
-      // every sign-in with an unnamed error; naming the gap here instead
-      // lets an operator fix it before routing citizens to it.
+      // These settings default to '' so a deployment with the flag off still
+      // boots. Registering this plugin means the flag is on, so the check
+      // belongs here: it names any gap at boot, while an operator can still
+      // fix it before citizens are routed to sign in.
       const missing = Object.entries(requiredSettings())
         .filter(([, value]) => !value)
         .map(([key]) => key)
