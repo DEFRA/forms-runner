@@ -335,17 +335,12 @@ describe(`Cookie preferences`, () => {
     expect($input).toBeChecked()
   })
 
-  test.each([
-    ['names another site', 'https://my-malicious-url.com'],
-    // Protocol-relative. A browser reads the first segment as a host.
-    ['is protocol-relative', '//my-malicious-url.com'],
-    // The dot segment resolves inside the origin, so this has one leading
-    // slash and still resolves to the path //my-malicious-url.com.
-    ['hides a host behind a dot segment', '/.//my-malicious-url.com'],
-    // The layout builds this from currentPath, which always has a path, so
-    // an empty value is not something this service sends.
-    ['is empty', '']
-  ])('returns bad request for a redirect url that %s', async (_case, url) => {
+  // One case, because it proves the route runs the return path through
+  // `returnUrlSchema`. What that schema accepts is `localReturnPath`, which
+  // src/server/utils/utils.test.js covers on its own.
+  test('returns bad request for a redirect url that names another site', async () => {
+    const url = 'https://my-malicious-url.com'
+
     server = await createServer({
       formFileName: 'basic.js',
       formFilePath: join(import.meta.dirname, 'definitions'),
