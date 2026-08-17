@@ -71,7 +71,7 @@ export default [
       validate: {
         query: Joi.object({
           returnUrl: returnUrlSchema.required()
-        }).unknown(true)
+        })
       }
     }
   }),
@@ -106,10 +106,10 @@ export default [
       const oidcConfig = await request.server.app.oidc.getConfig()
 
       try {
-        // Built from config so the redirect_uri matches the one sign in sent,
-        // byte for byte. The request host and scheme come from the proxy, so
-        // they cannot be used. Only the query string (code, state) is taken
-        // from the request.
+        // The token request must send the same redirect URI as the sign-in
+        // request. Build it from configuration, because a proxy sets the host
+        // and the scheme on the request. Take only the query string, which
+        // holds the code and the state, from the request.
         const callbackUrl = new URL(config.get('oidc.redirectUri'))
         callbackUrl.search = request.url.search
 
@@ -129,9 +129,9 @@ export default [
           throw new Error('Token response carried no ID token claims')
         }
 
-        // The provider leaves `conformIdTokenClaims` at its default, so the ID
-        // token carries no email. The access token lives five minutes, so this
-        // is the only chance to ask.
+        // The ID token proves who signed in, but it carries no email. Ask the
+        // userinfo endpoint for the email. The access token expires in five
+        // minutes, so ask now.
         const userinfo = await client.fetchUserInfo(
           oidcConfig,
           tokens.access_token,
@@ -162,6 +162,8 @@ export default [
     },
     options: {
       validate: {
+        // The provider decides what else it sends back with the code and the
+        // state, so this route accepts keys it does not name.
         query: Joi.object({
           code: Joi.string().optional(),
           state: Joi.string().optional()
