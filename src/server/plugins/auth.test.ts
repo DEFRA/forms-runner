@@ -1,7 +1,10 @@
 import hapi from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 
+import { getIdentity } from '~/src/server/auth/accountSession.js'
 import pluginAuth from '~/src/server/plugins/auth.js'
+
+jest.mock('~/src/server/auth/accountSession.js')
 
 const identity = {
   iss: 'http://localhost:3011',
@@ -10,65 +13,52 @@ const identity = {
   idToken: 'header.payload.signature'
 }
 
-/** Stands in for yar, which this plugin only ever reads through */
-function withFakeYar(server: hapi.Server, stored: object | null) {
-  server.ext('onRequest', (request, h) => {
-    const store = new Map<string, unknown>(stored ? [['citizen', stored]] : [])
-    Object.defineProperty(request, 'yar', {
-      value: {
-        get: (key: string) => store.get(key) ?? null,
-        set: (key: string, value: unknown) => store.set(key, value),
-        clear: (key: string) => store.delete(key)
-      }
+/** Reports what `request.auth` holds, which is what the strategy decides */
+function probeRoute(server: hapi.Server, path = '/probe') {
+  server.route({
+    method: 'GET',
+    path,
+    handler: (request) => ({
+      isAuthenticated: request.auth.isAuthenticated,
+      credentials: request.auth.credentials
     })
-    return h.continue
   })
 }
 
 describe('citizen-session strategy', () => {
   it('leaves an anonymous request unauthenticated rather than rejecting it', async () => {
+    jest.mocked(getIdentity).mockReturnValue(null)
+
     const server = hapi.server()
-    withFakeYar(server, null)
     await server.register(pluginAuth)
-    server.route({
-      method: 'GET',
-      path: '/probe',
-      handler: (request) => ({
-        isAuthenticated: request.auth.isAuthenticated
-      })
-    })
+    probeRoute(server)
 
     const response = await server.inject({ method: 'GET', url: '/probe' })
 
     expect(response.statusCode).toBe(StatusCodes.OK)
-    expect(response.result).toEqual({ isAuthenticated: false })
+    expect(response.result).toMatchObject({ isAuthenticated: false })
   })
 
   it('puts the stored identity on the request', async () => {
+    jest.mocked(getIdentity).mockReturnValue(identity)
+
     const server = hapi.server()
-    withFakeYar(server, identity)
     await server.register(pluginAuth)
-    server.route({
-      method: 'GET',
-      path: '/probe',
-      handler: (request) => request.auth.credentials
-    })
+    probeRoute(server)
 
     const response = await server.inject({ method: 'GET', url: '/probe' })
 
-    expect(response.result).toMatchObject({ email: 'citizen@example.com' })
+    expect(response.result).toMatchObject({
+      isAuthenticated: true,
+      credentials: { email: 'citizen@example.com' }
+    })
   })
 
   it('applies to routes registered before it, so plugin routes are covered too', async () => {
+    jest.mocked(getIdentity).mockReturnValue(identity)
+
     const server = hapi.server()
-    withFakeYar(server, identity)
-    server.route({
-      method: 'GET',
-      path: '/registered-first',
-      handler: (request) => ({
-        isAuthenticated: request.auth.isAuthenticated
-      })
-    })
+    probeRoute(server, '/registered-first')
 
     await server.register(pluginAuth)
 
@@ -77,6 +67,6 @@ describe('citizen-session strategy', () => {
       url: '/registered-first'
     })
 
-    expect(response.result).toEqual({ isAuthenticated: true })
+    expect(response.result).toMatchObject({ isAuthenticated: true })
   })
 })
