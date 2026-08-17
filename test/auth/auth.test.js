@@ -263,6 +263,16 @@ describe('sign in routes', () => {
     }
   )
 
+  it('starts a sign in from a link carrying a parameter it has no use for, because a citizen can arrive here from anywhere', async () => {
+    const response = await server.inject({
+      method: 'GET',
+      url: `${SIGN_IN_URL}&utm_source=email`
+    })
+
+    expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(response.headers.location).toBe(AUTHORIZATION_URL)
+  })
+
   it('normalises a return target carrying a control character before storing it, so the eventual redirect does not carry it raw', async () => {
     const login = await server.inject({
       method: 'GET',

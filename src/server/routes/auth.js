@@ -69,9 +69,13 @@ export default [
     },
     options: {
       validate: {
+        // A citizen can arrive here from anywhere, and a link that picked up
+        // a tracking parameter on the way should still start a sign in. The
+        // return target is the only key this route reads, and it is validated
+        // above, so the rest are accepted and ignored.
         query: Joi.object({
           returnUrl: returnUrlSchema.required()
-        })
+        }).unknown(true)
       }
     }
   }),
