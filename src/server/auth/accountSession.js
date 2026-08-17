@@ -58,43 +58,38 @@ export function clearSignInTransaction(yar) {
 const SERVICE_ORIGIN = new URL(config.get('baseUrl')).origin
 
 /**
- * The candidate resolved against this service's origin, for a value that
- * lands back inside it; null for anything else. A leading slash keeps the
- * value absolute within the service, and the origin comparison is what
- * decides the rest, so a value a URL parser sends elsewhere despite its
- * single leading `/` — a leading `\`, or a stray tab or newline the parser
- * strips first — is judged on where it lands.
+ * The local path (pathname and search) a candidate resolves to, for a value
+ * that stays within this service; null for anything else. It returns the
+ * parser's own result, so the stored value is already in the normalised form
+ * an HTTP header will accept.
+ *
+ * The last check is on the result rather than the input, and it is the one
+ * that matters. A dot segment resolves inside the origin, so `/.//host` keeps
+ * this service's origin while resolving to the path `//host` — which a
+ * browser reads as protocol-relative and follows to `host`. Judging the
+ * resolved path is what catches that; judging the input cannot, because the
+ * input holds a single leading slash and an origin that never changes.
  * @param {string} [value]
- * @returns {URL | null}
+ * @returns {string | null}
  */
-function parseLocalPath(value) {
-  if (
-    typeof value !== 'string' ||
-    !value.startsWith('/') ||
-    value.startsWith('//')
-  ) {
+export function localReturnPath(value) {
+  if (typeof value !== 'string' || !value.startsWith('/')) {
     return null
   }
 
   try {
     const url = new URL(value, SERVICE_ORIGIN)
-    return url.origin === SERVICE_ORIGIN ? url : null
+
+    if (url.origin !== SERVICE_ORIGIN) {
+      return null
+    }
+
+    const path = `${url.pathname}${url.search}`
+
+    return path.startsWith('//') ? null : path
   } catch {
     return null
   }
-}
-
-/**
- * The local path (pathname and search) a candidate resolves to, for a value
- * that stays within this service; null for anything else. It returns the
- * parser's own result, so the stored value is already in the normalised form
- * an HTTP header will accept.
- * @param {string} [value]
- * @returns {string | null}
- */
-export function localReturnPath(value) {
-  const url = parseLocalPath(value)
-  return url ? `${url.pathname}${url.search}` : null
 }
 
 /**

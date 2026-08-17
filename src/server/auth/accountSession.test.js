@@ -109,6 +109,54 @@ describe('citizen session', () => {
     expect(localReturnPath('/\n/evil.example')).toBeNull()
   })
 
+  it.each([
+    '/.//evil.example',
+    '/..//evil.example',
+    '/./\\evil.example',
+    '/../\\evil.example',
+    '/.///evil.example',
+    '/x/..//evil.example'
+  ])(
+    'has no resolved path for %s, whose dot segment keeps this origin while resolving to a protocol-relative path',
+    (payload) => {
+      // A dot segment resolves inside the origin, so the origin never
+      // changes and the value carries one leading slash. What makes it
+      // off-site is where it lands: `//evil.example`, which a browser reads
+      // as a host. Only a check on the resolved path sees it.
+      expect(localReturnPath(payload)).toBeNull()
+    }
+  )
+
+  it('lets no separator and prefix combination resolve to an off-site path', () => {
+    const payloads = []
+    const seps = ['/', '\\', '\t', '\n', '\r', '%2F', '%5C', ' ']
+    const prefixes = ['', '/', '//', '///', '/.', '/..', '/./', '/../', '/x/..']
+
+    for (const prefix of prefixes) {
+      for (const sep of seps) {
+        for (const host of ['attacker.example', 'evil.example']) {
+          payloads.push(
+            `${prefix}${sep}${host}`,
+            `${prefix}${sep}${sep}${host}`,
+            `${prefix}${sep}${sep}${sep}${host}`
+          )
+        }
+      }
+    }
+
+    // An accepted value has to be a path the browser resolves against the
+    // origin it is already on: one leading slash, and no scheme.
+    const leaks = payloads
+      .map((payload) => [payload, localReturnPath(payload)])
+      .filter(
+        ([, path]) =>
+          path !== null &&
+          (path.startsWith('//') || /^[a-z][a-z0-9+.-]*:/i.test(path))
+      )
+
+    expect(leaks).toEqual([])
+  })
+
   it('takes a path, so a fully qualified URL on this service’s own origin is not one', () => {
     // BASE_URL in the test environment. Accepting this would mean the return
     // target could name a host, and the guard would then rest on comparing
