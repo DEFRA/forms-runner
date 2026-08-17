@@ -3,8 +3,6 @@ import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
 
-type JWK = JsonWebKey & { kid?: string }
-
 /**
  * The provider accepts one client authentication method, `private_key_jwt`.
  * We hold the private half of an EC P-256 pair and sign a short-lived
@@ -15,7 +13,7 @@ type JWK = JsonWebKey & { kid?: string }
  * service signs with one.
  */
 async function clientKey() {
-  const jwk = JSON.parse(config.get('oidc.privateJwk')) as JWK
+  const jwk = JSON.parse(config.get('oidc.privateJwk')) as client.JWK
 
   return {
     key: await crypto.subtle.importKey(
@@ -30,14 +28,26 @@ async function clientKey() {
 }
 
 /**
- * The settings sign in needs, keyed by config path so a missing one is
- * reported by the name it is set under.
+ * These settings default to '' so a deployment with the flag off still boots.
+ * This plugin is only registered when the flag is on, so a value that is still
+ * empty here means sign in cannot work. They are keyed by config path, so the
+ * error names each missing one as it is set.
  */
-function requiredSettings() {
-  return {
+function checkConfigurationValid() {
+  const required = {
     'oidc.issuer': config.get('oidc.issuer'),
     'oidc.redirectUri': config.get('oidc.redirectUri'),
     'oidc.privateJwk': config.get('oidc.privateJwk')
+  }
+
+  const missing = Object.entries(required)
+    .filter(([, value]) => !value)
+    .map(([key]) => key)
+
+  if (missing.length > 0) {
+    throw new Error(
+      `Sign-in is enabled but missing configuration: ${missing.join(', ')}`
+    )
   }
 }
 
@@ -45,18 +55,7 @@ export default {
   plugin: {
     name: 'oidc-client',
     async register(server) {
-      // These settings default to '' so a deployment with the flag off still
-      // boots. This plugin is only registered when the flag is on, so the
-      // check belongs here. It names what is missing at boot.
-      const missing = Object.entries(requiredSettings())
-        .filter(([, value]) => !value)
-        .map(([key]) => key)
-
-      if (missing.length > 0) {
-        throw new Error(
-          `Sign-in is enabled but missing configuration: ${missing.join(', ')}`
-        )
-      }
+      checkConfigurationValid()
 
       const issuer = config.get('oidc.issuer')
 
