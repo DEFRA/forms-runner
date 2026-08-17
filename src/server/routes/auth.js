@@ -27,20 +27,13 @@ function cookieNames(state) {
 
 export default [
   /**
-   * @satisfies {ServerRoute<{ Query: { returnTo?: string } }>}
+   * @satisfies {ServerRoute<{ Query: { returnTo: string } }>}
    */
   ({
     method: 'GET',
     path: SIGN_IN_PATH,
     async handler(request, h) {
-      // Checked before the round trip starts. A return target this service
-      // cannot reach has only one ending, and reaching it costs the citizen a
-      // full sign in first, so it is worth saying so now.
-      const returnPath = localReturnPath(request.query.returnTo)
-
-      if (!returnPath) {
-        throw Boom.badRequest('Sign in needs a return path within this service')
-      }
+      const { returnTo } = request.query
 
       const oidcConfig = await request.server.app.oidc.getConfig()
 
@@ -52,7 +45,7 @@ export default [
         state,
         nonce,
         codeVerifier,
-        returnTo: returnPath
+        returnTo
       })
 
       logger.info(
@@ -78,7 +71,19 @@ export default [
     options: {
       validate: {
         query: Joi.object({
-          returnTo: Joi.string().optional()
+          // Resolved here rather than in the handler, so the value the
+          // handler stores is already the path it will redirect to. A target
+          // this service cannot reach answers 400 before the round trip
+          // starts, which is a sign in the citizen keeps.
+          returnTo: Joi.string()
+            .required()
+            .custom(
+              (value, helpers) =>
+                localReturnPath(value) ?? helpers.error('any.invalid')
+            )
+            .messages({
+              'any.invalid': '"returnTo" must be a path within this service'
+            })
         }).unknown(true)
       }
     }
