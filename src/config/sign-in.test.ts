@@ -18,7 +18,7 @@ describe('sign in configuration', () => {
       'USE_SIGN_IN_FEATURE',
       'OIDC_ISSUER',
       'OIDC_REDIRECT_URI',
-      'OIDC_CLIENT_PRIVATE_JWKS'
+      'OIDC_CLIENT_PRIVATE_JWK'
     ] as const
 
     const saved = Object.fromEntries(
@@ -40,7 +40,7 @@ describe('sign in configuration', () => {
         expect(freshConfig.get('useSignInFeature')).toBe(false)
         expect(freshConfig.get('oidc.issuer')).toBe('')
         expect(freshConfig.get('oidc.redirectUri')).toBe('')
-        expect(freshConfig.get('oidc.privateJwks')).toBe('')
+        expect(freshConfig.get('oidc.privateJwk')).toBe('')
       })
     } finally {
       if (savedDotenvPath === undefined) {

@@ -6,33 +6,17 @@ import { config } from '~/src/config/index.js'
 type JWK = JsonWebKey & { kid?: string }
 
 /**
- * The one key in the configured JWKS this service can sign an assertion
- * with. A JWKS is a set, so it is read as one and narrowed to the ES256
- * signing keys; exactly one of those is a key we can use, and any other
- * count is a configuration error worth naming.
- */
-function signingJwk(): JWK {
-  const jwks = JSON.parse(config.get('oidc.privateJwks')) as { keys?: JWK[] }
-
-  const signingKeys = (jwks.keys ?? []).filter(
-    (jwk) => jwk.use === 'sig' && jwk.alg === 'ES256'
-  )
-
-  if (signingKeys.length !== 1) {
-    throw new Error(
-      `oidc.privateJwks must hold exactly one ES256 signing key, found ${signingKeys.length}`
-    )
-  }
-
-  return signingKeys[0]
-}
-
-/**
  * The provider accepts one client authentication method, `private_key_jwt`.
  * We hold the private half of an EC P-256 pair and sign a short-lived
  * assertion with it; the provider holds the public half. There is no secret.
+ *
+ * The `kid` travels in the assertion header, which is how the provider picks
+ * the public half to verify against. That is what lets it hold both keys
+ * across a rotation while this service signs with one.
  */
-async function clientKey(jwk: JWK) {
+async function clientKey() {
+  const jwk = JSON.parse(config.get('oidc.privateJwk')) as JWK
+
   return {
     key: await crypto.subtle.importKey(
       'jwk',
@@ -54,14 +38,14 @@ function requiredSettings() {
   return {
     'oidc.issuer': config.get('oidc.issuer'),
     'oidc.redirectUri': config.get('oidc.redirectUri'),
-    'oidc.privateJwks': config.get('oidc.privateJwks')
+    'oidc.privateJwk': config.get('oidc.privateJwk')
   }
 }
 
 export default {
   plugin: {
     name: 'oidc-client',
-    register(server) {
+    async register(server) {
       // These settings default to '' so a deployment with the flag off still
       // boots. Registering this plugin means the flag is on, so the check
       // belongs here: it names any gap at boot, while an operator can still
@@ -78,9 +62,9 @@ export default {
 
       const issuer = config.get('oidc.issuer')
 
-      // Read here rather than at first sign-in, so a JWKS the service cannot
-      // sign with is named at boot alongside the settings above.
-      const jwk = signingJwk()
+      // Imported here rather than at first sign-in, so a key this service
+      // cannot sign with is named at boot alongside the settings above.
+      const key = await clientKey()
 
       // A local development provider is served over plain http. This is keyed
       // on the environment, so every deployed environment requires https.
@@ -100,7 +84,7 @@ export default {
             new URL(issuer),
             config.get('oidc.clientId'),
             undefined,
-            client.PrivateKeyJwt(await clientKey(jwk)),
+            client.PrivateKeyJwt(key),
             isLocal
               ? // eslint-disable-next-line @typescript-eslint/no-deprecated -- deliberate, local development only
                 { execute: [client.allowInsecureRequests] }

@@ -31,17 +31,16 @@ describe('oidc client plugin', () => {
   })
 
   it.each([
-    ['no ES256 signing key', '{"keys":[]}', 0],
+    ['is not a JWK', 'runner-1'],
     [
-      'more than one',
-      '{"keys":[{"use":"sig","alg":"ES256","kid":"a"},{"use":"sig","alg":"ES256","kid":"b"}]}',
-      2
+      'is the public half, which cannot sign',
+      '{"kty":"EC","crv":"P-256","x":"m5JL81lUX1OoRo9ghKhyWLpn_VtsQRLdjL5svpgKoWQ","y":"dGgOSKYH4j4-d3EMUZkdOQ5oV0rGjGWIDyGkEqRPxPo","use":"sig","alg":"ES256","kid":"runner-1"}'
     ]
   ])(
-    'fails registration when the JWKS holds %s, saying how many it found',
-    async (_case, jwks, found) => {
-      const previous = process.env.OIDC_CLIENT_PRIVATE_JWKS
-      process.env.OIDC_CLIENT_PRIVATE_JWKS = jwks
+    'fails registration when the configured key %s, so it surfaces at boot rather than at the first sign in',
+    async (_case, jwk) => {
+      const previous = process.env.OIDC_CLIENT_PRIVATE_JWK
+      process.env.OIDC_CLIENT_PRIVATE_JWK = jwk
 
       try {
         await jest.isolateModulesAsync(async () => {
@@ -50,12 +49,12 @@ describe('oidc client plugin', () => {
 
           const server = hapi.server()
 
-          await expect(server.register(freshPlugin)).rejects.toThrow(
-            `oidc.privateJwks must hold exactly one ES256 signing key, found ${found}`
-          )
+          // The message comes from JSON.parse or WebCrypto, so this asserts
+          // that registration rejects rather than pinning their wording.
+          await expect(server.register(freshPlugin)).rejects.toThrow()
         })
       } finally {
-        process.env.OIDC_CLIENT_PRIVATE_JWKS = previous
+        process.env.OIDC_CLIENT_PRIVATE_JWK = previous
       }
     }
   )
@@ -64,7 +63,7 @@ describe('oidc client plugin', () => {
     const unset = [
       'OIDC_ISSUER',
       'OIDC_REDIRECT_URI',
-      'OIDC_CLIENT_PRIVATE_JWKS'
+      'OIDC_CLIENT_PRIVATE_JWK'
     ] as const
 
     const saved = Object.fromEntries(
@@ -87,7 +86,7 @@ describe('oidc client plugin', () => {
         const server = hapi.server()
 
         await expect(server.register(freshPlugin)).rejects.toThrow(
-          'Sign-in is enabled but missing configuration: oidc.issuer, oidc.redirectUri, oidc.privateJwks'
+          'Sign-in is enabled but missing configuration: oidc.issuer, oidc.redirectUri, oidc.privateJwk'
         )
       })
     } finally {

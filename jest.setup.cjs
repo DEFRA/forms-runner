@@ -47,8 +47,8 @@ process.env.USE_SIGN_IN_FEATURE = 'false'
 process.env.OIDC_ISSUER = 'http://localhost:3011'
 process.env.OIDC_CLIENT_ID = 'runner'
 process.env.OIDC_REDIRECT_URI = 'http://localhost:3009/auth/callback'
-process.env.OIDC_CLIENT_PRIVATE_JWKS =
-  '{"keys":[{"kty":"EC","x":"m5JL81lUX1OoRo9ghKhyWLpn_VtsQRLdjL5svpgKoWQ","y":"dGgOSKYH4j4-d3EMUZkdOQ5oV0rGjGWIDyGkEqRPxPo","crv":"P-256","d":"47sONQHIME5DFfq4cz1idMmWttkEluHJ9nQltDyLVnI","use":"sig","alg":"ES256","kid":"runner-es256-test"}]}'
+process.env.OIDC_CLIENT_PRIVATE_JWK =
+  '{"kty":"EC","x":"m5JL81lUX1OoRo9ghKhyWLpn_VtsQRLdjL5svpgKoWQ","y":"dGgOSKYH4j4-d3EMUZkdOQ5oV0rGjGWIDyGkEqRPxPo","crv":"P-256","d":"47sONQHIME5DFfq4cz1idMmWttkEluHJ9nQltDyLVnI","use":"sig","alg":"ES256","kid":"runner-es256-test"}'
 process.env.FEEDBACK_VIA_EMAIL = 'defraforms@defra.gov.uk'
 process.env.PRIVATE_KEY_FOR_SECRETS = 'dummy-private-key'
 process.env.PAYMENT_PROVIDER_URL = 'https://test-card.payments.service.gov.uk'

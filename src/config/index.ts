@@ -372,11 +372,11 @@ export const config = convict({
       default: '',
       env: 'OIDC_REDIRECT_URI'
     } as SchemaObj<string>,
-    privateJwks: {
-      doc: 'This service’s private assertion key, as a JWKS',
+    privateJwk: {
+      doc: 'This service’s private assertion key, as a single ES256 JWK. The provider holds the public half, and may hold several to span a key rotation; this service signs with one.',
       format: String,
       default: '',
-      env: 'OIDC_CLIENT_PRIVATE_JWKS',
+      env: 'OIDC_CLIENT_PRIVATE_JWK',
       sensitive: true
     } as SchemaObj<string>
   },
