@@ -40,14 +40,14 @@
     "tmp": ">=0.2.4"
   },
   "engines": {
-    "node": "^22.11.0",
-    "npm": ">=10.9.0 <11.6.4"
+    "node": "^24.19.0",
+    "npm": "^11.17.0 || >=12.0.2"
   },
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
     "@aws-sdk/client-sns": "^3.1079.0",
-    "@defra/forms-engine-plugin": "^5.0.0-alpha.15",
-    "@defra/forms-model": "^3.0.694",
+    "@defra/forms-engine-plugin": "^5.0.0-alpha.19",
+    "@defra/forms-model": "^3.0.700",
     "@defra/hapi-tracing": "^1.30.0",
     "@elastic/ecs-pino-format": "^1.5.0",
     "@hapi/boom": "^10.0.1",
@@ -144,5 +144,13 @@
     "webpack": "^5.108.4",
     "webpack-assets-manifest": "^6.5.2",
     "webpack-cli": "^7.2.1"
+  },
+  "allowScripts": {
+    "@defra/forms-engine-plugin": true,
+    "@defra/hapi-tracing": true,
+    "@parcel/watcher": true,
+    "esbuild": true,
+    "unrs-resolver": true,
+    "fsevents": true
   }
 }
