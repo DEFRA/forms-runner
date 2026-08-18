@@ -75,7 +75,7 @@
     "humanize-duration": "^3.34.0",
     "i18next": "^26.0.5",
     "ioredis": "^5.11.1",
-    "joi": "^17.13.3",
+    "joi": "^17.13.4",
     "liquidjs": "^10.24.0",
     "lodash": "^4.17.21",
     "lru-cache": "^11.5.1",
