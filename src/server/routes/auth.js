@@ -15,6 +15,26 @@ import { returnUrlSchema } from '~/src/server/models/common.js'
 
 const SCOPES = 'openid email'
 
+/**
+ * The log attributes for one step of a sign in. CDP indexes attributes under
+ * `event`, so a line that carries them there can be searched on. Each value is
+ * a fixed string this file chooses, so the line says what happened and holds
+ * nothing the provider sent or the session keeps.
+ * @param {string} action - the step the line reports on
+ * @param {string} outcome - `success`, `failure` or `unknown`
+ * @param {string} reason - which of that step's outcomes this one is
+ */
+function signInEvent(action, outcome, reason) {
+  return {
+    event: {
+      category: 'authentication',
+      action,
+      outcome,
+      reason
+    }
+  }
+}
+
 export default [
   /**
    * @satisfies {ServerRoute<{ Query: { returnUrl: string } }>}
@@ -38,14 +58,6 @@ export default [
         returnUrl
       })
 
-      logger.info(
-        {
-          sessionId: request.yar.id,
-          state
-        },
-        '[signInStarted] Stored the sign-in transaction'
-      )
-
       const authorizationUrl = client.buildAuthorizationUrl(oidcConfig, {
         redirect_uri: config.get('oidc.redirectUri'),
         scope: SCOPES,
@@ -60,8 +72,8 @@ export default [
     options: {
       validate: {
         // A citizen can arrive here from anywhere, and a link that picked up
-        // a tracking parameter on the way should still start a sign in. The
-        // return target is the only key this route reads, and it is validated
+        // a tracking parameter on the way should still start a sign in.
+        // `returnUrl` is the only key this route reads, and it is validated
         // above, so the rest are accepted and ignored.
         query: Joi.object({
           returnUrl: returnUrlSchema.required()
@@ -84,12 +96,11 @@ export default [
       // callback that does not match leaves it for the one that does.
       if (!transaction || transaction.state !== request.query.state) {
         logger.warn(
-          {
-            sessionId: request.yar.id,
-            reason: transaction ? 'stateMismatch' : 'noTransactionInSession',
-            stateFromProvider: request.query.state,
-            stateInSession: transaction?.state ?? null
-          },
+          signInEvent(
+            'sign-in-callback',
+            'failure',
+            transaction ? 'stateMismatch' : 'noTransactionInSession'
+          ),
           '[signInRejected] Callback did not match a sign-in this session started'
         )
 
@@ -142,7 +153,13 @@ export default [
           idToken: tokens.id_token
         })
       } catch (err) {
-        logger.error(err, '[signInFailed] Could not complete sign in')
+        logger.error(
+          {
+            err,
+            ...signInEvent('sign-in-callback', 'failure', 'codeExchangeFailed')
+          },
+          '[signInFailed] Could not complete sign in'
+        )
         throw Boom.forbidden('Sign in could not be completed')
       } finally {
         // One attempt per transaction, whether it succeeded or not. To try
