@@ -2,6 +2,7 @@ import { slugSchema } from '@defra/forms-model'
 import Joi from 'joi'
 
 import { FORM_PREFIX, HOMEPAGE_PREFIX } from '~/src/server/constants.js'
+import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 import { signInUrl } from '~/src/server/utils/utils.js'
 
@@ -23,9 +24,13 @@ export default [
         return h.redirect(signInUrl(`${HOMEPAGE_PREFIX}/${slug}`))
       }
 
+      // The form name is content the form owner writes, so it is translated
+      // from the form definition rather than from the runner's own strings.
+      const { translator } = await getFormTranslator(request, form)
+
       return h.view('homepage', {
-        form,
-        startUrl: `${FORM_PREFIX}/${slug}`
+        startUrl: `${FORM_PREFIX}/${slug}`,
+        context: { translator }
       })
     },
     options: {
