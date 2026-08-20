@@ -92,8 +92,6 @@ export function context(request) {
     slug: isResponseOK ? params?.slug : undefined,
     user: credentials?.email ? { email: credentials.email } : null,
 
-    language,
-
     tR: (key, opts) => runnerT(key, language, opts),
     translator,
 

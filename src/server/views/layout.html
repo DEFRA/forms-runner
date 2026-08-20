@@ -138,7 +138,6 @@
     menuLabelHide: tR('signIn.header.menuLabelHide', { name: user.email }) if isSignedIn,
     homepageLink: currentPath if context.isForceAccess else "https://www.gov.uk",
     productNameHtml: productName | safe | trim,
-    lng: language,
     serviceNavigationParams: serviceNavigationParams
   }) }}
 {% endblock %}

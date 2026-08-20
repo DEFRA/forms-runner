@@ -19,15 +19,14 @@
     - menuText (string): label on the toggle at small screen sizes
     - menuLabelShow / menuLabelHide (string): screen reader labels for it
     - homepageLink (string): the GOV.UK logo destination
-    - lng (string): "cy" for Welsh
+    - signOutLinkText (string): label on the sign out link
     - serviceNavigationParams (object): passed to govukServiceNavigation;
       the bar renders only when it carries a serviceName
 #}
 {%- set menuLabelShow = params.menuLabelShow -%}
 {%- set menuLabelHide = params.menuLabelHide -%}
 {%- from "govuk/components/service-navigation/macro.njk" import govukServiceNavigation -%}
-{%- set lngQueryString = "?lng=cy" if (params.lng === "cy") else "" -%}
-{%- set signOutLinkText = "Allgofnodi" if (params.lng === "cy") else "Sign out" -%}
+{%- set signOutLinkText = params.signOutLinkText | default("Sign out") -%}
 {%- set accountLink = params.accountLink -%}
 {%- set accountName = params.accountName -%}
 {%- set homepageLink = params.homepageLink if params.homepageLink else "https://www.gov.uk/" -%}
