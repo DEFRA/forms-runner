@@ -122,8 +122,8 @@ export function localReturnPath(value) {
 
 /**
  * Where to send a citizen who has to sign in before they can see `path`. The
- * sign-in route reads the return target from the query string and puts it
- * through `localReturnPath`, so it takes a path this service can reach.
+ * sign-in route reads `returnUrl` from the query string and puts it through
+ * `localReturnPath`, so it takes a path this service can reach.
  * @param {string} path
  * @returns {string}
  */

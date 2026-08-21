@@ -1,14 +1,11 @@
-// The One Login service header's Sass is written for the legacy `@import`
-// system: it calls `govuk-spacing()` and friends as globals rather than
-// through a module namespace, so those have to be in scope before it loads.
-// `govuk/base` is the settings, tools and helpers on their own, so it puts
-// them in scope; the font faces are left to `application.scss`, which already
-// declares them, so this file emits only the header's own rules.
+// The One Login header Sass uses the legacy `@import` system and calls
+// `govuk-spacing()` and friends as globals, so `govuk/base` (settings, tools
+// and helpers) is imported first to put them in scope. The font faces are
+// declared in `application.scss`, so they are switched off here.
 //
-// The `-no-imports` variant is the one to take, because it leaves the GOV.UK
-// Frontend styles themselves to `application.scss` — the full variant pulls in
-// the grid, width container and service navigation again, which would emit a
-// second copy of each.
+// The `-no-imports` variant is used because the full one pulls in the grid,
+// width container and service navigation again, duplicating the GOV.UK
+// Frontend rules `application.scss` already emits.
 $govuk-include-default-font-face: false;
 
 @import "govuk-frontend/dist/govuk/base";
