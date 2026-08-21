@@ -36,7 +36,9 @@ export function context(request) {
     }
   }
 
-  const { params, query = {}, response, state } = request ?? {}
+  const { params, query = {}, response, state, auth } = request ?? {}
+
+  const credentials = auth?.credentials
 
   let language = resolveLanguage(request?.query, request?.yar)
 
@@ -81,12 +83,14 @@ export function context(request) {
       serviceName: config.get('serviceName'),
       serviceVersion: config.get('serviceVersion'),
       useMapsFeature: config.get('useMapsFeature'),
+      useSignInFeature: config.get('useSignInFeature'),
       feedbackViaEmail: config.get('feedbackViaEmail')
     },
     cspNonce: request?.plugins.blankie?.nonces?.script,
     currentPath: request ? `${request.path}${request.url.search}` : undefined,
     previewMode: isPreviewMode ? formState : undefined,
     slug: isResponseOK ? params?.slug : undefined,
+    user: credentials?.email ? { email: credentials.email } : null,
 
     tR: (key, opts) => runnerT(key, language, opts),
     translator,

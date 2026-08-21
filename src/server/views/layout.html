@@ -6,10 +6,10 @@
 {% from "govuk/components/skip-link/macro.njk" import govukSkipLink -%}
 {% from "govuk/macros/attributes.njk" import govukAttributes -%}
 {% from "components/service-banner/macro.njk" import appServiceBanner -%}
+{% from "components/service-header/macro.njk" import appServiceHeader -%}
 {% from "components/tag-env/macro.njk" import appTagEnv -%}
 {% from "govuk/components/cookie-banner/macro.njk" import govukCookieBanner -%}
 {% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner -%}
-{% from "govuk/components/service-navigation/macro.njk" import govukServiceNavigation %}
 
 {% set productName %}
   {% if config.cdpEnvironment !== "prod" %}
@@ -123,15 +123,22 @@
       text: config.serviceBannerText
     }) }}
   {% endif %}
-  {{ govukHeader({
-    homepageUrl: currentPath if context.isForceAccess else "https://www.gov.uk",
-    containerClasses: "govuk-width-container",
-    classes: "govuk-header--full-width-border",
-    productName: productName | safe | trim
-  }) }}
-  {{ govukServiceNavigation({
+  {% set serviceNavigationParams = {
     serviceName: context.translator.tForm('title') if context else name | default(config.serviceName),
     serviceUrl: currentPath if context.isForceAccess else serviceUrl
+  } %}
+  {# The account details render the account menu. Without them the header
+    shows the plain bar. #}
+  {% set isSignedIn = config.useSignInFeature and user and slug %}
+  {{ appServiceHeader({
+    accountName: user.email if isSignedIn,
+    accountLink: ("/homepage/" + slug) if isSignedIn,
+    menuText: tR('signIn.header.menuText') if isSignedIn,
+    menuLabelShow: tR('signIn.header.menuLabelShow', { name: user.email }) if isSignedIn,
+    menuLabelHide: tR('signIn.header.menuLabelHide', { name: user.email }) if isSignedIn,
+    homepageLink: currentPath if context.isForceAccess else "https://www.gov.uk",
+    productNameHtml: productName | safe | trim,
+    serviceNavigationParams: serviceNavigationParams
   }) }}
 {% endblock %}
 {% block beforeContent %}

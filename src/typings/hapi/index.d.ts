@@ -3,6 +3,7 @@
 import { type FormModel } from '@defra/forms-engine-plugin/engine/models/index.js'
 import { type Plugin } from '@hapi/hapi'
 import { type ServerYar, type Yar } from '@hapi/yar'
+import { type Configuration } from 'openid-client'
 import { type Logger } from 'pino'
 
 import { type SAVE_AND_EXIT_PAYLOAD } from '~/src/server/constants.js'
@@ -11,6 +12,17 @@ import { type CacheService } from '~/src/server/services/index.js'
 declare module '@hapi/hapi' {
   // Here we are decorating Hapi interface types with
   // props from plugins which doesn't export @types
+
+  // The citizen-session scheme puts the signed-in identity straight on
+  // request.auth.credentials, so this is the credentials shape for every
+  // authenticated request in the app.
+  interface AuthCredentials {
+    iss?: string
+    sub?: string
+    email?: string
+    idToken?: string
+  }
+
   interface PluginProperties {
     crumb: {
       generate?: (request: Request) => string
@@ -44,6 +56,9 @@ declare module '@hapi/hapi' {
   interface ServerApplicationState {
     model?: FormModel
     models: Map<string, { model: FormModel; updatedAt: Date }>
+    oidc: {
+      getConfig: () => Promise<Configuration>
+    }
   }
 }
 
@@ -95,5 +110,23 @@ declare module 'hapi-pulse' {
 declare module '@hapi/yar' {
   interface YarFlashes {
     [SAVE_AND_EXIT_PAYLOAD]: object
+  }
+
+  // Why the session holds each of these is on the `Identity` and
+  // `SignInTransaction` typedefs in src/server/auth/accountSession.js, which
+  // is the only place that reads or writes them.
+  interface YarValues {
+    citizen: {
+      iss: string
+      sub: string
+      email: string
+      idToken: string
+    }
+    'auth:signInTransaction': {
+      state: string
+      nonce: string
+      codeVerifier: string
+      returnUrl: string
+    }
   }
 }

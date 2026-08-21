@@ -13,12 +13,28 @@
   }
 
   // Override service header alignment
-  .cross-service-header & {
+  .rebranded-cross-service-header & {
     margin: -2px 0 0 govuk-spacing(1);
 
     // Align with product name
     @include govuk-media-query($from: tablet) {
       margin: 0 0 0 govuk-spacing(2);
     }
+  }
+}
+
+// The One Login logo slot is inline, which puts the tag on the text baseline.
+// A flex row centres it on the logotype.
+.rebranded-one-login-header__logo {
+  display: flex;
+  align-items: center;
+
+  .rebranded-one-login-header__link--homepage {
+    display: flex;
+    align-items: center;
+  }
+
+  .app-tag--env {
+    margin: 0;
   }
 }

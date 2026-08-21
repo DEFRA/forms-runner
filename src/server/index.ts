@@ -33,12 +33,14 @@ import { buildRedisClient } from '~/src/server/common/helpers/redis-client.js'
 import { FORM_PREFIX, SAVE_AND_EXIT_PAYLOAD } from '~/src/server/constants.js'
 import { FeedbackPageController } from '~/src/server/plugins/FeedbackPageController.js'
 import { SummaryPageWithConfirmationEmailController } from '~/src/server/plugins/SummaryPageWithConfirmationEmailController.js'
+import pluginAuth from '~/src/server/plugins/auth.js'
 import { configureBlankiePlugin } from '~/src/server/plugins/blankie.js'
 import { configureCrumbPlugin } from '~/src/server/plugins/crumb.js'
 import pluginErrorPages from '~/src/server/plugins/errorPages.js'
 import { context } from '~/src/server/plugins/nunjucks/context.js'
 import { paths } from '~/src/server/plugins/nunjucks/environment.js'
 import { plugin as pluginViews } from '~/src/server/plugins/nunjucks/index.js'
+import pluginOidcClient from '~/src/server/plugins/oidc-client.js'
 import pluginPulse from '~/src/server/plugins/pulse.js'
 import pluginRouter from '~/src/server/plugins/router.js'
 import pluginSession from '~/src/server/plugins/session.js'
@@ -214,6 +216,12 @@ export async function createServer(routeConfig?: RouteConfig) {
   const pluginBlankie = configureBlankiePlugin()
 
   await server.register(pluginSession)
+
+  if (config.get('useSignInFeature')) {
+    await server.register(pluginOidcClient)
+    await server.register(pluginAuth)
+  }
+
   await server.register(pluginPulse)
   await server.register(inert)
   await server.register(Scooter)

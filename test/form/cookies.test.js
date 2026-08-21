@@ -335,7 +335,12 @@ describe(`Cookie preferences`, () => {
     expect($input).toBeChecked()
   })
 
-  test('returns bad request for invalid redirect urls', async () => {
+  // One case, because it proves the route runs the return path through
+  // `returnUrlSchema`. What that schema accepts is `localReturnPath`, which
+  // src/server/utils/utils.test.js covers on its own.
+  test('returns bad request for a redirect url that names another site', async () => {
+    const url = 'https://my-malicious-url.com'
+
     server = await createServer({
       formFileName: 'basic.js',
       formFilePath: join(import.meta.dirname, 'definitions'),
@@ -345,13 +350,33 @@ describe(`Cookie preferences`, () => {
 
     const { response } = await renderResponse(server, {
       method: 'POST',
-      url: `/help/cookie-preferences/basic?returnUrl=${encodeURIComponent('https://my-malicious-url.com')}`,
+      url: `/help/cookie-preferences/basic?returnUrl=${encodeURIComponent(url)}`,
       payload: {
         'cookies[analytics]': 'yes'
       }
     })
 
     expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
+  })
+
+  test('redirects to this page when no return url is given', async () => {
+    server = await createServer({
+      formFileName: 'basic.js',
+      formFilePath: join(import.meta.dirname, 'definitions'),
+      enforceCsrf: false
+    })
+    await server.initialize()
+
+    const { response } = await renderResponse(server, {
+      method: 'POST',
+      url: '/help/cookie-preferences/basic',
+      payload: {
+        'cookies[analytics]': 'yes'
+      }
+    })
+
+    expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(response.headers.location).toBe('/help/cookie-preferences/basic')
   })
 })
 

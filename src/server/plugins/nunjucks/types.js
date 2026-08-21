@@ -21,6 +21,7 @@
  * @property {string} [previewMode] - Preview mode
  * @property {string} [slug] - Form slug
  * @property {string} [formId] - Form id
+ * @property {{ email: string } | null} [user] - the signed-in citizen, if any
  * @property {(asset?: string) => string} getAssetPath - Asset path resolver
  * @property {(key: string, opts?: Record<string, unknown>) => string | string[]} tR - translation function for `forms-runner`
  * @property {string} [language] - the current language

@@ -1,7 +1,6 @@
 import {
   getCacheService,
-  handleLegacyRedirect,
-  isPathRelative
+  handleLegacyRedirect
 } from '@defra/forms-engine-plugin/engine/helpers.js'
 import {
   crumbSchema,
@@ -30,9 +29,12 @@ import { type CookieConsent } from '~/src/common/types.js'
 import { config } from '~/src/config/index.js'
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { t as runnerT } from '~/src/server/i18n/index.js'
+import { returnUrlSchema } from '~/src/server/models/common.js'
 import { getErrorPreviewHandler } from '~/src/server/plugins/error-preview/error-preview.js'
 import {
+  authRoutes,
   healthRoute,
+  homepageRoutes,
   publicRoutes,
   saveAndExitRoutes
 } from '~/src/server/routes/index.js'
@@ -73,6 +75,11 @@ export default {
   plugin: {
     name: 'router',
     register: (server) => {
+      if (config.get('useSignInFeature')) {
+        server.route(authRoutes as ServerRoute[])
+        server.route(homepageRoutes)
+      }
+
       server.route(routes)
       server.route(saveAndExitRoutes as ServerRoute[])
 
@@ -257,10 +264,6 @@ export default {
           const { slug } = params
           let { returnUrl } = query
 
-          if (returnUrl && !isPathRelative(returnUrl)) {
-            throw Boom.badRequest('Return URL must be relative')
-          }
-
           const analyticsDecision = (
             payload['cookies[analytics]'] ?? ''
           ).toLowerCase()
@@ -306,7 +309,7 @@ export default {
               'cookies[dismissed]': Joi.string().valid('yes', 'no').optional()
             }),
             query: Joi.object({
-              returnUrl: Joi.string().optional()
+              returnUrl: returnUrlSchema.optional()
             })
           }
         }

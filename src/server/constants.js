@@ -1,5 +1,8 @@
 export const PREVIEW_PATH_PREFIX = '/preview'
 export const ERROR_PREVIEW_PATH_PREFIX = '/error-preview'
 export const FORM_PREFIX = '/form'
+export const HOMEPAGE_PREFIX = '/homepage'
+export const SIGN_IN_PATH = '/auth/sign-in'
+export const CALLBACK_PATH = '/auth/callback'
 export const SAVE_AND_EXIT_PAYLOAD = 'SAVE_AND_EXIT_PAYLOAD'
 export const EN_GB = 'en-GB'

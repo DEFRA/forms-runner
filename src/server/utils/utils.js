@@ -2,7 +2,7 @@ import { getAvailableLanguages } from '@defra/forms-engine-plugin'
 import { getTraceId } from '@defra/hapi-tracing'
 
 import { config } from '~/src/config/index.js'
-import { EN_GB } from '~/src/server/constants.js'
+import { EN_GB, SIGN_IN_PATH } from '~/src/server/constants.js'
 
 /**
  * Returns a set of headers to use in an HTTP request, merging them with any existing headers in options.
@@ -78,6 +78,56 @@ export function getAllLanguages() {
       ({ metadata: { translations: { cy: {} } } })
     )
   )
+}
+
+/**
+ * An origin to resolve candidate paths against. `new URL` needs a base to
+ * resolve a path, and this one is on the reserved `.invalid` TLD so it names
+ * no real host. It is only used for the comparison below and is dropped from
+ * the returned value.
+ */
+const LOCAL_ORIGIN = 'https://runner.invalid'
+
+/**
+ * The path (pathname and search) a value resolves to when it stays inside
+ * this service, or null. The returned value comes from the URL parser, so it
+ * is already escaped for use in a Location header.
+ *
+ * The final check is on the resolved path, not the input. A dot segment
+ * resolves inside the origin, so `/.//host` has one leading slash and keeps
+ * the local origin, but resolves to the path `//host`. Browsers read that as
+ * protocol-relative and go to `host`.
+ * @param {string} [value]
+ * @returns {string | null}
+ */
+export function localReturnPath(value) {
+  if (typeof value !== 'string' || !value.startsWith('/')) {
+    return null
+  }
+
+  try {
+    const url = new URL(value, LOCAL_ORIGIN)
+
+    if (url.origin !== LOCAL_ORIGIN) {
+      return null
+    }
+
+    const path = `${url.pathname}${url.search}`
+
+    return path.startsWith('//') ? null : path
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Sign-in URL that returns to `path` afterwards. The sign-in route validates
+ * `returnUrl` with `localReturnPath`, so `path` must be local.
+ * @param {string} path
+ * @returns {string}
+ */
+export function signInUrl(path) {
+  return `${SIGN_IN_PATH}?returnUrl=${encodeURIComponent(path)}`
 }
 
 /**

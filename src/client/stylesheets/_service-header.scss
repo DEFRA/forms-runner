@@ -1,0 +1,10 @@
+// The One Login header Sass uses legacy `@import` and expects GOV.UK Frontend
+// functions as globals, so `govuk/base` is imported first. Font faces are
+// off because `application.scss` declares them.
+//
+// `-no-imports` is used because the full variant re-emits the grid, width
+// container and service navigation.
+$govuk-include-default-font-face: false;
+
+@import "govuk-frontend/dist/govuk/base";
+@import "@govuk-one-login/service-header/dist/styles/service-header-no-imports";

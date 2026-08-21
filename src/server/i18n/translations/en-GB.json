@@ -257,6 +257,17 @@
     "errorSummaryHeading": "There is a problem",
     "advancedSettingsHeading": "If you set answer limits"
   },
+  "signIn": {
+    "homepage": {
+      "caption": "Manage your form",
+      "startButton": "Start a new form"
+    },
+    "header": {
+      "menuText": "Account",
+      "menuLabelShow": "Show [[name]] menu",
+      "menuLabelHide": "Hide [[name]] menu"
+    }
+  },
   "layout": {
     "errorPrefix": "Error: ",
     "skipLink": "Skip to main content",
