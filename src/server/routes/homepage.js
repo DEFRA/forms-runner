@@ -24,8 +24,8 @@ export default [
         return h.redirect(signInUrl(`${HOMEPAGE_PREFIX}/${slug}`))
       }
 
-      // The form name is content the form owner writes, so it is translated
-      // from the form definition rather than from the runner's own strings.
+      // The form name comes from the form definition, so it is translated
+      // with the form's translator.
       const { translator } = await getFormTranslator(request, form)
 
       return h.view('homepage', {

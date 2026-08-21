@@ -16,13 +16,12 @@ import { returnUrlSchema } from '~/src/server/models/common.js'
 const SCOPES = 'openid email'
 
 /**
- * The log attributes for one step of a sign in. CDP indexes attributes under
- * `event`, so a line that carries them there can be searched on. Each value is
- * a fixed string this file chooses, so the line says what happened and holds
- * nothing the provider sent or the session keeps.
- * @param {string} action - the step the line reports on
+ * Log attributes for a sign-in step. CDP indexes the `event` object, so these
+ * are searchable. Values are fixed strings; nothing from the provider or the
+ * session is logged.
+ * @param {string} action
  * @param {string} outcome - `success`, `failure` or `unknown`
- * @param {string} reason - which of that step's outcomes this one is
+ * @param {string} reason
  */
 function signInEvent(action, outcome, reason) {
   return {
@@ -71,10 +70,8 @@ export default [
     },
     options: {
       validate: {
-        // A citizen can arrive here from anywhere, and a link that picked up
-        // a tracking parameter on the way should still start a sign in.
-        // `returnUrl` is the only key this route reads, and it is validated
-        // above, so the rest are accepted and ignored.
+        // Only `returnUrl` is read. Other keys, such as tracking parameters,
+        // are ignored so they do not block sign in.
         query: Joi.object({
           returnUrl: returnUrlSchema.required()
         }).unknown(true)
