@@ -22,3 +22,20 @@
     }
   }
 }
+
+// The One Login header lays the logo slot out inline, so a tag placed beside
+// it sits on the text baseline. Lay the slot out as a flex row instead, so
+// the tag centres on the logotype.
+.rebranded-one-login-header__logo {
+  display: flex;
+  align-items: center;
+
+  .rebranded-one-login-header__link--homepage {
+    display: flex;
+    align-items: center;
+  }
+
+  .app-tag--env {
+    margin: 0;
+  }
+}
