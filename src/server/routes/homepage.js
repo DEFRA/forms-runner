@@ -13,31 +13,28 @@ import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 import { signInUrl } from '~/src/server/utils/utils.js'
 
-/**
- * A path that fails validation names no homepage, so it gets the 404 page
- * rather than a bad-request error.
- * @returns {never}
- */
-function notFoundAction() {
+// A path that fails validation names no homepage, so it gets the 404 page
+const notFoundAction = () => {
   throw Boom.notFound()
 }
 
 /**
  * Renders the homepage for the form state the URL names: live for
  * `/homepage/{slug}`, a preview for `/homepage/preview/{state}/{slug}`.
- * @param {Request} request
- * @param {ResponseToolkit} h
+ * @param {Request<{ Params: FormParams }>} request
+ * @param {ResponseToolkit<{ Params: FormParams }>} h
  */
 async function homepageHandler(request, h) {
   const { slug } = request.params
-  const { isPreview, state } = checkFormStatus(
-    /** @type {FormParams} */ (request.params)
-  )
+  const { isPreview, state } = checkFormStatus(request.params)
 
   // Look up the form before the sign-in check, so an unknown slug gets a
   // 404 instead of a trip through sign in.
   const form = await getFormMetadata(slug)
 
+  // The citizen-session strategy is the server-wide default in `try` mode
+  // and only reads the session, so the handler owns the sign-in redirect;
+  // `required` mode answers a bare 401 with no way to carry the return path.
   if (!request.auth.isAuthenticated) {
     // The request path is the homepage variant being visited, so sign-in
     // returns the user to the same live or preview homepage.
@@ -63,11 +60,11 @@ async function homepageHandler(request, h) {
   })
 }
 
-/**
- * @type {ServerRoute[]}
- */
 export default [
-  {
+  /**
+   * @satisfies {ServerRoute<{ Params: FormParams }>}
+   */
+  ({
     method: 'GET',
     path: `${HOMEPAGE_PREFIX}/{slug}`,
     handler: homepageHandler,
@@ -77,8 +74,11 @@ export default [
         failAction: notFoundAction
       }
     }
-  },
-  {
+  }),
+  /**
+   * @satisfies {ServerRoute<{ Params: FormParams }>}
+   */
+  ({
     method: 'GET',
     path: `${HOMEPAGE_PREFIX}${PREVIEW_PATH_PREFIX}/{state}/{slug}`,
     handler: homepageHandler,
@@ -88,7 +88,7 @@ export default [
         failAction: notFoundAction
       }
     }
-  }
+  })
 ]
 
 /**
