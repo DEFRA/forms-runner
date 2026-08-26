@@ -84,6 +84,10 @@ describe('per-form homepage', () => {
 
     const $start = container.getByRole('button', { name: 'Start a new form' })
     expect($start).toHaveAttribute('href', '/form/test-form')
+
+    expect(
+      container.queryByRole('region', { name: 'Important' })
+    ).not.toBeInTheDocument()
   })
 
   it('shows the signed-in citizen’s email, linked to their homepage', async () => {
@@ -148,6 +152,34 @@ describe('per-form homepage', () => {
       expect(container.getByRole('link', { name: EMAIL })).toHaveAttribute(
         'href',
         '/homepage/preview/draft/test-form'
+      )
+    })
+
+    it('warns that a draft preview is not for personal information', async () => {
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: '/homepage/preview/draft/test-form',
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(
+        container.getByRole('region', { name: 'Important' })
+      ).toHaveTextContent(
+        'This is a preview of a draft form. Do not enter personal information.'
+      )
+    })
+
+    it('warns that a live preview is not for personal information', async () => {
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: '/homepage/preview/live/test-form',
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(
+        container.getByRole('region', { name: 'Important' })
+      ).toHaveTextContent(
+        'This is a preview of a live form. Do not enter personal information.'
       )
     })
 
