@@ -1,10 +1,67 @@
+import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
+import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
 import { slugSchema } from '@defra/forms-model'
+import Boom from '@hapi/boom'
 import Joi from 'joi'
 
-import { FORM_PREFIX, HOMEPAGE_PREFIX } from '~/src/server/constants.js'
+import {
+  FORM_PREFIX,
+  HOMEPAGE_PREFIX,
+  PREVIEW_PATH_PREFIX
+} from '~/src/server/constants.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 import { signInUrl } from '~/src/server/utils/utils.js'
+
+/**
+ * A path that fails validation names no homepage, so it gets the 404 page
+ * rather than a bad-request error.
+ * @returns {never}
+ */
+function notFoundAction() {
+  throw Boom.notFound()
+}
+
+/**
+ * Renders the homepage for the form state the URL names: live for
+ * `/homepage/{slug}`, a preview for `/homepage/preview/{state}/{slug}`.
+ * @param {Request} request
+ * @param {ResponseToolkit} h
+ */
+async function homepageHandler(request, h) {
+  const { slug } = request.params
+  const { isPreview, state } = checkFormStatus(
+    /** @type {FormParams} */ (request.params)
+  )
+
+  // Look up the form before the sign-in check, so an unknown slug gets a
+  // 404 instead of a trip through sign in.
+  const form = await getFormMetadata(slug)
+
+  if (!request.auth.isAuthenticated) {
+    // The request path is the homepage variant being visited, so sign-in
+    // returns the user to the same live or preview homepage.
+    return h.redirect(signInUrl(request.path))
+  }
+
+  // A preview names its state in the URL. The live homepage leaves the
+  // status to the translator's own fallback, which serves forms that have
+  // no live version yet.
+  const { translator } = await getFormTranslator(
+    request,
+    form,
+    isPreview ? state : undefined
+  )
+
+  const startUrl = isPreview
+    ? `${FORM_PREFIX}${PREVIEW_PATH_PREFIX}/${state}/${slug}`
+    : `${FORM_PREFIX}/${slug}`
+
+  return h.view('homepage', {
+    startUrl,
+    context: { translator }
+  })
+}
 
 /**
  * @type {ServerRoute[]}
@@ -13,34 +70,28 @@ export default [
   {
     method: 'GET',
     path: `${HOMEPAGE_PREFIX}/{slug}`,
-    async handler(request, h) {
-      const { slug } = request.params
-
-      // Look up the form before the sign-in check, so an unknown slug gets a
-      // 404 instead of a trip through sign in.
-      const form = await getFormMetadata(slug)
-
-      if (!request.auth.isAuthenticated) {
-        return h.redirect(signInUrl(`${HOMEPAGE_PREFIX}/${slug}`))
-      }
-
-      // The form name comes from the form definition, so it is translated
-      // with the form's translator.
-      const { translator } = await getFormTranslator(request, form)
-
-      return h.view('homepage', {
-        startUrl: `${FORM_PREFIX}/${slug}`,
-        context: { translator }
-      })
-    },
+    handler: homepageHandler,
     options: {
       validate: {
-        params: Joi.object({ slug: slugSchema }).required()
+        params: Joi.object({ slug: slugSchema }).required(),
+        failAction: notFoundAction
+      }
+    }
+  },
+  {
+    method: 'GET',
+    path: `${HOMEPAGE_PREFIX}${PREVIEW_PATH_PREFIX}/{state}/{slug}`,
+    handler: homepageHandler,
+    options: {
+      validate: {
+        params: Joi.object({ state: stateSchema, slug: slugSchema }).required(),
+        failAction: notFoundAction
       }
     }
   }
 ]
 
 /**
- * @import { ServerRoute } from '@hapi/hapi'
+ * @import { FormParams } from '@defra/forms-engine-plugin/types'
+ * @import { Request, ResponseToolkit, ServerRoute } from '@hapi/hapi'
  */

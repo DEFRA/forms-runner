@@ -99,6 +99,68 @@ describe('per-form homepage', () => {
     )
   })
 
+  describe('preview homepages', () => {
+    it('sends a signed-out user to sign in, returning to the preview homepage', async () => {
+      const response = await server.inject({
+        method: 'GET',
+        url: '/homepage/preview/draft/test-form'
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe(
+        '/auth/sign-in?returnUrl=%2Fhomepage%2Fpreview%2Fdraft%2Ftest-form'
+      )
+    })
+
+    it('starts the draft preview form from the draft preview homepage', async () => {
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: '/homepage/preview/draft/test-form',
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(
+        container.getByRole('heading', { name: 'Test form', level: 1 })
+      ).toBeInTheDocument()
+
+      const $start = container.getByRole('button', { name: 'Start a new form' })
+      expect($start).toHaveAttribute('href', '/form/preview/draft/test-form')
+    })
+
+    it('starts the live preview form from the live preview homepage', async () => {
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: '/homepage/preview/live/test-form',
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      const $start = container.getByRole('button', { name: 'Start a new form' })
+      expect($start).toHaveAttribute('href', '/form/preview/live/test-form')
+    })
+
+    it('links the signed-in user’s email to the preview homepage they are on', async () => {
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: '/homepage/preview/draft/test-form',
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(container.getByRole('link', { name: EMAIL })).toHaveAttribute(
+        'href',
+        '/homepage/preview/draft/test-form'
+      )
+    })
+
+    it('answers not found for a state that is not draft or live', async () => {
+      const response = await server.inject({
+        method: 'GET',
+        url: '/homepage/preview/banana/test-form'
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.NOT_FOUND)
+    })
+  })
+
   it('shows a signed-out citizen no account control, on a page that does not gate on auth', async () => {
     // The account menu only says who is signed in, so a signed-out user sees
     // the plain header. They reach sign in through a page that requires it.
