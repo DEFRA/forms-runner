@@ -121,8 +121,9 @@ export async function generateReferenceNumber(prefix) {
   const postJsonByType =
     /** @type {typeof postJson<GenerateReferenceNumber>} */ (postJson)
 
+  const query = prefix ? `?prefix=${prefix}` : ''
   const { payload: results } = await postJsonByType(
-    `${submissionUrl}/submission/generate-reference-number?prefix=${prefix}`,
+    `${submissionUrl}/submission/generate-reference-number${query}`,
     { payload: {} }
   )
 
