@@ -114,6 +114,26 @@ export async function validateSaveAndExitCredentials(
 }
 
 /**
+ * Generates a unique reference number
+ * @param {string} [prefix] - the prefix
+ */
+export async function generateReferenceNumber(prefix) {
+  const postJsonByType =
+    /** @type {typeof postJson<GenerateReferenceNumber>} */ (postJson)
+
+  const { payload: results } = await postJsonByType(
+    `${submissionUrl}/submission/generate-reference-number?prefix=${prefix}`,
+    { payload: {} }
+  )
+
+  if (!results) {
+    throw new Error('Unexpected empty response in generateReferenceNumber')
+  }
+
+  return results.referenceNumber
+}
+
+/**
  * Retrieves a form secret and decrypts the value
  * @param {string} formId - the id of the form
  * @param {string} secretName - the name of the secret
@@ -130,5 +150,5 @@ export async function getFormSecret(formId, secretName) {
 
 /**
  * @import { FormDefinition, FormMetadata } from '@defra/forms-model'
- * @import { SaveAndExitDetails, SaveAndExitResumeDetails } from '~/src/server/types.js'
+ * @import { GenerateReferenceNumber, SaveAndExitDetails, SaveAndExitResumeDetails } from '~/src/server/types.js'
  */
