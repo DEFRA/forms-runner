@@ -1,7 +1,6 @@
 import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
 import { slugSchema } from '@defra/forms-model'
-import Boom from '@hapi/boom'
 import Joi from 'joi'
 
 import {
@@ -12,11 +11,6 @@ import {
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 import { signInUrl } from '~/src/server/utils/utils.js'
-
-// A path that fails validation names no homepage, so it gets the 404 page
-const notFoundAction = () => {
-  throw Boom.notFound()
-}
 
 /**
  * Renders the homepage for the form state the URL names: live for
@@ -32,12 +26,9 @@ async function homepageHandler(request, h) {
   // 404 instead of a trip through sign in.
   const form = await getFormMetadata(slug)
 
-  // The citizen-session strategy is the server-wide default in `try` mode
-  // and only reads the session, so the handler owns the sign-in redirect;
-  // `required` mode answers a bare 401 with no way to carry the return path.
+  // The auth strategy runs in `try` mode, so the handler redirects to sign
+  // in and keeps the current path as the return path.
   if (!request.auth.isAuthenticated) {
-    // The request path is the homepage variant being visited, so sign-in
-    // returns the user to the same live or preview homepage.
     return h.redirect(signInUrl(request.path))
   }
 
@@ -70,8 +61,7 @@ export default [
     handler: homepageHandler,
     options: {
       validate: {
-        params: Joi.object({ slug: slugSchema }).required(),
-        failAction: notFoundAction
+        params: Joi.object({ slug: slugSchema }).required()
       }
     }
   }),
@@ -84,8 +74,7 @@ export default [
     handler: homepageHandler,
     options: {
       validate: {
-        params: Joi.object({ state: stateSchema, slug: slugSchema }).required(),
-        failAction: notFoundAction
+        params: Joi.object({ state: stateSchema, slug: slugSchema }).required()
       }
     }
   })

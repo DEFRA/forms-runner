@@ -183,13 +183,13 @@ describe('per-form homepage', () => {
       )
     })
 
-    it('answers not found for a state that is not draft or live', async () => {
+    it('rejects a state that is not draft or live', async () => {
       const response = await server.inject({
         method: 'GET',
         url: '/homepage/preview/banana/test-form'
       })
 
-      expect(response.statusCode).toBe(StatusCodes.NOT_FOUND)
+      expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
     })
   })
 
