@@ -65,10 +65,25 @@ describe('per-form homepage', () => {
 
     const response = await server.inject({
       method: 'GET',
-      url: '/homepage/no-such-form'
+      url: '/homepage/no-such-form',
+      auth: { strategy: 'citizen-session', credentials }
     })
 
     expect(response.statusCode).toBe(StatusCodes.NOT_FOUND)
+  })
+
+  it('sends a signed-out citizen to sign in without checking the form exists', async () => {
+    jest.mocked(getFormMetadata).mockRejectedValue(Boom.notFound())
+
+    const response = await server.inject({
+      method: 'GET',
+      url: '/homepage/no-such-form'
+    })
+
+    expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(response.headers.location).toBe(
+      '/auth/sign-in?returnUrl=%2Fhomepage%2Fno-such-form'
+    )
   })
 
   it('shows the caption, the form name and the start button to a signed-in citizen', async () => {
@@ -186,7 +201,8 @@ describe('per-form homepage', () => {
     it('rejects a state that is not draft or live', async () => {
       const response = await server.inject({
         method: 'GET',
-        url: '/homepage/preview/banana/test-form'
+        url: '/homepage/preview/banana/test-form',
+        auth: { strategy: 'citizen-session', credentials }
       })
 
       expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)

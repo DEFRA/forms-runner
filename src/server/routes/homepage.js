@@ -3,6 +3,7 @@ import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
 import { slugSchema } from '@defra/forms-model'
 import Joi from 'joi'
 
+import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
 import {
   FORM_PREFIX,
   HOMEPAGE_PREFIX,
@@ -10,7 +11,6 @@ import {
 } from '~/src/server/constants.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
-import { signInUrl } from '~/src/server/utils/utils.js'
 
 /**
  * Renders the homepage for the form state the URL names: live for
@@ -22,19 +22,8 @@ async function homepageHandler(request, h) {
   const { slug } = request.params
   const { isPreview, state } = checkFormStatus(request.params)
 
-  // Look up the form before the sign-in check, so an unknown slug gets a
-  // 404 instead of a trip through sign in.
   const form = await getFormMetadata(slug)
 
-  // The auth strategy runs in `try` mode, so the handler redirects to sign
-  // in and keeps the current path as the return path.
-  if (!request.auth.isAuthenticated) {
-    return h.redirect(signInUrl(request.path))
-  }
-
-  // A preview names its state in the URL. The live homepage leaves the
-  // status to the translator's own fallback, which serves forms that have
-  // no live version yet.
   const { translator } = await getFormTranslator(
     request,
     form,
@@ -60,6 +49,7 @@ export default [
     path: `${HOMEPAGE_PREFIX}/{slug}`,
     handler: homepageHandler,
     options: {
+      auth: { mode: 'required', strategy: CITIZEN_SESSION },
       validate: {
         params: Joi.object({ slug: slugSchema }).required()
       }
@@ -73,6 +63,7 @@ export default [
     path: `${HOMEPAGE_PREFIX}${PREVIEW_PATH_PREFIX}/{state}/{slug}`,
     handler: homepageHandler,
     options: {
+      auth: { mode: 'required', strategy: CITIZEN_SESSION },
       validate: {
         params: Joi.object({ state: stateSchema, slug: slugSchema }).required()
       }
