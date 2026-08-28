@@ -2,7 +2,9 @@
   "common": {
     "back": "Back",
     "or": "or",
-    "and": "and"
+    "and": "and",
+    "draft": "draft",
+    "live": "live"
   },
   "help": {
     "getSupport": {
@@ -260,7 +262,9 @@
   "signIn": {
     "homepage": {
       "caption": "Manage your form",
-      "startButton": "Start a new form"
+      "startButton": "Start a new form",
+      "previewBannerTitle": "Important",
+      "previewBanner": "This is a preview of a [[state]] form. Do not enter personal information."
     },
     "header": {
       "menuText": "Account",

@@ -1,12 +1,25 @@
 {% extends 'layout.html' %}
 
 {% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
 
 {% set pageTitle = context.translator.tForm('title') %}
 
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
+      {% if previewMode %}
+        {% set previewBannerHtml %}
+          <p class="govuk-notification-banner__heading govuk-!-margin-bottom-0">
+            {{ tR('signIn.homepage.previewBanner', { state: tR('common.' + previewMode) }) }}
+          </p>
+        {% endset %}
+        {{ govukNotificationBanner({
+          titleText: tR('signIn.homepage.previewBannerTitle'),
+          html: previewBannerHtml
+        }) }}
+      {% endif %}
+
       <span class="govuk-caption-l">{{ tR('signIn.homepage.caption') }}</span>
       <h1 class="govuk-heading-l">{{ pageTitle }}</h1>
 

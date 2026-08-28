@@ -65,10 +65,25 @@ describe('per-form homepage', () => {
 
     const response = await server.inject({
       method: 'GET',
-      url: '/homepage/no-such-form'
+      url: '/homepage/no-such-form',
+      auth: { strategy: 'citizen-session', credentials }
     })
 
     expect(response.statusCode).toBe(StatusCodes.NOT_FOUND)
+  })
+
+  it('sends a signed-out citizen to sign in without checking the form exists', async () => {
+    jest.mocked(getFormMetadata).mockRejectedValue(Boom.notFound())
+
+    const response = await server.inject({
+      method: 'GET',
+      url: '/homepage/no-such-form'
+    })
+
+    expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(response.headers.location).toBe(
+      '/auth/sign-in?returnUrl=%2Fhomepage%2Fno-such-form'
+    )
   })
 
   it('shows the caption, the form name and the start button to a signed-in citizen', async () => {
@@ -84,6 +99,10 @@ describe('per-form homepage', () => {
 
     const $start = container.getByRole('button', { name: 'Start a new form' })
     expect($start).toHaveAttribute('href', '/form/test-form')
+
+    expect(
+      container.queryByRole('region', { name: 'Important' })
+    ).not.toBeInTheDocument()
   })
 
   it('shows the signed-in citizen’s email, linked to their homepage', async () => {
@@ -97,6 +116,97 @@ describe('per-form homepage', () => {
       'href',
       HOMEPAGE_URL
     )
+  })
+
+  describe('preview homepages', () => {
+    it('sends a signed-out user to sign in, returning to the preview homepage', async () => {
+      const response = await server.inject({
+        method: 'GET',
+        url: '/homepage/preview/draft/test-form'
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe(
+        '/auth/sign-in?returnUrl=%2Fhomepage%2Fpreview%2Fdraft%2Ftest-form'
+      )
+    })
+
+    it('starts the draft preview form from the draft preview homepage', async () => {
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: '/homepage/preview/draft/test-form',
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(
+        container.getByRole('heading', { name: 'Test form', level: 1 })
+      ).toBeInTheDocument()
+
+      const $start = container.getByRole('button', { name: 'Start a new form' })
+      expect($start).toHaveAttribute('href', '/form/preview/draft/test-form')
+    })
+
+    it('starts the live preview form from the live preview homepage', async () => {
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: '/homepage/preview/live/test-form',
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      const $start = container.getByRole('button', { name: 'Start a new form' })
+      expect($start).toHaveAttribute('href', '/form/preview/live/test-form')
+    })
+
+    it('links the signed-in user’s email to the preview homepage they are on', async () => {
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: '/homepage/preview/draft/test-form',
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(container.getByRole('link', { name: EMAIL })).toHaveAttribute(
+        'href',
+        '/homepage/preview/draft/test-form'
+      )
+    })
+
+    it('warns that a draft preview is not for personal information', async () => {
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: '/homepage/preview/draft/test-form',
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(
+        container.getByRole('region', { name: 'Important' })
+      ).toHaveTextContent(
+        'This is a preview of a draft form. Do not enter personal information.'
+      )
+    })
+
+    it('warns that a live preview is not for personal information', async () => {
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: '/homepage/preview/live/test-form',
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(
+        container.getByRole('region', { name: 'Important' })
+      ).toHaveTextContent(
+        'This is a preview of a live form. Do not enter personal information.'
+      )
+    })
+
+    it('rejects a state that is not draft or live', async () => {
+      const response = await server.inject({
+        method: 'GET',
+        url: '/homepage/preview/banana/test-form',
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
+    })
   })
 
   it('shows a signed-out citizen no account control, on a page that does not gate on auth', async () => {
