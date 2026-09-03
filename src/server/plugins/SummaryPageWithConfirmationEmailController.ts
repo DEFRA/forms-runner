@@ -99,7 +99,7 @@ export class SummaryPageWithConfirmationEmailController extends SummaryPageContr
       }
 
       const userConfirmationEmailAddress = value[CONFIRMATION_EMAIL_FIELD_NAME]
-      if (userConfirmationEmailAddress && userConfirmationEmailAddress !== '') {
+      if (userConfirmationEmailAddress) {
         context.state = await this.mergeState(request, context.state, {
           [CONFIRMATION_EMAIL_FIELD_NAME]: userConfirmationEmailAddress
         })
