@@ -102,7 +102,7 @@
       "formsSignInIntro": "We may collect your:",
       "formsSignInItems": ["email address", "mobile number"],
       "formsSignInUsage": "We use this information to allow you to sign in to <strong>[[serviceName]]</strong>.",
-      "analyticsBody1": "If you give your consent, we will use Google Analytics to collect information about how you use <strong>[[serviceName]]</strong>. For more informatiomn read the <a href=\"https://support.google.com/analytics/topic/2919631\" class=\"govuk-link\">data privacy and security policy for Google Analytics</a> and our <a href=\"/help/cookies/[[slug]]\" class=\"govuk-link\">cookies page</a>.",
+      "analyticsBody": "If you give your consent, we will use Google Analytics to collect information about how you use <strong>[[serviceName]]</strong>. For more informatiomn read the <a href=\"https://support.google.com/analytics/topic/2919631\" class=\"govuk-link\">data privacy and security policy for Google Analytics</a> and our <a href=\"/help/cookies/[[slug]]\" class=\"govuk-link\">cookies page</a>.",
       "lawfulBasisHeading": "Lawful basis for processing your personal data",
       "lawfulBasisBody": "The lawful basis for processing your personal data is consent.",
       "consentHeading": "Consent to process your personal data",
