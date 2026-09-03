@@ -8,6 +8,7 @@ import { StatusCodes } from 'http-status-codes'
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import {
+  generateReferenceNumber,
   getFormMetadata,
   getFormMetadataById
 } from '~/src/server/services/formsService.js'
@@ -105,6 +106,8 @@ describe('User feedback journey', () => {
   beforeAll(async () => {
     jest.mocked(getFormMetadataById).mockResolvedValue(metadata)
     jest.mocked(getFormMetadata).mockResolvedValue(metadata)
+    jest.mocked(generateReferenceNumber).mockResolvedValue('XXX-XXX-XXX')
+
     server = await createServer({
       formFileName: 'user-feedback-with-custom-controller.js',
       formFilePath: join(import.meta.dirname, 'definitions'),
