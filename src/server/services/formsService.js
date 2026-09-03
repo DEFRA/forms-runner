@@ -124,7 +124,7 @@ export async function generateReferenceNumber(prefix) {
   const query = prefix ? `?prefix=${prefix}` : ''
   const { payload: results } = await postJsonByType(
     `${submissionUrl}/submission/generate-reference-number${query}`,
-    { payload: {} }
+    { payload: {}, timeout: 10 * 1000 } // 10 seconds
   )
 
   if (!results) {
