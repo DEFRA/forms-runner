@@ -88,7 +88,9 @@ export class SummaryPageWithConfirmationEmailController extends SummaryPageContr
        * If there are any errors, render the page with the parsed errors
        * @todo Refactor to match POST REDIRECT GET pattern
        */
-      const { error } = schema.validate(request.payload, { abortEarly: false })
+      const { value, error } = schema.validate(request.payload, {
+        abortEarly: false
+      })
       if (error || isForceAccess) {
         context.errors = this.getErrors(error?.details)
         const translator = this.getTranslator(request)
@@ -96,12 +98,8 @@ export class SummaryPageWithConfirmationEmailController extends SummaryPageContr
         return h.view(viewName, viewModel)
       }
 
-      const userConfirmationEmailAddress =
-        request.payload[CONFIRMATION_EMAIL_FIELD_NAME]
-      if (
-        typeof userConfirmationEmailAddress === 'string' &&
-        userConfirmationEmailAddress
-      ) {
+      const userConfirmationEmailAddress = value[CONFIRMATION_EMAIL_FIELD_NAME]
+      if (userConfirmationEmailAddress) {
         context.state = await this.mergeState(request, context.state, {
           [CONFIRMATION_EMAIL_FIELD_NAME]: userConfirmationEmailAddress
         })

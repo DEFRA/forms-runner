@@ -132,7 +132,7 @@
   {% set isSignedIn = config.useSignInFeature and user and slug %}
   {{ appServiceHeader({
     accountName: user.email if isSignedIn,
-    accountLink: ("/homepage/" + slug) if isSignedIn,
+    accountLink: (("/homepage/preview/" + previewMode + "/" + slug) if previewMode else ("/homepage/" + slug)) if isSignedIn,
     menuText: tR('signIn.header.menuText') if isSignedIn,
     menuLabelShow: tR('signIn.header.menuLabelShow', { name: user.email }) if isSignedIn,
     menuLabelHide: tR('signIn.header.menuLabelHide', { name: user.email }) if isSignedIn,
