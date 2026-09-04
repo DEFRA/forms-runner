@@ -19,45 +19,48 @@
 
       <h2 class="govuk-heading-m">{{ tR('help.privacyNotice.dataWeCollectHeading') }}</h2>
 
-      {% if config.googleTagManagerContainerId %}
-        <div id="ga-analytics-segment">
-          <p class="govuk-body">{{ tR('help.privacyNotice.analyticsBody1', { serviceName: config.serviceName }) | safe }}</p>
-          <p class="govuk-body">{{ tR('help.privacyNotice.analyticsBody2') }}</p>
-          <ul class="govuk-list govuk-list--bullet">
-            {% for item in tR('help.privacyNotice.analyticsItems', { serviceName: config.serviceName }) %}
-              <li>{{ item | safe }}</li>
-            {% endfor %}
-          </ul>
-          <p class="govuk-body">{{ tR('help.privacyNotice.analyticsBody3') | safe }}</p>
-          <p class="govuk-body">{{ tR('help.privacyNotice.analyticsBody4') }}</p>
-        </div>
-      {% endif %}
+      <p class="govuk-body">{{ tR('help.privacyNotice.formsSignInIntro') | safe }}</p>
 
-      <p class="govuk-body">{{ tR('help.privacyNotice.systemLogsBody1') }}</p>
-      {% if config.googleTagManagerContainerId %}
-        <p class="govuk-body">{{ tR('help.privacyNotice.systemLogsBody2WithAnalytics', { serviceName: config.serviceName }) | safe }}</p>
-      {% else %}
-        <p class="govuk-body">{{ tR('help.privacyNotice.systemLogsBody2', { serviceName: config.serviceName }) | safe }}</p>
-      {% endif %}
-      <p class="govuk-body">{{ tR('help.privacyNotice.feedbackBody', { serviceName: config.serviceName }) | safe }}</p>
-
-      <h3 class="govuk-heading-m">{{ tR('help.privacyNotice.saveAndReturnHeading') }}</h3>
-      <p class="govuk-body">{{ tR('help.privacyNotice.saveAndReturnBody', { saveAndExitExpiryDays: saveAndExitExpiryDays }) }}</p>
       <ul class="govuk-list govuk-list--bullet">
-        {% for item in tR('help.privacyNotice.saveAndReturnItems') %}
-          <li>{{ item }}</li>
+        {% for item in tR('help.privacyNotice.formsSignInItems') %}
+          <li>{{ item | safe }}</li>
         {% endfor %}
       </ul>
+
+      <p class="govuk-body">{{ tR('help.privacyNotice.formsSignInUsage', { serviceName: config.serviceName }) | safe }}</p>
+
+      {% if config.googleTagManagerContainerId %}
+        <div id="ga-analytics-segment">
+          <p class="govuk-body">{{ tR('help.privacyNotice.analyticsBody', { serviceName: config.serviceName }) | safe }}</p>
+        </div>
+      {% endif %}
 
       <h2 class="govuk-heading-m">{{ tR('help.privacyNotice.lawfulBasisHeading') }}</h2>
       <p class="govuk-body">{{ tR('help.privacyNotice.lawfulBasisBody') }}</p>
 
+      <h2 class="govuk-heading-m">{{ tR('help.privacyNotice.consentHeading') }}</h2>
+      <p class="govuk-body">{{ tR('help.privacyNotice.consentBody') }}</p>
+
       <h2 class="govuk-heading-m">{{ tR('help.privacyNotice.cookiesHeading') }}</h2>
       <p class="govuk-body">{{ tR('help.privacyNotice.cookiesBody', { slug: form.slug }) | safe }}</p>
 
+      <h2 class="govuk-heading-m">{{ tR('help.privacyNotice.sharePersonalDataHeading') }}</h2>
+      <p class="govuk-body">{{ tR('help.privacyNotice.sharePersonalDataBody', { serviceName: config.serviceName }) | safe }}</p>
+
       <h2 class="govuk-heading-m">{{ tR('help.privacyNotice.howLongHeading') }}</h2>
       <p class="govuk-body">{{ tR('help.privacyNotice.howLongBody', { serviceName: config.serviceName, storeCompletedApplicationsFor: storeCompletedApplicationsFor, saveAndExitExpiryDays: saveAndExitExpiryDays }) | safe }}</p>
-      <p class="govuk-body">{{ tR('help.privacyNotice.feedbackStorageBody', { storeFeedbackFor: storeFeedbackFor }) }}</p>
+      <p class="govuk-body">{{ tR('help.privacyNotice.feedbackStorageBody', { storeFeedbackFor: storeFeedbackFor }) | safe }}</p>
+
+      <h2 class="govuk-heading-m">{{ tR('help.privacyNotice.doNotProvideHeading') }}</h2>
+      <p class="govuk-body">{{ tR('help.privacyNotice.doNotProvideBody', { serviceName: config.serviceName }) | safe }}</p>
+
+      <h2 class="govuk-heading-m">{{ tR('help.privacyNotice.automatedProfilingHeading') }}</h2>
+      <p class="govuk-body">{{ tR('help.privacyNotice.automatedProfilingIntro') }}</p>
+      <ul class="govuk-list govuk-list--bullet">
+        {% for item in tR('help.privacyNotice.automatedProfilingItems') %}
+          <li>{{ item | safe }}</li>
+        {% endfor %}
+      </ul>
 
       <h2 class="govuk-heading-m">{{ tR('help.privacyNotice.transferHeading') }}</h2>
       <p class="govuk-body">{{ tR('help.privacyNotice.transferBody') }}</p>
