@@ -55,6 +55,20 @@
           "purpose": "Used by Google Analytics to find and track an individual session with your device",
           "expires": "2 years"
         }
+      },
+      "googleAnalytics": {
+        "lede": "Google Analytics processes information about:",
+        "items": [
+          "your IP address",
+          "the pages you visit on <strong>[[serviceName]]</strong>",
+          "how long you spend on each <strong>[[serviceName]]</strong> page",
+          "how you got to the site",
+          "what you select while you’re visiting the site"
+        ],
+        "body1": "Defra will make sure you cannot be directly identified by Google Analytics data. We do this by using <a class=\"govuk-link\" href=\"https://support.google.com/analytics/answer/2763052\">Google Analytics’ IP address anonymisation</a> feature and by removing any other personal data from the titles or URLs of the pages you visit.",
+        "body2": "Defra will not combine analytics information with other data sets in a way that would directly identify who you are.",
+        "body3": "We use system logs to collect information about the usage of forms.",
+        "body4": "We use the system logs and Google Analytics data to create anonymised reports about the performance of forms that use <strong>[[serviceName]]</strong>. We use this data to improve forms, for example, if we discover a high number of incomplete forms."
       }
     },
     "cookiePreferences": {
