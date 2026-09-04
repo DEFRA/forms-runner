@@ -25,14 +25,16 @@
         { text: tR('help.cookies.cookies.crumb.expires') }
       ]
     ] %}
+
     {% if config.googleTagManagerContainerId %}
-    {% set essentialTableRows = (essentialTableRows.unshift([
-          { text: "cookieConsent" },
-          { text: tR('help.cookies.cookies.cookieConsent.purpose') },
-          { text: tR('help.cookies.cookies.cookieConsent.expires') }
-        ]), essentialTableRows)
-    %}
+      {% set essentialTableRows = (essentialTableRows.unshift([
+            { text: "cookieConsent" },
+            { text: tR('help.cookies.cookies.cookieConsent.purpose') },
+            { text: tR('help.cookies.cookies.cookieConsent.expires') }
+          ]), essentialTableRows)
+      %}
     {% endif %}
+
     {{ govukTable({
       firstCellIsHeader: true,
       caption: tR('help.cookies.tableCaption.essential'),
@@ -47,6 +49,7 @@
     {% if config.googleTagManagerContainerId %}
       <h2 class="govuk-heading-m">{{ tR('help.cookies.analyticsHeading') }}</h2>
       <p class="govuk-body">{{ tR('help.cookies.analyticsBody') }}</p>
+
       {{ govukTable({
         firstCellIsHeader: true,
         caption: tR('help.cookies.tableCaption.analytics'),
@@ -68,6 +71,17 @@
           ]
         ]
       }) }}
+
+      <p class="govuk-body">{{ tR('help.cookies.googleAnalytics.lede') }}</p>
+      <ul class="govuk-list govuk-list--bullet">
+        {% for item in tR('help.cookies.googleAnalytics.items', { serviceName: config.serviceName }) %}
+          <li>{{ item | safe }}</li>
+        {% endfor %}
+      </ul>
+      <p class="govuk-body">{{ tR('help.cookies.googleAnalytics.body1') | safe }}</p>
+      <p class="govuk-body">{{ tR('help.cookies.googleAnalytics.body2') }}</p>
+      <p class="govuk-body">{{ tR('help.cookies.googleAnalytics.body3') }}</p>
+      <p class="govuk-body">{{ tR('help.cookies.googleAnalytics.body4', { serviceName: config.serviceName }) | safe }}</p>
 
       <h2 class="govuk-heading-m">{{ tR('help.cookies.changeSettingsHeading') }}</h2>
       <p class="govuk-body">{{ tR('help.cookies.changeSettingsBody', { slug: slug }) | safe }}</p>
