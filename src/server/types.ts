@@ -70,3 +70,7 @@ export interface SaveAndExitDetails {
 export interface SaveAndExitResumeDetails extends SaveAndExitDetails {
   validPassword: boolean
 }
+
+export interface GenerateReferenceNumber {
+  referenceNumber: string
+}
