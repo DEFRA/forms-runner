@@ -56,7 +56,7 @@ describe('Save-and-exit check routes', () => {
       /* mock */
     })
     // @ts-expect-error - not all method mocked
-    jest.mocked(getCacheService).mockImplementationOnce(() => ({
+    jest.mocked(getCacheService).mockImplementation(() => ({
       getState: jest.fn().mockResolvedValueOnce({ key: 'val' }),
       clearState: jest.fn()
     }))

@@ -1,14 +1,8 @@
-import {
-  CURRENT_PAGE_PATH_KEY,
-  MAGIC_LINK_GROUP_ID,
-  STATE_NOT_YET_VALIDATED,
-  isOfflineBoom
-} from '@defra/forms-engine-plugin'
+import { MAGIC_LINK_GROUP_ID, isOfflineBoom } from '@defra/forms-engine-plugin'
 import { getCacheService } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
 import { FormStatus, slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import * as Hoek from '@hapi/hoek'
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
@@ -34,10 +28,8 @@ import {
   resumeSuccessViewModel,
   validatePayloadSchema
 } from '~/src/server/models/save-and-exit.js'
-import {
-  getPayloadFromFlash,
-  hasState
-} from '~/src/server/routes/save-and-exit-helper.js'
+import { hasState } from '~/src/server/routes/save-and-exit-helper.js'
+import { stateHandler } from '~/src/server/routes/save-and-exit-state-handler.js'
 import {
   getFormMetadataById,
   getFormMetadataWithGuard
@@ -138,46 +130,10 @@ export default [
 
       // Store any outstanding data from the current page in a special attribute
       // (in case the current page wasn't yet validated and saved).
-      // The current page state may be invalid so we don't want to push into the cache as normal properties.
-      const cacheService = getCacheService(
-        /** @type {AnyRequest} */ (/** @type {unknown} */ (request)).server
-      )
-      const formState = await cacheService.getState(
-        /** @type {CacheRequest} */ (request)
-      )
-
       // Handle the user navigating back from previously submitting a save-and-exit. The state has been cleared
       // so just show the form from the start
-      if (!hasState(formState)) {
+      if (await stateHandler(request)) {
         return h.redirect(model.serviceUrl)
-      }
-
-      const pagePayload = getPayloadFromFlash(request)
-      const currentPagePayload = Array.isArray(pagePayload)
-        ? {}
-        : /** @type { FormPayload | undefined } */ (pagePayload)
-      const currentPagePath =
-        currentPagePayload && CURRENT_PAGE_PATH_KEY in currentPagePayload
-          ? currentPagePayload[CURRENT_PAGE_PATH_KEY]
-          : undefined
-
-      if (currentPagePath) {
-        const combinedState = Hoek.merge(
-          formState,
-          {
-            [STATE_NOT_YET_VALIDATED]: {
-              ...currentPagePayload,
-              [CURRENT_PAGE_PATH_KEY]: currentPagePath
-            }
-          },
-          {
-            mergeArrays: false
-          }
-        )
-        await cacheService.setState(
-          /** @type {CacheRequest} */ (request),
-          combinedState
-        )
       }
 
       // Clear any previous save and exit session state
