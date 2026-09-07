@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% from "govuk/components/panel/macro.njk" import govukPanel %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {{ govukPanel({
+        titleText: pageTitle
+      }) }}
+      <h1 class="govuk-heading-l">{{ tR('saveAndExit.confirmation.whatHappensNext') }}</h1>
+      <p class="govuk-body">
+        {{ tR('saveAndExit.confirmation.answersSaved', { days: saveAndExitExpiryDays }) }}
+      </p>
+      <p class="govuk-body">
+        {{ tR('saveAndExit.confirmation.emailedLinkForSignIn', { formName: name }) }}
+      </p>
+      <p class="govuk-body">
+        {{ tR('saveAndExit.confirmation.repeatSave') }}
+      </p>
+      <p class="govuk-body">
+        {{ tR('saveAndExit.confirmation.checkSpam') }}
+      </p>
+
+      {{ govukButton({
+          text: tR('saveAndExit.confirmation.signin'),
+          href: signinLink
+        })
+      }}
+    </div>
+  </div>
+{% endblock %}

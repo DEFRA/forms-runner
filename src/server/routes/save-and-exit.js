@@ -19,7 +19,7 @@ import {
   getCachedFormTranslatorBasic,
   getCachedFormTranslatorExternalRoutes
 } from '~/src/server/i18n/form.js'
-import { publishSaveAndExitEvent } from '~/src/server/messaging/publish.js'
+import { publishSaveAndExitV1Event } from '~/src/server/messaging/publish.js'
 import {
   confirmationViewModel,
   createInvalidPasswordError,
@@ -244,7 +244,7 @@ export default [
         return h.view(SAVE_AND_EXIT_DETAILS, model).takeover()
       }
 
-      await publishSaveAndExitEvent(
+      await publishSaveAndExitV1Event(
         metadata.id,
         metadata.title,
         email,

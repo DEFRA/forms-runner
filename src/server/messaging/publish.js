@@ -1,12 +1,15 @@
 import { submissionMessageSchema } from '@defra/forms-model'
 import Joi from 'joi'
 
-import { saveAndExitMapper } from '~/src/server/messaging/mappers/events.js'
+import {
+  saveAndExitV1Mapper,
+  saveAndExitV2Mapper
+} from '~/src/server/messaging/mappers/events.js'
 import { publishEvent } from '~/src/server/messaging/publish-base.js'
 
 /**
  * Helper to validate and publish an event
- * @param {SaveAndExitMessage} saveAndExitMessage
+ * @param { SaveAndExitMessage | SaveAndExitV2Message } saveAndExitMessage
  */
 async function validateAndPublishEvent(saveAndExitMessage) {
   const value = Joi.attempt(saveAndExitMessage, submissionMessageSchema, {
@@ -17,8 +20,9 @@ async function validateAndPublishEvent(saveAndExitMessage) {
 }
 
 /**
- * Publish 'save and exit' event
- * The returned entityId will be a newly-generated guid
+ * Publish 'save and exit' event (v1)
+ * The returned entityId will be a newly-generated guid.
+ * V1 save-and-exit stores a magic link for user-retrieval of state.
  * @param {string} formId
  * @param {string} formTitle
  * @param {string} email
@@ -26,7 +30,7 @@ async function validateAndPublishEvent(saveAndExitMessage) {
  * @param {FormState} state
  * @param {FormStatus} [status]
  */
-export async function publishSaveAndExitEvent(
+export async function publishSaveAndExitV1Event(
   formId,
   formTitle,
   email,
@@ -34,7 +38,7 @@ export async function publishSaveAndExitEvent(
   state,
   status
 ) {
-  const message = saveAndExitMapper(
+  const message = saveAndExitV1Mapper(
     formId,
     formTitle,
     email,
@@ -47,6 +51,27 @@ export async function publishSaveAndExitEvent(
 }
 
 /**
+ * Publish 'save and exit' event (v2)
+ * V2 save-and-exit stores state against the logged-in user.
+ * @param {string} formId
+ * @param {string} formTitle
+ * @param {string} email
+ * @param {FormState} state
+ * @param {FormStatus} [status]
+ */
+export async function publishSaveAndExitV2Event(
+  formId,
+  formTitle,
+  email,
+  state,
+  status
+) {
+  const message = saveAndExitV2Mapper(formId, formTitle, email, state, status)
+
+  return validateAndPublishEvent(message)
+}
+
+/**
  * @import { FormState } from '@defra/forms-engine-plugin/engine/types.js'
- * @import { FormStatus, SaveAndExitMessage, SecurityQuestionsEnum } from '@defra/forms-model'
+ * @import { FormStatus, SaveAndExitMessage, SaveAndExitV2Message, SecurityQuestionsEnum } from '@defra/forms-model'
  */

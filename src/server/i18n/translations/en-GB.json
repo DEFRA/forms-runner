@@ -189,7 +189,10 @@
       "linkSent": "We have sent a link to [[email]] which you can use to resume this form within [[saveAndExitExpiryDays]] days.",
       "repeatSave": "If you want to save your progress again after resuming your form, you will need to repeat the save process to generate a new link.",
       "checkSpam": "Check your spam folder if you have not received an email after a few minutes.",
-      "closeWindow": "You can close this window."
+      "closeWindow": "You can close this window.",
+      "answersSaved": "Your answers have been saved for [[days]] days.",
+      "emailedLinkForSignIn": "We’ve emailed you a link so you can sign in and continue your '[[formName]]' form later.",
+      "signin": "Sign in"
     },
     "resumeError": {
       "pageTitle": "You cannot resume your form",

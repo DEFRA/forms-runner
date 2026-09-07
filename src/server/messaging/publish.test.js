@@ -9,7 +9,10 @@ import {
 import { ValidationError } from 'joi'
 
 import { publishEvent } from '~/src/server/messaging/publish-base.js'
-import { publishSaveAndExitEvent } from '~/src/server/messaging/publish.js'
+import {
+  publishSaveAndExitV1Event,
+  publishSaveAndExitV2Event
+} from '~/src/server/messaging/publish.js'
 
 jest.mock('~/src/server/messaging/publish-base.js')
 
@@ -47,9 +50,9 @@ describe('publish', () => {
     jest.resetAllMocks()
   })
 
-  describe('publishSaveAndExitEvent', () => {
-    it('should publish SAVE_AND_EXIT event', async () => {
-      await publishSaveAndExitEvent(
+  describe('publishSaveAndExitV1Event', () => {
+    it('should publish SAVE_AND_EXIT V1 event', async () => {
+      await publishSaveAndExitV1Event(
         saveAndExitPayload.form.id,
         saveAndExitPayload.form.title,
         saveAndExitPayload.email,
@@ -75,7 +78,51 @@ describe('publish', () => {
 
       await expect(
         // @ts-expect-error - invalid schema
-        publishSaveAndExitEvent(invalidPayload)
+        publishSaveAndExitV1Event(invalidPayload)
+      ).rejects.toThrow(
+        new ValidationError(
+          '"data.form.id" must be a string. "data.form.title" is required. "data.email" is required. "data.state" is required',
+          [],
+          {}
+        )
+      )
+    })
+  })
+
+  describe('publishSaveAndExitV2Event', () => {
+    const saveAndExitPayloadTemp = structuredClone(saveAndExitPayload)
+    // @ts-expect-error - remove property that V2 doesn't have
+    delete saveAndExitPayloadTemp.security
+    /** @type {SaveAndExitV2MessageData} */
+    const saveAndExitV2Payload = saveAndExitPayloadTemp
+
+    it('should publish SAVE_AND_EXIT V2 event', async () => {
+      await publishSaveAndExitV2Event(
+        saveAndExitV2Payload.form.id,
+        saveAndExitV2Payload.form.title,
+        saveAndExitV2Payload.email,
+        saveAndExitV2Payload.state,
+        saveAndExitV2Payload.form.status
+      )
+
+      expect(publishEvent).toHaveBeenCalledWith({
+        source: SubmissionEventMessageSource.FORMS_RUNNER,
+        messageCreatedAt: expect.any(Date),
+        schemaVersion: SubmissionEventMessageSchemaVersion.V1,
+        category: SubmissionEventMessageCategory.RUNNER,
+        type: SubmissionEventMessageType.RUNNER_SAVE_AND_EXIT_V2,
+        createdAt: expect.any(Date),
+        data: saveAndExitV2Payload
+      })
+    })
+
+    it('should not publish the event if the schema is incorrect', async () => {
+      jest.mocked(publishEvent).mockRejectedValue(new Error('rejected'))
+      const invalidPayload = {}
+
+      await expect(
+        // @ts-expect-error - invalid schema
+        publishSaveAndExitV2Event(invalidPayload)
       ).rejects.toThrow(
         new ValidationError(
           '"data.form.id" must be a string. "data.form.title" is required. "data.email" is required. "data.state" is required',
@@ -88,5 +135,5 @@ describe('publish', () => {
 })
 
 /**
- * @import { SaveAndExitMessageData } from '@defra/forms-model'
+ * @import { SaveAndExitMessageData, SaveAndExitV2MessageData } from '@defra/forms-model'
  */
