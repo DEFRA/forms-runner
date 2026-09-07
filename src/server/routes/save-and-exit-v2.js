@@ -44,14 +44,10 @@ export default [
         return h.redirect(model.serviceUrl)
       }
 
-      if (!auth.credentials.email) {
-        throw new Error('User not logged in')
-      }
-
       await publishSaveAndExitV2Event(
         metadata.id,
         metadata.title,
-        auth.credentials.email,
+        /** @type {string} */ (auth.credentials.email),
         await cacheService.getState(/** @type {CacheRequest} */ (request)),
         status
       )

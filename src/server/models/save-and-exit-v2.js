@@ -12,7 +12,7 @@ const saveAndExitExpiryDays = config.get('saveAndExitExpiryDays')
  * @param {string} slug
  * @param {FormStatus} [status]
  */
-function constructFormUrl(slug, status) {
+export function constructFormUrl(slug, status) {
   if (!status) {
     return `${FORM_PREFIX}/${slug}`
   }
@@ -24,7 +24,7 @@ function constructFormUrl(slug, status) {
  * @param {string} slug
  * @param {FormStatus} [status]
  */
-function constructSigninUrl(slug, status) {
+export function constructSigninUrl(slug, status) {
   if (!status) {
     return `${HOMEPAGE_PREFIX}/${slug}`
   }
