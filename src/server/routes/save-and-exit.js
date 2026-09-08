@@ -119,7 +119,7 @@ export async function getFormTranslator(
  * @param {Request<{ Params: SaveAndExitParams }>} request
  * @param {ResponseToolkit<{ Params: SaveAndExitParams }>} h
  */
-async function v1Handler(request, h) {
+async function handlerMemorableWordSaveAndExit(request, h) {
   const { params } = request
   const { slug, state: status } = params
   const metadata = await getFormMetadataWithGuard(slug, status)
@@ -154,7 +154,7 @@ async function v1Handler(request, h) {
  * @param {Request<{ Params: SaveAndExitParams }>} request
  * @param {ResponseToolkit<{ Params: SaveAndExitParams }>} h
  */
-async function v2Handler(request, h) {
+async function handleAuthenticatedSaveAndExit(request, h) {
   const { params, auth } = request
   const { slug, state: status } = params
   const metadata = await getFormMetadataWithGuard(slug, status)
@@ -203,8 +203,8 @@ export default [
     path: '/save-and-exit/{slug}/{state?}',
     handler(request, h) {
       return config.get('useSignInFeature')
-        ? v2Handler(request, h)
-        : v1Handler(request, h)
+        ? handleAuthenticatedSaveAndExit(request, h)
+        : handlerMemorableWordSaveAndExit(request, h)
     },
     options: {
       validate: {
