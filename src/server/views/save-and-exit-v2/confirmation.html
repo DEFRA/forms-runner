@@ -25,7 +25,10 @@
 
       {{ govukButton({
           text: tR('saveAndExit.confirmation.signin'),
-          href: signinLink
+          href: signinLink,
+          attributes: {
+            'data-testid': 'signin-button'
+          }
         })
       }}
     </div>

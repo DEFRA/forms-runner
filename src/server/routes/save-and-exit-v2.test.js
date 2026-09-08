@@ -9,10 +9,12 @@ import { config } from '~/src/config/index.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { createServer } from '~/src/server/index.js'
 import { getFormMetadataWithGuard } from '~/src/server/services/formMetadataGuards.js'
+import { getFormDefinitionWithFallback } from '~/src/server/services/helpers/formsServiceHelper.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 jest.mock('~/src/server/services/formMetadataGuards.js')
 jest.mock('~/src/server/services/formsService.js')
+jest.mock('~/src/server/services/helpers/formsServiceHelper.js')
 jest.mock('~/src/server/helpers/error-helper.js')
 jest.mock('@defra/forms-engine-plugin/engine/form-availability.js')
 jest.mock('@defra/forms-engine-plugin/engine/helpers.js')
@@ -106,13 +108,86 @@ describe('Save-and-exit check routes', () => {
         'Your progress has been saved'
       )
 
+      const $title = container.getByText('What happens next')
+
+      const $savedFor = container.getByText(
+        'Your answers have been saved for 28 days.'
+      )
+
+      const $emailedLink = container.getByText(
+        "We’ve emailed you a link so you can sign in and continue your 'My test form' form later."
+      )
+
+      const $checkSpam = container.getByText(
+        'Check your spam folder if you have not received an email after a few minutes.'
+      )
+
       const $button = container.queryByRole('link', {
         name: 'Sign in'
       })
 
       expect($mastheadHeading).toBeInTheDocument()
+      expect($title).toBeInTheDocument()
+      expect($savedFor).toBeInTheDocument()
+      expect($emailedLink).toBeInTheDocument()
+      expect($checkSpam).toBeInTheDocument()
       expect($button).not.toBeInTheDocument()
     })
+  })
+
+  test('route renders view on success when logged in (in Welsh)', async () => {
+    jest
+      .mocked(getFormMetadataWithGuard)
+      // @ts-expect-error - allow partial objects for tests
+      .mockResolvedValueOnce(testMetadata)
+    jest.mocked(getFormDefinitionWithFallback).mockResolvedValue(
+      // @ts-expect-error - partial mock of test data
+      {
+        metadata: {
+          translations: {
+            cy: {
+              dummy: 'test'
+            }
+          }
+        }
+      }
+    )
+    const options = {
+      method: 'GET',
+      url: `/save-and-exit-v2/${FORM_SLUG}/${DRAFT_STATE}?language=cy`,
+      auth: { strategy: 'citizen-session', credentials }
+    }
+
+    const { response, container } = await renderResponse(server, options)
+
+    expect(response.statusCode).toBe(StatusCodes.OK)
+
+    const $mastheadHeading = container.queryByText(
+      "Mae eich cynnydd wedi'i gadw"
+    )
+
+    const $title = container.queryByText("Beth sy'n digwydd nesaf")
+
+    const $savedFor = container.queryByText(
+      "Mae eich atebion wedi'u cadw am 28 o ddiwrnodau."
+    )
+
+    const $emailedLink = container.queryByText(
+      "Rydym wedi anfon dolen atoch drwy e-bost fel y gallwch fewngofnodi a pharhau â'ch ffurflen 'My test form' yn ddiweddarach."
+    )
+
+    const $checkSpam = container.queryByText(
+      'Gwiriwch eich ffolder sbam os na fyddwch wedi cael e-bost ar ôl ychydig funudau.'
+    )
+
+    const $button = container.getByTestId('signin-button')
+
+    expect($mastheadHeading).toBeInTheDocument()
+    expect($title).toBeInTheDocument()
+    expect($savedFor).toBeInTheDocument()
+    expect($emailedLink).toBeInTheDocument()
+    expect($checkSpam).toBeInTheDocument()
+    expect($button.textContent.trim()).toBe('Mewngofnodi')
   })
 })
 
