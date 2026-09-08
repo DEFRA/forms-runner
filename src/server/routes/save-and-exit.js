@@ -177,6 +177,7 @@ async function handleAuthenticatedSaveAndExit(request, h) {
   await publishSaveAndExitV2Event(
     metadata.id,
     metadata.title,
+    /** @type {string} */ (auth.credentials.email),
     {
       sub: /** @type {string} */ (auth.credentials.sub),
       issuer: /** @type {string} */ (auth.credentials.iss)

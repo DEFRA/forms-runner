@@ -49,6 +49,7 @@ const saveAndExitPayloadv2 = {
     status: FormStatus.Draft,
     baseUrl: 'http://localhost:3009'
   },
+  email: 'my-email@here.com',
   auth: {
     sub: 'auth-sub',
     issuer: 'auth-issuer'
@@ -117,6 +118,7 @@ describe('publish', () => {
       await publishSaveAndExitV2Event(
         saveAndExitV2Payload.form.id,
         saveAndExitV2Payload.form.title,
+        saveAndExitV2Payload.email,
         saveAndExitV2Payload.auth,
         saveAndExitV2Payload.state,
         saveAndExitV2Payload.form.status
@@ -142,7 +144,7 @@ describe('publish', () => {
         publishSaveAndExitV2Event(invalidPayload)
       ).rejects.toThrow(
         new ValidationError(
-          '"data.form.id" must be a string. "data.form.title" is required. "data.state" is required',
+          '"data.form.id" must be a string. "data.form.title" is required. "data.email" is required. "data.state" is required',
           [],
           {}
         )

@@ -64,12 +64,20 @@ export function saveAndExitV1Mapper(
  * For V2 save-and-exit
  * @param { string } formId
  * @param { string } formTitle
+ * @param { string } email
  * @param {{ sub: string, issuer: string }} auth
  * @param { FormState } state
  * @param { FormStatus } [status]
  * @returns {SaveAndExitV2Message}
  */
-export function saveAndExitV2Mapper(formId, formTitle, auth, state, status) {
+export function saveAndExitV2Mapper(
+  formId,
+  formTitle,
+  email,
+  auth,
+  state,
+  status
+) {
   /** @type {SaveAndExitV2MessageData} */
   const data = {
     form: {
@@ -79,6 +87,7 @@ export function saveAndExitV2Mapper(formId, formTitle, auth, state, status) {
       isPreview: !!status,
       baseUrl
     },
+    email,
     auth,
     state
   }

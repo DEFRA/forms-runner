@@ -55,6 +55,7 @@ export async function publishSaveAndExitV1Event(
  * V2 save-and-exit stores state against the logged-in user.
  * @param {string} formId
  * @param {string} formTitle
+ * @param {string} email
  * @param {{ sub: string, issuer: string }} auth
  * @param {FormState} state
  * @param {FormStatus} [status]
@@ -62,11 +63,19 @@ export async function publishSaveAndExitV1Event(
 export async function publishSaveAndExitV2Event(
   formId,
   formTitle,
+  email,
   auth,
   state,
   status
 ) {
-  const message = saveAndExitV2Mapper(formId, formTitle, auth, state, status)
+  const message = saveAndExitV2Mapper(
+    formId,
+    formTitle,
+    email,
+    auth,
+    state,
+    status
+  )
 
   return validateAndPublishEvent(message)
 }
