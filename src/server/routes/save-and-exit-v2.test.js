@@ -115,29 +115,32 @@ describe('Save-and-exit check routes', () => {
 
       expect(response.statusCode).toBe(StatusCodes.OK)
 
-      const $mastheadHeading = container.getByText(
+      const $mastheadHeading = container.queryByText(
         'Your progress has been saved'
       )
 
-      const $title = container.getByText('What happens next')
+      const $title = container.queryByText('What happens next')
 
-      const $savedFor = container.getByText(
+      const $savedFor = container.queryByText(
         'Your answers have been saved for 28 days.'
       )
 
-      const $emailedLink = container.getByText(
+      const $emailedLink = container.queryByText(
         "We’ve emailed you a link so you can sign in and continue your 'My test form' form later."
       )
 
-      const $checkSpam = container.getByText(
+      const $checkSpam = container.queryByText(
         'Check your spam folder if you have not received an email after a few minutes.'
       )
+
+      const $button = container.queryByTestId('back-button')
 
       expect($mastheadHeading).toBeInTheDocument()
       expect($title).toBeInTheDocument()
       expect($savedFor).toBeInTheDocument()
       expect($emailedLink).toBeInTheDocument()
       expect($checkSpam).toBeInTheDocument()
+      expect($button?.textContent.trim()).toBe('Back to manage your form')
     })
   })
 
@@ -186,11 +189,14 @@ describe('Save-and-exit check routes', () => {
       'Gwiriwch eich ffolder sbam os na fyddwch wedi cael e-bost ar ôl ychydig funudau.'
     )
 
+    const $button = container.queryByTestId('back-button')
+
     expect($mastheadHeading).toBeInTheDocument()
     expect($title).toBeInTheDocument()
     expect($savedFor).toBeInTheDocument()
     expect($emailedLink).toBeInTheDocument()
     expect($checkSpam).toBeInTheDocument()
+    expect($button?.textContent.trim()).toBe('Yn ôl i reoli eich ffurflen')
   })
 })
 

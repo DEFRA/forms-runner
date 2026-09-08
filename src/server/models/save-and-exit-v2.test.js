@@ -1,6 +1,9 @@
 import { FormStatus } from '@defra/forms-model'
 
-import { constructFormUrl } from '~/src/server/models/save-and-exit-v2.js'
+import {
+  constructBackLink,
+  constructFormUrl
+} from '~/src/server/models/save-and-exit-v2.js'
 
 describe('Save and exit v2 models', () => {
   describe('constructFormUrl', () => {
@@ -12,6 +15,18 @@ describe('Save and exit v2 models', () => {
         '/form/preview/live/my-form-slug'
       )
       expect(constructFormUrl('my-form-slug')).toBe('/form/my-form-slug')
+    })
+  })
+
+  describe('constructBackLink', () => {
+    test('should construct backlink', () => {
+      expect(constructBackLink('my-form-slug', FormStatus.Draft)).toBe(
+        '/homepage/preview/draft/my-form-slug'
+      )
+      expect(constructBackLink('my-form-slug', FormStatus.Live)).toBe(
+        '/homepage/preview/live/my-form-slug'
+      )
+      expect(constructBackLink('my-form-slug')).toBe('/homepage/my-form-slug')
     })
   })
 })

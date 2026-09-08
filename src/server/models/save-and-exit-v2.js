@@ -3,7 +3,7 @@ import { slugSchema } from '@defra/forms-model'
 import Joi from 'joi'
 
 import { config } from '~/src/config/index.js'
-import { FORM_PREFIX } from '~/src/server/constants.js'
+import { FORM_PREFIX, HOMEPAGE_PREFIX } from '~/src/server/constants.js'
 import { getFeedbackFormLink } from '~/src/server/utils/utils.js'
 
 const saveAndExitExpiryDays = config.get('saveAndExitExpiryDays')
@@ -18,6 +18,18 @@ export function constructFormUrl(slug, status) {
   }
 
   return `${FORM_PREFIX}/preview/${status}/${slug}`
+}
+
+/**
+ * @param {string} slug
+ * @param {FormStatus} [status]
+ */
+export function constructBackLink(slug, status) {
+  if (!status) {
+    return `${HOMEPAGE_PREFIX}/${slug}`
+  }
+
+  return `${HOMEPAGE_PREFIX}/preview/${status}/${slug}`
 }
 
 /**
@@ -48,12 +60,14 @@ export function getKey(slug, state) {
 export function confirmationViewModelv2(metadata, translator, status) {
   const { slug, title, id } = metadata
   const formPath = constructFormUrl(slug, status)
+  const backLink = constructBackLink(slug, status)
   const { t } = translator
 
   return {
     name: title,
     serviceUrl: formPath,
     pageTitle: t('saveAndExit.confirmation.pageTitle'),
+    backLink,
     saveAndExitExpiryDays,
     context: { translator },
     ...getFeedbackFormLink(id)

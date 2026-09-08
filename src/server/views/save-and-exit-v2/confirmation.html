@@ -22,6 +22,15 @@
       <p class="govuk-body">
         {{ tR('saveAndExit.confirmation.checkSpam') }}
       </p>
+
+      {{ govukButton({
+          text: tR('saveAndExit.confirmation.back'),
+          href: backLink,
+          attributes: {
+            'data-testid': 'back-button'
+          }
+        })
+      }}
     </div>
   </div>
 {% endblock %}

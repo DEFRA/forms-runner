@@ -191,7 +191,8 @@
       "checkSpam": "Check your spam folder if you have not received an email after a few minutes.",
       "closeWindow": "You can close this window.",
       "answersSaved": "Your answers have been saved for [[days]] days.",
-      "emailedLinkForSignIn": "We’ve emailed you a link so you can sign in and continue your '[[formName]]' form later."
+      "emailedLinkForSignIn": "We’ve emailed you a link so you can sign in and continue your '[[formName]]' form later.",
+      "back": "Back to manage your form"
     },
     "resumeError": {
       "pageTitle": "You cannot resume your form",
