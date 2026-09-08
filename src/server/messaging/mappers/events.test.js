@@ -145,7 +145,10 @@ describe('runner-events', () => {
           status: FormStatus.Draft,
           baseUrl: 'http://localhost:3009'
         },
-        email: 'my-email@here.com',
+        auth: {
+          sub: 'auth-sub',
+          issuer: 'auth-issuer'
+        },
         state: {
           formVal1: '123',
           formVal2: '456'
@@ -156,7 +159,7 @@ describe('runner-events', () => {
         saveAndExitV2Mapper(
           payload.form.id,
           payload.form.title,
-          payload.email,
+          payload.auth,
           payload.state,
           payload.form.status
         )
@@ -175,7 +178,7 @@ describe('runner-events', () => {
             status: payload.form.status,
             baseUrl: 'http://localhost:3009'
           },
-          email: payload.email,
+          auth: payload.auth,
           state: payload.state
         }
       })

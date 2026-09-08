@@ -178,14 +178,10 @@ export const configureEnginePlugin = async ({
 
         yar.flash(SAVE_AND_EXIT_PAYLOAD, pagePayload, true)
 
-        const saveAndExitBase = config.get('useSignInFeature')
-          ? 'save-and-exit-v2'
-          : 'save-and-exit'
-
         return h.redirect(
           !isPreview
-            ? `/${saveAndExitBase}/${slug}`
-            : `/${saveAndExitBase}/${slug}/${state}`
+            ? `/save-and-exit/${slug}`
+            : `/save-and-exit/${slug}/${state}`
         )
       },
       controllers: {

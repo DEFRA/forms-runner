@@ -22,15 +22,6 @@
       <p class="govuk-body">
         {{ tR('saveAndExit.confirmation.checkSpam') }}
       </p>
-
-      {{ govukButton({
-          text: tR('saveAndExit.confirmation.signin'),
-          href: signinLink,
-          attributes: {
-            'data-testid': 'signin-button'
-          }
-        })
-      }}
     </div>
   </div>
 {% endblock %}

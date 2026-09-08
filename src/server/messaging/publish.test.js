@@ -38,6 +38,27 @@ const saveAndExitPayload = {
   }
 }
 
+/**
+ * @type {SaveAndExitV2MessageData}
+ */
+const saveAndExitPayloadv2 = {
+  form: {
+    id: 'formId',
+    title: 'My First Form',
+    isPreview: true,
+    status: FormStatus.Draft,
+    baseUrl: 'http://localhost:3009'
+  },
+  auth: {
+    sub: 'auth-sub',
+    issuer: 'auth-issuer'
+  },
+  state: {
+    formVal1: '123',
+    formVal2: '456'
+  }
+}
+
 describe('publish', () => {
   beforeEach(() => {
     jest.mocked(publishEvent).mockResolvedValue({
@@ -90,17 +111,13 @@ describe('publish', () => {
   })
 
   describe('publishSaveAndExitV2Event', () => {
-    const saveAndExitPayloadTemp = structuredClone(saveAndExitPayload)
-    // @ts-expect-error - remove property that V2 doesn't have
-    delete saveAndExitPayloadTemp.security
-    /** @type {SaveAndExitV2MessageData} */
-    const saveAndExitV2Payload = saveAndExitPayloadTemp
+    const saveAndExitV2Payload = structuredClone(saveAndExitPayloadv2)
 
     it('should publish SAVE_AND_EXIT V2 event', async () => {
       await publishSaveAndExitV2Event(
         saveAndExitV2Payload.form.id,
         saveAndExitV2Payload.form.title,
-        saveAndExitV2Payload.email,
+        saveAndExitV2Payload.auth,
         saveAndExitV2Payload.state,
         saveAndExitV2Payload.form.status
       )
@@ -125,7 +142,7 @@ describe('publish', () => {
         publishSaveAndExitV2Event(invalidPayload)
       ).rejects.toThrow(
         new ValidationError(
-          '"data.form.id" must be a string. "data.form.title" is required. "data.email" is required. "data.state" is required',
+          '"data.form.id" must be a string. "data.form.title" is required. "data.state" is required',
           [],
           {}
         )

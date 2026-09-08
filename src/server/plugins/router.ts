@@ -36,8 +36,7 @@ import {
   healthRoute,
   homepageRoutes,
   publicRoutes,
-  saveAndExitRoutes,
-  saveAndExitV2Routes
+  saveAndExitRoutes
 } from '~/src/server/routes/index.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadataWithoutGuard } from '~/src/server/services/formMetadataGuards.js'
@@ -79,7 +78,6 @@ export default {
       if (config.get('useSignInFeature')) {
         server.route(authRoutes as ServerRoute[])
         server.route(homepageRoutes)
-        server.route(saveAndExitV2Routes as ServerRoute[])
       }
 
       server.route(routes)

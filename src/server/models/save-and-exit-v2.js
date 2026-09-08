@@ -3,7 +3,7 @@ import { slugSchema } from '@defra/forms-model'
 import Joi from 'joi'
 
 import { config } from '~/src/config/index.js'
-import { FORM_PREFIX, HOMEPAGE_PREFIX } from '~/src/server/constants.js'
+import { FORM_PREFIX } from '~/src/server/constants.js'
 import { getFeedbackFormLink } from '~/src/server/utils/utils.js'
 
 const saveAndExitExpiryDays = config.get('saveAndExitExpiryDays')
@@ -18,18 +18,6 @@ export function constructFormUrl(slug, status) {
   }
 
   return `${FORM_PREFIX}/preview/${status}/${slug}`
-}
-
-/**
- * @param {string} slug
- * @param {FormStatus} [status]
- */
-export function constructSigninUrl(slug, status) {
-  if (!status) {
-    return `${HOMEPAGE_PREFIX}/${slug}`
-  }
-
-  return `${HOMEPAGE_PREFIX}/preview/${status}/${slug}`
 }
 
 /**
@@ -48,7 +36,7 @@ export const paramsSchema = Joi.object()
  * @param {FormStatus} [state]
  */
 export function getKey(slug, state) {
-  return `save-and-exit-v2-${slug}-${state ?? ''}`
+  return `save-and-exit-${slug}-${state ?? ''}`
 }
 
 /**
@@ -57,16 +45,14 @@ export function getKey(slug, state) {
  * @param {Translator} translator
  * @param {FormStatus} [status]
  */
-export function confirmationViewModel(metadata, translator, status) {
+export function confirmationViewModelv2(metadata, translator, status) {
   const { slug, title, id } = metadata
   const formPath = constructFormUrl(slug, status)
-  const signinLink = constructSigninUrl(slug, status)
   const { t } = translator
 
   return {
     name: title,
     serviceUrl: formPath,
-    signinLink,
     pageTitle: t('saveAndExit.confirmation.pageTitle'),
     saveAndExitExpiryDays,
     context: { translator },

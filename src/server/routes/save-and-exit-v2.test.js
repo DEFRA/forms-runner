@@ -5,7 +5,6 @@ import {
 import { FormStatus } from '@defra/forms-model'
 import { StatusCodes } from 'http-status-codes'
 
-import { config } from '~/src/config/index.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { createServer } from '~/src/server/index.js'
 import { getFormMetadataWithGuard } from '~/src/server/services/formMetadataGuards.js'
@@ -19,6 +18,15 @@ jest.mock('~/src/server/helpers/error-helper.js')
 jest.mock('@defra/forms-engine-plugin/engine/form-availability.js')
 jest.mock('@defra/forms-engine-plugin/engine/helpers.js')
 jest.mock('~/src/server/messaging/publish.js')
+
+// Enable sign-in routes while retaining the real values for every other setting.
+jest.mock('~/src/config/index', () => {
+  const actual = jest.requireActual('~/src/config/index')
+
+  actual.config.set('useSignInFeature', true)
+
+  return actual
+})
 
 const DRAFT_STATE = 'draft'
 
@@ -35,8 +43,6 @@ describe('Save-and-exit check routes', () => {
   let server
 
   beforeAll(async () => {
-    config.set('useSignInFeature', true)
-
     server = await createServer({
       enforceCsrf: false
     })
@@ -46,7 +52,6 @@ describe('Save-and-exit check routes', () => {
 
   afterAll(async () => {
     await server.stop()
-    config.set('useSignInFeature', false)
   })
 
   beforeEach(() => {
@@ -59,12 +64,13 @@ describe('Save-and-exit check routes', () => {
     })
     // @ts-expect-error - not all method mocked
     jest.mocked(getCacheService).mockImplementation(() => ({
-      getState: jest.fn().mockResolvedValueOnce({ key: 'val' }),
+      getState: jest.fn().mockResolvedValue({ key: 'val' }),
+      setState: jest.fn(),
       clearState: jest.fn()
     }))
     jest
       .mocked(checkFormStatus)
-      .mockReturnValueOnce({ isPreview: true, state: FormStatus.Draft })
+      .mockReturnValue({ isPreview: true, state: FormStatus.Draft })
   })
 
   const FORM_SLUG = 'my-form-slug'
@@ -75,16 +81,21 @@ describe('Save-and-exit check routes', () => {
     title: 'My test form'
   }
 
-  describe('GET /save-and-exit-v2/{slug}/{state?}', () => {
+  describe('GET /save-and-exit/{slug}/{state?}', () => {
     it('sends a signed-out citizen to sign in first', async () => {
+      jest
+        .mocked(getFormMetadataWithGuard)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce(testMetadata)
+
       const response = await server.inject({
         method: 'GET',
-        url: `/save-and-exit-v2/${FORM_SLUG}/${DRAFT_STATE}`
+        url: `/save-and-exit/${FORM_SLUG}/${DRAFT_STATE}`
       })
 
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
       expect(response.headers.location).toBe(
-        '/auth/sign-in?returnUrl=%2Fsave-and-exit-v2%2Fmy-form-slug%2Fdraft'
+        '/auth/sign-in?returnUrl=%2Fsave-and-exit%2Fmy-form-slug%2Fdraft'
       )
     })
 
@@ -96,7 +107,7 @@ describe('Save-and-exit check routes', () => {
 
       const options = {
         method: 'GET',
-        url: `/save-and-exit-v2/${FORM_SLUG}/${DRAFT_STATE}`,
+        url: `/save-and-exit/${FORM_SLUG}/${DRAFT_STATE}`,
         auth: { strategy: 'citizen-session', credentials }
       }
 
@@ -122,16 +133,11 @@ describe('Save-and-exit check routes', () => {
         'Check your spam folder if you have not received an email after a few minutes.'
       )
 
-      const $button = container.queryByRole('link', {
-        name: 'Sign in'
-      })
-
       expect($mastheadHeading).toBeInTheDocument()
       expect($title).toBeInTheDocument()
       expect($savedFor).toBeInTheDocument()
       expect($emailedLink).toBeInTheDocument()
       expect($checkSpam).toBeInTheDocument()
-      expect($button).not.toBeInTheDocument()
     })
   })
 
@@ -154,7 +160,7 @@ describe('Save-and-exit check routes', () => {
     )
     const options = {
       method: 'GET',
-      url: `/save-and-exit-v2/${FORM_SLUG}/${DRAFT_STATE}?language=cy`,
+      url: `/save-and-exit/${FORM_SLUG}/${DRAFT_STATE}?language=cy`,
       auth: { strategy: 'citizen-session', credentials }
     }
 
@@ -180,14 +186,11 @@ describe('Save-and-exit check routes', () => {
       'Gwiriwch eich ffolder sbam os na fyddwch wedi cael e-bost ar ôl ychydig funudau.'
     )
 
-    const $button = container.getByTestId('signin-button')
-
     expect($mastheadHeading).toBeInTheDocument()
     expect($title).toBeInTheDocument()
     expect($savedFor).toBeInTheDocument()
     expect($emailedLink).toBeInTheDocument()
     expect($checkSpam).toBeInTheDocument()
-    expect($button.textContent.trim()).toBe('Mewngofnodi')
   })
 })
 
