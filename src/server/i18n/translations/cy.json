@@ -53,6 +53,20 @@
           "purpose": "Defnyddir gan Google Analytics i ddod o hyd i sesiwn unigol gyda'ch dyfais a'i holrhain",
           "expires": "2 flynedd"
         }
+      },
+      "googleAnalytics": {
+        "lede": "Mae Google Analytics yn prosesu gwybodaeth am:",
+        "items": [
+          "eich cyfeiriad IP",
+          "y tudalennau rydych yn ymweld â nhw ar <strong>[[serviceName]]</strong>",
+          "faint o amser rydych yn ei dreulio ar bob tudalen o <strong>[[serviceName]]</strong>",
+          "sut y gwnaethoch gyrraedd y wefan",
+          "beth rydych yn ei ddewis wrth ymweld â'r wefan"
+        ],
+        "body1": "Bydd Defra yn sicrhau na ellir eich adnabod yn uniongyrchol gan ddata Google Analytics. Rydym yn gwneud hyn drwy ddefnyddio nodwedd <a class=\"govuk-link\" href=\"https://support.google.com/analytics/answer/2763052\">anonymeiddio cyfeiriad IP Google Analytics</a> a thrwy ddileu unrhyw ddata personol arall o deitlau neu URLau'r tudalennau rydych yn ymweld â nhw.",
+        "body2": "Ni fydd Defra yn cyfuno gwybodaeth ddadansoddeg â setiau data eraill mewn ffordd a fyddai'n nodi pwy ydych chi yn uniongyrchol.",
+        "body3": "Rydym yn defnyddio logiau system i gasglu gwybodaeth am y defnydd o ffurflenni.",
+        "body4": "Rydym yn defnyddio'r logiau system a data Google Analytics i greu adroddiadau dienw am berfformiad ffurflenni sy'n defnyddio <strong>[[serviceName]]</strong>. Rydym yn defnyddio'r data hyn i wella ffurflenni, er enghraifft, os byddwn yn darganfod nifer uchel o ffurflenni anghyflawn."
       }
     },
     "cookiePreferences": {
