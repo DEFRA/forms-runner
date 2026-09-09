@@ -4,7 +4,10 @@ import { within } from '@testing-library/dom'
 
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
-import { getFormMetadata } from '~/src/server/services/formsService.js'
+import {
+  generateReferenceNumber,
+  getFormMetadata
+} from '~/src/server/services/formsService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 jest.mock('~/src/server/services/formsService.js')
@@ -19,6 +22,7 @@ describe(`Phase banner`, () => {
 
   beforeEach(() => {
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+    jest.mocked(generateReferenceNumber).mockResolvedValue('XXX-XXX-XXX')
   })
 
   test('shows the server phase tag by default', async () => {

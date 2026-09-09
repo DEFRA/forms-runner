@@ -5,6 +5,7 @@ import { StatusCodes } from 'http-status-codes'
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { configureEnginePlugin, createServer } from '~/src/server/index.js'
 import {
+  generateReferenceNumber,
   getFormDefinition,
   getFormMetadata
 } from '~/src/server/services/formsService.js'
@@ -31,6 +32,7 @@ describe('Model cache', () => {
 
   beforeEach(() => {
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+    jest.mocked(generateReferenceNumber).mockResolvedValue('XXX-XXX-XXX')
     server.app.models.clear()
   })
 

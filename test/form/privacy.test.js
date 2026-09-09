@@ -10,7 +10,7 @@ jest.mock('~/src/server/services/formsService.js')
 
 const gaContainerId = 'ga-analytics-segment'
 const gaText =
-  'We use the system logs and Google Analytics data to create anonymised reports about the performance of forms that use'
+  'If you give your consent, we will use Google Analytics to collect information'
 
 describe(`Privacy policy`, () => {
   /** @type {Server} */

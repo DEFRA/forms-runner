@@ -191,7 +191,8 @@ export const configureEnginePlugin = async ({
       },
       ordnanceSurveyApiKey: config.get('ordnanceSurveyApiKey'),
       ordnanceSurveyApiSecret: config.get('ordnanceSurveyApiSecret'),
-      getLanguage: resolveLanguage
+      getLanguage: resolveLanguage,
+      generateReferenceNumber: formsService.generateReferenceNumber
     }
   }
   const routeOptions = {
