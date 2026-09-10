@@ -11,6 +11,31 @@ import {
 } from '~/src/server/constants.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
+import { getSavedForms } from '~/src/server/services/savedFormsService.js'
+
+/**
+ * A saved form as the table shows it. The dates are formatted here rather
+ * than in the template, so they can be tested.
+ * @param {SavedForm} savedForm
+ */
+function toRow(savedForm) {
+  return {
+    referenceNumber: savedForm.referenceNumber,
+    lastUpdated: formatDate(savedForm.createdAt),
+    savedUntil: formatDate(savedForm.expireAt)
+  }
+}
+
+/**
+ * @param {string} value - an ISO date
+ */
+function formatDate(value) {
+  return new Date(value).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  })
+}
 
 /**
  * Renders the homepage for the form state the URL names: live for
@@ -34,8 +59,12 @@ async function homepageHandler(request, h) {
     ? `${FORM_PREFIX}${PREVIEW_PATH_PREFIX}/${state}/${slug}`
     : `${FORM_PREFIX}/${slug}`
 
+  const { accessToken } = /** @type {Identity} */ (request.auth.credentials)
+  const savedForms = await getSavedForms(accessToken, form.id)
+
   return h.view('homepage', {
     startUrl,
+    savedForms: savedForms.map(toRow),
     context: { translator }
   })
 }
@@ -73,5 +102,7 @@ export default [
 
 /**
  * @import { FormParams } from '@defra/forms-engine-plugin/types'
+ * @import { Identity } from '~/src/server/auth/accountSession.js'
+ * @import { SavedForm } from '~/src/server/services/savedFormsService.js'
  * @import { Request, ResponseToolkit, ServerRoute } from '@hapi/hapi'
  */
