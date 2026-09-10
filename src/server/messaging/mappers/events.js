@@ -12,6 +12,7 @@ import { config } from '~/src/config/index.js'
 const baseUrl = config.get('baseUrl')
 
 /**
+ * For legacy V1 save-and-exit
  * @param { string } formId
  * @param { string } formTitle
  * @param { string } email
@@ -20,7 +21,7 @@ const baseUrl = config.get('baseUrl')
  * @param { FormStatus } [status]
  * @returns {SaveAndExitMessage}
  */
-export function saveAndExitMapper(
+export function saveAndExitV1Mapper(
   formId,
   formTitle,
   email,
@@ -60,6 +61,49 @@ export function saveAndExitMapper(
 }
 
 /**
- * @import { SaveAndExitMessage, SaveAndExitMessageData, SecurityQuestionsEnum } from '@defra/forms-model'
+ * For V2 save-and-exit
+ * @param { string } formId
+ * @param { string } formTitle
+ * @param { string } email
+ * @param {{ sub: string, issuer: string }} auth
+ * @param { FormState } state
+ * @param { FormStatus } [status]
+ * @returns {SaveAndExitV2Message}
+ */
+export function saveAndExitV2Mapper(
+  formId,
+  formTitle,
+  email,
+  auth,
+  state,
+  status
+) {
+  /** @type {SaveAndExitV2MessageData} */
+  const data = {
+    form: {
+      id: formId,
+      title: formTitle,
+      status: status ?? FormStatus.Live,
+      isPreview: !!status,
+      baseUrl
+    },
+    email,
+    auth,
+    state
+  }
+  const now = new Date()
+  return {
+    schemaVersion: SubmissionEventMessageSchemaVersion.V1,
+    category: SubmissionEventMessageCategory.RUNNER,
+    source: SubmissionEventMessageSource.FORMS_RUNNER,
+    type: SubmissionEventMessageType.RUNNER_SAVE_AND_EXIT_V2,
+    createdAt: now,
+    data,
+    messageCreatedAt: now
+  }
+}
+
+/**
+ * @import { SaveAndExitMessage, SaveAndExitV2Message, SaveAndExitMessageData, SaveAndExitV2MessageData, SecurityQuestionsEnum } from '@defra/forms-model'
  * @import { FormState } from '@defra/forms-engine-plugin/engine/types.js'
  */

@@ -23,6 +23,8 @@ export const configureBlankiePlugin = (): ServerRegisterPluginObject<
   const gtmContainerId = config.get('googleTagManagerContainerId')
   const uploaderUrl = config.get('uploaderUrl')
   const paymentProviderUrl = config.get('paymentProviderUrl')
+  const useSignInFeature = config.get('useSignInFeature')
+  const issuerUrl = config.get('oidc.issuer')
 
   return {
     plugin: Blankie,
@@ -51,7 +53,8 @@ export const configureBlankiePlugin = (): ServerRegisterPluginObject<
       workerSrc: ['blob:'],
       formAction: [
         ['self'],
-        paymentProviderUrl ? [paymentProviderUrl] : []
+        paymentProviderUrl ? [paymentProviderUrl] : [],
+        useSignInFeature ? [issuerUrl] : []
       ].flat(),
       frameAncestors: ['none'],
       objectSrc: ['none'],
