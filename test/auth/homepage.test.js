@@ -333,6 +333,27 @@ describe('per-form homepage', () => {
       ).toBeInTheDocument()
     })
   })
+
+  describe('page width', () => {
+    it('gives the homepage the room its table needs, and leaves other pages alone', async () => {
+      const homepage = await server.inject({
+        method: 'GET',
+        url: HOMEPAGE_URL,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      // On the body, so the header, navigation, content and footer all move
+      // together rather than leaving a seam
+      expect(homepage.payload).toContain('app-page--wide')
+
+      const otherPage = await server.inject({
+        method: 'GET',
+        url: NO_AUTH_URL
+      })
+
+      expect(otherPage.payload).not.toContain('app-page--wide')
+    })
+  })
 })
 
 /**
