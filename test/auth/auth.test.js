@@ -20,6 +20,7 @@ const END_SESSION_URL =
 const HOMEPAGE_PREVIEW_PATH = '/homepage/preview/draft/my-form-slug'
 const HOMEPAGE_LIVE_PATH = '/homepage/my-form-slug'
 const ISSUER = 'http://localhost:3011'
+const RESOURCE = 'urn:defra:forms:forms-submission-api'
 const SUB = 'sub-1'
 const EMAIL = 'citizen@example.com'
 
@@ -34,7 +35,7 @@ function mockTokens() {
     /** @type {unknown} */ ({
       id_token: 'header.payload.signature',
       access_token: 'access-1',
-      claims: () => ({ iss: ISSUER, sub: SUB })
+      claims: () => ({ iss: ISSUER, sub: SUB, email: EMAIL })
     })
   )
 }
@@ -42,9 +43,6 @@ function mockTokens() {
 /** The provider accepts the code and names the citizen */
 function mockSuccessfulExchange() {
   jest.mocked(client.authorizationCodeGrant).mockResolvedValue(mockTokens())
-  jest
-    .mocked(client.fetchUserInfo)
-    .mockResolvedValue({ sub: SUB, email: EMAIL })
 }
 
 describe('sign in routes and sign out routes', () => {
@@ -104,11 +102,14 @@ describe('sign in routes and sign out routes', () => {
       state: 'state-1',
       nonce: 'nonce-1',
       code_challenge: 'challenge-1',
-      code_challenge_method: 'S256'
+      code_challenge_method: 'S256',
+      // Naming the resource only at the token endpoint returns an opaque
+      // token and no error, so it is named here too
+      resource: RESOURCE
     })
   })
 
-  it('takes the email from userinfo, because the ID token does not carry it', async () => {
+  it('takes the email from the ID token, which carries it once the token is bound to a resource', async () => {
     const login = await startSignIn()
 
     mockSuccessfulExchange()
@@ -119,13 +120,28 @@ describe('sign in routes and sign out routes', () => {
       headers: getCookieHeader(login, ['session'])
     })
 
-    expect(client.fetchUserInfo).toHaveBeenCalledWith(
-      expect.anything(),
-      'access-1',
-      SUB
-    )
+    expect(client.fetchUserInfo).not.toHaveBeenCalled()
     expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
     expect(response.headers.location).toBe(RETURN_PATH)
+  })
+
+  it('asks the token endpoint for a token the submission API will accept', async () => {
+    const login = await startSignIn()
+
+    mockSuccessfulExchange()
+
+    await server.inject({
+      method: 'GET',
+      url: CALLBACK_URL,
+      headers: getCookieHeader(login, ['session'])
+    })
+
+    // the fourth argument is tokenEndpointParameters; the third is the checks
+    const [, , , tokenEndpointParameters] = jest.mocked(
+      client.authorizationCodeGrant
+    ).mock.calls[0]
+
+    expect(tokenEndpointParameters).toMatchObject({ resource: RESOURCE })
   })
 
   it('exchanges the code against the configured redirect URI, not whatever the request claims its host is', async () => {
@@ -241,8 +257,13 @@ describe('sign in routes and sign out routes', () => {
   it('refuses a sign in when the provider gives no email, because the identity would be incomplete', async () => {
     const login = await startSignIn()
 
-    jest.mocked(client.authorizationCodeGrant).mockResolvedValue(mockTokens())
-    jest.mocked(client.fetchUserInfo).mockResolvedValue({ sub: SUB })
+    const withoutEmail = mockTokens()
+    withoutEmail.claims = () =>
+      /** @type {ReturnType<typeof withoutEmail.claims>} */ ({
+        iss: ISSUER,
+        sub: SUB
+      })
+    jest.mocked(client.authorizationCodeGrant).mockResolvedValue(withoutEmail)
 
     const response = await server.inject({
       method: 'GET',

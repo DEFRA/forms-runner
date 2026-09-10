@@ -369,6 +369,12 @@ export const config = convict({
       default: '',
       env: 'OIDC_REDIRECT_URI'
     } as SchemaObj<string>,
+    submissionApiResource: {
+      doc: 'Name forms-submission-api is asked for a token under. It becomes the audience of the access token, and that API refuses any other.',
+      format: String,
+      default: 'urn:defra:forms:forms-submission-api',
+      env: 'OIDC_SUBMISSION_API_RESOURCE'
+    } as SchemaObj<string>,
     privateJwk: {
       doc: 'This service’s private assertion key, as a single RS256 JWK. The provider holds the public half, and may hold several to span a key rotation; this service signs with one.',
       format: String,
