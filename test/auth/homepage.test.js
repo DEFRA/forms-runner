@@ -297,6 +297,14 @@ describe('per-form homepage', () => {
       expect(
         within(table).getByRole('cell', { name: 'AAA-111' })
       ).toBeInTheDocument()
+
+      // 09:00 UTC is 10:00 in British Summer Time
+      expect(
+        within(table).getByRole('cell', { name: '21 August 2026 at 10:00' })
+      ).toBeInTheDocument()
+      expect(
+        within(table).getByRole('cell', { name: '12 September 2026 at 10:00' })
+      ).toBeInTheDocument()
     })
 
     it('asks only for the forms of the citizen signed in, using their token', async () => {

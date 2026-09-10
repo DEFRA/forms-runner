@@ -9,6 +9,7 @@ import {
   HOMEPAGE_PREFIX,
   PREVIEW_PATH_PREFIX
 } from '~/src/server/constants.js'
+import { formatDateTime } from '~/src/server/helpers/date-helper.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 import { getSavedForms } from '~/src/server/services/savedFormsService.js'
@@ -21,20 +22,9 @@ import { getSavedForms } from '~/src/server/services/savedFormsService.js'
 function toRow(savedForm) {
   return {
     referenceNumber: savedForm.referenceNumber,
-    lastUpdated: formatDate(savedForm.createdAt),
-    savedUntil: formatDate(savedForm.expireAt)
+    lastUpdated: formatDateTime(savedForm.createdAt),
+    savedUntil: formatDateTime(savedForm.expireAt)
   }
-}
-
-/**
- * @param {string} value - an ISO date
- */
-function formatDate(value) {
-  return new Date(value).toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  })
 }
 
 /**
