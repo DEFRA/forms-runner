@@ -317,7 +317,6 @@
   },
   "signIn": {
     "homepage": {
-      "savedFormsHeading": "Eich ffurflenni ar y gweill",
       "noSavedForms": "Nid oes gennych ffurflenni ar y gweill.",
       "referenceNumber": "Cyfeirnod",
       "status": "Statws",

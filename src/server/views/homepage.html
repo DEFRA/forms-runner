@@ -9,7 +9,7 @@
 
 {% block content %}
   <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
+    <div class="govuk-grid-column-full">
       {% if previewMode %}
         {% set previewBannerHtml %}
           <p class="govuk-notification-banner__heading govuk-!-margin-bottom-0">
@@ -23,19 +23,13 @@
       {% endif %}
 
       <span class="govuk-caption-l">{{ tR('signIn.homepage.caption') }}</span>
-      <h1 class="govuk-heading-l">{{ pageTitle }}</h1>
+      <h1 class="govuk-heading-xl">{{ pageTitle }}</h1>
 
       {{ govukButton({
         text: tR('signIn.homepage.startButton'),
-        href: startUrl
+        href: startUrl,
+        classes: "govuk-button--secondary"
       }) }}
-
-    </div>
-  </div>
-
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-full">
-      <h2 class="govuk-heading-m">{{ tR('signIn.homepage.savedFormsHeading') }}</h2>
 
       {% if savedForms.length %}
         {% set rows = [] %}
