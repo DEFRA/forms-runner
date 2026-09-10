@@ -195,7 +195,10 @@
       "linkSent": "Rydym wedi anfon dolen i [[email]] y gallwch ei defnyddio i ailafael yn y ffurflen hon o fewn [[saveAndExitExpiryDays]] diwrnod.",
       "repeatSave": "Os hoffech gadw eich cynnydd eto ar ôl ailafael yn eich ffurflen, bydd angen i chi ailadrodd y broses gadw er mwyn cynhyrchu dolen newydd.",
       "checkSpam": "Gwiriwch eich ffolder sbam os na fyddwch wedi cael e-bost ar ôl ychydig funudau.",
-      "closeWindow": "Gallwch gau'r ffenestr hon."
+      "closeWindow": "Gallwch gau'r ffenestr hon.",
+      "answersSaved": "Mae eich atebion wedi'u cadw am [[days]] o ddiwrnodau.",
+      "emailedLinkForSignIn": "Rydym wedi anfon dolen atoch drwy e-bost fel y gallwch fewngofnodi a pharhau â'ch ffurflen '[[formName]]' yn ddiweddarach.",
+      "back": "Yn ôl i reoli eich ffurflen"
     },
     "resumeError": {
       "pageTitle": "Ni allwch ailafael yn eich ffurflen",

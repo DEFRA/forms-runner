@@ -1,17 +1,13 @@
-import {
-  CURRENT_PAGE_PATH_KEY,
-  MAGIC_LINK_GROUP_ID,
-  STATE_NOT_YET_VALIDATED,
-  isOfflineBoom
-} from '@defra/forms-engine-plugin'
+import { MAGIC_LINK_GROUP_ID, isOfflineBoom } from '@defra/forms-engine-plugin'
 import { getCacheService } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
 import { FormStatus, slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import * as Hoek from '@hapi/hoek'
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
+import { config } from '~/src/config/index.js'
+import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { EN_GB } from '~/src/server/constants.js'
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
@@ -19,7 +15,11 @@ import {
   getCachedFormTranslatorBasic,
   getCachedFormTranslatorExternalRoutes
 } from '~/src/server/i18n/form.js'
-import { publishSaveAndExitEvent } from '~/src/server/messaging/publish.js'
+import {
+  publishSaveAndExitV1Event,
+  publishSaveAndExitV2Event
+} from '~/src/server/messaging/publish.js'
+import { confirmationViewModelv2 } from '~/src/server/models/save-and-exit-v2.js'
 import {
   confirmationViewModel,
   createInvalidPasswordError,
@@ -34,10 +34,8 @@ import {
   resumeSuccessViewModel,
   validatePayloadSchema
 } from '~/src/server/models/save-and-exit.js'
-import {
-  getPayloadFromFlash,
-  hasState
-} from '~/src/server/routes/save-and-exit-helper.js'
+import { hasState } from '~/src/server/routes/save-and-exit-helper.js'
+import { stateHandler } from '~/src/server/routes/save-and-exit-state-handler.js'
 import {
   getFormMetadataById,
   getFormMetadataWithGuard
@@ -62,6 +60,7 @@ const RESUME_ERROR = 'save-and-exit/resume-error'
 const RESUME_ERROR_LOCKED = 'save-and-exit/resume-error-locked'
 const RESUME_PASSWORD_PATH = 'save-and-exit/resume-password'
 const RESUME_SUCCESS = 'save-and-exit/resume-success'
+const SAVE_AND_EXIT_CONFIRMATION = 'save-and-exit-v2/confirmation'
 
 /**
  * @param {number} attemptsSoFar
@@ -115,6 +114,87 @@ export async function getFormTranslator(
   return { translator, language }
 }
 
+/**
+ * Handle V1 save-and exit initial route
+ * @param {Request<{ Params: SaveAndExitParams }>} request
+ * @param {ResponseToolkit<{ Params: SaveAndExitParams }>} h
+ */
+async function handlerMemorableWordSaveAndExit(request, h) {
+  const { params } = request
+  const { slug, state: status } = params
+  const metadata = await getFormMetadataWithGuard(slug, status)
+  const { translator } = await getFormTranslator(request, metadata, status)
+
+  const model = detailsViewModel(
+    metadata,
+    translator,
+    status,
+    undefined,
+    undefined
+  )
+
+  // Store any outstanding data from the current page in a special attribute
+  // (in case the current page wasn't yet validated and saved).
+  // Handle the user navigating back from previously submitting a save-and-exit. The state has been cleared
+  // so just show the form from the start
+  if (await stateHandler(request)) {
+    return h.redirect(model.serviceUrl)
+  }
+
+  // Clear any previous save and exit session state
+  request.yar.clear(getKey(slug, status))
+
+  return h
+    .view(SAVE_AND_EXIT_DETAILS, model)
+    .header('Cache-Control', 'no-cache, no-store, must-revalidate')
+}
+
+/**
+ * Handle V2 save-and exit route
+ * @param {Request<{ Params: SaveAndExitParams }>} request
+ * @param {ResponseToolkit<{ Params: SaveAndExitParams }>} h
+ */
+async function handleAuthenticatedSaveAndExit(request, h) {
+  const { params, auth } = request
+  const { slug, state: status } = params
+  const metadata = await getFormMetadataWithGuard(slug, status)
+  const { translator } = await getFormTranslator(request, metadata, status)
+
+  const model = confirmationViewModelv2(metadata, translator, status)
+
+  const cacheService = getCacheService(
+    /** @type {AnyRequest} */ (/** @type {unknown} */ (request)).server
+  )
+
+  // Store any outstanding data from the current page in a special attribute
+  // (in case the current page wasn't yet validated and saved).
+  // Handle the user navigating back from previously submitting a save-and-exit. The state has been cleared
+  // so just show the form from the start
+  if (await stateHandler(request)) {
+    return h.redirect(model.serviceUrl)
+  }
+
+  await publishSaveAndExitV2Event(
+    metadata.id,
+    metadata.title,
+    /** @type {string} */ (auth.credentials.email),
+    {
+      sub: /** @type {string} */ (auth.credentials.sub),
+      issuer: /** @type {string} */ (auth.credentials.iss)
+    },
+    await cacheService.getState(/** @type {CacheRequest} */ (request)),
+    status
+  )
+
+  // Clear any previous save and exit session state
+  request.yar.clear(getKey(slug, status))
+  await cacheService.clearState(request)
+
+  return h
+    .view(SAVE_AND_EXIT_CONFIRMATION, model)
+    .header('Cache-Control', 'no-cache, no-store, must-revalidate')
+}
+
 export default [
   /**
    * @satisfies {ServerRoute<{ Params: SaveAndExitParams }>}
@@ -122,75 +202,18 @@ export default [
   ({
     method: 'GET',
     path: '/save-and-exit/{slug}/{state?}',
-    async handler(request, h) {
-      const { params } = request
-      const { slug, state: status } = params
-      const metadata = await getFormMetadataWithGuard(slug, status)
-      const { translator } = await getFormTranslator(request, metadata, status)
-
-      const model = detailsViewModel(
-        metadata,
-        translator,
-        status,
-        undefined,
-        undefined
-      )
-
-      // Store any outstanding data from the current page in a special attribute
-      // (in case the current page wasn't yet validated and saved).
-      // The current page state may be invalid so we don't want to push into the cache as normal properties.
-      const cacheService = getCacheService(
-        /** @type {AnyRequest} */ (/** @type {unknown} */ (request)).server
-      )
-      const formState = await cacheService.getState(
-        /** @type {CacheRequest} */ (request)
-      )
-
-      // Handle the user navigating back from previously submitting a save-and-exit. The state has been cleared
-      // so just show the form from the start
-      if (!hasState(formState)) {
-        return h.redirect(model.serviceUrl)
-      }
-
-      const pagePayload = getPayloadFromFlash(request)
-      const currentPagePayload = Array.isArray(pagePayload)
-        ? {}
-        : /** @type { FormPayload | undefined } */ (pagePayload)
-      const currentPagePath =
-        currentPagePayload && CURRENT_PAGE_PATH_KEY in currentPagePayload
-          ? currentPagePayload[CURRENT_PAGE_PATH_KEY]
-          : undefined
-
-      if (currentPagePath) {
-        const combinedState = Hoek.merge(
-          formState,
-          {
-            [STATE_NOT_YET_VALIDATED]: {
-              ...currentPagePayload,
-              [CURRENT_PAGE_PATH_KEY]: currentPagePath
-            }
-          },
-          {
-            mergeArrays: false
-          }
-        )
-        await cacheService.setState(
-          /** @type {CacheRequest} */ (request),
-          combinedState
-        )
-      }
-
-      // Clear any previous save and exit session state
-      request.yar.clear(getKey(slug, status))
-
-      return h
-        .view(SAVE_AND_EXIT_DETAILS, model)
-        .header('Cache-Control', 'no-cache, no-store, must-revalidate')
+    handler(request, h) {
+      return config.get('useSignInFeature')
+        ? handleAuthenticatedSaveAndExit(request, h)
+        : handlerMemorableWordSaveAndExit(request, h)
     },
     options: {
       validate: {
         params: paramsSchema
-      }
+      },
+      ...(config.get('useSignInFeature')
+        ? { auth: { mode: 'required', strategy: CITIZEN_SESSION } }
+        : {})
     }
   }),
   /**
@@ -244,7 +267,7 @@ export default [
         return h.view(SAVE_AND_EXIT_DETAILS, model).takeover()
       }
 
-      await publishSaveAndExitEvent(
+      await publishSaveAndExitV1Event(
         metadata.id,
         metadata.title,
         email,
@@ -671,10 +694,10 @@ export default [
 ]
 
 /**
- * @import { ServerRoute, RequestQuery } from '@hapi/hapi'
+ * @import { ServerRoute, ResponseToolkit, Request, RequestQuery } from '@hapi/hapi'
  * @import { Yar } from '@hapi/yar'
- * @import { FormDefinition, FormMetadata } from '@defra/forms-model'
+ * @import { FormMetadata } from '@defra/forms-model'
  * @import { Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'
- * @import { AnyRequest, CacheRequest, FormPayload } from '@defra/forms-engine-plugin/engine/types.js'
+ * @import { AnyRequest, CacheRequest } from '@defra/forms-engine-plugin/engine/types.js'
  * @import { BoomErrorCustomSaveAndExit, SaveAndExitParams, SaveAndExitPayload, SaveAndExitResumePasswordPayload, SaveAndExitResumePasswordParams } from '~/src/server/models/save-and-exit.js'
  */
