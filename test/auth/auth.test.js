@@ -4,7 +4,9 @@ import { StatusCodes } from 'http-status-codes'
 import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
+import { SIGNED_OUT_PATH, SIGN_OUT_PATH } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
+import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 jest.mock('openid-client')
@@ -13,6 +15,10 @@ const RETURN_PATH = '/homepage/test-form'
 const SIGN_IN_URL = `/auth/sign-in?returnUrl=${RETURN_PATH}`
 const CALLBACK_URL = '/auth/callback?code=code-1&state=state-1'
 const AUTHORIZATION_URL = 'http://localhost:3011/auth?state=state-1'
+const END_SESSION_URL =
+  'http://localhost:3011/endSession?state=%7B%22previewMode%22%3A%22draft%22%2C%22slug%22%3A%22my-form-slug%22%7D'
+const HOMEPAGE_PREVIEW_PATH = '/homepage/preview/draft/my-form-slug'
+const HOMEPAGE_LIVE_PATH = '/homepage/my-form-slug'
 const ISSUER = 'http://localhost:3011'
 const SUB = 'sub-1'
 const EMAIL = 'citizen@example.com'
@@ -41,7 +47,7 @@ function mockSuccessfulExchange() {
     .mockResolvedValue({ sub: SUB, email: EMAIL })
 }
 
-describe('sign in routes', () => {
+describe('sign in routes and sign out routes', () => {
   /** @type {Server} */
   let server
 
@@ -80,6 +86,9 @@ describe('sign in routes', () => {
     jest
       .mocked(client.buildAuthorizationUrl)
       .mockReturnValue(new URL(AUTHORIZATION_URL))
+    jest
+      .mocked(client.buildEndSessionUrl)
+      .mockReturnValue(new URL(END_SESSION_URL))
   })
 
   it('sends the citizen to the provider with PKCE, state and nonce', async () => {
@@ -294,6 +303,65 @@ describe('sign in routes', () => {
       '/homepage/test-formSet-Cookie:%20a=b'
     )
   })
+
+  it('performs a sign-out', async () => {
+    const login = await startSignIn()
+
+    mockSuccessfulExchange()
+
+    const response = await server.inject({
+      method: 'GET',
+      url: CALLBACK_URL,
+      headers: getCookieHeader(login, ['session'])
+    })
+
+    expect(client.fetchUserInfo).toHaveBeenCalledWith(
+      expect.anything(),
+      'access-1',
+      SUB
+    )
+    expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(response.headers.location).toBe(RETURN_PATH)
+
+    const signOutResponse = await server.inject({
+      method: 'GET',
+      url: SIGN_OUT_PATH,
+      headers: getCookieHeader(login, ['session'])
+    })
+
+    expect(signOutResponse.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    expect(signOutResponse.headers.location).toBe(END_SESSION_URL)
+  })
+
+  it('renders the signed-out page with correct links in preview mode', async () => {
+    const { container, response } = await renderResponse(server, {
+      method: 'GET',
+      url: `${SIGNED_OUT_PATH}?state=%7B%22previewMode%22%3A%22draft%22%2C%22slug%22%3A%22my-form-slug%22%7D`
+    })
+
+    expect(response.statusCode).toBe(StatusCodes.OK)
+    const $signInAgain = container.getByRole('link', { name: 'sign in again' })
+    const $goToGovUk = container.getByRole('link', {
+      name: 'go to the GOV.UK homepage'
+    })
+    expect($signInAgain).toHaveAttribute('href', HOMEPAGE_PREVIEW_PATH)
+    expect($goToGovUk).toBeInTheDocument()
+  })
+
+  it('renders the signed-out page with correct links in live mode', async () => {
+    const { container, response } = await renderResponse(server, {
+      method: 'GET',
+      url: `${SIGNED_OUT_PATH}?state=%7B%22previewMode%22%3A%22%22%2C%22slug%22%3A%22my-form-slug%22%7D`
+    })
+
+    expect(response.statusCode).toBe(StatusCodes.OK)
+    const $signInAgain = container.getByRole('link', { name: 'sign in again' })
+    const $goToGovUk = container.getByRole('link', {
+      name: 'go to the GOV.UK homepage'
+    })
+    expect($signInAgain).toHaveAttribute('href', HOMEPAGE_LIVE_PATH)
+    expect($goToGovUk).toBeInTheDocument()
+  })
 })
 
 describe('sign in routes, feature flag off', () => {
@@ -322,6 +390,7 @@ describe('sign in routes, feature flag off', () => {
   it.each([
     ['/auth/sign-in', '/auth/sign-in'],
     ['/auth/callback', '/auth/callback'],
+    ['/auth/sign-out', '/auth/sign-out'],
     [RETURN_PATH, '/homepage/{slug}']
   ])(
     'is not registered when the sign-in feature is off (%s)',

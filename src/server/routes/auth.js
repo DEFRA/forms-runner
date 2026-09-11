@@ -4,13 +4,20 @@ import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
 import {
+  clearIdentity,
   clearSignInTransaction,
+  getIdentity,
   getSignInTransaction,
   setIdentity,
   setSignInTransaction
 } from '~/src/server/auth/accountSession.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
-import { CALLBACK_PATH, SIGN_IN_PATH } from '~/src/server/constants.js'
+import {
+  CALLBACK_PATH,
+  SIGNED_OUT_PATH,
+  SIGN_IN_PATH,
+  SIGN_OUT_PATH
+} from '~/src/server/constants.js'
 import { returnUrlSchema } from '~/src/server/models/common.js'
 
 const SCOPES = 'openid email'
@@ -76,6 +83,36 @@ export default [
           returnUrl: returnUrlSchema.required()
         }).unknown(true)
       }
+    }
+  }),
+  /**
+   * @satisfies {ServerRoute<{ Query: { slug?: string, previewMode?: string } }>}
+   */
+  ({
+    method: 'GET',
+    path: SIGN_OUT_PATH,
+    async handler(request, h) {
+      const oidcConfig = await request.server.app.oidc.getConfig()
+
+      const identity = getIdentity(request.yar)
+      const idToken = identity?.idToken
+
+      clearIdentity(request.yar)
+
+      const { slug, previewMode } = request.query
+      const stateParam = JSON.stringify({ slug, previewMode })
+
+      const postLogoutUrl = new URL(SIGNED_OUT_PATH, request.url.origin)
+
+      const logoutUrl = client.buildEndSessionUrl(oidcConfig, {
+        ...(idToken && { id_token_hint: idToken }),
+        client_id: 'runner',
+        // Registered in OIDC_RUNNER_POST_LOGOUT_REDIRECT_URIS — without it
+        // the provider shows its own success page instead of returning here
+        post_logout_redirect_uri: postLogoutUrl.href,
+        state: stateParam
+      })
+      return h.redirect(logoutUrl.href)
     }
   }),
   /**
@@ -176,6 +213,21 @@ export default [
           state: Joi.string().optional()
         }).unknown(true)
       }
+    }
+  }),
+  /**
+   * @satisfies {ServerRoute<{ Query: { state: string } }>}
+   */
+  ({
+    method: 'GET',
+    path: SIGNED_OUT_PATH,
+    handler(request, h) {
+      const { state } = request.query
+      const { slug, previewMode } = JSON.parse(state)
+      const signInLink = previewMode
+        ? `/homepage/preview/${previewMode}/${slug}`
+        : `/homepage/${slug}`
+      return h.view('auth/signed-out', { signInLink })
     }
   })
 ]
