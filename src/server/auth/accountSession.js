@@ -18,6 +18,13 @@ export function getIdentity(yar) {
 }
 
 /**
+ * @param {Yar} yar
+ */
+export function clearIdentity(yar) {
+  yar.set(CITIZEN_KEY, undefined)
+}
+
+/**
  * Stash the values the callback needs to finish the sign-in it did not start.
  * @param {Yar} yar
  * @param {SignInTransaction} transaction
