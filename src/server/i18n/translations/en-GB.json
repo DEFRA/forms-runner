@@ -282,7 +282,8 @@
       "status": "Status",
       "lastUpdated": "Last updated",
       "savedUntil": "Saved until",
-      "inProgress": "In progress"
+      "inProgress": "In progress",
+      "expired": "Expired"
     },
     "header": {
       "menuText": "Account",

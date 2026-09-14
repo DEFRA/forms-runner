@@ -307,6 +307,38 @@ describe('per-form homepage', () => {
       ).toBeInTheDocument()
     })
 
+    it('tags a saved form past its expiry as expired, and the others as in progress', async () => {
+      jest.useFakeTimers({
+        now: new Date('2026-09-14T09:00:00.000Z'),
+        advanceTimers: true
+      })
+      jest.mocked(getSavedForms).mockResolvedValue(savedForms)
+
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: HOMEPAGE_URL,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      jest.useRealTimers()
+
+      const $expiredRow = container.getByRole('row', { name: /CCC-333/ })
+      expect(
+        within($expiredRow).getByRole('cell', { name: 'Expired' })
+      ).toBeInTheDocument()
+      expect(within($expiredRow).getByText('Expired')).toHaveClass(
+        'govuk-tag--red'
+      )
+
+      const $activeRow = container.getByRole('row', { name: /AAA-111/ })
+      expect(
+        within($activeRow).getByRole('cell', { name: 'In progress' })
+      ).toBeInTheDocument()
+      expect(within($activeRow).getByText('In progress')).toHaveClass(
+        'govuk-tag--teal'
+      )
+    })
+
     it('asks only for the forms of the citizen signed in, using their token', async () => {
       await renderResponse(server, {
         method: 'GET',

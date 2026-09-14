@@ -15,13 +15,35 @@ import { getFormMetadata } from '~/src/server/services/formsService.js'
 import { getSavedForms } from '~/src/server/services/submissionService.js'
 
 /**
- * A saved form as the table shows it. The dates are formatted here rather
- * than in the template, so they can be tested.
+ * The status of a saved form. Each value is also the translation key of the
+ * tag the table shows for it.
+ */
+const SavedFormStatus = {
+  InProgress: 'inProgress',
+  Expired: 'expired'
+}
+
+/**
+ * Returns the status for a saved form.
+ * @param {SavedForm} savedForm
+ */
+function getFormStatus(savedForm) {
+  if (new Date(savedForm.expireAt) <= new Date()) {
+    return SavedFormStatus.Expired
+  }
+
+  return SavedFormStatus.InProgress
+}
+
+/**
+ * A saved form as the table shows it. The dates are formatted and the status
+ * is chosen here rather than in the template, so they can be tested.
  * @param {SavedForm} savedForm
  */
 function mapToRow(savedForm) {
   return {
     referenceNumber: savedForm.referenceNumber,
+    status: getFormStatus(savedForm),
     lastUpdated: formatDateTime(savedForm.createdAt),
     savedUntil: formatDateTime(savedForm.expireAt)
   }

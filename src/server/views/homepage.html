@@ -5,11 +5,14 @@
 {% from "govuk/components/table/macro.njk" import govukTable %}
 {% from "govuk/components/tag/macro.njk" import govukTag %}
 
-{# Set here, not in the layout: the layout is shared with every form page,
-  which keeps the default width for a readable line length. #}
 {% set bodyClasses = "app-page--wide" %}
 
 {% set pageTitle = context.translator.tForm('title') %}
+
+{% set statusTagClasses = {
+  inProgress: "govuk-tag--teal",
+  expired: "govuk-tag--red"
+} %}
 
 {% block content %}
   <div class="govuk-grid-row">
@@ -39,7 +42,10 @@
         {% set rows = [] %}
         {% for savedForm in savedForms %}
           {% set statusHtml %}
-            {{ govukTag({ text: tR('signIn.homepage.inProgress'), classes: "govuk-tag--teal" }) }}
+            {{ govukTag({
+              text: tR('signIn.homepage.' + savedForm.status),
+              classes: statusTagClasses[savedForm.status]
+            }) }}
           {% endset %}
           {% set rows = (rows.push([
             { text: savedForm.referenceNumber },

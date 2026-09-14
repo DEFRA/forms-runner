@@ -322,7 +322,8 @@
       "status": "Statws",
       "lastUpdated": "Diweddarwyd ddiwethaf",
       "savedUntil": "Wedi'i gadw tan",
-      "inProgress": "Ar y gweill"
+      "inProgress": "Ar y gweill",
+      "expired": "Wedi dod i ben"
     }
   }
 }
