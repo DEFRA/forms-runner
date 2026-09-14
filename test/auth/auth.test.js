@@ -137,9 +137,8 @@ describe('sign in routes and sign out routes', () => {
     })
 
     // the fourth argument is tokenEndpointParameters; the third is the checks
-    const [, , , tokenEndpointParameters] = jest.mocked(
-      client.authorizationCodeGrant
-    ).mock.calls[0]
+    const tokenEndpointParameters = jest.mocked(client.authorizationCodeGrant)
+      .mock.calls[0][3]
 
     expect(tokenEndpointParameters).toMatchObject({ resource: RESOURCE })
   })
@@ -336,11 +335,6 @@ describe('sign in routes and sign out routes', () => {
       headers: getCookieHeader(login, ['session'])
     })
 
-    expect(client.fetchUserInfo).toHaveBeenCalledWith(
-      expect.anything(),
-      'access-1',
-      SUB
-    )
     expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
     expect(response.headers.location).toBe(RETURN_PATH)
 

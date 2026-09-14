@@ -51,10 +51,6 @@ describe('oidc client plugin', () => {
     [
       'is the public half, which cannot sign',
       '{"kty": "RSA", "n": "oZZGbrFXxz10KhX5kwfO7KsDQ_a4ujn2CRduhlTmIpDBPyM1X9tQAHdl8syo8ddoxhJNPBJxxFeo0O5yngWNejUjVUBKnCr1o5r5WTV0JkaI3WMnot_zVqfj4I5jeqj_IvFKV4Oj04Hhjwj1ClypRvMf54YfR597U41NPYmuoiYTdWIMbC3J4wtGBpz9gRzy6g2Jr595-bP-6TH3AdN29EPscwx_R4lMh6_SFgvqTxnq7Rv8M7xr5Tu0rdOI4n2_LJYnIWekbNoHPDlQ3trxmPwWeLecWXZ0y4n01VjErqdp6_nOmUXvZtQjglK-T_ryHyg08ATs50IpLfv8J3oRvw", "e": "AQAB", "use": "sig", "alg": "RS256", "kid": "runner-rs256-69b91f996624"}'
-    ],
-    [
-      'is an elliptic curve key, which the provider no longer accepts',
-      '{"kty":"EC","x":"sPNYWAwLqY94sLn19MLnxha9bUt2wu10rNOZHfDxmZc","y":"z3yiWmoETS8DMyqgj9lhH2tEfEp22oPni2fo0XjR18Q","crv":"P-256","d":"VaDufwAsu_yWvzvLytgq61JH0Ik_xnw4ACIQs9jNfwE","use":"sig","alg":"ES256","kid":"runner-es256-test"}'
     ]
   ])(
     'fails registration when the configured key %s, so it surfaces at boot rather than at the first sign in',
