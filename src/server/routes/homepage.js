@@ -19,7 +19,7 @@ import { getSavedForms } from '~/src/server/services/submissionService.js'
  * than in the template, so they can be tested.
  * @param {SavedForm} savedForm
  */
-function toRow(savedForm) {
+function mapToRow(savedForm) {
   return {
     referenceNumber: savedForm.referenceNumber,
     lastUpdated: formatDateTime(savedForm.createdAt),
@@ -54,7 +54,7 @@ async function homepageHandler(request, h) {
 
   return h.view('homepage', {
     startUrl,
-    savedForms: savedForms.map(toRow),
+    savedForms: savedForms.map(mapToRow),
     context: { translator }
   })
 }
