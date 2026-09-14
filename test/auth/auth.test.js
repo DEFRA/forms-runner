@@ -6,7 +6,6 @@ import * as client from 'openid-client'
 import { config } from '~/src/config/index.js'
 import { SIGNED_OUT_PATH, SIGN_OUT_PATH } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
-import { getPostLogoutUrl } from '~/src/server/routes/auth.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
@@ -433,20 +432,6 @@ describe('sign in routes, feature flag off', () => {
       expect(server.match('get', path)?.path).not.toBe(ownRouteTemplate)
     }
   )
-})
-
-describe('getPostLogoutUrl', () => {
-  it('should leave URL with protocol untouched', () => {
-    const url = getPostLogoutUrl(new URL('http://domain.com'))
-    expect(url.href).toBe('http://domain.com/auth/signed-out')
-  })
-
-  it('should force protocol to be https', () => {
-    config.set('forceHttps', true)
-    const url = getPostLogoutUrl(new URL('http://domain.com'))
-    config.set('forceHttps', false)
-    expect(url.href).toBe('https://domain.com/auth/signed-out')
-  })
 })
 
 /**

@@ -22,6 +22,8 @@ import { returnUrlSchema } from '~/src/server/models/common.js'
 
 const SCOPES = 'openid email'
 
+const BASE_URL = config.get('baseUrl')
+
 /**
  * Log attributes for a sign-in step. CDP indexes the `event` object, so these
  * are searchable. Values are fixed strings; nothing from the provider or the
@@ -39,22 +41,6 @@ function signInEvent(action, outcome, reason) {
       reason
     }
   }
-}
-
-/**
- * Determine the post-logout URL (for after sign-out), and force to 'https' if necessary
- * (the origin can show as http within CDP as opposed to the external https, hence the
- * option of using the 'forceHttps' override)
- * @param {URL} requestUrl
- * @returns {URL}
- */
-export function getPostLogoutUrl(requestUrl) {
-  const forceHttps = config.get('forceHttps')
-  const postLogoutUrl = new URL(SIGNED_OUT_PATH, requestUrl.origin)
-  if (forceHttps) {
-    postLogoutUrl.protocol = 'https:'
-  }
-  return postLogoutUrl
 }
 
 export default [
@@ -118,7 +104,7 @@ export default [
       const { slug, previewMode } = request.query
       const stateParam = JSON.stringify({ slug, previewMode })
 
-      const postLogoutUrl = getPostLogoutUrl(request.url)
+      const postLogoutUrl = new URL(SIGNED_OUT_PATH, BASE_URL)
 
       const logoutUrl = client.buildEndSessionUrl(oidcConfig, {
         ...(idToken && { id_token_hint: idToken }),
