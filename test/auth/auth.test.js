@@ -333,19 +333,48 @@ describe('sign in routes and sign out routes', () => {
     expect(signOutResponse.headers.location).toBe(END_SESSION_URL)
   })
 
-  it('renders the signed-out page with correct links in preview mode', async () => {
-    const { container, response } = await renderResponse(server, {
+  it('renders the signed-out page with correct links in preview mode (English text)', async () => {
+    const { container, response, document } = await renderResponse(server, {
       method: 'GET',
       url: `${SIGNED_OUT_PATH}?state=%7B%22previewMode%22%3A%22draft%22%2C%22slug%22%3A%22my-form-slug%22%7D`
     })
 
     expect(response.statusCode).toBe(StatusCodes.OK)
+    const $heading = container.getByRole('heading', { level: 1 })
     const $signInAgain = container.getByRole('link', { name: 'sign in again' })
     const $goToGovUk = container.getByRole('link', {
       name: 'go to the GOV.UK homepage'
     })
+    expect($heading.textContent.trim()).toBe('You have signed out')
     expect($signInAgain).toHaveAttribute('href', HOMEPAGE_PREVIEW_PATH)
     expect($goToGovUk).toBeInTheDocument()
+    const $bodyElems = Array.from(document.getElementsByClassName('govuk-body'))
+    const bodyText = $bodyElems.map((elem) => elem.textContent).join(' ')
+    expect(bodyText).toContain('Or go to the GOV.UK homepage')
+    expect(bodyText).toContain('To go back')
+  })
+
+  it('renders the signed-out page with correct links in preview mode (Welsh text)', async () => {
+    const { container, response, document } = await renderResponse(server, {
+      method: 'GET',
+      url: `${SIGNED_OUT_PATH}?state=%7B%22previewMode%22%3A%22draft%22%2C%22slug%22%3A%22my-form-slug%22%7D&language=cy`
+    })
+
+    expect(response.statusCode).toBe(StatusCodes.OK)
+    const $heading = container.getByRole('heading', { level: 1 })
+    const $signInAgain = container.getByRole('link', {
+      name: 'mewngofnodi eto'
+    })
+    const $goToGovUk = container.getByRole('link', {
+      name: 'ewch i hafan GOV.UK'
+    })
+    expect($heading.textContent.trim()).toBe('Rydych chi wedi allgofnodi')
+    expect($signInAgain).toHaveAttribute('href', HOMEPAGE_PREVIEW_PATH)
+    expect($goToGovUk).toBeInTheDocument()
+    const $bodyElems = Array.from(document.getElementsByClassName('govuk-body'))
+    const bodyText = $bodyElems.map((elem) => elem.textContent).join(' ')
+    expect(bodyText).toContain('Neu ewch i hafan GOV.UK')
+    expect(bodyText).toContain('I fynd yn ôl')
   })
 
   it('renders the signed-out page with correct links in live mode', async () => {

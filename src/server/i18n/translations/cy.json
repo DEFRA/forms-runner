@@ -2,6 +2,7 @@
   "common": {
     "back": "Yn ôl",
     "or": "neu",
+    "Or": "Neu",
     "and": "a"
   },
   "help": {
@@ -255,6 +256,27 @@
     "bannerClose": "Caewch y tab hwn i fynd yn ôl i'r golygydd. ",
     "errorSummaryHeading": "Mae problem wedi codi",
     "advancedSettingsHeading": "Os ydych yn gosod terfynau ateb"
+  },
+  "signIn": {
+    "homepage": {
+      "caption": "Rheoli eich ffurflen",
+      "startButton": "Dechrau ffurflen newydd",
+      "previewBannerTitle": "Pwysig",
+      "previewBanner": "Rhagolwg o ffurflen [[state]] yw hwn. Peidiwch â nodi gwybodaeth bersonol."
+    },
+    "header": {
+      "menuText": "Cyfrif",
+      "menuLabelShow": "Dangos y ddewislen [[name]]",
+      "menuLabelHide": "Cuddio'r ddewislen [[name]]",
+      "signOut": "Allgofnodi"
+    }
+  },
+  "signedOut": {
+    "pageTitle": "Rydych chi wedi allgofnodi",
+    "heading": "Rydych chi wedi allgofnodi",
+    "goBack": "I fynd yn ôl",
+    "signInAgain": "mewngofnodi eto",
+    "goToGovUk": "ewch i hafan GOV.UK"
   },
   "layout": {
     "errorPrefix": "Gwall:",

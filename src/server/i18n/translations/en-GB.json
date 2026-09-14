@@ -2,6 +2,7 @@
   "common": {
     "back": "Back",
     "or": "or",
+    "Or": "Or",
     "and": "and",
     "draft": "draft",
     "live": "live"
@@ -277,8 +278,16 @@
     "header": {
       "menuText": "Account",
       "menuLabelShow": "Show [[name]] menu",
-      "menuLabelHide": "Hide [[name]] menu"
+      "menuLabelHide": "Hide [[name]] menu",
+      "signOut": "Sign out"
     }
+  },
+  "signedOut": {
+    "pageTitle": "You have signed out",
+    "heading": "You have signed out",
+    "goBack": "To go back",
+    "signInAgain": "sign in again",
+    "goToGovUk": "go to the GOV.UK homepage"
   },
   "layout": {
     "errorPrefix": "Error: ",
