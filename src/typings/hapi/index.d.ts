@@ -21,6 +21,7 @@ declare module '@hapi/hapi' {
     sub?: string
     email?: string
     idToken?: string
+    accessToken?: string
   }
 
   interface PluginProperties {
@@ -121,6 +122,7 @@ declare module '@hapi/yar' {
       sub: string
       email: string
       idToken: string
+      accessToken: string
     }
     'auth:signInTransaction': {
       state: string
