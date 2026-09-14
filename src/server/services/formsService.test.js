@@ -2,16 +2,15 @@ import { FormStatus } from '@defra/forms-engine-plugin/types'
 import { StatusCodes } from 'http-status-codes'
 
 import {
-  generateReferenceNumber,
   getFormDefinition,
   getFormMetadata,
   getFormMetadataById,
   getFormSecret
 } from '~/src/server/services/formsService.js'
-import { getJson, postJson } from '~/src/server/services/httpService.js'
+import { getJson } from '~/src/server/services/httpService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 
-const { MANAGER_URL, SUBMISSION_URL } = process.env
+const { MANAGER_URL } = process.env
 
 jest.mock('~/src/server/services/httpService')
 jest.mock('node:crypto', () => ({
@@ -155,56 +154,6 @@ describe('Forms service', () => {
 
       expect(getJson).toHaveBeenCalledWith(
         `${MANAGER_URL}/forms/${metadata.id}/definition`
-      )
-    })
-  })
-
-  describe('generateReferenceNumber', () => {
-    it('returns the generated reference number', async () => {
-      jest.mocked(postJson).mockResolvedValue({
-        res: /** @type {IncomingMessage} */ ({
-          statusCode: StatusCodes.OK
-        }),
-        payload: { referenceNumber: 'XXX-XXX-XXX' }
-      })
-
-      const referenceNumber = await generateReferenceNumber()
-
-      expect(referenceNumber).toBe('XXX-XXX-XXX')
-      expect(postJson).toHaveBeenCalledWith(
-        `${SUBMISSION_URL}/submission/generate-reference-number`,
-        { payload: {}, timeout: 10 * 1000 } // 10 seconds
-      )
-    })
-
-    it('returns the generated reference number with prefix', async () => {
-      jest.mocked(postJson).mockResolvedValue({
-        res: /** @type {IncomingMessage} */ ({
-          statusCode: StatusCodes.OK
-        }),
-        payload: { referenceNumber: 'XYZ-XXX-XXX' }
-      })
-
-      const referenceNumber = await generateReferenceNumber('XYZ')
-
-      expect(referenceNumber).toBe('XYZ-XXX-XXX')
-      expect(postJson).toHaveBeenCalledWith(
-        `${SUBMISSION_URL}/submission/generate-reference-number?prefix=XYZ`,
-        { payload: {}, timeout: 10 * 1000 } // 10 seconds
-      )
-    })
-
-    it('throws if no results', async () => {
-      // @ts-expect-error - partial mock of payload
-      jest.mocked(postJson).mockResolvedValue({
-        res: /** @type {IncomingMessage} */ ({
-          statusCode: StatusCodes.OK
-        }),
-        payload: undefined
-      })
-
-      await expect(() => generateReferenceNumber()).rejects.toThrow(
-        'Unexpected empty response in generateReferenceNumber'
       )
     })
   })

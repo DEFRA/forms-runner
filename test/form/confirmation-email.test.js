@@ -7,15 +7,14 @@ import { StatusCodes } from 'http-status-codes'
 
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
-import {
-  generateReferenceNumber,
-  getFormMetadata
-} from '~/src/server/services/formsService.js'
+import { getFormMetadata } from '~/src/server/services/formsService.js'
+import { generateReferenceNumber } from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookie, getCookieHeader } from '~/test/utils/get-cookie.js'
 
 jest.mock('~/src/server/services/formsService.js')
+jest.mock('~/src/server/services/submissionService.js')
 jest.mock('~/src/server/messaging/publish.js')
 jest.mock('~/src/server/messaging/formAdapterEventPublisher.ts')
 jest.mock('@defra/forms-engine-plugin/services/formSubmissionService.js')

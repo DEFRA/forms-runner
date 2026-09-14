@@ -53,6 +53,27 @@ export async function validateSaveAndExitCredentials(
 }
 
 /**
+ * Generates a unique reference number
+ * @param {string} [prefix] - the prefix
+ */
+export async function generateReferenceNumber(prefix) {
+  const postJsonByType =
+    /** @type {typeof postJson<GenerateReferenceNumber>} */ (postJson)
+
+  const query = prefix ? `?prefix=${prefix}` : ''
+  const { payload: results } = await postJsonByType(
+    `${submissionUrl}/submission/generate-reference-number${query}`,
+    { payload: {}, timeout: 10 * 1000 } // 10 seconds
+  )
+
+  if (!results) {
+    throw new Error('Unexpected empty response in generateReferenceNumber')
+  }
+
+  return results.referenceNumber
+}
+
+/**
  * The forms a citizen saved and has not yet submitted, soonest to expire
  * first. The access token names the citizen, so the request says which form
  * to list and nothing about whose records they are.
@@ -90,5 +111,5 @@ export async function getSavedForms(accessToken, formId) {
  */
 
 /**
- * @import { SaveAndExitDetails, SaveAndExitResumeDetails } from '~/src/server/types.js'
+ * @import { GenerateReferenceNumber, SaveAndExitDetails, SaveAndExitResumeDetails } from '~/src/server/types.js'
  */
