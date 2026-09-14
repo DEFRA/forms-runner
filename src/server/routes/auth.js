@@ -41,6 +41,22 @@ function signInEvent(action, outcome, reason) {
   }
 }
 
+/**
+ * Determine the post-logout URL (for after sign-out), and force to 'https' if necessary
+ * (the origin can show as http within CDP as opposed to the external https, hence the
+ * option of using the 'forceHttps' override)
+ * @param {URL} requestUrl
+ * @returns {URL}
+ */
+export function getPostLogoutUrl(requestUrl) {
+  const forceHttps = config.get('forceHttps')
+  const postLogoutUrl = new URL(SIGNED_OUT_PATH, requestUrl.origin)
+  if (forceHttps) {
+    postLogoutUrl.protocol = 'https:'
+  }
+  return postLogoutUrl
+}
+
 export default [
   /**
    * @satisfies {ServerRoute<{ Query: { returnUrl: string } }>}
@@ -102,7 +118,7 @@ export default [
       const { slug, previewMode } = request.query
       const stateParam = JSON.stringify({ slug, previewMode })
 
-      const postLogoutUrl = new URL(SIGNED_OUT_PATH, request.url.origin)
+      const postLogoutUrl = getPostLogoutUrl(request.url)
 
       const logoutUrl = client.buildEndSessionUrl(oidcConfig, {
         ...(idToken && { id_token_hint: idToken }),
