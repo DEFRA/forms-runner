@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+
+{% set pageTitle = tR('signedOut.pageTitle') %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+
+      <h1 class="govuk-heading-l">{{ tR('signedOut.heading') }}</h1>
+
+      <p class="govuk-body">{{ tR('signedOut.goBack') }}, <a href="{{ signInLink }}" class="govuk-link govuk-link--no-visited-state">{{ tR('signedOut.signInAgain') }}</a>.</p>
+
+      <p class="govuk-body">{{ tR('common.Or')}} <a href="https://www.gov.uk" class="govuk-link govuk-link--no-visited-state">{{ tR('signedOut.goToGovUk') }}</a>.</p>
+    </div>
+  </div>
+{% endblock %}
