@@ -328,6 +328,29 @@ describe('per-form homepage', () => {
       ).toBeInTheDocument()
     })
 
+    it('writes the dates in Welsh on a Welsh homepage', async () => {
+      jest.mocked(getSavedForms).mockResolvedValue(savedForms)
+      jest.mocked(getFormDefinition).mockResolvedValue({
+        ...fixtures.form.definition,
+        metadata: { translations: { cy: {} } }
+      })
+
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: `${HOMEPAGE_URL}?language=cy`,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      const table = container.getByRole('table')
+
+      expect(
+        within(table).getByRole('cell', { name: '21 Awst 2026 am 10:00' })
+      ).toBeInTheDocument()
+      expect(
+        within(table).getByRole('cell', { name: '12 Medi 2026 am 10:00' })
+      ).toBeInTheDocument()
+    })
+
     it('tags a saved form past its expiry as expired, and the others as in progress', async () => {
       jest.useFakeTimers({
         now: new Date('2026-09-14T09:00:00.000Z'),

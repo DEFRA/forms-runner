@@ -39,13 +39,14 @@ function getFormStatus(savedForm) {
  * A saved form as the table shows it. The dates are formatted and the status
  * is chosen here rather than in the template, so they can be tested.
  * @param {SavedForm} savedForm
+ * @param {string} language - the page language
  */
-function mapToRow(savedForm) {
+function mapToRow(savedForm, language) {
   return {
     referenceNumber: savedForm.referenceNumber,
     status: getFormStatus(savedForm),
-    lastUpdated: formatDateTime(savedForm.createdAt),
-    savedUntil: formatDateTime(savedForm.expireAt)
+    lastUpdated: formatDateTime(savedForm.createdAt, language),
+    savedUntil: formatDateTime(savedForm.expireAt, language)
   }
 }
 
@@ -61,7 +62,7 @@ async function homepageHandler(request, h) {
 
   const form = await getFormMetadata(slug)
 
-  const { translator } = await getFormTranslator(
+  const { translator, language } = await getFormTranslator(
     request,
     form,
     isPreview ? state : undefined
@@ -76,7 +77,7 @@ async function homepageHandler(request, h) {
 
   return h.view('homepage', {
     startUrl,
-    savedForms: savedForms.map(mapToRow),
+    savedForms: savedForms.map((savedForm) => mapToRow(savedForm, language)),
     context: { translator }
   })
 }

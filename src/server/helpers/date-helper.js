@@ -1,28 +1,19 @@
 /** Shows UTC timestamps in UK time, whatever zone the server runs in */
 const TIME_ZONE = 'Europe/London'
 
-const dayMonthYear = new Intl.DateTimeFormat('en-GB', {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-  timeZone: TIME_ZONE
-})
-
-const hourMinute = new Intl.DateTimeFormat('en-GB', {
-  hour: '2-digit',
-  minute: '2-digit',
-  hourCycle: 'h23',
-  timeZone: TIME_ZONE
-})
-
 /**
- * Formats an ISO timestamp with date and time, for example
- * `10 September 2026 at 14:00`
+ * Formats an ISO timestamp with date and time in the page language, for
+ * example `10 September 2026 at 14:00` or `10 Medi 2026 am 14:00`. The locale
+ * supplies the month name and the word that joins the date to the time.
  * @param {string} timestamp - an ISO timestamp
+ * @param {string} language - the page language, for example `en-GB` or `cy`
  * @returns {string}
  */
-export function formatDateTime(timestamp) {
-  const date = new Date(timestamp)
-
-  return `${dayMonthYear.format(date)} at ${hourMinute.format(date)}`
+export function formatDateTime(timestamp, language) {
+  return new Intl.DateTimeFormat(language, {
+    dateStyle: 'long',
+    timeStyle: 'short',
+    hourCycle: 'h23',
+    timeZone: TIME_ZONE
+  }).format(new Date(timestamp))
 }
