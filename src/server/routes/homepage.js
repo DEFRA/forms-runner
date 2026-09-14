@@ -12,7 +12,7 @@ import {
 import { formatDateTime } from '~/src/server/helpers/date-helper.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
-import { getSavedForms } from '~/src/server/services/savedFormsService.js'
+import { getSavedForms } from '~/src/server/services/submissionService.js'
 
 /**
  * A saved form as the table shows it. The dates are formatted here rather
@@ -93,6 +93,6 @@ export default [
 /**
  * @import { FormParams } from '@defra/forms-engine-plugin/types'
  * @import { Identity } from '~/src/server/auth/accountSession.js'
- * @import { SavedForm } from '~/src/server/services/savedFormsService.js'
+ * @import { SavedForm } from '~/src/server/services/submissionService.js'
  * @import { Request, ResponseToolkit, ServerRoute } from '@hapi/hapi'
  */

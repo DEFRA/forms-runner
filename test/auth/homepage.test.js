@@ -7,12 +7,12 @@ import { StatusCodes } from 'http-status-codes'
 import { config } from '~/src/config/index.js'
 import { createServer } from '~/src/server/index.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
-import { getSavedForms } from '~/src/server/services/savedFormsService.js'
+import { getSavedForms } from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 jest.mock('~/src/server/services/formsService.js')
-jest.mock('~/src/server/services/savedFormsService.js')
+jest.mock('~/src/server/services/submissionService.js')
 
 const HOMEPAGE_URL = '/homepage/test-form'
 const NO_AUTH_URL = '/help/accessibility-statement/test-form'

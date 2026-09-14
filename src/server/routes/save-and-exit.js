@@ -40,11 +40,11 @@ import {
   getFormMetadataById,
   getFormMetadataWithGuard
 } from '~/src/server/services/formMetadataGuards.js'
+import { getFormDefinitionWithFallback } from '~/src/server/services/helpers/formsServiceHelper.js'
 import {
   getSaveAndExitDetails,
   validateSaveAndExitCredentials
-} from '~/src/server/services/formsService.js'
-import { getFormDefinitionWithFallback } from '~/src/server/services/helpers/formsServiceHelper.js'
+} from '~/src/server/services/submissionService.js'
 import {
   isLanguageSupported,
   resolveLanguage

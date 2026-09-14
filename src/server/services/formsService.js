@@ -68,52 +68,6 @@ export async function getFormDefinition(id, state) {
 }
 
 /**
- * Retrieves a save-and-exit record from the form submission api for a given magic link
- * @param {string} magicLinkId - the id of the magic link
- */
-export async function getSaveAndExitDetails(magicLinkId) {
-  const getJsonByType = /** @type {typeof getJson<SaveAndExitDetails>} */ (
-    getJson
-  )
-
-  const { payload: results } = await getJsonByType(
-    `${submissionUrl}/save-and-exit/${magicLinkId}`
-  )
-
-  return results
-}
-
-/**
- * Validates correct password for a save-and-exit record from the form submission api for a given magic link
- * @param {string} magicLinkId - the id of the magic link
- * @param {string} securityAnswer - the security answer provided by the user
- */
-export async function validateSaveAndExitCredentials(
-  magicLinkId,
-  securityAnswer
-) {
-  const postJsonByType =
-    /** @type {typeof postJson<SaveAndExitResumeDetails>} */ (postJson)
-
-  const { payload: results } = await postJsonByType(
-    `${submissionUrl}/save-and-exit/${magicLinkId}`,
-    {
-      payload: {
-        securityAnswer
-      }
-    }
-  )
-
-  if (!results) {
-    throw new Error(
-      'Unexpected empty response in validateSaveAndExitCredentials'
-    )
-  }
-
-  return results
-}
-
-/**
  * Generates a unique reference number
  * @param {string} [prefix] - the prefix
  */
@@ -151,5 +105,5 @@ export async function getFormSecret(formId, secretName) {
 
 /**
  * @import { FormDefinition, FormMetadata } from '@defra/forms-model'
- * @import { GenerateReferenceNumber, SaveAndExitDetails, SaveAndExitResumeDetails } from '~/src/server/types.js'
+ * @import { GenerateReferenceNumber } from '~/src/server/types.js'
  */
