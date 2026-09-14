@@ -1,0 +1,6 @@
+@use "govuk-frontend" as *;
+
+// Widens every container, so the header and footer line up with the table
+.app-page--wide .govuk-width-container {
+  @include govuk-width-container(1200px);
+}
