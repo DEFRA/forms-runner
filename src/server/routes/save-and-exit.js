@@ -40,11 +40,11 @@ import {
   getFormMetadataById,
   getFormMetadataWithGuard
 } from '~/src/server/services/formMetadataGuards.js'
+import { getFormDefinitionWithFallback } from '~/src/server/services/helpers/formsServiceHelper.js'
 import {
   getSaveAndExitDetails,
   validateSaveAndExitCredentials
-} from '~/src/server/services/formsService.js'
-import { getFormDefinitionWithFallback } from '~/src/server/services/helpers/formsServiceHelper.js'
+} from '~/src/server/services/submissionService.js'
 import {
   isLanguageSupported,
   resolveLanguage
@@ -177,10 +177,10 @@ async function handleAuthenticatedSaveAndExit(request, h) {
   await publishSaveAndExitV2Event(
     metadata.id,
     metadata.title,
-    /** @type {string} */ (auth.credentials.email),
+    auth.credentials.email,
     {
-      sub: /** @type {string} */ (auth.credentials.sub),
-      issuer: /** @type {string} */ (auth.credentials.iss)
+      sub: auth.credentials.sub,
+      issuer: auth.credentials.iss
     },
     await cacheService.getState(/** @type {CacheRequest} */ (request)),
     status

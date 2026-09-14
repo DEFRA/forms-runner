@@ -47,6 +47,7 @@ import pluginSession from '~/src/server/plugins/session.js'
 import { prepareSecureContext } from '~/src/server/secure-context.js'
 import * as formsService from '~/src/server/services/formsService.js'
 import { createOutputService } from '~/src/server/services/outputService.js'
+import { generateReferenceNumber } from '~/src/server/services/submissionService.js'
 import { type RouteConfig } from '~/src/server/types.js'
 import { resolveLanguage } from '~/src/server/utils/utils.js'
 
@@ -192,7 +193,7 @@ export const configureEnginePlugin = async ({
       ordnanceSurveyApiKey: config.get('ordnanceSurveyApiKey'),
       ordnanceSurveyApiSecret: config.get('ordnanceSurveyApiSecret'),
       getLanguage: resolveLanguage,
-      generateReferenceNumber: formsService.generateReferenceNumber
+      generateReferenceNumber
     }
   }
   const routeOptions = {

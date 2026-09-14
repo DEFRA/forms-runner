@@ -4,13 +4,12 @@ import { within } from '@testing-library/dom'
 
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
-import {
-  generateReferenceNumber,
-  getFormMetadata
-} from '~/src/server/services/formsService.js'
+import { getFormMetadata } from '~/src/server/services/formsService.js'
+import { generateReferenceNumber } from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 jest.mock('~/src/server/services/formsService.js')
+jest.mock('~/src/server/services/submissionService.js')
 
 describe(`Phase banner`, () => {
   /** @type {Server} */

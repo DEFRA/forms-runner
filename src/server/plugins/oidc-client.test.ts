@@ -50,7 +50,7 @@ describe('oidc client plugin', () => {
     ['is not a JWK', 'runner-1'],
     [
       'is the public half, which cannot sign',
-      '{"kty":"EC","crv":"P-256","x":"m5JL81lUX1OoRo9ghKhyWLpn_VtsQRLdjL5svpgKoWQ","y":"dGgOSKYH4j4-d3EMUZkdOQ5oV0rGjGWIDyGkEqRPxPo","use":"sig","alg":"ES256","kid":"runner-1"}'
+      '{"kty": "RSA", "n": "oZZGbrFXxz10KhX5kwfO7KsDQ_a4ujn2CRduhlTmIpDBPyM1X9tQAHdl8syo8ddoxhJNPBJxxFeo0O5yngWNejUjVUBKnCr1o5r5WTV0JkaI3WMnot_zVqfj4I5jeqj_IvFKV4Oj04Hhjwj1ClypRvMf54YfR597U41NPYmuoiYTdWIMbC3J4wtGBpz9gRzy6g2Jr595-bP-6TH3AdN29EPscwx_R4lMh6_SFgvqTxnq7Rv8M7xr5Tu0rdOI4n2_LJYnIWekbNoHPDlQ3trxmPwWeLecWXZ0y4n01VjErqdp6_nOmUXvZtQjglK-T_ryHyg08ATs50IpLfv8J3oRvw", "e": "AQAB", "use": "sig", "alg": "RS256", "kid": "runner-rs256-69b91f996624"}'
     ]
   ])(
     'fails registration when the configured key %s, so it surfaces at boot rather than at the first sign in',

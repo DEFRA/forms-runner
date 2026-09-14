@@ -5,8 +5,8 @@ import { config } from '~/src/config/index.js'
 
 /**
  * The provider accepts one client authentication method, `private_key_jwt`.
- * We hold the private half of an EC P-256 pair and sign a short-lived
- * assertion with it. The provider holds the public half. There is no secret.
+ * We hold the private half of an RSA pair and sign a short-lived assertion
+ * with it. The provider holds the public half. There is no secret.
  *
  * The `kid` goes in the assertion header and tells the provider which public
  * key to verify with. It can hold two keys during a rotation while this
@@ -19,7 +19,7 @@ async function clientKey() {
     key: await crypto.subtle.importKey(
       'jwk',
       jwk,
-      { name: 'ECDSA', namedCurve: 'P-256' },
+      { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
       false,
       ['sign']
     ),

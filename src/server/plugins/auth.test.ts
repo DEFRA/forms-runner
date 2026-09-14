@@ -11,7 +11,8 @@ const identity = {
   iss: 'http://localhost:3011',
   sub: '0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0',
   email: 'citizen@example.com',
-  idToken: 'header.payload.signature'
+  idToken: 'header.payload.signature',
+  accessToken: 'access-1'
 }
 
 /**

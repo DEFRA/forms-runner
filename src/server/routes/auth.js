@@ -25,6 +25,13 @@ const SCOPES = 'openid email'
 const BASE_URL = config.get('baseUrl')
 
 /**
+ * The API a token is wanted for. It must be named on the authorization
+ * request as well as the token request: asking only at the token endpoint
+ * returns an opaque token and no error.
+ */
+const RESOURCE = config.get('oidc.submissionApiResource')
+
+/**
  * Log attributes for a sign-in step. CDP indexes the `event` object, so these
  * are searchable. Values are fixed strings; nothing from the provider or the
  * session is logged.
@@ -69,6 +76,7 @@ export default [
       const authorizationUrl = client.buildAuthorizationUrl(oidcConfig, {
         redirect_uri: config.get('oidc.redirectUri'),
         scope: SCOPES,
+        resource: RESOURCE,
         state,
         nonce,
         code_challenge: await client.calculatePKCECodeChallenge(codeVerifier),
@@ -160,7 +168,8 @@ export default [
             pkceCodeVerifier: transaction.codeVerifier,
             expectedState: transaction.state,
             expectedNonce: transaction.nonce
-          }
+          },
+          { resource: RESOURCE }
         )
 
         const claims = tokens.claims()
@@ -169,24 +178,20 @@ export default [
           throw new Error('Token response carried no ID token claims')
         }
 
-        // The ID token proves who signed in, but it carries no email. Ask the
-        // userinfo endpoint for the email. The access token expires in five
-        // minutes, so ask now.
-        const userinfo = await client.fetchUserInfo(
-          oidcConfig,
-          tokens.access_token,
-          claims.sub
-        )
+        // A token bound to a resource cannot reach the userinfo endpoint, so
+        // the provider puts the scope's claims in the ID token instead.
+        const email = /** @type {string | undefined} */ (claims.email)
 
-        if (!userinfo.email || !tokens.id_token) {
+        if (!email || !tokens.id_token) {
           throw new Error('Provider did not return an email or ID token')
         }
 
         setIdentity(request.yar, {
           iss: claims.iss,
           sub: claims.sub,
-          email: userinfo.email,
-          idToken: tokens.id_token
+          email,
+          idToken: tokens.id_token,
+          accessToken: tokens.access_token
         })
       } catch (err) {
         logger.error(
