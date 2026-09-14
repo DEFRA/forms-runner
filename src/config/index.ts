@@ -350,13 +350,6 @@ export const config = convict({
     env: 'USE_SIGN_IN_FEATURE'
   } as SchemaObj<boolean>,
 
-  forceHttps: {
-    doc: 'Flag indicating whether or not you want the post_logout_uri to be forced to https.',
-    format: Boolean,
-    default: false,
-    env: 'FORCE_HTTPS'
-  } as SchemaObj<boolean>,
-
   oidc: {
     issuer: {
       doc: 'OIDC provider issuer, must match the provider exactly',
