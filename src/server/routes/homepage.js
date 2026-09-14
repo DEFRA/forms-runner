@@ -49,7 +49,7 @@ async function homepageHandler(request, h) {
     ? `${FORM_PREFIX}${PREVIEW_PATH_PREFIX}/${state}/${slug}`
     : `${FORM_PREFIX}/${slug}`
 
-  const { accessToken } = /** @type {Identity} */ (request.auth.credentials)
+  const { accessToken } = request.auth.credentials
   const savedForms = await getSavedForms(accessToken, form.id)
 
   return h.view('homepage', {
@@ -92,7 +92,6 @@ export default [
 
 /**
  * @import { FormParams } from '@defra/forms-engine-plugin/types'
- * @import { Identity } from '~/src/server/auth/accountSession.js'
  * @import { SavedForm } from '~/src/server/services/submissionService.js'
  * @import { Request, ResponseToolkit, ServerRoute } from '@hapi/hapi'
  */
