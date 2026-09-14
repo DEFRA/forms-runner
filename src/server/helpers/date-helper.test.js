@@ -20,10 +20,4 @@ describe('formatDateTime', () => {
       '15 January 2026 at 20:05'
     )
   })
-
-  it('accepts a date as well as the string an API sends', () => {
-    expect(formatDateTime(new Date('2026-09-10T13:00:00.000Z'))).toBe(
-      '10 September 2026 at 14:00'
-    )
-  })
 })

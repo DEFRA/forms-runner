@@ -1,9 +1,4 @@
-/**
- * The zone the dates are read in. A timestamp is stored in UTC, so the day it
- * falls on depends on where it is read: half past eleven at night in UTC is
- * already the next day in British Summer Time. Naming the zone keeps every
- * server showing a citizen the same day.
- */
+/** Shows UTC timestamps in UK time, whatever zone the server runs in */
 const TIME_ZONE = 'Europe/London'
 
 const dayMonthYear = new Intl.DateTimeFormat('en-GB', {
@@ -21,13 +16,13 @@ const hourMinute = new Intl.DateTimeFormat('en-GB', {
 })
 
 /**
- * A date and time as GOV.UK writes them, for example
- * `10 September 2026 at 14:00`.
- * @param {string | Date} value - an ISO timestamp, or a date
+ * Formats an ISO timestamp with date and time, for example
+ * `10 September 2026 at 14:00`
+ * @param {string} timestamp - an ISO timestamp
  * @returns {string}
  */
-export function formatDateTime(value) {
-  const date = value instanceof Date ? value : new Date(value)
+export function formatDateTime(timestamp) {
+  const date = new Date(timestamp)
 
   return `${dayMonthYear.format(date)} at ${hourMinute.format(date)}`
 }
