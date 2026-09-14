@@ -6,7 +6,10 @@ import { StatusCodes } from 'http-status-codes'
 
 import { config } from '~/src/config/index.js'
 import { createServer } from '~/src/server/index.js'
-import { getFormMetadata } from '~/src/server/services/formsService.js'
+import {
+  getFormDefinition,
+  getFormMetadata
+} from '~/src/server/services/formsService.js'
 import { getSavedForms } from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
@@ -126,6 +129,24 @@ describe('per-form homepage', () => {
     expect(
       container.queryByRole('region', { name: 'Important' })
     ).not.toBeInTheDocument()
+  })
+
+  it('shows the caption and the start button in Welsh on a Welsh homepage', async () => {
+    jest.mocked(getFormDefinition).mockResolvedValue({
+      ...fixtures.form.definition,
+      metadata: { translations: { cy: {} } }
+    })
+
+    const { container } = await renderResponse(server, {
+      method: 'GET',
+      url: `${HOMEPAGE_URL}?language=cy`,
+      auth: { strategy: 'citizen-session', credentials }
+    })
+
+    expect(container.getByText('Rheoli eich ffurflen')).toBeInTheDocument()
+    expect(
+      container.getByRole('button', { name: 'Dechrau ffurflen newydd' })
+    ).toBeInTheDocument()
   })
 
   it('shows the signed-in citizen’s email, linked to their homepage', async () => {
