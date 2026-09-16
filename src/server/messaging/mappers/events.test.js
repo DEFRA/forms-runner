@@ -186,6 +186,32 @@ describe('runner-events', () => {
         }
       })
     })
+
+    it('leaves the group id out when the form was not resumed', () => {
+      const auth = { sub: 'auth-sub', issuer: 'https://identity.test' }
+      const message = saveAndExitV2Mapper(
+        'form-1',
+        'My First Form',
+        'citizen@example.com',
+        auth,
+        { formField1: 'val1' }
+      )
+
+      expect(message.data).not.toHaveProperty('magicLinkGroupId')
+    })
+
+    it('sends the group id a resumed form carries, so the earlier record is superseded', () => {
+      const auth = { sub: 'auth-sub', issuer: 'https://identity.test' }
+      const message = saveAndExitV2Mapper(
+        'form-1',
+        'My First Form',
+        'citizen@example.com',
+        auth,
+        { formField1: 'val1', [MAGIC_LINK_GROUP_ID]: 'group-1' }
+      )
+
+      expect(message.data.magicLinkGroupId).toBe('group-1')
+    })
   })
 })
 
