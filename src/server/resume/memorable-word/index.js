@@ -1,7 +1,18 @@
-/** @type {ResumeStrategy} */
+import { resumeVerifyPath } from '~/src/server/resume/memorable-word/paths.js'
+
+/**
+ * Resumes a record that a memorable word protects. The word is checked on the
+ * verify page rather than here, so this strategy only sends the citizen there.
+ * @type {ResumeStrategy}
+ */
 export const memorableWordStrategy = {
-  start() {
-    return Promise.resolve({ kind: 'error' })
+  start(request, context) {
+    const { formId, magicLinkId, form, slugAndState } = context
+
+    return Promise.resolve({
+      kind: 'redirect',
+      location: resumeVerifyPath(formId, magicLinkId, form.slug, slugAndState)
+    })
   }
 }
 
