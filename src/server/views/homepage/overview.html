@@ -1,0 +1,18 @@
+{% extends 'layout.html' %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
+
+{% set pageTitle = context.translator.tForm('title') %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if tab === 'security' %}
+        {% include "homepage/security-tab.html" %}
+      {% else %}
+        {% include "homepage/forms-tab.html" %}
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

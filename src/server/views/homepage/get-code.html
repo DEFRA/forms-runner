@@ -1,0 +1,30 @@
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% extends 'layout.html' %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% set pageTitle = context.translator.tForm('title') %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <span class="govuk-caption-l">Change email address</span>
+      <h1 class="govuk-heading-l">Get security code</h1>
+
+      <div class="govuk-inset-text">
+        We will send a security code to your mobile phone number ending with <strong>{{ user.mobile_end_digits }}</strong>
+      </div>
+
+      <p class="govuk-body">You can request 5 security codes. If you request more than 5, you will be locked out for 2 hours.</p>
+
+      <p class="govuk-body">It might take a few minutes to arrive.</p>
+
+      <form method="post" action="#" novalidate="">
+        {{ govukButton({
+          text: "Get security code"
+        }) }}
+      </form>
+    </div>
+  </div>
+{% endblock %}
