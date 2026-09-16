@@ -4,6 +4,7 @@ import { get, getJson, postJson } from '~/src/server/services/httpService.js'
 import {
   generateReferenceNumber,
   getSaveAndExitDetails,
+  getSavedFormState,
   getSavedForms,
   validateSaveAndExitCredentials
 } from '~/src/server/services/submissionService.js'
@@ -182,6 +183,43 @@ describe('Submission service', () => {
       await expect(getSavedForms(ACCESS_TOKEN, FORM_ID)).rejects.toThrow(
         'Could not read the saved forms'
       )
+    })
+  })
+
+  describe('getSavedFormState', () => {
+    it('asks the submission api for the saved form, with the citizen token', async () => {
+      jest.mocked(get).mockResolvedValueOnce({
+        res: /** @type {IncomingMessage} */ ({ statusCode: 200 }),
+        payload: { state: { formField1: 'val1' }, magicLinkGroupId: 'group-1' }
+      })
+
+      const saved = await getSavedFormState(
+        'access-1',
+        'fd4e6453-fb32-43e4-b4cf-12b381a713de'
+      )
+
+      expect(get).toHaveBeenCalledWith(
+        `${SUBMISSION_URL}/save-and-exit/records/fd4e6453-fb32-43e4-b4cf-12b381a713de`,
+        {
+          json: true,
+          headers: { authorization: 'Bearer access-1' }
+        }
+      )
+      expect(saved).toEqual({
+        state: { formField1: 'val1' },
+        magicLinkGroupId: 'group-1'
+      })
+    })
+
+    it('raises an error when the submission api refuses the token', async () => {
+      jest.mocked(get).mockResolvedValueOnce({
+        res: /** @type {IncomingMessage} */ ({ statusCode: 404 }),
+        error: new Error('Not found')
+      })
+
+      await expect(
+        getSavedFormState('access-1', 'fd4e6453-fb32-43e4-b4cf-12b381a713de')
+      ).rejects.toThrow('Could not read the saved form')
     })
   })
 })

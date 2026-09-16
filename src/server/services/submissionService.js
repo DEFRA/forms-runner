@@ -111,5 +111,38 @@ export async function getSavedForms(accessToken, formId) {
  */
 
 /**
+ * The saved answers of one in-progress form. The access token names the
+ * citizen, so the submission api refuses a link that belongs to someone else.
+ * @param {string} accessToken - the citizen's access token
+ * @param {string} magicLinkId - the link that opens the saved form
+ * @returns {Promise<SavedFormState>}
+ */
+export async function getSavedFormState(accessToken, magicLinkId) {
+  const url = `${submissionUrl}/save-and-exit/records/${magicLinkId}`
+
+  const { res, error, payload } = await get(url, {
+    json: true,
+    headers: { authorization: `Bearer ${accessToken}` }
+  })
+
+  if (error) {
+    logger.error(
+      error,
+      `[savedFormState] Could not read the saved form - ${res.statusCode}`
+    )
+    throw Boom.badGateway('Could not read the saved form')
+  }
+
+  return /** @type {SavedFormState} */ (payload)
+}
+
+/**
+ * The saved answers of one form, as forms-submission-api returns them.
+ * @typedef {object} SavedFormState
+ * @property {object} state
+ * @property {string} magicLinkGroupId
+ */
+
+/**
  * @import { GenerateReferenceNumber, SaveAndExitDetails, SaveAndExitResumeDetails } from '~/src/server/types.js'
  */
