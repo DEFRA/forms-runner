@@ -53,10 +53,14 @@ const RESUME_SUCCESS = 'save-and-exit/resume-success'
 const SAVE_AND_EXIT_CONFIRMATION = 'save-and-exit-v2/confirmation'
 
 /**
+ * A response without a count is malformed. Treat it as every attempt already
+ * used, so a missing count locks the form rather than reopening it.
  * @param {number | undefined} attemptsSoFar
  */
 export function getPasswordAttemptsLeft(attemptsSoFar) {
-  return maxInvalidPasswordAttempts - (attemptsSoFar ?? 0)
+  return (
+    maxInvalidPasswordAttempts - (attemptsSoFar ?? maxInvalidPasswordAttempts)
+  )
 }
 
 /**

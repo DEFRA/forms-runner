@@ -8,7 +8,8 @@ import { createJoiError } from '~/src/server/helpers/error-helper.js'
 import { createServer } from '~/src/server/index.js'
 import {
   addError,
-  getFormTranslator
+  getFormTranslator,
+  getPasswordAttemptsLeft
 } from '~/src/server/routes/save-and-exit.js'
 import {
   getFormMetadataById,
@@ -717,6 +718,16 @@ describe('Save-and-exit check routes', () => {
         otherErr,
         `Invalid formId ${FORM_ID} in magic link id ${MAGIC_LINK_ID}`
       )
+    })
+  })
+
+  describe('getPasswordAttemptsLeft', () => {
+    test('subtracts attempts made so far from the maximum', () => {
+      expect(getPasswordAttemptsLeft(1)).toBe(4)
+    })
+
+    test('treats a missing count as fully used, so the form stays locked', () => {
+      expect(getPasswordAttemptsLeft(undefined)).toBe(0)
     })
   })
 
