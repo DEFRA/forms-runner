@@ -35,6 +35,7 @@ import {
   authRoutes,
   healthRoute,
   homepageRoutes,
+  memorableWordRoutes,
   publicRoutes,
   saveAndExitRoutes
 } from '~/src/server/routes/index.js'
@@ -82,6 +83,7 @@ export default {
 
       server.route(routes)
       server.route(saveAndExitRoutes as ServerRoute[])
+      server.route(memorableWordRoutes as ServerRoute[])
 
       // /preview/{state}/{slug} -> {FORM_PREFIX}/preview/{state}/{slug}
       server.route({
