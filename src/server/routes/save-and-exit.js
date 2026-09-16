@@ -29,6 +29,8 @@ import {
   resumeErrorViewModel,
   resumeSuccessViewModel
 } from '~/src/server/models/save-and-exit.js'
+import { selectResumeStrategy } from '~/src/server/resume/index.js'
+import { restoreState, showResumeError } from '~/src/server/resume/outcomes.js'
 import { hasState } from '~/src/server/routes/save-and-exit-helper.js'
 import { stateHandler } from '~/src/server/routes/save-and-exit-state-handler.js'
 import {
@@ -413,9 +415,37 @@ export default [
 
       const slugAndState = isPreview ? `/${status}` : ''
 
-      return h.redirect(
-        `/resume-form-verify/${formId}/${magicLinkId}/${form.slug}${slugAndState}`
+      /** @type {ResumeContext} */
+      const context = {
+        form,
+        details: linkDetails,
+        formId,
+        magicLinkId,
+        slugAndState
+      }
+
+      // The strategy and outcome functions take the plain hapi Request and
+      // ResponseToolkit, so they work the same whichever route calls them.
+      const genericRequest = /** @type {Request} */ (
+        /** @type {unknown} */ (request)
       )
+      const genericH = /** @type {ResponseToolkit} */ (
+        /** @type {unknown} */ (h)
+      )
+
+      const outcome = await selectResumeStrategy(linkDetails).start(
+        genericRequest,
+        context
+      )
+
+      switch (outcome.kind) {
+        case 'resume':
+          return restoreState(genericRequest, genericH, outcome, context)
+        case 'redirect':
+          return h.redirect(outcome.location)
+        default:
+          return showResumeError(genericH, context)
+      }
     },
     options: {
       validate: {
@@ -522,4 +552,5 @@ export default [
  * @import { Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'
  * @import { AnyRequest, CacheRequest } from '@defra/forms-engine-plugin/engine/types.js'
  * @import { BoomErrorCustomSaveAndExit, SaveAndExitParams, SaveAndExitPayload } from '~/src/server/models/save-and-exit.js'
+ * @import { ResumeContext } from '~/src/server/resume/types.js'
  */

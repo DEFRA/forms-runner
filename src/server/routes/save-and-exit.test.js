@@ -1,5 +1,5 @@
 import { isOfflineBoom } from '@defra/forms-engine-plugin'
-import { FormStatus } from '@defra/forms-model'
+import { FormStatus, SecurityQuestionsEnum } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
 
@@ -64,7 +64,8 @@ describe('Save-and-exit check routes', () => {
         form: {
           isPreview: true,
           status: FormStatus.Draft
-        }
+        },
+        authType: 'memorableWord'
       })
 
       const options = {
@@ -89,7 +90,8 @@ describe('Save-and-exit check routes', () => {
         form: {
           isPreview: true,
           status: FormStatus.Draft
-        }
+        },
+        authType: 'memorableWord'
       })
 
       const options = {
@@ -184,10 +186,10 @@ describe('Save-and-exit check routes', () => {
         .mocked(getFormMetadataById)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({ slug: 'my-form-to-resume' })
-      jest
-        .mocked(getSaveAndExitDetails)
+      jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce(
         // @ts-expect-error - allow partial objects for tests
-        .mockResolvedValueOnce({ form: { id: 'wrong-form' } })
+        { form: { id: 'wrong-form' }, authType: 'memorableWord' }
+      )
 
       const options = {
         method: 'GET',
@@ -256,6 +258,52 @@ describe('Save-and-exit check routes', () => {
       expect(logger.error).toHaveBeenCalledWith(
         otherErr,
         `Invalid formId ${FORM_ID} in magic link id ${MAGIC_LINK_ID}`
+      )
+    })
+
+    test('sends a signed-out citizen to sign in when the record needs an account', async () => {
+      jest
+        .mocked(getFormMetadataById)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce({ slug: 'my-form-to-resume', id: FORM_ID })
+      jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce({
+        // @ts-expect-error - allow partial objects for tests
+        form: { id: FORM_ID, isPreview: false, status: FormStatus.Live },
+        authType: 'citizenSignIn'
+      })
+
+      const response = await server.inject({
+        method: 'GET',
+        url: `/resume-form/${FORM_ID}/${MAGIC_LINK_ID}`
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe(
+        `/auth/sign-in?returnUrl=%2Fresume-form%2F${FORM_ID}%2F${MAGIC_LINK_ID}`
+      )
+    })
+
+    test('sends a citizen with a memorable word record to the verify page', async () => {
+      jest
+        .mocked(getFormMetadataById)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce({ slug: 'my-form-to-resume', id: FORM_ID })
+      jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce({
+        // @ts-expect-error - allow partial objects for tests
+        form: { id: FORM_ID, isPreview: false, status: FormStatus.Live },
+        authType: 'memorableWord',
+        question: SecurityQuestionsEnum.MemorablePlace,
+        invalidPasswordAttempts: 0
+      })
+
+      const response = await server.inject({
+        method: 'GET',
+        url: `/resume-form/${FORM_ID}/${MAGIC_LINK_ID}`
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe(
+        `/resume-form-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume`
       )
     })
   })

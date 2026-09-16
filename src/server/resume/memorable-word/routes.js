@@ -1,11 +1,7 @@
-import { MAGIC_LINK_GROUP_ID, isOfflineBoom } from '@defra/forms-engine-plugin'
-import { getCacheService } from '@defra/forms-engine-plugin/engine/helpers.js'
+import { isOfflineBoom } from '@defra/forms-engine-plugin'
 
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
-import {
-  RESUME_ERROR_PATH,
-  RESUME_SUCCESS_PATH
-} from '~/src/server/constants.js'
+import { RESUME_ERROR_PATH } from '~/src/server/constants.js'
 import {
   createInvalidPasswordError,
   lockedOutViewModel,
@@ -13,6 +9,7 @@ import {
   resumeParamsSchema,
   validatePayloadSchema
 } from '~/src/server/models/save-and-exit.js'
+import { restoreState } from '~/src/server/resume/outcomes.js'
 import {
   getFormTranslator,
   getPasswordAttemptsLeft,
@@ -110,18 +107,28 @@ export default [
       )
 
       if (validatedLink.validPassword) {
-        // Restore state
-        const cacheService = getCacheService(request.server)
-        await cacheService.setState(/** @type {CacheRequest} */ (request), {
-          ...validatedLink.state,
-          [MAGIC_LINK_GROUP_ID]: validatedLink.magicLinkGroupId
-        })
-
         const { isPreview, status } = validatedLink.form
 
-        const slugAndState = isPreview ? `/${status}` : ''
-
-        return h.redirect(`${RESUME_SUCCESS_PATH}/${form.slug}${slugAndState}`)
+        // restoreState takes the plain hapi Request and ResponseToolkit, so
+        // it works the same whichever route calls it. A valid password
+        // always comes with the saved state and group id, so the type here
+        // states that rather than repeating the optional API type.
+        return restoreState(
+          /** @type {Request} */ (/** @type {unknown} */ (request)),
+          /** @type {ResponseToolkit} */ (/** @type {unknown} */ (h)),
+          /** @type {{ state: object, magicLinkGroupId: string }} */ ({
+            state: validatedLink.state,
+            magicLinkGroupId: validatedLink.magicLinkGroupId
+          }),
+          // restoreState reads only form and slugAndState off the context,
+          // so a smaller object stands in for the full ResumeContext here.
+          /** @type {ResumeContext} */ (
+            /** @type {unknown} */ ({
+              form,
+              slugAndState: isPreview ? `/${status}` : ''
+            })
+          )
+        )
       }
 
       const attemptsRemaining = getPasswordAttemptsLeft(
@@ -203,7 +210,7 @@ export default [
 ]
 
 /**
- * @import { ServerRoute } from '@hapi/hapi'
- * @import { CacheRequest } from '@defra/forms-engine-plugin/engine/types.js'
+ * @import { ServerRoute, Request, ResponseToolkit } from '@hapi/hapi'
  * @import { SaveAndExitResumePasswordParams, SaveAndExitResumePasswordPayload } from '~/src/server/models/save-and-exit.js'
+ * @import { ResumeContext } from '~/src/server/resume/types.js'
  */
