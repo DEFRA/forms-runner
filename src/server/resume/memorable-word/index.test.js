@@ -1,21 +1,31 @@
 import { memorableWordStrategy } from '~/src/server/resume/memorable-word/index.js'
 
 describe('memorableWordStrategy', () => {
-  const request = /** @type {unknown} */ ({})
+  const request = /** @type {Request} */ (/** @type {unknown} */ ({}))
 
-  const context = /** @type {ResumeContext} */ (
-    /** @type {unknown} */ ({
-      form: { slug: 'my-form-to-resume' },
-      details: { authType: 'memorableWord' },
-      formId: 'eab6ac6c-79b6-439f-bd94-d93eb121b3f1',
-      magicLinkId: 'fd4e6453-fb32-43e4-b4cf-12b381a713de',
-      slugAndState: ''
-    })
-  )
+  const context = {
+    form: { slug: 'my-form-to-resume' },
+    details: { authType: 'memorableWord' },
+    formId: 'eab6ac6c-79b6-439f-bd94-d93eb121b3f1',
+    magicLinkId: 'fd4e6453-fb32-43e4-b4cf-12b381a713de',
+    slugAndState: ''
+  }
+
+  /**
+   * The mock carries only the fields this strategy reads, so it is cast
+   * through `unknown` rather than built in full.
+   * @param {object} overrides
+   * @returns {ResumeContext}
+   */
+  function resumeContext(overrides = {}) {
+    return /** @type {ResumeContext} */ (
+      /** @type {unknown} */ ({ ...context, ...overrides })
+    )
+  }
 
   it('sends the citizen to the page that asks for the memorable word', async () => {
     await expect(
-      memorableWordStrategy.start(request, context)
+      memorableWordStrategy.start(request, resumeContext())
     ).resolves.toEqual({
       kind: 'redirect',
       location:
@@ -27,9 +37,7 @@ describe('memorableWordStrategy', () => {
     await expect(
       memorableWordStrategy.start(
         request,
-        /** @type {ResumeContext} */ (
-          /** @type {unknown} */ ({ ...context, slugAndState: '/draft' })
-        )
+        resumeContext({ slugAndState: '/draft' })
       )
     ).resolves.toEqual({
       kind: 'redirect',
@@ -40,5 +48,6 @@ describe('memorableWordStrategy', () => {
 })
 
 /**
- * @import { ResumeContext } from '~/src/server/resume/types.ts'
+ * @import { Request } from '@hapi/hapi'
+ * @import { ResumeContext } from '~/src/server/resume/types.js'
  */
