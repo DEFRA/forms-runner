@@ -1,3 +1,11 @@
+{% from "govuk/components/table/macro.njk" import govukTable %}
+{% from "govuk/components/tag/macro.njk" import govukTag %}
+
+{% set statusTagClasses = {
+  inProgress: "govuk-tag--teal",
+  expired: "govuk-tag--red"
+} %}
+
 {% if previewMode %}
   {% set previewBannerHtml %}
     <p class="govuk-notification-banner__heading govuk-!-margin-bottom-0">
@@ -11,9 +19,40 @@
 {% endif %}
 
 <span class="govuk-caption-l">{{ tR('signIn.homepage.caption') }}</span>
-<h1 class="govuk-heading-l">{{ pageTitle }}</h1>
+<h1 class="govuk-heading-xl">{{ pageTitle }}</h1>
 
 {{ govukButton({
   text: tR('signIn.homepage.startButton'),
-  href: startUrl
+  href: startUrl,
+  classes: "govuk-button--secondary"
 }) }}
+
+{% if savedForms.length %}
+  {% set rows = [] %}
+  {% for savedForm in savedForms %}
+    {% set statusHtml %}
+      {{ govukTag({
+        text: tR('signIn.homepage.' + savedForm.status),
+        classes: statusTagClasses[savedForm.status]
+      }) }}
+    {% endset %}
+    {% set rows = (rows.push([
+      { text: savedForm.referenceNumber },
+      { html: statusHtml },
+      { text: savedForm.lastUpdated },
+      { text: savedForm.savedUntil }
+    ]), rows) %}
+  {% endfor %}
+
+  {{ govukTable({
+    head: [
+      { text: tR('signIn.homepage.referenceNumber') },
+      { text: tR('signIn.homepage.status') },
+      { text: tR('signIn.homepage.lastUpdated') },
+      { text: tR('signIn.homepage.savedUntil') }
+    ],
+    rows: rows
+  }) }}
+{% else %}
+  <p class="govuk-body">{{ tR('signIn.homepage.noSavedForms') }}</p>
+{% endif %}

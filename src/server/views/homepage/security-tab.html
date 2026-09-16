@@ -2,48 +2,4 @@
 
 <h1 class="govuk-heading-l">Security</h1>
 
-{{ govukSummaryList({
-  card: {
-    title: {
-      text: "Your sign-in details"
-    }
-  },
-  rows: [
-    {
-      key: {
-        text: "Email address"
-      },
-      value: {
-        text: user.email
-      },
-      actions: {
-        items: [
-          {
-            href: changeEmailAction,
-            text: "Change",
-            visuallyHiddenText: "email address",
-            classes: "govuk-link--no-visited-state"
-          }
-        ]
-      }
-    },
-    {
-      key: {
-        text: "Mobile phone number"
-      },
-      value: {
-        text: user.mobile
-      },
-      actions: {
-        items: [
-          {
-            href: changeMobileAction,
-            text: "Change",
-            visuallyHiddenText: "mobile number",
-            classes: "govuk-link--no-visited-state"
-          }
-        ]
-      }
-    }
-  ]
-}) }}
+<p class="govuk-body"><a href="{{ accountLink }}" class="govuk-link govuk-link--no-visited-state">Go to your account</a> if you need to change your email or phone number.</p>
