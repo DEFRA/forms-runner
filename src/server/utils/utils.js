@@ -2,7 +2,11 @@ import { getAvailableLanguages } from '@defra/forms-engine-plugin'
 import { getTraceId } from '@defra/hapi-tracing'
 
 import { config } from '~/src/config/index.js'
-import { EN_GB, SIGN_IN_PATH } from '~/src/server/constants.js'
+import {
+  EN_GB,
+  RESUME_FORM_PATH,
+  SIGN_IN_PATH
+} from '~/src/server/constants.js'
 
 /**
  * Returns a set of headers to use in an HTTP request, merging them with any existing headers in options.
@@ -128,6 +132,16 @@ export function localReturnPath(value) {
  */
 export function signInUrl(path) {
   return `${SIGN_IN_PATH}?returnUrl=${encodeURIComponent(path)}`
+}
+
+/**
+ * The path that resumes a saved form.
+ * @param {string} formId
+ * @param {string} magicLinkId
+ * @returns {string}
+ */
+export function resumeFormPath(formId, magicLinkId) {
+  return `${RESUME_FORM_PATH}/${formId}/${magicLinkId}`
 }
 
 /**

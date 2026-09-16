@@ -13,6 +13,8 @@ import {
   type SubmitResponsePayload
 } from '@defra/forms-model'
 
+import { type ResumeAuthType } from '~/src/server/resume/types.js'
+
 export interface FormsService {
   getFormMetadata: (slug: string) => Promise<FormMetadata>
   getFormDefinition: (
@@ -61,10 +63,11 @@ export interface SaveAndExitDetails {
     isPreview: boolean
     baseUrl: string
   }
-  question: SecurityQuestionsEnum
-  invalidPasswordAttempts: number
-  state: object
-  magicLinkGroupId: string
+  authType: ResumeAuthType
+  question?: SecurityQuestionsEnum
+  invalidPasswordAttempts?: number
+  state?: object
+  magicLinkGroupId?: string
 }
 
 export interface SaveAndExitResumeDetails extends SaveAndExitDetails {

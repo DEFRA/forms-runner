@@ -53,10 +53,10 @@ const RESUME_SUCCESS = 'save-and-exit/resume-success'
 const SAVE_AND_EXIT_CONFIRMATION = 'save-and-exit-v2/confirmation'
 
 /**
- * @param {number} attemptsSoFar
+ * @param {number | undefined} attemptsSoFar
  */
 export function getPasswordAttemptsLeft(attemptsSoFar) {
-  return maxInvalidPasswordAttempts - attemptsSoFar
+  return maxInvalidPasswordAttempts - (attemptsSoFar ?? 0)
 }
 
 /**

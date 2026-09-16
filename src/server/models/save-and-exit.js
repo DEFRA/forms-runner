@@ -447,7 +447,7 @@ export function confirmationViewModel(metadata, email, translator, status) {
 /**
  * The save and exit password form view model
  * @param {FormMetadata} metadata - the metadata of the form
- * @param {SecurityQuestionsEnum} securityQuestion - the security question
+ * @param {SecurityQuestionsEnum | undefined} securityQuestion - the security question
  * @param {number} attemptsLeft
  * @param {Translator} translator
  * @param {SaveAndExitResumePasswordPayload} [payload]
@@ -464,7 +464,9 @@ export function passwordViewModel(
   const { t } = translator
   const { errors, securityAnswerError } = buildErrors(translator, err)
 
-  const questionKey = securityQuestionKeyMap[securityQuestion]
+  const questionKey = securityQuestion
+    ? securityQuestionKeyMap[securityQuestion]
+    : undefined
   const questionText = questionKey
     ? /** @type {string} */ (t(questionKey))
     : undefined
