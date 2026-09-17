@@ -3,8 +3,10 @@ import { join } from 'node:path'
 import Boom from '@hapi/boom'
 import { within } from '@testing-library/dom'
 import { StatusCodes } from 'http-status-codes'
+import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
+import * as tokenStore from '~/src/server/auth/tokenStore.js'
 import { createServer } from '~/src/server/index.js'
 import {
   getFormDefinition,
@@ -16,18 +18,39 @@ import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 jest.mock('~/src/server/services/formsService.js')
 jest.mock('~/src/server/services/submissionService.js')
+jest.mock('openid-client', () => ({
+  ...jest.requireActual('openid-client'),
+  discovery: jest.fn(),
+  refreshTokenGrant: jest.fn()
+}))
 
 const HOMEPAGE_URL = '/homepage/test-form'
 const NO_AUTH_URL = '/help/accessibility-statement/test-form'
 const EMAIL = 'citizen@example.com'
+const SUB = 'sub-1'
+const TOKEN_SET_ID = 'token-set-1'
 
 /** A citizen who has signed in, as the citizen-session scheme presents them */
 const credentials = {
   iss: 'http://localhost:3011',
-  sub: 'sub-1',
+  sub: SUB,
   email: EMAIL,
-  idToken: 'header.payload.signature',
-  accessToken: 'access-1'
+  tokenSetId: TOKEN_SET_ID
+}
+
+/**
+ * Stores the citizen's tokens, with an access token that has the given number
+ * of seconds left
+ * @param {number} secondsLeft
+ */
+function storeTokens(secondsLeft) {
+  return tokenStore.set(TOKEN_SET_ID, {
+    accessToken: 'access-1',
+    accessTokenExpiresAt: Date.now() + secondsLeft * 1000,
+    refreshToken: 'refresh-1',
+    idToken: 'header.payload.signature',
+    sub: SUB
+  })
 }
 
 /** Two saved forms, as forms-submission-api describes them */
@@ -69,9 +92,13 @@ describe('per-form homepage', () => {
     config.set('useSignInFeature', false)
   })
 
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
     jest.mocked(getSavedForms).mockResolvedValue([])
+    jest
+      .mocked(client.discovery)
+      .mockResolvedValue(/** @type {client.Configuration} */ ({}))
+    await storeTokens(300)
   })
 
   it('sends a signed-out citizen to sign in first', async () => {
@@ -396,6 +423,103 @@ describe('per-form homepage', () => {
       )
     })
 
+    describe('when the access token is about to expire', () => {
+      beforeEach(async () => {
+        await storeTokens(20)
+      })
+
+      it('refreshes the token before asking for the saved forms', async () => {
+        jest.mocked(client.refreshTokenGrant).mockResolvedValue(
+          /** @type {TokenEndpointResponse & TokenEndpointResponseHelpers} */ (
+            /** @type {unknown} */ ({
+              access_token: 'access-2',
+              refresh_token: 'refresh-2',
+              id_token: 'header.payload.signature-2',
+              expires_in: 300,
+              token_type: 'bearer',
+              claims: () => ({ sub: SUB })
+            })
+          )
+        )
+
+        const response = await server.inject({
+          method: 'GET',
+          url: HOMEPAGE_URL,
+          auth: { strategy: 'citizen-session', credentials }
+        })
+
+        expect(response.statusCode).toBe(StatusCodes.OK)
+        expect(client.refreshTokenGrant).toHaveBeenCalledWith(
+          expect.anything(),
+          'refresh-1',
+          expect.objectContaining({ resource: expect.any(String) })
+        )
+        expect(getSavedForms).toHaveBeenCalledWith(
+          'access-2',
+          fixtures.form.metadata.id
+        )
+        await expect(tokenStore.get(TOKEN_SET_ID)).resolves.toMatchObject({
+          accessToken: 'access-2',
+          refreshToken: 'refresh-2'
+        })
+      })
+
+      it('sends the citizen to sign in again when the provider refuses the refresh token', async () => {
+        jest.mocked(client.refreshTokenGrant).mockRejectedValue(
+          new client.ResponseBodyError('server responded with an error', {
+            cause: { error: 'invalid_grant' },
+            response: new Response(null, { status: 400 })
+          })
+        )
+
+        const response = await server.inject({
+          method: 'GET',
+          url: HOMEPAGE_URL,
+          auth: { strategy: 'citizen-session', credentials }
+        })
+
+        expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+        expect(response.headers.location).toBe(
+          '/auth/sign-in?returnUrl=%2Fhomepage%2Ftest-form'
+        )
+        expect(getSavedForms).not.toHaveBeenCalled()
+        await expect(tokenStore.get(TOKEN_SET_ID)).resolves.toBeNull()
+      })
+
+      it('answers service unavailable, and keeps the tokens, when the provider cannot be reached', async () => {
+        jest
+          .mocked(client.refreshTokenGrant)
+          .mockRejectedValue(new TypeError('fetch failed'))
+
+        const response = await server.inject({
+          method: 'GET',
+          url: HOMEPAGE_URL,
+          auth: { strategy: 'citizen-session', credentials }
+        })
+
+        expect(response.statusCode).toBe(StatusCodes.SERVICE_UNAVAILABLE)
+        expect(getSavedForms).not.toHaveBeenCalled()
+        await expect(tokenStore.get(TOKEN_SET_ID)).resolves.toMatchObject({
+          refreshToken: 'refresh-1'
+        })
+      })
+    })
+
+    it('sends the citizen to sign in again when their session has no token record', async () => {
+      await tokenStore.delete(TOKEN_SET_ID)
+
+      const response = await server.inject({
+        method: 'GET',
+        url: HOMEPAGE_URL,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe(
+        '/auth/sign-in?returnUrl=%2Fhomepage%2Ftest-form'
+      )
+    })
+
     it('says so plainly when the citizen has saved nothing, rather than showing an empty table', async () => {
       const { container } = await renderResponse(server, {
         method: 'GET',
@@ -434,4 +558,5 @@ describe('per-form homepage', () => {
 
 /**
  * @import { Server } from '@hapi/hapi'
+ * @import { TokenEndpointResponse, TokenEndpointResponseHelpers } from 'openid-client'
  */

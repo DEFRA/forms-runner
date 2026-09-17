@@ -26,8 +26,7 @@ describe('citizen session', () => {
     iss: 'http://localhost:3011',
     sub: '0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0',
     email: 'citizen@example.com',
-    idToken: 'header.payload.signature',
-    accessToken: 'access-1'
+    tokenSetId: 'token-set-1'
   }
 
   it('holds the identity under the citizen key', () => {

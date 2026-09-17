@@ -1,6 +1,7 @@
 import hapi from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 
+import { SignInRequiredError } from '~/src/server/auth/SignInRequiredError.js'
 import { getIdentity } from '~/src/server/auth/accountSession.js'
 import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
 import pluginAuth from '~/src/server/plugins/auth.js'
@@ -11,8 +12,7 @@ const identity = {
   iss: 'http://localhost:3011',
   sub: '0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0',
   email: 'citizen@example.com',
-  idToken: 'header.payload.signature',
-  accessToken: 'access-1'
+  tokenSetId: 'token-set-1'
 }
 
 /**
@@ -120,5 +120,48 @@ describe('citizen-session strategy', () => {
     })
 
     expect(response.result).toMatchObject({ isAuthenticated: true })
+  })
+  describe('when a route needs the citizen to sign in again', () => {
+    it.each(['GET', 'POST'] as const)(
+      'redirects a %s request to sign in, returning to the same path',
+      async (method) => {
+        jest.mocked(getIdentity).mockReturnValue(identity)
+
+        const server = hapi.server()
+        await server.register(pluginAuth)
+        server.route({
+          method,
+          path: '/needs-token',
+          handler: () => {
+            throw new SignInRequiredError('invalidGrant')
+          }
+        })
+
+        const response = await server.inject({ method, url: '/needs-token' })
+
+        expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+        expect(response.headers.location).toBe(
+          '/auth/sign-in?returnUrl=%2Fneeds-token'
+        )
+      }
+    )
+
+    it('leaves any other error as it is', async () => {
+      jest.mocked(getIdentity).mockReturnValue(identity)
+
+      const server = hapi.server()
+      await server.register(pluginAuth)
+      server.route({
+        method: 'GET',
+        path: '/fails',
+        handler: () => {
+          throw new Error('something else')
+        }
+      })
+
+      const response = await server.inject({ method: 'GET', url: '/fails' })
+
+      expect(response.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+    })
   })
 })

@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto'
+
 import Boom from '@hapi/boom'
 import Joi from 'joi'
 import * as client from 'openid-client'
@@ -11,6 +13,8 @@ import {
   setIdentity,
   setSignInTransaction
 } from '~/src/server/auth/accountSession.js'
+import { signInEvent } from '~/src/server/auth/signInEvent.js'
+import * as tokenStore from '~/src/server/auth/tokenStore.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import {
   CALLBACK_PATH,
@@ -30,25 +34,6 @@ const BASE_URL = config.get('baseUrl')
  * returns an opaque token and no error.
  */
 const RESOURCE = config.get('oidc.submissionApiResource')
-
-/**
- * Log attributes for a sign-in step. CDP indexes the `event` object, so these
- * are searchable. Values are fixed strings; nothing from the provider or the
- * session is logged.
- * @param {string} action
- * @param {string} outcome - `success`, `failure` or `unknown`
- * @param {string} reason
- */
-function signInEvent(action, outcome, reason) {
-  return {
-    event: {
-      category: 'authentication',
-      action,
-      outcome,
-      reason
-    }
-  }
-}
 
 export default [
   /**
@@ -104,8 +89,15 @@ export default [
     async handler(request, h) {
       const oidcConfig = await request.server.app.oidc.getConfig()
 
-      const identity = getIdentity(request.yar)
-      const idToken = identity?.idToken
+      // A session from before tokens were stored separately has no
+      // tokenSetId, and is signed out without an ID token hint
+      const tokenSetId = getIdentity(request.yar)?.tokenSetId
+      const tokenSet = tokenSetId ? await tokenStore.get(tokenSetId) : null
+      const idToken = tokenSet?.idToken
+
+      if (tokenSetId) {
+        await tokenStore.delete(tokenSetId)
+      }
 
       clearIdentity(request.yar)
 
@@ -186,12 +178,38 @@ export default [
           throw new Error('Provider did not return an email or ID token')
         }
 
+        // The expiry is worked out from `expires_in` rather than from the
+        // access token's `exp` claim. The token is issued for
+        // forms-submission-api, so this service neither reads nor validates
+        // it.
+        if (
+          !tokens.access_token ||
+          !tokens.refresh_token ||
+          tokens.expires_in === undefined
+        ) {
+          throw new Error(
+            'Provider did not return an access token, refresh token or expiry'
+          )
+        }
+
+        // The tokens are kept in the token store rather than the session,
+        // and never reach the browser. The session holds only the id that
+        // finds them.
+        const tokenSetId = randomUUID()
+
+        await tokenStore.set(tokenSetId, {
+          accessToken: tokens.access_token,
+          accessTokenExpiresAt: Date.now() + tokens.expires_in * 1000,
+          refreshToken: tokens.refresh_token,
+          idToken: tokens.id_token,
+          sub: claims.sub
+        })
+
         setIdentity(request.yar, {
           iss: claims.iss,
           sub: claims.sub,
           email,
-          idToken: tokens.id_token,
-          accessToken: tokens.access_token
+          tokenSetId
         })
       } catch (err) {
         logger.error(

@@ -2,7 +2,10 @@ import hapi from '@hapi/hapi'
 import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
-import pluginOidcClient from '~/src/server/plugins/oidc-client.js'
+import { LOCK_TTL_MS } from '~/src/server/auth/tokenStore.js'
+import pluginOidcClient, {
+  REQUEST_TIMEOUT_SECONDS
+} from '~/src/server/plugins/oidc-client.js'
 
 jest.mock('openid-client')
 
@@ -11,7 +14,10 @@ jest.mock('openid-client')
  * The plugin reads its settings inside `register`, so a spy on the config it
  * shares is enough — the module does not need reloading.
  */
-function withSetting(path: 'oidc.privateJwk', override: string) {
+function withSetting(
+  path: 'oidc.privateJwk' | 'cdpEnvironment',
+  override: string
+) {
   const configured = config.get.bind(config)
 
   jest
@@ -33,6 +39,39 @@ describe('oidc client plugin', () => {
     await expect(server.app.oidc.getConfig()).resolves.toBe(discovered)
 
     expect(client.discovery).toHaveBeenCalledTimes(1)
+  })
+
+  it('gives every request to the provider a timeout', async () => {
+    jest.mocked(client.discovery).mockResolvedValue({} as client.Configuration)
+
+    const server = hapi.server()
+    await server.register(pluginOidcClient)
+    await server.app.oidc.getConfig()
+
+    expect(jest.mocked(client.discovery).mock.calls[0][4]).toMatchObject({
+      timeout: 20
+    })
+  })
+
+  it('times a request out before the refresh lock expires, leaving time for the work done under the lock', () => {
+    expect(LOCK_TTL_MS - REQUEST_TIMEOUT_SECONDS * 1000).toBeGreaterThanOrEqual(
+      2000
+    )
+  })
+
+  it('keeps the timeout when local development allows plain http', async () => {
+    withSetting('cdpEnvironment', 'local')
+    jest.mocked(client.discovery).mockResolvedValue({} as client.Configuration)
+
+    const server = hapi.server()
+    await server.register(pluginOidcClient)
+    await server.app.oidc.getConfig()
+
+    expect(jest.mocked(client.discovery).mock.calls[0][4]).toEqual({
+      timeout: 20,
+      // eslint-disable-next-line @typescript-eslint/no-deprecated -- the setting under test
+      execute: [client.allowInsecureRequests]
+    })
   })
 
   it('authenticates by signed assertion, not by secret', async () => {

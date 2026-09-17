@@ -35,8 +35,7 @@ const credentials = {
   iss: 'http://localhost:3011',
   sub: 'sub-1',
   email: 'citizen@example.com',
-  idToken: 'header.payload.signature',
-  accessToken: 'access-1'
+  tokenSetId: 'token-set-1'
 }
 
 describe('Save-and-exit check routes', () => {
