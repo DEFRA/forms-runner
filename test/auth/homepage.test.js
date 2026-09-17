@@ -421,7 +421,15 @@ describe('per-form homepage', () => {
       const links = within(table).getAllByRole('link', { name: /Continue/ })
 
       expect(links).toHaveLength(2)
-      expect(links[0]).toHaveAttribute('href', `/resume-form/${FORM_ID}/link-1`)
+
+      // Each row's link needs its own accessible name, so a screen reader
+      // user can tell rows apart when several links all read "Continue".
+      expect(
+        within(table).getByRole('link', { name: /Continue\s+CCC-333/ })
+      ).toHaveAttribute('href', `/resume-form/${FORM_ID}/link-1`)
+      expect(
+        within(table).getByRole('link', { name: /Continue\s+AAA-111/ })
+      ).toHaveAttribute('href', `/resume-form/${FORM_ID}/link-2`)
 
       jest.useRealTimers()
     })
@@ -445,7 +453,9 @@ describe('per-form homepage', () => {
       const links = within(table).getAllByRole('link', { name: /Continue/ })
 
       expect(links).toHaveLength(1)
-      expect(links[0]).toHaveAttribute('href', `/resume-form/${FORM_ID}/link-2`)
+      expect(
+        within(table).getByRole('link', { name: /Continue\s+AAA-111/ })
+      ).toHaveAttribute('href', `/resume-form/${FORM_ID}/link-2`)
 
       jest.useRealTimers()
     })
