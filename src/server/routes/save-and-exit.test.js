@@ -1,8 +1,10 @@
-import { isOfflineBoom } from '@defra/forms-engine-plugin'
+import { MAGIC_LINK_GROUP_ID, isOfflineBoom } from '@defra/forms-engine-plugin'
+import { getCacheService } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { FormStatus, SecurityQuestionsEnum } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
 
+import { config } from '~/src/config/index.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
 import { createServer } from '~/src/server/index.js'
@@ -18,6 +20,7 @@ import {
 import { getFormDefinition } from '~/src/server/services/formsService.js'
 import {
   getSaveAndExitDetails,
+  getSavedFormState,
   validateSaveAndExitCredentials
 } from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
@@ -29,15 +32,40 @@ jest.mock('~/src/server/services/submissionService.js')
 jest.mock('~/src/server/helpers/error-helper.js')
 jest.mock('@defra/forms-engine-plugin/engine/form-availability.js')
 
+// Only getCacheService is a controllable mock, so the getFormMetadataById
+// guard's real checkFormStatus keeps working for the routes this file
+// already covers.
+jest.mock('@defra/forms-engine-plugin/engine/helpers.js', () => ({
+  ...jest.requireActual('@defra/forms-engine-plugin/engine/helpers.js'),
+  getCacheService: jest.fn()
+}))
+
+/** A citizen who has signed in, as the citizen-session scheme presents them */
+const signedInCredentials = {
+  iss: 'http://localhost:3011',
+  sub: 'sub-1',
+  email: 'citizen@example.com',
+  idToken: 'header.payload.signature',
+  accessToken: 'access-1'
+}
+
 describe('Save-and-exit check routes', () => {
   /** @type {Server} */
   let server
 
   beforeAll(async () => {
+    // The citizen-session auth strategy this suite's authenticated injects
+    // rely on is only registered when this flag is on.
+    config.set('useSignInFeature', true)
+
     server = await createServer({
       enforceCsrf: false
     })
     await server.initialize()
+  })
+
+  afterAll(() => {
+    config.set('useSignInFeature', false)
   })
 
   beforeEach(() => {
@@ -305,6 +333,49 @@ describe('Save-and-exit check routes', () => {
       expect(response.headers.location).toBe(
         `/resume-form-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume`
       )
+    })
+
+    test('resumes the saved answers for a signed-in citizen with a sign-in record', async () => {
+      jest
+        .mocked(getFormMetadataById)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce({ slug: 'my-form-to-resume', id: FORM_ID })
+      jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce({
+        // @ts-expect-error - allow partial objects for tests
+        form: { id: FORM_ID, isPreview: false, status: FormStatus.Live },
+        authType: 'citizenSignIn'
+      })
+      jest.mocked(getSavedFormState).mockResolvedValueOnce({
+        state: { formField1: 'val1' },
+        magicLinkGroupId: 'group-1'
+      })
+      const setState = jest.fn()
+      jest.mocked(getCacheService).mockReturnValueOnce(
+        // @ts-expect-error - not all methods mocked
+        { setState }
+      )
+
+      const response = await server.inject({
+        method: 'GET',
+        url: `/resume-form/${FORM_ID}/${MAGIC_LINK_ID}`,
+        auth: { strategy: 'citizen-session', credentials: signedInCredentials }
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe(
+        '/resume-form-success/my-form-to-resume'
+      )
+      expect(getSavedFormState).toHaveBeenCalledWith(
+        signedInCredentials.accessToken,
+        MAGIC_LINK_ID
+      )
+      // The strategy's saved state and group id must reach the cache write
+      // unchanged, so an argument slip between the strategy and restoreState
+      // does not ship as a route that merely redirects to the right place.
+      expect(setState).toHaveBeenCalledWith(expect.anything(), {
+        formField1: 'val1',
+        [MAGIC_LINK_GROUP_ID]: 'group-1'
+      })
     })
   })
 
