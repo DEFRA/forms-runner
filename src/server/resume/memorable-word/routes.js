@@ -109,6 +109,15 @@ export default [
       if (validatedLink.validPassword) {
         const { isPreview, status } = validatedLink.form
 
+        /** @type {ResumeContext} */
+        const context = {
+          form,
+          details: validatedLink,
+          formId,
+          magicLinkId,
+          slugAndState: isPreview ? `/${status}` : ''
+        }
+
         // restoreState takes the plain hapi Request and ResponseToolkit, so
         // it works the same whichever route calls it. A valid password
         // always comes with the saved state and group id, so the type here
@@ -120,14 +129,7 @@ export default [
             state: validatedLink.state,
             magicLinkGroupId: validatedLink.magicLinkGroupId
           }),
-          // restoreState reads only form and slugAndState off the context,
-          // so a smaller object stands in for the full ResumeContext here.
-          /** @type {ResumeContext} */ (
-            /** @type {unknown} */ ({
-              form,
-              slugAndState: isPreview ? `/${status}` : ''
-            })
-          )
+          context
         )
       }
 
