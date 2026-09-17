@@ -13,6 +13,7 @@ import { formatDate, formatDateTime } from '~/src/server/helpers/date-helper.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 import { getSavedForms } from '~/src/server/services/submissionService.js'
+import { resumeFormPath } from '~/src/server/utils/utils.js'
 
 /**
  * The status of a saved form. Each value is also the translation key of the
@@ -40,13 +41,21 @@ function getFormStatus(savedForm) {
  * is chosen here rather than in the template, so they can be tested.
  * @param {SavedForm} savedForm
  * @param {Translator} translator - the translator for the request
+ * @param {string} formId - the form the saved records belong to
  */
-function mapToRow(savedForm, translator) {
+function mapToRow(savedForm, translator, formId) {
+  const status = getFormStatus(savedForm)
+
   return {
     referenceNumber: savedForm.referenceNumber,
-    status: getFormStatus(savedForm),
+    status,
     lastUpdated: formatDateTime(savedForm.createdAt, translator),
-    savedUntil: formatDate(savedForm.expireAt, translator)
+    savedUntil: formatDate(savedForm.expireAt, translator),
+    // An expired form cannot be resumed, so it gets no link.
+    resumeUrl:
+      status === SavedFormStatus.InProgress
+        ? resumeFormPath(formId, savedForm.magicLinkId)
+        : undefined
   }
 }
 
@@ -77,7 +86,9 @@ async function homepageHandler(request, h) {
 
   return h.view('homepage', {
     startUrl,
-    savedForms: savedForms.map((savedForm) => mapToRow(savedForm, translator)),
+    savedForms: savedForms.map((savedForm) =>
+      mapToRow(savedForm, translator, form.id)
+    ),
     context: { translator }
   })
 }

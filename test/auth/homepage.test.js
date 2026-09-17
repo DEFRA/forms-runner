@@ -20,6 +20,7 @@ jest.mock('~/src/server/services/submissionService.js')
 const HOMEPAGE_URL = '/homepage/test-form'
 const NO_AUTH_URL = '/help/accessibility-statement/test-form'
 const EMAIL = 'citizen@example.com'
+const FORM_ID = fixtures.form.metadata.id
 
 /** A citizen who has signed in, as the citizen-session scheme presents them */
 const credentials = {
@@ -396,6 +397,57 @@ describe('per-form homepage', () => {
         'access-1',
         fixtures.form.metadata.id
       )
+    })
+
+    it('gives each form in progress a link that resumes it', async () => {
+      jest.useFakeTimers({
+        now: new Date('2026-09-01T09:00:00.000Z'),
+        advanceTimers: true
+      })
+      jest.mocked(getSavedForms).mockResolvedValue(savedForms)
+
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: HOMEPAGE_URL,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      const table = container.getByRole('table')
+
+      expect(
+        within(table).getByRole('columnheader', { name: 'Actions' })
+      ).toBeInTheDocument()
+
+      const links = within(table).getAllByRole('link', { name: /Continue/ })
+
+      expect(links).toHaveLength(2)
+      expect(links[0]).toHaveAttribute('href', `/resume-form/${FORM_ID}/link-1`)
+
+      jest.useRealTimers()
+    })
+
+    it('leaves out the resume link of an expired form, which cannot be resumed', async () => {
+      jest.useFakeTimers({
+        now: new Date('2026-09-14T09:00:00.000Z'),
+        advanceTimers: true
+      })
+      jest.mocked(getSavedForms).mockResolvedValue(savedForms)
+
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: HOMEPAGE_URL,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      const table = container.getByRole('table')
+
+      // `link-1` expired on 12 September, `link-2` has not.
+      const links = within(table).getAllByRole('link', { name: /Continue/ })
+
+      expect(links).toHaveLength(1)
+      expect(links[0]).toHaveAttribute('href', `/resume-form/${FORM_ID}/link-2`)
+
+      jest.useRealTimers()
     })
 
     it('says so plainly when the citizen has saved nothing, rather than showing an empty table', async () => {

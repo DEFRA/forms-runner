@@ -47,11 +47,19 @@
               classes: statusTagClasses[savedForm.status]
             }) }}
           {% endset %}
+          {% set actionsHtml %}
+            {% if savedForm.resumeUrl %}
+              <a class="govuk-link" href="{{ savedForm.resumeUrl }}">
+                {{ tR('signIn.homepage.continue') }}<span class="govuk-visually-hidden"> {{ savedForm.referenceNumber }}</span>
+              </a>
+            {% endif %}
+          {% endset %}
           {% set rows = (rows.push([
             { text: savedForm.referenceNumber },
             { html: statusHtml },
             { text: savedForm.lastUpdated },
-            { text: savedForm.savedUntil }
+            { text: savedForm.savedUntil },
+            { html: actionsHtml }
           ]), rows) %}
         {% endfor %}
 
@@ -60,7 +68,8 @@
             { text: tR('signIn.homepage.referenceNumber') },
             { text: tR('signIn.homepage.status') },
             { text: tR('signIn.homepage.lastUpdated') },
-            { text: tR('signIn.homepage.savedUntil') }
+            { text: tR('signIn.homepage.savedUntil') },
+            { text: tR('signIn.homepage.actions') }
           ],
           rows: rows
         }) }}
