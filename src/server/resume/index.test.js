@@ -38,9 +38,28 @@ describe('selectResumeStrategy', () => {
       memorableWordStrategy
     )
   })
+
+  it('falls back to an error outcome for an authType neither strategy recognises', async () => {
+    // The submission api's response is not validated against ResumeAuthType,
+    // so an authType outside the two known values reaches here as real
+    // runtime data rather than something the type system rules out.
+    const unrecognisedAuthType = /** @type {ResumeAuthType} */ (
+      /** @type {unknown} */ ('somethingNew')
+    )
+
+    const strategy = selectResumeStrategy(details(unrecognisedAuthType))
+
+    const request = /** @type {Request} */ (/** @type {unknown} */ ({}))
+    const context = /** @type {ResumeContext} */ (/** @type {unknown} */ ({}))
+
+    await expect(strategy.start(request, context)).resolves.toEqual({
+      kind: 'error'
+    })
+  })
 })
 
 /**
- * @import { ResumeAuthType } from '~/src/server/resume/types.js'
+ * @import { Request } from '@hapi/hapi'
+ * @import { ResumeAuthType, ResumeContext } from '~/src/server/resume/types.js'
  * @import { SaveAndExitDetails } from '~/src/server/types.js'
  */
