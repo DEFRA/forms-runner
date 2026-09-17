@@ -276,7 +276,9 @@
       "lastUpdated": "Diweddarwyd ddiwethaf",
       "savedUntil": "Wedi'i gadw tan",
       "inProgress": "Ar y gweill",
-      "expired": "Wedi dod i ben"
+      "expired": "Wedi dod i ben",
+      "actions": "Camau",
+      "continue": "Parhau"
     },
     "header": {
       "menuText": "Cyfrif",

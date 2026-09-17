@@ -460,6 +460,35 @@ describe('per-form homepage', () => {
       jest.useRealTimers()
     })
 
+    it('writes the actions column in Welsh on a Welsh homepage', async () => {
+      jest.useFakeTimers({
+        now: new Date('2026-09-01T09:00:00.000Z'),
+        advanceTimers: true
+      })
+      jest.mocked(getSavedForms).mockResolvedValue(savedForms)
+      jest.mocked(getFormDefinition).mockResolvedValue({
+        ...fixtures.form.definition,
+        metadata: { translations: { cy: {} } }
+      })
+
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: `${HOMEPAGE_URL}?language=cy`,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      const table = container.getByRole('table')
+
+      expect(
+        within(table).getByRole('columnheader', { name: 'Camau' })
+      ).toBeInTheDocument()
+      expect(
+        within(table).getAllByRole('link', { name: /Parhau/ })
+      ).toHaveLength(2)
+
+      jest.useRealTimers()
+    })
+
     it('says so plainly when the citizen has saved nothing, rather than showing an empty table', async () => {
       const { container } = await renderResponse(server, {
         method: 'GET',
