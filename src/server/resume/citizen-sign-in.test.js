@@ -1,9 +1,21 @@
+import { config } from '~/src/config/index.js'
 import { signInStrategy } from '~/src/server/resume/citizen-sign-in.js'
 import { getSavedFormState } from '~/src/server/services/submissionService.js'
 
 jest.mock('~/src/server/services/submissionService.js')
 
 describe('signInStrategy', () => {
+  // The sign-in route and the citizen-session auth strategy this strategy
+  // relies on only exist when the flag is on, so the strategy is exercised
+  // as it runs in that mode. The flag-off case gets its own test below.
+  beforeEach(() => {
+    config.set('useSignInFeature', true)
+  })
+
+  afterEach(() => {
+    config.set('useSignInFeature', false)
+  })
+
   const context = /** @type {ResumeContext} */ (
     /** @type {unknown} */ ({
       form: { slug: 'my-form-to-resume' },
@@ -69,6 +81,16 @@ describe('signInStrategy', () => {
       isAuthenticated: true,
       credentials: { accessToken: 'access-1' }
     })
+
+    await expect(signInStrategy.start(request, context)).resolves.toEqual({
+      kind: 'error'
+    })
+  })
+
+  it('shows the error page rather than a sign-in link that would 404, when the sign-in feature is off', async () => {
+    config.set('useSignInFeature', false)
+
+    const request = signedInRequest({ isAuthenticated: false })
 
     await expect(signInStrategy.start(request, context)).resolves.toEqual({
       kind: 'error'

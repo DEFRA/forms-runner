@@ -1,3 +1,4 @@
+import { config } from '~/src/config/index.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { getSavedFormState } from '~/src/server/services/submissionService.js'
 import { signInUrl } from '~/src/server/utils/utils.js'
@@ -10,6 +11,13 @@ import { signInUrl } from '~/src/server/utils/utils.js'
  */
 export const signInStrategy = {
   async start(request, context) {
+    // The sign-in route and the citizen-session auth strategy only exist
+    // when this flag is on, so send the citizen to the error page here
+    // rather than to a sign-in page that would 404.
+    if (!config.get('useSignInFeature')) {
+      return { kind: 'error' }
+    }
+
     const { auth } = request
 
     if (!auth.isAuthenticated) {
