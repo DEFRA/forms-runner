@@ -47,10 +47,11 @@
               classes: statusTagClasses[savedForm.status]
             }) }}
           {% endset %}
+          {% set hiddenLinkSuffix = savedForm.referenceNumber if savedForm.referenceNumber else tR('signIn.homepage.savedOn', { date: savedForm.lastUpdated }) %}
           {% set actionsHtml %}
             {% if savedForm.resumeUrl %}
               <a class="govuk-link" href="{{ savedForm.resumeUrl }}">
-                {{ tR('signIn.homepage.continue') }}<span class="govuk-visually-hidden"> {{ savedForm.referenceNumber }}</span>
+                {{ tR('signIn.homepage.continue') }}<span class="govuk-visually-hidden"> {{ hiddenLinkSuffix }}</span>
               </a>
             {% endif %}
           {% endset %}

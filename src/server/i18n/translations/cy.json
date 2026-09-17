@@ -278,7 +278,8 @@
       "inProgress": "Ar y gweill",
       "expired": "Wedi dod i ben",
       "actions": "Camau",
-      "continue": "Parhau"
+      "continue": "Parhau",
+      "savedOn": "wedi'i gadw ar [[date]]"
     },
     "header": {
       "menuText": "Cyfrif",

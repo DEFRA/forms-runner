@@ -434,6 +434,50 @@ describe('per-form homepage', () => {
       jest.useRealTimers()
     })
 
+    it('gives each link a distinguishable name when the saved form has no reference number', async () => {
+      jest.useFakeTimers({
+        now: new Date('2026-09-01T09:00:00.000Z'),
+        advanceTimers: true
+      })
+      jest.mocked(getSavedForms).mockResolvedValue([
+        {
+          magicLinkId: 'link-1',
+          formTitle: 'test-form',
+          createdAt: '2026-08-21T09:00:00.000Z',
+          expireAt: '2026-09-12T09:00:00.000Z'
+        },
+        {
+          magicLinkId: 'link-2',
+          formTitle: 'test-form',
+          createdAt: '2026-08-25T09:00:00.000Z',
+          expireAt: '2026-09-12T09:00:00.000Z'
+        }
+      ])
+
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: HOMEPAGE_URL,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      const table = container.getByRole('table')
+
+      // With no reference number to tell rows apart, the accessible name
+      // falls back to the date the form was saved.
+      expect(
+        within(table).getByRole('link', {
+          name: 'Continue saved on 21 August 2026 at 10:00'
+        })
+      ).toHaveAttribute('href', `/resume-form/${FORM_ID}/link-1`)
+      expect(
+        within(table).getByRole('link', {
+          name: 'Continue saved on 25 August 2026 at 10:00'
+        })
+      ).toHaveAttribute('href', `/resume-form/${FORM_ID}/link-2`)
+
+      jest.useRealTimers()
+    })
+
     it('leaves out the resume link of an expired form, which cannot be resumed', async () => {
       jest.useFakeTimers({
         now: new Date('2026-09-14T09:00:00.000Z'),

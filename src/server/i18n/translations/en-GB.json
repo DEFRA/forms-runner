@@ -289,7 +289,8 @@
       "inProgress": "In progress",
       "expired": "Expired",
       "actions": "Actions",
-      "continue": "Continue"
+      "continue": "Continue",
+      "savedOn": "saved on [[date]]"
     },
     "header": {
       "menuText": "Account",
