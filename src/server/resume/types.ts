@@ -9,7 +9,7 @@ export type ResumeAuthType = 'citizenSignIn' | 'memorableWord'
 /** What the route does next with a record. */
 export type ResumeOutcome =
   | { kind: 'redirect'; location: string }
-  | { kind: 'resume'; state: object; magicLinkGroupId: string }
+  | { kind: 'resume'; state: object; magicLinkGroupId?: string }
   | { kind: 'error' }
 
 /** What a strategy is told about the record it is resuming. */

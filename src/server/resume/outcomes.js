@@ -13,7 +13,7 @@ import {
  * place.
  * @param {Request} request
  * @param {ResponseToolkit} h
- * @param {{ state: object, magicLinkGroupId: string }} outcome
+ * @param {{ state: object, magicLinkGroupId?: string }} outcome
  * @param {ResumeContext} context
  */
 export async function restoreState(request, h, outcome, context) {

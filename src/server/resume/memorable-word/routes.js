@@ -120,15 +120,15 @@ export default [
 
         // restoreState takes the plain hapi Request and ResponseToolkit, so
         // it works the same whichever route calls it. A valid password
-        // always comes with the saved state and group id, so the type here
-        // states that rather than repeating the optional API type.
+        // always comes with the saved state, so state is asserted here
+        // rather than repeating the optional API type.
         return restoreState(
           /** @type {Request} */ (/** @type {unknown} */ (request)),
           /** @type {ResponseToolkit} */ (/** @type {unknown} */ (h)),
-          /** @type {{ state: object, magicLinkGroupId: string }} */ ({
-            state: validatedLink.state,
+          {
+            state: /** @type {object} */ (validatedLink.state),
             magicLinkGroupId: validatedLink.magicLinkGroupId
-          }),
+          },
           context
         )
       }
