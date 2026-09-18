@@ -1,5 +1,3 @@
-import { isOfflineBoom } from '@defra/forms-engine-plugin'
-
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { RESUME_ERROR_PATH } from '~/src/server/constants.js'
 import {
@@ -16,6 +14,7 @@ import {
   maxInvalidPasswordAttempts
 } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadataById } from '~/src/server/services/formMetadataGuards.js'
+import { getMagicLinkForm } from '~/src/server/services/magicLinkForm.js'
 import {
   getSaveAndExitDetails,
   validateSaveAndExitCredentials
@@ -35,19 +34,9 @@ export default [
       const { params } = request
       const { formId, magicLinkId, state: status } = params
 
-      // Assert the form is online BEFORE looking up save-and-exit details so
-      // we don't leak magic-link validity timing for offline forms.
-      let form
-      try {
-        form = await getFormMetadataById(formId, status)
-      } catch (err) {
-        if (isOfflineBoom(err)) {
-          throw err
-        }
-        logger.error(
-          err,
-          `Invalid formId ${formId} in magic link id ${magicLinkId}`
-        )
+      const form = await getMagicLinkForm(formId, magicLinkId, status)
+
+      if (!form) {
         return h.redirect(RESUME_ERROR_PATH)
       }
 
@@ -87,17 +76,9 @@ export default [
       const { formId, magicLinkId, state } = params
       const { securityAnswer } = payload
 
-      let form
-      try {
-        form = await getFormMetadataById(formId, state)
-      } catch (err) {
-        if (isOfflineBoom(err)) {
-          throw err
-        }
-        logger.error(
-          err,
-          `Invalid formId ${formId} in magic link id ${magicLinkId}`
-        )
+      const form = await getMagicLinkForm(formId, magicLinkId, state)
+
+      if (!form) {
         return h.redirect(RESUME_ERROR_PATH)
       }
 

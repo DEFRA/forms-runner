@@ -33,11 +33,9 @@ import { selectResumeStrategy } from '~/src/server/resume/index.js'
 import { restoreState, showResumeError } from '~/src/server/resume/outcomes.js'
 import { hasState } from '~/src/server/routes/save-and-exit-helper.js'
 import { stateHandler } from '~/src/server/routes/save-and-exit-state-handler.js'
-import {
-  getFormMetadataById,
-  getFormMetadataWithGuard
-} from '~/src/server/services/formMetadataGuards.js'
+import { getFormMetadataWithGuard } from '~/src/server/services/formMetadataGuards.js'
 import { getFormDefinitionWithFallback } from '~/src/server/services/helpers/formsServiceHelper.js'
+import { getMagicLinkForm } from '~/src/server/services/magicLinkForm.js'
 import { getSaveAndExitDetails } from '~/src/server/services/submissionService.js'
 import {
   isLanguageSupported,
@@ -352,19 +350,9 @@ export default [
       const { params } = request
       const { formId, magicLinkId } = params
 
-      // Asserts the form is online BEFORE looking up the magic link, so we
-      // don't reveal link validity timing for offline forms.
-      let form
-      try {
-        form = await getFormMetadataById(formId)
-      } catch (err) {
-        if (isOfflineBoom(err)) {
-          throw err
-        }
-        logger.error(
-          err,
-          `Invalid formId ${formId} in magic link id ${magicLinkId}`
-        )
+      const form = await getMagicLinkForm(formId, magicLinkId)
+
+      if (!form) {
         return h.redirect(ERROR_BASE_URL).code(StatusCodes.SEE_OTHER)
       }
 
