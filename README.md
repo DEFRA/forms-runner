@@ -197,7 +197,7 @@ See [https://github.com/node-config/node-config#readme](https://github.com/node-
 | OIDC_ISSUER             | Identity provider issuer, matching the provider exactly.                                              | when signing in |         |                             |                                                                                                                         |
 | OIDC_CLIENT_ID          | This service's client id at the provider.                                                             | when signing in |         |                             |                                                                                                                         |
 | OIDC_REDIRECT_URI       | Where the provider returns the citizen.                                                               | when signing in |         |                             |           The provider registers this value, so it must match this service's `/auth/callback` byte for byte.            |
-| OIDC_CLIENT_PRIVATE_JWK | This service's private assertion key, as a single ES256 JWK.                                          | when signing in |         |                             |                                       Secret. The provider holds the public half.                                       |
+| OIDC_CLIENT_PRIVATE_JWK | This service's private assertion key, as a single RS256 JWK.                                          | when signing in |         |                             |                                       Secret. The provider holds the public half.                                       |
 
 ## Citizen sign in
 
@@ -214,6 +214,14 @@ service proves itself with a signed assertion (`private_key_jwt`) rather than a 
 secret, so `OIDC_CLIENT_PRIVATE_JWK` holds one private key and the provider is registered
 with the matching public half. The key's `kid` travels in the assertion header, which lets
 the provider hold both halves of a key rotation while this service signs with one.
+
+The two halves are generated together, by `node scripts/generate-client-keypair.mjs` in
+forms-identity-ui, and must be replaced together: an assertion signed by a key the provider
+does not hold is rejected, and a key of a different kind from the one the code imports
+(RSA, RS256) fails at boot with `Invalid JWK "kty" Parameter`. The script prints each half
+as a JWKS; `OIDC_CLIENT_PRIVATE_JWK` takes the single key from inside the private one, not
+the surrounding `{ "keys": [...] }`, while the provider's `OIDC_RUNNER_JWKS` takes the
+public JWKS whole.
 
 For proxy options, see https://www.npmjs.com/package/proxy-from-env which is used by https://github.com/TooTallNate/proxy-agents/tree/main/packages/proxy-agent.
 
@@ -245,7 +253,7 @@ USE_SIGN_IN_FEATURE=false
 OIDC_ISSUER=http://localhost:3011
 OIDC_CLIENT_ID=runner
 OIDC_REDIRECT_URI=http://localhost:3009/auth/callback
-OIDC_CLIENT_PRIVATE_JWK=<single-es256-jwk>
+OIDC_CLIENT_PRIVATE_JWK=<single-rs256-jwk>
 ```
 
 # Testing

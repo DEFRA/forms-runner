@@ -103,11 +103,11 @@ export async function getSavedForms(accessToken, formId) {
 /**
  * One saved form, as forms-submission-api describes it.
  * @typedef {object} SavedForm
- * @property {string} magicLinkId
- * @property {string} [referenceNumber]
- * @property {string} [formTitle]
- * @property {string} createdAt
- * @property {string} expireAt
+ * @property {string} magicLinkId - Identifier for the link used to resume the form
+ * @property {string} [referenceNumber] - Reference shown to the user, once one has been issued
+ * @property {string} [formTitle] - Title of the form the saved answers belong to
+ * @property {string} createdAt - ISO date the form was saved
+ * @property {string} expireAt - ISO date the saved form stops being available
  */
 
 /**
