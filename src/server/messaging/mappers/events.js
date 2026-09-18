@@ -18,6 +18,9 @@ const baseUrl = config.get('baseUrl')
  * @returns {{ magicLinkGroupId?: string }}
  */
 function magicLinkGroupIdFrom(state) {
+  // The mapper runs before the message schema check, so a missing state gets
+  // through to that check and fails there with a validation error rather than
+  // a TypeError here.
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   const magicLinkGroupId = state ? state[MAGIC_LINK_GROUP_ID] : undefined
 
