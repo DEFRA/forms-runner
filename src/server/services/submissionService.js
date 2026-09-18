@@ -84,7 +84,10 @@ export async function generateReferenceNumber(prefix) {
 export async function getSavedForms(accessToken, formId) {
   const url = `${submissionUrl}/save-and-exit/records?formId=${encodeURIComponent(formId)}`
 
-  const { res, error, payload } = await get(url, {
+  /** @type {typeof get<SavedForm[]>} */
+  const getByType = get
+
+  const { res, error, payload } = await getByType(url, {
     json: true,
     headers: { authorization: `Bearer ${accessToken}` }
   })
@@ -94,10 +97,10 @@ export async function getSavedForms(accessToken, formId) {
       error,
       `[savedForms] Could not read the saved forms - ${res.statusCode}`
     )
-    throw Boom.badGateway('Could not read the saved forms')
+    throw Boom.internal('Could not read the saved forms')
   }
 
-  return /** @type {SavedForm[]} */ (payload)
+  return payload
 }
 
 /**
@@ -120,7 +123,10 @@ export async function getSavedForms(accessToken, formId) {
 export async function getSavedFormState(accessToken, magicLinkId) {
   const url = `${submissionUrl}/save-and-exit/records/${magicLinkId}`
 
-  const { res, error, payload } = await get(url, {
+  /** @type {typeof get<SavedFormState>} */
+  const getByType = get
+
+  const { res, error, payload } = await getByType(url, {
     json: true,
     headers: { authorization: `Bearer ${accessToken}` }
   })
@@ -130,10 +136,10 @@ export async function getSavedFormState(accessToken, magicLinkId) {
       error,
       `[savedFormState] Could not read the saved form - ${res.statusCode}`
     )
-    throw Boom.badGateway('Could not read the saved form')
+    throw Boom.internal('Could not read the saved form')
   }
 
-  return /** @type {SavedFormState} */ (payload)
+  return payload
 }
 
 /**
