@@ -43,7 +43,7 @@ describe('signInStrategy', () => {
       '/resume-form/eab6ac6c-79b6-439f-bd94-d93eb121b3f1/fd4e6453-fb32-43e4-b4cf-12b381a713de'
     )
 
-    await expect(signInStrategy.start(request, context)).resolves.toEqual({
+    await expect(signInStrategy(request, context)).resolves.toEqual({
       kind: 'redirect',
       location:
         '/auth/sign-in?returnUrl=%2Fresume-form%2Feab6ac6c-79b6-439f-bd94-d93eb121b3f1%2Ffd4e6453-fb32-43e4-b4cf-12b381a713de'
@@ -61,7 +61,7 @@ describe('signInStrategy', () => {
       credentials: { accessToken: 'access-1' }
     })
 
-    await expect(signInStrategy.start(request, context)).resolves.toEqual({
+    await expect(signInStrategy(request, context)).resolves.toEqual({
       kind: 'resume',
       state: { formField1: 'val1' },
       magicLinkGroupId: 'group-1'
@@ -82,7 +82,7 @@ describe('signInStrategy', () => {
       credentials: { accessToken: 'access-1' }
     })
 
-    await expect(signInStrategy.start(request, context)).resolves.toEqual({
+    await expect(signInStrategy(request, context)).resolves.toEqual({
       kind: 'error'
     })
   })
@@ -92,7 +92,7 @@ describe('signInStrategy', () => {
 
     const request = signedInRequest({ isAuthenticated: false })
 
-    await expect(signInStrategy.start(request, context)).resolves.toEqual({
+    await expect(signInStrategy(request, context)).resolves.toEqual({
       kind: 'error'
     })
   })

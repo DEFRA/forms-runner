@@ -22,11 +22,7 @@ const strategyByAuthType = {
  * failing outright.
  * @type {ResumeStrategy}
  */
-const unrecognisedAuthTypeStrategy = {
-  start() {
-    return Promise.resolve({ kind: 'error' })
-  }
-}
+const unrecognisedAuthTypeStrategy = () => Promise.resolve({ kind: 'error' })
 
 /**
  * @param {SaveAndExitDetails} details

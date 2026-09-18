@@ -52,7 +52,7 @@ describe('selectResumeStrategy', () => {
     const request = /** @type {Request} */ (/** @type {unknown} */ ({}))
     const context = /** @type {ResumeContext} */ (/** @type {unknown} */ ({}))
 
-    await expect(strategy.start(request, context)).resolves.toEqual({
+    await expect(strategy(request, context)).resolves.toEqual({
       kind: 'error'
     })
   })

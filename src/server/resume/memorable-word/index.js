@@ -5,15 +5,13 @@ import { resumeVerifyPath } from '~/src/server/resume/memorable-word/paths.js'
  * verify page rather than here, so this strategy only sends the citizen there.
  * @type {ResumeStrategy}
  */
-export const memorableWordStrategy = {
-  start(request, context) {
-    const { formId, magicLinkId, form, slugAndState } = context
+export const memorableWordStrategy = (request, context) => {
+  const { formId, magicLinkId, form, slugAndState } = context
 
-    return Promise.resolve({
-      kind: 'redirect',
-      location: resumeVerifyPath(formId, magicLinkId, form.slug, slugAndState)
-    })
-  }
+  return Promise.resolve({
+    kind: 'redirect',
+    location: resumeVerifyPath(formId, magicLinkId, form.slug, slugAndState)
+  })
 }
 
 /**

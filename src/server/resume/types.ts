@@ -23,6 +23,7 @@ export interface ResumeContext {
 }
 
 /** How to get the saved state of one kind of record. */
-export interface ResumeStrategy {
-  start: (request: Request, context: ResumeContext) => Promise<ResumeOutcome>
-}
+export type ResumeStrategy = (
+  request: Request,
+  context: ResumeContext
+) => Promise<ResumeOutcome>

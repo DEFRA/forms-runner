@@ -25,7 +25,7 @@ describe('memorableWordStrategy', () => {
 
   it('sends the citizen to the page that asks for the memorable word', async () => {
     await expect(
-      memorableWordStrategy.start(request, resumeContext())
+      memorableWordStrategy(request, resumeContext())
     ).resolves.toEqual({
       kind: 'redirect',
       location:
@@ -35,10 +35,7 @@ describe('memorableWordStrategy', () => {
 
   it('keeps the preview state in the path of a draft form', async () => {
     await expect(
-      memorableWordStrategy.start(
-        request,
-        resumeContext({ slugAndState: '/draft' })
-      )
+      memorableWordStrategy(request, resumeContext({ slugAndState: '/draft' }))
     ).resolves.toEqual({
       kind: 'redirect',
       location:

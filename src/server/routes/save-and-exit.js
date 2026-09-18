@@ -421,7 +421,7 @@ export default [
         /** @type {unknown} */ (h)
       )
 
-      const outcome = await selectResumeStrategy(linkDetails).start(
+      const outcome = await selectResumeStrategy(linkDetails)(
         genericRequest,
         context
       )
