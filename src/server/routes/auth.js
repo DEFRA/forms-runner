@@ -5,6 +5,7 @@ import Joi from 'joi'
 import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
+import { SignInOutcome } from '~/src/server/auth/SignInOutcome.js'
 import {
   clearIdentity,
   clearSignInTransaction,
@@ -134,7 +135,7 @@ export default [
         logger.warn(
           signInEvent(
             'sign-in-callback',
-            'failure',
+            SignInOutcome.Failure,
             transaction ? 'stateMismatch' : 'noTransactionInSession'
           ),
           '[signInRejected] Callback did not match a sign-in this session started'
@@ -215,7 +216,11 @@ export default [
         logger.error(
           {
             err,
-            ...signInEvent('sign-in-callback', 'failure', 'codeExchangeFailed')
+            ...signInEvent(
+              'sign-in-callback',
+              SignInOutcome.Failure,
+              'codeExchangeFailed'
+            )
           },
           '[signInFailed] Could not complete sign in'
         )

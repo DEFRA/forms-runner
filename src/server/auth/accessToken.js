@@ -4,6 +4,7 @@ import Boom from '@hapi/boom'
 import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
+import { SignInOutcome } from '~/src/server/auth/SignInOutcome.js'
 import { SignInRequiredError } from '~/src/server/auth/SignInRequiredError.js'
 import { clearIdentity } from '~/src/server/auth/accountSession.js'
 import { signInEvent } from '~/src/server/auth/signInEvent.js'
@@ -15,6 +16,13 @@ const WAIT_INTERVAL_MS = 200
 
 /** How long a request waits on another request's refresh before giving up */
 const WAIT_TIMEOUT_MS = 5000
+
+const ACTION_KEYS = {
+  tokenRefresh: 'token-refresh'
+}
+
+const COULD_NOT_REFRESH_THE_ACCESS_TOKEN_MESSAGE =
+  'Could not refresh the access token'
 
 /**
  * Returns an access token for forms-submission-api that has more than the
@@ -138,7 +146,11 @@ async function refresh(request, tokenSetId, tokenSet) {
   } catch (err) {
     if (isInvalidGrant(err)) {
       logger.info(
-        signInEvent('token-refresh', 'failure', 'invalidGrant'),
+        signInEvent(
+          ACTION_KEYS.tokenRefresh,
+          SignInOutcome.Failure,
+          'invalidGrant'
+        ),
         '[tokenRefreshRejected] Provider refused the refresh token, sign in required'
       )
 
@@ -149,14 +161,18 @@ async function refresh(request, tokenSetId, tokenSet) {
     // the refresh token
     logger.error(
       {
-        ...signInEvent('token-refresh', 'failure', 'refreshFailed'),
+        ...signInEvent(
+          ACTION_KEYS.tokenRefresh,
+          SignInOutcome.Failure,
+          'refreshFailed'
+        ),
         error: { message: err instanceof Error ? err.message : 'unknown' }
       },
       '[tokenRefreshFailed] Could not refresh the access token'
     )
 
     // The tokens and identity are kept, so a later request can try again
-    throw Boom.serverUnavailable('Could not refresh the access token')
+    throw Boom.serverUnavailable(COULD_NOT_REFRESH_THE_ACCESS_TOKEN_MESSAGE)
   }
 
   // An ID token for someone else means the response cannot be trusted, so
@@ -165,7 +181,11 @@ async function refresh(request, tokenSetId, tokenSet) {
 
   if (claims && claims.sub !== tokenSet.sub) {
     logger.warn(
-      signInEvent('token-refresh', 'failure', 'invalidGrant'),
+      signInEvent(
+        ACTION_KEYS.tokenRefresh,
+        SignInOutcome.Failure,
+        'invalidGrant'
+      ),
       '[tokenRefreshRejected] Refreshed ID token names a different subject, sign in required'
     )
 
@@ -174,11 +194,15 @@ async function refresh(request, tokenSetId, tokenSet) {
 
   if (!tokens.access_token || tokens.expires_in === undefined) {
     logger.error(
-      signInEvent('token-refresh', 'failure', 'refreshFailed'),
+      signInEvent(
+        ACTION_KEYS.tokenRefresh,
+        SignInOutcome.Failure,
+        'refreshFailed'
+      ),
       '[tokenRefreshFailed] Refresh response had no access token or expiry'
     )
 
-    throw Boom.serverUnavailable('Could not refresh the access token')
+    throw Boom.serverUnavailable(COULD_NOT_REFRESH_THE_ACCESS_TOKEN_MESSAGE)
   }
 
   await tokenStore.set(tokenSetId, {
@@ -221,11 +245,15 @@ async function waitForRefresh(request, tokenSetId) {
 
   // The citizen is not signed out: the refresh may yet succeed
   logger.error(
-    signInEvent('token-refresh', 'failure', 'lockWaitTimedOut'),
+    signInEvent(
+      ACTION_KEYS.tokenRefresh,
+      SignInOutcome.Failure,
+      'lockWaitTimedOut'
+    ),
     '[tokenRefreshFailed] Timed out waiting for another request to refresh the access token'
   )
 
-  throw Boom.serverUnavailable('Could not refresh the access token')
+  throw Boom.serverUnavailable(COULD_NOT_REFRESH_THE_ACCESS_TOKEN_MESSAGE)
 }
 
 /**
