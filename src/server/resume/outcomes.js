@@ -9,8 +9,8 @@ import {
 
 /**
  * Puts the saved answers back in the cache and sends the citizen to the
- * welcome back page. Both strategies end here, so the cache write lives in one
- * place.
+ * welcome back page. Both resume functions end here, so the cache write lives
+ * in one place.
  * @param {Request} request
  * @param {ResponseToolkit} h
  * @param {{ state: object, magicLinkGroupId?: string }} outcome

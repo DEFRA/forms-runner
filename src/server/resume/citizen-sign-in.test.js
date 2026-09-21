@@ -1,13 +1,13 @@
 import { config } from '~/src/config/index.js'
-import { signInStrategy } from '~/src/server/resume/citizen-sign-in.js'
+import { resumeCitizenSignIn } from '~/src/server/resume/citizen-sign-in.js'
 import { getSavedFormState } from '~/src/server/services/submissionService.js'
 
 jest.mock('~/src/server/services/submissionService.js')
 
-describe('signInStrategy', () => {
-  // The sign-in route and the citizen-session auth strategy this strategy
-  // relies on only exist when the flag is on, so the strategy is exercised
-  // as it runs in that mode. The flag-off case gets its own test below.
+describe('resumeCitizenSignIn', () => {
+  // The sign-in route and the citizen-session auth strategy that this
+  // function relies on only exist when the flag is on, so the function is
+  // tested as it runs in that mode. The flag-off case gets its own test below.
   beforeEach(() => {
     config.set('useSignInFeature', true)
   })
@@ -27,7 +27,7 @@ describe('signInStrategy', () => {
   )
 
   /**
-   * The mock carries only the fields this strategy reads, so it is cast
+   * The mock carries only the fields this function reads, so it is cast
    * through `unknown` rather than built in full.
    * @param {object} auth
    * @param {string} path
@@ -43,7 +43,7 @@ describe('signInStrategy', () => {
       '/resume-form/eab6ac6c-79b6-439f-bd94-d93eb121b3f1/fd4e6453-fb32-43e4-b4cf-12b381a713de'
     )
 
-    await expect(signInStrategy(request, context)).resolves.toEqual({
+    await expect(resumeCitizenSignIn(request, context)).resolves.toEqual({
       kind: 'redirect',
       location:
         '/auth/sign-in?returnUrl=%2Fresume-form%2Feab6ac6c-79b6-439f-bd94-d93eb121b3f1%2Ffd4e6453-fb32-43e4-b4cf-12b381a713de'
@@ -61,7 +61,7 @@ describe('signInStrategy', () => {
       credentials: { accessToken: 'access-1' }
     })
 
-    await expect(signInStrategy(request, context)).resolves.toEqual({
+    await expect(resumeCitizenSignIn(request, context)).resolves.toEqual({
       kind: 'resume',
       state: { formField1: 'val1' },
       magicLinkGroupId: 'group-1'
@@ -82,7 +82,7 @@ describe('signInStrategy', () => {
       credentials: { accessToken: 'access-1' }
     })
 
-    await expect(signInStrategy(request, context)).resolves.toEqual({
+    await expect(resumeCitizenSignIn(request, context)).resolves.toEqual({
       kind: 'error'
     })
   })
@@ -92,7 +92,7 @@ describe('signInStrategy', () => {
 
     const request = signedInRequest({ isAuthenticated: false })
 
-    await expect(signInStrategy(request, context)).resolves.toEqual({
+    await expect(resumeCitizenSignIn(request, context)).resolves.toEqual({
       kind: 'error'
     })
   })

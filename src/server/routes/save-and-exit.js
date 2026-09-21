@@ -29,7 +29,7 @@ import {
   resumeErrorViewModel,
   resumeSuccessViewModel
 } from '~/src/server/models/save-and-exit.js'
-import { selectResumeStrategy } from '~/src/server/resume/index.js'
+import { selectResume } from '~/src/server/resume/index.js'
 import { restoreState, showResumeError } from '~/src/server/resume/outcomes.js'
 import { hasState } from '~/src/server/routes/save-and-exit-helper.js'
 import { stateHandler } from '~/src/server/routes/save-and-exit-state-handler.js'
@@ -412,7 +412,7 @@ export default [
         slugAndState
       }
 
-      // The strategy and outcome functions take the plain hapi Request and
+      // The resume and outcome functions take the plain hapi Request and
       // ResponseToolkit, so they work the same whichever route calls them.
       const genericRequest = /** @type {Request} */ (
         /** @type {unknown} */ (request)
@@ -421,10 +421,7 @@ export default [
         /** @type {unknown} */ (h)
       )
 
-      const outcome = await selectResumeStrategy(linkDetails)(
-        genericRequest,
-        context
-      )
+      const outcome = await selectResume(linkDetails)(genericRequest, context)
 
       switch (outcome.kind) {
         case 'resume':

@@ -5,11 +5,11 @@ import { signInUrl } from '~/src/server/utils/utils.js'
 
 /**
  * Resumes a record that belongs to a citizen account. The submission api
- * checks the token against the record, so this strategy asks for the state and
+ * checks the token against the record, so this function asks for the state and
  * treats a refusal as an error rather than testing ownership itself.
- * @type {ResumeStrategy}
+ * @type {Resume}
  */
-export const signInStrategy = async (request, context) => {
+export const resumeCitizenSignIn = async (request, context) => {
   // The sign-in route and the citizen-session auth strategy only exist
   // when this flag is on, so send the citizen to the error page here
   // rather than to a sign-in page that would 404.
@@ -42,5 +42,5 @@ export const signInStrategy = async (request, context) => {
 }
 
 /**
- * @import { ResumeStrategy } from '~/src/server/resume/types.js'
+ * @import { Resume } from '~/src/server/resume/types.js'
  */

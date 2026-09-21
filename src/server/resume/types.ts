@@ -12,7 +12,7 @@ export type ResumeOutcome =
   | { kind: 'resume'; state: object; magicLinkGroupId?: string }
   | { kind: 'error' }
 
-/** What a strategy is told about the record it is resuming. */
+/** What a resume function is told about the record it is resuming. */
 export interface ResumeContext {
   form: FormMetadata
   details: SaveAndExitDetails
@@ -23,7 +23,7 @@ export interface ResumeContext {
 }
 
 /** How to get the saved state of one kind of record. */
-export type ResumeStrategy = (
+export type Resume = (
   request: Request,
   context: ResumeContext
 ) => Promise<ResumeOutcome>

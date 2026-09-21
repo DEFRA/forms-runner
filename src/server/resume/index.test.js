@@ -1,6 +1,6 @@
-import { signInStrategy } from '~/src/server/resume/citizen-sign-in.js'
-import { selectResumeStrategy } from '~/src/server/resume/index.js'
-import { memorableWordStrategy } from '~/src/server/resume/memorable-word/index.js'
+import { resumeCitizenSignIn } from '~/src/server/resume/citizen-sign-in.js'
+import { selectResume } from '~/src/server/resume/index.js'
+import { resumeMemorableWord } from '~/src/server/resume/memorable-word/index.js'
 import { resumeFormPath } from '~/src/server/utils/utils.js'
 
 describe('resumeFormPath', () => {
@@ -16,7 +16,7 @@ describe('resumeFormPath', () => {
   })
 })
 
-describe('selectResumeStrategy', () => {
+describe('selectResume', () => {
   /**
    * The selector reads `authType` alone, so the mock carries only that and is
    * cast through `unknown` rather than built in full.
@@ -29,17 +29,15 @@ describe('selectResumeStrategy', () => {
     )
   }
 
-  it('picks the sign-in strategy for an account record', () => {
-    expect(selectResumeStrategy(details('citizenSignIn'))).toBe(signInStrategy)
+  it('picks the citizen sign-in resume for an account record', () => {
+    expect(selectResume(details('citizenSignIn'))).toBe(resumeCitizenSignIn)
   })
 
-  it('picks the memorable word strategy for a memorable word record', () => {
-    expect(selectResumeStrategy(details('memorableWord'))).toBe(
-      memorableWordStrategy
-    )
+  it('picks the memorable word resume for a memorable word record', () => {
+    expect(selectResume(details('memorableWord'))).toBe(resumeMemorableWord)
   })
 
-  it('falls back to an error outcome for an authType neither strategy recognises', async () => {
+  it('falls back to an error outcome for an unknown authType', async () => {
     // The submission api's response is not validated against ResumeAuthType,
     // so an authType outside the two known values reaches here as real
     // runtime data rather than something the type system rules out.
@@ -47,12 +45,12 @@ describe('selectResumeStrategy', () => {
       /** @type {unknown} */ ('somethingNew')
     )
 
-    const strategy = selectResumeStrategy(details(unrecognisedAuthType))
+    const resume = selectResume(details(unrecognisedAuthType))
 
     const request = /** @type {Request} */ (/** @type {unknown} */ ({}))
     const context = /** @type {ResumeContext} */ (/** @type {unknown} */ ({}))
 
-    await expect(strategy(request, context)).resolves.toEqual({
+    await expect(resume(request, context)).resolves.toEqual({
       kind: 'error'
     })
   })

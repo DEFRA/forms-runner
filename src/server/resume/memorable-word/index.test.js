@@ -1,6 +1,6 @@
-import { memorableWordStrategy } from '~/src/server/resume/memorable-word/index.js'
+import { resumeMemorableWord } from '~/src/server/resume/memorable-word/index.js'
 
-describe('memorableWordStrategy', () => {
+describe('resumeMemorableWord', () => {
   const request = /** @type {Request} */ (/** @type {unknown} */ ({}))
 
   const context = {
@@ -12,7 +12,7 @@ describe('memorableWordStrategy', () => {
   }
 
   /**
-   * The mock carries only the fields this strategy reads, so it is cast
+   * The mock carries only the fields this function reads, so it is cast
    * through `unknown` rather than built in full.
    * @param {object} overrides
    * @returns {ResumeContext}
@@ -25,7 +25,7 @@ describe('memorableWordStrategy', () => {
 
   it('sends the citizen to the page that asks for the memorable word', async () => {
     await expect(
-      memorableWordStrategy(request, resumeContext())
+      resumeMemorableWord(request, resumeContext())
     ).resolves.toEqual({
       kind: 'redirect',
       location:
@@ -35,7 +35,7 @@ describe('memorableWordStrategy', () => {
 
   it('keeps the preview state in the path of a draft form', async () => {
     await expect(
-      memorableWordStrategy(request, resumeContext({ slugAndState: '/draft' }))
+      resumeMemorableWord(request, resumeContext({ slugAndState: '/draft' }))
     ).resolves.toEqual({
       kind: 'redirect',
       location:
