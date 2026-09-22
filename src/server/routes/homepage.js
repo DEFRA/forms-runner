@@ -12,10 +12,7 @@ import {
 import { formatDate, formatDateTime } from '~/src/server/helpers/date-helper.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
-import {
-  getSavedFormState,
-  getSavedForms
-} from '~/src/server/services/submissionService.js'
+import { getSavedForms } from '~/src/server/services/submissionService.js'
 
 /**
  * The status of a saved form. Each value is also the translation key of the
@@ -121,48 +118,6 @@ export default [
       auth: { mode: 'required', strategy: CITIZEN_SESSION },
       validate: {
         params: Joi.object({ state: stateSchema, slug: slugSchema }).required()
-      }
-    }
-  }),
-  /**
-   * @satisfies {ServerRoute<{ Params: FormParams & { id: string } }>}
-   */
-  ({
-    method: 'GET',
-    path: `${HOMEPAGE_PREFIX}/{slug}/delete/{id}/{state?}`,
-    handler: async (request, h) => {
-      const { slug, id } = request.params
-      const { isPreview, state } = checkFormStatus(request.params)
-
-      const form = await getFormMetadata(slug)
-
-      const { translator } = await getFormTranslator(
-        request,
-        form,
-        isPreview ? state : undefined
-      )
-
-      const startUrl = isPreview
-        ? `${FORM_PREFIX}/${slug}/${state}`
-        : `${FORM_PREFIX}/${slug}`
-
-      const { accessToken } = request.auth.credentials
-      const savedForm = await getSavedFormState(accessToken, id)
-
-      return h.view('delete', {
-        savedForm,
-        startUrl,
-        context: { translator }
-      })
-    },
-    options: {
-      auth: { mode: 'required', strategy: CITIZEN_SESSION },
-      validate: {
-        params: Joi.object({
-          slug: slugSchema,
-          id: Joi.string().required(),
-          state: stateSchema.optional()
-        }).required()
       }
     }
   })
