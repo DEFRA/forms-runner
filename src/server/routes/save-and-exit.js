@@ -462,7 +462,7 @@ export default [
 
       const resumeDetails = await getSaveAndExitDetails(magicLinkId)
 
-      if (!resumeDetails) {
+      if (resumeDetails?.authType !== 'memorableWord') {
         return h.redirect(ERROR_BASE_URL)
       }
 
@@ -637,7 +637,7 @@ export default [
           )
           const resumeDetails = await getSaveAndExitDetails(params.magicLinkId)
 
-          if (!resumeDetails) {
+          if (resumeDetails?.authType !== 'memorableWord') {
             return h.redirect(ERROR_BASE_URL).takeover()
           }
 

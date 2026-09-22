@@ -1,5 +1,5 @@
 import { isOfflineBoom } from '@defra/forms-engine-plugin'
-import { FormStatus } from '@defra/forms-model'
+import { FormStatus, SecurityQuestionsEnum } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
 
@@ -51,6 +51,12 @@ describe('Save-and-exit check routes', () => {
 
   const FORM_ID = 'eab6ac6c-79b6-439f-bd94-d93eb121b3f1'
   const MAGIC_LINK_ID = 'fd4e6453-fb32-43e4-b4cf-12b381a713de'
+  const DRAFT_FORM = {
+    id: FORM_ID,
+    status: FormStatus.Draft,
+    isPreview: true,
+    baseUrl: 'http://localhost:3009'
+  }
 
   describe('GET /resume-form/{formId}/{magicLinkId}', () => {
     test('route forwards correctly on success', async () => {
@@ -269,11 +275,10 @@ describe('Save-and-exit check routes', () => {
           title: 'My Form To Resume'
         })
       jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce({
-        // @ts-expect-error - allow partial objects for tests
-        form: {
-          isPreview: true,
-          status: FormStatus.Draft
-        }
+        authType: 'memorableWord',
+        form: DRAFT_FORM,
+        question: SecurityQuestionsEnum.MemorablePlace,
+        invalidPasswordAttempts: 0
       })
       jest
         .mocked(getFormDefinition)
@@ -290,6 +295,27 @@ describe('Save-and-exit check routes', () => {
 
       const $mastheadHeading = container.getByText('Continue with your form')
       expect($mastheadHeading).toBeInTheDocument()
+    })
+
+    test('route forwards a citizen sign-in link to the error page', async () => {
+      jest
+        .mocked(getFormMetadataById)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce({ slug: 'my-form-to-resume' })
+      jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce({
+        authType: 'citizenSignIn',
+        form: DRAFT_FORM
+      })
+
+      const options = {
+        method: 'GET',
+        url: `/resume-form-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume/draft`
+      }
+
+      const { response } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe('/resume-form-error')
     })
 
     test('route forwards correctly on invalid form error', async () => {
@@ -621,11 +647,10 @@ describe('Save-and-exit check routes', () => {
         }
       })
       jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce({
-        // @ts-expect-error - allow partial objects for tests
-        form: {
-          isPreview: true,
-          status: FormStatus.Draft
-        }
+        authType: 'memorableWord',
+        form: DRAFT_FORM,
+        question: SecurityQuestionsEnum.MemorablePlace,
+        invalidPasswordAttempts: 0
       })
       jest
         .mocked(getFormDefinition)
