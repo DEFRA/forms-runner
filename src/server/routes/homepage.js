@@ -68,9 +68,6 @@ async function homepageHandler(request, h) {
   const { slug } = request.params
   const { isPreview, state } = checkFormStatus(request.params)
 
-  // The form status the preview URL names (draft or live), or none for the
-  // live form. `checkFormStatus` reports `live` for the live form too, so
-  // `isPreview` tells the two apart.
   const previewStatus = isPreview ? state : undefined
 
   const form = await getFormMetadata(slug)
