@@ -10,7 +10,7 @@ import {
   HOMEPAGE_PREFIX,
   PREVIEW_PATH_PREFIX
 } from '~/src/server/constants.js'
-import { formatDateTime } from '~/src/server/helpers/date-helper.js'
+import { formatDate, formatDateTime } from '~/src/server/helpers/date-helper.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 import { getSavedForms } from '~/src/server/services/submissionService.js'
@@ -21,18 +21,6 @@ const runnerBase = config.get('baseUrl')
 // Tabs
 const FORMS_TAB = 'forms'
 const SECURITY_TAB = 'security'
-
-/**
- * @typedef { FormParams & { action?: string } } HomepageParams
- */
-
-/**
- * @typedef {object} HomepageViewModel
- * @property {{ translator: Translator }} context view context
- * @property {unknown} serviceNavigationParams tab and navigation details
- * @property {string} [startUrl] link for starting a form
- */
-
 /**
  * The status of a saved form. Each value is also the translation key of the
  * tag the table shows for it.
@@ -53,6 +41,25 @@ function getFormStatus(savedForm) {
 
   return SavedFormStatus.InProgress
 }
+
+/**
+ * A saved form as the table shows it. The dates are formatted and the status
+ * is chosen here rather than in the template, so they can be tested.
+ * @param {SavedForm} savedForm
+ * @param {Translator} translator - the translator for the request
+ */
+function mapToRow(savedForm, translator) {
+  return {
+    referenceNumber: savedForm.referenceNumber,
+    status: getFormStatus(savedForm),
+    lastUpdated: formatDateTime(savedForm.createdAt, translator),
+    savedUntil: formatDate(savedForm.expireAt, translator)
+  }
+}
+
+/**
+ * @typedef { FormParams & { action?: string } } HomepageParams
+ */
 
 /**
  * Construct the tabs
@@ -106,21 +113,6 @@ async function buildNavigation(
 }
 
 /**
- * A saved form as the table shows it. The dates are formatted and the status
- * is chosen here rather than in the template, so they can be tested.
- * @param {SavedForm} savedForm
- * @param {string} language - the page language
- */
-function mapToRow(savedForm, language) {
-  return {
-    referenceNumber: savedForm.referenceNumber,
-    status: getFormStatus(savedForm),
-    lastUpdated: formatDateTime(savedForm.createdAt, language),
-    savedUntil: formatDateTime(savedForm.expireAt, language)
-  }
-}
-
-/**
  * Renders the homepage for the form state the URL names: live for
  * `/homepage/{slug}`, a preview for `/homepage/preview/{state}/{slug}`.
  * @param {Request<{ Params: HomepageParams }>} request
@@ -142,7 +134,7 @@ async function homepageHandler(request, h) {
     serviceNavigationParams: nav.serviceNavigationParams,
     startUrl: nav.startUrl,
     savedForms: savedForms.map((savedForm) =>
-      mapToRow(savedForm, nav.translator.language)
+      mapToRow(savedForm, nav.translator)
     ),
     context: { translator: nav.translator }
   })

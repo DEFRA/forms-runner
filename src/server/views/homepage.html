@@ -4,7 +4,6 @@
 {% from "govuk/components/notification-banner/macro.njk" import govukNotificationBanner %}
 {% from "govuk/components/table/macro.njk" import govukTable %}
 {% from "govuk/components/tag/macro.njk" import govukTag %}
-{% from "govuk/components/button/macro.njk" import govukButton %}
 
 {% set bodyClasses = "app-page--wide" %}
 
@@ -18,7 +17,6 @@
 {% block content %}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">
-
       {% if previewMode %}
         {% set previewBannerHtml %}
           <p class="govuk-notification-banner__heading govuk-!-margin-bottom-0">

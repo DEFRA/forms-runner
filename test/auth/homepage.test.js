@@ -319,12 +319,14 @@ describe('per-form homepage', () => {
         within(table).getByRole('cell', { name: 'AAA-111' })
       ).toBeInTheDocument()
 
-      // 09:00 UTC is 10:00 in British Summer Time
+      // 09:00 UTC is 10:00am in British Summer Time
       expect(
-        within(table).getByRole('cell', { name: '21 August 2026 at 10:00' })
+        within(table).getByRole('cell', { name: '21 August 2026 at 10:00am' })
       ).toBeInTheDocument()
       expect(
-        within(table).getByRole('cell', { name: '12 September 2026 at 10:00' })
+        within(table).getByRole('cell', {
+          name: '12 September 2026'
+        })
       ).toBeInTheDocument()
     })
 
@@ -344,10 +346,10 @@ describe('per-form homepage', () => {
       const table = container.getByRole('table')
 
       expect(
-        within(table).getByRole('cell', { name: '21 Awst 2026 am 10:00' })
+        within(table).getByRole('cell', { name: '21 Awst 2026 am 10:00yb' })
       ).toBeInTheDocument()
       expect(
-        within(table).getByRole('cell', { name: '12 Medi 2026 am 10:00' })
+        within(table).getByRole('cell', { name: '12 Medi 2026' })
       ).toBeInTheDocument()
     })
 
