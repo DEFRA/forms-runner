@@ -219,6 +219,17 @@ async function restoreState(request, formParams, state, magicLinkGroupId) {
 }
 
 /**
+ * Gets the details of a memorable word link. A citizen sign-in link has no
+ * question to show, so it gives undefined, the same as a missing link.
+ * @param {string} magicLinkId
+ */
+async function getMemorableWordLinkDetails(magicLinkId) {
+  const details = await getSaveAndExitDetails(magicLinkId)
+
+  return details?.authType === 'memorableWord' ? details : undefined
+}
+
+/**
  * Resumes a saved form that belongs to a signed-in citizen
  * @param {Request<{ Params: ResumeFormParams }>} request
  * @param {ResponseToolkit<{ Params: ResumeFormParams }>} h
@@ -549,9 +560,9 @@ export default [
         return h.redirect(ERROR_BASE_URL)
       }
 
-      const resumeDetails = await getSaveAndExitDetails(magicLinkId)
+      const resumeDetails = await getMemorableWordLinkDetails(magicLinkId)
 
-      if (resumeDetails?.authType !== 'memorableWord') {
+      if (!resumeDetails) {
         return h.redirect(ERROR_BASE_URL)
       }
 
@@ -724,9 +735,11 @@ export default [
           const payload = /** @type {SaveAndExitResumePasswordPayload} */ (
             request.payload
           )
-          const resumeDetails = await getSaveAndExitDetails(params.magicLinkId)
+          const resumeDetails = await getMemorableWordLinkDetails(
+            params.magicLinkId
+          )
 
-          if (resumeDetails?.authType !== 'memorableWord') {
+          if (!resumeDetails) {
             return h.redirect(ERROR_BASE_URL).takeover()
           }
 
