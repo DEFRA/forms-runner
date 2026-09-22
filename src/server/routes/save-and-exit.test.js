@@ -426,7 +426,7 @@ describe('Save-and-exit check routes', () => {
       expect($mastheadHeading).toBeInTheDocument()
     })
 
-    test('route forwards a citizen sign-in link to the error page', async () => {
+    test('route returns not found for a citizen sign-in link', async () => {
       jest
         .mocked(getFormMetadataById)
         // @ts-expect-error - allow partial objects for tests
@@ -441,10 +441,12 @@ describe('Save-and-exit check routes', () => {
         url: `/resume-form-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume/draft`
       }
 
-      const { response } = await renderResponse(server, options)
+      const { response, container } = await renderResponse(server, options)
 
-      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-      expect(response.headers.location).toBe('/resume-form-error')
+      expect(response.statusCode).toBe(StatusCodes.NOT_FOUND)
+      expect(
+        container.getByRole('heading', { level: 1, name: 'Page not found' })
+      ).toBeInTheDocument()
     })
 
     test('route forwards correctly on invalid form error', async () => {
@@ -800,6 +802,28 @@ describe('Save-and-exit check routes', () => {
       const $mastheadHeading = container.getByText('Continue with your form')
       expect($mastheadHeading).toBeInTheDocument()
       expect(createJoiError).not.toHaveBeenCalled()
+    })
+
+    test('route returns not found for a citizen sign-in link with a missing password', async () => {
+      jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce({
+        authType: 'citizenSignIn',
+        form: DRAFT_FORM
+      })
+
+      const options = {
+        method: 'POST',
+        url: `/resume-form-verify/${FORM_ID}/${MAGIC_LINK_ID}/my-form-to-resume`,
+        payload: {
+          securityAnswer: ''
+        }
+      }
+
+      const { response, container } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.NOT_FOUND)
+      expect(
+        container.getByRole('heading', { level: 1, name: 'Page not found' })
+      ).toBeInTheDocument()
     })
 
     test('route handles missing password and invalid url', async () => {

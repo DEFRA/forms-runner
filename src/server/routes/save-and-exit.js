@@ -220,13 +220,17 @@ async function restoreState(request, formParams, state, magicLinkGroupId) {
 
 /**
  * Gets the details of a memorable word link. A citizen sign-in link has no
- * question to show, so it gives undefined, the same as a missing link.
+ * memorable word page, so it gives a 404.
  * @param {string} magicLinkId
  */
 async function getMemorableWordLinkDetails(magicLinkId) {
   const details = await getSaveAndExitDetails(magicLinkId)
 
-  return details?.authType === 'memorableWord' ? details : undefined
+  if (details?.authType === 'citizenSignIn') {
+    throw Boom.notFound('A citizen sign-in link has no memorable word page')
+  }
+
+  return details
 }
 
 /**
