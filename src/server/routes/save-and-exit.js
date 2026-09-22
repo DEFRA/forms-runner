@@ -219,15 +219,15 @@ async function restoreState(request, formParams, state, magicLinkGroupId) {
 }
 
 /**
- * Gets the details of a memorable word link. A citizen sign-in link has no
- * memorable word page, so it gives a 404.
+ * Gets the details of a memorable word link. Only a memorable word link has
+ * this page, so any other link type gives a 404.
  * @param {string} magicLinkId
  */
 async function getMemorableWordLinkDetails(magicLinkId) {
   const details = await getSaveAndExitDetails(magicLinkId)
 
-  if (details?.authType === 'citizenSignIn') {
-    throw Boom.notFound('A citizen sign-in link has no memorable word page')
+  if (details && details.authType !== 'memorableWord') {
+    throw Boom.notFound('Only a memorable word link has this page')
   }
 
   return details
