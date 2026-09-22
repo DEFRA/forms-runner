@@ -4,6 +4,7 @@ import { get, getJson, postJson } from '~/src/server/services/httpService.js'
 import {
   generateReferenceNumber,
   getSaveAndExitDetails,
+  getSavedFormState,
   getSavedForms,
   validateSaveAndExitCredentials
 } from '~/src/server/services/submissionService.js'
@@ -182,6 +183,47 @@ describe('Submission service', () => {
       await expect(getSavedForms(ACCESS_TOKEN, FORM_ID)).rejects.toThrow(
         'Could not read the saved forms'
       )
+    })
+  })
+
+  describe('getSavedFormState', () => {
+    it('asks the submission API for one saved form with the token', async () => {
+      respondWith({ state: {} })
+
+      await getSavedFormState(ACCESS_TOKEN, magicLinkId)
+
+      expect(get).toHaveBeenCalledWith(
+        `${SUBMISSION_URL}/save-and-exit/records/${magicLinkId}`,
+        {
+          json: true,
+          headers: { authorization: `Bearer ${ACCESS_TOKEN}` }
+        }
+      )
+    })
+
+    it('returns the state and group id the API sent', async () => {
+      const savedForm = {
+        state: { textField: 'value' },
+        magicLinkGroupId: 'group-1'
+      }
+      respondWith(savedForm)
+
+      await expect(
+        getSavedFormState(ACCESS_TOKEN, magicLinkId)
+      ).resolves.toEqual(savedForm)
+    })
+
+    it('throws when the API refuses the request', async () => {
+      jest.mocked(get).mockResolvedValue(
+        /** @type {any} */ ({
+          res: { statusCode: StatusCodes.NOT_FOUND },
+          error: new Error('Not Found')
+        })
+      )
+
+      await expect(
+        getSavedFormState(ACCESS_TOKEN, magicLinkId)
+      ).rejects.toThrow('Could not read the saved form')
     })
   })
 })

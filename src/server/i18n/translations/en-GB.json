@@ -7,6 +7,10 @@
     "draft": "draft",
     "live": "live"
   },
+  "dateTime": {
+    "am": "am",
+    "pm": "pm"
+  },
   "help": {
     "getSupport": {
       "title": "Get help with your form",
@@ -283,7 +287,10 @@
       "lastUpdated": "Last updated",
       "savedUntil": "Saved until",
       "inProgress": "In progress",
-      "expired": "Expired"
+      "expired": "Expired",
+      "actions": "Actions",
+      "continue": "Continue",
+      "savedOn": "saved on [[date]]"
     },
     "header": {
       "menuText": "Account",
