@@ -20,6 +20,7 @@ jest.mock('~/src/server/services/submissionService.js')
 const HOMEPAGE_URL = '/homepage/test-form'
 const NO_AUTH_URL = '/help/accessibility-statement/test-form'
 const EMAIL = 'citizen@example.com'
+const FORM_ID = fixtures.form.metadata.id
 
 /** A citizen who has signed in, as the citizen-session scheme presents them */
 const credentials = {
@@ -396,6 +397,120 @@ describe('per-form homepage', () => {
         'access-1',
         fixtures.form.metadata.id
       )
+    })
+
+    it('shows a Continue link for each form in progress', async () => {
+      jest.useFakeTimers({
+        now: new Date('2026-09-01T09:00:00.000Z'),
+        advanceTimers: true
+      })
+      jest.mocked(getSavedForms).mockResolvedValue(savedForms)
+
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: HOMEPAGE_URL,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      const table = container.getByRole('table')
+
+      expect(
+        within(table).getByRole('columnheader', { name: 'Actions' })
+      ).toBeInTheDocument()
+
+      // The reference number in each link name tells the links apart
+      expect(
+        within(table).getByRole('link', { name: 'Continue CCC-333' })
+      ).toHaveAttribute('href', `/resume-form/${FORM_ID}/link-1`)
+      expect(
+        within(table).getByRole('link', { name: 'Continue AAA-111' })
+      ).toHaveAttribute('href', `/resume-form/${FORM_ID}/link-2`)
+
+      jest.useRealTimers()
+    })
+
+    it('names a Continue link by its saved time when the form has no reference number', async () => {
+      jest.useFakeTimers({
+        now: new Date('2026-09-01T09:00:00.000Z'),
+        advanceTimers: true
+      })
+      jest.mocked(getSavedForms).mockResolvedValue([
+        {
+          magicLinkId: 'link-1',
+          formTitle: 'test-form',
+          createdAt: '2026-08-21T09:00:00.000Z',
+          expireAt: '2026-09-12T09:00:00.000Z'
+        }
+      ])
+
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: HOMEPAGE_URL,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(
+        container.getByRole('link', {
+          name: 'Continue saved on 21 August 2026 at 10:00am'
+        })
+      ).toHaveAttribute('href', `/resume-form/${FORM_ID}/link-1`)
+
+      jest.useRealTimers()
+    })
+
+    it('shows no Continue link for an expired form', async () => {
+      jest.useFakeTimers({
+        now: new Date('2026-09-14T09:00:00.000Z'),
+        advanceTimers: true
+      })
+      jest.mocked(getSavedForms).mockResolvedValue(savedForms)
+
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: HOMEPAGE_URL,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      const table = container.getByRole('table')
+
+      // link-1 expired on 12 September
+      expect(
+        within(table).getAllByRole('link', { name: /Continue/ })
+      ).toHaveLength(1)
+      expect(
+        within(table).getByRole('link', { name: 'Continue AAA-111' })
+      ).toHaveAttribute('href', `/resume-form/${FORM_ID}/link-2`)
+
+      jest.useRealTimers()
+    })
+
+    it('shows the Actions column in Welsh on a Welsh homepage', async () => {
+      jest.useFakeTimers({
+        now: new Date('2026-09-01T09:00:00.000Z'),
+        advanceTimers: true
+      })
+      jest.mocked(getSavedForms).mockResolvedValue(savedForms)
+      jest.mocked(getFormDefinition).mockResolvedValue({
+        ...fixtures.form.definition,
+        metadata: { translations: { cy: {} } }
+      })
+
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: `${HOMEPAGE_URL}?language=cy`,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      const table = container.getByRole('table')
+
+      expect(
+        within(table).getByRole('columnheader', { name: 'Camau' })
+      ).toBeInTheDocument()
+      expect(
+        within(table).getByRole('link', { name: 'Parhau CCC-333' })
+      ).toBeInTheDocument()
+
+      jest.useRealTimers()
     })
 
     it('says so plainly when the citizen has saved nothing, rather than showing an empty table', async () => {

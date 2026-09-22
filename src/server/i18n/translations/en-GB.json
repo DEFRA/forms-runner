@@ -287,7 +287,10 @@
       "lastUpdated": "Last updated",
       "savedUntil": "Saved until",
       "inProgress": "In progress",
-      "expired": "Expired"
+      "expired": "Expired",
+      "actions": "Actions",
+      "continue": "Continue",
+      "savedOn": "saved on [[date]]"
     },
     "header": {
       "menuText": "Account",
