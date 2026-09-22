@@ -83,14 +83,13 @@ export async function generateReferenceNumber(prefix) {
  * @returns {Promise<SavedForm[]>}
  */
 export async function getSavedForms(accessToken, formId, preview) {
-  const query = new URLSearchParams({ formId })
+  const url = new URL(`${submissionUrl}/save-and-exit/records`)
+  url.searchParams.set('formId', formId)
   if (preview) {
-    query.set('preview', preview)
+    url.searchParams.set('preview', preview)
   }
 
-  const url = `${submissionUrl}/save-and-exit/records?${query}`
-
-  const { res, error, payload } = await get(url, {
+  const { res, error, payload } = await get(url.href, {
     json: true,
     headers: { authorization: `Bearer ${accessToken}` }
   })
@@ -124,10 +123,12 @@ export async function getSavedForms(accessToken, formId, preview) {
  * @param {FormStatus} [preview] - the preview state, or none for a live form
  */
 export async function getSavedFormState(accessToken, magicLinkId, preview) {
-  const query = preview ? `?preview=${preview}` : ''
-  const url = `${submissionUrl}/save-and-exit/records/${magicLinkId}${query}`
+  const url = new URL(`${submissionUrl}/save-and-exit/records/${magicLinkId}`)
+  if (preview) {
+    url.searchParams.set('preview', preview)
+  }
 
-  const { res, error, payload } = await get(url, {
+  const { res, error, payload } = await get(url.href, {
     json: true,
     headers: { authorization: `Bearer ${accessToken}` }
   })
