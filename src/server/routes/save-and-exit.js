@@ -43,14 +43,20 @@ import {
 import { getFormDefinitionWithFallback } from '~/src/server/services/helpers/formsServiceHelper.js'
 import {
   getSaveAndExitDetails,
+  getSavedFormState,
   validateSaveAndExitCredentials
 } from '~/src/server/services/submissionService.js'
 import {
   isLanguageSupported,
-  resolveLanguage
+  resolveLanguage,
+  signInUrl
 } from '~/src/server/utils/utils.js'
 
 const maxInvalidPasswordAttempts = 5
+
+/**
+ * @typedef {{ formId: string, magicLinkId: string }} ResumeFormParams
+ */
 
 const ERROR_BASE_URL = '/resume-form-error'
 
@@ -193,6 +199,124 @@ async function handleAuthenticatedSaveAndExit(request, h) {
   return h
     .view(SAVE_AND_EXIT_CONFIRMATION, model)
     .header('Cache-Control', 'no-cache, no-store, must-revalidate')
+}
+
+/**
+ * Puts the answers of a saved form back in the cache. The group id goes with
+ * them, so that a new save replaces the old one.
+ * @param {{ server: Server, yar: Yar }} request
+ * @param {{ slug: string, state?: string }} formParams - the form that the answers are for. The cache key uses these values.
+ * @param {object} state
+ * @param {string} [magicLinkGroupId]
+ */
+async function restoreState(request, formParams, state, magicLinkGroupId) {
+  const cacheService = getCacheService(request.server)
+
+  await cacheService.setState(
+    { yar: request.yar, params: formParams },
+    { ...state, [MAGIC_LINK_GROUP_ID]: magicLinkGroupId }
+  )
+}
+
+/**
+ * Gets the details of a memorable word link. Only a memorable word link has
+ * this page, so any other link type gives a 404.
+ * @param {string} magicLinkId
+ */
+async function getMemorableWordLinkDetails(magicLinkId) {
+  const details = await getSaveAndExitDetails(magicLinkId)
+
+  if (details && details.authType !== 'memorableWord') {
+    throw Boom.notFound('Only a memorable word link has this page')
+  }
+
+  return details
+}
+
+/**
+ * Looks up the details of a resume link. An old link that has a newer link
+ * gives the id of the newer link, so that the citizen resumes from it.
+ * @param {string} formId
+ * @param {string} magicLinkId
+ * @returns {Promise<{ linkDetails?: SaveAndExitDetails, latestLinkId?: string }>}
+ */
+async function getResumeLinkDetails(formId, magicLinkId) {
+  try {
+    const linkDetails = await getSaveAndExitDetails(magicLinkId)
+
+    if (!linkDetails) {
+      throw new Error('No link found')
+    }
+
+    return { linkDetails }
+  } catch (err) {
+    const error = /** @type {BoomErrorCustomSaveAndExit} */ (err)
+
+    if (error.output?.statusCode === StatusCodes.GONE) {
+      const latestLinkId = error.data?.payload?.latestId
+
+      if (latestLinkId) {
+        logger.info(
+          `Old link ${magicLinkId} used but redirected to ${latestLinkId}`
+        )
+        return { latestLinkId }
+      }
+
+      return {}
+    }
+
+    logger.error(
+      err,
+      `Invalid magic link id ${magicLinkId} with form id ${formId}`
+    )
+    return {}
+  }
+}
+
+/**
+ * Resumes a saved form that belongs to a signed-in citizen
+ * @param {Request<{ Params: ResumeFormParams }>} request
+ * @param {ResponseToolkit<{ Params: ResumeFormParams }>} h
+ * @param {FormMetadata} form
+ * @param {string} [formStatus] - the status of a preview form
+ */
+async function resumeWithCitizenSignIn(request, h, form, formStatus) {
+  const { auth, params } = request
+  const errorUrl = `${ERROR_BASE_URL}/${form.slug}`
+
+  // The auth strategy and the sign-in routes are registered only when the
+  // sign-in feature is on, so this check sits here rather than in the strategy
+  if (!config.get('useSignInFeature')) {
+    return h.redirect(errorUrl).code(StatusCodes.SEE_OTHER)
+  }
+
+  // `/resume-form` also serves memorable word links, so the route uses the
+  // default `try` mode rather than `required`. This redirect does what the
+  // strategy does for a `required` route.
+  if (!auth.isAuthenticated) {
+    return h.redirect(signInUrl(request.path))
+  }
+
+  let savedForm
+  try {
+    savedForm = await getSavedFormState(
+      auth.credentials.accessToken,
+      params.magicLinkId
+    )
+  } catch {
+    return h.redirect(errorUrl).code(StatusCodes.SEE_OTHER)
+  }
+
+  await restoreState(
+    request,
+    { slug: form.slug, state: formStatus },
+    savedForm.state,
+    savedForm.magicLinkGroupId
+  )
+
+  const slugAndState = formStatus ? `/${formStatus}` : ''
+
+  return h.redirect(`/resume-form-success/${form.slug}${slugAndState}`)
 }
 
 export default [
@@ -347,7 +471,7 @@ export default [
     }
   }),
   /**
-   * @satisfies {ServerRoute<{ Params: { formId: string, magicLinkId: string } }>}
+   * @satisfies {ServerRoute<{ Params: ResumeFormParams }>}
    */
   ({
     method: 'GET',
@@ -372,35 +496,15 @@ export default [
         return h.redirect(ERROR_BASE_URL).code(StatusCodes.SEE_OTHER)
       }
 
-      // Check magic link id
-      let linkDetails
-      try {
-        linkDetails = await getSaveAndExitDetails(magicLinkId)
+      const { linkDetails, latestLinkId } = await getResumeLinkDetails(
+        formId,
+        magicLinkId
+      )
 
-        if (!linkDetails) {
-          throw new Error('No link found')
-        }
-      } catch (err) {
-        const error = /** @type {BoomErrorCustomSaveAndExit} */ (err)
-        if (error.output?.statusCode === StatusCodes.GONE) {
-          const latestLinkId = error.data?.payload?.latestId
-          if (latestLinkId) {
-            logger.info(
-              `Old link ${magicLinkId} used but redirected to ${latestLinkId}`
-            )
-            return h
-              .redirect(`/resume-form/${formId}/${latestLinkId}`)
-              .code(StatusCodes.SEE_OTHER)
-          } else {
-            return h
-              .redirect(`${ERROR_BASE_URL}/${form.slug}`)
-              .code(StatusCodes.SEE_OTHER)
-          }
-        }
-        logger.error(
-          err,
-          `Invalid magic link id ${magicLinkId} with form id ${formId}`
-        )
+      if (latestLinkId) {
+        return h
+          .redirect(`/resume-form/${formId}/${latestLinkId}`)
+          .code(StatusCodes.SEE_OTHER)
       }
 
       if (!linkDetails) {
@@ -419,9 +523,29 @@ export default [
 
       const slugAndState = isPreview ? `/${status}` : ''
 
-      return h.redirect(
-        `/resume-form-verify/${formId}/${magicLinkId}/${form.slug}${slugAndState}`
-      )
+      switch (linkDetails.authType) {
+        case 'memorableWord':
+          // The memorable word journey has its own page, validation and
+          // error handling, so the citizen goes there
+          return h.redirect(
+            `/resume-form-verify/${formId}/${magicLinkId}/${form.slug}${slugAndState}`
+          )
+        case 'citizenSignIn':
+          // The access token is enough to get the saved state, so the form
+          // resumes here with no extra page
+          return resumeWithCitizenSignIn(
+            request,
+            h,
+            form,
+            isPreview ? status : undefined
+          )
+        default:
+          // The API response is not validated, so an authType this runner
+          // does not know can reach here
+          return h
+            .redirect(`${ERROR_BASE_URL}/${form.slug}`)
+            .code(StatusCodes.SEE_OTHER)
+      }
     },
     options: {
       validate: {
@@ -460,7 +584,7 @@ export default [
         return h.redirect(ERROR_BASE_URL)
       }
 
-      const resumeDetails = await getSaveAndExitDetails(magicLinkId)
+      const resumeDetails = await getMemorableWordLinkDetails(magicLinkId)
 
       if (!resumeDetails) {
         return h.redirect(ERROR_BASE_URL)
@@ -575,12 +699,12 @@ export default [
       )
 
       if (validatedLink.validPassword) {
-        // Restore state
-        const cacheService = getCacheService(request.server)
-        await cacheService.setState(/** @type {CacheRequest} */ (request), {
-          ...validatedLink.state,
-          [MAGIC_LINK_GROUP_ID]: validatedLink.magicLinkGroupId
-        })
+        await restoreState(
+          request,
+          { slug: params.slug, state },
+          validatedLink.state,
+          validatedLink.magicLinkGroupId
+        )
 
         const { isPreview, status } = validatedLink.form
 
@@ -635,7 +759,9 @@ export default [
           const payload = /** @type {SaveAndExitResumePasswordPayload} */ (
             request.payload
           )
-          const resumeDetails = await getSaveAndExitDetails(params.magicLinkId)
+          const resumeDetails = await getMemorableWordLinkDetails(
+            params.magicLinkId
+          )
 
           if (!resumeDetails) {
             return h.redirect(ERROR_BASE_URL).takeover()
@@ -694,10 +820,11 @@ export default [
 ]
 
 /**
- * @import { ServerRoute, ResponseToolkit, Request, RequestQuery } from '@hapi/hapi'
+ * @import { ServerRoute, ResponseToolkit, Request, RequestQuery, Server } from '@hapi/hapi'
  * @import { Yar } from '@hapi/yar'
  * @import { FormMetadata } from '@defra/forms-model'
  * @import { Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'
  * @import { AnyRequest, CacheRequest } from '@defra/forms-engine-plugin/engine/types.js'
  * @import { BoomErrorCustomSaveAndExit, SaveAndExitParams, SaveAndExitPayload, SaveAndExitResumePasswordPayload, SaveAndExitResumePasswordParams } from '~/src/server/models/save-and-exit.js'
+ * @import { SaveAndExitDetails } from '~/src/server/types.js'
  */

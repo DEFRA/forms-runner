@@ -9,10 +9,13 @@ import {
   HOMEPAGE_PREFIX,
   PREVIEW_PATH_PREFIX
 } from '~/src/server/constants.js'
-import { formatDateTime } from '~/src/server/helpers/date-helper.js'
+import { formatDate, formatDateTime } from '~/src/server/helpers/date-helper.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
-import { getSaveAndExitDetails, getSavedForms } from '~/src/server/services/submissionService.js'
+import {
+  getSavedFormState,
+  getSavedForms
+} from '~/src/server/services/submissionService.js'
 
 /**
  * The status of a saved form. Each value is also the translation key of the
@@ -39,19 +42,22 @@ function getFormStatus(savedForm) {
  * A saved form as the table shows it. The dates are formatted and the status
  * is chosen here rather than in the template, so they can be tested.
  * @param {SavedForm} savedForm
- * @param {string} language - the page language
- * @param {string} homepageBaseUrl - the homepage base url
+ * @param {Translator} translator - the translator for the request
+ * @param {string} formId
  */
-function mapToRow(savedForm, language, homepageBaseUrl) {
+function mapToRow(savedForm, translator, formId) {
+  const status = getFormStatus(savedForm)
+
   return {
     referenceNumber: savedForm.referenceNumber,
-    status: getFormStatus(savedForm),
-    lastUpdated: formatDateTime(savedForm.createdAt, language),
-    savedUntil: formatDateTime(savedForm.expireAt, language),
-    actions: {
-      continue: '#',
-      delete: `${homepageBaseUrl}/delete/${savedForm.magicLinkId}`
-    }
+    status,
+    lastUpdated: formatDateTime(savedForm.createdAt, translator),
+    savedUntil: formatDate(savedForm.expireAt, translator),
+    // An expired form cannot be resumed, so it gets no link
+    resumeUrl:
+      status === SavedFormStatus.InProgress
+        ? `/resume-form/${formId}/${savedForm.magicLinkId}`
+        : undefined
   }
 }
 
@@ -67,7 +73,7 @@ async function homepageHandler(request, h) {
 
   const form = await getFormMetadata(slug)
 
-  const { translator, language } = await getFormTranslator(
+  const { translator } = await getFormTranslator(
     request,
     form,
     isPreview ? state : undefined
@@ -76,17 +82,15 @@ async function homepageHandler(request, h) {
   const startUrl = isPreview
     ? `${FORM_PREFIX}${PREVIEW_PATH_PREFIX}/${state}/${slug}`
     : `${FORM_PREFIX}/${slug}`
-  const homepageUrl = isPreview
-    ? `${HOMEPAGE_PREFIX}/${slug}/${state}`
-    : `${HOMEPAGE_PREFIX}/${slug}`
-
 
   const { accessToken } = request.auth.credentials
   const savedForms = await getSavedForms(accessToken, form.id)
 
   return h.view('homepage', {
     startUrl,
-    savedForms: savedForms.map((savedForm) => mapToRow(savedForm, language, homepageUrl)),
+    savedForms: savedForms.map((savedForm) =>
+      mapToRow(savedForm, translator, form.id)
+    ),
     context: { translator }
   })
 }
@@ -132,7 +136,7 @@ export default [
 
       const form = await getFormMetadata(slug)
 
-      const { translator, language } = await getFormTranslator(
+      const { translator } = await getFormTranslator(
         request,
         form,
         isPreview ? state : undefined
@@ -143,9 +147,10 @@ export default [
         : `${FORM_PREFIX}/${slug}`
 
       const { accessToken } = request.auth.credentials
-      const savedForm = await getSaveAndExitDetails(id)
+      const savedForm = await getSavedFormState(accessToken, id)
 
       return h.view('delete', {
+        savedForm,
         startUrl,
         context: { translator }
       })
@@ -153,14 +158,18 @@ export default [
     options: {
       auth: { mode: 'required', strategy: CITIZEN_SESSION },
       validate: {
-        params: Joi.object({ slug: slugSchema, id: Joi.string().required(), state: stateSchema.optional() }).required()
+        params: Joi.object({
+          slug: slugSchema,
+          id: Joi.string().required(),
+          state: stateSchema.optional()
+        }).required()
       }
     }
   })
 ]
 
 /**
- * @import { FormParams } from '@defra/forms-engine-plugin/types'
+ * @import { FormParams, Translator } from '@defra/forms-engine-plugin/types'
  * @import { SavedForm } from '~/src/server/services/submissionService.js'
  * @import { Request, ResponseToolkit, ServerRoute } from '@hapi/hapi'
  */
