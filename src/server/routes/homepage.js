@@ -39,14 +39,14 @@ function getFormStatus(savedForm) {
  * A saved form as the table shows it. The dates are formatted and the status
  * is chosen here rather than in the template, so they can be tested.
  * @param {SavedForm} savedForm
- * @param {string} language - the page language
+ * @param {Translator} translator - the translator for the request
  */
-function mapToRow(savedForm, language) {
+function mapToRow(savedForm, translator) {
   return {
     referenceNumber: savedForm.referenceNumber,
     status: getFormStatus(savedForm),
-    lastUpdated: formatDateTime(savedForm.createdAt, language),
-    savedUntil: formatDateTime(savedForm.expireAt, language)
+    lastUpdated: formatDateTime(savedForm.createdAt, translator),
+    savedUntil: formatDateTime(savedForm.expireAt, translator)
   }
 }
 
@@ -62,7 +62,7 @@ async function homepageHandler(request, h) {
 
   const form = await getFormMetadata(slug)
 
-  const { translator, language } = await getFormTranslator(
+  const { translator } = await getFormTranslator(
     request,
     form,
     isPreview ? state : undefined
@@ -77,7 +77,7 @@ async function homepageHandler(request, h) {
 
   return h.view('homepage', {
     startUrl,
-    savedForms: savedForms.map((savedForm) => mapToRow(savedForm, language)),
+    savedForms: savedForms.map((savedForm) => mapToRow(savedForm, translator)),
     context: { translator }
   })
 }
@@ -114,7 +114,7 @@ export default [
 ]
 
 /**
- * @import { FormParams } from '@defra/forms-engine-plugin/types'
+ * @import { FormParams, Translator } from '@defra/forms-engine-plugin/types'
  * @import { SavedForm } from '~/src/server/services/submissionService.js'
  * @import { Request, ResponseToolkit, ServerRoute } from '@hapi/hapi'
  */

@@ -5,6 +5,10 @@
     "Or": "Neu",
     "and": "a"
   },
+  "dateTime": {
+    "am": "yb",
+    "pm": "yh"
+  },
   "help": {
     "getSupport": {
       "title": "Cael cymorth gyda'ch ffeil",
