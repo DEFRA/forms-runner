@@ -125,7 +125,8 @@
   {% endif %}
   {% set serviceNavigationParams = {
     serviceName: context.translator.tForm('title') if context else name | default(config.serviceName),
-    serviceUrl: currentPath if context.isForceAccess else serviceUrl
+    serviceUrl: currentPath if context.isForceAccess else serviceUrl,
+    navigation: serviceNavigationParams.navigation
   } %}
   {# The account details render the account menu. Without them the header
     shows the plain bar. #}

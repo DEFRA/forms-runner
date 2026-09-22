@@ -3,6 +3,7 @@ import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
 import { slugSchema } from '@defra/forms-model'
 import Joi from 'joi'
 
+import { config } from '~/src/config/index.js'
 import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
 import {
   FORM_PREFIX,
@@ -14,6 +15,12 @@ import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 import { getSavedForms } from '~/src/server/services/submissionService.js'
 
+const authBase = config.get('oidc.issuer')
+const runnerBase = config.get('baseUrl')
+
+// Tabs
+const FORMS_TAB = 'forms'
+const SECURITY_TAB = 'security'
 /**
  * The status of a saved form. Each value is also the translation key of the
  * tag the table shows for it.
@@ -51,15 +58,20 @@ function mapToRow(savedForm, translator) {
 }
 
 /**
- * Renders the homepage for the form state the URL names: live for
- * `/homepage/{slug}`, a preview for `/homepage/preview/{state}/{slug}`.
- * @param {Request<{ Params: FormParams }>} request
- * @param {ResponseToolkit<{ Params: FormParams }>} h
+ * @typedef { FormParams & { action?: string } } HomepageParams
  */
-async function homepageHandler(request, h) {
-  const { slug } = request.params
-  const { isPreview, state } = checkFormStatus(request.params)
 
+/**
+ * Construct the tabs
+ * @param {{ query: RequestQuery, yar: Yar }} request
+ * @param {{ isPreview: boolean, state: FormStatus, slug: string }} input
+ * @param { string | undefined } tab
+ */
+async function buildNavigation(
+  request,
+  { isPreview, state, slug },
+  tab = FORMS_TAB
+) {
   const form = await getFormMetadata(slug)
 
   const { translator } = await getFormTranslator(
@@ -72,13 +84,59 @@ async function homepageHandler(request, h) {
     ? `${FORM_PREFIX}${PREVIEW_PATH_PREFIX}/${state}/${slug}`
     : `${FORM_PREFIX}/${slug}`
 
+  const homepageBase = isPreview
+    ? `${HOMEPAGE_PREFIX}${PREVIEW_PATH_PREFIX}/${state}/${slug}`
+    : `${HOMEPAGE_PREFIX}/${slug}`
+
+  const serviceNavigationParams = {
+    serviceName: form.title,
+    navigation: [
+      {
+        href: `${homepageBase}/forms`,
+        text: 'Forms',
+        active: tab === FORMS_TAB
+      },
+      {
+        href: `${authBase}/account?returnUrl=${runnerBase}${homepageBase}`,
+        text: 'Security',
+        active: tab === SECURITY_TAB
+      }
+    ]
+  }
+
+  return {
+    serviceNavigationParams,
+    startUrl,
+    homepageBase,
+    translator
+  }
+}
+
+/**
+ * Renders the homepage for the form state the URL names: live for
+ * `/homepage/{slug}`, a preview for `/homepage/preview/{state}/{slug}`.
+ * @param {Request<{ Params: HomepageParams }>} request
+ * @param {ResponseToolkit<{ Params: HomepageParams }>} h
+ */
+async function homepageHandler(request, h) {
+  const { slug, tab } = request.params
+
+  const { isPreview, state } = checkFormStatus(request.params)
+
+  const nav = await buildNavigation(request, { isPreview, state, slug }, tab)
+
+  const form = await getFormMetadata(slug)
+
   const { accessToken } = request.auth.credentials
   const savedForms = await getSavedForms(accessToken, form.id)
 
   return h.view('homepage', {
-    startUrl,
-    savedForms: savedForms.map((savedForm) => mapToRow(savedForm, translator)),
-    context: { translator }
+    serviceNavigationParams: nav.serviceNavigationParams,
+    startUrl: nav.startUrl,
+    savedForms: savedForms.map((savedForm) =>
+      mapToRow(savedForm, nav.translator)
+    ),
+    context: { translator: nav.translator }
   })
 }
 
@@ -107,14 +165,18 @@ export default [
     options: {
       auth: { mode: 'required', strategy: CITIZEN_SESSION },
       validate: {
-        params: Joi.object({ state: stateSchema, slug: slugSchema }).required()
+        params: Joi.object({
+          state: stateSchema,
+          slug: slugSchema
+        }).required()
       }
     }
   })
 ]
 
 /**
- * @import { FormParams, Translator } from '@defra/forms-engine-plugin/types'
+ * @import { FormParams, FormStatus, Translator } from '@defra/forms-engine-plugin/types'
  * @import { SavedForm } from '~/src/server/services/submissionService.js'
- * @import { Request, ResponseToolkit, ServerRoute } from '@hapi/hapi'
+ * @import { Request, RequestQuery, ResponseToolkit, ServerRoute } from '@hapi/hapi'
+ * @import { Yar } from '@hapi/yar'
  */
