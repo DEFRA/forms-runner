@@ -9,7 +9,7 @@ import {
   HOMEPAGE_PREFIX,
   PREVIEW_PATH_PREFIX
 } from '~/src/server/constants.js'
-import { formatDateTime } from '~/src/server/helpers/date-helper.js'
+import { formatDate, formatDateTime } from '~/src/server/helpers/date-helper.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 import { getSavedForms } from '~/src/server/services/submissionService.js'
@@ -46,7 +46,7 @@ function mapToRow(savedForm, translator) {
     referenceNumber: savedForm.referenceNumber,
     status: getFormStatus(savedForm),
     lastUpdated: formatDateTime(savedForm.createdAt, translator),
-    savedUntil: formatDateTime(savedForm.expireAt, translator)
+    savedUntil: formatDate(savedForm.expireAt, translator)
   }
 }
 

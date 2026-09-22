@@ -1,5 +1,5 @@
 import { CY, EN_GB } from '~/src/server/constants.js'
-import { formatDateTime } from '~/src/server/helpers/date-helper.js'
+import { formatDate, formatDateTime } from '~/src/server/helpers/date-helper.js'
 import { createFormTranslator } from '~/src/server/i18n/form.js'
 
 const form = /** @type {FormMetadata} */ ({ id: 'form-id', slug: 'my-form' })
@@ -40,6 +40,35 @@ describe('formatDateTime', () => {
     expect(formatDateTime('2026-10-05T23:30:00.000Z', english)).toBe(
       '6 October 2026 at 12:30am'
     )
+  })
+})
+
+describe('formatDate', () => {
+  it('writes the date the way GOV.UK does, with no time', () => {
+    expect(formatDate('2026-09-10T16:30:00.000Z', english)).toBe(
+      '10 September 2026'
+    )
+  })
+
+  it('writes the month in Welsh for a Welsh page', () => {
+    expect(formatDate('2026-09-10T16:30:00.000Z', welsh)).toBe('10 Medi 2026')
+  })
+
+  it('reads the day in UK time, not the time zone the server happens to run in', () => {
+    // Late evening UTC is already the next day in British Summer Time
+    expect(formatDate('2026-10-05T23:30:00.000Z', english)).toBe(
+      '6 October 2026'
+    )
+  })
+
+  it('writes the same date as formatDateTime', () => {
+    const timestamp = '2026-10-05T23:30:00.000Z'
+
+    for (const translator of [english, welsh]) {
+      expect(formatDateTime(timestamp, translator)).toMatch(
+        new RegExp(`^${formatDate(timestamp, translator)} `)
+      )
+    }
   })
 })
 

@@ -325,7 +325,7 @@ describe('per-form homepage', () => {
       ).toBeInTheDocument()
       expect(
         within(table).getByRole('cell', {
-          name: '12 September 2026 at 10:00am'
+          name: '12 September 2026'
         })
       ).toBeInTheDocument()
     })
@@ -349,7 +349,7 @@ describe('per-form homepage', () => {
         within(table).getByRole('cell', { name: '21 Awst 2026 am 10:00yb' })
       ).toBeInTheDocument()
       expect(
-        within(table).getByRole('cell', { name: '12 Medi 2026 am 10:00yb' })
+        within(table).getByRole('cell', { name: '12 Medi 2026' })
       ).toBeInTheDocument()
     })
 
