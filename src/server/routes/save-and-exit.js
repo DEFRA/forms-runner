@@ -229,11 +229,15 @@ async function resumeWithCitizenSignIn(request, h, form, formStatus) {
   const { auth, params } = request
   const errorUrl = `${ERROR_BASE_URL}/${form.slug}`
 
-  // The sign-in routes exist only when the sign-in feature is on
+  // The auth strategy and the sign-in routes are registered only when the
+  // sign-in feature is on, so this check sits here rather than in the strategy
   if (!config.get('useSignInFeature')) {
     return h.redirect(errorUrl).code(StatusCodes.SEE_OTHER)
   }
 
+  // `/resume-form` also serves memorable word links, so the route uses the
+  // default `try` mode rather than `required`. This redirect does what the
+  // strategy does for a `required` route.
   if (!auth.isAuthenticated) {
     return h.redirect(signInUrl(request.path))
   }
@@ -486,10 +490,14 @@ export default [
 
       switch (linkDetails.authType) {
         case 'memorableWord':
+          // The memorable word journey has its own page, validation and
+          // error handling, so the citizen goes there
           return h.redirect(
             `/resume-form-verify/${formId}/${magicLinkId}/${form.slug}${slugAndState}`
           )
         case 'citizenSignIn':
+          // The access token is enough to get the saved state, so the form
+          // resumes here with no extra page
           return resumeWithCitizenSignIn(
             request,
             h,
