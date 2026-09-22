@@ -466,12 +466,12 @@ describe('per-form homepage', () => {
       // falls back to the date the form was saved.
       expect(
         within(table).getByRole('link', {
-          name: 'Continue saved on 21 August 2026 at 10:00'
+          name: 'Continue saved on 21 August 2026 at 10:00am'
         })
       ).toHaveAttribute('href', `/resume-form/${FORM_ID}/link-1`)
       expect(
         within(table).getByRole('link', {
-          name: 'Continue saved on 25 August 2026 at 10:00'
+          name: 'Continue saved on 25 August 2026 at 10:00am'
         })
       ).toHaveAttribute('href', `/resume-form/${FORM_ID}/link-2`)
 
