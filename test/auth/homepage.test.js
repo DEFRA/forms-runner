@@ -1,15 +1,21 @@
 import { join } from 'node:path'
 
 import Boom from '@hapi/boom'
+import { within } from '@testing-library/dom'
 import { StatusCodes } from 'http-status-codes'
 
 import { config } from '~/src/config/index.js'
 import { createServer } from '~/src/server/index.js'
-import { getFormMetadata } from '~/src/server/services/formsService.js'
+import {
+  getFormDefinition,
+  getFormMetadata
+} from '~/src/server/services/formsService.js'
+import { getSavedForms } from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 jest.mock('~/src/server/services/formsService.js')
+jest.mock('~/src/server/services/submissionService.js')
 
 const HOMEPAGE_URL = '/homepage/test-form'
 const NO_AUTH_URL = '/help/accessibility-statement/test-form'
@@ -20,8 +26,27 @@ const credentials = {
   iss: 'http://localhost:3011',
   sub: 'sub-1',
   email: EMAIL,
-  idToken: 'header.payload.signature'
+  idToken: 'header.payload.signature',
+  accessToken: 'access-1'
 }
+
+/** Two saved forms, as forms-submission-api describes them */
+const savedForms = [
+  {
+    magicLinkId: 'link-1',
+    referenceNumber: 'CCC-333',
+    formTitle: 'test-form',
+    createdAt: '2026-08-21T09:00:00.000Z',
+    expireAt: '2026-09-12T09:00:00.000Z'
+  },
+  {
+    magicLinkId: 'link-2',
+    referenceNumber: 'AAA-111',
+    formTitle: 'test-form',
+    createdAt: '2026-09-09T09:00:00.000Z',
+    expireAt: '2026-10-07T09:00:00.000Z'
+  }
+]
 
 describe('per-form homepage', () => {
   /** @type {Server} */
@@ -46,6 +71,7 @@ describe('per-form homepage', () => {
 
   beforeEach(() => {
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+    jest.mocked(getSavedForms).mockResolvedValue([])
   })
 
   it('sends a signed-out citizen to sign in first', async () => {
@@ -103,6 +129,24 @@ describe('per-form homepage', () => {
     expect(
       container.queryByRole('region', { name: 'Important' })
     ).not.toBeInTheDocument()
+  })
+
+  it('shows the caption and the start button in Welsh on a Welsh homepage', async () => {
+    jest.mocked(getFormDefinition).mockResolvedValue({
+      ...fixtures.form.definition,
+      metadata: { translations: { cy: {} } }
+    })
+
+    const { container } = await renderResponse(server, {
+      method: 'GET',
+      url: `${HOMEPAGE_URL}?language=cy`,
+      auth: { strategy: 'citizen-session', credentials }
+    })
+
+    expect(container.getByText('Rheoli eich ffurflen')).toBeInTheDocument()
+    expect(
+      container.getByRole('button', { name: 'Dechrau ffurflen newydd' })
+    ).toBeInTheDocument()
   })
 
   it('shows the signed-in citizen’s email, linked to their homepage', async () => {
@@ -241,6 +285,152 @@ describe('per-form homepage', () => {
     expect(
       container.queryByRole('link', { name: 'Sign in' })
     ).not.toBeInTheDocument()
+  })
+
+  describe('the saved forms table', () => {
+    it('lists a saved form under the headings the citizen needs', async () => {
+      jest.mocked(getSavedForms).mockResolvedValue(savedForms)
+
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: HOMEPAGE_URL,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      const table = container.getByRole('table')
+
+      expect(
+        within(table).getByRole('columnheader', { name: 'Reference number' })
+      ).toBeInTheDocument()
+      expect(
+        within(table).getByRole('columnheader', { name: 'Status' })
+      ).toBeInTheDocument()
+      expect(
+        within(table).getByRole('columnheader', { name: 'Last updated' })
+      ).toBeInTheDocument()
+      expect(
+        within(table).getByRole('columnheader', { name: 'Saved until' })
+      ).toBeInTheDocument()
+
+      expect(
+        within(table).getByRole('cell', { name: 'CCC-333' })
+      ).toBeInTheDocument()
+      expect(
+        within(table).getByRole('cell', { name: 'AAA-111' })
+      ).toBeInTheDocument()
+
+      // 09:00 UTC is 10:00am in British Summer Time
+      expect(
+        within(table).getByRole('cell', { name: '21 August 2026 at 10:00am' })
+      ).toBeInTheDocument()
+      expect(
+        within(table).getByRole('cell', {
+          name: '12 September 2026'
+        })
+      ).toBeInTheDocument()
+    })
+
+    it('writes the dates in Welsh on a Welsh homepage', async () => {
+      jest.mocked(getSavedForms).mockResolvedValue(savedForms)
+      jest.mocked(getFormDefinition).mockResolvedValue({
+        ...fixtures.form.definition,
+        metadata: { translations: { cy: {} } }
+      })
+
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: `${HOMEPAGE_URL}?language=cy`,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      const table = container.getByRole('table')
+
+      expect(
+        within(table).getByRole('cell', { name: '21 Awst 2026 am 10:00yb' })
+      ).toBeInTheDocument()
+      expect(
+        within(table).getByRole('cell', { name: '12 Medi 2026' })
+      ).toBeInTheDocument()
+    })
+
+    it('tags a saved form past its expiry as expired, and the others as in progress', async () => {
+      jest.useFakeTimers({
+        now: new Date('2026-09-14T09:00:00.000Z'),
+        advanceTimers: true
+      })
+      jest.mocked(getSavedForms).mockResolvedValue(savedForms)
+
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: HOMEPAGE_URL,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      jest.useRealTimers()
+
+      const $expiredRow = container.getByRole('row', { name: /CCC-333/ })
+      expect(
+        within($expiredRow).getByRole('cell', { name: 'Expired' })
+      ).toBeInTheDocument()
+      expect(within($expiredRow).getByText('Expired')).toHaveClass(
+        'govuk-tag--red'
+      )
+
+      const $activeRow = container.getByRole('row', { name: /AAA-111/ })
+      expect(
+        within($activeRow).getByRole('cell', { name: 'In progress' })
+      ).toBeInTheDocument()
+      expect(within($activeRow).getByText('In progress')).toHaveClass(
+        'govuk-tag--teal'
+      )
+    })
+
+    it('asks only for the forms of the citizen signed in, using their token', async () => {
+      await renderResponse(server, {
+        method: 'GET',
+        url: HOMEPAGE_URL,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(getSavedForms).toHaveBeenCalledWith(
+        'access-1',
+        fixtures.form.metadata.id
+      )
+    })
+
+    it('says so plainly when the citizen has saved nothing, rather than showing an empty table', async () => {
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: HOMEPAGE_URL,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(container.queryByRole('table')).not.toBeInTheDocument()
+      expect(
+        container.getByText('You have no forms in progress.')
+      ).toBeInTheDocument()
+    })
+  })
+
+  describe('page width', () => {
+    it('gives the homepage the room its table needs, and leaves other pages alone', async () => {
+      const homepage = await server.inject({
+        method: 'GET',
+        url: HOMEPAGE_URL,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      // On the body, so the header, navigation, content and footer all move
+      // together rather than leaving a seam
+      expect(homepage.payload).toContain('app-page--wide')
+
+      const otherPage = await server.inject({
+        method: 'GET',
+        url: NO_AUTH_URL
+      })
+
+      expect(otherPage.payload).not.toContain('app-page--wide')
+    })
   })
 })
 

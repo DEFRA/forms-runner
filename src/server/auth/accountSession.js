@@ -67,6 +67,8 @@ export function clearSignInTransaction(yar) {
  * @property {string} email - names the citizen in the header on every page.
  * @property {string} idToken - the provider asks for this to sign the citizen
  *   out of the provider as well as out of this service.
+ * @property {string} accessToken - proves this citizen to forms-submission-api.
+ *   It is kept here and never reaches the browser.
  */
 
 /**

@@ -5,13 +5,14 @@ import { StatusCodes } from 'http-status-codes'
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { configureEnginePlugin, createServer } from '~/src/server/index.js'
 import {
-  generateReferenceNumber,
   getFormDefinition,
   getFormMetadata
 } from '~/src/server/services/formsService.js'
+import { generateReferenceNumber } from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 
 jest.mock('~/src/server/services/formsService.js')
+jest.mock('~/src/server/services/submissionService.js')
 jest.mock('@defra/forms-engine-plugin/engine/services/uploadService.js')
 
 describe('Model cache', () => {

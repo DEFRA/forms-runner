@@ -17,10 +17,11 @@ declare module '@hapi/hapi' {
   // request.auth.credentials, so this is the credentials shape for every
   // authenticated request in the app.
   interface AuthCredentials {
-    iss?: string
-    sub?: string
-    email?: string
-    idToken?: string
+    iss: string
+    sub: string
+    email: string
+    idToken: string
+    accessToken: string
   }
 
   interface PluginProperties {
@@ -121,6 +122,7 @@ declare module '@hapi/yar' {
       sub: string
       email: string
       idToken: string
+      accessToken: string
     }
     'auth:signInTransaction': {
       state: string

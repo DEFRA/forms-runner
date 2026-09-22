@@ -7,6 +7,10 @@
     "draft": "draft",
     "live": "live"
   },
+  "dateTime": {
+    "am": "am",
+    "pm": "pm"
+  },
   "help": {
     "getSupport": {
       "title": "Get help with your form",
@@ -276,7 +280,14 @@
       "caption": "Manage your form",
       "startButton": "Start a new form",
       "previewBannerTitle": "Important",
-      "previewBanner": "This is a preview of a [[state]] form. Do not enter personal information."
+      "previewBanner": "This is a preview of a [[state]] form. Do not enter personal information.",
+      "noSavedForms": "You have no forms in progress.",
+      "referenceNumber": "Reference number",
+      "status": "Status",
+      "lastUpdated": "Last updated",
+      "savedUntil": "Saved until",
+      "inProgress": "In progress",
+      "expired": "Expired"
     },
     "header": {
       "menuText": "Account",

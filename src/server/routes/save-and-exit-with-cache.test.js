@@ -3,13 +3,12 @@ import { FormStatus } from '@defra/forms-model'
 import { StatusCodes } from 'http-status-codes'
 
 import { createServer } from '~/src/server/index.js'
-import {
-  getFormMetadataById,
-  validateSaveAndExitCredentials
-} from '~/src/server/services/formsService.js'
+import { getFormMetadataById } from '~/src/server/services/formsService.js'
+import { validateSaveAndExitCredentials } from '~/src/server/services/submissionService.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
 jest.mock('~/src/server/services/formsService.js')
+jest.mock('~/src/server/services/submissionService.js')
 jest.mock('~/src/server/helpers/error-helper.js')
 jest.mock('@defra/forms-engine-plugin/engine/helpers.js')
 

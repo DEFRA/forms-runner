@@ -5,6 +5,10 @@
     "Or": "Neu",
     "and": "a"
   },
+  "dateTime": {
+    "am": "yb",
+    "pm": "yh"
+  },
   "help": {
     "getSupport": {
       "title": "Cael cymorth gyda'ch ffeil",
@@ -265,7 +269,14 @@
       "caption": "Rheoli eich ffurflen",
       "startButton": "Dechrau ffurflen newydd",
       "previewBannerTitle": "Pwysig",
-      "previewBanner": "Rhagolwg o ffurflen [[state]] yw hwn. Peidiwch â nodi gwybodaeth bersonol."
+      "previewBanner": "Rhagolwg o ffurflen [[state]] yw hwn. Peidiwch â nodi gwybodaeth bersonol.",
+      "noSavedForms": "Nid oes gennych ffurflenni ar y gweill.",
+      "referenceNumber": "Cyfeirnod",
+      "status": "Statws",
+      "lastUpdated": "Diweddarwyd ddiwethaf",
+      "savedUntil": "Wedi'i gadw tan",
+      "inProgress": "Ar y gweill",
+      "expired": "Wedi dod i ben"
     },
     "header": {
       "menuText": "Cyfrif",
