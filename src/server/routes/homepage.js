@@ -22,19 +22,15 @@ const runnerBase = config.get('baseUrl')
 const FORMS_TAB = 'forms'
 const SECURITY_TAB = 'security'
 
-const tabSchema = Joi.string().valid(FORMS_TAB, SECURITY_TAB).default(FORMS_TAB)
-
 /**
- * @typedef { FormParams & { tab?: string, action?: string } } HomepageParams
+ * @typedef { FormParams & { action?: string } } HomepageParams
  */
 
 /**
  * @typedef {object} HomepageViewModel
- * @property {string} tab current tab
  * @property {{ translator: Translator }} context view context
  * @property {unknown} serviceNavigationParams tab and navigation details
  * @property {string} [startUrl] link for starting a form
- * @property {string} [accountLink] link to identity-ui account page
  */
 
 /**
@@ -61,16 +57,12 @@ function getFormStatus(savedForm) {
 /**
  * Construct the tabs
  * @param {{ query: RequestQuery, yar: Yar }} request
- * @param {boolean} isPreview
- * @param {FormStatus} state
- * @param {string} slug
+ * @param {{ isPreview: boolean, state: FormStatus, slug: string }} input
  * @param { string | undefined } tab
  */
 async function buildNavigation(
   request,
-  isPreview,
-  state,
-  slug,
+  { isPreview, state, slug },
   tab = FORMS_TAB
 ) {
   const form = await getFormMetadata(slug)
@@ -98,7 +90,7 @@ async function buildNavigation(
         active: tab === FORMS_TAB
       },
       {
-        href: `${homepageBase}/security`,
+        href: `${authBase}/account?returnUrl=${runnerBase}${homepageBase}`,
         text: 'Security',
         active: tab === SECURITY_TAB
       }
@@ -139,18 +131,16 @@ async function homepageHandler(request, h) {
 
   const { isPreview, state } = checkFormStatus(request.params)
 
-  const nav = await buildNavigation(request, isPreview, state, slug, tab)
+  const nav = await buildNavigation(request, { isPreview, state, slug }, tab)
 
   const form = await getFormMetadata(slug)
 
   const { accessToken } = request.auth.credentials
   const savedForms = await getSavedForms(accessToken, form.id)
 
-  return h.view('homepage/overview', {
+  return h.view('homepage', {
     serviceNavigationParams: nav.serviceNavigationParams,
-    tab,
     startUrl: nav.startUrl,
-    accountLink: `${authBase}/account?returnUrl=${runnerBase}${nav.homepageBase}`,
     savedForms: savedForms.map((savedForm) =>
       mapToRow(savedForm, nav.translator.language)
     ),
@@ -164,12 +154,12 @@ export default [
    */
   ({
     method: 'GET',
-    path: `${HOMEPAGE_PREFIX}/{slug}/{tab?}`,
+    path: `${HOMEPAGE_PREFIX}/{slug}`,
     handler: homepageHandler,
     options: {
       auth: { mode: 'required', strategy: CITIZEN_SESSION },
       validate: {
-        params: Joi.object({ slug: slugSchema, tab: tabSchema }).required()
+        params: Joi.object({ slug: slugSchema }).required()
       }
     }
   }),
@@ -178,15 +168,14 @@ export default [
    */
   ({
     method: 'GET',
-    path: `${HOMEPAGE_PREFIX}${PREVIEW_PATH_PREFIX}/{state}/{slug}/{tab?}`,
+    path: `${HOMEPAGE_PREFIX}${PREVIEW_PATH_PREFIX}/{state}/{slug}`,
     handler: homepageHandler,
     options: {
       auth: { mode: 'required', strategy: CITIZEN_SESSION },
       validate: {
         params: Joi.object({
           state: stateSchema,
-          slug: slugSchema,
-          tab: tabSchema
+          slug: slugSchema
         }).required()
       }
     }
