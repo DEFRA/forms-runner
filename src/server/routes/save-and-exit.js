@@ -278,7 +278,7 @@ async function getResumeLinkDetails(formId, magicLinkId) {
  * @param {Request<{ Params: ResumeFormParams }>} request
  * @param {ResponseToolkit<{ Params: ResumeFormParams }>} h
  * @param {FormMetadata} form
- * @param {string} [formStatus] - the status of a preview form
+ * @param {FormStatus} [formStatus] - the status of a preview form
  */
 async function resumeWithCitizenSignIn(request, h, form, formStatus) {
   const { auth, params } = request
@@ -301,7 +301,8 @@ async function resumeWithCitizenSignIn(request, h, form, formStatus) {
   try {
     savedForm = await getSavedFormState(
       auth.credentials.accessToken,
-      params.magicLinkId
+      params.magicLinkId,
+      formStatus
     )
   } catch {
     return h.redirect(errorUrl).code(StatusCodes.SEE_OTHER)

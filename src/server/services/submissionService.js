@@ -79,10 +79,16 @@ export async function generateReferenceNumber(prefix) {
  * to list and nothing about whose records they are.
  * @param {string} accessToken - the citizen's access token
  * @param {string} formId - the form the records belong to
+ * @param {FormStatus} [preview] - the preview state, or none for a live form
  * @returns {Promise<SavedForm[]>}
  */
-export async function getSavedForms(accessToken, formId) {
-  const url = `${submissionUrl}/save-and-exit/records?formId=${encodeURIComponent(formId)}`
+export async function getSavedForms(accessToken, formId, preview) {
+  const query = new URLSearchParams({ formId })
+  if (preview) {
+    query.set('preview', preview)
+  }
+
+  const url = `${submissionUrl}/save-and-exit/records?${query}`
 
   const { res, error, payload } = await get(url, {
     json: true,
@@ -112,12 +118,14 @@ export async function getSavedForms(accessToken, formId) {
 
 /**
  * Gets the state of one saved form. The API returns it only to the citizen who
- * owns the saved form.
+ * owns the saved form, and only for the origin it was saved from.
  * @param {string} accessToken - the citizen's access token
  * @param {string} magicLinkId - the id of the magic link
+ * @param {FormStatus} [preview] - the preview state, or none for a live form
  */
-export async function getSavedFormState(accessToken, magicLinkId) {
-  const url = `${submissionUrl}/save-and-exit/records/${magicLinkId}`
+export async function getSavedFormState(accessToken, magicLinkId, preview) {
+  const query = preview ? `?preview=${preview}` : ''
+  const url = `${submissionUrl}/save-and-exit/records/${magicLinkId}${query}`
 
   const { res, error, payload } = await get(url, {
     json: true,
@@ -143,5 +151,6 @@ export async function getSavedFormState(accessToken, magicLinkId) {
  */
 
 /**
+ * @import { FormStatus } from '@defra/forms-model'
  * @import { GenerateReferenceNumber, SaveAndExitDetails, SaveAndExitResumeDetails } from '~/src/server/types.js'
  */

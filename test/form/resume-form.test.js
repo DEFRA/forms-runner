@@ -221,7 +221,11 @@ describe('Resume a saved form', () => {
         auth
       })
 
-      expect(getSavedFormState).toHaveBeenCalledWith('access-1', MAGIC_LINK_ID)
+      expect(getSavedFormState).toHaveBeenCalledWith(
+        'access-1',
+        MAGIC_LINK_ID,
+        undefined
+      )
       expect(summaryPage.getByText('8 day')).toBeInTheDocument()
       expect(summaryPage.getByText('Firstname Lastname')).toBeInTheDocument()
     })

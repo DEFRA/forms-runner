@@ -1,5 +1,6 @@
 import { join } from 'node:path'
 
+import { FormStatus } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { within } from '@testing-library/dom'
 import { StatusCodes } from 'http-status-codes'
@@ -395,9 +396,27 @@ describe('per-form homepage', () => {
 
       expect(getSavedForms).toHaveBeenCalledWith(
         'access-1',
-        fixtures.form.metadata.id
+        fixtures.form.metadata.id,
+        undefined
       )
     })
+
+    it.each([FormStatus.Draft, FormStatus.Live])(
+      'asks only for the forms saved from the %s preview on its homepage',
+      async (state) => {
+        await renderResponse(server, {
+          method: 'GET',
+          url: `/homepage/preview/${state}/test-form`,
+          auth: { strategy: 'citizen-session', credentials }
+        })
+
+        expect(getSavedForms).toHaveBeenCalledWith(
+          'access-1',
+          fixtures.form.metadata.id,
+          state
+        )
+      }
+    )
 
     it('shows a Continue link for each form in progress', async () => {
       jest.useFakeTimers({

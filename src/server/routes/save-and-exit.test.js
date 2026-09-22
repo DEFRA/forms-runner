@@ -369,7 +369,11 @@ describe('Save-and-exit check routes', () => {
         auth: { strategy: 'citizen-session', credentials }
       })
 
-      expect(getSavedFormState).toHaveBeenCalledWith('access-1', MAGIC_LINK_ID)
+      expect(getSavedFormState).toHaveBeenCalledWith(
+        'access-1',
+        MAGIC_LINK_ID,
+        FormStatus.Draft
+      )
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
       expect(response.headers.location).toBe(
         '/resume-form-success/my-form-to-resume/draft'
