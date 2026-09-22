@@ -111,5 +111,37 @@ export async function getSavedForms(accessToken, formId) {
  */
 
 /**
+ * Gets the state of one saved form. The API returns it only to the citizen who
+ * owns the saved form.
+ * @param {string} accessToken - the citizen's access token
+ * @param {string} magicLinkId - the id of the magic link
+ */
+export async function getSavedFormState(accessToken, magicLinkId) {
+  const url = `${submissionUrl}/save-and-exit/records/${magicLinkId}`
+
+  const { res, error, payload } = await get(url, {
+    json: true,
+    headers: { authorization: `Bearer ${accessToken}` }
+  })
+
+  if (error) {
+    logger.error(
+      error,
+      `[savedFormState] Could not read the saved form - ${res.statusCode}`
+    )
+    throw Boom.badGateway('Could not read the saved form')
+  }
+
+  return /** @type {SavedFormState} */ (payload)
+}
+
+/**
+ * The state of one saved form, as forms-submission-api returns it.
+ * @typedef {object} SavedFormState
+ * @property {object} state
+ * @property {string} [magicLinkGroupId]
+ */
+
+/**
  * @import { GenerateReferenceNumber, SaveAndExitDetails, SaveAndExitResumeDetails } from '~/src/server/types.js'
  */

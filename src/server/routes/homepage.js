@@ -40,13 +40,21 @@ function getFormStatus(savedForm) {
  * is chosen here rather than in the template, so they can be tested.
  * @param {SavedForm} savedForm
  * @param {Translator} translator - the translator for the request
+ * @param {string} formId
  */
-function mapToRow(savedForm, translator) {
+function mapToRow(savedForm, translator, formId) {
+  const status = getFormStatus(savedForm)
+
   return {
     referenceNumber: savedForm.referenceNumber,
-    status: getFormStatus(savedForm),
+    status,
     lastUpdated: formatDateTime(savedForm.createdAt, translator),
-    savedUntil: formatDate(savedForm.expireAt, translator)
+    savedUntil: formatDate(savedForm.expireAt, translator),
+    // An expired form cannot be resumed, so it gets no link
+    resumeUrl:
+      status === SavedFormStatus.InProgress
+        ? `/resume-form/${formId}/${savedForm.magicLinkId}`
+        : undefined
   }
 }
 
@@ -77,7 +85,9 @@ async function homepageHandler(request, h) {
 
   return h.view('homepage', {
     startUrl,
-    savedForms: savedForms.map((savedForm) => mapToRow(savedForm, translator)),
+    savedForms: savedForms.map((savedForm) =>
+      mapToRow(savedForm, translator, form.id)
+    ),
     context: { translator }
   })
 }
