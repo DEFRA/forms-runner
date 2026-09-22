@@ -130,7 +130,10 @@
   {# The account details render the account menu. Without them the header
     shows the plain bar. #}
   {% set isSignedIn = config.useSignInFeature and user and slug %}
-  {% set signOutUrl = "/auth/sign-out?previewMode=" + (previewMode if previewMode else "") + "&slug=" + slug %}
+  {% set signOutUrl = "/auth/sign-out?slug=" + slug %}
+  {% if previewMode %}
+    {% set signOutUrl = signOutUrl + "&previewMode=" + previewMode %}
+  {% endif %}
   {{ appServiceHeader({
     accountName: user.email if isSignedIn,
     accountLink: (("/homepage/preview/" + previewMode + "/" + slug) if previewMode else ("/homepage/" + slug)) if isSignedIn,
