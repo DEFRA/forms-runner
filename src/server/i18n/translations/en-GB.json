@@ -282,6 +282,9 @@
       "status": "Status",
       "lastUpdated": "Last updated",
       "savedUntil": "Saved until",
+      "actions": "Actions",
+      "continue": "Continue",
+      "delete": "Delete",
       "inProgress": "In progress",
       "expired": "Expired"
     },

@@ -47,11 +47,29 @@
               classes: statusTagClasses[savedForm.status]
             }) }}
           {% endset %}
+
+          {% set actionsHtml %}
+            {% set showDivider = savedForm.actions.continue and savedForm.actions.delete %}
+
+            {% if savedForm.actions.continue %}
+              <a class="govuk-link govuk-link--no-visited-state" href="{{savedForm.actions.continue}}">{{tR('signIn.homepage.continue')}}</a>
+            {% endif %}
+
+            {% if showDivider %}
+              <span class="govuk-body govuk-!-margin-left-2 govuk-!-margin-right-2">|</span>
+            {% endif %}
+
+            {% if savedForm.actions.delete %}
+              <a class="govuk-link govuk-link--no-visited-state" href="{{savedForm.actions.delete}}">{{tR('signIn.homepage.delete')}}</a>
+            {% endif %}
+          {% endset %}
+
           {% set rows = (rows.push([
             { text: savedForm.referenceNumber },
             { html: statusHtml },
             { text: savedForm.lastUpdated },
-            { text: savedForm.savedUntil }
+            { text: savedForm.savedUntil },
+            { html: actionsHtml }
           ]), rows) %}
         {% endfor %}
 
@@ -60,7 +78,8 @@
             { text: tR('signIn.homepage.referenceNumber') },
             { text: tR('signIn.homepage.status') },
             { text: tR('signIn.homepage.lastUpdated') },
-            { text: tR('signIn.homepage.savedUntil') }
+            { text: tR('signIn.homepage.savedUntil') },
+            { text: tR('signIn.homepage.actions') }
           ],
           rows: rows
         }) }}
