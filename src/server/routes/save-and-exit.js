@@ -234,6 +234,46 @@ async function getMemorableWordLinkDetails(magicLinkId) {
 }
 
 /**
+ * Looks up the details of a resume link. An old link that has a newer link
+ * gives the id of the newer link, so that the citizen resumes from it.
+ * @param {string} formId
+ * @param {string} magicLinkId
+ * @returns {Promise<{ linkDetails?: SaveAndExitDetails, latestLinkId?: string }>}
+ */
+async function getResumeLinkDetails(formId, magicLinkId) {
+  try {
+    const linkDetails = await getSaveAndExitDetails(magicLinkId)
+
+    if (!linkDetails) {
+      throw new Error('No link found')
+    }
+
+    return { linkDetails }
+  } catch (err) {
+    const error = /** @type {BoomErrorCustomSaveAndExit} */ (err)
+
+    if (error.output?.statusCode === StatusCodes.GONE) {
+      const latestLinkId = error.data?.payload?.latestId
+
+      if (latestLinkId) {
+        logger.info(
+          `Old link ${magicLinkId} used but redirected to ${latestLinkId}`
+        )
+        return { latestLinkId }
+      }
+
+      return {}
+    }
+
+    logger.error(
+      err,
+      `Invalid magic link id ${magicLinkId} with form id ${formId}`
+    )
+    return {}
+  }
+}
+
+/**
  * Resumes a saved form that belongs to a signed-in citizen
  * @param {Request<{ Params: ResumeFormParams }>} request
  * @param {ResponseToolkit<{ Params: ResumeFormParams }>} h
@@ -456,35 +496,15 @@ export default [
         return h.redirect(ERROR_BASE_URL).code(StatusCodes.SEE_OTHER)
       }
 
-      // Check magic link id
-      let linkDetails
-      try {
-        linkDetails = await getSaveAndExitDetails(magicLinkId)
+      const { linkDetails, latestLinkId } = await getResumeLinkDetails(
+        formId,
+        magicLinkId
+      )
 
-        if (!linkDetails) {
-          throw new Error('No link found')
-        }
-      } catch (err) {
-        const error = /** @type {BoomErrorCustomSaveAndExit} */ (err)
-        if (error.output?.statusCode === StatusCodes.GONE) {
-          const latestLinkId = error.data?.payload?.latestId
-          if (latestLinkId) {
-            logger.info(
-              `Old link ${magicLinkId} used but redirected to ${latestLinkId}`
-            )
-            return h
-              .redirect(`/resume-form/${formId}/${latestLinkId}`)
-              .code(StatusCodes.SEE_OTHER)
-          } else {
-            return h
-              .redirect(`${ERROR_BASE_URL}/${form.slug}`)
-              .code(StatusCodes.SEE_OTHER)
-          }
-        }
-        logger.error(
-          err,
-          `Invalid magic link id ${magicLinkId} with form id ${formId}`
-        )
+      if (latestLinkId) {
+        return h
+          .redirect(`/resume-form/${formId}/${latestLinkId}`)
+          .code(StatusCodes.SEE_OTHER)
       }
 
       if (!linkDetails) {
@@ -806,4 +826,5 @@ export default [
  * @import { Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'
  * @import { AnyRequest, CacheRequest } from '@defra/forms-engine-plugin/engine/types.js'
  * @import { BoomErrorCustomSaveAndExit, SaveAndExitParams, SaveAndExitPayload, SaveAndExitResumePasswordPayload, SaveAndExitResumePasswordParams } from '~/src/server/models/save-and-exit.js'
+ * @import { SaveAndExitDetails } from '~/src/server/types.js'
  */
