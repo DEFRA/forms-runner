@@ -43,14 +43,20 @@ import {
 import { getFormDefinitionWithFallback } from '~/src/server/services/helpers/formsServiceHelper.js'
 import {
   getSaveAndExitDetails,
+  getSavedFormState,
   validateSaveAndExitCredentials
 } from '~/src/server/services/submissionService.js'
 import {
   isLanguageSupported,
-  resolveLanguage
+  resolveLanguage,
+  signInUrl
 } from '~/src/server/utils/utils.js'
 
 const maxInvalidPasswordAttempts = 5
+
+/**
+ * @typedef {{ formId: string, magicLinkId: string }} ResumeFormParams
+ */
 
 const ERROR_BASE_URL = '/resume-form-error'
 
@@ -193,6 +199,65 @@ async function handleAuthenticatedSaveAndExit(request, h) {
   return h
     .view(SAVE_AND_EXIT_CONFIRMATION, model)
     .header('Cache-Control', 'no-cache, no-store, must-revalidate')
+}
+
+/**
+ * Puts the answers of a saved form back in the cache. The group id goes with
+ * them, so that a new save replaces the old one.
+ * @param {{ server: Server, yar: Yar }} request
+ * @param {{ slug: string, state?: string }} formParams - the form that the answers are for. The cache key uses these values.
+ * @param {object} state
+ * @param {string} [magicLinkGroupId]
+ */
+async function restoreState(request, formParams, state, magicLinkGroupId) {
+  const cacheService = getCacheService(request.server)
+
+  await cacheService.setState(
+    { yar: request.yar, params: formParams },
+    { ...state, [MAGIC_LINK_GROUP_ID]: magicLinkGroupId }
+  )
+}
+
+/**
+ * Resumes a saved form that belongs to a signed-in citizen
+ * @param {Request<{ Params: ResumeFormParams }>} request
+ * @param {ResponseToolkit<{ Params: ResumeFormParams }>} h
+ * @param {FormMetadata} form
+ * @param {string} [formStatus] - the status of a preview form
+ */
+async function resumeWithCitizenSignIn(request, h, form, formStatus) {
+  const { auth, params } = request
+  const errorUrl = `${ERROR_BASE_URL}/${form.slug}`
+
+  // The sign-in routes exist only when the sign-in feature is on
+  if (!config.get('useSignInFeature')) {
+    return h.redirect(errorUrl).code(StatusCodes.SEE_OTHER)
+  }
+
+  if (!auth.isAuthenticated) {
+    return h.redirect(signInUrl(request.path))
+  }
+
+  let savedForm
+  try {
+    savedForm = await getSavedFormState(
+      auth.credentials.accessToken,
+      params.magicLinkId
+    )
+  } catch {
+    return h.redirect(errorUrl).code(StatusCodes.SEE_OTHER)
+  }
+
+  await restoreState(
+    request,
+    { slug: form.slug, state: formStatus },
+    savedForm.state,
+    savedForm.magicLinkGroupId
+  )
+
+  const slugAndState = formStatus ? `/${formStatus}` : ''
+
+  return h.redirect(`/resume-form-success/${form.slug}${slugAndState}`)
 }
 
 export default [
@@ -347,7 +412,7 @@ export default [
     }
   }),
   /**
-   * @satisfies {ServerRoute<{ Params: { formId: string, magicLinkId: string } }>}
+   * @satisfies {ServerRoute<{ Params: ResumeFormParams }>}
    */
   ({
     method: 'GET',
@@ -419,9 +484,25 @@ export default [
 
       const slugAndState = isPreview ? `/${status}` : ''
 
-      return h.redirect(
-        `/resume-form-verify/${formId}/${magicLinkId}/${form.slug}${slugAndState}`
-      )
+      switch (linkDetails.authType) {
+        case 'memorableWord':
+          return h.redirect(
+            `/resume-form-verify/${formId}/${magicLinkId}/${form.slug}${slugAndState}`
+          )
+        case 'citizenSignIn':
+          return resumeWithCitizenSignIn(
+            request,
+            h,
+            form,
+            isPreview ? status : undefined
+          )
+        default:
+          // The API response is not validated, so an authType this runner
+          // does not know can reach here
+          return h
+            .redirect(`${ERROR_BASE_URL}/${form.slug}`)
+            .code(StatusCodes.SEE_OTHER)
+      }
     },
     options: {
       validate: {
@@ -575,12 +656,12 @@ export default [
       )
 
       if (validatedLink.validPassword) {
-        // Restore state
-        const cacheService = getCacheService(request.server)
-        await cacheService.setState(/** @type {CacheRequest} */ (request), {
-          ...validatedLink.state,
-          [MAGIC_LINK_GROUP_ID]: validatedLink.magicLinkGroupId
-        })
+        await restoreState(
+          request,
+          { slug: params.slug, state },
+          validatedLink.state,
+          validatedLink.magicLinkGroupId
+        )
 
         const { isPreview, status } = validatedLink.form
 
@@ -694,7 +775,7 @@ export default [
 ]
 
 /**
- * @import { ServerRoute, ResponseToolkit, Request, RequestQuery } from '@hapi/hapi'
+ * @import { ServerRoute, ResponseToolkit, Request, RequestQuery, Server } from '@hapi/hapi'
  * @import { Yar } from '@hapi/yar'
  * @import { FormMetadata } from '@defra/forms-model'
  * @import { Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'

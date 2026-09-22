@@ -3,6 +3,7 @@ import { FormStatus, SecurityQuestionsEnum } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
 
+import { config } from '~/src/config/index.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
 import { createServer } from '~/src/server/index.js'
@@ -17,6 +18,7 @@ import {
 import { getFormDefinition } from '~/src/server/services/formsService.js'
 import {
   getSaveAndExitDetails,
+  getSavedFormState,
   validateSaveAndExitCredentials
 } from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
@@ -63,13 +65,12 @@ describe('Save-and-exit check routes', () => {
       jest
         .mocked(getFormMetadataById)
         // @ts-expect-error - allow partial objects for tests
-        .mockResolvedValueOnce({ slug: 'my-form-to-resume' })
+        .mockResolvedValueOnce({ id: FORM_ID, slug: 'my-form-to-resume' })
       jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce({
-        // @ts-expect-error - allow partial objects for tests
-        form: {
-          isPreview: true,
-          status: FormStatus.Draft
-        }
+        authType: 'memorableWord',
+        form: DRAFT_FORM,
+        question: SecurityQuestionsEnum.MemorablePlace,
+        invalidPasswordAttempts: 0
       })
 
       const options = {
@@ -261,6 +262,134 @@ describe('Save-and-exit check routes', () => {
       expect(logger.error).toHaveBeenCalledWith(
         otherErr,
         `Invalid formId ${FORM_ID} in magic link id ${MAGIC_LINK_ID}`
+      )
+    })
+
+    test('route forwards a citizen sign-in link to the error page when sign-in is off', async () => {
+      jest
+        .mocked(getFormMetadataById)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce({ id: FORM_ID, slug: 'my-form-to-resume' })
+      jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce({
+        authType: 'citizenSignIn',
+        form: DRAFT_FORM
+      })
+
+      const response = await server.inject({
+        method: 'GET',
+        url: `/resume-form/${FORM_ID}/${MAGIC_LINK_ID}`
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
+      expect(response.headers.location).toBe(
+        '/resume-form-error/my-form-to-resume'
+      )
+    })
+
+    test('route forwards an unknown authType to the error page', async () => {
+      jest
+        .mocked(getFormMetadataById)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce({ id: FORM_ID, slug: 'my-form-to-resume' })
+      jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce(
+        // @ts-expect-error - an authType this runner does not know
+        { authType: 'somethingNew', form: DRAFT_FORM }
+      )
+
+      const response = await server.inject({
+        method: 'GET',
+        url: `/resume-form/${FORM_ID}/${MAGIC_LINK_ID}`
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
+      expect(response.headers.location).toBe(
+        '/resume-form-error/my-form-to-resume'
+      )
+    })
+  })
+
+  describe('GET /resume-form/{formId}/{magicLinkId} with a citizen sign-in link', () => {
+    /** @type {Server} */
+    let signInServer
+
+    const credentials = {
+      iss: 'http://localhost:3011',
+      sub: 'sub-1',
+      email: 'citizen@example.com',
+      idToken: 'header.payload.signature',
+      accessToken: 'access-1'
+    }
+
+    beforeAll(async () => {
+      config.set('useSignInFeature', true)
+
+      signInServer = await createServer({
+        enforceCsrf: false
+      })
+      await signInServer.initialize()
+    })
+
+    afterAll(async () => {
+      await signInServer.stop()
+      config.set('useSignInFeature', false)
+    })
+
+    beforeEach(() => {
+      jest
+        .mocked(getFormMetadataById)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce({ id: FORM_ID, slug: 'my-form-to-resume' })
+      jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce({
+        authType: 'citizenSignIn',
+        form: DRAFT_FORM
+      })
+    })
+
+    test('sends a signed-out citizen to sign in', async () => {
+      const url = `/resume-form/${FORM_ID}/${MAGIC_LINK_ID}`
+
+      const response = await signInServer.inject({ method: 'GET', url })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe(
+        `/auth/sign-in?returnUrl=${encodeURIComponent(url)}`
+      )
+      expect(getSavedFormState).not.toHaveBeenCalled()
+    })
+
+    test('restores the saved form and forwards to the success page', async () => {
+      jest.mocked(getSavedFormState).mockResolvedValueOnce({
+        state: { textField: 'value' },
+        magicLinkGroupId: 'group-1'
+      })
+
+      const response = await signInServer.inject({
+        method: 'GET',
+        url: `/resume-form/${FORM_ID}/${MAGIC_LINK_ID}`,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(getSavedFormState).toHaveBeenCalledWith('access-1', MAGIC_LINK_ID)
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe(
+        '/resume-form-success/my-form-to-resume/draft'
+      )
+    })
+
+    test('forwards to the error page when the API refuses the saved form', async () => {
+      jest
+        .mocked(getSavedFormState)
+        .mockRejectedValueOnce(new Error('Could not read the saved form'))
+
+      const response = await signInServer.inject({
+        method: 'GET',
+        url: `/resume-form/${FORM_ID}/${MAGIC_LINK_ID}`,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.SEE_OTHER)
+      expect(response.headers.location).toBe(
+        '/resume-form-error/my-form-to-resume'
       )
     })
   })
