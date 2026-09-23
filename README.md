@@ -197,7 +197,7 @@ See [https://github.com/node-config/node-config#readme](https://github.com/node-
 | OIDC_ISSUER             | Identity provider issuer, matching the provider exactly.                                              | when signing in |         |                             |                                                                                                                         |
 | OIDC_CLIENT_ID          | This service's client id at the provider.                                                             | when signing in |         |                             |                                                                                                                         |
 | OIDC_REDIRECT_URI       | Where the provider returns the citizen.                                                               | when signing in |         |                             |           The provider registers this value, so it must match this service's `/auth/callback` byte for byte.            |
-| OIDC_CLIENT_PRIVATE_JWK | This service's private assertion key, as a single ES256 JWK.                                          | when signing in |         |                             |                                       Secret. The provider holds the public half.                                       |
+| OIDC_CLIENT_PRIVATE_JWK | This service's private assertion key, as a single RS256 JWK.                                          | when signing in |         |                             |                                       Secret. The provider holds the public half.                                       |
 
 ## Citizen sign in
 
@@ -214,6 +214,10 @@ service proves itself with a signed assertion (`private_key_jwt`) rather than a 
 secret, so `OIDC_CLIENT_PRIVATE_JWK` holds one private key and the provider is registered
 with the matching public half. The key's `kid` travels in the assertion header, which lets
 the provider hold both halves of a key rotation while this service signs with one.
+
+To make the keypair, run `node scripts/generate-client-keypair.mjs` in forms-identity-ui.
+Copy its `OIDC_CLIENT_PRIVATE_JWK` value here, and its `OIDC_RUNNER_JWKS` value to the
+provider.
 
 For proxy options, see https://www.npmjs.com/package/proxy-from-env which is used by https://github.com/TooTallNate/proxy-agents/tree/main/packages/proxy-agent.
 
@@ -245,7 +249,7 @@ USE_SIGN_IN_FEATURE=false
 OIDC_ISSUER=http://localhost:3011
 OIDC_CLIENT_ID=runner
 OIDC_REDIRECT_URI=http://localhost:3009/auth/callback
-OIDC_CLIENT_PRIVATE_JWK=<single-es256-jwk>
+OIDC_CLIENT_PRIVATE_JWK=<single-rs256-jwk>
 ```
 
 # Testing
