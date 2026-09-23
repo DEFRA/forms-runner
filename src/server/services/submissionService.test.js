@@ -216,20 +216,6 @@ describe('Submission service', () => {
       )
     })
 
-    it.each([FormStatus.Draft, FormStatus.Live])(
-      'asks for a form saved from the %s preview',
-      async (preview) => {
-        respondWith({ state: {} })
-
-        await getSavedFormState(ACCESS_TOKEN, magicLinkId, preview)
-
-        expect(get).toHaveBeenCalledWith(
-          `${SUBMISSION_URL}/save-and-exit/records/${magicLinkId}?preview=${preview}`,
-          expect.anything()
-        )
-      }
-    )
-
     it('returns the state and group id the API sent', async () => {
       const savedForm = {
         state: { textField: 'value' },

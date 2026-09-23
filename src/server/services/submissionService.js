@@ -117,18 +117,14 @@ export async function getSavedForms(accessToken, formId, preview) {
 
 /**
  * Gets the state of one saved form. The API returns it only to the citizen who
- * owns the saved form, and only for the origin it was saved from.
+ * owns the saved form.
  * @param {string} accessToken - the citizen's access token
  * @param {string} magicLinkId - the id of the magic link
- * @param {FormStatus} [preview] - the preview state, or none for a live form
  */
-export async function getSavedFormState(accessToken, magicLinkId, preview) {
-  const url = new URL(`${submissionUrl}/save-and-exit/records/${magicLinkId}`)
-  if (preview) {
-    url.searchParams.set('preview', preview)
-  }
+export async function getSavedFormState(accessToken, magicLinkId) {
+  const url = `${submissionUrl}/save-and-exit/records/${magicLinkId}`
 
-  const { res, error, payload } = await get(url.href, {
+  const { res, error, payload } = await get(url, {
     json: true,
     headers: { authorization: `Bearer ${accessToken}` }
   })

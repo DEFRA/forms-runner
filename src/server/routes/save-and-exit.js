@@ -301,8 +301,7 @@ async function resumeWithCitizenSignIn(request, h, form, formStatus) {
   try {
     savedForm = await getSavedFormState(
       auth.credentials.accessToken,
-      params.magicLinkId,
-      formStatus
+      params.magicLinkId
     )
   } catch {
     return h.redirect(errorUrl).code(StatusCodes.SEE_OTHER)
