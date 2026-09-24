@@ -3,6 +3,7 @@ import Joi, { ValidationError } from 'joi'
 import {
   addErrorsToSession,
   buildErrorDetails,
+  buildErrorList,
   getValidationErrorsFromSession
 } from '~/src/server/helpers/error-helper.js'
 
@@ -124,6 +125,61 @@ describe('Validation functions', () => {
           href: '#autoCompleteOptions'
         }
       })
+    })
+  })
+
+  describe('buildErrorList', () => {
+    it('should return all errors when the names array is omitted', () => {
+      const list = buildErrorList({
+        foo: {
+          text: 'Message1',
+          href: '#foo'
+        },
+        bar: {
+          text: 'Message2',
+          href: '#bar'
+        }
+      })
+
+      expect(list).toEqual([
+        {
+          text: 'Message1',
+          href: '#foo'
+        },
+        {
+          text: 'Message2',
+          href: '#bar'
+        }
+      ])
+    })
+
+    it('should return errors specified in the names array', () => {
+      const list = buildErrorList(
+        {
+          foo: {
+            text: 'Message1',
+            href: '#foo'
+          },
+          bar: {
+            text: 'Message2',
+            href: '#bar'
+          }
+        },
+        ['bar']
+      )
+
+      expect(list).toEqual([
+        {
+          text: 'Message2',
+          href: '#bar'
+        }
+      ])
+    })
+
+    it('should return empty errors if nothing is passed', () => {
+      const list = buildErrorList(undefined)
+
+      expect(list).toEqual([])
     })
   })
 })
