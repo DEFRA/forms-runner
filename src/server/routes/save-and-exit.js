@@ -7,7 +7,6 @@ import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
 import { config } from '~/src/config/index.js'
-import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { EN_GB } from '~/src/server/constants.js'
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
@@ -34,6 +33,7 @@ import {
   resumeSuccessViewModel,
   validatePayloadSchema
 } from '~/src/server/models/save-and-exit.js'
+import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/routes/auth.js'
 import { hasState } from '~/src/server/routes/save-and-exit-helper.js'
 import { stateHandler } from '~/src/server/routes/save-and-exit-state-handler.js'
 import {
@@ -336,7 +336,7 @@ export default [
         params: paramsSchema
       },
       ...(config.get('useSignInFeature')
-        ? { auth: { mode: 'required', strategy: CITIZEN_SESSION } }
+        ? { auth: CITIZEN_AUTH_ROUTE_OPTIONS }
         : {})
     }
   }),

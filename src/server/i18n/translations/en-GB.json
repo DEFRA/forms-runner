@@ -247,6 +247,7 @@
   },
   "errors": {
     "title": "There is a problem",
+    "titlePrefix": "Error:",
     "notFound": {
       "heading": "Page not found",
       "body1": "If you typed the web address, check it is correct.",
@@ -288,8 +289,10 @@
       "savedUntil": "Saved until",
       "inProgress": "In progress",
       "expired": "Expired",
+      "deleted": "Deleted",
       "actions": "Actions",
       "continue": "Continue",
+      "delete": "Delete",
       "savedOn": "saved on [[date]]"
     },
     "header": {
@@ -305,6 +308,17 @@
     "goBack": "To go back",
     "signInAgain": "sign in again",
     "goToGovUk": "go to the GOV.UK homepage"
+  },
+  "deleteForm": {
+    "title": "Are you sure you want to delete this draft?",
+    "hint": "[[formTitle]] ([[referenceNumber]])",
+    "items": {
+      "yes": "Yes, delete this draft",
+      "no": "No, keep this draft"
+    },
+    "continueButton": "Continue",
+    "confirmDeleteValidationMessage": "Select ‘Yes’ to delete the draft or ‘No’ to keep it",
+    "successNotification": "Draft deleted"
   },
   "layout": {
     "errorPrefix": "Error: ",

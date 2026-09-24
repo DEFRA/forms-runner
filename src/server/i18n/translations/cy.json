@@ -3,7 +3,9 @@
     "back": "Yn ôl",
     "or": "neu",
     "Or": "Neu",
-    "and": "a"
+    "and": "a",
+    "draft": "drafft",
+    "live": "ar-lein"
   },
   "dateTime": {
     "am": "yb",
@@ -245,6 +247,7 @@
   },
   "errors": {
     "title": "Mae problem wedi codi",
+    "titlePrefix": "Gwall:",
     "notFound": {
       "heading": "Tudalen heb ei chanfod",
       "body1": "Os gwnaethoch deipio’r cyfeiriad gwe, gwnewch yn siŵr ei fod yn gywir.",
@@ -256,6 +259,15 @@
       "canYou": "Gallwch wneud y canlynol:",
       "tryBack": "rhoi cynnig ar fotwm yn ôl eich porwr oherwydd gall eich data fod wedi'u cadw",
       "contact": "<a class=\"govuk-link\" href=\"https://www.gov.uk/guidance/contact-defra\">cysylltu â Llinell Gymorth Defra</a> os oes gennych unrhyw gwestiynau"
+    },
+    "previewError": {
+      "heading": "Nid oes modd rhagweld y ffurflen hon",
+      "summary": "Beth a aeth o le",
+      "intro": "Mae angen rhoi sylw i rywbeth yn y ffurfweddiad ffurflen cyn y gallwch ei rhagweld.",
+      "technical": {
+        "revealText": "Manylion technegol",
+        "support": "Os na allwch ddatrys y gwall hwn eich hun, anfonwch y wybodaeth isod at dîm cymorth Defra Forms."
+      }
     }
   },
   "errorPreview": {
@@ -277,8 +289,10 @@
       "savedUntil": "Wedi'i gadw tan",
       "inProgress": "Ar y gweill",
       "expired": "Wedi dod i ben",
+      "deleted": "Wedi'i ddileu",
       "actions": "Camau",
       "continue": "Parhau",
+      "delete": "Dileu",
       "savedOn": "wedi'i gadw ar [[date]]"
     },
     "header": {
@@ -294,6 +308,17 @@
     "goBack": "I fynd yn ôl",
     "signInAgain": "mewngofnodi eto",
     "goToGovUk": "ewch i hafan GOV.UK"
+  },
+  "deleteForm": {
+    "title": "A ydych chi'n siŵr eich bod am ddileu'r drafft hwn?",
+    "hint": "[[formTitle]] ([[referenceNumber]])",
+    "items": {
+      "yes": "Iawn, dileu'r drafft hwn",
+      "no": "Na, cadw'r drafft hwn"
+    },
+    "continueButton": "Parhau",
+    "confirmDeleteValidationMessage": "Dewiswch 'Iawn' i ddileu'r drafft neu 'Na' i'w gadw",
+    "successNotification": "Dileuwyd y drafft"
   },
   "layout": {
     "errorPrefix": "Gwall:",

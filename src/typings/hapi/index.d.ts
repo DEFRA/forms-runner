@@ -1,12 +1,15 @@
 /* eslint-disable @typescript-eslint/unified-signatures */
 
 import { type FormModel } from '@defra/forms-engine-plugin/engine/models/index.js'
+import { type ValidationFailure } from '@defra/forms-model'
 import { type Plugin } from '@hapi/hapi'
 import { type ServerYar, type Yar } from '@hapi/yar'
 import { type Configuration } from 'openid-client'
 import { type Logger } from 'pino'
 
 import { type SAVE_AND_EXIT_PAYLOAD } from '~/src/server/constants.js'
+import { type sessionNames } from '~/src/server/helpers/session-names.js'
+import { type CONFIRM_DELETE_NAME } from '~/src/server/routes/delete-form.js'
 import { type CacheService } from '~/src/server/services/index.js'
 
 declare module '@hapi/hapi' {
@@ -109,8 +112,16 @@ declare module 'hapi-pulse' {
 }
 
 declare module '@hapi/yar' {
+  // Export known validation session keys
+  type ValidationSession = (typeof sessionNames)['validationFailure']
+  export type ValidationSessionKey = ValidationSession[keyof ValidationSession]
+
   interface YarFlashes {
     [SAVE_AND_EXIT_PAYLOAD]: object
+    [sessionNames.successNotification]: string
+    [sessionNames.validationFailure.deleteSavedForm]: ValidationFailure<{
+      [CONFIRM_DELETE_NAME]: boolean
+    }>
   }
 
   // Why the session holds each of these is on the `Identity` and

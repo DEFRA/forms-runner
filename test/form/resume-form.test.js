@@ -201,8 +201,17 @@ describe('Resume a saved form', () => {
         form: savedLinkForm
       })
       jest.mocked(getSavedFormState).mockResolvedValue({
+        referenceNumber: 'XXX-XXX-XXX',
         state: savedState,
-        magicLinkGroupId: 'group-1'
+        magicLinkGroupId: 'group-1',
+        expireAt: '',
+        form: {
+          id: 'string',
+          title: 'string',
+          status: FormStatus.Draft,
+          isPreview: true,
+          baseUrl: 'http://'
+        }
       })
 
       const auth = { strategy: 'citizen-session', credentials }

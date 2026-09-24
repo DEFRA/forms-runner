@@ -1,0 +1,13 @@
+{% extends "form.html" %}
+
+{% from "govuk/components/radios/macro.njk" import govukRadios %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% block fields %}
+  {{ govukRadios(radiosQuestion) }}
+  {{ govukButton({
+    text: tR('deleteForm.continueButton'),
+    href: startUrl,
+    classes: "govuk-button"
+  }) }}
+{% endblock %}

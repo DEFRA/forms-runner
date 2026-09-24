@@ -48,3 +48,7 @@ export const postJson = <BodyType extends object>(
 export const put = <BodyType>(url: string, options: RequestOptions) => {
   return request<BodyType>('put', url, options)
 }
+
+export const del = <BodyType>(url: string, options: RequestOptions) => {
+  return request<BodyType>('delete', url, options)
+}

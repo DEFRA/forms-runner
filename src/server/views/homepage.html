@@ -11,7 +11,8 @@
 
 {% set statusTagClasses = {
   inProgress: "govuk-tag--teal",
-  expired: "govuk-tag--red"
+  expired: "govuk-tag--red",
+  deleted: "govuk-tag--red"
 } %}
 
 {% block content %}
@@ -26,6 +27,13 @@
         {{ govukNotificationBanner({
           titleText: tR('signIn.homepage.previewBannerTitle'),
           html: previewBannerHtml
+        }) }}
+      {% endif %}
+
+      {% if notification | length %}
+        {{ govukNotificationBanner({
+          type: "success",
+          text: notification
         }) }}
       {% endif %}
 
@@ -49,29 +57,22 @@
           {% endset %}
 
           {% set actionsHtml %}
-            {% set showDivider = savedForm.actions.continue and savedForm.actions.delete %}
+            {% set showDivider = savedForm.resumeUrl and savedForm.deleteUrl %}
+            {% set linkSuffix = savedForm.referenceNumber if savedForm.referenceNumber else tR('signIn.homepage.savedOn', { date: savedForm.lastUpdated }) %}
 
-            {% if savedForm.actions.continue %}
-              <a class="govuk-link govuk-link--no-visited-state" href="{{savedForm.actions.continue}}">{{tR('signIn.homepage.continue')}}</a>
+            {% if savedForm.resumeUrl %}
+              <a class="govuk-link govuk-link--no-visited-state" href="{{ savedForm.resumeUrl }}">{{ tR('signIn.homepage.continue') }}<span class="govuk-visually-hidden"> {{ linkSuffix }}</span></a>
             {% endif %}
 
             {% if showDivider %}
               <span class="govuk-body govuk-!-margin-left-2 govuk-!-margin-right-2">|</span>
             {% endif %}
 
-            {% if savedForm.actions.delete %}
-              <a class="govuk-link govuk-link--no-visited-state" href="{{savedForm.actions.delete}}">{{tR('signIn.homepage.delete')}}</a>
+            {% if savedForm.deleteUrl %}
+              <a class="govuk-link govuk-link--no-visited-state" href="{{savedForm.deleteUrl}}">{{tR('signIn.homepage.delete')}}<span class="govuk-visually-hidden"> {{ linkSuffix }}</span></a>
             {% endif %}
           {% endset %}
 
-          {% set linkSuffix = savedForm.referenceNumber if savedForm.referenceNumber else tR('signIn.homepage.savedOn', { date: savedForm.lastUpdated }) %}
-          {% set actionsHtml %}
-            {% if savedForm.resumeUrl %}
-              <a class="govuk-link" href="{{ savedForm.resumeUrl }}">
-                {{ tR('signIn.homepage.continue') }}<span class="govuk-visually-hidden"> {{ linkSuffix }}</span>
-              </a>
-            {% endif %}
-          {% endset %}
           {% set rows = (rows.push([
             { text: savedForm.referenceNumber },
             { html: statusHtml },
