@@ -30,6 +30,7 @@ export default [
     method: 'GET',
     path: options.from,
     options: {
+      auth: false,
       cache: {
         // Historically, an infinite max-age is the 32-bit maximum 2,147,483,648
         // https://datatracker.ietf.org/doc/html/rfc9111#section-1.2.2

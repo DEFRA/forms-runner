@@ -2,16 +2,34 @@ import hapi from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 
 import { SignInRequiredError } from '~/src/server/auth/SignInRequiredError.js'
-import { getIdentity } from '~/src/server/auth/accountSession.js'
+import { refreshAccessToken } from '~/src/server/auth/accessToken.js'
+import { getIdentity, getTokens } from '~/src/server/auth/accountSession.js'
 import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
 import pluginAuth from '~/src/server/plugins/auth.js'
 
 jest.mock('~/src/server/auth/accountSession.js')
+jest.mock('~/src/server/auth/accessToken.js', () => ({
+  ...jest.requireActual('~/src/server/auth/accessToken.js'),
+  refreshAccessToken: jest.fn()
+}))
 
 const identity = {
   iss: 'http://localhost:3011',
   sub: '0f1e2d3c-4b5a-6978-8796-a5b4c3d2e1f0',
   email: 'citizen@example.com'
+}
+
+/**
+ * The citizen's tokens, with an access token that has the given number of
+ * seconds left
+ */
+function tokenSet(secondsLeft: number) {
+  return {
+    accessToken: 'access-1',
+    accessTokenExpiresAt: Date.now() + secondsLeft * 1000,
+    refreshToken: 'refresh-1',
+    idToken: 'header.payload.signature'
+  }
 }
 
 /**
@@ -48,6 +66,10 @@ function setupRequiredEndpoint(server: hapi.Server, path = '/secure') {
 }
 
 describe('citizen-session strategy', () => {
+  beforeEach(() => {
+    jest.mocked(getTokens).mockReturnValue(tokenSet(300))
+  })
+
   it('leaves an anonymous request unauthenticated rather than rejecting it', async () => {
     jest.mocked(getIdentity).mockReturnValue(null)
 
@@ -72,8 +94,9 @@ describe('citizen-session strategy', () => {
 
     expect(response.result).toMatchObject({
       isAuthenticated: true,
-      credentials: { email: 'citizen@example.com' }
+      credentials: { email: 'citizen@example.com', accessToken: 'access-1' }
     })
+    expect(refreshAccessToken).not.toHaveBeenCalled()
   })
 
   it('redirects an anonymous request on a required route to sign in, returning to the same path', async () => {
@@ -120,47 +143,99 @@ describe('citizen-session strategy', () => {
 
     expect(response.result).toMatchObject({ isAuthenticated: true })
   })
-  describe('when a route needs the citizen to sign in again', () => {
-    it.each(['GET', 'POST'] as const)(
-      'redirects a %s request to sign in, returning to the same path',
-      async (method) => {
-        jest.mocked(getIdentity).mockReturnValue(identity)
 
-        const server = hapi.server()
-        await server.register(pluginAuth)
-        server.route({
-          method,
-          path: '/needs-token',
-          handler: () => {
-            throw new SignInRequiredError('invalidGrant')
-          }
-        })
+  it('does not run on a route that sets auth to false', async () => {
+    jest.mocked(getIdentity).mockReturnValue(identity)
+    jest.mocked(getTokens).mockReturnValue(tokenSet(0))
 
-        const response = await server.inject({ method, url: '/needs-token' })
+    const server = hapi.server()
+    await server.register(pluginAuth)
+    server.route({
+      method: 'GET',
+      path: '/asset',
+      options: { auth: false },
+      handler: () => null
+    })
 
-        expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-        expect(response.headers.location).toBe(
-          '/auth/sign-in?returnUrl=%2Fneeds-token'
-        )
-      }
-    )
+    await server.inject({ method: 'GET', url: '/asset' })
 
-    it('leaves any other error as it is', async () => {
+    expect(getIdentity).not.toHaveBeenCalled()
+    expect(refreshAccessToken).not.toHaveBeenCalled()
+  })
+
+  describe('when the access token is about to expire', () => {
+    beforeEach(() => {
       jest.mocked(getIdentity).mockReturnValue(identity)
+      jest.mocked(getTokens).mockReturnValue(tokenSet(20))
+    })
+
+    it('refreshes it and puts the new one on the request', async () => {
+      jest.mocked(refreshAccessToken).mockResolvedValue('access-2')
 
       const server = hapi.server()
       await server.register(pluginAuth)
-      server.route({
-        method: 'GET',
-        path: '/fails',
-        handler: () => {
-          throw new Error('something else')
-        }
+      setupProbeEndpoint(server)
+
+      const response = await server.inject({ method: 'GET', url: '/probe' })
+
+      expect(refreshAccessToken).toHaveBeenCalledWith(
+        expect.anything(),
+        identity.sub,
+        expect.objectContaining({ refreshToken: 'refresh-1' })
+      )
+      expect(response.result).toMatchObject({
+        isAuthenticated: true,
+        credentials: { email: 'citizen@example.com', accessToken: 'access-2' }
+      })
+    })
+
+    it('leaves the access token off the request when the provider could not refresh it', async () => {
+      jest.mocked(refreshAccessToken).mockResolvedValue(undefined)
+
+      const server = hapi.server()
+      await server.register(pluginAuth)
+      setupProbeEndpoint(server)
+
+      const response = await server.inject({ method: 'GET', url: '/probe' })
+      const result = response.result as {
+        isAuthenticated: boolean
+        credentials: Record<string, unknown>
+      }
+
+      expect(result.isAuthenticated).toBe(true)
+      expect(result.credentials).toEqual(identity)
+    })
+
+    describe('and the citizen must sign in again', () => {
+      beforeEach(() => {
+        jest
+          .mocked(refreshAccessToken)
+          .mockRejectedValue(new SignInRequiredError('invalidGrant'))
       })
 
-      const response = await server.inject({ method: 'GET', url: '/fails' })
+      it('leaves the request unauthenticated', async () => {
+        const server = hapi.server()
+        await server.register(pluginAuth)
+        setupProbeEndpoint(server)
 
-      expect(response.statusCode).toBe(StatusCodes.INTERNAL_SERVER_ERROR)
+        const response = await server.inject({ method: 'GET', url: '/probe' })
+
+        expect(response.statusCode).toBe(StatusCodes.OK)
+        expect(response.result).toMatchObject({ isAuthenticated: false })
+      })
+
+      it('redirects a required route to sign in, returning to the same path', async () => {
+        const server = hapi.server()
+        await server.register(pluginAuth)
+        setupRequiredEndpoint(server)
+
+        const response = await server.inject({ method: 'GET', url: '/secure' })
+
+        expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+        expect(response.headers.location).toBe(
+          '/auth/sign-in?returnUrl=%2Fsecure'
+        )
+      })
     })
   })
 })

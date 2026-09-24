@@ -1,8 +1,7 @@
-import Boom from '@hapi/boom'
 import * as client from 'openid-client'
 
 import { SignInRequiredError } from '~/src/server/auth/SignInRequiredError.js'
-import { getAccessToken } from '~/src/server/auth/accessToken.js'
+import { isUsable, refreshAccessToken } from '~/src/server/auth/accessToken.js'
 import {
   CITIZEN_KEY,
   TOKENS_KEY,
@@ -21,8 +20,8 @@ const RESOURCE = 'urn:defra:forms:forms-submission-api'
 const OIDC_CONFIG = /** @type {client.Configuration} */ ({})
 
 /**
- * A request as the citizen-session scheme presents it, with tokens in the
- * session whose access token has the given number of seconds left
+ * A request with a signed-in citizen in the session, whose access token has
+ * the given number of seconds left
  * @param {number} secondsLeft
  */
 function signedInRequest(secondsLeft) {
@@ -42,14 +41,6 @@ function signedInRequest(secondsLeft) {
 
   return /** @type {Request} */ (
     /** @type {unknown} */ ({
-      auth: {
-        isAuthenticated: true,
-        credentials: {
-          iss: 'http://localhost:3011',
-          sub: SUB,
-          email: 'citizen@example.com'
-        }
-      },
       yar: {
         get: jest.fn((/** @type {string} */ key) => values.get(key)),
         set: jest.fn(
@@ -101,11 +92,39 @@ function responseBodyError(error) {
 /**
  * @param {Request} request
  */
+function tokensOf(request) {
+  return /** @type {TokenSet} */ (getTokens(request.yar))
+}
+
+/**
+ * @param {Request} request
+ */
 function signedOut(request) {
   return getIdentity(request.yar) === null && getTokens(request.yar) === null
 }
 
-describe('getAccessToken', () => {
+describe('isUsable', () => {
+  beforeEach(() => {
+    jest.useFakeTimers({ now: NOW })
+  })
+
+  afterEach(() => {
+    jest.useRealTimers()
+  })
+
+  it('accepts a token with more than the grace period left', () => {
+    expect(isUsable(tokensOf(signedInRequest(31)))).toBe(true)
+  })
+
+  it.each([30, 10, -60])(
+    'refuses a token with %i seconds left',
+    (secondsLeft) => {
+      expect(isUsable(tokensOf(signedInRequest(secondsLeft)))).toBe(false)
+    }
+  )
+})
+
+describe('refreshAccessToken', () => {
   beforeEach(() => {
     jest.useFakeTimers({ now: NOW, advanceTimers: true })
   })
@@ -114,40 +133,32 @@ describe('getAccessToken', () => {
     jest.useRealTimers()
   })
 
-  it('returns a token with more than the grace period left, without refreshing', async () => {
-    const request = signedInRequest(31)
+  it('saves the new tokens in the session and returns the access token', async () => {
+    jest.mocked(client.refreshTokenGrant).mockResolvedValue(refreshResponse())
+    const request = signedInRequest(10)
 
-    await expect(getAccessToken(request)).resolves.toBe('access-old')
-    expect(client.refreshTokenGrant).not.toHaveBeenCalled()
+    await expect(
+      refreshAccessToken(request, SUB, tokensOf(request))
+    ).resolves.toBe('access-new')
+
+    const saved = getTokens(request.yar)
+    expect(saved).toEqual({
+      accessToken: 'access-new',
+      accessTokenExpiresAt: expect.any(Number),
+      refreshToken: 'refresh-old',
+      idToken: 'id-new'
+    })
+
+    const expiresIn = (saved?.accessTokenExpiresAt ?? 0) - Date.now()
+    expect(expiresIn).toBeGreaterThan(299_000)
+    expect(expiresIn).toBeLessThanOrEqual(300_000)
   })
-
-  it.each([30, 10, -60])(
-    'refreshes a token with %i seconds left and saves the new tokens in the session',
-    async (secondsLeft) => {
-      jest.mocked(client.refreshTokenGrant).mockResolvedValue(refreshResponse())
-      const request = signedInRequest(secondsLeft)
-
-      await expect(getAccessToken(request)).resolves.toBe('access-new')
-
-      const saved = getTokens(request.yar)
-      expect(saved).toEqual({
-        accessToken: 'access-new',
-        accessTokenExpiresAt: expect.any(Number),
-        refreshToken: 'refresh-old',
-        idToken: 'id-new'
-      })
-
-      const expiresIn = (saved?.accessTokenExpiresAt ?? 0) - Date.now()
-      expect(expiresIn).toBeGreaterThan(299_000)
-      expect(expiresIn).toBeLessThanOrEqual(300_000)
-    }
-  )
 
   it('sends the refresh token and names the API the token is for', async () => {
     jest.mocked(client.refreshTokenGrant).mockResolvedValue(refreshResponse())
     const request = signedInRequest(0)
 
-    await getAccessToken(request)
+    await refreshAccessToken(request, SUB, tokensOf(request))
 
     expect(client.refreshTokenGrant).toHaveBeenCalledWith(
       OIDC_CONFIG,
@@ -162,7 +173,9 @@ describe('getAccessToken', () => {
       .mockResolvedValue(refreshResponse({ id_token: undefined }))
     const request = signedInRequest(0)
 
-    await expect(getAccessToken(request)).resolves.toBe('access-new')
+    await expect(
+      refreshAccessToken(request, SUB, tokensOf(request))
+    ).resolves.toBe('access-new')
 
     expect(getTokens(request.yar)).toMatchObject({
       accessToken: 'access-new',
@@ -177,7 +190,7 @@ describe('getAccessToken', () => {
       .mockResolvedValue(refreshResponse({ refresh_token: 'refresh-new' }))
     const request = signedInRequest(0)
 
-    await getAccessToken(request)
+    await refreshAccessToken(request, SUB, tokensOf(request))
 
     expect(getTokens(request.yar)).toMatchObject({
       refreshToken: 'refresh-new'
@@ -191,9 +204,9 @@ describe('getAccessToken', () => {
         .mockRejectedValue(responseBodyError('invalid_grant'))
       const request = signedInRequest(0)
 
-      await expect(getAccessToken(request)).rejects.toBeInstanceOf(
-        SignInRequiredError
-      )
+      await expect(
+        refreshAccessToken(request, SUB, tokensOf(request))
+      ).rejects.toBeInstanceOf(SignInRequiredError)
       expect(signedOut(request)).toBe(true)
     })
 
@@ -203,9 +216,9 @@ describe('getAccessToken', () => {
         .mockResolvedValue(refreshResponse({}, 'someone-else'))
       const request = signedInRequest(0)
 
-      await expect(getAccessToken(request)).rejects.toBeInstanceOf(
-        SignInRequiredError
-      )
+      await expect(
+        refreshAccessToken(request, SUB, tokensOf(request))
+      ).rejects.toBeInstanceOf(SignInRequiredError)
       expect(signedOut(request)).toBe(true)
     })
   })
@@ -216,16 +229,14 @@ describe('getAccessToken', () => {
       ['a provider error', responseBodyError('server_error')],
       ['a value that is not an error', 'unexpected']
     ])(
-      'keeps the tokens and identity after %s, and answers 503',
+      'keeps the tokens and identity after %s, and returns no token',
       async (_case, error) => {
         jest.mocked(client.refreshTokenGrant).mockRejectedValue(error)
         const request = signedInRequest(0)
 
-        const thrown = await getAccessToken(request).catch(
-          (/** @type {unknown} */ err) => err
-        )
-
-        expect(Boom.isBoom(thrown, 503)).toBe(true)
+        await expect(
+          refreshAccessToken(request, SUB, tokensOf(request))
+        ).resolves.toBeUndefined()
         expect(getTokens(request.yar)).toMatchObject({
           refreshToken: 'refresh-old'
         })
@@ -239,18 +250,16 @@ describe('getAccessToken', () => {
       ['no access token', { access_token: undefined }],
       ['no expiry', { expires_in: undefined }]
     ])(
-      'keeps the tokens and identity when it has %s, and answers 503',
+      'keeps the tokens and identity when it has %s, and returns no token',
       async (_case, overrides) => {
         jest
           .mocked(client.refreshTokenGrant)
           .mockResolvedValue(refreshResponse(overrides))
         const request = signedInRequest(0)
 
-        const thrown = await getAccessToken(request).catch(
-          (/** @type {unknown} */ err) => err
-        )
-
-        expect(Boom.isBoom(thrown, 503)).toBe(true)
+        await expect(
+          refreshAccessToken(request, SUB, tokensOf(request))
+        ).resolves.toBeUndefined()
         expect(getTokens(request.yar)).toMatchObject({
           accessToken: 'access-old',
           refreshToken: 'refresh-old'
@@ -259,30 +268,10 @@ describe('getAccessToken', () => {
       }
     )
   })
-
-  describe('when there are no tokens to use', () => {
-    it('asks a session with no tokens to sign in again', async () => {
-      const request = signedInRequest(300)
-      request.yar.clear(TOKENS_KEY)
-
-      await expect(getAccessToken(request)).rejects.toBeInstanceOf(
-        SignInRequiredError
-      )
-      expect(signedOut(request)).toBe(true)
-    })
-
-    it('asks an unauthenticated request to sign in', async () => {
-      const request = signedInRequest(300)
-      request.auth.isAuthenticated = false
-
-      await expect(getAccessToken(request)).rejects.toBeInstanceOf(
-        SignInRequiredError
-      )
-    })
-  })
 })
 
 /**
  * @import { Request } from '@hapi/hapi'
  * @import { TokenEndpointResponse, TokenEndpointResponseHelpers } from 'openid-client'
+ * @import { TokenSet } from '~/src/server/auth/accountSession.js'
  */

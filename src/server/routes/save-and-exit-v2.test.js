@@ -34,7 +34,8 @@ const DRAFT_STATE = 'draft'
 const credentials = {
   iss: 'http://localhost:3011',
   sub: 'sub-1',
-  email: 'citizen@example.com'
+  email: 'citizen@example.com',
+  accessToken: 'access-1'
 }
 
 describe('Save-and-exit check routes', () => {

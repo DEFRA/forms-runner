@@ -1,30 +1,36 @@
-import { getTokens, setTokens } from '~/src/server/auth/accountSession.js'
+import {
+  getTokens,
+  setIdentity,
+  setTokens
+} from '~/src/server/auth/accountSession.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
-const SESSION_PROBE_PATH = '/test/citizen-session'
+const SESSION_SEED_PATH = '/test/citizen-session/seed'
+const SESSION_PROBE_PATH = '/test/citizen-session/tokens'
 
 /**
- * Tests sign a citizen in by injecting credentials, which leaves the session
- * without the tokens the callback would have saved there. This puts the given
- * tokens in the session of any request whose session has none, other than
- * the probe that reads them back. Register it before the server is
- * initialised.
+ * Tests that inject credentials skip the citizen-session scheme, so they
+ * cannot test what it does with the tokens. This puts a citizen and their
+ * tokens in a real session instead, so the scheme runs on each request that
+ * sends its cookie. Register it before the server is initialised.
  * @param {Server} server
  */
-export function seedCitizenTokens(server) {
-  /** @type {TokenSet | null} */
-  let tokens = null
+export function citizenSession(server) {
+  server.route({
+    method: 'POST',
+    path: SESSION_SEED_PATH,
+    options: { auth: false },
+    handler: (request) => {
+      const { identity, tokens } = /** @type {SessionSeed} */ (request.payload)
 
-  server.ext('onPreHandler', (request, h) => {
-    if (
-      tokens &&
-      request.path !== SESSION_PROBE_PATH &&
-      !getTokens(request.yar)
-    ) {
-      setTokens(request.yar, tokens)
+      setIdentity(request.yar, identity)
+
+      if (tokens) {
+        setTokens(request.yar, tokens)
+      }
+
+      return null
     }
-
-    return h.continue
   })
 
   server.route({
@@ -36,24 +42,31 @@ export function seedCitizenTokens(server) {
 
   return {
     /**
-     * Sets the tokens later requests start with, or none
-     * @param {TokenSet | null} value
+     * Starts a session for the citizen, returning the cookie header that
+     * sends it
+     * @param {Identity} identity
+     * @param {TokenSet | null} tokens
      */
-    set(value) {
-      tokens = value
+    async start(identity, tokens) {
+      const response = await server.inject({
+        method: 'POST',
+        url: SESSION_SEED_PATH,
+        payload: { identity, tokens }
+      })
+
+      return getCookieHeader(response, ['session'])
     },
 
     /**
-     * Reads the tokens the session holds after a request, using the session
-     * cookie that request set
-     * @param {ServerInjectResponse} response
+     * Reads the tokens the session holds
+     * @param {Pick<OutgoingHttpHeaders, 'cookie'>} headers - from `start`
      * @returns {Promise<TokenSet | null>}
      */
-    async read(response) {
+    async read(headers) {
       const probe = await server.inject({
         method: 'GET',
         url: SESSION_PROBE_PATH,
-        headers: getCookieHeader(response, ['session'])
+        headers
       })
 
       return /** @type {TokenSet | null} */ (probe.result)
@@ -62,6 +75,14 @@ export function seedCitizenTokens(server) {
 }
 
 /**
- * @import { Server, ServerInjectResponse } from '@hapi/hapi'
- * @import { TokenSet } from '~/src/server/auth/accountSession.js'
+ * @typedef {object} SessionSeed
+ * @property {Identity} identity - the citizen, as the callback keeps them
+ * @property {TokenSet | null} tokens - their tokens, or none for a session
+ *   from before the tokens were kept
+ */
+
+/**
+ * @import { Server } from '@hapi/hapi'
+ * @import { OutgoingHttpHeaders } from 'node:http'
+ * @import { Identity, TokenSet } from '~/src/server/auth/accountSession.js'
  */

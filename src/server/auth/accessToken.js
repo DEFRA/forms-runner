@@ -1,48 +1,14 @@
-import Boom from '@hapi/boom'
 import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
 import { SignInOutcome } from '~/src/server/auth/SignInOutcome.js'
 import { SignInRequiredError } from '~/src/server/auth/SignInRequiredError.js'
-import {
-  clearIdentity,
-  getTokens,
-  setTokens
-} from '~/src/server/auth/accountSession.js'
+import { clearIdentity, setTokens } from '~/src/server/auth/accountSession.js'
 import { signInEvent } from '~/src/server/auth/signInEvent.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 
 const ACTION_KEYS = {
   tokenRefresh: 'token-refresh'
-}
-
-const COULD_NOT_REFRESH_THE_ACCESS_TOKEN_MESSAGE =
-  'Could not refresh the access token'
-
-/**
- * Returns an access token for forms-submission-api that has more than the
- * grace period left, refreshing it first if necessary. Call it just before
- * each API call rather than on every request.
- * @template {ReqRef} Refs
- * @param {Request<Refs>} request - an authenticated request
- * @returns {Promise<string>}
- * @throws {SignInRequiredError} when the citizen must sign in again
- * @throws {Boom.Boom} 503 when the tokens could not be refreshed for now
- */
-export async function getAccessToken(request) {
-  // A session from before the tokens were kept in the session has none
-  const tokenSet = request.auth.isAuthenticated ? getTokens(request.yar) : null
-
-  if (!tokenSet) {
-    clearIdentity(request.yar)
-    throw new SignInRequiredError('noTokenSet')
-  }
-
-  if (isUsable(tokenSet)) {
-    return tokenSet.accessToken
-  }
-
-  return refresh(request, request.auth.credentials.sub, tokenSet)
 }
 
 /**
@@ -51,7 +17,7 @@ export async function getAccessToken(request) {
  * @param {TokenSet} tokenSet
  * @returns {boolean}
  */
-function isUsable(tokenSet) {
+export function isUsable(tokenSet) {
   const graceMs = config.get('oidc.accessTokenExpiryGraceSeconds') * 1000
 
   return tokenSet.accessTokenExpiresAt - Date.now() > graceMs
@@ -59,7 +25,7 @@ function isUsable(tokenSet) {
 
 /**
  * Removes the tokens and the identity, so the citizen is treated as signed
- * out, and returns the error that sends them to sign in.
+ * out, and returns the error that says so.
  * @param {RequestContext} request
  * @param {string} reason
  * @returns {SignInRequiredError}
@@ -90,9 +56,13 @@ function isInvalidGrant(err) {
  * @param {string} sub - the citizen the tokens were issued for. A refreshed
  *   ID token must name the same one.
  * @param {TokenSet} tokenSet
- * @returns {Promise<string>} access token
+ * @returns {Promise<string | undefined>} the new access token, or undefined
+ *   when the provider could not refresh it for now. The tokens and identity
+ *   are then kept, so a later request can try again.
+ * @throws {SignInRequiredError} when the citizen must sign in again. The
+ *   tokens and identity have been removed.
  */
-async function refresh(request, sub, tokenSet) {
+export async function refreshAccessToken(request, sub, tokenSet) {
   /** @type {Awaited<ReturnType<typeof client.refreshTokenGrant>>} */
   let tokens
 
@@ -132,8 +102,7 @@ async function refresh(request, sub, tokenSet) {
       '[tokenRefreshFailed] Could not refresh the access token'
     )
 
-    // The tokens and identity are kept, so a later request can try again
-    throw Boom.serverUnavailable(COULD_NOT_REFRESH_THE_ACCESS_TOKEN_MESSAGE)
+    return undefined
   }
 
   // An ID token for someone else means the response cannot be trusted, so
@@ -163,7 +132,7 @@ async function refresh(request, sub, tokenSet) {
       '[tokenRefreshFailed] Refresh response had no access token or expiry'
     )
 
-    throw Boom.serverUnavailable(COULD_NOT_REFRESH_THE_ACCESS_TOKEN_MESSAGE)
+    return undefined
   }
 
   setTokens(request.yar, {
@@ -179,7 +148,7 @@ async function refresh(request, sub, tokenSet) {
 }
 
 /**
- * @import { ReqRef, Request } from '@hapi/hapi'
+ * @import { Request } from '@hapi/hapi'
  * @typedef {Pick<Request, 'server' | 'yar'>} RequestContext
  * @import { TokenSet } from '~/src/server/auth/accountSession.js'
  */

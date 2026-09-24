@@ -1,8 +1,7 @@
 /**
- * The citizen must sign in again: their tokens have expired or been revoked,
- * or the session has none. The auth plugin turns this into a redirect to
- * sign in. When the provider session is still valid, the provider signs the
- * citizen back in without asking for a code.
+ * The citizen must sign in again: the provider refused their refresh token,
+ * or named a different citizen in the refreshed ID token. The
+ * citizen-session scheme then treats the request as signed out.
  */
 export class SignInRequiredError extends Error {
   /**

@@ -7,7 +7,6 @@ import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
 import { config } from '~/src/config/index.js'
-import { getAccessToken } from '~/src/server/auth/accessToken.js'
 import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { EN_GB } from '~/src/server/constants.js'
@@ -298,9 +297,11 @@ async function resumeWithCitizenSignIn(request, h, form, formStatus) {
     return h.redirect(signInUrl(request.path))
   }
 
-  // Outside the try, so that a citizen who must sign in again is sent to sign
-  // in, and a failed refresh gives a 503, rather than the error page
-  const accessToken = await getAccessToken(request)
+  const { accessToken } = auth.credentials
+
+  if (!accessToken) {
+    throw Boom.serverUnavailable('Could not refresh the access token')
+  }
 
   let savedForm
   try {

@@ -70,6 +70,7 @@ export default [
       return h.redirect(authorizationUrl.href)
     },
     options: {
+      auth: false,
       validate: {
         // Only `returnUrl` is read. Other keys, such as tracking parameters,
         // are ignored so they do not block sign in.
@@ -107,6 +108,9 @@ export default [
         state: stateParam
       })
       return h.redirect(logoutUrl.href)
+    },
+    options: {
+      auth: false
     }
   }),
   /**
@@ -219,6 +223,7 @@ export default [
       return h.redirect(transaction.returnUrl)
     },
     options: {
+      auth: false,
       validate: {
         // The provider decides what else it sends back with the code and the
         // state, so this route accepts keys it does not name.

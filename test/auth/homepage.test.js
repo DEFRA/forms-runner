@@ -14,7 +14,7 @@ import {
 import { getSavedForms } from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
-import { seedCitizenTokens } from '~/test/utils/citizen-session.js'
+import { citizenSession } from '~/test/utils/citizen-session.js'
 
 jest.mock('~/src/server/services/formsService.js')
 jest.mock('~/src/server/services/submissionService.js')
@@ -33,6 +33,13 @@ const FORM_ID = fixtures.form.metadata.id
 /** A citizen who has signed in, as the citizen-session scheme presents them */
 const credentials = {
   iss: 'http://localhost:3011',
+  sub: SUB,
+  email: EMAIL,
+  accessToken: 'access-1'
+}
+
+const identity = {
+  iss: credentials.iss,
   sub: SUB,
   email: EMAIL
 }
@@ -73,8 +80,8 @@ describe('per-form homepage', () => {
   /** @type {Server} */
   let server
 
-  /** @type {ReturnType<typeof seedCitizenTokens>} */
-  let sessionTokens
+  /** @type {ReturnType<typeof citizenSession>} */
+  let session
 
   beforeAll(async () => {
     config.set('useSignInFeature', true)
@@ -85,7 +92,7 @@ describe('per-form homepage', () => {
       enforceCsrf: false
     })
 
-    sessionTokens = seedCitizenTokens(server)
+    session = citizenSession(server)
 
     await server.initialize()
   })
@@ -101,7 +108,6 @@ describe('per-form homepage', () => {
     jest
       .mocked(client.discovery)
       .mockResolvedValue(/** @type {client.Configuration} */ ({}))
-    sessionTokens.set(tokenSet(300))
   })
 
   it('sends a signed-out citizen to sign in first', async () => {
@@ -428,9 +434,26 @@ describe('per-form homepage', () => {
       )
     })
 
+    it('answers service unavailable when there is no access token', async () => {
+      const response = await server.inject({
+        method: 'GET',
+        url: HOMEPAGE_URL,
+        auth: {
+          strategy: 'citizen-session',
+          credentials: { ...credentials, accessToken: undefined }
+        }
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.SERVICE_UNAVAILABLE)
+      expect(getSavedForms).not.toHaveBeenCalled()
+    })
+
     describe('when the access token is about to expire', () => {
-      beforeEach(() => {
-        sessionTokens.set(tokenSet(20))
+      /** @type {Awaited<ReturnType<typeof session.start>>} */
+      let headers
+
+      beforeEach(async () => {
+        headers = await session.start(identity, tokenSet(20))
       })
 
       it('refreshes the token before asking for the saved forms', async () => {
@@ -449,7 +472,7 @@ describe('per-form homepage', () => {
         const response = await server.inject({
           method: 'GET',
           url: HOMEPAGE_URL,
-          auth: { strategy: 'citizen-session', credentials }
+          headers
         })
 
         expect(response.statusCode).toBe(StatusCodes.OK)
@@ -462,7 +485,7 @@ describe('per-form homepage', () => {
           'access-2',
           fixtures.form.metadata.id
         )
-        await expect(sessionTokens.read(response)).resolves.toMatchObject({
+        await expect(session.read(headers)).resolves.toMatchObject({
           accessToken: 'access-2',
           refreshToken: 'refresh-1'
         })
@@ -479,7 +502,7 @@ describe('per-form homepage', () => {
         const response = await server.inject({
           method: 'GET',
           url: HOMEPAGE_URL,
-          auth: { strategy: 'citizen-session', credentials }
+          headers
         })
 
         expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
@@ -487,7 +510,7 @@ describe('per-form homepage', () => {
           '/auth/sign-in?returnUrl=%2Fhomepage%2Ftest-form'
         )
         expect(getSavedForms).not.toHaveBeenCalled()
-        await expect(sessionTokens.read(response)).resolves.toBeNull()
+        await expect(session.read(headers)).resolves.toBeNull()
       })
 
       it('answers service unavailable, and keeps the tokens, when the provider cannot be reached', async () => {
@@ -498,24 +521,37 @@ describe('per-form homepage', () => {
         const response = await server.inject({
           method: 'GET',
           url: HOMEPAGE_URL,
-          auth: { strategy: 'citizen-session', credentials }
+          headers
         })
 
         expect(response.statusCode).toBe(StatusCodes.SERVICE_UNAVAILABLE)
         expect(getSavedForms).not.toHaveBeenCalled()
-        await expect(sessionTokens.read(response)).resolves.toMatchObject({
+        await expect(session.read(headers)).resolves.toMatchObject({
           refreshToken: 'refresh-1'
+        })
+      })
+
+      it('does not refresh the token for a static asset', async () => {
+        await server.inject({
+          method: 'GET',
+          url: '/stylesheets/application.css',
+          headers
+        })
+
+        expect(client.refreshTokenGrant).not.toHaveBeenCalled()
+        await expect(session.read(headers)).resolves.toMatchObject({
+          accessToken: 'access-1'
         })
       })
     })
 
     it('sends the citizen to sign in again when their session has no tokens', async () => {
-      sessionTokens.set(null)
+      const headers = await session.start(identity, null)
 
       const response = await server.inject({
         method: 'GET',
         url: HOMEPAGE_URL,
-        auth: { strategy: 'citizen-session', credentials }
+        headers
       })
 
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)

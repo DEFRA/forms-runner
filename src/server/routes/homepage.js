@@ -1,9 +1,9 @@
 import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
 import { slugSchema } from '@defra/forms-model'
+import Boom from '@hapi/boom'
 import Joi from 'joi'
 
-import { getAccessToken } from '~/src/server/auth/accessToken.js'
 import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
 import {
   FORM_PREFIX,
@@ -81,7 +81,13 @@ async function homepageHandler(request, h) {
     ? `${FORM_PREFIX}${PREVIEW_PATH_PREFIX}/${state}/${slug}`
     : `${FORM_PREFIX}/${slug}`
 
-  const savedForms = await getSavedForms(await getAccessToken(request), form.id)
+  const { accessToken } = request.auth.credentials
+
+  if (!accessToken) {
+    throw Boom.serverUnavailable('Could not refresh the access token')
+  }
+
+  const savedForms = await getSavedForms(accessToken, form.id)
 
   return h.view('homepage', {
     startUrl,

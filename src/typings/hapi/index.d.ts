@@ -20,6 +20,7 @@ declare module '@hapi/hapi' {
     iss: string
     sub: string
     email: string
+    accessToken?: string
   }
 
   interface PluginProperties {

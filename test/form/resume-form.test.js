@@ -18,7 +18,6 @@ import {
 } from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
-import { seedCitizenTokens } from '~/test/utils/citizen-session.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 jest.mock('~/src/server/services/formsService.js')
@@ -165,11 +164,9 @@ describe('Resume a saved form', () => {
     const credentials = {
       iss: 'http://localhost:3011',
       sub: 'sub-1',
-      email: 'citizen@example.com'
+      email: 'citizen@example.com',
+      accessToken: 'access-1'
     }
-
-    /** @type {ReturnType<typeof seedCitizenTokens>} */
-    let sessionTokens
 
     beforeAll(async () => {
       config.set('useSignInFeature', true)
@@ -180,22 +177,12 @@ describe('Resume a saved form', () => {
         enforceCsrf: false
       })
 
-      sessionTokens = seedCitizenTokens(server)
       await server.initialize()
     })
 
     afterAll(async () => {
       await server.stop()
       config.set('useSignInFeature', false)
-    })
-
-    beforeEach(() => {
-      sessionTokens.set({
-        accessToken: 'access-1',
-        accessTokenExpiresAt: Date.now() + 300_000,
-        refreshToken: 'refresh-1',
-        idToken: 'header.payload.signature'
-      })
     })
 
     it('restores the answers after a signed-in citizen selects Continue on the homepage', async () => {

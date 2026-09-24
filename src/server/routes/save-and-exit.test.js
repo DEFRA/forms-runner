@@ -23,7 +23,7 @@ import {
 } from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
-import { seedCitizenTokens } from '~/test/utils/citizen-session.js'
+import { citizenSession } from '~/test/utils/citizen-session.js'
 
 jest.mock('~/src/server/services/formMetadataGuards.js')
 jest.mock('~/src/server/services/formsService.js')
@@ -316,11 +316,12 @@ describe('Save-and-exit check routes', () => {
     const credentials = {
       iss: 'http://localhost:3011',
       sub: 'sub-1',
-      email: 'citizen@example.com'
+      email: 'citizen@example.com',
+      accessToken: 'access-1'
     }
 
-    /** @type {ReturnType<typeof seedCitizenTokens>} */
-    let sessionTokens
+    /** @type {ReturnType<typeof citizenSession>} */
+    let session
 
     beforeAll(async () => {
       config.set('useSignInFeature', true)
@@ -328,7 +329,7 @@ describe('Save-and-exit check routes', () => {
       signInServer = await createServer({
         enforceCsrf: false
       })
-      sessionTokens = seedCitizenTokens(signInServer)
+      session = citizenSession(signInServer)
       await signInServer.initialize()
     })
 
@@ -345,12 +346,6 @@ describe('Save-and-exit check routes', () => {
       jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce({
         authType: 'citizenSignIn',
         form: DRAFT_FORM
-      })
-      sessionTokens.set({
-        accessToken: 'access-1',
-        accessTokenExpiresAt: Date.now() + 300_000,
-        refreshToken: 'refresh-1',
-        idToken: 'header.payload.signature'
       })
     })
 
@@ -386,20 +381,41 @@ describe('Save-and-exit check routes', () => {
     })
 
     test('sends the citizen to sign in again when their session has no tokens', async () => {
-      sessionTokens.set(null)
+      const headers = await session.start(
+        {
+          iss: credentials.iss,
+          sub: credentials.sub,
+          email: credentials.email
+        },
+        null
+      )
 
       const url = `/resume-form/${FORM_ID}/${MAGIC_LINK_ID}`
 
       const response = await signInServer.inject({
         method: 'GET',
         url,
-        auth: { strategy: 'citizen-session', credentials }
+        headers
       })
 
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
       expect(response.headers.location).toBe(
         `/auth/sign-in?returnUrl=${encodeURIComponent(url)}`
       )
+      expect(getSavedFormState).not.toHaveBeenCalled()
+    })
+
+    test('answers service unavailable when there is no access token', async () => {
+      const response = await signInServer.inject({
+        method: 'GET',
+        url: `/resume-form/${FORM_ID}/${MAGIC_LINK_ID}`,
+        auth: {
+          strategy: 'citizen-session',
+          credentials: { ...credentials, accessToken: undefined }
+        }
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.SERVICE_UNAVAILABLE)
       expect(getSavedFormState).not.toHaveBeenCalled()
     })
 
