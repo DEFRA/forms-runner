@@ -2,10 +2,7 @@ import hapi from '@hapi/hapi'
 import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
-import { LOCK_TTL_MS } from '~/src/server/auth/tokenStore.js'
-import pluginOidcClient, {
-  REQUEST_TIMEOUT_SECONDS
-} from '~/src/server/plugins/oidc-client.js'
+import pluginOidcClient from '~/src/server/plugins/oidc-client.js'
 
 jest.mock('openid-client')
 
@@ -51,12 +48,6 @@ describe('oidc client plugin', () => {
     expect(jest.mocked(client.discovery).mock.calls[0][4]).toMatchObject({
       timeout: 20
     })
-  })
-
-  it('times a request out before the refresh lock expires, leaving time for the work done under the lock', () => {
-    expect(LOCK_TTL_MS - REQUEST_TIMEOUT_SECONDS * 1000).toBeGreaterThanOrEqual(
-      2000
-    )
   })
 
   it('keeps the timeout when local development allows plain http', async () => {

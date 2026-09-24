@@ -4,7 +4,6 @@ import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
 
 import { config } from '~/src/config/index.js'
-import * as tokenStore from '~/src/server/auth/tokenStore.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
 import { createServer } from '~/src/server/index.js'
@@ -24,6 +23,7 @@ import {
 } from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
+import { seedCitizenTokens } from '~/test/utils/citizen-session.js'
 
 jest.mock('~/src/server/services/formMetadataGuards.js')
 jest.mock('~/src/server/services/formsService.js')
@@ -316,9 +316,11 @@ describe('Save-and-exit check routes', () => {
     const credentials = {
       iss: 'http://localhost:3011',
       sub: 'sub-1',
-      email: 'citizen@example.com',
-      tokenSetId: 'token-set-1'
+      email: 'citizen@example.com'
     }
+
+    /** @type {ReturnType<typeof seedCitizenTokens>} */
+    let sessionTokens
 
     beforeAll(async () => {
       config.set('useSignInFeature', true)
@@ -326,6 +328,7 @@ describe('Save-and-exit check routes', () => {
       signInServer = await createServer({
         enforceCsrf: false
       })
+      sessionTokens = seedCitizenTokens(signInServer)
       await signInServer.initialize()
     })
 
@@ -334,7 +337,7 @@ describe('Save-and-exit check routes', () => {
       config.set('useSignInFeature', false)
     })
 
-    beforeEach(async () => {
+    beforeEach(() => {
       jest
         .mocked(getFormMetadataById)
         // @ts-expect-error - allow partial objects for tests
@@ -343,12 +346,11 @@ describe('Save-and-exit check routes', () => {
         authType: 'citizenSignIn',
         form: DRAFT_FORM
       })
-      await tokenStore.set(credentials.tokenSetId, {
+      sessionTokens.set({
         accessToken: 'access-1',
         accessTokenExpiresAt: Date.now() + 300_000,
         refreshToken: 'refresh-1',
-        idToken: 'header.payload.signature',
-        sub: credentials.sub
+        idToken: 'header.payload.signature'
       })
     })
 
@@ -383,8 +385,8 @@ describe('Save-and-exit check routes', () => {
       )
     })
 
-    test('sends the citizen to sign in again when their session has no token record', async () => {
-      await tokenStore.delete(credentials.tokenSetId)
+    test('sends the citizen to sign in again when their session has no tokens', async () => {
+      sessionTokens.set(null)
 
       const url = `/resume-form/${FORM_ID}/${MAGIC_LINK_ID}`
 

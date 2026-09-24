@@ -1,21 +1,16 @@
-import { setTimeout as sleep } from 'node:timers/promises'
-
 import Boom from '@hapi/boom'
 import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
 import { SignInOutcome } from '~/src/server/auth/SignInOutcome.js'
 import { SignInRequiredError } from '~/src/server/auth/SignInRequiredError.js'
-import { clearIdentity } from '~/src/server/auth/accountSession.js'
+import {
+  clearIdentity,
+  getTokens,
+  setTokens
+} from '~/src/server/auth/accountSession.js'
 import { signInEvent } from '~/src/server/auth/signInEvent.js'
-import * as tokenStore from '~/src/server/auth/tokenStore.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
-
-/** How often a request waiting on another request's refresh checks again */
-const WAIT_INTERVAL_MS = 200
-
-/** How long a request waits on another request's refresh before giving up */
-const WAIT_TIMEOUT_MS = 5000
 
 const ACTION_KEYS = {
   tokenRefresh: 'token-refresh'
@@ -35,19 +30,8 @@ const COULD_NOT_REFRESH_THE_ACCESS_TOKEN_MESSAGE =
  * @throws {Boom.Boom} 503 when the tokens could not be refreshed for now
  */
 export async function getAccessToken(request) {
-  const credentials = request.auth.isAuthenticated
-    ? request.auth.credentials
-    : undefined
-
-  // A session from before tokens were stored separately has no tokenSetId
-  const tokenSetId = /** @type {string | undefined} */ (credentials?.tokenSetId)
-
-  if (!tokenSetId) {
-    clearIdentity(request.yar)
-    throw new SignInRequiredError('noTokenSetId')
-  }
-
-  const tokenSet = await tokenStore.get(tokenSetId)
+  // A session from before the tokens were kept in the session has none
+  const tokenSet = request.auth.isAuthenticated ? getTokens(request.yar) : null
 
   if (!tokenSet) {
     clearIdentity(request.yar)
@@ -58,30 +42,7 @@ export async function getAccessToken(request) {
     return tokenSet.accessToken
   }
 
-  const lockValue = await tokenStore.acquireLock(tokenSetId)
-
-  if (!lockValue) {
-    return waitForRefresh(request, tokenSetId)
-  }
-
-  try {
-    // Another request may have refreshed between the first read and taking
-    // the lock
-    const current = await tokenStore.get(tokenSetId)
-
-    if (!current) {
-      clearIdentity(request.yar)
-      throw new SignInRequiredError('noTokenSet')
-    }
-
-    if (isUsable(current)) {
-      return current.accessToken
-    }
-
-    return await refresh(request, tokenSetId, current)
-  } finally {
-    await tokenStore.releaseLock(tokenSetId, lockValue)
-  }
+  return refresh(request, request.auth.credentials.sub, tokenSet)
 }
 
 /**
@@ -100,12 +61,10 @@ function isUsable(tokenSet) {
  * Removes the tokens and the identity, so the citizen is treated as signed
  * out, and returns the error that sends them to sign in.
  * @param {RequestContext} request
- * @param {string} tokenSetId
  * @param {string} reason
- * @returns {Promise<SignInRequiredError>}
+ * @returns {SignInRequiredError}
  */
-async function signOutLocally(request, tokenSetId, reason) {
-  await tokenStore.delete(tokenSetId)
+function signOutLocally(request, reason) {
   clearIdentity(request.yar)
 
   return new SignInRequiredError(reason)
@@ -124,14 +83,16 @@ function isInvalidGrant(err) {
 }
 
 /**
- * Uses the refresh token to get new tokens, and saves them. The caller holds
- * the refresh lock.
+ * Uses the refresh token to get a new access token, and saves it in the
+ * session. Two requests can refresh at the same time; the refresh token is
+ * not rotated, so both succeed.
  * @param {RequestContext} request
- * @param {string} tokenSetId
+ * @param {string} sub - the citizen the tokens were issued for. A refreshed
+ *   ID token must name the same one.
  * @param {TokenSet} tokenSet
  * @returns {Promise<string>} access token
  */
-async function refresh(request, tokenSetId, tokenSet) {
+async function refresh(request, sub, tokenSet) {
   /** @type {Awaited<ReturnType<typeof client.refreshTokenGrant>>} */
   let tokens
 
@@ -154,7 +115,7 @@ async function refresh(request, tokenSetId, tokenSet) {
         '[tokenRefreshRejected] Provider refused the refresh token, sign in required'
       )
 
-      throw await signOutLocally(request, tokenSetId, 'invalidGrant')
+      throw signOutLocally(request, 'invalidGrant')
     }
 
     // The error is logged without the request that caused it, which carries
@@ -179,7 +140,7 @@ async function refresh(request, tokenSetId, tokenSet) {
   // the citizen signs in again
   const claims = tokens.claims()
 
-  if (claims && claims.sub !== tokenSet.sub) {
+  if (claims && claims.sub !== sub) {
     logger.warn(
       signInEvent(
         ACTION_KEYS.tokenRefresh,
@@ -189,7 +150,7 @@ async function refresh(request, tokenSetId, tokenSet) {
       '[tokenRefreshRejected] Refreshed ID token names a different subject, sign in required'
     )
 
-    throw await signOutLocally(request, tokenSetId, 'subjectMismatch')
+    throw signOutLocally(request, 'subjectMismatch')
   }
 
   if (!tokens.access_token || tokens.expires_in === undefined) {
@@ -205,59 +166,20 @@ async function refresh(request, tokenSetId, tokenSet) {
     throw Boom.serverUnavailable(COULD_NOT_REFRESH_THE_ACCESS_TOKEN_MESSAGE)
   }
 
-  await tokenStore.set(tokenSetId, {
+  setTokens(request.yar, {
     accessToken: tokens.access_token,
     accessTokenExpiresAt: Date.now() + tokens.expires_in * 1000,
-    // The provider replaces the refresh token on every refresh. If it ever
-    // does not, the current one is still valid.
+    // The provider does not rotate refresh tokens, so the response carries
+    // the same one, if any
     refreshToken: tokens.refresh_token ?? tokenSet.refreshToken,
-    idToken: tokens.id_token ?? tokenSet.idToken,
-    sub: tokenSet.sub
+    idToken: tokens.id_token ?? tokenSet.idToken
   })
 
   return tokens.access_token
 }
 
 /**
- * Waits for the request holding the refresh lock to save new tokens.
- * @param {RequestContext} request
- * @param {string} tokenSetId
- * @returns {Promise<string>} the access token
- */
-async function waitForRefresh(request, tokenSetId) {
-  const deadline = Date.now() + WAIT_TIMEOUT_MS
-
-  while (Date.now() < deadline) {
-    await sleep(WAIT_INTERVAL_MS)
-
-    const tokenSet = await tokenStore.get(tokenSetId)
-
-    // The other request's refresh was refused, and it removed the tokens
-    if (!tokenSet) {
-      clearIdentity(request.yar)
-      throw new SignInRequiredError('noTokenSet')
-    }
-
-    if (isUsable(tokenSet)) {
-      return tokenSet.accessToken
-    }
-  }
-
-  // The citizen is not signed out: the refresh may yet succeed
-  logger.error(
-    signInEvent(
-      ACTION_KEYS.tokenRefresh,
-      SignInOutcome.Failure,
-      'lockWaitTimedOut'
-    ),
-    '[tokenRefreshFailed] Timed out waiting for another request to refresh the access token'
-  )
-
-  throw Boom.serverUnavailable(COULD_NOT_REFRESH_THE_ACCESS_TOKEN_MESSAGE)
-}
-
-/**
  * @import { ReqRef, Request } from '@hapi/hapi'
  * @typedef {Pick<Request, 'server' | 'yar'>} RequestContext
- * @import { TokenSet } from '~/src/server/auth/tokenStore.js'
+ * @import { TokenSet } from '~/src/server/auth/accountSession.js'
  */

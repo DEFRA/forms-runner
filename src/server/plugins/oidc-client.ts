@@ -5,13 +5,9 @@ import { config } from '~/src/config/index.js'
 
 /**
  * How long, in seconds, the client waits for any request to the provider.
- * Without it, openid-client sends token requests with no timeout. It must be
- * shorter than the refresh lock (`LOCK_TTL_MS` in `auth/tokenStore.js`): a
- * refresh that outlasts the lock could run alongside another refresh with the
- * same refresh token, and the provider revokes the grant when a refresh token
- * is used twice.
+ * Without it, openid-client sends token requests with no timeout.
  */
-export const REQUEST_TIMEOUT_SECONDS = 20
+const REQUEST_TIMEOUT_SECONDS = 20
 
 /**
  * The provider accepts one client authentication method, `private_key_jwt`.

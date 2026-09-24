@@ -6,7 +6,6 @@ import { StatusCodes } from 'http-status-codes'
 import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
-import * as tokenStore from '~/src/server/auth/tokenStore.js'
 import { createServer } from '~/src/server/index.js'
 import {
   getFormDefinition,
@@ -15,6 +14,7 @@ import {
 import { getSavedForms } from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
+import { seedCitizenTokens } from '~/test/utils/citizen-session.js'
 
 jest.mock('~/src/server/services/formsService.js')
 jest.mock('~/src/server/services/submissionService.js')
@@ -28,30 +28,27 @@ const HOMEPAGE_URL = '/homepage/test-form'
 const NO_AUTH_URL = '/help/accessibility-statement/test-form'
 const EMAIL = 'citizen@example.com'
 const SUB = 'sub-1'
-const TOKEN_SET_ID = 'token-set-1'
 const FORM_ID = fixtures.form.metadata.id
 
 /** A citizen who has signed in, as the citizen-session scheme presents them */
 const credentials = {
   iss: 'http://localhost:3011',
   sub: SUB,
-  email: EMAIL,
-  tokenSetId: TOKEN_SET_ID
+  email: EMAIL
 }
 
 /**
- * Stores the citizen's tokens, with an access token that has the given number
- * of seconds left
+ * The citizen's tokens, with an access token that has the given number of
+ * seconds left
  * @param {number} secondsLeft
  */
-function storeTokens(secondsLeft) {
-  return tokenStore.set(TOKEN_SET_ID, {
+function tokenSet(secondsLeft) {
+  return {
     accessToken: 'access-1',
     accessTokenExpiresAt: Date.now() + secondsLeft * 1000,
     refreshToken: 'refresh-1',
-    idToken: 'header.payload.signature',
-    sub: SUB
-  })
+    idToken: 'header.payload.signature'
+  }
 }
 
 /** Two saved forms, as forms-submission-api describes them */
@@ -76,6 +73,9 @@ describe('per-form homepage', () => {
   /** @type {Server} */
   let server
 
+  /** @type {ReturnType<typeof seedCitizenTokens>} */
+  let sessionTokens
+
   beforeAll(async () => {
     config.set('useSignInFeature', true)
 
@@ -85,6 +85,8 @@ describe('per-form homepage', () => {
       enforceCsrf: false
     })
 
+    sessionTokens = seedCitizenTokens(server)
+
     await server.initialize()
   })
 
@@ -93,13 +95,13 @@ describe('per-form homepage', () => {
     config.set('useSignInFeature', false)
   })
 
-  beforeEach(async () => {
+  beforeEach(() => {
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
     jest.mocked(getSavedForms).mockResolvedValue([])
     jest
       .mocked(client.discovery)
       .mockResolvedValue(/** @type {client.Configuration} */ ({}))
-    await storeTokens(300)
+    sessionTokens.set(tokenSet(300))
   })
 
   it('sends a signed-out citizen to sign in first', async () => {
@@ -427,8 +429,8 @@ describe('per-form homepage', () => {
     })
 
     describe('when the access token is about to expire', () => {
-      beforeEach(async () => {
-        await storeTokens(20)
+      beforeEach(() => {
+        sessionTokens.set(tokenSet(20))
       })
 
       it('refreshes the token before asking for the saved forms', async () => {
@@ -436,7 +438,6 @@ describe('per-form homepage', () => {
           /** @type {TokenEndpointResponse & TokenEndpointResponseHelpers} */ (
             /** @type {unknown} */ ({
               access_token: 'access-2',
-              refresh_token: 'refresh-2',
               id_token: 'header.payload.signature-2',
               expires_in: 300,
               token_type: 'bearer',
@@ -461,9 +462,9 @@ describe('per-form homepage', () => {
           'access-2',
           fixtures.form.metadata.id
         )
-        await expect(tokenStore.get(TOKEN_SET_ID)).resolves.toMatchObject({
+        await expect(sessionTokens.read(response)).resolves.toMatchObject({
           accessToken: 'access-2',
-          refreshToken: 'refresh-2'
+          refreshToken: 'refresh-1'
         })
       })
 
@@ -486,7 +487,7 @@ describe('per-form homepage', () => {
           '/auth/sign-in?returnUrl=%2Fhomepage%2Ftest-form'
         )
         expect(getSavedForms).not.toHaveBeenCalled()
-        await expect(tokenStore.get(TOKEN_SET_ID)).resolves.toBeNull()
+        await expect(sessionTokens.read(response)).resolves.toBeNull()
       })
 
       it('answers service unavailable, and keeps the tokens, when the provider cannot be reached', async () => {
@@ -502,14 +503,14 @@ describe('per-form homepage', () => {
 
         expect(response.statusCode).toBe(StatusCodes.SERVICE_UNAVAILABLE)
         expect(getSavedForms).not.toHaveBeenCalled()
-        await expect(tokenStore.get(TOKEN_SET_ID)).resolves.toMatchObject({
+        await expect(sessionTokens.read(response)).resolves.toMatchObject({
           refreshToken: 'refresh-1'
         })
       })
     })
 
-    it('sends the citizen to sign in again when their session has no token record', async () => {
-      await tokenStore.delete(TOKEN_SET_ID)
+    it('sends the citizen to sign in again when their session has no tokens', async () => {
+      sessionTokens.set(null)
 
       const response = await server.inject({
         method: 'GET',

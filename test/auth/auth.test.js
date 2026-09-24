@@ -4,8 +4,7 @@ import { StatusCodes } from 'http-status-codes'
 import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
-import { CITIZEN_KEY } from '~/src/server/auth/accountSession.js'
-import * as tokenStore from '~/src/server/auth/tokenStore.js'
+import { CITIZEN_KEY, TOKENS_KEY } from '~/src/server/auth/accountSession.js'
 import { SIGNED_OUT_PATH, SIGN_OUT_PATH } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
@@ -402,30 +401,21 @@ describe('sign in routes and sign out routes', () => {
   })
 
   describe('where the tokens are kept', () => {
-    it('stores the tokens on the server and keeps only the identity in the session', async () => {
+    it('keeps the identity and the tokens apart in the server-side session', async () => {
       const { login } = await signIn()
 
       const session = await readSession(login)
-      const identity = /** @type {Identity} */ (session[CITIZEN_KEY])
 
-      expect(identity).toEqual({
+      expect(session[CITIZEN_KEY]).toEqual({
         iss: ISSUER,
         sub: SUB,
-        email: EMAIL,
-        tokenSetId: expect.any(String)
+        email: EMAIL
       })
-
-      const serialised = JSON.stringify(session)
-      expect(serialised).not.toContain(ACCESS_TOKEN)
-      expect(serialised).not.toContain(REFRESH_TOKEN)
-      expect(serialised).not.toContain(ID_TOKEN)
-
-      await expect(tokenStore.get(identity.tokenSetId)).resolves.toEqual({
+      expect(session[TOKENS_KEY]).toEqual({
         accessToken: ACCESS_TOKEN,
         accessTokenExpiresAt: expect.any(Number),
         refreshToken: REFRESH_TOKEN,
-        idToken: ID_TOKEN,
-        sub: SUB
+        idToken: ID_TOKEN
       })
     })
 
@@ -434,30 +424,14 @@ describe('sign in routes and sign out routes', () => {
       const { login } = await signIn()
       const after = Date.now()
 
-      const session = await readSession(login)
-      const identity = /** @type {Identity} */ (session[CITIZEN_KEY])
-      const tokenSet = await tokenStore.get(identity.tokenSetId)
+      const tokenSet = /** @type {TokenSet} */ (
+        (await readSession(login))[TOKENS_KEY]
+      )
 
-      expect(tokenSet?.accessTokenExpiresAt).toBeGreaterThanOrEqual(
+      expect(tokenSet.accessTokenExpiresAt).toBeGreaterThanOrEqual(
         before + 300_000
       )
-      expect(tokenSet?.accessTokenExpiresAt).toBeLessThanOrEqual(
-        after + 300_000
-      )
-    })
-
-    it('gives each sign in its own token record, not one named after the session', async () => {
-      const first = await signIn()
-      const second = await signIn()
-
-      const firstIdentity = /** @type {Identity} */ (
-        (await readSession(first.login))[CITIZEN_KEY]
-      )
-      const secondIdentity = /** @type {Identity} */ (
-        (await readSession(second.login))[CITIZEN_KEY]
-      )
-
-      expect(firstIdentity.tokenSetId).not.toBe(secondIdentity.tokenSetId)
+      expect(tokenSet.accessTokenExpiresAt).toBeLessThanOrEqual(after + 300_000)
     })
 
     it('sends no token value to the browser in any cookie', async () => {
@@ -495,14 +469,12 @@ describe('sign in routes and sign out routes', () => {
 
         const session = await readSession(login)
         expect(session[CITIZEN_KEY]).toBeUndefined()
+        expect(session[TOKENS_KEY]).toBeUndefined()
       }
     )
 
-    it('deletes the token record on sign out, and names the ID token to the provider', async () => {
+    it('removes the tokens on sign out, and names the ID token to the provider', async () => {
       const { login } = await signIn()
-      const identity = /** @type {Identity} */ (
-        (await readSession(login))[CITIZEN_KEY]
-      )
 
       const signOutResponse = await server.inject({
         method: 'GET',
@@ -515,8 +487,9 @@ describe('sign in routes and sign out routes', () => {
       const [, params] = jest.mocked(client.buildEndSessionUrl).mock.calls[0]
       expect(params).toMatchObject({ id_token_hint: ID_TOKEN })
 
-      await expect(tokenStore.get(identity.tokenSetId)).resolves.toBeNull()
-      expect((await readSession(login))[CITIZEN_KEY]).toBeUndefined()
+      const session = await readSession(login)
+      expect(session[CITIZEN_KEY]).toBeUndefined()
+      expect(session[TOKENS_KEY]).toBeUndefined()
     })
   })
 
@@ -623,6 +596,6 @@ describe('sign in routes, feature flag off', () => {
 
 /**
  * @import { Server, ServerInjectResponse } from '@hapi/hapi'
- * @import { Identity } from '~/src/server/auth/accountSession.js'
+ * @import { TokenSet } from '~/src/server/auth/accountSession.js'
  * @import { Configuration, TokenEndpointResponse, TokenEndpointResponseHelpers } from 'openid-client'
  */

@@ -1,5 +1,3 @@
-import { randomUUID } from 'node:crypto'
-
 import Boom from '@hapi/boom'
 import Joi from 'joi'
 import * as client from 'openid-client'
@@ -9,13 +7,13 @@ import { SignInOutcome } from '~/src/server/auth/SignInOutcome.js'
 import {
   clearIdentity,
   clearSignInTransaction,
-  getIdentity,
   getSignInTransaction,
+  getTokens,
   setIdentity,
-  setSignInTransaction
+  setSignInTransaction,
+  setTokens
 } from '~/src/server/auth/accountSession.js'
 import { signInEvent } from '~/src/server/auth/signInEvent.js'
-import * as tokenStore from '~/src/server/auth/tokenStore.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import {
   CALLBACK_PATH,
@@ -90,15 +88,8 @@ export default [
     async handler(request, h) {
       const oidcConfig = await request.server.app.oidc.getConfig()
 
-      // A session from before tokens were stored separately has no
-      // tokenSetId, and is signed out without an ID token hint
-      const tokenSetId = getIdentity(request.yar)?.tokenSetId
-      const tokenSet = tokenSetId ? await tokenStore.get(tokenSetId) : null
-      const idToken = tokenSet?.idToken
-
-      if (tokenSetId) {
-        await tokenStore.delete(tokenSetId)
-      }
+      // A session with no tokens is signed out without an ID token hint
+      const idToken = getTokens(request.yar)?.idToken
 
       clearIdentity(request.yar)
 
@@ -193,24 +184,17 @@ export default [
           )
         }
 
-        // The tokens are kept in the token store rather than the session,
-        // and never reach the browser. The session holds only the id that
-        // finds them.
-        const tokenSetId = randomUUID()
-
-        await tokenStore.set(tokenSetId, {
-          accessToken: tokens.access_token,
-          accessTokenExpiresAt: Date.now() + tokens.expires_in * 1000,
-          refreshToken: tokens.refresh_token,
-          idToken: tokens.id_token,
-          sub: claims.sub
-        })
-
         setIdentity(request.yar, {
           iss: claims.iss,
           sub: claims.sub,
-          email,
-          tokenSetId
+          email
+        })
+
+        setTokens(request.yar, {
+          accessToken: tokens.access_token,
+          accessTokenExpiresAt: Date.now() + tokens.expires_in * 1000,
+          refreshToken: tokens.refresh_token,
+          idToken: tokens.id_token
         })
       } catch (err) {
         logger.error(

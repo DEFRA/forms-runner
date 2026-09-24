@@ -3,8 +3,12 @@ import * as client from 'openid-client'
 
 import { SignInRequiredError } from '~/src/server/auth/SignInRequiredError.js'
 import { getAccessToken } from '~/src/server/auth/accessToken.js'
-import { CITIZEN_KEY } from '~/src/server/auth/accountSession.js'
-import * as tokenStore from '~/src/server/auth/tokenStore.js'
+import {
+  CITIZEN_KEY,
+  TOKENS_KEY,
+  getIdentity,
+  getTokens
+} from '~/src/server/auth/accountSession.js'
 
 jest.mock('openid-client', () => ({
   ...jest.requireActual('openid-client'),
@@ -16,45 +20,49 @@ const SUB = 'sub-1'
 const RESOURCE = 'urn:defra:forms:forms-submission-api'
 const OIDC_CONFIG = /** @type {client.Configuration} */ ({})
 
-/** @type {number} */
-let tokenSetCount = 0
-
 /**
- * A request as the citizen-session scheme presents it, with a token set in
- * the store that has the given number of seconds left
+ * A request as the citizen-session scheme presents it, with tokens in the
+ * session whose access token has the given number of seconds left
  * @param {number} secondsLeft
  */
-async function signedInRequest(secondsLeft) {
-  tokenSetCount += 1
-  const tokenSetId = `token-set-${tokenSetCount}`
+function signedInRequest(secondsLeft) {
+  /** @type {Map<string, unknown>} */
+  const values = new Map([
+    [CITIZEN_KEY, { iss: 'http://localhost:3011', sub: SUB }],
+    [
+      TOKENS_KEY,
+      {
+        accessToken: 'access-old',
+        accessTokenExpiresAt: Date.now() + secondsLeft * 1000,
+        refreshToken: 'refresh-old',
+        idToken: 'id-old'
+      }
+    ]
+  ])
 
-  await tokenStore.set(tokenSetId, {
-    accessToken: 'access-old',
-    accessTokenExpiresAt: Date.now() + secondsLeft * 1000,
-    refreshToken: 'refresh-old',
-    idToken: 'id-old',
-    sub: SUB
-  })
-
-  const request = /** @type {Request} */ (
+  return /** @type {Request} */ (
     /** @type {unknown} */ ({
       auth: {
         isAuthenticated: true,
         credentials: {
           iss: 'http://localhost:3011',
           sub: SUB,
-          email: 'citizen@example.com',
-          tokenSetId
+          email: 'citizen@example.com'
         }
       },
-      yar: { set: jest.fn(), get: jest.fn(), clear: jest.fn() },
+      yar: {
+        get: jest.fn((/** @type {string} */ key) => values.get(key)),
+        set: jest.fn(
+          (/** @type {string} */ key, /** @type {unknown} */ value) =>
+            values.set(key, value)
+        ),
+        clear: jest.fn((/** @type {string} */ key) => values.delete(key))
+      },
       server: {
         app: { oidc: { getConfig: jest.fn().mockResolvedValue(OIDC_CONFIG) } }
       }
     })
   )
-
-  return { request, tokenSetId }
 }
 
 /**
@@ -65,7 +73,6 @@ async function signedInRequest(secondsLeft) {
 function refreshResponse(overrides = {}, sub = SUB) {
   const response = {
     access_token: 'access-new',
-    refresh_token: 'refresh-new',
     id_token: 'id-new',
     expires_in: 300,
     token_type: 'bearer',
@@ -94,15 +101,8 @@ function responseBodyError(error) {
 /**
  * @param {Request} request
  */
-function identityCleared(request) {
-  // yar.set is overloaded, so its mock calls are typed by the last overload
-  const calls = /** @type {[string, unknown][]} */ (
-    /** @type {unknown} */ (jest.mocked(request.yar.set).mock.calls)
-  )
-
-  return calls.some(
-    ([key, value]) => key === CITIZEN_KEY && value === undefined
-  )
+function signedOut(request) {
+  return getIdentity(request.yar) === null && getTokens(request.yar) === null
 }
 
 describe('getAccessToken', () => {
@@ -115,29 +115,28 @@ describe('getAccessToken', () => {
   })
 
   it('returns a token with more than the grace period left, without refreshing', async () => {
-    const { request } = await signedInRequest(31)
+    const request = signedInRequest(31)
 
     await expect(getAccessToken(request)).resolves.toBe('access-old')
     expect(client.refreshTokenGrant).not.toHaveBeenCalled()
   })
 
   it.each([30, 10, -60])(
-    'refreshes a token with %i seconds left and saves every new token',
+    'refreshes a token with %i seconds left and saves the new tokens in the session',
     async (secondsLeft) => {
       jest.mocked(client.refreshTokenGrant).mockResolvedValue(refreshResponse())
-      const { request, tokenSetId } = await signedInRequest(secondsLeft)
+      const request = signedInRequest(secondsLeft)
 
       await expect(getAccessToken(request)).resolves.toBe('access-new')
 
-      await expect(tokenStore.get(tokenSetId)).resolves.toEqual({
+      const saved = getTokens(request.yar)
+      expect(saved).toEqual({
         accessToken: 'access-new',
         accessTokenExpiresAt: expect.any(Number),
-        refreshToken: 'refresh-new',
-        idToken: 'id-new',
-        sub: SUB
+        refreshToken: 'refresh-old',
+        idToken: 'id-new'
       })
 
-      const saved = await tokenStore.get(tokenSetId)
       const expiresIn = (saved?.accessTokenExpiresAt ?? 0) - Date.now()
       expect(expiresIn).toBeGreaterThan(299_000)
       expect(expiresIn).toBeLessThanOrEqual(300_000)
@@ -146,7 +145,7 @@ describe('getAccessToken', () => {
 
   it('sends the refresh token and names the API the token is for', async () => {
     jest.mocked(client.refreshTokenGrant).mockResolvedValue(refreshResponse())
-    const { request } = await signedInRequest(0)
+    const request = signedInRequest(0)
 
     await getAccessToken(request)
 
@@ -157,57 +156,32 @@ describe('getAccessToken', () => {
     )
   })
 
-  it('keeps the current refresh token and ID token when the response has none', async () => {
+  it('keeps the current ID token when the response has none', async () => {
     jest
       .mocked(client.refreshTokenGrant)
-      .mockResolvedValue(
-        refreshResponse({ refresh_token: undefined, id_token: undefined })
-      )
-    const { request, tokenSetId } = await signedInRequest(0)
+      .mockResolvedValue(refreshResponse({ id_token: undefined }))
+    const request = signedInRequest(0)
 
     await expect(getAccessToken(request)).resolves.toBe('access-new')
 
-    await expect(tokenStore.get(tokenSetId)).resolves.toMatchObject({
+    expect(getTokens(request.yar)).toMatchObject({
       accessToken: 'access-new',
       refreshToken: 'refresh-old',
       idToken: 'id-old'
     })
   })
 
-  it('makes one refresh request for concurrent calls, and gives both the new token', async () => {
-    /** @type {(value: ReturnType<typeof refreshResponse>) => void} */
-    let finishRefresh = () => undefined
-    jest.mocked(client.refreshTokenGrant).mockReturnValue(
-      new Promise((resolve) => {
-        finishRefresh = resolve
-      })
-    )
-    const { request } = await signedInRequest(5)
-
-    const first = getAccessToken(request)
-    const second = getAccessToken(request)
-
-    // the second call is waiting on the first call's lock
-    await jest.advanceTimersByTimeAsync(250)
-    finishRefresh(refreshResponse())
-
-    await expect(Promise.all([first, second])).resolves.toEqual([
-      'access-new',
-      'access-new'
-    ])
-    expect(client.refreshTokenGrant).toHaveBeenCalledTimes(1)
-  })
-
-  it('releases the lock after a refresh, so the next refresh can take it', async () => {
+  it('saves a refresh token the response carries', async () => {
     jest
       .mocked(client.refreshTokenGrant)
-      .mockResolvedValue(refreshResponse({ expires_in: 10 }))
-    const { request, tokenSetId } = await signedInRequest(0)
+      .mockResolvedValue(refreshResponse({ refresh_token: 'refresh-new' }))
+    const request = signedInRequest(0)
 
     await getAccessToken(request)
 
-    const lockValue = await tokenStore.acquireLock(tokenSetId)
-    expect(lockValue).toEqual(expect.any(String))
+    expect(getTokens(request.yar)).toMatchObject({
+      refreshToken: 'refresh-new'
+    })
   })
 
   describe('when the provider refuses the refresh token', () => {
@@ -215,28 +189,24 @@ describe('getAccessToken', () => {
       jest
         .mocked(client.refreshTokenGrant)
         .mockRejectedValue(responseBodyError('invalid_grant'))
-      const { request, tokenSetId } = await signedInRequest(0)
+      const request = signedInRequest(0)
 
       await expect(getAccessToken(request)).rejects.toBeInstanceOf(
         SignInRequiredError
       )
-
-      await expect(tokenStore.get(tokenSetId)).resolves.toBeNull()
-      expect(identityCleared(request)).toBe(true)
+      expect(signedOut(request)).toBe(true)
     })
 
     it('treats an ID token for a different citizen the same way', async () => {
       jest
         .mocked(client.refreshTokenGrant)
         .mockResolvedValue(refreshResponse({}, 'someone-else'))
-      const { request, tokenSetId } = await signedInRequest(0)
+      const request = signedInRequest(0)
 
       await expect(getAccessToken(request)).rejects.toBeInstanceOf(
         SignInRequiredError
       )
-
-      await expect(tokenStore.get(tokenSetId)).resolves.toBeNull()
-      expect(identityCleared(request)).toBe(true)
+      expect(signedOut(request)).toBe(true)
     })
   })
 
@@ -249,17 +219,17 @@ describe('getAccessToken', () => {
       'keeps the tokens and identity after %s, and answers 503',
       async (_case, error) => {
         jest.mocked(client.refreshTokenGrant).mockRejectedValue(error)
-        const { request, tokenSetId } = await signedInRequest(0)
+        const request = signedInRequest(0)
 
         const thrown = await getAccessToken(request).catch(
           (/** @type {unknown} */ err) => err
         )
 
         expect(Boom.isBoom(thrown, 503)).toBe(true)
-        await expect(tokenStore.get(tokenSetId)).resolves.toMatchObject({
+        expect(getTokens(request.yar)).toMatchObject({
           refreshToken: 'refresh-old'
         })
-        expect(identityCleared(request)).toBe(false)
+        expect(signedOut(request)).toBe(false)
       }
     )
   })
@@ -274,135 +244,41 @@ describe('getAccessToken', () => {
         jest
           .mocked(client.refreshTokenGrant)
           .mockResolvedValue(refreshResponse(overrides))
-        const { request, tokenSetId } = await signedInRequest(0)
+        const request = signedInRequest(0)
 
         const thrown = await getAccessToken(request).catch(
           (/** @type {unknown} */ err) => err
         )
 
         expect(Boom.isBoom(thrown, 503)).toBe(true)
-        await expect(tokenStore.get(tokenSetId)).resolves.toMatchObject({
+        expect(getTokens(request.yar)).toMatchObject({
           accessToken: 'access-old',
           refreshToken: 'refresh-old'
         })
-        expect(identityCleared(request)).toBe(false)
+        expect(signedOut(request)).toBe(false)
       }
     )
   })
 
-  describe('when the tokens change before the lock is taken', () => {
-    const acquireLock = tokenStore.acquireLock
-
-    afterEach(() => {
-      jest.restoreAllMocks()
-    })
-
-    it('uses the token another request saved, without refreshing', async () => {
-      const { request, tokenSetId } = await signedInRequest(0)
-
-      jest
-        .spyOn(tokenStore, 'acquireLock')
-        .mockImplementationOnce(async (id) => {
-          await tokenStore.set(tokenSetId, {
-            accessToken: 'access-other',
-            accessTokenExpiresAt: Date.now() + 300_000,
-            refreshToken: 'refresh-other',
-            idToken: 'id-other',
-            sub: SUB
-          })
-
-          return acquireLock(id)
-        })
-
-      await expect(getAccessToken(request)).resolves.toBe('access-other')
-      expect(client.refreshTokenGrant).not.toHaveBeenCalled()
-    })
-
-    it('asks the citizen to sign in when the token record has gone', async () => {
-      const { request, tokenSetId } = await signedInRequest(0)
-
-      jest
-        .spyOn(tokenStore, 'acquireLock')
-        .mockImplementationOnce(async (id) => {
-          await tokenStore.delete(tokenSetId)
-
-          return acquireLock(id)
-        })
-
-      await expect(getAccessToken(request)).rejects.toBeInstanceOf(
-        SignInRequiredError
-      )
-      expect(identityCleared(request)).toBe(true)
-      expect(client.refreshTokenGrant).not.toHaveBeenCalled()
-
-      // the lock is released even though the call failed
-      await expect(tokenStore.acquireLock(tokenSetId)).resolves.toEqual(
-        expect.any(String)
-      )
-    })
-  })
-
   describe('when there are no tokens to use', () => {
-    it('asks a session from before the token store to sign in again', async () => {
-      const { request } = await signedInRequest(300)
-      const credentials = /** @type {Record<string, unknown>} */ (
-        request.auth.credentials
-      )
-      delete credentials.tokenSetId
+    it('asks a session with no tokens to sign in again', async () => {
+      const request = signedInRequest(300)
+      request.yar.clear(TOKENS_KEY)
 
       await expect(getAccessToken(request)).rejects.toBeInstanceOf(
         SignInRequiredError
       )
-      expect(identityCleared(request)).toBe(true)
-    })
-
-    it('asks the citizen to sign in when the token record has gone', async () => {
-      const { request, tokenSetId } = await signedInRequest(300)
-      await tokenStore.delete(tokenSetId)
-
-      await expect(getAccessToken(request)).rejects.toBeInstanceOf(
-        SignInRequiredError
-      )
+      expect(signedOut(request)).toBe(true)
     })
 
     it('asks an unauthenticated request to sign in', async () => {
-      const { request } = await signedInRequest(300)
+      const request = signedInRequest(300)
       request.auth.isAuthenticated = false
 
       await expect(getAccessToken(request)).rejects.toBeInstanceOf(
         SignInRequiredError
       )
     })
-  })
-
-  it('asks the citizen to sign in when another request holding the lock removes the tokens', async () => {
-    const { request, tokenSetId } = await signedInRequest(0)
-    await tokenStore.acquireLock(tokenSetId)
-
-    const result = getAccessToken(request).catch(
-      (/** @type {unknown} */ err) => err
-    )
-    await tokenStore.delete(tokenSetId)
-    await jest.advanceTimersByTimeAsync(250)
-
-    await expect(result).resolves.toBeInstanceOf(SignInRequiredError)
-    expect(client.refreshTokenGrant).not.toHaveBeenCalled()
-    expect(identityCleared(request)).toBe(true)
-  })
-
-  it('answers 503 when another request holds the lock and never saves new tokens', async () => {
-    const { request, tokenSetId } = await signedInRequest(0)
-    await tokenStore.acquireLock(tokenSetId)
-
-    const result = getAccessToken(request).catch(
-      (/** @type {unknown} */ err) => err
-    )
-    await jest.advanceTimersByTimeAsync(5500)
-
-    const thrown = await result
-    expect(Boom.isBoom(thrown, 503)).toBe(true)
-    expect(client.refreshTokenGrant).not.toHaveBeenCalled()
-    expect(identityCleared(request)).toBe(false)
   })
 })
 

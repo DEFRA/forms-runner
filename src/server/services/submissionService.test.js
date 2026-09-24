@@ -215,7 +215,7 @@ describe('Submission service', () => {
 
     it('throws when the API refuses the request', async () => {
       jest.mocked(get).mockResolvedValue(
-        /** @type {any} */ ({
+        /** @type {Awaited<ReturnType<typeof get>>} */ ({
           res: { statusCode: StatusCodes.NOT_FOUND },
           error: new Error('Not Found')
         })

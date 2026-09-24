@@ -20,7 +20,6 @@ declare module '@hapi/hapi' {
     iss: string
     sub: string
     email: string
-    tokenSetId: string
   }
 
   interface PluginProperties {
@@ -112,15 +111,20 @@ declare module '@hapi/yar' {
     [SAVE_AND_EXIT_PAYLOAD]: object
   }
 
-  // Why the session holds each of these is on the `Identity` and
-  // `SignInTransaction` typedefs in src/server/auth/accountSession.js, which
-  // is the only place that reads or writes them.
+  // Why the session holds each of these is on the `Identity`, `TokenSet`
+  // and `SignInTransaction` typedefs in src/server/auth/accountSession.js,
+  // which is the only place that reads or writes them.
   interface YarValues {
     citizen: {
       iss: string
       sub: string
       email: string
-      tokenSetId: string
+    }
+    'auth:tokens': {
+      accessToken: string
+      accessTokenExpiresAt: number
+      refreshToken: string
+      idToken: string
     }
     'auth:signInTransaction': {
       state: string

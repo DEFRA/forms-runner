@@ -138,8 +138,8 @@ export async function getSavedFormState(accessToken, magicLinkId) {
 /**
  * The state of one saved form, as forms-submission-api returns it.
  * @typedef {object} SavedFormState
- * @property {object} state
- * @property {string} [magicLinkGroupId]
+ * @property {object} state - Answers held in the saved form
+ * @property {string} [magicLinkGroupId] - Magic link group the saved form belongs to
  */
 
 /**
