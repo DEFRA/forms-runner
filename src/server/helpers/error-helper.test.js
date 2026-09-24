@@ -1,7 +1,8 @@
-import Joi from 'joi'
+import Joi, { ValidationError } from 'joi'
 
 import {
   addErrorsToSession,
+  buildErrorDetails,
   getValidationErrorsFromSession
 } from '~/src/server/helpers/error-helper.js'
 
@@ -91,6 +92,38 @@ describe('Validation functions', () => {
       const payload = { field1: 'abc' }
       getValidationErrorsFromSession(buildMockRequest(payload).yar, sessionKey)
       expect(mockFlash).toHaveBeenCalledWith('this-key')
+    })
+  })
+
+  describe('buildErrorDetails', () => {
+    it('should return errors on first array item', () => {
+      const message = 'Enter options separated by a colon'
+      const error = new ValidationError(
+        message,
+        [
+          {
+            message,
+            path: [],
+            type: 'unknown',
+            context: {
+              value: { text: '', value: '' },
+              key: 'autoCompleteOptions'
+            }
+          }
+        ],
+        { text: '', value: '' }
+      )
+      expect(
+        buildErrorDetails(
+          error,
+          () => 'Enter options separated by a colon on item 1'
+        )
+      ).toEqual({
+        autoCompleteOptions: {
+          text: 'Enter options separated by a colon on item 1',
+          href: '#autoCompleteOptions'
+        }
+      })
     })
   })
 })
