@@ -11,6 +11,7 @@ import {
   setIdentity,
   setSignInTransaction
 } from '~/src/server/auth/accountSession.js'
+import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import {
   CALLBACK_PATH,
@@ -239,6 +240,12 @@ export default [
   })
 ]
 
+/** @type { RouteOptionsAccess } */
+export const CITIZEN_AUTH_ROUTE_OPTIONS = {
+  mode: 'required',
+  strategy: CITIZEN_SESSION
+}
+
 /**
- * @import { ServerRoute } from '@hapi/hapi'
+ * @import { ServerRoute, RouteOptionsAccess } from '@hapi/hapi'
  */

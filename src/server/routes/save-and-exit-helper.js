@@ -17,7 +17,34 @@ export function hasState(formState) {
 }
 
 /**
+ * The status of a saved form. Each value is also the translation key of the
+ * tag the table shows for it.
+ */
+export const SavedFormStatus = {
+  InProgress: 'inProgress',
+  Expired: 'expired',
+  Deleted: 'deleted'
+}
+
+/**
+ * Returns the status for a saved form.
+ * @param {SavedForm | SavedFormState} savedForm
+ */
+export function getFormStatus(savedForm) {
+  if (savedForm.isDeleted) {
+    return SavedFormStatus.Deleted
+  }
+
+  if (new Date(savedForm.expireAt) <= new Date()) {
+    return SavedFormStatus.Expired
+  }
+
+  return SavedFormStatus.InProgress
+}
+
+/**
  * @import { Request } from '@hapi/hapi'
  * @import { SaveAndExitParams } from '~/src/server/models/save-and-exit.js'
  * @import { FormSubmissionState } from '@defra/forms-engine-plugin/engine/types.js'
+ * @import { SavedForm, SavedFormState } from '~/src/server/services/submissionService.js'
  */

@@ -313,6 +313,9 @@ describe('per-form homepage', () => {
       expect(
         within(table).getByRole('columnheader', { name: 'Saved until' })
       ).toBeInTheDocument()
+      expect(
+        within(table).getByRole('columnheader', { name: 'Actions' })
+      ).toBeInTheDocument()
 
       expect(
         within(table).getByRole('cell', { name: 'CCC-333' })

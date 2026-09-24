@@ -1,4 +1,6 @@
 import {
+  SavedFormStatus,
+  getFormStatus,
   getPayloadFromFlash,
   hasState
 } from '~/src/server/routes/save-and-exit-helper.js'
@@ -24,4 +26,32 @@ describe('save-and-exit-helper tests', () => {
       expect(hasState({})).toBe(false)
     })
   })
+
+  describe('getFormStatus', () => {
+    test('returns "Deleted" if it is deleted', () => {
+      expect(getFormStatus(/** @type {SavedForm}*/ ({ isDeleted: true }))).toBe(
+        SavedFormStatus.Deleted
+      )
+    })
+
+    test('returns "Expired" if it is expired', () => {
+      expect(
+        getFormStatus(
+          /** @type {SavedForm}*/ ({ expireAt: '2000-01-01T00:00:00' })
+        )
+      ).toBe(SavedFormStatus.Expired)
+    })
+
+    test('returns "InProgress" if it is neither expired or deleted', () => {
+      const now = new Date()
+      now.setFullYear(now.getFullYear() + 1)
+      expect(
+        getFormStatus(/** @type {SavedForm}*/ ({ expireAt: now.toISOString() }))
+      ).toBe(SavedFormStatus.InProgress)
+    })
+  })
 })
+
+/**
+ * @import { SavedForm } from '~/src/server/services/submissionService.js'
+ */

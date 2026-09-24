@@ -359,8 +359,17 @@ describe('Save-and-exit check routes', () => {
 
     test('restores the saved form and forwards to the success page', async () => {
       jest.mocked(getSavedFormState).mockResolvedValueOnce({
+        referenceNumber: 'XXX-XXX-XXX',
         state: { textField: 'value' },
-        magicLinkGroupId: 'group-1'
+        magicLinkGroupId: 'group-1',
+        expireAt: '',
+        form: {
+          id: 'string',
+          title: 'string',
+          status: FormStatus.Draft,
+          isPreview: true,
+          baseUrl: 'http://'
+        }
       })
 
       const response = await signInServer.inject({
