@@ -1,7 +1,11 @@
 import * as client from 'openid-client'
 
 import { SignInRequiredError } from '~/src/server/auth/SignInRequiredError.js'
-import { isUsable, refreshAccessToken } from '~/src/server/auth/accessToken.js'
+import {
+  hasExpired,
+  isUsable,
+  refreshAccessToken
+} from '~/src/server/auth/accessToken.js'
 import {
   CITIZEN_KEY,
   TOKENS_KEY,
@@ -122,6 +126,27 @@ describe('isUsable', () => {
       expect(isUsable(tokensOf(signedInRequest(secondsLeft)))).toBe(false)
     }
   )
+})
+
+describe('hasExpired', () => {
+  beforeEach(() => {
+    jest.useFakeTimers({ now: NOW })
+  })
+
+  afterEach(() => {
+    jest.useRealTimers()
+  })
+
+  it.each([30, 1])(
+    'accepts a token with %i seconds left, even inside the grace period',
+    (secondsLeft) => {
+      expect(hasExpired(tokensOf(signedInRequest(secondsLeft)))).toBe(false)
+    }
+  )
+
+  it.each([0, -60])('refuses a token with %i seconds left', (secondsLeft) => {
+    expect(hasExpired(tokensOf(signedInRequest(secondsLeft)))).toBe(true)
+  })
 })
 
 describe('refreshAccessToken', () => {

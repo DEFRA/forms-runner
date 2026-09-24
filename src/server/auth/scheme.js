@@ -1,7 +1,11 @@
 import Boom from '@hapi/boom'
 
 import { SignInRequiredError } from '~/src/server/auth/SignInRequiredError.js'
-import { isUsable, refreshAccessToken } from '~/src/server/auth/accessToken.js'
+import {
+  hasExpired,
+  isUsable,
+  refreshAccessToken
+} from '~/src/server/auth/accessToken.js'
 import { getIdentity, getTokens } from '~/src/server/auth/accountSession.js'
 import { signInUrl } from '~/src/server/utils/utils.js'
 
@@ -32,10 +36,13 @@ export function citizenSessionScheme() {
 
       if (!isUsable(tokens)) {
         try {
-          // Undefined when the provider could not refresh the token for now.
-          // The citizen stays signed in without an access token, and the
-          // next request tries the refresh again.
-          accessToken = await refreshAccessToken(request, identity.sub, tokens)
+          // When the provider could not refresh the token for now, the
+          // current one is kept until it has expired. A request made with it
+          // may still succeed; one that does not is the caller's to handle.
+          // The next request tries the refresh again.
+          accessToken =
+            (await refreshAccessToken(request, identity.sub, tokens)) ??
+            (hasExpired(tokens) ? undefined : tokens.accessToken)
         } catch (err) {
           if (err instanceof SignInRequiredError) {
             return anonymous(request, h)

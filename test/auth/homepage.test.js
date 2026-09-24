@@ -513,7 +513,7 @@ describe('per-form homepage', () => {
         await expect(session.read(headers)).resolves.toBeNull()
       })
 
-      it('answers service unavailable, and keeps the tokens, when the provider cannot be reached', async () => {
+      it('uses the current token, and keeps the tokens, when the provider cannot be reached', async () => {
         jest
           .mocked(client.refreshTokenGrant)
           .mockRejectedValue(new TypeError('fetch failed'))
@@ -524,9 +524,32 @@ describe('per-form homepage', () => {
           headers
         })
 
+        expect(response.statusCode).toBe(StatusCodes.OK)
+        expect(getSavedForms).toHaveBeenCalledWith(
+          'access-1',
+          fixtures.form.metadata.id
+        )
+        await expect(session.read(headers)).resolves.toMatchObject({
+          accessToken: 'access-1',
+          refreshToken: 'refresh-1'
+        })
+      })
+
+      it('answers service unavailable when the token has expired and the provider cannot be reached', async () => {
+        jest
+          .mocked(client.refreshTokenGrant)
+          .mockRejectedValue(new TypeError('fetch failed'))
+        const expiredHeaders = await session.start(identity, tokenSet(-10))
+
+        const response = await server.inject({
+          method: 'GET',
+          url: HOMEPAGE_URL,
+          headers: expiredHeaders
+        })
+
         expect(response.statusCode).toBe(StatusCodes.SERVICE_UNAVAILABLE)
         expect(getSavedForms).not.toHaveBeenCalled()
-        await expect(session.read(headers)).resolves.toMatchObject({
+        await expect(session.read(expiredHeaders)).resolves.toMatchObject({
           refreshToken: 'refresh-1'
         })
       })

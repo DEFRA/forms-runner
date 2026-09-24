@@ -189,7 +189,23 @@ describe('citizen-session strategy', () => {
       })
     })
 
-    it('leaves the access token off the request when the provider could not refresh it', async () => {
+    it('keeps a token that has not yet expired when the provider could not refresh it', async () => {
+      jest.mocked(refreshAccessToken).mockResolvedValue(undefined)
+
+      const server = hapi.server()
+      await server.register(pluginAuth)
+      setupProbeEndpoint(server)
+
+      const response = await server.inject({ method: 'GET', url: '/probe' })
+
+      expect(response.result).toMatchObject({
+        isAuthenticated: true,
+        credentials: { email: 'citizen@example.com', accessToken: 'access-1' }
+      })
+    })
+
+    it('leaves an expired token off the request when the provider could not refresh it', async () => {
+      jest.mocked(getTokens).mockReturnValue(tokenSet(-10))
       jest.mocked(refreshAccessToken).mockResolvedValue(undefined)
 
       const server = hapi.server()

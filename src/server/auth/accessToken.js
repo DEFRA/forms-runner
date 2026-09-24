@@ -24,6 +24,15 @@ export function isUsable(tokenSet) {
 }
 
 /**
+ * Whether the access token has expired, so no API will accept it.
+ * @param {TokenSet} tokenSet
+ * @returns {boolean}
+ */
+export function hasExpired(tokenSet) {
+  return tokenSet.accessTokenExpiresAt <= Date.now()
+}
+
+/**
  * Removes the tokens and the identity, so the citizen is treated as signed
  * out, and returns the error that says so.
  * @param {RequestContext} request
