@@ -517,6 +517,10 @@ describe('sign in routes and sign out routes', () => {
       ['cannot be read', 'not-json'],
       ['names no form', JSON.stringify({ returnUrl: FORM_PAGE })],
       ['has no return target', JSON.stringify({ slug: 'my-form-slug' })],
+      [
+        'has a __proto__ key',
+        `{"slug":"my-form-slug","returnUrl":"${FORM_PAGE}","__proto__":{"polluted":true}}`
+      ],
       ...['https://example.com/', '//example.com/', 'javascript:alert(1)'].map(
         (returnUrl) => [
           `has the return target ${returnUrl}`,

@@ -1,6 +1,7 @@
 import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
 import { slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
+import Bourne from '@hapi/bourne'
 import Joi from 'joi'
 import * as client from 'openid-client'
 
@@ -44,7 +45,9 @@ const signOutStateSchema = Joi.object({
 
 /**
  * Parses and validates the state that sign-out sent. A user can change the
- * state, so it is validated again when it comes back.
+ * state, so it is validated again when it comes back. Bourne rejects a
+ * `__proto__` or `constructor.prototype` key, so that a changed state cannot
+ * reach an object's prototype.
  * @param {string} [state]
  * @returns {{ slug: string, previewMode?: string, returnUrl: string } | undefined}
  */
@@ -52,7 +55,7 @@ function parseAndValidateSignOutState(state) {
   let parsed
 
   try {
-    parsed = JSON.parse(String(state))
+    parsed = Bourne.parse(String(state))
   } catch {
     return undefined
   }
