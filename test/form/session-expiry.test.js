@@ -35,7 +35,6 @@ jest.mock('openid-client', () => ({
 
 const basePath = `${FORM_PREFIX}/basic`
 const HOMEPAGE_URL = '/homepage/basic'
-const SESSION_ID_URL = '/test/session-id'
 
 const SESSION_TIMEOUT = config.get('sessionTimeout')
 const CONFIRMATION_SESSION_TIMEOUT = config.get('confirmationSessionTimeout')
@@ -190,13 +189,6 @@ describe('Session expiry', () => {
 
     session = citizenSession(server)
 
-    server.route({
-      method: 'GET',
-      path: SESSION_ID_URL,
-      options: { auth: false },
-      handler: (request) => request.yar.id
-    })
-
     await server.initialize()
   })
 
@@ -299,17 +291,17 @@ describe('Session expiry', () => {
       await expectAnswersKept(server, headers)
     })
 
-    it('keeps the session id from the cookie after the server-side session expires', async () => {
+    it('keeps the cookie after the server-side session expires, but signs the citizen out and removes the answers', async () => {
       const headers = await signIn(session)
-
-      const idBefore = await server.inject({ url: SESSION_ID_URL, headers })
+      await answerQuestions(server, headers)
 
       moveTimeForward(SESSION_TIMEOUT + 1)
 
-      const idAfter = await server.inject({ url: SESSION_ID_URL, headers })
-
-      expect(idAfter.payload).toBe(idBefore.payload)
       await expectSignedOut(server, headers)
+      await expectAnswersGone(server, headers)
+
+      await answerQuestions(server, headers)
+      await expectAnswersKept(server, headers)
     })
   })
 
