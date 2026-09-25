@@ -19,7 +19,7 @@ import {
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { citizenSession } from '~/test/utils/citizen-session.js'
-import { getCookie } from '~/test/utils/get-cookie.js'
+import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 jest.mock('~/src/server/services/formsService.js')
 jest.mock('~/src/server/services/submissionService.js')
@@ -293,8 +293,10 @@ describe('Session expiry', () => {
         headers: { cookie: 'session=not-a-sealed-cookie' }
       })
 
-      expect(response.statusCode).toBe(StatusCodes.OK)
-      expect(getCookie(response, 'session')).not.toBe('not-a-sealed-cookie')
+      const headers = getCookieHeader(response, 'session')
+      await answerQuestions(server, headers)
+
+      await expectAnswersKept(server, headers)
     })
 
     it('keeps the session id from the cookie after the server-side session expires', async () => {
