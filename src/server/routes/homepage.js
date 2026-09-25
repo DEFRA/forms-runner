@@ -1,7 +1,6 @@
 import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
 import { slugSchema } from '@defra/forms-model'
-import Boom from '@hapi/boom'
 import Joi from 'joi'
 
 import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
@@ -82,12 +81,6 @@ async function homepageHandler(request, h) {
     : `${FORM_PREFIX}/${slug}`
 
   const { accessToken } = request.auth.credentials
-
-  if (!accessToken) {
-    throw Boom.serverUnavailable(
-      'Authenticated session credentials do not contain an access token'
-    )
-  }
 
   const savedForms = await getSavedForms(accessToken, form.id)
 

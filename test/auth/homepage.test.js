@@ -437,24 +437,6 @@ describe('per-form homepage', () => {
       )
     })
 
-    it('answers service unavailable when there is no access token', async () => {
-      const response = await server.inject({
-        method: 'GET',
-        url: HOMEPAGE_URL,
-        auth: {
-          strategy: 'citizen-session',
-          credentials: {
-            ...credentials,
-            accessToken: undefined,
-            accessTokenExpiresAt: undefined
-          }
-        }
-      })
-
-      expect(response.statusCode).toBe(StatusCodes.SERVICE_UNAVAILABLE)
-      expect(getSavedForms).not.toHaveBeenCalled()
-    })
-
     describe('when the access token is about to expire', () => {
       /** @type {Awaited<ReturnType<typeof session.start>>} */
       let headers

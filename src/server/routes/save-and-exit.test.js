@@ -408,22 +408,35 @@ describe('Save-and-exit check routes', () => {
       expect(getSavedFormState).not.toHaveBeenCalled()
     })
 
-    test('answers service unavailable when there is no access token', async () => {
+    test('answers service unavailable when the access token has expired and the provider cannot be reached', async () => {
+      jest
+        .spyOn(signInServer.app.oidc, 'getConfig')
+        .mockRejectedValueOnce(new TypeError('fetch failed'))
+      const headers = await session.start(
+        {
+          iss: credentials.iss,
+          sub: credentials.sub,
+          email: credentials.email
+        },
+        {
+          accessToken: credentials.accessToken,
+          accessTokenExpiresAt: Date.now() - 10_000,
+          refreshToken: credentials.refreshToken,
+          idToken: credentials.idToken
+        }
+      )
+
       const response = await signInServer.inject({
         method: 'GET',
         url: `/resume-form/${FORM_ID}/${MAGIC_LINK_ID}`,
-        auth: {
-          strategy: 'citizen-session',
-          credentials: {
-            ...credentials,
-            accessToken: undefined,
-            accessTokenExpiresAt: undefined
-          }
-        }
+        headers
       })
 
       expect(response.statusCode).toBe(StatusCodes.SERVICE_UNAVAILABLE)
       expect(getSavedFormState).not.toHaveBeenCalled()
+      await expect(session.read(headers)).resolves.toMatchObject({
+        refreshToken: 'refresh-1'
+      })
     })
 
     test('forwards to the error page when the API refuses the saved form', async () => {

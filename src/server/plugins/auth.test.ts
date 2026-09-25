@@ -216,28 +216,35 @@ describe('citizen-session strategy', () => {
       expect(clearIdentity).not.toHaveBeenCalled()
     })
 
-    it('leaves an expired token and its expiry off the request when the provider could not refresh it', async () => {
-      jest.mocked(getTokens).mockReturnValue(tokenSet(-10))
-      jest.mocked(refreshAccessToken).mockResolvedValue(undefined)
-
-      const server = hapi.server()
-      await server.register(pluginAuth)
-      setupProbeEndpoint(server)
-
-      const response = await server.inject({ method: 'GET', url: '/probe' })
-      const result = response.result as {
-        isAuthenticated: boolean
-        credentials: Record<string, unknown>
-      }
-
-      expect(result.isAuthenticated).toBe(true)
-      expect(result.credentials).toEqual({
-        ...identity,
-        refreshToken: 'refresh-1',
-        idToken: 'header.payload.signature'
+    describe('and the token has expired and the provider could not refresh it', () => {
+      beforeEach(() => {
+        jest.mocked(getTokens).mockReturnValue(tokenSet(-10))
+        jest.mocked(refreshAccessToken).mockResolvedValue(undefined)
       })
-      expect(setTokens).not.toHaveBeenCalled()
-      expect(clearIdentity).not.toHaveBeenCalled()
+
+      it('leaves the request unauthenticated and keeps the session', async () => {
+        const server = hapi.server()
+        await server.register(pluginAuth)
+        setupProbeEndpoint(server)
+
+        const response = await server.inject({ method: 'GET', url: '/probe' })
+
+        expect(response.statusCode).toBe(StatusCodes.OK)
+        expect(response.result).toMatchObject({ isAuthenticated: false })
+        expect(setTokens).not.toHaveBeenCalled()
+        expect(clearIdentity).not.toHaveBeenCalled()
+      })
+
+      it('answers service unavailable on a required route', async () => {
+        const server = hapi.server()
+        await server.register(pluginAuth)
+        setupRequiredEndpoint(server)
+
+        const response = await server.inject({ method: 'GET', url: '/secure' })
+
+        expect(response.statusCode).toBe(StatusCodes.SERVICE_UNAVAILABLE)
+        expect(clearIdentity).not.toHaveBeenCalled()
+      })
     })
 
     describe('and the citizen must sign in again', () => {

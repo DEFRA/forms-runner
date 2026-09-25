@@ -292,18 +292,18 @@ async function resumeWithCitizenSignIn(request, h, form, formStatus) {
 
   // `/resume-form` also serves memorable word links, so the route uses the
   // default `try` mode rather than `required`. This redirect does what the
-  // strategy does for a `required` route.
+  // strategy does for a `required` route. A signed-in citizen whose access
+  // token could not be refreshed gets the strategy's error instead, as a
+  // `required` route would, because signing in again would not help.
   if (!auth.isAuthenticated) {
+    if (Boom.isBoom(auth.error, StatusCodes.SERVICE_UNAVAILABLE)) {
+      throw auth.error
+    }
+
     return h.redirect(signInUrl(request.path))
   }
 
   const { accessToken } = auth.credentials
-
-  if (!accessToken) {
-    throw Boom.serverUnavailable(
-      'Authenticated session credentials do not contain an access token'
-    )
-  }
 
   let savedForm
   try {

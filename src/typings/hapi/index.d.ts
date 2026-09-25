@@ -15,14 +15,14 @@ declare module '@hapi/hapi' {
 
   // The citizen-session scheme puts the signed-in identity and the tokens
   // straight on request.auth.credentials, so this is the credentials shape
-  // for every authenticated request in the app. The access token and its
-  // expiry are left off once the access token has expired.
+  // for every authenticated request in the app. A request is authenticated
+  // only while the access token has not expired.
   interface AuthCredentials {
     iss: string
     sub: string
     email: string
-    accessToken?: string
-    accessTokenExpiresAt?: number
+    accessToken: string
+    accessTokenExpiresAt: number
     refreshToken: string
     idToken: string
   }
