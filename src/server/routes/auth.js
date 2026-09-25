@@ -19,10 +19,14 @@ import {
   SIGN_OUT_PATH
 } from '~/src/server/constants.js'
 import { returnUrlSchema } from '~/src/server/models/common.js'
+import { localReturnPath } from '~/src/server/utils/utils.js'
 
 const SCOPES = 'openid email'
 
 const BASE_URL = config.get('baseUrl')
+
+/** Where a citizen goes when the sign-out state names no form */
+const GOV_UK_HOMEPAGE = 'https://www.gov.uk'
 
 /**
  * The API a token is wanted for. It must be named on the authorization
@@ -30,6 +34,39 @@ const BASE_URL = config.get('baseUrl')
  * returns an opaque token and no error.
  */
 const RESOURCE = config.get('oidc.submissionApiResource')
+
+/**
+ * The form's homepage, where a citizen signs in again
+ * @param {string} slug
+ * @param {string} [previewMode]
+ */
+function homepagePath(slug, previewMode) {
+  return previewMode
+    ? `/homepage/preview/${previewMode}/${slug}`
+    : `/homepage/${slug}`
+}
+
+/**
+ * Reads the state that the sign-out request sent to the provider. The
+ * provider sends it back unchanged. The state goes through the browser, so a
+ * user can change it. The return target is used only when it is a path in
+ * this service.
+ * @param {string} [state]
+ * @returns {{ slug?: string, previewMode?: string, returnUrl?: string }}
+ */
+function readSignOutState(state) {
+  try {
+    const { slug, previewMode, returnUrl } = JSON.parse(String(state))
+
+    return {
+      slug,
+      previewMode,
+      returnUrl: localReturnPath(returnUrl) ?? undefined
+    }
+  } catch {
+    return {}
+  }
+}
 
 /**
  * Log attributes for a sign-in step. CDP indexes the `event` object, so these
@@ -96,7 +133,7 @@ export default [
     }
   }),
   /**
-   * @satisfies {ServerRoute<{ Query: { slug?: string, previewMode?: string } }>}
+   * @satisfies {ServerRoute<{ Query: { slug?: string, previewMode?: string, returnUrl?: string } }>}
    */
   ({
     method: 'GET',
@@ -107,10 +144,11 @@ export default [
       const identity = getIdentity(request.yar)
       const idToken = identity?.idToken
 
-      clearIdentity(request.yar)
-
-      const { slug, previewMode } = request.query
-      const stateParam = JSON.stringify({ slug, previewMode })
+      // The identity stays until the provider sends the citizen back. The
+      // sign-out page there has a Cancel link, and a citizen who cancels
+      // stays signed in here as well as on the provider.
+      const { slug, previewMode, returnUrl } = request.query
+      const stateParam = JSON.stringify({ slug, previewMode, returnUrl })
 
       const postLogoutUrl = new URL(SIGNED_OUT_PATH, BASE_URL)
 
@@ -123,6 +161,15 @@ export default [
         state: stateParam
       })
       return h.redirect(logoutUrl.href)
+    },
+    options: {
+      validate: {
+        // `returnUrl` is the page where the citizen selected Sign out. The
+        // Cancel link on the provider's sign-out page sends them back to it.
+        query: Joi.object({
+          returnUrl: returnUrlSchema.optional()
+        }).unknown(true)
+      }
     }
   }),
   /**
@@ -223,18 +270,30 @@ export default [
     }
   }),
   /**
-   * @satisfies {ServerRoute<{ Query: { state: string } }>}
+   * @satisfies {ServerRoute<{ Query: { state?: string, cancelled?: string } }>}
    */
   ({
     method: 'GET',
     path: SIGNED_OUT_PATH,
     handler(request, h) {
-      const { state } = request.query
-      const { slug, previewMode } = JSON.parse(state)
-      const signInLink = previewMode
-        ? `/homepage/preview/${previewMode}/${slug}`
-        : `/homepage/${slug}`
-      return h.view('auth/signed-out', { signInLink })
+      const { slug, previewMode, returnUrl } = readSignOutState(
+        request.query.state
+      )
+      const homepage = slug ? homepagePath(slug, previewMode) : undefined
+
+      // The provider's Cancel link comes back here with `cancelled=true`. The
+      // citizen stays signed in and goes back to the page they left.
+      if (request.query.cancelled === 'true') {
+        return h.redirect(
+          returnUrl ?? localReturnPath(homepage) ?? GOV_UK_HOMEPAGE
+        )
+      }
+
+      clearIdentity(request.yar)
+
+      return h.view('auth/signed-out', {
+        signInLink: homepage ?? GOV_UK_HOMEPAGE
+      })
     }
   })
 ]

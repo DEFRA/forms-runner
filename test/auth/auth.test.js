@@ -348,6 +348,141 @@ describe('sign in routes and sign out routes', () => {
     expect(signOutResponse.headers.location).toBe(END_SESSION_URL)
   })
 
+  describe('sign-out with a Cancel on the provider', () => {
+    const FORM_PAGE = '/test-form/page-two'
+
+    /**
+     * Signs a citizen in and returns the cookie header of their session
+     */
+    async function signIn() {
+      const login = await startSignIn()
+      mockSuccessfulExchange()
+
+      const headers = getCookieHeader(login, ['session'])
+      await server.inject({ method: 'GET', url: CALLBACK_URL, headers })
+
+      return headers
+    }
+
+    /**
+     * The `id_token_hint` that sign-out sends. It is there only while the
+     * session holds the citizen's identity.
+     * @param {ReturnType<typeof getCookieHeader>} headers
+     */
+    async function idTokenHint(headers) {
+      jest.mocked(client.buildEndSessionUrl).mockClear()
+      await server.inject({ method: 'GET', url: SIGN_OUT_PATH, headers })
+
+      const [[, parameters]] = jest.mocked(client.buildEndSessionUrl).mock.calls
+
+      return new URLSearchParams(parameters).get('id_token_hint') ?? undefined
+    }
+
+    /**
+     * The URL the provider sends the citizen back to
+     * @param {object} state - the state that sign-out sent
+     * @param {boolean} [cancelled] - true when the citizen selected Cancel
+     */
+    function signedOutUrl(state, cancelled = false) {
+      const query = new URLSearchParams({ state: JSON.stringify(state) })
+
+      if (cancelled) {
+        query.set('cancelled', 'true')
+      }
+
+      return `${SIGNED_OUT_PATH}?${query.toString()}`
+    }
+
+    it('sends the page the citizen left to the provider, and keeps them signed in until they come back', async () => {
+      const headers = await signIn()
+
+      const response = await server.inject({
+        method: 'GET',
+        url: `${SIGN_OUT_PATH}?slug=my-form-slug&returnUrl=${encodeURIComponent(FORM_PAGE)}`,
+        headers
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(client.buildEndSessionUrl).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          id_token_hint: 'header.payload.signature',
+          state: JSON.stringify({ slug: 'my-form-slug', returnUrl: FORM_PAGE })
+        })
+      )
+      expect(await idTokenHint(headers)).toBe('header.payload.signature')
+    })
+
+    it.each(['https://example.com/', '//example.com/'])(
+      'refuses a sign-out whose return target %s is outside this service',
+      async (returnUrl) => {
+        const response = await server.inject({
+          method: 'GET',
+          url: `${SIGN_OUT_PATH}?slug=my-form-slug&returnUrl=${encodeURIComponent(returnUrl)}`
+        })
+
+        expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
+      }
+    )
+
+    it('sends a citizen who cancels back to the page they left, still signed in', async () => {
+      const headers = await signIn()
+
+      const response = await server.inject({
+        method: 'GET',
+        url: signedOutUrl({ slug: 'my-form-slug', returnUrl: FORM_PAGE }, true),
+        headers
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe(FORM_PAGE)
+      expect(await idTokenHint(headers)).toBe('header.payload.signature')
+    })
+
+    it.each(['https://example.com/', '//example.com/', 'javascript:alert(1)'])(
+      'sends a citizen who cancels to the form homepage when the return target %s is outside this service',
+      async (returnUrl) => {
+        const response = await server.inject({
+          method: 'GET',
+          url: signedOutUrl({ slug: 'my-form-slug', returnUrl }, true)
+        })
+
+        expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+        expect(response.headers.location).toBe(HOMEPAGE_LIVE_PATH)
+      }
+    )
+
+    it('ends the session when the citizen comes back from a completed sign-out', async () => {
+      const headers = await signIn()
+
+      const response = await server.inject({
+        method: 'GET',
+        url: signedOutUrl({ slug: 'my-form-slug', returnUrl: FORM_PAGE }),
+        headers
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.OK)
+      expect(await idTokenHint(headers)).toBeUndefined()
+    })
+
+    it('sends the citizen to GOV.UK when the state cannot be read', async () => {
+      const cancelled = await server.inject({
+        method: 'GET',
+        url: `${SIGNED_OUT_PATH}?state=not-json&cancelled=true`
+      })
+      expect(cancelled.headers.location).toBe('https://www.gov.uk')
+
+      const { container, response } = await renderResponse(server, {
+        method: 'GET',
+        url: `${SIGNED_OUT_PATH}?state=not-json`
+      })
+      expect(response.statusCode).toBe(StatusCodes.OK)
+      expect(
+        container.getByRole('link', { name: 'sign in again' })
+      ).toHaveAttribute('href', 'https://www.gov.uk')
+    })
+  })
+
   it('renders the signed-out page with correct links in preview mode (English text)', async () => {
     const { container, response, document } = await renderResponse(server, {
       method: 'GET',
