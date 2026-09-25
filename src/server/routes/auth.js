@@ -21,7 +21,6 @@ import {
   SIGN_OUT_PATH
 } from '~/src/server/constants.js'
 import { returnUrlSchema } from '~/src/server/models/common.js'
-import { localReturnPath } from '~/src/server/utils/utils.js'
 
 const SCOPES = 'openid email'
 
@@ -37,14 +36,14 @@ const RESOURCE = config.get('oidc.submissionApiResource')
 const signOutStateSchema = Joi.object({
   slug: slugSchema,
   previewMode: stateSchema.optional(),
-  returnUrl: Joi.string().optional()
+  returnUrl: returnUrlSchema.required()
 })
 
 /**
  * Parses and validates the state that sign-out sent. A user can change the
- * state, so `returnUrl` is kept only when it is a local path.
+ * state, so it is validated again when it comes back.
  * @param {string} [state]
- * @returns {{ slug: string, previewMode?: string, returnUrl?: string } | undefined}
+ * @returns {{ slug: string, previewMode?: string, returnUrl: string } | undefined}
  */
 function parseAndValidateSignOutState(state) {
   let parsed
@@ -57,14 +56,7 @@ function parseAndValidateSignOutState(state) {
 
   const { error, value } = signOutStateSchema.validate(parsed)
 
-  if (error) {
-    return undefined
-  }
-
-  return {
-    ...value,
-    returnUrl: localReturnPath(value.returnUrl) ?? undefined
-  }
+  return error ? undefined : value
 }
 
 /**
@@ -132,7 +124,7 @@ export default [
     }
   }),
   /**
-   * @satisfies {ServerRoute<{ Query: { slug?: string, previewMode?: string, returnUrl?: string } }>}
+   * @satisfies {ServerRoute<{ Query: { slug: string, previewMode?: string, returnUrl: string } }>}
    */
   ({
     method: 'GET',
@@ -163,9 +155,7 @@ export default [
     },
     options: {
       validate: {
-        query: Joi.object({
-          returnUrl: returnUrlSchema.optional()
-        }).unknown(true)
+        query: signOutStateSchema.unknown(true)
       }
     }
   }),
@@ -290,7 +280,7 @@ export default [
       // The provider's Cancel link comes back here with `cancelled=true`. The
       // citizen stays signed in and goes back to the page they left.
       if (request.query.cancelled === 'true') {
-        return h.redirect(returnUrl ?? signInLink)
+        return h.redirect(returnUrl)
       }
 
       clearIdentity(request.yar)

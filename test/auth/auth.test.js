@@ -13,6 +13,7 @@ jest.mock('openid-client')
 
 const RETURN_PATH = '/homepage/test-form'
 const SIGN_IN_URL = `/auth/sign-in?returnUrl=${RETURN_PATH}`
+const SIGN_OUT_URL = `${SIGN_OUT_PATH}?slug=test-form&returnUrl=${encodeURIComponent(RETURN_PATH)}`
 const CALLBACK_URL = '/auth/callback?code=code-1&state=state-1'
 const AUTHORIZATION_URL = 'http://localhost:3011/auth?state=state-1'
 const END_SESSION_URL =
@@ -340,7 +341,7 @@ describe('sign in routes and sign out routes', () => {
 
     const signOutResponse = await server.inject({
       method: 'GET',
-      url: SIGN_OUT_PATH,
+      url: SIGN_OUT_URL,
       headers: getCookieHeader(login, ['session'])
     })
 
@@ -371,7 +372,7 @@ describe('sign in routes and sign out routes', () => {
      */
     async function idTokenHint(headers) {
       jest.mocked(client.buildEndSessionUrl).mockClear()
-      await server.inject({ method: 'GET', url: SIGN_OUT_PATH, headers })
+      await server.inject({ method: 'GET', url: SIGN_OUT_URL, headers })
 
       const [[, parameters]] = jest.mocked(client.buildEndSessionUrl).mock.calls
 
@@ -413,17 +414,25 @@ describe('sign in routes and sign out routes', () => {
       expect(await idTokenHint(headers)).toBe('header.payload.signature')
     })
 
-    it.each(['https://example.com/', '//example.com/'])(
-      'refuses a sign-out whose return target %s is outside this service',
-      async (returnUrl) => {
-        const response = await server.inject({
-          method: 'GET',
-          url: `${SIGN_OUT_PATH}?slug=my-form-slug&returnUrl=${encodeURIComponent(returnUrl)}`
-        })
+    it.each([
+      [
+        'has a return target outside this service',
+        'slug=my-form-slug&returnUrl=https%3A%2F%2Fexample.com%2F'
+      ],
+      [
+        'has a protocol-relative return target',
+        'slug=my-form-slug&returnUrl=%2F%2Fexample.com%2F'
+      ],
+      ['has no return target', 'slug=my-form-slug'],
+      ['names no form', `returnUrl=${encodeURIComponent(FORM_PAGE)}`]
+    ])('refuses a sign-out that %s', async (_, query) => {
+      const response = await server.inject({
+        method: 'GET',
+        url: `${SIGN_OUT_PATH}?${query}`
+      })
 
-        expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
-      }
-    )
+      expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
+    })
 
     it('sends a citizen who cancels back to the page they left, still signed in', async () => {
       const headers = await signIn()
@@ -439,19 +448,6 @@ describe('sign in routes and sign out routes', () => {
       expect(await idTokenHint(headers)).toBe('header.payload.signature')
     })
 
-    it.each(['https://example.com/', '//example.com/', 'javascript:alert(1)'])(
-      'sends a citizen who cancels to the form homepage when the return target %s is outside this service',
-      async (returnUrl) => {
-        const response = await server.inject({
-          method: 'GET',
-          url: signedOutUrl({ slug: 'my-form-slug', returnUrl }, true)
-        })
-
-        expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-        expect(response.headers.location).toBe(HOMEPAGE_LIVE_PATH)
-      }
-    )
-
     it('ends the session when the citizen comes back from a completed sign-out', async () => {
       const headers = await signIn()
 
@@ -465,13 +461,25 @@ describe('sign in routes and sign out routes', () => {
       expect(await idTokenHint(headers)).toBeUndefined()
     })
 
-    it.each([
-      ['cannot be read', 'not-json', false],
-      ['cannot be read', 'not-json', true],
-      ['names no form', JSON.stringify({ returnUrl: FORM_PAGE }), false],
-      ['names no form', JSON.stringify({ returnUrl: FORM_PAGE }), true]
-    ])(
-      'shows an error, and signs the citizen out, when the state %s (cancelled: %s)',
+    const invalidStates = [
+      ['cannot be read', 'not-json'],
+      ['names no form', JSON.stringify({ returnUrl: FORM_PAGE })],
+      ['has no return target', JSON.stringify({ slug: 'my-form-slug' })],
+      ...['https://example.com/', '//example.com/', 'javascript:alert(1)'].map(
+        (returnUrl) => [
+          `has the return target ${returnUrl}`,
+          JSON.stringify({ slug: 'my-form-slug', returnUrl })
+        ]
+      )
+    ]
+
+    it.each(
+      invalidStates.flatMap(([description, state]) => [
+        [`${description}, on a completed sign-out`, state, false],
+        [`${description}, on a cancel`, state, true]
+      ])
+    )(
+      'shows an error, and signs the citizen out, when the state %s',
       async (_, state, cancelled) => {
         const headers = await signIn()
         const query = new URLSearchParams({ state })
@@ -495,7 +503,7 @@ describe('sign in routes and sign out routes', () => {
   it('renders the signed-out page with correct links in preview mode (English text)', async () => {
     const { container, response, document } = await renderResponse(server, {
       method: 'GET',
-      url: `${SIGNED_OUT_PATH}?state=%7B%22previewMode%22%3A%22draft%22%2C%22slug%22%3A%22my-form-slug%22%7D`
+      url: `${SIGNED_OUT_PATH}?state=%7B%22previewMode%22%3A%22draft%22%2C%22slug%22%3A%22my-form-slug%22%2C%22returnUrl%22%3A%22%2Fhomepage%2Fmy-form-slug%22%7D`
     })
 
     expect(response.statusCode).toBe(StatusCodes.OK)
@@ -516,7 +524,7 @@ describe('sign in routes and sign out routes', () => {
   it('renders the signed-out page with correct links in preview mode (Welsh text)', async () => {
     const { container, response, document } = await renderResponse(server, {
       method: 'GET',
-      url: `${SIGNED_OUT_PATH}?state=%7B%22previewMode%22%3A%22draft%22%2C%22slug%22%3A%22my-form-slug%22%7D&language=cy`
+      url: `${SIGNED_OUT_PATH}?state=%7B%22previewMode%22%3A%22draft%22%2C%22slug%22%3A%22my-form-slug%22%2C%22returnUrl%22%3A%22%2Fhomepage%2Fmy-form-slug%22%7D&language=cy`
     })
 
     expect(response.statusCode).toBe(StatusCodes.OK)
@@ -539,7 +547,7 @@ describe('sign in routes and sign out routes', () => {
   it('renders the signed-out page with correct links in live mode', async () => {
     const { container, response } = await renderResponse(server, {
       method: 'GET',
-      url: `${SIGNED_OUT_PATH}?state=%7B%22slug%22%3A%22my-form-slug%22%7D`
+      url: `${SIGNED_OUT_PATH}?state=%7B%22slug%22%3A%22my-form-slug%22%2C%22returnUrl%22%3A%22%2Fhomepage%2Fmy-form-slug%22%7D`
     })
 
     expect(response.statusCode).toBe(StatusCodes.OK)
