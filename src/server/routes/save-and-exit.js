@@ -278,7 +278,7 @@ async function getResumeLinkDetails(formId, magicLinkId) {
  * @param {Request<{ Params: ResumeFormParams }>} request
  * @param {ResponseToolkit<{ Params: ResumeFormParams }>} h
  * @param {FormMetadata} form
- * @param {string} [formStatus] - the status of a preview form
+ * @param {FormStatus} [formStatus] - the status of a preview form
  */
 async function resumeWithCitizenSignIn(request, h, form, formStatus) {
   const { auth, params } = request
