@@ -1,4 +1,5 @@
 import {
+  type AuthSettings,
   type Request,
   type ResponseToolkit,
   type ServerRegisterPluginObject
@@ -17,11 +18,6 @@ const yarOptions: YarOptions = {
     segment: 'session',
     expiresIn: config.get('sessionTimeout')
   },
-  /**
-   * @todo storeBlank is current commented out as it's a minor efficiency gain but breaks the auth tests if enabled.
-   * this only seems to affect the auth code, which we might remove anyway so it's temporarily disabled.
-   */
-  // storeBlank: false,
   cookieOptions: {
     password: config.get('sessionCookiePassword'),
     isSecure: config.get('isProduction')
@@ -29,13 +25,12 @@ const yarOptions: YarOptions = {
 }
 
 /**
- * Starts the session's time limit again on each request. The session then
- * ends only after SESSION_TIMEOUT with no request. A route with `auth: false`,
- * such as a static asset, does not start it again.
+ * Starts the session's time limit again on each request, except on routes
+ * with `auth: false` such as static assets.
  */
 function keepSession(request: Request, h: ResponseToolkit) {
-  // hapi sets `auth` to false on such a route. Its types leave that value out.
-  const auth: unknown = request.route.settings.auth
+  // hapi sets `auth` to false at runtime, which its RouteSettings type omits
+  const auth = request.route.settings.auth as AuthSettings | false | undefined
 
   if (auth !== false) {
     request.yar.touch()
