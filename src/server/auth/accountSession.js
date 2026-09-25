@@ -44,15 +44,6 @@ export function getTokens(yar) {
 }
 
 /**
- * Starts the session's time limit again. The session then ends only after
- * SESSION_TIMEOUT with no request from the citizen.
- * @param {Yar} yar
- */
-export function keepSession(yar) {
-  yar.touch()
-}
-
-/**
  * Stash the values the callback needs to finish the sign-in it did not start.
  * @param {Yar} yar
  * @param {SignInTransaction} transaction
