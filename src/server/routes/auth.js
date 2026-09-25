@@ -164,8 +164,6 @@ export default [
     },
     options: {
       validate: {
-        // `returnUrl` is the page where the citizen selected Sign out. The
-        // Cancel link on the provider's sign-out page sends them back to it.
         query: Joi.object({
           returnUrl: returnUrlSchema.optional()
         }).unknown(true)
