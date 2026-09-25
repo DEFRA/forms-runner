@@ -465,22 +465,33 @@ describe('sign in routes and sign out routes', () => {
       expect(await idTokenHint(headers)).toBeUndefined()
     })
 
-    it('sends the citizen to GOV.UK when the state cannot be read', async () => {
-      const cancelled = await server.inject({
-        method: 'GET',
-        url: `${SIGNED_OUT_PATH}?state=not-json&cancelled=true`
-      })
-      expect(cancelled.headers.location).toBe('https://www.gov.uk')
+    it.each([
+      ['cannot be read', 'not-json'],
+      ['names no form', JSON.stringify({ returnUrl: FORM_PAGE })]
+    ])(
+      'shows an error, and keeps the citizen signed in, when the state %s',
+      async (_, state) => {
+        const headers = await signIn()
+        const query = new URLSearchParams({ state })
 
-      const { container, response } = await renderResponse(server, {
-        method: 'GET',
-        url: `${SIGNED_OUT_PATH}?state=not-json`
-      })
-      expect(response.statusCode).toBe(StatusCodes.OK)
-      expect(
-        container.getByRole('link', { name: 'sign in again' })
-      ).toHaveAttribute('href', 'https://www.gov.uk')
-    })
+        const completed = await server.inject({
+          method: 'GET',
+          url: `${SIGNED_OUT_PATH}?${query.toString()}`,
+          headers
+        })
+        expect(completed.statusCode).toBe(StatusCodes.BAD_REQUEST)
+
+        query.set('cancelled', 'true')
+        const cancelled = await server.inject({
+          method: 'GET',
+          url: `${SIGNED_OUT_PATH}?${query.toString()}`,
+          headers
+        })
+        expect(cancelled.statusCode).toBe(StatusCodes.BAD_REQUEST)
+
+        expect(await idTokenHint(headers)).toBe('header.payload.signature')
+      }
+    )
   })
 
   it('renders the signed-out page with correct links in preview mode (English text)', async () => {

@@ -1,3 +1,5 @@
+import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
+import { slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import Joi from 'joi'
 import * as client from 'openid-client'
@@ -25,9 +27,6 @@ const SCOPES = 'openid email'
 
 const BASE_URL = config.get('baseUrl')
 
-/** Where a citizen goes when the sign-out state names no form */
-const GOV_UK_HOMEPAGE = 'https://www.gov.uk'
-
 /**
  * The API a token is wanted for. It must be named on the authorization
  * request as well as the token request: asking only at the token endpoint
@@ -35,36 +34,36 @@ const GOV_UK_HOMEPAGE = 'https://www.gov.uk'
  */
 const RESOURCE = config.get('oidc.submissionApiResource')
 
-/**
- * The form's homepage, where a citizen signs in again
- * @param {string} slug
- * @param {string} [previewMode]
- */
-function homepagePath(slug, previewMode) {
-  return previewMode
-    ? `/homepage/preview/${previewMode}/${slug}`
-    : `/homepage/${slug}`
-}
+const signOutStateSchema = Joi.object({
+  slug: slugSchema,
+  previewMode: stateSchema.optional().allow(''),
+  returnUrl: Joi.string().optional()
+})
 
 /**
- * Reads the state that the sign-out request sent to the provider. The
- * provider sends it back unchanged. The state goes through the browser, so a
- * user can change it. The return target is used only when it is a path in
- * this service.
+ * Parses and validates the state that sign-out sent. A user can change the
+ * state, so `returnUrl` is kept only when it is a local path.
  * @param {string} [state]
- * @returns {{ slug?: string, previewMode?: string, returnUrl?: string }}
+ * @returns {{ slug: string, previewMode?: string, returnUrl?: string }}
  */
-function readSignOutState(state) {
-  try {
-    const { slug, previewMode, returnUrl } = JSON.parse(String(state))
+function parseAndValidateSignOutState(state) {
+  let parsed
 
-    return {
-      slug,
-      previewMode,
-      returnUrl: localReturnPath(returnUrl) ?? undefined
-    }
+  try {
+    parsed = JSON.parse(String(state))
   } catch {
-    return {}
+    throw Boom.badRequest('Sign-out state is not valid JSON')
+  }
+
+  const { error, value } = signOutStateSchema.validate(parsed)
+
+  if (error) {
+    throw Boom.badRequest('Sign-out state is not valid')
+  }
+
+  return {
+    ...value,
+    returnUrl: localReturnPath(value.returnUrl) ?? undefined
   }
 }
 
@@ -274,24 +273,22 @@ export default [
     method: 'GET',
     path: SIGNED_OUT_PATH,
     handler(request, h) {
-      const { slug, previewMode, returnUrl } = readSignOutState(
+      const { slug, previewMode, returnUrl } = parseAndValidateSignOutState(
         request.query.state
       )
-      const homepage = slug ? homepagePath(slug, previewMode) : undefined
+      const signInLink = previewMode
+        ? `/homepage/preview/${previewMode}/${slug}`
+        : `/homepage/${slug}`
 
       // The provider's Cancel link comes back here with `cancelled=true`. The
       // citizen stays signed in and goes back to the page they left.
       if (request.query.cancelled === 'true') {
-        return h.redirect(
-          returnUrl ?? localReturnPath(homepage) ?? GOV_UK_HOMEPAGE
-        )
+        return h.redirect(returnUrl ?? signInLink)
       }
 
       clearIdentity(request.yar)
 
-      return h.view('auth/signed-out', {
-        signInLink: homepage ?? GOV_UK_HOMEPAGE
-      })
+      return h.view('auth/signed-out', { signInLink })
     }
   })
 ]
