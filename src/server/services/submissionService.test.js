@@ -1,3 +1,4 @@
+import { FormStatus } from '@defra/forms-model'
 import { StatusCodes } from 'http-status-codes'
 
 import { get, getJson, postJson } from '~/src/server/services/httpService.js'
@@ -154,6 +155,20 @@ describe('Submission service', () => {
         }
       )
     })
+
+    it.each([FormStatus.Draft, FormStatus.Live])(
+      'asks only for the forms saved from the %s preview',
+      async (preview) => {
+        respondWith([])
+
+        await getSavedForms(ACCESS_TOKEN, FORM_ID, preview)
+
+        expect(get).toHaveBeenCalledWith(
+          `${SUBMISSION_URL}/save-and-exit/records?formId=${FORM_ID}&preview=${preview}`,
+          expect.anything()
+        )
+      }
+    )
 
     it('returns the records the API sent', async () => {
       const records = [

@@ -68,13 +68,11 @@ async function homepageHandler(request, h) {
   const { slug } = request.params
   const { isPreview, state } = checkFormStatus(request.params)
 
+  const previewStatus = isPreview ? state : undefined
+
   const form = await getFormMetadata(slug)
 
-  const { translator } = await getFormTranslator(
-    request,
-    form,
-    isPreview ? state : undefined
-  )
+  const { translator } = await getFormTranslator(request, form, previewStatus)
 
   const startUrl = isPreview
     ? `${FORM_PREFIX}${PREVIEW_PATH_PREFIX}/${state}/${slug}`
@@ -82,7 +80,7 @@ async function homepageHandler(request, h) {
 
   const { accessToken } = request.auth.credentials
 
-  const savedForms = await getSavedForms(accessToken, form.id)
+  const savedForms = await getSavedForms(accessToken, form.id, previewStatus)
 
   return h.view('homepage', {
     startUrl,

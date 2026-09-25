@@ -79,12 +79,17 @@ export async function generateReferenceNumber(prefix) {
  * to list and nothing about whose records they are.
  * @param {string} accessToken - the citizen's access token
  * @param {string} formId - the form the records belong to
+ * @param {FormStatus} [preview] - the preview state, or none for a live form
  * @returns {Promise<SavedForm[]>}
  */
-export async function getSavedForms(accessToken, formId) {
-  const url = `${submissionUrl}/save-and-exit/records?formId=${encodeURIComponent(formId)}`
+export async function getSavedForms(accessToken, formId, preview) {
+  const url = new URL(`${submissionUrl}/save-and-exit/records`)
+  url.searchParams.set('formId', formId)
+  if (preview) {
+    url.searchParams.set('preview', preview)
+  }
 
-  const { res, error, payload } = await get(url, {
+  const { res, error, payload } = await get(url.href, {
     json: true,
     headers: { authorization: `Bearer ${accessToken}` }
   })
@@ -143,5 +148,6 @@ export async function getSavedFormState(accessToken, magicLinkId) {
  */
 
 /**
+ * @import { FormStatus } from '@defra/forms-model'
  * @import { GenerateReferenceNumber, SaveAndExitDetails, SaveAndExitResumeDetails } from '~/src/server/types.js'
  */

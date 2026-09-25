@@ -1,5 +1,6 @@
 import { join } from 'node:path'
 
+import { FormStatus } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { within } from '@testing-library/dom'
 import { StatusCodes } from 'http-status-codes'
@@ -433,7 +434,8 @@ describe('per-form homepage', () => {
 
       expect(getSavedForms).toHaveBeenCalledWith(
         'access-1',
-        fixtures.form.metadata.id
+        fixtures.form.metadata.id,
+        undefined
       )
     })
 
@@ -472,7 +474,8 @@ describe('per-form homepage', () => {
         )
         expect(getSavedForms).toHaveBeenCalledWith(
           'access-2',
-          fixtures.form.metadata.id
+          fixtures.form.metadata.id,
+          undefined
         )
         await expect(session.read(headers)).resolves.toMatchObject({
           accessToken: 'access-2',
@@ -516,7 +519,8 @@ describe('per-form homepage', () => {
         expect(response.statusCode).toBe(StatusCodes.OK)
         expect(getSavedForms).toHaveBeenCalledWith(
           'access-1',
-          fixtures.form.metadata.id
+          fixtures.form.metadata.id,
+          undefined
         )
         await expect(session.read(headers)).resolves.toMatchObject({
           accessToken: 'access-1',
@@ -571,6 +575,23 @@ describe('per-form homepage', () => {
         '/auth/sign-in?returnUrl=%2Fhomepage%2Ftest-form'
       )
     })
+
+    it.each([FormStatus.Draft, FormStatus.Live])(
+      'asks only for the forms saved from the %s preview on its homepage',
+      async (state) => {
+        await renderResponse(server, {
+          method: 'GET',
+          url: `/homepage/preview/${state}/test-form`,
+          auth: { strategy: 'citizen-session', credentials }
+        })
+
+        expect(getSavedForms).toHaveBeenCalledWith(
+          'access-1',
+          fixtures.form.metadata.id,
+          state
+        )
+      }
+    )
 
     it('shows a Continue link for each form in progress', async () => {
       jest.useFakeTimers({
