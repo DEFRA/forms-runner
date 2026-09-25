@@ -60,18 +60,6 @@ describe('session plugin', () => {
     return { cookie: cookie.split(';')[0] }
   }
 
-  it('writes the session on each request, so its time limit starts again', async () => {
-    const headers = await startSession()
-
-    const response = await server.inject({
-      method: 'GET',
-      url: '/page',
-      headers
-    })
-
-    expect(sessionCookie(response)).toBeDefined()
-  })
-
   it('extends the session time limit from the time of each request', async () => {
     const now = jest.spyOn(Date, 'now').mockReturnValue(1_000_000)
 
