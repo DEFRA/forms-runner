@@ -161,6 +161,14 @@ describe('sign in routes and sign out routes', () => {
     })
   })
 
+  it('asks the provider for the email address and code on every sign in, even when the provider session is active', async () => {
+    await startSignIn()
+
+    const [, params] = jest.mocked(client.buildAuthorizationUrl).mock.calls[0]
+
+    expect(params).toMatchObject({ prompt: 'login' })
+  })
+
   it('takes the email from the ID token, which carries it once the token is bound to a resource', async () => {
     const login = await startSignIn()
 

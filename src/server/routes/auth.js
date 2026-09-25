@@ -64,7 +64,11 @@ export default [
         state,
         nonce,
         code_challenge: await client.calculatePKCECodeChallenge(codeVerifier),
-        code_challenge_method: 'S256'
+        code_challenge_method: 'S256',
+        // A new session here always starts with the email address and the
+        // security code. The provider does not sign the citizen in from its
+        // own session.
+        prompt: 'login'
       })
 
       return h.redirect(authorizationUrl.href)
