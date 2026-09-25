@@ -300,7 +300,9 @@ async function resumeWithCitizenSignIn(request, h, form, formStatus) {
   const { accessToken } = auth.credentials
 
   if (!accessToken) {
-    throw Boom.serverUnavailable('Could not refresh the access token')
+    throw Boom.serverUnavailable(
+      'Authenticated session credentials do not contain an access token'
+    )
   }
 
   let savedForm

@@ -84,7 +84,9 @@ async function homepageHandler(request, h) {
   const { accessToken } = request.auth.credentials
 
   if (!accessToken) {
-    throw Boom.serverUnavailable('Could not refresh the access token')
+    throw Boom.serverUnavailable(
+      'Authenticated session credentials do not contain an access token'
+    )
   }
 
   const savedForms = await getSavedForms(accessToken, form.id)
