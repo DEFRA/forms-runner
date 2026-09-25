@@ -35,7 +35,10 @@ const credentials = {
   iss: 'http://localhost:3011',
   sub: SUB,
   email: EMAIL,
-  accessToken: 'access-1'
+  accessToken: 'access-1',
+  accessTokenExpiresAt: Date.now() + 300_000,
+  refreshToken: 'refresh-1',
+  idToken: 'id-1'
 }
 
 const identity = {
@@ -440,7 +443,11 @@ describe('per-form homepage', () => {
         url: HOMEPAGE_URL,
         auth: {
           strategy: 'citizen-session',
-          credentials: { ...credentials, accessToken: undefined }
+          credentials: {
+            ...credentials,
+            accessToken: undefined,
+            accessTokenExpiresAt: undefined
+          }
         }
       })
 

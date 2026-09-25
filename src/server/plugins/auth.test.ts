@@ -3,7 +3,12 @@ import { StatusCodes } from 'http-status-codes'
 
 import { SignInRequiredError } from '~/src/server/auth/SignInRequiredError.js'
 import { refreshAccessToken } from '~/src/server/auth/accessToken.js'
-import { getIdentity, getTokens } from '~/src/server/auth/accountSession.js'
+import {
+  clearIdentity,
+  getIdentity,
+  getTokens,
+  setTokens
+} from '~/src/server/auth/accountSession.js'
 import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
 import pluginAuth from '~/src/server/plugins/auth.js'
 
@@ -83,8 +88,10 @@ describe('citizen-session strategy', () => {
     expect(response.result).toMatchObject({ isAuthenticated: false })
   })
 
-  it('puts the stored identity on the request', async () => {
+  it('puts the stored identity and tokens on the request', async () => {
+    const tokens = tokenSet(300)
     jest.mocked(getIdentity).mockReturnValue(identity)
+    jest.mocked(getTokens).mockReturnValue(tokens)
 
     const server = hapi.server()
     await server.register(pluginAuth)
@@ -92,9 +99,9 @@ describe('citizen-session strategy', () => {
 
     const response = await server.inject({ method: 'GET', url: '/probe' })
 
-    expect(response.result).toMatchObject({
+    expect(response.result).toEqual({
       isAuthenticated: true,
-      credentials: { email: 'citizen@example.com', accessToken: 'access-1' }
+      credentials: { ...identity, ...tokens }
     })
     expect(refreshAccessToken).not.toHaveBeenCalled()
   })
@@ -169,8 +176,9 @@ describe('citizen-session strategy', () => {
       jest.mocked(getTokens).mockReturnValue(tokenSet(20))
     })
 
-    it('refreshes it and puts the new one on the request', async () => {
-      jest.mocked(refreshAccessToken).mockResolvedValue('access-2')
+    it('refreshes it, saves the new tokens and puts the new one on the request', async () => {
+      const refreshed = { ...tokenSet(300), accessToken: 'access-2' }
+      jest.mocked(refreshAccessToken).mockResolvedValue(refreshed)
 
       const server = hapi.server()
       await server.register(pluginAuth)
@@ -183,10 +191,12 @@ describe('citizen-session strategy', () => {
         identity.sub,
         expect.objectContaining({ refreshToken: 'refresh-1' })
       )
-      expect(response.result).toMatchObject({
+      expect(response.result).toEqual({
         isAuthenticated: true,
-        credentials: { email: 'citizen@example.com', accessToken: 'access-2' }
+        credentials: { ...identity, ...refreshed }
       })
+      expect(setTokens).toHaveBeenCalledTimes(1)
+      expect(jest.mocked(setTokens).mock.calls[0][1]).toBe(refreshed)
     })
 
     it('keeps a token that has not yet expired when the provider could not refresh it', async () => {
@@ -202,9 +212,11 @@ describe('citizen-session strategy', () => {
         isAuthenticated: true,
         credentials: { email: 'citizen@example.com', accessToken: 'access-1' }
       })
+      expect(setTokens).not.toHaveBeenCalled()
+      expect(clearIdentity).not.toHaveBeenCalled()
     })
 
-    it('leaves an expired token off the request when the provider could not refresh it', async () => {
+    it('leaves an expired token and its expiry off the request when the provider could not refresh it', async () => {
       jest.mocked(getTokens).mockReturnValue(tokenSet(-10))
       jest.mocked(refreshAccessToken).mockResolvedValue(undefined)
 
@@ -219,7 +231,13 @@ describe('citizen-session strategy', () => {
       }
 
       expect(result.isAuthenticated).toBe(true)
-      expect(result.credentials).toEqual(identity)
+      expect(result.credentials).toEqual({
+        ...identity,
+        refreshToken: 'refresh-1',
+        idToken: 'header.payload.signature'
+      })
+      expect(setTokens).not.toHaveBeenCalled()
+      expect(clearIdentity).not.toHaveBeenCalled()
     })
 
     describe('and the citizen must sign in again', () => {
@@ -229,7 +247,7 @@ describe('citizen-session strategy', () => {
           .mockRejectedValue(new SignInRequiredError('invalidGrant'))
       })
 
-      it('leaves the request unauthenticated', async () => {
+      it('signs the citizen out and leaves the request unauthenticated', async () => {
         const server = hapi.server()
         await server.register(pluginAuth)
         setupProbeEndpoint(server)
@@ -238,6 +256,8 @@ describe('citizen-session strategy', () => {
 
         expect(response.statusCode).toBe(StatusCodes.OK)
         expect(response.result).toMatchObject({ isAuthenticated: false })
+        expect(clearIdentity).toHaveBeenCalledTimes(1)
+        expect(setTokens).not.toHaveBeenCalled()
       })
 
       it('redirects a required route to sign in, returning to the same path', async () => {

@@ -6,16 +6,22 @@ import {
   isUsable,
   refreshAccessToken
 } from '~/src/server/auth/accessToken.js'
-import { getIdentity, getTokens } from '~/src/server/auth/accountSession.js'
+import {
+  clearIdentity,
+  getIdentity,
+  getTokens,
+  setTokens
+} from '~/src/server/auth/accountSession.js'
 import { signInUrl } from '~/src/server/utils/utils.js'
 
 export const CITIZEN_SESSION = 'citizen-session'
 
 /**
  * Turns a signed-in session into request credentials, refreshing the access
- * token first when it is close to expiring. A route that does not need the
- * citizen, such as a static asset, should set `auth: false` so it does not
- * refresh.
+ * token first when it is close to expiring. This is the only place that saves
+ * refreshed tokens, or signs the citizen out when a refresh is refused. A
+ * route that does not need the citizen, such as a static asset, should set
+ * `auth: false` so it does not refresh.
  */
 export function citizenSessionScheme() {
   return {
@@ -31,20 +37,25 @@ export function citizenSessionScheme() {
         return anonymous(request, h)
       }
 
-      /** @type {string | undefined} */
-      let accessToken = tokens.accessToken
+      /** @type {TokenSet} */
+      let current = tokens
 
       if (!isUsable(tokens)) {
         try {
-          // When the provider could not refresh the token for now, the
-          // current one is kept until it has expired. A request made with it
-          // may still succeed; one that does not is the caller's to handle.
-          // The next request tries the refresh again.
-          accessToken =
-            (await refreshAccessToken(request, identity.sub, tokens)) ??
-            (hasExpired(tokens) ? undefined : tokens.accessToken)
+          const refreshed = await refreshAccessToken(
+            request,
+            identity.sub,
+            tokens
+          )
+
+          if (refreshed) {
+            setTokens(request.yar, refreshed)
+            current = refreshed
+          }
         } catch (err) {
           if (err instanceof SignInRequiredError) {
+            clearIdentity(request.yar)
+
             return anonymous(request, h)
           }
 
@@ -52,10 +63,13 @@ export function citizenSessionScheme() {
         }
       }
 
+      const { accessToken, accessTokenExpiresAt, ...otherTokens } = current
+
       return h.authenticated({
         credentials: {
           ...identity,
-          ...(accessToken && { accessToken })
+          ...otherTokens,
+          ...(!hasExpired(current) && { accessToken, accessTokenExpiresAt })
         }
       })
     }
@@ -78,4 +92,5 @@ function anonymous(request, h) {
 
 /**
  * @import { Request, ResponseToolkit } from '@hapi/hapi'
+ * @import { TokenSet } from '~/src/server/auth/accountSession.js'
  */

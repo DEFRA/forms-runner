@@ -88,8 +88,9 @@ export function clearSignInTransaction(yar) {
 
 /**
  * The citizen's tokens. They are kept in the session, which is stored on the
- * server, so they never reach the browser. They are kept apart from the
- * identity so they are not part of the request credentials.
+ * server, so they never reach the browser. The citizen-session scheme reads
+ * them from here on each request, refreshes the access token when needed, and
+ * puts them on the request credentials with the identity.
  *
  * Two requests can run at once, and each writes its own copy of the session
  * back when it ends. A request that started before a refresh can therefore

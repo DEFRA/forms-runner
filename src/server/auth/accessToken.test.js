@@ -9,7 +9,6 @@ import {
 import {
   CITIZEN_KEY,
   TOKENS_KEY,
-  getIdentity,
   getTokens
 } from '~/src/server/auth/accountSession.js'
 
@@ -100,13 +99,6 @@ function tokensOf(request) {
   return /** @type {TokenSet} */ (getTokens(request.yar))
 }
 
-/**
- * @param {Request} request
- */
-function signedOut(request) {
-  return getIdentity(request.yar) === null && getTokens(request.yar) === null
-}
-
 describe('isUsable', () => {
   beforeEach(() => {
     jest.useFakeTimers({ now: NOW })
@@ -158,25 +150,23 @@ describe('refreshAccessToken', () => {
     jest.useRealTimers()
   })
 
-  it('saves the new tokens in the session and returns the access token', async () => {
+  it('returns the new tokens without writing to the session', async () => {
     jest.mocked(client.refreshTokenGrant).mockResolvedValue(refreshResponse())
     const request = signedInRequest(10)
 
-    await expect(
-      refreshAccessToken(request, SUB, tokensOf(request))
-    ).resolves.toBe('access-new')
+    const refreshed = await refreshAccessToken(request, SUB, tokensOf(request))
 
-    const saved = getTokens(request.yar)
-    expect(saved).toEqual({
+    expect(refreshed).toEqual({
       accessToken: 'access-new',
       accessTokenExpiresAt: expect.any(Number),
       refreshToken: 'refresh-old',
       idToken: 'id-new'
     })
 
-    const expiresIn = (saved?.accessTokenExpiresAt ?? 0) - Date.now()
+    const expiresIn = (refreshed?.accessTokenExpiresAt ?? 0) - Date.now()
     expect(expiresIn).toBeGreaterThan(299_000)
     expect(expiresIn).toBeLessThanOrEqual(300_000)
+    expect(request.yar.set).not.toHaveBeenCalled()
   })
 
   it('sends the refresh token and names the API the token is for', async () => {
@@ -200,30 +190,26 @@ describe('refreshAccessToken', () => {
 
     await expect(
       refreshAccessToken(request, SUB, tokensOf(request))
-    ).resolves.toBe('access-new')
-
-    expect(getTokens(request.yar)).toMatchObject({
+    ).resolves.toMatchObject({
       accessToken: 'access-new',
       refreshToken: 'refresh-old',
       idToken: 'id-old'
     })
   })
 
-  it('saves a refresh token the response carries', async () => {
+  it('returns a refresh token the response carries', async () => {
     jest
       .mocked(client.refreshTokenGrant)
       .mockResolvedValue(refreshResponse({ refresh_token: 'refresh-new' }))
     const request = signedInRequest(0)
 
-    await refreshAccessToken(request, SUB, tokensOf(request))
-
-    expect(getTokens(request.yar)).toMatchObject({
-      refreshToken: 'refresh-new'
-    })
+    await expect(
+      refreshAccessToken(request, SUB, tokensOf(request))
+    ).resolves.toMatchObject({ refreshToken: 'refresh-new' })
   })
 
   describe('when the provider refuses the refresh token', () => {
-    it('removes the tokens and the identity, and asks the citizen to sign in', async () => {
+    it('asks the citizen to sign in, leaving the session to the scheme', async () => {
       jest
         .mocked(client.refreshTokenGrant)
         .mockRejectedValue(responseBodyError('invalid_grant'))
@@ -232,7 +218,7 @@ describe('refreshAccessToken', () => {
       await expect(
         refreshAccessToken(request, SUB, tokensOf(request))
       ).rejects.toBeInstanceOf(SignInRequiredError)
-      expect(signedOut(request)).toBe(true)
+      expect(request.yar.set).not.toHaveBeenCalled()
     })
 
     it('treats an ID token for a different citizen the same way', async () => {
@@ -244,7 +230,7 @@ describe('refreshAccessToken', () => {
       await expect(
         refreshAccessToken(request, SUB, tokensOf(request))
       ).rejects.toBeInstanceOf(SignInRequiredError)
-      expect(signedOut(request)).toBe(true)
+      expect(request.yar.set).not.toHaveBeenCalled()
     })
   })
 
@@ -254,7 +240,7 @@ describe('refreshAccessToken', () => {
       ['a provider error', responseBodyError('server_error')],
       ['a value that is not an error', 'unexpected']
     ])(
-      'keeps the tokens and identity after %s, and returns no token',
+      'returns no tokens after %s, and leaves the session alone',
       async (_case, error) => {
         jest.mocked(client.refreshTokenGrant).mockRejectedValue(error)
         const request = signedInRequest(0)
@@ -262,10 +248,7 @@ describe('refreshAccessToken', () => {
         await expect(
           refreshAccessToken(request, SUB, tokensOf(request))
         ).resolves.toBeUndefined()
-        expect(getTokens(request.yar)).toMatchObject({
-          refreshToken: 'refresh-old'
-        })
-        expect(signedOut(request)).toBe(false)
+        expect(request.yar.set).not.toHaveBeenCalled()
       }
     )
   })
@@ -275,7 +258,7 @@ describe('refreshAccessToken', () => {
       ['no access token', { access_token: undefined }],
       ['no expiry', { expires_in: undefined }]
     ])(
-      'keeps the tokens and identity when it has %s, and returns no token',
+      'returns no tokens when it has %s, and leaves the session alone',
       async (_case, overrides) => {
         jest
           .mocked(client.refreshTokenGrant)
@@ -285,11 +268,7 @@ describe('refreshAccessToken', () => {
         await expect(
           refreshAccessToken(request, SUB, tokensOf(request))
         ).resolves.toBeUndefined()
-        expect(getTokens(request.yar)).toMatchObject({
-          accessToken: 'access-old',
-          refreshToken: 'refresh-old'
-        })
-        expect(signedOut(request)).toBe(false)
+        expect(request.yar.set).not.toHaveBeenCalled()
       }
     )
   })

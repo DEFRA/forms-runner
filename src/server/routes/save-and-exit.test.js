@@ -317,7 +317,10 @@ describe('Save-and-exit check routes', () => {
       iss: 'http://localhost:3011',
       sub: 'sub-1',
       email: 'citizen@example.com',
-      accessToken: 'access-1'
+      accessToken: 'access-1',
+      accessTokenExpiresAt: Date.now() + 300_000,
+      refreshToken: 'refresh-1',
+      idToken: 'id-1'
     }
 
     /** @type {ReturnType<typeof citizenSession>} */
@@ -411,7 +414,11 @@ describe('Save-and-exit check routes', () => {
         url: `/resume-form/${FORM_ID}/${MAGIC_LINK_ID}`,
         auth: {
           strategy: 'citizen-session',
-          credentials: { ...credentials, accessToken: undefined }
+          credentials: {
+            ...credentials,
+            accessToken: undefined,
+            accessTokenExpiresAt: undefined
+          }
         }
       })
 
