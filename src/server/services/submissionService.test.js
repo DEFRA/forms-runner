@@ -26,7 +26,7 @@ const magicLinkId = '7ac201b2-bea3-490d-8ccb-2734b2794f7b'
  */
 function respondWith(payload, statusCode = StatusCodes.OK) {
   jest.mocked(get).mockResolvedValue(
-    /** @type {any} */ ({
+    /** @type {Awaited<ReturnType<typeof get>>} */ ({
       res: { statusCode },
       payload
     })
@@ -189,7 +189,7 @@ describe('Submission service', () => {
 
     it('reports a refused token rather than returning it as a record', async () => {
       jest.mocked(get).mockResolvedValue(
-        /** @type {any} */ ({
+        /** @type {Awaited<ReturnType<typeof get>>} */ ({
           res: { statusCode: StatusCodes.UNAUTHORIZED },
           error: new Error('Unauthorized')
         })
@@ -230,7 +230,7 @@ describe('Submission service', () => {
 
     it('throws when the API refuses the request', async () => {
       jest.mocked(get).mockResolvedValue(
-        /** @type {any} */ ({
+        /** @type {Awaited<ReturnType<typeof get>>} */ ({
           res: { statusCode: StatusCodes.NOT_FOUND },
           error: new Error('Not Found')
         })

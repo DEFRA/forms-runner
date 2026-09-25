@@ -3,14 +3,17 @@ import Joi from 'joi'
 import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
+import { SignInOutcome } from '~/src/server/auth/SignInOutcome.js'
 import {
   clearIdentity,
   clearSignInTransaction,
-  getIdentity,
   getSignInTransaction,
+  getTokens,
   setIdentity,
-  setSignInTransaction
+  setSignInTransaction,
+  setTokens
 } from '~/src/server/auth/accountSession.js'
+import { signInEvent } from '~/src/server/auth/signInEvent.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import {
   CALLBACK_PATH,
@@ -30,25 +33,6 @@ const BASE_URL = config.get('baseUrl')
  * returns an opaque token and no error.
  */
 const RESOURCE = config.get('oidc.submissionApiResource')
-
-/**
- * Log attributes for a sign-in step. CDP indexes the `event` object, so these
- * are searchable. Values are fixed strings; nothing from the provider or the
- * session is logged.
- * @param {string} action
- * @param {string} outcome - `success`, `failure` or `unknown`
- * @param {string} reason
- */
-function signInEvent(action, outcome, reason) {
-  return {
-    event: {
-      category: 'authentication',
-      action,
-      outcome,
-      reason
-    }
-  }
-}
 
 export default [
   /**
@@ -86,6 +70,7 @@ export default [
       return h.redirect(authorizationUrl.href)
     },
     options: {
+      auth: false,
       validate: {
         // Only `returnUrl` is read. Other keys, such as tracking parameters,
         // are ignored so they do not block sign in.
@@ -104,8 +89,8 @@ export default [
     async handler(request, h) {
       const oidcConfig = await request.server.app.oidc.getConfig()
 
-      const identity = getIdentity(request.yar)
-      const idToken = identity?.idToken
+      // A session with no tokens is signed out without an ID token hint
+      const idToken = getTokens(request.yar)?.idToken
 
       clearIdentity(request.yar)
 
@@ -123,6 +108,9 @@ export default [
         state: stateParam
       })
       return h.redirect(logoutUrl.href)
+    },
+    options: {
+      auth: false
     }
   }),
   /**
@@ -142,7 +130,7 @@ export default [
         logger.warn(
           signInEvent(
             'sign-in-callback',
-            'failure',
+            SignInOutcome.Failure,
             transaction ? 'stateMismatch' : 'noTransactionInSession'
           ),
           '[signInRejected] Callback did not match a sign-in this session started'
@@ -186,18 +174,41 @@ export default [
           throw new Error('Provider did not return an email or ID token')
         }
 
+        // The expiry is worked out from `expires_in` rather than from the
+        // access token's `exp` claim. The token is issued for
+        // forms-submission-api, so this service neither reads nor validates
+        // it.
+        if (
+          !tokens.access_token ||
+          !tokens.refresh_token ||
+          tokens.expires_in === undefined
+        ) {
+          throw new Error(
+            'Provider did not return an access token, refresh token or expiry'
+          )
+        }
+
         setIdentity(request.yar, {
           iss: claims.iss,
           sub: claims.sub,
-          email,
-          idToken: tokens.id_token,
-          accessToken: tokens.access_token
+          email
+        })
+
+        setTokens(request.yar, {
+          accessToken: tokens.access_token,
+          accessTokenExpiresAt: Date.now() + tokens.expires_in * 1000,
+          refreshToken: tokens.refresh_token,
+          idToken: tokens.id_token
         })
       } catch (err) {
         logger.error(
           {
             err,
-            ...signInEvent('sign-in-callback', 'failure', 'codeExchangeFailed')
+            ...signInEvent(
+              'sign-in-callback',
+              SignInOutcome.Failure,
+              'codeExchangeFailed'
+            )
           },
           '[signInFailed] Could not complete sign in'
         )
@@ -212,6 +223,7 @@ export default [
       return h.redirect(transaction.returnUrl)
     },
     options: {
+      auth: false,
       validate: {
         // The provider decides what else it sends back with the code and the
         // state, so this route accepts keys it does not name.

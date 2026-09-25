@@ -1,5 +1,6 @@
 export const CITIZEN_KEY = 'citizen'
 export const SIGN_IN_TRANSACTION_KEY = 'auth:signInTransaction'
+export const TOKENS_KEY = 'auth:tokens'
 
 /**
  * @param {Yar} yar
@@ -18,10 +19,28 @@ export function getIdentity(yar) {
 }
 
 /**
+ * Clears the tokens as well, so the citizen is signed out of this service.
  * @param {Yar} yar
  */
 export function clearIdentity(yar) {
   yar.set(CITIZEN_KEY, undefined)
+  yar.set(TOKENS_KEY, undefined)
+}
+
+/**
+ * @param {Yar} yar
+ * @param {TokenSet} tokens
+ */
+export function setTokens(yar, tokens) {
+  yar.set(TOKENS_KEY, tokens)
+}
+
+/**
+ * @param {Yar} yar
+ * @returns {TokenSet | null}
+ */
+export function getTokens(yar) {
+  return yar.get(TOKENS_KEY) ?? null
 }
 
 /**
@@ -65,10 +84,28 @@ export function clearSignInTransaction(yar) {
  * @property {string} sub - the citizen's identifier at that provider. Stable
  *   across sign ins, unlike the email address, which the citizen can change.
  * @property {string} email - names the citizen in the header on every page.
+ */
+
+/**
+ * The citizen's tokens. They are kept in the session, which is stored on the
+ * server, so they never reach the browser. The citizen-session scheme reads
+ * them from here on each request, refreshes the access token when needed, and
+ * puts them on the request credentials with the identity.
+ *
+ * Two requests can run at once, and each writes its own copy of the session
+ * back when it ends. A request that started before a refresh can therefore
+ * put back the tokens the refresh replaced. That is safe because the provider
+ * does not rotate refresh tokens: the older refresh token is still valid, and
+ * the next request that needs an access token refreshes again.
+ * @typedef {object} TokenSet
+ * @property {string} accessToken - proves the citizen to
+ *   forms-submission-api. This service passes it on without reading it.
+ * @property {number} accessTokenExpiresAt - when the access token expires,
+ *   in epoch milliseconds, worked out from `expires_in` in the token response.
+ * @property {string} refreshToken - gets new access tokens from the provider.
+ *   It lasts for a fixed time from sign in and is not replaced on refresh.
  * @property {string} idToken - the provider asks for this to sign the citizen
  *   out of the provider as well as out of this service.
- * @property {string} accessToken - proves this citizen to forms-submission-api.
- *   It is kept here and never reaches the browser.
  */
 
 /**

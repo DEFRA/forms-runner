@@ -4,6 +4,7 @@ import { StatusCodes } from 'http-status-codes'
 import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
+import { CITIZEN_KEY, TOKENS_KEY } from '~/src/server/auth/accountSession.js'
 import { SIGNED_OUT_PATH, SIGN_OUT_PATH } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
@@ -23,6 +24,10 @@ const ISSUER = 'http://localhost:3011'
 const RESOURCE = 'urn:defra:forms:forms-submission-api'
 const SUB = 'sub-1'
 const EMAIL = 'citizen@example.com'
+const ID_TOKEN = 'header.payload.signature'
+const ACCESS_TOKEN = 'access-1'
+const REFRESH_TOKEN = 'refresh-1'
+const SESSION_PROBE_PATH = '/test/session'
 
 /**
  * A token response carrying just the fields the callback route reads. Cast
@@ -33,8 +38,10 @@ const EMAIL = 'citizen@example.com'
 function mockTokens() {
   return /** @type {TokenEndpointResponse & TokenEndpointResponseHelpers} */ (
     /** @type {unknown} */ ({
-      id_token: 'header.payload.signature',
-      access_token: 'access-1',
+      id_token: ID_TOKEN,
+      access_token: ACCESS_TOKEN,
+      refresh_token: REFRESH_TOKEN,
+      expires_in: 300,
       claims: () => ({ iss: ISSUER, sub: SUB, email: EMAIL })
     })
   )
@@ -54,6 +61,38 @@ describe('sign in routes and sign out routes', () => {
     return server.inject({ method: 'GET', url: SIGN_IN_URL })
   }
 
+  /**
+   * Reads everything the server-side session holds for a cookie
+   * @param {ServerInjectResponse} login - the response that set the cookie
+   * @returns {Promise<Record<string, unknown>>}
+   */
+  async function readSession(login) {
+    const response = await server.inject({
+      method: 'GET',
+      url: SESSION_PROBE_PATH,
+      headers: getCookieHeader(login, ['session'])
+    })
+
+    return /** @type {Record<string, unknown>} */ (response.result)
+  }
+
+  /** Signs a citizen in, returning the response whose cookie holds the session */
+  async function signIn() {
+    const login = await startSignIn()
+
+    mockSuccessfulExchange()
+
+    const callback = await server.inject({
+      method: 'GET',
+      url: CALLBACK_URL,
+      headers: getCookieHeader(login, ['session'])
+    })
+
+    expect(callback.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+
+    return { login, callback }
+  }
+
   beforeAll(async () => {
     config.set('useSignInFeature', true)
 
@@ -61,6 +100,19 @@ describe('sign in routes and sign out routes', () => {
       formFileName: 'basic.js',
       formFilePath: join(import.meta.dirname, '..', 'form', 'definitions'),
       enforceCsrf: false
+    })
+
+    server.route({
+      method: 'GET',
+      path: SESSION_PROBE_PATH,
+      options: { auth: false },
+      // `_store` is yar's internal copy of the session, which is what gets
+      // written to the cache. It is not in yar's typings.
+      handler: (request) => ({
+        .../** @type {{ _store: Record<string, unknown> }} */ (
+          /** @type {unknown} */ (request.yar)
+        )._store
+      })
     })
 
     await server.initialize()
@@ -348,6 +400,99 @@ describe('sign in routes and sign out routes', () => {
     expect(signOutResponse.headers.location).toBe(END_SESSION_URL)
   })
 
+  describe('where the tokens are kept', () => {
+    it('keeps the identity and the tokens apart in the server-side session', async () => {
+      const { login } = await signIn()
+
+      const session = await readSession(login)
+
+      expect(session[CITIZEN_KEY]).toEqual({
+        iss: ISSUER,
+        sub: SUB,
+        email: EMAIL
+      })
+      expect(session[TOKENS_KEY]).toEqual({
+        accessToken: ACCESS_TOKEN,
+        accessTokenExpiresAt: expect.any(Number),
+        refreshToken: REFRESH_TOKEN,
+        idToken: ID_TOKEN
+      })
+    })
+
+    it('works out when the access token expires from expires_in', async () => {
+      const before = Date.now()
+      const { login } = await signIn()
+      const after = Date.now()
+
+      const tokenSet = /** @type {TokenSet} */ (
+        (await readSession(login))[TOKENS_KEY]
+      )
+
+      expect(tokenSet.accessTokenExpiresAt).toBeGreaterThanOrEqual(
+        before + 300_000
+      )
+      expect(tokenSet.accessTokenExpiresAt).toBeLessThanOrEqual(after + 300_000)
+    })
+
+    it('sends no token value to the browser in any cookie', async () => {
+      const { login, callback } = await signIn()
+
+      const cookies = [login, callback]
+        .flatMap((response) => response.headers['set-cookie'] ?? [])
+        .join('\n')
+
+      expect(cookies).not.toContain(ACCESS_TOKEN)
+      expect(cookies).not.toContain(REFRESH_TOKEN)
+      expect(cookies).not.toContain(ID_TOKEN)
+    })
+
+    it.each([
+      ['refresh_token', { refresh_token: undefined }],
+      ['expires_in', { expires_in: undefined }],
+      ['access_token', { access_token: undefined }]
+    ])(
+      'refuses a sign in when the token response has no %s',
+      async (_field, overrides) => {
+        const login = await startSignIn()
+
+        jest
+          .mocked(client.authorizationCodeGrant)
+          .mockResolvedValue(Object.assign(mockTokens(), overrides))
+
+        const response = await server.inject({
+          method: 'GET',
+          url: CALLBACK_URL,
+          headers: getCookieHeader(login, ['session'])
+        })
+
+        expect(response.statusCode).toBe(StatusCodes.FORBIDDEN)
+
+        const session = await readSession(login)
+        expect(session[CITIZEN_KEY]).toBeUndefined()
+        expect(session[TOKENS_KEY]).toBeUndefined()
+      }
+    )
+
+    it('removes the tokens on sign out, and names the ID token to the provider', async () => {
+      const { login } = await signIn()
+
+      const signOutResponse = await server.inject({
+        method: 'GET',
+        url: SIGN_OUT_PATH,
+        headers: getCookieHeader(login, ['session'])
+      })
+
+      expect(signOutResponse.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+
+      const [, params] = jest.mocked(client.buildEndSessionUrl).mock.calls[0]
+      expect(params).toMatchObject({ id_token_hint: ID_TOKEN })
+
+      const session = await readSession(login)
+      expect(session[CITIZEN_KEY]).toBeUndefined()
+      expect(session[TOKENS_KEY]).toBeUndefined()
+    })
+  })
+
   it('renders the signed-out page with correct links in preview mode (English text)', async () => {
     const { container, response, document } = await renderResponse(server, {
       method: 'GET',
@@ -450,6 +595,7 @@ describe('sign in routes, feature flag off', () => {
 })
 
 /**
- * @import { Server } from '@hapi/hapi'
+ * @import { Server, ServerInjectResponse } from '@hapi/hapi'
+ * @import { TokenSet } from '~/src/server/auth/accountSession.js'
  * @import { Configuration, TokenEndpointResponse, TokenEndpointResponseHelpers } from 'openid-client'
  */

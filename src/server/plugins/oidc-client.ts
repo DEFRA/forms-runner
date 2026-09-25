@@ -4,6 +4,12 @@ import * as client from 'openid-client'
 import { config } from '~/src/config/index.js'
 
 /**
+ * How long, in seconds, the client waits for any request to the provider.
+ * Without it, openid-client sends token requests with no timeout.
+ */
+const REQUEST_TIMEOUT_SECONDS = 20
+
+/**
  * The provider accepts one client authentication method, `private_key_jwt`.
  * We hold the private half of an RSA pair and sign a short-lived assertion
  * with it. The provider holds the public half. There is no secret.
@@ -82,10 +88,15 @@ export default {
             config.get('oidc.clientId'),
             undefined,
             client.PrivateKeyJwt(key),
-            isLocal
-              ? // eslint-disable-next-line @typescript-eslint/no-deprecated -- deliberate, local development only
-                { execute: [client.allowInsecureRequests] }
-              : undefined
+            {
+              // Also applies to every later request on this configuration,
+              // including the code exchange and each refresh
+              timeout: REQUEST_TIMEOUT_SECONDS,
+              ...(isLocal && {
+                // eslint-disable-next-line @typescript-eslint/no-deprecated -- deliberate, local development only
+                execute: [client.allowInsecureRequests]
+              })
+            }
           )
 
           return discovered
