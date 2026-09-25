@@ -65,9 +65,7 @@ export default [
         nonce,
         code_challenge: await client.calculatePKCECodeChallenge(codeVerifier),
         code_challenge_method: 'S256',
-        // A new session here always starts with the email address and the
-        // security code. The provider does not sign the citizen in from its
-        // own session.
+        // always require an OTP for new logins
         prompt: 'login'
       })
 
