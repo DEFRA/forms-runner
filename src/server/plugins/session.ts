@@ -10,17 +10,21 @@ import { config } from '~/src/config/index.js'
 
 /**
  * Yar is used for temporary session data but not form submissions, e.g. UI helpers, session flags.
+ * The plugin reads the config when it registers rather than when its module loads, so that a
+ * test can change the config before it creates the server.
  */
-const yarOptions: YarOptions = {
-  maxCookieSize: 0, // Always use server-side storage
-  cache: {
-    cache: 'session',
-    segment: 'session',
-    expiresIn: config.get('sessionTimeout')
-  },
-  cookieOptions: {
-    password: config.get('sessionCookiePassword'),
-    isSecure: config.get('isProduction')
+function yarOptions(): YarOptions {
+  return {
+    maxCookieSize: 0, // Always use server-side storage
+    cache: {
+      cache: 'session',
+      segment: 'session',
+      expiresIn: config.get('sessionTimeout')
+    },
+    cookieOptions: {
+      password: config.get('sessionCookiePassword'),
+      isSecure: config.get('isProduction')
+    }
   }
 }
 
@@ -43,7 +47,7 @@ export default {
   plugin: {
     name: 'session',
     async register(server) {
-      await server.register({ plugin: yar, options: yarOptions })
+      await server.register({ plugin: yar, options: yarOptions() })
       server.ext('onPostAuth', keepSession)
     }
   }

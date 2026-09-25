@@ -2,8 +2,6 @@ import { join } from 'node:path'
 
 import { submit } from '@defra/forms-engine-plugin/services/formSubmissionService.js'
 import { FormAction } from '@defra/forms-engine-plugin/types'
-import { Engine as CatboxMemory } from '@hapi/catbox-memory'
-import hapi from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 import * as client from 'openid-client'
 
@@ -28,6 +26,7 @@ jest.mock('~/src/server/services/submissionService.js')
 jest.mock('~/src/server/messaging/publish.js')
 jest.mock('~/src/server/messaging/formAdapterEventPublisher.ts')
 jest.mock('@defra/forms-engine-plugin/services/formSubmissionService.js')
+jest.mock('~/src/server/secure-context.js')
 jest.mock('openid-client', () => ({
   ...jest.requireActual('openid-client'),
   discovery: jest.fn(),
@@ -265,31 +264,29 @@ describe('Session expiry', () => {
     })
 
     it('sets a Secure cookie in production', async () => {
-      // The plugin reads isProduction when its module loads. Thus the test
-      // changes the setting, then loads a new copy of the module.
-      await jest.isolateModulesAsync(async () => {
-        const { config } = await import('~/src/config/index.js')
-        config.set('isProduction', true)
+      const isProduction = config.get('isProduction')
+      config.set('isProduction', true)
 
-        const { default: pluginSession } =
-          await import('~/src/server/plugins/session.js')
+      /** @type {Server} */
+      let productionServer
 
-        const productionServer = hapi.server({
-          cache: [{ name: 'session', engine: new CatboxMemory() }]
+      try {
+        productionServer = await createServer({
+          formFileName: 'basic.js',
+          formFilePath: join(import.meta.dirname, 'definitions'),
+          enforceCsrf: false
         })
-        await productionServer.register(pluginSession)
-        productionServer.route({
-          method: 'GET',
-          path: '/page',
-          handler: () => null
-        })
-        await productionServer.initialize()
+      } finally {
+        config.set('isProduction', isProduction)
+      }
 
-        const response = await productionServer.inject({ url: '/page' })
-        await productionServer.stop()
-
-        expect(sessionCookie(response)).toContain('Secure')
+      await productionServer.initialize()
+      const response = await productionServer.inject({
+        url: `${basePath}/licence`
       })
+      await productionServer.stop()
+
+      expect(sessionCookie(response)).toContain('Secure')
     })
 
     it('starts a new session when the cookie is not valid', async () => {
