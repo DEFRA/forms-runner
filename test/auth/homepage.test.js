@@ -202,6 +202,19 @@ describe('per-form homepage', () => {
     )
   })
 
+  it('sends the page the citizen is on with the Sign out link, so a Cancel can bring them back', async () => {
+    const { container } = await renderResponse(server, {
+      method: 'GET',
+      url: HOMEPAGE_URL,
+      auth: { strategy: 'citizen-session', credentials }
+    })
+
+    expect(container.getByRole('link', { name: 'Sign out' })).toHaveAttribute(
+      'href',
+      `/auth/sign-out?slug=test-form&returnUrl=${encodeURIComponent(HOMEPAGE_URL)}`
+    )
+  })
+
   describe('preview homepages', () => {
     it('sends a signed-out user to sign in, returning to the preview homepage', async () => {
       const response = await server.inject({

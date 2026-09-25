@@ -14,6 +14,7 @@ jest.mock('openid-client')
 
 const RETURN_PATH = '/homepage/test-form'
 const SIGN_IN_URL = `/auth/sign-in?returnUrl=${RETURN_PATH}`
+const SIGN_OUT_URL = `${SIGN_OUT_PATH}?slug=test-form&returnUrl=${encodeURIComponent(RETURN_PATH)}`
 const CALLBACK_URL = '/auth/callback?code=code-1&state=state-1'
 const AUTHORIZATION_URL = 'http://localhost:3011/auth?state=state-1'
 const END_SESSION_URL =
@@ -392,12 +393,167 @@ describe('sign in routes and sign out routes', () => {
 
     const signOutResponse = await server.inject({
       method: 'GET',
-      url: SIGN_OUT_PATH,
+      url: SIGN_OUT_URL,
       headers: getCookieHeader(login, ['session'])
     })
 
     expect(signOutResponse.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
     expect(signOutResponse.headers.location).toBe(END_SESSION_URL)
+  })
+
+  describe('sign-out with a Cancel on the provider', () => {
+    const FORM_PAGE = '/test-form/page-two'
+
+    /**
+     * Signs a citizen in and returns the cookie header of their session
+     */
+    async function signIn() {
+      const login = await startSignIn()
+      mockSuccessfulExchange()
+
+      const headers = getCookieHeader(login, ['session'])
+      await server.inject({ method: 'GET', url: CALLBACK_URL, headers })
+
+      return headers
+    }
+
+    /**
+     * The `id_token_hint` that sign-out sends. It is there only while the
+     * session holds the citizen's identity.
+     * @param {ReturnType<typeof getCookieHeader>} headers
+     */
+    async function idTokenHint(headers) {
+      jest.mocked(client.buildEndSessionUrl).mockClear()
+      await server.inject({ method: 'GET', url: SIGN_OUT_URL, headers })
+
+      const [[, parameters]] = jest.mocked(client.buildEndSessionUrl).mock.calls
+
+      return new URLSearchParams(parameters).get('id_token_hint') ?? undefined
+    }
+
+    /**
+     * The URL the provider sends the citizen back to
+     * @param {object} state - the state that sign-out sent
+     * @param {boolean} [cancelled] - true when the citizen selected Cancel
+     */
+    function signedOutUrl(state, cancelled = false) {
+      const query = new URLSearchParams({ state: JSON.stringify(state) })
+
+      if (cancelled) {
+        query.set('cancelled', 'true')
+      }
+
+      return `${SIGNED_OUT_PATH}?${query.toString()}`
+    }
+
+    it('sends the page the citizen left to the provider, and keeps them signed in until they come back', async () => {
+      const headers = await signIn()
+
+      const response = await server.inject({
+        method: 'GET',
+        url: `${SIGN_OUT_PATH}?slug=my-form-slug&returnUrl=${encodeURIComponent(FORM_PAGE)}`,
+        headers
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(client.buildEndSessionUrl).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          id_token_hint: 'header.payload.signature',
+          state: JSON.stringify({ slug: 'my-form-slug', returnUrl: FORM_PAGE })
+        })
+      )
+      expect(await idTokenHint(headers)).toBe('header.payload.signature')
+    })
+
+    it.each([
+      [
+        'has a return target outside this service',
+        'slug=my-form-slug&returnUrl=https%3A%2F%2Fexample.com%2F'
+      ],
+      [
+        'has a protocol-relative return target',
+        'slug=my-form-slug&returnUrl=%2F%2Fexample.com%2F'
+      ],
+      ['has no return target', 'slug=my-form-slug'],
+      ['names no form', `returnUrl=${encodeURIComponent(FORM_PAGE)}`]
+    ])('refuses a sign-out that %s', async (_, query) => {
+      const response = await server.inject({
+        method: 'GET',
+        url: `${SIGN_OUT_PATH}?${query}`
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
+    })
+
+    it('sends a citizen who cancels back to the page they left, still signed in', async () => {
+      const headers = await signIn()
+
+      const response = await server.inject({
+        method: 'GET',
+        url: signedOutUrl({ slug: 'my-form-slug', returnUrl: FORM_PAGE }, true),
+        headers
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe(FORM_PAGE)
+      expect(await idTokenHint(headers)).toBe('header.payload.signature')
+    })
+
+    it('ends the session when the citizen comes back from a completed sign-out', async () => {
+      const headers = await signIn()
+
+      const response = await server.inject({
+        method: 'GET',
+        url: signedOutUrl({ slug: 'my-form-slug', returnUrl: FORM_PAGE }),
+        headers
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.OK)
+      expect(await idTokenHint(headers)).toBeUndefined()
+    })
+
+    const invalidStates = [
+      ['cannot be read', 'not-json'],
+      ['names no form', JSON.stringify({ returnUrl: FORM_PAGE })],
+      ['has no return target', JSON.stringify({ slug: 'my-form-slug' })],
+      [
+        'has a __proto__ key',
+        `{"slug":"my-form-slug","returnUrl":"${FORM_PAGE}","__proto__":{"polluted":true}}`
+      ],
+      ...['https://example.com/', '//example.com/', 'javascript:alert(1)'].map(
+        (returnUrl) => [
+          `has the return target ${returnUrl}`,
+          JSON.stringify({ slug: 'my-form-slug', returnUrl })
+        ]
+      )
+    ]
+
+    it.each(
+      invalidStates.flatMap(([description, state]) => [
+        [`${description}, on a completed sign-out`, state, false],
+        [`${description}, on a cancel`, state, true]
+      ])
+    )(
+      'shows an error, and signs the citizen out, when the state %s',
+      async (_, state, cancelled) => {
+        const headers = await signIn()
+        const query = new URLSearchParams({ state })
+
+        if (cancelled) {
+          query.set('cancelled', 'true')
+        }
+
+        const response = await server.inject({
+          method: 'GET',
+          url: `${SIGNED_OUT_PATH}?${query.toString()}`,
+          headers
+        })
+
+        expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
+        expect(await idTokenHint(headers)).toBeUndefined()
+      }
+    )
   })
 
   describe('where the tokens are kept', () => {
@@ -473,12 +629,12 @@ describe('sign in routes and sign out routes', () => {
       }
     )
 
-    it('removes the tokens on sign out, and names the ID token to the provider', async () => {
+    it('names the ID token to the provider on sign out, and removes the tokens when the citizen comes back', async () => {
       const { login } = await signIn()
 
       const signOutResponse = await server.inject({
         method: 'GET',
-        url: SIGN_OUT_PATH,
+        url: SIGN_OUT_URL,
         headers: getCookieHeader(login, ['session'])
       })
 
@@ -486,6 +642,18 @@ describe('sign in routes and sign out routes', () => {
 
       const [, params] = jest.mocked(client.buildEndSessionUrl).mock.calls[0]
       expect(params).toMatchObject({ id_token_hint: ID_TOKEN })
+
+      const state = JSON.stringify({
+        slug: 'test-form',
+        returnUrl: RETURN_PATH
+      })
+      const signedOutResponse = await server.inject({
+        method: 'GET',
+        url: `${SIGNED_OUT_PATH}?${new URLSearchParams({ state }).toString()}`,
+        headers: getCookieHeader(login, ['session'])
+      })
+
+      expect(signedOutResponse.statusCode).toBe(StatusCodes.OK)
 
       const session = await readSession(login)
       expect(session[CITIZEN_KEY]).toBeUndefined()
@@ -496,7 +664,7 @@ describe('sign in routes and sign out routes', () => {
   it('renders the signed-out page with correct links in preview mode (English text)', async () => {
     const { container, response, document } = await renderResponse(server, {
       method: 'GET',
-      url: `${SIGNED_OUT_PATH}?state=%7B%22previewMode%22%3A%22draft%22%2C%22slug%22%3A%22my-form-slug%22%7D`
+      url: `${SIGNED_OUT_PATH}?state=%7B%22previewMode%22%3A%22draft%22%2C%22slug%22%3A%22my-form-slug%22%2C%22returnUrl%22%3A%22%2Fhomepage%2Fmy-form-slug%22%7D`
     })
 
     expect(response.statusCode).toBe(StatusCodes.OK)
@@ -517,7 +685,7 @@ describe('sign in routes and sign out routes', () => {
   it('renders the signed-out page with correct links in preview mode (Welsh text)', async () => {
     const { container, response, document } = await renderResponse(server, {
       method: 'GET',
-      url: `${SIGNED_OUT_PATH}?state=%7B%22previewMode%22%3A%22draft%22%2C%22slug%22%3A%22my-form-slug%22%7D&language=cy`
+      url: `${SIGNED_OUT_PATH}?state=%7B%22previewMode%22%3A%22draft%22%2C%22slug%22%3A%22my-form-slug%22%2C%22returnUrl%22%3A%22%2Fhomepage%2Fmy-form-slug%22%7D&language=cy`
     })
 
     expect(response.statusCode).toBe(StatusCodes.OK)
@@ -540,7 +708,7 @@ describe('sign in routes and sign out routes', () => {
   it('renders the signed-out page with correct links in live mode', async () => {
     const { container, response } = await renderResponse(server, {
       method: 'GET',
-      url: `${SIGNED_OUT_PATH}?state=%7B%22previewMode%22%3A%22%22%2C%22slug%22%3A%22my-form-slug%22%7D`
+      url: `${SIGNED_OUT_PATH}?state=%7B%22slug%22%3A%22my-form-slug%22%2C%22returnUrl%22%3A%22%2Fhomepage%2Fmy-form-slug%22%7D`
     })
 
     expect(response.statusCode).toBe(StatusCodes.OK)

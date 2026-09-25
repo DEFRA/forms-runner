@@ -1,4 +1,7 @@
+import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
+import { slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
+import Bourne from '@hapi/bourne'
 import Joi from 'joi'
 import * as client from 'openid-client'
 
@@ -33,6 +36,34 @@ const BASE_URL = config.get('baseUrl')
  * returns an opaque token and no error.
  */
 const RESOURCE = config.get('oidc.submissionApiResource')
+
+const signOutStateSchema = Joi.object({
+  slug: slugSchema,
+  previewMode: stateSchema.optional(),
+  returnUrl: returnUrlSchema.required()
+})
+
+/**
+ * Parses and validates the state that sign-out sent. A user can change the
+ * state, so it is validated again when it comes back. Bourne rejects a
+ * `__proto__` or `constructor.prototype` key, so that a changed state cannot
+ * reach an object's prototype.
+ * @param {string} [state]
+ * @returns {{ slug: string, previewMode?: string, returnUrl: string } | undefined}
+ */
+function parseAndValidateSignOutState(state) {
+  let parsed
+
+  try {
+    parsed = Bourne.parse(String(state))
+  } catch {
+    return undefined
+  }
+
+  const { error, value } = signOutStateSchema.validate(parsed)
+
+  return error ? undefined : value
+}
 
 export default [
   /**
@@ -81,7 +112,7 @@ export default [
     }
   }),
   /**
-   * @satisfies {ServerRoute<{ Query: { slug?: string, previewMode?: string } }>}
+   * @satisfies {ServerRoute<{ Query: { slug: string, previewMode?: string, returnUrl: string } }>}
    */
   ({
     method: 'GET',
@@ -92,10 +123,11 @@ export default [
       // A session with no tokens is signed out without an ID token hint
       const idToken = getTokens(request.yar)?.idToken
 
-      clearIdentity(request.yar)
-
-      const { slug, previewMode } = request.query
-      const stateParam = JSON.stringify({ slug, previewMode })
+      // The identity stays until the provider sends the citizen back. The
+      // sign-out page there has a Cancel link, and a citizen who cancels
+      // stays signed in here as well as on the provider.
+      const { slug, previewMode, returnUrl } = request.query
+      const stateParam = JSON.stringify({ slug, previewMode, returnUrl })
 
       const postLogoutUrl = new URL(SIGNED_OUT_PATH, BASE_URL)
 
@@ -110,7 +142,10 @@ export default [
       return h.redirect(logoutUrl.href)
     },
     options: {
-      auth: false
+      auth: false,
+      validate: {
+        query: signOutStateSchema.unknown(true)
+      }
     }
   }),
   /**
@@ -235,17 +270,34 @@ export default [
     }
   }),
   /**
-   * @satisfies {ServerRoute<{ Query: { state: string } }>}
+   * @satisfies {ServerRoute<{ Query: { state?: string, cancelled?: string } }>}
    */
   ({
     method: 'GET',
     path: SIGNED_OUT_PATH,
     handler(request, h) {
-      const { state } = request.query
-      const { slug, previewMode } = JSON.parse(state)
+      const state = parseAndValidateSignOutState(request.query.state)
+
+      // A state that is not valid cannot show whether the citizen cancelled,
+      // so sign them out.
+      if (!state) {
+        clearIdentity(request.yar)
+        throw Boom.badRequest('Sign-out state is not valid')
+      }
+
+      const { slug, previewMode, returnUrl } = state
       const signInLink = previewMode
         ? `/homepage/preview/${previewMode}/${slug}`
         : `/homepage/${slug}`
+
+      // The provider's Cancel link comes back here with `cancelled=true`. The
+      // citizen stays signed in and goes back to the page they left.
+      if (request.query.cancelled === 'true') {
+        return h.redirect(returnUrl)
+      }
+
+      clearIdentity(request.yar)
+
       return h.view('auth/signed-out', { signInLink })
     }
   })
