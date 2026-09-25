@@ -23,6 +23,7 @@ import {
 } from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
+import { citizenSession } from '~/test/utils/citizen-session.js'
 
 jest.mock('~/src/server/services/formMetadataGuards.js')
 jest.mock('~/src/server/services/formsService.js')
@@ -316,9 +317,14 @@ describe('Save-and-exit check routes', () => {
       iss: 'http://localhost:3011',
       sub: 'sub-1',
       email: 'citizen@example.com',
-      idToken: 'header.payload.signature',
-      accessToken: 'access-1'
+      accessToken: 'access-1',
+      accessTokenExpiresAt: Date.now() + 300_000,
+      refreshToken: 'refresh-1',
+      idToken: 'id-1'
     }
+
+    /** @type {ReturnType<typeof citizenSession>} */
+    let session
 
     beforeAll(async () => {
       config.set('useSignInFeature', true)
@@ -326,6 +332,7 @@ describe('Save-and-exit check routes', () => {
       signInServer = await createServer({
         enforceCsrf: false
       })
+      session = citizenSession(signInServer)
       await signInServer.initialize()
     })
 
@@ -374,6 +381,62 @@ describe('Save-and-exit check routes', () => {
       expect(response.headers.location).toBe(
         '/resume-form-success/my-form-to-resume/draft'
       )
+    })
+
+    test('sends the citizen to sign in again when their session has no tokens', async () => {
+      const headers = await session.start(
+        {
+          iss: credentials.iss,
+          sub: credentials.sub,
+          email: credentials.email
+        },
+        null
+      )
+
+      const url = `/resume-form/${FORM_ID}/${MAGIC_LINK_ID}`
+
+      const response = await signInServer.inject({
+        method: 'GET',
+        url,
+        headers
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe(
+        `/auth/sign-in?returnUrl=${encodeURIComponent(url)}`
+      )
+      expect(getSavedFormState).not.toHaveBeenCalled()
+    })
+
+    test('answers service unavailable when the access token has expired and the provider cannot be reached', async () => {
+      jest
+        .spyOn(signInServer.app.oidc, 'getConfig')
+        .mockRejectedValueOnce(new TypeError('fetch failed'))
+      const headers = await session.start(
+        {
+          iss: credentials.iss,
+          sub: credentials.sub,
+          email: credentials.email
+        },
+        {
+          accessToken: credentials.accessToken,
+          accessTokenExpiresAt: Date.now() - 10_000,
+          refreshToken: credentials.refreshToken,
+          idToken: credentials.idToken
+        }
+      )
+
+      const response = await signInServer.inject({
+        method: 'GET',
+        url: `/resume-form/${FORM_ID}/${MAGIC_LINK_ID}`,
+        headers
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.SERVICE_UNAVAILABLE)
+      expect(getSavedFormState).not.toHaveBeenCalled()
+      await expect(session.read(headers)).resolves.toMatchObject({
+        refreshToken: 'refresh-1'
+      })
     })
 
     test('forwards to the error page when the API refuses the saved form', async () => {

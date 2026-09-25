@@ -13,15 +13,18 @@ declare module '@hapi/hapi' {
   // Here we are decorating Hapi interface types with
   // props from plugins which doesn't export @types
 
-  // The citizen-session scheme puts the signed-in identity straight on
-  // request.auth.credentials, so this is the credentials shape for every
-  // authenticated request in the app.
+  // The citizen-session scheme puts the signed-in identity and the tokens
+  // straight on request.auth.credentials, so this is the credentials shape
+  // for every authenticated request in the app. A request is authenticated
+  // only while the access token has not expired.
   interface AuthCredentials {
     iss: string
     sub: string
     email: string
-    idToken: string
     accessToken: string
+    accessTokenExpiresAt: number
+    refreshToken: string
+    idToken: string
   }
 
   interface PluginProperties {
@@ -113,16 +116,20 @@ declare module '@hapi/yar' {
     [SAVE_AND_EXIT_PAYLOAD]: object
   }
 
-  // Why the session holds each of these is on the `Identity` and
-  // `SignInTransaction` typedefs in src/server/auth/accountSession.js, which
-  // is the only place that reads or writes them.
+  // Why the session holds each of these is on the `Identity`, `TokenSet`
+  // and `SignInTransaction` typedefs in src/server/auth/accountSession.js,
+  // which is the only place that reads or writes them.
   interface YarValues {
     citizen: {
       iss: string
       sub: string
       email: string
-      idToken: string
+    }
+    'auth:tokens': {
       accessToken: string
+      accessTokenExpiresAt: number
+      refreshToken: string
+      idToken: string
     }
     'auth:signInTransaction': {
       state: string

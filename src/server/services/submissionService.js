@@ -108,11 +108,11 @@ export async function getSavedForms(accessToken, formId, preview) {
 /**
  * One saved form, as forms-submission-api describes it.
  * @typedef {object} SavedForm
- * @property {string} magicLinkId
- * @property {string} [referenceNumber]
- * @property {string} [formTitle]
- * @property {string} createdAt
- * @property {string} expireAt
+ * @property {string} magicLinkId - Identifier for the link used to resume the form
+ * @property {string} [referenceNumber] - Reference shown to the user, once one has been issued
+ * @property {string} [formTitle] - Title of the form the saved answers belong to
+ * @property {string} createdAt - ISO date the form was saved
+ * @property {string} expireAt - ISO date the saved form stops being available
  */
 
 /**
@@ -143,8 +143,8 @@ export async function getSavedFormState(accessToken, magicLinkId) {
 /**
  * The state of one saved form, as forms-submission-api returns it.
  * @typedef {object} SavedFormState
- * @property {object} state
- * @property {string} [magicLinkGroupId]
+ * @property {object} state - Answers held in the saved form
+ * @property {string} [magicLinkGroupId] - Magic link group the saved form belongs to
  */
 
 /**

@@ -79,6 +79,7 @@ async function homepageHandler(request, h) {
     : `${FORM_PREFIX}/${slug}`
 
   const { accessToken } = request.auth.credentials
+
   const savedForms = await getSavedForms(accessToken, form.id, previewStatus)
 
   return h.view('homepage', {
