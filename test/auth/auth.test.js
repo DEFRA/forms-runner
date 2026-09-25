@@ -466,30 +466,28 @@ describe('sign in routes and sign out routes', () => {
     })
 
     it.each([
-      ['cannot be read', 'not-json'],
-      ['names no form', JSON.stringify({ returnUrl: FORM_PAGE })]
+      ['cannot be read', 'not-json', false],
+      ['cannot be read', 'not-json', true],
+      ['names no form', JSON.stringify({ returnUrl: FORM_PAGE }), false],
+      ['names no form', JSON.stringify({ returnUrl: FORM_PAGE }), true]
     ])(
-      'shows an error, and keeps the citizen signed in, when the state %s',
-      async (_, state) => {
+      'shows an error, and signs the citizen out, when the state %s (cancelled: %s)',
+      async (_, state, cancelled) => {
         const headers = await signIn()
         const query = new URLSearchParams({ state })
 
-        const completed = await server.inject({
+        if (cancelled) {
+          query.set('cancelled', 'true')
+        }
+
+        const response = await server.inject({
           method: 'GET',
           url: `${SIGNED_OUT_PATH}?${query.toString()}`,
           headers
         })
-        expect(completed.statusCode).toBe(StatusCodes.BAD_REQUEST)
 
-        query.set('cancelled', 'true')
-        const cancelled = await server.inject({
-          method: 'GET',
-          url: `${SIGNED_OUT_PATH}?${query.toString()}`,
-          headers
-        })
-        expect(cancelled.statusCode).toBe(StatusCodes.BAD_REQUEST)
-
-        expect(await idTokenHint(headers)).toBe('header.payload.signature')
+        expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
+        expect(await idTokenHint(headers)).toBeUndefined()
       }
     )
   })
@@ -541,7 +539,7 @@ describe('sign in routes and sign out routes', () => {
   it('renders the signed-out page with correct links in live mode', async () => {
     const { container, response } = await renderResponse(server, {
       method: 'GET',
-      url: `${SIGNED_OUT_PATH}?state=%7B%22previewMode%22%3A%22%22%2C%22slug%22%3A%22my-form-slug%22%7D`
+      url: `${SIGNED_OUT_PATH}?state=%7B%22slug%22%3A%22my-form-slug%22%7D`
     })
 
     expect(response.statusCode).toBe(StatusCodes.OK)

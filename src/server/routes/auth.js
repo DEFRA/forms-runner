@@ -36,7 +36,7 @@ const RESOURCE = config.get('oidc.submissionApiResource')
 
 const signOutStateSchema = Joi.object({
   slug: slugSchema,
-  previewMode: stateSchema.optional().allow(''),
+  previewMode: stateSchema.optional(),
   returnUrl: Joi.string().optional()
 })
 
@@ -44,7 +44,7 @@ const signOutStateSchema = Joi.object({
  * Parses and validates the state that sign-out sent. A user can change the
  * state, so `returnUrl` is kept only when it is a local path.
  * @param {string} [state]
- * @returns {{ slug: string, previewMode?: string, returnUrl?: string }}
+ * @returns {{ slug: string, previewMode?: string, returnUrl?: string } | undefined}
  */
 function parseAndValidateSignOutState(state) {
   let parsed
@@ -52,13 +52,13 @@ function parseAndValidateSignOutState(state) {
   try {
     parsed = JSON.parse(String(state))
   } catch {
-    throw Boom.badRequest('Sign-out state is not valid JSON')
+    return undefined
   }
 
   const { error, value } = signOutStateSchema.validate(parsed)
 
   if (error) {
-    throw Boom.badRequest('Sign-out state is not valid')
+    return undefined
   }
 
   return {
@@ -273,9 +273,16 @@ export default [
     method: 'GET',
     path: SIGNED_OUT_PATH,
     handler(request, h) {
-      const { slug, previewMode, returnUrl } = parseAndValidateSignOutState(
-        request.query.state
-      )
+      const state = parseAndValidateSignOutState(request.query.state)
+
+      // A state that is not valid cannot show whether the citizen cancelled,
+      // so sign them out.
+      if (!state) {
+        clearIdentity(request.yar)
+        throw Boom.badRequest('Sign-out state is not valid')
+      }
+
+      const { slug, previewMode, returnUrl } = state
       const signInLink = previewMode
         ? `/homepage/preview/${previewMode}/${slug}`
         : `/homepage/${slug}`
