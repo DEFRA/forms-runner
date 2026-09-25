@@ -16,15 +16,21 @@ function sessionCookie(response: ServerInjectResponse) {
 
 describe('session plugin', () => {
   let server: hapi.Server
+  let engine: CatboxMemory<unknown>
 
   beforeEach(async () => {
+    engine = new CatboxMemory()
     server = hapi.server({
-      cache: [{ name: 'session', engine: new CatboxMemory() }]
+      cache: [{ name: 'session', engine }]
     })
     await server.register(pluginSession)
 
     server.route([
-      { method: 'GET', path: '/page', handler: () => null },
+      {
+        method: 'GET',
+        path: '/page',
+        handler: (request) => request.yar.id
+      },
       {
         method: 'GET',
         path: '/asset',
@@ -64,6 +70,22 @@ describe('session plugin', () => {
     })
 
     expect(sessionCookie(response)).toBeDefined()
+  })
+
+  it('extends the session time limit from the time of each request', async () => {
+    const now = jest.spyOn(Date, 'now').mockReturnValue(1_000_000)
+
+    const first = await server.inject({ method: 'GET', url: '/page' })
+    const key = { segment: 'session', id: first.payload }
+
+    expect((await engine.get(key))?.stored).toBe(1_000_000)
+
+    now.mockReturnValue(1_060_000)
+
+    const cookie = sessionCookie(first)?.split(';')[0]
+    await server.inject({ method: 'GET', url: '/page', headers: { cookie } })
+
+    expect((await engine.get(key))?.stored).toBe(1_060_000)
   })
 
   it('does not write the session on a route with auth set to false', async () => {
