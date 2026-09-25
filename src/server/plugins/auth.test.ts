@@ -7,6 +7,7 @@ import {
   clearIdentity,
   getIdentity,
   getTokens,
+  keepSession,
   setTokens
 } from '~/src/server/auth/accountSession.js'
 import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
@@ -86,6 +87,20 @@ describe('citizen-session strategy', () => {
 
     expect(response.statusCode).toBe(StatusCodes.OK)
     expect(response.result).toMatchObject({ isAuthenticated: false })
+    expect(keepSession).not.toHaveBeenCalled()
+  })
+
+  it('starts the session time limit again on each request from a signed-in citizen', async () => {
+    jest.mocked(getIdentity).mockReturnValue(identity)
+
+    const server = hapi.server()
+    await server.register(pluginAuth)
+    setupProbeEndpoint(server)
+
+    await server.inject({ method: 'GET', url: '/probe' })
+    await server.inject({ method: 'GET', url: '/probe' })
+
+    expect(keepSession).toHaveBeenCalledTimes(2)
   })
 
   it('puts the stored identity and tokens on the request', async () => {
@@ -168,6 +183,7 @@ describe('citizen-session strategy', () => {
 
     expect(getIdentity).not.toHaveBeenCalled()
     expect(refreshAccessToken).not.toHaveBeenCalled()
+    expect(keepSession).not.toHaveBeenCalled()
   })
 
   describe('when the access token is about to expire', () => {

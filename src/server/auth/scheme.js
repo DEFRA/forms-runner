@@ -10,6 +10,7 @@ import {
   clearIdentity,
   getIdentity,
   getTokens,
+  keepSession,
   setTokens
 } from '~/src/server/auth/accountSession.js'
 import { signInUrl } from '~/src/server/utils/utils.js'
@@ -38,6 +39,8 @@ export function citizenSessionScheme() {
       if (!identity || !tokens) {
         return anonymous(request, h)
       }
+
+      keepSession(request.yar)
 
       /** @type {TokenSet} */
       let current = tokens
