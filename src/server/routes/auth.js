@@ -64,7 +64,9 @@ export default [
         state,
         nonce,
         code_challenge: await client.calculatePKCECodeChallenge(codeVerifier),
-        code_challenge_method: 'S256'
+        code_challenge_method: 'S256',
+        // always require an OTP for new logins
+        prompt: 'login'
       })
 
       return h.redirect(authorizationUrl.href)
