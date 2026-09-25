@@ -228,7 +228,7 @@ describe('Session expiry', () => {
       await expectSignedOut(server, headers)
     })
 
-    it('keeps the citizen signed in after the first time limit when they make requests', async () => {
+    it('keeps an active citizen signed in for longer than SESSION_TIMEOUT', async () => {
       const headers = await signIn(session)
 
       moveTimeForward(SESSION_TIMEOUT - HOUR)
@@ -238,13 +238,11 @@ describe('Session expiry', () => {
       await expectSignedIn(server, headers)
     })
 
-    it('signs the citizen out when only routes with auth set to false get requests', async () => {
+    it('does not let public pages influence the session, e.g. static assets', async () => {
       const headers = await signIn(session)
 
       moveTimeForward(SESSION_TIMEOUT - HOUR)
 
-      // The test build has no assets, so the response is 404. The route runs
-      // without auth, as in production.
       await server.inject({ url: '/assets/images/favicon.ico', headers })
 
       moveTimeForward(HOUR + 1)
@@ -337,7 +335,7 @@ describe('Session expiry', () => {
       await expectSignedIn(server, headers)
     })
 
-    it('keeps the answers after the first time limit when the citizen changes an answer', async () => {
+    it('keeps the answers for longer than SESSION_TIMEOUT when the citizen changes an answer', async () => {
       const headers = await signIn(session)
       await answerQuestions(server, headers)
 
