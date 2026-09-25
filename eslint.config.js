@@ -284,7 +284,13 @@ export default defineConfig([
 
       // Allow Jest to assert on mocked unbound methods
       '@typescript-eslint/unbound-method': 'off',
-      'jest/unbound-method': 'error'
+      'jest/unbound-method': 'error',
+
+      // Count helpers such as `expectSignedIn()` as assertions
+      'jest/expect-expect': [
+        'warn',
+        { assertFunctionNames: ['expect', 'expect*'] }
+      ]
     }
   },
 
