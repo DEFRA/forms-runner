@@ -50,126 +50,11 @@ const identity = {
 }
 
 /**
- * The session cookie that a response sets, with its attributes
- * @param {ServerInjectResponse} response
- */
-function sessionCookie(response) {
-  return [response.headers['set-cookie'] ?? []]
-    .flat()
-    .find((header) => header.startsWith('session='))
-}
-
-/**
  * The time that the server sees. The cache compares the stored time and the
  * time limit of each entry to this time. When a test moves this time
  * forward, the entries expire immediately.
  */
 let now = 0
-
-/**
- * Moves the server's time forward
- * @param {number} ms
- */
-function moveTimeForward(ms) {
-  now += ms
-}
-
-/**
- * Signs the citizen in. The access token stays valid for longer than a test.
- * @param {ReturnType<typeof citizenSession>} session
- */
-function signIn(session) {
-  return session.start(identity, {
-    accessToken: 'access-1',
-    accessTokenExpiresAt: now + 7 * 24 * HOUR,
-    refreshToken: 'refresh-1',
-    idToken: 'header.payload.signature'
-  })
-}
-
-/**
- * Answers all the questions in the form
- * @param {Server} server
- * @param {Pick<OutgoingHttpHeaders, 'cookie'>} headers
- */
-async function answerQuestions(server, headers) {
-  await server.inject({
-    method: 'POST',
-    url: `${basePath}/licence`,
-    headers,
-    payload: { licenceLength: 1 }
-  })
-
-  await server.inject({
-    method: 'POST',
-    url: `${basePath}/full-name`,
-    headers,
-    payload: { fullName: FULL_NAME }
-  })
-}
-
-/**
- * Asserts that the homepage shows. This means that the citizen is signed in.
- * @param {Server} server
- * @param {Pick<OutgoingHttpHeaders, 'cookie'>} headers
- */
-async function expectSignedIn(server, headers) {
-  const { container } = await renderResponse(server, {
-    url: HOMEPAGE_URL,
-    headers
-  })
-
-  expect(
-    container.getByRole('heading', { name: 'Test form', level: 1 })
-  ).toBeInTheDocument()
-}
-
-/**
- * Asserts that the homepage sends the citizen to sign in
- * @param {Server} server
- * @param {Pick<OutgoingHttpHeaders, 'cookie'>} headers
- */
-async function expectSignedOut(server, headers) {
-  const response = await server.inject({ url: HOMEPAGE_URL, headers })
-
-  expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-  expect(response.headers.location).toBe(
-    `/auth/sign-in?returnUrl=${encodeURIComponent(HOMEPAGE_URL)}`
-  )
-}
-
-/**
- * Asserts that the check answers page shows the answers from
- * `answerQuestions`
- * @param {Server} server
- * @param {Pick<OutgoingHttpHeaders, 'cookie'>} headers
- */
-async function expectAnswersKept(server, headers) {
-  const { container } = await renderResponse(server, {
-    url: `${basePath}/summary`,
-    headers
-  })
-
-  expect(
-    container.getByRole('heading', { name: 'Summary', level: 1 })
-  ).toBeInTheDocument()
-  expect(container.getByText(FULL_NAME)).toBeInTheDocument()
-}
-
-/**
- * Asserts that the check answers page sends the citizen to the first question
- * @param {Server} server
- * @param {Pick<OutgoingHttpHeaders, 'cookie'>} headers
- */
-async function expectAnswersGone(server, headers) {
-  const response = await server.inject({
-    url: `${basePath}/summary`,
-    headers
-  })
-
-  expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-  expect(response.headers.location).toBe(`${basePath}/licence`)
-}
 
 describe('Session expiry', () => {
   /** @type {Server} */
@@ -390,6 +275,121 @@ describe('Session expiry', () => {
     })
   })
 })
+
+/**
+ * The session cookie that a response sets, with its attributes
+ * @param {ServerInjectResponse} response
+ */
+function sessionCookie(response) {
+  return [response.headers['set-cookie'] ?? []]
+    .flat()
+    .find((header) => header.startsWith('session='))
+}
+
+/**
+ * Moves the server's time forward
+ * @param {number} ms
+ */
+function moveTimeForward(ms) {
+  now += ms
+}
+
+/**
+ * Signs the citizen in. The access token stays valid for longer than a test.
+ * @param {ReturnType<typeof citizenSession>} session
+ */
+function signIn(session) {
+  return session.start(identity, {
+    accessToken: 'access-1',
+    accessTokenExpiresAt: now + 7 * 24 * HOUR,
+    refreshToken: 'refresh-1',
+    idToken: 'header.payload.signature'
+  })
+}
+
+/**
+ * Answers all the questions in the form
+ * @param {Server} server
+ * @param {Pick<OutgoingHttpHeaders, 'cookie'>} headers
+ */
+async function answerQuestions(server, headers) {
+  await server.inject({
+    method: 'POST',
+    url: `${basePath}/licence`,
+    headers,
+    payload: { licenceLength: 1 }
+  })
+
+  await server.inject({
+    method: 'POST',
+    url: `${basePath}/full-name`,
+    headers,
+    payload: { fullName: FULL_NAME }
+  })
+}
+
+/**
+ * Asserts that the homepage shows. This means that the citizen is signed in.
+ * @param {Server} server
+ * @param {Pick<OutgoingHttpHeaders, 'cookie'>} headers
+ */
+async function expectSignedIn(server, headers) {
+  const { container } = await renderResponse(server, {
+    url: HOMEPAGE_URL,
+    headers
+  })
+
+  expect(
+    container.getByRole('heading', { name: 'Test form', level: 1 })
+  ).toBeInTheDocument()
+}
+
+/**
+ * Asserts that the homepage sends the citizen to sign in
+ * @param {Server} server
+ * @param {Pick<OutgoingHttpHeaders, 'cookie'>} headers
+ */
+async function expectSignedOut(server, headers) {
+  const response = await server.inject({ url: HOMEPAGE_URL, headers })
+
+  expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+  expect(response.headers.location).toBe(
+    `/auth/sign-in?returnUrl=${encodeURIComponent(HOMEPAGE_URL)}`
+  )
+}
+
+/**
+ * Asserts that the check answers page shows the answers from
+ * `answerQuestions`
+ * @param {Server} server
+ * @param {Pick<OutgoingHttpHeaders, 'cookie'>} headers
+ */
+async function expectAnswersKept(server, headers) {
+  const { container } = await renderResponse(server, {
+    url: `${basePath}/summary`,
+    headers
+  })
+
+  expect(
+    container.getByRole('heading', { name: 'Summary', level: 1 })
+  ).toBeInTheDocument()
+  expect(container.getByText(FULL_NAME)).toBeInTheDocument()
+}
+
+/**
+ * Asserts that the check answers page sends the citizen to the first question
+ * @param {Server} server
+ * @param {Pick<OutgoingHttpHeaders, 'cookie'>} headers
+ */
+async function expectAnswersGone(server, headers) {
+  const response = await server.inject({
+    url: `${basePath}/summary`,
+    headers
+  })
+
+  expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+  expect(response.headers.location).toBe(`${basePath}/licence`)
+}
 
 /**
  * @import { Server, ServerInjectResponse } from '@hapi/hapi'
