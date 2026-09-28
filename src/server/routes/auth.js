@@ -17,6 +17,7 @@ import {
   setTokens
 } from '~/src/server/auth/accountSession.js'
 import { signInEvent } from '~/src/server/auth/signInEvent.js'
+import { revokeRefreshToken } from '~/src/server/auth/tokenRevocation.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import {
   CALLBACK_PATH,
@@ -26,7 +27,18 @@ import {
 } from '~/src/server/constants.js'
 import { returnUrlSchema } from '~/src/server/models/common.js'
 
-const SCOPES = 'openid email'
+/**
+ * `offline_access` asks for a refresh token that outlives the provider
+ * session (OpenID Connect Core, section 11)
+ */
+const SCOPES = 'openid email offline_access'
+
+/**
+ * `login` asks for the email address and code on every sign-in. `consent` is
+ * what a provider needs before it accepts `offline_access` (OpenID Connect
+ * Core, section 11).
+ */
+const PROMPT = 'login consent'
 
 const BASE_URL = config.get('baseUrl')
 
@@ -65,6 +77,21 @@ function parseAndValidateSignOutState(state) {
   return error ? undefined : value
 }
 
+/**
+ * Ends the citizen's sign-in. The refresh token is revoked at the provider
+ * before the session forgets it, so that no copy of it still works.
+ * @param {Pick<Request, 'server' | 'yar'>} request
+ */
+async function endSignIn(request) {
+  const refreshToken = getTokens(request.yar)?.refreshToken
+
+  if (refreshToken) {
+    await revokeRefreshToken(request, refreshToken)
+  }
+
+  clearIdentity(request.yar)
+}
+
 export default [
   /**
    * @satisfies {ServerRoute<{ Query: { returnUrl: string } }>}
@@ -91,6 +118,7 @@ export default [
       const authorizationUrl = client.buildAuthorizationUrl(oidcConfig, {
         redirect_uri: config.get('oidc.redirectUri'),
         scope: SCOPES,
+        prompt: PROMPT,
         resource: RESOURCE,
         state,
         nonce,
@@ -275,13 +303,13 @@ export default [
   ({
     method: 'GET',
     path: SIGNED_OUT_PATH,
-    handler(request, h) {
+    async handler(request, h) {
       const state = parseAndValidateSignOutState(request.query.state)
 
       // A state that is not valid cannot show whether the citizen cancelled,
       // so sign them out.
       if (!state) {
-        clearIdentity(request.yar)
+        await endSignIn(request)
         throw Boom.badRequest('Sign-out state is not valid')
       }
 
@@ -291,12 +319,13 @@ export default [
         : `/homepage/${slug}`
 
       // The provider's Cancel link comes back here with `cancelled=true`. The
-      // citizen stays signed in and goes back to the page they left.
+      // citizen stays signed in and goes back to the page they left, so the
+      // refresh token stays valid.
       if (request.query.cancelled === 'true') {
         return h.redirect(returnUrl)
       }
 
-      clearIdentity(request.yar)
+      await endSignIn(request)
 
       return h.view('auth/signed-out', { signInLink })
     }
@@ -304,5 +333,5 @@ export default [
 ]
 
 /**
- * @import { ServerRoute } from '@hapi/hapi'
+ * @import { Request, ServerRoute } from '@hapi/hapi'
  */

@@ -239,8 +239,8 @@ the citizen, such as static assets, set `auth: false` and do not refresh.
 The outcome of a refresh depends on the provider's answer:
 
 - **New tokens**: the request carries on with the new access token.
-- **`invalid_grant`** (the refresh token has expired or been revoked, or the provider session
-  has ended), **or an ID token for a different citizen**: the citizen is signed out. A route
+- **`invalid_grant`** (the refresh token or its grant has expired or been revoked), **or an ID
+  token for a different citizen**: the citizen is signed out. A route
   that requires sign in redirects to `/auth/sign-in`, returning to the current path after.
 - **Any other failure**, such as the provider being unreachable: the session and tokens are
   kept so a later request can try again. If the current access token has not yet expired the
@@ -251,6 +251,25 @@ time without invalidating each other. The session holds the refresh token, so
 `SESSION_TIMEOUT` (milliseconds) must be no shorter than the refresh token lifetime set on the
 provider (`OIDC_TTL_REFRESH_TOKEN`, in seconds). Otherwise the session, and the citizen's
 sign in, ends before the refresh token does.
+
+### Sign-out
+
+Sign in sends `prompt=login consent` and asks for the `offline_access` scope. `login` asks for
+the email address and code on every sign in. `consent` lets the provider accept
+`offline_access`. The refresh token then works after the provider session has ended, and the
+provider keeps its grant at sign-out. `/auth/sign-out` sends the citizen to the provider's `end_session_endpoint`, with
+their ID token as the hint. The provider sends them back to `/auth/signed-out`:
+
+- **Completed sign-out**: this service revokes the refresh token at the provider's
+  `revocation_endpoint` (RFC 7009), which ends every token of the sign in. Then it removes the
+  identity and the tokens from the session. If the revocation fails, or discovery lists no
+  `revocation_endpoint`, the failure is logged, the citizen is still signed out, and the
+  refresh token is left to expire.
+- **Cancelled** (`cancelled=true`): the citizen stays signed in, with the same tokens, and goes
+  back to the page they left.
+
+This service reads both endpoints from the provider's discovery document once, at the first
+sign in, so it finds a revocation endpoint added later only after a restart.
 
 For proxy options, see https://www.npmjs.com/package/proxy-from-env which is used by https://github.com/TooTallNate/proxy-agents/tree/main/packages/proxy-agent.
 
