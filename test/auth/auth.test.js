@@ -5,6 +5,7 @@ import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
 import { CITIZEN_KEY, TOKENS_KEY } from '~/src/server/auth/accountSession.js'
+import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { SIGNED_OUT_PATH, SIGN_OUT_PATH } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
@@ -577,6 +578,7 @@ describe('sign in routes and sign out routes', () => {
       async (_, fail) => {
         const headers = await signIn()
         const failure = fail()
+        const error = jest.spyOn(logger, 'error').mockReturnValue(undefined)
 
         const { container, response } = await renderResponse(server, {
           method: 'GET',
@@ -591,6 +593,10 @@ describe('sign in routes and sign out routes', () => {
             level: 1
           })
         ).toBeInTheDocument()
+        expect(error).toHaveBeenCalledWith(
+          expect.any(Error),
+          expect.stringContaining('[tokenRevocationFailed]')
+        )
 
         // Sign-out needs the provider again to show the ID token hint
         failure?.mockRestore()
@@ -603,6 +609,7 @@ describe('sign in routes and sign out routes', () => {
       const getConfig = jest
         .spyOn(server.app.oidc, 'getConfig')
         .mockResolvedValue(mockConfiguration({}))
+      const error = jest.spyOn(logger, 'error').mockReturnValue(undefined)
 
       const response = await server.inject({
         method: 'GET',
@@ -612,6 +619,9 @@ describe('sign in routes and sign out routes', () => {
 
       expect(response.statusCode).toBe(StatusCodes.OK)
       expect(client.tokenRevocation).not.toHaveBeenCalled()
+      expect(error).toHaveBeenCalledWith(
+        expect.stringContaining('[tokenRevocationSkipped]')
+      )
 
       getConfig.mockRestore()
       expect(await idTokenHint(headers)).toBeUndefined()

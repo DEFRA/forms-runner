@@ -1,12 +1,7 @@
+import { getErrorMessage } from '@defra/forms-model'
 import * as client from 'openid-client'
 
-import { SignInOutcome } from '~/src/server/auth/SignInOutcome.js'
-import { signInEvent } from '~/src/server/auth/signInEvent.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
-
-const ACTION_KEYS = {
-  tokenRevocation: 'token-revocation'
-}
 
 /**
  * Revokes the refresh token at the provider's revocation endpoint (RFC 7009).
@@ -23,12 +18,7 @@ export async function revokeRefreshToken(request, refreshToken) {
 
     // Discovery lists the endpoint when the provider supports revocation
     if (!oidcConfig.serverMetadata().revocation_endpoint) {
-      logger.warn(
-        signInEvent(
-          ACTION_KEYS.tokenRevocation,
-          SignInOutcome.Failure,
-          'revocationUnsupported'
-        ),
+      logger.error(
         '[tokenRevocationSkipped] Provider lists no revocation endpoint, the refresh token is left to expire'
       )
 
@@ -39,18 +29,9 @@ export async function revokeRefreshToken(request, refreshToken) {
       token_type_hint: 'refresh_token'
     })
   } catch (err) {
-    // The error is logged without the request that caused it, which carries
-    // the refresh token
     logger.error(
-      {
-        ...signInEvent(
-          ACTION_KEYS.tokenRevocation,
-          SignInOutcome.Failure,
-          'revocationFailed'
-        ),
-        error: { message: err instanceof Error ? err.message : 'unknown' }
-      },
-      '[tokenRevocationFailed] Could not revoke the refresh token'
+      err,
+      `[tokenRevocationFailed] Could not revoke the refresh token - ${getErrorMessage(err)}`
     )
   }
 }
