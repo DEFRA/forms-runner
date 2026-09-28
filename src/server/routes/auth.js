@@ -33,13 +33,6 @@ import { returnUrlSchema } from '~/src/server/models/common.js'
  */
 const SCOPES = 'openid email offline_access'
 
-/**
- * `login` asks for the email address and code on every sign-in. `consent` is
- * what a provider needs before it accepts `offline_access` (OpenID Connect
- * Core, section 11).
- */
-const PROMPT = 'login consent'
-
 const BASE_URL = config.get('baseUrl')
 
 /**
@@ -118,12 +111,15 @@ export default [
       const authorizationUrl = client.buildAuthorizationUrl(oidcConfig, {
         redirect_uri: config.get('oidc.redirectUri'),
         scope: SCOPES,
-        prompt: PROMPT,
         resource: RESOURCE,
         state,
         nonce,
         code_challenge: await client.calculatePKCECodeChallenge(codeVerifier),
-        code_challenge_method: 'S256'
+        code_challenge_method: 'S256',
+        // `login` asks for the email address and code on every sign in.
+        // `consent` lets the provider accept `offline_access` (OpenID Connect
+        // Core, section 11).
+        prompt: 'login consent'
       })
 
       return h.redirect(authorizationUrl.href)
