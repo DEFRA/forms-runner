@@ -46,7 +46,9 @@ describe('Delete form routes', () => {
     sub: 'sub-1',
     email: 'citizen@example.com',
     idToken: 'header.payload.signature',
-    accessToken: 'access-1'
+    accessToken: 'access-1',
+    accessTokenExpiresAt: 1,
+    refreshToken: 'refresh-old'
   }
 
   describe('GET /delete-form/{formId}/{magicLinkId}', () => {
