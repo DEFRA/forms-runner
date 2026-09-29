@@ -109,6 +109,7 @@ export const config = convict({
    * Redis integration is optional, but recommended for production environments.
    */
   sessionTimeout: {
+    doc: 'Session lifetime in milliseconds. Also how long the citizen’s tokens are kept, so it must be no shorter than the refresh token lifetime set on the provider (OIDC_TTL_REFRESH_TOKEN, in seconds).',
     format: Number,
     default: null,
     env: 'SESSION_TIMEOUT'
@@ -381,7 +382,13 @@ export const config = convict({
       default: '',
       env: 'OIDC_CLIENT_PRIVATE_JWK',
       sensitive: true
-    } as SchemaObj<string>
+    } as SchemaObj<string>,
+    accessTokenExpiryGraceSeconds: {
+      doc: 'An access token with this many seconds or fewer left is refreshed before it is sent to an API, so it does not expire in transit.',
+      format: 'nat',
+      default: 30,
+      env: 'OIDC_ACCESS_TOKEN_EXPIRY_GRACE_SECONDS'
+    } as SchemaObj<number>
   },
 
   feedbackViaEmail: {

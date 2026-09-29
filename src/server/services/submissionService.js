@@ -113,11 +113,11 @@ export async function getSavedForms(accessToken, formId, preview) {
 /**
  * One saved form, as forms-submission-api describes it.
  * @typedef {object} SavedForm
- * @property {string} magicLinkId - the link id
- * @property {string} [referenceNumber] - the reference number
- * @property {string} [formTitle] - the form title
- * @property {string} createdAt - created at date
- * @property {string} expireAt - expire at date
+ * @property {string} magicLinkId - Identifier for the link used to resume the form
+ * @property {string} [referenceNumber] - Reference shown to the user, once one has been issued
+ * @property {string} [formTitle] - Title of the form the saved answers belong to
+ * @property {string} createdAt - ISO date the form was saved
+ * @property {string} expireAt - ISO date the saved form stops being available
  * @property {boolean} [isDeleted] - is deleted marker
  */
 
@@ -174,10 +174,10 @@ export async function deleteSavedFormState(accessToken, magicLinkId) {
 /**
  * The state of one saved form, as forms-submission-api returns it.
  * @typedef {object} SavedFormState
- * @property {object} state - the saved answers
+ * @property {object} state - Answers held in the saved form
  * @property {string} referenceNumber - the form reference number
  * @property {{ id: string, title: string, status: FormStatus, isPreview: boolean, baseUrl: string }} form - the save and exit form details
- * @property {string} [magicLinkGroupId] - the group the record belongs to, if it has one
+ * @property {string} [magicLinkGroupId] - Magic link group the saved form belongs to
  * @property {string} expireAt - the expiry date
  * @property {boolean} [isDeleted] - the deleted marker
  */
