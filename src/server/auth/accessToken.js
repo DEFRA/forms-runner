@@ -33,7 +33,7 @@ export function hasExpired(tokenSet) {
 
 /**
  * Whether the provider refused the refresh token. It does so when the token
- * has expired or been revoked, or the provider session has ended.
+ * or its grant has expired or been revoked.
  * @param {unknown} err
  * @returns {boolean}
  */
