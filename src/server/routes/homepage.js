@@ -3,12 +3,9 @@ import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
 import { slugSchema } from '@defra/forms-model'
 import Joi from 'joi'
 
-import {
-  FORM_PREFIX,
-  HOMEPAGE_PREFIX,
-  PREVIEW_PATH_PREFIX
-} from '~/src/server/constants.js'
+import { HOMEPAGE_PREFIX, PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { formatDate, formatDateTime } from '~/src/server/helpers/date-helper.js'
+import { getFormHref } from '~/src/server/helpers/route-helpers.js'
 import { sessionNames } from '~/src/server/helpers/session-names.js'
 import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/routes/auth.js'
 import {
@@ -64,9 +61,7 @@ async function homepageHandler(request, h) {
 
   const { translator } = await getFormTranslator(request, form, previewStatus)
 
-  const startUrl = isPreview
-    ? `${FORM_PREFIX}${PREVIEW_PATH_PREFIX}/${state}/${slug}`
-    : `${FORM_PREFIX}/${slug}`
+  const startUrl = getFormHref(form, isPreview, state)
 
   const { accessToken } = request.auth.credentials
 

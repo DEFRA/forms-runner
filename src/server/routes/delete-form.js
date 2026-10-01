@@ -2,8 +2,8 @@ import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
-import { HOMEPAGE_PREFIX, PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { getValidationErrorsFromSession } from '~/src/server/helpers/error-helper.js'
+import { getHomepageHref } from '~/src/server/helpers/route-helpers.js'
 import { sessionNames } from '~/src/server/helpers/session-names.js'
 import { t } from '~/src/server/i18n/index.js'
 import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/routes/auth.js'
@@ -19,21 +19,6 @@ import {
 import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 export const CONFIRM_DELETE_NAME = 'confirmDelete'
-
-/**
- * Get the homepage href
- * @param {FormMetadata} form
- * @param {SavedFormState} savedForm
- * @returns {string}
- */
-function getHomepageHref(form, savedForm) {
-  const { slug } = form
-  const { isPreview, status: state } = savedForm.form
-
-  return isPreview
-    ? `${HOMEPAGE_PREFIX}${PREVIEW_PATH_PREFIX}/${state}/${slug}`
-    : `${HOMEPAGE_PREFIX}/${slug}`
-}
 
 export default [
   /**
@@ -212,6 +197,4 @@ export default [
 
 /**
  * @import { ServerRoute } from '@hapi/hapi'
- * @import { FormMetadata } from '@defra/forms-model'
- * @import { SavedFormState } from '~/src/server/services/submissionService.js'
  */
