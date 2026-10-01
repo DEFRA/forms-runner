@@ -33,6 +33,7 @@ import { returnUrlSchema } from '~/src/server/models/common.js'
 import { getErrorPreviewHandler } from '~/src/server/plugins/error-preview/error-preview.js'
 import {
   authRoutes,
+  deleteFormRoutes,
   healthRoute,
   homepageRoutes,
   publicRoutes,
@@ -77,7 +78,8 @@ export default {
     register: (server) => {
       if (config.get('useSignInFeature')) {
         server.route(authRoutes as ServerRoute[])
-        server.route(homepageRoutes)
+        server.route(homepageRoutes as ServerRoute[])
+        server.route(deleteFormRoutes as ServerRoute[])
       }
 
       server.route(routes)

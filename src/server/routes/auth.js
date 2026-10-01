@@ -16,6 +16,7 @@ import {
   setSignInTransaction,
   setTokens
 } from '~/src/server/auth/accountSession.js'
+import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
 import { signInEvent } from '~/src/server/auth/signInEvent.js'
 import { revokeRefreshToken } from '~/src/server/auth/tokenRevocation.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
@@ -328,6 +329,12 @@ export default [
   })
 ]
 
+/** @type { RouteOptionsAccess } */
+export const CITIZEN_AUTH_ROUTE_OPTIONS = {
+  mode: 'required',
+  strategy: CITIZEN_SESSION
+}
+
 /**
- * @import { Request, ServerRoute } from '@hapi/hapi'
+ * @import { Request, ServerRoute, RouteOptionsAccess } from '@hapi/hapi'
  */

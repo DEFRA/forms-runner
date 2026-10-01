@@ -2,7 +2,12 @@ import Boom from '@hapi/boom'
 
 import { config } from '~/src/config/index.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
-import { get, getJson, postJson } from '~/src/server/services/httpService.js'
+import {
+  del,
+  get,
+  getJson,
+  postJson
+} from '~/src/server/services/httpService.js'
 
 const submissionUrl = config.get('submissionUrl')
 
@@ -113,6 +118,7 @@ export async function getSavedForms(accessToken, formId, preview) {
  * @property {string} [formTitle] - Title of the form the saved answers belong to
  * @property {string} createdAt - ISO date the form was saved
  * @property {string} expireAt - ISO date the saved form stops being available
+ * @property {boolean} [isDeleted] - is deleted marker
  */
 
 /**
@@ -141,10 +147,39 @@ export async function getSavedFormState(accessToken, magicLinkId) {
 }
 
 /**
+ * Gets the state of one saved form. The API returns it only to the citizen who
+ * owns the saved form.
+ * @param {string} accessToken - the citizen's access token
+ * @param {string} magicLinkId - the id of the magic link
+ */
+export async function deleteSavedFormState(accessToken, magicLinkId) {
+  const url = `${submissionUrl}/save-and-exit/records/${magicLinkId}`
+
+  const { res, error, payload } = await del(url, {
+    json: true,
+    headers: { authorization: `Bearer ${accessToken}` }
+  })
+
+  if (error) {
+    logger.error(
+      error,
+      `[savedFormState] Could not delete the saved form - ${res.statusCode}`
+    )
+    throw Boom.badGateway('Could not delete the saved form')
+  }
+
+  return /** @type {{ matched: true, modified: boolean }} */ (payload)
+}
+
+/**
  * The state of one saved form, as forms-submission-api returns it.
  * @typedef {object} SavedFormState
  * @property {object} state - Answers held in the saved form
+ * @property {string} referenceNumber - the form reference number
+ * @property {{ id: string, title: string, status: FormStatus, isPreview: boolean, baseUrl: string }} form - the save and exit form details
  * @property {string} [magicLinkGroupId] - Magic link group the saved form belongs to
+ * @property {string} expireAt - the expiry date
+ * @property {boolean} [isDeleted] - the deleted marker
  */
 
 /**

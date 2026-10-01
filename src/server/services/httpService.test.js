@@ -4,6 +4,7 @@ import Wreck from '@hapi/wreck'
 import { StatusCodes } from 'http-status-codes'
 
 import {
+  del,
   get,
   getJson,
   post,
@@ -481,6 +482,144 @@ describe('HTTP service', () => {
       })
 
       expect(Wreck.put).toHaveBeenCalledWith('/error', {})
+    })
+  })
+
+  describe('DELETE', () => {
+    beforeEach(() => {
+      jest.spyOn(Wreck, 'delete').mockResolvedValue({
+        res: /** @type {IncomingMessage} */ ({
+          statusCode: StatusCodes.OK
+        }),
+        payload: undefined
+      })
+    })
+
+    it('passes headers', async () => {
+      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
+      await expect(del('/test', blankOptions)).resolves.toEqual({
+        res: { statusCode: StatusCodes.OK }
+      })
+
+      expect(Wreck.delete).toHaveBeenCalledWith('/test', {
+        headers: { 'x-cdp-request-id': 'my-trace-id' }
+      })
+    })
+
+    it('passes additional headers', async () => {
+      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
+      await expect(del('/test', authOptions)).resolves.toEqual({
+        res: { statusCode: StatusCodes.OK }
+      })
+
+      expect(Wreck.delete).toHaveBeenCalledWith('/test', {
+        headers: {
+          Authorization: 'Bearer ey56yDSASDFfbgcbc',
+          'x-cdp-request-id': 'my-trace-id'
+        }
+      })
+    })
+
+    it('passes non headers options', async () => {
+      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
+      await expect(del('/test', timeoutOptions)).resolves.toEqual({
+        res: { statusCode: StatusCodes.OK }
+      })
+
+      expect(Wreck.delete).toHaveBeenCalledWith('/test', {
+        headers: {
+          'x-cdp-request-id': 'my-trace-id'
+        },
+        timeout: 5000
+      })
+    })
+
+    it('sends request', async () => {
+      await expect(del('/test', blankOptions)).resolves.toEqual({
+        res: { statusCode: StatusCodes.OK }
+      })
+
+      expect(Wreck.delete).toHaveBeenCalledWith('/test', {})
+    })
+  })
+
+  describe('DELETE (with error)', () => {
+    const error = Boom.notFound()
+
+    beforeEach(() => {
+      jest.spyOn(Wreck, 'delete').mockResolvedValue({
+        res: /** @type {IncomingMessage} */ ({
+          statusCode: StatusCodes.NOT_FOUND
+        }),
+        payload: error
+      })
+    })
+
+    it('passes headers', async () => {
+      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
+      await expect(del('/error', blankOptions)).resolves.toEqual({
+        res: { statusCode: StatusCodes.NOT_FOUND },
+        error
+      })
+
+      expect(Wreck.delete).toHaveBeenCalledWith('/error', {
+        headers: { 'x-cdp-request-id': 'my-trace-id' }
+      })
+    })
+
+    it('passes additional headers', async () => {
+      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
+      await expect(del('/error', authOptions)).resolves.toEqual({
+        res: { statusCode: StatusCodes.NOT_FOUND },
+        error
+      })
+
+      expect(Wreck.delete).toHaveBeenCalledWith('/error', {
+        headers: {
+          Authorization: 'Bearer ey56yDSASDFfbgcbc',
+          'x-cdp-request-id': 'my-trace-id'
+        }
+      })
+    })
+
+    it('passes non headers options', async () => {
+      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
+      await expect(del('/error', timeoutOptions)).resolves.toEqual({
+        res: { statusCode: StatusCodes.NOT_FOUND },
+        error
+      })
+
+      expect(Wreck.delete).toHaveBeenCalledWith('/error', {
+        headers: {
+          'x-cdp-request-id': 'my-trace-id'
+        },
+        timeout: 5000
+      })
+    })
+
+    it('sends request (with error)', async () => {
+      await expect(del('/error', blankOptions)).resolves.toEqual({
+        res: { statusCode: StatusCodes.NOT_FOUND },
+        error
+      })
+
+      expect(Wreck.delete).toHaveBeenCalledWith('/error', {})
+    })
+
+    it('sends request (unknown error)', async () => {
+      jest.spyOn(Wreck, 'delete').mockResolvedValue({
+        res: /** @type {IncomingMessage} */ ({
+          statusCode: StatusCodes.NOT_FOUND
+        }),
+        payload: undefined
+      })
+
+      await expect(del('/error', blankOptions)).resolves.toEqual({
+        res: { statusCode: StatusCodes.NOT_FOUND },
+        error: new Error('Unknown error')
+      })
+
+      expect(Wreck.delete).toHaveBeenCalledWith('/error', {})
     })
   })
 })
