@@ -3,10 +3,14 @@ import { getTraceId } from '@defra/hapi-tracing'
 import { mockClient } from 'aws-sdk-client-mock'
 
 import { config } from '~/src/config/index.js'
+import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import 'aws-sdk-client-mock-jest'
 import { buildSaveAndExitMessage } from '~/src/server/messaging/__stubs__/builder.js'
 import { publishEvent } from '~/src/server/messaging/publish-base.js'
 
+jest.mock('~/src/server/common/helpers/logging/logger.ts', () => ({
+  logger: { info: jest.fn(), error: jest.fn() }
+}))
 jest.mock('@defra/hapi-tracing', () => ({
   getTraceId: jest.fn()
 }))
@@ -55,6 +59,24 @@ describe('publish-base', () => {
           traceId: { DataType: 'String', StringValue: 'trace-xyz' }
         }
       })
+    })
+
+    it('logs the total time of the publish in nanoseconds (ECS event.duration)', async () => {
+      config.set('snsSaveTopicArn', snsSaveTopicArn)
+      snsMock.on(PublishCommand).resolves({ MessageId: 'm-1' })
+
+      await publishEvent(message)
+
+      const [fields] = /** @type {[{ event: { duration: number } }]} */ (
+        jest.mocked(logger.info).mock.calls[0]
+      )
+      expect(fields.event).toMatchObject({
+        category: 'save-and-exit',
+        action: 'publish',
+        outcome: 'success'
+      })
+      expect(Number.isInteger(fields.event.duration)).toBe(true)
+      expect(fields.event.duration).toBeGreaterThan(0)
     })
 
     it('rethrows a failed publish', async () => {
