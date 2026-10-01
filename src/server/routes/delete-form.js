@@ -1,13 +1,9 @@
 import Boom from '@hapi/boom'
+import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
 import { HOMEPAGE_PREFIX, PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
-import {
-  buildErrorList,
-  createMessageTranslator,
-  getValidationErrorsFromSession
-} from '~/src/server/helpers/error-helper.js'
-import { redirectWithErrors } from '~/src/server/helpers/redirect-helper.js'
+import { getValidationErrorsFromSession } from '~/src/server/helpers/error-helper.js'
 import { sessionNames } from '~/src/server/helpers/session-names.js'
 import { t } from '~/src/server/i18n/index.js'
 import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/routes/auth.js'
@@ -23,11 +19,6 @@ import {
 import { resolveLanguage } from '~/src/server/utils/utils.js'
 
 export const CONFIRM_DELETE_NAME = 'confirmDelete'
-export const messageTranslations = {
-  [CONFIRM_DELETE_NAME]: {
-    '*': 'deleteForm.confirmDeleteValidationMessage'
-  }
-}
 
 /**
  * Get the homepage href
@@ -77,6 +68,14 @@ export default [
       )
       const { formErrors } = validation ?? {}
       const pageHeading = t('deleteForm.title', lang)
+
+      // Translate any error messages
+      if (formErrors) {
+        Object.values(formErrors).forEach((value) => {
+          value.text = t(value.text, lang)
+        })
+      }
+
       const pageTitle = formErrors
         ? `${t('errors.titlePrefix', lang)} ${pageHeading}`
         : pageHeading
@@ -113,7 +112,7 @@ export default [
 
       const errorSummary = formErrors && {
         titleText: t('errorPreview.errorSummaryHeading', lang),
-        errorList: buildErrorList(formErrors, [CONFIRM_DELETE_NAME])
+        errorList: Object.values(formErrors)
       }
 
       return h.view('delete-form', {
@@ -166,19 +165,32 @@ export default [
       auth: CITIZEN_AUTH_ROUTE_OPTIONS,
       validate: {
         failAction(request, h, err) {
-          const lang = resolveLanguage(request.query)
-          const messageTranslator = createMessageTranslator(
-            messageTranslations,
-            lang
-          )
+          const { params } = request
+          const { formId, magicLinkId } = params
 
-          return redirectWithErrors(
-            request,
-            h,
-            err,
-            sessionNames.validationFailure.deleteSavedForm,
-            messageTranslator
-          )
+          if (Joi.isError(err)) {
+            const firstError = err.details.at(0)
+
+            if (firstError?.path.at(0) === CONFIRM_DELETE_NAME) {
+              request.yar.flash(
+                sessionNames.validationFailure.deleteSavedForm,
+                {
+                  formErrors: {
+                    [CONFIRM_DELETE_NAME]: {
+                      text: 'deleteForm.confirmDeleteValidationMessage',
+                      href: `#${CONFIRM_DELETE_NAME}`
+                    }
+                  },
+                  formValues: request.payload
+                }
+              )
+            }
+          }
+
+          return h
+            .redirect(`/delete-form/${formId}/${magicLinkId}`)
+            .code(StatusCodes.SEE_OTHER)
+            .takeover()
         },
         params: Joi.object({
           formId: Joi.string().required(),

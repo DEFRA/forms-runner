@@ -3,10 +3,7 @@ import { StatusCodes } from 'http-status-codes'
 
 import { config } from '~/src/config/index.js'
 import { HOMEPAGE_PREFIX, PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
-import {
-  buildErrorList,
-  getValidationErrorsFromSession
-} from '~/src/server/helpers/error-helper.js'
+import { getValidationErrorsFromSession } from '~/src/server/helpers/error-helper.js'
 import { createServer } from '~/src/server/index.js'
 import { CONFIRM_DELETE_NAME } from '~/src/server/routes/delete-form.js'
 import { getFormMetadataById } from '~/src/server/services/formsService.js'
@@ -106,9 +103,6 @@ describe('Delete form routes', () => {
         },
         formValues: {}
       })
-      jest
-        .mocked(buildErrorList)
-        .mockReturnValueOnce([{ text: 'Error message', href: '#error' }])
 
       const options = {
         method: 'GET',
