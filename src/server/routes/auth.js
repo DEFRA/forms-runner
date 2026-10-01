@@ -116,7 +116,7 @@ export default [
         nonce,
         code_challenge: await client.calculatePKCECodeChallenge(codeVerifier),
         code_challenge_method: 'S256',
-        // `login` asks for the email address and code on every sign in.
+        // `login` always require an OTP for new logins
         // `consent` lets the provider accept `offline_access` (OpenID Connect
         // Core, section 11).
         prompt: 'login consent'
