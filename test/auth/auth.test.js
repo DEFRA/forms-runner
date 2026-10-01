@@ -5,6 +5,7 @@ import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
 import { CITIZEN_KEY, TOKENS_KEY } from '~/src/server/auth/accountSession.js'
+import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { SIGNED_OUT_PATH, SIGN_OUT_PATH } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
@@ -29,6 +30,19 @@ const ID_TOKEN = 'header.payload.signature'
 const ACCESS_TOKEN = 'access-1'
 const REFRESH_TOKEN = 'refresh-1'
 const SESSION_PROBE_PATH = '/test/session'
+const REVOCATION_ENDPOINT = 'http://localhost:3011/token/revocation'
+
+/**
+ * The discovered provider configuration, with the metadata that sign-out
+ * reads
+ * @param {Record<string, string>} metadata
+ * @returns {Configuration}
+ */
+function mockConfiguration(metadata) {
+  return /** @type {Configuration} */ (
+    /** @type {unknown} */ ({ serverMetadata: () => metadata })
+  )
+}
 
 /**
  * A token response carrying just the fields the callback route reads. Cast
@@ -127,7 +141,9 @@ describe('sign in routes and sign out routes', () => {
   beforeEach(() => {
     jest
       .mocked(client.discovery)
-      .mockResolvedValue(/** @type {Configuration} */ ({}))
+      .mockResolvedValue(
+        mockConfiguration({ revocation_endpoint: REVOCATION_ENDPOINT })
+      )
     jest.mocked(client.randomPKCECodeVerifier).mockReturnValue('verifier-1')
     jest.mocked(client.randomState).mockReturnValue('state-1')
     jest.mocked(client.randomNonce).mockReturnValue('nonce-1')
@@ -151,7 +167,11 @@ describe('sign in routes and sign out routes', () => {
     const [, params] = jest.mocked(client.buildAuthorizationUrl).mock.calls[0]
 
     expect(params).toMatchObject({
-      scope: 'openid email',
+      // `offline_access` gets a refresh token that outlives the provider
+      // session, and the provider accepts it only with a consent prompt.
+      // `login` asks for a code on every sign-in.
+      scope: 'openid email offline_access',
+      prompt: 'login consent',
       state: 'state-1',
       nonce: 'nonce-1',
       code_challenge: 'challenge-1',
@@ -464,6 +484,7 @@ describe('sign in routes and sign out routes', () => {
         })
       )
       expect(await idTokenHint(headers)).toBe('header.payload.signature')
+      expect(client.tokenRevocation).not.toHaveBeenCalled()
     })
 
     it.each([
@@ -498,6 +519,9 @@ describe('sign in routes and sign out routes', () => {
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
       expect(response.headers.location).toBe(FORM_PAGE)
       expect(await idTokenHint(headers)).toBe('header.payload.signature')
+
+      // The citizen is still signed in, so their refresh token must still work
+      expect(client.tokenRevocation).not.toHaveBeenCalled()
     })
 
     it('ends the session when the citizen comes back from a completed sign-out', async () => {
@@ -510,6 +534,96 @@ describe('sign in routes and sign out routes', () => {
       })
 
       expect(response.statusCode).toBe(StatusCodes.OK)
+      expect(await idTokenHint(headers)).toBeUndefined()
+    })
+
+    it('revokes the refresh token at the discovered revocation endpoint when the citizen comes back from a completed sign-out', async () => {
+      const headers = await signIn()
+
+      await server.inject({
+        method: 'GET',
+        url: signedOutUrl({ slug: 'my-form-slug', returnUrl: FORM_PAGE }),
+        headers
+      })
+
+      expect(client.tokenRevocation).toHaveBeenCalledTimes(1)
+      expect(client.tokenRevocation).toHaveBeenCalledWith(
+        expect.objectContaining({ serverMetadata: expect.any(Function) }),
+        REFRESH_TOKEN,
+        { token_type_hint: 'refresh_token' }
+      )
+    })
+
+    it.each([
+      [
+        'the provider refuses the revocation',
+        () => {
+          jest
+            .mocked(client.tokenRevocation)
+            .mockRejectedValue(new Error('revocation failed'))
+          return undefined
+        }
+      ],
+      [
+        'discovery fails',
+        () =>
+          // The plugin keeps the first discovery result, so the failure is
+          // set on the plugin rather than on openid-client
+          jest
+            .spyOn(server.app.oidc, 'getConfig')
+            .mockRejectedValue(new Error('provider unreachable'))
+      ]
+    ])(
+      'signs the citizen out, and shows the signed-out page, when %s',
+      async (_, fail) => {
+        const headers = await signIn()
+        const failure = fail()
+        const error = jest.spyOn(logger, 'error').mockReturnValue(undefined)
+
+        const { container, response } = await renderResponse(server, {
+          method: 'GET',
+          url: signedOutUrl({ slug: 'my-form-slug', returnUrl: FORM_PAGE }),
+          headers
+        })
+
+        expect(response.statusCode).toBe(StatusCodes.OK)
+        expect(
+          container.getByRole('heading', {
+            name: 'You have signed out',
+            level: 1
+          })
+        ).toBeInTheDocument()
+        expect(error).toHaveBeenCalledWith(
+          expect.any(Error),
+          expect.stringContaining('[tokenRevocationFailed]')
+        )
+
+        // Sign-out needs the provider again to show the ID token hint
+        failure?.mockRestore()
+        expect(await idTokenHint(headers)).toBeUndefined()
+      }
+    )
+
+    it('signs the citizen out without a revocation when discovery lists no revocation endpoint', async () => {
+      const headers = await signIn()
+      const getConfig = jest
+        .spyOn(server.app.oidc, 'getConfig')
+        .mockResolvedValue(mockConfiguration({}))
+      const error = jest.spyOn(logger, 'error').mockReturnValue(undefined)
+
+      const response = await server.inject({
+        method: 'GET',
+        url: signedOutUrl({ slug: 'my-form-slug', returnUrl: FORM_PAGE }),
+        headers
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.OK)
+      expect(client.tokenRevocation).not.toHaveBeenCalled()
+      expect(error).toHaveBeenCalledWith(
+        expect.stringContaining('[tokenRevocationSkipped]')
+      )
+
+      getConfig.mockRestore()
       expect(await idTokenHint(headers)).toBeUndefined()
     })
 
@@ -552,6 +666,11 @@ describe('sign in routes and sign out routes', () => {
 
         expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
         expect(await idTokenHint(headers)).toBeUndefined()
+        expect(client.tokenRevocation).toHaveBeenCalledWith(
+          expect.anything(),
+          REFRESH_TOKEN,
+          { token_type_hint: 'refresh_token' }
+        )
       }
     )
   })
