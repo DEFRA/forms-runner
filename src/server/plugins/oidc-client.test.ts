@@ -2,6 +2,7 @@ import hapi from '@hapi/hapi'
 import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
+import { requestTracing } from '~/src/server/common/helpers/logging/request-tracing.js'
 import pluginOidcClient from '~/src/server/plugins/oidc-client.js'
 
 jest.mock('openid-client')
@@ -60,8 +61,51 @@ describe('oidc client plugin', () => {
 
     expect(jest.mocked(client.discovery).mock.calls[0][4]).toEqual({
       timeout: 20,
+      [client.customFetch]: expect.any(Function),
       // eslint-disable-next-line @typescript-eslint/no-deprecated -- the setting under test
       execute: [client.allowInsecureRequests]
+    })
+  })
+
+  it('sends the trace ID of the current request to the provider', async () => {
+    jest.mocked(client.discovery).mockResolvedValue({} as client.Configuration)
+    const fetchSpy = jest
+      .spyOn(global, 'fetch')
+      .mockResolvedValue(new Response())
+
+    const server = hapi.server()
+    await server.register([requestTracing, pluginOidcClient])
+    await server.app.oidc.getConfig()
+
+    const options = jest.mocked(client.discovery).mock.calls[0][4]
+    const customFetch = options?.[client.customFetch]
+
+    server.route({
+      method: 'GET',
+      path: '/',
+      async handler() {
+        await customFetch?.('http://provider/token', {
+          body: 'grant_type=refresh_token',
+          headers: { accept: 'application/json' },
+          method: 'POST',
+          redirect: 'manual'
+        })
+
+        return null
+      }
+    })
+
+    await server.inject({
+      method: 'GET',
+      url: '/',
+      headers: { 'x-cdp-request-id': 'trace-1' }
+    })
+
+    expect(fetchSpy).toHaveBeenCalledWith('http://provider/token', {
+      body: 'grant_type=refresh_token',
+      headers: { accept: 'application/json', 'x-cdp-request-id': 'trace-1' },
+      method: 'POST',
+      redirect: 'manual'
     })
   })
 

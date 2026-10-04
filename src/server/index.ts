@@ -207,6 +207,7 @@ export async function createServer(routeConfig?: RouteConfig) {
   const server = hapi.server(serverOptions())
 
   await server.register(requestLogger)
+  await server.register(requestTracing)
   await server.register(forwardLogs)
 
   if (config.get('isProduction')) {
@@ -260,8 +261,6 @@ export async function createServer(routeConfig?: RouteConfig) {
   if (config.get('cdpEnvironment') === 'local') {
     await server.register(blipp)
   }
-
-  await server.register(requestTracing)
 
   server.state('cookieConsent', {
     ttl: 365 * 24 * 60 * 60 * 1000, // 1 year in ms
