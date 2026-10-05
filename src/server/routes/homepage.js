@@ -66,6 +66,9 @@ function buildNavigation(form, translator, { isPreview, state, slug }) {
     ? `${HOMEPAGE_PREFIX}${PREVIEW_PATH_PREFIX}/${state}/${slug}`
     : `${HOMEPAGE_PREFIX}/${slug}`
 
+  const securityUrl = new URL('/account', authBase)
+  securityUrl.searchParams.append('returnUrl', `${runnerBase}${homepageBase}`)
+
   const serviceNavigationParams = {
     serviceName: form.title,
     navigation: [
@@ -75,7 +78,7 @@ function buildNavigation(form, translator, { isPreview, state, slug }) {
         active: true
       },
       {
-        href: `${authBase}/account?returnUrl=${runnerBase}${homepageBase}`,
+        href: securityUrl.href,
         text: t('signIn.homepage.tabSecurity'),
         active: false
       }
