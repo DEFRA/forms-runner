@@ -1,0 +1,19 @@
+{% extends "layout.html" %}
+
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      {% if errorSummary %}
+        {{ govukErrorSummary(errorSummary)}}
+      {% endif %}
+
+      <form method="post">
+        <input type="hidden" name="crumb" value="{{ crumb }}">
+        {% block fields %}
+        {% endblock %}
+      </form>
+    </div>
+  </div>
+{% endblock %}

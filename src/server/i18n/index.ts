@@ -86,7 +86,7 @@ export function t(
   key: string,
   lang: string,
   opts?: Record<string, unknown>
-): string | string[] {
+): string {
   return runnerI18n.t(key, { lng: lang, ...opts })
 }
 

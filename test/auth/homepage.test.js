@@ -1,8 +1,10 @@
 import { join } from 'node:path'
 
+import { FormStatus } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { within } from '@testing-library/dom'
 import { StatusCodes } from 'http-status-codes'
+import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
 import { createServer } from '~/src/server/index.js'
@@ -13,21 +15,51 @@ import {
 import { getSavedForms } from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
+import { citizenSession } from '~/test/utils/citizen-session.js'
 
 jest.mock('~/src/server/services/formsService.js')
 jest.mock('~/src/server/services/submissionService.js')
+jest.mock('openid-client', () => ({
+  ...jest.requireActual('openid-client'),
+  discovery: jest.fn(),
+  refreshTokenGrant: jest.fn()
+}))
 
 const HOMEPAGE_URL = '/homepage/test-form'
 const NO_AUTH_URL = '/help/accessibility-statement/test-form'
 const EMAIL = 'citizen@example.com'
+const SUB = 'sub-1'
+const FORM_ID = fixtures.form.metadata.id
 
 /** A citizen who has signed in, as the citizen-session scheme presents them */
 const credentials = {
   iss: 'http://localhost:3011',
-  sub: 'sub-1',
+  sub: SUB,
   email: EMAIL,
-  idToken: 'header.payload.signature',
-  accessToken: 'access-1'
+  accessToken: 'access-1',
+  accessTokenExpiresAt: Date.now() + 300_000,
+  refreshToken: 'refresh-1',
+  idToken: 'id-1'
+}
+
+const identity = {
+  iss: credentials.iss,
+  sub: SUB,
+  email: EMAIL
+}
+
+/**
+ * The citizen's tokens, with an access token that has the given number of
+ * seconds left
+ * @param {number} secondsLeft
+ */
+function tokenSet(secondsLeft) {
+  return {
+    accessToken: 'access-1',
+    accessTokenExpiresAt: Date.now() + secondsLeft * 1000,
+    refreshToken: 'refresh-1',
+    idToken: 'header.payload.signature'
+  }
 }
 
 /** Two saved forms, as forms-submission-api describes them */
@@ -52,6 +84,9 @@ describe('per-form homepage', () => {
   /** @type {Server} */
   let server
 
+  /** @type {ReturnType<typeof citizenSession>} */
+  let session
+
   beforeAll(async () => {
     config.set('useSignInFeature', true)
 
@@ -60,6 +95,8 @@ describe('per-form homepage', () => {
       formFilePath: join(import.meta.dirname, '..', 'form', 'definitions'),
       enforceCsrf: false
     })
+
+    session = citizenSession(server)
 
     await server.initialize()
   })
@@ -72,6 +109,9 @@ describe('per-form homepage', () => {
   beforeEach(() => {
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
     jest.mocked(getSavedForms).mockResolvedValue([])
+    jest
+      .mocked(client.discovery)
+      .mockResolvedValue(/** @type {client.Configuration} */ ({}))
   })
 
   it('sends a signed-out citizen to sign in first', async () => {
@@ -159,6 +199,19 @@ describe('per-form homepage', () => {
     expect(container.getByRole('link', { name: EMAIL })).toHaveAttribute(
       'href',
       HOMEPAGE_URL
+    )
+  })
+
+  it('sends the page the citizen is on with the Sign out link, so a Cancel can bring them back', async () => {
+    const { container } = await renderResponse(server, {
+      method: 'GET',
+      url: HOMEPAGE_URL,
+      auth: { strategy: 'citizen-session', credentials }
+    })
+
+    expect(container.getByRole('link', { name: 'Sign out' })).toHaveAttribute(
+      'href',
+      `/auth/sign-out?slug=test-form&returnUrl=${encodeURIComponent(HOMEPAGE_URL)}`
     )
   })
 
@@ -311,6 +364,9 @@ describe('per-form homepage', () => {
       expect(
         within(table).getByRole('columnheader', { name: 'Saved until' })
       ).toBeInTheDocument()
+      expect(
+        within(table).getByRole('columnheader', { name: 'Actions' })
+      ).toBeInTheDocument()
 
       expect(
         within(table).getByRole('cell', { name: 'CCC-333' })
@@ -394,8 +450,277 @@ describe('per-form homepage', () => {
 
       expect(getSavedForms).toHaveBeenCalledWith(
         'access-1',
-        fixtures.form.metadata.id
+        fixtures.form.metadata.id,
+        undefined
       )
+    })
+
+    describe('when the access token is about to expire', () => {
+      /** @type {Awaited<ReturnType<typeof session.start>>} */
+      let headers
+
+      beforeEach(async () => {
+        headers = await session.start(identity, tokenSet(20))
+      })
+
+      it('refreshes the token before asking for the saved forms', async () => {
+        jest.mocked(client.refreshTokenGrant).mockResolvedValue(
+          /** @type {TokenEndpointResponse & TokenEndpointResponseHelpers} */ (
+            /** @type {unknown} */ ({
+              access_token: 'access-2',
+              id_token: 'header.payload.signature-2',
+              expires_in: 300,
+              token_type: 'bearer',
+              claims: () => ({ sub: SUB })
+            })
+          )
+        )
+
+        const response = await server.inject({
+          method: 'GET',
+          url: HOMEPAGE_URL,
+          headers
+        })
+
+        expect(response.statusCode).toBe(StatusCodes.OK)
+        expect(client.refreshTokenGrant).toHaveBeenCalledWith(
+          expect.anything(),
+          'refresh-1',
+          expect.objectContaining({ resource: expect.any(String) })
+        )
+        expect(getSavedForms).toHaveBeenCalledWith(
+          'access-2',
+          fixtures.form.metadata.id,
+          undefined
+        )
+        await expect(session.read(headers)).resolves.toMatchObject({
+          accessToken: 'access-2',
+          refreshToken: 'refresh-1'
+        })
+      })
+
+      it('sends the citizen to sign in again when the provider refuses the refresh token', async () => {
+        jest.mocked(client.refreshTokenGrant).mockRejectedValue(
+          new client.ResponseBodyError('server responded with an error', {
+            cause: { error: 'invalid_grant' },
+            response: new Response(null, { status: 400 })
+          })
+        )
+
+        const response = await server.inject({
+          method: 'GET',
+          url: HOMEPAGE_URL,
+          headers
+        })
+
+        expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+        expect(response.headers.location).toBe(
+          '/auth/sign-in?returnUrl=%2Fhomepage%2Ftest-form'
+        )
+        expect(getSavedForms).not.toHaveBeenCalled()
+        await expect(session.read(headers)).resolves.toBeNull()
+      })
+
+      it('uses the current token, and keeps the tokens, when the provider cannot be reached', async () => {
+        jest
+          .mocked(client.refreshTokenGrant)
+          .mockRejectedValue(new TypeError('fetch failed'))
+
+        const response = await server.inject({
+          method: 'GET',
+          url: HOMEPAGE_URL,
+          headers
+        })
+
+        expect(response.statusCode).toBe(StatusCodes.OK)
+        expect(getSavedForms).toHaveBeenCalledWith(
+          'access-1',
+          fixtures.form.metadata.id,
+          undefined
+        )
+        await expect(session.read(headers)).resolves.toMatchObject({
+          accessToken: 'access-1',
+          refreshToken: 'refresh-1'
+        })
+      })
+
+      it('answers service unavailable when the token has expired and the provider cannot be reached', async () => {
+        jest
+          .mocked(client.refreshTokenGrant)
+          .mockRejectedValue(new TypeError('fetch failed'))
+        const expiredHeaders = await session.start(identity, tokenSet(-10))
+
+        const response = await server.inject({
+          method: 'GET',
+          url: HOMEPAGE_URL,
+          headers: expiredHeaders
+        })
+
+        expect(response.statusCode).toBe(StatusCodes.SERVICE_UNAVAILABLE)
+        expect(getSavedForms).not.toHaveBeenCalled()
+        await expect(session.read(expiredHeaders)).resolves.toMatchObject({
+          refreshToken: 'refresh-1'
+        })
+      })
+
+      it('does not refresh the token for a static asset', async () => {
+        await server.inject({
+          method: 'GET',
+          url: '/stylesheets/application.css',
+          headers
+        })
+
+        expect(client.refreshTokenGrant).not.toHaveBeenCalled()
+        await expect(session.read(headers)).resolves.toMatchObject({
+          accessToken: 'access-1'
+        })
+      })
+    })
+
+    it('sends the citizen to sign in again when their session has no tokens', async () => {
+      const headers = await session.start(identity, null)
+
+      const response = await server.inject({
+        method: 'GET',
+        url: HOMEPAGE_URL,
+        headers
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe(
+        '/auth/sign-in?returnUrl=%2Fhomepage%2Ftest-form'
+      )
+    })
+
+    it.each([FormStatus.Draft, FormStatus.Live])(
+      'asks only for the forms saved from the %s preview on its homepage',
+      async (state) => {
+        await renderResponse(server, {
+          method: 'GET',
+          url: `/homepage/preview/${state}/test-form`,
+          auth: { strategy: 'citizen-session', credentials }
+        })
+
+        expect(getSavedForms).toHaveBeenCalledWith(
+          'access-1',
+          fixtures.form.metadata.id,
+          state
+        )
+      }
+    )
+
+    it('shows a Continue link for each form in progress', async () => {
+      jest.useFakeTimers({
+        now: new Date('2026-09-01T09:00:00.000Z'),
+        advanceTimers: true
+      })
+      jest.mocked(getSavedForms).mockResolvedValue(savedForms)
+
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: HOMEPAGE_URL,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      const table = container.getByRole('table')
+
+      expect(
+        within(table).getByRole('columnheader', { name: 'Actions' })
+      ).toBeInTheDocument()
+
+      // The reference number in each link name tells the links apart
+      expect(
+        within(table).getByRole('link', { name: 'Continue CCC-333' })
+      ).toHaveAttribute('href', `/resume-form/${FORM_ID}/link-1`)
+      expect(
+        within(table).getByRole('link', { name: 'Continue AAA-111' })
+      ).toHaveAttribute('href', `/resume-form/${FORM_ID}/link-2`)
+
+      jest.useRealTimers()
+    })
+
+    it('names a Continue link by its saved time when the form has no reference number', async () => {
+      jest.useFakeTimers({
+        now: new Date('2026-09-01T09:00:00.000Z'),
+        advanceTimers: true
+      })
+      jest.mocked(getSavedForms).mockResolvedValue([
+        {
+          magicLinkId: 'link-1',
+          formTitle: 'test-form',
+          createdAt: '2026-08-21T09:00:00.000Z',
+          expireAt: '2026-09-12T09:00:00.000Z'
+        }
+      ])
+
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: HOMEPAGE_URL,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(
+        container.getByRole('link', {
+          name: 'Continue saved on 21 August 2026 at 10:00am'
+        })
+      ).toHaveAttribute('href', `/resume-form/${FORM_ID}/link-1`)
+
+      jest.useRealTimers()
+    })
+
+    it('shows no Continue link for an expired form', async () => {
+      jest.useFakeTimers({
+        now: new Date('2026-09-14T09:00:00.000Z'),
+        advanceTimers: true
+      })
+      jest.mocked(getSavedForms).mockResolvedValue(savedForms)
+
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: HOMEPAGE_URL,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      const table = container.getByRole('table')
+
+      // link-1 expired on 12 September
+      expect(
+        within(table).getAllByRole('link', { name: /Continue/ })
+      ).toHaveLength(1)
+      expect(
+        within(table).getByRole('link', { name: 'Continue AAA-111' })
+      ).toHaveAttribute('href', `/resume-form/${FORM_ID}/link-2`)
+
+      jest.useRealTimers()
+    })
+
+    it('shows the Actions column in Welsh on a Welsh homepage', async () => {
+      jest.useFakeTimers({
+        now: new Date('2026-09-01T09:00:00.000Z'),
+        advanceTimers: true
+      })
+      jest.mocked(getSavedForms).mockResolvedValue(savedForms)
+      jest.mocked(getFormDefinition).mockResolvedValue({
+        ...fixtures.form.definition,
+        metadata: { translations: { cy: {} } }
+      })
+
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: `${HOMEPAGE_URL}?language=cy`,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      const table = container.getByRole('table')
+
+      expect(
+        within(table).getByRole('columnheader', { name: 'Camau' })
+      ).toBeInTheDocument()
+      expect(
+        within(table).getByRole('link', { name: 'Parhau CCC-333' })
+      ).toBeInTheDocument()
+
+      jest.useRealTimers()
     })
 
     it('says so plainly when the citizen has saved nothing, rather than showing an empty table', async () => {
@@ -436,4 +761,5 @@ describe('per-form homepage', () => {
 
 /**
  * @import { Server } from '@hapi/hapi'
+ * @import { TokenEndpointResponse, TokenEndpointResponseHelpers } from 'openid-client'
  */

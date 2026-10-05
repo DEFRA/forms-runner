@@ -1,9 +1,17 @@
+import { FormStatus } from '@defra/forms-model'
 import { StatusCodes } from 'http-status-codes'
 
-import { get, getJson, postJson } from '~/src/server/services/httpService.js'
 import {
+  del,
+  get,
+  getJson,
+  postJson
+} from '~/src/server/services/httpService.js'
+import {
+  deleteSavedFormState,
   generateReferenceNumber,
   getSaveAndExitDetails,
+  getSavedFormState,
   getSavedForms,
   validateSaveAndExitCredentials
 } from '~/src/server/services/submissionService.js'
@@ -24,7 +32,7 @@ const magicLinkId = '7ac201b2-bea3-490d-8ccb-2734b2794f7b'
  */
 function respondWith(payload, statusCode = StatusCodes.OK) {
   jest.mocked(get).mockResolvedValue(
-    /** @type {any} */ ({
+    /** @type {Awaited<ReturnType<typeof get>>} */ ({
       res: { statusCode },
       payload
     })
@@ -154,6 +162,20 @@ describe('Submission service', () => {
       )
     })
 
+    it.each([FormStatus.Draft, FormStatus.Live])(
+      'asks only for the forms saved from the %s preview',
+      async (preview) => {
+        respondWith([])
+
+        await getSavedForms(ACCESS_TOKEN, FORM_ID, preview)
+
+        expect(get).toHaveBeenCalledWith(
+          `${SUBMISSION_URL}/save-and-exit/records?formId=${FORM_ID}&preview=${preview}`,
+          expect.anything()
+        )
+      }
+    )
+
     it('returns the records the API sent', async () => {
       const records = [
         {
@@ -173,7 +195,7 @@ describe('Submission service', () => {
 
     it('reports a refused token rather than returning it as a record', async () => {
       jest.mocked(get).mockResolvedValue(
-        /** @type {any} */ ({
+        /** @type {Awaited<ReturnType<typeof get>>} */ ({
           res: { statusCode: StatusCodes.UNAUTHORIZED },
           error: new Error('Unauthorized')
         })
@@ -182,6 +204,79 @@ describe('Submission service', () => {
       await expect(getSavedForms(ACCESS_TOKEN, FORM_ID)).rejects.toThrow(
         'Could not read the saved forms'
       )
+    })
+  })
+
+  describe('getSavedFormState', () => {
+    it('asks the submission API for one saved form with the token', async () => {
+      respondWith({ state: {} })
+
+      await getSavedFormState(ACCESS_TOKEN, magicLinkId)
+
+      expect(get).toHaveBeenCalledWith(
+        `${SUBMISSION_URL}/save-and-exit/records/${magicLinkId}`,
+        {
+          json: true,
+          headers: { authorization: `Bearer ${ACCESS_TOKEN}` }
+        }
+      )
+    })
+
+    it('returns the state and group id the API sent', async () => {
+      const savedForm = {
+        state: { textField: 'value' },
+        magicLinkGroupId: 'group-1'
+      }
+      respondWith(savedForm)
+
+      await expect(
+        getSavedFormState(ACCESS_TOKEN, magicLinkId)
+      ).resolves.toEqual(savedForm)
+    })
+
+    it('throws when the API refuses the request', async () => {
+      jest.mocked(get).mockResolvedValue(
+        /** @type {Awaited<ReturnType<typeof get>>} */ ({
+          res: { statusCode: StatusCodes.NOT_FOUND },
+          error: new Error('Not Found')
+        })
+      )
+
+      await expect(
+        getSavedFormState(ACCESS_TOKEN, magicLinkId)
+      ).rejects.toThrow('Could not read the saved form')
+    })
+  })
+
+  describe('deleteSavedFormState', () => {
+    it('asks the submission API to delete one saved form with the token', async () => {
+      jest.mocked(del).mockResolvedValue({
+        res: /** @type {IncomingMessage} */ ({ statusCode: StatusCodes.OK }),
+        payload: { matched: true, modified: true }
+      })
+
+      await deleteSavedFormState(ACCESS_TOKEN, magicLinkId)
+
+      expect(del).toHaveBeenCalledWith(
+        `${SUBMISSION_URL}/save-and-exit/records/${magicLinkId}`,
+        {
+          json: true,
+          headers: { authorization: `Bearer ${ACCESS_TOKEN}` }
+        }
+      )
+    })
+
+    it('throws when the API refuses the request', async () => {
+      jest.mocked(del).mockResolvedValue({
+        res: /** @type {IncomingMessage} */ ({
+          statusCode: StatusCodes.NOT_FOUND
+        }),
+        error: new Error('Not Found')
+      })
+
+      await expect(
+        deleteSavedFormState(ACCESS_TOKEN, magicLinkId)
+      ).rejects.toThrow('Could not delete the saved form')
     })
   })
 })

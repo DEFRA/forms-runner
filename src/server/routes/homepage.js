@@ -4,13 +4,15 @@ import { slugSchema } from '@defra/forms-model'
 import Joi from 'joi'
 
 import { config } from '~/src/config/index.js'
-import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
-import {
-  FORM_PREFIX,
-  HOMEPAGE_PREFIX,
-  PREVIEW_PATH_PREFIX
-} from '~/src/server/constants.js'
+import { HOMEPAGE_PREFIX, PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { formatDate, formatDateTime } from '~/src/server/helpers/date-helper.js'
+import { getFormHref } from '~/src/server/helpers/route-helpers.js'
+import { sessionNames } from '~/src/server/helpers/session-names.js'
+import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/routes/auth.js'
+import {
+  SavedFormStatus,
+  getFormStatus
+} from '~/src/server/routes/save-and-exit-helper.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 import { getSavedForms } from '~/src/server/services/submissionService.js'
@@ -18,42 +20,31 @@ import { getSavedForms } from '~/src/server/services/submissionService.js'
 const authBase = config.get('oidc.issuer')
 const runnerBase = config.get('baseUrl')
 
-// Tabs
-const FORMS_TAB = 'forms'
-const SECURITY_TAB = 'security'
-/**
- * The status of a saved form. Each value is also the translation key of the
- * tag the table shows for it.
- */
-const SavedFormStatus = {
-  InProgress: 'inProgress',
-  Expired: 'expired'
-}
-
-/**
- * Returns the status for a saved form.
- * @param {SavedForm} savedForm
- */
-function getFormStatus(savedForm) {
-  if (new Date(savedForm.expireAt) <= new Date()) {
-    return SavedFormStatus.Expired
-  }
-
-  return SavedFormStatus.InProgress
-}
-
 /**
  * A saved form as the table shows it. The dates are formatted and the status
  * is chosen here rather than in the template, so they can be tested.
  * @param {SavedForm} savedForm
  * @param {Translator} translator - the translator for the request
+ * @param {string} formId
  */
-function mapToRow(savedForm, translator) {
+function mapToRow(savedForm, translator, formId) {
+  const status = getFormStatus(savedForm)
+
   return {
     referenceNumber: savedForm.referenceNumber,
-    status: getFormStatus(savedForm),
+    status,
     lastUpdated: formatDateTime(savedForm.createdAt, translator),
-    savedUntil: formatDate(savedForm.expireAt, translator)
+    savedUntil: formatDate(savedForm.expireAt, translator),
+    // An expired form cannot be resumed, so it gets no link
+    resumeUrl:
+      status === SavedFormStatus.InProgress
+        ? `/resume-form/${formId}/${savedForm.magicLinkId}`
+        : undefined,
+    // An expired form cannot be deleted, so it gets no link
+    deleteUrl:
+      status === SavedFormStatus.InProgress
+        ? `/delete-form/${formId}/${savedForm.magicLinkId}`
+        : undefined
   }
 }
 
@@ -63,26 +54,13 @@ function mapToRow(savedForm, translator) {
 
 /**
  * Construct the tabs
- * @param {{ query: RequestQuery, yar: Yar }} request
+ * @param {FormMetadata} form
+ * @param {Translator} translator
  * @param {{ isPreview: boolean, state: FormStatus, slug: string }} input
- * @param { string | undefined } tab
  */
-async function buildNavigation(
-  request,
-  { isPreview, state, slug },
-  tab = FORMS_TAB
-) {
-  const form = await getFormMetadata(slug)
-
-  const { translator } = await getFormTranslator(
-    request,
-    form,
-    isPreview ? state : undefined
-  )
-
-  const startUrl = isPreview
-    ? `${FORM_PREFIX}${PREVIEW_PATH_PREFIX}/${state}/${slug}`
-    : `${FORM_PREFIX}/${slug}`
+function buildNavigation(form, translator, { isPreview, state, slug }) {
+  const { t } = translator
+  const startUrl = getFormHref(form, isPreview, state)
 
   const homepageBase = isPreview
     ? `${HOMEPAGE_PREFIX}${PREVIEW_PATH_PREFIX}/${state}/${slug}`
@@ -93,13 +71,13 @@ async function buildNavigation(
     navigation: [
       {
         href: `${homepageBase}/forms`,
-        text: 'Forms',
-        active: tab === FORMS_TAB
+        text: t('signIn.homepage.tabForms'),
+        active: true
       },
       {
         href: `${authBase}/account?returnUrl=${runnerBase}${homepageBase}`,
-        text: 'Security',
-        active: tab === SECURITY_TAB
+        text: t('signIn.homepage.tabSecurity'),
+        active: false
       }
     ]
   }
@@ -107,8 +85,7 @@ async function buildNavigation(
   return {
     serviceNavigationParams,
     startUrl,
-    homepageBase,
-    translator
+    homepageBase
   }
 }
 
@@ -119,24 +96,35 @@ async function buildNavigation(
  * @param {ResponseToolkit<{ Params: HomepageParams }>} h
  */
 async function homepageHandler(request, h) {
-  const { slug, tab } = request.params
-
+  const { yar, params } = request
+  const { slug } = params
   const { isPreview, state } = checkFormStatus(request.params)
 
-  const nav = await buildNavigation(request, { isPreview, state, slug }, tab)
+  const previewStatus = isPreview ? state : undefined
 
   const form = await getFormMetadata(slug)
 
+  const { translator } = await getFormTranslator(request, form, previewStatus)
+
+  const nav = buildNavigation(form, translator, { isPreview, state, slug })
+
   const { accessToken } = request.auth.credentials
-  const savedForms = await getSavedForms(accessToken, form.id)
+
+  const savedForms = await getSavedForms(accessToken, form.id, previewStatus)
+
+  // Notification banner
+  const notification = /** @type {string[] | undefined} */ (
+    yar.flash(sessionNames.successNotification).at(0)
+  )
 
   return h.view('homepage', {
+    notification,
     serviceNavigationParams: nav.serviceNavigationParams,
     startUrl: nav.startUrl,
     savedForms: savedForms.map((savedForm) =>
-      mapToRow(savedForm, nav.translator)
+      mapToRow(savedForm, translator, form.id)
     ),
-    context: { translator: nav.translator }
+    context: { translator }
   })
 }
 
@@ -149,7 +137,7 @@ export default [
     path: `${HOMEPAGE_PREFIX}/{slug}`,
     handler: homepageHandler,
     options: {
-      auth: { mode: 'required', strategy: CITIZEN_SESSION },
+      auth: CITIZEN_AUTH_ROUTE_OPTIONS,
       validate: {
         params: Joi.object({ slug: slugSchema }).required()
       }
@@ -163,7 +151,7 @@ export default [
     path: `${HOMEPAGE_PREFIX}${PREVIEW_PATH_PREFIX}/{state}/{slug}`,
     handler: homepageHandler,
     options: {
-      auth: { mode: 'required', strategy: CITIZEN_SESSION },
+      auth: CITIZEN_AUTH_ROUTE_OPTIONS,
       validate: {
         params: Joi.object({
           state: stateSchema,
@@ -175,8 +163,8 @@ export default [
 ]
 
 /**
+ * @import { FormMetadata } from '@defra/forms-model'
  * @import { FormParams, FormStatus, Translator } from '@defra/forms-engine-plugin/types'
  * @import { SavedForm } from '~/src/server/services/submissionService.js'
- * @import { Request, RequestQuery, ResponseToolkit, ServerRoute } from '@hapi/hapi'
- * @import { Yar } from '@hapi/yar'
+ * @import { Request, ResponseToolkit, ServerRoute } from '@hapi/hapi'
  */

@@ -1,16 +1,24 @@
+import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
+import { slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
+import Bourne from '@hapi/bourne'
 import Joi from 'joi'
 import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
+import { SignInOutcome } from '~/src/server/auth/SignInOutcome.js'
 import {
   clearIdentity,
   clearSignInTransaction,
-  getIdentity,
   getSignInTransaction,
+  getTokens,
   setIdentity,
-  setSignInTransaction
+  setSignInTransaction,
+  setTokens
 } from '~/src/server/auth/accountSession.js'
+import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
+import { signInEvent } from '~/src/server/auth/signInEvent.js'
+import { revokeRefreshToken } from '~/src/server/auth/tokenRevocation.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import {
   CALLBACK_PATH,
@@ -20,7 +28,11 @@ import {
 } from '~/src/server/constants.js'
 import { returnUrlSchema } from '~/src/server/models/common.js'
 
-const SCOPES = 'openid email'
+/**
+ * `offline_access` asks for a refresh token that outlives the provider
+ * session (OpenID Connect Core, section 11)
+ */
+const SCOPES = 'openid email offline_access'
 
 const BASE_URL = config.get('baseUrl')
 
@@ -31,23 +43,47 @@ const BASE_URL = config.get('baseUrl')
  */
 const RESOURCE = config.get('oidc.submissionApiResource')
 
+const signOutStateSchema = Joi.object({
+  slug: slugSchema,
+  previewMode: stateSchema.optional(),
+  returnUrl: returnUrlSchema.required()
+})
+
 /**
- * Log attributes for a sign-in step. CDP indexes the `event` object, so these
- * are searchable. Values are fixed strings; nothing from the provider or the
- * session is logged.
- * @param {string} action
- * @param {string} outcome - `success`, `failure` or `unknown`
- * @param {string} reason
+ * Parses and validates the state that sign-out sent. A user can change the
+ * state, so it is validated again when it comes back. Bourne rejects a
+ * `__proto__` or `constructor.prototype` key, so that a changed state cannot
+ * reach an object's prototype.
+ * @param {string} [state]
+ * @returns {{ slug: string, previewMode?: string, returnUrl: string } | undefined}
  */
-function signInEvent(action, outcome, reason) {
-  return {
-    event: {
-      category: 'authentication',
-      action,
-      outcome,
-      reason
-    }
+function parseAndValidateSignOutState(state) {
+  let parsed
+
+  try {
+    parsed = Bourne.parse(String(state))
+  } catch {
+    return undefined
   }
+
+  const { error, value } = signOutStateSchema.validate(parsed)
+
+  return error ? undefined : value
+}
+
+/**
+ * Ends the citizen's sign-in. The refresh token is revoked at the provider
+ * before the session forgets it, so that no copy of it still works.
+ * @param {Pick<Request, 'server' | 'yar'>} request
+ */
+async function endSignIn(request) {
+  const refreshToken = getTokens(request.yar)?.refreshToken
+
+  if (refreshToken) {
+    await revokeRefreshToken(request, refreshToken)
+  }
+
+  clearIdentity(request.yar)
 }
 
 export default [
@@ -80,12 +116,17 @@ export default [
         state,
         nonce,
         code_challenge: await client.calculatePKCECodeChallenge(codeVerifier),
-        code_challenge_method: 'S256'
+        code_challenge_method: 'S256',
+        // `login` always require an OTP for new logins
+        // `consent` lets the provider accept `offline_access` (OpenID Connect
+        // Core, section 11).
+        prompt: 'login consent'
       })
 
       return h.redirect(authorizationUrl.href)
     },
     options: {
+      auth: false,
       validate: {
         // Only `returnUrl` is read. Other keys, such as tracking parameters,
         // are ignored so they do not block sign in.
@@ -96,7 +137,7 @@ export default [
     }
   }),
   /**
-   * @satisfies {ServerRoute<{ Query: { slug?: string, previewMode?: string } }>}
+   * @satisfies {ServerRoute<{ Query: { slug: string, previewMode?: string, returnUrl: string } }>}
    */
   ({
     method: 'GET',
@@ -104,13 +145,14 @@ export default [
     async handler(request, h) {
       const oidcConfig = await request.server.app.oidc.getConfig()
 
-      const identity = getIdentity(request.yar)
-      const idToken = identity?.idToken
+      // A session with no tokens is signed out without an ID token hint
+      const idToken = getTokens(request.yar)?.idToken
 
-      clearIdentity(request.yar)
-
-      const { slug, previewMode } = request.query
-      const stateParam = JSON.stringify({ slug, previewMode })
+      // The identity stays until the provider sends the citizen back. The
+      // sign-out page there has a Cancel link, and a citizen who cancels
+      // stays signed in here as well as on the provider.
+      const { slug, previewMode, returnUrl } = request.query
+      const stateParam = JSON.stringify({ slug, previewMode, returnUrl })
 
       const postLogoutUrl = new URL(SIGNED_OUT_PATH, BASE_URL)
 
@@ -123,6 +165,12 @@ export default [
         state: stateParam
       })
       return h.redirect(logoutUrl.href)
+    },
+    options: {
+      auth: false,
+      validate: {
+        query: signOutStateSchema.unknown(true)
+      }
     }
   }),
   /**
@@ -142,7 +190,7 @@ export default [
         logger.warn(
           signInEvent(
             'sign-in-callback',
-            'failure',
+            SignInOutcome.Failure,
             transaction ? 'stateMismatch' : 'noTransactionInSession'
           ),
           '[signInRejected] Callback did not match a sign-in this session started'
@@ -186,18 +234,41 @@ export default [
           throw new Error('Provider did not return an email or ID token')
         }
 
+        // The expiry is worked out from `expires_in` rather than from the
+        // access token's `exp` claim. The token is issued for
+        // forms-submission-api, so this service neither reads nor validates
+        // it.
+        if (
+          !tokens.access_token ||
+          !tokens.refresh_token ||
+          tokens.expires_in === undefined
+        ) {
+          throw new Error(
+            'Provider did not return an access token, refresh token or expiry'
+          )
+        }
+
         setIdentity(request.yar, {
           iss: claims.iss,
           sub: claims.sub,
-          email,
-          idToken: tokens.id_token,
-          accessToken: tokens.access_token
+          email
+        })
+
+        setTokens(request.yar, {
+          accessToken: tokens.access_token,
+          accessTokenExpiresAt: Date.now() + tokens.expires_in * 1000,
+          refreshToken: tokens.refresh_token,
+          idToken: tokens.id_token
         })
       } catch (err) {
         logger.error(
           {
             err,
-            ...signInEvent('sign-in-callback', 'failure', 'codeExchangeFailed')
+            ...signInEvent(
+              'sign-in-callback',
+              SignInOutcome.Failure,
+              'codeExchangeFailed'
+            )
           },
           '[signInFailed] Could not complete sign in'
         )
@@ -212,6 +283,7 @@ export default [
       return h.redirect(transaction.returnUrl)
     },
     options: {
+      auth: false,
       validate: {
         // The provider decides what else it sends back with the code and the
         // state, so this route accepts keys it does not name.
@@ -223,22 +295,46 @@ export default [
     }
   }),
   /**
-   * @satisfies {ServerRoute<{ Query: { state: string } }>}
+   * @satisfies {ServerRoute<{ Query: { state?: string, cancelled?: string } }>}
    */
   ({
     method: 'GET',
     path: SIGNED_OUT_PATH,
-    handler(request, h) {
-      const { state } = request.query
-      const { slug, previewMode } = JSON.parse(state)
+    async handler(request, h) {
+      const state = parseAndValidateSignOutState(request.query.state)
+
+      // A state that is not valid cannot show whether the citizen cancelled,
+      // so sign them out.
+      if (!state) {
+        await endSignIn(request)
+        throw Boom.badRequest('Sign-out state is not valid')
+      }
+
+      const { slug, previewMode, returnUrl } = state
       const signInLink = previewMode
         ? `/homepage/preview/${previewMode}/${slug}`
         : `/homepage/${slug}`
+
+      // The provider's Cancel link comes back here with `cancelled=true`. The
+      // citizen stays signed in and goes back to the page they left, so the
+      // refresh token stays valid.
+      if (request.query.cancelled === 'true') {
+        return h.redirect(returnUrl)
+      }
+
+      await endSignIn(request)
+
       return h.view('auth/signed-out', { signInLink })
     }
   })
 ]
 
+/** @type { RouteOptionsAccess } */
+export const CITIZEN_AUTH_ROUTE_OPTIONS = {
+  mode: 'required',
+  strategy: CITIZEN_SESSION
+}
+
 /**
- * @import { ServerRoute } from '@hapi/hapi'
+ * @import { Request, ServerRoute, RouteOptionsAccess } from '@hapi/hapi'
  */

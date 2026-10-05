@@ -12,6 +12,18 @@ import { config } from '~/src/config/index.js'
 const baseUrl = config.get('baseUrl')
 
 /**
+ * Gets the group id of a resumed form, so that a new save replaces the old one
+ * @param { FormState } state
+ * @returns {{ magicLinkGroupId?: string }}
+ */
+function getMagicLinkGroupId(state) {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  const magicLinkGroupId = state ? state[MAGIC_LINK_GROUP_ID] : undefined
+
+  return typeof magicLinkGroupId === 'string' ? { magicLinkGroupId } : {}
+}
+
+/**
  * For legacy V1 save-and-exit
  * @param { string } formId
  * @param { string } formTitle
@@ -29,11 +41,6 @@ export function saveAndExitV1Mapper(
   state,
   status
 ) {
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  const magicLinkGroupId = state ? state[MAGIC_LINK_GROUP_ID] : undefined
-  const extraProp =
-    typeof magicLinkGroupId === 'string' ? { magicLinkGroupId } : {}
-
   /** @type {SaveAndExitMessageData} */
   const data = {
     form: {
@@ -46,7 +53,7 @@ export function saveAndExitV1Mapper(
     email,
     security,
     state,
-    ...extraProp
+    ...getMagicLinkGroupId(state)
   }
   const now = new Date()
   return {
@@ -89,7 +96,8 @@ export function saveAndExitV2Mapper(
     },
     email,
     auth,
-    state
+    state,
+    ...getMagicLinkGroupId(state)
   }
   const now = new Date()
   return {

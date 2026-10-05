@@ -11,7 +11,10 @@ jest.mock('openid-client')
  * The plugin reads its settings inside `register`, so a spy on the config it
  * shares is enough — the module does not need reloading.
  */
-function withSetting(path: 'oidc.privateJwk', override: string) {
+function withSetting(
+  path: 'oidc.privateJwk' | 'cdpEnvironment',
+  override: string
+) {
   const configured = config.get.bind(config)
 
   jest
@@ -33,6 +36,33 @@ describe('oidc client plugin', () => {
     await expect(server.app.oidc.getConfig()).resolves.toBe(discovered)
 
     expect(client.discovery).toHaveBeenCalledTimes(1)
+  })
+
+  it('gives every request to the provider a timeout', async () => {
+    jest.mocked(client.discovery).mockResolvedValue({} as client.Configuration)
+
+    const server = hapi.server()
+    await server.register(pluginOidcClient)
+    await server.app.oidc.getConfig()
+
+    expect(jest.mocked(client.discovery).mock.calls[0][4]).toMatchObject({
+      timeout: 20
+    })
+  })
+
+  it('keeps the timeout when local development allows plain http', async () => {
+    withSetting('cdpEnvironment', 'local')
+    jest.mocked(client.discovery).mockResolvedValue({} as client.Configuration)
+
+    const server = hapi.server()
+    await server.register(pluginOidcClient)
+    await server.app.oidc.getConfig()
+
+    expect(jest.mocked(client.discovery).mock.calls[0][4]).toEqual({
+      timeout: 20,
+      // eslint-disable-next-line @typescript-eslint/no-deprecated -- the setting under test
+      execute: [client.allowInsecureRequests]
+    })
   })
 
   it('authenticates by signed assertion, not by secret', async () => {

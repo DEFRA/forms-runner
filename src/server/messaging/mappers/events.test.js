@@ -186,6 +186,23 @@ describe('runner-events', () => {
         }
       })
     })
+
+    it('should map a payload into a SAVE_AND_EXIT V2 event with magicLinkGroupId', () => {
+      const state = {
+        formVal1: '123',
+        [MAGIC_LINK_GROUP_ID]: 'group-id'
+      }
+
+      const message = saveAndExitV2Mapper(
+        'formId',
+        'My First Form',
+        'my-email@here.com',
+        { sub: 'auth-sub', issuer: 'auth-issuer' },
+        state
+      )
+
+      expect(message.data.magicLinkGroupId).toBe('group-id')
+    })
   })
 })
 

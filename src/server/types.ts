@@ -54,20 +54,36 @@ export interface OutputService {
   ) => Promise<void>
 }
 
-export interface SaveAndExitDetails {
-  form: {
-    id: string
-    status: FormStatus
-    isPreview: boolean
-    baseUrl: string
-  }
+export interface SaveAndExitForm {
+  id: string
+  status: FormStatus
+  isPreview: boolean
+  baseUrl: string
+}
+
+/** Details of a saved form that a memorable word protects */
+export interface MemorableWordDetails {
+  form: SaveAndExitForm
+  authType: 'memorableWord'
+  question: SecurityQuestionsEnum
+  invalidPasswordAttempts: number
+}
+
+/** Details of a saved form that belongs to a signed-in citizen */
+export interface CitizenSignInDetails {
+  form: SaveAndExitForm
+  authType: 'citizenSignIn'
+}
+
+export type SaveAndExitDetails = MemorableWordDetails | CitizenSignInDetails
+
+/** The result of a memorable word check */
+export interface SaveAndExitResumeDetails {
+  form: SaveAndExitForm
   question: SecurityQuestionsEnum
   invalidPasswordAttempts: number
   state: object
   magicLinkGroupId: string
-}
-
-export interface SaveAndExitResumeDetails extends SaveAndExitDetails {
   validPassword: boolean
 }
 

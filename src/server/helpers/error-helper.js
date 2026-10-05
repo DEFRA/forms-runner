@@ -19,3 +19,19 @@ export function createJoiError(fieldName, message) {
     {}
   )
 }
+
+/**
+ * @param {Yar} yar
+ * @param {keyof YarFlashes} errorKey
+ */
+export function getValidationErrorsFromSession(yar, errorKey) {
+  const errors = /** @type {ValidationFailure<object>[] | undefined} */ (
+    yar.flash(errorKey)
+  )
+  return errors?.at(0)
+}
+
+/**
+ * @import { ValidationFailure } from '@defra/forms-model'
+ * @import { Yar, YarFlashes } from '@hapi/yar'
+ */
