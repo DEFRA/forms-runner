@@ -205,6 +205,9 @@ describe('sign in routes and sign out routes', () => {
         target_link_uri: TARGET_LINK_URI
       })
 
+      // The citizen goes to the provider's authorization endpoint, because
+      // the provider session has ended and only a full sign in starts a new
+      // one.
       expect(login.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
       expect(login.headers.location).toBe(AUTHORIZATION_URL)
 
@@ -216,6 +219,8 @@ describe('sign in routes and sign out routes', () => {
         headers: getCookieHeader(login, ['session'])
       })
 
+      // The citizen goes to the provider page that asked for the sign in,
+      // because that is the page they tried to open.
       expect(callback.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
       expect(callback.headers.location).toBe(TARGET_LINK_URI)
     })
