@@ -214,9 +214,8 @@ describe('per-form homepage', () => {
       .getAttribute('href')
     const security = new URL(String(href))
 
-    expect(`${security.origin}${security.pathname}`).toBe(
-      'http://localhost:3011/account'
-    )
+    expect(security.origin).toBe('http://localhost:3011')
+    expect(security.pathname).toBe('/account')
     expect(Object.fromEntries(security.searchParams)).toEqual({
       client_id: 'runner',
       returnUrl: `${config.get('baseUrl')}${HOMEPAGE_URL}`
