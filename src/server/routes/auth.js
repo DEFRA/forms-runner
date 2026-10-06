@@ -22,6 +22,7 @@ import { revokeRefreshToken } from '~/src/server/auth/tokenRevocation.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import {
   CALLBACK_PATH,
+  INITIATE_SIGN_IN_PATH,
   SIGNED_OUT_PATH,
   SIGN_IN_PATH,
   SIGN_OUT_PATH
@@ -42,6 +43,29 @@ const BASE_URL = config.get('baseUrl')
  * returns an opaque token and no error.
  */
 const RESOURCE = config.get('oidc.submissionApiResource')
+
+const ISSUER = config.get('oidc.issuer')
+const ISSUER_ORIGIN = URL.parse(ISSUER)?.origin
+
+/**
+ * The provider must name itself. Only the configured issuer is accepted.
+ */
+const issuerSchema = Joi.string().valid(ISSUER)
+
+/**
+ * The provider page to open after sign in. It is a full URL, so it must be
+ * on the issuer's origin.
+ */
+const targetLinkUriSchema = Joi.string().custom((value, helpers) => {
+  const origin = URL.parse(value)?.origin
+
+  // A value that is not a full URL has no origin
+  if (!origin || origin !== ISSUER_ORIGIN) {
+    return helpers.error('any.invalid')
+  }
+
+  return value
+})
 
 const signOutStateSchema = Joi.object({
   slug: slugSchema,
@@ -86,6 +110,44 @@ async function endSignIn(request) {
   clearIdentity(request.yar)
 }
 
+/**
+ * Starts a sign in at the provider. The callback finishes it and sends the
+ * citizen to `returnUrl`.
+ * @param {Pick<Request, 'server' | 'yar'>} request
+ * @param {Pick<ResponseToolkit, 'redirect'>} h
+ * @param {string} returnUrl - validated by the route that calls this
+ */
+async function startSignIn(request, h, returnUrl) {
+  const oidcConfig = await request.server.app.oidc.getConfig()
+
+  const codeVerifier = client.randomPKCECodeVerifier()
+  const state = client.randomState()
+  const nonce = client.randomNonce()
+
+  setSignInTransaction(request.yar, {
+    state,
+    nonce,
+    codeVerifier,
+    returnUrl
+  })
+
+  const authorizationUrl = client.buildAuthorizationUrl(oidcConfig, {
+    redirect_uri: config.get('oidc.redirectUri'),
+    scope: SCOPES,
+    resource: RESOURCE,
+    state,
+    nonce,
+    code_challenge: await client.calculatePKCECodeChallenge(codeVerifier),
+    code_challenge_method: 'S256',
+    // `login` always require an OTP for new logins
+    // `consent` lets the provider accept `offline_access` (OpenID Connect
+    // Core, section 11).
+    prompt: 'login consent'
+  })
+
+  return h.redirect(authorizationUrl.href)
+}
+
 export default [
   /**
    * @satisfies {ServerRoute<{ Query: { returnUrl: string } }>}
@@ -93,37 +155,8 @@ export default [
   ({
     method: 'GET',
     path: SIGN_IN_PATH,
-    async handler(request, h) {
-      const { returnUrl } = request.query
-
-      const oidcConfig = await request.server.app.oidc.getConfig()
-
-      const codeVerifier = client.randomPKCECodeVerifier()
-      const state = client.randomState()
-      const nonce = client.randomNonce()
-
-      setSignInTransaction(request.yar, {
-        state,
-        nonce,
-        codeVerifier,
-        returnUrl
-      })
-
-      const authorizationUrl = client.buildAuthorizationUrl(oidcConfig, {
-        redirect_uri: config.get('oidc.redirectUri'),
-        scope: SCOPES,
-        resource: RESOURCE,
-        state,
-        nonce,
-        code_challenge: await client.calculatePKCECodeChallenge(codeVerifier),
-        code_challenge_method: 'S256',
-        // `login` always require an OTP for new logins
-        // `consent` lets the provider accept `offline_access` (OpenID Connect
-        // Core, section 11).
-        prompt: 'login consent'
-      })
-
-      return h.redirect(authorizationUrl.href)
+    handler(request, h) {
+      return startSignIn(request, h, request.query.returnUrl)
     },
     options: {
       auth: false,
@@ -132,6 +165,33 @@ export default [
         // are ignored so they do not block sign in.
         query: Joi.object({
           returnUrl: returnUrlSchema.required()
+        }).unknown(true)
+      }
+    }
+  }),
+  /**
+   * The sign in that the provider asks for (OpenID Connect Core, section 4,
+   * "Initiating Login from a Third Party"). The provider sends a citizen
+   * here when one of its own pages needs a session that has ended. This is
+   * the normal sign in, so the provider session and the session here start
+   * together and for the same account.
+   * @satisfies {ServerRoute<{ Query: { iss: string, target_link_uri: string } }>}
+   */
+  ({
+    method: 'GET',
+    path: INITIATE_SIGN_IN_PATH,
+    handler(request, h) {
+      return startSignIn(request, h, request.query.target_link_uri)
+    },
+    options: {
+      auth: false,
+      validate: {
+        // OpenID Connect Core, section 4, requires `iss`. It makes
+        // `target_link_uri` optional. This route requires it, because the
+        // provider always sends it and there is no default page to open.
+        query: Joi.object({
+          iss: issuerSchema.required(),
+          target_link_uri: targetLinkUriSchema.required()
         }).unknown(true)
       }
     }
@@ -336,5 +396,5 @@ export const CITIZEN_AUTH_ROUTE_OPTIONS = {
 }
 
 /**
- * @import { Request, ServerRoute, RouteOptionsAccess } from '@hapi/hapi'
+ * @import { Request, ResponseToolkit, ServerRoute, RouteOptionsAccess } from '@hapi/hapi'
  */

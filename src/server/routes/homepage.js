@@ -67,6 +67,9 @@ function buildNavigation(form, translator, { isPreview, state, slug }) {
     : `${HOMEPAGE_PREFIX}/${slug}`
 
   const securityUrl = new URL('/account', authBase)
+  // The account pages check the return address against this client, and
+  // send the citizen back here to sign in when their session there has ended
+  securityUrl.searchParams.append('client_id', config.get('oidc.clientId'))
   securityUrl.searchParams.append('returnUrl', `${runnerBase}${homepageBase}`)
 
   const serviceNavigationParams = {

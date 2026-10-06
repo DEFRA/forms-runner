@@ -202,6 +202,26 @@ describe('per-form homepage', () => {
     )
   })
 
+  it('names this client and the homepage on the Security link, so the account pages can send the citizen back', async () => {
+    const { container } = await renderResponse(server, {
+      method: 'GET',
+      url: HOMEPAGE_URL,
+      auth: { strategy: 'citizen-session', credentials }
+    })
+
+    const href = container
+      .getByRole('link', { name: 'Security' })
+      .getAttribute('href')
+    const security = new URL(String(href))
+
+    expect(security.origin).toBe('http://localhost:3011')
+    expect(security.pathname).toBe('/account')
+    expect(Object.fromEntries(security.searchParams)).toEqual({
+      client_id: 'runner',
+      returnUrl: `${config.get('baseUrl')}${HOMEPAGE_URL}`
+    })
+  })
+
   it('sends the page the citizen is on with the Sign out link, so a Cancel can bring them back', async () => {
     const { container } = await renderResponse(server, {
       method: 'GET',
