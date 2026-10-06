@@ -44,26 +44,30 @@ const BASE_URL = config.get('baseUrl')
  */
 const RESOURCE = config.get('oidc.submissionApiResource')
 
-/**
- * The provider's own address, as a sign in that the provider asks for must
- * give it. Read at validation time, so that it is the configured issuer.
- */
-const issuerSchema = Joi.string().custom((value, helpers) =>
-  value === config.get('oidc.issuer') ? value : helpers.error('any.invalid')
-)
+const ISSUER = config.get('oidc.issuer')
 
 /**
- * Where the provider wants the citizen sent after a sign in that it asked
- * for. It is a full URL on another host, so it is accepted only on the
- * provider's origin, which comes from configuration.
+ * The provider must name itself. Only the configured issuer is accepted.
+ */
+const issuerSchema = Joi.string().valid(ISSUER)
+
+/**
+ * The provider page to open after sign in. It is a full URL, so it must be
+ * on the issuer's origin.
  */
 const targetLinkUriSchema = Joi.string().custom((value, helpers) => {
   const origin = URL.parse(value)?.origin
-  const issuerOrigin = URL.parse(config.get('oidc.issuer'))?.origin
 
-  return origin && origin === issuerOrigin
-    ? value
-    : helpers.error('any.invalid')
+  // A value that is not a full URL has no origin
+  if (!origin) {
+    return helpers.error('any.invalid')
+  }
+
+  if (origin !== URL.parse(ISSUER)?.origin) {
+    return helpers.error('any.invalid')
+  }
+
+  return value
 })
 
 const signOutStateSchema = Joi.object({
@@ -185,6 +189,9 @@ export default [
     options: {
       auth: false,
       validate: {
+        // OpenID Connect Core, section 4, requires `iss`. It makes
+        // `target_link_uri` optional. This route requires it, because the
+        // provider always sends it and there is no default page to open.
         query: Joi.object({
           iss: issuerSchema.required(),
           target_link_uri: targetLinkUriSchema.required()
