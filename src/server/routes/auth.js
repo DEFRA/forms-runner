@@ -45,6 +45,7 @@ const BASE_URL = config.get('baseUrl')
 const RESOURCE = config.get('oidc.submissionApiResource')
 
 const ISSUER = config.get('oidc.issuer')
+const ISSUER_ORIGIN = URL.parse(ISSUER)?.origin
 
 /**
  * The provider must name itself. Only the configured issuer is accepted.
@@ -59,11 +60,7 @@ const targetLinkUriSchema = Joi.string().custom((value, helpers) => {
   const origin = URL.parse(value)?.origin
 
   // A value that is not a full URL has no origin
-  if (!origin) {
-    return helpers.error('any.invalid')
-  }
-
-  if (origin !== URL.parse(ISSUER)?.origin) {
+  if (!origin || origin !== ISSUER_ORIGIN) {
     return helpers.error('any.invalid')
   }
 
