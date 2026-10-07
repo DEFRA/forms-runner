@@ -1,4 +1,5 @@
 import { PublishCommand } from '@aws-sdk/client-sns'
+import { getMessageAttributes } from '@defra/forms-common'
 import { formAdapterSubmissionMessagePayloadSchema } from '@defra/forms-engine-plugin/engine/types/schema.js'
 import { type FormAdapterSubmissionMessagePayload } from '@defra/forms-engine-plugin/engine/types.js'
 
@@ -64,7 +65,8 @@ export async function publishFormAdapterEvent(
   const result = await snsClient.send(
     new PublishCommand({
       TopicArn: snsAdapterTopicArn,
-      Message: message
+      Message: message,
+      MessageAttributes: getMessageAttributes()
     })
   )
 
@@ -83,7 +85,8 @@ export async function publishFormAdapterEvent(
     const formSpecificResult = await snsClient.send(
       new PublishCommand({
         TopicArn: formSpecificTopicArn,
-        Message: message
+        Message: message,
+        MessageAttributes: getMessageAttributes()
       })
     )
 

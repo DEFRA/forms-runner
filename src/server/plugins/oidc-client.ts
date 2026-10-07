@@ -2,6 +2,7 @@ import { type ServerRegisterPluginObject } from '@hapi/hapi'
 import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
+import { applyTraceHeaders } from '~/src/server/utils/utils.js'
 
 /**
  * How long, in seconds, the client waits for any request to the provider.
@@ -18,6 +19,17 @@ const REQUEST_TIMEOUT_SECONDS = 20
  * key to verify with. It can hold two keys during a rotation while this
  * service signs with one.
  */
+/**
+ * Sends the trace ID of the current request with every request to the
+ * provider, so the provider logs the same ID. openid-client has no setting
+ * for extra headers other than its own fetch.
+ */
+const fetchWithTraceHeaders: client.CustomFetch = (url, options) =>
+  fetch(url, {
+    ...options,
+    headers: applyTraceHeaders(options.headers)
+  } as RequestInit)
+
 async function clientKey() {
   const jwk = JSON.parse(config.get('oidc.privateJwk')) as client.JWK
 
@@ -92,6 +104,7 @@ export default {
               // Also applies to every later request on this configuration,
               // including the code exchange and each refresh
               timeout: REQUEST_TIMEOUT_SECONDS,
+              [client.customFetch]: fetchWithTraceHeaders,
               ...(isLocal && {
                 // eslint-disable-next-line @typescript-eslint/no-deprecated -- deliberate, local development only
                 execute: [client.allowInsecureRequests]
