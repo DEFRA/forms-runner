@@ -278,6 +278,8 @@
   },
   "signIn": {
     "homepage": {
+      "tabForms": "Ffurflenni",
+      "tabSecurity": "Diogelwch",
       "caption": "Rheoli eich ffurflen",
       "startButton": "Dechrau ffurflen newydd",
       "previewBannerTitle": "Pwysig",

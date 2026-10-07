@@ -278,6 +278,8 @@
   },
   "signIn": {
     "homepage": {
+      "tabForms": "Forms",
+      "tabSecurity": "Security",
       "caption": "Manage your form",
       "startButton": "Start a new form",
       "previewBannerTitle": "Important",

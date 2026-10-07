@@ -3,6 +3,7 @@ import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
 import { slugSchema } from '@defra/forms-model'
 import Joi from 'joi'
 
+import { config } from '~/src/config/index.js'
 import { HOMEPAGE_PREFIX, PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { formatDate, formatDateTime } from '~/src/server/helpers/date-helper.js'
 import { getFormHref } from '~/src/server/helpers/route-helpers.js'
@@ -15,6 +16,9 @@ import {
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 import { getSavedForms } from '~/src/server/services/submissionService.js'
+
+const authBase = config.get('oidc.issuer')
+const runnerBase = config.get('baseUrl')
 
 /**
  * A saved form as the table shows it. The dates are formatted and the status
@@ -45,10 +49,54 @@ function mapToRow(savedForm, translator, formId) {
 }
 
 /**
+ * @typedef { FormParams & { action?: string } } HomepageParams
+ */
+
+/**
+ * Construct the tabs
+ * @param {FormMetadata} form
+ * @param {Translator} translator
+ * @param {{ isPreview: boolean, state: FormStatus, slug: string }} input
+ */
+function buildNavigation(form, translator, { isPreview, state, slug }) {
+  const { t } = translator
+  const startUrl = getFormHref(form, isPreview, state)
+
+  const homepageBase = isPreview
+    ? `${HOMEPAGE_PREFIX}${PREVIEW_PATH_PREFIX}/${state}/${slug}`
+    : `${HOMEPAGE_PREFIX}/${slug}`
+
+  const securityUrl = new URL('/account', authBase)
+  securityUrl.searchParams.append('returnUrl', `${runnerBase}${homepageBase}`)
+
+  const serviceNavigationParams = {
+    serviceName: form.title,
+    navigation: [
+      {
+        href: `${homepageBase}/forms`,
+        text: t('signIn.homepage.tabForms'),
+        active: true
+      },
+      {
+        href: securityUrl.href,
+        text: t('signIn.homepage.tabSecurity'),
+        active: false
+      }
+    ]
+  }
+
+  return {
+    serviceNavigationParams,
+    startUrl,
+    homepageBase
+  }
+}
+
+/**
  * Renders the homepage for the form state the URL names: live for
  * `/homepage/{slug}`, a preview for `/homepage/preview/{state}/{slug}`.
- * @param {Request<{ Params: FormParams }>} request
- * @param {ResponseToolkit<{ Params: FormParams }>} h
+ * @param {Request<{ Params: HomepageParams }>} request
+ * @param {ResponseToolkit<{ Params: HomepageParams }>} h
  */
 async function homepageHandler(request, h) {
   const { yar, params } = request
@@ -61,7 +109,7 @@ async function homepageHandler(request, h) {
 
   const { translator } = await getFormTranslator(request, form, previewStatus)
 
-  const startUrl = getFormHref(form, isPreview, state)
+  const nav = buildNavigation(form, translator, { isPreview, state, slug })
 
   const { accessToken } = request.auth.credentials
 
@@ -74,7 +122,8 @@ async function homepageHandler(request, h) {
 
   return h.view('homepage', {
     notification,
-    startUrl,
+    serviceNavigationParams: nav.serviceNavigationParams,
+    startUrl: nav.startUrl,
     savedForms: savedForms.map((savedForm) =>
       mapToRow(savedForm, translator, form.id)
     ),
@@ -107,14 +156,18 @@ export default [
     options: {
       auth: CITIZEN_AUTH_ROUTE_OPTIONS,
       validate: {
-        params: Joi.object({ state: stateSchema, slug: slugSchema }).required()
+        params: Joi.object({
+          state: stateSchema,
+          slug: slugSchema
+        }).required()
       }
     }
   })
 ]
 
 /**
- * @import { FormParams, Translator } from '@defra/forms-engine-plugin/types'
+ * @import { FormMetadata } from '@defra/forms-model'
+ * @import { FormParams, FormStatus, Translator } from '@defra/forms-engine-plugin/types'
  * @import { SavedForm } from '~/src/server/services/submissionService.js'
  * @import { Request, ResponseToolkit, ServerRoute } from '@hapi/hapi'
  */
