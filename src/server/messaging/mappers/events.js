@@ -8,6 +8,7 @@ import {
 } from '@defra/forms-model'
 
 import { config } from '~/src/config/index.js'
+import { EN_GB } from '~/src/server/constants.js'
 
 const baseUrl = config.get('baseUrl')
 
@@ -25,30 +26,23 @@ function getMagicLinkGroupId(state) {
 
 /**
  * For legacy V1 save-and-exit
- * @param { string } formId
- * @param { string } formTitle
+ * @param {{ id: string, title: string, language?: string }} form
  * @param { string } email
  * @param {{ question: SecurityQuestionsEnum, answer: string }} security
  * @param { FormState } state
  * @param { FormStatus } [status]
  * @returns {SaveAndExitMessage}
  */
-export function saveAndExitV1Mapper(
-  formId,
-  formTitle,
-  email,
-  security,
-  state,
-  status
-) {
+export function saveAndExitV1Mapper(form, email, security, state, status) {
   /** @type {SaveAndExitMessageData} */
   const data = {
     form: {
-      id: formId,
-      title: formTitle,
+      id: form.id,
+      title: form.title,
       status: status ?? FormStatus.Live,
       isPreview: !!status,
-      baseUrl
+      baseUrl,
+      language: form.language ?? EN_GB
     },
     email,
     security,
@@ -69,30 +63,23 @@ export function saveAndExitV1Mapper(
 
 /**
  * For V2 save-and-exit
- * @param { string } formId
- * @param { string } formTitle
+ * @param {{ id: string, title: string, language?: string }} form
  * @param { string } email
  * @param {{ sub: string, issuer: string }} auth
  * @param { FormState } state
  * @param { FormStatus } [status]
  * @returns {SaveAndExitV2Message}
  */
-export function saveAndExitV2Mapper(
-  formId,
-  formTitle,
-  email,
-  auth,
-  state,
-  status
-) {
+export function saveAndExitV2Mapper(form, email, auth, state, status) {
   /** @type {SaveAndExitV2MessageData} */
   const data = {
     form: {
-      id: formId,
-      title: formTitle,
+      id: form.id,
+      title: form.title,
       status: status ?? FormStatus.Live,
       isPreview: !!status,
-      baseUrl
+      baseUrl,
+      language: form.language ?? EN_GB
     },
     email,
     auth,
