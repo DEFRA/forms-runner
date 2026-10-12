@@ -107,7 +107,7 @@ function buildNavigation(form, translator, { isPreview, state, slug }) {
  * @param {Request<{ Params: HomepageParams }>} request
  * @param {SavedForm[]} savedForms
  */
-function addInFlightForms(request, savedForms) {
+export function addInFlightForms(request, savedForms) {
   const savedFormRefs = new Set(savedForms.map((form) => form.referenceNumber))
   const allForms = structuredClone(savedForms)
   const inFlightFormRefs = /** @type { string[] | undefined } */ (

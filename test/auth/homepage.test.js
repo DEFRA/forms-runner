@@ -9,6 +9,7 @@ import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
 import { createServer } from '~/src/server/index.js'
+import { addInFlightForms } from '~/src/server/routes/homepage.js'
 import {
   getFormDefinition,
   getFormMetadata
@@ -515,6 +516,44 @@ describe('per-form homepage', () => {
       )
     })
 
+    describe('in-flight forms', () => {
+      it('should add in-flight forms to array for table', () => {
+        const mockYarGet = jest.fn().mockReturnValueOnce(['PRO-222'])
+        const mockRequest = /** @type {Request<{ Params: HomepageParams }>} */ (
+          /** @type {unknown} */ ({
+            yar: {
+              get: mockYarGet,
+              clear: jest.fn()
+            }
+          })
+        )
+        const allForms = addInFlightForms(mockRequest, savedForms)
+        expect(allForms).toHaveLength(3)
+        expect(allForms[2].referenceNumber).toBe('PRO-222')
+        expect(allForms[2].isProcessing).toBe(true)
+      })
+
+      it('should clear in-flight session key if all forms are no longer in-flight', () => {
+        const mockYarGet = jest.fn().mockReturnValueOnce(['PRO-222'])
+        const mockYarClear = jest.fn()
+        const mockRequest = /** @type {Request<{ Params: HomepageParams }>} */ (
+          /** @type {unknown} */ ({
+            yar: {
+              get: mockYarGet,
+              clear: mockYarClear
+            }
+          })
+        )
+        const savedFormsCompleted = structuredClone(savedForms)
+        savedFormsCompleted[0].referenceNumber = 'PRO-222'
+        const allForms = addInFlightForms(mockRequest, savedFormsCompleted)
+        expect(allForms).toHaveLength(2)
+        expect(allForms[0].referenceNumber).toBe('PRO-222')
+        expect(allForms[0].isProcessing).toBeUndefined()
+        expect(mockYarClear).toHaveBeenCalledTimes(1)
+      })
+    })
+
     describe('when the access token is about to expire', () => {
       /** @type {Awaited<ReturnType<typeof session.start>>} */
       let headers
@@ -820,6 +859,7 @@ describe('per-form homepage', () => {
 })
 
 /**
- * @import { Server } from '@hapi/hapi'
+ * @import { Request, Server } from '@hapi/hapi'
  * @import { TokenEndpointResponse, TokenEndpointResponseHelpers } from 'openid-client'
+ * @import { HomepageParams } from '~/src/server/routes/homepage.js'
  */
