@@ -119,6 +119,7 @@ export async function getSavedForms(accessToken, formId, preview) {
  * @property {string} createdAt - ISO date the form was saved
  * @property {string} expireAt - ISO date the saved form stops being available
  * @property {boolean} [isDeleted] - is deleted marker
+ * @property {boolean} [stillProcessing] - is still being processed and therefore not yet saved
  */
 
 /**
@@ -180,6 +181,7 @@ export async function deleteSavedFormState(accessToken, magicLinkId) {
  * @property {string} [magicLinkGroupId] - Magic link group the saved form belongs to
  * @property {string} expireAt - the expiry date
  * @property {boolean} [isDeleted] - the deleted marker
+ * @property {boolean} [stillProcessing] - is still being processed and therefore not yet saved
  */
 
 /**

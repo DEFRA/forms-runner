@@ -23,7 +23,8 @@ export function hasState(formState) {
 export const SavedFormStatus = {
   InProgress: 'inProgress',
   Expired: 'expired',
-  Deleted: 'deleted'
+  Deleted: 'deleted',
+  Processing: 'processing'
 }
 
 /**
@@ -33,6 +34,10 @@ export const SavedFormStatus = {
 export function getFormStatus(savedForm) {
   if (savedForm.isDeleted) {
     return SavedFormStatus.Deleted
+  }
+
+  if (savedForm.stillProcessing) {
+    return SavedFormStatus.Processing
   }
 
   if (new Date(savedForm.expireAt) <= new Date()) {

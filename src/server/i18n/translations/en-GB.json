@@ -292,6 +292,7 @@
       "inProgress": "In progress",
       "expired": "Expired",
       "deleted": "Deleted",
+      "processing": "Processing",
       "actions": "Actions",
       "continue": "Continue",
       "delete": "Delete",

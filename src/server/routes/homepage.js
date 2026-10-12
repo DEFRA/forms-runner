@@ -30,6 +30,15 @@ const runnerBase = config.get('baseUrl')
 function mapToRow(savedForm, translator, formId) {
   const status = getFormStatus(savedForm)
 
+  if (savedForm.stillProcessing) {
+    return {
+      referenceNumber: savedForm.referenceNumber,
+      status,
+      lastUpdated: 'N/A',
+      savedUntil: 'N/A'
+    }
+  }
+
   return {
     referenceNumber: savedForm.referenceNumber,
     status,
@@ -93,6 +102,34 @@ function buildNavigation(form, translator, { isPreview, state, slug }) {
 }
 
 /**
+ * Handles Save-and-exit forms or submitted forms that have been 'saved/submitted' by the user
+ * but not yet been processed in the queue, and therefore don't yet exist in 'saved forms'
+ * @param {Request<{ Params: HomepageParams }>} request
+ * @param {SavedForm[]} savedForms
+ */
+function addInFlightForms(request, savedForms) {
+  const savedFormRefs = new Set(savedForms.map((form) => form.referenceNumber))
+  const allForms = structuredClone(savedForms)
+  const inFlightFormRefs = /** @type { string[] | undefined } */ (
+    request.yar.get(sessionNames.inFlightForms)
+  )
+  let processingCount = 0
+  if (inFlightFormRefs) {
+    inFlightFormRefs.forEach((formRef) => {
+      if (!savedFormRefs.has(formRef)) {
+        // @ts-expect-error - partial data row as 'still processing'
+        allForms.push({ referenceNumber: formRef, stillProcessing: true })
+        processingCount++
+      }
+    })
+    if (processingCount === 0) {
+      request.yar.clear(sessionNames.inFlightForms)
+    }
+  }
+  return allForms
+}
+
+/**
  * Renders the homepage for the form state the URL names: live for
  * `/homepage/{slug}`, a preview for `/homepage/preview/{state}/{slug}`.
  * @param {Request<{ Params: HomepageParams }>} request
@@ -115,6 +152,8 @@ async function homepageHandler(request, h) {
 
   const savedForms = await getSavedForms(accessToken, form.id, previewStatus)
 
+  const savedAndInFlightForms = addInFlightForms(request, savedForms)
+
   // Notification banner
   const notification = /** @type {string[] | undefined} */ (
     yar.flash(sessionNames.successNotification).at(0)
@@ -124,7 +163,7 @@ async function homepageHandler(request, h) {
     notification,
     serviceNavigationParams: nav.serviceNavigationParams,
     startUrl: nav.startUrl,
-    savedForms: savedForms.map((savedForm) =>
+    savedForms: savedAndInFlightForms.map((savedForm) =>
       mapToRow(savedForm, translator, form.id)
     ),
     context: { translator }
