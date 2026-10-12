@@ -103,7 +103,9 @@ function buildNavigation(form, translator, { isPreview, state, slug }) {
 
 /**
  * Handles Save-and-exit forms or submitted forms that have been 'saved/submitted' by the user
- * but not yet been processed in the queue, and therefore don't yet exist in 'saved forms'
+ * but not yet been processed in the queue, and therefore don't yet exist in 'saved forms'.
+ * Their reference numbers are added to the session at point of save/submission, and then
+ * checked here to see if they are not yet showing as 'saved forms'.
  * @param {Request<{ Params: HomepageParams }>} request
  * @param {SavedForm[]} savedForms
  */
