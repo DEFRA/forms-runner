@@ -21,8 +21,7 @@ export function buildSaveAndExitMessageData(
       title: 'My First Form',
       isPreview: false,
       status: FormStatus.Draft,
-      baseUrl: 'http://localhost:3009',
-      language: 'en-GB'
+      baseUrl: 'http://localhost:3009'
     },
     security: {
       question: SecurityQuestionsEnum.MemorablePlace,

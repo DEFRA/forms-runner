@@ -23,20 +23,29 @@ async function validateAndPublishEvent(saveAndExitMessage) {
  * Publish 'save and exit' event (v1)
  * The returned entityId will be a newly-generated guid.
  * V1 save-and-exit stores a magic link for user-retrieval of state.
- * @param {{ id: string, title: string, language?: string }} form
+ * @param {string} formId
+ * @param {string} formTitle
  * @param {string} email
  * @param {{ question: SecurityQuestionsEnum, answer: string }} security
  * @param {FormState} state
  * @param {FormStatus} [status]
  */
 export async function publishSaveAndExitV1Event(
-  form,
+  formId,
+  formTitle,
   email,
   security,
   state,
   status
 ) {
-  const message = saveAndExitV1Mapper(form, email, security, state, status)
+  const message = saveAndExitV1Mapper(
+    formId,
+    formTitle,
+    email,
+    security,
+    state,
+    status
+  )
 
   return validateAndPublishEvent(message)
 }
@@ -44,20 +53,29 @@ export async function publishSaveAndExitV1Event(
 /**
  * Publish 'save and exit' event (v2)
  * V2 save-and-exit stores state against the logged-in user.
- * @param {{ id: string, title: string, language?: string }} form
+ * @param {string} formId
+ * @param {string} formTitle
  * @param {string} email
  * @param {{ sub: string, issuer: string }} auth
  * @param {FormState} state
  * @param {FormStatus} [status]
  */
 export async function publishSaveAndExitV2Event(
-  form,
+  formId,
+  formTitle,
   email,
   auth,
   state,
   status
 ) {
-  const message = saveAndExitV2Mapper(form, email, auth, state, status)
+  const message = saveAndExitV2Mapper(
+    formId,
+    formTitle,
+    email,
+    auth,
+    state,
+    status
+  )
 
   return validateAndPublishEvent(message)
 }
