@@ -36,7 +36,7 @@ export function getFormStatus(savedForm) {
     return SavedFormStatus.Deleted
   }
 
-  if (savedForm.stillProcessing) {
+  if (savedForm.isProcessing) {
     return SavedFormStatus.Processing
   }
 

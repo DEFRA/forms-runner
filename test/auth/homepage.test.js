@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { FormStatus } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { within } from '@testing-library/dom'
+import { addDays } from 'date-fns'
 import { StatusCodes } from 'http-status-codes'
 import * as client from 'openid-client'
 
@@ -77,6 +78,21 @@ const savedForms = [
     formTitle: 'test-form',
     createdAt: '2026-09-09T09:00:00.000Z',
     expireAt: '2026-10-07T09:00:00.000Z'
+  }
+]
+
+const savedAndProcessingForms = [
+  {
+    magicLinkId: 'link-1',
+    referenceNumber: 'CCC-333',
+    formTitle: 'test-form',
+    createdAt: new Date().toISOString(),
+    expireAt: addDays(new Date(), 30).toISOString()
+  },
+  {
+    referenceNumber: 'PRO-123',
+    formTitle: 'test-form2',
+    isProcessing: true
   }
 ]
 
@@ -384,6 +400,50 @@ describe('per-form homepage', () => {
           name: '12 September 2026'
         })
       ).toBeInTheDocument()
+    })
+
+    it('lists a saved form including any ones that are "processing"', async () => {
+      // @ts-expect-error - partial mock of test data
+      jest.mocked(getSavedForms).mockResolvedValue(savedAndProcessingForms)
+
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: HOMEPAGE_URL,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      const table = container.getByRole('table')
+
+      expect(
+        within(table).getByRole('columnheader', { name: 'Reference number' })
+      ).toBeInTheDocument()
+      expect(
+        within(table).getByRole('columnheader', { name: 'Status' })
+      ).toBeInTheDocument()
+      expect(
+        within(table).getByRole('columnheader', { name: 'Last updated' })
+      ).toBeInTheDocument()
+      expect(
+        within(table).getByRole('columnheader', { name: 'Saved until' })
+      ).toBeInTheDocument()
+      expect(
+        within(table).getByRole('columnheader', { name: 'Actions' })
+      ).toBeInTheDocument()
+
+      const cells = within(table).getAllByRole('cell')
+      expect(cells[0].textContent.trim()).toBe('CCC-333')
+      expect(cells[1].textContent.trim()).toBe('In progress')
+      // Ignore dates in this row (cells[2] and cells[3])
+      expect(cells[4].innerHTML).toContain('Continue')
+      expect(cells[4].innerHTML).toContain('Delete')
+
+      expect(cells[5].textContent.trim()).toBe('PRO-123')
+      expect(cells[6].textContent.trim()).toBe('Processing')
+      expect(cells[7].textContent.trim()).toBe('N/A')
+      expect(cells[8].textContent.trim()).toBe('N/A')
+      // No actions should be shown
+      expect(cells[9].innerHTML).not.toContain('Continue')
+      expect(cells[9].innerHTML).not.toContain('Delete')
     })
 
     it('writes the dates in Welsh on a Welsh homepage', async () => {

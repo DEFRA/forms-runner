@@ -34,6 +34,12 @@ describe('save-and-exit-helper tests', () => {
       )
     })
 
+    test('returns "Processing" if it is processing', () => {
+      expect(
+        getFormStatus(/** @type {SavedForm}*/ ({ isProcessing: true }))
+      ).toBe(SavedFormStatus.Processing)
+    })
+
     test('returns "Expired" if it is expired', () => {
       expect(
         getFormStatus(

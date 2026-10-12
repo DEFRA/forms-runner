@@ -30,7 +30,7 @@ const runnerBase = config.get('baseUrl')
 function mapToRow(savedForm, translator, formId) {
   const status = getFormStatus(savedForm)
 
-  if (savedForm.stillProcessing) {
+  if (savedForm.isProcessing) {
     return {
       referenceNumber: savedForm.referenceNumber,
       status,
@@ -117,8 +117,8 @@ function addInFlightForms(request, savedForms) {
   if (inFlightFormRefs) {
     inFlightFormRefs.forEach((formRef) => {
       if (!savedFormRefs.has(formRef)) {
-        // @ts-expect-error - partial data row as 'still processing'
-        allForms.push({ referenceNumber: formRef, stillProcessing: true })
+        // @ts-expect-error - partial data row as 'is processing'
+        allForms.push({ referenceNumber: formRef, isProcessing: true })
         processingCount++
       }
     })
