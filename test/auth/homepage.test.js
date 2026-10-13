@@ -403,7 +403,7 @@ describe('per-form homepage', () => {
       ).toBeInTheDocument()
     })
 
-    it('lists a saved form including any ones that are "processing"', async () => {
+    it('lists a saved form including any ones that are "processing", sorted correctly', async () => {
       // @ts-expect-error - partial mock of test data
       jest.mocked(getSavedForms).mockResolvedValue(savedAndProcessingForms)
 
@@ -432,19 +432,19 @@ describe('per-form homepage', () => {
       ).toBeInTheDocument()
 
       const cells = within(table).getAllByRole('cell')
-      expect(cells[0].textContent.trim()).toBe('CCC-333')
-      expect(cells[1].textContent.trim()).toBe('In progress')
-      // Ignore dates in this row (cells[2] and cells[3])
-      expect(cells[4].innerHTML).toContain('Continue')
-      expect(cells[4].innerHTML).toContain('Delete')
-
-      expect(cells[5].textContent.trim()).toBe('PRO-123')
-      expect(cells[6].textContent.trim()).toBe('Processing')
-      expect(cells[7].textContent.trim()).toBe('N/A')
-      expect(cells[8].textContent.trim()).toBe('N/A')
+      expect(cells[0].textContent.trim()).toBe('PRO-123')
+      expect(cells[1].textContent.trim()).toBe('Processing')
+      expect(cells[2].textContent.trim()).toBe('N/A')
+      expect(cells[3].textContent.trim()).toBe('N/A')
       // No actions should be shown
-      expect(cells[9].innerHTML).not.toContain('Continue')
-      expect(cells[9].innerHTML).not.toContain('Delete')
+      expect(cells[4].innerHTML).not.toContain('Continue')
+      expect(cells[4].innerHTML).not.toContain('Delete')
+
+      expect(cells[5].textContent.trim()).toBe('CCC-333')
+      expect(cells[6].textContent.trim()).toBe('In progress')
+      // Ignore dates in this row (cells[7] and cells[8])
+      expect(cells[9].innerHTML).toContain('Continue')
+      expect(cells[9].innerHTML).toContain('Delete')
     })
 
     it('writes the dates in Welsh on a Welsh homepage', async () => {

@@ -43,7 +43,10 @@ function mapToRow(savedForm, translator, formId) {
     referenceNumber: savedForm.referenceNumber,
     status,
     lastUpdated: formatDateTime(savedForm.createdAt, translator),
-    savedUntil: formatDate(savedForm.expireAt, translator),
+    savedUntil:
+      status === SavedFormStatus.Deleted
+        ? ''
+        : formatDate(savedForm.expireAt, translator),
     // An expired form cannot be resumed, so it gets no link
     resumeUrl:
       status === SavedFormStatus.InProgress
@@ -154,7 +157,9 @@ async function homepageHandler(request, h) {
 
   const savedForms = await getSavedForms(accessToken, form.id, previewStatus)
 
-  const savedAndInFlightForms = addInFlightForms(request, savedForms)
+  const savedAndInFlightForms = addInFlightForms(request, savedForms).sort(
+    formTableSorter
+  )
 
   // Notification banner
   const notification = /** @type {string[] | undefined} */ (
@@ -170,6 +175,20 @@ async function homepageHandler(request, h) {
     ),
     context: { translator }
   })
+}
+
+/**
+ * Sort the rows by status (alphabetically descending), then by 'updatedAt' ascending
+ * @param {SavedForm} a
+ * @param {SavedForm} b
+ */
+export function formTableSorter(a, b) {
+  const statusA = getFormStatus(a)
+  const statusB = getFormStatus(b)
+
+  return (
+    statusB.localeCompare(statusA) || a.createdAt.localeCompare(b.createdAt)
+  )
 }
 
 export default [
