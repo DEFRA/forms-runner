@@ -34,8 +34,8 @@ function mapToRow(savedForm, translator, formId) {
     return {
       referenceNumber: savedForm.referenceNumber,
       status,
-      lastUpdated: 'N/A',
-      savedUntil: 'N/A'
+      lastUpdated: '',
+      savedUntil: ''
     }
   }
 
@@ -187,7 +187,7 @@ export function formTableSorter(a, b) {
   const statusB = getFormStatus(b)
 
   return (
-    statusB.localeCompare(statusA) || a.createdAt.localeCompare(b.createdAt)
+    statusB.localeCompare(statusA) || b.createdAt.localeCompare(a.createdAt)
   )
 }
 

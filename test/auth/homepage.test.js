@@ -434,8 +434,8 @@ describe('per-form homepage', () => {
       const cells = within(table).getAllByRole('cell')
       expect(cells[0].textContent.trim()).toBe('PRO-123')
       expect(cells[1].textContent.trim()).toBe('Processing')
-      expect(cells[2].textContent.trim()).toBe('N/A')
-      expect(cells[3].textContent.trim()).toBe('N/A')
+      expect(cells[2].textContent.trim()).toBe('')
+      expect(cells[3].textContent.trim()).toBe('')
       // No actions should be shown
       expect(cells[4].innerHTML).not.toContain('Continue')
       expect(cells[4].innerHTML).not.toContain('Delete')
