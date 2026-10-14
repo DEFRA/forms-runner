@@ -10,6 +10,7 @@ import { config } from '~/src/config/index.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { EN_GB } from '~/src/server/constants.js'
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
+import { sessionNames } from '~/src/server/helpers/session-names.js'
 import {
   getCachedFormTranslatorBasic,
   getCachedFormTranslatorExternalRoutes
@@ -180,6 +181,10 @@ async function handleAuthenticatedSaveAndExit(request, h) {
     return h.redirect(model.serviceUrl)
   }
 
+  const cachedState = await cacheService.getState(
+    /** @type {CacheRequest} */ (request)
+  )
+
   await publishSaveAndExitV2Event(
     metadata.id,
     metadata.title,
@@ -188,13 +193,22 @@ async function handleAuthenticatedSaveAndExit(request, h) {
       sub: auth.credentials.sub,
       issuer: auth.credentials.iss
     },
-    await cacheService.getState(/** @type {CacheRequest} */ (request)),
+    cachedState,
     status
   )
 
   // Clear any previous save and exit session state
   request.yar.clear(getKey(slug, status))
   await cacheService.clearState(request)
+
+  // Add form to in-flight list until fully saved in DB
+  const inflights =
+    /** @type {string[] | undefined} */ (
+      request.yar.get(sessionNames.inFlightForms)
+    ) ?? []
+  const refNum = /** @type {string} */ (cachedState.$$__referenceNumber)
+  inflights.push(refNum)
+  request.yar.set(sessionNames.inFlightForms, inflights)
 
   return h
     .view(SAVE_AND_EXIT_CONFIRMATION, model)

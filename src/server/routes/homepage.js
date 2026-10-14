@@ -30,11 +30,23 @@ const runnerBase = config.get('baseUrl')
 function mapToRow(savedForm, translator, formId) {
   const status = getFormStatus(savedForm)
 
+  if (savedForm.isProcessing) {
+    return {
+      referenceNumber: savedForm.referenceNumber,
+      status,
+      lastUpdated: '',
+      savedUntil: ''
+    }
+  }
+
   return {
     referenceNumber: savedForm.referenceNumber,
     status,
     lastUpdated: formatDateTime(savedForm.createdAt, translator),
-    savedUntil: formatDate(savedForm.expireAt, translator),
+    savedUntil:
+      status === SavedFormStatus.Deleted
+        ? ''
+        : formatDate(savedForm.expireAt, translator),
     // An expired form cannot be resumed, so it gets no link
     resumeUrl:
       status === SavedFormStatus.InProgress
@@ -93,6 +105,36 @@ function buildNavigation(form, translator, { isPreview, state, slug }) {
 }
 
 /**
+ * Handles Save-and-exit forms or submitted forms that have been 'saved/submitted' by the user
+ * but not yet been processed in the queue, and therefore don't yet exist in 'saved forms'.
+ * Their reference numbers are added to the session at point of save/submission, and then
+ * checked here to see if they are not yet showing as 'saved forms'.
+ * @param {Request<{ Params: HomepageParams }>} request
+ * @param {SavedForm[]} savedForms
+ */
+export function addInFlightForms(request, savedForms) {
+  const savedFormRefs = new Set(savedForms.map((form) => form.referenceNumber))
+  const allForms = structuredClone(savedForms)
+  const inFlightFormRefs = /** @type { string[] | undefined } */ (
+    request.yar.get(sessionNames.inFlightForms)
+  )
+  let processingCount = 0
+  if (inFlightFormRefs) {
+    inFlightFormRefs.forEach((formRef) => {
+      if (!savedFormRefs.has(formRef)) {
+        // @ts-expect-error - partial data row as 'is processing'
+        allForms.push({ referenceNumber: formRef, isProcessing: true })
+        processingCount++
+      }
+    })
+    if (processingCount === 0) {
+      request.yar.clear(sessionNames.inFlightForms)
+    }
+  }
+  return allForms
+}
+
+/**
  * Renders the homepage for the form state the URL names: live for
  * `/homepage/{slug}`, a preview for `/homepage/preview/{state}/{slug}`.
  * @param {Request<{ Params: HomepageParams }>} request
@@ -115,6 +157,10 @@ async function homepageHandler(request, h) {
 
   const savedForms = await getSavedForms(accessToken, form.id, previewStatus)
 
+  const savedAndInFlightForms = addInFlightForms(request, savedForms).sort(
+    formTableSorter
+  )
+
   // Notification banner
   const notification = /** @type {string[] | undefined} */ (
     yar.flash(sessionNames.successNotification).at(0)
@@ -124,11 +170,25 @@ async function homepageHandler(request, h) {
     notification,
     serviceNavigationParams: nav.serviceNavigationParams,
     startUrl: nav.startUrl,
-    savedForms: savedForms.map((savedForm) =>
+    savedForms: savedAndInFlightForms.map((savedForm) =>
       mapToRow(savedForm, translator, form.id)
     ),
     context: { translator }
   })
+}
+
+/**
+ * Sort the rows by status (alphabetically descending), then by 'updatedAt' ascending
+ * @param {SavedForm} a
+ * @param {SavedForm} b
+ */
+export function formTableSorter(a, b) {
+  const statusA = getFormStatus(a)
+  const statusB = getFormStatus(b)
+
+  return (
+    statusB.localeCompare(statusA) || b.createdAt.localeCompare(a.createdAt)
+  )
 }
 
 export default [

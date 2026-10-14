@@ -78,7 +78,7 @@
             { html: statusHtml },
             { text: savedForm.lastUpdated },
             { text: savedForm.savedUntil },
-            { html: actionsHtml }
+            { html: '' if savedForm.isProcessing else actionsHtml }
           ]), rows) %}
         {% endfor %}
 
