@@ -25,7 +25,8 @@ describe('runner-events', () => {
           title: 'My First Form',
           isPreview: true,
           status: FormStatus.Draft,
-          baseUrl: 'http://localhost:3009'
+          baseUrl: 'http://localhost:3009',
+          language: 'en-GB'
         },
         email: 'my-email@here.com',
         security: {
@@ -40,8 +41,11 @@ describe('runner-events', () => {
 
       expect(
         saveAndExitV1Mapper(
-          payload.form.id,
-          payload.form.title,
+          {
+            id: payload.form.id,
+            title: payload.form.title,
+            language: 'cy'
+          },
           payload.email,
           payload.security,
           payload.state,
@@ -60,7 +64,8 @@ describe('runner-events', () => {
             title: payload.form.title,
             isPreview: payload.form.isPreview,
             status: payload.form.status,
-            baseUrl: 'http://localhost:3009'
+            baseUrl: 'http://localhost:3009',
+            language: 'cy'
           },
           email: payload.email,
           security: {
@@ -82,7 +87,8 @@ describe('runner-events', () => {
           title: 'My First Form',
           isPreview: true,
           status: FormStatus.Draft,
-          baseUrl: 'http://localhost:3009'
+          baseUrl: 'http://localhost:3009',
+          language: 'cy'
         },
         email: 'my-email@here.com',
         security: {
@@ -98,8 +104,11 @@ describe('runner-events', () => {
 
       expect(
         saveAndExitV1Mapper(
-          payload.form.id,
-          payload.form.title,
+          {
+            id: payload.form.id,
+            title: payload.form.title,
+            language: 'cy'
+          },
           payload.email,
           payload.security,
           payload.state,
@@ -118,7 +127,8 @@ describe('runner-events', () => {
             title: payload.form.title,
             isPreview: payload.form.isPreview,
             status: payload.form.status,
-            baseUrl: 'http://localhost:3009'
+            baseUrl: 'http://localhost:3009',
+            language: 'cy'
           },
           email: payload.email,
           security: {
@@ -143,7 +153,8 @@ describe('runner-events', () => {
           title: 'My First Form',
           isPreview: true,
           status: FormStatus.Draft,
-          baseUrl: 'http://localhost:3009'
+          baseUrl: 'http://localhost:3009',
+          language: 'en-GB'
         },
         email: 'my-email@here.com',
         auth: {
@@ -158,8 +169,11 @@ describe('runner-events', () => {
 
       expect(
         saveAndExitV2Mapper(
-          payload.form.id,
-          payload.form.title,
+          {
+            id: payload.form.id,
+            title: payload.form.title,
+            language: 'en-GB'
+          },
           payload.email,
           payload.auth,
           payload.state,
@@ -178,7 +192,8 @@ describe('runner-events', () => {
             title: payload.form.title,
             isPreview: payload.form.isPreview,
             status: payload.form.status,
-            baseUrl: 'http://localhost:3009'
+            baseUrl: 'http://localhost:3009',
+            language: 'en-GB'
           },
           email: payload.email,
           auth: payload.auth,
@@ -194,8 +209,11 @@ describe('runner-events', () => {
       }
 
       const message = saveAndExitV2Mapper(
-        'formId',
-        'My First Form',
+        {
+          id: 'formId',
+          title: 'My First Form',
+          language: 'en-GB'
+        },
         'my-email@here.com',
         { sub: 'auth-sub', issuer: 'auth-issuer' },
         state

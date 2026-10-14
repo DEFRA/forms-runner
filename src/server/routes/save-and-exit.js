@@ -186,8 +186,11 @@ async function handleAuthenticatedSaveAndExit(request, h) {
   )
 
   await publishSaveAndExitV2Event(
-    metadata.id,
-    metadata.title,
+    {
+      id: metadata.id,
+      title: metadata.title,
+      language: translator.language
+    },
     auth.credentials.email,
     {
       sub: auth.credentials.sub,

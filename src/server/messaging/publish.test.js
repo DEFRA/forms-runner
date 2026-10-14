@@ -25,7 +25,8 @@ const saveAndExitPayload = {
     title: 'My First Form',
     isPreview: true,
     status: FormStatus.Draft,
-    baseUrl: 'http://localhost:3009'
+    baseUrl: 'http://localhost:3009',
+    language: 'en-GB'
   },
   email: 'my-email@here.com',
   security: {
@@ -47,7 +48,8 @@ const saveAndExitPayloadv2 = {
     title: 'My First Form',
     isPreview: true,
     status: FormStatus.Draft,
-    baseUrl: 'http://localhost:3009'
+    baseUrl: 'http://localhost:3009',
+    language: 'en-GB'
   },
   email: 'my-email@here.com',
   auth: {
@@ -75,8 +77,11 @@ describe('publish', () => {
   describe('publishSaveAndExitV1Event', () => {
     it('should publish SAVE_AND_EXIT V1 event', async () => {
       await publishSaveAndExitV1Event(
-        saveAndExitPayload.form.id,
-        saveAndExitPayload.form.title,
+        {
+          id: saveAndExitPayload.form.id,
+          title: saveAndExitPayload.form.title,
+          language: 'en-GB'
+        },
         saveAndExitPayload.email,
         saveAndExitPayload.security,
         saveAndExitPayload.state,
@@ -103,7 +108,7 @@ describe('publish', () => {
         publishSaveAndExitV1Event(invalidPayload)
       ).rejects.toThrow(
         new ValidationError(
-          '"data.form.id" must be a string. "data.form.title" is required. "data.email" is required. "data.state" is required',
+          '"data.form.id" is required. "data.form.title" is required. "data.email" is required. "data.state" is required',
           [],
           {}
         )
@@ -116,8 +121,11 @@ describe('publish', () => {
 
     it('should publish SAVE_AND_EXIT V2 event', async () => {
       await publishSaveAndExitV2Event(
-        saveAndExitV2Payload.form.id,
-        saveAndExitV2Payload.form.title,
+        {
+          id: saveAndExitV2Payload.form.id,
+          title: saveAndExitV2Payload.form.title,
+          language: 'en-GB'
+        },
         saveAndExitV2Payload.email,
         saveAndExitV2Payload.auth,
         saveAndExitV2Payload.state,
@@ -144,7 +152,7 @@ describe('publish', () => {
         publishSaveAndExitV2Event(invalidPayload)
       ).rejects.toThrow(
         new ValidationError(
-          '"data.form.id" must be a string. "data.form.title" is required. "data.email" is required. "data.state" is required',
+          '"data.form.id" is required. "data.form.title" is required. "data.email" is required. "data.state" is required',
           [],
           {}
         )
