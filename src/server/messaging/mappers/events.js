@@ -73,7 +73,7 @@ export function saveAndExitV1Mapper(
  * @param { string } formTitle
  * @param { string } email
  * @param {{ sub: string, issuer: string }} auth
- * @param { FormState } state
+ * @param { SavedState } state
  * @param { FormStatus } [status]
  * @returns {SaveAndExitV2Message}
  */
@@ -112,6 +112,6 @@ export function saveAndExitV2Mapper(
 }
 
 /**
- * @import { SaveAndExitMessage, SaveAndExitV2Message, SaveAndExitMessageData, SaveAndExitV2MessageData, SecurityQuestionsEnum } from '@defra/forms-model'
+ * @import { SavedState, SaveAndExitMessage, SaveAndExitV2Message, SaveAndExitMessageData, SaveAndExitV2MessageData, SecurityQuestionsEnum } from '@defra/forms-model'
  * @import { FormState } from '@defra/forms-engine-plugin/engine/types.js'
  */

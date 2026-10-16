@@ -193,7 +193,7 @@ async function handleAuthenticatedSaveAndExit(request, h) {
       sub: auth.credentials.sub,
       issuer: auth.credentials.iss
     },
-    cachedState,
+    /** @type {SavedState} */ (cachedState),
     status
   )
 
@@ -841,7 +841,7 @@ export default [
 /**
  * @import { ServerRoute, ResponseToolkit, Request, RequestQuery, Server } from '@hapi/hapi'
  * @import { Yar } from '@hapi/yar'
- * @import { FormMetadata } from '@defra/forms-model'
+ * @import { FormMetadata, SavedState } from '@defra/forms-model'
  * @import { Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'
  * @import { AnyRequest, CacheRequest } from '@defra/forms-engine-plugin/engine/types.js'
  * @import { BoomErrorCustomSaveAndExit, SaveAndExitParams, SaveAndExitPayload, SaveAndExitResumePasswordPayload, SaveAndExitResumePasswordParams } from '~/src/server/models/save-and-exit.js'
