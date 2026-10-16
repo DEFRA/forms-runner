@@ -186,6 +186,10 @@ describe('per-form homepage', () => {
     expect(
       container.queryByRole('region', { name: 'Important' })
     ).not.toBeInTheDocument()
+    expect(container.getByRole('link', { name: 'Forms' })).toHaveAttribute(
+      'href',
+      HOMEPAGE_URL
+    )
   })
 
   it('shows the caption and the start button in Welsh on a Welsh homepage', async () => {
