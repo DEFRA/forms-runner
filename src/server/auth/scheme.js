@@ -12,6 +12,7 @@ import {
   getTokens,
   setTokens
 } from '~/src/server/auth/accountSession.js'
+import { hasBeenLoggedOut } from '~/src/server/auth/backchannelLogout.js'
 import { signInUrl } from '~/src/server/utils/utils.js'
 
 export const CITIZEN_SESSION = 'citizen-session'
@@ -36,6 +37,17 @@ export function citizenSessionScheme() {
       const tokens = getTokens(request.yar)
 
       if (!identity || !tokens) {
+        return anonymous(request, h)
+      }
+
+      // The provider ended this session, such as when the citizen's account
+      // was deleted. The tokens are no use, so they go with it.
+      if (
+        identity.sid &&
+        (await hasBeenLoggedOut(request.server, identity.sid))
+      ) {
+        clearIdentity(request.yar)
+
         return anonymous(request, h)
       }
 

@@ -1,7 +1,8 @@
 import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
-import { slugSchema } from '@defra/forms-model'
+import { getErrorMessage, slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import Bourne from '@hapi/bourne'
+import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 import * as client from 'openid-client'
 
@@ -16,11 +17,16 @@ import {
   setSignInTransaction,
   setTokens
 } from '~/src/server/auth/accountSession.js'
+import {
+  recordLogout,
+  verifyLogoutToken
+} from '~/src/server/auth/backchannelLogout.js'
 import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
 import { signInEvent } from '~/src/server/auth/signInEvent.js'
 import { revokeRefreshToken } from '~/src/server/auth/tokenRevocation.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import {
+  BACKCHANNEL_LOGOUT_PATH,
   CALLBACK_PATH,
   SIGNED_OUT_PATH,
   SIGN_IN_PATH,
@@ -251,7 +257,8 @@ export default [
         setIdentity(request.yar, {
           iss: claims.iss,
           sub: claims.sub,
-          email
+          email,
+          ...(typeof claims.sid === 'string' && { sid: claims.sid })
         })
 
         setTokens(request.yar, {
@@ -325,6 +332,52 @@ export default [
       await endSignIn(request)
 
       return h.view('auth/signed-out', { signInLink })
+    }
+  }),
+  /**
+   * The provider calls this, not the citizen's browser, when it ends the
+   * citizen's session: at sign-out, or when their account is deleted (OpenID
+   * Connect Back-Channel Logout 1.0). The session is signed out on its next
+   * request, because the server cannot look up a session by its `sid`.
+   * @satisfies {ServerRoute<{ Payload: { logout_token: string } }>}
+   */
+  ({
+    method: 'POST',
+    path: BACKCHANNEL_LOGOUT_PATH,
+    async handler(request, h) {
+      try {
+        const { sid } = await verifyLogoutToken(
+          request,
+          request.payload.logout_token
+        )
+
+        await recordLogout(request.server, sid)
+      } catch (err) {
+        logger.error(
+          err,
+          `[backchannelLogoutRejected] Logout token not accepted - ${getErrorMessage(err)}`
+        )
+
+        return h
+          .response({ error: 'invalid_request' })
+          .code(StatusCodes.BAD_REQUEST)
+          .header('cache-control', 'no-store')
+      }
+
+      return h
+        .response()
+        .code(StatusCodes.NO_CONTENT)
+        .header('cache-control', 'no-store')
+    },
+    options: {
+      auth: false,
+      // The provider sends no crumb, and the logout token is the proof
+      plugins: { crumb: false },
+      validate: {
+        payload: Joi.object({ logout_token: Joi.string().required() }).unknown(
+          true
+        )
+      }
     }
   })
 ]
