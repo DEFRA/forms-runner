@@ -55,6 +55,7 @@ const saveAndExitPayloadv2 = {
     issuer: 'auth-issuer'
   },
   state: {
+    $$__referenceNumber: 'ABC-123-DEF',
     formVal1: '123',
     formVal2: '456'
   }
