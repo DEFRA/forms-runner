@@ -250,12 +250,10 @@ describe('Submission service', () => {
 
   describe('deleteSavedFormState', () => {
     it('asks the submission API to delete one saved form with the token', async () => {
-      jest.mocked(del).mockResolvedValue(
-        /** @type {any} */ ({
-          res: { statusCode: StatusCodes.OK },
-          payload: { matched: true, modified: true }
-        })
-      )
+      jest.mocked(del).mockResolvedValue({
+        res: /** @type {IncomingMessage} */ ({ statusCode: StatusCodes.OK }),
+        payload: { matched: true, modified: true }
+      })
 
       await deleteSavedFormState(ACCESS_TOKEN, magicLinkId)
 
@@ -269,12 +267,12 @@ describe('Submission service', () => {
     })
 
     it('throws when the API refuses the request', async () => {
-      jest.mocked(del).mockResolvedValue(
-        /** @type {any} */ ({
-          res: { statusCode: StatusCodes.NOT_FOUND },
-          error: new Error('Not Found')
-        })
-      )
+      jest.mocked(del).mockResolvedValue({
+        res: /** @type {IncomingMessage} */ ({
+          statusCode: StatusCodes.NOT_FOUND
+        }),
+        error: new Error('Not Found')
+      })
 
       await expect(
         deleteSavedFormState(ACCESS_TOKEN, magicLinkId)

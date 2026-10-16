@@ -278,6 +278,8 @@
   },
   "signIn": {
     "homepage": {
+      "tabForms": "Ffurflenni",
+      "tabSecurity": "Diogelwch",
       "caption": "Rheoli eich ffurflen",
       "startButton": "Dechrau ffurflen newydd",
       "previewBannerTitle": "Pwysig",
@@ -290,6 +292,7 @@
       "inProgress": "Ar y gweill",
       "expired": "Wedi dod i ben",
       "deleted": "Wedi'i ddileu",
+      "processing": "Wrthi'n prosesu",
       "actions": "Camau",
       "continue": "Parhau",
       "delete": "Dileu",

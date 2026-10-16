@@ -3,11 +3,13 @@ import { join } from 'node:path'
 import { FormStatus } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { within } from '@testing-library/dom'
+import { addDays } from 'date-fns'
 import { StatusCodes } from 'http-status-codes'
 import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
 import { createServer } from '~/src/server/index.js'
+import { addInFlightForms } from '~/src/server/routes/homepage.js'
 import {
   getFormDefinition,
   getFormMetadata
@@ -77,6 +79,21 @@ const savedForms = [
     formTitle: 'test-form',
     createdAt: '2026-09-09T09:00:00.000Z',
     expireAt: '2026-10-07T09:00:00.000Z'
+  }
+]
+
+const savedAndProcessingForms = [
+  {
+    magicLinkId: 'link-1',
+    referenceNumber: 'CCC-333',
+    formTitle: 'test-form',
+    createdAt: new Date().toISOString(),
+    expireAt: addDays(new Date(), 30).toISOString()
+  },
+  {
+    referenceNumber: 'PRO-123',
+    formTitle: 'test-form2',
+    isProcessing: true
   }
 ]
 
@@ -386,6 +403,50 @@ describe('per-form homepage', () => {
       ).toBeInTheDocument()
     })
 
+    it('lists a saved form including any ones that are "processing", sorted correctly', async () => {
+      // @ts-expect-error - partial mock of test data
+      jest.mocked(getSavedForms).mockResolvedValue(savedAndProcessingForms)
+
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: HOMEPAGE_URL,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      const table = container.getByRole('table')
+
+      expect(
+        within(table).getByRole('columnheader', { name: 'Reference number' })
+      ).toBeInTheDocument()
+      expect(
+        within(table).getByRole('columnheader', { name: 'Status' })
+      ).toBeInTheDocument()
+      expect(
+        within(table).getByRole('columnheader', { name: 'Last updated' })
+      ).toBeInTheDocument()
+      expect(
+        within(table).getByRole('columnheader', { name: 'Saved until' })
+      ).toBeInTheDocument()
+      expect(
+        within(table).getByRole('columnheader', { name: 'Actions' })
+      ).toBeInTheDocument()
+
+      const cells = within(table).getAllByRole('cell')
+      expect(cells[0].textContent.trim()).toBe('PRO-123')
+      expect(cells[1].textContent.trim()).toBe('Processing')
+      expect(cells[2].textContent.trim()).toBe('')
+      expect(cells[3].textContent.trim()).toBe('')
+      // No actions should be shown
+      expect(cells[4].innerHTML).not.toContain('Continue')
+      expect(cells[4].innerHTML).not.toContain('Delete')
+
+      expect(cells[5].textContent.trim()).toBe('CCC-333')
+      expect(cells[6].textContent.trim()).toBe('In progress')
+      // Ignore dates in this row (cells[7] and cells[8])
+      expect(cells[9].innerHTML).toContain('Continue')
+      expect(cells[9].innerHTML).toContain('Delete')
+    })
+
     it('writes the dates in Welsh on a Welsh homepage', async () => {
       jest.mocked(getSavedForms).mockResolvedValue(savedForms)
       jest.mocked(getFormDefinition).mockResolvedValue({
@@ -453,6 +514,44 @@ describe('per-form homepage', () => {
         fixtures.form.metadata.id,
         undefined
       )
+    })
+
+    describe('in-flight forms', () => {
+      it('should add in-flight forms to array for table', () => {
+        const mockYarGet = jest.fn().mockReturnValueOnce(['PRO-222'])
+        const mockRequest = /** @type {Request<{ Params: HomepageParams }>} */ (
+          /** @type {unknown} */ ({
+            yar: {
+              get: mockYarGet,
+              clear: jest.fn()
+            }
+          })
+        )
+        const allForms = addInFlightForms(mockRequest, savedForms)
+        expect(allForms).toHaveLength(3)
+        expect(allForms[2].referenceNumber).toBe('PRO-222')
+        expect(allForms[2].isProcessing).toBe(true)
+      })
+
+      it('should clear in-flight session key if all forms are no longer in-flight', () => {
+        const mockYarGet = jest.fn().mockReturnValueOnce(['PRO-222'])
+        const mockYarClear = jest.fn()
+        const mockRequest = /** @type {Request<{ Params: HomepageParams }>} */ (
+          /** @type {unknown} */ ({
+            yar: {
+              get: mockYarGet,
+              clear: mockYarClear
+            }
+          })
+        )
+        const savedFormsCompleted = structuredClone(savedForms)
+        savedFormsCompleted[0].referenceNumber = 'PRO-222'
+        const allForms = addInFlightForms(mockRequest, savedFormsCompleted)
+        expect(allForms).toHaveLength(2)
+        expect(allForms[0].referenceNumber).toBe('PRO-222')
+        expect(allForms[0].isProcessing).toBeUndefined()
+        expect(mockYarClear).toHaveBeenCalledTimes(1)
+      })
     })
 
     describe('when the access token is about to expire', () => {
@@ -760,6 +859,7 @@ describe('per-form homepage', () => {
 })
 
 /**
- * @import { Server } from '@hapi/hapi'
+ * @import { Request, Server } from '@hapi/hapi'
  * @import { TokenEndpointResponse, TokenEndpointResponseHelpers } from 'openid-client'
+ * @import { HomepageParams } from '~/src/server/routes/homepage.js'
  */
