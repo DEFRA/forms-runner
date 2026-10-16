@@ -1,15 +1,11 @@
-import { getTraceId } from '@defra/hapi-tracing'
+import { createLogContext, runWithLogContext } from '@defra/forms-common'
+import { type Logger } from 'pino'
 
 import { loggerOptions } from '~/src/server/common/helpers/logging/logger-options.js'
 
-jest.mock('@defra/hapi-tracing', () => ({
-  getTraceId: jest.fn()
-}))
-
 describe('logger-options', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
+  const correlationId = '1066e8cc-8e1e-4671-8ad7-b4cd9c95bb94'
+  const userId = '86758ba9-92e7-4287-9751-7705e449f0a5'
 
   describe('configuration', () => {
     it('has the expected properties', () => {
@@ -29,22 +25,47 @@ describe('logger-options', () => {
   })
 
   describe('mixin function', () => {
-    it('returns an empty object when no trace ID is available', () => {
-      jest.mocked(getTraceId).mockReturnValue(null)
-
+    it('returns an empty object outside of a log context', () => {
       const result = loggerOptions.mixin()
       expect(result).toEqual({})
     })
 
-    it('includes trace ID when available', () => {
-      jest.mocked(getTraceId).mockReturnValue('some-trace-id')
-
-      const result = loggerOptions.mixin()
-      expect(result).toEqual({
-        trace: {
-          id: 'some-trace-id'
-        }
+    it('includes the trace ID when available', () => {
+      runWithLogContext(createLogContext({ correlationId }), () => {
+        const result = loggerOptions.mixin()
+        expect(result).toEqual({
+          trace: {
+            id: correlationId
+          }
+        })
       })
+    })
+
+    it('includes the user ID when available', () => {
+      runWithLogContext(createLogContext({ correlationId, userId }), () => {
+        const result = loggerOptions.mixin()
+        expect(result).toEqual({
+          trace: {
+            id: correlationId
+          },
+          user: {
+            id: userId
+          }
+        })
+      })
+    })
+  })
+
+  describe('logMethod hook', () => {
+    it('writes the user ID into the message', () => {
+      const logger = {} as Logger
+      const method = jest.fn()
+
+      runWithLogContext(createLogContext({ correlationId, userId }), () => {
+        loggerOptions.hooks.logMethod.call(logger, ['message'], method)
+      })
+
+      expect(method).toHaveBeenCalledWith(`[uid:${userId}] message`)
     })
   })
 })

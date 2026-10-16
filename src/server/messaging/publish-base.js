@@ -1,4 +1,5 @@
 import { PublishCommand } from '@aws-sdk/client-sns'
+import { getMessageAttributes } from '@defra/forms-common'
 
 import { config } from '~/src/config/index.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
@@ -15,7 +16,8 @@ const client = getSNSClient()
 export async function publishEvent(message) {
   const command = new PublishCommand({
     TopicArn: snsSaveTopicArn,
-    Message: JSON.stringify(message)
+    Message: JSON.stringify(message),
+    MessageAttributes: getMessageAttributes()
   })
 
   const result = await client.send(command)

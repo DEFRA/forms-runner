@@ -1,5 +1,6 @@
 import { join } from 'node:path'
 
+import { getUserId } from '@defra/forms-common'
 import { StatusCodes } from 'http-status-codes'
 import * as client from 'openid-client'
 
@@ -196,6 +197,22 @@ describe('sign in routes and sign out routes', () => {
     expect(client.fetchUserInfo).not.toHaveBeenCalled()
     expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
     expect(response.headers.location).toBe(RETURN_PATH)
+  })
+
+  it('adds the account ID to the log context once the citizen is signed in, so the response log names them', async () => {
+    const onResponse = jest.fn(() => getUserId())
+    const login = await startSignIn()
+
+    mockSuccessfulExchange()
+    server.events.once('response', onResponse)
+
+    await server.inject({
+      method: 'GET',
+      url: CALLBACK_URL,
+      headers: getCookieHeader(login, ['session'])
+    })
+
+    expect(onResponse).toHaveReturnedWith(SUB)
   })
 
   it('asks the token endpoint for a token the submission API will accept', async () => {

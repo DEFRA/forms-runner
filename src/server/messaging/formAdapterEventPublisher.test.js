@@ -1,4 +1,5 @@
 import { PublishCommand } from '@aws-sdk/client-sns'
+import { createLogContext, runWithLogContext } from '@defra/forms-common'
 import { FormStatus } from '@defra/forms-model'
 
 import { publishFormAdapterEvent } from '~/src/server/messaging/formAdapterEventPublisher.js'
@@ -91,6 +92,24 @@ describe('formAdapterEventPublisher', () => {
       expect(mockSnsClient.send).toHaveBeenCalledWith(
         expect.any(PublishCommand)
       )
+    })
+
+    it('publishes the log context as message attributes', async () => {
+      mockSnsClient.send.mockResolvedValue({ MessageId: 'msg-123' })
+
+      await runWithLogContext(
+        createLogContext({ correlationId: 'correlation-1', userId: 'user-1' }),
+        () => publishFormAdapterEvent(mockPayload)
+      )
+
+      expect(PublishCommand).toHaveBeenCalledWith({
+        TopicArn: 'arn:aws:sns:eu-west-2:123456789012:test-adapter-topic',
+        Message: JSON.stringify(mockPayload),
+        MessageAttributes: {
+          correlationId: { DataType: 'String', StringValue: 'correlation-1' },
+          userId: { DataType: 'String', StringValue: 'user-1' }
+        }
+      })
     })
 
     it('throws error when SNS returns no MessageId', async () => {
