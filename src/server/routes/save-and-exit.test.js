@@ -1026,9 +1026,9 @@ describe('Save-and-exit check routes', () => {
 
   describe('GET /start-new-form', () => {
     test('route clears cache and redirects to form - with slug only', async () => {
-      // @ts-expect-error - partial mock of test data
       jest
         .mocked(getFormMetadataWithGuard)
+        // @ts-expect-error - partial mock of test data
         .mockResolvedValueOnce({ slug: 'my-slug' })
       const options = {
         method: 'GET',
