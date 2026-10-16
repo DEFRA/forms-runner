@@ -27,6 +27,7 @@ import {
   SIGN_OUT_PATH
 } from '~/src/server/constants.js'
 import { returnUrlSchema } from '~/src/server/models/common.js'
+import { getAllLanguages, resolveLanguage } from '~/src/server/utils/utils.js'
 
 /**
  * `offline_access` asks for a refresh token that outlives the provider
@@ -324,7 +325,11 @@ export default [
 
       await endSignIn(request)
 
-      return h.view('auth/signed-out', { signInLink })
+      return h.view('auth/signed-out', {
+        signInLink,
+        language: resolveLanguage(request.query, request.yar),
+        languages: getAllLanguages()
+      })
     }
   })
 ]
