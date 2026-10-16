@@ -10,6 +10,7 @@ import { config } from '~/src/config/index.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { EN_GB } from '~/src/server/constants.js'
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
+import { getFormHref } from '~/src/server/helpers/route-helpers.js'
 import { sessionNames } from '~/src/server/helpers/session-names.js'
 import {
   getCachedFormTranslatorBasic,
@@ -831,6 +832,53 @@ export default [
           .keys({
             slug: slugSchema,
             state: stateSchema.optional()
+          })
+          .required()
+      }
+    }
+  }),
+  /**
+   * @satisfies {ServerRoute<{ Params: { slug: string }, Query: { isPreview: boolean, state: FormStatus } }>}
+   */
+  ({
+    method: 'GET',
+    path: '/start-new-form/{slug}',
+    async handler(request, h) {
+      const { params, query } = request
+      const { slug } = params
+      const { isPreview, state } = query
+      const form = await getFormMetadataWithGuard(slug, state)
+
+      // Clear any previous form session state
+      const cacheService = getCacheService(
+        /** @type {AnyRequest} */ (/** @type {unknown} */ (request)).server
+      )
+      // CacheService derives its key from request.params.state, but on this route
+      // state is a query param, so supply the same params the form pages use.
+      await cacheService.clearState(
+        /** @type {CacheRequest} */ (
+          /** @type {unknown} */ ({
+            yar: request.yar,
+            params: { slug, state: isPreview ? state : undefined }
+          })
+        )
+      )
+
+      return h.redirect(getFormHref(form, isPreview, state))
+    },
+    options: {
+      validate: {
+        params: Joi.object()
+          .keys({
+            slug: slugSchema
+          })
+          .required(),
+        query: Joi.object()
+          .keys({
+            isPreview: Joi.boolean().default(false),
+            state: Joi.string()
+              .valid(FormStatus.Draft, FormStatus.Live)
+              .default(FormStatus.Live)
           })
           .required()
       }
