@@ -1023,6 +1023,40 @@ describe('Save-and-exit check routes', () => {
       expect(translator.language).toBe('en-GB')
     })
   })
+
+  describe('GET /start-new-form', () => {
+    test('route clears cache and redirects to form - with slug only', async () => {
+      // @ts-expect-error - partial mock of test data
+      jest
+        .mocked(getFormMetadataWithGuard)
+        .mockResolvedValueOnce({ slug: 'my-slug' })
+      const options = {
+        method: 'GET',
+        url: '/start-new-form/my-slug'
+      }
+
+      const { response } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe('/form/my-slug')
+    })
+
+    test('route clears cache and redirects to form - with slug and draft', async () => {
+      // @ts-expect-error - partial mock of test data
+      jest
+        .mocked(getFormMetadataWithGuard)
+        .mockResolvedValueOnce({ slug: 'my-slug' })
+      const options = {
+        method: 'GET',
+        url: '/start-new-form/my-slug?isPreview=true&state=draft'
+      }
+
+      const { response } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe('/form/preview/draft/my-slug')
+    })
+  })
 })
 
 /**
