@@ -167,7 +167,10 @@
     }) }}
   {% endif %}
   {% if backLink %}
-    {{ govukBackLink(backLink) }}
+    {{ govukBackLink({
+      text: tR('common.back'),
+      href: backLink.href
+    }) }}
   {% endif %}
 
   {% include "partials/language-selector.html" %}
