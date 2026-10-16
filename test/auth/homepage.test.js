@@ -94,6 +94,11 @@ const savedAndProcessingForms = [
     referenceNumber: 'PRO-123',
     formTitle: 'test-form2',
     isProcessing: true
+  },
+  {
+    referenceNumber: 'PRO-456',
+    formTitle: 'test-form3',
+    isProcessing: true
   }
 ]
 
@@ -440,11 +445,19 @@ describe('per-form homepage', () => {
       expect(cells[4].innerHTML).not.toContain('Continue')
       expect(cells[4].innerHTML).not.toContain('Delete')
 
-      expect(cells[5].textContent.trim()).toBe('CCC-333')
-      expect(cells[6].textContent.trim()).toBe('In progress')
-      // Ignore dates in this row (cells[7] and cells[8])
-      expect(cells[9].innerHTML).toContain('Continue')
-      expect(cells[9].innerHTML).toContain('Delete')
+      expect(cells[5].textContent.trim()).toBe('PRO-456')
+      expect(cells[6].textContent.trim()).toBe('Processing')
+      expect(cells[7].textContent.trim()).toBe('')
+      expect(cells[8].textContent.trim()).toBe('')
+      // No actions should be shown
+      expect(cells[9].innerHTML).not.toContain('Continue')
+      expect(cells[9].innerHTML).not.toContain('Delete')
+
+      expect(cells[10].textContent.trim()).toBe('CCC-333')
+      expect(cells[11].textContent.trim()).toBe('In progress')
+      // Ignore dates in this row (cells[12] and cells[13])
+      expect(cells[14].innerHTML).toContain('Continue')
+      expect(cells[14].innerHTML).toContain('Delete')
     })
 
     it('writes the dates in Welsh on a Welsh homepage', async () => {

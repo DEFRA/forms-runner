@@ -178,16 +178,20 @@ async function homepageHandler(request, h) {
 }
 
 /**
- * Sort the rows by status (alphabetically descending), then by 'updatedAt' ascending
+ * Sort the rows by status (alphabetically descending), then by 'updatedAt' descending
  * @param {SavedForm} a
  * @param {SavedForm} b
  */
 export function formTableSorter(a, b) {
   const statusA = getFormStatus(a)
   const statusB = getFormStatus(b)
+  const aCreatedAt = /** @type {string | undefined} */ (a.createdAt)
+  const bCreatedAt = /** @type {string | undefined} */ (b.createdAt)
 
   return (
-    statusB.localeCompare(statusA) || b.createdAt.localeCompare(a.createdAt)
+    // createdAt does not have a value for 'Processing' rows
+    statusB.localeCompare(statusA) ||
+    (bCreatedAt ?? '').localeCompare(aCreatedAt ?? '')
   )
 }
 
