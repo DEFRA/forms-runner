@@ -41,7 +41,7 @@
       <h1 class="govuk-heading-xl">{{ pageTitle }}</h1>
 
       <form method="post" action="{{ startUrl }}" aria-label="Start form">
-      <input type="hidden" name="crumb" value="{{ crumb }}" />
+        <input type="hidden" name="crumb" value="{{ crumb }}" />
         {{ govukButton({
           text: tR('signIn.homepage.startButton'),
           classes: "govuk-button--secondary"
