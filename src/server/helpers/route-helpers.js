@@ -15,7 +15,7 @@ export function getStartNewFormHref(form, isPreview, state) {
   const { slug } = form
 
   return isPreview
-    ? `/start-new-form/${slug}/?isPreview=true&state=${state}`
+    ? `/start-new-form${PREVIEW_PATH_PREFIX}/${state}/${slug}`
     : `/start-new-form/${slug}`
 }
 
