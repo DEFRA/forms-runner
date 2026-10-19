@@ -1057,7 +1057,7 @@ describe('Save-and-exit check routes', () => {
           const { value } = /** @type {{ value: string }} */ (request.payload)
 
           await getCacheService(request.server).setState(
-            toCacheRequest(request, slug, state),
+            toCacheRequest(request, slug, /** @type {string} */ (state)),
             { value }
           )
 
@@ -1074,7 +1074,7 @@ describe('Save-and-exit check routes', () => {
           const { state } = request.query
 
           return getCacheService(request.server).getState(
-            toCacheRequest(request, slug, state)
+            toCacheRequest(request, slug, /** @type {string} */ (state))
           )
         }
       })
