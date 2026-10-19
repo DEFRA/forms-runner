@@ -2,7 +2,6 @@ import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
 import { slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import Bourne from '@hapi/bourne'
-import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 import * as client from 'openid-client'
 
@@ -133,18 +132,7 @@ export default [
         // are ignored so they do not block sign in.
         query: Joi.object({
           returnUrl: returnUrlSchema.required()
-        }).unknown(true),
-        failAction(request, h) {
-          const url = /** @type { string | undefined } */ (
-            request.query.returnUrl
-          )
-          const message = `Invalid or missing returnUrl for sign-in: ${url}`
-          logger.info(message)
-          return h
-            .response({ message })
-            .code(StatusCodes.BAD_REQUEST)
-            .takeover()
-        }
+        }).unknown(true)
       }
     }
   }),
