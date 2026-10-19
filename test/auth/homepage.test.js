@@ -181,7 +181,11 @@ describe('per-form homepage', () => {
     ).toBeInTheDocument()
 
     const $start = container.getByRole('button', { name: 'Start a new form' })
-    expect($start).toHaveAttribute('href', '/form/test-form')
+    expect($start).toBeInTheDocument()
+
+    const $form = container.getByRole('form')
+    const action = $form.getAttribute('action')
+    expect(action).toBe('/start-new-form/test-form')
 
     expect(
       container.queryByRole('region', { name: 'Important' })
@@ -261,7 +265,11 @@ describe('per-form homepage', () => {
       ).toBeInTheDocument()
 
       const $start = container.getByRole('button', { name: 'Start a new form' })
-      expect($start).toHaveAttribute('href', '/form/preview/draft/test-form')
+      expect($start).toBeInTheDocument()
+
+      const $form = container.getByRole('form')
+      const action = $form.getAttribute('action')
+      expect(action).toBe('/start-new-form/preview/draft/test-form')
     })
 
     it('starts the live preview form from the live preview homepage', async () => {
@@ -272,7 +280,11 @@ describe('per-form homepage', () => {
       })
 
       const $start = container.getByRole('button', { name: 'Start a new form' })
-      expect($start).toHaveAttribute('href', '/form/preview/live/test-form')
+      expect($start).toBeInTheDocument()
+
+      const $form = container.getByRole('form')
+      const action = $form.getAttribute('action')
+      expect(action).toBe('/start-new-form/preview/live/test-form')
     })
 
     it('links the signed-in user’s email to the preview homepage they are on', async () => {

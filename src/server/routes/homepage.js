@@ -6,7 +6,7 @@ import Joi from 'joi'
 import { config } from '~/src/config/index.js'
 import { HOMEPAGE_PREFIX, PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { formatDate, formatDateTime } from '~/src/server/helpers/date-helper.js'
-import { getFormHref } from '~/src/server/helpers/route-helpers.js'
+import { getStartNewFormHref } from '~/src/server/helpers/route-helpers.js'
 import { sessionNames } from '~/src/server/helpers/session-names.js'
 import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/routes/auth.js'
 import {
@@ -72,7 +72,7 @@ function mapToRow(savedForm, translator, formId) {
  */
 function buildNavigation(form, translator, { isPreview, state, slug }) {
   const { t } = translator
-  const startUrl = getFormHref(form, isPreview, state)
+  const startUrl = getStartNewFormHref(form, isPreview, state)
 
   const homepageBase = isPreview
     ? `${HOMEPAGE_PREFIX}${PREVIEW_PATH_PREFIX}/${state}/${slug}`

@@ -1,4 +1,7 @@
+import { getCacheService } from '@defra/forms-engine-plugin/engine/helpers.js'
+
 import { SAVE_AND_EXIT_PAYLOAD } from '~/src/server/constants.js'
+import { getFormMetadataWithGuard } from '~/src/server/services/formMetadataGuards.js'
 
 /**
  * Get Save and Exit payload - extracted here to a separate file so it can easily be mocked
@@ -48,8 +51,26 @@ export function getFormStatus(savedForm) {
 }
 
 /**
+ *
+ * @param {Request<{ Params: FormParams }>} request
+ * @param {string} slug
+ * @param {FormStatus} state
+ */
+export async function clearFormState(request, slug, state) {
+  const form = await getFormMetadataWithGuard(slug, state)
+
+  // Clear any previous form session state
+  const cacheService = getCacheService(request.server)
+  await cacheService.clearState(request)
+
+  return form
+}
+
+/**
  * @import { Request } from '@hapi/hapi'
+ * @import { FormStatus } from '@defra/forms-model'
  * @import { SaveAndExitParams } from '~/src/server/models/save-and-exit.js'
  * @import { FormSubmissionState } from '@defra/forms-engine-plugin/engine/types.js'
+ * @import { FormParams } from '@defra/forms-engine-plugin/types'
  * @import { SavedForm, SavedFormState } from '~/src/server/services/submissionService.js'
  */

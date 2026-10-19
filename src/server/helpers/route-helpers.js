@@ -11,6 +11,21 @@ import {
  * @param {FormStatus} state
  * @returns {string}
  */
+export function getStartNewFormHref(form, isPreview, state) {
+  const { slug } = form
+
+  return isPreview
+    ? `/start-new-form${PREVIEW_PATH_PREFIX}/${state}/${slug}`
+    : `/start-new-form/${slug}`
+}
+
+/**
+ * Get the start url of a form
+ * @param {FormMetadata} form
+ * @param {boolean} isPreview
+ * @param {FormStatus} state
+ * @returns {string}
+ */
 export function getFormHref(form, isPreview, state) {
   const { slug } = form
 
