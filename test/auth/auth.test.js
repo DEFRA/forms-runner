@@ -349,6 +349,7 @@ describe('sign in routes and sign out routes', () => {
   it.each([
     ['leaves the service', '?returnUrl=//evil.example'],
     ['names another site outright', '?returnUrl=https://evil.example'],
+    ['empty returnUrl', '?returnUrl='],
     ['is missing', '']
   ])(
     'refuses to start a sign in whose return target %s, before the citizen spends one',
