@@ -85,7 +85,7 @@ function buildNavigation(form, translator, { isPreview, state, slug }) {
     serviceName: form.title,
     navigation: [
       {
-        href: `${homepageBase}/forms`,
+        href: homepageBase,
         text: t('signIn.homepage.tabForms'),
         active: true
       },
