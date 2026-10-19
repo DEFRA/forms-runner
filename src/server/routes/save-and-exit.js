@@ -854,7 +854,7 @@ export default [
       const { slug } = params
       const { state } = checkFormStatus(params)
 
-      const form = await clearFormState(request, slug, true, state)
+      const form = await clearFormState(request, slug, state)
 
       return h.redirect(getFormHref(form, true, state))
     },
@@ -881,7 +881,7 @@ export default [
       const { params } = request
       const { slug } = params
 
-      const form = await clearFormState(request, slug, false, FormStatus.Live)
+      const form = await clearFormState(request, slug, FormStatus.Live)
 
       return h.redirect(getFormHref(form, false, FormStatus.Live))
     },

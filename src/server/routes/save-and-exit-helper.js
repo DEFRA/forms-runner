@@ -54,10 +54,9 @@ export function getFormStatus(savedForm) {
  *
  * @param {Request<{ Params: FormParams }>} request
  * @param {string} slug
- * @param {boolean} isPreview
  * @param {FormStatus} state
  */
-export async function clearFormState(request, slug, isPreview, state) {
+export async function clearFormState(request, slug, state) {
   const form = await getFormMetadataWithGuard(slug, state)
 
   // Clear any previous form session state
