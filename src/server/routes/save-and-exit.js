@@ -1,5 +1,8 @@
 import { MAGIC_LINK_GROUP_ID, isOfflineBoom } from '@defra/forms-engine-plugin'
-import { getCacheService } from '@defra/forms-engine-plugin/engine/helpers.js'
+import {
+  checkFormStatus,
+  getCacheService
+} from '@defra/forms-engine-plugin/engine/helpers.js'
 import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
 import { FormStatus, slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
@@ -841,20 +844,17 @@ export default [
     }
   }),
   /**
-   * @satisfies {ServerRoute<{ Params: { slug: string, state: FormStatus } }>}
+   * @satisfies {ServerRoute<{ Params: FormParams }>}
    */
   ({
     method: 'POST',
     path: `/start-new-form${PREVIEW_PATH_PREFIX}/{state}/{slug}`,
     async handler(request, h) {
       const { params } = request
-      const { slug, state } = params
+      const { slug } = params
+      const { state } = checkFormStatus(params)
 
-      const anyRequest = /** @type {AnyRequest} */ (
-        /** @type {unknown} */ (request)
-      )
-
-      const form = await clearFormState(anyRequest, slug, true, state)
+      const form = await clearFormState(request, slug, true, state)
 
       return h.redirect(getFormHref(form, true, state))
     },
@@ -872,7 +872,7 @@ export default [
     }
   }),
   /**
-   * @satisfies {ServerRoute<{ Params: { slug: string } }>}
+   * @satisfies {ServerRoute<{ Params: FormParams }>}
    */
   ({
     method: 'POST',
@@ -881,16 +881,7 @@ export default [
       const { params } = request
       const { slug } = params
 
-      const anyRequest = /** @type {AnyRequest} */ (
-        /** @type {unknown} */ (request)
-      )
-
-      const form = await clearFormState(
-        anyRequest,
-        slug,
-        false,
-        FormStatus.Live
-      )
+      const form = await clearFormState(request, slug, false, FormStatus.Live)
 
       return h.redirect(getFormHref(form, false, FormStatus.Live))
     },
@@ -911,6 +902,7 @@ export default [
  * @import { Yar } from '@hapi/yar'
  * @import { FormMetadata } from '@defra/forms-model'
  * @import { Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'
+ * @import { FormParams } from '@defra/forms-engine-plugin/types'
  * @import { AnyRequest, CacheRequest } from '@defra/forms-engine-plugin/engine/types.js'
  * @import { BoomErrorCustomSaveAndExit, SaveAndExitParams, SaveAndExitPayload, SaveAndExitResumePasswordPayload, SaveAndExitResumePasswordParams } from '~/src/server/models/save-and-exit.js'
  * @import { SaveAndExitDetails } from '~/src/server/types.js'

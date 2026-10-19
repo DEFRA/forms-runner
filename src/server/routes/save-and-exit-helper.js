@@ -52,7 +52,7 @@ export function getFormStatus(savedForm) {
 
 /**
  *
- * @param {AnyRequest} request
+ * @param {Request<{ Params: FormParams }>} request
  * @param {string} slug
  * @param {boolean} isPreview
  * @param {FormStatus} state
@@ -61,19 +61,8 @@ export async function clearFormState(request, slug, isPreview, state) {
   const form = await getFormMetadataWithGuard(slug, state)
 
   // Clear any previous form session state
-  const cacheService = getCacheService(
-    /** @type {AnyRequest} */ (/** @type {unknown} */ (request)).server
-  )
-  // CacheService derives its key from request.params.state, but on this route
-  // state is a query param, so supply the same params the form pages use.
-  await cacheService.clearState(
-    /** @type {CacheRequest} */ (
-      /** @type {unknown} */ ({
-        yar: request.yar,
-        params: { slug, state: isPreview ? state : undefined }
-      })
-    )
-  )
+  const cacheService = getCacheService(request.server)
+  await cacheService.clearState(request)
 
   return form
 }
@@ -82,6 +71,7 @@ export async function clearFormState(request, slug, isPreview, state) {
  * @import { Request } from '@hapi/hapi'
  * @import { FormStatus } from '@defra/forms-model'
  * @import { SaveAndExitParams } from '~/src/server/models/save-and-exit.js'
- * @import { AnyRequest, CacheRequest, FormSubmissionState } from '@defra/forms-engine-plugin/engine/types.js'
+ * @import { FormSubmissionState } from '@defra/forms-engine-plugin/engine/types.js'
+ * @import { FormParams } from '@defra/forms-engine-plugin/types'
  * @import { SavedForm, SavedFormState } from '~/src/server/services/submissionService.js'
  */
