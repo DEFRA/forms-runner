@@ -186,6 +186,21 @@ describe('sign in routes and sign out routes', () => {
     })
   })
 
+  it('sends the identity to the provider from sign in when they are still signed in', async () => {
+    const { login } = await signIn()
+    jest.mocked(client.buildAuthorizationUrl).mockClear()
+
+    await server.inject({
+      method: 'GET',
+      url: SIGN_IN_URL,
+      headers: getCookieHeader(login, ['session'])
+    })
+
+    const [, params] = jest.mocked(client.buildAuthorizationUrl).mock.calls[0]
+
+    expect(params).toMatchObject({ id_token_hint: ID_TOKEN })
+  })
+
   describe('a sign in that the provider asks for', () => {
     const TARGET_LINK_URI = `${ISSUER}/account?client_id=runner`
 
