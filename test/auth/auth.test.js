@@ -6,7 +6,11 @@ import * as client from 'openid-client'
 import { config } from '~/src/config/index.js'
 import { CITIZEN_KEY, TOKENS_KEY } from '~/src/server/auth/accountSession.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
-import { SIGNED_OUT_PATH, SIGN_OUT_PATH } from '~/src/server/constants.js'
+import {
+  INITIATE_SIGN_IN_PATH,
+  SIGNED_OUT_PATH,
+  SIGN_OUT_PATH
+} from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
@@ -179,6 +183,75 @@ describe('sign in routes and sign out routes', () => {
       // Naming the resource only at the token endpoint returns an opaque
       // token and no error, so it is named here too
       resource: RESOURCE
+    })
+  })
+
+  describe('a sign in that the provider asks for', () => {
+    const TARGET_LINK_URI = `${ISSUER}/account?client_id=runner`
+
+    /**
+     * @param {Record<string, string>} query
+     */
+    function initiateSignIn(query) {
+      return server.inject({
+        method: 'GET',
+        url: `${INITIATE_SIGN_IN_PATH}?${new URLSearchParams(query).toString()}`
+      })
+    }
+
+    it('starts the normal sign in, and sends the citizen to the provider page afterwards', async () => {
+      const login = await initiateSignIn({
+        iss: ISSUER,
+        target_link_uri: TARGET_LINK_URI
+      })
+
+      // The citizen goes to the provider's authorization endpoint, because
+      // the provider session has ended and only a full sign in starts a new
+      // one.
+      expect(login.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(login.headers.location).toBe(AUTHORIZATION_URL)
+
+      mockSuccessfulExchange()
+
+      const callback = await server.inject({
+        method: 'GET',
+        url: CALLBACK_URL,
+        headers: getCookieHeader(login, ['session'])
+      })
+
+      // The citizen goes to the provider page that asked for the sign in,
+      // because that is the page they tried to open.
+      expect(callback.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(callback.headers.location).toBe(TARGET_LINK_URI)
+    })
+
+    it.each(
+      /** @type {{ reason: string, query: Record<string, string> }[]} */ ([
+        {
+          reason: 'another issuer asks',
+          query: {
+            iss: 'https://other.example',
+            target_link_uri: TARGET_LINK_URI
+          }
+        },
+        {
+          reason: 'the page is on another origin',
+          query: {
+            iss: ISSUER,
+            target_link_uri: 'https://other.example/account'
+          }
+        },
+        {
+          reason: 'the page is a path with no origin',
+          query: { iss: ISSUER, target_link_uri: '/account' }
+        },
+        { reason: 'no page is given', query: { iss: ISSUER } }
+      ])
+    )('refuses to start when $reason', async ({ query }) => {
+      const response = await initiateSignIn(query)
+
+      expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
+      expect(client.buildAuthorizationUrl).not.toHaveBeenCalled()
     })
   })
 
