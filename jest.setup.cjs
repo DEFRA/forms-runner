@@ -1,3 +1,19 @@
+const fs = require('node:fs')
+const originalReadFileSync = fs.readFileSync
+
+fs.readFileSync = function (filePath, ...args) {
+  if (
+    typeof filePath === 'string' &&
+    filePath.endsWith(
+      '/@defra/forms-engine-plugin/src/server/plugins/map/routes/vts/countries-5dp.geojson'
+    )
+  ) {
+    filePath = filePath.replace(/countries-5dp\.geojson$/, 'countries.geojson')
+  }
+
+  return originalReadFileSync.call(this, filePath, ...args)
+}
+
 process.env.NODE_ENV = 'test'
 process.env.PORT = '3009'
 process.env.ENVIRONMENT = 'local'
