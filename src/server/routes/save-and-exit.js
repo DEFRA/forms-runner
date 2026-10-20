@@ -1,5 +1,8 @@
 import { MAGIC_LINK_GROUP_ID, isOfflineBoom } from '@defra/forms-engine-plugin'
-import { getCacheService } from '@defra/forms-engine-plugin/engine/helpers.js'
+import {
+  checkFormStatus,
+  getCacheService
+} from '@defra/forms-engine-plugin/engine/helpers.js'
 import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
 import { FormStatus, slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
@@ -8,8 +11,9 @@ import Joi from 'joi'
 
 import { config } from '~/src/config/index.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
-import { EN_GB } from '~/src/server/constants.js'
+import { EN_GB, PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
+import { getFormHref } from '~/src/server/helpers/route-helpers.js'
 import { sessionNames } from '~/src/server/helpers/session-names.js'
 import {
   getCachedFormTranslatorBasic,
@@ -35,7 +39,10 @@ import {
   validatePayloadSchema
 } from '~/src/server/models/save-and-exit.js'
 import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/routes/auth.js'
-import { hasState } from '~/src/server/routes/save-and-exit-helper.js'
+import {
+  clearFormState,
+  hasState
+} from '~/src/server/routes/save-and-exit-helper.js'
 import { stateHandler } from '~/src/server/routes/save-and-exit-state-handler.js'
 import {
   getFormMetadataById,
@@ -835,6 +842,58 @@ export default [
           .required()
       }
     }
+  }),
+  /**
+   * @satisfies {ServerRoute<{ Params: FormParams }>}
+   */
+  ({
+    method: 'POST',
+    path: `/start-new-form${PREVIEW_PATH_PREFIX}/{state}/{slug}`,
+    async handler(request, h) {
+      const { params } = request
+      const { slug } = params
+      const { state } = checkFormStatus(params)
+
+      const form = await clearFormState(request, slug, state)
+
+      return h.redirect(getFormHref(form, true, state))
+    },
+    options: {
+      validate: {
+        params: Joi.object()
+          .keys({
+            slug: slugSchema,
+            state: Joi.string()
+              .valid(FormStatus.Draft, FormStatus.Live)
+              .required()
+          })
+          .required()
+      }
+    }
+  }),
+  /**
+   * @satisfies {ServerRoute<{ Params: FormParams }>}
+   */
+  ({
+    method: 'POST',
+    path: '/start-new-form/{slug}',
+    async handler(request, h) {
+      const { params } = request
+      const { slug } = params
+
+      const form = await clearFormState(request, slug, FormStatus.Live)
+
+      return h.redirect(getFormHref(form, false, FormStatus.Live))
+    },
+    options: {
+      validate: {
+        params: Joi.object()
+          .keys({
+            slug: slugSchema
+          })
+          .required()
+      }
+    }
   })
 ]
 
@@ -843,6 +902,7 @@ export default [
  * @import { Yar } from '@hapi/yar'
  * @import { FormMetadata } from '@defra/forms-model'
  * @import { Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'
+ * @import { FormParams } from '@defra/forms-engine-plugin/types'
  * @import { AnyRequest, CacheRequest } from '@defra/forms-engine-plugin/engine/types.js'
  * @import { BoomErrorCustomSaveAndExit, SaveAndExitParams, SaveAndExitPayload, SaveAndExitResumePasswordPayload, SaveAndExitResumePasswordParams } from '~/src/server/models/save-and-exit.js'
  * @import { SaveAndExitDetails } from '~/src/server/types.js'

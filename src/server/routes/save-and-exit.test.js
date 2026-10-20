@@ -1,4 +1,5 @@
 import { isOfflineBoom } from '@defra/forms-engine-plugin'
+import { getCacheService } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { FormStatus, SecurityQuestionsEnum } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
@@ -24,6 +25,7 @@ import {
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { citizenSession } from '~/test/utils/citizen-session.js'
+import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 jest.mock('~/src/server/services/formMetadataGuards.js')
 jest.mock('~/src/server/services/formsService.js')
@@ -1023,10 +1025,203 @@ describe('Save-and-exit check routes', () => {
       expect(translator.language).toBe('en-GB')
     })
   })
+
+  describe('POST /start-new-form', () => {
+    const STATE_PATH = '/test/form-state/{slug}'
+
+    /** @type {Server} */
+    let cacheServer
+
+    /**
+     * Builds the request shape CacheService keys on, as the form pages see it
+     * @param {Request} request
+     * @param {string} slug
+     * @param {string} [state]
+     */
+    const toCacheRequest = (request, slug, state) =>
+      /** @type {CacheRequest} */ (
+        /** @type {unknown} */ ({ yar: request.yar, params: { slug, state } })
+      )
+
+    beforeAll(async () => {
+      cacheServer = await createServer({ enforceCsrf: false })
+
+      // Test-only routes to seed and read the real cache for the caller's session
+      cacheServer.route({
+        method: 'POST',
+        path: STATE_PATH,
+        options: { auth: false },
+        handler: async (request) => {
+          const { slug } = request.params
+          const { state } = request.query
+          const { value } = /** @type {{ value: string }} */ (request.payload)
+
+          await getCacheService(request.server).setState(
+            toCacheRequest(request, slug, /** @type {string} */ (state)),
+            { value }
+          )
+
+          return null
+        }
+      })
+
+      cacheServer.route({
+        method: 'GET',
+        path: STATE_PATH,
+        options: { auth: false },
+        handler: (request) => {
+          const { slug } = request.params
+          const { state } = request.query
+
+          return getCacheService(request.server).getState(
+            toCacheRequest(request, slug, /** @type {string} */ (state))
+          )
+        }
+      })
+
+      await cacheServer.initialize()
+    })
+
+    afterAll(async () => {
+      await cacheServer.stop()
+    })
+
+    /**
+     * @param {Pick<OutgoingHttpHeaders, 'cookie'> | undefined} headers
+     * @param {string} slug
+     * @param {string} [state]
+     */
+    async function readState(headers, slug, state) {
+      const response = await cacheServer.inject({
+        method: 'GET',
+        url: `/test/form-state/${slug}${state ? `?state=${state}` : ''}`,
+        headers
+      })
+
+      return response.result
+    }
+
+    /**
+     * Seeds state, returning the headers that keep the session
+     * @param {Pick<OutgoingHttpHeaders, 'cookie'> | undefined} headers
+     * @param {string} slug
+     * @param {string | undefined} state
+     * @param {string} value
+     */
+    async function seedState(headers, slug, state, value) {
+      const response = await cacheServer.inject({
+        method: 'POST',
+        url: `/test/form-state/${slug}${state ? `?state=${state}` : ''}`,
+        headers,
+        payload: { value }
+      })
+
+      return headers ?? getCookieHeader(response, ['session'])
+    }
+
+    test('route clears cache and redirects to form - non-preview', async () => {
+      jest
+        .mocked(getFormMetadataWithGuard)
+        // @ts-expect-error - partial mock of test data
+        .mockResolvedValueOnce({ slug: 'my-slug' })
+
+      let headers = await seedState(undefined, 'my-slug', undefined, 'live')
+      headers = await seedState(headers, 'my-slug', FormStatus.Draft, 'draft')
+      headers = await seedState(headers, 'other-slug', undefined, 'other')
+
+      expect(await readState(headers, 'my-slug')).toEqual({ value: 'live' })
+
+      const { response } = await renderResponse(cacheServer, {
+        method: 'POST',
+        url: '/start-new-form/my-slug',
+        headers
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe('/form/my-slug')
+
+      // Only the live state for this form is cleared
+      expect(await readState(headers, 'my-slug')).toEqual({})
+      expect(await readState(headers, 'my-slug', FormStatus.Draft)).toEqual({
+        value: 'draft'
+      })
+      expect(await readState(headers, 'other-slug')).toEqual({ value: 'other' })
+    })
+
+    test('route clears cache and redirects to form - draft preview', async () => {
+      jest
+        .mocked(getFormMetadataWithGuard)
+        // @ts-expect-error - partial mock of test data
+        .mockResolvedValueOnce({ slug: 'my-slug' })
+
+      let headers = await seedState(
+        undefined,
+        'my-slug',
+        FormStatus.Draft,
+        'draft'
+      )
+      headers = await seedState(headers, 'my-slug', undefined, 'live')
+      headers = await seedState(
+        headers,
+        'other-slug',
+        FormStatus.Draft,
+        'other'
+      )
+
+      expect(await readState(headers, 'my-slug', FormStatus.Draft)).toEqual({
+        value: 'draft'
+      })
+
+      const { response } = await renderResponse(cacheServer, {
+        method: 'POST',
+        url: '/start-new-form/preview/draft/my-slug',
+        headers
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe('/form/preview/draft/my-slug')
+
+      // Only the draft state for this form is cleared
+      expect(await readState(headers, 'my-slug', FormStatus.Draft)).toEqual({})
+      expect(await readState(headers, 'my-slug')).toEqual({ value: 'live' })
+      expect(await readState(headers, 'other-slug', FormStatus.Draft)).toEqual({
+        value: 'other'
+      })
+    })
+
+    test('route clears cache and redirects to form - live preview', async () => {
+      jest
+        .mocked(getFormMetadataWithGuard)
+        // @ts-expect-error - partial mock of test data
+        .mockResolvedValueOnce({ slug: 'my-slug' })
+
+      let headers = await seedState(
+        undefined,
+        'my-slug',
+        FormStatus.Live,
+        'live-preview'
+      )
+      headers = await seedState(headers, 'my-slug', undefined, 'live')
+
+      const { response } = await renderResponse(cacheServer, {
+        method: 'POST',
+        url: '/start-new-form/preview/live/my-slug',
+        headers
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe('/form/preview/live/my-slug')
+
+      expect(await readState(headers, 'my-slug', FormStatus.Live)).toEqual({})
+      expect(await readState(headers, 'my-slug')).toEqual({ value: 'live' })
+    })
+  })
 })
 
 /**
- * @import { RequestQuery, Server } from '@hapi/hapi'
+ * @import { Request, RequestQuery, Server } from '@hapi/hapi'
+ * @import { OutgoingHttpHeaders } from 'node:http'
+ * @import { CacheRequest } from '@defra/forms-engine-plugin/engine/types.js'
  * @import { Yar } from '@hapi/yar'
  * @import { FormMetadata } from '@defra/forms-model'
  */

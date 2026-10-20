@@ -13,6 +13,20 @@ import {
 } from '~/src/server/plugins/errorInterpretation.js'
 import { getAllLanguages, resolveLanguage } from '~/src/server/utils/utils.js'
 
+const HTTP_ERROR_RANGE_START = 500
+const HTTP_ERROR_RANGE_END = 511
+
+/**
+ * Determines if the error sits within the 5xx server error range
+ * @param statusCode
+ * @returns {boolean}
+ */
+export function isServerError(statusCode: number): boolean {
+  return (
+    statusCode >= HTTP_ERROR_RANGE_START && statusCode <= HTTP_ERROR_RANGE_END
+  )
+}
+
 /*
  * Add an `onPreResponse` listener to return error pages
  */
@@ -63,10 +77,14 @@ export default {
             `HTTP ${statusCode} error: ${response.message}`
           )
 
-          request.logger.error(
-            error,
-            `[httpError] HTTP ${statusCode} error occurred - ${response.message} - path: ${request.path} - method: ${request.method}`
-          )
+          const message = `[httpError] HTTP ${statusCode} error occurred - ${response.message} - path: ${request.path} - method: ${request.method}`
+          // Log server errors as 'error'
+          if (isServerError(statusCode)) {
+            request.logger.error(error, message)
+          } else {
+            // Any other errors as 'info'
+            request.logger.info(message)
+          }
 
           const { isPreview } = checkFormStatus(request.params as FormParams)
 
