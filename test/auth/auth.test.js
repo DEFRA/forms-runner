@@ -242,7 +242,7 @@ describe('sign in routes and sign out routes', () => {
       expect(callback.headers.location).toBe(TARGET_LINK_URI)
     })
 
-    it('names the citizen to the provider when they are still signed in here', async () => {
+    it("sends the identity to the provider when they're still signed in", async () => {
       const { login } = await signIn()
       jest.mocked(client.buildAuthorizationUrl).mockClear()
 
@@ -257,7 +257,7 @@ describe('sign in routes and sign out routes', () => {
       expect(params).toMatchObject({ id_token_hint: ID_TOKEN })
     })
 
-    it('names no citizen to the provider when nobody is signed in here', async () => {
+    it('sends no identity to the provider when signed out here', async () => {
       await initiateSignIn({ iss: ISSUER, target_link_uri: TARGET_LINK_URI })
 
       const [, params] = jest.mocked(client.buildAuthorizationUrl).mock.calls[0]
