@@ -191,11 +191,13 @@ describe('sign in routes and sign out routes', () => {
 
     /**
      * @param {Record<string, string>} query
+     * @param {ServerInjectOptions['headers']} [headers]
      */
-    function initiateSignIn(query) {
+    function initiateSignIn(query, headers) {
       return server.inject({
         method: 'GET',
-        url: `${INITIATE_SIGN_IN_PATH}?${new URLSearchParams(query).toString()}`
+        url: `${INITIATE_SIGN_IN_PATH}?${new URLSearchParams(query).toString()}`,
+        headers
       })
     }
 
@@ -223,6 +225,29 @@ describe('sign in routes and sign out routes', () => {
       // because that is the page they tried to open.
       expect(callback.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
       expect(callback.headers.location).toBe(TARGET_LINK_URI)
+    })
+
+    it('names the citizen to the provider when they are still signed in here', async () => {
+      const { login } = await signIn()
+      jest.mocked(client.buildAuthorizationUrl).mockClear()
+
+      await initiateSignIn(
+        { iss: ISSUER, target_link_uri: TARGET_LINK_URI },
+        getCookieHeader(login, ['session'])
+      )
+
+      // The provider can then ask the citizen only for a security code
+      const [, params] = jest.mocked(client.buildAuthorizationUrl).mock.calls[0]
+
+      expect(params).toMatchObject({ id_token_hint: ID_TOKEN })
+    })
+
+    it('names no citizen to the provider when nobody is signed in here', async () => {
+      await initiateSignIn({ iss: ISSUER, target_link_uri: TARGET_LINK_URI })
+
+      const [, params] = jest.mocked(client.buildAuthorizationUrl).mock.calls[0]
+
+      expect(params).not.toHaveProperty('id_token_hint')
     })
 
     it.each(
@@ -956,7 +981,7 @@ describe('sign in routes, feature flag off', () => {
 })
 
 /**
- * @import { Server, ServerInjectResponse } from '@hapi/hapi'
+ * @import { Server, ServerInjectOptions, ServerInjectResponse } from '@hapi/hapi'
  * @import { TokenSet } from '~/src/server/auth/accountSession.js'
  * @import { Configuration, TokenEndpointResponse, TokenEndpointResponseHelpers } from 'openid-client'
  */

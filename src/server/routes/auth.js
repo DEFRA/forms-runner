@@ -117,8 +117,11 @@ async function endSignIn(request) {
  * @param {Pick<Request, 'server' | 'yar'>} request
  * @param {Pick<ResponseToolkit, 'redirect'>} h
  * @param {string} returnUrl - validated by the route that calls this
+ * @param {string} [idTokenHint] - the ID token of a citizen who is still
+ *   signed in here. The provider then knows who signs in again, and asks
+ *   them only for a security code.
  */
-async function startSignIn(request, h, returnUrl) {
+async function startSignIn(request, h, returnUrl, idTokenHint) {
   const oidcConfig = await request.server.app.oidc.getConfig()
 
   const codeVerifier = client.randomPKCECodeVerifier()
@@ -140,6 +143,7 @@ async function startSignIn(request, h, returnUrl) {
     nonce,
     code_challenge: await client.calculatePKCECodeChallenge(codeVerifier),
     code_challenge_method: 'S256',
+    ...(idTokenHint && { id_token_hint: idTokenHint }),
     // `login` always require an OTP for new logins
     // `consent` lets the provider accept `offline_access` (OpenID Connect
     // Core, section 11).
@@ -182,7 +186,11 @@ export default [
     method: 'GET',
     path: INITIATE_SIGN_IN_PATH,
     handler(request, h) {
-      return startSignIn(request, h, request.query.target_link_uri)
+      // A citizen who is signed in here can still be asked to sign in, because
+      // the refresh token outlives the provider session
+      const idToken = getTokens(request.yar)?.idToken
+
+      return startSignIn(request, h, request.query.target_link_uri, idToken)
     },
     options: {
       auth: false,
