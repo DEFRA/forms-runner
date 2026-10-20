@@ -5,7 +5,7 @@ import Joi from 'joi'
 
 import { config } from '~/src/config/index.js'
 import { HOMEPAGE_PREFIX, PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
-import { formatDate, formatDateTime } from '~/src/server/helpers/date-helper.js'
+import { formatDateTime } from '~/src/server/helpers/date-helper.js'
 import { getStartNewFormHref } from '~/src/server/helpers/route-helpers.js'
 import { sessionNames } from '~/src/server/helpers/session-names.js'
 import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/routes/auth.js'
@@ -46,7 +46,7 @@ function mapToRow(savedForm, translator, formId) {
     savedUntil:
       status === SavedFormStatus.Deleted
         ? ''
-        : formatDate(savedForm.expireAt, translator),
+        : formatDateTime(savedForm.expireAt, translator),
     // An expired form cannot be resumed, so it gets no link
     resumeUrl:
       status === SavedFormStatus.InProgress
