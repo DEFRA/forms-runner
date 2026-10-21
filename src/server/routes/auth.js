@@ -122,6 +122,11 @@ async function endSignIn(request) {
 async function startSignIn(request, h, returnUrl) {
   const oidcConfig = await request.server.app.oidc.getConfig()
 
+  // A citizen who is signed in here can still be asked to sign in, because
+  // the refresh token outlives the provider session. The ID token names them,
+  // so the provider asks them only for a security code.
+  const idToken = getTokens(request.yar)?.idToken
+
   const codeVerifier = client.randomPKCECodeVerifier()
   const state = client.randomState()
   const nonce = client.randomNonce()
@@ -141,6 +146,7 @@ async function startSignIn(request, h, returnUrl) {
     nonce,
     code_challenge: await client.calculatePKCECodeChallenge(codeVerifier),
     code_challenge_method: 'S256',
+    ...(idToken && { id_token_hint: idToken }),
     // `login` always require an OTP for new logins
     // `consent` lets the provider accept `offline_access` (OpenID Connect
     // Core, section 11).
