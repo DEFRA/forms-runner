@@ -71,9 +71,7 @@ export async function verifyLogoutToken(request, logoutToken) {
     }
   )
 
-  const events = /** @type {Record<string, unknown> | undefined} */ (
-    payload.events
-  )
+  const events = payload.events
 
   if (!events || typeof events[LOGOUT_EVENT] !== 'object') {
     throw new Error('Token does not carry the logout event')
