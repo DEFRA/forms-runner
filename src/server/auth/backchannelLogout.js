@@ -59,6 +59,7 @@ export async function verifyLogoutToken(request, logoutToken) {
     throw new Error('Provider lists no JWKS URI')
   }
 
+  /** @type {JWTVerifyResult<LogoutTokenClaims>} */
   const { payload } = await jwtVerify(
     logoutToken,
     keySetFor(metadata.jwks_uri),
@@ -110,6 +111,12 @@ export async function hasBeenLoggedOut(server, sid) {
 }
 
 /**
+ * @import { JWTPayload, JWTVerifyResult } from 'jose'
+ * @typedef {JWTPayload & {
+ *   events?: Record<string, unknown>,
+ *   sid?: unknown,
+ *   nonce?: unknown
+ * }} LogoutTokenClaims
  * @import { Server, Request } from '@hapi/hapi'
  * @typedef {Pick<Request, 'server'>} RequestContext
  */
