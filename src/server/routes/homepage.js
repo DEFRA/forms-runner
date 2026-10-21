@@ -6,7 +6,10 @@ import Joi from 'joi'
 import { config } from '~/src/config/index.js'
 import { HOMEPAGE_PREFIX, PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { formatDateTime } from '~/src/server/helpers/date-helper.js'
-import { getStartNewFormHref } from '~/src/server/helpers/route-helpers.js'
+import {
+  constructHomepageLink,
+  getStartNewFormHref
+} from '~/src/server/helpers/route-helpers.js'
 import { sessionNames } from '~/src/server/helpers/session-names.js'
 import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/routes/auth.js'
 import {
@@ -75,9 +78,10 @@ function buildNavigation(form, translator, { isPreview, state, slug }) {
   const { t } = translator
   const startUrl = getStartNewFormHref(form, isPreview, state)
 
-  const homepageBase = isPreview
-    ? `${HOMEPAGE_PREFIX}${PREVIEW_PATH_PREFIX}/${state}/${slug}`
-    : `${HOMEPAGE_PREFIX}/${slug}`
+  const homepageBase = constructHomepageLink(
+    slug,
+    isPreview ? state : undefined
+  )
 
   const securityUrl = new URL('/account', authBase)
   // The account pages show `returnUrl` as their "Back" link and check it

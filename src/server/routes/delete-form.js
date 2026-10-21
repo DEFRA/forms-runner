@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
 import { getValidationErrorsFromSession } from '~/src/server/helpers/error-helper.js'
-import { getHomepageHref } from '~/src/server/helpers/route-helpers.js'
+import { constructHomepageLink } from '~/src/server/helpers/route-helpers.js'
 import { sessionNames } from '~/src/server/helpers/session-names.js'
 import { t } from '~/src/server/i18n/index.js'
 import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/routes/auth.js'
@@ -101,7 +101,12 @@ export default [
       )
 
       const referenceNumber = savedForm.referenceNumber
-      const backLink = { href: getHomepageHref(form, savedForm) }
+      const backLink = {
+        href: constructHomepageLink(
+          form.slug,
+          savedForm.form.isPreview ? savedForm.form.status : undefined
+        )
+      }
 
       // Validation errors
       const validation = getValidationErrorsFromSession(
@@ -173,7 +178,10 @@ export default [
 
       const form = await getFormMetadataById(formId)
       const savedForm = await getSavedFormState(accessToken, magicLinkId)
-      const homePageHref = getHomepageHref(form, savedForm)
+      const homePageHref = constructHomepageLink(
+        form.slug,
+        savedForm.form.isPreview ? savedForm.form.status : undefined
+      )
 
       if (payload.confirmDelete) {
         await deleteSavedFormState(accessToken, magicLinkId)
