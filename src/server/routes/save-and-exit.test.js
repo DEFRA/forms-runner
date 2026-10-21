@@ -995,7 +995,8 @@ describe('Save-and-exit check routes', () => {
           query: { language: 'en-GB' },
           yar: {
             set: jest.fn(),
-            get: jest.fn()
+            get: jest.fn(),
+            id: 'yar-id'
           }
         })
       )
@@ -1013,7 +1014,8 @@ describe('Save-and-exit check routes', () => {
           query: { language: 'cy' },
           yar: {
             set: jest.fn(),
-            get: jest.fn().mockReturnValueOnce('cy')
+            get: jest.fn().mockReturnValueOnce('cy'),
+            id: 'yar-id'
           }
         })
       )
@@ -1023,6 +1025,30 @@ describe('Save-and-exit check routes', () => {
       const translator = await getFormTranslator(mockRequest, metadata)
       expect(translator).toBeDefined()
       expect(translator.language).toBe('en-GB')
+    })
+
+    test('should return translator in welsh even if no translations defined, when using bypass', async () => {
+      const mockRequest = /** @type {{ query: RequestQuery, yar: Yar }} */ (
+        /** @type {unknown} */ ({
+          query: { language: 'cy' },
+          yar: {
+            set: jest.fn(),
+            get: jest.fn().mockReturnValueOnce('cy'),
+            id: 'yar-id'
+          }
+        })
+      )
+      const metadata = /** @type {FormMetadata} */ ({
+        id: 'form-id'
+      })
+      const translator = await getFormTranslator(
+        mockRequest,
+        metadata,
+        FormStatus.Draft,
+        true
+      )
+      expect(translator).toBeDefined()
+      expect(translator.language).toBe('cy')
     })
   })
 
