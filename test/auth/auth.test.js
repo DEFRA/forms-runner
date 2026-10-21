@@ -554,7 +554,11 @@ describe('sign in routes and sign out routes', () => {
         expect.anything(),
         expect.objectContaining({
           id_token_hint: 'header.payload.signature',
-          state: JSON.stringify({ slug: 'my-form-slug', returnUrl: FORM_PAGE })
+          state: JSON.stringify({
+            slug: 'my-form-slug',
+            returnUrl: FORM_PAGE,
+            language: 'en-GB'
+          })
         })
       )
       expect(await idTokenHint(headers)).toBe('header.payload.signature')

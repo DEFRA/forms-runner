@@ -27,7 +27,7 @@ import {
   SIGN_IN_PATH,
   SIGN_OUT_PATH
 } from '~/src/server/constants.js'
-import { returnUrlSchema } from '~/src/server/models/common.js'
+import { languageSchema, returnUrlSchema } from '~/src/server/models/common.js'
 import { getAllLanguages, resolveLanguage } from '~/src/server/utils/utils.js'
 
 /**
@@ -71,7 +71,8 @@ const targetLinkUriSchema = Joi.string().custom((value, helpers) => {
 const signOutStateSchema = Joi.object({
   slug: slugSchema,
   previewMode: stateSchema.optional(),
-  returnUrl: returnUrlSchema.required()
+  returnUrl: returnUrlSchema.required(),
+  language: languageSchema.optional()
 })
 
 /**
@@ -213,7 +214,13 @@ export default [
       // sign-out page there has a Cancel link, and a citizen who cancels
       // stays signed in here as well as on the provider.
       const { slug, previewMode, returnUrl } = request.query
-      const stateParam = JSON.stringify({ slug, previewMode, returnUrl })
+      const language = resolveLanguage(request.query, request.yar)
+      const stateParam = JSON.stringify({
+        slug,
+        previewMode,
+        returnUrl,
+        language
+      })
 
       const postLogoutUrl = new URL(SIGNED_OUT_PATH, BASE_URL)
 
