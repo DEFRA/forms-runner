@@ -16,6 +16,7 @@ import {
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 import { getSavedForms } from '~/src/server/services/submissionService.js'
+import { getAllLanguages } from '~/src/server/utils/utils.js'
 
 const authBase = config.get('oidc.issuer')
 const runnerBase = config.get('baseUrl')
@@ -153,7 +154,12 @@ async function homepageHandler(request, h) {
 
   const form = await getFormMetadata(slug)
 
-  const { translator } = await getFormTranslator(request, form, previewStatus)
+  const { translator } = await getFormTranslator(
+    request,
+    form,
+    previewStatus,
+    true
+  )
 
   const nav = buildNavigation(form, translator, { isPreview, state, slug })
 
@@ -177,7 +183,13 @@ async function homepageHandler(request, h) {
     savedForms: savedAndInFlightForms.map((savedForm) =>
       mapToRow(savedForm, translator, form.id)
     ),
-    context: { translator }
+    context: {
+      translator: {
+        // Force page to show language selector irrespective of form capability
+        ...translator,
+        languages: getAllLanguages()
+      }
+    }
   })
 }
 

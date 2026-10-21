@@ -11,12 +11,13 @@ import {
   SavedFormStatus,
   getFormStatus
 } from '~/src/server/routes/save-and-exit-helper.js'
+import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadataById } from '~/src/server/services/formsService.js'
 import {
   deleteSavedFormState,
   getSavedFormState
 } from '~/src/server/services/submissionService.js'
-import { resolveLanguage } from '~/src/server/utils/utils.js'
+import { getAllLanguages, resolveLanguage } from '~/src/server/utils/utils.js'
 
 export const CONFIRM_DELETE_NAME = 'confirmDelete'
 
@@ -28,11 +29,10 @@ export default [
     method: 'GET',
     path: '/delete-form/{formId}/{magicLinkId}',
     handler: async (request, h) => {
-      const { auth, query, params, yar } = request
+      const { auth, params, yar } = request
       const { formId, magicLinkId } = params
       const { accessToken } = auth.credentials
 
-      const lang = resolveLanguage(query, yar)
       const form = await getFormMetadataById(formId)
       const savedForm = await getSavedFormState(accessToken, magicLinkId)
       const status = getFormStatus(savedForm)
@@ -43,6 +43,16 @@ export default [
         )
       }
 
+      const previewStatus = savedForm.form.isPreview
+        ? savedForm.form.status
+        : undefined
+      const { translator, language } = await getFormTranslator(
+        request,
+        form,
+        previewStatus,
+        true
+      )
+
       const referenceNumber = savedForm.referenceNumber
       const backLink = { href: getHomepageHref(form, savedForm) }
 
@@ -52,17 +62,17 @@ export default [
         sessionNames.validationFailure.deleteSavedForm
       )
       const { formErrors } = validation ?? {}
-      const pageHeading = t('deleteForm.title', lang)
+      const pageHeading = t('deleteForm.title', language)
 
       // Translate any error messages
       if (formErrors) {
         Object.values(formErrors).forEach((value) => {
-          value.text = t(value.text, lang)
+          value.text = t(value.text, language)
         })
       }
 
       const pageTitle = formErrors
-        ? `${t('errors.titlePrefix', lang)} ${pageHeading}`
+        ? `${t('errors.titlePrefix', language)} ${pageHeading}`
         : pageHeading
 
       const radiosQuestion = {
@@ -75,7 +85,7 @@ export default [
           }
         },
         hint: {
-          text: t('deleteForm.hint', lang, {
+          text: t('deleteForm.hint', language, {
             formTitle: form.title,
             referenceNumber
           })
@@ -83,11 +93,11 @@ export default [
         items: [
           {
             value: 'true',
-            text: t('deleteForm.items.yes', lang)
+            text: t('deleteForm.items.yes', language)
           },
           {
             value: 'false',
-            text: t('deleteForm.items.no', lang)
+            text: t('deleteForm.items.no', language)
           }
         ],
         errorMessage: formErrors?.[CONFIRM_DELETE_NAME]
@@ -96,7 +106,7 @@ export default [
       }
 
       const errorSummary = formErrors && {
-        titleText: t('errorPreview.errorSummaryHeading', lang),
+        titleText: t('errorPreview.errorSummaryHeading', language),
         errorList: Object.values(formErrors)
       }
 
@@ -104,7 +114,14 @@ export default [
         pageTitle,
         backLink,
         errorSummary,
-        radiosQuestion
+        radiosQuestion,
+        context: {
+          translator: {
+            // Force page to show language selector irrespective of form capability
+            ...translator,
+            languages: getAllLanguages()
+          }
+        }
       })
     },
     options: {
