@@ -181,11 +181,19 @@ describe('per-form homepage', () => {
     ).toBeInTheDocument()
 
     const $start = container.getByRole('button', { name: 'Start a new form' })
-    expect($start).toHaveAttribute('href', '/form/test-form')
+    expect($start).toBeInTheDocument()
+
+    const $form = container.getByRole('form')
+    const action = $form.getAttribute('action')
+    expect(action).toBe('/start-new-form/test-form')
 
     expect(
       container.queryByRole('region', { name: 'Important' })
     ).not.toBeInTheDocument()
+    expect(container.getByRole('link', { name: 'Forms' })).toHaveAttribute(
+      'href',
+      HOMEPAGE_URL
+    )
   })
 
   it('shows the caption and the start button in Welsh on a Welsh homepage', async () => {
@@ -217,6 +225,26 @@ describe('per-form homepage', () => {
       'href',
       HOMEPAGE_URL
     )
+  })
+
+  it('names this client and the homepage on the Security link, so the account pages can send the citizen back', async () => {
+    const { container } = await renderResponse(server, {
+      method: 'GET',
+      url: HOMEPAGE_URL,
+      auth: { strategy: 'citizen-session', credentials }
+    })
+
+    const href = container
+      .getByRole('link', { name: 'Security' })
+      .getAttribute('href')
+    const security = new URL(String(href))
+
+    expect(security.origin).toBe('http://localhost:3011')
+    expect(security.pathname).toBe('/account')
+    expect(Object.fromEntries(security.searchParams)).toEqual({
+      client_id: 'runner',
+      returnUrl: `${config.get('baseUrl')}${HOMEPAGE_URL}`
+    })
   })
 
   it('sends the page the citizen is on with the Sign out link, so a Cancel can bring them back', async () => {
@@ -257,7 +285,11 @@ describe('per-form homepage', () => {
       ).toBeInTheDocument()
 
       const $start = container.getByRole('button', { name: 'Start a new form' })
-      expect($start).toHaveAttribute('href', '/form/preview/draft/test-form')
+      expect($start).toBeInTheDocument()
+
+      const $form = container.getByRole('form')
+      const action = $form.getAttribute('action')
+      expect(action).toBe('/start-new-form/preview/draft/test-form')
     })
 
     it('starts the live preview form from the live preview homepage', async () => {
@@ -268,7 +300,11 @@ describe('per-form homepage', () => {
       })
 
       const $start = container.getByRole('button', { name: 'Start a new form' })
-      expect($start).toHaveAttribute('href', '/form/preview/live/test-form')
+      expect($start).toBeInTheDocument()
+
+      const $form = container.getByRole('form')
+      const action = $form.getAttribute('action')
+      expect(action).toBe('/start-new-form/preview/live/test-form')
     })
 
     it('links the signed-in user’s email to the preview homepage they are on', async () => {
@@ -398,7 +434,7 @@ describe('per-form homepage', () => {
       ).toBeInTheDocument()
       expect(
         within(table).getByRole('cell', {
-          name: '12 September 2026'
+          name: '12 September 2026 at 10:00am'
         })
       ).toBeInTheDocument()
     })
@@ -466,7 +502,7 @@ describe('per-form homepage', () => {
         within(table).getByRole('cell', { name: '21 Awst 2026 am 10:00yb' })
       ).toBeInTheDocument()
       expect(
-        within(table).getByRole('cell', { name: '12 Medi 2026' })
+        within(table).getByRole('cell', { name: '12 Medi 2026 am 10:00yb' })
       ).toBeInTheDocument()
     })
 

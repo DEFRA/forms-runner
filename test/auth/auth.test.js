@@ -5,13 +5,24 @@ import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
 import { CITIZEN_KEY, TOKENS_KEY } from '~/src/server/auth/accountSession.js'
+import { verifyLogoutToken } from '~/src/server/auth/backchannelLogout.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
-import { SIGNED_OUT_PATH, SIGN_OUT_PATH } from '~/src/server/constants.js'
+import {
+  BACKCHANNEL_LOGOUT_PATH,
+  INITIATE_SIGN_IN_PATH,
+  SIGNED_OUT_PATH,
+  SIGN_OUT_PATH
+} from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
+import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/routes/auth.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 jest.mock('openid-client')
+jest.mock('~/src/server/auth/backchannelLogout.js', () => ({
+  ...jest.requireActual('~/src/server/auth/backchannelLogout.js'),
+  verifyLogoutToken: jest.fn()
+}))
 
 const RETURN_PATH = '/homepage/test-form'
 const SIGN_IN_URL = `/auth/sign-in?returnUrl=${RETURN_PATH}`
@@ -130,6 +141,13 @@ describe('sign in routes and sign out routes', () => {
       })
     })
 
+    server.route({
+      method: 'GET',
+      path: '/test/protected',
+      options: { auth: CITIZEN_AUTH_ROUTE_OPTIONS },
+      handler: () => 'ok'
+    })
+
     await server.initialize()
   })
 
@@ -179,6 +197,115 @@ describe('sign in routes and sign out routes', () => {
       // Naming the resource only at the token endpoint returns an opaque
       // token and no error, so it is named here too
       resource: RESOURCE
+    })
+  })
+
+  it('sends the identity to the provider from sign in when they are still signed in', async () => {
+    const { login } = await signIn()
+    jest.mocked(client.buildAuthorizationUrl).mockClear()
+
+    await server.inject({
+      method: 'GET',
+      url: SIGN_IN_URL,
+      headers: getCookieHeader(login, ['session'])
+    })
+
+    const [, params] = jest.mocked(client.buildAuthorizationUrl).mock.calls[0]
+
+    expect(params).toMatchObject({ id_token_hint: ID_TOKEN })
+  })
+
+  describe('a sign in that the provider asks for', () => {
+    const TARGET_LINK_URI = `${ISSUER}/account?client_id=runner`
+
+    /**
+     * @param {Record<string, string>} query
+     * @param {ServerInjectOptions['headers']} [headers]
+     */
+    function initiateSignIn(query, headers) {
+      return server.inject({
+        method: 'GET',
+        url: `${INITIATE_SIGN_IN_PATH}?${new URLSearchParams(query).toString()}`,
+        headers
+      })
+    }
+
+    it('starts the normal sign in, and sends the citizen to the provider page afterwards', async () => {
+      const login = await initiateSignIn({
+        iss: ISSUER,
+        target_link_uri: TARGET_LINK_URI
+      })
+
+      // The citizen goes to the provider's authorization endpoint, because
+      // the provider session has ended and only a full sign in starts a new
+      // one.
+      expect(login.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(login.headers.location).toBe(AUTHORIZATION_URL)
+
+      mockSuccessfulExchange()
+
+      const callback = await server.inject({
+        method: 'GET',
+        url: CALLBACK_URL,
+        headers: getCookieHeader(login, ['session'])
+      })
+
+      // The citizen goes to the provider page that asked for the sign in,
+      // because that is the page they tried to open.
+      expect(callback.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(callback.headers.location).toBe(TARGET_LINK_URI)
+    })
+
+    it("sends the identity to the provider when they're still signed in", async () => {
+      const { login } = await signIn()
+      jest.mocked(client.buildAuthorizationUrl).mockClear()
+
+      await initiateSignIn(
+        { iss: ISSUER, target_link_uri: TARGET_LINK_URI },
+        getCookieHeader(login, ['session'])
+      )
+
+      // The provider can then ask the citizen only for a security code
+      const [, params] = jest.mocked(client.buildAuthorizationUrl).mock.calls[0]
+
+      expect(params).toMatchObject({ id_token_hint: ID_TOKEN })
+    })
+
+    it('sends no identity to the provider when signed out here', async () => {
+      await initiateSignIn({ iss: ISSUER, target_link_uri: TARGET_LINK_URI })
+
+      const [, params] = jest.mocked(client.buildAuthorizationUrl).mock.calls[0]
+
+      expect(params).not.toHaveProperty('id_token_hint')
+    })
+
+    it.each(
+      /** @type {{ reason: string, query: Record<string, string> }[]} */ ([
+        {
+          reason: 'another issuer asks',
+          query: {
+            iss: 'https://other.example',
+            target_link_uri: TARGET_LINK_URI
+          }
+        },
+        {
+          reason: 'the page is on another origin',
+          query: {
+            iss: ISSUER,
+            target_link_uri: 'https://other.example/account'
+          }
+        },
+        {
+          reason: 'the page is a path with no origin',
+          query: { iss: ISSUER, target_link_uri: '/account' }
+        },
+        { reason: 'no page is given', query: { iss: ISSUER } }
+      ])
+    )('refuses to start when $reason', async ({ query }) => {
+      const response = await initiateSignIn(query)
+
+      expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
+      expect(client.buildAuthorizationUrl).not.toHaveBeenCalled()
     })
   })
 
@@ -349,6 +476,7 @@ describe('sign in routes and sign out routes', () => {
   it.each([
     ['leaves the service', '?returnUrl=//evil.example'],
     ['names another site outright', '?returnUrl=https://evil.example'],
+    ['empty returnUrl', '?returnUrl='],
     ['is missing', '']
   ])(
     'refuses to start a sign in whose return target %s, before the citizen spends one',
@@ -480,7 +608,10 @@ describe('sign in routes and sign out routes', () => {
         expect.anything(),
         expect.objectContaining({
           id_token_hint: 'header.payload.signature',
-          state: JSON.stringify({ slug: 'my-form-slug', returnUrl: FORM_PAGE })
+          state: JSON.stringify({
+            slug: 'my-form-slug',
+            returnUrl: FORM_PAGE
+          })
         })
       )
       expect(await idTokenHint(headers)).toBe('header.payload.signature')
@@ -673,6 +804,106 @@ describe('sign in routes and sign out routes', () => {
         )
       }
     )
+  })
+
+  describe('back-channel logout', () => {
+    const SID = 'sid-1'
+
+    /** @param {string} [logoutToken] */
+    function postLogout(logoutToken = 'logout-token') {
+      return server.inject({
+        method: 'POST',
+        url: BACKCHANNEL_LOGOUT_PATH,
+        payload: { logout_token: logoutToken }
+      })
+    }
+
+    /** Signs in with a provider session id, returning the cookie header */
+    async function signInWithSid(sid = SID) {
+      const login = await startSignIn()
+      const tokens = mockTokens()
+      jest.mocked(client.authorizationCodeGrant).mockResolvedValue(
+        /** @type {typeof tokens} */ (
+          /** @type {unknown} */ ({
+            ...tokens,
+            claims: () => ({ iss: ISSUER, sub: SUB, email: EMAIL, sid })
+          })
+        )
+      )
+      const headers = getCookieHeader(login, ['session'])
+      await server.inject({ method: 'GET', url: CALLBACK_URL, headers })
+
+      return headers
+    }
+
+    it('keeps the provider session id in the identity', async () => {
+      const headers = await signInWithSid()
+      const response = await server.inject({
+        method: 'GET',
+        url: SESSION_PROBE_PATH,
+        headers
+      })
+
+      expect(
+        /** @type {Record<string, { sid?: string } >} */ (response.result)[
+          CITIZEN_KEY
+        ].sid
+      ).toBe(SID)
+    })
+
+    it('signs out the session the provider ended', async () => {
+      const headers = await signInWithSid(SID)
+
+      jest.mocked(verifyLogoutToken).mockResolvedValue({ sub: SUB, sid: SID })
+      const logout = await postLogout()
+
+      expect(logout.statusCode).toBe(StatusCodes.NO_CONTENT)
+      expect(logout.headers['cache-control']).toContain('no-store')
+
+      const response = await server.inject({
+        method: 'GET',
+        url: '/test/protected',
+        headers
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toContain('/auth/sign-in')
+    })
+
+    it('leaves a different session signed in', async () => {
+      const headers = await signInWithSid('sid-other')
+
+      jest.mocked(verifyLogoutToken).mockResolvedValue({ sub: SUB, sid: SID })
+      await postLogout()
+
+      const response = await server.inject({
+        method: 'GET',
+        url: '/test/protected',
+        headers
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.OK)
+    })
+
+    it('rejects a token that does not verify', async () => {
+      jest.mocked(verifyLogoutToken).mockRejectedValue(new Error('bad token'))
+
+      const response = await postLogout()
+
+      expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
+      expect(response.result).toEqual({ error: 'invalid_request' })
+    })
+
+    it('rejects a request with no logout_token', async () => {
+      const response = await server.inject({
+        method: 'POST',
+        url: BACKCHANNEL_LOGOUT_PATH,
+        payload: {}
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
+      expect(verifyLogoutToken).not.toHaveBeenCalled()
+    })
   })
 
   describe('where the tokens are kept', () => {
@@ -882,7 +1113,7 @@ describe('sign in routes, feature flag off', () => {
 })
 
 /**
- * @import { Server, ServerInjectResponse } from '@hapi/hapi'
+ * @import { Server, ServerInjectOptions, ServerInjectResponse } from '@hapi/hapi'
  * @import { TokenSet } from '~/src/server/auth/accountSession.js'
  * @import { Configuration, TokenEndpointResponse, TokenEndpointResponseHelpers } from 'openid-client'
  */

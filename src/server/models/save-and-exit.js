@@ -8,7 +8,7 @@ import {
 import Joi from 'joi'
 
 import { config } from '~/src/config/index.js'
-import { FORM_PREFIX } from '~/src/server/constants.js'
+import { FORM_PREFIX, HOMEPAGE_PREFIX } from '~/src/server/constants.js'
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
 import { getFeedbackFormLink } from '~/src/server/utils/utils.js'
 
@@ -262,6 +262,18 @@ function constructFormUrl(slug, status) {
  */
 function constructFormSummaryUrl(formPath) {
   return `${formPath}${ControllerPath.Summary}`
+}
+
+/**
+ * @param {string} slug
+ * @param {FormStatus} [status]
+ */
+function constructHomepageUrl(slug, status) {
+  if (!status) {
+    return `${HOMEPAGE_PREFIX}/${slug}`
+  }
+
+  return `${HOMEPAGE_PREFIX}/preview/${status}/${slug}`
 }
 
 export const securityAnswerSchema = Joi.string()
@@ -580,6 +592,7 @@ export function resumeSuccessViewModel(form, translator, status) {
   const { t } = translator
   const formPath = constructFormUrl(form.slug, status)
   const formSummaryPath = constructFormSummaryUrl(formPath)
+  const homePageHref = constructHomepageUrl(form.slug, status)
 
   // Model buttons
   const continueButton = {
@@ -593,6 +606,9 @@ export function resumeSuccessViewModel(form, translator, status) {
     serviceUrl: formPath,
     buttons: { continueButton },
     context: { translator },
+    backLink: {
+      href: homePageHref
+    },
     ...getFeedbackFormLink(form.id)
   }
 }

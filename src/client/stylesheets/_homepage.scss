@@ -4,3 +4,8 @@
 .app-page--wide .govuk-width-container {
   @include govuk-width-container(1200px);
 }
+
+.govuk-tag.govuk-tag--teal {
+  background-color: #008281;
+  color: govuk-colour("white");
+}

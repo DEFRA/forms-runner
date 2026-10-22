@@ -90,3 +90,10 @@ export interface SaveAndExitResumeDetails {
 export interface GenerateReferenceNumber {
   referenceNumber: string
 }
+
+export interface ErrorDetailsItem {
+  text: string
+  href?: string
+}
+
+export type ErrorDetails = Record<string, ErrorDetailsItem>
