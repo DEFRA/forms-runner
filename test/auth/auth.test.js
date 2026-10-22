@@ -5,17 +5,24 @@ import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
 import { CITIZEN_KEY, TOKENS_KEY } from '~/src/server/auth/accountSession.js'
+import { verifyLogoutToken } from '~/src/server/auth/backchannelLogout.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import {
+  BACKCHANNEL_LOGOUT_PATH,
   INITIATE_SIGN_IN_PATH,
   SIGNED_OUT_PATH,
   SIGN_OUT_PATH
 } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
+import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/routes/auth.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 jest.mock('openid-client')
+jest.mock('~/src/server/auth/backchannelLogout.js', () => ({
+  ...jest.requireActual('~/src/server/auth/backchannelLogout.js'),
+  verifyLogoutToken: jest.fn()
+}))
 
 const RETURN_PATH = '/homepage/test-form'
 const SIGN_IN_URL = `/auth/sign-in?returnUrl=${RETURN_PATH}`
@@ -132,6 +139,13 @@ describe('sign in routes and sign out routes', () => {
           /** @type {unknown} */ (request.yar)
         )._store
       })
+    })
+
+    server.route({
+      method: 'GET',
+      path: '/test/protected',
+      options: { auth: CITIZEN_AUTH_ROUTE_OPTIONS },
+      handler: () => 'ok'
     })
 
     await server.initialize()
@@ -790,6 +804,106 @@ describe('sign in routes and sign out routes', () => {
         )
       }
     )
+  })
+
+  describe('back-channel logout', () => {
+    const SID = 'sid-1'
+
+    /** @param {string} [logoutToken] */
+    function postLogout(logoutToken = 'logout-token') {
+      return server.inject({
+        method: 'POST',
+        url: BACKCHANNEL_LOGOUT_PATH,
+        payload: { logout_token: logoutToken }
+      })
+    }
+
+    /** Signs in with a provider session id, returning the cookie header */
+    async function signInWithSid(sid = SID) {
+      const login = await startSignIn()
+      const tokens = mockTokens()
+      jest.mocked(client.authorizationCodeGrant).mockResolvedValue(
+        /** @type {typeof tokens} */ (
+          /** @type {unknown} */ ({
+            ...tokens,
+            claims: () => ({ iss: ISSUER, sub: SUB, email: EMAIL, sid })
+          })
+        )
+      )
+      const headers = getCookieHeader(login, ['session'])
+      await server.inject({ method: 'GET', url: CALLBACK_URL, headers })
+
+      return headers
+    }
+
+    it('keeps the provider session id in the identity', async () => {
+      const headers = await signInWithSid()
+      const response = await server.inject({
+        method: 'GET',
+        url: SESSION_PROBE_PATH,
+        headers
+      })
+
+      expect(
+        /** @type {Record<string, { sid?: string } >} */ (response.result)[
+          CITIZEN_KEY
+        ].sid
+      ).toBe(SID)
+    })
+
+    it('signs out the session the provider ended', async () => {
+      const headers = await signInWithSid(SID)
+
+      jest.mocked(verifyLogoutToken).mockResolvedValue({ sub: SUB, sid: SID })
+      const logout = await postLogout()
+
+      expect(logout.statusCode).toBe(StatusCodes.NO_CONTENT)
+      expect(logout.headers['cache-control']).toContain('no-store')
+
+      const response = await server.inject({
+        method: 'GET',
+        url: '/test/protected',
+        headers
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toContain('/auth/sign-in')
+    })
+
+    it('leaves a different session signed in', async () => {
+      const headers = await signInWithSid('sid-other')
+
+      jest.mocked(verifyLogoutToken).mockResolvedValue({ sub: SUB, sid: SID })
+      await postLogout()
+
+      const response = await server.inject({
+        method: 'GET',
+        url: '/test/protected',
+        headers
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.OK)
+    })
+
+    it('rejects a token that does not verify', async () => {
+      jest.mocked(verifyLogoutToken).mockRejectedValue(new Error('bad token'))
+
+      const response = await postLogout()
+
+      expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
+      expect(response.result).toEqual({ error: 'invalid_request' })
+    })
+
+    it('rejects a request with no logout_token', async () => {
+      const response = await server.inject({
+        method: 'POST',
+        url: BACKCHANNEL_LOGOUT_PATH,
+        payload: {}
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
+      expect(verifyLogoutToken).not.toHaveBeenCalled()
+    })
   })
 
   describe('where the tokens are kept', () => {
