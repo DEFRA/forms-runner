@@ -27,7 +27,7 @@ import {
   SIGN_IN_PATH,
   SIGN_OUT_PATH
 } from '~/src/server/constants.js'
-import { languageSchema, returnUrlSchema } from '~/src/server/models/common.js'
+import { returnUrlSchema } from '~/src/server/models/common.js'
 import { getAllLanguages, resolveLanguage } from '~/src/server/utils/utils.js'
 
 /**
@@ -71,8 +71,7 @@ const targetLinkUriSchema = Joi.string().custom((value, helpers) => {
 const signOutStateSchema = Joi.object({
   slug: slugSchema,
   previewMode: stateSchema.optional(),
-  returnUrl: returnUrlSchema.required(),
-  language: languageSchema.optional()
+  returnUrl: returnUrlSchema.required()
 })
 
 /**
@@ -221,12 +220,7 @@ export default [
       // stays signed in here as well as on the provider.
       const { slug, previewMode, returnUrl } = request.query
       const language = resolveLanguage(request.query, request.yar)
-      const stateParam = JSON.stringify({
-        slug,
-        previewMode,
-        returnUrl,
-        language
-      })
+      const stateParam = JSON.stringify({ slug, previewMode, returnUrl })
 
       const postLogoutUrl = new URL(SIGNED_OUT_PATH, BASE_URL)
 
@@ -236,7 +230,8 @@ export default [
         // Registered in OIDC_RUNNER_POST_LOGOUT_REDIRECT_URIS — without it
         // the provider shows its own success page instead of returning here
         post_logout_redirect_uri: postLogoutUrl.href,
-        state: stateParam
+        state: stateParam,
+        ui_locales: language
       })
       return h.redirect(logoutUrl.href)
     },

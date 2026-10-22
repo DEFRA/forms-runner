@@ -16,5 +16,3 @@ export const returnUrlSchema = Joi.string()
   .messages({
     'any.invalid': '"returnUrl" must be a path within this service'
   })
-
-export const languageSchema = Joi.string().valid('cy', 'en-GB')

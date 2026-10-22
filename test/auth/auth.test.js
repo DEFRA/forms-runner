@@ -596,8 +596,7 @@ describe('sign in routes and sign out routes', () => {
           id_token_hint: 'header.payload.signature',
           state: JSON.stringify({
             slug: 'my-form-slug',
-            returnUrl: FORM_PAGE,
-            language: 'en-GB'
+            returnUrl: FORM_PAGE
           })
         })
       )
