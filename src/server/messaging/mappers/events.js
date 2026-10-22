@@ -69,8 +69,7 @@ export function saveAndExitV1Mapper(
 
 /**
  * For V2 save-and-exit
- * @param { string } formId
- * @param { string } formTitle
+ * @param {{ formId: string, formTitle: string, language?: string }} form
  * @param { string } email
  * @param {{ sub: string, issuer: string }} auth
  * @param { SavedState } state
@@ -78,8 +77,7 @@ export function saveAndExitV1Mapper(
  * @returns {SaveAndExitV2Message}
  */
 export function saveAndExitV2Mapper(
-  formId,
-  formTitle,
+  { formId, formTitle, language },
   email,
   auth,
   state,
@@ -92,7 +90,8 @@ export function saveAndExitV2Mapper(
       title: formTitle,
       status: status ?? FormStatus.Live,
       isPreview: !!status,
-      baseUrl
+      baseUrl,
+      language
     },
     email,
     auth,

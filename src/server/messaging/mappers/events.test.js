@@ -159,8 +159,10 @@ describe('runner-events', () => {
 
       expect(
         saveAndExitV2Mapper(
-          payload.form.id,
-          payload.form.title,
+          {
+            formId: payload.form.id,
+            formTitle: payload.form.title
+          },
           payload.email,
           payload.auth,
           payload.state,
@@ -196,14 +198,37 @@ describe('runner-events', () => {
       }
 
       const message = saveAndExitV2Mapper(
-        'formId',
-        'My First Form',
+        {
+          formId: 'formId',
+          formTitle: 'My First Form'
+        },
         'my-email@here.com',
         { sub: 'auth-sub', issuer: 'auth-issuer' },
         state
       )
 
       expect(message.data.magicLinkGroupId).toBe('group-id')
+    })
+
+    it('should map a payload for SAVE_AND_EXIT V2 event that includes language', () => {
+      const state = {
+        formVal1: '123',
+        $$__referenceNumber: 'ref-123',
+        [MAGIC_LINK_GROUP_ID]: 'group-id'
+      }
+
+      const message = saveAndExitV2Mapper(
+        {
+          formId: 'formId',
+          formTitle: 'My First Form',
+          language: 'cy'
+        },
+        'my-email@here.com',
+        { sub: 'auth-sub', issuer: 'auth-issuer' },
+        state
+      )
+
+      expect(message.data.form.language).toBe('cy')
     })
   })
 })
