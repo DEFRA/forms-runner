@@ -213,6 +213,7 @@ describe('runner-events', () => {
     it('should map a payload for SAVE_AND_EXIT V2 event that includes language', () => {
       const state = {
         formVal1: '123',
+        $$__referenceNumber: 'ref-123',
         [MAGIC_LINK_GROUP_ID]: 'group-id'
       }
 
