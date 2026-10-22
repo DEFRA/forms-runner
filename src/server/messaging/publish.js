@@ -56,7 +56,7 @@ export async function publishSaveAndExitV1Event(
  * @param {{ formId: string, formTitle: string, language?: string }} form
  * @param {string} email
  * @param {{ sub: string, issuer: string }} auth
- * @param {FormState} state
+ * @param {SavedState} state
  * @param {FormStatus} [status]
  */
 export async function publishSaveAndExitV2Event(
@@ -83,5 +83,5 @@ export async function publishSaveAndExitV2Event(
 
 /**
  * @import { FormState } from '@defra/forms-engine-plugin/engine/types.js'
- * @import { FormStatus, SaveAndExitMessage, SaveAndExitV2Message, SecurityQuestionsEnum } from '@defra/forms-model'
+ * @import { FormStatus, SavedState, SaveAndExitMessage, SaveAndExitV2Message, SecurityQuestionsEnum } from '@defra/forms-model'
  */

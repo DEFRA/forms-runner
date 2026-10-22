@@ -101,16 +101,18 @@ export function addError(model, error) {
  * @param {{ query: RequestQuery, yar: Yar }} request
  * @param {FormMetadata} metadata - the metadata of the form
  * @param {FormStatus} status
+ * @param {boolean} preventFallback - don't fallback to en-GB if the form has no Welsh translations
  * @returns {Promise<{ translator: Translator, language: string }>}
  */
 export async function getFormTranslator(
   request,
   metadata,
-  status = metadata.live ? FormStatus.Live : FormStatus.Draft
+  status = metadata.live ? FormStatus.Live : FormStatus.Draft,
+  preventFallback = false
 ) {
   let language = resolveLanguage(request.query, request.yar)
 
-  if (language !== EN_GB) {
+  if (!preventFallback && language !== EN_GB) {
     const definition = await getFormDefinitionWithFallback(metadata.id, status)
 
     if (!isLanguageSupported(language, definition)) {
@@ -172,7 +174,12 @@ async function handleAuthenticatedSaveAndExit(request, h) {
   const { params, auth } = request
   const { slug, state: status } = params
   const metadata = await getFormMetadataWithGuard(slug, status)
-  const { translator } = await getFormTranslator(request, metadata, status)
+  const { translator } = await getFormTranslator(
+    request,
+    metadata,
+    status,
+    true
+  )
 
   const model = confirmationViewModelv2(metadata, translator, status)
 
@@ -203,7 +210,7 @@ async function handleAuthenticatedSaveAndExit(request, h) {
       sub: auth.credentials.sub,
       issuer: auth.credentials.iss
     },
-    cachedState,
+    /** @type {SavedState} */ (cachedState),
     status
   )
 
@@ -903,7 +910,7 @@ export default [
 /**
  * @import { ServerRoute, ResponseToolkit, Request, RequestQuery, Server } from '@hapi/hapi'
  * @import { Yar } from '@hapi/yar'
- * @import { FormMetadata } from '@defra/forms-model'
+ * @import { FormMetadata, SavedState } from '@defra/forms-model'
  * @import { Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'
  * @import { FormParams } from '@defra/forms-engine-plugin/types'
  * @import { AnyRequest, CacheRequest } from '@defra/forms-engine-plugin/engine/types.js'

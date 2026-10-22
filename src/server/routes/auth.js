@@ -1,7 +1,8 @@
 import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
-import { slugSchema } from '@defra/forms-model'
+import { getErrorMessage, slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import Bourne from '@hapi/bourne'
+import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 import * as client from 'openid-client'
 
@@ -16,18 +17,23 @@ import {
   setSignInTransaction,
   setTokens
 } from '~/src/server/auth/accountSession.js'
+import {
+  recordLogout,
+  verifyLogoutToken
+} from '~/src/server/auth/backchannelLogout.js'
 import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
 import { signInEvent } from '~/src/server/auth/signInEvent.js'
 import { revokeRefreshToken } from '~/src/server/auth/tokenRevocation.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import {
+  BACKCHANNEL_LOGOUT_PATH,
   CALLBACK_PATH,
   INITIATE_SIGN_IN_PATH,
   SIGNED_OUT_PATH,
   SIGN_IN_PATH,
   SIGN_OUT_PATH
 } from '~/src/server/constants.js'
-import { languageSchema, returnUrlSchema } from '~/src/server/models/common.js'
+import { returnUrlSchema } from '~/src/server/models/common.js'
 import { getAllLanguages, resolveLanguage } from '~/src/server/utils/utils.js'
 
 /**
@@ -71,8 +77,7 @@ const targetLinkUriSchema = Joi.string().custom((value, helpers) => {
 const signOutStateSchema = Joi.object({
   slug: slugSchema,
   previewMode: stateSchema.optional(),
-  returnUrl: returnUrlSchema.required(),
-  language: languageSchema.optional()
+  returnUrl: returnUrlSchema.required()
 })
 
 /**
@@ -221,12 +226,7 @@ export default [
       // stays signed in here as well as on the provider.
       const { slug, previewMode, returnUrl } = request.query
       const language = resolveLanguage(request.query, request.yar)
-      const stateParam = JSON.stringify({
-        slug,
-        previewMode,
-        returnUrl,
-        language
-      })
+      const stateParam = JSON.stringify({ slug, previewMode, returnUrl })
 
       const postLogoutUrl = new URL(SIGNED_OUT_PATH, BASE_URL)
 
@@ -236,7 +236,8 @@ export default [
         // Registered in OIDC_RUNNER_POST_LOGOUT_REDIRECT_URIS — without it
         // the provider shows its own success page instead of returning here
         post_logout_redirect_uri: postLogoutUrl.href,
-        state: stateParam
+        state: stateParam,
+        ui_locales: language
       })
       return h.redirect(logoutUrl.href)
     },
@@ -325,7 +326,8 @@ export default [
         setIdentity(request.yar, {
           iss: claims.iss,
           sub: claims.sub,
-          email
+          email,
+          ...(typeof claims.sid === 'string' && { sid: claims.sid })
         })
 
         setTokens(request.yar, {
@@ -403,6 +405,52 @@ export default [
         language: resolveLanguage(request.query, request.yar),
         languages: getAllLanguages()
       })
+    }
+  }),
+  /**
+   * The provider calls this, not the citizen's browser, when it ends the
+   * citizen's session: at sign-out, or when their account is deleted (OpenID
+   * Connect Back-Channel Logout 1.0). The session is signed out on its next
+   * request, because the server cannot look up a session by its `sid`.
+   * @satisfies {ServerRoute<{ Payload: { logout_token: string } }>}
+   */
+  ({
+    method: 'POST',
+    path: BACKCHANNEL_LOGOUT_PATH,
+    async handler(request, h) {
+      try {
+        const { sid } = await verifyLogoutToken(
+          request,
+          request.payload.logout_token
+        )
+
+        await recordLogout(request.server, sid)
+      } catch (err) {
+        logger.error(
+          err,
+          `[backchannelLogoutRejected] Logout token not accepted - ${getErrorMessage(err)}`
+        )
+
+        return h
+          .response({ error: 'invalid_request' })
+          .code(StatusCodes.BAD_REQUEST)
+          .header('cache-control', 'no-store')
+      }
+
+      return h
+        .response()
+        .code(StatusCodes.NO_CONTENT)
+        .header('cache-control', 'no-store')
+    },
+    options: {
+      auth: false,
+      // The provider sends no crumb, and the logout token is the proof
+      plugins: { crumb: false },
+      validate: {
+        payload: Joi.object({ logout_token: Joi.string().required() }).unknown(
+          true
+        )
+      }
     }
   })
 ]

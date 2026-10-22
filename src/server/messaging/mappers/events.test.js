@@ -151,6 +151,7 @@ describe('runner-events', () => {
           issuer: 'auth-issuer'
         },
         state: {
+          $$__referenceNumber: 'ABC-123-DEF',
           formVal1: '123',
           formVal2: '456'
         }
@@ -191,6 +192,7 @@ describe('runner-events', () => {
 
     it('should map a payload into a SAVE_AND_EXIT V2 event with magicLinkGroupId', () => {
       const state = {
+        $$__referenceNumber: 'ABC-123-DEF',
         formVal1: '123',
         [MAGIC_LINK_GROUP_ID]: 'group-id'
       }

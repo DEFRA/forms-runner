@@ -6,7 +6,10 @@ import Joi from 'joi'
 import { config } from '~/src/config/index.js'
 import { HOMEPAGE_PREFIX, PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { formatDateTime } from '~/src/server/helpers/date-helper.js'
-import { getStartNewFormHref } from '~/src/server/helpers/route-helpers.js'
+import {
+  constructHomepageLink,
+  getStartNewFormHref
+} from '~/src/server/helpers/route-helpers.js'
 import { sessionNames } from '~/src/server/helpers/session-names.js'
 import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/routes/auth.js'
 import {
@@ -16,6 +19,7 @@ import {
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 import { getSavedForms } from '~/src/server/services/submissionService.js'
+import { getAllLanguages } from '~/src/server/utils/utils.js'
 
 const authBase = config.get('oidc.issuer')
 const runnerBase = config.get('baseUrl')
@@ -74,9 +78,10 @@ function buildNavigation(form, translator, { isPreview, state, slug }) {
   const { t } = translator
   const startUrl = getStartNewFormHref(form, isPreview, state)
 
-  const homepageBase = isPreview
-    ? `${HOMEPAGE_PREFIX}${PREVIEW_PATH_PREFIX}/${state}/${slug}`
-    : `${HOMEPAGE_PREFIX}/${slug}`
+  const homepageBase = constructHomepageLink(
+    slug,
+    isPreview ? state : undefined
+  )
 
   const securityUrl = new URL('/account', authBase)
   // The account pages show `returnUrl` as their "Back" link and check it
@@ -153,7 +158,12 @@ async function homepageHandler(request, h) {
 
   const form = await getFormMetadata(slug)
 
-  const { translator } = await getFormTranslator(request, form, previewStatus)
+  const { translator } = await getFormTranslator(
+    request,
+    form,
+    previewStatus,
+    true
+  )
 
   const nav = buildNavigation(form, translator, { isPreview, state, slug })
 
@@ -177,7 +187,13 @@ async function homepageHandler(request, h) {
     savedForms: savedAndInFlightForms.map((savedForm) =>
       mapToRow(savedForm, translator, form.id)
     ),
-    context: { translator }
+    context: {
+      translator: {
+        // Force page to show language selector irrespective of form capability
+        ...translator,
+        languages: getAllLanguages()
+      }
+    }
   })
 }
 
