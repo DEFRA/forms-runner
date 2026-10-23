@@ -55,6 +55,7 @@ const saveAndExitPayloadv2 = {
     issuer: 'auth-issuer'
   },
   state: {
+    $$__referenceNumber: 'ABC-123-DEF',
     formVal1: '123',
     formVal2: '456'
   }
@@ -116,8 +117,10 @@ describe('publish', () => {
 
     it('should publish SAVE_AND_EXIT V2 event', async () => {
       await publishSaveAndExitV2Event(
-        saveAndExitV2Payload.form.id,
-        saveAndExitV2Payload.form.title,
+        {
+          formId: saveAndExitV2Payload.form.id,
+          formTitle: saveAndExitV2Payload.form.title
+        },
         saveAndExitV2Payload.email,
         saveAndExitV2Payload.auth,
         saveAndExitV2Payload.state,
@@ -144,7 +147,7 @@ describe('publish', () => {
         publishSaveAndExitV2Event(invalidPayload)
       ).rejects.toThrow(
         new ValidationError(
-          '"data.form.id" must be a string. "data.form.title" is required. "data.email" is required. "data.state" is required',
+          '"data.form.id" is required. "data.form.title" is required. "data.email" is required. "data.state" is required',
           [],
           {}
         )

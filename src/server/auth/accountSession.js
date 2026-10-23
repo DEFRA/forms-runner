@@ -84,6 +84,9 @@ export function clearSignInTransaction(yar) {
  * @property {string} sub - the citizen's identifier at that provider. Stable
  *   across sign ins, unlike the email address, which the citizen can change.
  * @property {string} email - names the citizen in the header on every page.
+ * @property {string} [sid] - names the citizen's session at the provider. When
+ *   the provider ends that session it sends this in a back-channel logout, and
+ *   this session is then signed out.
  */
 
 /**

@@ -44,6 +44,7 @@ export default {
     `node_modules/(?!${[
       '@defra/forms-common', // Supports ESM only
       '@defra/forms-model',
+      '@joi/date', // Supports ESM only
       'nanoid', // Supports ESM only
       'slug', // Supports ESM only
       '@defra/hapi-tracing', // Supports ESM only|,

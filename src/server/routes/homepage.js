@@ -5,8 +5,11 @@ import Joi from 'joi'
 
 import { config } from '~/src/config/index.js'
 import { HOMEPAGE_PREFIX, PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
-import { formatDate, formatDateTime } from '~/src/server/helpers/date-helper.js'
-import { getFormHref } from '~/src/server/helpers/route-helpers.js'
+import { formatDateTime } from '~/src/server/helpers/date-helper.js'
+import {
+  constructHomepageLink,
+  getStartNewFormHref
+} from '~/src/server/helpers/route-helpers.js'
 import { sessionNames } from '~/src/server/helpers/session-names.js'
 import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/routes/auth.js'
 import {
@@ -16,6 +19,7 @@ import {
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 import { getSavedForms } from '~/src/server/services/submissionService.js'
+import { getAllLanguages } from '~/src/server/utils/utils.js'
 
 const authBase = config.get('oidc.issuer')
 const runnerBase = config.get('baseUrl')
@@ -46,7 +50,7 @@ function mapToRow(savedForm, translator, formId) {
     savedUntil:
       status === SavedFormStatus.Deleted
         ? ''
-        : formatDate(savedForm.expireAt, translator),
+        : formatDateTime(savedForm.expireAt, translator),
     // An expired form cannot be resumed, so it gets no link
     resumeUrl:
       status === SavedFormStatus.InProgress
@@ -72,20 +76,25 @@ function mapToRow(savedForm, translator, formId) {
  */
 function buildNavigation(form, translator, { isPreview, state, slug }) {
   const { t } = translator
-  const startUrl = getFormHref(form, isPreview, state)
+  const startUrl = getStartNewFormHref(form, isPreview, state)
 
-  const homepageBase = isPreview
-    ? `${HOMEPAGE_PREFIX}${PREVIEW_PATH_PREFIX}/${state}/${slug}`
-    : `${HOMEPAGE_PREFIX}/${slug}`
+  const homepageBase = constructHomepageLink(
+    slug,
+    isPreview ? state : undefined
+  )
 
   const securityUrl = new URL('/account', authBase)
+  // The account pages show `returnUrl` as their "Back" link and check it
+  // against `client_id`. They also send the citizen back here to sign in
+  // when their session there has ended.
+  securityUrl.searchParams.append('client_id', config.get('oidc.clientId'))
   securityUrl.searchParams.append('returnUrl', `${runnerBase}${homepageBase}`)
 
   const serviceNavigationParams = {
     serviceName: form.title,
     navigation: [
       {
-        href: `${homepageBase}/forms`,
+        href: homepageBase,
         text: t('signIn.homepage.tabForms'),
         active: true
       },
@@ -149,7 +158,12 @@ async function homepageHandler(request, h) {
 
   const form = await getFormMetadata(slug)
 
-  const { translator } = await getFormTranslator(request, form, previewStatus)
+  const { translator } = await getFormTranslator(
+    request,
+    form,
+    previewStatus,
+    true
+  )
 
   const nav = buildNavigation(form, translator, { isPreview, state, slug })
 
@@ -173,7 +187,13 @@ async function homepageHandler(request, h) {
     savedForms: savedAndInFlightForms.map((savedForm) =>
       mapToRow(savedForm, translator, form.id)
     ),
-    context: { translator }
+    context: {
+      translator: {
+        // Force page to show language selector irrespective of form capability
+        ...translator,
+        languages: getAllLanguages()
+      }
+    }
   })
 }
 
