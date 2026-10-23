@@ -4,6 +4,7 @@ import { dirname, join } from 'node:path'
 import { CleanWebpackPlugin } from 'clean-webpack-plugin'
 import CopyPlugin from 'copy-webpack-plugin'
 import TerserPlugin from 'terser-webpack-plugin'
+import webpack from 'webpack'
 import { WebpackAssetsManifest } from 'webpack-assets-manifest'
 
 const { NODE_ENV = 'development' } = process.env
@@ -177,6 +178,9 @@ export default {
   plugins: [
     new CleanWebpackPlugin(),
     new WebpackAssetsManifest(),
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^(ol|proj4|@arcgis\/core)(\/|$)/
+    }),
     new CopyPlugin({
       patterns: [
         { from: join(govukFrontendPath, 'dist/govuk/assets'), to: 'assets' },
@@ -187,6 +191,13 @@ export default {
         {
           from: join(pluginPath, './.server/client/images/esri-logo.png'),
           to: 'assets/interactive-map/assets/images'
+        },
+        {
+          from: join(
+            pluginPath,
+            './node_modules/@defra/interactive-map/node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs'
+          ),
+          to: 'assets/interactive-map'
         }
       ]
     })
