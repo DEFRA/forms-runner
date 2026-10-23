@@ -1,4 +1,4 @@
-import { getTraceId } from '@defra/hapi-tracing'
+import { createLogContext, runWithLogContext } from '@defra/forms-common'
 import Boom from '@hapi/boom'
 import Wreck from '@hapi/wreck'
 import { StatusCodes } from 'http-status-codes'
@@ -12,7 +12,13 @@ import {
   put
 } from '~/src/server/services/httpService.js'
 
-jest.mock('@defra/hapi-tracing')
+/**
+ * Runs a function inside the log context of a request
+ * @template Result
+ * @param {() => Result} fn
+ */
+const withTraceId = (fn) =>
+  runWithLogContext(createLogContext({ correlationId: 'my-trace-id' }), fn)
 
 describe('HTTP service', () => {
   /** @type {RequestOptions} */
@@ -43,8 +49,9 @@ describe('HTTP service', () => {
     })
 
     it('passes headers', async () => {
-      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
-      await expect(get('/test', blankOptions)).resolves.toEqual({
+      await expect(
+        withTraceId(() => get('/test', blankOptions))
+      ).resolves.toEqual({
         res: { statusCode: StatusCodes.OK }
       })
 
@@ -54,8 +61,9 @@ describe('HTTP service', () => {
     })
 
     it('passes additional headers', async () => {
-      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
-      await expect(get('/test', authOptions)).resolves.toEqual({
+      await expect(
+        withTraceId(() => get('/test', authOptions))
+      ).resolves.toEqual({
         res: { statusCode: StatusCodes.OK }
       })
 
@@ -68,8 +76,9 @@ describe('HTTP service', () => {
     })
 
     it('passes non headers options', async () => {
-      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
-      await expect(get('/test', timeoutOptions)).resolves.toEqual({
+      await expect(
+        withTraceId(() => get('/test', timeoutOptions))
+      ).resolves.toEqual({
         res: { statusCode: StatusCodes.OK }
       })
 
@@ -111,8 +120,9 @@ describe('HTTP service', () => {
     })
 
     it('passes headers', async () => {
-      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
-      await expect(get('/error', blankOptions)).resolves.toEqual({
+      await expect(
+        withTraceId(() => get('/error', blankOptions))
+      ).resolves.toEqual({
         res: { statusCode: StatusCodes.NOT_FOUND },
         error
       })
@@ -123,8 +133,9 @@ describe('HTTP service', () => {
     })
 
     it('passes additional headers', async () => {
-      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
-      await expect(get('/error', authOptions)).resolves.toEqual({
+      await expect(
+        withTraceId(() => get('/error', authOptions))
+      ).resolves.toEqual({
         res: { statusCode: StatusCodes.NOT_FOUND },
         error
       })
@@ -138,8 +149,9 @@ describe('HTTP service', () => {
     })
 
     it('passes non headers options', async () => {
-      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
-      await expect(get('/error', timeoutOptions)).resolves.toEqual({
+      await expect(
+        withTraceId(() => get('/error', timeoutOptions))
+      ).resolves.toEqual({
         res: { statusCode: StatusCodes.NOT_FOUND },
         error
       })
@@ -198,8 +210,9 @@ describe('HTTP service', () => {
     })
 
     it('passes headers', async () => {
-      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
-      await expect(post('/test', blankOptions)).resolves.toEqual({
+      await expect(
+        withTraceId(() => post('/test', blankOptions))
+      ).resolves.toEqual({
         res: { statusCode: StatusCodes.OK },
         payload: { reference: '1234' }
       })
@@ -210,8 +223,9 @@ describe('HTTP service', () => {
     })
 
     it('passes additonal headers', async () => {
-      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
-      await expect(post('/test', authOptions)).resolves.toEqual({
+      await expect(
+        withTraceId(() => post('/test', authOptions))
+      ).resolves.toEqual({
         res: { statusCode: StatusCodes.OK },
         payload: { reference: '1234' }
       })
@@ -225,8 +239,9 @@ describe('HTTP service', () => {
     })
 
     it('passes non headers options', async () => {
-      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
-      await expect(post('/test', timeoutOptions)).resolves.toEqual({
+      await expect(
+        withTraceId(() => post('/test', timeoutOptions))
+      ).resolves.toEqual({
         res: { statusCode: StatusCodes.OK },
         payload: { reference: '1234' }
       })
@@ -271,8 +286,9 @@ describe('HTTP service', () => {
     })
 
     it('passes headers', async () => {
-      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
-      await expect(post('/error', blankOptions)).resolves.toEqual({
+      await expect(
+        withTraceId(() => post('/error', blankOptions))
+      ).resolves.toEqual({
         res: { statusCode: StatusCodes.NOT_FOUND },
         error
       })
@@ -283,8 +299,9 @@ describe('HTTP service', () => {
     })
 
     it('passes additional headers', async () => {
-      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
-      await expect(post('/error', authOptions)).resolves.toEqual({
+      await expect(
+        withTraceId(() => post('/error', authOptions))
+      ).resolves.toEqual({
         res: { statusCode: StatusCodes.NOT_FOUND },
         error
       })
@@ -298,8 +315,9 @@ describe('HTTP service', () => {
     })
 
     it('passes non headers options', async () => {
-      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
-      await expect(post('/error', timeoutOptions)).resolves.toEqual({
+      await expect(
+        withTraceId(() => post('/error', timeoutOptions))
+      ).resolves.toEqual({
         res: { statusCode: StatusCodes.NOT_FOUND },
         error
       })
@@ -358,8 +376,9 @@ describe('HTTP service', () => {
     })
 
     it('passes headers', async () => {
-      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
-      await expect(put('/test', blankOptions)).resolves.toEqual({
+      await expect(
+        withTraceId(() => put('/test', blankOptions))
+      ).resolves.toEqual({
         res: { statusCode: StatusCodes.OK }
       })
 
@@ -369,8 +388,9 @@ describe('HTTP service', () => {
     })
 
     it('passes additional headers', async () => {
-      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
-      await expect(put('/test', authOptions)).resolves.toEqual({
+      await expect(
+        withTraceId(() => put('/test', authOptions))
+      ).resolves.toEqual({
         res: { statusCode: StatusCodes.OK }
       })
 
@@ -383,8 +403,9 @@ describe('HTTP service', () => {
     })
 
     it('passes non headers options', async () => {
-      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
-      await expect(put('/test', timeoutOptions)).resolves.toEqual({
+      await expect(
+        withTraceId(() => put('/test', timeoutOptions))
+      ).resolves.toEqual({
         res: { statusCode: StatusCodes.OK }
       })
 
@@ -418,8 +439,9 @@ describe('HTTP service', () => {
     })
 
     it('passes headers', async () => {
-      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
-      await expect(put('/error', blankOptions)).resolves.toEqual({
+      await expect(
+        withTraceId(() => put('/error', blankOptions))
+      ).resolves.toEqual({
         res: { statusCode: StatusCodes.NOT_FOUND },
         error
       })
@@ -430,8 +452,9 @@ describe('HTTP service', () => {
     })
 
     it('passes additional headers', async () => {
-      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
-      await expect(put('/error', authOptions)).resolves.toEqual({
+      await expect(
+        withTraceId(() => put('/error', authOptions))
+      ).resolves.toEqual({
         res: { statusCode: StatusCodes.NOT_FOUND },
         error
       })
@@ -445,8 +468,9 @@ describe('HTTP service', () => {
     })
 
     it('passes non headers options', async () => {
-      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
-      await expect(put('/error', timeoutOptions)).resolves.toEqual({
+      await expect(
+        withTraceId(() => put('/error', timeoutOptions))
+      ).resolves.toEqual({
         res: { statusCode: StatusCodes.NOT_FOUND },
         error
       })
@@ -496,8 +520,9 @@ describe('HTTP service', () => {
     })
 
     it('passes headers', async () => {
-      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
-      await expect(del('/test', blankOptions)).resolves.toEqual({
+      await expect(
+        withTraceId(() => del('/test', blankOptions))
+      ).resolves.toEqual({
         res: { statusCode: StatusCodes.OK }
       })
 
@@ -507,8 +532,9 @@ describe('HTTP service', () => {
     })
 
     it('passes additional headers', async () => {
-      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
-      await expect(del('/test', authOptions)).resolves.toEqual({
+      await expect(
+        withTraceId(() => del('/test', authOptions))
+      ).resolves.toEqual({
         res: { statusCode: StatusCodes.OK }
       })
 
@@ -521,8 +547,9 @@ describe('HTTP service', () => {
     })
 
     it('passes non headers options', async () => {
-      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
-      await expect(del('/test', timeoutOptions)).resolves.toEqual({
+      await expect(
+        withTraceId(() => del('/test', timeoutOptions))
+      ).resolves.toEqual({
         res: { statusCode: StatusCodes.OK }
       })
 
@@ -556,8 +583,9 @@ describe('HTTP service', () => {
     })
 
     it('passes headers', async () => {
-      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
-      await expect(del('/error', blankOptions)).resolves.toEqual({
+      await expect(
+        withTraceId(() => del('/error', blankOptions))
+      ).resolves.toEqual({
         res: { statusCode: StatusCodes.NOT_FOUND },
         error
       })
@@ -568,8 +596,9 @@ describe('HTTP service', () => {
     })
 
     it('passes additional headers', async () => {
-      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
-      await expect(del('/error', authOptions)).resolves.toEqual({
+      await expect(
+        withTraceId(() => del('/error', authOptions))
+      ).resolves.toEqual({
         res: { statusCode: StatusCodes.NOT_FOUND },
         error
       })
@@ -583,8 +612,9 @@ describe('HTTP service', () => {
     })
 
     it('passes non headers options', async () => {
-      jest.mocked(getTraceId).mockReturnValue('my-trace-id')
-      await expect(del('/error', timeoutOptions)).resolves.toEqual({
+      await expect(
+        withTraceId(() => del('/error', timeoutOptions))
+      ).resolves.toEqual({
         res: { statusCode: StatusCodes.NOT_FOUND },
         error
       })

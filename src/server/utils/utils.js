@@ -1,5 +1,5 @@
+import { applyTraceHeaders as applyTraceHeader } from '@defra/forms-common'
 import { getAvailableLanguages } from '@defra/forms-engine-plugin'
-import { getTraceId } from '@defra/hapi-tracing'
 
 import { config } from '~/src/config/index.js'
 import { EN_GB, SIGN_IN_PATH } from '~/src/server/constants.js'
@@ -14,15 +14,7 @@ export function applyTraceHeaders(
   existingHeaders,
   header = config.get('tracing').header
 ) {
-  if (!header) {
-    return existingHeaders
-  }
-
-  const traceId = getTraceId()
-
-  const headers = traceId ? { [header]: traceId } : undefined
-
-  return existingHeaders ? Object.assign(existingHeaders, headers) : headers
+  return applyTraceHeader(existingHeaders, header)
 }
 
 /**

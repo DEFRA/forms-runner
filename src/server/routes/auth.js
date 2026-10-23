@@ -1,3 +1,4 @@
+import { setUserId } from '@defra/forms-common'
 import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
 import { getErrorMessage, slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
@@ -329,6 +330,7 @@ export default [
           email,
           ...(typeof claims.sid === 'string' && { sid: claims.sid })
         })
+        setUserId(claims.sub)
 
         setTokens(request.yar, {
           accessToken: tokens.access_token,
