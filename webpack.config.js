@@ -19,6 +19,8 @@ const pluginPath = dirname(
   require.resolve('@defra/forms-engine-plugin/package.json')
 )
 
+const mablibrePath = dirname(require.resolve('maplibre-gl/package.json'))
+
 /**
  * @type {Configuration}
  */
@@ -193,10 +195,7 @@ export default {
           to: 'assets/interactive-map/assets/images'
         },
         {
-          from: join(
-            pluginPath,
-            '../interactive-map/node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs'
-          ),
+          from: join(mablibrePath, 'dist/maplibre-gl-worker.mjs'),
           to: 'assets/interactive-map'
         }
       ]
