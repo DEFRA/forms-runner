@@ -195,7 +195,7 @@ export default {
         {
           from: join(
             pluginPath,
-            './node_modules/@defra/interactive-map/node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs'
+            '../interactive-map/node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs'
           ),
           to: 'assets/interactive-map'
         }
