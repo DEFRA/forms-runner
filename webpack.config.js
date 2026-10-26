@@ -4,6 +4,7 @@ import { dirname, join } from 'node:path'
 import { CleanWebpackPlugin } from 'clean-webpack-plugin'
 import CopyPlugin from 'copy-webpack-plugin'
 import TerserPlugin from 'terser-webpack-plugin'
+import webpack from 'webpack'
 import { WebpackAssetsManifest } from 'webpack-assets-manifest'
 
 const { NODE_ENV = 'development' } = process.env
@@ -17,6 +18,8 @@ const govukFrontendPath = dirname(
 const pluginPath = dirname(
   require.resolve('@defra/forms-engine-plugin/package.json')
 )
+
+const mablibrePath = dirname(require.resolve('maplibre-gl/package.json'))
 
 /**
  * @type {Configuration}
@@ -53,6 +56,8 @@ export default {
   resolve: {
     alias: { '/assets': join(govukFrontendPath, 'dist/govuk/assets') }
   },
+  // maplibre-gl builds a URL from an expression when its worker is cross-origin; harmless
+  ignoreWarnings: [{ module: /maplibre-gl/, message: /Critical dependency/ }],
   module: {
     rules: [
       { test: /\.(js|mjs|scss)$/, loader: 'source-map-loader', enforce: 'pre' },
@@ -177,6 +182,9 @@ export default {
   plugins: [
     new CleanWebpackPlugin(),
     new WebpackAssetsManifest(),
+    new webpack.IgnorePlugin({
+      resourceRegExp: /^(ol|proj4|@arcgis\/core)(\/|$)/
+    }),
     new CopyPlugin({
       patterns: [
         { from: join(govukFrontendPath, 'dist/govuk/assets'), to: 'assets' },
@@ -187,6 +195,10 @@ export default {
         {
           from: join(pluginPath, './.server/client/images/esri-logo.png'),
           to: 'assets/interactive-map/assets/images'
+        },
+        {
+          from: join(mablibrePath, 'dist/maplibre-gl-worker.mjs'),
+          to: 'assets/interactive-map'
         }
       ]
     })
