@@ -23,7 +23,7 @@ describe('Server Blankie Plugin', () => {
       scriptSrc: ['strict-dynamic'],
       styleSrc: ['self', 'unsafe-inline'],
       imgSrc: ['self', 'data:'],
-      workerSrc: ['blob:'],
+      workerSrc: ['blob:', 'self'],
       formAction: ['self', 'https://test-card.payments.service.gov.uk'],
       frameAncestors: ['none'],
       objectSrc: ['none'],
@@ -61,7 +61,7 @@ describe('Server Blankie Plugin', () => {
         'https://www.google-analytics.com',
         'https://www.googletagmanager.com'
       ],
-      workerSrc: ['blob:'],
+      workerSrc: ['blob:', 'self'],
       formAction: ['self', 'https://test-card.payments.service.gov.uk'],
       frameAncestors: ['none'],
       objectSrc: ['none'],

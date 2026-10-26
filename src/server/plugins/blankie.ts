@@ -50,7 +50,7 @@ export const configureBlankiePlugin = (): ServerRegisterPluginObject<
         gtmContainerId ? googleAnalyticsOptions.imgSrc : []
       ].flat(),
       frameSrc: gtmContainerId ? googleAnalyticsOptions.frameSrc : ['none'],
-      workerSrc: ['blob:'],
+      workerSrc: ['blob:', 'self'],
       formAction: [
         ['self'],
         paymentProviderUrl ? [paymentProviderUrl] : [],
