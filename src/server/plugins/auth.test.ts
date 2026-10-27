@@ -1,3 +1,4 @@
+import Boom from '@hapi/boom'
 import hapi from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 
@@ -175,6 +176,28 @@ describe('citizen-session strategy', () => {
     expect(refreshAccessToken).not.toHaveBeenCalled()
   })
 
+  it('does not log a strategy that rejects the credentials', async () => {
+    const server = hapi.server()
+    await server.register(pluginAuth)
+    server.auth.scheme('rejecting', () => ({
+      authenticate: () => {
+        throw Boom.unauthorized('Invalid credentials')
+      }
+    }))
+    server.auth.strategy('rejecting', 'rejecting')
+    server.route({
+      method: 'GET',
+      path: '/rejecting',
+      options: { auth: { mode: 'try', strategy: 'rejecting' } },
+      handler: (request) => ({ isAuthenticated: request.auth.isAuthenticated })
+    })
+
+    const response = await server.inject({ method: 'GET', url: '/rejecting' })
+
+    expect(response.result).toEqual({ isAuthenticated: false })
+    expect(logger.error).not.toHaveBeenCalled()
+  })
+
   describe('when the session cannot be checked', () => {
     beforeEach(() => {
       jest
@@ -195,7 +218,7 @@ describe('citizen-session strategy', () => {
       expect(response.statusCode).toBe(StatusCodes.OK)
       expect(response.result).toMatchObject({ isAuthenticated: false })
       expect(logger.error).toHaveBeenCalledWith(
-        '[authFailed] Could not authenticate the request - Redis unavailable'
+        '[authFailed] citizen-session could not authenticate the request - Redis unavailable'
       )
     })
   })
@@ -264,7 +287,7 @@ describe('citizen-session strategy', () => {
         expect(setTokens).not.toHaveBeenCalled()
         expect(clearIdentity).not.toHaveBeenCalled()
         expect(logger.error).toHaveBeenCalledWith(
-          '[authFailed] Could not authenticate the request - Could not refresh an expired access token'
+          '[authFailed] citizen-session could not authenticate the request - Could not refresh an expired access token'
         )
       })
 

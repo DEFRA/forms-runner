@@ -21,25 +21,27 @@ export default {
       // existing route changes behaviour.
       server.auth.default({ strategy: CITIZEN_SESSION, mode: 'try' })
 
-      // `try` also carries on past a strategy that failed, with no record of
-      // the error. A signed-out request fails with a 401, so only a fault in
-      // the service reaches this log. The message alone is logged, as the
-      // error can carry tokens.
-      server.ext('onPostAuth', (request, h) => {
-        const { error, mode } = request.auth
+      // `try` also carries on past a strategy that failed, and hapi reports it
+      // only as this internal event. A 5xx is a fault in the service rather
+      // than bad credentials. The message alone is logged, as the error can
+      // carry tokens.
+      server.events.on(
+        {
+          name: 'request',
+          channels: 'internal',
+          filter: { tags: ['auth', 'unauthenticated', 'try'], all: true }
+        },
+        (_request, event) => {
+          const { error, tags } = event
+          const strategy = tags[3]
 
-        if (
-          mode === 'try' &&
-          Boom.isBoom(error) &&
-          error.output.statusCode >= 500
-        ) {
-          logger.error(
-            `[authFailed] Could not authenticate the request - ${getErrorMessage(error)}`
-          )
+          if (Boom.isBoom(error) && error.output.statusCode >= 500) {
+            logger.error(
+              `[authFailed] ${strategy} could not authenticate the request - ${getErrorMessage(error)}`
+            )
+          }
         }
-
-        return h.continue
-      })
+      )
     }
   }
 } satisfies ServerRegisterPluginObject<void>
