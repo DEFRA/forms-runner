@@ -14,7 +14,7 @@ import {
 } from '~/src/server/services/formsService.js'
 import {
   generateReferenceNumber,
-  getSavedForms
+  getCombinedForms
 } from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
@@ -88,7 +88,7 @@ describe('Session expiry', () => {
 
     jest.mocked(getFormMetadata).mockResolvedValue(metadata)
     jest.mocked(getFormDefinition).mockResolvedValue(fixtures.form.definition)
-    jest.mocked(getSavedForms).mockResolvedValue([])
+    jest.mocked(getCombinedForms).mockResolvedValue([])
     jest.mocked(generateReferenceNumber).mockResolvedValue('XXX-XXX-XXX')
     jest
       .mocked(client.discovery)

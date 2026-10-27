@@ -79,16 +79,16 @@ export async function generateReferenceNumber(prefix) {
 }
 
 /**
- * The forms a citizen saved and has not yet submitted, soonest to expire
- * first. The access token names the citizen, so the request says which form
+ * The list of forms a citizen saved or submitted.
+ * The access token names the citizen, so the request says which form
  * to list and nothing about whose records they are.
  * @param {string} accessToken - the citizen's access token
  * @param {string} formId - the form the records belong to
  * @param {FormStatus} [preview] - the preview state, or none for a live form
  * @returns {Promise<SavedForm[]>}
  */
-export async function getSavedForms(accessToken, formId, preview) {
-  const url = new URL(`${submissionUrl}/save-and-exit/records`)
+export async function getCombinedForms(accessToken, formId, preview) {
+  const url = new URL(`${submissionUrl}/combined/records`)
   url.searchParams.set('formId', formId)
   if (preview) {
     url.searchParams.set('preview', preview)
@@ -102,9 +102,9 @@ export async function getSavedForms(accessToken, formId, preview) {
   if (error) {
     logger.error(
       error,
-      `[savedForms] Could not read the saved forms - ${res.statusCode}`
+      `[combinedForms] Could not read the combined forms - ${res.statusCode}`
     )
-    throw Boom.badGateway('Could not read the saved forms')
+    throw Boom.badGateway('Could not read the combined forms')
   }
 
   return /** @type {SavedForm[]} */ (payload)
@@ -113,13 +113,12 @@ export async function getSavedForms(accessToken, formId, preview) {
 /**
  * One saved form, as forms-submission-api describes it.
  * @typedef {object} SavedForm
+ * @property {FormRowStatusType} status - The status of the form
  * @property {string} magicLinkId - Identifier for the link used to resume the form
  * @property {string} [referenceNumber] - Reference shown to the user, once one has been issued
  * @property {string} [formTitle] - Title of the form the saved answers belong to
  * @property {string} createdAt - ISO date the form was saved
- * @property {string} expireAt - ISO date the saved form stops being available
- * @property {boolean} [isDeleted] - is deleted marker
- * @property {boolean} [isProcessing] - is still being processed and therefore not yet saved
+ * @property {string} [expireAt] - ISO date the saved form stops being available
  */
 
 /**
@@ -187,4 +186,5 @@ export async function deleteSavedFormState(accessToken, magicLinkId) {
 /**
  * @import { FormStatus } from '@defra/forms-model'
  * @import { GenerateReferenceNumber, SaveAndExitDetails, SaveAndExitResumeDetails } from '~/src/server/types.js'
+ * @import { FormRowStatusType } from '~/src/server/constants.js'
  */

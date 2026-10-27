@@ -4,6 +4,7 @@ import { FormStatus, SecurityQuestionsEnum } from '@defra/forms-model'
 import { StatusCodes } from 'http-status-codes'
 
 import { config } from '~/src/config/index.js'
+import { FormRowStatus } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import {
   getFormDefinition,
@@ -11,9 +12,9 @@ import {
   getFormMetadataById
 } from '~/src/server/services/formsService.js'
 import {
+  getCombinedForms,
   getSaveAndExitDetails,
   getSavedFormState,
-  getSavedForms,
   validateSaveAndExitCredentials
 } from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
@@ -189,13 +190,14 @@ describe('Resume a saved form', () => {
     })
 
     it('restores the answers after a signed-in citizen selects Continue on the homepage', async () => {
-      jest.mocked(getSavedForms).mockResolvedValue([
+      jest.mocked(getCombinedForms).mockResolvedValue([
         {
           magicLinkId: MAGIC_LINK_ID,
           referenceNumber: 'AAA-111',
           formTitle: 'Test form',
           createdAt: new Date().toISOString(),
-          expireAt: new Date(Date.now() + 86_400_000).toISOString()
+          expireAt: new Date(Date.now() + 86_400_000).toISOString(),
+          status: FormRowStatus.InProgress
         }
       ])
       jest.mocked(getSaveAndExitDetails).mockResolvedValue({
@@ -241,4 +243,5 @@ describe('Resume a saved form', () => {
 
 /**
  * @import { Server, ServerInjectOptions } from '@hapi/hapi'
+ * @import { SavedForm } from '~/src/server/services/submissionService.js'
  */
