@@ -76,6 +76,8 @@ export default {
           const error = new Error(
             `HTTP ${statusCode} error: ${response.message}`
           )
+          // Preserve the original stack trace from the Boom error
+          error.stack = response.stack
 
           const message = `[httpError] HTTP ${statusCode} error occurred - ${response.message} - path: ${request.path} - method: ${request.method}`
           // Log server errors as 'error'
