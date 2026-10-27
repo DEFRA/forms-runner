@@ -9,10 +9,13 @@ import {
   getTokens,
   setTokens
 } from '~/src/server/auth/accountSession.js'
+import { hasBeenLoggedOut } from '~/src/server/auth/backchannelLogout.js'
 import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
+import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import pluginAuth from '~/src/server/plugins/auth.js'
 
 jest.mock('~/src/server/auth/accountSession.js')
+jest.mock('~/src/server/auth/backchannelLogout.js')
 jest.mock('~/src/server/auth/accessToken.js', () => ({
   ...jest.requireActual('~/src/server/auth/accessToken.js'),
   refreshAccessToken: jest.fn()
@@ -168,6 +171,32 @@ describe('citizen-session strategy', () => {
 
     expect(getIdentity).not.toHaveBeenCalled()
     expect(refreshAccessToken).not.toHaveBeenCalled()
+  })
+
+  describe('when the session cannot be checked', () => {
+    beforeEach(() => {
+      jest
+        .mocked(getIdentity)
+        .mockReturnValue({ ...identity, sid: 'session-1' })
+      jest
+        .mocked(hasBeenLoggedOut)
+        .mockRejectedValue(new Error('Redis unavailable'))
+      jest.spyOn(logger, 'error').mockImplementation(() => undefined)
+    })
+
+    it('logs the error and leaves the request unauthenticated', async () => {
+      const server = hapi.server()
+      await server.register(pluginAuth)
+      setupProbeEndpoint(server)
+
+      const response = await server.inject({ method: 'GET', url: '/probe' })
+
+      expect(response.statusCode).toBe(StatusCodes.OK)
+      expect(response.result).toMatchObject({ isAuthenticated: false })
+      expect(logger.error).toHaveBeenCalledWith(
+        '[citizenSessionFailed] Could not authenticate the session - Redis unavailable'
+      )
+    })
   })
 
   describe('when the access token is about to expire', () => {
