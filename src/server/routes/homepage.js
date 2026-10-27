@@ -18,7 +18,7 @@ import { sessionNames } from '~/src/server/helpers/session-names.js'
 import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/routes/auth.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
-import { getCombinedForms } from '~/src/server/services/submissionService.js'
+import { getFormRecords } from '~/src/server/services/submissionService.js'
 import { getAllLanguages } from '~/src/server/utils/utils.js'
 
 const authBase = config.get('oidc.issuer')
@@ -174,7 +174,7 @@ async function homepageHandler(request, h) {
 
   const { accessToken } = request.auth.credentials
 
-  const savedForms = await getCombinedForms(accessToken, form.id, previewStatus)
+  const savedForms = await getFormRecords(accessToken, form.id, previewStatus)
 
   const savedAndInFlightForms = addInFlightForms(request, savedForms)
 

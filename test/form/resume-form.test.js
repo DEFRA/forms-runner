@@ -12,7 +12,7 @@ import {
   getFormMetadataById
 } from '~/src/server/services/formsService.js'
 import {
-  getCombinedForms,
+  getFormRecords,
   getSaveAndExitDetails,
   getSavedFormState,
   validateSaveAndExitCredentials
@@ -190,7 +190,7 @@ describe('Resume a saved form', () => {
     })
 
     it('restores the answers after a signed-in citizen selects Continue on the homepage', async () => {
-      jest.mocked(getCombinedForms).mockResolvedValue([
+      jest.mocked(getFormRecords).mockResolvedValue([
         {
           magicLinkId: MAGIC_LINK_ID,
           referenceNumber: 'AAA-111',

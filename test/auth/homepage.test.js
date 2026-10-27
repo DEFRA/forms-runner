@@ -15,7 +15,7 @@ import {
   getFormDefinition,
   getFormMetadata
 } from '~/src/server/services/formsService.js'
-import { getCombinedForms } from '~/src/server/services/submissionService.js'
+import { getFormRecords } from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { citizenSession } from '~/test/utils/citizen-session.js'
@@ -159,7 +159,7 @@ describe('per-form homepage', () => {
 
   beforeEach(() => {
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
-    jest.mocked(getCombinedForms).mockResolvedValue([])
+    jest.mocked(getFormRecords).mockResolvedValue([])
     jest
       .mocked(client.discovery)
       .mockResolvedValue(/** @type {client.Configuration} */ ({}))
@@ -429,7 +429,7 @@ describe('per-form homepage', () => {
 
   describe('the saved forms table', () => {
     it('lists a saved form under the headings the citizen needs', async () => {
-      jest.mocked(getCombinedForms).mockResolvedValue(savedForms)
+      jest.mocked(getFormRecords).mockResolvedValue(savedForms)
 
       const { container } = await renderResponse(server, {
         method: 'GET',
@@ -475,7 +475,7 @@ describe('per-form homepage', () => {
 
     it('lists a saved form including any ones that are "processing"', async () => {
       // @ts-expect-error - partial mock of test data
-      jest.mocked(getCombinedForms).mockResolvedValue(savedAndProcessingForms)
+      jest.mocked(getFormRecords).mockResolvedValue(savedAndProcessingForms)
 
       const { container } = await renderResponse(server, {
         method: 'GET',
@@ -518,7 +518,7 @@ describe('per-form homepage', () => {
     })
 
     it('writes the dates in Welsh on a Welsh homepage', async () => {
-      jest.mocked(getCombinedForms).mockResolvedValue(savedForms)
+      jest.mocked(getFormRecords).mockResolvedValue(savedForms)
       jest.mocked(getFormDefinition).mockResolvedValue({
         ...fixtures.form.definition,
         metadata: { translations: { cy: {} } }
@@ -547,7 +547,7 @@ describe('per-form homepage', () => {
         auth: { strategy: 'citizen-session', credentials }
       })
 
-      expect(getCombinedForms).toHaveBeenCalledWith(
+      expect(getFormRecords).toHaveBeenCalledWith(
         'access-1',
         fixtures.form.metadata.id,
         undefined
@@ -625,7 +625,7 @@ describe('per-form homepage', () => {
           'refresh-1',
           expect.objectContaining({ resource: expect.any(String) })
         )
-        expect(getCombinedForms).toHaveBeenCalledWith(
+        expect(getFormRecords).toHaveBeenCalledWith(
           'access-2',
           fixtures.form.metadata.id,
           undefined
@@ -654,7 +654,7 @@ describe('per-form homepage', () => {
         expect(response.headers.location).toBe(
           '/auth/sign-in?returnUrl=%2Fhomepage%2Ftest-form'
         )
-        expect(getCombinedForms).not.toHaveBeenCalled()
+        expect(getFormRecords).not.toHaveBeenCalled()
         await expect(session.read(headers)).resolves.toBeNull()
       })
 
@@ -670,7 +670,7 @@ describe('per-form homepage', () => {
         })
 
         expect(response.statusCode).toBe(StatusCodes.OK)
-        expect(getCombinedForms).toHaveBeenCalledWith(
+        expect(getFormRecords).toHaveBeenCalledWith(
           'access-1',
           fixtures.form.metadata.id,
           undefined
@@ -694,7 +694,7 @@ describe('per-form homepage', () => {
         })
 
         expect(response.statusCode).toBe(StatusCodes.SERVICE_UNAVAILABLE)
-        expect(getCombinedForms).not.toHaveBeenCalled()
+        expect(getFormRecords).not.toHaveBeenCalled()
         await expect(session.read(expiredHeaders)).resolves.toMatchObject({
           refreshToken: 'refresh-1'
         })
@@ -738,7 +738,7 @@ describe('per-form homepage', () => {
           auth: { strategy: 'citizen-session', credentials }
         })
 
-        expect(getCombinedForms).toHaveBeenCalledWith(
+        expect(getFormRecords).toHaveBeenCalledWith(
           'access-1',
           fixtures.form.metadata.id,
           state
@@ -751,7 +751,7 @@ describe('per-form homepage', () => {
         now: new Date('2026-09-01T09:00:00.000Z'),
         advanceTimers: true
       })
-      jest.mocked(getCombinedForms).mockResolvedValue(savedForms)
+      jest.mocked(getFormRecords).mockResolvedValue(savedForms)
 
       const { container } = await renderResponse(server, {
         method: 'GET',
@@ -781,7 +781,7 @@ describe('per-form homepage', () => {
         now: new Date('2026-09-01T09:00:00.000Z'),
         advanceTimers: true
       })
-      jest.mocked(getCombinedForms).mockResolvedValue([
+      jest.mocked(getFormRecords).mockResolvedValue([
         {
           magicLinkId: 'link-1',
           formTitle: 'test-form',
@@ -811,7 +811,7 @@ describe('per-form homepage', () => {
         now: new Date('2026-09-14T09:00:00.000Z'),
         advanceTimers: true
       })
-      jest.mocked(getCombinedForms).mockResolvedValue(savedAndExpiredForms)
+      jest.mocked(getFormRecords).mockResolvedValue(savedAndExpiredForms)
 
       const { container } = await renderResponse(server, {
         method: 'GET',
@@ -840,7 +840,7 @@ describe('per-form homepage', () => {
         now: new Date('2026-09-01T09:00:00.000Z'),
         advanceTimers: true
       })
-      jest.mocked(getCombinedForms).mockResolvedValue(savedForms)
+      jest.mocked(getFormRecords).mockResolvedValue(savedForms)
       jest.mocked(getFormDefinition).mockResolvedValue({
         ...fixtures.form.definition,
         metadata: { translations: { cy: {} } }

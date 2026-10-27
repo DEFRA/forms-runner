@@ -87,8 +87,8 @@ export async function generateReferenceNumber(prefix) {
  * @param {FormStatus} [preview] - the preview state, or none for a live form
  * @returns {Promise<SavedForm[]>}
  */
-export async function getCombinedForms(accessToken, formId, preview) {
-  const url = new URL(`${submissionUrl}/combined/records`)
+export async function getFormRecords(accessToken, formId, preview) {
+  const url = new URL(`${submissionUrl}/form/records`)
   url.searchParams.set('formId', formId)
   if (preview) {
     url.searchParams.set('preview', preview)
@@ -102,9 +102,9 @@ export async function getCombinedForms(accessToken, formId, preview) {
   if (error) {
     logger.error(
       error,
-      `[combinedForms] Could not read the combined forms - ${res.statusCode}`
+      `[formRecords] Could not read the form records - ${res.statusCode}`
     )
-    throw Boom.badGateway('Could not read the combined forms')
+    throw Boom.badGateway('Could not read the form records')
   }
 
   return /** @type {SavedForm[]} */ (payload)
