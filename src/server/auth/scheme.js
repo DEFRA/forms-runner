@@ -1,4 +1,3 @@
-import { getErrorMessage } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 
 import { SignInRequiredError } from '~/src/server/auth/SignInRequiredError.js'
@@ -14,7 +13,6 @@ import {
   setTokens
 } from '~/src/server/auth/accountSession.js'
 import { hasBeenLoggedOut } from '~/src/server/auth/backchannelLogout.js'
-import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { signInUrl } from '~/src/server/utils/utils.js'
 
 export const CITIZEN_SESSION = 'citizen-session'
@@ -35,77 +33,65 @@ export function citizenSessionScheme() {
      * @param {ResponseToolkit} h
      */
     async authenticate(request, h) {
-      try {
-        return await authenticateSession(request, h)
-      } catch (err) {
-        // A route in `try` mode carries on signed out with no record of the
-        // error, so it is logged here. The message alone is logged, as the
-        // error can carry tokens.
-        logger.error(
-          `[citizenSessionFailed] Could not authenticate the session - ${getErrorMessage(err)}`
-        )
+      const identity = getIdentity(request.yar)
+      const tokens = getTokens(request.yar)
 
-        throw err
+      if (!identity || !tokens) {
+        return anonymous(request, h)
       }
-    }
-  }
-}
 
-/**
- * @param {Request} request
- * @param {ResponseToolkit} h
- */
-async function authenticateSession(request, h) {
-  const identity = getIdentity(request.yar)
-  const tokens = getTokens(request.yar)
-
-  if (!identity || !tokens) {
-    return anonymous(request, h)
-  }
-
-  // The provider ended this session, such as when the citizen's account
-  // was deleted. The tokens are no use, so they go with it.
-  if (identity.sid && (await hasBeenLoggedOut(request.server, identity.sid))) {
-    clearIdentity(request.yar)
-
-    return anonymous(request, h)
-  }
-
-  /** @type {TokenSet} */
-  let current = tokens
-
-  if (!isUsable(tokens)) {
-    try {
-      const refreshed = await refreshAccessToken(request, identity.sub, tokens)
-
-      if (refreshed) {
-        setTokens(request.yar, refreshed)
-        current = refreshed
-      }
-    } catch (err) {
-      if (err instanceof SignInRequiredError) {
+      // The provider ended this session, such as when the citizen's account
+      // was deleted. The tokens are no use, so they go with it.
+      if (
+        identity.sid &&
+        (await hasBeenLoggedOut(request.server, identity.sid))
+      ) {
         clearIdentity(request.yar)
 
         return anonymous(request, h)
       }
 
-      throw err
+      /** @type {TokenSet} */
+      let current = tokens
+
+      if (!isUsable(tokens)) {
+        try {
+          const refreshed = await refreshAccessToken(
+            request,
+            identity.sub,
+            tokens
+          )
+
+          if (refreshed) {
+            setTokens(request.yar, refreshed)
+            current = refreshed
+          }
+        } catch (err) {
+          if (err instanceof SignInRequiredError) {
+            clearIdentity(request.yar)
+
+            return anonymous(request, h)
+          }
+
+          throw err
+        }
+      }
+
+      // The provider could not refresh the token for now. The session is kept,
+      // because the refresh token is still valid and a later request can try
+      // again. A `required` route answers service unavailable, and a `try`
+      // route carries on unauthenticated with this error on `request.auth`.
+      if (hasExpired(current)) {
+        return h.unauthenticated(
+          Boom.serverUnavailable('Could not refresh an expired access token')
+        )
+      }
+
+      return h.authenticated({
+        credentials: { ...identity, ...current }
+      })
     }
   }
-
-  // The provider could not refresh the token for now. The session is kept,
-  // because the refresh token is still valid and a later request can try
-  // again. A `required` route answers service unavailable, and a `try`
-  // route carries on unauthenticated with this error on `request.auth`.
-  if (hasExpired(current)) {
-    return h.unauthenticated(
-      Boom.serverUnavailable('Could not refresh an expired access token')
-    )
-  }
-
-  return h.authenticated({
-    credentials: { ...identity, ...current }
-  })
 }
 
 /**

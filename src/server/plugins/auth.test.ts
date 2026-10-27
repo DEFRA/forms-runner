@@ -76,6 +76,7 @@ function setupRequiredEndpoint(server: hapi.Server, path = '/secure') {
 describe('citizen-session strategy', () => {
   beforeEach(() => {
     jest.mocked(getTokens).mockReturnValue(tokenSet(300))
+    jest.spyOn(logger, 'error').mockImplementation(() => undefined)
   })
 
   it('leaves an anonymous request unauthenticated rather than rejecting it', async () => {
@@ -89,6 +90,7 @@ describe('citizen-session strategy', () => {
 
     expect(response.statusCode).toBe(StatusCodes.OK)
     expect(response.result).toMatchObject({ isAuthenticated: false })
+    expect(logger.error).not.toHaveBeenCalled()
   })
 
   it('puts the stored identity and tokens on the request', async () => {
@@ -181,7 +183,6 @@ describe('citizen-session strategy', () => {
       jest
         .mocked(hasBeenLoggedOut)
         .mockRejectedValue(new Error('Redis unavailable'))
-      jest.spyOn(logger, 'error').mockImplementation(() => undefined)
     })
 
     it('logs the error and leaves the request unauthenticated', async () => {
@@ -194,7 +195,7 @@ describe('citizen-session strategy', () => {
       expect(response.statusCode).toBe(StatusCodes.OK)
       expect(response.result).toMatchObject({ isAuthenticated: false })
       expect(logger.error).toHaveBeenCalledWith(
-        '[citizenSessionFailed] Could not authenticate the session - Redis unavailable'
+        '[authFailed] Could not authenticate the request - Redis unavailable'
       )
     })
   })
@@ -262,6 +263,9 @@ describe('citizen-session strategy', () => {
         expect(response.result).toMatchObject({ isAuthenticated: false })
         expect(setTokens).not.toHaveBeenCalled()
         expect(clearIdentity).not.toHaveBeenCalled()
+        expect(logger.error).toHaveBeenCalledWith(
+          '[authFailed] Could not authenticate the request - Could not refresh an expired access token'
+        )
       })
 
       it('answers service unavailable on a required route', async () => {
