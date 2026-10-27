@@ -31,13 +31,10 @@ export default {
           channels: 'internal',
           filter: { tags: ['auth', 'unauthenticated', 'try'], all: true }
         },
-        (_request, event) => {
-          const { error, tags } = event
-          const strategy = tags[3]
-
+        (request, { error }) => {
           if (Boom.isBoom(error) && error.output.statusCode >= 500) {
             logger.error(
-              `[authFailed] ${strategy} could not authenticate the request - ${getErrorMessage(error)}`
+              `[authFailed] ${request.auth.strategy} could not authenticate the request - ${getErrorMessage(error)}`
             )
           }
         }
