@@ -3,6 +3,7 @@ import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { getFormatter } from '@defra/forms-engine-plugin/engine/outputFormatters/index.js'
 import { FormStatus } from '@defra/forms-engine-plugin/types'
 
+import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
 import { publishFormAdapterEvent } from '~/src/server/messaging/formAdapterEventPublisher.js'
 import { getFormMetadataById } from '~/src/server/services/formsService.js'
 import {
@@ -87,6 +88,9 @@ describe('OutputService', () => {
           formSlug: 'test-form',
           path: '/test-form',
           slug: 'test-form'
+        },
+        auth: {
+          isAuthenticated: false
         },
         payload: {}
       })
@@ -291,6 +295,72 @@ describe('OutputService', () => {
         undefined
       )
       expect(publishFormAdapterEvent).toHaveBeenCalledWith(mockPayload)
+    })
+
+    it('successfully processes form submission and publishes event when user is authenticated', async () => {
+      const mockPayload = {
+        meta: {
+          formId: 'form-123',
+          referenceNumber: 'REF-123456',
+          formName: 'Test Form',
+          notificationEmail: 'notify@example.com'
+        },
+        data: mockItems
+      }
+
+      const credentials = {
+        sub: 'user-subject-id',
+        iss: 'user-issuer'
+      }
+
+      const mockAuthenticatedRequest = /** @type {FormRequestPayload} */ (
+        /** @type {unknown} */ ({
+          params: {
+            formSlug: 'test-form',
+            path: '/test-form',
+            slug: 'test-form'
+          },
+          auth: {
+            isAuthenticated: true,
+            strategy: CITIZEN_SESSION,
+            credentials
+          },
+          payload: {}
+        })
+      )
+
+      mockFormatter.mockReturnValue(JSON.stringify(mockPayload))
+
+      await outputService.submit(
+        mockContext,
+        mockAuthenticatedRequest,
+        mockModel,
+        'test@example.com',
+        mockItems,
+        mockSubmitResponse,
+        mockFormMetadata
+      )
+
+      expect(checkFormStatus).toHaveBeenCalledWith(mockRequest.params)
+      expect(getFormatter).toHaveBeenCalledWith('adapter', '1')
+      expect(mockFormatter).toHaveBeenCalledWith(
+        mockContext,
+        mockItems,
+        mockModel,
+        mockSubmitResponse,
+        { isPreview: false, state: FormStatus.Live },
+        mockFormMetadata
+      )
+      expect(publishFormAdapterEvent).toHaveBeenCalledWith({
+        ...mockPayload,
+        meta: {
+          ...mockPayload.meta,
+          auth: {
+            sub: credentials.sub,
+            issuer: credentials.iss
+          }
+        }
+      })
     })
 
     it('handles formatter error and logs appropriately', async () => {
