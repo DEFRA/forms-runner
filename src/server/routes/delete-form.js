@@ -2,15 +2,13 @@ import Boom from '@hapi/boom'
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
+import { FormRowStatus } from '~/src/server/constants.js'
 import { getValidationErrorsFromSession } from '~/src/server/helpers/error-helper.js'
 import { constructHomepageLink } from '~/src/server/helpers/route-helpers.js'
 import { sessionNames } from '~/src/server/helpers/session-names.js'
 import { t } from '~/src/server/i18n/index.js'
 import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/routes/auth.js'
-import {
-  SavedFormStatus,
-  getFormStatus
-} from '~/src/server/routes/save-and-exit-helper.js'
+import { getFormStatus } from '~/src/server/routes/save-and-exit-helper.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadataById } from '~/src/server/services/formsService.js'
 import {
@@ -84,7 +82,7 @@ export default [
       const savedForm = await getSavedFormState(accessToken, magicLinkId)
       const status = getFormStatus(savedForm)
 
-      if (status !== SavedFormStatus.InProgress) {
+      if (status !== FormRowStatus.InProgress) {
         throw Boom.badRequest(
           `Cannot delete form '${savedForm.referenceNumber}' because it is not in progress`
         )

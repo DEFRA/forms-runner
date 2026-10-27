@@ -4,7 +4,11 @@ import { slugSchema } from '@defra/forms-model'
 import Joi from 'joi'
 
 import { config } from '~/src/config/index.js'
-import { HOMEPAGE_PREFIX, PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
+import {
+  FormRowStatus,
+  HOMEPAGE_PREFIX,
+  PREVIEW_PATH_PREFIX
+} from '~/src/server/constants.js'
 import { formatDateTime } from '~/src/server/helpers/date-helper.js'
 import {
   constructHomepageLink,
@@ -12,13 +16,9 @@ import {
 } from '~/src/server/helpers/route-helpers.js'
 import { sessionNames } from '~/src/server/helpers/session-names.js'
 import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/routes/auth.js'
-import {
-  SavedFormStatus,
-  getFormStatus
-} from '~/src/server/routes/save-and-exit-helper.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
-import { getSavedForms } from '~/src/server/services/submissionService.js'
+import { getFormRecords } from '~/src/server/services/submissionService.js'
 import { getAllLanguages } from '~/src/server/utils/utils.js'
 
 const authBase = config.get('oidc.issuer')
@@ -32,9 +32,9 @@ const runnerBase = config.get('baseUrl')
  * @param {string} formId
  */
 function mapToRow(savedForm, translator, formId) {
-  const status = getFormStatus(savedForm)
+  const status = savedForm.status
 
-  if (savedForm.isProcessing) {
+  if (status === FormRowStatus.Processing) {
     return {
       referenceNumber: savedForm.referenceNumber,
       status,
@@ -48,17 +48,17 @@ function mapToRow(savedForm, translator, formId) {
     status,
     lastUpdated: formatDateTime(savedForm.createdAt, translator),
     savedUntil:
-      status === SavedFormStatus.Deleted
+      status === FormRowStatus.Deleted || !savedForm.expireAt
         ? ''
         : formatDateTime(savedForm.expireAt, translator),
     // An expired form cannot be resumed, so it gets no link
     resumeUrl:
-      status === SavedFormStatus.InProgress
+      status === FormRowStatus.InProgress
         ? `/resume-form/${formId}/${savedForm.magicLinkId}`
         : undefined,
     // An expired form cannot be deleted, so it gets no link
     deleteUrl:
-      status === SavedFormStatus.InProgress
+      status === FormRowStatus.InProgress
         ? `/delete-form/${formId}/${savedForm.magicLinkId}`
         : undefined
   }
@@ -131,8 +131,13 @@ export function addInFlightForms(request, savedForms) {
   if (inFlightFormRefs) {
     inFlightFormRefs.forEach((formRef) => {
       if (!savedFormRefs.has(formRef)) {
-        // @ts-expect-error - partial data row as 'is processing'
-        allForms.push({ referenceNumber: formRef, isProcessing: true })
+        allForms.unshift(
+          // @ts-expect-error - partial data row as 'is processing'
+          {
+            referenceNumber: formRef,
+            status: FormRowStatus.Processing
+          }
+        )
         processingCount++
       }
     })
@@ -169,11 +174,9 @@ async function homepageHandler(request, h) {
 
   const { accessToken } = request.auth.credentials
 
-  const savedForms = await getSavedForms(accessToken, form.id, previewStatus)
+  const savedForms = await getFormRecords(accessToken, form.id, previewStatus)
 
-  const savedAndInFlightForms = addInFlightForms(request, savedForms).sort(
-    formTableSorter
-  )
+  const savedAndInFlightForms = addInFlightForms(request, savedForms)
 
   // Notification banner
   const notification = /** @type {string[] | undefined} */ (
@@ -195,20 +198,6 @@ async function homepageHandler(request, h) {
       }
     }
   })
-}
-
-/**
- * Sort the rows by status (alphabetically descending), then by 'updatedAt' ascending
- * @param {SavedForm} a
- * @param {SavedForm} b
- */
-export function formTableSorter(a, b) {
-  const statusA = getFormStatus(a)
-  const statusB = getFormStatus(b)
-
-  return (
-    statusB.localeCompare(statusA) || b.createdAt.localeCompare(a.createdAt)
-  )
 }
 
 export default [

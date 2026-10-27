@@ -8,13 +8,14 @@ import { StatusCodes } from 'http-status-codes'
 import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
+import { FormRowStatus } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import { addInFlightForms } from '~/src/server/routes/homepage.js'
 import {
   getFormDefinition,
   getFormMetadata
 } from '~/src/server/services/formsService.js'
-import { getSavedForms } from '~/src/server/services/submissionService.js'
+import { getFormRecords } from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { citizenSession } from '~/test/utils/citizen-session.js'
@@ -65,35 +66,68 @@ function tokenSet(secondsLeft) {
 }
 
 /** Two saved forms, as forms-submission-api describes them */
+/** @type {SavedForm[]} */
 const savedForms = [
   {
     magicLinkId: 'link-1',
     referenceNumber: 'CCC-333',
     formTitle: 'test-form',
     createdAt: '2026-08-21T09:00:00.000Z',
-    expireAt: '2026-09-12T09:00:00.000Z'
+    expireAt: '2026-09-12T09:00:00.000Z',
+    status: FormRowStatus.InProgress
   },
   {
     magicLinkId: 'link-2',
     referenceNumber: 'AAA-111',
     formTitle: 'test-form',
     createdAt: '2026-09-09T09:00:00.000Z',
-    expireAt: '2026-10-07T09:00:00.000Z'
+    expireAt: '2026-10-07T09:00:00.000Z',
+    status: FormRowStatus.InProgress
+  }
+]
+
+/** Two saved forms, as forms-submission-api describes them */
+/** @type {SavedForm[]} */
+const savedAndExpiredForms = [
+  {
+    magicLinkId: 'link-1',
+    referenceNumber: 'CCC-333',
+    formTitle: 'test-form',
+    createdAt: '2026-08-21T09:00:00.000Z',
+    expireAt: '2026-09-12T09:00:00.000Z',
+    status: FormRowStatus.InProgress
+  },
+  {
+    magicLinkId: 'link-2',
+    referenceNumber: 'AAA-111',
+    formTitle: 'test-form',
+    createdAt: '2026-09-09T09:00:00.000Z',
+    expireAt: '2026-10-07T09:00:00.000Z',
+    status: FormRowStatus.InProgress
+  },
+  {
+    magicLinkId: 'link-3',
+    referenceNumber: 'EEE-444',
+    formTitle: 'test-form',
+    createdAt: '2026-09-09T09:00:00.000Z',
+    expireAt: '2026-09-11T09:00:00.000Z',
+    status: FormRowStatus.Expired
   }
 ]
 
 const savedAndProcessingForms = [
   {
+    referenceNumber: 'PRO-123',
+    formTitle: 'test-form2',
+    status: FormRowStatus.Processing
+  },
+  {
     magicLinkId: 'link-1',
     referenceNumber: 'CCC-333',
     formTitle: 'test-form',
+    status: FormRowStatus.InProgress,
     createdAt: new Date().toISOString(),
     expireAt: addDays(new Date(), 30).toISOString()
-  },
-  {
-    referenceNumber: 'PRO-123',
-    formTitle: 'test-form2',
-    isProcessing: true
   }
 ]
 
@@ -125,7 +159,7 @@ describe('per-form homepage', () => {
 
   beforeEach(() => {
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
-    jest.mocked(getSavedForms).mockResolvedValue([])
+    jest.mocked(getFormRecords).mockResolvedValue([])
     jest
       .mocked(client.discovery)
       .mockResolvedValue(/** @type {client.Configuration} */ ({}))
@@ -395,7 +429,7 @@ describe('per-form homepage', () => {
 
   describe('the saved forms table', () => {
     it('lists a saved form under the headings the citizen needs', async () => {
-      jest.mocked(getSavedForms).mockResolvedValue(savedForms)
+      jest.mocked(getFormRecords).mockResolvedValue(savedForms)
 
       const { container } = await renderResponse(server, {
         method: 'GET',
@@ -439,9 +473,9 @@ describe('per-form homepage', () => {
       ).toBeInTheDocument()
     })
 
-    it('lists a saved form including any ones that are "processing", sorted correctly', async () => {
+    it('lists a saved form including any ones that are "processing"', async () => {
       // @ts-expect-error - partial mock of test data
-      jest.mocked(getSavedForms).mockResolvedValue(savedAndProcessingForms)
+      jest.mocked(getFormRecords).mockResolvedValue(savedAndProcessingForms)
 
       const { container } = await renderResponse(server, {
         method: 'GET',
@@ -484,7 +518,7 @@ describe('per-form homepage', () => {
     })
 
     it('writes the dates in Welsh on a Welsh homepage', async () => {
-      jest.mocked(getSavedForms).mockResolvedValue(savedForms)
+      jest.mocked(getFormRecords).mockResolvedValue(savedForms)
       jest.mocked(getFormDefinition).mockResolvedValue({
         ...fixtures.form.definition,
         metadata: { translations: { cy: {} } }
@@ -506,38 +540,6 @@ describe('per-form homepage', () => {
       ).toBeInTheDocument()
     })
 
-    it('tags a saved form past its expiry as expired, and the others as in progress', async () => {
-      jest.useFakeTimers({
-        now: new Date('2026-09-14T09:00:00.000Z'),
-        advanceTimers: true
-      })
-      jest.mocked(getSavedForms).mockResolvedValue(savedForms)
-
-      const { container } = await renderResponse(server, {
-        method: 'GET',
-        url: HOMEPAGE_URL,
-        auth: { strategy: 'citizen-session', credentials }
-      })
-
-      jest.useRealTimers()
-
-      const $expiredRow = container.getByRole('row', { name: /CCC-333/ })
-      expect(
-        within($expiredRow).getByRole('cell', { name: 'Expired' })
-      ).toBeInTheDocument()
-      expect(within($expiredRow).getByText('Expired')).toHaveClass(
-        'govuk-tag--red'
-      )
-
-      const $activeRow = container.getByRole('row', { name: /AAA-111/ })
-      expect(
-        within($activeRow).getByRole('cell', { name: 'In progress' })
-      ).toBeInTheDocument()
-      expect(within($activeRow).getByText('In progress')).toHaveClass(
-        'govuk-tag--teal'
-      )
-    })
-
     it('asks only for the forms of the citizen signed in, using their token', async () => {
       await renderResponse(server, {
         method: 'GET',
@@ -545,7 +547,7 @@ describe('per-form homepage', () => {
         auth: { strategy: 'citizen-session', credentials }
       })
 
-      expect(getSavedForms).toHaveBeenCalledWith(
+      expect(getFormRecords).toHaveBeenCalledWith(
         'access-1',
         fixtures.form.metadata.id,
         undefined
@@ -565,8 +567,8 @@ describe('per-form homepage', () => {
         )
         const allForms = addInFlightForms(mockRequest, savedForms)
         expect(allForms).toHaveLength(3)
-        expect(allForms[2].referenceNumber).toBe('PRO-222')
-        expect(allForms[2].isProcessing).toBe(true)
+        expect(allForms[0].referenceNumber).toBe('PRO-222')
+        expect(allForms[0].status).toBe(FormRowStatus.Processing)
       })
 
       it('should clear in-flight session key if all forms are no longer in-flight', () => {
@@ -585,7 +587,7 @@ describe('per-form homepage', () => {
         const allForms = addInFlightForms(mockRequest, savedFormsCompleted)
         expect(allForms).toHaveLength(2)
         expect(allForms[0].referenceNumber).toBe('PRO-222')
-        expect(allForms[0].isProcessing).toBeUndefined()
+        expect(allForms[0].status).toBe(FormRowStatus.InProgress)
         expect(mockYarClear).toHaveBeenCalledTimes(1)
       })
     })
@@ -623,7 +625,7 @@ describe('per-form homepage', () => {
           'refresh-1',
           expect.objectContaining({ resource: expect.any(String) })
         )
-        expect(getSavedForms).toHaveBeenCalledWith(
+        expect(getFormRecords).toHaveBeenCalledWith(
           'access-2',
           fixtures.form.metadata.id,
           undefined
@@ -652,7 +654,7 @@ describe('per-form homepage', () => {
         expect(response.headers.location).toBe(
           '/auth/sign-in?returnUrl=%2Fhomepage%2Ftest-form'
         )
-        expect(getSavedForms).not.toHaveBeenCalled()
+        expect(getFormRecords).not.toHaveBeenCalled()
         await expect(session.read(headers)).resolves.toBeNull()
       })
 
@@ -668,7 +670,7 @@ describe('per-form homepage', () => {
         })
 
         expect(response.statusCode).toBe(StatusCodes.OK)
-        expect(getSavedForms).toHaveBeenCalledWith(
+        expect(getFormRecords).toHaveBeenCalledWith(
           'access-1',
           fixtures.form.metadata.id,
           undefined
@@ -692,7 +694,7 @@ describe('per-form homepage', () => {
         })
 
         expect(response.statusCode).toBe(StatusCodes.SERVICE_UNAVAILABLE)
-        expect(getSavedForms).not.toHaveBeenCalled()
+        expect(getFormRecords).not.toHaveBeenCalled()
         await expect(session.read(expiredHeaders)).resolves.toMatchObject({
           refreshToken: 'refresh-1'
         })
@@ -736,7 +738,7 @@ describe('per-form homepage', () => {
           auth: { strategy: 'citizen-session', credentials }
         })
 
-        expect(getSavedForms).toHaveBeenCalledWith(
+        expect(getFormRecords).toHaveBeenCalledWith(
           'access-1',
           fixtures.form.metadata.id,
           state
@@ -749,7 +751,7 @@ describe('per-form homepage', () => {
         now: new Date('2026-09-01T09:00:00.000Z'),
         advanceTimers: true
       })
-      jest.mocked(getSavedForms).mockResolvedValue(savedForms)
+      jest.mocked(getFormRecords).mockResolvedValue(savedForms)
 
       const { container } = await renderResponse(server, {
         method: 'GET',
@@ -779,12 +781,13 @@ describe('per-form homepage', () => {
         now: new Date('2026-09-01T09:00:00.000Z'),
         advanceTimers: true
       })
-      jest.mocked(getSavedForms).mockResolvedValue([
+      jest.mocked(getFormRecords).mockResolvedValue([
         {
           magicLinkId: 'link-1',
           formTitle: 'test-form',
           createdAt: '2026-08-21T09:00:00.000Z',
-          expireAt: '2026-09-12T09:00:00.000Z'
+          expireAt: '2026-09-12T09:00:00.000Z',
+          status: FormRowStatus.InProgress
         }
       ])
 
@@ -808,7 +811,7 @@ describe('per-form homepage', () => {
         now: new Date('2026-09-14T09:00:00.000Z'),
         advanceTimers: true
       })
-      jest.mocked(getSavedForms).mockResolvedValue(savedForms)
+      jest.mocked(getFormRecords).mockResolvedValue(savedAndExpiredForms)
 
       const { container } = await renderResponse(server, {
         method: 'GET',
@@ -818,13 +821,16 @@ describe('per-form homepage', () => {
 
       const table = container.getByRole('table')
 
-      // link-1 expired on 12 September
       expect(
         within(table).getAllByRole('link', { name: /Continue/ })
-      ).toHaveLength(1)
+      ).toHaveLength(2)
       expect(
         within(table).getByRole('link', { name: 'Continue AAA-111' })
       ).toHaveAttribute('href', `/resume-form/${FORM_ID}/link-2`)
+      // link expired
+      expect(
+        within(table).queryByRole('link', { name: 'Continue EEE-444' })
+      ).not.toBeInTheDocument()
 
       jest.useRealTimers()
     })
@@ -834,7 +840,7 @@ describe('per-form homepage', () => {
         now: new Date('2026-09-01T09:00:00.000Z'),
         advanceTimers: true
       })
-      jest.mocked(getSavedForms).mockResolvedValue(savedForms)
+      jest.mocked(getFormRecords).mockResolvedValue(savedForms)
       jest.mocked(getFormDefinition).mockResolvedValue({
         ...fixtures.form.definition,
         metadata: { translations: { cy: {} } }
@@ -898,4 +904,5 @@ describe('per-form homepage', () => {
  * @import { Request, Server } from '@hapi/hapi'
  * @import { TokenEndpointResponse, TokenEndpointResponseHelpers } from 'openid-client'
  * @import { HomepageParams } from '~/src/server/routes/homepage.js'
+ * @import { SavedForm } from '~/src/server/services/submissionService.js'
  */

@@ -10,9 +10,9 @@ import {
 import {
   deleteSavedFormState,
   generateReferenceNumber,
+  getFormRecords,
   getSaveAndExitDetails,
   getSavedFormState,
-  getSavedForms,
   validateSaveAndExitCredentials
 } from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
@@ -147,14 +147,14 @@ describe('Submission service', () => {
     })
   })
 
-  describe('getSavedForms', () => {
+  describe('getFormRecords', () => {
     it('asks the submission API for the forms of one citizen, naming them by the token alone', async () => {
       respondWith([])
 
-      await getSavedForms(ACCESS_TOKEN, FORM_ID)
+      await getFormRecords(ACCESS_TOKEN, FORM_ID)
 
       expect(get).toHaveBeenCalledWith(
-        `${SUBMISSION_URL}/save-and-exit/records?formId=${FORM_ID}`,
+        `${SUBMISSION_URL}/form/records?formId=${FORM_ID}`,
         {
           json: true,
           headers: { authorization: `Bearer ${ACCESS_TOKEN}` }
@@ -167,10 +167,10 @@ describe('Submission service', () => {
       async (preview) => {
         respondWith([])
 
-        await getSavedForms(ACCESS_TOKEN, FORM_ID, preview)
+        await getFormRecords(ACCESS_TOKEN, FORM_ID, preview)
 
         expect(get).toHaveBeenCalledWith(
-          `${SUBMISSION_URL}/save-and-exit/records?formId=${FORM_ID}&preview=${preview}`,
+          `${SUBMISSION_URL}/form/records?formId=${FORM_ID}&preview=${preview}`,
           expect.anything()
         )
       }
@@ -188,7 +188,7 @@ describe('Submission service', () => {
       ]
       respondWith(records)
 
-      await expect(getSavedForms(ACCESS_TOKEN, FORM_ID)).resolves.toEqual(
+      await expect(getFormRecords(ACCESS_TOKEN, FORM_ID)).resolves.toEqual(
         records
       )
     })
@@ -201,8 +201,8 @@ describe('Submission service', () => {
         })
       )
 
-      await expect(getSavedForms(ACCESS_TOKEN, FORM_ID)).rejects.toThrow(
-        'Could not read the saved forms'
+      await expect(getFormRecords(ACCESS_TOKEN, FORM_ID)).rejects.toThrow(
+        'Could not read the form records'
       )
     })
   })
