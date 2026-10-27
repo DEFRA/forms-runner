@@ -1,0 +1,23 @@
+{% extends 'layout.html' %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% set pageTitle = tR('signinRequired.pageTitle') %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+
+      <h1 class="govuk-heading-l">{{ tR('signinRequired.heading') }}</h1>
+
+      {% for item in tR('signinRequired.body') %}
+        <p class="govuk-body">{{ item }}</p>
+      {% endfor %}
+
+      {{ govukButton({
+        text: tR('signinRequired.signinButtonText'),
+        href: signInHref
+      }) }}
+    </div>
+  </div>
+{% endblock %}

@@ -3,6 +3,7 @@ import { createLogContext, runWithLogContext } from '@defra/forms-common'
 import { config } from '~/src/config/index.js'
 import {
   applyTraceHeaders,
+  formRequiresAuthentication,
   getFeedbackFormLink,
   localReturnPath,
   resolveLanguage,
@@ -199,3 +200,31 @@ describe('signInUrl', () => {
     )
   })
 })
+
+describe('formRequiresAuthentication', () => {
+  it('carries the return path as an escaped query parameter, so its own slashes and query stay in it', () => {
+    /** @type {FormDefinition} */
+    // @ts-expect-error - test data
+    const defWithCopySupport = {
+      metadata: {
+        allowCopy: true
+      }
+    }
+
+    expect(formRequiresAuthentication(defWithCopySupport)).toBe(true)
+
+    /** @type {FormDefinition} */
+    // @ts-expect-error - test data
+    const defWithoutCopySupport = {
+      metadata: {
+        allowCopy: false
+      }
+    }
+
+    expect(formRequiresAuthentication(defWithoutCopySupport)).toBe(false)
+  })
+})
+
+/**
+ * @import { FormDefinition } from '@defra/forms-model'
+ */

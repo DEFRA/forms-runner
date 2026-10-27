@@ -31,9 +31,11 @@ import {
   CALLBACK_PATH,
   INITIATE_SIGN_IN_PATH,
   SIGNED_OUT_PATH,
+  SIGNIN_REQUIRED,
   SIGN_IN_PATH,
   SIGN_OUT_PATH
 } from '~/src/server/constants.js'
+import { getFormHref } from '~/src/server/helpers/route-helpers.js'
 import { returnUrlSchema } from '~/src/server/models/common.js'
 import { getAllLanguages, resolveLanguage } from '~/src/server/utils/utils.js'
 
@@ -454,6 +456,24 @@ export default [
         )
       }
     }
+  }),
+  /**
+   * @satisfies {ServerRoute<{ Query: { slug: string, state: FormStatus, isPreview: string, language?: string } }>}
+   */
+  ({
+    method: 'GET',
+    path: SIGNIN_REQUIRED,
+    handler(request, h) {
+      const { slug, state, isPreview } = request.query
+      const returnUrl = getFormHref(slug, isPreview === 'true', state)
+      const signInHref = `${SIGN_IN_PATH}?returnUrl=${encodeURIComponent(returnUrl)}`
+
+      return h.view('auth/signin-required', {
+        signInHref,
+        language: resolveLanguage(request.query, request.yar),
+        languages: getAllLanguages()
+      })
+    }
   })
 ]
 
@@ -464,5 +484,6 @@ export const CITIZEN_AUTH_ROUTE_OPTIONS = {
 }
 
 /**
+ * @import { FormStatus } from '@defra/forms-engine-plugin/types'
  * @import { Request, ResponseToolkit, ServerRoute, RouteOptionsAccess } from '@hapi/hapi'
  */

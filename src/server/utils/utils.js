@@ -123,6 +123,17 @@ export function signInUrl(path) {
 }
 
 /**
+ * Returns true if the form definition requires the user to be authenticated, false otherwise
+ * @param {FormDefinition} def
+ * @returns {boolean}
+ */
+export function formRequiresAuthentication(def) {
+  const enablingFlags = ['allowCopy']
+
+  return enablingFlags.some((flag) => def.metadata?.[flag] === true)
+}
+
+/**
  * @import { RequestQuery } from '@hapi/hapi'
  * @import { Yar } from '@hapi/yar'
  * @import { FormDefinition } from '@defra/forms-model'

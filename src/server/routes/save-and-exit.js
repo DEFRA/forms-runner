@@ -866,7 +866,7 @@ export default [
 
       const form = await clearFormState(request, slug, state)
 
-      return h.redirect(getFormHref(form, true, state))
+      return h.redirect(getFormHref(form.slug, true, state))
     },
     options: {
       validate: {
@@ -893,7 +893,7 @@ export default [
 
       const form = await clearFormState(request, slug, FormStatus.Live)
 
-      return h.redirect(getFormHref(form, false, FormStatus.Live))
+      return h.redirect(getFormHref(form.slug, false, FormStatus.Live))
     },
     options: {
       validate: {
