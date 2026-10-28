@@ -1,6 +1,9 @@
+import { FormStatus } from '@defra/forms-model'
+
 import { FormRowStatus } from '~/src/server/constants.js'
 import {
   getFormStatus,
+  getInflightSessionKey,
   getPayloadFromFlash,
   hasState
 } from '~/src/server/routes/save-and-exit-helper.js'
@@ -24,6 +27,23 @@ describe('save-and-exit-helper tests', () => {
 
     test('returns false if no state', () => {
       expect(hasState({})).toBe(false)
+    })
+  })
+
+  describe('getInflightSessionKey', () => {
+    test('builds key from slug with no state', () => {
+      expect(getInflightSessionKey('my-form', undefined)).toBe(
+        'inFlightForms:my-form:'
+      )
+    })
+
+    test('builds key from slug and state', () => {
+      expect(getInflightSessionKey('my-form', FormStatus.Draft)).toBe(
+        'inFlightForms:my-form:draft'
+      )
+      expect(getInflightSessionKey('my-form', FormStatus.Live)).toBe(
+        'inFlightForms:my-form:live'
+      )
     })
   })
 

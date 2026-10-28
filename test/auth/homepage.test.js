@@ -565,7 +565,13 @@ describe('per-form homepage', () => {
             }
           })
         )
-        const allForms = addInFlightForms(mockRequest, savedForms)
+        const allForms = addInFlightForms(
+          mockRequest,
+          savedForms,
+          'test-form',
+          undefined
+        )
+        expect(mockYarGet).toHaveBeenCalledWith('inFlightForms:test-form:')
         expect(allForms).toHaveLength(3)
         expect(allForms[0].referenceNumber).toBe('PRO-222')
         expect(allForms[0].status).toBe(FormRowStatus.Processing)
@@ -584,11 +590,44 @@ describe('per-form homepage', () => {
         )
         const savedFormsCompleted = structuredClone(savedForms)
         savedFormsCompleted[0].referenceNumber = 'PRO-222'
-        const allForms = addInFlightForms(mockRequest, savedFormsCompleted)
+        const allForms = addInFlightForms(
+          mockRequest,
+          savedFormsCompleted,
+          'test-form',
+          FormStatus.Draft
+        )
         expect(allForms).toHaveLength(2)
         expect(allForms[0].referenceNumber).toBe('PRO-222')
         expect(allForms[0].status).toBe(FormRowStatus.InProgress)
+        expect(mockYarGet).toHaveBeenCalledWith('inFlightForms:test-form:draft')
         expect(mockYarClear).toHaveBeenCalledTimes(1)
+        expect(mockYarClear).toHaveBeenCalledWith(
+          'inFlightForms:test-form:draft'
+        )
+      })
+
+      it('should only read in-flight forms for the given slug and state', () => {
+        const mockYarGet = jest.fn((key) =>
+          key === 'inFlightForms:other-form:' ? ['PRO-333'] : undefined
+        )
+        const mockRequest = /** @type {Request<{ Params: HomepageParams }>} */ (
+          /** @type {unknown} */ ({
+            yar: {
+              get: mockYarGet,
+              clear: jest.fn()
+            }
+          })
+        )
+        const allForms = addInFlightForms(
+          mockRequest,
+          savedForms,
+          'test-form',
+          undefined
+        )
+        expect(allForms).toHaveLength(2)
+        expect(allForms.map((form) => form.referenceNumber)).not.toContain(
+          'PRO-333'
+        )
       })
     })
 
