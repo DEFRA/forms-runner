@@ -14,7 +14,6 @@ import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { EN_GB, PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
 import { getFormHref } from '~/src/server/helpers/route-helpers.js'
-import { sessionNames } from '~/src/server/helpers/session-names.js'
 import {
   getCachedFormTranslatorBasic,
   getCachedFormTranslatorExternalRoutes
@@ -41,6 +40,7 @@ import {
 import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/routes/auth.js'
 import {
   clearFormState,
+  getInflightSessionKey,
   hasState
 } from '~/src/server/routes/save-and-exit-helper.js'
 import { stateHandler } from '~/src/server/routes/save-and-exit-state-handler.js'
@@ -219,13 +219,14 @@ async function handleAuthenticatedSaveAndExit(request, h) {
   await cacheService.clearState(request)
 
   // Add form to in-flight list until fully saved in DB
+  // In-flight list is per slug and status, so that the user only sees in-flight forms
+  // relevant to the homepage path they are on
+  const sessionKey = getInflightSessionKey(slug, status)
   const inflights =
-    /** @type {string[] | undefined} */ (
-      request.yar.get(sessionNames.inFlightForms)
-    ) ?? []
+    /** @type {string[] | undefined} */ (request.yar.get(sessionKey)) ?? []
   const refNum = /** @type {string} */ (cachedState.$$__referenceNumber)
   inflights.push(refNum)
-  request.yar.set(sessionNames.inFlightForms, inflights)
+  request.yar.set(sessionKey, inflights)
 
   return h
     .view(SAVE_AND_EXIT_CONFIRMATION, model)
@@ -913,6 +914,7 @@ export default [
  * @import { FormMetadata, SavedState } from '@defra/forms-model'
  * @import { Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'
  * @import { FormParams } from '@defra/forms-engine-plugin/types'
+ * @import { FormSubmissionState } from '@defra/forms-engine-plugin/engine/types.js'
  * @import { AnyRequest, CacheRequest } from '@defra/forms-engine-plugin/engine/types.js'
  * @import { BoomErrorCustomSaveAndExit, SaveAndExitParams, SaveAndExitPayload, SaveAndExitResumePasswordPayload, SaveAndExitResumePasswordParams } from '~/src/server/models/save-and-exit.js'
  * @import { SaveAndExitDetails } from '~/src/server/types.js'
