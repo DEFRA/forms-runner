@@ -207,7 +207,9 @@ describe('formRequiresAuthentication', () => {
     // @ts-expect-error - test data
     const defWithCopySupport = {
       metadata: {
-        allowCopy: true
+        options: {
+          allowCopy: true
+        }
       }
     }
 
@@ -217,7 +219,9 @@ describe('formRequiresAuthentication', () => {
     // @ts-expect-error - test data
     const defWithoutCopySupport = {
       metadata: {
-        allowCopy: false
+        options: {
+          allowCopy: false
+        }
       }
     }
 
