@@ -129,8 +129,11 @@ export function signInUrl(path) {
  */
 export function formRequiresAuthentication(def) {
   const enablingFlags = ['allowCopy']
+  const options = /** @type {Record<string, unknown> | undefined} */ (
+    def.metadata?.options
+  )
 
-  return enablingFlags.some((flag) => def.metadata?.[flag] === true)
+  return enablingFlags.some((flag) => options?.[flag] === true)
 }
 
 /**

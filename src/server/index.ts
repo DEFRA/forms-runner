@@ -32,11 +32,7 @@ import forwardLogs from '~/src/server/common/helpers/logging/forward-logs.js'
 import { requestLogger } from '~/src/server/common/helpers/logging/request-logger.js'
 import { requestTracing } from '~/src/server/common/helpers/logging/request-tracing.js'
 import { buildRedisClient } from '~/src/server/common/helpers/redis-client.js'
-import {
-  FORM_PREFIX,
-  SAVE_AND_EXIT_PAYLOAD,
-  SIGNIN_REQUIRED
-} from '~/src/server/constants.js'
+import { FORM_PREFIX, SAVE_AND_EXIT_PAYLOAD } from '~/src/server/constants.js'
 import { FeedbackPageController } from '~/src/server/plugins/FeedbackPageController.js'
 import { SummaryPageWithConfirmationEmailController } from '~/src/server/plugins/SummaryPageWithConfirmationEmailController.js'
 import pluginAuth from '~/src/server/plugins/auth.js'
@@ -139,21 +135,14 @@ export const onRequest: OnRequestCallback = (request, h) => {
 
   const { auth } = request
 
-  // Check if user is authenticated
-  if (!auth.isAuthenticated || auth.strategy !== CITIZEN_SESSION) {
-    const params = request.params
-    const url = new URL(SIGNIN_REQUIRED, BASE_URL)
-    const { isPreview, state } = checkFormStatus(params)
-
-    url.searchParams.append('slug', params.slug)
-    url.searchParams.append('state', state)
-    url.searchParams.append('isPreview', isPreview.toString())
-
-    return h.redirect(url.href).takeover()
+  if (auth.isAuthenticated && auth.strategy === CITIZEN_SESSION) {
+    return h.continue
   }
 
-  // Return h.continue to resume with normal form processing
-  return h.continue
+  const url = new URL(`/signin-required/${request.params.slug}`, BASE_URL)
+  url.searchParams.append('returnUrl', request.path)
+
+  return h.redirect(url.href).takeover()
 }
 
 export const configureEnginePlugin = async ({

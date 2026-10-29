@@ -9,7 +9,7 @@ import { StatusCodes } from 'http-status-codes'
 
 import { config } from '~/src/config/index.js'
 import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
-import { FORM_PREFIX, SIGNIN_REQUIRED } from '~/src/server/constants.js'
+import { FORM_PREFIX } from '~/src/server/constants.js'
 import {
   configureEnginePlugin,
   createServer,
@@ -547,12 +547,14 @@ describe('onRequest', () => {
     params: Record<string, string> = {
       path: '/page-one',
       slug: 'test-form'
-    }
+    },
+    path = '/form/test-form/page-one'
   ) =>
     ({
       app: { model },
       auth,
-      params
+      params,
+      path
     }) as unknown as AnyFormRequest
 
   const createToolkit = () => {
@@ -596,17 +598,24 @@ describe('onRequest', () => {
 
   test('redirects unauthenticated users to the sign-in-required page', () => {
     const request = createRequest(
-      { def: { metadata: { allowCopy: true } } },
+      {
+        def: {
+          name: 'test-form',
+          metadata: { options: { allowCopy: true } }
+        }
+      },
       { isAuthenticated: false },
-      { path: '/page-one', slug: 'test-form', state: FormStatus.Draft }
+      { path: '/page-one', slug: 'test-form', state: FormStatus.Draft },
+      '/form/test-form/page-one'
     )
     const { h, redirect, takeover } = createToolkit()
 
     const result = onRequest(request, h, {} as FormContext)
-    const expectedUrl = new URL(SIGNIN_REQUIRED, config.get('baseUrl'))
-    expectedUrl.searchParams.append('slug', 'test-form')
-    expectedUrl.searchParams.append('state', FormStatus.Draft)
-    expectedUrl.searchParams.append('isPreview', 'true')
+    const expectedUrl = new URL(
+      '/signin-required/test-form',
+      config.get('baseUrl')
+    )
+    expectedUrl.searchParams.append('returnUrl', '/form/test-form/page-one')
 
     expect(redirect).toHaveBeenCalledWith(expectedUrl.href)
     expect(takeover).toHaveBeenCalled()
@@ -615,20 +624,38 @@ describe('onRequest', () => {
 
   test('redirects authenticated users when they are not using citizen sign-in', () => {
     const request = createRequest(
-      { def: { metadata: { allowCopy: true } } },
-      { isAuthenticated: true, strategy: 'cookie' }
+      {
+        def: {
+          name: 'test-form',
+          metadata: { options: { allowCopy: true } }
+        }
+      },
+      { isAuthenticated: true, strategy: 'cookie' },
+      { path: '/page-one', slug: 'test-form' },
+      '/form/test-form/page-one'
     )
     const { h, redirect } = createToolkit()
 
     const result = onRequest(request, h, {} as FormContext)
 
-    expect(redirect).toHaveBeenCalled()
+    const expectedUrl = new URL(
+      '/signin-required/test-form',
+      config.get('baseUrl')
+    )
+    expectedUrl.searchParams.append('returnUrl', '/form/test-form/page-one')
+
+    expect(redirect).toHaveBeenCalledWith(expectedUrl.href)
     expect(result).toBe(takeoverResponse)
   })
 
   test('continues authenticated users using citizen sign-in', () => {
     const request = createRequest(
-      { def: { metadata: { allowCopy: true } } },
+      {
+        def: {
+          name: 'test-form',
+          metadata: { options: { allowCopy: true } }
+        }
+      },
       { isAuthenticated: true, strategy: CITIZEN_SESSION }
     )
     const { h, redirect } = createToolkit()

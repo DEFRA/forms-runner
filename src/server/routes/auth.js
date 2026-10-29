@@ -1,6 +1,6 @@
 import { setUserId } from '@defra/forms-common'
 import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
-import { getErrorMessage, slugSchema } from '@defra/forms-model'
+import { FormStatus, getErrorMessage, slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import Bourne from '@hapi/bourne'
 import { StatusCodes } from 'http-status-codes'
@@ -22,7 +22,6 @@ import {
   recordLogout,
   verifyLogoutToken
 } from '~/src/server/auth/backchannelLogout.js'
-import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
 import { signInEvent } from '~/src/server/auth/signInEvent.js'
 import { revokeRefreshToken } from '~/src/server/auth/tokenRevocation.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
@@ -31,12 +30,13 @@ import {
   CALLBACK_PATH,
   INITIATE_SIGN_IN_PATH,
   SIGNED_OUT_PATH,
-  SIGNIN_REQUIRED,
   SIGN_IN_PATH,
   SIGN_OUT_PATH
 } from '~/src/server/constants.js'
-import { getFormHref } from '~/src/server/helpers/route-helpers.js'
+import { t as runnerT } from '~/src/server/i18n/index.js'
 import { returnUrlSchema } from '~/src/server/models/common.js'
+import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
+import { getFormMetadataWithoutGuard } from '~/src/server/services/formMetadataGuards.js'
 import { getAllLanguages, resolveLanguage } from '~/src/server/utils/utils.js'
 
 /**
@@ -458,32 +458,53 @@ export default [
     }
   }),
   /**
-   * @satisfies {ServerRoute<{ Query: { slug: string, state: FormStatus, isPreview: string, language?: string } }>}
+   * @satisfies {ServerRoute<{ Params: { slug: string }, Query: { returnUrl: string, language?: string } }>}
    */
   ({
     method: 'GET',
-    path: SIGNIN_REQUIRED,
-    handler(request, h) {
-      const { slug, state, isPreview } = request.query
-      const returnUrl = getFormHref(slug, isPreview === 'true', state)
+    path: '/signin-required/{slug}',
+    async handler(request, h) {
+      const { slug } = request.params
+      const { returnUrl } = request.query
+      const form = await getFormMetadataWithoutGuard(slug)
+
+      const { translator } = await getFormTranslator(
+        request,
+        form,
+        form.live ? FormStatus.Live : FormStatus.Draft
+      )
+
       const signInHref = `${SIGN_IN_PATH}?returnUrl=${encodeURIComponent(returnUrl)}`
 
       return h.view('auth/signin-required', {
         signInHref,
         language: resolveLanguage(request.query, request.yar),
-        languages: getAllLanguages()
+        languages: getAllLanguages(),
+        context: { translator },
+        /**
+         * @param {string} key
+         * @param {Record<string, unknown>} [opts]
+         */
+        tR: (key, opts) => runnerT(key, translator.language, opts)
       })
+    },
+    options: {
+      validate: {
+        params: Joi.object()
+          .keys({
+            slug: slugSchema
+          })
+          .required(),
+        query: Joi.object()
+          .keys({
+            returnUrl: returnUrlSchema.required()
+          })
+          .required()
+      }
     }
   })
 ]
 
-/** @type { RouteOptionsAccess } */
-export const CITIZEN_AUTH_ROUTE_OPTIONS = {
-  mode: 'required',
-  strategy: CITIZEN_SESSION
-}
-
 /**
- * @import { FormStatus } from '@defra/forms-engine-plugin/types'
- * @import { Request, ResponseToolkit, ServerRoute, RouteOptionsAccess } from '@hapi/hapi'
+ * @import { Request, ResponseToolkit, ServerRoute } from '@hapi/hapi'
  */
