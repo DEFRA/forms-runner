@@ -58,6 +58,14 @@ describe('Auth routes', () => {
 
       expect($heading).toBeInTheDocument()
       expect($heading).toHaveTextContent('Sign in to use this form')
+
+      const $button = container.getByRole('button', { name: 'Sign in' })
+
+      expect($button).toBeInTheDocument()
+      expect($button).toHaveAttribute(
+        'href',
+        '/auth/sign-in?returnUrl=%2Fform%2Fmy-slug%2Fpage-one'
+      )
     })
 
     test('get route responds OK in cy', async () => {
@@ -76,6 +84,14 @@ describe('Auth routes', () => {
       expect($heading).toBeInTheDocument()
       expect($heading).toHaveTextContent(
         "Mewngofnodwch i ddefnyddio'r ffurflen hon"
+      )
+
+      const $button = container.getByRole('button', { name: 'Mewngofnodi' })
+
+      expect($button).toBeInTheDocument()
+      expect($button).toHaveAttribute(
+        'href',
+        '/auth/sign-in?returnUrl=%2Fform%2Fmy-slug%2Fpage-one'
       )
     })
   })
