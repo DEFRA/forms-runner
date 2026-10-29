@@ -2,7 +2,14 @@ import { StatusCodes } from 'http-status-codes'
 
 import { config } from '~/src/config/index.js'
 import { createServer } from '~/src/server/index.js'
+import {
+  getFormDefinition,
+  getFormMetadata
+} from '~/src/server/services/formsService.js'
+import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
+
+jest.mock('~/src/server/services/formsService.js')
 
 describe('Auth routes', () => {
   /** @type {Server} */
@@ -27,11 +34,19 @@ describe('Auth routes', () => {
     refreshToken: 'refresh-old'
   }
 
-  describe('GET /signin-required', () => {
+  describe('GET /signin-required/{slug}', () => {
+    beforeEach(() => {
+      jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+      jest.mocked(getFormDefinition).mockResolvedValue({
+        ...fixtures.form.definition,
+        metadata: { translations: { cy: {} } }
+      })
+    })
+
     test('get route responds OK in en-GB', async () => {
       const options = {
         method: 'GET',
-        url: '/signin-required?slug=my-slug&state=draft&isPreview=true',
+        url: '/signin-required/my-slug?returnUrl=%2Fform%2Fmy-slug%2Fpage-one',
         auth: { strategy: 'citizen-session', credentials }
       }
 
@@ -48,7 +63,7 @@ describe('Auth routes', () => {
     test('get route responds OK in cy', async () => {
       const options = {
         method: 'GET',
-        url: '/signin-required?slug=my-slug&state=draft&isPreview=true&language=cy',
+        url: '/signin-required/my-slug?returnUrl=%2Fform%2Fmy-slug%2Fpage-one&language=cy',
         auth: { strategy: 'citizen-session', credentials }
       }
 

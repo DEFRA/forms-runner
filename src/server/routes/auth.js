@@ -28,6 +28,8 @@ import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import {
   BACKCHANNEL_LOGOUT_PATH,
   CALLBACK_PATH,
+  CY,
+  EN_GB,
   INITIATE_SIGN_IN_PATH,
   SIGNED_OUT_PATH,
   SIGN_IN_PATH,
@@ -497,7 +499,8 @@ export default [
           .required(),
         query: Joi.object()
           .keys({
-            returnUrl: returnUrlSchema.required()
+            returnUrl: returnUrlSchema.required(),
+            language: Joi.string().valid(EN_GB, CY).optional()
           })
           .required()
       }
