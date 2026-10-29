@@ -1,8 +1,9 @@
 import { setUserId } from '@defra/forms-common'
 import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
-import { slugSchema } from '@defra/forms-model'
+import { getErrorMessage, slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import Bourne from '@hapi/bourne'
+import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 import * as client from 'openid-client'
 
@@ -17,17 +18,24 @@ import {
   setSignInTransaction,
   setTokens
 } from '~/src/server/auth/accountSession.js'
+import {
+  recordLogout,
+  verifyLogoutToken
+} from '~/src/server/auth/backchannelLogout.js'
 import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
 import { signInEvent } from '~/src/server/auth/signInEvent.js'
 import { revokeRefreshToken } from '~/src/server/auth/tokenRevocation.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import {
+  BACKCHANNEL_LOGOUT_PATH,
   CALLBACK_PATH,
+  INITIATE_SIGN_IN_PATH,
   SIGNED_OUT_PATH,
   SIGN_IN_PATH,
   SIGN_OUT_PATH
 } from '~/src/server/constants.js'
 import { returnUrlSchema } from '~/src/server/models/common.js'
+import { getAllLanguages, resolveLanguage } from '~/src/server/utils/utils.js'
 
 /**
  * `offline_access` asks for a refresh token that outlives the provider
@@ -43,6 +51,29 @@ const BASE_URL = config.get('baseUrl')
  * returns an opaque token and no error.
  */
 const RESOURCE = config.get('oidc.submissionApiResource')
+
+const ISSUER = config.get('oidc.issuer')
+const ISSUER_ORIGIN = URL.parse(ISSUER)?.origin
+
+/**
+ * The provider must name itself. Only the configured issuer is accepted.
+ */
+const issuerSchema = Joi.string().valid(ISSUER)
+
+/**
+ * The provider page to open after sign in. It is a full URL, so it must be
+ * on the issuer's origin.
+ */
+const targetLinkUriSchema = Joi.string().custom((value, helpers) => {
+  const origin = URL.parse(value)?.origin
+
+  // A value that is not a full URL has no origin
+  if (!origin || origin !== ISSUER_ORIGIN) {
+    return helpers.error('any.invalid')
+  }
+
+  return value
+})
 
 const signOutStateSchema = Joi.object({
   slug: slugSchema,
@@ -87,6 +118,50 @@ async function endSignIn(request) {
   clearIdentity(request.yar)
 }
 
+/**
+ * Starts a sign in at the provider. The callback finishes it and sends the
+ * citizen to `returnUrl`.
+ * @param {Pick<Request, 'server' | 'yar'>} request
+ * @param {Pick<ResponseToolkit, 'redirect'>} h
+ * @param {string} returnUrl - validated by the route that calls this
+ */
+async function startSignIn(request, h, returnUrl) {
+  const oidcConfig = await request.server.app.oidc.getConfig()
+
+  // A citizen who is signed in here can still be asked to sign in, because
+  // the refresh token outlives the provider session. The ID token names them,
+  // so the provider asks them only for a security code.
+  const idToken = getTokens(request.yar)?.idToken
+
+  const codeVerifier = client.randomPKCECodeVerifier()
+  const state = client.randomState()
+  const nonce = client.randomNonce()
+
+  setSignInTransaction(request.yar, {
+    state,
+    nonce,
+    codeVerifier,
+    returnUrl
+  })
+
+  const authorizationUrl = client.buildAuthorizationUrl(oidcConfig, {
+    redirect_uri: config.get('oidc.redirectUri'),
+    scope: SCOPES,
+    resource: RESOURCE,
+    state,
+    nonce,
+    code_challenge: await client.calculatePKCECodeChallenge(codeVerifier),
+    code_challenge_method: 'S256',
+    ...(idToken && { id_token_hint: idToken }),
+    // `login` always require an OTP for new logins
+    // `consent` lets the provider accept `offline_access` (OpenID Connect
+    // Core, section 11).
+    prompt: 'login consent'
+  })
+
+  return h.redirect(authorizationUrl.href)
+}
+
 export default [
   /**
    * @satisfies {ServerRoute<{ Query: { returnUrl: string } }>}
@@ -94,37 +169,8 @@ export default [
   ({
     method: 'GET',
     path: SIGN_IN_PATH,
-    async handler(request, h) {
-      const { returnUrl } = request.query
-
-      const oidcConfig = await request.server.app.oidc.getConfig()
-
-      const codeVerifier = client.randomPKCECodeVerifier()
-      const state = client.randomState()
-      const nonce = client.randomNonce()
-
-      setSignInTransaction(request.yar, {
-        state,
-        nonce,
-        codeVerifier,
-        returnUrl
-      })
-
-      const authorizationUrl = client.buildAuthorizationUrl(oidcConfig, {
-        redirect_uri: config.get('oidc.redirectUri'),
-        scope: SCOPES,
-        resource: RESOURCE,
-        state,
-        nonce,
-        code_challenge: await client.calculatePKCECodeChallenge(codeVerifier),
-        code_challenge_method: 'S256',
-        // `login` always require an OTP for new logins
-        // `consent` lets the provider accept `offline_access` (OpenID Connect
-        // Core, section 11).
-        prompt: 'login consent'
-      })
-
-      return h.redirect(authorizationUrl.href)
+    handler(request, h) {
+      return startSignIn(request, h, request.query.returnUrl)
     },
     options: {
       auth: false,
@@ -133,6 +179,33 @@ export default [
         // are ignored so they do not block sign in.
         query: Joi.object({
           returnUrl: returnUrlSchema.required()
+        }).unknown(true)
+      }
+    }
+  }),
+  /**
+   * The sign in that the provider asks for (OpenID Connect Core, section 4,
+   * "Initiating Login from a Third Party"). The provider sends a citizen
+   * here when one of its own pages needs a session that has ended. This is
+   * the normal sign in, so the provider session and the session here start
+   * together and for the same account.
+   * @satisfies {ServerRoute<{ Query: { iss: string, target_link_uri: string } }>}
+   */
+  ({
+    method: 'GET',
+    path: INITIATE_SIGN_IN_PATH,
+    handler(request, h) {
+      return startSignIn(request, h, request.query.target_link_uri)
+    },
+    options: {
+      auth: false,
+      validate: {
+        // OpenID Connect Core, section 4, requires `iss`. It makes
+        // `target_link_uri` optional. This route requires it, because the
+        // provider always sends it and there is no default page to open.
+        query: Joi.object({
+          iss: issuerSchema.required(),
+          target_link_uri: targetLinkUriSchema.required()
         }).unknown(true)
       }
     }
@@ -153,6 +226,7 @@ export default [
       // sign-out page there has a Cancel link, and a citizen who cancels
       // stays signed in here as well as on the provider.
       const { slug, previewMode, returnUrl } = request.query
+      const language = resolveLanguage(request.query, request.yar)
       const stateParam = JSON.stringify({ slug, previewMode, returnUrl })
 
       const postLogoutUrl = new URL(SIGNED_OUT_PATH, BASE_URL)
@@ -163,7 +237,8 @@ export default [
         // Registered in OIDC_RUNNER_POST_LOGOUT_REDIRECT_URIS — without it
         // the provider shows its own success page instead of returning here
         post_logout_redirect_uri: postLogoutUrl.href,
-        state: stateParam
+        state: stateParam,
+        ui_locales: language
       })
       return h.redirect(logoutUrl.href)
     },
@@ -252,7 +327,8 @@ export default [
         setIdentity(request.yar, {
           iss: claims.iss,
           sub: claims.sub,
-          email
+          email,
+          ...(typeof claims.sid === 'string' && { sid: claims.sid })
         })
         setUserId(claims.sub)
 
@@ -326,7 +402,57 @@ export default [
 
       await endSignIn(request)
 
-      return h.view('auth/signed-out', { signInLink })
+      return h.view('auth/signed-out', {
+        signInLink,
+        language: resolveLanguage(request.query, request.yar),
+        languages: getAllLanguages()
+      })
+    }
+  }),
+  /**
+   * The provider calls this, not the citizen's browser, when it ends the
+   * citizen's session: at sign-out, or when their account is deleted (OpenID
+   * Connect Back-Channel Logout 1.0). The session is signed out on its next
+   * request, because the server cannot look up a session by its `sid`.
+   * @satisfies {ServerRoute<{ Payload: { logout_token: string } }>}
+   */
+  ({
+    method: 'POST',
+    path: BACKCHANNEL_LOGOUT_PATH,
+    async handler(request, h) {
+      try {
+        const { sid } = await verifyLogoutToken(
+          request,
+          request.payload.logout_token
+        )
+
+        await recordLogout(request.server, sid)
+      } catch (err) {
+        logger.error(
+          err,
+          `[backchannelLogoutRejected] Logout token not accepted - ${getErrorMessage(err)}`
+        )
+
+        return h
+          .response({ error: 'invalid_request' })
+          .code(StatusCodes.BAD_REQUEST)
+          .header('cache-control', 'no-store')
+      }
+
+      return h
+        .response()
+        .code(StatusCodes.NO_CONTENT)
+        .header('cache-control', 'no-store')
+    },
+    options: {
+      auth: false,
+      // The provider sends no crumb, and the logout token is the proof
+      plugins: { crumb: false },
+      validate: {
+        payload: Joi.object({ logout_token: Joi.string().required() }).unknown(
+          true
+        )
+      }
     }
   })
 ]
@@ -338,5 +464,5 @@ export const CITIZEN_AUTH_ROUTE_OPTIONS = {
 }
 
 /**
- * @import { Request, ServerRoute, RouteOptionsAccess } from '@hapi/hapi'
+ * @import { Request, ResponseToolkit, ServerRoute, RouteOptionsAccess } from '@hapi/hapi'
  */

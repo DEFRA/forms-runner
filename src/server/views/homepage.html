@@ -10,7 +10,9 @@
 {% set pageTitle = context.translator.tForm('title') %}
 
 {% set statusTagClasses = {
+  processing: "govuk-tag--blue",
   inProgress: "govuk-tag--teal",
+  submitted: "govuk-tag--green",
   expired: "govuk-tag--red",
   deleted: "govuk-tag--red"
 } %}
@@ -40,11 +42,13 @@
       <span class="govuk-caption-l">{{ tR('signIn.homepage.caption') }}</span>
       <h1 class="govuk-heading-xl">{{ pageTitle }}</h1>
 
-      {{ govukButton({
-        text: tR('signIn.homepage.startButton'),
-        href: startUrl,
-        classes: "govuk-button--secondary"
-      }) }}
+      <form method="post" action="{{ startUrl }}" aria-label="Start form">
+        <input type="hidden" name="crumb" value="{{ crumb }}" />
+        {{ govukButton({
+          text: tR('signIn.homepage.startButton'),
+          classes: "govuk-button--secondary"
+        }) }}
+      </form>
 
       {% if savedForms.length %}
         {% set rows = [] %}
@@ -78,7 +82,7 @@
             { html: statusHtml },
             { text: savedForm.lastUpdated },
             { text: savedForm.savedUntil },
-            { html: actionsHtml }
+            { html: '' if savedForm.isProcessing else actionsHtml }
           ]), rows) %}
         {% endfor %}
 

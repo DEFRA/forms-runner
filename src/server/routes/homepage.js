@@ -3,18 +3,26 @@ import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
 import { slugSchema } from '@defra/forms-model'
 import Joi from 'joi'
 
-import { HOMEPAGE_PREFIX, PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
-import { formatDate, formatDateTime } from '~/src/server/helpers/date-helper.js'
-import { getFormHref } from '~/src/server/helpers/route-helpers.js'
+import { config } from '~/src/config/index.js'
+import {
+  FormRowStatus,
+  HOMEPAGE_PREFIX,
+  PREVIEW_PATH_PREFIX
+} from '~/src/server/constants.js'
+import { formatDateTime } from '~/src/server/helpers/date-helper.js'
+import {
+  constructHomepageLink,
+  getStartNewFormHref
+} from '~/src/server/helpers/route-helpers.js'
 import { sessionNames } from '~/src/server/helpers/session-names.js'
 import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/routes/auth.js'
-import {
-  SavedFormStatus,
-  getFormStatus
-} from '~/src/server/routes/save-and-exit-helper.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
-import { getSavedForms } from '~/src/server/services/submissionService.js'
+import { getFormRecords } from '~/src/server/services/submissionService.js'
+import { getAllLanguages } from '~/src/server/utils/utils.js'
+
+const authBase = config.get('oidc.issuer')
+const runnerBase = config.get('baseUrl')
 
 /**
  * A saved form as the table shows it. The dates are formatted and the status
@@ -24,31 +32,127 @@ import { getSavedForms } from '~/src/server/services/submissionService.js'
  * @param {string} formId
  */
 function mapToRow(savedForm, translator, formId) {
-  const status = getFormStatus(savedForm)
+  const status = savedForm.status
+
+  if (status === FormRowStatus.Processing) {
+    return {
+      referenceNumber: savedForm.referenceNumber,
+      status,
+      lastUpdated: '',
+      savedUntil: ''
+    }
+  }
 
   return {
     referenceNumber: savedForm.referenceNumber,
     status,
     lastUpdated: formatDateTime(savedForm.createdAt, translator),
-    savedUntil: formatDate(savedForm.expireAt, translator),
+    savedUntil:
+      status === FormRowStatus.Deleted || !savedForm.expireAt
+        ? ''
+        : formatDateTime(savedForm.expireAt, translator),
     // An expired form cannot be resumed, so it gets no link
     resumeUrl:
-      status === SavedFormStatus.InProgress
+      status === FormRowStatus.InProgress
         ? `/resume-form/${formId}/${savedForm.magicLinkId}`
         : undefined,
     // An expired form cannot be deleted, so it gets no link
     deleteUrl:
-      status === SavedFormStatus.InProgress
+      status === FormRowStatus.InProgress
         ? `/delete-form/${formId}/${savedForm.magicLinkId}`
         : undefined
   }
 }
 
 /**
+ * @typedef { FormParams & { action?: string } } HomepageParams
+ */
+
+/**
+ * Construct the tabs
+ * @param {FormMetadata} form
+ * @param {Translator} translator
+ * @param {{ isPreview: boolean, state: FormStatus, slug: string }} input
+ */
+function buildNavigation(form, translator, { isPreview, state, slug }) {
+  const { t } = translator
+  const startUrl = getStartNewFormHref(form, isPreview, state)
+
+  const homepageBase = constructHomepageLink(
+    slug,
+    isPreview ? state : undefined
+  )
+
+  const securityUrl = new URL('/account', authBase)
+  // The account pages show `returnUrl` as their "Back" link and check it
+  // against `client_id`. They also send the citizen back here to sign in
+  // when their session there has ended.
+  securityUrl.searchParams.append('client_id', config.get('oidc.clientId'))
+  securityUrl.searchParams.append('returnUrl', `${runnerBase}${homepageBase}`)
+
+  const serviceNavigationParams = {
+    serviceName: form.title,
+    navigation: [
+      {
+        href: homepageBase,
+        text: t('signIn.homepage.tabForms'),
+        active: true
+      },
+      {
+        href: securityUrl.href,
+        text: t('signIn.homepage.tabSecurity'),
+        active: false
+      }
+    ]
+  }
+
+  return {
+    serviceNavigationParams,
+    startUrl,
+    homepageBase
+  }
+}
+
+/**
+ * Handles Save-and-exit forms or submitted forms that have been 'saved/submitted' by the user
+ * but not yet been processed in the queue, and therefore don't yet exist in 'saved forms'.
+ * Their reference numbers are added to the session at point of save/submission, and then
+ * checked here to see if they are not yet showing as 'saved forms'.
+ * @param {Request<{ Params: HomepageParams }>} request
+ * @param {SavedForm[]} savedForms
+ */
+export function addInFlightForms(request, savedForms) {
+  const savedFormRefs = new Set(savedForms.map((form) => form.referenceNumber))
+  const allForms = structuredClone(savedForms)
+  const inFlightFormRefs = /** @type { string[] | undefined } */ (
+    request.yar.get(sessionNames.inFlightForms)
+  )
+  let processingCount = 0
+  if (inFlightFormRefs) {
+    inFlightFormRefs.forEach((formRef) => {
+      if (!savedFormRefs.has(formRef)) {
+        allForms.unshift(
+          // @ts-expect-error - partial data row as 'is processing'
+          {
+            referenceNumber: formRef,
+            status: FormRowStatus.Processing
+          }
+        )
+        processingCount++
+      }
+    })
+    if (processingCount === 0) {
+      request.yar.clear(sessionNames.inFlightForms)
+    }
+  }
+  return allForms
+}
+
+/**
  * Renders the homepage for the form state the URL names: live for
  * `/homepage/{slug}`, a preview for `/homepage/preview/{state}/{slug}`.
- * @param {Request<{ Params: FormParams }>} request
- * @param {ResponseToolkit<{ Params: FormParams }>} h
+ * @param {Request<{ Params: HomepageParams }>} request
+ * @param {ResponseToolkit<{ Params: HomepageParams }>} h
  */
 async function homepageHandler(request, h) {
   const { yar, params } = request
@@ -59,13 +163,20 @@ async function homepageHandler(request, h) {
 
   const form = await getFormMetadata(slug)
 
-  const { translator } = await getFormTranslator(request, form, previewStatus)
+  const { translator } = await getFormTranslator(
+    request,
+    form,
+    previewStatus,
+    true
+  )
 
-  const startUrl = getFormHref(form, isPreview, state)
+  const nav = buildNavigation(form, translator, { isPreview, state, slug })
 
   const { accessToken } = request.auth.credentials
 
-  const savedForms = await getSavedForms(accessToken, form.id, previewStatus)
+  const savedForms = await getFormRecords(accessToken, form.id, previewStatus)
+
+  const savedAndInFlightForms = addInFlightForms(request, savedForms)
 
   // Notification banner
   const notification = /** @type {string[] | undefined} */ (
@@ -74,11 +185,18 @@ async function homepageHandler(request, h) {
 
   return h.view('homepage', {
     notification,
-    startUrl,
-    savedForms: savedForms.map((savedForm) =>
+    serviceNavigationParams: nav.serviceNavigationParams,
+    startUrl: nav.startUrl,
+    savedForms: savedAndInFlightForms.map((savedForm) =>
       mapToRow(savedForm, translator, form.id)
     ),
-    context: { translator }
+    context: {
+      translator: {
+        // Force page to show language selector irrespective of form capability
+        ...translator,
+        languages: getAllLanguages()
+      }
+    }
   })
 }
 
@@ -107,14 +225,18 @@ export default [
     options: {
       auth: CITIZEN_AUTH_ROUTE_OPTIONS,
       validate: {
-        params: Joi.object({ state: stateSchema, slug: slugSchema }).required()
+        params: Joi.object({
+          state: stateSchema,
+          slug: slugSchema
+        }).required()
       }
     }
   })
 ]
 
 /**
- * @import { FormParams, Translator } from '@defra/forms-engine-plugin/types'
+ * @import { FormMetadata } from '@defra/forms-model'
+ * @import { FormParams, FormStatus, Translator } from '@defra/forms-engine-plugin/types'
  * @import { SavedForm } from '~/src/server/services/submissionService.js'
  * @import { Request, ResponseToolkit, ServerRoute } from '@hapi/hapi'
  */

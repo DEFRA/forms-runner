@@ -16,7 +16,9 @@ import {
   type FormMetadata,
   type SubmitResponsePayload
 } from '@defra/forms-model'
+import { type Request } from '@hapi/hapi'
 
+import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { publishFormAdapterEvent } from '~/src/server/messaging/formAdapterEventPublisher.js'
 import { getFormMetadataById } from '~/src/server/services/formsService.js'
@@ -113,6 +115,16 @@ export class OutputService implements IOutputService {
 
       if (Object.keys(customMeta).length > 0) {
         submissionPayload.meta.custom = customMeta
+      }
+
+      const auth = (request as unknown as Request).auth
+      if (auth.isAuthenticated && auth.strategy === CITIZEN_SESSION) {
+        const credentials = auth.credentials
+
+        submissionPayload.meta.auth = {
+          sub: credentials.sub,
+          issuer: credentials.iss
+        }
       }
 
       const messageId = await publishFormAdapterEvent(submissionPayload)
