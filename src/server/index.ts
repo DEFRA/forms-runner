@@ -51,12 +51,10 @@ import { generateReferenceNumber } from '~/src/server/services/submissionService
 import { type RouteConfig } from '~/src/server/types.js'
 import { resolveLanguage } from '~/src/server/utils/utils.js'
 
-if (process.env.HTTP_PROXY) {
-  Wreck.agents = {
-    http: http.globalAgent,
-    https: https.globalAgent,
-    httpsAllowUnauthorized: https.globalAgent
-  }
+Wreck.agents = {
+  http: http.globalAgent,
+  https: https.globalAgent,
+  httpsAllowUnauthorized: https.globalAgent
 }
 
 const serverOptions = (): ServerOptions => {
