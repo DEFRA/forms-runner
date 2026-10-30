@@ -1,9 +1,20 @@
-import { FormStatus } from '@defra/forms-engine-plugin/types'
+import {
+  FormStatus,
+  type AnyFormRequest,
+  type FormContext,
+  type FormResponseToolkit
+} from '@defra/forms-engine-plugin/types'
 import { type Server } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 
+import { config } from '~/src/config/index.js'
+import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
 import { FORM_PREFIX } from '~/src/server/constants.js'
-import { configureEnginePlugin, createServer } from '~/src/server/index.js'
+import {
+  configureEnginePlugin,
+  createServer,
+  onRequest
+} from '~/src/server/index.js'
 import {
   getFormDefinition,
   getFormMetadata
@@ -523,5 +534,135 @@ describe('Model cache', () => {
       )
       expect(mockH.redirect).toHaveBeenCalledWith('/save-and-exit/test-form')
     })
+  })
+})
+
+describe('onRequest', () => {
+  const continueResponse = {}
+  const takeoverResponse = {}
+
+  const createRequest = (
+    model: object | undefined,
+    auth: { isAuthenticated: boolean; strategy?: string },
+    params: Record<string, string> = {
+      path: '/page-one',
+      slug: 'test-form'
+    },
+    path = '/form/test-form/page-one'
+  ) =>
+    ({
+      app: { model },
+      auth,
+      params,
+      path
+    }) as unknown as AnyFormRequest
+
+  const createToolkit = () => {
+    const takeover = jest.fn().mockReturnValue(takeoverResponse)
+    const redirect = jest.fn().mockReturnValue({ takeover })
+
+    return {
+      h: {
+        continue: continueResponse,
+        redirect
+      } as unknown as FormResponseToolkit,
+      redirect,
+      takeover
+    }
+  }
+
+  test('continues when there is no form model on the request', () => {
+    const request = createRequest(undefined, {
+      isAuthenticated: false
+    })
+    const { h, redirect } = createToolkit()
+
+    const result = onRequest(request, h, {} as FormContext)
+
+    expect(result).toBe(continueResponse)
+    expect(redirect).not.toHaveBeenCalled()
+  })
+
+  test('continues when the form does not require authentication', () => {
+    const request = createRequest(
+      { def: { metadata: {} } },
+      { isAuthenticated: false }
+    )
+    const { h, redirect } = createToolkit()
+
+    const result = onRequest(request, h, {} as FormContext)
+
+    expect(result).toBe(continueResponse)
+    expect(redirect).not.toHaveBeenCalled()
+  })
+
+  test('redirects unauthenticated users to the sign-in-required page', () => {
+    const request = createRequest(
+      {
+        def: {
+          name: 'test-form',
+          metadata: { options: { allowCopy: true } }
+        }
+      },
+      { isAuthenticated: false },
+      { path: '/page-one', slug: 'test-form', state: FormStatus.Draft },
+      '/form/test-form/page-one'
+    )
+    const { h, redirect, takeover } = createToolkit()
+
+    const result = onRequest(request, h, {} as FormContext)
+    const expectedUrl = new URL(
+      '/signin-required/test-form',
+      config.get('baseUrl')
+    )
+    expectedUrl.searchParams.append('returnUrl', '/form/test-form/page-one')
+
+    expect(redirect).toHaveBeenCalledWith(expectedUrl.href)
+    expect(takeover).toHaveBeenCalled()
+    expect(result).toBe(takeoverResponse)
+  })
+
+  test('redirects authenticated users when they are not using citizen sign-in', () => {
+    const request = createRequest(
+      {
+        def: {
+          name: 'test-form',
+          metadata: { options: { allowCopy: true } }
+        }
+      },
+      { isAuthenticated: true, strategy: 'cookie' },
+      { path: '/page-one', slug: 'test-form' },
+      '/form/test-form/page-one'
+    )
+    const { h, redirect } = createToolkit()
+
+    const result = onRequest(request, h, {} as FormContext)
+
+    const expectedUrl = new URL(
+      '/signin-required/test-form',
+      config.get('baseUrl')
+    )
+    expectedUrl.searchParams.append('returnUrl', '/form/test-form/page-one')
+
+    expect(redirect).toHaveBeenCalledWith(expectedUrl.href)
+    expect(result).toBe(takeoverResponse)
+  })
+
+  test('continues authenticated users using citizen sign-in', () => {
+    const request = createRequest(
+      {
+        def: {
+          name: 'test-form',
+          metadata: { options: { allowCopy: true } }
+        }
+      },
+      { isAuthenticated: true, strategy: CITIZEN_SESSION }
+    )
+    const { h, redirect } = createToolkit()
+
+    const result = onRequest(request, h, {} as FormContext)
+
+    expect(result).toBe(continueResponse)
+    expect(redirect).not.toHaveBeenCalled()
   })
 })

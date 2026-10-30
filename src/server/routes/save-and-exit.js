@@ -10,6 +10,7 @@ import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
 import { config } from '~/src/config/index.js'
+import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/auth/route-options.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { EN_GB, PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
@@ -38,7 +39,6 @@ import {
   resumeSuccessViewModel,
   validatePayloadSchema
 } from '~/src/server/models/save-and-exit.js'
-import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/routes/auth.js'
 import {
   clearFormState,
   hasState
@@ -866,7 +866,7 @@ export default [
 
       const form = await clearFormState(request, slug, state)
 
-      return h.redirect(getFormHref(form, true, state))
+      return h.redirect(getFormHref(form.slug, true, state))
     },
     options: {
       validate: {
@@ -893,7 +893,7 @@ export default [
 
       const form = await clearFormState(request, slug, FormStatus.Live)
 
-      return h.redirect(getFormHref(form, false, FormStatus.Live))
+      return h.redirect(getFormHref(form.slug, false, FormStatus.Live))
     },
     options: {
       validate: {

@@ -10,6 +10,7 @@ import {
   type FormContext,
   type FormRequestPayload,
   type FormResponseToolkit,
+  type OnRequestCallback,
   type PluginOptions
 } from '@defra/forms-engine-plugin/types'
 import { type FormDefinition } from '@defra/forms-model'
@@ -26,6 +27,7 @@ import Wreck from '@hapi/wreck'
 import blipp from 'blipp'
 
 import { config } from '~/src/config/index.js'
+import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
 import forwardLogs from '~/src/server/common/helpers/logging/forward-logs.js'
 import { requestLogger } from '~/src/server/common/helpers/logging/request-logger.js'
 import { requestTracing } from '~/src/server/common/helpers/logging/request-tracing.js'
@@ -49,7 +51,10 @@ import * as formsService from '~/src/server/services/formsService.js'
 import { createOutputService } from '~/src/server/services/outputService.js'
 import { generateReferenceNumber } from '~/src/server/services/submissionService.js'
 import { type RouteConfig } from '~/src/server/types.js'
-import { resolveLanguage } from '~/src/server/utils/utils.js'
+import {
+  formRequiresAuthentication,
+  resolveLanguage
+} from '~/src/server/utils/utils.js'
 
 if (process.env.HTTP_PROXY) {
   Wreck.agents = {
@@ -58,6 +63,8 @@ if (process.env.HTTP_PROXY) {
     httpsAllowUnauthorized: https.globalAgent
   }
 }
+
+const BASE_URL = config.get('baseUrl')
 
 const serverOptions = (): ServerOptions => {
   const serverOptions: ServerOptions = {
@@ -113,6 +120,31 @@ export async function getForm(importPath: string) {
   return definition
 }
 
+export const onRequest: OnRequestCallback = (request, h) => {
+  const model = request.app.model
+
+  if (!model) {
+    return h.continue
+  }
+
+  const requiresAuth = formRequiresAuthentication(model.def)
+
+  if (!requiresAuth) {
+    return h.continue
+  }
+
+  const { auth } = request
+
+  if (auth.isAuthenticated && auth.strategy === CITIZEN_SESSION) {
+    return h.continue
+  }
+
+  const url = new URL(`/signin-required/${request.params.slug}`, BASE_URL)
+  url.searchParams.append('returnUrl', request.path)
+
+  return h.redirect(url.href).takeover()
+}
+
 export const configureEnginePlugin = async ({
   formFileName,
   formFilePath
@@ -159,6 +191,7 @@ export const configureEnginePlugin = async ({
       services,
       viewContext: context,
       baseUrl: config.get('baseUrl'),
+      onRequest,
       saveAndExit: (
         request: FormRequestPayload,
         h: FormResponseToolkit,
