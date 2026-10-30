@@ -1,6 +1,5 @@
 import { join } from 'node:path'
 
-import { submit } from '@defra/forms-engine-plugin/services/formSubmissionService.js'
 import { FormAction } from '@defra/forms-engine-plugin/types'
 import { StatusCodes } from 'http-status-codes'
 import * as client from 'openid-client'
@@ -14,7 +13,8 @@ import {
 } from '~/src/server/services/formsService.js'
 import {
   generateReferenceNumber,
-  getFormRecords
+  getFormRecords,
+  submit
 } from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
@@ -25,7 +25,6 @@ jest.mock('~/src/server/services/formsService.js')
 jest.mock('~/src/server/services/submissionService.js')
 jest.mock('~/src/server/messaging/publish.js')
 jest.mock('~/src/server/messaging/formAdapterEventPublisher.ts')
-jest.mock('@defra/forms-engine-plugin/services/formSubmissionService.js')
 jest.mock('~/src/server/secure-context.js')
 jest.mock('openid-client', () => ({
   ...jest.requireActual('openid-client'),

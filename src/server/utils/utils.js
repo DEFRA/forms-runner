@@ -1,4 +1,7 @@
-import { applyTraceHeaders as applyTraceHeader } from '@defra/forms-common'
+import {
+  applyLogContextHeaders as applyLogContextHeader,
+  applyTraceHeaders as applyTraceHeader
+} from '@defra/forms-common'
 import { getAvailableLanguages } from '@defra/forms-engine-plugin'
 
 import { config } from '~/src/config/index.js'
@@ -15,6 +18,36 @@ export function applyTraceHeaders(
   header = config.get('tracing').header
 ) {
   return applyTraceHeader(existingHeaders, header)
+}
+
+/**
+ * Gets the origins of the forms services the runner calls. The session ID and
+ * form reference number are only sent to these, never to a service outside
+ * forms.
+ * @returns {string[]}
+ */
+function getFormsServiceOrigins() {
+  return [config.get('managerUrl'), config.get('submissionUrl')]
+    .filter((serviceUrl) => serviceUrl && URL.canParse(serviceUrl))
+    .map((serviceUrl) => new URL(serviceUrl).origin)
+}
+
+/**
+ * Adds the session ID and form reference number of the current log context to
+ * the headers of an outbound HTTP request, when the request is to another
+ * forms service
+ * @param {string} url - the URL of the request
+ * @param {Record<string, string> | undefined} [existingHeaders] - the existing headers
+ * @returns {Record<string, string> | undefined}
+ */
+export function applyLogContextHeaders(url, existingHeaders) {
+  const origin = URL.canParse(url) ? new URL(url).origin : undefined
+
+  if (!origin || !getFormsServiceOrigins().includes(origin)) {
+    return existingHeaders
+  }
+
+  return applyLogContextHeader(existingHeaders)
 }
 
 /**

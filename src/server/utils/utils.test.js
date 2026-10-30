@@ -2,6 +2,7 @@ import { createLogContext, runWithLogContext } from '@defra/forms-common'
 
 import { config } from '~/src/config/index.js'
 import {
+  applyLogContextHeaders,
   applyTraceHeaders,
   getFeedbackFormLink,
   localReturnPath,
@@ -10,6 +11,40 @@ import {
 } from '~/src/server/utils/utils.js'
 
 describe('utils', () => {
+  describe('applyLogContextHeaders', () => {
+    const context = createLogContext({
+      correlationId: 'my-trace-id',
+      sessionId: 'my-session-id',
+      referenceNumber: 'ABC-123-DEF'
+    })
+
+    it('should add the session ID and reference number for a forms service', () => {
+      const result = runWithLogContext(context, () =>
+        applyLogContextHeaders(`${config.get('managerUrl')}/forms`, {
+          Authorization: 'Bearer token'
+        })
+      )
+
+      expect(result).toEqual({
+        Authorization: 'Bearer token',
+        'x-forms-session-id': 'my-session-id',
+        'x-forms-reference-number': 'ABC-123-DEF'
+      })
+    })
+
+    it.each(['https://example.com/api', '/relative'])(
+      'should not add them for %s',
+      (url) => {
+        const existingHeaders = { Authorization: 'Bearer token' }
+        const result = runWithLogContext(context, () =>
+          applyLogContextHeaders(url, existingHeaders)
+        )
+
+        expect(result).toBe(existingHeaders)
+      }
+    )
+  })
+
   describe('Header helper functions', () => {
     /**
      * Runs a function inside the log context of a request

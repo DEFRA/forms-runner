@@ -2,13 +2,18 @@ import { FormStatus } from '@defra/forms-engine-plugin/types'
 import { type Server } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 
+import { addReferenceNumberToLogContext } from '~/src/server/common/helpers/logging/request-tracing.js'
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { configureEnginePlugin, createServer } from '~/src/server/index.js'
 import {
   getFormDefinition,
   getFormMetadata
 } from '~/src/server/services/formsService.js'
-import { generateReferenceNumber } from '~/src/server/services/submissionService.js'
+import {
+  generateReferenceNumber,
+  persistFiles,
+  submit
+} from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 
 jest.mock('~/src/server/services/formsService.js')
@@ -522,6 +527,23 @@ describe('Model cache', () => {
         true
       )
       expect(mockH.redirect).toHaveBeenCalledWith('/save-and-exit/test-form')
+    })
+
+    test('should add the form reference number to the log context', async () => {
+      const [pluginObject] = await configureEnginePlugin({})
+
+      expect(pluginObject.options.onRequest).toBe(
+        addReferenceNumberToLogContext
+      )
+    })
+
+    test('should use the runner submission service', async () => {
+      const [pluginObject] = await configureEnginePlugin({})
+
+      expect(pluginObject.options.services?.formSubmissionService).toEqual({
+        persistFiles,
+        submit
+      })
     })
   })
 })

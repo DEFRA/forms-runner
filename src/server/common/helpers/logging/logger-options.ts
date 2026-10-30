@@ -1,4 +1,4 @@
-import { addLogContextToMessage, logContextMixin } from '@defra/forms-common'
+import { logContextMixin } from '@defra/forms-common'
 import { ecsFormat } from '@elastic/ecs-pino-format'
 import { type Options } from 'hapi-pino'
 import { type LoggerOptions, type TransportSingleOptions } from 'pino'
@@ -35,8 +35,5 @@ export const loggerOptions = {
   },
   level: logConfig.level,
   ...formatters[logConfig.format],
-  mixin: logContextMixin,
-  hooks: {
-    logMethod: addLogContextToMessage
-  }
+  mixin: logContextMixin
 } satisfies Options
