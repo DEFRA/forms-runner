@@ -1,6 +1,7 @@
 import { getCacheService } from '@defra/forms-engine-plugin/engine/helpers.js'
 
 import { FormRowStatus, SAVE_AND_EXIT_PAYLOAD } from '~/src/server/constants.js'
+import { sessionNames } from '~/src/server/helpers/session-names.js'
 import { getFormMetadataWithGuard } from '~/src/server/services/formMetadataGuards.js'
 
 /**
@@ -53,6 +54,17 @@ export async function clearFormState(request, slug, state) {
   await cacheService.clearState(request)
 
   return form
+}
+
+/**
+ * Generate a key (bucket name) for in-flight forms based on the slug, and status, so that
+ * all in-flight forms for the same slug and status are grouped together.
+ * @param {string} slug
+ * @param { FormStatus | undefined } status
+ * @returns {string}
+ */
+export function getInflightSessionKey(slug, status) {
+  return `${sessionNames.inFlightForms}:${slug}:${status ?? ''}`
 }
 
 /**

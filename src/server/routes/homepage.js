@@ -16,6 +16,7 @@ import {
 } from '~/src/server/helpers/route-helpers.js'
 import { sessionNames } from '~/src/server/helpers/session-names.js'
 import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/routes/auth.js'
+import { getInflightSessionKey } from '~/src/server/routes/save-and-exit-helper.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
 import { getFormRecords } from '~/src/server/services/submissionService.js'
@@ -120,12 +121,15 @@ function buildNavigation(form, translator, { isPreview, state, slug }) {
  * checked here to see if they are not yet showing as 'saved forms'.
  * @param {Request<{ Params: HomepageParams }>} request
  * @param {SavedForm[]} savedForms
+ * @param {string} slug
+ * @param { FormStatus | undefined } state
  */
-export function addInFlightForms(request, savedForms) {
+export function addInFlightForms(request, savedForms, slug, state) {
   const savedFormRefs = new Set(savedForms.map((form) => form.referenceNumber))
   const allForms = structuredClone(savedForms)
+  const sessionKey = getInflightSessionKey(slug, state)
   const inFlightFormRefs = /** @type { string[] | undefined } */ (
-    request.yar.get(sessionNames.inFlightForms)
+    request.yar.get(sessionKey)
   )
   let processingCount = 0
   if (inFlightFormRefs) {
@@ -142,7 +146,7 @@ export function addInFlightForms(request, savedForms) {
       }
     })
     if (processingCount === 0) {
-      request.yar.clear(sessionNames.inFlightForms)
+      request.yar.clear(sessionKey)
     }
   }
   return allForms
@@ -176,7 +180,12 @@ async function homepageHandler(request, h) {
 
   const savedForms = await getFormRecords(accessToken, form.id, previewStatus)
 
-  const savedAndInFlightForms = addInFlightForms(request, savedForms)
+  const savedAndInFlightForms = addInFlightForms(
+    request,
+    savedForms,
+    slug,
+    previewStatus
+  )
 
   // Notification banner
   const notification = /** @type {string[] | undefined} */ (
