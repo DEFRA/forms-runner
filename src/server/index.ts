@@ -28,7 +28,6 @@ import blipp from 'blipp'
 
 import { config } from '~/src/config/index.js'
 import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
-import forwardLogs from '~/src/server/common/helpers/logging/forward-logs.js'
 import { requestLogger } from '~/src/server/common/helpers/logging/request-logger.js'
 import { requestTracing } from '~/src/server/common/helpers/logging/request-tracing.js'
 import { buildRedisClient } from '~/src/server/common/helpers/redis-client.js'
@@ -241,7 +240,6 @@ export async function createServer(routeConfig?: RouteConfig) {
 
   await server.register(requestLogger)
   await server.register(requestTracing)
-  await server.register(forwardLogs)
 
   if (config.get('isProduction')) {
     prepareSecureContext(server)
