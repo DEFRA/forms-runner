@@ -293,6 +293,7 @@
       "expired": "Expired",
       "deleted": "Deleted",
       "processing": "Processing",
+      "submitted": "Submitted",
       "actions": "Actions",
       "continue": "Continue",
       "delete": "Delete",
@@ -311,6 +312,15 @@
     "goBack": "To go back",
     "signInAgain": "sign in again",
     "goToGovUk": "go to the GOV.UK homepage"
+  },
+  "signinRequired": {
+    "pageTitle": "Sign in to use this form",
+    "heading": "Sign in to use this form",
+    "body": [
+      "Sign in with your email address. We’ll send you a security code to check it’s you.",
+      "If you have not signed in before, we’ll ask for a mobile phone number so you can recover your sign-in later."
+    ],
+    "signinButtonText": "Sign in"
   },
   "deleteForm": {
     "title": "Are you sure you want to delete this draft?",

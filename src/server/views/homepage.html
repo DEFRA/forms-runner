@@ -10,7 +10,9 @@
 {% set pageTitle = context.translator.tForm('title') %}
 
 {% set statusTagClasses = {
+  processing: "govuk-tag--blue",
   inProgress: "govuk-tag--teal",
+  submitted: "govuk-tag--green",
   expired: "govuk-tag--red",
   deleted: "govuk-tag--red"
 } %}

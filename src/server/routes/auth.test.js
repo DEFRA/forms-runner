@@ -1,0 +1,102 @@
+import { StatusCodes } from 'http-status-codes'
+
+import { config } from '~/src/config/index.js'
+import { createServer } from '~/src/server/index.js'
+import {
+  getFormDefinition,
+  getFormMetadata
+} from '~/src/server/services/formsService.js'
+import * as fixtures from '~/test/fixtures/index.js'
+import { renderResponse } from '~/test/helpers/component-helpers.js'
+
+jest.mock('~/src/server/services/formsService.js')
+
+describe('Auth routes', () => {
+  /** @type {Server} */
+  let server
+
+  beforeAll(async () => {
+    config.set('useSignInFeature', true)
+
+    server = await createServer({
+      enforceCsrf: false
+    })
+    await server.initialize()
+  })
+
+  const credentials = {
+    iss: 'http://localhost:3011',
+    sub: 'sub-1',
+    email: 'citizen@example.com',
+    idToken: 'header.payload.signature',
+    accessToken: 'access-1',
+    accessTokenExpiresAt: 1,
+    refreshToken: 'refresh-old'
+  }
+
+  describe('GET /signin-required/{slug}', () => {
+    beforeEach(() => {
+      jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+      jest.mocked(getFormDefinition).mockResolvedValue({
+        ...fixtures.form.definition,
+        metadata: { translations: { cy: {} } }
+      })
+    })
+
+    test('get route responds OK in en-GB', async () => {
+      const options = {
+        method: 'GET',
+        url: '/signin-required/my-slug?returnUrl=%2Fform%2Fmy-slug%2Fpage-one',
+        auth: { strategy: 'citizen-session', credentials }
+      }
+
+      const { response, container } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.OK)
+
+      const $heading = container.getByRole('heading', { level: 1 })
+
+      expect($heading).toBeInTheDocument()
+      expect($heading).toHaveTextContent('Sign in to use this form')
+
+      const $button = container.getByRole('button', { name: 'Sign in' })
+
+      expect($button).toBeInTheDocument()
+      expect($button).toHaveAttribute(
+        'href',
+        '/auth/sign-in?returnUrl=%2Fform%2Fmy-slug%2Fpage-one'
+      )
+    })
+
+    test('get route responds OK in cy', async () => {
+      const options = {
+        method: 'GET',
+        url: '/signin-required/my-slug?returnUrl=%2Fform%2Fmy-slug%2Fpage-one&language=cy',
+        auth: { strategy: 'citizen-session', credentials }
+      }
+
+      const { response, container } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.OK)
+
+      const $heading = container.getByRole('heading', { level: 1 })
+
+      expect($heading).toBeInTheDocument()
+      expect($heading).toHaveTextContent(
+        "Mewngofnodwch i ddefnyddio'r ffurflen hon"
+      )
+
+      const $button = container.getByRole('button', { name: 'Mewngofnodi' })
+
+      expect($button).toBeInTheDocument()
+      expect($button).toHaveAttribute(
+        'href',
+        '/auth/sign-in?returnUrl=%2Fform%2Fmy-slug%2Fpage-one'
+      )
+    })
+  })
+})
+
+/**
+ * @import { Server } from '@hapi/hapi'
+ */

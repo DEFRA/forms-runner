@@ -11,3 +11,18 @@ export const CALLBACK_PATH = '/auth/callback'
 export const SAVE_AND_EXIT_PAYLOAD = 'SAVE_AND_EXIT_PAYLOAD'
 export const EN_GB = 'en-GB'
 export const CY = 'cy'
+
+/**
+ * @type {{ Processing: 'processing', InProgress: 'inProgress',   Submitted: 'submitted', Expired: 'expired',   Deleted: 'deleted' }}
+ */
+export const FormRowStatus = {
+  Processing: 'processing',
+  InProgress: 'inProgress',
+  Submitted: 'submitted',
+  Expired: 'expired',
+  Deleted: 'deleted'
+}
+
+/**
+ * @typedef {typeof FormRowStatus[keyof typeof FormRowStatus]} FormRowStatusType
+ */
