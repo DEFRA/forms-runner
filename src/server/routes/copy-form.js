@@ -101,19 +101,17 @@ export default [
         text: t('common.back', language),
         href: constructHomepageLink(form.slug, status)
       }
-      const submittedAt = formatDateTime(
-        submissionToCopy.meta.timestamp.toString(),
-        translator
-      )
-
-      return h.view('copy-form/confirm-copy-form', {
+      const submittedAt = getSubmittedAtDate(submissionToCopy, translator)
+      const model = copyFormViewModel(
         pageTitle,
         backLink,
         form,
         referenceNumber,
         submittedAt,
-        context: getTranslatorContext(translator)
-      })
+        translator
+      )
+
+      return h.view('copy-form/confirm-copy-form', model)
     },
     options: {
       auth: CITIZEN_AUTH_ROUTE_OPTIONS,
@@ -202,19 +200,17 @@ export default [
         text: t('common.back', language),
         href: `/confirm-copy-form/${form.id}/${referenceNumber}`
       }
-      const submittedAt = formatDateTime(
-        submissionToCopy.meta.timestamp.toString(),
-        translator
-      )
-
-      return h.view('copy-form/confirm-copy-form-changed', {
+      const submittedAt = getSubmittedAtDate(submissionToCopy, translator)
+      const model = copyFormViewModel(
         pageTitle,
         backLink,
         form,
         referenceNumber,
         submittedAt,
-        context: getTranslatorContext(translator)
-      })
+        translator
+      )
+
+      return h.view('copy-form/confirm-copy-form-changed', model)
     },
     options: {
       auth: CITIZEN_AUTH_ROUTE_OPTIONS,
@@ -268,6 +264,28 @@ export default [
     }
   })
 ]
+
+function copyFormViewModel(
+  pageTitle,
+  backLink,
+  form,
+  referenceNumber,
+  submittedAt,
+  translator
+) {
+  return {
+    pageTitle,
+    backLink,
+    form,
+    referenceNumber,
+    submittedAt,
+    context: getTranslatorContext(translator)
+  }
+}
+
+function getSubmittedAtDate(submissionToCopy, translator) {
+  return formatDateTime(submissionToCopy.meta.timestamp.toString(), translator)
+}
 
 /**
  * Get the form definition associated with a submission
