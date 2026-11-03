@@ -13,6 +13,7 @@ import {
   getFormRecords,
   getSaveAndExitDetails,
   getSavedFormState,
+  getSubmissionRecord,
   validateSaveAndExitCredentials
 } from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
@@ -277,6 +278,33 @@ describe('Submission service', () => {
       await expect(
         deleteSavedFormState(ACCESS_TOKEN, magicLinkId)
       ).rejects.toThrow('Could not delete the saved form')
+    })
+  })
+
+  describe('getSubmissionRecord', () => {
+    it('returns the submission record', async () => {
+      jest.mocked(getJson).mockResolvedValue({
+        res: /** @type {IncomingMessage} */ ({
+          statusCode: StatusCodes.OK
+        }),
+        payload: {
+          data: {},
+          meta: {
+            referenceNumber: 'XXX-XXX-XXX'
+          }
+        }
+      })
+
+      const submission = await getSubmissionRecord(
+        'XXX-XXX-XXX',
+        'access-token'
+      )
+
+      expect(submission?.meta.referenceNumber).toBe('XXX-XXX-XXX')
+      expect(getJson).toHaveBeenCalledWith(
+        `${SUBMISSION_URL}/submission/XXX-XXX-XXX`,
+        { headers: { authorization: 'Bearer access-token' } }
+      )
     })
   })
 })
