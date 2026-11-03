@@ -7,6 +7,7 @@ import * as client from 'openid-client'
 import { config } from '~/src/config/index.js'
 import { CITIZEN_KEY, TOKENS_KEY } from '~/src/server/auth/accountSession.js'
 import { verifyLogoutToken } from '~/src/server/auth/backchannelLogout.js'
+import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/auth/route-options.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import {
   BACKCHANNEL_LOGOUT_PATH,
@@ -15,7 +16,6 @@ import {
   SIGN_OUT_PATH
 } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
-import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/routes/auth.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
