@@ -27,8 +27,11 @@ export const get = <BodyType>(url: string, options?: RequestOptions) => {
   return request<BodyType>('get', url, options)
 }
 
-export const getJson = <BodyType extends object>(url: string) => {
-  return get<BodyType>(url, { json: true })
+export const getJson = <BodyType extends object>(
+  url: string,
+  options?: RequestOptions
+) => {
+  return get<BodyType>(url, { ...options, json: true })
 }
 
 export const post = <BodyType>(url: string, options: RequestOptions) => {
