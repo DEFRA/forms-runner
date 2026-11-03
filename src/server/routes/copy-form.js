@@ -25,6 +25,49 @@ import { getAllLanguages } from '~/src/server/utils/utils.js'
 
 export const CONFIRM_COPY_NAME = 'confirmCopy'
 
+const copyFormParamsSchema = Joi.object({
+  formId: Joi.string().required(),
+  referenceNumber: Joi.string().required()
+}).required()
+
+const copyFormPayloadSchema = Joi.object()
+  .keys({
+    [CONFIRM_COPY_NAME]: Joi.boolean().required()
+  })
+  .required()
+
+/**
+ * @param {Awaited<ReturnType<typeof getFormTranslator>>['translator']} translator
+ */
+const getTranslatorContext = (translator) => ({
+  translator: {
+    ...translator,
+    languages: getAllLanguages()
+  }
+})
+
+/**
+ * @param {CopyFormParams} params
+ * @param {string} accessToken
+ * @returns {Promise<FormAndSubmission>}
+ */
+async function getFormAndSubmission(params, accessToken) {
+  const { formId, referenceNumber } = params
+  const form = await getFormMetadataById(formId)
+  const submissionToCopy = await getSubmissionRecord(
+    referenceNumber,
+    accessToken
+  )
+
+  if (!submissionToCopy) {
+    throw Boom.notFound(
+      `Cannot copy form '${referenceNumber}' because it was not found`
+    )
+  }
+
+  return { form, referenceNumber, submissionToCopy }
+}
+
 export default [
   /**
    * @satisfies {ServerRoute<{ Params: CopyFormParams }>}
@@ -34,20 +77,9 @@ export default [
     path: '/confirm-copy-form/{formId}/{referenceNumber}',
     handler: async (request, h) => {
       const { auth, params } = request
-      const { formId, referenceNumber } = params
       const { accessToken } = auth.credentials
-
-      const form = await getFormMetadataById(formId)
-      const submissionToCopy = await getSubmissionRecord(
-        referenceNumber,
-        accessToken
-      )
-
-      if (!submissionToCopy) {
-        throw Boom.notFound(
-          `Cannot copy form '${referenceNumber}' because it was not found`
-        )
-      }
+      const { form, referenceNumber, submissionToCopy } =
+        await getFormAndSubmission(params, accessToken)
 
       const previewStatus = submissionToCopy.meta.isPreview
         ? submissionToCopy.meta.status
@@ -80,21 +112,13 @@ export default [
         form,
         referenceNumber,
         submittedAt,
-        context: {
-          translator: {
-            ...translator,
-            languages: getAllLanguages()
-          }
-        }
+        context: getTranslatorContext(translator)
       })
     },
     options: {
       auth: CITIZEN_AUTH_ROUTE_OPTIONS,
       validate: {
-        params: Joi.object({
-          formId: Joi.string().required(),
-          referenceNumber: Joi.string().required()
-        }).required()
+        params: copyFormParamsSchema
       }
     }
   }),
@@ -107,20 +131,9 @@ export default [
     path: '/confirm-copy-form/{formId}/{referenceNumber}',
     handler: async (request, h) => {
       const { auth, params } = request
-      const { formId, referenceNumber } = params
       const { accessToken } = auth.credentials
-
-      const form = await getFormMetadataById(formId)
-      const submissionToCopy = await getSubmissionRecord(
-        referenceNumber,
-        accessToken
-      )
-
-      if (!submissionToCopy) {
-        throw Boom.notFound(
-          `Cannot copy form '${referenceNumber}' because it was not found`
-        )
-      }
+      const { form, referenceNumber, submissionToCopy } =
+        await getFormAndSubmission(params, accessToken)
 
       const def = await getFormDefinitionForSubmission(
         submissionToCopy,
@@ -140,7 +153,6 @@ export default [
           .takeover()
       }
 
-      // Set state and dispatch user into the form
       await setCacheState(request, submissionToCopy, form)
 
       const formHref = getFormHref(
@@ -155,15 +167,8 @@ export default [
     options: {
       auth: CITIZEN_AUTH_ROUTE_OPTIONS,
       validate: {
-        params: Joi.object({
-          formId: Joi.string().required(),
-          referenceNumber: Joi.string().required()
-        }).required(),
-        payload: Joi.object()
-          .keys({
-            [CONFIRM_COPY_NAME]: Joi.boolean().required()
-          })
-          .required()
+        params: copyFormParamsSchema,
+        payload: copyFormPayloadSchema
       }
     }
   }),
@@ -176,20 +181,9 @@ export default [
     path: '/confirm-copy-form/{formId}/{referenceNumber}/form-changed',
     handler: async (request, h) => {
       const { auth, params } = request
-      const { formId, referenceNumber } = params
       const { accessToken } = auth.credentials
-
-      const form = await getFormMetadataById(formId)
-      const submissionToCopy = await getSubmissionRecord(
-        referenceNumber,
-        accessToken
-      )
-
-      if (!submissionToCopy) {
-        throw Boom.notFound(
-          `Cannot copy form '${referenceNumber}' because it was not found`
-        )
-      }
+      const { form, referenceNumber, submissionToCopy } =
+        await getFormAndSubmission(params, accessToken)
 
       const previewStatus = submissionToCopy.meta.isPreview
         ? submissionToCopy.meta.status
@@ -206,7 +200,7 @@ export default [
       const pageTitle = pageHeading
       const backLink = {
         text: t('common.back', language),
-        href: `/confirm-copy-form/${formId}/${referenceNumber}`
+        href: `/confirm-copy-form/${form.id}/${referenceNumber}`
       }
       const submittedAt = formatDateTime(
         submissionToCopy.meta.timestamp.toString(),
@@ -219,21 +213,13 @@ export default [
         form,
         referenceNumber,
         submittedAt,
-        context: {
-          translator: {
-            ...translator,
-            languages: getAllLanguages()
-          }
-        }
+        context: getTranslatorContext(translator)
       })
     },
     options: {
       auth: CITIZEN_AUTH_ROUTE_OPTIONS,
       validate: {
-        params: Joi.object({
-          formId: Joi.string().required(),
-          referenceNumber: Joi.string().required()
-        }).required()
+        params: copyFormParamsSchema
       }
     }
   }),
@@ -246,20 +232,9 @@ export default [
     path: '/confirm-copy-form/{formId}/{referenceNumber}/form-changed',
     handler: async (request, h) => {
       const { auth, params } = request
-      const { formId, referenceNumber } = params
       const { accessToken } = auth.credentials
-
-      const form = await getFormMetadataById(formId)
-      const submissionToCopy = await getSubmissionRecord(
-        referenceNumber,
-        accessToken
-      )
-
-      if (!submissionToCopy) {
-        throw Boom.notFound(
-          `Cannot copy form '${referenceNumber}' because it was not found`
-        )
-      }
+      const { form, referenceNumber, submissionToCopy } =
+        await getFormAndSubmission(params, accessToken)
 
       const def = await getFormDefinitionForSubmission(
         submissionToCopy,
@@ -282,23 +257,13 @@ export default [
         ? formHref
         : `${formHref}${ControllerPath.Summary}`
 
-      // Set state and dispatch user into the form
-      await setCacheState(request, submissionToCopy, form)
-
       return h.redirect(nextHref)
     },
     options: {
       auth: CITIZEN_AUTH_ROUTE_OPTIONS,
       validate: {
-        params: Joi.object({
-          formId: Joi.string().required(),
-          referenceNumber: Joi.string().required()
-        }).required(),
-        payload: Joi.object()
-          .keys({
-            [CONFIRM_COPY_NAME]: Joi.boolean().required()
-          })
-          .required()
+        params: copyFormParamsSchema,
+        payload: copyFormPayloadSchema
       }
     }
   })
@@ -381,6 +346,13 @@ async function setCacheState(request, submissionToCopy, form) {
     $$__referenceNumber: undefined
   })
 }
+
+/**
+ * @typedef {object} FormAndSubmission
+ * @property {FormMetadata} form - the form metadata
+ * @property {string} referenceNumber - the submission reference number
+ * @property {FormSubmissionDocument} submissionToCopy - the submission document to copy
+ */
 
 /**
  * @typedef {{ formId: string, referenceNumber: string }} CopyFormParams
