@@ -335,9 +335,9 @@ async function getFormDefinitionForSubmission(
  * @returns {{ formHasDeclaration: boolean, formVersionHasChanged: boolean }}
  */
 function getFormDetails(def, submission) {
-  const formHasDeclaration = !!def.pages
+  const formHasDeclaration = def.pages
     .flatMap((p) => (hasFormComponents(p) ? p.components : []))
-    .find((c) => c.type === ComponentType.DeclarationField)
+    .some((c) => c.type === ComponentType.DeclarationField)
 
   const latestVersionMetadata = /** @type {FormVersionMetadata | undefined} */ (
     def.metadata?.$$__formVersion
