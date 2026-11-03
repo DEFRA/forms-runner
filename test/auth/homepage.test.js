@@ -159,6 +159,7 @@ describe('per-form homepage', () => {
 
   beforeEach(() => {
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+    jest.mocked(getFormDefinition).mockResolvedValue(fixtures.form.definition)
     jest.mocked(getFormRecords).mockResolvedValue([])
     jest
       .mocked(client.discovery)
