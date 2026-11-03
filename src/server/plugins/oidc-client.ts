@@ -1,3 +1,4 @@
+/// <reference lib="esnext.error" />
 import { type ServerRegisterPluginObject } from '@hapi/hapi'
 import * as client from 'openid-client'
 
@@ -23,12 +24,25 @@ const REQUEST_TIMEOUT_SECONDS = 20
  * Sends the trace ID of the current request with every request to the
  * provider, so the provider logs the same ID. openid-client has no setting
  * for extra headers other than its own fetch.
+ *
+ * A failed fetch rejects with a stack that has no frames, so the stack is
+ * captured again here to show the calling code. The error itself stays the
+ * same, because openid-client decides how to handle it by its type.
  */
-const fetchWithTraceHeaders: client.CustomFetch = (url, options) =>
-  fetch(url, {
-    ...options,
-    headers: applyTraceHeaders(options.headers)
-  } as RequestInit)
+const fetchWithTraceHeaders: client.CustomFetch = async (url, options) => {
+  try {
+    return await fetch(url, {
+      ...options,
+      headers: applyTraceHeaders(options.headers)
+    } as RequestInit)
+  } catch (err) {
+    if (Error.isError(err)) {
+      Error.captureStackTrace(err)
+    }
+
+    throw err
+  }
+}
 
 async function clientKey() {
   const jwk = JSON.parse(config.get('oidc.privateJwk')) as client.JWK

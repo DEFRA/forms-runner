@@ -1,3 +1,4 @@
+/// <reference lib="esnext.error" />
 import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { type FormParams } from '@defra/forms-engine-plugin/types'
 import {
@@ -25,6 +26,27 @@ export function isServerError(statusCode: number): boolean {
   return (
     statusCode >= HTTP_ERROR_RANGE_START && statusCode <= HTTP_ERROR_RANGE_END
   )
+}
+
+/**
+ * Describes the errors behind an error, so the log shows why it happened. A
+ * failed fetch only says "fetch failed", with the reason in its cause. A cause
+ * that is not an error is left out, as it can be a response body with tokens.
+ */
+function describeCauses(error: Error): string[] {
+  const lines: string[] = []
+  const seen = new Set<unknown>([error])
+  let cause = error.cause
+
+  while (Error.isError(cause) && !seen.has(cause)) {
+    seen.add(cause)
+    const { code } = cause as NodeJS.ErrnoException
+    const label = code ? `Caused by (${code})` : 'Caused by'
+    lines.push(`${label}: ${cause.stack ?? cause.message}`)
+    cause = cause.cause
+  }
+
+  return lines
 }
 
 /*
@@ -79,7 +101,10 @@ export default {
           // Preserve the original stack trace from the Boom error
           // In the unlikely event that the Boom error has no stack trace,
           // fall back to the locally created error's stack trace.
-          error.stack = response.stack ?? error.stack
+          error.stack = [
+            response.stack ?? error.stack,
+            ...describeCauses(response)
+          ].join('\n')
 
           const message = `[httpError] HTTP ${statusCode} error occurred - ${response.message} - path: ${request.path} - method: ${request.method}`
           // Log server errors as 'error'

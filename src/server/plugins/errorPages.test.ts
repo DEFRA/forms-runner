@@ -82,4 +82,68 @@ describe('errorPages onPreResponse', () => {
     expect(loggedError.message).toBe('HTTP 500 error: Something broke')
     expect(loggedError.stack).toEqual(expect.stringContaining('HTTP 500 error'))
   })
+
+  it('logs why a real fetch failed, which its own stack does not show', async () => {
+    // Port 1 is refused by fetch itself, so this makes no network request
+    const fetchError = (await fetch('http://127.0.0.1:1/').catch(
+      (err: unknown) => err
+    )) as Error
+
+    // Errors from fetch fail `instanceof Error` inside Jest's VM context, so
+    // Boom.boomify rejects them. Carry over what boomify would keep instead.
+    const boom = Boom.internal(fetchError.message)
+    boom.stack = fetchError.stack
+    boom.cause = fetchError.cause
+
+    getHandler()(buildRequest(boom), h)
+
+    const [loggedError] = logger.error.mock.calls[0] as [Error]
+    expect(loggedError.stack).toContain('TypeError: fetch failed')
+    expect(loggedError.stack).toContain('Caused by: Error: bad port')
+  })
+
+  it('logs every error in the cause chain with its code', () => {
+    const refused = Object.assign(new Error('connect ECONNREFUSED'), {
+      code: 'ECONNREFUSED',
+      stack: 'Error: connect ECONNREFUSED\n    at net.js:1:1'
+    })
+    const fetchFailed = new TypeError('fetch failed', { cause: refused })
+    fetchFailed.stack = 'TypeError: fetch failed'
+    const boom = Boom.boomify(new Error('Outer', { cause: fetchFailed }))
+    boom.stack = 'Error: Outer\n    at outer.ts:1:1'
+
+    getHandler()(buildRequest(boom), h)
+
+    const [loggedError] = logger.error.mock.calls[0] as [Error]
+    expect(loggedError.stack).toBe(
+      [
+        'Error: Outer\n    at outer.ts:1:1',
+        'Caused by: TypeError: fetch failed',
+        'Caused by (ECONNREFUSED): Error: connect ECONNREFUSED\n    at net.js:1:1'
+      ].join('\n')
+    )
+  })
+
+  it('does not log a cause that is not an error, as it can hold a response body with tokens', () => {
+    const boom = Boom.boomify(
+      new Error('Rejected', { cause: { refresh_token: 'secret' } })
+    )
+
+    getHandler()(buildRequest(boom), h)
+
+    const [loggedError] = logger.error.mock.calls[0] as [Error]
+    expect(loggedError.stack).toBe(boom.stack)
+    expect(loggedError.stack).not.toContain('secret')
+  })
+
+  it('stops at a cause chain that loops', () => {
+    const first = new Error('First')
+    const second = new Error('Second', { cause: first })
+    first.cause = second
+
+    getHandler()(buildRequest(Boom.boomify(first)), h)
+
+    const [loggedError] = logger.error.mock.calls[0] as [Error]
+    expect(loggedError.stack?.match(/Caused by/g)).toHaveLength(1)
+  })
 })

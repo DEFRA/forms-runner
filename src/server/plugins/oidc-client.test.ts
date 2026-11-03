@@ -109,6 +109,34 @@ describe('oidc client plugin', () => {
     })
   })
 
+  it('adds the calling code to the stack of a failed request, keeping the same error', async () => {
+    jest.mocked(client.discovery).mockResolvedValue({} as client.Configuration)
+
+    // The stack fetch rejects with: it has no frames at all
+    const failure = new TypeError('fetch failed')
+    failure.stack = 'TypeError: fetch failed'
+    jest.spyOn(global, 'fetch').mockRejectedValue(failure)
+
+    const server = hapi.server()
+    await server.register(pluginOidcClient)
+    await server.app.oidc.getConfig()
+
+    const options = jest.mocked(client.discovery).mock.calls[0][4]
+    const customFetch = options?.[client.customFetch]
+
+    const rejected = (await customFetch?.('http://provider/token', {
+      body: null,
+      headers: {},
+      method: 'GET',
+      redirect: 'manual'
+    }).catch((err: unknown) => err)) as Error
+
+    // openid-client decides how to handle an error by its type
+    expect(rejected).toBe(failure)
+    expect(rejected.stack).toMatch(/^TypeError: fetch failed\n\s+at /)
+    expect(rejected.stack).toContain('oidc-client')
+  })
+
   it('authenticates by signed assertion, not by secret', async () => {
     jest.mocked(client.discovery).mockResolvedValue({} as client.Configuration)
 
