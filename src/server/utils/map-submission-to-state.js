@@ -1,4 +1,4 @@
-import { randomUUID } from 'crypto'
+import { randomUUID } from 'node:crypto'
 
 /**
  * Handles sub fields like address.addressLine1 and date.day
