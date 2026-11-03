@@ -68,6 +68,13 @@ async function getFormAndSubmission(params, accessToken) {
   return { form, referenceNumber, submissionToCopy }
 }
 
+const getRouteOptions = {
+  auth: CITIZEN_AUTH_ROUTE_OPTIONS,
+  validate: {
+    params: copyFormParamsSchema
+  }
+}
+
 export default [
   /**
    * @satisfies {ServerRoute<{ Params: CopyFormParams }>}
@@ -113,12 +120,7 @@ export default [
 
       return h.view('copy-form/confirm-copy-form', model)
     },
-    options: {
-      auth: CITIZEN_AUTH_ROUTE_OPTIONS,
-      validate: {
-        params: copyFormParamsSchema
-      }
-    }
+    options: getRouteOptions
   }),
 
   /**
@@ -212,12 +214,7 @@ export default [
 
       return h.view('copy-form/confirm-copy-form-changed', model)
     },
-    options: {
-      auth: CITIZEN_AUTH_ROUTE_OPTIONS,
-      validate: {
-        params: copyFormParamsSchema
-      }
-    }
+    options: getRouteOptions
   }),
 
   /**
