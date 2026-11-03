@@ -60,11 +60,11 @@ export async function clearFormState(request, slug, state) {
  * Generate a key (bucket name) for in-flight forms based on the slug, and status, so that
  * all in-flight forms for the same slug and status are grouped together.
  * @param {string} slug
- * @param { FormStatus | undefined } status
+ * @param { FormStatus | undefined } previewStatus - The preview status of the form, or undefined if a non-preview form (i.e. live)
  * @returns {string}
  */
-export function getInflightSessionKey(slug, status) {
-  return `${sessionNames.inFlightForms}:${slug}:${status ?? ''}`
+export function getInflightSessionKey(slug, previewStatus) {
+  return `${sessionNames.inFlightForms}:${slug}:${previewStatus ?? ''}`
 }
 
 /**

@@ -122,12 +122,12 @@ function buildNavigation(form, translator, { isPreview, state, slug }) {
  * @param {Request<{ Params: HomepageParams }>} request
  * @param {SavedForm[]} savedForms
  * @param {string} slug
- * @param { FormStatus | undefined } state
+ * @param { FormStatus | undefined } previewState - The preview status of the form, or undefined if a non-preview form (i.e. live)
  */
-export function addInFlightForms(request, savedForms, slug, state) {
+export function addInFlightForms(request, savedForms, slug, previewState) {
   const savedFormRefs = new Set(savedForms.map((form) => form.referenceNumber))
   const allForms = structuredClone(savedForms)
-  const sessionKey = getInflightSessionKey(slug, state)
+  const sessionKey = getInflightSessionKey(slug, previewState)
   const inFlightFormRefs = /** @type { string[] | undefined } */ (
     request.yar.get(sessionKey)
   )

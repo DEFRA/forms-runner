@@ -172,16 +172,17 @@ async function handlerMemorableWordSaveAndExit(request, h) {
  */
 async function handleAuthenticatedSaveAndExit(request, h) {
   const { params, auth } = request
-  const { slug, state: status } = params
-  const metadata = await getFormMetadataWithGuard(slug, status)
+  // 'previewStatus' is the preview status of the form, or undefined if a non-preview form (i.e. live)
+  const { slug, state: previewStatus } = params
+  const metadata = await getFormMetadataWithGuard(slug, previewStatus)
   const { translator } = await getFormTranslator(
     request,
     metadata,
-    status,
+    previewStatus,
     true
   )
 
-  const model = confirmationViewModelv2(metadata, translator, status)
+  const model = confirmationViewModelv2(metadata, translator, previewStatus)
 
   const cacheService = getCacheService(
     /** @type {AnyRequest} */ (/** @type {unknown} */ (request)).server
@@ -211,17 +212,17 @@ async function handleAuthenticatedSaveAndExit(request, h) {
       issuer: auth.credentials.iss
     },
     /** @type {SavedState} */ (cachedState),
-    status
+    previewStatus
   )
 
   // Clear any previous save and exit session state
-  request.yar.clear(getKey(slug, status))
+  request.yar.clear(getKey(slug, previewStatus))
   await cacheService.clearState(request)
 
   // Add form to in-flight list until fully saved in DB
   // In-flight list is per slug and status, so that the user only sees in-flight forms
   // relevant to the homepage path they are on
-  const sessionKey = getInflightSessionKey(slug, status)
+  const sessionKey = getInflightSessionKey(slug, previewStatus)
   const inflights =
     /** @type {string[] | undefined} */ (request.yar.get(sessionKey)) ?? []
   const refNum = /** @type {string} */ (cachedState.$$__referenceNumber)
