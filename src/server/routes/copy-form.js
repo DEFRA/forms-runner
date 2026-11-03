@@ -265,6 +265,15 @@ export default [
   })
 ]
 
+/**
+ * @param {string} pageTitle - the page title
+ * @param {CopyFormBackLink} backLink - the back link
+ * @param {FormMetadata} form - the form metadata
+ * @param {string} referenceNumber - the submission reference number
+ * @param {string} submittedAt - the submission date and time
+ * @param {FormTranslator} translator - the form translator
+ * @returns {CopyFormViewModel}
+ */
 function copyFormViewModel(
   pageTitle,
   backLink,
@@ -283,8 +292,13 @@ function copyFormViewModel(
   }
 }
 
-function getSubmittedAtDate(submissionToCopy, translator) {
-  return formatDateTime(submissionToCopy.meta.timestamp.toString(), translator)
+/**
+ * @param {FormSubmissionDocument} submission - the submission document
+ * @param {FormTranslator} translator - the form translator
+ * @returns {string}
+ */
+function getSubmittedAtDate(submission, translator) {
+  return formatDateTime(submission.meta.timestamp.toString(), translator)
 }
 
 /**
@@ -375,6 +389,24 @@ async function setCacheState(request, submissionToCopy, form) {
 /**
  * @typedef {{ formId: string, referenceNumber: string }} CopyFormParams
  */
+
+/**
+ * @typedef {object} CopyFormBackLink
+ * @property {string} text - the link text
+ * @property {string} href - the link href
+ */
+
+/**
+ * @typedef {object} CopyFormViewModel
+ * @property {string} pageTitle - the page title
+ * @property {CopyFormBackLink} backLink - the back link
+ * @property {FormMetadata} form - the form metadata
+ * @property {string} referenceNumber - the submission reference number
+ * @property {string} submittedAt - the submission date and time
+ * @property {{ translator: FormTranslator & { languages: ReturnType<typeof getAllLanguages> } }} context - the translator context
+ */
+
+/** @typedef {Awaited<ReturnType<typeof getFormTranslator>>['translator']} FormTranslator */
 
 /**
  * @import { ServerRoute, Request } from '@hapi/hapi'
