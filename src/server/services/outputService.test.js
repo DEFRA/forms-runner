@@ -98,7 +98,16 @@ describe('OutputService', () => {
 
     mockModel = /** @type {FormModel} */ (
       /** @type {unknown} */ ({
-        name: 'Test Form'
+        name: 'Test Form',
+        def: {
+          name: 'Test Form',
+          pages: [],
+          metadata: {
+            options: {
+              allowCopy: true
+            }
+          }
+        }
       })
     )
 
