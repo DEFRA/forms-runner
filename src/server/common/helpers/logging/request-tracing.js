@@ -1,4 +1,5 @@
 import {
+  getRequestSessionId,
   requestTracing as requestTracingPlugin,
   setReferenceNumber
 } from '@defra/forms-common'
@@ -21,19 +22,6 @@ export function getRequestUserId(request) {
   }
 
   return credentials.sub
-}
-
-/**
- * Gets the ID of the yar session, which the session plugin loads in `onPreAuth`.
- * The form state of `@defra/forms-engine-plugin` is stored against this ID.
- * @param {Request} request
- * @returns {string | null | undefined}
- */
-export function getRequestSessionId(request) {
-  // `request.yar` is only set when the yar plugin is registered
-  const { yar } = /** @type {Partial<Pick<Request, 'yar'>>} */ (request)
-
-  return yar?.id
 }
 
 /**

@@ -12,7 +12,6 @@ import yar from '@hapi/yar'
 
 import {
   addReferenceNumberToLogContext,
-  getRequestSessionId,
   getRequestUserId,
   requestTracing
 } from '~/src/server/common/helpers/logging/request-tracing.js'
@@ -121,22 +120,6 @@ describe('request-tracing', () => {
         sessionId
       })
       expect(responseContext).toEqual({ correlationId, userId, sessionId })
-    })
-  })
-
-  describe('getRequestSessionId', () => {
-    it('should return the ID of the yar session', () => {
-      const request = /** @type {Request} */ (
-        /** @type {unknown} */ ({ yar: { id: sessionId } })
-      )
-
-      expect(getRequestSessionId(request)).toBe(sessionId)
-    })
-
-    it('should return undefined when yar is not registered', () => {
-      const request = /** @type {Request} */ (/** @type {unknown} */ ({}))
-
-      expect(getRequestSessionId(request)).toBeUndefined()
     })
   })
 
