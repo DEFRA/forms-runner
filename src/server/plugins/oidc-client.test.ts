@@ -151,40 +151,4 @@ describe('oidc client plugin', () => {
       'Sign-in is enabled but missing configuration: oidc.issuer, oidc.redirectUri, oidc.privateJwk'
     )
   })
-
-  describe('alternative browser origins', () => {
-    afterEach(() => {
-      config.set('oidc.alternativeBrowserOrigins', [])
-    })
-
-    it.each([
-      ['has a path', 'https://internal.example/account'],
-      ['has a trailing slash', 'https://internal.example/'],
-      ['is not a URL', 'internal.example']
-    ])(
-      'fails registration when an alternative origin %s, naming it, so a bad value surfaces at boot',
-      async (_case, value) => {
-        config.set('oidc.alternativeBrowserOrigins', [value])
-
-        const server = hapi.server()
-
-        await expect(server.register(pluginOidcClient)).rejects.toThrow(value)
-      }
-    )
-
-    it('registers when every alternative origin is a bare origin', async () => {
-      config.set('oidc.alternativeBrowserOrigins', [
-        'https://internal.example',
-        'http://localhost:3000'
-      ])
-      jest
-        .mocked(client.discovery)
-        .mockResolvedValue({} as client.Configuration)
-
-      const server = hapi.server()
-      await server.register(pluginOidcClient)
-
-      expect(server.app.oidc).toBeDefined()
-    })
-  })
 })

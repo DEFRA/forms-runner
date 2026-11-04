@@ -3,10 +3,10 @@ import { createLogContext, runWithLogContext } from '@defra/forms-common'
 import { config } from '~/src/config/index.js'
 import {
   applyTraceHeaders,
+  browserRedirectUri,
   formRequiresAuthentication,
   getFeedbackFormLink,
   localReturnPath,
-  matchBrowserOrigin,
   resolveLanguage,
   signInUrl
 } from '~/src/server/utils/utils.js'
@@ -230,48 +230,44 @@ describe('formRequiresAuthentication', () => {
   })
 })
 
-describe('matchBrowserOrigin', () => {
+describe('browserRedirectUri', () => {
+  // Captured before any test changes it, and restored after each.
+  const configured = config.get('oidc.redirectUri')
+
   afterEach(() => {
-    config.set('oidc.alternativeBrowserOrigins', [])
+    config.set('oidc.redirectUri', configured)
   })
 
-  it('returns the matching origin, so sign in comes back to the host it started on', () => {
-    config.set('oidc.alternativeBrowserOrigins', ['https://internal.example'])
+  it('returns the callback URI on the host the request arrived on, keeping the configured scheme and path', () => {
+    config.set('oidc.redirectUri', 'https://public.example/auth/callback')
 
-    expect(matchBrowserOrigin('internal.example')).toBe(
-      'https://internal.example'
+    expect(browserRedirectUri('internal.example')).toBe(
+      'https://internal.example/auth/callback'
     )
   })
 
-  it('matches a host whatever its case', () => {
-    config.set('oidc.alternativeBrowserOrigins', ['https://internal.example'])
+  it('returns the given path on the request host, for sign out', () => {
+    config.set('oidc.redirectUri', 'https://public.example/auth/callback')
 
-    expect(matchBrowserOrigin('INTERNAL.example')).toBe(
-      'https://internal.example'
+    expect(browserRedirectUri('internal.example', '/auth/signed-out')).toBe(
+      'https://internal.example/auth/signed-out'
     )
   })
 
-  it('treats a host on a different port as a different origin', () => {
-    config.set('oidc.alternativeBrowserOrigins', [
-      'http://internal.example:3000'
-    ])
+  it('keeps the port the request host carries', () => {
+    config.set('oidc.redirectUri', 'http://localhost:3009/auth/callback')
 
-    expect(matchBrowserOrigin('internal.example:4000')).toBeNull()
-    expect(matchBrowserOrigin('internal.example:3000')).toBe(
-      'http://internal.example:3000'
+    expect(browserRedirectUri('localhost:3009')).toBe(
+      'http://localhost:3009/auth/callback'
     )
   })
 
-  it('returns null for a host that is not listed, so the caller uses the configured URI', () => {
-    config.set('oidc.alternativeBrowserOrigins', ['https://internal.example'])
+  it('keeps the configured host when the request has none', () => {
+    config.set('oidc.redirectUri', 'https://public.example/auth/callback')
 
-    expect(matchBrowserOrigin('evil.example')).toBeNull()
-  })
-
-  it('returns null when there is no host', () => {
-    config.set('oidc.alternativeBrowserOrigins', ['https://internal.example'])
-
-    expect(matchBrowserOrigin(undefined)).toBeNull()
+    expect(browserRedirectUri(undefined)).toBe(
+      'https://public.example/auth/callback'
+    )
   })
 })
 

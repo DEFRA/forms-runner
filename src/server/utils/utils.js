@@ -18,33 +18,27 @@ export function applyTraceHeaders(
 }
 
 /**
- * The origin to return the browser to after sign in, chosen by the host the
- * request arrived on. CDP forwards the requested host, so a citizen who starts
- * on an alternative origin, such as the internal domain, is sent back there.
- * The origin comes from the configured allowlist, so the host selects an
- * allowed value rather than supplying one, which keeps a forged host harmless.
- * A host that matches none of them returns null, so the caller uses the
- * configured redirect URI instead. Each entry is a valid origin, because boot
- * checks them.
+ * The URL to return the browser to, on the host the request arrived on. CDP
+ * forwards the requested host, so a citizen who starts on the internal domain
+ * is sent back there. The scheme and the default path come from
+ * oidc.redirectUri, because CDP terminates TLS and the request scheme is http;
+ * only the host is taken from the request. The provider registers each result
+ * and refuses one it does not hold, so the provider is the single allowlist. A
+ * request with no host keeps the configured host, so it still resolves.
  * @param {string} [host] - the request host, from request.info.host
- * @returns {string | null} an origin from the allowlist, or null
+ * @param {string} [path] - the path to return to, default the callback path
+ * @returns {string} the redirect URL
  */
-export function matchBrowserOrigin(host) {
-  if (!host) {
-    return null
-  }
+export function browserRedirectUri(host, path) {
+  const configured = new URL(config.get('oidc.redirectUri'))
 
-  const target = host.toLowerCase()
+  // The request host carries its own port, or none, so it replaces both the
+  // host and the port. Assigning `host` alone would keep the configured port
+  // when the request host has none.
+  const authority = host ?? configured.host
+  const pathname = path ?? configured.pathname
 
-  for (const entry of config.get('oidc.alternativeBrowserOrigins')) {
-    const origin = new URL(entry)
-
-    if (origin.host === target) {
-      return origin.origin
-    }
-  }
-
-  return null
+  return new URL(`${configured.protocol}//${authority}${pathname}`).href
 }
 
 /**

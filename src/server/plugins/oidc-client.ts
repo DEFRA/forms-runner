@@ -67,25 +67,6 @@ function checkConfigurationValid() {
       `Sign-in is enabled but missing configuration: ${missing.join(', ')}`
     )
   }
-
-  // Each alternative origin is used to build a redirect URI, so it must parse
-  // as an origin on its own with no path, query or fragment. Boot fails here
-  // rather than a sign-in failing later.
-  const badOrigins = config
-    .get('oidc.alternativeBrowserOrigins')
-    .filter((value) => {
-      try {
-        return new URL(value).origin !== value
-      } catch {
-        return true
-      }
-    })
-
-  if (badOrigins.length > 0) {
-    throw new Error(
-      `oidc.alternativeBrowserOrigins must each be an origin with no path: ${badOrigins.join(', ')}`
-    )
-  }
 }
 
 export default {

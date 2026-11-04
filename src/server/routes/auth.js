@@ -40,8 +40,8 @@ import { returnUrlSchema } from '~/src/server/models/common.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadataWithoutGuard } from '~/src/server/services/formMetadataGuards.js'
 import {
+  browserRedirectUri,
   getAllLanguages,
-  matchBrowserOrigin,
   resolveLanguage
 } from '~/src/server/utils/utils.js'
 
@@ -50,8 +50,6 @@ import {
  * session (OpenID Connect Core, section 11)
  */
 const SCOPES = 'openid email offline_access'
-
-const BASE_URL = config.get('baseUrl')
 
 /**
  * The API a token is wanted for. It must be named on the authorization
@@ -145,13 +143,12 @@ async function startSignIn(request, h, returnUrl) {
   const state = client.randomState()
   const nonce = client.randomNonce()
 
-  // Return the citizen to the origin they started on, so a sign in begun on
-  // the internal domain comes back to it. The callback repeats this exact URI
-  // at the token endpoint, so it is kept in the transaction.
-  const origin = matchBrowserOrigin(request.info.host)
-  const redirectUri = origin
-    ? new URL(CALLBACK_PATH, origin).href
-    : config.get('oidc.redirectUri')
+  // Return the citizen to the host they started on, so a sign in begun on the
+  // internal domain comes back to it. The provider registers each callback and
+  // refuses one it does not hold, so it is the single allowlist. The callback
+  // repeats this exact URI at the token endpoint, so it is kept in the
+  // transaction.
+  const redirectUri = browserRedirectUri(request.info.host)
 
   setSignInTransaction(request.yar, {
     state,
@@ -246,17 +243,19 @@ export default [
       const language = resolveLanguage(request.query, request.yar)
       const stateParam = JSON.stringify({ slug, previewMode, returnUrl })
 
-      // Come back to the origin the sign-out started on, so an internal
-      // session ends on the internal domain.
-      const origin = matchBrowserOrigin(request.info.host)
-      const postLogoutUrl = new URL(SIGNED_OUT_PATH, origin ?? BASE_URL)
+      // Come back to the host the sign-out started on, so an internal session
+      // ends on the internal domain.
+      const postLogoutUrl = browserRedirectUri(
+        request.info.host,
+        SIGNED_OUT_PATH
+      )
 
       const logoutUrl = client.buildEndSessionUrl(oidcConfig, {
         ...(idToken && { id_token_hint: idToken }),
         client_id: 'runner',
         // Registered in OIDC_RUNNER_POST_LOGOUT_REDIRECT_URIS — without it
         // the provider shows its own success page instead of returning here
-        post_logout_redirect_uri: postLogoutUrl.href,
+        post_logout_redirect_uri: postLogoutUrl,
         state: stateParam,
         ui_locales: language
       })
@@ -298,12 +297,13 @@ export default [
       const oidcConfig = await request.server.app.oidc.getConfig()
 
       try {
-        // The token request must send the same redirect URI as the sign-in
-        // request, so it uses the one the transaction kept rather than working
-        // it out again from a request a proxy has changed the host and scheme
-        // on. A transaction from before this field existed falls back to the
-        // configured URI. Take only the query string, which holds the code and
-        // the state, from the request.
+        // The token request must repeat the exact redirect URI the sign-in
+        // request sent. That URI varies with the host the sign in started on,
+        // so it is read from the transaction rather than from a constant or
+        // from this request, whose host and scheme a proxy may have changed. A
+        // transaction from before this field existed has none; it was sent the
+        // configured URI, so that is the fallback. Take only the query string,
+        // which holds the code and the state, from the request.
         const callbackUrl = new URL(
           transaction.redirectUri ?? config.get('oidc.redirectUri')
         )
