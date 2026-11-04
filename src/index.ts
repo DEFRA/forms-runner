@@ -1,6 +1,7 @@
 import { getErrorMessage } from '@defra/forms-model'
 
 import { config } from '~/src/config/index.js'
+import { startEventLoopMonitor } from '~/src/server/common/helpers/logging/event-loop-monitor.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { createServer } from '~/src/server/index.js'
 
@@ -19,6 +20,8 @@ process.on('unhandledRejection', (err) => {
 async function startServer() {
   const server = await createServer()
   await server.start()
+
+  startEventLoopMonitor()
 
   process.send?.('online')
 
