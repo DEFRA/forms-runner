@@ -313,6 +313,15 @@
     "signInAgain": "mewngofnodi eto",
     "goToGovUk": "ewch i hafan GOV.UK"
   },
+  "signinRequired": {
+    "pageTitle": "Mewngofnodwch i ddefnyddio'r ffurflen hon",
+    "heading": "Mewngofnodwch i ddefnyddio'r ffurflen hon",
+    "body": [
+      "Mewngofnodwch gyda'ch cyfeiriad e-bost. Byddwn yn anfon cod diogelwch atoch i wirio mai chi ydych chi.",
+      "Os nad ydych wedi mewngofnodi o'r blaen, byddwn yn gofyn am rif ffôn symudol fel y gallwch adfer eich manylion mewngofnodi yn nes ymlaen."
+    ],
+    "signinButtonText": "Mewngofnodi"
+  },
   "deleteForm": {
     "title": "A ydych chi'n siŵr eich bod am ddileu'r drafft hwn?",
     "hint": "[[formTitle]] ([[referenceNumber]])",

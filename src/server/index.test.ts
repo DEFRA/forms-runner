@@ -1,10 +1,25 @@
-import { FormStatus } from '@defra/forms-engine-plugin/types'
+import {
+  createLogContext,
+  getReferenceNumber,
+  runWithLogContext
+} from '@defra/forms-common'
+import {
+  FormStatus,
+  type AnyFormRequest,
+  type FormContext,
+  type FormResponseToolkit
+} from '@defra/forms-engine-plugin/types'
 import { type Server } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 
-import { addReferenceNumberToLogContext } from '~/src/server/common/helpers/logging/request-tracing.js'
+import { config } from '~/src/config/index.js'
+import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
 import { FORM_PREFIX } from '~/src/server/constants.js'
-import { configureEnginePlugin, createServer } from '~/src/server/index.js'
+import {
+  configureEnginePlugin,
+  createServer,
+  onRequest
+} from '~/src/server/index.js'
 import {
   getFormDefinition,
   getFormMetadata
@@ -529,12 +544,10 @@ describe('Model cache', () => {
       expect(mockH.redirect).toHaveBeenCalledWith('/save-and-exit/test-form')
     })
 
-    test('should add the form reference number to the log context', async () => {
+    test('should use the runner onRequest callback', async () => {
       const [pluginObject] = await configureEnginePlugin({})
 
-      expect(pluginObject.options.onRequest).toBe(
-        addReferenceNumberToLogContext
-      )
+      expect(pluginObject.options.onRequest).toBe(onRequest)
     })
 
     test('should use the runner submission service', async () => {
@@ -544,6 +557,174 @@ describe('Model cache', () => {
         persistFiles,
         submit
       })
+    })
+  })
+})
+
+describe('onRequest', () => {
+  const continueResponse = {}
+  const takeoverResponse = {}
+
+  const createRequest = (
+    model: object | undefined,
+    auth: { isAuthenticated: boolean; strategy?: string },
+    params: Record<string, string> = {
+      path: '/page-one',
+      slug: 'test-form'
+    },
+    path = '/form/test-form/page-one'
+  ) =>
+    ({
+      app: { model },
+      auth,
+      params,
+      path
+    }) as unknown as AnyFormRequest
+
+  const createToolkit = () => {
+    const takeover = jest.fn().mockReturnValue(takeoverResponse)
+    const redirect = jest.fn().mockReturnValue({ takeover })
+
+    return {
+      h: {
+        continue: continueResponse,
+        redirect
+      } as unknown as FormResponseToolkit,
+      redirect,
+      takeover
+    }
+  }
+
+  test('continues when there is no form model on the request', () => {
+    const request = createRequest(undefined, {
+      isAuthenticated: false
+    })
+    const { h, redirect } = createToolkit()
+
+    const result = onRequest(request, h, {} as FormContext)
+
+    expect(result).toBe(continueResponse)
+    expect(redirect).not.toHaveBeenCalled()
+  })
+
+  test('continues when the form does not require authentication', () => {
+    const request = createRequest(
+      { def: { metadata: {} } },
+      { isAuthenticated: false }
+    )
+    const { h, redirect } = createToolkit()
+
+    const result = onRequest(request, h, {} as FormContext)
+
+    expect(result).toBe(continueResponse)
+    expect(redirect).not.toHaveBeenCalled()
+  })
+
+  test('redirects unauthenticated users to the sign-in-required page', () => {
+    const request = createRequest(
+      {
+        def: {
+          name: 'test-form',
+          metadata: { options: { allowCopy: true } }
+        }
+      },
+      { isAuthenticated: false },
+      { path: '/page-one', slug: 'test-form', state: FormStatus.Draft },
+      '/form/test-form/page-one'
+    )
+    const { h, redirect, takeover } = createToolkit()
+
+    const result = onRequest(request, h, {} as FormContext)
+    const expectedUrl = new URL(
+      '/signin-required/test-form',
+      config.get('baseUrl')
+    )
+    expectedUrl.searchParams.append('returnUrl', '/form/test-form/page-one')
+
+    expect(redirect).toHaveBeenCalledWith(expectedUrl.href)
+    expect(takeover).toHaveBeenCalled()
+    expect(result).toBe(takeoverResponse)
+  })
+
+  test('redirects authenticated users when they are not using citizen sign-in', () => {
+    const request = createRequest(
+      {
+        def: {
+          name: 'test-form',
+          metadata: { options: { allowCopy: true } }
+        }
+      },
+      { isAuthenticated: true, strategy: 'cookie' },
+      { path: '/page-one', slug: 'test-form' },
+      '/form/test-form/page-one'
+    )
+    const { h, redirect } = createToolkit()
+
+    const result = onRequest(request, h, {} as FormContext)
+
+    const expectedUrl = new URL(
+      '/signin-required/test-form',
+      config.get('baseUrl')
+    )
+    expectedUrl.searchParams.append('returnUrl', '/form/test-form/page-one')
+
+    expect(redirect).toHaveBeenCalledWith(expectedUrl.href)
+    expect(result).toBe(takeoverResponse)
+  })
+
+  test('continues authenticated users using citizen sign-in', () => {
+    const request = createRequest(
+      {
+        def: {
+          name: 'test-form',
+          metadata: { options: { allowCopy: true } }
+        }
+      },
+      { isAuthenticated: true, strategy: CITIZEN_SESSION }
+    )
+    const { h, redirect } = createToolkit()
+
+    const result = onRequest(request, h, {} as FormContext)
+
+    expect(result).toBe(continueResponse)
+    expect(redirect).not.toHaveBeenCalled()
+  })
+
+  test('adds the form reference number to the log context', () => {
+    const request = createRequest(
+      { def: { metadata: {} } },
+      { isAuthenticated: false }
+    )
+    const { h } = createToolkit()
+    const context = { referenceNumber: 'ABC-123-DEF' } as FormContext
+
+    runWithLogContext(createLogContext(), () => {
+      const result = onRequest(request, h, context)
+
+      expect(result).toBe(continueResponse)
+      expect(getReferenceNumber()).toBe('ABC-123-DEF')
+    })
+  })
+
+  test('adds the form reference number to the log context before redirecting to sign in', () => {
+    const request = createRequest(
+      {
+        def: {
+          name: 'test-form',
+          metadata: { options: { allowCopy: true } }
+        }
+      },
+      { isAuthenticated: false }
+    )
+    const { h, redirect } = createToolkit()
+    const context = { referenceNumber: 'ABC-123-DEF' } as FormContext
+
+    runWithLogContext(createLogContext(), () => {
+      const result = onRequest(request, h, context)
+
+      expect(redirect).toHaveBeenCalled()
+      expect(result).toBe(takeoverResponse)
+      expect(getReferenceNumber()).toBe('ABC-123-DEF')
     })
   })
 })
