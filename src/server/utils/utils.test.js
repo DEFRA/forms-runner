@@ -6,6 +6,7 @@ import {
   formRequiresAuthentication,
   getFeedbackFormLink,
   localReturnPath,
+  matchBrowserOrigin,
   resolveLanguage,
   signInUrl
 } from '~/src/server/utils/utils.js'
@@ -226,6 +227,51 @@ describe('formRequiresAuthentication', () => {
     }
 
     expect(formRequiresAuthentication(defWithoutCopySupport)).toBe(false)
+  })
+})
+
+describe('matchBrowserOrigin', () => {
+  afterEach(() => {
+    config.set('oidc.alternativeBrowserOrigins', [])
+  })
+
+  it('returns the matching origin, so sign in comes back to the host it started on', () => {
+    config.set('oidc.alternativeBrowserOrigins', ['https://internal.example'])
+
+    expect(matchBrowserOrigin('internal.example')).toBe(
+      'https://internal.example'
+    )
+  })
+
+  it('matches a host whatever its case', () => {
+    config.set('oidc.alternativeBrowserOrigins', ['https://internal.example'])
+
+    expect(matchBrowserOrigin('INTERNAL.example')).toBe(
+      'https://internal.example'
+    )
+  })
+
+  it('treats a host on a different port as a different origin', () => {
+    config.set('oidc.alternativeBrowserOrigins', [
+      'http://internal.example:3000'
+    ])
+
+    expect(matchBrowserOrigin('internal.example:4000')).toBeNull()
+    expect(matchBrowserOrigin('internal.example:3000')).toBe(
+      'http://internal.example:3000'
+    )
+  })
+
+  it('returns null for a host that is not listed, so the caller uses the configured URI', () => {
+    config.set('oidc.alternativeBrowserOrigins', ['https://internal.example'])
+
+    expect(matchBrowserOrigin('evil.example')).toBeNull()
+  })
+
+  it('returns null when there is no host', () => {
+    config.set('oidc.alternativeBrowserOrigins', ['https://internal.example'])
+
+    expect(matchBrowserOrigin(undefined)).toBeNull()
   })
 })
 

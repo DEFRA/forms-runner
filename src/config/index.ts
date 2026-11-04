@@ -370,6 +370,12 @@ export const config = convict({
       default: '',
       env: 'OIDC_REDIRECT_URI'
     } as SchemaObj<string>,
+    alternativeBrowserOrigins: {
+      doc: 'Comma-separated origins (scheme, host and port, no path) besides the redirectUri origin that the browser reaches this service on, such as an internal domain. A sign-in that starts on one of these returns the citizen to that same origin, so it keeps working when the public domain is shut for maintenance. Each origin needs its /auth/callback and /auth/signed-out registered at the provider. A host that matches none of these, and the redirectUri origin itself, use the redirectUri.',
+      format: Array,
+      default: [],
+      env: 'OIDC_ALTERNATIVE_BROWSER_ORIGINS'
+    } as SchemaObj<string[]>,
     submissionApiResource: {
       doc: 'Name forms-submission-api is asked for a token under. It becomes the audience of the access token, and that API refuses any other.',
       format: String,

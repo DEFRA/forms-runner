@@ -39,7 +39,11 @@ import { t as runnerT } from '~/src/server/i18n/index.js'
 import { returnUrlSchema } from '~/src/server/models/common.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadataWithoutGuard } from '~/src/server/services/formMetadataGuards.js'
-import { getAllLanguages, resolveLanguage } from '~/src/server/utils/utils.js'
+import {
+  getAllLanguages,
+  matchBrowserOrigin,
+  resolveLanguage
+} from '~/src/server/utils/utils.js'
 
 /**
  * `offline_access` asks for a refresh token that outlives the provider
@@ -125,7 +129,7 @@ async function endSignIn(request) {
 /**
  * Starts a sign in at the provider. The callback finishes it and sends the
  * citizen to `returnUrl`.
- * @param {Pick<Request, 'server' | 'yar'>} request
+ * @param {Pick<Request, 'server' | 'yar' | 'info'>} request
  * @param {Pick<ResponseToolkit, 'redirect'>} h
  * @param {string} returnUrl - validated by the route that calls this
  */
@@ -141,15 +145,24 @@ async function startSignIn(request, h, returnUrl) {
   const state = client.randomState()
   const nonce = client.randomNonce()
 
+  // Return the citizen to the origin they started on, so a sign in begun on
+  // the internal domain comes back to it. The callback repeats this exact URI
+  // at the token endpoint, so it is kept in the transaction.
+  const origin = matchBrowserOrigin(request.info.host)
+  const redirectUri = origin
+    ? new URL(CALLBACK_PATH, origin).href
+    : config.get('oidc.redirectUri')
+
   setSignInTransaction(request.yar, {
     state,
     nonce,
     codeVerifier,
-    returnUrl
+    returnUrl,
+    redirectUri
   })
 
   const authorizationUrl = client.buildAuthorizationUrl(oidcConfig, {
-    redirect_uri: config.get('oidc.redirectUri'),
+    redirect_uri: redirectUri,
     scope: SCOPES,
     resource: RESOURCE,
     state,
@@ -233,7 +246,10 @@ export default [
       const language = resolveLanguage(request.query, request.yar)
       const stateParam = JSON.stringify({ slug, previewMode, returnUrl })
 
-      const postLogoutUrl = new URL(SIGNED_OUT_PATH, BASE_URL)
+      // Come back to the origin the sign-out started on, so an internal
+      // session ends on the internal domain.
+      const origin = matchBrowserOrigin(request.info.host)
+      const postLogoutUrl = new URL(SIGNED_OUT_PATH, origin ?? BASE_URL)
 
       const logoutUrl = client.buildEndSessionUrl(oidcConfig, {
         ...(idToken && { id_token_hint: idToken }),
@@ -283,10 +299,14 @@ export default [
 
       try {
         // The token request must send the same redirect URI as the sign-in
-        // request. Build it from configuration, because a proxy sets the host
-        // and the scheme on the request. Take only the query string, which
-        // holds the code and the state, from the request.
-        const callbackUrl = new URL(config.get('oidc.redirectUri'))
+        // request, so it uses the one the transaction kept rather than working
+        // it out again from a request a proxy has changed the host and scheme
+        // on. A transaction from before this field existed falls back to the
+        // configured URI. Take only the query string, which holds the code and
+        // the state, from the request.
+        const callbackUrl = new URL(
+          transaction.redirectUri ?? config.get('oidc.redirectUri')
+        )
         callbackUrl.search = request.url.search
 
         const tokens = await client.authorizationCodeGrant(

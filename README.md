@@ -197,6 +197,7 @@ See [https://github.com/node-config/node-config#readme](https://github.com/node-
 | OIDC_ISSUER                            | Identity provider issuer, matching the provider exactly.                                              | when signing in |                                      |                             |                                                                                                                         |
 | OIDC_CLIENT_ID                         | This service's client id at the provider.                                                             | when signing in |                                      |                             |                                                                                                                         |
 | OIDC_REDIRECT_URI                      | Where the provider returns the citizen.                                                               | when signing in |                                      |                             |           The provider registers this value, so it must match this service's `/auth/callback` byte for byte.            |
+| OIDC_ALTERNATIVE_BROWSER_ORIGINS       | Comma-separated origins besides the redirect URI the browser reaches this service on.                 |       no        | (none)                               |                             |             Each needs its `/auth/callback` and `/auth/signed-out` registered at the provider. See below.              |
 | OIDC_CLIENT_PRIVATE_JWK                | This service's private assertion key, as a single RS256 JWK.                                          | when signing in |                                      |                             |                                       Secret. The provider holds the public half.                                       |
 | OIDC_SUBMISSION_API_RESOURCE           | Resource this service asks the provider for tokens for. It becomes the access token's audience.       |       no        | urn:defra:forms:forms-submission-api |                             |                                  Must match the audience forms-submission-api accepts.                                  |
 | OIDC_ACCESS_TOKEN_EXPIRY_GRACE_SECONDS | An access token with this many seconds or fewer left is refreshed before use.                         |       no        | 30                                   |                             |                                          See [Token refresh](#token-refresh).                                           |
@@ -210,6 +211,15 @@ homepage go unregistered, and the header shows no account menu.
 Turn it on and `OIDC_ISSUER`, `OIDC_REDIRECT_URI` and `OIDC_CLIENT_PRIVATE_JWK` become
 required. The service reads them at boot and refuses to start while any is unset, naming the
 ones it wants. The other `OIDC_*` settings have defaults.
+
+This service can be reached on more than one domain, such as a public domain and an internal
+one. A sign in returns the citizen to the domain they started on, so sign in keeps working on
+the internal domain while the public domain is shut for maintenance. `OIDC_ALTERNATIVE_BROWSER_ORIGINS`
+lists the origins besides the `OIDC_REDIRECT_URI` origin that the browser reaches this service
+on, and a sign in that arrives on one of them uses that origin's `/auth/callback` and
+`/auth/signed-out`. Each listed origin needs both registered at the provider. A request on any
+other host uses `OIDC_REDIRECT_URI`. A sign in that the provider starts, from the account pages,
+returns to the `OIDC_REDIRECT_URI` origin, because a client has one initiate login URI.
 
 Sign in is an OpenID Connect authorization code flow with PKCE, against
 [forms-identity-ui](https://github.com/DEFRA/forms-identity-ui) as the provider. This

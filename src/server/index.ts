@@ -61,8 +61,6 @@ Wreck.agents = {
   httpsAllowUnauthorized: https.globalAgent
 }
 
-const BASE_URL = config.get('baseUrl')
-
 const serverOptions = (): ServerOptions => {
   const serverOptions: ServerOptions = {
     debug: { request: [`${config.get('isDevelopment')}`] },
@@ -136,10 +134,12 @@ export const onRequest: OnRequestCallback = (request, h) => {
     return h.continue
   }
 
-  const url = new URL(`/signin-required/${request.params.slug}`, BASE_URL)
-  url.searchParams.append('returnUrl', request.path)
+  // A relative path keeps the citizen on the host they arrived on, so an
+  // internal user stays on the internal domain.
+  const returnUrl = encodeURIComponent(request.path)
+  const url = `/signin-required/${request.params.slug}?returnUrl=${returnUrl}`
 
-  return h.redirect(url.href).takeover()
+  return h.redirect(url).takeover()
 }
 
 export const configureEnginePlugin = async ({

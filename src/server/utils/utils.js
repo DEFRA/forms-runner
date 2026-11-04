@@ -18,6 +18,36 @@ export function applyTraceHeaders(
 }
 
 /**
+ * The origin to return the browser to after sign in, chosen by the host the
+ * request arrived on. CDP forwards the requested host, so a citizen who starts
+ * on an alternative origin, such as the internal domain, is sent back there.
+ * The origin comes from the configured allowlist, so the host selects an
+ * allowed value rather than supplying one, which keeps a forged host harmless.
+ * A host that matches none of them returns null, so the caller uses the
+ * configured redirect URI instead. Each entry is a valid origin, because boot
+ * checks them.
+ * @param {string} [host] - the request host, from request.info.host
+ * @returns {string | null} an origin from the allowlist, or null
+ */
+export function matchBrowserOrigin(host) {
+  if (!host) {
+    return null
+  }
+
+  const target = host.toLowerCase()
+
+  for (const entry of config.get('oidc.alternativeBrowserOrigins')) {
+    const origin = new URL(entry)
+
+    if (origin.host === target) {
+      return origin.origin
+    }
+  }
+
+  return null
+}
+
+/**
  * @param {string} formId - the source form id (not the feedback form id)
  * @returns {{ feedbackLink: string }}
  */
