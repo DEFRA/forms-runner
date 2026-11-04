@@ -636,7 +636,7 @@ describe('per-form homepage', () => {
           'test-form',
           undefined
         )
-        expect(allForms).toHaveLength(2)
+        expect(allForms).toHaveLength(3)
         expect(allForms.map((form) => form.referenceNumber)).not.toContain(
           'PRO-333'
         )
