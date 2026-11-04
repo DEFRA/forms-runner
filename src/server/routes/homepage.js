@@ -17,6 +17,7 @@ import {
   getStartNewFormHref
 } from '~/src/server/helpers/route-helpers.js'
 import { sessionNames } from '~/src/server/helpers/session-names.js'
+import { getInflightSessionKey } from '~/src/server/routes/save-and-exit-helper.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import {
   getFormDefinition,
@@ -131,12 +132,15 @@ function buildNavigation(form, translator, { isPreview, state, slug }) {
  * checked here to see if they are not yet showing as 'saved forms'.
  * @param {Request<{ Params: HomepageParams }>} request
  * @param {SavedForm[]} savedForms
+ * @param {string} slug
+ * @param { FormStatus | undefined } previewState - The preview status of the form, or undefined if a non-preview form (i.e. live)
  */
-export function addInFlightForms(request, savedForms) {
+export function addInFlightForms(request, savedForms, slug, previewState) {
   const savedFormRefs = new Set(savedForms.map((form) => form.referenceNumber))
   const allForms = structuredClone(savedForms)
+  const sessionKey = getInflightSessionKey(slug, previewState)
   const inFlightFormRefs = /** @type { string[] | undefined } */ (
-    request.yar.get(sessionNames.inFlightForms)
+    request.yar.get(sessionKey)
   )
   let processingCount = 0
   if (inFlightFormRefs) {
@@ -153,7 +157,7 @@ export function addInFlightForms(request, savedForms) {
       }
     })
     if (processingCount === 0) {
-      request.yar.clear(sessionNames.inFlightForms)
+      request.yar.clear(sessionKey)
     }
   }
   return allForms
@@ -192,7 +196,12 @@ async function homepageHandler(request, h) {
 
   const savedForms = await getFormRecords(accessToken, form.id, previewStatus)
 
-  const savedAndInFlightForms = addInFlightForms(request, savedForms)
+  const savedAndInFlightForms = addInFlightForms(
+    request,
+    savedForms,
+    slug,
+    previewStatus
+  )
 
   // Notification banner
   const notification = /** @type {string[] | undefined} */ (
