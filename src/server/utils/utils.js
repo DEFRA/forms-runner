@@ -21,16 +21,15 @@ export function applyTraceHeaders(
 }
 
 /**
- * Gets the origins of the forms services the runner calls. The session ID and
- * form reference number are only sent to these, never to a service outside
- * forms.
- * @returns {string[]}
+ * The origins of the forms services the runner calls. The session ID and form
+ * reference number are only sent to these, never to a service outside forms.
+ * @type {Set<string>}
  */
-function getFormsServiceOrigins() {
-  return [config.get('managerUrl'), config.get('submissionUrl')]
+const formsServiceOrigins = new Set(
+  [config.get('managerUrl'), config.get('submissionUrl')]
     .filter((serviceUrl) => serviceUrl && URL.canParse(serviceUrl))
     .map((serviceUrl) => new URL(serviceUrl).origin)
-}
+)
 
 /**
  * Adds the session ID and form reference number of the current log context to
@@ -43,7 +42,7 @@ function getFormsServiceOrigins() {
 export function applyLogContextHeaders(url, existingHeaders) {
   const origin = URL.canParse(url) ? new URL(url).origin : undefined
 
-  if (!origin || !getFormsServiceOrigins().includes(origin)) {
+  if (!origin || !formsServiceOrigins.has(origin)) {
     return existingHeaders
   }
 
