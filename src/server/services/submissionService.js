@@ -12,9 +12,10 @@ import {
 const submissionUrl = config.get('submissionUrl')
 
 /**
- * Persists files by extending their time-to-live to 30 days. Used by
- * `@defra/forms-engine-plugin` in place of its own implementation, so the
- * request carries the log context of the runner.
+ * Persists uploaded files so they are kept beyond the initial upload expiry.
+ * The retention period is set by the S3 lifecycle rules for the submission
+ * API's bucket. Used by `@defra/forms-engine-plugin` in place of its own
+ * implementation, so the request carries the log context of the runner.
  * @param {{ fileId: string, initiatedRetrievalKey: string }[]} files - batch of files to persist
  * @param {string} persistedRetrievalKey - final retrieval key when submitting
  */
