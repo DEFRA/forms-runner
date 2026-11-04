@@ -13,7 +13,7 @@ jest.mock('openid-client')
  * shares is enough — the module does not need reloading.
  */
 function withSetting(
-  path: 'oidc.privateJwk' | 'cdpEnvironment',
+  path: 'oidc.privateJwk' | 'oidc.internalUrl' | 'cdpEnvironment',
   override: string
 ) {
   const configured = config.get.bind(config)
@@ -109,6 +109,77 @@ describe('oidc client plugin', () => {
     })
   })
 
+  it('discovers the public issuer, so the issuer check passes, but sends the calls to the internal URL', async () => {
+    withSetting('oidc.internalUrl', 'http://identity.internal:8080')
+    jest.mocked(client.discovery).mockResolvedValue({} as client.Configuration)
+    const fetchSpy = jest
+      .spyOn(global, 'fetch')
+      .mockResolvedValue(new Response())
+
+    const server = hapi.server()
+    await server.register(pluginOidcClient)
+    await server.app.oidc.getConfig()
+
+    // The public issuer is still what openid-client is told to discover
+    expect(jest.mocked(client.discovery).mock.calls[0][0]).toEqual(
+      new URL('http://localhost:3011')
+    )
+
+    const customFetch = jest.mocked(client.discovery).mock.calls[0][4]?.[
+      client.customFetch
+    ]
+    await customFetch?.(new URL('http://localhost:3011/token'), {
+      method: 'POST'
+    })
+
+    expect(fetchSpy.mock.calls[0][0]).toEqual(
+      new URL('http://identity.internal:8080/token')
+    )
+  })
+
+  it('drops the issuer port when the internal URL has none, rather than carrying it over', async () => {
+    withSetting('oidc.internalUrl', 'https://forms-identity-ui')
+    jest.mocked(client.discovery).mockResolvedValue({} as client.Configuration)
+    const fetchSpy = jest
+      .spyOn(global, 'fetch')
+      .mockResolvedValue(new Response())
+
+    const server = hapi.server()
+    await server.register(pluginOidcClient)
+    await server.app.oidc.getConfig()
+
+    const customFetch = jest.mocked(client.discovery).mock.calls[0][4]?.[
+      client.customFetch
+    ]
+    // The issuer carries port 3011; the internal URL carries none
+    await customFetch?.(new URL('http://localhost:3011/token'), {
+      method: 'POST'
+    })
+
+    expect(fetchSpy.mock.calls[0][0]).toEqual(
+      new URL('https://forms-identity-ui/token')
+    )
+  })
+
+  it('leaves a call to any other origin alone', async () => {
+    withSetting('oidc.internalUrl', 'http://identity.internal:8080')
+    jest.mocked(client.discovery).mockResolvedValue({} as client.Configuration)
+    const fetchSpy = jest
+      .spyOn(global, 'fetch')
+      .mockResolvedValue(new Response())
+
+    const server = hapi.server()
+    await server.register(pluginOidcClient)
+    await server.app.oidc.getConfig()
+
+    const customFetch = jest.mocked(client.discovery).mock.calls[0][4]?.[
+      client.customFetch
+    ]
+    await customFetch?.(new URL('http://elsewhere/token'), { method: 'POST' })
+
+    expect(fetchSpy.mock.calls[0][0]).toEqual(new URL('http://elsewhere/token'))
+  })
+
   it('authenticates by signed assertion, not by secret', async () => {
     jest.mocked(client.discovery).mockResolvedValue({} as client.Configuration)
 
@@ -148,7 +219,7 @@ describe('oidc client plugin', () => {
     const server = hapi.server()
 
     await expect(server.register(pluginOidcClient)).rejects.toThrow(
-      'Sign-in is enabled but missing configuration: oidc.issuer, oidc.redirectUri, oidc.privateJwk'
+      'Sign-in is enabled but missing configuration: oidc.issuer, oidc.internalUrl, oidc.redirectUri, oidc.privateJwk'
     )
   })
 })

@@ -1,5 +1,6 @@
 import { SignJWT, createLocalJWKSet, exportJWK, generateKeyPair } from 'jose'
 
+import { config } from '~/src/config/index.js'
 import {
   hasBeenLoggedOut,
   recordLogout,
@@ -7,10 +8,12 @@ import {
 } from '~/src/server/auth/backchannelLogout.js'
 
 const mockKeySet = jest.fn()
+const mockCreateRemoteJWKSet = jest.fn()
 
 jest.mock('jose', () => ({
   ...jest.requireActual('jose'),
-  createRemoteJWKSet: () => mockKeySet
+  createRemoteJWKSet: (/** @type {URL} */ jwksUri) =>
+    mockCreateRemoteJWKSet(jwksUri)
 }))
 
 const ISSUER = 'http://localhost:3011'
@@ -68,6 +71,7 @@ describe('backchannelLogout', () => {
 
   beforeEach(() => {
     mockKeySet.mockImplementation((header, input) => keySet(header, input))
+    mockCreateRemoteJWKSet.mockReturnValue(mockKeySet)
   })
 
   beforeAll(async () => {
@@ -89,6 +93,23 @@ describe('backchannelLogout', () => {
       sub: 'sub-1',
       sid: 'sid-1'
     })
+  })
+
+  it('fetches the keys over the internal URL, not the public issuer the metadata advertises', async () => {
+    const configured = config.get.bind(config)
+    jest
+      .spyOn(config, 'get')
+      .mockImplementation((name) =>
+        name === 'oidc.internalUrl'
+          ? 'http://identity.internal:8080'
+          : configured(name)
+      )
+
+    await verifyLogoutToken(request, await token())
+
+    expect(String(mockCreateRemoteJWKSet.mock.calls[0][0])).toBe(
+      'http://identity.internal:8080/jwks'
+    )
   })
 
   it.each([

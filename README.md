@@ -195,6 +195,7 @@ See [https://github.com/node-config/node-config#readme](https://github.com/node-
 | PRIVATE_KEY_FOR_SECRETS                | Base64-encoded private key (paired witht he public key from forms-manager) for decryption of secrets. |       yes       |                                      |                             |                                                                                                                         |
 | USE_SIGN_IN_FEATURE                    | Serves citizen sign in and the per-form homepage.                                                     |       no        | false                                |         true, false         |                                        See [Citizen sign in](#citizen-sign-in).                                         |
 | OIDC_ISSUER                            | Identity provider issuer, matching the provider exactly.                                              | when signing in |                                      |                             |                                                                                                                         |
+| OIDC_INTERNAL_URL                      | Private base URL this service reaches the provider on for server-to-server calls.                     | when signing in |                                      |                             |                   Discovery, token, JWKS and revocation go here. OIDC_ISSUER stays the public issuer.                   |
 | OIDC_CLIENT_ID                         | This service's client id at the provider.                                                             | when signing in |                                      |                             |                                                                                                                         |
 | OIDC_REDIRECT_URI                      | Where the provider returns the citizen.                                                               | when signing in |                                      |                             |           The provider registers this value, so it must match this service's `/auth/callback` byte for byte.            |
 | OIDC_CLIENT_PRIVATE_JWK                | This service's private assertion key, as a single RS256 JWK.                                          | when signing in |                                      |                             |                                       Secret. The provider holds the public half.                                       |
@@ -207,9 +208,15 @@ See [https://github.com/node-config/node-config#readme](https://github.com/node-
 service behaves as it did before the feature existed: the sign-in routes and the per-form
 homepage go unregistered, and the header shows no account menu.
 
-Turn it on and `OIDC_ISSUER`, `OIDC_REDIRECT_URI` and `OIDC_CLIENT_PRIVATE_JWK` become
-required. The service reads them at boot and refuses to start while any is unset, naming the
-ones it wants. The other `OIDC_*` settings have defaults.
+Turn it on and `OIDC_ISSUER`, `OIDC_INTERNAL_URL`, `OIDC_REDIRECT_URI` and
+`OIDC_CLIENT_PRIVATE_JWK` become required. The service reads them at boot and refuses to
+start while any is unset, naming the ones it wants. The other `OIDC_*` settings have defaults.
+
+`OIDC_ISSUER` is the public issuer: it must match the `iss` the provider sets, and the browser
+reaches it for sign in. `OIDC_INTERNAL_URL` is the private address this service reaches the
+provider on for every server-to-server call. The provider advertises the public issuer in its
+metadata, so a call that targets the issuer origin is sent to `OIDC_INTERNAL_URL` instead, with
+the path from the metadata kept.
 
 Sign in is an OpenID Connect authorization code flow with PKCE, against
 [forms-identity-ui](https://github.com/DEFRA/forms-identity-ui) as the provider. This

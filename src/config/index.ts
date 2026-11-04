@@ -358,6 +358,12 @@ export const config = convict({
       default: '',
       env: 'OIDC_ISSUER'
     } as SchemaObj<string>,
+    internalUrl: {
+      doc: 'Private origin (scheme, host and port) this service reaches the OIDC provider on for every server-to-server call, so that traffic stays on the internal network. The provider advertises the public issuer, so a call to the issuer origin is sent to this origin instead with its path kept; any path on this value is ignored. The issuer above stays the token issuer and the browser-facing origin.',
+      format: String,
+      default: '',
+      env: 'OIDC_INTERNAL_URL'
+    } as SchemaObj<string>,
     clientId: {
       doc: 'This service’s client id at the provider',
       format: String,

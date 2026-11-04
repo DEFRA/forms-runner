@@ -45,6 +45,7 @@ process.env.ORDNANCE_SURVEY_API_SECRET = 'dummy-ordnance-survey-api-secret'
 process.env.USE_MAPS_FEATURE = 'false'
 process.env.USE_SIGN_IN_FEATURE = 'false'
 process.env.OIDC_ISSUER = 'http://localhost:3011'
+process.env.OIDC_INTERNAL_URL = 'http://localhost:3011'
 process.env.OIDC_CLIENT_ID = 'runner'
 process.env.OIDC_REDIRECT_URI = 'http://localhost:3009/auth/callback'
 process.env.OIDC_CLIENT_PRIVATE_JWK =

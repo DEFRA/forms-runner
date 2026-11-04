@@ -18,6 +18,32 @@ export function applyTraceHeaders(
 }
 
 /**
+ * Points a call at the OIDC provider to the private network address the
+ * provider is reachable on. The provider advertises its public issuer in its
+ * metadata, so a URL on the issuer origin is rewritten to oidc.internalUrl
+ * with its path and query kept, which keeps every server-to-server call on
+ * the internal network while standard OIDC metadata still drives it. A URL on
+ * any other origin is returned unchanged, so only the provider is redirected.
+ * @param {string | URL} url - a URL taken from the provider's metadata
+ * @returns {string | URL} the URL to fetch, pointed at the internal network
+ */
+export function providerInternalUrl(url) {
+  const target = new URL(url)
+  const issuerOrigin = new URL(config.get('oidc.issuer')).origin
+
+  if (target.origin !== issuerOrigin) {
+    return url
+  }
+
+  const internal = new URL(config.get('oidc.internalUrl'))
+  target.protocol = internal.protocol
+  target.hostname = internal.hostname
+  target.port = internal.port
+
+  return target
+}
+
+/**
  * @param {string} formId - the source form id (not the feedback form id)
  * @returns {{ feedbackLink: string }}
  */

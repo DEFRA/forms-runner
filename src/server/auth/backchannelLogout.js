@@ -1,6 +1,7 @@
 import { createRemoteJWKSet, jwtVerify } from 'jose'
 
 import { config } from '~/src/config/index.js'
+import { providerInternalUrl } from '~/src/server/utils/utils.js'
 
 const LOGOUT_EVENT = 'http://schemas.openid.net/event/backchannel-logout'
 
@@ -59,17 +60,17 @@ export async function verifyLogoutToken(request, logoutToken) {
     throw new Error('Provider lists no JWKS URI')
   }
 
+  // The provider advertises its public JWKS URI, so the keys are fetched over
+  // the private network address instead. The issuer below stays public.
+  const jwksUri = String(providerInternalUrl(metadata.jwks_uri))
+
   /** @type {JWTVerifyResult<LogoutTokenClaims>} */
-  const { payload } = await jwtVerify(
-    logoutToken,
-    keySetFor(metadata.jwks_uri),
-    {
-      issuer: metadata.issuer,
-      audience: config.get('oidc.clientId'),
-      maxTokenAge: MAX_TOKEN_AGE_SECONDS,
-      requiredClaims: ['iat', 'jti']
-    }
-  )
+  const { payload } = await jwtVerify(logoutToken, keySetFor(jwksUri), {
+    issuer: metadata.issuer,
+    audience: config.get('oidc.clientId'),
+    maxTokenAge: MAX_TOKEN_AGE_SECONDS,
+    requiredClaims: ['iat', 'jti']
+  })
 
   const events = payload.events
 
