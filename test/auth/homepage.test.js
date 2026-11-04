@@ -83,6 +83,14 @@ const savedForms = [
     createdAt: '2026-09-09T09:00:00.000Z',
     expireAt: '2026-10-07T09:00:00.000Z',
     status: FormRowStatus.InProgress
+  },
+  {
+    magicLinkId: 'link-3',
+    referenceNumber: 'BBB-222',
+    formTitle: 'test-form',
+    createdAt: '2026-11-09T09:00:00.000Z',
+    expireAt: '2026-12-07T09:00:00.000Z',
+    status: FormRowStatus.Submitted
   }
 ]
 
@@ -462,6 +470,9 @@ describe('per-form homepage', () => {
       expect(
         within(table).getByRole('cell', { name: 'AAA-111' })
       ).toBeInTheDocument()
+      expect(
+        within(table).getByRole('cell', { name: 'BBB-222' })
+      ).toBeInTheDocument()
 
       // 09:00 UTC is 10:00am in British Summer Time
       expect(
@@ -567,7 +578,7 @@ describe('per-form homepage', () => {
           })
         )
         const allForms = addInFlightForms(mockRequest, savedForms)
-        expect(allForms).toHaveLength(3)
+        expect(allForms).toHaveLength(4)
         expect(allForms[0].referenceNumber).toBe('PRO-222')
         expect(allForms[0].status).toBe(FormRowStatus.Processing)
       })
@@ -586,7 +597,7 @@ describe('per-form homepage', () => {
         const savedFormsCompleted = structuredClone(savedForms)
         savedFormsCompleted[0].referenceNumber = 'PRO-222'
         const allForms = addInFlightForms(mockRequest, savedFormsCompleted)
-        expect(allForms).toHaveLength(2)
+        expect(allForms).toHaveLength(3)
         expect(allForms[0].referenceNumber).toBe('PRO-222')
         expect(allForms[0].status).toBe(FormRowStatus.InProgress)
         expect(mockYarClear).toHaveBeenCalledTimes(1)
