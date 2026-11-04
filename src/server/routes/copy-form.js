@@ -8,6 +8,11 @@ import Boom from '@hapi/boom'
 import Joi from 'joi'
 
 import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/auth/route-options.js'
+import {
+  SESSION_ACTION,
+  SESSION_ACTION_REFERENCE_NUMBER,
+  SessionActions
+} from '~/src/server/constants.js'
 import { formatDateTime } from '~/src/server/helpers/date-helper.js'
 import {
   constructHomepageLink,
@@ -372,6 +377,8 @@ async function setCacheState(request, submissionToCopy, form) {
   await cacheService.clearState(req)
   await cacheService.setState(req, {
     ...copiedState,
+    [SESSION_ACTION]: SessionActions.Copy,
+    [SESSION_ACTION_REFERENCE_NUMBER]: submissionToCopy.meta.referenceNumber,
     $$__referenceNumber: undefined
   })
 }

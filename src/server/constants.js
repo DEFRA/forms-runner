@@ -17,7 +17,14 @@ export const SESSION_ACTION = '__action'
 export const SESSION_ACTION_REFERENCE_NUMBER = '__referenceNumber'
 
 /**
- * @type {{ Processing: 'processing', InProgress: 'inProgress',   Submitted: 'submitted', Expired: 'expired',   Deleted: 'deleted' }}
+ * @type {{ Copy: 'copy' }}
+ */
+export const SessionActions = {
+  Copy: 'copy'
+}
+
+/**
+ * @type {{ Processing: 'processing', InProgress: 'inProgress', Submitted: 'submitted', Expired: 'expired', Deleted: 'deleted' }}
  */
 export const FormRowStatus = {
   Processing: 'processing',

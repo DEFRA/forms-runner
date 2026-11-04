@@ -4,6 +4,11 @@ import { getFormatter } from '@defra/forms-engine-plugin/engine/outputFormatters
 import { FormStatus } from '@defra/forms-engine-plugin/types'
 
 import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
+import {
+  SESSION_ACTION,
+  SESSION_ACTION_REFERENCE_NUMBER,
+  SessionActions
+} from '~/src/server/constants.js'
 import { publishFormAdapterEvent } from '~/src/server/messaging/formAdapterEventPublisher.js'
 import { getFormMetadataById } from '~/src/server/services/formsService.js'
 import {
@@ -367,6 +372,81 @@ describe('OutputService', () => {
           auth: {
             sub: credentials.sub,
             issuer: credentials.iss
+          }
+        }
+      })
+    })
+
+    it('successfully processes form submission and publishes event when user is authenticated and action is "copy"', async () => {
+      const mockPayload = {
+        meta: {
+          formId: 'form-123',
+          referenceNumber: 'REF-123456',
+          formName: 'Test Form',
+          notificationEmail: 'notify@example.com'
+        },
+        data: mockItems
+      }
+
+      const credentials = {
+        sub: 'user-subject-id',
+        iss: 'user-issuer'
+      }
+
+      const mockAuthenticatedRequest = /** @type {FormRequestPayload} */ (
+        /** @type {unknown} */ ({
+          params: {
+            formSlug: 'test-form',
+            path: '/test-form',
+            slug: 'test-form'
+          },
+          auth: {
+            isAuthenticated: true,
+            strategy: CITIZEN_SESSION,
+            credentials
+          },
+          payload: {}
+        })
+      )
+
+      mockFormatter.mockReturnValue(JSON.stringify(mockPayload))
+
+      mockContext.state = {
+        [SESSION_ACTION]: SessionActions.Copy,
+        [SESSION_ACTION_REFERENCE_NUMBER]: 'REF-123456'
+      }
+
+      await outputService.submit(
+        mockContext,
+        mockAuthenticatedRequest,
+        mockModel,
+        'test@example.com',
+        mockItems,
+        mockSubmitResponse,
+        mockFormMetadata
+      )
+
+      expect(checkFormStatus).toHaveBeenCalledWith(mockRequest.params)
+      expect(getFormatter).toHaveBeenCalledWith('adapter', '1')
+      expect(mockFormatter).toHaveBeenCalledWith(
+        mockContext,
+        mockItems,
+        mockModel,
+        mockSubmitResponse,
+        { isPreview: false, state: FormStatus.Live },
+        mockFormMetadata
+      )
+      expect(publishFormAdapterEvent).toHaveBeenCalledWith({
+        ...mockPayload,
+        meta: {
+          ...mockPayload.meta,
+          auth: {
+            sub: credentials.sub,
+            issuer: credentials.iss
+          },
+          custom: {
+            actionName: 'copy',
+            actionReferenceNumber: 'REF-123456'
           }
         }
       })
