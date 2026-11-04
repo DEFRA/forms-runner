@@ -134,12 +134,16 @@ export const onRequest: OnRequestCallback = (request, h) => {
     return h.continue
   }
 
-  // A relative path keeps the citizen on the host they arrived on, so an
-  // internal user stays on the internal domain.
-  const returnUrl = encodeURIComponent(request.path)
-  const url = `/signin-required/${request.params.slug}?returnUrl=${returnUrl}`
+  // The URL builder escapes the return path. baseUrl is a base for the builder
+  // only; the redirect keeps just the path and query, so it stays relative and
+  // the citizen stays on the host they arrived on, such as the internal domain.
+  const url = new URL(
+    `/signin-required/${request.params.slug}`,
+    config.get('baseUrl')
+  )
+  url.searchParams.append('returnUrl', request.path)
 
-  return h.redirect(url).takeover()
+  return h.redirect(`${url.pathname}${url.search}`).takeover()
 }
 
 export const configureEnginePlugin = async ({
