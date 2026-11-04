@@ -13,6 +13,8 @@ import {
   getFormRecords,
   getSaveAndExitDetails,
   getSavedFormState,
+  persistFiles,
+  submit,
   validateSaveAndExitCredentials
 } from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
@@ -94,6 +96,59 @@ describe('Submission service', () => {
       ).rejects.toThrow(
         'Unexpected empty response in validateSaveAndExitCredentials'
       )
+    })
+  })
+
+  describe('persistFiles', () => {
+    it('posts the files to the submission api', async () => {
+      const files = [{ fileId: 'file-1', initiatedRetrievalKey: 'key-1' }]
+      const response = {
+        res: /** @type {IncomingMessage} */ ({
+          statusCode: StatusCodes.OK
+        }),
+        payload: {}
+      }
+
+      jest.mocked(postJson).mockResolvedValue(response)
+
+      const result = await persistFiles(files, 'enrique.chase@defra.gov.uk')
+
+      expect(result).toBe(response)
+      expect(postJson).toHaveBeenCalledWith(`${SUBMISSION_URL}/files/persist`, {
+        payload: {
+          files,
+          persistedRetrievalKey: 'enrique.chase@defra.gov.uk'
+        }
+      })
+    })
+  })
+
+  describe('submit', () => {
+    it('posts the submission to the submission api', async () => {
+      const data = /** @type {SubmitPayload} */ ({
+        sessionId: 'session-1',
+        retrievalKey: 'enrique.chase@defra.gov.uk',
+        main: [],
+        repeaters: []
+      })
+      const responsePayload = /** @type {SubmitResponsePayload} */ ({
+        message: 'Submit completed',
+        result: { files: { main: 'main-file-id', repeaters: {} } }
+      })
+
+      jest.mocked(postJson).mockResolvedValue({
+        res: /** @type {IncomingMessage} */ ({
+          statusCode: StatusCodes.OK
+        }),
+        payload: responsePayload
+      })
+
+      const result = await submit(data)
+
+      expect(result).toBe(responsePayload)
+      expect(postJson).toHaveBeenCalledWith(`${SUBMISSION_URL}/submit`, {
+        payload: data
+      })
     })
   })
 
@@ -283,4 +338,5 @@ describe('Submission service', () => {
 
 /**
  * @import { IncomingMessage } from 'node:http'
+ * @import { SubmitPayload, SubmitResponsePayload } from '@defra/forms-model'
  */

@@ -1,4 +1,9 @@
 import {
+  createLogContext,
+  getReferenceNumber,
+  runWithLogContext
+} from '@defra/forms-common'
+import {
   FormStatus,
   type AnyFormRequest,
   type FormContext,
@@ -19,7 +24,11 @@ import {
   getFormDefinition,
   getFormMetadata
 } from '~/src/server/services/formsService.js'
-import { generateReferenceNumber } from '~/src/server/services/submissionService.js'
+import {
+  generateReferenceNumber,
+  persistFiles,
+  submit
+} from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 
 jest.mock('~/src/server/services/formsService.js')
@@ -534,6 +543,21 @@ describe('Model cache', () => {
       )
       expect(mockH.redirect).toHaveBeenCalledWith('/save-and-exit/test-form')
     })
+
+    test('should use the runner onRequest callback', async () => {
+      const [pluginObject] = await configureEnginePlugin({})
+
+      expect(pluginObject.options.onRequest).toBe(onRequest)
+    })
+
+    test('should use the runner submission service', async () => {
+      const [pluginObject] = await configureEnginePlugin({})
+
+      expect(pluginObject.options.services?.formSubmissionService).toEqual({
+        persistFiles,
+        submit
+      })
+    })
   })
 })
 
@@ -664,5 +688,43 @@ describe('onRequest', () => {
 
     expect(result).toBe(continueResponse)
     expect(redirect).not.toHaveBeenCalled()
+  })
+
+  test('adds the form reference number to the log context', () => {
+    const request = createRequest(
+      { def: { metadata: {} } },
+      { isAuthenticated: false }
+    )
+    const { h } = createToolkit()
+    const context = { referenceNumber: 'ABC-123-DEF' } as FormContext
+
+    runWithLogContext(createLogContext(), () => {
+      const result = onRequest(request, h, context)
+
+      expect(result).toBe(continueResponse)
+      expect(getReferenceNumber()).toBe('ABC-123-DEF')
+    })
+  })
+
+  test('adds the form reference number to the log context before redirecting to sign in', () => {
+    const request = createRequest(
+      {
+        def: {
+          name: 'test-form',
+          metadata: { options: { allowCopy: true } }
+        }
+      },
+      { isAuthenticated: false }
+    )
+    const { h, redirect } = createToolkit()
+    const context = { referenceNumber: 'ABC-123-DEF' } as FormContext
+
+    runWithLogContext(createLogContext(), () => {
+      const result = onRequest(request, h, context)
+
+      expect(redirect).toHaveBeenCalled()
+      expect(result).toBe(takeoverResponse)
+      expect(getReferenceNumber()).toBe('ABC-123-DEF')
+    })
   })
 })

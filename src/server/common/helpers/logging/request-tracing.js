@@ -1,4 +1,8 @@
-import { requestTracing as requestTracingPlugin } from '@defra/forms-common'
+import {
+  getRequestSessionId,
+  requestTracing as requestTracingPlugin,
+  setReferenceNumber
+} from '@defra/forms-common'
 import { tracing } from '@defra/hapi-tracing'
 
 import { config } from '~/src/config/index.js'
@@ -21,9 +25,24 @@ export function getRequestUserId(request) {
 }
 
 /**
+ * `onRequest` callback of `@defra/forms-engine-plugin` that adds the
+ * reference number of the form being completed to the log context. The
+ * engine calls it once it has loaded the form state, before the page handler.
+ * @param {AnyFormRequest} _request
+ * @param {FormResponseToolkit} h
+ * @param {FormContext} context
+ */
+export function addReferenceNumberToLogContext(_request, h, context) {
+  setReferenceNumber(context.referenceNumber)
+
+  return h.continue
+}
+
+/**
  * Starts a log context for every request, holding the correlation ID from the
- * tracing header (or a new ID when the caller sent none) and the account ID
- * of the signed in citizen. The logger writes both on every log line.
+ * tracing header (or a new ID when the caller sent none), the account ID of
+ * the signed in citizen and the ID of the yar session. The logger writes them
+ * on every log line.
  *
  * The plugin registers `@defra/hapi-tracing`, so `@defra/forms-engine-plugin`
  * reports the same correlation ID.
@@ -34,11 +53,13 @@ export const requestTracing = {
   options: {
     tracingHeader,
     tracingPlugin: tracing.plugin,
-    getUserId: getRequestUserId
+    getUserId: getRequestUserId,
+    getSessionId: getRequestSessionId
   }
 }
 
 /**
  * @import { RequestTracingOptions } from '@defra/forms-common'
+ * @import { AnyFormRequest, FormContext, FormResponseToolkit } from '@defra/forms-engine-plugin/types'
  * @import { Request, ServerRegisterPluginObject } from '@hapi/hapi'
  */
