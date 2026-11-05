@@ -39,15 +39,17 @@ import { t as runnerT } from '~/src/server/i18n/index.js'
 import { returnUrlSchema } from '~/src/server/models/common.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadataWithoutGuard } from '~/src/server/services/formMetadataGuards.js'
-import { getAllLanguages, resolveLanguage } from '~/src/server/utils/utils.js'
+import {
+  browserRedirectUri,
+  getAllLanguages,
+  resolveLanguage
+} from '~/src/server/utils/utils.js'
 
 /**
  * `offline_access` asks for a refresh token that outlives the provider
  * session (OpenID Connect Core, section 11)
  */
 const SCOPES = 'openid email offline_access'
-
-const BASE_URL = config.get('baseUrl')
 
 /**
  * The API a token is wanted for. It must be named on the authorization
@@ -125,7 +127,7 @@ async function endSignIn(request) {
 /**
  * Starts a sign in at the provider. The callback finishes it and sends the
  * citizen to `returnUrl`.
- * @param {Pick<Request, 'server' | 'yar'>} request
+ * @param {Pick<Request, 'server' | 'yar' | 'info'>} request
  * @param {Pick<ResponseToolkit, 'redirect'>} h
  * @param {string} returnUrl - validated by the route that calls this
  */
@@ -141,15 +143,23 @@ async function startSignIn(request, h, returnUrl) {
   const state = client.randomState()
   const nonce = client.randomNonce()
 
+  // Return the citizen to the host they started on, so a sign in begun on the
+  // internal domain comes back to it. The provider registers each callback and
+  // refuses one it does not hold, so it is the single allowlist. The callback
+  // repeats this exact URI at the token endpoint, so it is kept in the
+  // transaction.
+  const redirectUri = browserRedirectUri(request.info.host, CALLBACK_PATH)
+
   setSignInTransaction(request.yar, {
     state,
     nonce,
     codeVerifier,
-    returnUrl
+    returnUrl,
+    redirectUri
   })
 
   const authorizationUrl = client.buildAuthorizationUrl(oidcConfig, {
-    redirect_uri: config.get('oidc.redirectUri'),
+    redirect_uri: redirectUri,
     scope: SCOPES,
     resource: RESOURCE,
     state,
@@ -233,14 +243,19 @@ export default [
       const language = resolveLanguage(request.query, request.yar)
       const stateParam = JSON.stringify({ slug, previewMode, returnUrl })
 
-      const postLogoutUrl = new URL(SIGNED_OUT_PATH, BASE_URL)
+      // Come back to the host the sign-out started on, so an internal session
+      // ends on the internal domain.
+      const postLogoutUrl = browserRedirectUri(
+        request.info.host,
+        SIGNED_OUT_PATH
+      )
 
       const logoutUrl = client.buildEndSessionUrl(oidcConfig, {
         ...(idToken && { id_token_hint: idToken }),
-        client_id: 'runner',
+        client_id: config.get('oidc.clientId'),
         // Registered in OIDC_RUNNER_POST_LOGOUT_REDIRECT_URIS — without it
         // the provider shows its own success page instead of returning here
-        post_logout_redirect_uri: postLogoutUrl.href,
+        post_logout_redirect_uri: postLogoutUrl,
         state: stateParam,
         ui_locales: language
       })
@@ -282,11 +297,12 @@ export default [
       const oidcConfig = await request.server.app.oidc.getConfig()
 
       try {
-        // The token request must send the same redirect URI as the sign-in
-        // request. Build it from configuration, because a proxy sets the host
-        // and the scheme on the request. Take only the query string, which
-        // holds the code and the state, from the request.
-        const callbackUrl = new URL(config.get('oidc.redirectUri'))
+        // The token request must repeat the exact redirect URI the sign-in
+        // request sent. That URI varies with the host the sign in started on,
+        // so it is read from the transaction rather than from this request,
+        // whose host and scheme a proxy may have changed. Take only the query
+        // string, which holds the code and the state, from the request.
+        const callbackUrl = new URL(transaction.redirectUri)
         callbackUrl.search = request.url.search
 
         const tokens = await client.authorizationCodeGrant(

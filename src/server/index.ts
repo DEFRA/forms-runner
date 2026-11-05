@@ -148,7 +148,10 @@ export const onRequest: OnRequestCallback = (request, h, context) => {
   const url = new URL(`/signin-required/${request.params.slug}`, BASE_URL)
   url.searchParams.append('returnUrl', request.path)
 
-  return h.redirect(url.href).takeover()
+  // Redirect to the path and query only, so it stays relative and the citizen
+  // stays on the host they arrived on, such as the internal domain. BASE_URL is
+  // a base for the builder only; its host is dropped.
+  return h.redirect(`${url.pathname}${url.search}`).takeover()
 }
 
 export const configureEnginePlugin = async ({

@@ -50,6 +50,23 @@ export function applyLogContextHeaders(url, existingHeaders) {
 }
 
 /**
+ * The URL to return the browser to, on the host the request arrived on. CDP
+ * forwards the requested host, so a citizen who starts on the internal domain
+ * is sent back there. The scheme follows the environment, because CDP
+ * terminates TLS and the request arrives as http; the host comes from the
+ * request. The provider registers each result and refuses one it does not
+ * hold, so the provider is the single allowlist.
+ * @param {string} host - the request host, from request.info.host
+ * @param {string} path - the path to return to, such as the callback path
+ * @returns {string} the redirect URL
+ */
+export function browserRedirectUri(host, path) {
+  const scheme = config.get('isProduction') ? 'https' : 'http'
+
+  return `${scheme}://${host}${path}`
+}
+
+/**
  * @param {string} formId - the source form id (not the feedback form id)
  * @returns {{ feedbackLink: string }}
  */

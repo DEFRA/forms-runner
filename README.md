@@ -196,7 +196,6 @@ See [https://github.com/node-config/node-config#readme](https://github.com/node-
 | USE_SIGN_IN_FEATURE                    | Serves citizen sign in and the per-form homepage.                                                     |       no        | false                                |         true, false         |                                        See [Citizen sign in](#citizen-sign-in).                                         |
 | OIDC_ISSUER                            | Identity provider issuer, matching the provider exactly.                                              | when signing in |                                      |                             |                                                                                                                         |
 | OIDC_CLIENT_ID                         | This service's client id at the provider.                                                             | when signing in |                                      |                             |                                                                                                                         |
-| OIDC_REDIRECT_URI                      | Where the provider returns the citizen.                                                               | when signing in |                                      |                             |           The provider registers this value, so it must match this service's `/auth/callback` byte for byte.            |
 | OIDC_CLIENT_PRIVATE_JWK                | This service's private assertion key, as a single RS256 JWK.                                          | when signing in |                                      |                             |                                       Secret. The provider holds the public half.                                       |
 | OIDC_SUBMISSION_API_RESOURCE           | Resource this service asks the provider for tokens for. It becomes the access token's audience.       |       no        | urn:defra:forms:forms-submission-api |                             |                                  Must match the audience forms-submission-api accepts.                                  |
 | OIDC_ACCESS_TOKEN_EXPIRY_GRACE_SECONDS | An access token with this many seconds or fewer left is refreshed before use.                         |       no        | 30                                   |                             |                                          See [Token refresh](#token-refresh).                                           |
@@ -207,9 +206,19 @@ See [https://github.com/node-config/node-config#readme](https://github.com/node-
 service behaves as it did before the feature existed: the sign-in routes and the per-form
 homepage go unregistered, and the header shows no account menu.
 
-Turn it on and `OIDC_ISSUER`, `OIDC_REDIRECT_URI` and `OIDC_CLIENT_PRIVATE_JWK` become
-required. The service reads them at boot and refuses to start while any is unset, naming the
-ones it wants. The other `OIDC_*` settings have defaults.
+Turn it on and `OIDC_ISSUER`, `OIDC_CLIENT_ID` and `OIDC_CLIENT_PRIVATE_JWK` become required. The
+service reads them at boot and refuses to start while any is unset, naming the ones it wants. The
+other `OIDC_*` settings have defaults.
+
+This service can be reached on more than one domain, such as a public domain and an internal
+one. A sign in returns the citizen to the domain they started on, so sign in keeps working on
+the internal domain while the public domain is shut for maintenance. The service builds its
+`/auth/callback` and `/auth/signed-out` on the host the request arrived on, with the scheme set
+to `https` in production and `http` otherwise. The provider registers each domain's URIs and
+refuses one it does not hold, so the provider is the single allowlist. Register each domain's
+`/auth/callback` and `/auth/signed-out` at the provider before the domain is used. A sign in
+that the provider starts, from the account pages, returns to the public domain, because a
+client has one initiate login URI registered at the provider.
 
 Sign in is an OpenID Connect authorization code flow with PKCE, against
 [forms-identity-ui](https://github.com/DEFRA/forms-identity-ui) as the provider. This
@@ -300,7 +309,6 @@ PRIVATE_KEY_FOR_SECRETS="<base64-encoded-private-key>"
 USE_SIGN_IN_FEATURE=false
 OIDC_ISSUER=http://localhost:3011
 OIDC_CLIENT_ID=runner
-OIDC_REDIRECT_URI=http://localhost:3009/auth/callback
 OIDC_CLIENT_PRIVATE_JWK=<single-rs256-jwk>
 OIDC_ACCESS_TOKEN_EXPIRY_GRACE_SECONDS=30
 ```

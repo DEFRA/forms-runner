@@ -12,7 +12,6 @@ import {
 import { type Server } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 
-import { config } from '~/src/config/index.js'
 import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import {
@@ -635,13 +634,13 @@ describe('onRequest', () => {
     const { h, redirect, takeover } = createToolkit()
 
     const result = onRequest(request, h, {} as FormContext)
-    const expectedUrl = new URL(
-      '/signin-required/test-form',
-      config.get('baseUrl')
-    )
-    expectedUrl.searchParams.append('returnUrl', '/form/test-form/page-one')
 
-    expect(redirect).toHaveBeenCalledWith(expectedUrl.href)
+    // A relative path keeps the citizen on the host they arrived on, so an
+    // internal user stays on the internal domain rather than being sent to the
+    // public one.
+    expect(redirect).toHaveBeenCalledWith(
+      '/signin-required/test-form?returnUrl=%2Fform%2Ftest-form%2Fpage-one'
+    )
     expect(takeover).toHaveBeenCalled()
     expect(result).toBe(takeoverResponse)
   })
@@ -662,13 +661,9 @@ describe('onRequest', () => {
 
     const result = onRequest(request, h, {} as FormContext)
 
-    const expectedUrl = new URL(
-      '/signin-required/test-form',
-      config.get('baseUrl')
+    expect(redirect).toHaveBeenCalledWith(
+      '/signin-required/test-form?returnUrl=%2Fform%2Ftest-form%2Fpage-one'
     )
-    expectedUrl.searchParams.append('returnUrl', '/form/test-form/page-one')
-
-    expect(redirect).toHaveBeenCalledWith(expectedUrl.href)
     expect(result).toBe(takeoverResponse)
   })
 
