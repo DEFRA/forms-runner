@@ -61,6 +61,8 @@ Wreck.agents = {
   httpsAllowUnauthorized: https.globalAgent
 }
 
+const BASE_URL = config.get('baseUrl')
+
 const serverOptions = (): ServerOptions => {
   const serverOptions: ServerOptions = {
     debug: { request: [`${config.get('isDevelopment')}`] },
@@ -134,15 +136,12 @@ export const onRequest: OnRequestCallback = (request, h) => {
     return h.continue
   }
 
-  // The URL builder escapes the return path. baseUrl is a base for the builder
-  // only; the redirect keeps just the path and query, so it stays relative and
-  // the citizen stays on the host they arrived on, such as the internal domain.
-  const url = new URL(
-    `/signin-required/${request.params.slug}`,
-    config.get('baseUrl')
-  )
+  const url = new URL(`/signin-required/${request.params.slug}`, BASE_URL)
   url.searchParams.append('returnUrl', request.path)
 
+  // Redirect to the path and query only, so it stays relative and the citizen
+  // stays on the host they arrived on, such as the internal domain. BASE_URL is
+  // a base for the builder only; its host is dropped.
   return h.redirect(`${url.pathname}${url.search}`).takeover()
 }
 
