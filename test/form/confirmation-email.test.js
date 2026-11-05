@@ -1,6 +1,5 @@
 import { join } from 'node:path'
 
-import { submit } from '@defra/forms-engine-plugin/services/formSubmissionService.js'
 import { FormAction } from '@defra/forms-engine-plugin/types'
 import { within } from '@testing-library/dom'
 import { StatusCodes } from 'http-status-codes'
@@ -8,7 +7,10 @@ import { StatusCodes } from 'http-status-codes'
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
-import { generateReferenceNumber } from '~/src/server/services/submissionService.js'
+import {
+  generateReferenceNumber,
+  submit
+} from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookie, getCookieHeader } from '~/test/utils/get-cookie.js'
@@ -17,7 +19,6 @@ jest.mock('~/src/server/services/formsService.js')
 jest.mock('~/src/server/services/submissionService.js')
 jest.mock('~/src/server/messaging/publish.js')
 jest.mock('~/src/server/messaging/formAdapterEventPublisher.ts')
-jest.mock('@defra/forms-engine-plugin/services/formSubmissionService.js')
 
 const basePath = `${FORM_PREFIX}/confirmation-email`
 

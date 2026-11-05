@@ -12,6 +12,41 @@ import {
 const submissionUrl = config.get('submissionUrl')
 
 /**
+ * Persists uploaded files so they are kept beyond the initial upload expiry.
+ * The retention period is set by the S3 lifecycle rules for the submission
+ * API's bucket. Used by `@defra/forms-engine-plugin` in place of its own
+ * implementation, so the request carries the log context of the runner.
+ * @param {{ fileId: string, initiatedRetrievalKey: string }[]} files - batch of files to persist
+ * @param {string} persistedRetrievalKey - final retrieval key when submitting
+ */
+export async function persistFiles(files, persistedRetrievalKey) {
+  const postJsonByType = /** @type {typeof postJson<object>} */ (postJson)
+
+  const result = await postJsonByType(`${submissionUrl}/files/persist`, {
+    payload: { files, persistedRetrievalKey }
+  })
+
+  return result
+}
+
+/**
+ * Submits a form. Used by `@defra/forms-engine-plugin` in place of its own
+ * implementation, so the request carries the log context of the runner.
+ * @param {SubmitPayload} data - submission data
+ */
+export async function submit(data) {
+  const postJsonByType = /** @type {typeof postJson<SubmitResponsePayload>} */ (
+    postJson
+  )
+
+  const result = await postJsonByType(`${submissionUrl}/submit`, {
+    payload: data
+  })
+
+  return result.payload
+}
+
+/**
  * Retrieves a save-and-exit record from the form submission api for a given magic link
  * @param {string} magicLinkId - the id of the magic link
  */
@@ -184,7 +219,7 @@ export async function deleteSavedFormState(accessToken, magicLinkId) {
  */
 
 /**
- * @import { FormStatus } from '@defra/forms-model'
+ * @import { FormStatus, SubmitPayload, SubmitResponsePayload } from '@defra/forms-model'
  * @import { GenerateReferenceNumber, SaveAndExitDetails, SaveAndExitResumeDetails } from '~/src/server/types.js'
  * @import { FormRowStatusType } from '~/src/server/constants.js'
  */

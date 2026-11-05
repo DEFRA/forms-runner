@@ -5,7 +5,6 @@ import { join, parse } from 'path'
 import plugin, { CURRENT_PAGE_PATH_KEY } from '@defra/forms-engine-plugin'
 import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { FormModel } from '@defra/forms-engine-plugin/engine/models/FormModel.js'
-import { formSubmissionService } from '@defra/forms-engine-plugin/services/index.js'
 import {
   type FormContext,
   type FormRequestPayload,
@@ -29,7 +28,10 @@ import blipp from 'blipp'
 import { config } from '~/src/config/index.js'
 import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
 import { requestLogger } from '~/src/server/common/helpers/logging/request-logger.js'
-import { requestTracing } from '~/src/server/common/helpers/logging/request-tracing.js'
+import {
+  addReferenceNumberToLogContext,
+  requestTracing
+} from '~/src/server/common/helpers/logging/request-tracing.js'
 import { buildRedisClient } from '~/src/server/common/helpers/redis-client.js'
 import { FORM_PREFIX, SAVE_AND_EXIT_PAYLOAD } from '~/src/server/constants.js'
 import { FeedbackPageController } from '~/src/server/plugins/FeedbackPageController.js'
@@ -48,7 +50,11 @@ import pluginSession from '~/src/server/plugins/session.js'
 import { prepareSecureContext } from '~/src/server/secure-context.js'
 import * as formsService from '~/src/server/services/formsService.js'
 import { createOutputService } from '~/src/server/services/outputService.js'
-import { generateReferenceNumber } from '~/src/server/services/submissionService.js'
+import {
+  generateReferenceNumber,
+  persistFiles,
+  submit
+} from '~/src/server/services/submissionService.js'
 import { type RouteConfig } from '~/src/server/types.js'
 import {
   formRequiresAuthentication,
@@ -117,7 +123,10 @@ export async function getForm(importPath: string) {
   return definition
 }
 
-export const onRequest: OnRequestCallback = (request, h) => {
+export const onRequest: OnRequestCallback = (request, h, context) => {
+  // Log the form reference number on every request, including those redirected to sign in
+  addReferenceNumberToLogContext(request, h, context)
+
   const model = request.app.model
 
   if (!model) {
@@ -156,7 +165,8 @@ export const configureEnginePlugin = async ({
 > => {
   const services = {
     formsService,
-    formSubmissionService,
+    // Calls the submission API through the runner's HTTP client, which carries the log context
+    formSubmissionService: { persistFiles, submit },
     outputService: createOutputService()
   }
 
