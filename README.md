@@ -206,9 +206,9 @@ See [https://github.com/node-config/node-config#readme](https://github.com/node-
 service behaves as it did before the feature existed: the sign-in routes and the per-form
 homepage go unregistered, and the header shows no account menu.
 
-Turn it on and `OIDC_ISSUER` and `OIDC_CLIENT_PRIVATE_JWK` become required. The service reads
-them at boot and refuses to start while either is unset, naming the ones it wants. The other
-`OIDC_*` settings have defaults.
+Turn it on and `OIDC_ISSUER`, `OIDC_CLIENT_ID` and `OIDC_CLIENT_PRIVATE_JWK` become required. The
+service reads them at boot and refuses to start while any is unset, naming the ones it wants. The
+other `OIDC_*` settings have defaults.
 
 This service can be reached on more than one domain, such as a public domain and an internal
 one. A sign in returns the citizen to the domain they started on, so sign in keeps working on

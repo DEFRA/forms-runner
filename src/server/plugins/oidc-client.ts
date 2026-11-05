@@ -54,6 +54,7 @@ async function clientKey() {
 function checkConfigurationValid() {
   const required = {
     'oidc.issuer': config.get('oidc.issuer'),
+    'oidc.clientId': config.get('oidc.clientId'),
     'oidc.privateJwk': config.get('oidc.privateJwk')
   }
 

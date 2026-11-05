@@ -361,7 +361,7 @@ export const config = convict({
     clientId: {
       doc: 'This service’s client id at the provider',
       format: String,
-      default: 'runner',
+      default: '',
       env: 'OIDC_CLIENT_ID'
     } as SchemaObj<string>,
     submissionApiResource: {
