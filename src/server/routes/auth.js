@@ -148,7 +148,7 @@ async function startSignIn(request, h, returnUrl) {
   // refuses one it does not hold, so it is the single allowlist. The callback
   // repeats this exact URI at the token endpoint, so it is kept in the
   // transaction.
-  const redirectUri = browserRedirectUri(request.info.host)
+  const redirectUri = browserRedirectUri(request.info.host, CALLBACK_PATH)
 
   setSignInTransaction(request.yar, {
     state,
@@ -299,14 +299,10 @@ export default [
       try {
         // The token request must repeat the exact redirect URI the sign-in
         // request sent. That URI varies with the host the sign in started on,
-        // so it is read from the transaction rather than from a constant or
-        // from this request, whose host and scheme a proxy may have changed. A
-        // transaction from before this field existed has none; it was sent the
-        // configured URI, so that is the fallback. Take only the query string,
-        // which holds the code and the state, from the request.
-        const callbackUrl = new URL(
-          transaction.redirectUri ?? config.get('oidc.redirectUri')
-        )
+        // so it is read from the transaction rather than from this request,
+        // whose host and scheme a proxy may have changed. Take only the query
+        // string, which holds the code and the state, from the request.
+        const callbackUrl = new URL(transaction.redirectUri)
         callbackUrl.search = request.url.search
 
         const tokens = await client.authorizationCodeGrant(

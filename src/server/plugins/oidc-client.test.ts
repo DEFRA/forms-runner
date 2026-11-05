@@ -148,7 +148,7 @@ describe('oidc client plugin', () => {
     const server = hapi.server()
 
     await expect(server.register(pluginOidcClient)).rejects.toThrow(
-      'Sign-in is enabled but missing configuration: oidc.issuer, oidc.redirectUri, oidc.privateJwk'
+      'Sign-in is enabled but missing configuration: oidc.issuer, oidc.privateJwk'
     )
   })
 })

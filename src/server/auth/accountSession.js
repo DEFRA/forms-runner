@@ -123,11 +123,9 @@ export function clearSignInTransaction(yar) {
  *   it to show it comes from the client that started the sign in.
  * @property {string} returnUrl - where the callback sends the citizen once
  *   they are signed in.
- * @property {string} [redirectUri] - the callback URI this sign in sent to the
- *   provider, chosen from the origin the citizen started on. The token request
+ * @property {string} redirectUri - the callback URI this sign in sent to the
+ *   provider, chosen from the host the citizen started on. The token request
  *   repeats it, so it is kept here and used again rather than worked out twice.
- *   A sign in that started before this field existed has none, and the callback
- *   falls back to the configured URI.
  */
 
 /**

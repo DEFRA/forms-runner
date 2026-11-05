@@ -53,7 +53,8 @@ describe('sign-in transaction', () => {
     state: 'state-1',
     nonce: 'nonce-1',
     codeVerifier: 'verifier-1',
-    returnUrl: '/homepage/test-form'
+    returnUrl: '/homepage/test-form',
+    redirectUri: 'http://localhost:3009/auth/callback'
   }
 
   it('holds the transaction under its own key', () => {

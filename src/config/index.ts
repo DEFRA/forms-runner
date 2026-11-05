@@ -364,12 +364,6 @@ export const config = convict({
       default: 'runner',
       env: 'OIDC_CLIENT_ID'
     } as SchemaObj<string>,
-    redirectUri: {
-      doc: 'Where the provider returns the citizen after authorising, must be the /auth/callback route',
-      format: String,
-      default: '',
-      env: 'OIDC_REDIRECT_URI'
-    } as SchemaObj<string>,
     submissionApiResource: {
       doc: 'Name forms-submission-api is asked for a token under. It becomes the audience of the access token, and that API refuses any other.',
       format: String,

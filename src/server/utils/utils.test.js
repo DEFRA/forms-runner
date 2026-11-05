@@ -232,41 +232,33 @@ describe('formRequiresAuthentication', () => {
 
 describe('browserRedirectUri', () => {
   // Captured before any test changes it, and restored after each.
-  const configured = config.get('oidc.redirectUri')
+  const isProduction = config.get('isProduction')
 
   afterEach(() => {
-    config.set('oidc.redirectUri', configured)
+    config.set('isProduction', isProduction)
   })
 
-  it('returns the callback URI on the host the request arrived on, keeping the configured scheme and path', () => {
-    config.set('oidc.redirectUri', 'https://public.example/auth/callback')
+  it('builds the callback URI on the host the request arrived on, with the host and port it carries', () => {
+    config.set('isProduction', false)
 
-    expect(browserRedirectUri('internal.example')).toBe(
-      'https://internal.example/auth/callback'
+    expect(browserRedirectUri('internal.example:3009', '/auth/callback')).toBe(
+      'http://internal.example:3009/auth/callback'
     )
   })
 
   it('returns the given path on the request host, for sign out', () => {
-    config.set('oidc.redirectUri', 'https://public.example/auth/callback')
+    config.set('isProduction', false)
 
     expect(browserRedirectUri('internal.example', '/auth/signed-out')).toBe(
-      'https://internal.example/auth/signed-out'
+      'http://internal.example/auth/signed-out'
     )
   })
 
-  it('keeps the port the request host carries', () => {
-    config.set('oidc.redirectUri', 'http://localhost:3009/auth/callback')
+  it('sets the scheme to https in production, because CDP terminates TLS', () => {
+    config.set('isProduction', true)
 
-    expect(browserRedirectUri('localhost:3009')).toBe(
-      'http://localhost:3009/auth/callback'
-    )
-  })
-
-  it('keeps the configured host when the request has none', () => {
-    config.set('oidc.redirectUri', 'https://public.example/auth/callback')
-
-    expect(browserRedirectUri(undefined)).toBe(
-      'https://public.example/auth/callback'
+    expect(browserRedirectUri('internal.example', '/auth/callback')).toBe(
+      'https://internal.example/auth/callback'
     )
   })
 })

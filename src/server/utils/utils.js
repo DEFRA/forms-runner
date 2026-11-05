@@ -20,25 +20,18 @@ export function applyTraceHeaders(
 /**
  * The URL to return the browser to, on the host the request arrived on. CDP
  * forwards the requested host, so a citizen who starts on the internal domain
- * is sent back there. The scheme and the default path come from
- * oidc.redirectUri, because CDP terminates TLS and the request scheme is http;
- * only the host is taken from the request. The provider registers each result
- * and refuses one it does not hold, so the provider is the single allowlist. A
- * request with no host keeps the configured host, so it still resolves.
- * @param {string} [host] - the request host, from request.info.host
- * @param {string} [path] - the path to return to, default the callback path
+ * is sent back there. The scheme follows the environment, because CDP
+ * terminates TLS and the request arrives as http; the host comes from the
+ * request. The provider registers each result and refuses one it does not
+ * hold, so the provider is the single allowlist.
+ * @param {string} host - the request host, from request.info.host
+ * @param {string} path - the path to return to, such as the callback path
  * @returns {string} the redirect URL
  */
 export function browserRedirectUri(host, path) {
-  const configured = new URL(config.get('oidc.redirectUri'))
+  const scheme = config.get('isProduction') ? 'https' : 'http'
 
-  // The request host carries its own port, or none, so it replaces both the
-  // host and the port. Assigning `host` alone would keep the configured port
-  // when the request host has none.
-  const authority = host ?? configured.host
-  const pathname = path ?? configured.pathname
-
-  return new URL(`${configured.protocol}//${authority}${pathname}`).href
+  return `${scheme}://${host}${path}`
 }
 
 /**

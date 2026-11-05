@@ -54,7 +54,6 @@ async function clientKey() {
 function checkConfigurationValid() {
   const required = {
     'oidc.issuer': config.get('oidc.issuer'),
-    'oidc.redirectUri': config.get('oidc.redirectUri'),
     'oidc.privateJwk': config.get('oidc.privateJwk')
   }
 
