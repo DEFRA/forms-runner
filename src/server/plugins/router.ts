@@ -33,6 +33,7 @@ import { returnUrlSchema } from '~/src/server/models/common.js'
 import { getErrorPreviewHandler } from '~/src/server/plugins/error-preview/error-preview.js'
 import {
   authRoutes,
+  copyFormRoutes,
   deleteFormRoutes,
   healthRoute,
   homepageRoutes,
@@ -80,6 +81,7 @@ export default {
         server.route(authRoutes as ServerRoute[])
         server.route(homepageRoutes as ServerRoute[])
         server.route(deleteFormRoutes as ServerRoute[])
+        server.route(copyFormRoutes as ServerRoute[])
       }
 
       server.route(routes)

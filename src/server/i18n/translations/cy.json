@@ -297,6 +297,7 @@
       "actions": "Camau",
       "continue": "Parhau",
       "delete": "Dileu",
+      "copy": "Copïo",
       "savedOn": "wedi'i gadw ar [[date]]"
     },
     "header": {
@@ -332,6 +333,33 @@
     "continueButton": "Parhau",
     "confirmDeleteValidationMessage": "Dewiswch 'Iawn' i ddileu'r drafft neu 'Na' i'w gadw",
     "successNotification": "Dileuwyd y drafft"
+  },
+  "confirmCopyForm": {
+    "title": "A ydych chi'n siŵr eich bod am gopïo'r atebion o'r ffurflen hon?",
+    "info1": "Byddwn yn defnyddio'r atebion o <strong>[[formTitle]]</strong> i gychwyn ffurflen newydd. Gallwch newid unrhyw un o'r atebion cyn i chi eu cyflwyno.",
+    "info2": "Ni fydd cyflwyniad y ffurflen hon yn cael ei newid na'i ddisodli.",
+    "formNameLabel": "Enw'r ffurflen",
+    "formSubmittedLabel": "Cyflwynwyd ar",
+    "formReferenceLabel": "Cyfeirnod",
+    "continueButton": "Copïo'r atebion",
+    "cancelButton": "Canslo"
+  },
+  "confirmCopyFormChanged": {
+    "title": "Eich cyflwyniad blaenorol",
+    "info1": "Mae'r ffurflen newydd hon yn seiliedig ar gyflwyniad blaenorol.",
+    "formNameLabel": "Enw'r ffurflen",
+    "formSubmittedLabel": "Cyflwynwyd ar",
+    "formReferenceLabel": "Cyfeirnod",
+    "subHeading": "Mae angen i chi ateb cwestiynau newydd",
+    "info2": "Ers i chi gyflwyno'r ffurflen hon ddiwethaf, mae rhai cwestiynau wedi newid neu mae angen i chi eu hateb eto.",
+    "info3": "Unwaith y byddwch wedi ateb y cwestiynau hyn, byddwch yn gallu:",
+    "info4": [
+      "adolygu eich holl atebion gyda'i gilydd",
+      "gwneud newidiadau os oes angen",
+      "cyflwyno'r ffurflen"
+    ],
+    "continueButton": "Parhau",
+    "cancelButton": "Canslo"
   },
   "layout": {
     "errorPrefix": "Gwall:",

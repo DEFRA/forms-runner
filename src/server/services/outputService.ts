@@ -20,8 +20,13 @@ import { type Request } from '@hapi/hapi'
 
 import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
+import {
+  SESSION_ACTION,
+  SESSION_ACTION_REFERENCE_NUMBER
+} from '~/src/server/constants.js'
 import { publishFormAdapterEvent } from '~/src/server/messaging/formAdapterEventPublisher.js'
 import { getFormMetadataById } from '~/src/server/services/formsService.js'
+import { formRequiresAuthentication } from '~/src/server/utils/utils.js'
 
 /**
  * Output service for handling form submission notifications
@@ -98,6 +103,9 @@ export class OutputService implements IOutputService {
       const customMeta = {} as {
         userConfirmationEmail?: string
         magicLinkGroupId?: string
+        actionName?: string
+        actionReferenceNumber?: string
+        x?: { y: string; z: string }
       }
 
       // Add user confirmation email if supplied
@@ -113,18 +121,41 @@ export class OutputService implements IOutputService {
         customMeta.magicLinkGroupId = magicLinkGroupId
       }
 
-      if (Object.keys(customMeta).length > 0) {
-        submissionPayload.meta.custom = customMeta
-      }
-
       const auth = (request as unknown as Request).auth
-      if (auth.isAuthenticated && auth.strategy === CITIZEN_SESSION) {
+      const isCitizenAuth =
+        auth.isAuthenticated && auth.strategy === CITIZEN_SESSION
+
+      if (isCitizenAuth) {
         const credentials = auth.credentials
 
         submissionPayload.meta.auth = {
           sub: credentials.sub,
           issuer: credentials.iss
         }
+
+        // Check the form requires authentication (i.e. allowCopy is true)
+        const requiresAuth = formRequiresAuthentication(model.def)
+
+        if (requiresAuth) {
+          // Add action details if an action was performed to the form
+          const actionName = context.state[SESSION_ACTION]
+          const actionReferenceNumber =
+            context.state[SESSION_ACTION_REFERENCE_NUMBER]
+
+          if (
+            actionName &&
+            typeof actionName === 'string' &&
+            actionReferenceNumber &&
+            typeof actionReferenceNumber === 'string'
+          ) {
+            customMeta.actionName = actionName
+            customMeta.actionReferenceNumber = actionReferenceNumber
+          }
+        }
+      }
+
+      if (Object.keys(customMeta).length > 0) {
+        submissionPayload.meta.custom = customMeta
       }
 
       const messageId = await publishFormAdapterEvent(submissionPayload)

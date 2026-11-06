@@ -1,0 +1,38 @@
+{% extends "form.html" %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% block fields %}
+  <h1 class="govuk-heading-l">{{ tR('confirmCopyFormChanged.title') }}</h1>
+  <p class="govuk-body">{{tR('confirmCopyFormChanged.info1')}}</p>
+
+  <p class="govuk-body">
+    <strong>{{ tR('confirmCopyForm.formNameLabel') }}:</strong> {{ form.title }}<br>
+    <strong>{{ tR('confirmCopyForm.formSubmittedLabel') }}:</strong> {{ submittedAt }}<br>
+    <strong>{{ tR('confirmCopyForm.formReferenceLabel') }}:</strong> {{ referenceNumber }}
+  </p>
+
+  <h2 class="govuk-heading-m">{{ tR('confirmCopyFormChanged.subHeading') }}</h2>
+
+  <p class="govuk-body">{{ tR('confirmCopyFormChanged.info2') }}</p>
+  <p class="govuk-body">{{ tR('confirmCopyFormChanged.info3') }}</p>
+  <ul class="govuk-list govuk-list--bullet">
+    {% for item in tR('confirmCopyFormChanged.info4') %}
+      <li>{{ item }}</li>
+    {% endfor %}
+  </ul>
+
+  <div class="govuk-button-group">
+    {{ govukButton({
+      text: tR('confirmCopyFormChanged.continueButton'),
+      name: "confirmCopy",
+      value: "true"
+    }) }}
+
+    {{ govukButton({
+      text: tR('confirmCopyFormChanged.cancelButton'),
+      classes: "govuk-button govuk-button--secondary",
+      href: backLink.href
+    }) }}
+  </div>
+{% endblock %}

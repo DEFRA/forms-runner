@@ -207,6 +207,26 @@ export async function deleteSavedFormState(accessToken, magicLinkId) {
 }
 
 /**
+ * Gets a submission record
+ * @param { string } referenceNumber - the submission reference number
+ * @param {string} accessToken - the user access token
+ */
+export async function getSubmissionRecord(referenceNumber, accessToken) {
+  const getJsonByType = /** @type {typeof getJson<FormSubmissionDocument>} */ (
+    getJson
+  )
+
+  const result = await getJsonByType(
+    `${submissionUrl}/submission/${referenceNumber}`,
+    {
+      headers: { authorization: `Bearer ${accessToken}` }
+    }
+  )
+
+  return result.payload
+}
+
+/**
  * The state of one saved form, as forms-submission-api returns it.
  * @typedef {object} SavedFormState
  * @property {object} state - Answers held in the saved form
@@ -219,6 +239,11 @@ export async function deleteSavedFormState(accessToken, magicLinkId) {
  */
 
 /**
+ * @typedef {FormAdapterSubmissionMessagePayload & { recordCreatedAt: Date, expireAt: Date }} FormSubmissionDocument
+ */
+
+/**
+ * @import { FormAdapterSubmissionMessagePayload } from '@defra/forms-engine-plugin/engine/types.js'
  * @import { FormStatus, SubmitPayload, SubmitResponsePayload } from '@defra/forms-model'
  * @import { GenerateReferenceNumber, SaveAndExitDetails, SaveAndExitResumeDetails } from '~/src/server/types.js'
  * @import { FormRowStatusType } from '~/src/server/constants.js'

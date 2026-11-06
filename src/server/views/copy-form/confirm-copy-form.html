@@ -1,0 +1,49 @@
+{% extends "form.html" %}
+
+{% from "govuk/components/inset-text/macro.njk" import govukInsetText %}
+{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% block fields %}
+  <h1 class="govuk-heading-l">{{ tR('confirmCopyForm.title') }}</h1>
+  <p class="govuk-body">{{tR('confirmCopyForm.info1', { formTitle: form.title }) | safe}}</p>
+
+  {% call govukInsetText() %}
+    {{tR('confirmCopyForm.info2')}}
+  {% endcall %}
+
+  {{ govukSummaryList({
+    rows: [
+      {
+        key: {
+          text: tR('confirmCopyForm.formNameLabel')
+        },
+        value: {
+          text: form.title
+        }
+      },
+      {
+        key: {
+          text: tR('confirmCopyForm.formSubmittedLabel')
+        },
+        value: {
+          text: submittedAt
+        }
+      },
+      {
+        key: {
+          text: tR('confirmCopyForm.formReferenceLabel')
+        },
+        value: {
+          text: referenceNumber
+        }
+      }
+    ]
+  }) }}
+
+  {{ govukButton({
+    text: tR('confirmCopyForm.continueButton'),
+    name: "confirmCopy",
+    value: "true"
+  }) }}
+{% endblock %}

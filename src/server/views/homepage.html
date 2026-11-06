@@ -75,6 +75,10 @@
             {% if savedForm.deleteUrl %}
               <a class="govuk-link govuk-link--no-visited-state" href="{{savedForm.deleteUrl}}">{{tR('signIn.homepage.delete')}}<span class="govuk-visually-hidden"> {{ linkSuffix }}</span></a>
             {% endif %}
+
+            {% if allowCopy and savedForm.copyUrl %}
+              <a class="govuk-link govuk-link--no-visited-state" href="{{savedForm.copyUrl}}">{{tR('signIn.homepage.copy')}}<span class="govuk-visually-hidden"> {{ linkSuffix }}</span></a>
+            {% endif %}
           {% endset %}
 
           {% set rows = (rows.push([
