@@ -164,9 +164,7 @@ async function handlerMemorableWordSaveAndExit(request, h) {
   // Clear any previous save and exit session state
   request.yar.clear(getKey(slug, status))
 
-  return h
-    .view(SAVE_AND_EXIT_DETAILS, model)
-    .header('Cache-Control', 'no-cache, no-store, must-revalidate')
+  return h.view(SAVE_AND_EXIT_DETAILS, model)
 }
 
 /**
@@ -192,9 +190,7 @@ async function handleSignedOutSaveAndExit(request, h) {
     previewStatus
   )
 
-  return h
-    .view(SAVE_AND_EXIT_SIGN_IN_REQUIRED, model)
-    .header('Cache-Control', 'no-cache, no-store, must-revalidate')
+  return h.view(SAVE_AND_EXIT_SIGN_IN_REQUIRED, model)
 }
 
 /**
@@ -261,9 +257,7 @@ async function handleAuthenticatedSaveAndExit(request, h) {
   inflights.push(refNum)
   request.yar.set(sessionKey, inflights)
 
-  return h
-    .view(SAVE_AND_EXIT_CONFIRMATION, model)
-    .header('Cache-Control', 'no-cache, no-store, must-revalidate')
+  return h.view(SAVE_AND_EXIT_CONFIRMATION, model)
 }
 
 /**

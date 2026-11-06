@@ -116,6 +116,7 @@ describe('Save-and-exit check routes', () => {
       })
 
       expect(response.statusCode).toBe(StatusCodes.OK)
+      expect(response.headers['cache-control']).toBe('no-store')
       expect(
         container.getByRole('heading', {
           name: 'Sign in to save your progress',
@@ -214,6 +215,7 @@ describe('Save-and-exit check routes', () => {
       const { response, container } = await renderResponse(server, options)
 
       expect(response.statusCode).toBe(StatusCodes.OK)
+      expect(response.headers['cache-control']).toBe('no-store')
 
       const $mastheadHeading = container.queryByText(
         'Your progress has been saved'
