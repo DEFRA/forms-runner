@@ -155,7 +155,7 @@ describe('Save and exit with citizen sign-in', () => {
         })
       ).toBeInTheDocument()
 
-      await session.start(identity, tokens, headers)
+      await session.signInSession(headers, identity, tokens)
 
       const signedIn = await server.inject({ url: SAVE_AND_EXIT_URL, headers })
 

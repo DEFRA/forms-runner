@@ -43,20 +43,35 @@ export function citizenSession(server) {
   return {
     /**
      * Starts a session for the citizen, returning the cookie header that
-     * sends it. Give `headers` to sign in a session that already exists.
+     * sends it
      * @param {Identity} identity
      * @param {TokenSet | null} tokens
-     * @param {Pick<OutgoingHttpHeaders, 'cookie'>} [headers]
      */
-    async start(identity, tokens, headers) {
+    async start(identity, tokens) {
       const response = await server.inject({
+        method: 'POST',
+        url: SESSION_SEED_PATH,
+        payload: { identity, tokens }
+      })
+
+      return getCookieHeader(response, ['session'])
+    },
+
+    /**
+     * Signs the citizen in on a session that already exists, such as a
+     * session that holds form answers. The cookie header stays the same.
+     * @param {Pick<OutgoingHttpHeaders, 'cookie'>} headers - the cookie header
+     *   of the session
+     * @param {Identity} identity
+     * @param {TokenSet | null} tokens
+     */
+    async signInSession(headers, identity, tokens) {
+      await server.inject({
         method: 'POST',
         url: SESSION_SEED_PATH,
         payload: { identity, tokens },
         headers
       })
-
-      return headers ?? getCookieHeader(response, ['session'])
     },
 
     /**
