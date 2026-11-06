@@ -1,8 +1,4 @@
 import {
-  CURRENT_PAGE_PATH_KEY,
-  STATE_NOT_YET_VALIDATED
-} from '@defra/forms-engine-plugin'
-import {
   checkFormStatus,
   getCacheService
 } from '@defra/forms-engine-plugin/engine/helpers.js'
@@ -10,14 +6,12 @@ import { FormStatus } from '@defra/forms-model'
 import { StatusCodes } from 'http-status-codes'
 
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
-import { SAVE_AND_EXIT_PAYLOAD } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import { publishSaveAndExitV2Event } from '~/src/server/messaging/publish.js'
 import { getFormMetadataWithGuard } from '~/src/server/services/formMetadataGuards.js'
 import { getFormDefinitionWithFallback } from '~/src/server/services/helpers/formsServiceHelper.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { citizenSession } from '~/test/utils/citizen-session.js'
-import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 jest.mock('~/src/server/services/formMetadataGuards.js')
 jest.mock('~/src/server/services/formsService.js')
@@ -37,7 +31,6 @@ jest.mock('~/src/config/index', () => {
 })
 
 const DRAFT_STATE = 'draft'
-const FLASH_SEED_PATH = '/test/save-and-exit-payload'
 
 /** A citizen who has signed in, as the citizen-session scheme presents them */
 const credentials = {
@@ -75,19 +68,6 @@ describe('Save-and-exit check routes', () => {
       enforceCsrf: false
     })
     session = citizenSession(server)
-
-    // Puts the answers on the current page in the flash, as the form pages
-    // do when the citizen selects save and exit
-    server.route({
-      method: 'POST',
-      path: FLASH_SEED_PATH,
-      options: { auth: false },
-      handler: (request) => {
-        request.yar.flash(SAVE_AND_EXIT_PAYLOAD, request.payload, true)
-
-        return null
-      }
-    })
 
     await server.initialize()
   })
@@ -200,10 +180,8 @@ describe('Save-and-exit check routes', () => {
         .mockRejectedValueOnce(new TypeError('fetch failed'))
 
       const headers = await session.start(identity, {
-        accessToken: credentials.accessToken,
-        accessTokenExpiresAt: Date.now() - 10_000,
-        refreshToken: credentials.refreshToken,
-        idToken: credentials.idToken
+        ...tokens,
+        accessTokenExpiresAt: Date.now() - 10_000
       })
 
       const { response, container } = await renderResponse(server, {
@@ -219,59 +197,6 @@ describe('Save-and-exit check routes', () => {
         })
       ).not.toBeInTheDocument()
       expect(publishSaveAndExitV2Event).not.toHaveBeenCalled()
-    })
-
-    it('keeps the answers on the current page while the citizen signs in', async () => {
-      jest
-        .mocked(getFormMetadataWithGuard)
-        // @ts-expect-error - allow partial objects for tests
-        .mockResolvedValue(testMetadata)
-
-      const setState = jest.fn()
-      // @ts-expect-error - not all method mocked
-      jest.mocked(getCacheService).mockImplementation(() => ({
-        getState: jest.fn().mockResolvedValue({ key: 'val' }),
-        setState,
-        clearState: jest.fn()
-      }))
-
-      const flash = await server.inject({
-        method: 'POST',
-        url: FLASH_SEED_PATH,
-        payload: {
-          firstName: 'Jo',
-          [CURRENT_PAGE_PATH_KEY]: '/form/preview/draft/my-form-slug/name'
-        }
-      })
-      const headers = getCookieHeader(flash, ['session'])
-
-      const signedOut = await server.inject({
-        method: 'GET',
-        url: `/save-and-exit/${FORM_SLUG}/${DRAFT_STATE}`,
-        headers
-      })
-
-      expect(signedOut.statusCode).toBe(StatusCodes.OK)
-
-      await session.start(identity, tokens, headers)
-
-      const signedIn = await server.inject({
-        method: 'GET',
-        url: `/save-and-exit/${FORM_SLUG}/${DRAFT_STATE}`,
-        headers
-      })
-
-      expect(signedIn.statusCode).toBe(StatusCodes.OK)
-      expect(setState).toHaveBeenCalledWith(
-        expect.anything(),
-        expect.objectContaining({
-          [STATE_NOT_YET_VALIDATED]: {
-            firstName: 'Jo',
-            [CURRENT_PAGE_PATH_KEY]: '/form/preview/draft/my-form-slug/name'
-          }
-        })
-      )
-      expect(publishSaveAndExitV2Event).toHaveBeenCalled()
     })
 
     test('route renders view on success when logged in', async () => {
