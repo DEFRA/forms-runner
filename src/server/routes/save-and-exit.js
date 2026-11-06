@@ -10,7 +10,7 @@ import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 
 import { config } from '~/src/config/index.js'
-import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/auth/route-options.js'
+import { OPTIONAL_CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/auth/route-options.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { EN_GB, PREVIEW_PATH_PREFIX } from '~/src/server/constants.js'
 import { createJoiError } from '~/src/server/helpers/error-helper.js'
@@ -23,7 +23,10 @@ import {
   publishSaveAndExitV1Event,
   publishSaveAndExitV2Event
 } from '~/src/server/messaging/publish.js'
-import { confirmationViewModelv2 } from '~/src/server/models/save-and-exit-v2.js'
+import {
+  confirmationViewModelv2,
+  signInRequiredViewModel
+} from '~/src/server/models/save-and-exit-v2.js'
 import {
   confirmationViewModel,
   createInvalidPasswordError,
@@ -75,6 +78,7 @@ const RESUME_ERROR_LOCKED = 'save-and-exit/resume-error-locked'
 const RESUME_PASSWORD_PATH = 'save-and-exit/resume-password'
 const RESUME_SUCCESS = 'save-and-exit/resume-success'
 const SAVE_AND_EXIT_CONFIRMATION = 'save-and-exit-v2/confirmation'
+const SAVE_AND_EXIT_SIGN_IN_REQUIRED = 'save-and-exit-v2/signin-required'
 
 /**
  * @param {number} attemptsSoFar
@@ -162,6 +166,34 @@ async function handlerMemorableWordSaveAndExit(request, h) {
 
   return h
     .view(SAVE_AND_EXIT_DETAILS, model)
+    .header('Cache-Control', 'no-cache, no-store, must-revalidate')
+}
+
+/**
+ * Asks a signed-out citizen to sign in before they save. The answers on the
+ * current page stay in the flash until the citizen comes back signed in.
+ * @param {Request<{ Params: SaveAndExitParams }>} request
+ * @param {ResponseToolkit<{ Params: SaveAndExitParams }>} h
+ */
+async function handleSignedOutSaveAndExit(request, h) {
+  const { slug, state: previewStatus } = request.params
+  const metadata = await getFormMetadataWithGuard(slug, previewStatus)
+  const { translator } = await getFormTranslator(
+    request,
+    metadata,
+    previewStatus,
+    true
+  )
+
+  const model = signInRequiredViewModel(
+    metadata,
+    translator,
+    request.path,
+    previewStatus
+  )
+
+  return h
+    .view(SAVE_AND_EXIT_SIGN_IN_REQUIRED, model)
     .header('Cache-Control', 'no-cache, no-store, must-revalidate')
 }
 
@@ -365,16 +397,20 @@ export default [
     method: 'GET',
     path: '/save-and-exit/{slug}/{state?}',
     handler(request, h) {
-      return config.get('useSignInFeature')
+      if (!config.get('useSignInFeature')) {
+        return handlerMemorableWordSaveAndExit(request, h)
+      }
+
+      return request.auth.isAuthenticated
         ? handleAuthenticatedSaveAndExit(request, h)
-        : handlerMemorableWordSaveAndExit(request, h)
+        : handleSignedOutSaveAndExit(request, h)
     },
     options: {
       validate: {
         params: paramsSchema
       },
       ...(config.get('useSignInFeature')
-        ? { auth: CITIZEN_AUTH_ROUTE_OPTIONS }
+        ? { auth: OPTIONAL_CITIZEN_AUTH_ROUTE_OPTIONS }
         : {})
     }
   }),
