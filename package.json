@@ -68,7 +68,7 @@
     "babel-plugin-transform-import-meta": "^2.3.3",
     "blankie": "^5.0.0",
     "blipp": "^4.0.2",
-    "chokidar": "^3.6.0",
+    "chokidar": "^6.0.0",
     "convict": "^6.2.5",
     "dotenv": "^17.4.2",
     "govuk-frontend": "^5.13.0",
