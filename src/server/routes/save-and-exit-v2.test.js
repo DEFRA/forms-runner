@@ -7,9 +7,11 @@ import { StatusCodes } from 'http-status-codes'
 
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { createServer } from '~/src/server/index.js'
+import { publishSaveAndExitV2Event } from '~/src/server/messaging/publish.js'
 import { getFormMetadataWithGuard } from '~/src/server/services/formMetadataGuards.js'
 import { getFormDefinitionWithFallback } from '~/src/server/services/helpers/formsServiceHelper.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
+import { citizenSession } from '~/test/utils/citizen-session.js'
 
 jest.mock('~/src/server/services/formMetadataGuards.js')
 jest.mock('~/src/server/services/formsService.js')
@@ -41,14 +43,31 @@ const credentials = {
   idToken: 'id-1'
 }
 
+const identity = {
+  iss: credentials.iss,
+  sub: credentials.sub,
+  email: credentials.email
+}
+
+const tokens = {
+  accessToken: credentials.accessToken,
+  accessTokenExpiresAt: credentials.accessTokenExpiresAt,
+  refreshToken: credentials.refreshToken,
+  idToken: credentials.idToken
+}
+
 describe('Save-and-exit check routes', () => {
   /** @type {Server} */
   let server
+
+  /** @type {ReturnType<typeof citizenSession>} */
+  let session
 
   beforeAll(async () => {
     server = await createServer({
       enforceCsrf: false
     })
+    session = citizenSession(server)
 
     await server.initialize()
   })
@@ -85,21 +104,100 @@ describe('Save-and-exit check routes', () => {
   }
 
   describe('GET /save-and-exit/{slug}/{state?}', () => {
-    it('sends a signed-out citizen to sign in first', async () => {
+    it('shows a signed-out citizen the sign-in page', async () => {
       jest
         .mocked(getFormMetadataWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce(testMetadata)
 
-      const response = await server.inject({
+      const { response, container } = await renderResponse(server, {
         method: 'GET',
         url: `/save-and-exit/${FORM_SLUG}/${DRAFT_STATE}`
       })
 
-      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-      expect(response.headers.location).toBe(
+      expect(response.statusCode).toBe(StatusCodes.OK)
+      expect(response.headers['cache-control']).toBe('no-store')
+      expect(
+        container.getByRole('heading', {
+          name: 'Sign in to save your progress',
+          level: 1
+        })
+      ).toBeInTheDocument()
+      expect(
+        container.getByText(
+          'You need to sign in to save your progress for 28 days.'
+        )
+      ).toBeInTheDocument()
+      expect(
+        container.getByText(
+          'Sign in with your email address. We’ll send you a security code to check it’s you.'
+        )
+      ).toBeInTheDocument()
+      expect(
+        container.getByText(
+          'If you have not signed in before, we’ll ask for a mobile phone number so you can recover your sign-in later.'
+        )
+      ).toBeInTheDocument()
+      expect(
+        container.getByRole('button', { name: 'Sign in' })
+      ).toHaveAttribute(
+        'href',
         '/auth/sign-in?returnUrl=%2Fsave-and-exit%2Fmy-form-slug%2Fdraft'
       )
+      expect(container.getByRole('link', { name: 'Back' })).toHaveAttribute(
+        'href',
+        '/form/preview/draft/my-form-slug/summary'
+      )
+      expect(publishSaveAndExitV2Event).not.toHaveBeenCalled()
+    })
+
+    it('shows the sign-in page when the session has no tokens', async () => {
+      jest
+        .mocked(getFormMetadataWithGuard)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce(testMetadata)
+
+      const headers = await session.start(identity, null)
+
+      const { response, container } = await renderResponse(server, {
+        method: 'GET',
+        url: `/save-and-exit/${FORM_SLUG}/${DRAFT_STATE}`,
+        headers
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.OK)
+      expect(
+        container.getByRole('heading', {
+          name: 'Sign in to save your progress',
+          level: 1
+        })
+      ).toBeInTheDocument()
+      expect(publishSaveAndExitV2Event).not.toHaveBeenCalled()
+    })
+
+    it('shows the error page when the access token has expired and the provider cannot be reached', async () => {
+      jest
+        .spyOn(server.app.oidc, 'getConfig')
+        .mockRejectedValueOnce(new TypeError('fetch failed'))
+
+      const headers = await session.start(identity, {
+        ...tokens,
+        accessTokenExpiresAt: Date.now() - 10_000
+      })
+
+      const { response, container } = await renderResponse(server, {
+        method: 'GET',
+        url: `/save-and-exit/${FORM_SLUG}/${DRAFT_STATE}`,
+        headers
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.SERVICE_UNAVAILABLE)
+      expect(
+        container.queryByRole('heading', {
+          name: 'Sign in to save your progress'
+        })
+      ).not.toBeInTheDocument()
+      expect(publishSaveAndExitV2Event).not.toHaveBeenCalled()
     })
 
     test('route renders view on success when logged in', async () => {
@@ -117,6 +215,7 @@ describe('Save-and-exit check routes', () => {
       const { response, container } = await renderResponse(server, options)
 
       expect(response.statusCode).toBe(StatusCodes.OK)
+      expect(response.headers['cache-control']).toBe('no-store')
 
       const $mastheadHeading = container.queryByText(
         'Your progress has been saved'
@@ -145,6 +244,34 @@ describe('Save-and-exit check routes', () => {
       expect($checkSpam).toBeInTheDocument()
       expect($button?.textContent.trim()).toBe('Back to manage your form')
     })
+  })
+
+  test('shows a signed-out citizen the sign-in page (in Welsh)', async () => {
+    jest
+      .mocked(getFormMetadataWithGuard)
+      // @ts-expect-error - allow partial objects for tests
+      .mockResolvedValueOnce(testMetadata)
+
+    const { response, container } = await renderResponse(server, {
+      method: 'GET',
+      url: `/save-and-exit/${FORM_SLUG}/${DRAFT_STATE}?language=cy`
+    })
+
+    expect(response.statusCode).toBe(StatusCodes.OK)
+    expect(
+      container.getByRole('heading', {
+        name: 'Mewngofnodwch i gadw eich cynnydd',
+        level: 1
+      })
+    ).toBeInTheDocument()
+    expect(
+      container.getByText(
+        'Mae angen i chi fewngofnodi i gadw eich cynnydd am 28 diwrnod.'
+      )
+    ).toBeInTheDocument()
+    expect(
+      container.getByRole('button', { name: 'Mewngofnodi' })
+    ).toBeInTheDocument()
   })
 
   test('route renders view on success when logged in (in Welsh)', async () => {

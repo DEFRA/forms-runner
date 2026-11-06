@@ -207,6 +207,10 @@
       "emailedLinkForSignIn": "Rydym wedi anfon dolen atoch drwy e-bost fel y gallwch fewngofnodi a pharhau â'ch ffurflen '[[formName]]' yn ddiweddarach.",
       "back": "Yn ôl i reoli eich ffurflen"
     },
+    "signInRequired": {
+      "pageTitle": "Mewngofnodwch i gadw eich cynnydd",
+      "intro": "Mae angen i chi fewngofnodi i gadw eich cynnydd am [[days]] diwrnod."
+    },
     "resumeError": {
       "pageTitle": "Ni allwch ailafael yn eich ffurflen",
       "continueButton": "Dechrau'r ffurflen eto",
