@@ -147,6 +147,7 @@ declare module '@hapi/yar' {
       nonce: string
       codeVerifier: string
       returnUrl: string
+      redirectUri: string
     }
   }
 }

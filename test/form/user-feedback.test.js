@@ -19,7 +19,6 @@ import { getCookie, getCookieHeader } from '~/test/utils/get-cookie.js'
 jest.mock('~/src/server/services/formsService.js')
 jest.mock('~/src/server/services/submissionService.js')
 jest.mock('~/src/server/messaging/publish.js')
-jest.mock('@defra/forms-engine-plugin/services/formSubmissionService.js')
 jest.mock('@defra/forms-engine-plugin/controllers/SummaryPageController.js')
 
 const basePath = `${FORM_PREFIX}/user-feedback-with-custom-controller`

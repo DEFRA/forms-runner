@@ -1,6 +1,9 @@
 import Wreck from '@hapi/wreck'
 
-import { applyTraceHeaders } from '~/src/server/utils/utils.js'
+import {
+  applyLogContextHeaders,
+  applyTraceHeaders
+} from '~/src/server/utils/utils.js'
 
 export type Method = keyof Pick<typeof Wreck, 'get' | 'post' | 'put' | 'delete'>
 export type RequestOptions = Parameters<typeof Wreck.defaults>[0]
@@ -10,7 +13,10 @@ export const request = async <BodyType = Buffer>(
   url: string,
   options?: RequestOptions
 ) => {
-  const headers = applyTraceHeaders(options?.headers)
+  const headers = applyLogContextHeaders(
+    url,
+    applyTraceHeaders(options?.headers)
+  )
 
   const mergedOptions = { ...options, headers }
 

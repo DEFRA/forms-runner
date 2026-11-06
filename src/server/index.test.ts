@@ -1,4 +1,9 @@
 import {
+  createLogContext,
+  getReferenceNumber,
+  runWithLogContext
+} from '@defra/forms-common'
+import {
   FormStatus,
   type AnyFormRequest,
   type FormContext,
@@ -7,7 +12,6 @@ import {
 import { type Server } from '@hapi/hapi'
 import { StatusCodes } from 'http-status-codes'
 
-import { config } from '~/src/config/index.js'
 import { CITIZEN_SESSION } from '~/src/server/auth/scheme.js'
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import {
@@ -19,7 +23,11 @@ import {
   getFormDefinition,
   getFormMetadata
 } from '~/src/server/services/formsService.js'
-import { generateReferenceNumber } from '~/src/server/services/submissionService.js'
+import {
+  generateReferenceNumber,
+  persistFiles,
+  submit
+} from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 
 jest.mock('~/src/server/services/formsService.js')
@@ -534,6 +542,21 @@ describe('Model cache', () => {
       )
       expect(mockH.redirect).toHaveBeenCalledWith('/save-and-exit/test-form')
     })
+
+    test('should use the runner onRequest callback', async () => {
+      const [pluginObject] = await configureEnginePlugin({})
+
+      expect(pluginObject.options.onRequest).toBe(onRequest)
+    })
+
+    test('should use the runner submission service', async () => {
+      const [pluginObject] = await configureEnginePlugin({})
+
+      expect(pluginObject.options.services?.formSubmissionService).toEqual({
+        persistFiles,
+        submit
+      })
+    })
   })
 })
 
@@ -611,13 +634,13 @@ describe('onRequest', () => {
     const { h, redirect, takeover } = createToolkit()
 
     const result = onRequest(request, h, {} as FormContext)
-    const expectedUrl = new URL(
-      '/signin-required/test-form',
-      config.get('baseUrl')
-    )
-    expectedUrl.searchParams.append('returnUrl', '/form/test-form/page-one')
 
-    expect(redirect).toHaveBeenCalledWith(expectedUrl.href)
+    // A relative path keeps the citizen on the host they arrived on, so an
+    // internal user stays on the internal domain rather than being sent to the
+    // public one.
+    expect(redirect).toHaveBeenCalledWith(
+      '/signin-required/test-form?returnUrl=%2Fform%2Ftest-form%2Fpage-one'
+    )
     expect(takeover).toHaveBeenCalled()
     expect(result).toBe(takeoverResponse)
   })
@@ -638,13 +661,9 @@ describe('onRequest', () => {
 
     const result = onRequest(request, h, {} as FormContext)
 
-    const expectedUrl = new URL(
-      '/signin-required/test-form',
-      config.get('baseUrl')
+    expect(redirect).toHaveBeenCalledWith(
+      '/signin-required/test-form?returnUrl=%2Fform%2Ftest-form%2Fpage-one'
     )
-    expectedUrl.searchParams.append('returnUrl', '/form/test-form/page-one')
-
-    expect(redirect).toHaveBeenCalledWith(expectedUrl.href)
     expect(result).toBe(takeoverResponse)
   })
 
@@ -664,5 +683,43 @@ describe('onRequest', () => {
 
     expect(result).toBe(continueResponse)
     expect(redirect).not.toHaveBeenCalled()
+  })
+
+  test('adds the form reference number to the log context', () => {
+    const request = createRequest(
+      { def: { metadata: {} } },
+      { isAuthenticated: false }
+    )
+    const { h } = createToolkit()
+    const context = { referenceNumber: 'ABC-123-DEF' } as FormContext
+
+    runWithLogContext(createLogContext(), () => {
+      const result = onRequest(request, h, context)
+
+      expect(result).toBe(continueResponse)
+      expect(getReferenceNumber()).toBe('ABC-123-DEF')
+    })
+  })
+
+  test('adds the form reference number to the log context before redirecting to sign in', () => {
+    const request = createRequest(
+      {
+        def: {
+          name: 'test-form',
+          metadata: { options: { allowCopy: true } }
+        }
+      },
+      { isAuthenticated: false }
+    )
+    const { h, redirect } = createToolkit()
+    const context = { referenceNumber: 'ABC-123-DEF' } as FormContext
+
+    runWithLogContext(createLogContext(), () => {
+      const result = onRequest(request, h, context)
+
+      expect(redirect).toHaveBeenCalled()
+      expect(result).toBe(takeoverResponse)
+      expect(getReferenceNumber()).toBe('ABC-123-DEF')
+    })
   })
 })

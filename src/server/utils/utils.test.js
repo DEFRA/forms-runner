@@ -2,7 +2,9 @@ import { createLogContext, runWithLogContext } from '@defra/forms-common'
 
 import { config } from '~/src/config/index.js'
 import {
+  applyLogContextHeaders,
   applyTraceHeaders,
+  browserRedirectUri,
   formRequiresAuthentication,
   getFeedbackFormLink,
   localReturnPath,
@@ -11,6 +13,40 @@ import {
 } from '~/src/server/utils/utils.js'
 
 describe('utils', () => {
+  describe('applyLogContextHeaders', () => {
+    const context = createLogContext({
+      correlationId: 'my-trace-id',
+      sessionId: 'my-session-id',
+      referenceNumber: 'ABC-123-DEF'
+    })
+
+    it('should add the session ID and reference number for a forms service', () => {
+      const result = runWithLogContext(context, () =>
+        applyLogContextHeaders(`${config.get('managerUrl')}/forms`, {
+          Authorization: 'Bearer token'
+        })
+      )
+
+      expect(result).toEqual({
+        Authorization: 'Bearer token',
+        'x-forms-session-id': 'my-session-id',
+        'x-forms-reference-number': 'ABC-123-DEF'
+      })
+    })
+
+    it.each(['https://example.com/api', '/relative'])(
+      'should not add them for %s',
+      (url) => {
+        const existingHeaders = { Authorization: 'Bearer token' }
+        const result = runWithLogContext(context, () =>
+          applyLogContextHeaders(url, existingHeaders)
+        )
+
+        expect(result).toBe(existingHeaders)
+      }
+    )
+  })
+
   describe('Header helper functions', () => {
     /**
      * Runs a function inside the log context of a request
@@ -226,6 +262,39 @@ describe('formRequiresAuthentication', () => {
     }
 
     expect(formRequiresAuthentication(defWithoutCopySupport)).toBe(false)
+  })
+})
+
+describe('browserRedirectUri', () => {
+  // Captured before any test changes it, and restored after each.
+  const isProduction = config.get('isProduction')
+
+  afterEach(() => {
+    config.set('isProduction', isProduction)
+  })
+
+  it('builds the callback URI on the host the request arrived on, with the host and port it carries', () => {
+    config.set('isProduction', false)
+
+    expect(browserRedirectUri('internal.example:3009', '/auth/callback')).toBe(
+      'http://internal.example:3009/auth/callback'
+    )
+  })
+
+  it('returns the given path on the request host, for sign out', () => {
+    config.set('isProduction', false)
+
+    expect(browserRedirectUri('internal.example', '/auth/signed-out')).toBe(
+      'http://internal.example/auth/signed-out'
+    )
+  })
+
+  it('sets the scheme to https in production, because CDP terminates TLS', () => {
+    config.set('isProduction', true)
+
+    expect(browserRedirectUri('internal.example', '/auth/callback')).toBe(
+      'https://internal.example/auth/callback'
+    )
   })
 })
 

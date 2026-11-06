@@ -83,9 +83,17 @@ describe('sign in routes and sign out routes', () => {
   /** @type {Server} */
   let server
 
-  /** Starts a sign in, so the session carries a transaction to come back to */
+  /**
+   * Starts a sign in, so the session carries a transaction to come back to.
+   * The host is set so the stored redirect URI does not depend on the
+   * machine's hostname, which `inject` would otherwise use.
+   */
   function startSignIn() {
-    return server.inject({ method: 'GET', url: SIGN_IN_URL })
+    return server.inject({
+      method: 'GET',
+      url: SIGN_IN_URL,
+      headers: { host: 'localhost:3009' }
+    })
   }
 
   /**
@@ -360,11 +368,13 @@ describe('sign in routes and sign out routes', () => {
     expect(tokenEndpointParameters).toMatchObject({ resource: RESOURCE })
   })
 
-  it('exchanges the code against the configured redirect URI, not whatever the request claims its host is', async () => {
+  it('repeats the redirect URI the sign in sent at the token endpoint, not the host the callback claims', async () => {
     const login = await startSignIn()
 
     mockSuccessfulExchange()
 
+    // The sign in started on localhost:3009, so the token request must repeat
+    // that, even when the callback arrives claiming another host.
     await server.inject({
       method: 'GET',
       url: CALLBACK_URL,
@@ -380,6 +390,38 @@ describe('sign in routes and sign out routes', () => {
     expect(calledUrl).toBeInstanceOf(URL)
     expect(/** @type {URL} */ (calledUrl).origin).toBe('http://localhost:3009')
     expect(/** @type {URL} */ (calledUrl).pathname).toBe('/auth/callback')
+  })
+
+  describe('returning to the host the sign in started on', () => {
+    const INTERNAL_ORIGIN = 'http://internal.example'
+    const INTERNAL_CALLBACK = `${INTERNAL_ORIGIN}/auth/callback`
+    const INTERNAL_SIGNED_OUT = `${INTERNAL_ORIGIN}/auth/signed-out`
+
+    it('sends the provider a callback URI on the host the sign in arrived on', async () => {
+      await server.inject({
+        method: 'GET',
+        url: SIGN_IN_URL,
+        headers: { host: 'internal.example' }
+      })
+
+      const [, params] = jest.mocked(client.buildAuthorizationUrl).mock.calls[0]
+
+      expect(params).toMatchObject({ redirect_uri: INTERNAL_CALLBACK })
+    })
+
+    it('returns to that host after sign-out as well', async () => {
+      await server.inject({
+        method: 'GET',
+        url: SIGN_OUT_URL,
+        headers: { host: 'internal.example' }
+      })
+
+      const [, params] = jest.mocked(client.buildEndSessionUrl).mock.calls[0]
+
+      expect(params).toMatchObject({
+        post_logout_redirect_uri: INTERNAL_SIGNED_OUT
+      })
+    })
   })
 
   it('refuses a callback whose state does not match the one it issued', async () => {
