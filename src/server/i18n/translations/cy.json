@@ -208,8 +208,8 @@
       "back": "Yn ôl i reoli eich ffurflen"
     },
     "signInRequired": {
-      "pageTitle": "Sign in to save your progress",
-      "intro": "You need to sign in to save your progress for [[days]] days."
+      "pageTitle": "Mewngofnodwch i gadw eich cynnydd",
+      "intro": "Mae angen i chi fewngofnodi i gadw eich cynnydd am [[days]] diwrnod."
     },
     "resumeError": {
       "pageTitle": "Ni allwch ailafael yn eich ffurflen",

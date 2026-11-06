@@ -244,6 +244,34 @@ describe('Save-and-exit check routes', () => {
     })
   })
 
+  test('shows a signed-out citizen the sign-in page (in Welsh)', async () => {
+    jest
+      .mocked(getFormMetadataWithGuard)
+      // @ts-expect-error - allow partial objects for tests
+      .mockResolvedValueOnce(testMetadata)
+
+    const { response, container } = await renderResponse(server, {
+      method: 'GET',
+      url: `/save-and-exit/${FORM_SLUG}/${DRAFT_STATE}?language=cy`
+    })
+
+    expect(response.statusCode).toBe(StatusCodes.OK)
+    expect(
+      container.getByRole('heading', {
+        name: 'Mewngofnodwch i gadw eich cynnydd',
+        level: 1
+      })
+    ).toBeInTheDocument()
+    expect(
+      container.getByText(
+        'Mae angen i chi fewngofnodi i gadw eich cynnydd am 28 diwrnod.'
+      )
+    ).toBeInTheDocument()
+    expect(
+      container.getByRole('button', { name: 'Mewngofnodi' })
+    ).toBeInTheDocument()
+  })
+
   test('route renders view on success when logged in (in Welsh)', async () => {
     jest
       .mocked(getFormMetadataWithGuard)
