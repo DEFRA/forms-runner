@@ -120,7 +120,7 @@ export default [
       const { form, referenceNumber, submissionToCopy } =
         await getFormAndSubmission(params, accessToken)
 
-      const { translator, language } = await getTranslator(
+      const { translator } = await getTranslator(
         request,
         form,
         submissionToCopy
@@ -134,8 +134,7 @@ export default [
         form,
         referenceNumber,
         submissionToCopy,
-        translator,
-        language
+        translator
       )
 
       return h.view('copy-form/confirm-copy-form', model)
@@ -205,7 +204,7 @@ export default [
       const { form, referenceNumber, submissionToCopy } =
         await getFormAndSubmission(params, accessToken)
 
-      const { translator, language } = await getTranslator(
+      const { translator } = await getTranslator(
         request,
         form,
         submissionToCopy
@@ -217,8 +216,7 @@ export default [
         form,
         referenceNumber,
         submissionToCopy,
-        translator,
-        language
+        translator
       )
 
       return h.view('copy-form/confirm-copy-form-changed', model)
@@ -238,7 +236,7 @@ export default [
       const { form, referenceNumber, submissionToCopy } =
         await getFormAndSubmission(params, accessToken)
 
-      const { translator, language } = await getTranslator(
+      const { translator } = await getTranslator(
         request,
         form,
         submissionToCopy
@@ -250,8 +248,7 @@ export default [
         form,
         referenceNumber,
         submissionToCopy,
-        translator,
-        language
+        translator
       )
 
       return h.view('copy-form/confirm-copy-check-answers', model)
@@ -311,7 +308,6 @@ export default [
  * @param {string} referenceNumber - the submission reference number
  * @param {FormSubmissionDocument} submission - the submission to copy
  * @param {FormTranslator} translator - the form translator
- * @param {string} language - the language
  * @returns {CopyFormViewModel}
  */
 function copyFormViewModel(
@@ -320,12 +316,11 @@ function copyFormViewModel(
   form,
   referenceNumber,
   submission,
-  translator,
-  language
+  translator
 ) {
-  const pageTitle = t(pageTitleKey, language)
+  const pageTitle = t(pageTitleKey, translator.language)
   const backLink = {
-    text: t('common.back', language),
+    text: t('common.back', translator.language),
     href: backLinkHref
   }
   const submittedAt = getSubmittedAtDate(submission, translator)
