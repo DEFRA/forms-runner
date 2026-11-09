@@ -945,7 +945,6 @@ export default [
  * @import { FormMetadata, SavedState } from '@defra/forms-model'
  * @import { Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'
  * @import { FormParams } from '@defra/forms-engine-plugin/types'
- * @import { FormSubmissionState } from '@defra/forms-engine-plugin/engine/types.js'
  * @import { AnyRequest, CacheRequest } from '@defra/forms-engine-plugin/engine/types.js'
  * @import { BoomErrorCustomSaveAndExit, SaveAndExitParams, SaveAndExitPayload, SaveAndExitResumePasswordPayload, SaveAndExitResumePasswordParams } from '~/src/server/models/save-and-exit.js'
  * @import { SaveAndExitDetails } from '~/src/server/types.js'
