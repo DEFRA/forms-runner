@@ -105,7 +105,6 @@ export class OutputService implements IOutputService {
         magicLinkGroupId?: string
         actionName?: string
         actionReferenceNumber?: string
-        x?: { y: string; z: string }
       }
 
       // Add user confirmation email if supplied
