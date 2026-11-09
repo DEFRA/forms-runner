@@ -361,6 +361,15 @@
     "continueButton": "Continue",
     "cancelButton": "Cancel"
   },
+  "confirmCopyCheckAnswers": {
+    "title": "These answers were copied from your previous submission",
+    "formNameLabel": "Form",
+    "formReferenceLabel": "Previous reference number",
+    "info1": "We’ve copied your answers into this new form. Any changes you make will not affect your previous submission.",
+    "info2": "On the next page, you can check and change your answers before submitting the form.",
+    "continueButton": "Continue",
+    "cancelButton": "Cancel"
+  },
   "layout": {
     "errorPrefix": "Error: ",
     "skipLink": "Skip to main content",

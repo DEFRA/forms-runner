@@ -226,8 +226,52 @@ export default [
    * @satisfies {ServerRoute<{ Params: CopyFormParams }>}
    */
   ({
+    method: 'GET',
+    path: '/confirm-copy-form/{formId}/{referenceNumber}/check-answers',
+    handler: async (request, h) => {
+      const { auth, params } = request
+      const { accessToken } = auth.credentials
+      const { form, referenceNumber, submissionToCopy } =
+        await getFormAndSubmission(params, accessToken)
+
+      const previewStatus = submissionToCopy.meta.isPreview
+        ? submissionToCopy.meta.status
+        : undefined
+
+      const { translator, language } = await getFormTranslator(
+        request,
+        form,
+        previewStatus,
+        true
+      )
+
+      const pageHeading = t('confirmCopyCheckAnswers.title', language)
+      const pageTitle = pageHeading
+      const backLink = {
+        text: t('common.back', language),
+        href: `/confirm-copy-form/${form.id}/${referenceNumber}/form-changed`
+      }
+      const submittedAt = getSubmittedAtDate(submissionToCopy, translator)
+      const model = copyFormViewModel(
+        pageTitle,
+        backLink,
+        form,
+        referenceNumber,
+        submittedAt,
+        translator
+      )
+
+      return h.view('copy-form/confirm-copy-check-answers', model)
+    },
+    options: getRouteOptions
+  }),
+
+  /**
+   * @satisfies {ServerRoute<{ Params: CopyFormParams }>}
+   */
+  ({
     method: 'POST',
-    path: '/confirm-copy-form/{formId}/{referenceNumber}/form-changed',
+    path: '/confirm-copy-form/{formId}/{referenceNumber}/check-answers',
     handler: async (request, h) => {
       const { auth, params } = request
       const { accessToken } = auth.credentials
