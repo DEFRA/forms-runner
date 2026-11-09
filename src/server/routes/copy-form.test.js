@@ -245,7 +245,7 @@ describe('Copy form routes', () => {
 
       const options = {
         method: 'POST',
-        url: `/confirm-copy-form/${FORM_ID}/${REFERENCE_NUMBER}/form-changed`,
+        url: `/confirm-copy-form/${FORM_ID}/${REFERENCE_NUMBER}/check-answers`,
         auth: { strategy: 'citizen-session', credentials },
         payload: { confirmCopy: true }
       }
