@@ -59,9 +59,12 @@ const getTranslatorContext = (translator) => ({
  * @returns {Promise<{ translator: Translator, language: string }>}
  */
 async function getTranslator(request, metadata, submission) {
-  const status = submission.meta.isPreview ? submission.meta.status : undefined
+  // The preview status of the form, or undefined if a non-preview form (i.e. live)
+  const previewStatus = submission.meta.isPreview
+    ? submission.meta.status
+    : undefined
 
-  return getFormTranslator(request, metadata, status, true)
+  return getFormTranslator(request, metadata, previewStatus, true)
 }
 
 /**
@@ -112,10 +115,11 @@ export default [
         submissionToCopy
       )
 
-      const status = submissionToCopy.meta.isPreview
+      // The preview status of the form, or undefined if a non-preview form (i.e. live)
+      const previewStatus = submissionToCopy.meta.isPreview
         ? submissionToCopy.meta.status
         : undefined
-      const backLinkHref = constructHomepageLink(form.slug, status)
+      const backLinkHref = constructHomepageLink(form.slug, previewStatus)
       const model = copyFormViewModel(
         'confirmCopyForm.title',
         backLinkHref,
