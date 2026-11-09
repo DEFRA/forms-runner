@@ -1,6 +1,10 @@
 import { FormStatus } from '@defra/forms-engine-plugin/types'
 
-import { mapValueToState } from '~/src/server/utils/map-submission-to-state.js'
+import {
+  escapeFileLabel,
+  isString,
+  mapValueToState
+} from '~/src/server/utils/map-submission-to-state.js'
 
 describe('mapValueToState', () => {
   it('should map adaptor v2 message to state2', () => {
@@ -536,5 +540,60 @@ describe('mapValueToState', () => {
         }
       ]
     })
+  })
+
+  it('should omit undefined values and preserve other main and repeater values', () => {
+    const message = {
+      data: {
+        main: {
+          omitted: undefined,
+          compound: {
+            defined: 'value',
+            omitted: undefined
+          },
+          list: ['item'],
+          empty: null
+        },
+        repeaters: {
+          items: [
+            {
+              omitted: undefined,
+              date: {
+                day: 1,
+                omitted: undefined
+              }
+            },
+            {}
+          ]
+        }
+      }
+    }
+
+    expect(mapValueToState(message)).toEqual({
+      compound__defined: 'value',
+      list: ['item'],
+      empty: null,
+      items: [
+        {
+          date__day: 1,
+          itemId: expect.any(String)
+        },
+        {
+          itemId: expect.any(String)
+        }
+      ]
+    })
+  })
+
+  it('should identify strings', () => {
+    expect(isString('filename')).toBe(true)
+    expect(isString(null)).toBe(false)
+  })
+
+  it('should escape spaces and tabs in file labels', () => {
+    expect(escapeFileLabel('file name\tlabel')).toBe(
+      'file&nbsp;name&nbsp;&nbsp;&nbsp;&nbsp;label'
+    )
+    expect(escapeFileLabel(null)).toBe('')
   })
 })

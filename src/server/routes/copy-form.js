@@ -61,7 +61,7 @@ const getTranslatorContext = (translator) => ({
 async function getTranslator(request, metadata, submission) {
   const status = submission.meta.isPreview ? submission.meta.status : undefined
 
-  return await getFormTranslator(request, metadata, status, true)
+  return getFormTranslator(request, metadata, status, true)
 }
 
 /**
