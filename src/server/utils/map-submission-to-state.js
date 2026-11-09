@@ -50,7 +50,7 @@ export const isString = (value) => typeof value === 'string'
  *
  * NOTE: hyphens are not converted because we are forcing '&nbsp;' in the surrounding spaces (if any), therefore Notify doesn't think
  * it's a sentence break.
- * @param {string} str - Gracefully handles null, undefined and non-string values.
+ * @param {unknown} str - Gracefully handles null, undefined and non-string values.
  */
 export function escapeFileLabel(str) {
   if (!isString(str)) {

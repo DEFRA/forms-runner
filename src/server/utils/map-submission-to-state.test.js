@@ -569,6 +569,7 @@ describe('mapValueToState', () => {
       }
     }
 
+    // @ts-expect-error - exercises omission of undefined values in a malformed submission
     expect(mapValueToState(message)).toEqual({
       compound__defined: 'value',
       list: ['item'],
