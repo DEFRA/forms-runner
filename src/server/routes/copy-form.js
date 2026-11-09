@@ -52,6 +52,20 @@ const getTranslatorContext = (translator) => ({
 })
 
 /**
+ * The preview status of the submission, or undefined if a non-preview form (i.e. live)
+ * @param {FormSubmissionDocument} submission - the submission document to copy
+ * @returns {FormStatus | undefined}
+ */
+function getPreviewStatus(submission) {
+  // The preview status of the form, or undefined if a non-preview form (i.e. live)
+  const previewStatus = submission.meta.isPreview
+    ? submission.meta.status
+    : undefined
+
+  return previewStatus
+}
+
+/**
  * Get the form translator for a submission
  * @param {{ query: RequestQuery, yar: Yar }} request - the request
  * @param {FormMetadata} metadata - the metadata of the form
@@ -59,10 +73,7 @@ const getTranslatorContext = (translator) => ({
  * @returns {Promise<{ translator: Translator, language: string }>}
  */
 async function getTranslator(request, metadata, submission) {
-  // The preview status of the form, or undefined if a non-preview form (i.e. live)
-  const previewStatus = submission.meta.isPreview
-    ? submission.meta.status
-    : undefined
+  const previewStatus = getPreviewStatus(submission)
 
   return getFormTranslator(request, metadata, previewStatus, true)
 }
@@ -115,10 +126,7 @@ export default [
         submissionToCopy
       )
 
-      // The preview status of the form, or undefined if a non-preview form (i.e. live)
-      const previewStatus = submissionToCopy.meta.isPreview
-        ? submissionToCopy.meta.status
-        : undefined
+      const previewStatus = getPreviewStatus(submissionToCopy)
       const backLinkHref = constructHomepageLink(form.slug, previewStatus)
       const model = copyFormViewModel(
         'confirmCopyForm.title',
@@ -453,7 +461,7 @@ async function setCacheState(request, submissionToCopy, form) {
 /**
  * @import { ServerRoute, Request, RequestQuery } from '@hapi/hapi'
  * @import { Yar } from '@hapi/yar'
- * @import { FormVersionMetadata, FormMetadata, FormDefinition } from '@defra/forms-model'
+ * @import { FormVersionMetadata, FormMetadata, FormDefinition, FormStatus } from '@defra/forms-model'
  * @import { Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'
  * @import { FormSubmissionDocument } from '~/src/server/services/submissionService.js'
  */
