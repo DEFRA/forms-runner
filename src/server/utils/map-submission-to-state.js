@@ -42,53 +42,6 @@ function handleSubfields(subfieldObject, [key, value]) {
 export const isString = (value) => typeof value === 'string'
 
 /**
- * For escaping filenames and file labels.
- *
- * Notify auto-translates ASCII hyphens to en dashes (where used to split a sentence), and strips whitespace (including tabs)
- * before punctuation.
- * This method is used to escape each of these characters so Notify doesn't translate the content.
- *
- * NOTE: hyphens are not converted because we are forcing '&nbsp;' in the surrounding spaces (if any), therefore Notify doesn't think
- * it's a sentence break.
- * @param {unknown} str - Gracefully handles null, undefined and non-string values.
- */
-export function escapeFileLabel(str) {
-  if (!isString(str)) {
-    return ''
-  }
-  return str
-    .replaceAll(' ', '&nbsp;')
-    .replaceAll('\t', '&nbsp;&nbsp;&nbsp;&nbsp;')
-}
-
-// /**
-//  *
-//  * @param {FormAdapterFile} file
-//  * @returns {FileState}
-//  */
-// function mapFormAdapterFileToFileState(file) {
-//   const status = /** @type {UploadStatusFileResponse} */ ({
-//     form: {
-//       file: {
-//         contentLength: 0,
-//         fileStatus: FileStatus.complete,
-//         fileId: file.fileId,
-//         filename: escapeFileLabel(file.fileName)
-//       }
-//     },
-//     uploadStatus: UploadStatus.ready,
-//     metadata: {
-//       retrievalKey: ''
-//     }
-//   })
-
-//   return {
-//     status,
-//     uploadId: 'f1ee2837-7581-4cb0-8113-134527250fee'
-//   }
-// }
-
-/**
  * Turns a form submission document into data suitable for session state
  * @param {FormSubmissionDocument} formSubmissionMessage
  */

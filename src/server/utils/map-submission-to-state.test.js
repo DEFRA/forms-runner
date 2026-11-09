@@ -1,7 +1,6 @@
 import { FormStatus } from '@defra/forms-engine-plugin/types'
 
 import {
-  escapeFileLabel,
   isString,
   mapValueToState
 } from '~/src/server/utils/map-submission-to-state.js'
@@ -589,12 +588,5 @@ describe('mapValueToState', () => {
   it('should identify strings', () => {
     expect(isString('filename')).toBe(true)
     expect(isString(null)).toBe(false)
-  })
-
-  it('should escape spaces and tabs in file labels', () => {
-    expect(escapeFileLabel('file name\tlabel')).toBe(
-      'file&nbsp;name&nbsp;&nbsp;&nbsp;&nbsp;label'
-    )
-    expect(escapeFileLabel(null)).toBe('')
   })
 })
