@@ -412,7 +412,7 @@ function getFormDetails(def, submission) {
 async function setCacheState(request, submissionToCopy, form) {
   const cacheService = getCacheService(request.server)
   const copiedState = mapValueToState(submissionToCopy)
-  const state = submissionToCopy.meta.status
+  const state = getPreviewStatus(submissionToCopy)
   const req = { yar: request.yar, params: { slug: form.slug, state } }
 
   await cacheService.clearState(req)
