@@ -208,7 +208,7 @@ async function homepageHandler(request, h) {
     yar.flash(sessionNames.successNotification).at(0)
   )
 
-  const allowCopy = formRequiresAuthentication(definition)
+  const isAllowCopyEnabled = formRequiresAuthentication(definition)
 
   return h.view('homepage', {
     notification,
@@ -217,7 +217,7 @@ async function homepageHandler(request, h) {
     savedForms: savedAndInFlightForms.map((savedForm) =>
       mapToRow(savedForm, translator, form.id)
     ),
-    allowCopy,
+    isAllowCopyEnabled,
     context: {
       translator: {
         // Force page to show language selector irrespective of form capability
