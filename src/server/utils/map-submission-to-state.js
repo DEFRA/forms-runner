@@ -71,15 +71,6 @@ export function mapValueToState(formSubmissionMessage) {
     }
   }, {})
 
-  // const fileEntries = Object.entries(formSubmissionMessage.data.files)
-  // const files = fileEntries.reduce((fileObject, [key, value]) => {
-  //   const componentFiles = value.map(mapFormAdapterFileToFileState)
-  //   return {
-  //     ...fileObject,
-  //     [key]: componentFiles
-  //   }
-  // }, {})
-
   return {
     ...main,
     ...repeaters
