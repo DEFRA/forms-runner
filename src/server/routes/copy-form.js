@@ -52,6 +52,19 @@ const getTranslatorContext = (translator) => ({
 })
 
 /**
+ * Get the form translator for a submission
+ * @param {{ query: RequestQuery, yar: Yar }} request - the request
+ * @param {FormMetadata} metadata - the metadata of the form
+ * @param {FormSubmissionDocument} submission - the submission document to copy
+ * @returns {Promise<{ translator: Translator, language: string }>}
+ */
+async function getTranslator(request, metadata, submission) {
+  const status = submission.meta.isPreview ? submission.meta.status : undefined
+
+  return await getFormTranslator(request, metadata, status, true)
+}
+
+/**
  * @param {CopyFormParams} params
  * @param {string} accessToken
  * @returns {Promise<FormAndSubmission>}
@@ -93,34 +106,24 @@ export default [
       const { form, referenceNumber, submissionToCopy } =
         await getFormAndSubmission(params, accessToken)
 
-      const previewStatus = submissionToCopy.meta.isPreview
-        ? submissionToCopy.meta.status
-        : undefined
-
-      const { translator, language } = await getFormTranslator(
+      const { translator, language } = await getTranslator(
         request,
         form,
-        previewStatus,
-        true
+        submissionToCopy
       )
 
-      const pageHeading = t('confirmCopyForm.title', language)
-      const pageTitle = pageHeading
       const status = submissionToCopy.meta.isPreview
         ? submissionToCopy.meta.status
         : undefined
-      const backLink = {
-        text: t('common.back', language),
-        href: constructHomepageLink(form.slug, status)
-      }
-      const submittedAt = getSubmittedAtDate(submissionToCopy, translator)
+      const backLinkHref = constructHomepageLink(form.slug, status)
       const model = copyFormViewModel(
-        pageTitle,
-        backLink,
+        'confirmCopyForm.title',
+        backLinkHref,
         form,
         referenceNumber,
-        submittedAt,
-        translator
+        submissionToCopy,
+        translator,
+        language
       )
 
       return h.view('copy-form/confirm-copy-form', model)
@@ -190,31 +193,20 @@ export default [
       const { form, referenceNumber, submissionToCopy } =
         await getFormAndSubmission(params, accessToken)
 
-      const previewStatus = submissionToCopy.meta.isPreview
-        ? submissionToCopy.meta.status
-        : undefined
-
-      const { translator, language } = await getFormTranslator(
+      const { translator, language } = await getTranslator(
         request,
         form,
-        previewStatus,
-        true
+        submissionToCopy
       )
 
-      const pageHeading = t('confirmCopyFormChanged.title', language)
-      const pageTitle = pageHeading
-      const backLink = {
-        text: t('common.back', language),
-        href: `/confirm-copy-form/${form.id}/${referenceNumber}`
-      }
-      const submittedAt = getSubmittedAtDate(submissionToCopy, translator)
       const model = copyFormViewModel(
-        pageTitle,
-        backLink,
+        'confirmCopyFormChanged.title',
+        `/confirm-copy-form/${form.id}/${referenceNumber}`,
         form,
         referenceNumber,
-        submittedAt,
-        translator
+        submissionToCopy,
+        translator,
+        language
       )
 
       return h.view('copy-form/confirm-copy-form-changed', model)
@@ -234,31 +226,20 @@ export default [
       const { form, referenceNumber, submissionToCopy } =
         await getFormAndSubmission(params, accessToken)
 
-      const previewStatus = submissionToCopy.meta.isPreview
-        ? submissionToCopy.meta.status
-        : undefined
-
-      const { translator, language } = await getFormTranslator(
+      const { translator, language } = await getTranslator(
         request,
         form,
-        previewStatus,
-        true
+        submissionToCopy
       )
 
-      const pageHeading = t('confirmCopyCheckAnswers.title', language)
-      const pageTitle = pageHeading
-      const backLink = {
-        text: t('common.back', language),
-        href: `/confirm-copy-form/${form.id}/${referenceNumber}/form-changed`
-      }
-      const submittedAt = getSubmittedAtDate(submissionToCopy, translator)
       const model = copyFormViewModel(
-        pageTitle,
-        backLink,
+        'confirmCopyCheckAnswers.title',
+        `/confirm-copy-form/${form.id}/${referenceNumber}/form-changed`,
         form,
         referenceNumber,
-        submittedAt,
-        translator
+        submissionToCopy,
+        translator,
+        language
       )
 
       return h.view('copy-form/confirm-copy-check-answers', model)
@@ -312,22 +293,31 @@ export default [
 ]
 
 /**
- * @param {string} pageTitle - the page title
- * @param {CopyFormBackLink} backLink - the back link
+ * @param {string} pageTitleKey - the page title key for translation
+ * @param {string} backLinkHref - the back link href
  * @param {FormMetadata} form - the form metadata
  * @param {string} referenceNumber - the submission reference number
- * @param {string} submittedAt - the submission date and time
+ * @param {FormSubmissionDocument} submission - the submission to copy
  * @param {FormTranslator} translator - the form translator
+ * @param {string} language - the language
  * @returns {CopyFormViewModel}
  */
 function copyFormViewModel(
-  pageTitle,
-  backLink,
+  pageTitleKey,
+  backLinkHref,
   form,
   referenceNumber,
-  submittedAt,
-  translator
+  submission,
+  translator,
+  language
 ) {
+  const pageTitle = t(pageTitleKey, language)
+  const backLink = {
+    text: t('common.back', language),
+    href: backLinkHref
+  }
+  const submittedAt = getSubmittedAtDate(submission, translator)
+
   return {
     pageTitle,
     backLink,
@@ -457,7 +447,9 @@ async function setCacheState(request, submissionToCopy, form) {
 /** @typedef {Awaited<ReturnType<typeof getFormTranslator>>['translator']} FormTranslator */
 
 /**
- * @import { ServerRoute, Request } from '@hapi/hapi'
+ * @import { ServerRoute, Request, RequestQuery } from '@hapi/hapi'
+ * @import { Yar } from '@hapi/yar'
  * @import { FormVersionMetadata, FormMetadata, FormDefinition } from '@defra/forms-model'
+ * @import { Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'
  * @import { FormSubmissionDocument } from '~/src/server/services/submissionService.js'
  */
