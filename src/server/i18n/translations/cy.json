@@ -361,6 +361,15 @@
     "continueButton": "Parhau",
     "cancelButton": "Canslo"
   },
+  "confirmCopyCheckAnswers": {
+    "title": "Cafodd yr atebion hyn eu copïo o'ch cyflwyniad blaenorol",
+    "formNameLabel": "Ffurflen",
+    "formReferenceLabel": "Rhif cyfeirnod blaenorol",
+    "info1": "Rydym wedi copïo eich atebion i'r ffurflen newydd hon. Ni fydd unrhyw newidiadau a wnewch yn effeithio ar eich cyflwyniad blaenorol.",
+    "info2": "Ar y dudalen nesaf, gallwch wirio a newid eich atebion cyn cyflwyno'r ffurflen.",
+    "continueButton": "Parhau",
+    "cancelButton": "Canslo"
+  },
   "layout": {
     "errorPrefix": "Gwall:",
     "skipLink": "Neidio i'r prif gynnwys",
