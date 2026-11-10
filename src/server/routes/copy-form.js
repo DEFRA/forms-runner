@@ -172,7 +172,7 @@ export default [
           .takeover()
       }
 
-      await setCacheState(request, submissionToCopy, form)
+      await setCacheState(request, submissionToCopy, form, def)
 
       const formHref = getFormHref(
         form.slug,
@@ -276,7 +276,7 @@ export default [
       const { formVersionHasChanged } = getFormDetails(def, submissionToCopy)
 
       // Set state and dispatch user into the form
-      await setCacheState(request, submissionToCopy, form)
+      await setCacheState(request, submissionToCopy, form, def)
 
       // If the form version has changed, redirect to the form start page and walkthrough,
       // otherwise redirect to the summary page and allow the engine to handle the walkthrough
@@ -408,10 +408,11 @@ function getFormDetails(def, submission) {
  * @param {Request<{ Params: CopyFormParams }>} request
  * @param {FormSubmissionDocument} submissionToCopy
  * @param {FormMetadata} form
+ * @param {FormDefinition} definition
  */
-async function setCacheState(request, submissionToCopy, form) {
+async function setCacheState(request, submissionToCopy, form, definition) {
   const cacheService = getCacheService(request.server)
-  const copiedState = mapValueToState(submissionToCopy)
+  const copiedState = mapValueToState(submissionToCopy, definition)
   const state = getPreviewStatus(submissionToCopy)
   const req = { yar: request.yar, params: { slug: form.slug, state } }
 

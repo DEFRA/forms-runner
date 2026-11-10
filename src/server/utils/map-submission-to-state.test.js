@@ -1,9 +1,18 @@
 import { FormStatus } from '@defra/forms-engine-plugin/types'
+import { ComponentType } from '@defra/forms-model'
 
 import {
   isString,
-  mapValueToState
+  mapValueToState,
+  rehydrateRepeaters
 } from '~/src/server/utils/map-submission-to-state.js'
+
+const emptyDefinition = /** @type {FormDefinition} */ ({
+  pages: [],
+  lists: [],
+  conditions: [],
+  sections: []
+})
 
 describe('mapValueToState', () => {
   it('should map adaptor v2 message to state2', () => {
@@ -308,7 +317,7 @@ describe('mapValueToState', () => {
       expireAt: new Date('2028-05-02T12:23:28.461Z')
     }
 
-    expect(mapValueToState(message)).toEqual({
+    expect(mapValueToState(message, emptyDefinition)).toEqual({
       textField: 'Bob',
       multilineTextField: 'Blah',
       numberField: 2,
@@ -569,7 +578,7 @@ describe('mapValueToState', () => {
     }
 
     // @ts-expect-error - exercises omission of undefined values in a malformed submission
-    expect(mapValueToState(message)).toEqual({
+    expect(mapValueToState(message, emptyDefinition)).toEqual({
       compound__defined: 'value',
       list: ['item'],
       empty: null,
@@ -590,3 +599,208 @@ describe('mapValueToState', () => {
     expect(isString(null)).toBe(false)
   })
 })
+
+describe('rehydrateRepeaters', () => {
+  /**
+   * @param {object[]} components
+   * @param {string | undefined} repeatName
+   */
+  const repeatPage = (components, repeatName = 'people') => ({
+    title: 'Repeater page',
+    path: '/people',
+    components,
+    next: [],
+    repeat: {
+      options: { name: repeatName, title: 'Person' },
+      schema: { min: 1, max: 5 }
+    }
+  })
+
+  /**
+   * @function textComponent
+   * @param {string} name
+   * @returns {object}
+   */
+  const textComponent = (name) => ({
+    id: `id-${name}`,
+    type: ComponentType.TextField,
+    name,
+    title: name,
+    options: {},
+    schema: {}
+  })
+
+  /**
+   * @param {object[]} pages
+   * @returns {FormDefinition}
+   */
+  const definitionWith = (pages) =>
+    /** @type {FormDefinition} */ (
+      /** @type {unknown} */ ({
+        name: 'Test',
+        pages,
+        lists: [],
+        sections: [],
+        conditions: []
+      })
+    )
+
+  it('should add null for missing component values in each repeater item', () => {
+    const definition = definitionWith([
+      repeatPage([textComponent('sTUBVF'), textComponent('pUcoFr')])
+    ])
+
+    expect(
+      rehydrateRepeaters(
+        { people: [{ sTUBVF: 'SO 1111 1111' }, { pUcoFr: 'x' }, {}] },
+        definition
+      )
+    ).toEqual({
+      people: [
+        { sTUBVF: 'SO 1111 1111', pUcoFr: null },
+        { sTUBVF: null, pUcoFr: 'x' },
+        { sTUBVF: null, pUcoFr: null }
+      ]
+    })
+  })
+
+  it('should not overwrite existing values, including falsy ones', () => {
+    const definition = definitionWith([
+      repeatPage([textComponent('a'), textComponent('b'), textComponent('c')])
+    ])
+
+    expect(
+      rehydrateRepeaters({ people: [{ a: '', b: 0, c: false }] }, definition)
+    ).toEqual({ people: [{ a: '', b: 0, c: false }] })
+  })
+
+  it('should keep an explicit null value as null', () => {
+    const definition = definitionWith([repeatPage([textComponent('a')])])
+
+    // @ts-expect-error: explicit null value is allowed
+    expect(rehydrateRepeaters({ people: [{ a: null }] }, definition)).toEqual({
+      people: [{ a: null }]
+    })
+  })
+
+  it('should preserve extra keys such as itemId', () => {
+    const definition = definitionWith([repeatPage([textComponent('a')])])
+
+    expect(
+      rehydrateRepeaters({ people: [{ itemId: 'abc' }] }, definition)
+    ).toEqual({ people: [{ itemId: 'abc', a: null }] })
+  })
+
+  it('should expand composite components into their sub field names', () => {
+    const definition = definitionWith([
+      repeatPage([
+        {
+          id: 'date-id',
+          type: ComponentType.DatePartsField,
+          name: 'dob',
+          title: 'Date of birth',
+          options: {},
+          schema: {}
+        }
+      ])
+    ])
+
+    const [item] = rehydrateRepeaters({ people: [{}] }, definition).people
+
+    expect(Object.keys(item).sort()).toEqual([
+      'dob__day',
+      'dob__month',
+      'dob__year'
+    ])
+    expect(Object.values(item).every((v) => v === null)).toBe(true)
+  })
+
+  it('should rehydrate multiple repeater pages independently', () => {
+    const definition = definitionWith([
+      repeatPage([textComponent('a')], 'first'),
+      repeatPage([textComponent('b')], 'second')
+    ])
+
+    expect(
+      rehydrateRepeaters({ first: [{}], second: [{ b: 'x' }, {}] }, definition)
+    ).toEqual({
+      first: [{ a: null }],
+      second: [{ b: 'x' }, { b: null }]
+    })
+  })
+
+  it('should ignore non-repeater pages and leave unrelated state untouched', () => {
+    const definition = definitionWith([
+      {
+        title: 'Plain',
+        path: '/plain',
+        components: [textComponent('plain')],
+        next: []
+      },
+      repeatPage([textComponent('a')])
+    ])
+    const other = [{ keep: 'me' }]
+
+    expect(rehydrateRepeaters({ people: [{}], other }, definition)).toEqual({
+      people: [{ a: null }],
+      other: [{ keep: 'me' }]
+    })
+  })
+
+  it('should skip repeater pages with no matching or non-array data', () => {
+    const definition = definitionWith([
+      repeatPage([textComponent('a')], 'missing'),
+      repeatPage([textComponent('b')], 'notArray')
+    ])
+    const repeaters = { notArray: 'value' }
+
+    // @ts-expect-error - exercises malformed repeater data
+    expect(rehydrateRepeaters(repeaters, definition)).toEqual({
+      notArray: 'value'
+    })
+  })
+
+  it('should return empty arrays unchanged', () => {
+    const definition = definitionWith([repeatPage([textComponent('a')])])
+
+    expect(rehydrateRepeaters({ people: [] }, definition)).toEqual({
+      people: []
+    })
+  })
+
+  it('should not mutate the input repeaters', () => {
+    const definition = definitionWith([repeatPage([textComponent('a')])])
+    const repeaters = { people: [{ x: 1 }] }
+
+    const result = rehydrateRepeaters(repeaters, definition)
+
+    expect(result).not.toBe(repeaters)
+    expect(repeaters).toEqual({ people: [{ x: 1 }] })
+  })
+
+  it('should return the repeaters as-is when there are no repeater pages', () => {
+    expect(
+      rehydrateRepeaters({ people: [{ a: 1 }] }, definitionWith([]))
+    ).toEqual({ people: [{ a: 1 }] })
+  })
+
+  it('should be applied by mapValueToState for missing repeater fields', () => {
+    const definition = definitionWith([
+      repeatPage([textComponent('sTUBVF'), textComponent('pUcoFr')])
+    ])
+    const message = {
+      data: { main: {}, repeaters: { people: [{ sTUBVF: 'SO 1111 1111' }] } }
+    }
+
+    // @ts-expect-error - partial submission document
+    expect(mapValueToState(message, definition)).toEqual({
+      people: [
+        { sTUBVF: 'SO 1111 1111', pUcoFr: null, itemId: expect.any(String) }
+      ]
+    })
+  })
+})
+
+/**
+ * @import { FormDefinition } from '@defra/forms-model'
+ */
