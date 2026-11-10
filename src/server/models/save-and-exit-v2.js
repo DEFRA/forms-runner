@@ -1,11 +1,11 @@
 import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
-import { slugSchema } from '@defra/forms-model'
+import { ControllerPath, slugSchema } from '@defra/forms-model'
 import Joi from 'joi'
 
 import { config } from '~/src/config/index.js'
 import { FORM_PREFIX } from '~/src/server/constants.js'
 import { constructHomepageLink } from '~/src/server/helpers/route-helpers.js'
-import { getFeedbackFormLink } from '~/src/server/utils/utils.js'
+import { getFeedbackFormLink, signInUrl } from '~/src/server/utils/utils.js'
 
 const saveAndExitExpiryDays = config.get('saveAndExitExpiryDays')
 
@@ -57,6 +57,38 @@ export function confirmationViewModelv2(metadata, translator, status) {
     serviceUrl: formPath,
     pageTitle: t('saveAndExit.confirmation.pageTitle'),
     backLink,
+    saveAndExitExpiryDays,
+    context: { translator },
+    ...getFeedbackFormLink(id)
+  }
+}
+
+/**
+ * The view model of the page that asks a signed-out citizen to sign in before
+ * they save. Sign in returns the citizen to `returnUrl`, so that the save
+ * continues.
+ * @param {FormMetadata} metadata
+ * @param {Translator} translator
+ * @param {string} returnUrl
+ * @param {FormStatus} [status]
+ */
+export function signInRequiredViewModel(
+  metadata,
+  translator,
+  returnUrl,
+  status
+) {
+  const { slug, title, id } = metadata
+  const { t } = translator
+
+  return {
+    name: title,
+    pageTitle: t('saveAndExit.signInRequired.pageTitle'),
+    backLink: {
+      href: `${constructFormUrl(slug, status)}${ControllerPath.Summary}`,
+      text: t('common.back')
+    },
+    signInHref: signInUrl(returnUrl),
     saveAndExitExpiryDays,
     context: { translator },
     ...getFeedbackFormLink(id)
