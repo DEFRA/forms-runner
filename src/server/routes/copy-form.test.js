@@ -395,6 +395,34 @@ describe('Copy form routes', () => {
       expect(response.headers.location).toBe('/form/my-form')
     })
 
+    test('redirects to the form when the form contains declaration fields', async () => {
+      jest
+        .mocked(getFormMetadataById)
+        // @ts-expect-error - allow partial objects for tests
+        .mockResolvedValueOnce({ id: FORM_ID, slug: 'my-form' })
+      jest.mocked(getSubmissionRecord).mockResolvedValueOnce(
+        // @ts-expect-error - allow partial objects for tests
+        buildSubmission({ versionNumber: 1 })
+      )
+
+      jest.mocked(getFormDefinition).mockResolvedValueOnce(
+        // @ts-expect-error - allow partial objects for tests
+        buildFormDefinition({ versionNumber: 1, hasDeclaration: true })
+      )
+
+      const options = {
+        method: 'POST',
+        url: `/confirm-copy-form/${FORM_ID}/${REFERENCE_NUMBER}/check-answers`,
+        auth: { strategy: 'citizen-session', credentials },
+        payload: { confirmCopy: true }
+      }
+
+      const { response } = await renderResponse(server, options)
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe('/form/my-form')
+    })
+
     test('redirects to the summary when the form version has not changed', async () => {
       jest
         .mocked(getFormMetadataById)

@@ -3,13 +3,14 @@ import { randomUUID } from 'node:crypto'
 /**
  * Handles sub fields like address.addressLine1 and date.day
  * @param {Record<string, FormStateValue>} subfieldObject
- * @param {[string, RichFormValue|null]} entry
+ * @param {[string, RichFormValue | null]} entry
+ * @param {string[]} ignoreKeys - keys to ignore when copying state (e.g. declaration fields)
  * @returns {Record<string, FormStateValue>}
  */
-function handleSubfields(subfieldObject, [key, value]) {
+function handleSubfields(subfieldObject, [key, value], ignoreKeys = []) {
   if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
     const subValues = Object.entries(value).reduce((acc2, [key2, value2]) => {
-      if (value2 === undefined) {
+      if (value2 === undefined || ignoreKeys.includes(key2)) {
         return acc2
       }
       return {
@@ -24,7 +25,7 @@ function handleSubfields(subfieldObject, [key, value]) {
     }
   }
 
-  if (value === undefined) {
+  if (value === undefined || ignoreKeys.includes(key)) {
     return subfieldObject
   }
 
@@ -44,11 +45,12 @@ export const isString = (value) => typeof value === 'string'
 /**
  * Turns a form submission document into data suitable for session state
  * @param {FormSubmissionDocument} formSubmissionMessage
+ * @param {string[]} [ignoreKeys] - keys to ignore when copying state (e.g. declaration fields)
  */
-export function mapValueToState(formSubmissionMessage) {
+export function mapValueToState(formSubmissionMessage, ignoreKeys = []) {
   const mainEntries = Object.entries(formSubmissionMessage.data.main)
   const main = mainEntries.reduce(
-    (acc, entry) => handleSubfields(acc, entry),
+    (acc, entry) => handleSubfields(acc, entry, ignoreKeys),
     /** @type {Record<string, FormStateValue>} */ ({})
   )
 
@@ -56,7 +58,7 @@ export function mapValueToState(formSubmissionMessage) {
   const repeaters = repeaterEntries.reduce((repeaterObject, [key, value]) => {
     const values = value.map((repeater) => {
       const reduced = Object.entries(repeater).reduce(
-        (acc, entry) => handleSubfields(acc, entry),
+        (acc, entry) => handleSubfields(acc, entry, ignoreKeys),
         /** @type {Record<string, FormStateValue>} */ ({})
       )
       return {
