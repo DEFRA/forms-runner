@@ -5,6 +5,7 @@ import Joi from 'joi'
 
 import { config } from '~/src/config/index.js'
 import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/auth/route-options.js'
+import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import {
   FormRowStatus,
   HOMEPAGE_PREFIX,
@@ -19,11 +20,15 @@ import { sessionNames } from '~/src/server/helpers/session-names.js'
 import { getInflightSessionKey } from '~/src/server/routes/save-and-exit-helper.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadata } from '~/src/server/services/formsService.js'
-import { getFormRecords } from '~/src/server/services/submissionService.js'
+import {
+  getFormRecords,
+  linkSubmissionsToUser
+} from '~/src/server/services/submissionService.js'
 import { getAllLanguages } from '~/src/server/utils/utils.js'
 
 const authBase = config.get('oidc.issuer')
 const runnerBase = config.get('baseUrl')
+const allowedForms = config.get('submissionLinking.allowedForms')
 
 /**
  * A saved form as the table shows it. The dates are formatted and the status
@@ -68,6 +73,42 @@ function mapToRow(savedForm, translator, formId) {
 /**
  * @typedef { FormParams & { action?: string } } HomepageParams
  */
+
+/**
+ * Links the earlier submissions of the form to the account of the citizen,
+ * when the form is one of the forms whose submissions can be linked. A
+ * failure is logged and otherwise ignored, so the citizen still gets their
+ * homepage, without the submissions that could not be linked.
+ * @param {string} accessToken - the citizen's access token
+ * @param {string} formId - the form the homepage is for
+ */
+async function linkEarlierSubmissions(accessToken, formId) {
+  const allowedForm = allowedForms.find((form) => form.formId === formId)
+
+  if (!allowedForm) {
+    return
+  }
+
+  // The name is a note in the config, and nothing checks it against the form
+  const formNameNote = allowedForm.formName
+    ? ` (possible form name '${allowedForm.formName}')`
+    : ''
+
+  try {
+    const { linked } = await linkSubmissionsToUser(accessToken, formId)
+
+    if (linked > 0) {
+      logger.info(
+        `[linkSubmissions] Linked ${linked} earlier submissions of form ${formId}${formNameNote} to the account of the citizen`
+      )
+    }
+  } catch (err) {
+    logger.warn(
+      err,
+      `[linkSubmissions] Could not link the earlier submissions of form ${formId}${formNameNote} to the account of the citizen`
+    )
+  }
+}
 
 /**
  * Construct the tabs
@@ -167,6 +208,11 @@ async function homepageHandler(request, h) {
 
   const form = await getFormMetadata(slug)
 
+  const { accessToken } = request.auth.credentials
+
+  // Before the saved forms are read, so they include the submissions linked
+  await linkEarlierSubmissions(accessToken, form.id)
+
   const { translator } = await getFormTranslator(
     request,
     form,
@@ -175,8 +221,6 @@ async function homepageHandler(request, h) {
   )
 
   const nav = buildNavigation(form, translator, { isPreview, state, slug })
-
-  const { accessToken } = request.auth.credentials
 
   const savedForms = await getFormRecords(accessToken, form.id, previewStatus)
 

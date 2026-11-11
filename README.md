@@ -199,6 +199,7 @@ See [https://github.com/node-config/node-config#readme](https://github.com/node-
 | OIDC_CLIENT_PRIVATE_JWK                | This service's private assertion key, as a single RS256 JWK.                                          | when signing in |                                      |                             |                                       Secret. The provider holds the public half.                                       |
 | OIDC_SUBMISSION_API_RESOURCE           | Resource this service asks the provider for tokens for. It becomes the access token's audience.       |       no        | urn:defra:forms:forms-submission-api |                             |                                  Must match the audience forms-submission-api accepts.                                  |
 | OIDC_ACCESS_TOKEN_EXPIRY_GRACE_SECONDS | An access token with this many seconds or fewer left is refreshed before use.                         |       no        | 30                                   |                             |                                          See [Token refresh](#token-refresh).                                           |
+| SUBMISSION_LINKING_ALLOWED_FORMS       | Forms whose earlier submissions are linked to the account on the form's homepage, as a JSON array.    |       no        | []                                   |                             |                            See [Linking earlier submissions](#linking-earlier-submissions).                             |
 
 ## Citizen sign in
 
@@ -280,6 +281,39 @@ their ID token as the hint. The provider sends them back to `/auth/signed-out`:
 This service reads both endpoints from the provider's discovery document once, at the first
 sign in, so it finds a revocation endpoint added later only after a restart.
 
+### Linking earlier submissions
+
+A citizen may have submitted a form before they had an account. Those submissions are not
+linked to the account, so the homepage of the form does not list them.
+`SUBMISSION_LINKING_ALLOWED_FORMS` names the forms whose earlier submissions are linked, for
+example:
+
+```
+SUBMISSION_LINKING_ALLOWED_FORMS=[{"formId":"688131eeff67f889d52c66cc","formName":"Order a pizza"}]
+```
+
+`formName` is optional, and can be empty or null. It is a note for the people who set the
+config and is only used in log messages, which call it the "possible form name" because nothing
+checks it against the form. The service refuses to start if the value is not a JSON array of
+forms with a `formId` each, or names a form twice. No forms are linked by default.
+
+When a signed-in citizen opens the homepage of a form on the list, live or preview, the first
+thing the homepage does after it reads the form is ask forms-submission-api to link the
+earlier submissions (`POST /form/submissions/link`). That API finds the submissions of the form
+whose confirmation email matches the email in the citizen's access token and that are not yet
+linked to an account, and links them. The homepage then reads the saved forms, so the list
+includes the submissions just linked.
+
+The request waits for no more than 5 seconds. If it fails, the homepage logs a warning that
+starts with `[linkSubmissions]` and shows the page as usual, without the submissions that
+could not be linked. The citizen is not told. The link is tried again on the next visit to the
+homepage, and finds nothing more to link once the earlier submissions are linked.
+
+forms-submission-api has the same setting and refuses any form not on its own list, so set the
+same list on both services. forms-identity-ui adds the email to the access token only when
+`OIDC_EMAIL_CLAIM_RESOURCE_SERVERS` names forms-submission-api. Without the email,
+forms-submission-api refuses the link and the homepage logs a warning.
+
 For proxy options, see https://www.npmjs.com/package/proxy-from-env which is used by https://github.com/TooTallNate/proxy-agents/tree/main/packages/proxy-agent.
 
 Example .env contents:
@@ -311,6 +345,7 @@ OIDC_ISSUER=http://localhost:3011
 OIDC_CLIENT_ID=runner
 OIDC_CLIENT_PRIVATE_JWK=<single-rs256-jwk>
 OIDC_ACCESS_TOKEN_EXPIRY_GRACE_SECONDS=30
+SUBMISSION_LINKING_ALLOWED_FORMS=[{"formId":"<form-id>","formName":"<form-name>"}]
 ```
 
 # Testing

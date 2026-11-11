@@ -8,6 +8,7 @@ import { StatusCodes } from 'http-status-codes'
 import * as client from 'openid-client'
 
 import { config } from '~/src/config/index.js'
+import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { FormRowStatus } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
 import { addInFlightForms } from '~/src/server/routes/homepage.js'
@@ -15,11 +16,28 @@ import {
   getFormDefinition,
   getFormMetadata
 } from '~/src/server/services/formsService.js'
-import { getFormRecords } from '~/src/server/services/submissionService.js'
+import {
+  getFormRecords,
+  linkSubmissionsToUser
+} from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { citizenSession } from '~/test/utils/citizen-session.js'
 
+// The homepage reads the allowed forms once, when it loads, so they are set
+// here, before anything imports it
+jest.mock('~/src/config/index', () => {
+  const actual = jest.requireActual('~/src/config/index')
+
+  actual.config.set('submissionLinking.allowedForms', [
+    { formId: 'allowed-form-with-name', formName: 'Test form' },
+    { formId: 'allowed-form-with-empty-name', formName: '' },
+    { formId: 'allowed-form-with-null-name', formName: null },
+    { formId: 'allowed-form-with-no-name' }
+  ])
+
+  return actual
+})
 jest.mock('~/src/server/services/formsService.js')
 jest.mock('~/src/server/services/submissionService.js')
 jest.mock('openid-client', () => ({
@@ -915,6 +933,105 @@ describe('per-form homepage', () => {
         container.getByText('You have no forms in progress.')
       ).toBeInTheDocument()
     })
+  })
+
+  describe('linking earlier submissions', () => {
+    /**
+     * Makes the form of the homepage one of the allowed forms, set at the top
+     * of this file
+     * @param {string} formId
+     */
+    function useAllowedForm(formId) {
+      jest
+        .mocked(getFormMetadata)
+        .mockResolvedValue({ ...fixtures.form.metadata, id: formId })
+    }
+
+    it('links the earlier submissions of an allowed form before it lists the saved forms', async () => {
+      useAllowedForm('allowed-form-with-name')
+      jest.mocked(linkSubmissionsToUser).mockResolvedValue({ linked: 1 })
+      jest.mocked(getFormRecords).mockResolvedValue(savedForms)
+      const info = jest.spyOn(logger, 'info').mockImplementation()
+
+      const { container } = await renderResponse(server, {
+        method: 'GET',
+        url: HOMEPAGE_URL,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(linkSubmissionsToUser).toHaveBeenCalledWith(
+        'access-1',
+        'allowed-form-with-name'
+      )
+      expect(
+        jest.mocked(linkSubmissionsToUser).mock.invocationCallOrder[0]
+      ).toBeLessThan(jest.mocked(getFormRecords).mock.invocationCallOrder[0])
+      expect(info).toHaveBeenCalledWith(
+        `[linkSubmissions] Linked 1 earlier submissions of form allowed-form-with-name (possible form name 'Test form') to the account of the citizen`
+      )
+      expect(container.getByRole('table')).toBeInTheDocument()
+    })
+
+    it('links the earlier submissions of an allowed form from a preview homepage', async () => {
+      useAllowedForm('allowed-form-with-no-name')
+      jest.mocked(linkSubmissionsToUser).mockResolvedValue({ linked: 0 })
+
+      const response = await server.inject({
+        method: 'GET',
+        url: `/homepage/preview/${FormStatus.Draft}/test-form`,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.OK)
+      expect(linkSubmissionsToUser).toHaveBeenCalledWith(
+        'access-1',
+        'allowed-form-with-no-name'
+      )
+    })
+
+    it('does not link the submissions of a form that is not allowed', async () => {
+      // The form of the fixtures is not one of the allowed forms
+      const response = await server.inject({
+        method: 'GET',
+        url: HOMEPAGE_URL,
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.OK)
+      expect(linkSubmissionsToUser).not.toHaveBeenCalled()
+      expect(getFormRecords).toHaveBeenCalled()
+    })
+
+    it.each([
+      ['a name', 'allowed-form-with-name', ` (possible form name 'Test form')`],
+      ['an empty name', 'allowed-form-with-empty-name', ''],
+      ['a null name', 'allowed-form-with-null-name', ''],
+      ['no name', 'allowed-form-with-no-name', '']
+    ])(
+      'logs a warning and still shows the homepage when the link fails, for an allowed form with %s',
+      async (_name, formId, formNameNote) => {
+        useAllowedForm(formId)
+        const error = new Error('Could not link')
+        jest.mocked(linkSubmissionsToUser).mockRejectedValue(error)
+        jest.mocked(getFormRecords).mockResolvedValue(savedForms)
+        const warn = jest.spyOn(logger, 'warn').mockImplementation()
+
+        const { response, container } = await renderResponse(server, {
+          method: 'GET',
+          url: HOMEPAGE_URL,
+          auth: { strategy: 'citizen-session', credentials }
+        })
+
+        expect(response.statusCode).toBe(StatusCodes.OK)
+        expect(warn).toHaveBeenCalledWith(
+          error,
+          `[linkSubmissions] Could not link the earlier submissions of form ${formId}${formNameNote} to the account of the citizen`
+        )
+        expect(getFormRecords).toHaveBeenCalled()
+        expect(container.getByRole('table')).toBeInTheDocument()
+        expect(container.queryByText(/problem/i)).not.toBeInTheDocument()
+      }
+    )
   })
 
   describe('page width', () => {

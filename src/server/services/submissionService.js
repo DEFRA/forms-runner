@@ -12,6 +12,12 @@ import {
 const submissionUrl = config.get('submissionUrl')
 
 /**
+ * How long the homepage waits for earlier submissions to be linked, so a slow
+ * submission API delays the page by no more than this
+ */
+const LINK_SUBMISSIONS_TIMEOUT_MS = 5000
+
+/**
  * Persists uploaded files so they are kept beyond the initial upload expiry.
  * The retention period is set by the S3 lifecycle rules for the submission
  * API's bucket. Used by `@defra/forms-engine-plugin` in place of its own
@@ -144,6 +150,40 @@ export async function getFormRecords(accessToken, formId, preview) {
 
   return /** @type {SavedForm[]} */ (payload)
 }
+
+/**
+ * Links the earlier submissions of a form to the account of the citizen. The
+ * submission API finds them by the email in the access token, and only for
+ * the forms it allows.
+ * @param {string} accessToken - the citizen's access token
+ * @param {string} formId - the form the submissions belong to
+ * @returns {Promise<LinkSubmissionsResult>}
+ */
+export async function linkSubmissionsToUser(accessToken, formId) {
+  const { res, error, payload } = await postJson(
+    `${submissionUrl}/form/submissions/link`,
+    {
+      payload: { formId },
+      headers: { authorization: `Bearer ${accessToken}` },
+      timeout: LINK_SUBMISSIONS_TIMEOUT_MS
+    }
+  )
+
+  if (error) {
+    throw new Error(
+      `Could not link the submissions of form ${formId} - ${res.statusCode}`,
+      { cause: error }
+    )
+  }
+
+  return /** @type {LinkSubmissionsResult} */ (payload)
+}
+
+/**
+ * The result of linking earlier submissions to the account of a citizen
+ * @typedef {object} LinkSubmissionsResult
+ * @property {number} linked - the number of submissions linked
+ */
 
 /**
  * One saved form, as forms-submission-api describes it.
