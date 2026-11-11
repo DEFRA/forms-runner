@@ -388,22 +388,12 @@ function getFormDetails(def, submission) {
     def.metadata?.$$__formVersion
   )
 
-  const { referenceNumber, status, versionMetadata } = submission.meta
-
-  if (!latestVersionMetadata) {
-    throw Boom.badData(
-      `Cannot copy form '${referenceNumber}' because the latest ${status} version of the form definition doesn't contain versionMetadata`
-    )
-  }
-
-  if (!versionMetadata) {
-    throw Boom.badData(
-      `Cannot copy form '${referenceNumber}' because the submission doesn't contain versionMetadata`
-    )
-  }
+  const { versionMetadata } = submission.meta
 
   const formVersionHasChanged =
-    latestVersionMetadata.versionNumber > versionMetadata.versionNumber
+    latestVersionMetadata && versionMetadata
+      ? latestVersionMetadata.versionNumber > versionMetadata.versionNumber
+      : true // If either version metadata is missing, assume the form has changed
 
   return { formDeclarations, formVersionHasChanged }
 }
