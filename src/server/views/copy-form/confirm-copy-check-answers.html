@@ -1,0 +1,30 @@
+{% extends "form.html" %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% block fields %}
+  <h1 class="govuk-heading-l">{{ tR('confirmCopyCheckAnswers.title') }}</h1>
+  <p class="govuk-body">{{tR('confirmCopyCheckAnswers.info1')}}</p>
+
+  <p class="govuk-body">
+    <strong>{{ tR('confirmCopyCheckAnswers.formNameLabel') }}:</strong> {{ form.title }}<br>
+    <strong>{{ tR('confirmCopyCheckAnswers.formReferenceLabel') }}:</strong> {{ referenceNumber }}
+  </p>
+
+  <p class="govuk-body">{{ tR('confirmCopyCheckAnswers.info1') }}</p>
+  <p class="govuk-body">{{ tR('confirmCopyCheckAnswers.info2') }}</p>
+
+  <div class="govuk-button-group">
+    {{ govukButton({
+      text: tR('confirmCopyCheckAnswers.continueButton'),
+      name: "confirmCopy",
+      value: "true"
+    }) }}
+
+    {{ govukButton({
+      text: tR('confirmCopyCheckAnswers.cancelButton'),
+      classes: "govuk-button govuk-button--secondary",
+      href: backLink.href
+    }) }}
+  </div>
+{% endblock %}

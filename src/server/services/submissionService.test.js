@@ -13,6 +13,7 @@ import {
   getFormRecords,
   getSaveAndExitDetails,
   getSavedFormState,
+  getSubmissionRecord,
   linkSubmissionsToUser,
   persistFiles,
   submit,
@@ -336,6 +337,33 @@ describe('Submission service', () => {
     })
   })
 
+  describe('getSubmissionRecord', () => {
+    it('returns the submission record', async () => {
+      jest.mocked(getJson).mockResolvedValue({
+        res: /** @type {IncomingMessage} */ ({
+          statusCode: StatusCodes.OK
+        }),
+        payload: {
+          data: {},
+          meta: {
+            referenceNumber: 'XXX-XXX-XXX'
+          }
+        }
+      })
+
+      const submission = await getSubmissionRecord(
+        'XXX-XXX-XXX',
+        'access-token'
+      )
+
+      expect(submission?.meta.referenceNumber).toBe('XXX-XXX-XXX')
+      expect(getJson).toHaveBeenCalledWith(
+        `${SUBMISSION_URL}/submission/XXX-XXX-XXX`,
+        { headers: { authorization: 'Bearer access-token' } }
+      )
+    })
+  })
+
   describe('linkSubmissionsToUser', () => {
     it('asks the submission API to link the submissions of the form, naming the citizen by the token alone', async () => {
       jest.mocked(postJson).mockResolvedValue({
@@ -377,3 +405,8 @@ describe('Submission service', () => {
     })
   })
 })
+
+/**
+ * @import { IncomingMessage } from 'node:http'
+ * @import { SubmitPayload, SubmitResponsePayload } from '@defra/forms-model'
+ */

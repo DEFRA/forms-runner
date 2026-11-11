@@ -3,6 +3,7 @@ import {
   applyTraceHeaders as applyTraceHeader
 } from '@defra/forms-common'
 import { getAvailableLanguages } from '@defra/forms-engine-plugin'
+import { isAllowCopyEnabled } from '@defra/forms-model'
 
 import { config } from '~/src/config/index.js'
 import { EN_GB, SIGN_IN_PATH } from '~/src/server/constants.js'
@@ -177,12 +178,7 @@ export function signInUrl(path) {
  * @returns {boolean}
  */
 export function formRequiresAuthentication(def) {
-  const enablingFlags = ['allowCopy']
-  const options = /** @type {Record<string, unknown> | undefined} */ (
-    def.metadata?.options
-  )
-
-  return enablingFlags.some((flag) => options?.[flag] === true)
+  return isAllowCopyEnabled(def)
 }
 
 /**

@@ -101,6 +101,14 @@ const savedForms = [
     createdAt: '2026-09-09T09:00:00.000Z',
     expireAt: '2026-10-07T09:00:00.000Z',
     status: FormRowStatus.InProgress
+  },
+  {
+    magicLinkId: 'link-3',
+    referenceNumber: 'BBB-222',
+    formTitle: 'test-form',
+    createdAt: '2026-11-09T09:00:00.000Z',
+    expireAt: '2026-12-07T09:00:00.000Z',
+    status: FormRowStatus.Submitted
   }
 ]
 
@@ -177,6 +185,7 @@ describe('per-form homepage', () => {
 
   beforeEach(() => {
     jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+    jest.mocked(getFormDefinition).mockResolvedValue(fixtures.form.definition)
     jest.mocked(getFormRecords).mockResolvedValue([])
     jest
       .mocked(client.discovery)
@@ -479,6 +488,9 @@ describe('per-form homepage', () => {
       expect(
         within(table).getByRole('cell', { name: 'AAA-111' })
       ).toBeInTheDocument()
+      expect(
+        within(table).getByRole('cell', { name: 'BBB-222' })
+      ).toBeInTheDocument()
 
       // 09:00 UTC is 10:00am in British Summer Time
       expect(
@@ -590,7 +602,7 @@ describe('per-form homepage', () => {
           undefined
         )
         expect(mockYarGet).toHaveBeenCalledWith('inFlightForms:test-form:')
-        expect(allForms).toHaveLength(3)
+        expect(allForms).toHaveLength(4)
         expect(allForms[0].referenceNumber).toBe('PRO-222')
         expect(allForms[0].status).toBe(FormRowStatus.Processing)
       })
@@ -614,7 +626,7 @@ describe('per-form homepage', () => {
           'test-form',
           FormStatus.Draft
         )
-        expect(allForms).toHaveLength(2)
+        expect(allForms).toHaveLength(3)
         expect(allForms[0].referenceNumber).toBe('PRO-222')
         expect(allForms[0].status).toBe(FormRowStatus.InProgress)
         expect(mockYarGet).toHaveBeenCalledWith('inFlightForms:test-form:draft')
@@ -642,7 +654,7 @@ describe('per-form homepage', () => {
           'test-form',
           undefined
         )
-        expect(allForms).toHaveLength(2)
+        expect(allForms).toHaveLength(3)
         expect(allForms.map((form) => form.referenceNumber)).not.toContain(
           'PRO-333'
         )

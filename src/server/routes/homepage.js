@@ -1,6 +1,7 @@
 import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
 import { slugSchema } from '@defra/forms-model'
+import Boom from '@hapi/boom'
 import Joi from 'joi'
 
 import { config } from '~/src/config/index.js'
@@ -19,12 +20,18 @@ import {
 import { sessionNames } from '~/src/server/helpers/session-names.js'
 import { getInflightSessionKey } from '~/src/server/routes/save-and-exit-helper.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
-import { getFormMetadata } from '~/src/server/services/formsService.js'
+import {
+  getFormDefinition,
+  getFormMetadata
+} from '~/src/server/services/formsService.js'
 import {
   getFormRecords,
   linkSubmissionsToUser
 } from '~/src/server/services/submissionService.js'
-import { getAllLanguages } from '~/src/server/utils/utils.js'
+import {
+  formRequiresAuthentication,
+  getAllLanguages
+} from '~/src/server/utils/utils.js'
 
 const authBase = config.get('oidc.issuer')
 const runnerBase = config.get('baseUrl')
@@ -66,6 +73,10 @@ function mapToRow(savedForm, translator, formId) {
     deleteUrl:
       status === FormRowStatus.InProgress
         ? `/delete-form/${formId}/${savedForm.magicLinkId}`
+        : undefined,
+    copyUrl:
+      status === FormRowStatus.Submitted
+        ? `/confirm-copy-form/${formId}/${savedForm.referenceNumber}`
         : undefined
   }
 }
@@ -207,6 +218,11 @@ async function homepageHandler(request, h) {
   const previewStatus = isPreview ? state : undefined
 
   const form = await getFormMetadata(slug)
+  const definition = await getFormDefinition(form.id, state)
+
+  if (!definition) {
+    return Boom.notFound(`Form ${form.id} state ${state} not found`)
+  }
 
   const { accessToken } = request.auth.credentials
 
@@ -236,6 +252,8 @@ async function homepageHandler(request, h) {
     yar.flash(sessionNames.successNotification).at(0)
   )
 
+  const isAllowCopyEnabled = formRequiresAuthentication(definition)
+
   return h.view('homepage', {
     notification,
     serviceNavigationParams: nav.serviceNavigationParams,
@@ -243,6 +261,7 @@ async function homepageHandler(request, h) {
     savedForms: savedAndInFlightForms.map((savedForm) =>
       mapToRow(savedForm, translator, form.id)
     ),
+    isAllowCopyEnabled,
     context: {
       translator: {
         // Force page to show language selector irrespective of form capability
