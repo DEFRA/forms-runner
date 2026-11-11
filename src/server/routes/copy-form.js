@@ -117,14 +117,8 @@ export default [
     handler: async (request, h) => {
       const { auth, params } = request
       const { accessToken } = auth.credentials
-      const { form, referenceNumber, submissionToCopy } =
-        await getFormAndSubmission(params, accessToken)
-
-      const { translator } = await getTranslator(
-        request,
-        form,
-        submissionToCopy
-      )
+      const { form, referenceNumber, submissionToCopy, translator } =
+        await getCopyFormContext(request, params, accessToken)
 
       const previewStatus = getPreviewStatus(submissionToCopy)
       const backLinkHref = constructHomepageLink(form.slug, previewStatus)
@@ -153,16 +147,8 @@ export default [
       const { accessToken } = auth.credentials
       const { form, referenceNumber, submissionToCopy } =
         await getFormAndSubmission(params, accessToken)
-
-      const def = await getFormDefinitionForSubmission(
-        submissionToCopy,
-        form,
-        referenceNumber
-      )
-      const { formDeclarations, formVersionHasChanged } = getFormDetails(
-        def,
-        submissionToCopy
-      )
+      const { formDeclarations, formVersionHasChanged } =
+        await getFormComparisonState(submissionToCopy, form, referenceNumber)
 
       if (formDeclarations.length > 0 || formVersionHasChanged) {
         return h
@@ -201,14 +187,8 @@ export default [
     handler: async (request, h) => {
       const { auth, params } = request
       const { accessToken } = auth.credentials
-      const { form, referenceNumber, submissionToCopy } =
-        await getFormAndSubmission(params, accessToken)
-
-      const { translator } = await getTranslator(
-        request,
-        form,
-        submissionToCopy
-      )
+      const { form, referenceNumber, submissionToCopy, translator } =
+        await getCopyFormContext(request, params, accessToken)
 
       const model = copyFormViewModel(
         'confirmCopyFormChanged.title',
@@ -233,14 +213,8 @@ export default [
     handler: async (request, h) => {
       const { auth, params } = request
       const { accessToken } = auth.credentials
-      const { form, referenceNumber, submissionToCopy } =
-        await getFormAndSubmission(params, accessToken)
-
-      const { translator } = await getTranslator(
-        request,
-        form,
-        submissionToCopy
-      )
+      const { form, referenceNumber, submissionToCopy, translator } =
+        await getCopyFormContext(request, params, accessToken)
 
       const model = copyFormViewModel(
         'confirmCopyCheckAnswers.title',
@@ -267,16 +241,8 @@ export default [
       const { accessToken } = auth.credentials
       const { form, referenceNumber, submissionToCopy } =
         await getFormAndSubmission(params, accessToken)
-
-      const def = await getFormDefinitionForSubmission(
-        submissionToCopy,
-        form,
-        referenceNumber
-      )
-      const { formDeclarations, formVersionHasChanged } = getFormDetails(
-        def,
-        submissionToCopy
-      )
+      const { formDeclarations, formVersionHasChanged } =
+        await getFormComparisonState(submissionToCopy, form, referenceNumber)
       const ignoreKeys = formDeclarations.map((declaration) => declaration.name)
 
       // Set state and dispatch user into the form
@@ -305,6 +271,36 @@ export default [
     }
   })
 ]
+
+/**
+ * @param {Request<{ Params: CopyFormParams }>} request
+ * @param {CopyFormParams} params
+ * @param {string} accessToken
+ * @returns {Promise<{ form: FormMetadata, referenceNumber: string, submissionToCopy: FormSubmissionDocument, translator: Awaited<ReturnType<typeof getTranslator>>['translator'] }>}
+ */
+async function getCopyFormContext(request, params, accessToken) {
+  const { form, referenceNumber, submissionToCopy } =
+    await getFormAndSubmission(params, accessToken)
+  const { translator } = await getTranslator(request, form, submissionToCopy)
+
+  return { form, referenceNumber, submissionToCopy, translator }
+}
+
+/**
+ * @param {FormSubmissionDocument} submissionToCopy
+ * @param {FormMetadata} form
+ * @param {string} referenceNumber
+ * @returns {Promise<{ formDeclarations: DeclarationFieldComponent[], formVersionHasChanged: boolean }>}
+ */
+async function getFormComparisonState(submissionToCopy, form, referenceNumber) {
+  const def = await getFormDefinitionForSubmission(
+    submissionToCopy,
+    form,
+    referenceNumber
+  )
+
+  return getFormDetails(def, submissionToCopy)
+}
 
 /**
  * @param {string} pageTitleKey - the page title key for translation
