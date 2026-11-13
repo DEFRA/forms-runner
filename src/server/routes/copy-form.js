@@ -383,11 +383,13 @@ function getFormDetails(def, submission) {
   const formDeclarations = []
 
   for (const page of def.pages) {
-    if (hasFormComponents(page)) {
-      for (const component of page.components) {
-        if (component.type === ComponentType.DeclarationField) {
-          formDeclarations.push({ page, component })
-        }
+    if (!hasFormComponents(page)) {
+      continue
+    }
+
+    for (const component of page.components) {
+      if (component.type === ComponentType.DeclarationField) {
+        formDeclarations.push({ page, component })
       }
     }
   }
