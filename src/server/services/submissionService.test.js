@@ -14,6 +14,7 @@ import {
   getSaveAndExitDetails,
   getSavedFormState,
   getSubmissionRecord,
+  linkSubmissionsToUser,
   persistFiles,
   submit,
   validateSaveAndExitCredentials
@@ -359,6 +360,47 @@ describe('Submission service', () => {
       expect(getJson).toHaveBeenCalledWith(
         `${SUBMISSION_URL}/submission/XXX-XXX-XXX`,
         { headers: { authorization: 'Bearer access-token' } }
+      )
+    })
+  })
+
+  describe('linkSubmissionsToUser', () => {
+    it('asks the submission API to link the submissions of the form, naming the citizen by the token alone', async () => {
+      jest.mocked(postJson).mockResolvedValue({
+        res: /** @type {IncomingMessage} */ ({ statusCode: StatusCodes.OK }),
+        payload: { linked: 2 }
+      })
+
+      await expect(
+        linkSubmissionsToUser(ACCESS_TOKEN, FORM_ID)
+      ).resolves.toEqual({ linked: 2 })
+
+      expect(postJson).toHaveBeenCalledWith(
+        `${SUBMISSION_URL}/form/submissions/link`,
+        {
+          payload: { formId: FORM_ID },
+          headers: { authorization: `Bearer ${ACCESS_TOKEN}` },
+          timeout: 5000
+        }
+      )
+    })
+
+    it('reports an error response rather than returning it as a result', async () => {
+      const error = new Error('Forbidden')
+      jest.mocked(postJson).mockResolvedValue(
+        /** @type {Awaited<ReturnType<typeof postJson>>} */ ({
+          res: { statusCode: StatusCodes.FORBIDDEN },
+          error
+        })
+      )
+
+      await expect(
+        linkSubmissionsToUser(ACCESS_TOKEN, FORM_ID)
+      ).rejects.toThrow(
+        new Error(
+          `Could not link the submissions of form ${FORM_ID} - ${StatusCodes.FORBIDDEN}`,
+          { cause: error }
+        )
       )
     })
   })
