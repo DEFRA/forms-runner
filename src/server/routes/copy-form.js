@@ -243,7 +243,9 @@ export default [
         await getFormAndSubmission(params, accessToken)
       const { formDeclarations, formVersionHasChanged } =
         await getFormComparisonState(submissionToCopy, form, referenceNumber)
-      const ignoreKeys = formDeclarations.map((declaration) => declaration.name)
+      const ignoreKeys = formDeclarations.map(
+        (declaration) => declaration.component.name
+      )
 
       // Set state and dispatch user into the form
       await setCacheState(request, submissionToCopy, form, ignoreKeys)
@@ -255,10 +257,12 @@ export default [
         submissionToCopy.meta.isPreview,
         submissionToCopy.meta.status
       )
+      const declarationPage = formDeclarations.at(0)?.page
+      const summaryHref = `${formHref}${ControllerPath.Summary}`
       const nextHref =
-        formVersionHasChanged || formDeclarations.length > 0
+        formVersionHasChanged || declarationPage === undefined
           ? formHref
-          : `${formHref}${ControllerPath.Summary}`
+          : `${formHref}${declarationPage.path}?returnUrl=${summaryHref}`
 
       return h.redirect(nextHref)
     },
@@ -290,7 +294,7 @@ async function getCopyFormContext(request, params, accessToken) {
  * @param {FormSubmissionDocument} submissionToCopy
  * @param {FormMetadata} form
  * @param {string} referenceNumber
- * @returns {Promise<{ formDeclarations: DeclarationFieldComponent[], formVersionHasChanged: boolean }>}
+ * @returns {Promise<{ formDeclarations: {page: Page, component: DeclarationFieldComponent}[], formVersionHasChanged: boolean }>}
  */
 async function getFormComparisonState(submissionToCopy, form, referenceNumber) {
   const def = await getFormDefinitionForSubmission(
@@ -373,12 +377,20 @@ async function getFormDefinitionForSubmission(
  * Get diff details about the form definition and submission
  * @param {FormDefinition} def
  * @param {FormSubmissionDocument} submission
- * @returns {{ formDeclarations: DeclarationFieldComponent[], formVersionHasChanged: boolean }}
+ * @returns {{ formDeclarations: { page: Page, component: DeclarationFieldComponent }[], formVersionHasChanged: boolean }}
  */
 function getFormDetails(def, submission) {
-  const formDeclarations = def.pages
-    .flatMap((p) => (hasFormComponents(p) ? p.components : []))
-    .filter((c) => c.type === ComponentType.DeclarationField)
+  const formDeclarations = []
+
+  for (const page of def.pages) {
+    if (hasFormComponents(page)) {
+      for (const component of page.components) {
+        if (component.type === ComponentType.DeclarationField) {
+          formDeclarations.push({ page, component })
+        }
+      }
+    }
+  }
 
   const latestVersionMetadata = /** @type {FormVersionMetadata | undefined} */ (
     def.metadata?.$$__formVersion
@@ -448,7 +460,7 @@ async function setCacheState(request, submissionToCopy, form, ignoreKeys = []) {
 /**
  * @import { ServerRoute, Request, RequestQuery } from '@hapi/hapi'
  * @import { Yar } from '@hapi/yar'
- * @import { FormVersionMetadata, FormMetadata, FormDefinition, FormStatus, DeclarationFieldComponent } from '@defra/forms-model'
+ * @import { FormVersionMetadata, FormMetadata, FormDefinition, FormStatus, DeclarationFieldComponent, Page } from '@defra/forms-model'
  * @import { Translator } from '@defra/forms-engine-plugin/engine/i18n/types.js'
  * @import { FormSubmissionDocument } from '~/src/server/services/submissionService.js'
  */

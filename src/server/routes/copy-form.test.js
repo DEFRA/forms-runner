@@ -401,7 +401,7 @@ describe('Copy form routes', () => {
       expect(response.headers.location).toBe('/form/my-form')
     })
 
-    test('redirects to the form when the form contains declaration fields', async () => {
+    test('redirects to the declaration page and returns to the summary', async () => {
       jest
         .mocked(getFormMetadataById)
         // @ts-expect-error - allow partial objects for tests
@@ -426,10 +426,12 @@ describe('Copy form routes', () => {
       const { response } = await renderResponse(server, options)
 
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-      expect(response.headers.location).toBe('/form/my-form')
+      expect(response.headers.location).toBe(
+        '/form/my-form/page-one?returnUrl=/form/my-form/summary'
+      )
     })
 
-    test('redirects to the summary when the form version has not changed', async () => {
+    test('redirects to the form when the version has not changed and there is no declaration field', async () => {
       jest
         .mocked(getFormMetadataById)
         // @ts-expect-error - allow partial objects for tests
@@ -454,7 +456,7 @@ describe('Copy form routes', () => {
       const { response } = await renderResponse(server, options)
 
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-      expect(response.headers.location).toBe('/form/my-form/summary')
+      expect(response.headers.location).toBe('/form/my-form')
     })
   })
 })
