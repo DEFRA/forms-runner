@@ -64,7 +64,7 @@ describe('Auth routes', () => {
       expect($button).toBeInTheDocument()
       expect($button).toHaveAttribute(
         'href',
-        '/auth/sign-in?returnUrl=%2Fform%2Fmy-slug%2Fpage-one'
+        '/auth/sign-in?returnUrl=%2Fauth%2Fvia-homepage%2Fform%2Fmy-slug%2Fpage-one'
       )
     })
 
@@ -91,7 +91,7 @@ describe('Auth routes', () => {
       expect($button).toBeInTheDocument()
       expect($button).toHaveAttribute(
         'href',
-        '/auth/sign-in?returnUrl=%2Fform%2Fmy-slug%2Fpage-one'
+        '/auth/sign-in?returnUrl=%2Fauth%2Fvia-homepage%2Fform%2Fmy-slug%2Fpage-one'
       )
     })
   })

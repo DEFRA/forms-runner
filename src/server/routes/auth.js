@@ -1,6 +1,12 @@
 import { setUserId } from '@defra/forms-common'
+import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
-import { FormStatus, getErrorMessage, slugSchema } from '@defra/forms-model'
+import {
+  FormStatus,
+  getErrorMessage,
+  isAllowCopyEnabled,
+  slugSchema
+} from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import Bourne from '@hapi/bourne'
 import { StatusCodes } from 'http-status-codes'
@@ -30,15 +36,22 @@ import {
   CALLBACK_PATH,
   CY,
   EN_GB,
+  FORM_PREFIX,
+  FormRowStatus,
+  HOMEPAGE_PREFIX,
   INITIATE_SIGN_IN_PATH,
+  PREVIEW_PATH_PREFIX,
   SIGNED_OUT_PATH,
   SIGN_IN_PATH,
-  SIGN_OUT_PATH
+  SIGN_OUT_PATH,
+  VIA_HOMEPAGE_PATH
 } from '~/src/server/constants.js'
 import { t as runnerT } from '~/src/server/i18n/index.js'
 import { returnUrlSchema } from '~/src/server/models/common.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadataWithoutGuard } from '~/src/server/services/formMetadataGuards.js'
+import { getFormDefinition } from '~/src/server/services/formsService.js'
+import { getFormRecords } from '~/src/server/services/submissionService.js'
 import {
   browserRedirectUri,
   getAllLanguages,
@@ -492,7 +505,8 @@ export default [
         form.live ? FormStatus.Live : FormStatus.Draft
       )
 
-      const signInHref = `${SIGN_IN_PATH}?returnUrl=${encodeURIComponent(returnUrl)}`
+      const returnUrlRedirect = `${VIA_HOMEPAGE_PATH}${returnUrl}`
+      const signInHref = `${SIGN_IN_PATH}?returnUrl=${encodeURIComponent(returnUrlRedirect)}`
 
       return h.view('auth/signin-required', {
         signInHref,
@@ -521,9 +535,102 @@ export default [
           .required()
       }
     }
+  }),
+
+  /**
+   * @satisfies {ServerRoute<{ Params: FormParams }>}
+   */
+  ({
+    method: 'GET',
+    path: `${VIA_HOMEPAGE_PATH}/form${PREVIEW_PATH_PREFIX}/{state}/{slug}/{page?}`,
+    async handler(request, h) {
+      const { auth, params } = request
+      const { slug } = params
+      const { state } = checkFormStatus(params)
+
+      const form = await getFormMetadataWithoutGuard(slug)
+      const definition = await getFormDefinition(form.id, state)
+      if (definition && isAllowCopyEnabled(definition)) {
+        const savedForms = await getFormRecords(
+          auth.credentials.accessToken,
+          form.id,
+          state
+        )
+        const submittedForms = savedForms.filter(
+          (record) => record.status === FormRowStatus.Submitted
+        )
+        if (submittedForms.length > 0) {
+          // Redirect to homepage
+          return h.redirect(
+            `${HOMEPAGE_PREFIX}${PREVIEW_PATH_PREFIX}/${params.state}/${slug}`
+          )
+        }
+      }
+
+      // Continue to form page if no submitted forms exist
+      const returnUrl = `${FORM_PREFIX}${PREVIEW_PATH_PREFIX}/${params.state}/${slug}`
+      return h.redirect(returnUrl)
+    },
+    options: {
+      validate: {
+        params: Joi.object()
+          .keys({
+            slug: slugSchema,
+            state: Joi.string()
+              .valid(FormStatus.Draft, FormStatus.Live)
+              .required(),
+            page: Joi.string().optional()
+          })
+          .required()
+      }
+    }
+  }),
+
+  /**
+   * @satisfies {ServerRoute<{ Params: FormParams }>}
+   */
+  ({
+    method: 'GET',
+    path: `${VIA_HOMEPAGE_PATH}/form/{slug}/{page?}`,
+    async handler(request, h) {
+      const { auth, params } = request
+      const { slug } = params
+
+      const form = await getFormMetadataWithoutGuard(slug)
+      const definition = await getFormDefinition(form.id, FormStatus.Live)
+      if (definition && isAllowCopyEnabled(definition)) {
+        const savedForms = await getFormRecords(
+          auth.credentials.accessToken,
+          form.id,
+          FormStatus.Live
+        )
+        const submittedForms = savedForms.filter(
+          (record) => record.status === FormRowStatus.Submitted
+        )
+        if (submittedForms.length > 0) {
+          // Redirect to homepage
+          return h.redirect(`${HOMEPAGE_PREFIX}/${slug}`)
+        }
+      }
+
+      // Continue to form page if no submitted forms exist
+      const returnUrl = `${FORM_PREFIX}/${slug}`
+      return h.redirect(returnUrl)
+    },
+    options: {
+      validate: {
+        params: Joi.object()
+          .keys({
+            slug: slugSchema,
+            page: Joi.string().optional()
+          })
+          .required()
+      }
+    }
   })
 ]
 
 /**
  * @import { Request, ResponseToolkit, ServerRoute } from '@hapi/hapi'
+ * @import { FormParams } from '@defra/forms-engine-plugin/types'
  */
