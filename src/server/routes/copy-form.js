@@ -208,34 +208,8 @@ export default [
    * @satisfies {ServerRoute<{ Params: CopyFormParams }>}
    */
   ({
-    method: 'GET',
-    path: '/confirm-copy-form/{formId}/{referenceNumber}/check-answers',
-    handler: async (request, h) => {
-      const { auth, params } = request
-      const { accessToken } = auth.credentials
-      const { form, referenceNumber, submissionToCopy, translator } =
-        await getCopyFormContext(request, params, accessToken)
-
-      const model = copyFormViewModel(
-        'confirmCopyCheckAnswers.title',
-        `/confirm-copy-form/${form.id}/${referenceNumber}/form-changed`,
-        form,
-        referenceNumber,
-        submissionToCopy,
-        translator
-      )
-
-      return h.view('copy-form/confirm-copy-check-answers', model)
-    },
-    options: getRouteOptions
-  }),
-
-  /**
-   * @satisfies {ServerRoute<{ Params: CopyFormParams }>}
-   */
-  ({
     method: 'POST',
-    path: '/confirm-copy-form/{formId}/{referenceNumber}/check-answers',
+    path: '/confirm-copy-form/{formId}/{referenceNumber}/form-changed',
     handler: async (request, h) => {
       const { auth, params } = request
       const { accessToken } = auth.credentials

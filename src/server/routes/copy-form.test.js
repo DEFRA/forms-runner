@@ -351,28 +351,7 @@ describe('Copy form routes', () => {
     })
   })
 
-  describe('GET /confirm-copy-form/{formId}/{referenceNumber}/check-answers', () => {
-    test('responds with OK', async () => {
-      jest
-        .mocked(getFormMetadataById)
-        // @ts-expect-error - allow partial objects for tests
-        .mockResolvedValueOnce({ id: FORM_ID, slug: 'my-form' })
-      // @ts-expect-error - allow partial objects for tests
-      jest.mocked(getSubmissionRecord).mockResolvedValueOnce(buildSubmission())
-
-      const options = {
-        method: 'GET',
-        url: `/confirm-copy-form/${FORM_ID}/${REFERENCE_NUMBER}/check-answers`,
-        auth: { strategy: 'citizen-session', credentials }
-      }
-
-      const { response } = await renderResponse(server, options)
-
-      expect(response.statusCode).toBe(StatusCodes.OK)
-    })
-  })
-
-  describe('POST /confirm-copy-form/{formId}/{referenceNumber}/check-answers', () => {
+  describe('POST /confirm-copy-form/{formId}/{referenceNumber}/form-changed', () => {
     test('redirects to the form when the form version has changed', async () => {
       jest
         .mocked(getFormMetadataById)
@@ -390,7 +369,7 @@ describe('Copy form routes', () => {
 
       const options = {
         method: 'POST',
-        url: `/confirm-copy-form/${FORM_ID}/${REFERENCE_NUMBER}/check-answers`,
+        url: `/confirm-copy-form/${FORM_ID}/${REFERENCE_NUMBER}/form-changed`,
         auth: { strategy: 'citizen-session', credentials },
         payload: { confirmCopy: true }
       }
@@ -418,7 +397,7 @@ describe('Copy form routes', () => {
 
       const options = {
         method: 'POST',
-        url: `/confirm-copy-form/${FORM_ID}/${REFERENCE_NUMBER}/check-answers`,
+        url: `/confirm-copy-form/${FORM_ID}/${REFERENCE_NUMBER}/form-changed`,
         auth: { strategy: 'citizen-session', credentials },
         payload: { confirmCopy: true }
       }
@@ -448,7 +427,7 @@ describe('Copy form routes', () => {
 
       const options = {
         method: 'POST',
-        url: `/confirm-copy-form/${FORM_ID}/${REFERENCE_NUMBER}/check-answers`,
+        url: `/confirm-copy-form/${FORM_ID}/${REFERENCE_NUMBER}/form-changed`,
         auth: { strategy: 'citizen-session', credentials },
         payload: { confirmCopy: true }
       }
