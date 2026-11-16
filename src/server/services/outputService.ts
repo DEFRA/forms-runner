@@ -26,7 +26,10 @@ import {
 } from '~/src/server/constants.js'
 import { publishFormAdapterEvent } from '~/src/server/messaging/formAdapterEventPublisher.js'
 import { getFormMetadataById } from '~/src/server/services/formsService.js'
-import { formRequiresAuthentication } from '~/src/server/utils/utils.js'
+import {
+  addToInflightList,
+  formRequiresAuthentication
+} from '~/src/server/utils/utils.js'
 
 /**
  * Output service for handling form submission notifications
@@ -158,6 +161,16 @@ export class OutputService implements IOutputService {
       }
 
       const messageId = await publishFormAdapterEvent(submissionPayload)
+
+      addToInflightList(
+        request.yar,
+        submissionPayload.meta.formSlug,
+        submissionPayload.meta.isPreview
+          ? submissionPayload.meta.status
+          : undefined,
+        context.state
+      )
+
       logger.info(
         `Form submission notification published - ref: ${payloadRef}, formId: ${formId}, email: ${notificationEmail}, messageId: ${messageId}`
       )

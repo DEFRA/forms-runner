@@ -7,6 +7,7 @@ import { isAllowCopyEnabled } from '@defra/forms-model'
 
 import { config } from '~/src/config/index.js'
 import { EN_GB, SIGN_IN_PATH } from '~/src/server/constants.js'
+import { getInflightSessionKey } from '~/src/server/routes/save-and-exit-helper.js'
 
 /**
  * Returns a set of headers to use in an HTTP request, merging them with any existing headers in options.
@@ -182,7 +183,25 @@ export function formRequiresAuthentication(def) {
 }
 
 /**
- * @import { RequestQuery } from '@hapi/hapi'
+ * Add form to in-flight list until fully saved in DB.
+ * In-flight list is per slug and status, so that the user only sees in-flight forms
+ * relevant to the homepage path they are on
+ * @param {Yar} yar
+ * @param {string} slug
+ * @param {FormStatus | undefined} previewStatus
+ * @param {Record<string, unknown>} cachedState
+ */
+export function addToInflightList(yar, slug, previewStatus, cachedState) {
+  const sessionKey = getInflightSessionKey(slug, previewStatus)
+  const inflights =
+    /** @type {string[] | undefined} */ (yar.get(sessionKey)) ?? []
+  const refNum = /** @type {string} */ (cachedState.$$__referenceNumber)
+  inflights.push(refNum)
+  yar.set(sessionKey, inflights)
+}
+
+/**
+ * @import { Request, RequestQuery } from '@hapi/hapi'
  * @import { Yar } from '@hapi/yar'
- * @import { FormDefinition } from '@defra/forms-model'
+ * @import { FormDefinition, FormStatus } from '@defra/forms-model'
  */
