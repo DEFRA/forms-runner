@@ -139,7 +139,7 @@ describe('Auth routes', () => {
       expect(getFormRecords).toHaveBeenCalledWith(
         credentials.accessToken,
         fixtures.form.metadata.id,
-        FormStatus.Live
+        undefined
       )
     })
 

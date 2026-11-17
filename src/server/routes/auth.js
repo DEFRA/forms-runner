@@ -28,6 +28,7 @@ import {
   recordLogout,
   verifyLogoutToken
 } from '~/src/server/auth/backchannelLogout.js'
+import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/auth/route-options.js'
 import { signInEvent } from '~/src/server/auth/signInEvent.js'
 import { revokeRefreshToken } from '~/src/server/auth/tokenRevocation.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
@@ -552,7 +553,8 @@ export default [
       const shouldRedirect = await checkSubmittedFormsAndLink(
         slug,
         state,
-        auth.credentials.accessToken
+        auth.credentials.accessToken,
+        true
       )
       if (shouldRedirect) {
         // Redirect to homepage
@@ -566,6 +568,7 @@ export default [
       return h.redirect(returnUrl)
     },
     options: {
+      auth: CITIZEN_AUTH_ROUTE_OPTIONS,
       validate: {
         params: Joi.object()
           .keys({
@@ -593,7 +596,8 @@ export default [
       const shouldRedirect = await checkSubmittedFormsAndLink(
         slug,
         FormStatus.Live,
-        auth.credentials.accessToken
+        auth.credentials.accessToken,
+        false
       )
       if (shouldRedirect) {
         // Redirect to homepage
@@ -605,6 +609,7 @@ export default [
       return h.redirect(returnUrl)
     },
     options: {
+      auth: CITIZEN_AUTH_ROUTE_OPTIONS,
       validate: {
         params: Joi.object()
           .keys({
@@ -623,15 +628,25 @@ export default [
  * @param {string} slug
  * @param {FormStatus} formStatus
  * @param {string} accessToken
+ * @param {boolean} isPreview
  * @returns {Promise<boolean>}
  */
-async function checkSubmittedFormsAndLink(slug, formStatus, accessToken) {
+async function checkSubmittedFormsAndLink(
+  slug,
+  formStatus,
+  accessToken,
+  isPreview
+) {
   const form = await getFormMetadataWithoutGuard(slug)
   const definition = await getFormDefinition(form.id, formStatus)
   if (definition && isAllowCopyEnabled(definition)) {
     await linkEarlierSubmissions(accessToken, form.id)
 
-    const savedForms = await getFormRecords(accessToken, form.id, formStatus)
+    const savedForms = await getFormRecords(
+      accessToken,
+      form.id,
+      isPreview ? formStatus : undefined
+    )
     const submittedForms = savedForms.filter(
       (record) => record.status === FormRowStatus.Submitted
     )
