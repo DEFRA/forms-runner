@@ -106,7 +106,7 @@ describe('Auth routes', () => {
     })
   })
 
-  describe('GET /auth/via-homepage/form', () => {
+  describe('GET /auth/via-homepage/form live', () => {
     beforeEach(() => {
       jest.clearAllMocks()
       jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
@@ -151,6 +151,79 @@ describe('Auth routes', () => {
 
       const response = await server.inject({
         method: 'GET',
+        url: '/auth/via-homepage/form/test-form/page-one',
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe('/homepage/test-form')
+      expect(getFormDefinition).toHaveBeenCalledWith(
+        fixtures.form.metadata.id,
+        FormStatus.Live
+      )
+    })
+
+    test('continues directly to the form when copying is disabled', async () => {
+      jest.mocked(getFormDefinition).mockResolvedValue(fixtures.form.definition)
+
+      const response = await server.inject({
+        method: 'GET',
+        url: '/auth/via-homepage/form/test-form/page-one',
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe('/form/test-form')
+      expect(linkEarlierSubmissions).not.toHaveBeenCalled()
+      expect(getFormRecords).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('GET /auth/via-homepage/form preview', () => {
+    beforeEach(() => {
+      jest.clearAllMocks()
+      jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+      jest.mocked(getFormDefinition).mockResolvedValue({
+        ...fixtures.form.definition,
+        metadata: { options: { allowCopy: true } }
+      })
+      jest.mocked(getFormRecords).mockResolvedValue([])
+      jest.mocked(linkEarlierSubmissions).mockResolvedValue(undefined)
+    })
+
+    test('links earlier submissions before continuing when none are submitted', async () => {
+      jest
+        .mocked(getFormRecords)
+        // @ts-expect-error - partial data mock
+        .mockResolvedValue([{ status: FormRowStatus.InProgress }])
+
+      const response = await server.inject({
+        method: 'GET',
+        url: '/auth/via-homepage/form/preview/draft/test-form/page-one',
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe('/form/preview/draft/test-form')
+      expect(linkEarlierSubmissions).toHaveBeenCalledWith(
+        credentials.accessToken,
+        fixtures.form.metadata.id
+      )
+      expect(getFormRecords).toHaveBeenCalledWith(
+        credentials.accessToken,
+        fixtures.form.metadata.id,
+        FormStatus.Draft
+      )
+    })
+
+    test('sends preview users with submitted forms to the preview homepage', async () => {
+      jest
+        .mocked(getFormRecords)
+        // @ts-expect-error - partial data mock
+        .mockResolvedValue([{ status: FormRowStatus.Submitted }])
+
+      const response = await server.inject({
+        method: 'GET',
         url: '/auth/via-homepage/form/preview/draft/test-form/page-one',
         auth: { strategy: 'citizen-session', credentials }
       })
@@ -170,12 +243,12 @@ describe('Auth routes', () => {
 
       const response = await server.inject({
         method: 'GET',
-        url: '/auth/via-homepage/form/test-form/page-one',
+        url: '/auth/via-homepage/form/preview/draft/test-form/page-one',
         auth: { strategy: 'citizen-session', credentials }
       })
 
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-      expect(response.headers.location).toBe('/form/test-form')
+      expect(response.headers.location).toBe('/form/preview/draft/test-form')
       expect(linkEarlierSubmissions).not.toHaveBeenCalled()
       expect(getFormRecords).not.toHaveBeenCalled()
     })
