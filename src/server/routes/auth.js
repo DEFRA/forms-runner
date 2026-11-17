@@ -48,6 +48,7 @@ import {
 } from '~/src/server/constants.js'
 import { t as runnerT } from '~/src/server/i18n/index.js'
 import { returnUrlSchema } from '~/src/server/models/common.js'
+import { linkEarlierSubmissions } from '~/src/server/routes/homepage.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadataWithoutGuard } from '~/src/server/services/formMetadataGuards.js'
 import { getFormDefinition } from '~/src/server/services/formsService.js'
@@ -548,23 +549,16 @@ export default [
       const { slug } = params
       const { state } = checkFormStatus(params)
 
-      const form = await getFormMetadataWithoutGuard(slug)
-      const definition = await getFormDefinition(form.id, state)
-      if (definition && isAllowCopyEnabled(definition)) {
-        const savedForms = await getFormRecords(
-          auth.credentials.accessToken,
-          form.id,
-          state
+      const shouldRedirect = await checkSubmittedFormsAndLink(
+        slug,
+        state,
+        auth.credentials.accessToken
+      )
+      if (shouldRedirect) {
+        // Redirect to homepage
+        return h.redirect(
+          `${HOMEPAGE_PREFIX}${PREVIEW_PATH_PREFIX}/${params.state}/${slug}`
         )
-        const submittedForms = savedForms.filter(
-          (record) => record.status === FormRowStatus.Submitted
-        )
-        if (submittedForms.length > 0) {
-          // Redirect to homepage
-          return h.redirect(
-            `${HOMEPAGE_PREFIX}${PREVIEW_PATH_PREFIX}/${params.state}/${slug}`
-          )
-        }
       }
 
       // Continue to form page if no submitted forms exist
@@ -596,21 +590,14 @@ export default [
       const { auth, params } = request
       const { slug } = params
 
-      const form = await getFormMetadataWithoutGuard(slug)
-      const definition = await getFormDefinition(form.id, FormStatus.Live)
-      if (definition && isAllowCopyEnabled(definition)) {
-        const savedForms = await getFormRecords(
-          auth.credentials.accessToken,
-          form.id,
-          FormStatus.Live
-        )
-        const submittedForms = savedForms.filter(
-          (record) => record.status === FormRowStatus.Submitted
-        )
-        if (submittedForms.length > 0) {
-          // Redirect to homepage
-          return h.redirect(`${HOMEPAGE_PREFIX}/${slug}`)
-        }
+      const shouldRedirect = await checkSubmittedFormsAndLink(
+        slug,
+        FormStatus.Live,
+        auth.credentials.accessToken
+      )
+      if (shouldRedirect) {
+        // Redirect to homepage
+        return h.redirect(`${HOMEPAGE_PREFIX}/${slug}`)
       }
 
       // Continue to form page if no submitted forms exist
@@ -629,6 +616,32 @@ export default [
     }
   })
 ]
+
+/**
+ * Check if the user has any submitted forms linked to the given form slug and status.
+ * Previous user submissions are linked before checking for submitted forms.
+ * @param {string} slug
+ * @param {FormStatus} formStatus
+ * @param {string} accessToken
+ * @returns {Promise<boolean>}
+ */
+async function checkSubmittedFormsAndLink(slug, formStatus, accessToken) {
+  const form = await getFormMetadataWithoutGuard(slug)
+  const definition = await getFormDefinition(form.id, formStatus)
+  if (definition && isAllowCopyEnabled(definition)) {
+    await linkEarlierSubmissions(accessToken, form.id)
+
+    const savedForms = await getFormRecords(accessToken, form.id, formStatus)
+    const submittedForms = savedForms.filter(
+      (record) => record.status === FormRowStatus.Submitted
+    )
+    if (submittedForms.length > 0) {
+      // Redirect to homepage
+      return true
+    }
+  }
+  return false
+}
 
 /**
  * @import { Request, ResponseToolkit, ServerRoute } from '@hapi/hapi'
