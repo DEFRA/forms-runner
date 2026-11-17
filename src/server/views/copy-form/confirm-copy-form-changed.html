@@ -6,46 +6,7 @@
 {% block fields %}
   <h1 class="govuk-heading-l">{{ tR('confirmCopyFormChanged.title') }}</h1>
   <p class="govuk-body">{{tR('confirmCopyFormChanged.info1')}}</p>
-
-  {{ govukSummaryList({
-    rows: [
-      {
-        key: {
-          text: tR('confirmCopyFormChanged.formNameLabel')
-        },
-        value: {
-          text: form.title
-        }
-      },
-      {
-        key: {
-          text: tR('confirmCopyFormChanged.formSubmittedLabel')
-        },
-        value: {
-          text: submittedAt
-        }
-      },
-      {
-        key: {
-          text: tR('confirmCopyFormChanged.formReferenceLabel')
-        },
-        value: {
-          text: referenceNumber
-        }
-      }
-    ]
-  }) }}
-
-  <h2 class="govuk-heading-m">{{ tR('confirmCopyFormChanged.subHeading') }}</h2>
-
   <p class="govuk-body">{{ tR('confirmCopyFormChanged.info2') }}</p>
-  <p class="govuk-body">{{ tR('confirmCopyFormChanged.info3') }}</p>
-  <p class="govuk-body">{{ tR('confirmCopyFormChanged.info4') }}</p>
-  <ul class="govuk-list govuk-list--bullet">
-    {% for item in tR('confirmCopyFormChanged.info5') %}
-      <li>{{ item }}</li>
-    {% endfor %}
-  </ul>
 
   <div class="govuk-button-group">
     {{ govukButton({

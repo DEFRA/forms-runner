@@ -350,19 +350,8 @@
   },
   "confirmCopyFormChanged": {
     "title": "This form has changed since your previous submission",
-    "info1": "This new form is based on a previous submission.",
-    "formNameLabel": "Form name",
-    "formSubmittedLabel": "Submitted on",
-    "formReferenceLabel": "Reference",
-    "subHeading": "You need to answer new questions",
-    "info2": "We’ll show you the questions with your answers filled in from your previous submission. If there’s a new question, you’ll need to answer it.",
-    "info3": "If you uploaded a file, you’ll need to upload it again.",
-    "info4": "Once you’ve answered these questions, you’ll be able to:",
-    "info5": [
-      "review all your answers together",
-      "make changes if you need to",
-      "submit the form"
-    ],
+    "info1": "We’ll show you the questions with your answers filled in from your previous submission. If there’s a new question, you’ll need to answer it.",
+    "info2": "If you uploaded a file, you’ll need to upload it again.",
     "continueButton": "Continue",
     "cancelButton": "Cancel"
   },
