@@ -2,6 +2,42 @@ import { ComponentType, ControllerType, FormStatus } from '@defra/forms-model'
 
 import { mapValueToState } from '~/src/server/utils/map-submission-to-state.js'
 
+/**
+ * @typedef {object} TestComponent
+ * @property {ComponentType} type - component type
+ * @property {string} name - component name
+ * @property {string} title - component title
+ * @property {object} options - component options
+ * @property {object} schema - component schema
+ */
+
+/**
+ * @typedef {object} TestRepeater
+ * @property {string} name - repeater name
+ * @property {TestComponent[]} components - repeater components
+ */
+
+/**
+ * @typedef {object} BuildDefinitionOptions
+ * @property {TestComponent[]} [mainComponents] - main page components
+ * @property {TestRepeater[]} [repeaters] - repeater pages
+ */
+
+/**
+ * @param {unknown} value
+ * @returns {value is { itemId: string }}
+ */
+const hasItemId = (value) =>
+  typeof value === 'object' &&
+  value !== null &&
+  'itemId' in value &&
+  typeof value.itemId === 'string'
+
+/**
+ * @param {string} name
+ * @param {ComponentType} [type]
+ * @returns {TestComponent}
+ */
 const buildComponent = (name, type = ComponentType.TextField) => ({
   type,
   name,
@@ -10,6 +46,9 @@ const buildComponent = (name, type = ComponentType.TextField) => ({
   schema: {}
 })
 
+/**
+ * @param {BuildDefinitionOptions} [options]
+ */
 const buildDefinition = ({ mainComponents = [], repeaters = [] } = {}) => ({
   pages: [
     {
@@ -415,7 +454,7 @@ describe('mapValueToState', () => {
       expireAt: new Date('2028-05-02T12:23:28.461Z')
     }
 
-    const componentTypes = {
+    const componentTypes = /** @type {Record<string, ComponentType>} */ ({
       datePartsField: ComponentType.DatePartsField,
       addressField: ComponentType.UkAddressField,
       monthYearField: ComponentType.MonthYearField,
@@ -423,7 +462,7 @@ describe('mapValueToState', () => {
       latLongField: ComponentType.LatLongField,
       TKqbTU: ComponentType.DatePartsField,
       MwZpks: ComponentType.EastingNorthingField
-    }
+    })
     const definition = buildDefinition({
       mainComponents: Object.keys(message.data.main).map((name) =>
         buildComponent(name, componentTypes[name] ?? ComponentType.TextField)
@@ -812,6 +851,12 @@ describe('mapValueToState', () => {
       { name: 'Alice', itemId: expect.any(String) },
       { name: 'Bob', itemId: expect.any(String) }
     ])
-    expect(state.people[0].itemId).not.toBe(state.people[1].itemId)
+    if (!Array.isArray(state.people)) {
+      throw new Error('Expected state.people to be an array')
+    }
+
+    const people = state.people.filter(hasItemId)
+    expect(people).toHaveLength(2)
+    expect(people[0].itemId).not.toBe(people[1].itemId)
   })
 })
