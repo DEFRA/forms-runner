@@ -716,12 +716,13 @@ describe('mapValueToState', () => {
     })
   })
 
-  it('omits declaration, file upload, and content components', () => {
+  it('omits declaration, file upload, payment, and content components', () => {
     const message = {
       data: {
         main: {
           declaration: 'I agree',
           upload: [{ fileName: 'file.txt' }],
+          payment: 'payment value',
           paragraph: 'Not a form value',
           included: 'copy me'
         },
@@ -732,6 +733,7 @@ describe('mapValueToState', () => {
       mainComponents: [
         buildComponent('declaration', ComponentType.DeclarationField),
         buildComponent('upload', ComponentType.FileUploadField),
+        buildComponent('payment', ComponentType.PaymentField),
         buildComponent('paragraph', ComponentType.Markdown),
         buildComponent('included')
       ]

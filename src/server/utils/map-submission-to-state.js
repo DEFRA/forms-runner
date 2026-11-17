@@ -62,9 +62,19 @@ function getStateComponents(page) {
 
   return page.components.filter(
     (component) =>
-      hasFormField(component) &&
-      component.type !== ComponentType.DeclarationField &&
-      component.type !== ComponentType.FileUploadField
+      hasFormField(component) && isAllowedForStateMapping(component)
+  )
+}
+
+/**
+ * Returns true if the component type can be copied from a previous submission
+ * @param {ComponentDef} component
+ */
+function isAllowedForStateMapping(component) {
+  return (
+    component.type !== ComponentType.DeclarationField &&
+    component.type !== ComponentType.FileUploadField &&
+    component.type !== ComponentType.PaymentField
   )
 }
 
