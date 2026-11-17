@@ -147,7 +147,7 @@ export default [
       const { accessToken } = auth.credentials
       const { form, referenceNumber, submissionToCopy } =
         await getFormAndSubmission(params, accessToken)
-      const { formDeclarations, formVersionHasChanged } =
+      const { definition, formDeclarations, formVersionHasChanged } =
         await getFormComparisonState(submissionToCopy, form, referenceNumber)
 
       if (formDeclarations.length > 0 || formVersionHasChanged) {
@@ -158,7 +158,7 @@ export default [
           .takeover()
       }
 
-      await setCacheState(request, submissionToCopy, form)
+      await setCacheState(request, submissionToCopy, form, definition)
 
       const formHref = getFormHref(
         form.slug,
@@ -215,14 +215,11 @@ export default [
       const { accessToken } = auth.credentials
       const { form, referenceNumber, submissionToCopy } =
         await getFormAndSubmission(params, accessToken)
-      const { formDeclarations, formVersionHasChanged } =
+      const { definition, formDeclarations, formVersionHasChanged } =
         await getFormComparisonState(submissionToCopy, form, referenceNumber)
-      const ignoreKeys = formDeclarations.map(
-        (declaration) => declaration.component.name
-      )
 
       // Set state and dispatch user into the form
-      await setCacheState(request, submissionToCopy, form, ignoreKeys)
+      await setCacheState(request, submissionToCopy, form, definition)
 
       // If the form version has changed, redirect to the form start page and walkthrough,
       // otherwise redirect to the summary page and allow the engine to handle the walkthrough
@@ -268,16 +265,16 @@ async function getCopyFormContext(request, params, accessToken) {
  * @param {FormSubmissionDocument} submissionToCopy
  * @param {FormMetadata} form
  * @param {string} referenceNumber
- * @returns {Promise<{ formDeclarations: {page: Page, component: DeclarationFieldComponent}[], formVersionHasChanged: boolean }>}
+ * @returns {Promise<{ definition: FormDefinition, formDeclarations: {page: Page, component: DeclarationFieldComponent}[], formVersionHasChanged: boolean }>}
  */
 async function getFormComparisonState(submissionToCopy, form, referenceNumber) {
-  const def = await getFormDefinitionForSubmission(
+  const definition = await getFormDefinitionForSubmission(
     submissionToCopy,
     form,
     referenceNumber
   )
 
-  return getFormDetails(def, submissionToCopy)
+  return getFormDetails(definition, submissionToCopy)
 }
 
 /**
@@ -349,14 +346,14 @@ async function getFormDefinitionForSubmission(
 
 /**
  * Get diff details about the form definition and submission
- * @param {FormDefinition} def
+ * @param {FormDefinition} definition
  * @param {FormSubmissionDocument} submission
- * @returns {{ formDeclarations: { page: Page, component: DeclarationFieldComponent }[], formVersionHasChanged: boolean }}
+ * @returns {{ definition: FormDefinition, formDeclarations: { page: Page, component: DeclarationFieldComponent }[], formVersionHasChanged: boolean }}
  */
-function getFormDetails(def, submission) {
+function getFormDetails(definition, submission) {
   const formDeclarations = []
 
-  for (const page of def.pages) {
+  for (const page of definition.pages) {
     if (!hasFormComponents(page)) {
       continue
     }
@@ -369,7 +366,7 @@ function getFormDetails(def, submission) {
   }
 
   const latestVersionMetadata = /** @type {FormVersionMetadata | undefined} */ (
-    def.metadata?.$$__formVersion
+    definition.metadata?.$$__formVersion
   )
 
   const { versionMetadata } = submission.meta
@@ -379,7 +376,7 @@ function getFormDetails(def, submission) {
       ? latestVersionMetadata.versionNumber > versionMetadata.versionNumber
       : true // If either version metadata is missing, assume the form has changed
 
-  return { formDeclarations, formVersionHasChanged }
+  return { definition, formDeclarations, formVersionHasChanged }
 }
 
 /**
@@ -387,11 +384,11 @@ function getFormDetails(def, submission) {
  * @param {Request<{ Params: CopyFormParams }>} request
  * @param {FormSubmissionDocument} submissionToCopy
  * @param {FormMetadata} form
- * @param {string[]} [ignoreKeys] - keys to ignore when copying state (e.g. declaration fields)
+ * @param {FormDefinition} definition
  */
-async function setCacheState(request, submissionToCopy, form, ignoreKeys = []) {
+async function setCacheState(request, submissionToCopy, form, definition) {
   const cacheService = getCacheService(request.server)
-  const copiedState = mapValueToState(submissionToCopy, ignoreKeys)
+  const copiedState = mapValueToState(submissionToCopy, definition)
   const state = getPreviewStatus(submissionToCopy)
   const req = { yar: request.yar, params: { slug: form.slug, state } }
 
