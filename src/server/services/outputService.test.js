@@ -97,7 +97,11 @@ describe('OutputService', () => {
         auth: {
           isAuthenticated: false
         },
-        payload: {}
+        payload: {},
+        yar: {
+          get: jest.fn(),
+          set: jest.fn()
+        }
       })
     )
 
@@ -339,7 +343,11 @@ describe('OutputService', () => {
             strategy: CITIZEN_SESSION,
             credentials
           },
-          payload: {}
+          payload: {},
+          yar: {
+            get: jest.fn(),
+            set: jest.fn()
+          }
         })
       )
 
@@ -405,7 +413,11 @@ describe('OutputService', () => {
             strategy: CITIZEN_SESSION,
             credentials
           },
-          payload: {}
+          payload: {},
+          yar: {
+            get: jest.fn(),
+            set: jest.fn()
+          }
         })
       )
 
