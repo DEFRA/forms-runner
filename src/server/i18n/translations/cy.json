@@ -349,15 +349,16 @@
     "cancelButton": "Canslo"
   },
   "confirmCopyFormChanged": {
-    "title": "Eich cyflwyniad blaenorol",
+    "title": "Mae'r ffurflen hon wedi newid ers eich cyflwyniad blaenorol",
     "info1": "Mae'r ffurflen newydd hon yn seiliedig ar gyflwyniad blaenorol.",
     "formNameLabel": "Enw'r ffurflen",
     "formSubmittedLabel": "Cyflwynwyd ar",
     "formReferenceLabel": "Cyfeirnod",
     "subHeading": "Mae angen i chi ateb cwestiynau newydd",
-    "info2": "Ers i chi gyflwyno'r ffurflen hon ddiwethaf, mae rhai cwestiynau wedi newid neu mae angen i chi eu hateb eto.",
-    "info3": "Unwaith y byddwch wedi ateb y cwestiynau hyn, byddwch yn gallu:",
-    "info4": [
+    "info2": "Byddwn yn dangos y cwestiynau i chi gyda'ch atebion o'ch cyflwyniad blaenorol wedi'u llenwi. Os oes cwestiwn newydd, bydd angen i chi ei ateb.",
+    "info3": "Os gwnaethoch uwchlwytho ffeil, bydd angen i chi ei huwchlwytho eto.",
+    "info4": "Unwaith y byddwch wedi ateb y cwestiynau hyn, byddwch yn gallu:",
+    "info5": [
       "adolygu eich holl atebion gyda'i gilydd",
       "gwneud newidiadau os oes angen",
       "cyflwyno'r ffurflen"
