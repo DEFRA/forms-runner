@@ -43,7 +43,6 @@ import {
 } from '~/src/server/models/save-and-exit.js'
 import {
   clearFormState,
-  getInflightSessionKey,
   hasState
 } from '~/src/server/routes/save-and-exit-helper.js'
 import { stateHandler } from '~/src/server/routes/save-and-exit-state-handler.js'
@@ -58,6 +57,7 @@ import {
   validateSaveAndExitCredentials
 } from '~/src/server/services/submissionService.js'
 import {
+  addToInflightList,
   isLanguageSupported,
   resolveLanguage,
   signInUrl
@@ -247,15 +247,7 @@ async function handleAuthenticatedSaveAndExit(request, h) {
   request.yar.clear(getKey(slug, previewStatus))
   await cacheService.clearState(request)
 
-  // Add form to in-flight list until fully saved in DB
-  // In-flight list is per slug and status, so that the user only sees in-flight forms
-  // relevant to the homepage path they are on
-  const sessionKey = getInflightSessionKey(slug, previewStatus)
-  const inflights =
-    /** @type {string[] | undefined} */ (request.yar.get(sessionKey)) ?? []
-  const refNum = /** @type {string} */ (cachedState.$$__referenceNumber)
-  inflights.push(refNum)
-  request.yar.set(sessionKey, inflights)
+  addToInflightList(request.yar, slug, previewStatus, cachedState)
 
   return h.view(SAVE_AND_EXIT_CONFIRMATION, model)
 }

@@ -6,6 +6,59 @@ import {
 } from '~/src/server/utils/map-submission-to-state.js'
 
 describe('mapValueToState', () => {
+  it('should ignore nested keys when passed to the mapper', () => {
+    const message = {
+      data: {
+        main: {
+          declaration: 'I agree',
+          firstName: 'Alice',
+          address: {
+            line1: '1 High Street',
+            postcode: 'SW1A 1AA'
+          },
+          dateOfBirth: {
+            day: 1,
+            month: 2,
+            year: 2000
+          }
+        },
+        repeaters: {
+          people: [
+            {
+              name: 'Bob',
+              declaration: 'I agree',
+              dateOfBirth: {
+                day: 3,
+                month: 4,
+                year: 2001
+              }
+            }
+          ]
+        }
+      }
+    }
+
+    expect(
+      // @ts-expect-error - test data is not a valid FormSubmissionDocument
+      mapValueToState(message, [
+        'declaration',
+        'line1',
+        'postcode',
+        'day',
+        'month',
+        'year'
+      ])
+    ).toEqual({
+      firstName: 'Alice',
+      people: [
+        {
+          name: 'Bob',
+          itemId: expect.any(String)
+        }
+      ]
+    })
+  })
+
   it('should map adaptor v2 message to state2', () => {
     /**
      * @type {import('~/src/server/services/submissionService.js').FormSubmissionDocument}
