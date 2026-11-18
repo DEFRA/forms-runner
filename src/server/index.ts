@@ -5,6 +5,7 @@ import { join, parse } from 'path'
 import plugin, { CURRENT_PAGE_PATH_KEY } from '@defra/forms-engine-plugin'
 import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { FormModel } from '@defra/forms-engine-plugin/engine/models/FormModel.js'
+import { type AnyFormRequest } from '@defra/forms-engine-plugin/engine/types.js'
 import {
   type FormContext,
   type FormRequestPayload,
@@ -235,7 +236,8 @@ export const configureEnginePlugin = async ({
       },
       ordnanceSurveyApiKey: config.get('ordnanceSurveyApiKey'),
       ordnanceSurveyApiSecret: config.get('ordnanceSurveyApiSecret'),
-      getLanguage: resolveLanguage,
+      getLanguage: (request: AnyFormRequest) =>
+        resolveLanguage(request.query, request.yar),
       generateReferenceNumber
     }
   }

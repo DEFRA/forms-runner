@@ -9,7 +9,7 @@
         {{ govukErrorSummary(errorSummary)}}
       {% endif %}
 
-      <form method="post">
+      <form method="post" action="#">
         <input type="hidden" name="crumb" value="{{ crumb }}">
         {% block fields %}
         {% endblock %}

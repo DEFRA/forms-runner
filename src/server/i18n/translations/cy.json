@@ -349,28 +349,9 @@
     "cancelButton": "Canslo"
   },
   "confirmCopyFormChanged": {
-    "title": "Eich cyflwyniad blaenorol",
-    "info1": "Mae'r ffurflen newydd hon yn seiliedig ar gyflwyniad blaenorol.",
-    "formNameLabel": "Enw'r ffurflen",
-    "formSubmittedLabel": "Cyflwynwyd ar",
-    "formReferenceLabel": "Cyfeirnod",
-    "subHeading": "Mae angen i chi ateb cwestiynau newydd",
-    "info2": "Ers i chi gyflwyno'r ffurflen hon ddiwethaf, mae rhai cwestiynau wedi newid neu mae angen i chi eu hateb eto.",
-    "info3": "Unwaith y byddwch wedi ateb y cwestiynau hyn, byddwch yn gallu:",
-    "info4": [
-      "adolygu eich holl atebion gyda'i gilydd",
-      "gwneud newidiadau os oes angen",
-      "cyflwyno'r ffurflen"
-    ],
-    "continueButton": "Parhau",
-    "cancelButton": "Canslo"
-  },
-  "confirmCopyCheckAnswers": {
-    "title": "Cafodd yr atebion hyn eu copïo o'ch cyflwyniad blaenorol",
-    "formNameLabel": "Ffurflen",
-    "formReferenceLabel": "Rhif cyfeirnod blaenorol",
-    "info1": "Rydym wedi copïo eich atebion i'r ffurflen newydd hon. Ni fydd unrhyw newidiadau a wnewch yn effeithio ar eich cyflwyniad blaenorol.",
-    "info2": "Ar y dudalen nesaf, gallwch wirio a newid eich atebion cyn cyflwyno'r ffurflen.",
+    "title": "Mae'r ffurflen hon wedi newid ers eich cyflwyniad blaenorol",
+    "info1": "Byddwn yn dangos y cwestiynau i chi gyda'ch atebion o'ch cyflwyniad blaenorol wedi'u llenwi. Os oes cwestiwn newydd, bydd angen i chi ei ateb.",
+    "info2": "Os gwnaethoch uwchlwytho ffeil, bydd angen i chi ei huwchlwytho eto.",
     "continueButton": "Parhau",
     "cancelButton": "Canslo"
   },

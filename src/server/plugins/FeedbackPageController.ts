@@ -54,8 +54,8 @@ export class FeedbackPageController extends QuestionPageController {
       if (context.errors || isForceAccess) {
         const viewModel = this.getViewModel(request, context)
         viewModel.errors = collection.getViewErrors(
-          this.getTranslator(request),
-          viewModel.errors
+          viewModel.errors,
+          this.getTranslator(request)
         )
 
         // Filter our components based on their conditions using our evaluated state

@@ -1,19 +1,88 @@
-import { FormStatus } from '@defra/forms-engine-plugin/types'
+import { ComponentType, ControllerType, FormStatus } from '@defra/forms-model'
 
-import {
-  isString,
-  mapValueToState
-} from '~/src/server/utils/map-submission-to-state.js'
+import { mapValueToState } from '~/src/server/utils/map-submission-to-state.js'
+
+/**
+ * @typedef {object} TestComponent
+ * @property {ComponentType} type - component type
+ * @property {string} name - component name
+ * @property {string} title - component title
+ * @property {object} options - component options
+ * @property {object} schema - component schema
+ */
+
+/**
+ * @typedef {object} TestRepeater
+ * @property {string} name - repeater name
+ * @property {TestComponent[]} components - repeater components
+ */
+
+/**
+ * @typedef {object} BuildDefinitionOptions
+ * @property {TestComponent[]} [mainComponents] - main page components
+ * @property {TestRepeater[]} [repeaters] - repeater pages
+ */
+
+/**
+ * @param {unknown} value
+ * @returns {value is { itemId: string }}
+ */
+const hasItemId = (value) =>
+  typeof value === 'object' &&
+  value !== null &&
+  'itemId' in value &&
+  typeof value.itemId === 'string'
+
+/**
+ * @param {string} name
+ * @param {ComponentType} [type]
+ * @returns {TestComponent}
+ */
+const buildComponent = (name, type = ComponentType.TextField) => ({
+  type,
+  name,
+  title: name,
+  options: {},
+  schema: {}
+})
+
+/**
+ * @param {BuildDefinitionOptions} [options]
+ */
+const buildDefinition = ({ mainComponents = [], repeaters = [] } = {}) => ({
+  pages: [
+    {
+      path: '/main',
+      components: mainComponents,
+      next: []
+    },
+    ...repeaters.map(({ name, components }) => ({
+      path: `/repeat/${name}`,
+      controller: ControllerType.Repeat,
+      repeat: {
+        options: {
+          name
+        }
+      },
+      components,
+      next: []
+    }))
+  ]
+})
 
 describe('mapValueToState', () => {
-  it('should ignore nested keys when passed to the mapper', () => {
+  it('maps only fields defined on the form and flattens supported subfields', () => {
     const message = {
       data: {
         main: {
           declaration: 'I agree',
           firstName: 'Alice',
+          undeclared: 'Do not copy',
           address: {
-            line1: '1 High Street',
+            addressLine1: '1 High Street',
+            addressLine2: 'Flat 2',
+            town: 'London',
+            county: 'Greater London',
             postcode: 'SW1A 1AA'
           },
           dateOfBirth: {
@@ -38,21 +107,45 @@ describe('mapValueToState', () => {
       }
     }
 
+    const definition = buildDefinition({
+      mainComponents: [
+        buildComponent('declaration', ComponentType.DeclarationField),
+        buildComponent('firstName'),
+        buildComponent('address', ComponentType.UkAddressField),
+        buildComponent('dateOfBirth', ComponentType.DatePartsField)
+      ],
+      repeaters: [
+        {
+          name: 'people',
+          components: [
+            buildComponent('name'),
+            buildComponent('declaration', ComponentType.DeclarationField),
+            buildComponent('dateOfBirth', ComponentType.DatePartsField)
+          ]
+        }
+      ]
+    })
+
     expect(
       // @ts-expect-error - test data is not a valid FormSubmissionDocument
-      mapValueToState(message, [
-        'declaration',
-        'line1',
-        'postcode',
-        'day',
-        'month',
-        'year'
-      ])
+      mapValueToState(message, definition)
     ).toEqual({
       firstName: 'Alice',
+      address__uprn: '',
+      address__addressLine1: '1 High Street',
+      address__addressLine2: 'Flat 2',
+      address__town: 'London',
+      address__county: 'Greater London',
+      address__postcode: 'SW1A 1AA',
+      dateOfBirth__day: 1,
+      dateOfBirth__month: 2,
+      dateOfBirth__year: 2000,
       people: [
         {
           name: 'Bob',
+          dateOfBirth__day: 3,
+          dateOfBirth__month: 4,
+          dateOfBirth__year: 2001,
           itemId: expect.any(String)
         }
       ]
@@ -361,7 +454,37 @@ describe('mapValueToState', () => {
       expireAt: new Date('2028-05-02T12:23:28.461Z')
     }
 
-    expect(mapValueToState(message)).toEqual({
+    const componentTypes = /** @type {Record<string, ComponentType>} */ ({
+      datePartsField: ComponentType.DatePartsField,
+      addressField: ComponentType.UkAddressField,
+      monthYearField: ComponentType.MonthYearField,
+      eastingNorthingField: ComponentType.EastingNorthingField,
+      latLongField: ComponentType.LatLongField,
+      TKqbTU: ComponentType.DatePartsField,
+      MwZpks: ComponentType.EastingNorthingField
+    })
+    const definition = buildDefinition({
+      mainComponents: Object.keys(message.data.main).map((name) =>
+        buildComponent(name, componentTypes[name] ?? ComponentType.TextField)
+      ),
+      repeaters: [
+        {
+          name: 'bRpVOv',
+          components: Object.keys(message.data.repeaters.bRpVOv[0]).map(
+            (name) =>
+              buildComponent(
+                name,
+                componentTypes[name] ?? ComponentType.TextField
+              )
+          )
+        }
+      ]
+    })
+
+    expect(
+      // @ts-expect-error - only page properties used by the mapper are provided
+      mapValueToState(message, definition)
+    ).toEqual({
       textField: 'Bob',
       multilineTextField: 'Blah',
       numberField: 2,
@@ -594,52 +717,146 @@ describe('mapValueToState', () => {
     })
   })
 
-  it('should omit undefined values and preserve other main and repeater values', () => {
+  it('maps absent values to null and leaves empty repeaters empty', () => {
     const message = {
       data: {
         main: {
-          omitted: undefined,
-          compound: {
-            defined: 'value',
-            omitted: undefined
-          },
-          list: ['item'],
-          empty: null
+          populated: 'value',
+          explicitlyNull: null,
+          undeclared: 'not copied'
         },
         repeaters: {
-          items: [
-            {
-              omitted: undefined,
-              date: {
-                day: 1,
-                omitted: undefined
-              }
-            },
-            {}
-          ]
+          items: []
         }
       }
     }
-
-    // @ts-expect-error - exercises omission of undefined values in a malformed submission
-    expect(mapValueToState(message)).toEqual({
-      compound__defined: 'value',
-      list: ['item'],
-      empty: null,
-      items: [
+    const definition = buildDefinition({
+      mainComponents: [
+        buildComponent('populated'),
+        buildComponent('explicitlyNull'),
+        buildComponent('missing')
+      ],
+      repeaters: [
         {
-          date__day: 1,
-          itemId: expect.any(String)
-        },
-        {
-          itemId: expect.any(String)
+          name: 'items',
+          components: [buildComponent('missingInRepeater')]
         }
       ]
     })
+
+    expect(
+      // @ts-expect-error - test data is not a valid FormSubmissionDocument
+      mapValueToState(message, definition)
+    ).toEqual({
+      populated: 'value',
+      explicitlyNull: null,
+      missing: null,
+      items: []
+    })
   })
 
-  it('should identify strings', () => {
-    expect(isString('filename')).toBe(true)
-    expect(isString(null)).toBe(false)
+  it('omits declaration, file upload, payment, and content components', () => {
+    const message = {
+      data: {
+        main: {
+          declaration: 'I agree',
+          upload: [{ fileName: 'file.txt' }],
+          payment: 'payment value',
+          paragraph: 'Not a form value',
+          included: 'copy me'
+        },
+        repeaters: {}
+      }
+    }
+    const definition = buildDefinition({
+      mainComponents: [
+        buildComponent('declaration', ComponentType.DeclarationField),
+        buildComponent('upload', ComponentType.FileUploadField),
+        buildComponent('payment', ComponentType.PaymentField),
+        buildComponent('paragraph', ComponentType.Markdown),
+        buildComponent('included')
+      ]
+    })
+
+    expect(
+      // @ts-expect-error - test data is not a valid FormSubmissionDocument
+      mapValueToState(message, definition)
+    ).toEqual({
+      included: 'copy me'
+    })
+  })
+
+  it('maps missing special-field values to their empty state', () => {
+    const message = {
+      data: {
+        main: {},
+        repeaters: {}
+      }
+    }
+    const definition = buildDefinition({
+      mainComponents: [
+        buildComponent('address', ComponentType.UkAddressField),
+        buildComponent('date', ComponentType.DatePartsField),
+        buildComponent('monthYear', ComponentType.MonthYearField),
+        buildComponent('coordinates', ComponentType.EastingNorthingField),
+        buildComponent('location', ComponentType.LatLongField)
+      ]
+    })
+
+    expect(
+      // @ts-expect-error - test data is not a valid FormSubmissionDocument
+      mapValueToState(message, definition)
+    ).toEqual({
+      address__uprn: '',
+      address__addressLine1: null,
+      address__addressLine2: null,
+      address__town: null,
+      address__county: null,
+      address__postcode: null,
+      date__day: null,
+      date__month: null,
+      date__year: null,
+      monthYear__month: null,
+      monthYear__year: null,
+      coordinates__easting: null,
+      coordinates__northing: null,
+      location__latitude: null,
+      location__longitude: null
+    })
+  })
+
+  it('creates a unique item id for each repeater item', () => {
+    const message = {
+      data: {
+        main: {},
+        repeaters: {
+          people: [{ name: 'Alice' }, { name: 'Bob' }]
+        }
+      }
+    }
+    const definition = buildDefinition({
+      repeaters: [
+        {
+          name: 'people',
+          components: [buildComponent('name')]
+        }
+      ]
+    })
+
+    const state =
+      // @ts-expect-error - test data is not a valid FormSubmissionDocument
+      mapValueToState(message, definition)
+
+    expect(state.people).toEqual([
+      { name: 'Alice', itemId: expect.any(String) },
+      { name: 'Bob', itemId: expect.any(String) }
+    ])
+    if (!Array.isArray(state.people)) {
+      throw new Error('Expected state.people to be an array')
+    }
+
+    const people = state.people.filter(hasItemId)
+    expect(people).toHaveLength(2)
+    expect(people[0].itemId).not.toBe(people[1].itemId)
   })
 })

@@ -41,9 +41,17 @@
     ]
   }) }}
 
-  {{ govukButton({
-    text: tR('confirmCopyForm.continueButton'),
-    name: "confirmCopy",
-    value: "true"
-  }) }}
+  <div class="govuk-button-group">
+    {{ govukButton({
+      text: tR('confirmCopyForm.continueButton'),
+      name: "confirmCopy",
+      value: "true"
+    }) }}
+
+    {{ govukButton({
+      text: tR('confirmCopyForm.cancelButton'),
+      classes: "govuk-button govuk-button--secondary",
+      href: backLink.href
+    }) }}
+  </div>
 {% endblock %}
