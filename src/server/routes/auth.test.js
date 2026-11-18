@@ -34,15 +34,21 @@ describe('Auth routes', () => {
       enforceCsrf: false
     })
 
-    server.route({
-      method: 'POST',
-      path: '/test/form-state/{slug}',
-      options: { auth: false },
-      handler: async (request) => {
-        await getCacheService(request.server).setState(request, request.payload)
-        return null
-      }
-    })
+    server.route(
+      /** @satisfies {ServerRoute<{ Payload: FormSubmissionState }>} */
+      ({
+        method: 'POST',
+        path: '/test/form-state/{slug}',
+        options: { auth: false },
+        handler: async (request) => {
+          await getCacheService(request.server).setState(
+            request,
+            request.payload
+          )
+          return null
+        }
+      })
+    )
 
     await server.initialize()
   })
@@ -335,5 +341,6 @@ describe('Auth routes', () => {
 })
 
 /**
- * @import { Server } from '@hapi/hapi'
+ * @import { Server, ServerRoute } from '@hapi/hapi'
+ * @import { FormSubmissionState } from '@defra/forms-engine-plugin/types'
  */

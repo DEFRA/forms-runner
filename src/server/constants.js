@@ -13,6 +13,11 @@ export const SAVE_AND_EXIT_PAYLOAD = 'SAVE_AND_EXIT_PAYLOAD'
 export const EN_GB = 'en-GB'
 export const CY = 'cy'
 
+// Session keys
+export const SessionKeys = {
+  REFERENCE_NUMBER: '$$__referenceNumber'
+}
+
 // Keys for custom meta in form submission output
 export const SESSION_ACTION = '__action'
 export const SESSION_ACTION_REFERENCE_NUMBER = '__referenceNumber'

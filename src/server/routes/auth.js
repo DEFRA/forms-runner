@@ -48,6 +48,7 @@ import {
   SIGNED_OUT_PATH,
   SIGN_IN_PATH,
   SIGN_OUT_PATH,
+  SessionKeys,
   VIA_HOMEPAGE_PATH
 } from '~/src/server/constants.js'
 import { t as runnerT } from '~/src/server/i18n/index.js'
@@ -554,12 +555,13 @@ export default [
       const { state } = checkFormStatus(params)
 
       const shouldRedirect = await checkSubmittedFormsAndLink(
+        request,
         slug,
         state,
         auth.credentials.accessToken,
         true
       )
-      if (shouldRedirect && !(await hasExistingFormState(request))) {
+      if (shouldRedirect) {
         // Redirect to homepage
         return h.redirect(
           `${HOMEPAGE_PREFIX}${PREVIEW_PATH_PREFIX}/${params.state}/${slug}`
@@ -597,12 +599,13 @@ export default [
       const { slug } = params
 
       const shouldRedirect = await checkSubmittedFormsAndLink(
+        request,
         slug,
         FormStatus.Live,
         auth.credentials.accessToken,
         false
       )
-      if (shouldRedirect && !(await hasExistingFormState(request))) {
+      if (shouldRedirect) {
         // Redirect to homepage
         return h.redirect(`${HOMEPAGE_PREFIX}/${slug}`)
       }
@@ -628,6 +631,7 @@ export default [
 /**
  * Check if the user has any submitted forms linked to the given form slug and status.
  * Previous user submissions are linked before checking for submitted forms.
+ * @param {Request<{ Params: FormParams }>} request
  * @param {string} slug
  * @param {FormStatus} formStatus
  * @param {string} accessToken
@@ -635,6 +639,7 @@ export default [
  * @returns {Promise<boolean>}
  */
 async function checkSubmittedFormsAndLink(
+  request,
   slug,
   formStatus,
   accessToken,
@@ -656,6 +661,10 @@ async function checkSubmittedFormsAndLink(
         record.status === FormRowStatus.InProgress
     )
     if (relevantForms.length > 0) {
+      // Check if there is existing form state
+      if (await hasExistingFormState(request)) {
+        return false
+      }
       // Redirect to homepage
       return true
     }
@@ -671,9 +680,7 @@ async function checkSubmittedFormsAndLink(
 async function hasExistingFormState(request) {
   const cacheService = getCacheService(request.server)
   const state = await cacheService.getState(request)
-  return (
-    Object.keys(state).filter((key) => key !== '$$__referenceNumber').length > 0
-  )
+  return Object.keys(state).some((key) => key !== SessionKeys.REFERENCE_NUMBER)
 }
 
 /**
