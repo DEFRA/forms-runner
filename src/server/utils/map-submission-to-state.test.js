@@ -717,7 +717,7 @@ describe('mapValueToState', () => {
     })
   })
 
-  it('maps absent values to null and leaves empty repeaters empty', () => {
+  it('omits unanswered fields and leaves empty repeaters empty', () => {
     const message = {
       data: {
         main: {
@@ -750,8 +750,33 @@ describe('mapValueToState', () => {
     ).toEqual({
       populated: 'value',
       explicitlyNull: null,
-      missing: null,
       items: []
+    })
+  })
+
+  it('omits unanswered repeater fields while preserving submitted answers', () => {
+    const message = {
+      data: {
+        main: {},
+        repeaters: {
+          people: [{ name: 'Alice' }]
+        }
+      }
+    }
+    const definition = buildDefinition({
+      repeaters: [
+        {
+          name: 'people',
+          components: [buildComponent('name'), buildComponent('newQuestion')]
+        }
+      ]
+    })
+
+    expect(
+      // @ts-expect-error - test data is not a valid FormSubmissionDocument
+      mapValueToState(message, definition)
+    ).toEqual({
+      people: [{ name: 'Alice', itemId: expect.any(String) }]
     })
   })
 
@@ -786,10 +811,16 @@ describe('mapValueToState', () => {
     })
   })
 
-  it('maps missing special-field values to their empty state', () => {
+  it('maps null special-field values and omits unanswered fields', () => {
     const message = {
       data: {
-        main: {},
+        main: {
+          address: null,
+          date: null,
+          monthYear: null,
+          coordinates: null,
+          location: null
+        },
         repeaters: {}
       }
     }
@@ -799,7 +830,8 @@ describe('mapValueToState', () => {
         buildComponent('date', ComponentType.DatePartsField),
         buildComponent('monthYear', ComponentType.MonthYearField),
         buildComponent('coordinates', ComponentType.EastingNorthingField),
-        buildComponent('location', ComponentType.LatLongField)
+        buildComponent('location', ComponentType.LatLongField),
+        buildComponent('newQuestion')
       ]
     })
 

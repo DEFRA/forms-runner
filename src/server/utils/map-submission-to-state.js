@@ -110,12 +110,17 @@ function assignState(component, submitted) {
   const submittedValue = submitted[componentName]
   const mapper = stateMappers[component.type]
 
+  // Skip if the value is undefined - this will be a new question not present in the copied submission
+  if (submittedValue === undefined) {
+    return {}
+  }
+
   if (mapper) {
     return mapper(componentName, submittedValue)
   }
 
   return {
-    [componentName]: submittedValue ?? null
+    [componentName]: submittedValue
   }
 }
 
