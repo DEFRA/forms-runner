@@ -1,6 +1,15 @@
 import { setUserId } from '@defra/forms-common'
+import {
+  checkFormStatus,
+  getCacheService
+} from '@defra/forms-engine-plugin/engine/helpers.js'
 import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
-import { FormStatus, getErrorMessage, slugSchema } from '@defra/forms-model'
+import {
+  FormStatus,
+  getErrorMessage,
+  isAllowCopyEnabled,
+  slugSchema
+} from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import Bourne from '@hapi/bourne'
 import { StatusCodes } from 'http-status-codes'
@@ -22,6 +31,7 @@ import {
   recordLogout,
   verifyLogoutToken
 } from '~/src/server/auth/backchannelLogout.js'
+import { CITIZEN_AUTH_ROUTE_OPTIONS } from '~/src/server/auth/route-options.js'
 import { signInEvent } from '~/src/server/auth/signInEvent.js'
 import { revokeRefreshToken } from '~/src/server/auth/tokenRevocation.js'
 import { logger } from '~/src/server/common/helpers/logging/logger.js'
@@ -30,15 +40,24 @@ import {
   CALLBACK_PATH,
   CY,
   EN_GB,
+  FORM_PREFIX,
+  FormRowStatus,
+  HOMEPAGE_PREFIX,
   INITIATE_SIGN_IN_PATH,
+  PREVIEW_PATH_PREFIX,
   SIGNED_OUT_PATH,
   SIGN_IN_PATH,
-  SIGN_OUT_PATH
+  SIGN_OUT_PATH,
+  SessionKeys,
+  VIA_HOMEPAGE_PATH
 } from '~/src/server/constants.js'
 import { t as runnerT } from '~/src/server/i18n/index.js'
 import { returnUrlSchema } from '~/src/server/models/common.js'
+import { linkEarlierSubmissions } from '~/src/server/routes/homepage.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadataWithoutGuard } from '~/src/server/services/formMetadataGuards.js'
+import { getFormDefinition } from '~/src/server/services/formsService.js'
+import { getFormRecords } from '~/src/server/services/submissionService.js'
 import {
   browserRedirectUri,
   getAllLanguages,
@@ -492,7 +511,8 @@ export default [
         form.live ? FormStatus.Live : FormStatus.Draft
       )
 
-      const signInHref = `${SIGN_IN_PATH}?returnUrl=${encodeURIComponent(returnUrl)}`
+      const returnUrlRedirect = `${VIA_HOMEPAGE_PATH}${returnUrl}`
+      const signInHref = `${SIGN_IN_PATH}?returnUrl=${encodeURIComponent(returnUrlRedirect)}`
 
       return h.view('auth/signin-required', {
         signInHref,
@@ -521,9 +541,146 @@ export default [
           .required()
       }
     }
+  }),
+
+  /**
+   * @satisfies {ServerRoute<{ Params: FormParams }>}
+   */
+  ({
+    method: 'GET',
+    path: `${VIA_HOMEPAGE_PATH}/form${PREVIEW_PATH_PREFIX}/{state}/{slug}/{page?}`,
+    async handler(request, h) {
+      const { auth, params } = request
+      const { slug } = params
+      const { state } = checkFormStatus(params)
+
+      const shouldRedirect = await checkSubmittedFormsAndLink(
+        request,
+        slug,
+        state,
+        auth.credentials.accessToken,
+        true
+      )
+      if (shouldRedirect) {
+        // Redirect to homepage
+        return h.redirect(
+          `${HOMEPAGE_PREFIX}${PREVIEW_PATH_PREFIX}/${params.state}/${slug}`
+        )
+      }
+
+      // Continue to form page if no submitted forms exist
+      const returnUrl = `${FORM_PREFIX}${PREVIEW_PATH_PREFIX}/${params.state}/${slug}`
+      return h.redirect(returnUrl)
+    },
+    options: {
+      auth: CITIZEN_AUTH_ROUTE_OPTIONS,
+      validate: {
+        params: Joi.object()
+          .keys({
+            slug: slugSchema,
+            state: Joi.string()
+              .valid(FormStatus.Draft, FormStatus.Live)
+              .required(),
+            page: Joi.string().optional()
+          })
+          .required()
+      }
+    }
+  }),
+
+  /**
+   * @satisfies {ServerRoute<{ Params: FormParams }>}
+   */
+  ({
+    method: 'GET',
+    path: `${VIA_HOMEPAGE_PATH}/form/{slug}/{page?}`,
+    async handler(request, h) {
+      const { auth, params } = request
+      const { slug } = params
+
+      const shouldRedirect = await checkSubmittedFormsAndLink(
+        request,
+        slug,
+        FormStatus.Live,
+        auth.credentials.accessToken,
+        false
+      )
+      if (shouldRedirect) {
+        // Redirect to homepage
+        return h.redirect(`${HOMEPAGE_PREFIX}/${slug}`)
+      }
+
+      // Continue to form page if no submitted forms exist
+      const returnUrl = `${FORM_PREFIX}/${slug}`
+      return h.redirect(returnUrl)
+    },
+    options: {
+      auth: CITIZEN_AUTH_ROUTE_OPTIONS,
+      validate: {
+        params: Joi.object()
+          .keys({
+            slug: slugSchema,
+            page: Joi.string().optional()
+          })
+          .required()
+      }
+    }
   })
 ]
 
 /**
+ * Check if the user has any submitted forms linked to the given form slug and status.
+ * Previous user submissions are linked before checking for submitted forms.
+ * @param {Request<{ Params: FormParams }>} request
+ * @param {string} slug
+ * @param {FormStatus} formStatus
+ * @param {string} accessToken
+ * @param {boolean} isPreview
+ * @returns {Promise<boolean>}
+ */
+async function checkSubmittedFormsAndLink(
+  request,
+  slug,
+  formStatus,
+  accessToken,
+  isPreview
+) {
+  const form = await getFormMetadataWithoutGuard(slug)
+  const definition = await getFormDefinition(form.id, formStatus)
+  if (definition && isAllowCopyEnabled(definition)) {
+    await linkEarlierSubmissions(accessToken, form.id)
+
+    const savedForms = await getFormRecords(
+      accessToken,
+      form.id,
+      isPreview ? formStatus : undefined
+    )
+    const relevantForms = savedForms.filter(
+      (record) =>
+        record.status === FormRowStatus.Submitted ||
+        record.status === FormRowStatus.InProgress
+    )
+    if (relevantForms.length > 0) {
+      // Redirect to homepage if no existing state
+      const existingState = await hasExistingFormState(request)
+      return !existingState
+    }
+  }
+  return false
+}
+
+/**
+ * Checks if there is any existing form state in the cache for the current request.
+ * @param {Request<{ Params: FormParams }>} request
+ * @returns {Promise<boolean>} True if there is existing form state, false otherwise.
+ */
+async function hasExistingFormState(request) {
+  const cacheService = getCacheService(request.server)
+  const state = await cacheService.getState(request)
+  return Object.keys(state).some((key) => key !== SessionKeys.REFERENCE_NUMBER)
+}
+
+/**
  * @import { Request, ResponseToolkit, ServerRoute } from '@hapi/hapi'
+ * @import { FormParams } from '@defra/forms-engine-plugin/types'
  */

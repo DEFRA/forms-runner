@@ -6,7 +6,7 @@ import { getAvailableLanguages } from '@defra/forms-engine-plugin'
 import { isAllowCopyEnabled } from '@defra/forms-model'
 
 import { config } from '~/src/config/index.js'
-import { EN_GB, SIGN_IN_PATH } from '~/src/server/constants.js'
+import { EN_GB, SIGN_IN_PATH, SessionKeys } from '~/src/server/constants.js'
 import { getInflightSessionKey } from '~/src/server/routes/save-and-exit-helper.js'
 
 /**
@@ -195,13 +195,15 @@ export function addToInflightList(yar, slug, previewStatus, cachedState) {
   const sessionKey = getInflightSessionKey(slug, previewStatus)
   const inflights =
     /** @type {string[] | undefined} */ (yar.get(sessionKey)) ?? []
-  const refNum = /** @type {string} */ (cachedState.$$__referenceNumber)
+  const refNum = /** @type {string} */ (
+    cachedState[SessionKeys.REFERENCE_NUMBER]
+  )
   inflights.push(refNum)
   yar.set(sessionKey, inflights)
 }
 
 /**
- * @import { Request, RequestQuery } from '@hapi/hapi'
+ * @import { RequestQuery } from '@hapi/hapi'
  * @import { Yar } from '@hapi/yar'
  * @import { FormDefinition, FormStatus } from '@defra/forms-model'
  */

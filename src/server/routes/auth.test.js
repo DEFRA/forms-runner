@@ -1,15 +1,27 @@
+import { getCacheService } from '@defra/forms-engine-plugin/engine/helpers.js'
+import { FormStatus } from '@defra/forms-model'
 import { StatusCodes } from 'http-status-codes'
 
 import { config } from '~/src/config/index.js'
+import { FormRowStatus } from '~/src/server/constants.js'
 import { createServer } from '~/src/server/index.js'
+import { linkEarlierSubmissions } from '~/src/server/routes/homepage.js'
 import {
   getFormDefinition,
   getFormMetadata
 } from '~/src/server/services/formsService.js'
+import { getFormRecords } from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
+import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 jest.mock('~/src/server/services/formsService.js')
+jest.mock('~/src/server/services/submissionService.js')
+jest.mock('~/src/server/routes/homepage.js', () => ({
+  __esModule: true,
+  ...jest.requireActual('~/src/server/routes/homepage.js'),
+  linkEarlierSubmissions: jest.fn()
+}))
 
 describe('Auth routes', () => {
   /** @type {Server} */
@@ -21,6 +33,23 @@ describe('Auth routes', () => {
     server = await createServer({
       enforceCsrf: false
     })
+
+    server.route(
+      /** @satisfies {ServerRoute<{ Payload: FormSubmissionState }>} */
+      ({
+        method: 'POST',
+        path: '/test/form-state/{slug}',
+        options: { auth: false },
+        handler: async (request) => {
+          await getCacheService(request.server).setState(
+            request,
+            request.payload
+          )
+          return null
+        }
+      })
+    )
+
     await server.initialize()
   })
 
@@ -64,7 +93,7 @@ describe('Auth routes', () => {
       expect($button).toBeInTheDocument()
       expect($button).toHaveAttribute(
         'href',
-        '/auth/sign-in?returnUrl=%2Fform%2Fmy-slug%2Fpage-one'
+        '/auth/sign-in?returnUrl=%2Fauth%2Fvia-homepage%2Fform%2Fmy-slug%2Fpage-one'
       )
     })
 
@@ -91,12 +120,227 @@ describe('Auth routes', () => {
       expect($button).toBeInTheDocument()
       expect($button).toHaveAttribute(
         'href',
-        '/auth/sign-in?returnUrl=%2Fform%2Fmy-slug%2Fpage-one'
+        '/auth/sign-in?returnUrl=%2Fauth%2Fvia-homepage%2Fform%2Fmy-slug%2Fpage-one'
       )
+    })
+  })
+
+  describe('GET /auth/via-homepage/form live', () => {
+    beforeEach(() => {
+      jest.clearAllMocks()
+      jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+      jest.mocked(getFormDefinition).mockResolvedValue({
+        ...fixtures.form.definition,
+        metadata: { options: { allowCopy: true } }
+      })
+      jest.mocked(getFormRecords).mockResolvedValue([])
+      jest.mocked(linkEarlierSubmissions).mockResolvedValue(undefined)
+    })
+
+    test('links earlier submissions before continuing when none are submitted or in-progress', async () => {
+      jest
+        .mocked(getFormRecords)
+        // @ts-expect-error - partial data mock
+        .mockResolvedValue([{ status: FormRowStatus.Deleted }])
+
+      const response = await server.inject({
+        method: 'GET',
+        url: '/auth/via-homepage/form/test-form/page-one',
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe('/form/test-form')
+      expect(linkEarlierSubmissions).toHaveBeenCalledWith(
+        credentials.accessToken,
+        fixtures.form.metadata.id
+      )
+      expect(getFormRecords).toHaveBeenCalledWith(
+        credentials.accessToken,
+        fixtures.form.metadata.id,
+        undefined
+      )
+    })
+
+    test('sends preview users with submitted forms to the preview homepage', async () => {
+      jest
+        .mocked(getFormRecords)
+        // @ts-expect-error - partial data mock
+        .mockResolvedValue([{ status: FormRowStatus.Submitted }])
+
+      const response = await server.inject({
+        method: 'GET',
+        url: '/auth/via-homepage/form/test-form/page-one',
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe('/homepage/test-form')
+      expect(getFormDefinition).toHaveBeenCalledWith(
+        fixtures.form.metadata.id,
+        FormStatus.Live
+      )
+    })
+
+    test('sends preview users with in-progress forms to the preview homepage', async () => {
+      jest
+        .mocked(getFormRecords)
+        // @ts-expect-error - partial data mock
+        .mockResolvedValue([{ status: FormRowStatus.InProgress }])
+
+      const response = await server.inject({
+        method: 'GET',
+        url: '/auth/via-homepage/form/test-form/page-one',
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe('/homepage/test-form')
+      expect(getFormDefinition).toHaveBeenCalledWith(
+        fixtures.form.metadata.id,
+        FormStatus.Live
+      )
+    })
+
+    test('continues to the form when saved form state already exists', async () => {
+      jest
+        .mocked(getFormRecords)
+        // @ts-expect-error - partial data mock
+        .mockResolvedValue([{ status: FormRowStatus.Submitted }])
+
+      const stateResponse = await server.inject({
+        method: 'POST',
+        url: '/test/form-state/test-form',
+        payload: { textField: 'existing answer' }
+      })
+
+      const response = await server.inject({
+        method: 'GET',
+        url: '/auth/via-homepage/form/test-form/page-one',
+        headers: getCookieHeader(stateResponse, ['session']),
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe('/form/test-form')
+    })
+
+    test('does not treat the reference number as saved form state', async () => {
+      jest
+        .mocked(getFormRecords)
+        // @ts-expect-error - partial data mock
+        .mockResolvedValue([{ status: FormRowStatus.Submitted }])
+
+      const stateResponse = await server.inject({
+        method: 'POST',
+        url: '/test/form-state/test-form',
+        payload: { $$__referenceNumber: 'reference-1' }
+      })
+
+      const response = await server.inject({
+        method: 'GET',
+        url: '/auth/via-homepage/form/test-form/page-one',
+        headers: getCookieHeader(stateResponse, ['session']),
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe('/homepage/test-form')
+    })
+
+    test('continues directly to the form when copying is disabled', async () => {
+      jest.mocked(getFormDefinition).mockResolvedValue(fixtures.form.definition)
+
+      const response = await server.inject({
+        method: 'GET',
+        url: '/auth/via-homepage/form/test-form/page-one',
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe('/form/test-form')
+      expect(linkEarlierSubmissions).not.toHaveBeenCalled()
+      expect(getFormRecords).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('GET /auth/via-homepage/form preview', () => {
+    beforeEach(() => {
+      jest.clearAllMocks()
+      jest.mocked(getFormMetadata).mockResolvedValue(fixtures.form.metadata)
+      jest.mocked(getFormDefinition).mockResolvedValue({
+        ...fixtures.form.definition,
+        metadata: { options: { allowCopy: true } }
+      })
+      jest.mocked(getFormRecords).mockResolvedValue([])
+      jest.mocked(linkEarlierSubmissions).mockResolvedValue(undefined)
+    })
+
+    test('links earlier submissions before continuing when none are submitted or in-progress', async () => {
+      jest
+        .mocked(getFormRecords)
+        // @ts-expect-error - partial data mock
+        .mockResolvedValue([{ status: FormRowStatus.Expired }])
+
+      const response = await server.inject({
+        method: 'GET',
+        url: '/auth/via-homepage/form/preview/draft/test-form/page-one',
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe('/form/preview/draft/test-form')
+      expect(linkEarlierSubmissions).toHaveBeenCalledWith(
+        credentials.accessToken,
+        fixtures.form.metadata.id
+      )
+      expect(getFormRecords).toHaveBeenCalledWith(
+        credentials.accessToken,
+        fixtures.form.metadata.id,
+        FormStatus.Draft
+      )
+    })
+
+    test('sends preview users with submitted forms to the preview homepage', async () => {
+      jest
+        .mocked(getFormRecords)
+        // @ts-expect-error - partial data mock
+        .mockResolvedValue([{ status: FormRowStatus.Submitted }])
+
+      const response = await server.inject({
+        method: 'GET',
+        url: '/auth/via-homepage/form/preview/draft/test-form/page-one',
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe(
+        '/homepage/preview/draft/test-form'
+      )
+      expect(getFormDefinition).toHaveBeenCalledWith(
+        fixtures.form.metadata.id,
+        FormStatus.Draft
+      )
+    })
+
+    test('continues directly to the form when copying is disabled', async () => {
+      jest.mocked(getFormDefinition).mockResolvedValue(fixtures.form.definition)
+
+      const response = await server.inject({
+        method: 'GET',
+        url: '/auth/via-homepage/form/preview/draft/test-form/page-one',
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe('/form/preview/draft/test-form')
+      expect(linkEarlierSubmissions).not.toHaveBeenCalled()
+      expect(getFormRecords).not.toHaveBeenCalled()
     })
   })
 })
 
 /**
- * @import { Server } from '@hapi/hapi'
+ * @import { Server, ServerRoute } from '@hapi/hapi'
+ * @import { FormSubmissionState } from '@defra/forms-engine-plugin/types'
  */

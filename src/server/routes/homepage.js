@@ -93,7 +93,7 @@ function mapToRow(savedForm, translator, formId) {
  * @param {string} accessToken - the citizen's access token
  * @param {string} formId - the form the homepage is for
  */
-async function linkEarlierSubmissions(accessToken, formId) {
+export async function linkEarlierSubmissions(accessToken, formId) {
   const allowedForm = allowedForms.find((form) => form.formId === formId)
 
   if (!allowedForm) {

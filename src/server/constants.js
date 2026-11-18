@@ -8,9 +8,15 @@ export const SIGN_OUT_PATH = '/auth/sign-out'
 export const SIGNED_OUT_PATH = '/auth/signed-out'
 export const BACKCHANNEL_LOGOUT_PATH = '/auth/backchannel-logout'
 export const CALLBACK_PATH = '/auth/callback'
+export const VIA_HOMEPAGE_PATH = '/auth/via-homepage'
 export const SAVE_AND_EXIT_PAYLOAD = 'SAVE_AND_EXIT_PAYLOAD'
 export const EN_GB = 'en-GB'
 export const CY = 'cy'
+
+// Session keys
+export const SessionKeys = {
+  REFERENCE_NUMBER: '$$__referenceNumber'
+}
 
 // Keys for custom meta in form submission output
 export const SESSION_ACTION = '__action'
