@@ -118,11 +118,11 @@ describe('Auth routes', () => {
       jest.mocked(linkEarlierSubmissions).mockResolvedValue(undefined)
     })
 
-    test('links earlier submissions before continuing when none are submitted', async () => {
+    test('links earlier submissions before continuing when none are submitted or in-progress', async () => {
       jest
         .mocked(getFormRecords)
         // @ts-expect-error - partial data mock
-        .mockResolvedValue([{ status: FormRowStatus.InProgress }])
+        .mockResolvedValue([{ status: FormRowStatus.Deleted }])
 
       const response = await server.inject({
         method: 'GET',
@@ -148,6 +148,26 @@ describe('Auth routes', () => {
         .mocked(getFormRecords)
         // @ts-expect-error - partial data mock
         .mockResolvedValue([{ status: FormRowStatus.Submitted }])
+
+      const response = await server.inject({
+        method: 'GET',
+        url: '/auth/via-homepage/form/test-form/page-one',
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe('/homepage/test-form')
+      expect(getFormDefinition).toHaveBeenCalledWith(
+        fixtures.form.metadata.id,
+        FormStatus.Live
+      )
+    })
+
+    test('sends preview users with in-progress forms to the preview homepage', async () => {
+      jest
+        .mocked(getFormRecords)
+        // @ts-expect-error - partial data mock
+        .mockResolvedValue([{ status: FormRowStatus.InProgress }])
 
       const response = await server.inject({
         method: 'GET',
@@ -191,11 +211,11 @@ describe('Auth routes', () => {
       jest.mocked(linkEarlierSubmissions).mockResolvedValue(undefined)
     })
 
-    test('links earlier submissions before continuing when none are submitted', async () => {
+    test('links earlier submissions before continuing when none are submitted or in-progress', async () => {
       jest
         .mocked(getFormRecords)
         // @ts-expect-error - partial data mock
-        .mockResolvedValue([{ status: FormRowStatus.InProgress }])
+        .mockResolvedValue([{ status: FormRowStatus.Expired }])
 
       const response = await server.inject({
         method: 'GET',

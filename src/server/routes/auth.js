@@ -647,10 +647,12 @@ async function checkSubmittedFormsAndLink(
       form.id,
       isPreview ? formStatus : undefined
     )
-    const submittedForms = savedForms.filter(
-      (record) => record.status === FormRowStatus.Submitted
+    const relevantForms = savedForms.filter(
+      (record) =>
+        record.status === FormRowStatus.Submitted ||
+        record.status === FormRowStatus.InProgress
     )
-    if (submittedForms.length > 0) {
+    if (relevantForms.length > 0) {
       // Redirect to homepage
       return true
     }
