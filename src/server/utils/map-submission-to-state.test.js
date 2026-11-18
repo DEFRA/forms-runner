@@ -717,7 +717,7 @@ describe('mapValueToState', () => {
     })
   })
 
-  it('maps absent values to null and leaves empty repeaters empty', () => {
+  it('omits unanswered fields and leaves empty repeaters empty', () => {
     const message = {
       data: {
         main: {
@@ -750,9 +750,56 @@ describe('mapValueToState', () => {
     ).toEqual({
       populated: 'value',
       explicitlyNull: null,
-      missing: null,
       items: []
     })
+  })
+
+  it('omits unanswered repeater fields while preserving submitted answers', () => {
+    const message = {
+      data: {
+        main: {},
+        repeaters: {
+          people: [{ name: 'Alice' }]
+        }
+      }
+    }
+    const definition = buildDefinition({
+      repeaters: [
+        {
+          name: 'people',
+          components: [buildComponent('name'), buildComponent('newQuestion')]
+        }
+      ]
+    })
+
+    expect(
+      // @ts-expect-error - test data is not a valid FormSubmissionDocument
+      mapValueToState(message, definition)
+    ).toEqual({
+      people: [{ name: 'Alice', itemId: expect.any(String) }]
+    })
+  })
+
+  it('omits repeaters without saved submission items', () => {
+    const message = {
+      data: {
+        main: {},
+        repeaters: {}
+      }
+    }
+    const definition = buildDefinition({
+      repeaters: [
+        {
+          name: 'newRepeater',
+          components: [buildComponent('name')]
+        }
+      ]
+    })
+
+    expect(
+      // @ts-expect-error - test data is not a valid FormSubmissionDocument
+      mapValueToState(message, definition)
+    ).toEqual({})
   })
 
   it('omits declaration, file upload, payment, and content components', () => {
@@ -786,10 +833,16 @@ describe('mapValueToState', () => {
     })
   })
 
-  it('maps missing special-field values to their empty state', () => {
+  it('maps null special-field values and omits unanswered fields', () => {
     const message = {
       data: {
-        main: {},
+        main: {
+          address: null,
+          date: null,
+          monthYear: null,
+          coordinates: null,
+          location: null
+        },
         repeaters: {}
       }
     }
@@ -799,7 +852,8 @@ describe('mapValueToState', () => {
         buildComponent('date', ComponentType.DatePartsField),
         buildComponent('monthYear', ComponentType.MonthYearField),
         buildComponent('coordinates', ComponentType.EastingNorthingField),
-        buildComponent('location', ComponentType.LatLongField)
+        buildComponent('location', ComponentType.LatLongField),
+        buildComponent('newQuestion')
       ]
     })
 
@@ -807,7 +861,7 @@ describe('mapValueToState', () => {
       // @ts-expect-error - test data is not a valid FormSubmissionDocument
       mapValueToState(message, definition)
     ).toEqual({
-      address__uprn: '',
+      address__uprn: null,
       address__addressLine1: null,
       address__addressLine2: null,
       address__town: null,
@@ -822,6 +876,36 @@ describe('mapValueToState', () => {
       coordinates__northing: null,
       location__latitude: null,
       location__longitude: null
+    })
+  })
+
+  it('defaults absent address line 2 and county values to empty strings', () => {
+    const message = {
+      data: {
+        main: {
+          address: {
+            addressLine1: '1 High Street',
+            town: 'London',
+            postcode: 'SW1A 1AA'
+          }
+        },
+        repeaters: {}
+      }
+    }
+    const definition = buildDefinition({
+      mainComponents: [buildComponent('address', ComponentType.UkAddressField)]
+    })
+
+    expect(
+      // @ts-expect-error - test data is not a valid FormSubmissionDocument
+      mapValueToState(message, definition)
+    ).toEqual({
+      address__uprn: '',
+      address__addressLine1: '1 High Street',
+      address__addressLine2: '',
+      address__town: 'London',
+      address__county: '',
+      address__postcode: 'SW1A 1AA'
     })
   })
 

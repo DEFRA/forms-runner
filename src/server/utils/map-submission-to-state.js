@@ -38,7 +38,12 @@ export function mapValueToState(formSubmissionMessage, definition) {
 
     if (page.controller === ControllerType.Repeat) {
       const name = page.repeat.options.name
-      repeaters[name] = mapRepeaterItems(submittedRepeaters[name], components)
+      const items = submittedRepeaters[name]
+
+      // Skip if repeater has no saved submission items - this will be a new question
+      if (Array.isArray(items)) {
+        repeaters[name] = mapRepeaterItems(items, components)
+      }
       continue
     }
 
@@ -110,12 +115,17 @@ function assignState(component, submitted) {
   const submittedValue = submitted[componentName]
   const mapper = stateMappers[component.type]
 
+  // Skip if the value is undefined - this will be a new question not present in the copied submission
+  if (submittedValue === undefined) {
+    return {}
+  }
+
   if (mapper) {
     return mapper(componentName, submittedValue)
   }
 
   return {
-    [componentName]: submittedValue ?? null
+    [componentName]: submittedValue
   }
 }
 
@@ -126,18 +136,26 @@ function assignState(component, submitted) {
 function mapUkAddress(name, value) {
   const submittedValue = /** @type {UkAddressState | null} */ (value)
 
+  if (submittedValue === null) {
+    return {
+      [`${name}__uprn`]: null,
+      [`${name}__addressLine1`]: null,
+      [`${name}__addressLine2`]: null,
+      [`${name}__town`]: null,
+      [`${name}__county`]: null,
+      [`${name}__postcode`]: null
+    }
+  }
+
   return {
-    [`${name}__uprn`]:
-      submittedValue && 'uprn' in submittedValue ? submittedValue.uprn : '',
-    [`${name}__addressLine1`]: submittedValue
-      ? submittedValue.addressLine1
-      : null,
-    [`${name}__addressLine2`]: submittedValue
-      ? submittedValue.addressLine2
-      : null,
-    [`${name}__town`]: submittedValue ? submittedValue.town : null,
-    [`${name}__county`]: submittedValue ? submittedValue.county : null,
-    [`${name}__postcode`]: submittedValue ? submittedValue.postcode : null
+    [`${name}__uprn`]: 'uprn' in submittedValue ? submittedValue.uprn : '',
+    [`${name}__addressLine1`]: submittedValue.addressLine1,
+    [`${name}__addressLine2`]:
+      'addressLine2' in submittedValue ? submittedValue.addressLine2 : '',
+    [`${name}__town`]: submittedValue.town,
+    [`${name}__county`]:
+      'county' in submittedValue ? submittedValue.county : '',
+    [`${name}__postcode`]: submittedValue.postcode
   }
 }
 
