@@ -661,12 +661,9 @@ async function checkSubmittedFormsAndLink(
         record.status === FormRowStatus.InProgress
     )
     if (relevantForms.length > 0) {
-      // Check if there is existing form state
-      if (await hasExistingFormState(request)) {
-        return false
-      }
-      // Redirect to homepage
-      return true
+      // Redirect to homepage if no existing state
+      const existingState = await hasExistingFormState(request)
+      return !existingState
     }
   }
   return false
