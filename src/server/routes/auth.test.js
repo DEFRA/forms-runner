@@ -1,3 +1,4 @@
+import { getCacheService } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { FormStatus } from '@defra/forms-model'
 import { StatusCodes } from 'http-status-codes'
 
@@ -12,6 +13,7 @@ import {
 import { getFormRecords } from '~/src/server/services/submissionService.js'
 import * as fixtures from '~/test/fixtures/index.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
+import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 jest.mock('~/src/server/services/formsService.js')
 jest.mock('~/src/server/services/submissionService.js')
@@ -31,6 +33,17 @@ describe('Auth routes', () => {
     server = await createServer({
       enforceCsrf: false
     })
+
+    server.route({
+      method: 'POST',
+      path: '/test/form-state/{slug}',
+      options: { auth: false },
+      handler: async (request) => {
+        await getCacheService(request.server).setState(request, request.payload)
+        return null
+      }
+    })
+
     await server.initialize()
   })
 
@@ -181,6 +194,52 @@ describe('Auth routes', () => {
         fixtures.form.metadata.id,
         FormStatus.Live
       )
+    })
+
+    test('continues to the form when saved form state already exists', async () => {
+      jest
+        .mocked(getFormRecords)
+        // @ts-expect-error - partial data mock
+        .mockResolvedValue([{ status: FormRowStatus.Submitted }])
+
+      const stateResponse = await server.inject({
+        method: 'POST',
+        url: '/test/form-state/test-form',
+        payload: { textField: 'existing answer' }
+      })
+
+      const response = await server.inject({
+        method: 'GET',
+        url: '/auth/via-homepage/form/test-form/page-one',
+        headers: getCookieHeader(stateResponse, ['session']),
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe('/form/test-form')
+    })
+
+    test('does not treat the reference number as saved form state', async () => {
+      jest
+        .mocked(getFormRecords)
+        // @ts-expect-error - partial data mock
+        .mockResolvedValue([{ status: FormRowStatus.Submitted }])
+
+      const stateResponse = await server.inject({
+        method: 'POST',
+        url: '/test/form-state/test-form',
+        payload: { $$__referenceNumber: 'reference-1' }
+      })
+
+      const response = await server.inject({
+        method: 'GET',
+        url: '/auth/via-homepage/form/test-form/page-one',
+        headers: getCookieHeader(stateResponse, ['session']),
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe('/homepage/test-form')
     })
 
     test('continues directly to the form when copying is disabled', async () => {

@@ -1,5 +1,8 @@
 import { setUserId } from '@defra/forms-common'
-import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
+import {
+  checkFormStatus,
+  getCacheService
+} from '@defra/forms-engine-plugin/engine/helpers.js'
 import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
 import {
   FormStatus,
@@ -599,7 +602,7 @@ export default [
         auth.credentials.accessToken,
         false
       )
-      if (shouldRedirect) {
+      if (shouldRedirect && !(await hasExistingFormState(request))) {
         // Redirect to homepage
         return h.redirect(`${HOMEPAGE_PREFIX}/${slug}`)
       }
@@ -658,6 +661,19 @@ async function checkSubmittedFormsAndLink(
     }
   }
   return false
+}
+
+/**
+ * Checks if there is any existing form state in the cache for the current request.
+ * @param {Request<{ Params: FormParams }>} request
+ * @returns {Promise<boolean>} True if there is existing form state, false otherwise.
+ */
+async function hasExistingFormState(request) {
+  const cacheService = getCacheService(request.server)
+  const state = await cacheService.getState(request)
+  return (
+    Object.keys(state).filter((key) => key !== '$$__referenceNumber').length > 0
+  )
 }
 
 /**
