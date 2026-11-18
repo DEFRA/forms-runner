@@ -52,7 +52,7 @@ export function mapValueToState(formSubmissionMessage, definition) {
 }
 
 /**
- * @param {import('@defra/forms-model').Page} page
+ * @param {Page} page
  * @returns {ComponentDef[]}
  */
 function getStateComponents(page) {
@@ -194,7 +194,7 @@ function mapLatLong(name, value) {
   }
 }
 /**
- * @import { FormDefinition, ComponentDef } from '@defra/forms-model'
+ * @import { FormDefinition, ComponentDef, Page } from '@defra/forms-model'
  * @import { FormStateValue, RichFormValue } from '@defra/forms-engine-plugin/engine/types.js'
  * @import { FormSubmissionDocument } from '~/src/server/services/submissionService.js'
  * @import { UkAddressState, MonthYearState, DatePartsState, EastingNorthingState, LatLongState } from '@defra/forms-engine-plugin/types'
