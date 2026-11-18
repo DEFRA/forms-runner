@@ -559,7 +559,7 @@ export default [
         auth.credentials.accessToken,
         true
       )
-      if (shouldRedirect) {
+      if (shouldRedirect && !(await hasExistingFormState(request))) {
         // Redirect to homepage
         return h.redirect(
           `${HOMEPAGE_PREFIX}${PREVIEW_PATH_PREFIX}/${params.state}/${slug}`
