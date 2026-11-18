@@ -861,7 +861,7 @@ describe('mapValueToState', () => {
       // @ts-expect-error - test data is not a valid FormSubmissionDocument
       mapValueToState(message, definition)
     ).toEqual({
-      address__uprn: '',
+      address__uprn: null,
       address__addressLine1: null,
       address__addressLine2: null,
       address__town: null,
@@ -876,6 +876,36 @@ describe('mapValueToState', () => {
       coordinates__northing: null,
       location__latitude: null,
       location__longitude: null
+    })
+  })
+
+  it('defaults absent address line 2 and county values to empty strings', () => {
+    const message = {
+      data: {
+        main: {
+          address: {
+            addressLine1: '1 High Street',
+            town: 'London',
+            postcode: 'SW1A 1AA'
+          }
+        },
+        repeaters: {}
+      }
+    }
+    const definition = buildDefinition({
+      mainComponents: [buildComponent('address', ComponentType.UkAddressField)]
+    })
+
+    expect(
+      // @ts-expect-error - test data is not a valid FormSubmissionDocument
+      mapValueToState(message, definition)
+    ).toEqual({
+      address__uprn: '',
+      address__addressLine1: '1 High Street',
+      address__addressLine2: '',
+      address__town: 'London',
+      address__county: '',
+      address__postcode: 'SW1A 1AA'
     })
   })
 
