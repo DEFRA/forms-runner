@@ -780,6 +780,28 @@ describe('mapValueToState', () => {
     })
   })
 
+  it('omits repeaters without saved submission items', () => {
+    const message = {
+      data: {
+        main: {},
+        repeaters: {}
+      }
+    }
+    const definition = buildDefinition({
+      repeaters: [
+        {
+          name: 'newRepeater',
+          components: [buildComponent('name')]
+        }
+      ]
+    })
+
+    expect(
+      // @ts-expect-error - test data is not a valid FormSubmissionDocument
+      mapValueToState(message, definition)
+    ).toEqual({})
+  })
+
   it('omits declaration, file upload, payment, and content components', () => {
     const message = {
       data: {

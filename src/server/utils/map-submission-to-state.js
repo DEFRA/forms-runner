@@ -38,7 +38,12 @@ export function mapValueToState(formSubmissionMessage, definition) {
 
     if (page.controller === ControllerType.Repeat) {
       const name = page.repeat.options.name
-      repeaters[name] = mapRepeaterItems(submittedRepeaters[name], components)
+      const items = submittedRepeaters[name]
+
+      // Skip if repeater has no saved submission items - this will be a new question
+      if (Array.isArray(items)) {
+        repeaters[name] = mapRepeaterItems(items, components)
+      }
       continue
     }
 
