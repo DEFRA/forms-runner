@@ -123,6 +123,24 @@ describe('Auth routes', () => {
         '/auth/sign-in?returnUrl=%2Fauth%2Fvia-homepage%2Fform%2Fmy-slug%2Fpage-one'
       )
     })
+
+    test('retains the original query string in the sign-in link', async () => {
+      const returnUrl =
+        '/form/my-slug/page-one?filter=a%20b&filter=c&empty=&flag'
+      const options = {
+        method: 'GET',
+        url: `/signin-required/my-slug?returnUrl=${encodeURIComponent(returnUrl)}`,
+        auth: { strategy: 'citizen-session', credentials }
+      }
+
+      const { container } = await renderResponse(server, options)
+      const $button = container.getByRole('button', { name: 'Sign in' })
+
+      expect($button).toHaveAttribute(
+        'href',
+        `/auth/sign-in?returnUrl=${encodeURIComponent(`/auth/via-homepage${returnUrl}`)}`
+      )
+    })
   })
 
   describe('GET /auth/via-homepage/form live', () => {
@@ -150,7 +168,7 @@ describe('Auth routes', () => {
       })
 
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-      expect(response.headers.location).toBe('/form/test-form')
+      expect(response.headers.location).toBe('/form/test-form/page-one')
       expect(linkEarlierSubmissions).toHaveBeenCalledWith(
         credentials.accessToken,
         fixtures.form.metadata.id
@@ -222,7 +240,7 @@ describe('Auth routes', () => {
       })
 
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-      expect(response.headers.location).toBe('/form/test-form')
+      expect(response.headers.location).toBe('/form/test-form/page-one')
     })
 
     test('does not treat the reference number as saved form state', async () => {
@@ -258,9 +276,22 @@ describe('Auth routes', () => {
       })
 
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-      expect(response.headers.location).toBe('/form/test-form')
+      expect(response.headers.location).toBe('/form/test-form/page-one')
       expect(linkEarlierSubmissions).not.toHaveBeenCalled()
       expect(getFormRecords).not.toHaveBeenCalled()
+    })
+
+    test('preserves query parameters when redirecting to the live form', async () => {
+      const response = await server.inject({
+        method: 'GET',
+        url: '/auth/via-homepage/form/test-form/page-one?filter=a%20b&filter=c&empty=&flag',
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe(
+        '/form/test-form/page-one?filter=a%20b&filter=c&empty=&flag'
+      )
     })
   })
 
@@ -289,7 +320,9 @@ describe('Auth routes', () => {
       })
 
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-      expect(response.headers.location).toBe('/form/preview/draft/test-form')
+      expect(response.headers.location).toBe(
+        '/form/preview/draft/test-form/page-one'
+      )
       expect(linkEarlierSubmissions).toHaveBeenCalledWith(
         credentials.accessToken,
         fixtures.form.metadata.id
@@ -333,9 +366,24 @@ describe('Auth routes', () => {
       })
 
       expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
-      expect(response.headers.location).toBe('/form/preview/draft/test-form')
+      expect(response.headers.location).toBe(
+        '/form/preview/draft/test-form/page-one'
+      )
       expect(linkEarlierSubmissions).not.toHaveBeenCalled()
       expect(getFormRecords).not.toHaveBeenCalled()
+    })
+
+    test('preserves query parameters when redirecting to the preview form', async () => {
+      const response = await server.inject({
+        method: 'GET',
+        url: '/auth/via-homepage/form/preview/draft/test-form/page-one?filter=a%20b&filter=c&empty=&flag',
+        auth: { strategy: 'citizen-session', credentials }
+      })
+
+      expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+      expect(response.headers.location).toBe(
+        '/form/preview/draft/test-form/page-one?filter=a%20b&filter=c&empty=&flag'
+      )
     })
   })
 })

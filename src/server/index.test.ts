@@ -571,13 +571,15 @@ describe('onRequest', () => {
       path: '/page-one',
       slug: 'test-form'
     },
-    path = '/form/test-form/page-one'
+    path = '/form/test-form/page-one',
+    search = ''
   ) =>
     ({
       app: { model },
       auth,
       params,
-      path
+      path,
+      url: new URL(`${path}${search}`, 'http://localhost')
     }) as unknown as AnyFormRequest
 
   const createToolkit = () => {
@@ -643,6 +645,34 @@ describe('onRequest', () => {
     )
     expect(takeover).toHaveBeenCalled()
     expect(result).toBe(takeoverResponse)
+  })
+
+  test('preserves the original query string when redirecting to sign-in-required', () => {
+    const request = createRequest(
+      {
+        def: {
+          name: 'test-form',
+          metadata: { options: { allowCopy: true } }
+        }
+      },
+      { isAuthenticated: false },
+      { path: '/page-one', slug: 'test-form', state: FormStatus.Draft },
+      '/form/test-form/page-one',
+      '?filter=a%20b&filter=c&empty=&flag'
+    )
+    const { h, redirect } = createToolkit()
+
+    const result = onRequest(request, h, {} as FormContext)
+
+    expect(result).toBe(takeoverResponse)
+    const redirectUrl = new URL(
+      redirect.mock.calls[0]?.[0] ?? '',
+      'http://localhost'
+    )
+
+    expect(redirectUrl.searchParams.get('returnUrl')).toBe(
+      '/form/test-form/page-one?filter=a%20b&filter=c&empty=&flag'
+    )
   })
 
   test('redirects authenticated users when they are not using citizen sign-in', () => {

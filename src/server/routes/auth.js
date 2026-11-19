@@ -548,7 +548,7 @@ export default [
    */
   ({
     method: 'GET',
-    path: `${VIA_HOMEPAGE_PATH}/form${PREVIEW_PATH_PREFIX}/{state}/{slug}/{page?}`,
+    path: `${VIA_HOMEPAGE_PATH}/form${PREVIEW_PATH_PREFIX}/{state}/{slug}/{remainingPath*}`,
     async handler(request, h) {
       const { auth, params } = request
       const { slug } = params
@@ -569,7 +569,8 @@ export default [
       }
 
       // Continue to form page if no submitted forms exist
-      const returnUrl = `${FORM_PREFIX}${PREVIEW_PATH_PREFIX}/${params.state}/${slug}`
+      const { remainingPath, queryParams } = getPathAndQuery(request)
+      const returnUrl = `${FORM_PREFIX}${PREVIEW_PATH_PREFIX}/${params.state}/${slug}${remainingPath}${queryParams}`
       return h.redirect(returnUrl)
     },
     options: {
@@ -581,7 +582,7 @@ export default [
             state: Joi.string()
               .valid(FormStatus.Draft, FormStatus.Live)
               .required(),
-            page: Joi.string().optional()
+            remainingPath: Joi.string().optional()
           })
           .required()
       }
@@ -593,7 +594,7 @@ export default [
    */
   ({
     method: 'GET',
-    path: `${VIA_HOMEPAGE_PATH}/form/{slug}/{page?}`,
+    path: `${VIA_HOMEPAGE_PATH}/form/{slug}/{remainingPath*}`,
     async handler(request, h) {
       const { auth, params } = request
       const { slug } = params
@@ -611,7 +612,8 @@ export default [
       }
 
       // Continue to form page if no submitted forms exist
-      const returnUrl = `${FORM_PREFIX}/${slug}`
+      const { remainingPath, queryParams } = getPathAndQuery(request)
+      const returnUrl = `${FORM_PREFIX}/${slug}${remainingPath}${queryParams}`
       return h.redirect(returnUrl)
     },
     options: {
@@ -620,7 +622,7 @@ export default [
         params: Joi.object()
           .keys({
             slug: slugSchema,
-            page: Joi.string().optional()
+            remainingPath: Joi.string().optional()
           })
           .required()
       }
@@ -678,6 +680,19 @@ async function hasExistingFormState(request) {
   const cacheService = getCacheService(request.server)
   const state = await cacheService.getState(request)
   return Object.keys(state).some((key) => key !== SessionKeys.REFERENCE_NUMBER)
+}
+
+/**
+ * @param {Request<{ Params: FormParams }>} request
+ * @returns {{ remainingPath: string, queryParams: string }}
+ */
+function getPathAndQuery(request) {
+  return {
+    remainingPath: request.params.remainingPath
+      ? `/${request.params.remainingPath}`
+      : '',
+    queryParams: request.url.search
+  }
 }
 
 /**

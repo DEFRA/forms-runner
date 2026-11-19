@@ -102,7 +102,9 @@ export function citizenSessionScheme() {
  */
 function anonymous(request, h) {
   if (request.auth.mode === 'required') {
-    return h.redirect(signInUrl(request.path)).takeover()
+    return h
+      .redirect(signInUrl(`${request.path}${request.url.search}`))
+      .takeover()
   }
 
   return h.unauthenticated(Boom.unauthorized(null, CITIZEN_SESSION))
