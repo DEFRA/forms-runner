@@ -147,7 +147,7 @@ export const onRequest: OnRequestCallback = (request, h, context) => {
   }
 
   const url = new URL(`/signin-required/${request.params.slug}`, BASE_URL)
-  url.searchParams.append('returnUrl', request.path)
+  url.searchParams.append('returnUrl', `${request.path}${request.url.search}`)
 
   // Redirect to the path and query only, so it stays relative and the citizen
   // stays on the host they arrived on, such as the internal domain. BASE_URL is

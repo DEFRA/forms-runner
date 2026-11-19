@@ -562,6 +562,23 @@ describe('sign in routes and sign out routes', () => {
     expect(response.headers.location).toBe(AUTHORIZATION_URL)
   })
 
+  it('retains query parameters when an unauthenticated protected request starts sign in', async () => {
+    const response = await server.inject({
+      method: 'GET',
+      url: '/test/protected?filter=a%20b&filter=c&empty=&flag'
+    })
+
+    expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+    const redirectUrl = new URL(
+      response.headers.location ?? '',
+      'http://localhost'
+    )
+
+    expect(redirectUrl.searchParams.get('returnUrl')).toBe(
+      '/test/protected?filter=a%20b&filter=c&empty=&flag'
+    )
+  })
+
   it('normalises a return target carrying a control character before storing it, so the eventual redirect does not carry it raw', async () => {
     const login = await server.inject({
       method: 'GET',
