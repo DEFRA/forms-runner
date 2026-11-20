@@ -45,6 +45,7 @@ export default {
       '@defra/forms-common', // Supports ESM only
       '@defra/forms-model',
       '@hapi/bourne', // Supports ESM only
+      'cookie', // Supports ESM only
       '@joi/date', // Supports ESM only
       'nanoid', // Supports ESM only
       'slug', // Supports ESM only
