@@ -11,7 +11,7 @@ import {
   slugSchema
 } from '@defra/forms-model'
 import Boom from '@hapi/boom'
-import Bourne from '@hapi/bourne'
+import * as Bourne from '@hapi/bourne'
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 import * as client from 'openid-client'
