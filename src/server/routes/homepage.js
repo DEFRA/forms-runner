@@ -20,10 +20,8 @@ import {
 import { sessionNames } from '~/src/server/helpers/session-names.js'
 import { getInflightSessionKey } from '~/src/server/routes/save-and-exit-helper.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
-import {
-  getFormDefinition,
-  getFormMetadata
-} from '~/src/server/services/formsService.js'
+import { getFormMetadataWithGuard } from '~/src/server/services/formMetadataGuards.js'
+import { getFormDefinition } from '~/src/server/services/formsService.js'
 import {
   getFormRecords,
   linkSubmissionsToUser
@@ -217,7 +215,7 @@ async function homepageHandler(request, h) {
 
   const previewStatus = isPreview ? state : undefined
 
-  const form = await getFormMetadata(slug)
+  const form = await getFormMetadataWithGuard(slug, previewStatus)
   const definition = await getFormDefinition(form.id, state)
 
   if (!definition) {
