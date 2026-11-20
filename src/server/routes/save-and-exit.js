@@ -47,7 +47,7 @@ import {
 } from '~/src/server/routes/save-and-exit-helper.js'
 import { stateHandler } from '~/src/server/routes/save-and-exit-state-handler.js'
 import {
-  getFormMetadataById,
+  getFormMetadataByIdWithGuard,
   getFormMetadataWithGuard
 } from '~/src/server/services/formMetadataGuards.js'
 import { getFormDefinitionWithFallback } from '~/src/server/services/helpers/formsServiceHelper.js'
@@ -544,7 +544,7 @@ export default [
       // don't reveal link validity timing for offline forms.
       let form
       try {
-        form = await getFormMetadataById(formId)
+        form = await getFormMetadataByIdWithGuard(formId)
       } catch (err) {
         if (isOfflineBoom(err)) {
           throw err
@@ -632,7 +632,7 @@ export default [
       // we don't leak magic-link validity timing for offline forms.
       let form
       try {
-        form = await getFormMetadataById(formId, status)
+        form = await getFormMetadataByIdWithGuard(formId, status)
       } catch (err) {
         if (isOfflineBoom(err)) {
           throw err
@@ -741,7 +741,7 @@ export default [
 
       let form
       try {
-        form = await getFormMetadataById(formId, state)
+        form = await getFormMetadataByIdWithGuard(formId, state)
       } catch (err) {
         if (isOfflineBoom(err)) {
           throw err
@@ -827,7 +827,7 @@ export default [
             return h.redirect(ERROR_BASE_URL).takeover()
           }
 
-          const form = await getFormMetadataById(
+          const form = await getFormMetadataByIdWithGuard(
             resumeDetails.form.id,
             params.state
           )

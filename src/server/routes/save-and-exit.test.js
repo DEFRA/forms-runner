@@ -13,7 +13,7 @@ import {
   getFormTranslator
 } from '~/src/server/routes/save-and-exit.js'
 import {
-  getFormMetadataById,
+  getFormMetadataByIdWithGuard,
   getFormMetadataWithGuard
 } from '~/src/server/services/formMetadataGuards.js'
 import { getFormDefinition } from '~/src/server/services/formsService.js'
@@ -66,7 +66,7 @@ describe('Save-and-exit check routes', () => {
   describe('GET /resume-form/{formId}/{magicLinkId}', () => {
     test('route forwards correctly on success', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({ id: FORM_ID, slug: 'my-form-to-resume' })
       jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce({
@@ -90,7 +90,7 @@ describe('Save-and-exit check routes', () => {
     })
 
     test('route forwards correctly on invalid form error', async () => {
-      jest.mocked(getFormMetadataById).mockImplementationOnce(() => {
+      jest.mocked(getFormMetadataByIdWithGuard).mockImplementationOnce(() => {
         throw new Error('form not found')
       })
       jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce({
@@ -114,7 +114,7 @@ describe('Save-and-exit check routes', () => {
 
     test('route forwards correctly on magic link error', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({ slug: 'my-form-to-resume' })
       jest.mocked(getSaveAndExitDetails).mockImplementationOnce(() => {
@@ -136,7 +136,7 @@ describe('Save-and-exit check routes', () => {
 
     test('route forwards correctly on magic link consumed but redirects to latest link', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({ slug: 'my-form-to-resume' })
       jest.mocked(getSaveAndExitDetails).mockImplementationOnce(() => {
@@ -164,7 +164,7 @@ describe('Save-and-exit check routes', () => {
 
     test('throws if trying to redirect to latest in group, but none found', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({ slug: 'my-form-to-resume' })
       jest.mocked(getSaveAndExitDetails).mockImplementationOnce(() => {
@@ -190,7 +190,7 @@ describe('Save-and-exit check routes', () => {
 
     test('route forwards correctly on magic link error - wrong form id', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({ slug: 'my-form-to-resume' })
       jest
@@ -213,7 +213,7 @@ describe('Save-and-exit check routes', () => {
 
     test('route forwards correctly on magic link error 2', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({ slug: 'my-form-to-resume' })
       jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce(undefined)
@@ -236,7 +236,9 @@ describe('Save-and-exit check routes', () => {
         statusCode: 503,
         data: { offline: true }
       })
-      jest.mocked(getFormMetadataById).mockRejectedValueOnce(offlineErr)
+      jest
+        .mocked(getFormMetadataByIdWithGuard)
+        .mockRejectedValueOnce(offlineErr)
       jest.mocked(isOfflineBoom).mockReturnValueOnce(true)
 
       const options = {
@@ -250,7 +252,7 @@ describe('Save-and-exit check routes', () => {
 
     test('logs error and redirects on other metadata fetch error', async () => {
       const otherErr = new Error('fetch failed')
-      jest.mocked(getFormMetadataById).mockRejectedValueOnce(otherErr)
+      jest.mocked(getFormMetadataByIdWithGuard).mockRejectedValueOnce(otherErr)
       jest.mocked(isOfflineBoom).mockReturnValueOnce(false)
 
       const options = {
@@ -270,7 +272,7 @@ describe('Save-and-exit check routes', () => {
 
     test('route forwards a citizen sign-in link to the error page when sign-in is off', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({ id: FORM_ID, slug: 'my-form-to-resume' })
       jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce({
@@ -291,7 +293,7 @@ describe('Save-and-exit check routes', () => {
 
     test('route forwards an unknown authType to the error page', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({ id: FORM_ID, slug: 'my-form-to-resume' })
       jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce(
@@ -345,7 +347,7 @@ describe('Save-and-exit check routes', () => {
 
     beforeEach(() => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({ id: FORM_ID, slug: 'my-form-to-resume' })
       jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce({
@@ -471,7 +473,7 @@ describe('Save-and-exit check routes', () => {
   describe('GET /resume-form-verify/{formId}/{magicLinkId}/{slug}/state?}', () => {
     test('route renders page', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({
           slug: 'my-form-to-resume',
@@ -502,7 +504,7 @@ describe('Save-and-exit check routes', () => {
 
     test('route returns not found for a citizen sign-in link', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({ slug: 'my-form-to-resume' })
       jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce({
@@ -524,7 +526,7 @@ describe('Save-and-exit check routes', () => {
     })
 
     test('route forwards correctly on invalid form error', async () => {
-      jest.mocked(getFormMetadataById).mockImplementationOnce(() => {
+      jest.mocked(getFormMetadataByIdWithGuard).mockImplementationOnce(() => {
         throw new Error('form not found')
       })
       jest.mocked(getSaveAndExitDetails).mockResolvedValueOnce({
@@ -548,7 +550,7 @@ describe('Save-and-exit check routes', () => {
 
     test('route forwards correctly on magic link error', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({ slug: 'my-form-to-resume' })
       // @ts-expect-error - allow partial objects for tests
@@ -570,7 +572,9 @@ describe('Save-and-exit check routes', () => {
         statusCode: 503,
         data: { offline: true }
       })
-      jest.mocked(getFormMetadataById).mockRejectedValueOnce(offlineErr)
+      jest
+        .mocked(getFormMetadataByIdWithGuard)
+        .mockRejectedValueOnce(offlineErr)
       jest.mocked(isOfflineBoom).mockReturnValueOnce(true)
 
       const options = {
@@ -584,7 +588,7 @@ describe('Save-and-exit check routes', () => {
 
     test('logs error and redirects on other metadata fetch error', async () => {
       const otherErr = new Error('fetch failed')
-      jest.mocked(getFormMetadataById).mockRejectedValueOnce(otherErr)
+      jest.mocked(getFormMetadataByIdWithGuard).mockRejectedValueOnce(otherErr)
       jest.mocked(isOfflineBoom).mockReturnValueOnce(false)
 
       const options = {
@@ -755,7 +759,7 @@ describe('Save-and-exit check routes', () => {
   describe('/resume-form-verify/{formId}/{magicLinkId}/{slug}/{state?}', () => {
     test('route handles invalid password', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({
           slug: 'my-form-to-resume',
@@ -795,7 +799,7 @@ describe('Save-and-exit check routes', () => {
 
     test('route handles lockout', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({
           slug: 'my-form-to-resume',
@@ -837,7 +841,7 @@ describe('Save-and-exit check routes', () => {
 
     test('route handles missing password', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({
           slug: 'my-form-to-resume',
@@ -902,7 +906,7 @@ describe('Save-and-exit check routes', () => {
 
     test('route handles missing password and invalid url', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({
           slug: 'my-form-to-resume',
@@ -937,7 +941,9 @@ describe('Save-and-exit check routes', () => {
         statusCode: 503,
         data: { offline: true }
       })
-      jest.mocked(getFormMetadataById).mockRejectedValueOnce(offlineErr)
+      jest
+        .mocked(getFormMetadataByIdWithGuard)
+        .mockRejectedValueOnce(offlineErr)
       jest.mocked(isOfflineBoom).mockReturnValueOnce(true)
 
       const options = {
@@ -952,7 +958,7 @@ describe('Save-and-exit check routes', () => {
 
     test('logs error and redirects on other metadata fetch error', async () => {
       const otherErr = new Error('fetch failed')
-      jest.mocked(getFormMetadataById).mockRejectedValueOnce(otherErr)
+      jest.mocked(getFormMetadataByIdWithGuard).mockRejectedValueOnce(otherErr)
       jest.mocked(isOfflineBoom).mockReturnValueOnce(false)
 
       const options = {
