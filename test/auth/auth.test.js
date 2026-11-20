@@ -60,10 +60,10 @@ function mockConfiguration(metadata) {
  * A token response carrying just the fields the callback route reads. Cast
  * through `unknown` because the mock leaves out the token type and the
  * helper methods `openid-client` adds to a real grant response.
- * @returns {TokenEndpointResponse & TokenEndpointResponseHelpers}
+ * @returns {Awaited<ReturnType<typeof client.authorizationCodeGrant>>}
  */
 function mockTokens() {
-  return /** @type {TokenEndpointResponse & TokenEndpointResponseHelpers} */ (
+  return /** @type {Awaited<ReturnType<typeof client.authorizationCodeGrant>>} */ (
     /** @type {unknown} */ ({
       id_token: ID_TOKEN,
       access_token: ACCESS_TOKEN,
@@ -1191,5 +1191,5 @@ describe('sign in routes, feature flag off', () => {
 /**
  * @import { Server, ServerInjectOptions, ServerInjectResponse } from '@hapi/hapi'
  * @import { TokenSet } from '~/src/server/auth/accountSession.js'
- * @import { Configuration, TokenEndpointResponse, TokenEndpointResponseHelpers } from 'openid-client'
+ * @import { Configuration } from 'openid-client'
  */

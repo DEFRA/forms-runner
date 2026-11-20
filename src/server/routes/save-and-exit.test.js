@@ -1060,7 +1060,7 @@ describe('Save-and-exit check routes', () => {
 
     /**
      * Builds the request shape CacheService keys on, as the form pages see it
-     * @param {Request} request
+     * @param {Pick<Request, 'yar'>} request
      * @param {string} slug
      * @param {string} [state]
      */
@@ -1073,37 +1073,43 @@ describe('Save-and-exit check routes', () => {
       cacheServer = await createServer({ enforceCsrf: false })
 
       // Test-only routes to seed and read the real cache for the caller's session
-      cacheServer.route({
-        method: 'POST',
-        path: STATE_PATH,
-        options: { auth: false },
-        handler: async (request) => {
-          const { slug } = request.params
-          const { state } = request.query
-          const { value } = /** @type {{ value: string }} */ (request.payload)
+      cacheServer.route(
+        /** @satisfies {ServerRoute<{ Params: { slug: string } }>} */
+        ({
+          method: 'POST',
+          path: STATE_PATH,
+          options: { auth: false },
+          handler: async (request) => {
+            const { slug } = request.params
+            const { state } = request.query
+            const { value } = /** @type {{ value: string }} */ (request.payload)
 
-          await getCacheService(request.server).setState(
-            toCacheRequest(request, slug, /** @type {string} */ (state)),
-            { value }
-          )
+            await getCacheService(request.server).setState(
+              toCacheRequest(request, slug, /** @type {string} */ (state)),
+              { value }
+            )
 
-          return null
-        }
-      })
+            return null
+          }
+        })
+      )
 
-      cacheServer.route({
-        method: 'GET',
-        path: STATE_PATH,
-        options: { auth: false },
-        handler: (request) => {
-          const { slug } = request.params
-          const { state } = request.query
+      cacheServer.route(
+        /** @satisfies {ServerRoute<{ Params: { slug: string } }>} */
+        ({
+          method: 'GET',
+          path: STATE_PATH,
+          options: { auth: false },
+          handler: (request) => {
+            const { slug } = request.params
+            const { state } = request.query
 
-          return getCacheService(request.server).getState(
-            toCacheRequest(request, slug, /** @type {string} */ (state))
-          )
-        }
-      })
+            return getCacheService(request.server).getState(
+              toCacheRequest(request, slug, /** @type {string} */ (state))
+            )
+          }
+        })
+      )
 
       await cacheServer.initialize()
     })
@@ -1245,7 +1251,7 @@ describe('Save-and-exit check routes', () => {
 })
 
 /**
- * @import { Request, RequestQuery, Server } from '@hapi/hapi'
+ * @import { Request, RequestQuery, Server, ServerRoute } from '@hapi/hapi'
  * @import { OutgoingHttpHeaders } from 'node:http'
  * @import { CacheRequest } from '@defra/forms-engine-plugin/engine/types.js'
  * @import { Yar } from '@hapi/yar'

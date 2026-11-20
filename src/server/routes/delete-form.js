@@ -198,8 +198,9 @@ export default [
       auth: CITIZEN_AUTH_ROUTE_OPTIONS,
       validate: {
         failAction(request, h, err) {
-          const { params } = request
-          const { formId, magicLinkId } = params
+          const { formId, magicLinkId } = /** @type {DeleteFormParams} */ (
+            request.params
+          )
 
           if (Joi.isError(err)) {
             const firstError = err.details.at(0)
