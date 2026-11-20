@@ -671,7 +671,7 @@ describe('per-form homepage', () => {
 
       it('refreshes the token before asking for the saved forms', async () => {
         jest.mocked(client.refreshTokenGrant).mockResolvedValue(
-          /** @type {TokenEndpointResponse & TokenEndpointResponseHelpers} */ (
+          /** @type {Awaited<ReturnType<typeof client.refreshTokenGrant>>} */ (
             /** @type {unknown} */ ({
               access_token: 'access-2',
               id_token: 'header.payload.signature-2',
@@ -1070,7 +1070,6 @@ describe('per-form homepage', () => {
 
 /**
  * @import { Request, Server } from '@hapi/hapi'
- * @import { TokenEndpointResponse, TokenEndpointResponseHelpers } from 'openid-client'
  * @import { HomepageParams } from '~/src/server/routes/homepage.js'
  * @import { SavedForm } from '~/src/server/services/submissionService.js'
  */

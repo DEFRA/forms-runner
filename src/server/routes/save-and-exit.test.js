@@ -1078,7 +1078,7 @@ describe('Save-and-exit check routes', () => {
         path: STATE_PATH,
         options: { auth: false },
         handler: async (request) => {
-          const { slug } = request.params
+          const { slug } = /** @type {{ slug: string }} */ (request.params)
           const { state } = request.query
           const { value } = /** @type {{ value: string }} */ (request.payload)
 
@@ -1096,7 +1096,7 @@ describe('Save-and-exit check routes', () => {
         path: STATE_PATH,
         options: { auth: false },
         handler: (request) => {
-          const { slug } = request.params
+          const { slug } = /** @type {{ slug: string }} */ (request.params)
           const { state } = request.query
 
           return getCacheService(request.server).getState(

@@ -73,7 +73,7 @@ function refreshResponse(overrides = {}, sub = SUB) {
     ...overrides
   }
 
-  return /** @type {TokenEndpointResponse & TokenEndpointResponseHelpers} */ (
+  return /** @type {Awaited<ReturnType<typeof client.refreshTokenGrant>>} */ (
     /** @type {unknown} */ ({
       ...response,
       claims: () => (response.id_token ? { sub } : undefined)
@@ -276,6 +276,6 @@ describe('refreshAccessToken', () => {
 
 /**
  * @import { Request } from '@hapi/hapi'
- * @import { TokenEndpointResponse, TokenEndpointResponseHelpers } from 'openid-client'
+ * @import { TokenEndpointResponse } from 'openid-client'
  * @import { TokenSet } from '~/src/server/auth/accountSession.js'
  */
