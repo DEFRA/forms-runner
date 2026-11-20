@@ -8,13 +8,12 @@ import { StatusCodes } from 'http-status-codes'
 
 import { config } from '~/src/config/index.js'
 import { createServer } from '~/src/server/index.js'
-import {
-  getFormDefinition,
-  getFormMetadataById
-} from '~/src/server/services/formsService.js'
+import { getFormMetadataByIdWithGuard } from '~/src/server/services/formMetadataGuards.js'
+import { getFormDefinition } from '~/src/server/services/formsService.js'
 import { getSubmissionRecord } from '~/src/server/services/submissionService.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 
+jest.mock('~/src/server/services/formMetadataGuards.js')
 jest.mock('~/src/server/services/formsService.js')
 jest.mock('~/src/server/services/submissionService.js')
 
@@ -140,7 +139,7 @@ describe('Copy form routes', () => {
   describe('GET /confirm-copy-form/{formId}/{referenceNumber}', () => {
     test('responds with OK', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({ id: FORM_ID, slug: 'my-form' })
       // @ts-expect-error - allow partial objects for tests
@@ -159,7 +158,7 @@ describe('Copy form routes', () => {
 
     test('responds with not found when the submission does not exist', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({ id: FORM_ID, slug: 'my-form' })
       jest.mocked(getSubmissionRecord).mockResolvedValueOnce(undefined)
@@ -177,7 +176,7 @@ describe('Copy form routes', () => {
 
     test('responds with OK for a preview submission', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({ id: FORM_ID, slug: 'my-form' })
       jest.mocked(getSubmissionRecord).mockResolvedValueOnce(
@@ -194,13 +193,17 @@ describe('Copy form routes', () => {
       const { response } = await renderResponse(server, options)
 
       expect(response.statusCode).toBe(StatusCodes.OK)
+      expect(getFormMetadataByIdWithGuard).toHaveBeenCalledWith(
+        FORM_ID,
+        FormStatus.Draft
+      )
     })
   })
 
   describe('POST /confirm-copy-form/{formId}/{referenceNumber}', () => {
     test('redirects to the changed form page when the form has a declaration', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({ id: FORM_ID, slug: 'my-form' })
       // @ts-expect-error - allow partial objects for tests
@@ -228,7 +231,7 @@ describe('Copy form routes', () => {
 
     test('redirects to the summary when the copied form version matches', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({ id: FORM_ID, slug: 'my-form' })
       // @ts-expect-error - allow partial objects for tests
@@ -254,7 +257,7 @@ describe('Copy form routes', () => {
 
     test('responds with not found when the form definition does not exist', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({ id: FORM_ID, slug: 'my-form' })
       // @ts-expect-error - allow partial objects for tests
@@ -275,7 +278,7 @@ describe('Copy form routes', () => {
 
     test('redirects to the changed form page when the form version metadata is missing', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({ id: FORM_ID, slug: 'my-form' })
       // @ts-expect-error - allow partial objects for tests
@@ -302,7 +305,7 @@ describe('Copy form routes', () => {
 
     test('redirects to the changed form page when the submission version metadata is missing', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({ id: FORM_ID, slug: 'my-form' })
       jest.mocked(getSubmissionRecord).mockResolvedValueOnce(
@@ -333,7 +336,7 @@ describe('Copy form routes', () => {
   describe('GET /confirm-copy-form/{formId}/{referenceNumber}/form-changed', () => {
     test('responds with OK', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({ id: FORM_ID, slug: 'my-form' })
       // @ts-expect-error - allow partial objects for tests
@@ -354,7 +357,7 @@ describe('Copy form routes', () => {
   describe('POST /confirm-copy-form/{formId}/{referenceNumber}/form-changed', () => {
     test('redirects to the form when the form version has changed', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({ id: FORM_ID, slug: 'my-form' })
       jest.mocked(getSubmissionRecord).mockResolvedValueOnce(
@@ -382,7 +385,7 @@ describe('Copy form routes', () => {
 
     test('redirects to the declaration page and returns to the summary', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({ id: FORM_ID, slug: 'my-form' })
       jest.mocked(getSubmissionRecord).mockResolvedValueOnce(
@@ -412,7 +415,7 @@ describe('Copy form routes', () => {
 
     test('redirects to the form when the version has not changed and there is no declaration field', async () => {
       jest
-        .mocked(getFormMetadataById)
+        .mocked(getFormMetadataByIdWithGuard)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValueOnce({ id: FORM_ID, slug: 'my-form' })
       jest.mocked(getSubmissionRecord).mockResolvedValueOnce(
