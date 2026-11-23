@@ -1,7 +1,7 @@
 import { FormStatus } from '@defra/forms-model'
 
 import {
-  getFormMetadataById,
+  getFormMetadataByIdWithGuard,
   getFormMetadataWithGuard,
   getFormMetadataWithoutGuard
 } from '~/src/server/services/formMetadataGuards.js'
@@ -62,7 +62,9 @@ describe('formMetadataGuards', () => {
         .mocked(rawGetFormMetadataById)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValue(onlineForm)
-      await expect(getFormMetadataById('form-1')).resolves.toBe(onlineForm)
+      await expect(getFormMetadataByIdWithGuard('form-1')).resolves.toBe(
+        onlineForm
+      )
     })
 
     it('throws an offline-marker Boom when the form is offline', async () => {
@@ -70,7 +72,9 @@ describe('formMetadataGuards', () => {
         .mocked(rawGetFormMetadataById)
         // @ts-expect-error - allow partial objects for tests
         .mockResolvedValue(offlineForm)
-      await expect(getFormMetadataById('form-1')).rejects.toMatchObject({
+      await expect(
+        getFormMetadataByIdWithGuard('form-1')
+      ).rejects.toMatchObject({
         isBoom: true,
         data: { offline: true }
       })

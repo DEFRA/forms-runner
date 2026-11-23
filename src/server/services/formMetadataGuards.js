@@ -30,7 +30,7 @@ export async function getFormMetadataWithGuard(slug, previewStatus) {
  * @param {string} formId
  * @param {FormStatus} [previewStatus]
  */
-export async function getFormMetadataById(formId, previewStatus) {
+export async function getFormMetadataByIdWithGuard(formId, previewStatus) {
   const metadata = await rawFormsService.getFormMetadataById(formId)
   assertFormAvailable(metadata, previewStatus ?? FormStatus.Live, false)
   return metadata

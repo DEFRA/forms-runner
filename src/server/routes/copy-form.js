@@ -21,10 +21,8 @@ import {
 } from '~/src/server/helpers/route-helpers.js'
 import { t } from '~/src/server/i18n/index.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
-import {
-  getFormDefinition,
-  getFormMetadataById
-} from '~/src/server/services/formsService.js'
+import { getFormMetadataByIdWithGuard } from '~/src/server/services/formMetadataGuards.js'
+import { getFormDefinition } from '~/src/server/services/formsService.js'
 import { getSubmissionRecord } from '~/src/server/services/submissionService.js'
 import { mapValueToState } from '~/src/server/utils/map-submission-to-state.js'
 import { getAllLanguages } from '~/src/server/utils/utils.js'
@@ -86,7 +84,6 @@ async function getTranslator(request, metadata, submission) {
  */
 async function getFormAndSubmission(params, accessToken) {
   const { formId, referenceNumber } = params
-  const form = await getFormMetadataById(formId)
   const submissionToCopy = await getSubmissionRecord(
     referenceNumber,
     accessToken
@@ -97,6 +94,9 @@ async function getFormAndSubmission(params, accessToken) {
       `Cannot copy form '${referenceNumber}' because it was not found`
     )
   }
+
+  const previewStatus = getPreviewStatus(submissionToCopy)
+  const form = await getFormMetadataByIdWithGuard(formId, previewStatus)
 
   return { form, referenceNumber, submissionToCopy }
 }
