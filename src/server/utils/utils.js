@@ -4,10 +4,12 @@ import {
 } from '@defra/forms-common'
 import { getAvailableLanguages } from '@defra/forms-engine-plugin'
 import { isAllowCopyEnabled } from '@defra/forms-model'
+import Boom from '@hapi/boom'
 
 import { config } from '~/src/config/index.js'
 import { EN_GB, SIGN_IN_PATH, SessionKeys } from '~/src/server/constants.js'
 import { getInflightSessionKey } from '~/src/server/routes/save-and-exit-helper.js'
+import { getFormMetadataWithoutGuard } from '~/src/server/services/formMetadataGuards.js'
 
 /**
  * Returns a set of headers to use in an HTTP request, merging them with any existing headers in options.
@@ -164,6 +166,40 @@ export function localReturnPath(value) {
 }
 
 /**
+ * The form path starting values that a sign in can return to.
+ * A preview path names its state before the slug, and a path the
+ * sign in sends through the homepage check starts with `/auth/via-homepage`.
+ */
+const FORM_SLUG_PATH_PREFIXES = [
+  '/auth/via-homepage/form',
+  '/form',
+  '/homepage',
+  '/save-and-exit'
+]
+
+/**
+ * The slug of the form a path belongs to, or undefined when the path is not
+ * a form path. The slug is used to lookup the form title, so it can be sentto the
+ * provider in order that the security code email can include the form name in the content.
+ * @param {string} path - a local path, as `localReturnPath` returns
+ * @returns {string | undefined}
+ */
+export function formSlugFromPath(path) {
+  const found = FORM_SLUG_PATH_PREFIXES.find(
+    (prefix) => path === prefix || path.startsWith(`${prefix}/`)
+  )
+  if (!found) {
+    return undefined
+  }
+  const subPath = path.slice(found.length).split(/[?#]/)[0]
+  const parts = subPath.split('/')
+  if (subPath.startsWith('/preview/')) {
+    return parts[3] // the slug is the third segment
+  }
+  return parts[1] // the slug is the second segment
+}
+
+/**
  * Sign-in URL that returns to `path` afterwards. The sign-in route validates
  * `returnUrl` with `localReturnPath`, so `path` must be local.
  * @param {string} path
@@ -203,7 +239,28 @@ export function addToInflightList(yar, slug, previewStatus, cachedState) {
 }
 
 /**
+ * Gets the metadata of a form if it exists, otherwise returns undefined.
+ * @param { string | undefined } slug
+ * @returns {Promise<FormMetadata | undefined>}
+ */
+export async function getFormMetadataIfExists(slug) {
+  if (!slug) {
+    return undefined
+  }
+  try {
+    return await getFormMetadataWithoutGuard(slug)
+  } catch (err) {
+    if (err instanceof Error && Boom.isBoom(err)) {
+      if (err.output.statusCode === 404) {
+        return undefined
+      }
+    }
+    throw err
+  }
+}
+
+/**
  * @import { RequestQuery } from '@hapi/hapi'
  * @import { Yar } from '@hapi/yar'
- * @import { FormDefinition, FormStatus } from '@defra/forms-model'
+ * @import { FormDefinition, FormMetadata, FormStatus } from '@defra/forms-model'
  */

@@ -60,7 +60,9 @@ import { getFormDefinition } from '~/src/server/services/formsService.js'
 import { getFormRecords } from '~/src/server/services/submissionService.js'
 import {
   browserRedirectUri,
+  formSlugFromPath,
   getAllLanguages,
+  getFormMetadataIfExists,
   resolveLanguage
 } from '~/src/server/utils/utils.js'
 
@@ -168,6 +170,8 @@ async function startSignIn(request, h, returnUrl) {
   // repeats this exact URI at the token endpoint, so it is kept in the
   // transaction.
   const redirectUri = browserRedirectUri(request.info.host, CALLBACK_PATH)
+  const formSlug = formSlugFromPath(returnUrl)
+  const form = await getFormMetadataIfExists(formSlug)
 
   setSignInTransaction(request.yar, {
     state,
@@ -177,20 +181,26 @@ async function startSignIn(request, h, returnUrl) {
     redirectUri
   })
 
-  const authorizationUrl = client.buildAuthorizationUrl(oidcConfig, {
-    redirect_uri: redirectUri,
-    scope: SCOPES,
-    resource: RESOURCE,
-    state,
-    nonce,
-    code_challenge: await client.calculatePKCECodeChallenge(codeVerifier),
-    code_challenge_method: 'S256',
-    ...(idToken && { id_token_hint: idToken }),
-    // `login` always require an OTP for new logins
-    // `consent` lets the provider accept `offline_access` (OpenID Connect
-    // Core, section 11).
-    prompt: 'login consent'
-  })
+  const authorizationUrl = await client.buildAuthorizationUrlWithPAR(
+    oidcConfig,
+    {
+      redirect_uri: redirectUri,
+      scope: SCOPES,
+      resource: RESOURCE,
+      state,
+      nonce,
+      code_challenge: await client.calculatePKCECodeChallenge(codeVerifier),
+      code_challenge_method: 'S256',
+      ...(idToken && { id_token_hint: idToken }),
+      // These parameters are signed so cannot be manipulated.
+      // It's therefore safe to pass here using PAR (Pushed Authorization Request).
+      ...(form && { service_name: form.title }),
+      // `login` always require an OTP for new logins
+      // `consent` lets the provider accept `offline_access` (OpenID Connect
+      // Core, section 11).
+      prompt: 'login consent'
+    }
+  )
 
   return h.redirect(authorizationUrl.href)
 }
