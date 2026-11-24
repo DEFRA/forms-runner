@@ -1,15 +1,7 @@
 import { setUserId } from '@defra/forms-common'
-import {
-  checkFormStatus,
-  getCacheService
-} from '@defra/forms-engine-plugin/engine/helpers.js'
+import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
-import {
-  FormStatus,
-  getErrorMessage,
-  isAllowCopyEnabled,
-  slugSchema
-} from '@defra/forms-model'
+import { FormStatus, getErrorMessage, slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import * as Bourne from '@hapi/bourne'
 import { StatusCodes } from 'http-status-codes'
@@ -41,23 +33,22 @@ import {
   CY,
   EN_GB,
   FORM_PREFIX,
-  FormRowStatus,
   HOMEPAGE_PREFIX,
   INITIATE_SIGN_IN_PATH,
   PREVIEW_PATH_PREFIX,
   SIGNED_OUT_PATH,
   SIGN_IN_PATH,
   SIGN_OUT_PATH,
-  SessionKeys,
   VIA_HOMEPAGE_PATH
 } from '~/src/server/constants.js'
+import {
+  checkSubmittedFormsAndLink,
+  getPathAndQuery
+} from '~/src/server/helpers/auth-helper.js'
 import { t as runnerT } from '~/src/server/i18n/index.js'
 import { returnUrlSchema } from '~/src/server/models/common.js'
-import { linkEarlierSubmissions } from '~/src/server/routes/homepage.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadataWithoutGuard } from '~/src/server/services/formMetadataGuards.js'
-import { getFormDefinition } from '~/src/server/services/formsService.js'
-import { getFormRecords } from '~/src/server/services/submissionService.js'
 import {
   browserRedirectUri,
   formSlugFromPath,
@@ -659,71 +650,6 @@ export default [
     }
   })
 ]
-
-/**
- * Check if the user has any submitted forms linked to the given form slug and status.
- * Previous user submissions are linked before checking for submitted forms.
- * @param {Request<{ Params: FormParams }>} request
- * @param {string} slug
- * @param {FormStatus} formStatus
- * @param {string} accessToken
- * @param {boolean} isPreview
- * @returns {Promise<boolean>}
- */
-async function checkSubmittedFormsAndLink(
-  request,
-  slug,
-  formStatus,
-  accessToken,
-  isPreview
-) {
-  const form = await getFormMetadataWithoutGuard(slug)
-  const definition = await getFormDefinition(form.id, formStatus)
-  if (definition && isAllowCopyEnabled(definition)) {
-    await linkEarlierSubmissions(accessToken, form.id)
-
-    const savedForms = await getFormRecords(
-      accessToken,
-      form.id,
-      isPreview ? formStatus : undefined
-    )
-    const relevantForms = savedForms.filter(
-      (record) =>
-        record.status === FormRowStatus.Submitted ||
-        record.status === FormRowStatus.InProgress
-    )
-    if (relevantForms.length > 0) {
-      // Redirect to homepage if no existing state
-      const existingState = await hasExistingFormState(request)
-      return !existingState
-    }
-  }
-  return false
-}
-
-/**
- * Checks if there is any existing form state in the cache for the current request.
- * @param {Request<{ Params: FormParams }>} request
- * @returns {Promise<boolean>} True if there is existing form state, false otherwise.
- */
-async function hasExistingFormState(request) {
-  const cacheService = getCacheService(request.server)
-  const state = await cacheService.getState(request)
-  return Object.keys(state).some((key) => key !== SessionKeys.REFERENCE_NUMBER)
-}
-
-/**
- * @param {Request<{ Params: FormParams }>} request
- * @returns {{ remainingPath: string, queryParams: string }}
- */
-function getPathAndQuery(request) {
-  return {
-    remainingPath: request.params.remainingPath
-      ? `/${request.params.remainingPath}`
-      : '',
-    queryParams: request.url.search
-  }
-}
 
 /**
  * @import { Request, ResponseToolkit, ServerRoute } from '@hapi/hapi'
