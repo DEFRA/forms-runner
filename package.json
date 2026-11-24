@@ -76,7 +76,7 @@
     "hapi-pulse": "^4.0.0",
     "http-status-codes": "^2.3.0",
     "humanize-duration": "^3.35.1",
-    "i18next": "^26.0.5",
+    "i18next": "^26.7.2",
     "ioredis": "^5.11.1",
     "joi": "^18.3.2",
     "jose": "^6.2.18",
