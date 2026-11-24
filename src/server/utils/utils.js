@@ -7,7 +7,12 @@ import { isAllowCopyEnabled } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 
 import { config } from '~/src/config/index.js'
-import { EN_GB, SIGN_IN_PATH, SessionKeys } from '~/src/server/constants.js'
+import {
+  EN_GB,
+  HTTP_NOT_FOUND,
+  SIGN_IN_PATH,
+  SessionKeys
+} from '~/src/server/constants.js'
 import { getInflightSessionKey } from '~/src/server/routes/save-and-exit-helper.js'
 import { getFormMetadataWithoutGuard } from '~/src/server/services/formMetadataGuards.js'
 
@@ -177,6 +182,9 @@ const FORM_SLUG_PATH_PREFIXES = [
   '/save-and-exit'
 ]
 
+const SLUG_POSITION_WITH_PREVIEW = 3
+const SLUG_POSITION_WITHOUT_PREVIEW = 1
+
 /**
  * The slug of the form a path belongs to, or undefined when the path is not
  * a form path. The slug is used to lookup the form title, so it can be sentto the
@@ -194,9 +202,9 @@ export function formSlugFromPath(path) {
   const subPath = path.slice(found.length).split(/[?#]/)[0]
   const parts = subPath.split('/')
   if (subPath.startsWith('/preview/')) {
-    return parts[3] // the slug is the third segment
+    return parts[SLUG_POSITION_WITH_PREVIEW] // the slug is the third segment
   }
-  return parts[1] // the slug is the second segment
+  return parts[SLUG_POSITION_WITHOUT_PREVIEW] // the slug is the second segment
 }
 
 /**
@@ -250,10 +258,12 @@ export async function getFormMetadataIfExists(slug) {
   try {
     return await getFormMetadataWithoutGuard(slug)
   } catch (err) {
-    if (err instanceof Error && Boom.isBoom(err)) {
-      if (err.output.statusCode === 404) {
-        return undefined
-      }
+    if (
+      err instanceof Error &&
+      Boom.isBoom(err) &&
+      err.output.statusCode === HTTP_NOT_FOUND
+    ) {
+      return undefined
     }
     throw err
   }

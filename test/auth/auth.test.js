@@ -15,12 +15,17 @@ import {
   SIGNED_OUT_PATH,
   SIGN_OUT_PATH
 } from '~/src/server/constants.js'
+import { getCachedFormTranslatorExternalRoutes } from '~/src/server/i18n/form.js'
 import { createServer } from '~/src/server/index.js'
 import { getFormMetadataWithoutGuard } from '~/src/server/services/formMetadataGuards.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 jest.mock('openid-client')
+jest.mock('~/src/server/i18n/form.ts', () => ({
+  ...jest.requireActual('~/src/server/i18n/form.ts'),
+  getCachedFormTranslatorExternalRoutes: jest.fn()
+}))
 jest.mock('~/src/server/services/formMetadataGuards.js')
 jest.mock('~/src/server/auth/backchannelLogout.js', () => ({
   ...jest.requireActual('~/src/server/auth/backchannelLogout.js'),
@@ -168,6 +173,10 @@ describe('sign in routes and sign out routes', () => {
   })
 
   beforeEach(() => {
+    jest
+      .mocked(getCachedFormTranslatorExternalRoutes)
+      // @ts-expect-error - partial mock of the translator
+      .mockResolvedValue({ tForm: () => 'Test form' })
     // @ts-expect-error - partial mock of test data
     jest.mocked(getFormMetadataWithoutGuard).mockResolvedValue({
       id: '661e4ca5039739ef2902b214',
@@ -225,6 +234,36 @@ describe('sign in routes and sign out routes', () => {
       .calls[0]
 
     expect(params).toMatchObject({ service_name: 'Test form' })
+  })
+
+  it('still starts the sign in, naming no form, when the form definition cannot be fetched', async () => {
+    jest
+      .mocked(getCachedFormTranslatorExternalRoutes)
+      .mockRejectedValue(new Error('forms-manager unavailable'))
+
+    const response = await startSignIn()
+
+    expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+
+    const [, params] = jest.mocked(client.buildAuthorizationUrlWithPAR).mock
+      .calls[0]
+
+    expect(params).not.toHaveProperty('service_name')
+  })
+
+  it('still starts the sign in, naming no form, when the form metadata cannot be fetched', async () => {
+    jest
+      .mocked(getFormMetadataWithoutGuard)
+      .mockRejectedValue(new Error('forms-manager unavailable'))
+
+    const response = await startSignIn()
+
+    expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+
+    const [, params] = jest.mocked(client.buildAuthorizationUrlWithPAR).mock
+      .calls[0]
+
+    expect(params).not.toHaveProperty('service_name')
   })
 
   it('names no form to the provider when the return path is not a form', async () => {

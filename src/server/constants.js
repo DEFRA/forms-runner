@@ -10,8 +10,11 @@ export const BACKCHANNEL_LOGOUT_PATH = '/auth/backchannel-logout'
 export const CALLBACK_PATH = '/auth/callback'
 export const VIA_HOMEPAGE_PATH = '/auth/via-homepage'
 export const SAVE_AND_EXIT_PAYLOAD = 'SAVE_AND_EXIT_PAYLOAD'
+
 export const EN_GB = 'en-GB'
 export const CY = 'cy'
+
+export const HTTP_NOT_FOUND = 404
 
 // Session keys
 export const SessionKeys = {

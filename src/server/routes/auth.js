@@ -148,7 +148,7 @@ async function endSignIn(request) {
 /**
  * Starts a sign in at the provider. The callback finishes it and sends the
  * citizen to `returnUrl`.
- * @param {Pick<Request, 'server' | 'yar' | 'info'>} request
+ * @param {Pick<Request, 'server' | 'yar' | 'info' | 'query'>} request
  * @param {Pick<ResponseToolkit, 'redirect'>} h
  * @param {string} returnUrl - validated by the route that calls this
  */
@@ -171,7 +171,26 @@ async function startSignIn(request, h, returnUrl) {
   // transaction.
   const redirectUri = browserRedirectUri(request.info.host, CALLBACK_PATH)
   const formSlug = formSlugFromPath(returnUrl)
-  const form = await getFormMetadataIfExists(formSlug)
+  let language = resolveLanguage(request.query, request.yar)
+  let formTitle
+  // The title of the form is only shown in the security code email, so a sign in
+  // still goes ahead when forms-manager is down or the form doesn't exist
+  try {
+    const form = await getFormMetadataIfExists(formSlug)
+    if (form) {
+      const translated = await getFormTranslator(
+        request,
+        form,
+        form.live ? FormStatus.Live : FormStatus.Draft
+      )
+      formTitle = /** @type {string} */ (translated.translator.tForm('title'))
+      language = translated.language
+    }
+  } catch (err) {
+    logger.warn(
+      `[signInFormTitle] Could not get the form title for ${formSlug} - ${getErrorMessage(err)}`
+    )
+  }
 
   setSignInTransaction(request.yar, {
     state,
@@ -194,7 +213,8 @@ async function startSignIn(request, h, returnUrl) {
       ...(idToken && { id_token_hint: idToken }),
       // These parameters are signed so cannot be manipulated.
       // It's therefore safe to pass here using PAR (Pushed Authorization Request).
-      ...(form && { service_name: form.title }),
+      ...(formTitle && { service_name: formTitle }),
+      ui_locales: language,
       // `login` always require an OTP for new logins
       // `consent` lets the provider accept `offline_access` (OpenID Connect
       // Core, section 11).
