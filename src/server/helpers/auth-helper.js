@@ -1,11 +1,21 @@
 import { getCacheService } from '@defra/forms-engine-plugin/engine/helpers.js'
-import { isAllowCopyEnabled } from '@defra/forms-model'
+import {
+  FormStatus,
+  getErrorMessage,
+  isAllowCopyEnabled
+} from '@defra/forms-model'
 
+import { logger } from '~/src/server/common/helpers/logging/logger.js'
 import { FormRowStatus, SessionKeys } from '~/src/server/constants.js'
 import { linkEarlierSubmissions } from '~/src/server/routes/homepage.js'
+import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadataWithoutGuard } from '~/src/server/services/formMetadataGuards.js'
 import { getFormDefinition } from '~/src/server/services/formsService.js'
 import { getFormRecords } from '~/src/server/services/submissionService.js'
+import {
+  getFormMetadataIfExists,
+  resolveLanguage
+} from '~/src/server/utils/utils.js'
 
 /**
  * Check if the user has any submitted forms linked to the given form slug and status.
@@ -73,7 +83,36 @@ export function getPathAndQuery(request) {
 }
 
 /**
- * @import { Request } from '@hapi/hapi'
- * @import { FormStatus } from '@defra/forms-model'
+ * Gets the language and title of the form for the current request.
+ * @param {Pick<Request<ReqRefDefaults>, "server" | "yar" | "info" | "query">} request
+ * @param { string | undefined } formSlug
+ * @returns {Promise<{ language: string, formTitle?: string }>}
+ */
+export async function getLanguageAndTitle(request, formSlug) {
+  let language = resolveLanguage(request.query, request.yar)
+  let formTitle
+  // The title of the form is only shown in the security code email, so a sign in
+  // still goes ahead when forms-manager is down or the form doesn't exist
+  try {
+    const form = await getFormMetadataIfExists(formSlug)
+    if (form) {
+      const translated = await getFormTranslator(
+        request,
+        form,
+        form.live ? FormStatus.Live : FormStatus.Draft
+      )
+      formTitle = /** @type {string} */ (translated.translator.tForm('title'))
+      language = translated.language
+    }
+  } catch (err) {
+    logger.warn(
+      `[signInFormTitle] Could not get the form title for ${formSlug} - ${getErrorMessage(err)}`
+    )
+  }
+  return { language, formTitle }
+}
+
+/**
+ * @import { Request, ReqRefDefaults } from '@hapi/hapi'
  * @import { FormParams } from '@defra/forms-engine-plugin/types'
  */

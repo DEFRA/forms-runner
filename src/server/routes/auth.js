@@ -43,6 +43,7 @@ import {
 } from '~/src/server/constants.js'
 import {
   checkSubmittedFormsAndLink,
+  getLanguageAndTitle,
   getPathAndQuery
 } from '~/src/server/helpers/auth-helper.js'
 import { t as runnerT } from '~/src/server/i18n/index.js'
@@ -53,7 +54,6 @@ import {
   browserRedirectUri,
   formSlugFromPath,
   getAllLanguages,
-  getFormMetadataIfExists,
   resolveLanguage
 } from '~/src/server/utils/utils.js'
 
@@ -162,26 +162,8 @@ async function startSignIn(request, h, returnUrl) {
   // transaction.
   const redirectUri = browserRedirectUri(request.info.host, CALLBACK_PATH)
   const formSlug = formSlugFromPath(returnUrl)
-  let language = resolveLanguage(request.query, request.yar)
-  let formTitle
-  // The title of the form is only shown in the security code email, so a sign in
-  // still goes ahead when forms-manager is down or the form doesn't exist
-  try {
-    const form = await getFormMetadataIfExists(formSlug)
-    if (form) {
-      const translated = await getFormTranslator(
-        request,
-        form,
-        form.live ? FormStatus.Live : FormStatus.Draft
-      )
-      formTitle = /** @type {string} */ (translated.translator.tForm('title'))
-      language = translated.language
-    }
-  } catch (err) {
-    logger.warn(
-      `[signInFormTitle] Could not get the form title for ${formSlug} - ${getErrorMessage(err)}`
-    )
-  }
+
+  const { language, formTitle } = await getLanguageAndTitle(request, formSlug)
 
   setSignInTransaction(request.yar, {
     state,
