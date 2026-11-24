@@ -1,15 +1,7 @@
 import { setUserId } from '@defra/forms-common'
-import {
-  checkFormStatus,
-  getCacheService
-} from '@defra/forms-engine-plugin/engine/helpers.js'
+import { checkFormStatus } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { stateSchema } from '@defra/forms-engine-plugin/schema.js'
-import {
-  FormStatus,
-  getErrorMessage,
-  isAllowCopyEnabled,
-  slugSchema
-} from '@defra/forms-model'
+import { FormStatus, getErrorMessage, slugSchema } from '@defra/forms-model'
 import Boom from '@hapi/boom'
 import * as Bourne from '@hapi/bourne'
 import { StatusCodes } from 'http-status-codes'
@@ -41,25 +33,26 @@ import {
   CY,
   EN_GB,
   FORM_PREFIX,
-  FormRowStatus,
   HOMEPAGE_PREFIX,
   INITIATE_SIGN_IN_PATH,
   PREVIEW_PATH_PREFIX,
   SIGNED_OUT_PATH,
   SIGN_IN_PATH,
   SIGN_OUT_PATH,
-  SessionKeys,
   VIA_HOMEPAGE_PATH
 } from '~/src/server/constants.js'
+import {
+  checkSubmittedFormsAndLink,
+  getLanguageAndTitle,
+  getPathAndQuery
+} from '~/src/server/helpers/auth-helper.js'
 import { t as runnerT } from '~/src/server/i18n/index.js'
 import { returnUrlSchema } from '~/src/server/models/common.js'
-import { linkEarlierSubmissions } from '~/src/server/routes/homepage.js'
 import { getFormTranslator } from '~/src/server/routes/save-and-exit.js'
 import { getFormMetadataWithoutGuard } from '~/src/server/services/formMetadataGuards.js'
-import { getFormDefinition } from '~/src/server/services/formsService.js'
-import { getFormRecords } from '~/src/server/services/submissionService.js'
 import {
   browserRedirectUri,
+  formSlugFromPath,
   getAllLanguages,
   resolveLanguage
 } from '~/src/server/utils/utils.js'
@@ -146,7 +139,7 @@ async function endSignIn(request) {
 /**
  * Starts a sign in at the provider. The callback finishes it and sends the
  * citizen to `returnUrl`.
- * @param {Pick<Request, 'server' | 'yar' | 'info'>} request
+ * @param {Pick<Request, 'server' | 'yar' | 'info' | 'query'>} request
  * @param {Pick<ResponseToolkit, 'redirect'>} h
  * @param {string} returnUrl - validated by the route that calls this
  */
@@ -168,6 +161,9 @@ async function startSignIn(request, h, returnUrl) {
   // repeats this exact URI at the token endpoint, so it is kept in the
   // transaction.
   const redirectUri = browserRedirectUri(request.info.host, CALLBACK_PATH)
+  const formSlug = formSlugFromPath(returnUrl)
+
+  const { language, formTitle } = await getLanguageAndTitle(request, formSlug)
 
   setSignInTransaction(request.yar, {
     state,
@@ -177,20 +173,27 @@ async function startSignIn(request, h, returnUrl) {
     redirectUri
   })
 
-  const authorizationUrl = client.buildAuthorizationUrl(oidcConfig, {
-    redirect_uri: redirectUri,
-    scope: SCOPES,
-    resource: RESOURCE,
-    state,
-    nonce,
-    code_challenge: await client.calculatePKCECodeChallenge(codeVerifier),
-    code_challenge_method: 'S256',
-    ...(idToken && { id_token_hint: idToken }),
-    // `login` always require an OTP for new logins
-    // `consent` lets the provider accept `offline_access` (OpenID Connect
-    // Core, section 11).
-    prompt: 'login consent'
-  })
+  const authorizationUrl = await client.buildAuthorizationUrlWithPAR(
+    oidcConfig,
+    {
+      redirect_uri: redirectUri,
+      scope: SCOPES,
+      resource: RESOURCE,
+      state,
+      nonce,
+      code_challenge: await client.calculatePKCECodeChallenge(codeVerifier),
+      code_challenge_method: 'S256',
+      ...(idToken && { id_token_hint: idToken }),
+      // These parameters are signed so cannot be manipulated.
+      // It's therefore safe to pass here using PAR (Pushed Authorization Request).
+      ...(formTitle && { service_name: formTitle }),
+      ui_locales: language,
+      // `login` always require an OTP for new logins
+      // `consent` lets the provider accept `offline_access` (OpenID Connect
+      // Core, section 11).
+      prompt: 'login consent'
+    }
+  )
 
   return h.redirect(authorizationUrl.href)
 }
@@ -629,71 +632,6 @@ export default [
     }
   })
 ]
-
-/**
- * Check if the user has any submitted forms linked to the given form slug and status.
- * Previous user submissions are linked before checking for submitted forms.
- * @param {Request<{ Params: FormParams }>} request
- * @param {string} slug
- * @param {FormStatus} formStatus
- * @param {string} accessToken
- * @param {boolean} isPreview
- * @returns {Promise<boolean>}
- */
-async function checkSubmittedFormsAndLink(
-  request,
-  slug,
-  formStatus,
-  accessToken,
-  isPreview
-) {
-  const form = await getFormMetadataWithoutGuard(slug)
-  const definition = await getFormDefinition(form.id, formStatus)
-  if (definition && isAllowCopyEnabled(definition)) {
-    await linkEarlierSubmissions(accessToken, form.id)
-
-    const savedForms = await getFormRecords(
-      accessToken,
-      form.id,
-      isPreview ? formStatus : undefined
-    )
-    const relevantForms = savedForms.filter(
-      (record) =>
-        record.status === FormRowStatus.Submitted ||
-        record.status === FormRowStatus.InProgress
-    )
-    if (relevantForms.length > 0) {
-      // Redirect to homepage if no existing state
-      const existingState = await hasExistingFormState(request)
-      return !existingState
-    }
-  }
-  return false
-}
-
-/**
- * Checks if there is any existing form state in the cache for the current request.
- * @param {Request<{ Params: FormParams }>} request
- * @returns {Promise<boolean>} True if there is existing form state, false otherwise.
- */
-async function hasExistingFormState(request) {
-  const cacheService = getCacheService(request.server)
-  const state = await cacheService.getState(request)
-  return Object.keys(state).some((key) => key !== SessionKeys.REFERENCE_NUMBER)
-}
-
-/**
- * @param {Request<{ Params: FormParams }>} request
- * @returns {{ remainingPath: string, queryParams: string }}
- */
-function getPathAndQuery(request) {
-  return {
-    remainingPath: request.params.remainingPath
-      ? `/${request.params.remainingPath}`
-      : '',
-    queryParams: request.url.search
-  }
-}
 
 /**
  * @import { Request, ResponseToolkit, ServerRoute } from '@hapi/hapi'

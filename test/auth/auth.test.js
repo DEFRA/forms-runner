@@ -15,11 +15,18 @@ import {
   SIGNED_OUT_PATH,
   SIGN_OUT_PATH
 } from '~/src/server/constants.js'
+import { getCachedFormTranslatorExternalRoutes } from '~/src/server/i18n/form.js'
 import { createServer } from '~/src/server/index.js'
+import { getFormMetadataWithoutGuard } from '~/src/server/services/formMetadataGuards.js'
 import { renderResponse } from '~/test/helpers/component-helpers.js'
 import { getCookieHeader } from '~/test/utils/get-cookie.js'
 
 jest.mock('openid-client')
+jest.mock('~/src/server/i18n/form.ts', () => ({
+  ...jest.requireActual('~/src/server/i18n/form.ts'),
+  getCachedFormTranslatorExternalRoutes: jest.fn()
+}))
+jest.mock('~/src/server/services/formMetadataGuards.js')
 jest.mock('~/src/server/auth/backchannelLogout.js', () => ({
   ...jest.requireActual('~/src/server/auth/backchannelLogout.js'),
   verifyLogoutToken: jest.fn()
@@ -167,6 +174,16 @@ describe('sign in routes and sign out routes', () => {
 
   beforeEach(() => {
     jest
+      .mocked(getCachedFormTranslatorExternalRoutes)
+      // @ts-expect-error - partial mock of the translator
+      .mockResolvedValue({ tForm: () => 'Test form' })
+    // @ts-expect-error - partial mock of test data
+    jest.mocked(getFormMetadataWithoutGuard).mockResolvedValue({
+      id: '661e4ca5039739ef2902b214',
+      slug: 'test-form',
+      title: 'Test form'
+    })
+    jest
       .mocked(client.discovery)
       .mockResolvedValue(
         mockConfiguration({ revocation_endpoint: REVOCATION_ENDPOINT })
@@ -178,8 +195,8 @@ describe('sign in routes and sign out routes', () => {
       .mocked(client.calculatePKCECodeChallenge)
       .mockResolvedValue('challenge-1')
     jest
-      .mocked(client.buildAuthorizationUrl)
-      .mockReturnValue(new URL(AUTHORIZATION_URL))
+      .mocked(client.buildAuthorizationUrlWithPAR)
+      .mockResolvedValue(new URL(AUTHORIZATION_URL))
     jest
       .mocked(client.buildEndSessionUrl)
       .mockReturnValue(new URL(END_SESSION_URL))
@@ -191,7 +208,8 @@ describe('sign in routes and sign out routes', () => {
     expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
     expect(response.headers.location).toBe(AUTHORIZATION_URL)
 
-    const [, params] = jest.mocked(client.buildAuthorizationUrl).mock.calls[0]
+    const [, params] = jest.mocked(client.buildAuthorizationUrlWithPAR).mock
+      .calls[0]
 
     expect(params).toMatchObject({
       // `offline_access` gets a refresh token that outlives the provider
@@ -209,9 +227,60 @@ describe('sign in routes and sign out routes', () => {
     })
   })
 
+  it('names the form to the provider, so the security code email can name it', async () => {
+    await startSignIn()
+
+    const [, params] = jest.mocked(client.buildAuthorizationUrlWithPAR).mock
+      .calls[0]
+
+    expect(params).toMatchObject({ service_name: 'Test form' })
+  })
+
+  it('still starts the sign in, naming no form, when the form definition cannot be fetched', async () => {
+    jest
+      .mocked(getCachedFormTranslatorExternalRoutes)
+      .mockRejectedValue(new Error('forms-manager unavailable'))
+
+    const response = await startSignIn()
+
+    expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+
+    const [, params] = jest.mocked(client.buildAuthorizationUrlWithPAR).mock
+      .calls[0]
+
+    expect(params).not.toHaveProperty('service_name')
+  })
+
+  it('still starts the sign in, naming no form, when the form metadata cannot be fetched', async () => {
+    jest
+      .mocked(getFormMetadataWithoutGuard)
+      .mockRejectedValue(new Error('forms-manager unavailable'))
+
+    const response = await startSignIn()
+
+    expect(response.statusCode).toBe(StatusCodes.MOVED_TEMPORARILY)
+
+    const [, params] = jest.mocked(client.buildAuthorizationUrlWithPAR).mock
+      .calls[0]
+
+    expect(params).not.toHaveProperty('service_name')
+  })
+
+  it('names no form to the provider when the return path is not a form', async () => {
+    await server.inject({
+      method: 'GET',
+      url: `/auth/sign-in?returnUrl=${encodeURIComponent('/help/privacy/test-form')}`
+    })
+
+    const [, params] = jest.mocked(client.buildAuthorizationUrlWithPAR).mock
+      .calls[0]
+
+    expect(params).not.toHaveProperty('service_name')
+  })
+
   it('sends the identity to the provider from sign in when they are still signed in', async () => {
     const { login } = await signIn()
-    jest.mocked(client.buildAuthorizationUrl).mockClear()
+    jest.mocked(client.buildAuthorizationUrlWithPAR).mockClear()
 
     await server.inject({
       method: 'GET',
@@ -219,7 +288,8 @@ describe('sign in routes and sign out routes', () => {
       headers: getCookieHeader(login, ['session'])
     })
 
-    const [, params] = jest.mocked(client.buildAuthorizationUrl).mock.calls[0]
+    const [, params] = jest.mocked(client.buildAuthorizationUrlWithPAR).mock
+      .calls[0]
 
     expect(params).toMatchObject({ id_token_hint: ID_TOKEN })
   })
@@ -267,7 +337,7 @@ describe('sign in routes and sign out routes', () => {
 
     it("sends the identity to the provider when they're still signed in", async () => {
       const { login } = await signIn()
-      jest.mocked(client.buildAuthorizationUrl).mockClear()
+      jest.mocked(client.buildAuthorizationUrlWithPAR).mockClear()
 
       await initiateSignIn(
         { iss: ISSUER, target_link_uri: TARGET_LINK_URI },
@@ -275,7 +345,8 @@ describe('sign in routes and sign out routes', () => {
       )
 
       // The provider can then ask the citizen only for a security code
-      const [, params] = jest.mocked(client.buildAuthorizationUrl).mock.calls[0]
+      const [, params] = jest.mocked(client.buildAuthorizationUrlWithPAR).mock
+        .calls[0]
 
       expect(params).toMatchObject({ id_token_hint: ID_TOKEN })
     })
@@ -283,7 +354,8 @@ describe('sign in routes and sign out routes', () => {
     it('sends no identity to the provider when signed out here', async () => {
       await initiateSignIn({ iss: ISSUER, target_link_uri: TARGET_LINK_URI })
 
-      const [, params] = jest.mocked(client.buildAuthorizationUrl).mock.calls[0]
+      const [, params] = jest.mocked(client.buildAuthorizationUrlWithPAR).mock
+        .calls[0]
 
       expect(params).not.toHaveProperty('id_token_hint')
     })
@@ -314,7 +386,7 @@ describe('sign in routes and sign out routes', () => {
       const response = await initiateSignIn(query)
 
       expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
-      expect(client.buildAuthorizationUrl).not.toHaveBeenCalled()
+      expect(client.buildAuthorizationUrlWithPAR).not.toHaveBeenCalled()
     })
   })
 
@@ -404,7 +476,8 @@ describe('sign in routes and sign out routes', () => {
         headers: { host: 'internal.example' }
       })
 
-      const [, params] = jest.mocked(client.buildAuthorizationUrl).mock.calls[0]
+      const [, params] = jest.mocked(client.buildAuthorizationUrlWithPAR).mock
+        .calls[0]
 
       expect(params).toMatchObject({ redirect_uri: INTERNAL_CALLBACK })
     })
@@ -548,7 +621,7 @@ describe('sign in routes and sign out routes', () => {
       // Refused before the provider is involved. Otherwise the user signs in
       // and lands on a page that does not exist.
       expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST)
-      expect(client.buildAuthorizationUrl).not.toHaveBeenCalled()
+      expect(client.buildAuthorizationUrlWithPAR).not.toHaveBeenCalled()
     }
   )
 

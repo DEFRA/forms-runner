@@ -1,16 +1,22 @@
 import { createLogContext, runWithLogContext } from '@defra/forms-common'
+import Boom from '@hapi/boom'
 
 import { config } from '~/src/config/index.js'
+import { getFormMetadataWithoutGuard } from '~/src/server/services/formMetadataGuards.js'
 import {
   applyLogContextHeaders,
   applyTraceHeaders,
   browserRedirectUri,
   formRequiresAuthentication,
+  formSlugFromPath,
   getFeedbackFormLink,
+  getFormMetadataIfExists,
   localReturnPath,
   resolveLanguage,
   signInUrl
 } from '~/src/server/utils/utils.js'
+
+jest.mock('~/src/server/services/formMetadataGuards.js')
 
 describe('utils', () => {
   describe('applyLogContextHeaders', () => {
@@ -223,6 +229,67 @@ describe('localReturnPath', () => {
     expect(
       localReturnPath('http://localhost:3009/homepage/test-form')
     ).toBeNull()
+  })
+})
+
+describe('formSlugFromPath', () => {
+  it.each([
+    ['/form/test-form', 'test-form'],
+    ['/form/test-form/page-one?lang=cy', 'test-form'],
+    ['/form/preview/draft/test-form/page-one', 'test-form'],
+    ['/form/preview/live/test-form', 'test-form'],
+    ['/homepage/test-form', 'test-form'],
+    ['/homepage/preview/draft/test-form', 'test-form'],
+    ['/save-and-exit/test-form/draft', 'test-form'],
+    ['/auth/via-homepage/form/test-form/page-one', 'test-form'],
+    ['/auth/via-homepage/form/preview/live/test-form?x=1', 'test-form']
+  ])('finds the slug in %s', (path, slug) => {
+    expect(formSlugFromPath(path)).toBe(slug)
+  })
+
+  it.each([
+    '/',
+    '/help/privacy/test-form',
+    '/homepage-test-form',
+    '/form-other/test-form',
+    'https://identity.example/account'
+  ])('finds no slug in %s', (path) => {
+    expect(formSlugFromPath(path)).toBeUndefined()
+  })
+})
+
+describe('getFormMetadataIfExists', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('returns undefined without a slug', async () => {
+    await expect(getFormMetadataIfExists(undefined)).resolves.toBeUndefined()
+    expect(getFormMetadataWithoutGuard).not.toHaveBeenCalled()
+  })
+
+  it('returns the form metadata when it exists', async () => {
+    const metadata = { id: 'form-1', slug: 'test-form', title: 'Test form' }
+    // @ts-expect-error - partial mock of test data
+    jest.mocked(getFormMetadataWithoutGuard).mockResolvedValue(metadata)
+
+    await expect(getFormMetadataIfExists('test-form')).resolves.toBe(metadata)
+    expect(getFormMetadataWithoutGuard).toHaveBeenCalledWith('test-form')
+  })
+
+  it('returns undefined when the form does not exist', async () => {
+    jest.mocked(getFormMetadataWithoutGuard).mockRejectedValue(Boom.notFound())
+
+    await expect(
+      getFormMetadataIfExists('missing-form')
+    ).resolves.toBeUndefined()
+  })
+
+  it('rethrows other metadata errors', async () => {
+    const error = Boom.badGateway('manager unavailable')
+    jest.mocked(getFormMetadataWithoutGuard).mockRejectedValue(error)
+
+    await expect(getFormMetadataIfExists('test-form')).rejects.toBe(error)
   })
 })
 
