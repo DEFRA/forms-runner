@@ -144,6 +144,35 @@ async function endSignIn(request) {
 }
 
 /**
+ * Ends the sign-in, and then the whole session. The form's answers are kept
+ * apart from the session, under a key made from the session id, so they are
+ * dropped first, while the session still has the id that names them. The
+ * reset then drops the session itself and gives the browser a new id.
+ * @param {Pick<Request, 'server' | 'yar'>} request
+ * @param {{ slug: string, previewMode?: string }} [form] - the form the
+ *   citizen signed out of. A sign-out whose state is not valid names none, so
+ *   only the session ends.
+ */
+async function endSession(request, form) {
+  await endSignIn(request)
+
+  if (form) {
+    // The cache service builds the key from the route params, and this route
+    // has none, so it is given the ones the form's own routes would have.
+    const formRequest = /** @type {Request} */ (
+      /** @type {unknown} */ ({
+        yar: request.yar,
+        params: { slug: form.slug, state: form.previewMode }
+      })
+    )
+
+    await getCacheService(request.server).clearState(formRequest)
+  }
+
+  request.yar.reset()
+}
+
+/**
  * Starts a sign in at the provider. The callback finishes it and sends the
  * citizen to `returnUrl`.
  * @param {Pick<Request, 'server' | 'yar' | 'info'>} request
@@ -423,7 +452,7 @@ export default [
       // A state that is not valid cannot show whether the citizen cancelled,
       // so sign them out.
       if (!state) {
-        await endSignIn(request)
+        await endSession(request)
         throw Boom.badRequest('Sign-out state is not valid')
       }
 
@@ -439,7 +468,7 @@ export default [
         return h.redirect(returnUrl)
       }
 
-      await endSignIn(request)
+      await endSession(request, { slug, previewMode })
 
       return h.view('auth/signed-out', {
         signInLink,

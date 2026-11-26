@@ -1,6 +1,7 @@
 import { join } from 'node:path'
 
 import { getUserId } from '@defra/forms-common'
+import { getCacheService } from '@defra/forms-engine-plugin/engine/helpers.js'
 import { StatusCodes } from 'http-status-codes'
 import * as client from 'openid-client'
 
@@ -42,6 +43,7 @@ const ID_TOKEN = 'header.payload.signature'
 const ACCESS_TOKEN = 'access-1'
 const REFRESH_TOKEN = 'refresh-1'
 const SESSION_PROBE_PATH = '/test/session'
+const FORM_STATE_PROBE_PATH = '/test/form-state'
 const REVOCATION_ENDPOINT = 'http://localhost:3011/token/revocation'
 
 /**
@@ -149,6 +151,29 @@ describe('sign in routes and sign out routes', () => {
         )._store
       })
     })
+
+    // Reads and writes a form's answers the way the form's own routes do,
+    // keyed by the session id and the `state` and `slug` params
+    server.route([
+      {
+        method: 'GET',
+        path: `${FORM_STATE_PROBE_PATH}/{slug}/{state?}`,
+        options: { auth: false },
+        handler: (request) => getCacheService(request.server).getState(request)
+      },
+      {
+        method: 'POST',
+        path: `${FORM_STATE_PROBE_PATH}/{slug}/{state?}`,
+        options: { auth: false },
+        handler: async (request) => {
+          await getCacheService(request.server).setState(
+            request,
+            /** @type {FormSubmissionState} */ (request.payload)
+          )
+          return null
+        }
+      }
+    ])
 
     server.route({
       method: 'GET',
@@ -744,6 +769,82 @@ describe('sign in routes and sign out routes', () => {
       expect(await idTokenHint(headers)).toBeUndefined()
     })
 
+    it.each([
+      ['a live form', 'my-form-slug', undefined],
+      ['a form in preview', 'my-form-slug/draft', 'draft']
+    ])(
+      'drops the answers to %s when the citizen comes back from a completed sign-out, so they are not left on the server',
+      async (_, formPath, previewMode) => {
+        const headers = await signIn()
+        const formState = `${FORM_STATE_PROBE_PATH}/${formPath}`
+
+        await server.inject({
+          method: 'POST',
+          url: formState,
+          payload: { answer: 'private' },
+          headers
+        })
+
+        const before = await server.inject({ url: formState, headers })
+        expect(before.result).toEqual({ answer: 'private' })
+
+        await server.inject({
+          method: 'GET',
+          url: signedOutUrl({
+            slug: 'my-form-slug',
+            previewMode,
+            returnUrl: FORM_PAGE
+          }),
+          headers
+        })
+
+        // The old cookie still names the old session id, so this reads the
+        // key the answers were kept under
+        const after = await server.inject({ url: formState, headers })
+        expect(after.result).toEqual({})
+      }
+    )
+
+    it('drops the session and gives the browser a new one when the citizen comes back from a completed sign-out', async () => {
+      const headers = await signIn()
+
+      const response = await server.inject({
+        method: 'GET',
+        url: signedOutUrl({ slug: 'my-form-slug', returnUrl: FORM_PAGE }),
+        headers
+      })
+
+      expect(getCookieHeader(response, ['session'])).not.toEqual(headers)
+
+      const session = await server.inject({
+        method: 'GET',
+        url: SESSION_PROBE_PATH,
+        headers
+      })
+      expect(session.result).toEqual({})
+    })
+
+    it('keeps the answers when the citizen cancels the sign-out', async () => {
+      const headers = await signIn()
+      const formState = `${FORM_STATE_PROBE_PATH}/my-form-slug`
+
+      await server.inject({
+        method: 'POST',
+        url: formState,
+        payload: { answer: 'kept' },
+        headers
+      })
+
+      await server.inject({
+        method: 'GET',
+        url: signedOutUrl({ slug: 'my-form-slug', returnUrl: FORM_PAGE }, true),
+        headers
+      })
+
+      const after = await server.inject({ url: formState, headers })
+      expect(after.result).toEqual({ answer: 'kept' })
+    })
+
     it('revokes the refresh token at the discovered revocation endpoint when the citizen comes back from a completed sign-out', async () => {
       const headers = await signIn()
 
@@ -1192,4 +1293,5 @@ describe('sign in routes, feature flag off', () => {
  * @import { Server, ServerInjectOptions, ServerInjectResponse } from '@hapi/hapi'
  * @import { TokenSet } from '~/src/server/auth/accountSession.js'
  * @import { Configuration } from 'openid-client'
+ * @import { FormSubmissionState } from '@defra/forms-engine-plugin/types'
  */
